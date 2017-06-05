@@ -79,6 +79,7 @@
     spseudos: /^\:(root|empty|(?:first|last|only)(?:-child|-of-type)|nth(?:-last)?(?:-child|-of-type)\(\s*(even|odd|(?:[-+]{0,1}\d*n\s*)?[-+]{0,1}\s*\d*)\s*\))?(.*)/i,
     dpseudos: /^\:(link|visited|target|active|focus|hover|checked|disabled|enabled|selected|lang\(([-\w]{2,})\)|(?:matches|not)\(\s*(:nth(?:-last)?(?:-child|-of-type)\(\s*(?:even|odd|(?:[-+]{0,1}\d*n\s*)?[-+]{0,1}\s*\d*)\s*\)|[^()]*)\s*\))?(.*)/i,
     epseudos: /^((?:[:]{1,2}(?:after|before|first-letter|first-line))|(?:[:]{2,2}(?:selection|backdrop|placeholder)))?(.*)/i,
+    hpseudos: /^\:(default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write)?(.*)/i,
     children: RegExp('^' + whitespace + '*\\>' + whitespace + '*(.*)'),
     adjacent: RegExp('^' + whitespace + '*\\+' + whitespace + '*(.*)'),
     relative: RegExp('^' + whitespace + '*\\~' + whitespace + '*(.*)'),
@@ -708,6 +709,53 @@
           }
         }
 
+        else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
+          switch (match[1].match(/^[-\w]+/)[0]) {
+            case 'default':
+              source = 'if(typeof e.form!=="undefined"&&(e===s.first("[type=submit]",e.form))||' +
+                '((/^(radio|checkbox)$/i.test(e.type)||/^option$/i.test(e.nodeName))&&' +
+                '(e.defaultChecked||e.defaultSelected))){' + source + '}';
+              break;
+            case 'indeterminate':
+              source = 'if(typeof e.form!=="undefined"&&(/^progress$/i.test(e.type)&&!e.value)||' +
+                '(/^radio$/i.test(e.type)&&!s.first("[name="+e.name+"]:checked",e.form))||' +
+                '(/^checkbox$/i.test(e.type)&&e.indeterminate)){' + source + '}';
+              break;
+            case 'optional':
+              source = 'if(typeof e.form!=="undefined"&&e.required===false){' + source + '}';
+              break;
+            case 'required':
+              source = 'if(typeof e.form!=="undefined"&&e.required===true){' + source + '}';
+              break;
+            case 'read-write':
+              source = 'if(typeof e.form!=="undefined"&&e.readOnly===false){' + source + '}';
+              break;
+            case 'read-only':
+              source = 'if(typeof e.form!=="undefined"&&e.readOnly===true){' + source + '}';
+              break;
+            case 'invalid':
+              source = 'if(((/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity()){' + source + '}';
+              break;
+            case 'valid':
+              source = 'if(((/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                '(e.willValidate&&!e.formNoValidate))&&e.checkValidity()){' + source + '}';
+              break;
+            case 'in-range':
+              source = 'if(typeof e.form!=="undefined"&&' +
+                '(s.getAttribute(e,"min")||s.getAttribute(e,"max"))&&' +
+                '!(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
+              break;
+            case 'out-of-range':
+              source = 'if(typeof e.form!=="undefined"&&' +
+                '(s.getAttribute(e,"min")||s.getAttribute(e,"max"))&&' +
+                '(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
+              break;
+            default:
+              break;
+          }
+        }
+
         else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
           source = 'if(!(/1|11/).test(e.nodeType)){' + source + '}';
         }
@@ -917,6 +965,7 @@
   Snapshot = {
     byId: _byId,
     match: match,
+    first: first,
     select: select,
     isLink: isLink,
     isEmpty: isEmpty,
