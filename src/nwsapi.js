@@ -510,36 +510,79 @@
         standardValidator : extendedValidator, 'g');
     },
 
-  ACCEPT_NODE = 'r[r.length]=c[k];if(f&&false===f(c[k]))break main;else continue main;',
-  REJECT_NODE = IE_LT_9 ? 'if(e.nodeName<"A")continue;' : '',
-  TO_UPPER_CASE = IE_LT_9 ? '.toUpperCase()' : '',
+  F_INIT = '"use strict";return function Resolver(c,f)',
+
+  S_HEAD = 'var r=[],e,n,o,j=-1,k=-1',
+  M_HEAD = 'var r=!1,e,n,o',
+
+  S_LOOP = 'c=c(true);main:while(e=c[++k])',
+  M_LOOP = 'e=c;',
+
+  S_BODY = 'r[++j]=c[k];',
+  M_BODY = '',
+
+  S_TAIL = 'continue main;',
+  M_TAIL = 'r=true;',
+
+  S_TEST = 'if(f(c[k])){break main;}',
+  M_TEST = 'f(c);',
+
+  S_VARS = [ ],
+  M_VARS = [ ],
 
   compile =
-    function(selector, source, mode) {
+    function(groups, mode, callback) {
 
-      var parts = typeof selector == 'string' ? selector.match(reSplitGroup) : selector;
+      var i, l, key, factory, selector, token, vars, res = '',
+      head = '', loop = '', macro = '', source = '', seen = { };
 
-      typeof source == 'string' || (source = '');
+      if (typeof groups == 'string') groups = [groups];
 
-      if (parts.length == 1) {
-        source += compileSelector(parts[0], mode ? ACCEPT_NODE : 'f&&f(k);return true;', mode);
-      } else {
-        var i = -1, seen = { }, token;
-        while ((token = parts[++i])) {
-          token = token.replace(reTrimSpaces, '');
-          if (!seen[token] && (seen[token] = true)) {
-            source += compileSelector(token, mode ? ACCEPT_NODE : 'f&&f(k);return true;', mode);
-          }
+      selector = groups.join(', ');
+      key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
+
+      switch (mode) {
+        case true:
+          if (selectLambdas[key]) { return selectLambdas[key]; }
+          macro = S_BODY + (callback ? S_TEST : '') + S_TAIL;
+          head = S_HEAD;
+          loop = S_LOOP;
+          break;
+        case false:
+          if (matchLambdas[key]) { return matchLambdas[key]; }
+          macro = M_BODY + (callback ? M_TEST : '') + M_TAIL;
+          head = M_HEAD;
+          loop = M_LOOP;
+          break;
+        default:
+          break;
+      }
+
+      for (i = 0, l = groups.length; l > i; ++i) {
+        token = groups[i];
+        if (!seen[token] && (seen[token] = true)) {
+          source += compileSelector(token, macro, mode, callback, false);
         }
       }
 
-      if (mode) {
-        return Function('c,s,d,h,g,f',
-          'var N,n,x=0,k=-1,e,r=[];main:while((e=c[++k])){' + source + '}return r;');
-      } else {
-        return Function('e,s,d,h,g,f',
-          'var N,n,x=0,k=e;' + source + 'return false;');
+      vars = S_VARS.join(',') || M_VARS.join(',');
+      loop += mode ? '{' + source + '}' : source;
+
+      if (mode && selector.indexOf(':nth') > -1) {
+        loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : '';
+        loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : '';
       }
+
+      if (vars.length > 0) {
+        S_VARS.length = 0;
+        M_VARS.length = 0;
+        vars = ',' + vars;
+      }
+      vars += ';';
+
+      factory = Function('s', F_INIT + '{' + head + vars + loop + 'return r; }')(Snapshot);
+
+      return mode ? (selectLambdas[key] = factory) : (matchLambdas[key] = factory);
     },
 
   compileSelector =
@@ -830,217 +873,305 @@
       return source;
     },
 
+  optimize =
+    function(expression, token) {
+      var index = token.index,
+      length = token[1].length + token[2].length;
+      return expression.slice(0, index) +
+        (' >+~'.indexOf(expression.charAt(index - 1)) > -1 ?
+          (':['.indexOf(expression.charAt(index + length + 1)) > -1 ?
+          '*' : '') : '') + expression.slice(index + length);
+    },
+
+  parseGroup =
+    function(selector) {
+      var i, l,
+      groups = selector.
+        replace(/,\s*,/g, ',').
+        replace(/\\,/g, '\ufffd').
+        split(REX.SplitGroup);
+      for (i = 0, l = groups.length; l > i; ++i) {
+        groups[i] = groups[i].replace(/\ufffd/g, '\\,');
+      }
+      return groups;
+    },
+
+  // equivalent of w3c 'closest' method
+  ancestor =
+    function _closest(selector, element, callback) {
+      while (element) {
+        if (match(selector, element)) break;
+        element = element.parentElement;
+      }
+      return element;
+    },
+
+  // equivalent of w3c 'matches' method
   match =
-    function(element, selector, from, callback) {
+    function _matches(selector, element, callback) {
 
-      var parts;
+      var expression, groups;
 
-      if (!(element && element.nodeType == 1)) {
-        emit('Invalid element argument');
-        return false;
-      } else if (typeof selector != 'string') {
-        emit('Invalid selector argument');
-        return false;
-      } else if (lastContext !== from) {
-        switchContext(from || (from = element.ownerDocument));
+      lastMatched = selector;
+
+      if (element && matchResolvers[selector]) {
+        return !!matchResolvers[selector](element, callback);
       }
 
-      selector = selector.
-        replace(reTrimSpaces, '').
-        replace(/\x00|\\$/g, '\ufffd');
+      // arguments validation
+      if (arguments.length === 0) {
+        emit('not enough arguments', TypeError);
+        return Config.VERBOSITY ? undefined : false;
+      } else if (arguments[1] === '') {
+        emit('\'\' is not a valid selector');
+        return Config.VERBOSITY ? undefined : false;
+      }
 
-      Config.SHORTCUTS && (selector = Dom.shortcuts(selector, element, from));
+      // selector NULL or UNDEFINED
+      if (typeof selector != 'string') {
+        selector = '' + selector;
+      }
 
-      if (lastMatcher != selector) {
-        if ((parts = selector.match(reValidator)) && parts[0] == selector) {
-          isSingleMatch = (parts = selector.match(reSplitGroup)).length < 2;
-          lastMatcher = selector;
-          lastPartsMatch = parts;
-        } else {
-          emit('The string "' + selector + '", is not a valid CSS selector');
+      // normalize selector
+      expression = selector.
+        replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.TrimSpaces, '').
+        replace(/\x20+/g, ' ');
+
+      // parse and validate expression and split possible selector groups
+      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
+        groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
+        if (groups.indexOf('') > -1) {
+          emit('invalid or illegal string specified');
+          return Config.VERBOSITY ? undefined : false;
+        }
+      } else {
+        emit('\'' + selector + '\' is not a valid selector');
+        return Config.VERBOSITY ? undefined : false;
+      }
+
+      if (!matchResolvers[selector]) {
+        matchResolvers[selector] = compile(groups, false, callback);
+      }
+
+      return !!matchResolvers[selector](element, callback);
+    },
+
+  // equivalent of w3c 'querySelector' method
+  first =
+    function _querySelector(selector, context, callback) {
+      if (arguments.length === 0) {
+        emit('not enough arguments', TypeError);
+      }
+      return select(selector, context,
+        typeof callback == 'function' ?
+        function firstMatch(element) {
+          callback(element);
+          return false;
+        } :
+        function firstMatch() {
           return false;
         }
-      } else parts = lastPartsMatch;
-
-      if (!matchResolvers[selector] || matchContexts[selector] !== from) {
-        matchResolvers[selector] = compile(isSingleMatch ? [selector] : parts, '', false);
-        matchContexts[selector] = from;
-      }
-
-      return matchResolvers[selector](element, Snapshot, doc, root, from, callback);
+      )[0] || null;
     },
 
-  first =
-    function(selector, from) {
-      return select(selector, from, function() { return false; })[0] || null;
-    },
-
+  // equivalent of w3c 'querySelectorAll' method
   select =
-    function(selector, from, callback) {
+    function _querySelectorAll(selector, context, callback) {
 
-      var i, changed, element, elements, parts, token, original = selector;
+      var expression, groups, resolver, token;
 
+      lastSelected = selector;
+
+      context || (context = doc);
+
+      if (selector && !callback && (resolver = selectResolvers[selector])) {
+        if (resolver.context === context) {
+          return resolver.factory(resolver.builder, callback);
+        }
+      }
+
+      // arguments validation
       if (arguments.length === 0) {
-        emit('Not enough arguments');
-        return [ ];
-      } else if (typeof selector != 'string') {
-        return [ ];
-      } else if (from && !(/1|9|11/).test(from.nodeType)) {
-        emit('Invalid or illegal context element');
-        return [ ];
-      } else if (lastContext !== from) {
-        switchContext(from || (from = doc));
+        emit('not enough arguments', TypeError);
+        return Config.VERBOSITY ? undefined : none;
+      } else if (arguments[0] === '') {
+        emit('\'\' is not a valid selector');
+        return Config.VERBOSITY ? undefined : none;
+      } else if (lastSelectContext !== context) {
+        lastSelectContext = switchContext(context);
       }
 
-      if (Config.CACHING && (elements = Dom.loadResults(original, from, doc, root))) {
-        return callback ? concatCall([ ], elements, callback) : elements;
+      // selector NULL or UNDEFINED
+      if (typeof selector != 'string') {
+        selector = '' + selector;
       }
 
-      selector = selector.
-        replace(reTrimSpaces, '').
-        replace(/\x00|\\$/g, '\ufffd');
+      // normalize selector
+      expression = selector.
+        replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.TrimSpaces, '').
+        replace(/\x20+/g, ' ');
 
-      Config.SHORTCUTS && (selector = Dom.shortcuts(selector, from));
-
-      if ((changed = lastSelector != selector)) {
-        if ((parts = selector.match(reValidator)) && parts[0] == selector) {
-          isSingleSelect = (parts = selector.match(reSplitGroup)).length < 2;
-          lastSelector = selector;
-          lastPartsSelect = parts;
-        } else {
-          emit('The string "' + selector + '", is not a valid CSS selector');
-          return [ ];
+      // parse and validate expression and split possible selector groups
+      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
+        groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
+        if (groups.indexOf('') > -1) {
+          emit('invalid or illegal string specified');
+          return Config.VERBOSITY ? undefined : none;
         }
-      } else parts = lastPartsSelect;
+      } else {
+        emit('\'' + selector + '\' is not a valid selector');
+        return Config.VERBOSITY ? undefined : none;
+      }
 
-      if (from.nodeType == 11) {
+      resolver = collect(
+        groups.length < 2 ? expression : groups, context, callback,
+        HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
 
-        elements = byTagRaw('*', from);
+      if (!selectResolvers[selector] && !callback) {
+        selectResolvers[selector] = {
+          builder: resolver.builder,
+          factory: resolver.factory,
+          context: context
+        };
+      }
 
-      } else if (isSingleSelect) {
+      return resolver.factory(resolver.builder, callback);
+    },
 
-        if (changed) {
-          parts = selector.match(reSplitToken);
-          token = parts[parts.length - 1];
-          lastSlice = token.split(':not');
-          lastSlice = lastSlice[lastSlice.length - 1];
-          lastPosition = selector.length - token.length;
-        }
-
-        if (Config.UNIQUE_ID && (parts = lastSlice.match(Optimize.ID)) && (token = parts[1])) {
-          if ((element = _byId(token, from))) {
-            if (match(element, selector)) {
-              callback && callback(element);
-              elements = [element];
-            } else elements = [ ];
+  collect =
+    function(expression, context, callback, resolvers) {
+      var builder, factory, ident, symbol, token;
+      if (typeof expression == 'string') {
+        if ((token = expression.match(reOptimizer)) && (ident = token[2])) {
+          symbol = token[1] || '*';
+          ident = unescapeIdentifier(ident);
+          if (!(symbol == '#' && context.nodeType == 1)) {
+            if ('.#*'.indexOf(symbol) > -1) {
+              builder = resolvers[symbol](context, ident);
+              if (HTML_DOCUMENT && context.nodeType != 11) {
+                expression = optimize(expression, token);
+              }
+            }
           }
         }
-
-        else if (Config.UNIQUE_ID && (parts = selector.match(Optimize.ID)) && (token = parts[1])) {
-          if ((element = _byId(token, doc))) {
-            if ('#' + token == selector) {
-              callback && callback(element);
-              elements = [element];
-            } else if (/[>+~]/.test(selector)) {
-              from = element.parentNode;
-            } else {
-              from = element;
-            }
-          } else elements = [ ];
-        }
-
-        if (elements) {
-          Config.CACHING && Dom.saveResults(original, from, doc, elements);
-          return elements;
-        }
-
-        if (!XML_DOCUMENT && GEBTN && (parts = lastSlice.match(Optimize.TAG)) && (token = parts[1])) {
-          if ((elements = from.getElementsByTagName(token)).length === 0) { return [ ]; }
-          selector = selector.slice(0, lastPosition) + selector.slice(lastPosition).replace(token, '*');
-        }
-
-        else if (!XML_DOCUMENT && GEBCN && (parts = lastSlice.match(Optimize.CLASS)) && (token = parts[1])) {
-          if ((elements = from.getElementsByClassName(unescapeIdentifier(token))).length === 0) { return [ ]; }
-            selector = selector.slice(0, lastPosition) + selector.slice(lastPosition).replace('.' + token,
-              reOptimizeSelector.test(selector.charAt(selector.indexOf(token) - 1)) ? '' : '*');
-        }
-
       }
-
-      if (!elements) {
-        if (IE_LT_9) {
-          elements = /^(?:applet|object)$/i.test(from.nodeName) ? from.children : byTagRaw('*', from);
-        } else {
-          elements = from.getElementsByTagName('*');
-        }
-      }
-
-      if (!selectResolvers[selector] || selectContexts[selector] !== from) {
-        selectResolvers[selector] = compile(isSingleSelect ? [selector] : parts, REJECT_NODE, true);
-        selectContexts[selector] = from;
-      }
-
-      elements = selectResolvers[selector](elements, Snapshot, doc, root, from, callback);
-
-      Config.CACHING && Dom.saveResults(original, from, doc, elements);
-
-      return elements;
+      return {
+        builder: builder || resolvers['*'](context, '*'),
+        factory: factory || compile(expression, true, callback)
+      };
     },
 
-  FN = function(x) { return x; },
+  /*-------------------------------- STORAGE ---------------------------------*/
 
-  matchContexts = { },
+  // empty set
+  none = Array(),
+
+  // selector
+  lastMatched,
+  lastSelected,
+
+  // context
+  lastMatchContext,
+  lastSelectContext,
+
+  matchLambdas = { },
+  selectLambdas = { },
+
   matchResolvers = { },
-
-  selectContexts = { },
   selectResolvers = { },
 
   Snapshot = {
-    byId: _byId,
-    match: match,
+
+    doc: doc,
+    from: doc,
+    root: root,
+
+    byTag: byTag,
+
     first: first,
-    select: select,
-    isLink: isLink,
-    isEmpty: isEmpty,
-    contains: contains,
+    match: match,
+
     nthOfType: nthOfType,
-    nthElement: nthElement,
-    getAttribute: getAttribute,
-    hasAttribute: hasAttribute
+    nthElement: nthElement
+
   },
 
   Dom = {
 
-    ACCEPT_NODE: ACCEPT_NODE,
+    lastMatched: lastMatched,
+    lastSelected: lastSelected,
+
+    matchLambdas: matchLambdas,
+    selectLambdas: selectLambdas,
+
+    matchResolvers: matchResolvers,
+    selectResolvers: selectResolvers,
+
+    CFG: CFG,
+
+    M_BODY: M_BODY,
+    S_BODY: S_BODY,
+    M_TEST: M_TEST,
+    S_TEST: S_TEST,
 
     byId: byId,
+    byTag: byTag,
+    byClass: byClass,
+
     match: match,
     first: first,
     select: select,
-    compile: compile,
-    contains: contains,
-    configure: configure,
-    getAttribute: getAttribute,
-    hasAttribute: hasAttribute,
+    closest: ancestor,
 
-    setCache: FN,
-    shortcuts: FN,
-    loadResults: FN,
-    saveResults: FN,
+    compile: compile,
+    configure: configure,
 
     emit: emit,
     Config: Config,
     Snapshot: Snapshot,
 
+    Version: version,
+
     Operators: Operators,
     Selectors: Selectors,
 
-    Tokens: Tokens,
-    Version: version,
+    registerCombinator:
+      function(combinator, resolver) {
+        var i = 0, l = combinator.length, symbol;
+        for (; l > i; ++i) {
+          if (combinator.charAt(i) != '=') {
+            symbol = combinator.charAt(i);
+            break;
+          }
+        }
+        if (CFG.combinators.indexOf(symbol) < 0) {
+          CFG.combinators = CFG.combinators.replace('](', symbol + '](');
+          CFG.combinators = CFG.combinators.replace('])', symbol + '])');
+          Combinators[combinator] = resolver;
+          setIdentifierSyntax();
+        } else {
+          console.warn('Warning: the \'' + combinator + '\' combinator is already registered.');
+        }
+      },
 
     registerOperator:
-      function(symbol, resolver) {
-        Operators[symbol] || (Operators[symbol] = resolver);
+      function(operator, resolver) {
+        var i = 0, l = operator.length, symbol;
+        for (; l > i; ++i) {
+          if (operator.charAt(i) != '=') {
+            symbol = operator.charAt(i);
+            break;
+          }
+        }
+        if (CFG.operators.indexOf(symbol) < 0 && !Operators[operator]) {
+          CFG.operators = CFG.operators.replace(']=', symbol + ']=');
+          Operators[operator] = resolver;
+          setIdentifierSyntax();
+        } else {
+          console.warn('Warning: the \'' + operator + '\' operator is already registered.');
+        }
       },
 
     registerSelector:
@@ -1056,4 +1187,5 @@
   initialize(doc);
 
   return Dom;
+
 });
