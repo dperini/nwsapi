@@ -745,11 +745,7 @@
                 emit('Negation pseudo-class only accepts simple selectors "' + selector + '"');
                 return '';
               } else {
-//                if ('compatMode' in doc) {
-//                  source = 'if(!' + compile(expr, false, callback) + '(c,f)){' + source + '}';
-//                } else {
-                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source +'}';
-//                }
+                source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source +'}';
               }
               break;
             case 'checked':
@@ -1062,7 +1058,6 @@
         };
       }
 
-//console.log(resolver.factory.toString());
       return resolver.factory(resolver.builder, callback);
     },
 
