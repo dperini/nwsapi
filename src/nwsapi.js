@@ -17,6 +17,8 @@
 
 (function(global, factory) {
 
+  'use strict';
+
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory;
   } else if (typeof define === 'function' && define["amd"]) {
@@ -31,93 +33,89 @@
   var version = 'nwsapi-2.0.0',
 
   doc = global.document,
+  nav = global.navigator,
   root = doc.documentElement,
 
-  isSingleMatch,
-  isSingleSelect,
+  COM = '>+~',
+  ESC = '\\\\',
+  HEX = '[0-9a-fA-F]',
+  SPC = ' \\t\\r\\n\\f',
+  WSP = '[' + SPC + ']',
 
-  lastSlice,
-  lastContext,
-  lastPosition,
+  CFG = {
+    operators: '[~*^$|]=|=',
+    combinators: '[' + SPC + COM + '](?=[^' + COM + '])'
+  },
 
-  lastMatcher,
-  lastSelector,
+  STR = {
+    alphalodash: '[_a-zA-Z]',
+    pseudoparms: '[-+]?\\d*',
+    skip_groups: '\\[.*\\]|\\(.*\\)|\\{.*\\}',
+    doublequote: '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
+    singlequote: "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
 
-  lastPartsMatch,
-  lastPartsSelect,
+    any_esc_chr: ESC + '.',
+    non_asc_chr: '[^\\x00-\\x9f]',
+    escaped_chr: ESC + '[^\\r\\n\\f0-9a-fA-F]',
+    unicode_chr: ESC + HEX + '{1,6}(?:\\r\\n|' + WSP + ')?'
+  },
 
-  prefixes = '(?:[#.:]|::)?',
-  operators = '([~*^$|!]?={1})',
-  whitespace = '[\\x20\\t\\n\\r\\f]',
-  combinators = '\\x20|[>+~](?=[^>+~])',
-  pseudoparms = '(?:[-+]?\\d*n)?[-+]?\\d*',
-  skip_groups = '\\[.*\\]|\\(.*\\)|\\{.*\\}',
+  REX = {
+    HasEscapes: RegExp(ESC),
+    HexNumbers: RegExp('^' + HEX),
+    SplitComma: RegExp('\\s*,\\s*'),
+    TokensSymb: RegExp('\\#|\\.|\\*'),
+    EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
+    RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
+    TrimSpaces: RegExp('[\\n\\r\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
+    FixEscapes: RegExp('\\\\(' + HEX + '{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
+    SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
+  },
 
-  any_esc_chr = '\\\\.',
-  alphalodash = '[_a-zA-Z]',
-  non_asc_chr = '[^\\x00-\\x9f]',
-  escaped_chr = '\\\\[^\\n\\r\\f0-9a-fA-F]',
-  unicode_chr = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|' + whitespace + ')?',
+  reOptimizer,
+  reSimpleNot,
+  reSimpleMul,
+  reSimpleUni,
+  reValidator,
 
-  quotedvalue = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"' + "|'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
-
-  reSplitGroup = /([^,\\()[\]]+|\[[^[\]]*\]|\[.*\]|\([^()]+\)|\(.*\)|\{[^{}]+\}|\{.*\}|\\.)+/g,
-
-  reTrimSpaces = RegExp('[\\n\\r\\f]|^' + whitespace + '+|' + whitespace + '+$', 'g'),
-
-  reEscapedChars = /\\([0-9a-fA-F]{1,6}[\x20\t\n\r\f]?|.)|([\x22\x27])/g,
-
-  standardValidator, extendedValidator, reValidator,
-
-  attrcheck, attributes, attrmatcher, pseudoclass,
-
-  reOptimizeSelector, reSimpleNot, reSplitToken,
-
-  Optimize, identifier, extensions = '.+',
+  struct_1 = '(?:root|empty|scope)|(?:(?:first|last|only)(?:-child|-of-type))',
+  struct_2 = '(?:nth(?:-last)?(?:-child|-of-type))',
+  pseudo_1 = 'any-link|link|visited|target|active|focus|hover',
+  pseudo_2 = 'checked|disabled|enabled|selected|local-link(?:\\(\\d*\\))?|lang\\(([-\\w]{2,})\\)',
+  pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write',
+  pseudo_4 = 'after|before|first-letter|first-line',
+  pseudo_5 = 'selection|backdrop|placeholder',
+  params_1 = '(?:\\(\\s*(even|odd|(?:[-+]{0,1}\\s*\\d*\\s*)*n?(?:[-+]{0,1}\\s*\\d*\\s*))\\s*\\))',
+  negation = '|(?:matches|not)\\(\\s*(:' + struct_2 + params_1 + '|[^()]*)\\s*\\)',
 
   Patterns = {
-    spseudos: /^\:(root|empty|(?:first|last|only)(?:-child|-of-type)|nth(?:-last)?(?:-child|-of-type)\(\s*(even|odd|(?:[-+]{0,1}\d*n\s*)?[-+]{0,1}\s*\d*)\s*\))?(.*)/i,
-    dpseudos: /^\:(link|visited|target|active|focus|hover|checked|disabled|enabled|selected|lang\(([-\w]{2,})\)|(?:matches|not)\(\s*(:nth(?:-last)?(?:-child|-of-type)\(\s*(?:even|odd|(?:[-+]{0,1}\d*n\s*)?[-+]{0,1}\s*\d*)\s*\)|[^()]*)\s*\))?(.*)/i,
-    epseudos: /^((?:[:]{1,2}(?:after|before|first-letter|first-line))|(?:[:]{2,2}(?:selection|backdrop|placeholder)))?(.*)/i,
-    hpseudos: /^\:(default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write)?(.*)/i,
-    children: RegExp('^' + whitespace + '*\\>' + whitespace + '*(.*)'),
-    adjacent: RegExp('^' + whitespace + '*\\+' + whitespace + '*(.*)'),
-    relative: RegExp('^' + whitespace + '*\\~' + whitespace + '*(.*)'),
-    ancestor: RegExp('^' + whitespace + '+(.*)'),
-    universal: RegExp('^\\*(.*)')
+    struct_n: RegExp('^:(' + struct_1 + ')?(.*)', 'i'),
+    struct_p: RegExp('^:(' + struct_2 + params_1 + ')?(.*)', 'i'),
+    spseudos: RegExp('^:(' + struct_1 + '|' + struct_2 + params_1 + ')?(.*)', 'i'),
+    dpseudos: RegExp('^:(' + pseudo_1 + '|' + pseudo_2 + negation + ')?(.*)', 'i'),
+    epseudos: RegExp('^:(:?(?:' + pseudo_4 + ')|:(?:' + pseudo_5 + '))?(.*)', 'i'),
+    hpseudos: RegExp('^:(' + pseudo_3 + ')?(.*)', 'i'),
+    children: RegExp('^' + WSP + '*\\>' + WSP + '*(.*)'),
+    adjacent: RegExp('^' + WSP + '*\\+' + WSP + '*(.*)'),
+    relative: RegExp('^' + WSP + '*\\~' + WSP + '*(.*)'),
+    ancestor: RegExp('^' + WSP + '+(.*)'),
+   universal: RegExp('^\\*(.*)'),
+   namespace: RegExp('^(\\w+|\\*)?\\|(.*)')
   },
 
-  Tokens = {
-    prefixes: prefixes,
-    identifier: identifier,
-    attributes: attributes
-  },
+  reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
+  reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
   QUIRKS_MODE,
-  XML_DOCUMENT,
+  HTML_DOCUMENT,
 
-  GEBTN = 'getElementsByTagName' in doc,
-  GEBCN = 'getElementsByClassName' in doc,
+  ATTR_ID = 'e.id',
 
-  IE_LT_9 = typeof doc.addEventListener != 'function',
-
-  LINK_NODES = { a: 1, A: 1, area: 1, AREA: 1, link: 1, LINK: 1 },
-
-  ATTR_BOOLEAN = {
-    checked: 1, disabled: 1, ismap: 1,
-    multiple: 1, readonly: 1, selected: 1
+  ATTR_STD_OPS = {
+    '=': 1, '^=': 1, '$=': 1, '|=': 1, '*=': 1, '~=': 1
   },
 
-  ATTR_DEFAULT = {
-    value: 'defaultValue',
-    checked: 'defaultChecked',
-    selected: 'defaultSelected'
-  },
-
-  ATTR_URIDATA = {
-    action: 2, cite: 2, codebase: 2, data: 2, href: 2,
-    longdesc: 2, lowsrc: 2, src: 2, usemap: 2
-  },
+  FIX_ID = '(typeof(e.id)=="string"?e.id:e.getAttribute("id"))',
 
   HTML_TABLE = {
     'accept': 1, 'accept-charset': 1, 'align': 1, 'alink': 1, 'axis': 1,
@@ -130,13 +128,7 @@
     'text': 1, 'type': 1, 'valign': 1, 'valuetype': 1, 'vlink': 1
   },
 
-  XHTML_TABLE = {
-    'accept': 1, 'accept-charset': 1, 'alink': 1, 'axis': 1,
-    'bgcolor': 1, 'charset': 1, 'codetype': 1, 'color': 1,
-    'enctype': 1, 'face': 1, 'hreflang': 1, 'http-equiv': 1,
-    'lang': 1, 'language': 1, 'link': 1, 'media': 1, 'rel': 1,
-    'rev': 1, 'target': 1, 'text': 1, 'type': 1, 'vlink': 1
-  },
+  Combinators = { },
 
   Selectors = { },
 
