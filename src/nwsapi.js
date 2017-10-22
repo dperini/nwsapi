@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.0.0
  * Created: 20070722
- * Release: 20170605
+ * Release: 20171022
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -284,6 +284,11 @@
     'while (e) { w(e); e = e.nextElementSibling; }' +
     'return r; };',
 
+  // coditional tests to accept returned elements in the
+  // cross document methods: byId, byTag, byCls, byTagCls
+  idTest = 't==' + FIX_ID,
+  tagMatch = 't.test(e.nodeName)', tagTest = 'a||(e.nodeName==t)',
+
   byId =
     function(id, context) {
       var element, elements, resolver;
@@ -344,6 +349,13 @@
       return count;
     },
 
+  isHTML =
+    function(node) {
+      var doc = node.ownerDocument || node, root = doc.documentElement;
+      return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
+        doc.createElement('DiV').nodeName != 'DiV' && !(doc instanceof XMLDocument);
+    },
+
   configure =
     function(option) {
       if (typeof option == 'string') { return !!Config[option]; }
@@ -351,15 +363,11 @@
       for (var i in option) {
         Config[i] = !!option[i];
         if (i == 'SIMPLENOT') {
-          matchContexts = { };
           matchResolvers = { };
-          selectContexts = { };
           selectResolvers = { };
         }
       }
       setIdentifierSyntax();
-      reValidator = RegExp(Config.SIMPLENOT ?
-        standardValidator : extendedValidator);
       return true;
     },
 
@@ -372,94 +380,134 @@
     },
 
   Config = {
-    CACHING: false,
+
     ESCAPECHR: true,
     NON_ASCII: true,
     SELECTOR3: true,
     UNICODE16: true,
-    SHORTCUTS: false,
+
+    BUGFIX_ID: true,
+    DUPLICATE: true,
+
     SIMPLENOT: true,
-    UNIQUE_ID: true,
     USE_HTML5: true,
-    VERBOSITY: true,
-    LOGERRORS: true
+    COMPATNTH: true,
+
+    LOGERRORS: true,
+    VERBOSITY: true
   },
 
   initialize =
     function(doc) {
       setIdentifierSyntax();
+      lastMatchContext = doc;
+      lastSelectContext = doc;
       switchContext(doc, true);
     },
 
   setIdentifierSyntax =
     function() {
 
-      var syntax = '', start = Config['SELECTOR3'] ? '-{2}|' : '';
+      var identifer,
+      extendedValidator,
+      standardValidator,
+      attrparser, attrvalues,
+      attributes, attrmatcher,
+      pseudoclass, pseudoparms,
+      syntax = '', start = Config['SELECTOR3'] ? '-{2}|' : '';
 
-      Config['NON_ASCII'] && (syntax += '|' + non_asc_chr);
-      Config['UNICODE16'] && (syntax += '|' + unicode_chr);
-      Config['ESCAPECHR'] && (syntax += '|' + escaped_chr);
+      Config['NON_ASCII'] && (syntax += '|' + STR.non_asc_chr);
+      Config['UNICODE16'] && (syntax += '|' + STR.unicode_chr);
+      Config['ESCAPECHR'] && (syntax += '|' + STR.escaped_chr);
 
-      syntax += (Config['UNICODE16'] || Config['ESCAPECHR']) ? '' : '|' + any_esc_chr;
+      syntax += (
+        Config['UNICODE16'] ||
+        Config['ESCAPECHR']) ? '' : '|' + STR.any_esc_chr;
 
-      identifier = '-?(?:' + start + alphalodash + syntax + ')(?:-|[0-9]|' + alphalodash + syntax + ')*';
+      identifier = '\\-?' +
+        '(?:' + start + STR.alphalodash + syntax + ')' +
+        '(?:-|[0-9]|' + STR.alphalodash + syntax + ')*';
 
-      attrcheck = '(' + quotedvalue + '|' + identifier + ')';
-      attributes = whitespace + '*(' + identifier + '(?::' + identifier + ')?)' +
-        whitespace + '*(?:' + operators + whitespace + '*' + attrcheck + ')?' + whitespace + '*' + '(i)?' + whitespace + '*';
-      attrmatcher = attributes.replace(attrcheck, '([\\x22\\x27]*)((?:\\\\?.)*?)\\3');
+      attrparser = identifier +
+        '|' + STR.doublequote +
+        '|' + STR.singlequote;
 
-      pseudoclass = '((?:' +
-        pseudoparms + '|' + quotedvalue + '|' +
-        prefixes + identifier + '|' +
-        '\\[' + attributes + '\\]|' +
-        '\\(.+\\)|' + whitespace + '*|' +
-        ',)+)';
+      attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)\\3';
+
+      attributes =
+        '\\[' +
+          // attribute presence
+          '(?:\\*\\|)?' +
+          WSP + '*' +
+          '(' + identifier + '(?::' + identifier + ')?)' +
+          WSP + '*' +
+          '(?:' +
+            '(' + CFG.operators + ')' + WSP + '*' +
+            '(?:' + attrparser + ')' +
+          ')?' +
+          // attribute case sensitivity
+          WSP + '*' + '(i)?' + WSP + '*' +
+        '\\]';
+
+      attrmatcher = attributes.replace(attrparser, attrvalues);
+
+      pseudoparms =
+          '(?:'  + STR.pseudoparms + ')' +
+          '(?:n' + STR.pseudoparms + ')' ;
+
+      pseudoclass =
+        '(?:\\(' +
+          '(?:' + pseudoparms + '?)?|' +
+          // universal * &
+          // namespace *|*
+          '(?:\\*|\\|)|' +
+          '(?:' +
+            '(?::' + identifier +
+            '(?:\\(' + pseudoparms + '?\\))?|' +
+          ')|' +
+          '(?:[.#]?' + identifier + ')|' +
+          '(?:' + attributes + ')' +
+        ')+\\))*';
 
       standardValidator =
         '(?=[\\x20\\t\\n\\r\\f]*[^>+~(){}<>])' +
-        '(' +
-        '\\*' +
-        '|(?:' + prefixes + identifier + ')' +
-        '|' + combinators +
-        '|\\[' + attributes + '\\]' +
-        '|\\(' + pseudoclass + '\\)' +
-        '|\\{' + extensions + '\\}' +
-        '|(?:,|' + whitespace + '*)' +
+        '(?:' +
+          // universal * &
+          // namespace *|*
+          '(?:\\*|\\|)|' +
+          '(?:[.#]?' + identifier + ')+|' +
+          '(?:' + attributes + ')+|' +
+          '(?:::?' + identifier + pseudoclass + ')|' +
+          '(?:' + WSP + '*' + CFG.combinators + WSP + '*)|' +
+          '(?:' + WSP + '*,' + WSP + '*)' +
         ')+';
 
-      reSimpleNot = RegExp('^(' +
-        '(?!:not)' +
-        '(' + prefixes + identifier +
-        '|\\([^()]*\\))+' +
-        '|\\[' + attributes + '\\]' +
+      reSimpleNot = RegExp(
+        '^(' +
+          // universal negation :not(*) &
+          // namespace negation :not(*|*)
+          '(?:\\*|\\*\\|\\*)|' +
+          '(?!:not)' +
+          '(?:[.:#]?' +
+          '(?:' + identifier + ')+|' +
+          '(?:\\([^()]*\\))' + ')+|' +
+          '(?:' + attributes + ')+|' +
         ')$');
 
-      reSplitToken = RegExp('(' +
-        prefixes + identifier + '|' +
-        '\\[' + attributes + '\\]|' +
-        '\\(' + pseudoclass + '\\)|' +
-        '\\\\.|[^\\x20\\t\\n\\r\\f>+~])+', 'g');
+      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?:(?:\\[.*\\])|:[-\\w]+(?:\\(.*\\))?)*)$');
 
-      reOptimizeSelector = RegExp(identifier + '|^$');
-
-      Optimize = {
-        ID: RegExp('^\\*?#(' + identifier + ')|' + skip_groups),
-        TAG: RegExp('^(' + identifier + ')|' + skip_groups),
-        CLASS: RegExp('^\\.(' + identifier + '$)|' + skip_groups)
-      };
+      reSimpleUni = RegExp('^([.#]?)(-?(?:-{2}|[_a-zA-Z]|[^\x00-\x9f])(?:-|[0-9]|[_a-zA-Z]|[^\x00-\x9f])*)$');
+      reSimpleMul = RegExp('^(\\.?)(-?(?:-{2}|[_a-zA-Z]|[^\x00-\x9f])(?:-|[0-9]|[_a-zA-Z]|[^\x00-\x9f])*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
       Patterns.className = RegExp('^\\.(' + identifier + ')(.*)');
-      Patterns.attribute = RegExp('^\\[' + attrmatcher + '\\](.*)');
-
-      Tokens.identifier = identifier;
-      Tokens.attributes = attributes;
+      Patterns.attribute = RegExp('^(?:' + attrmatcher + ')(.*)');
 
       extendedValidator = standardValidator.replace(pseudoclass, '.*');
 
-      reValidator = RegExp(standardValidator);
+      reValidator = RegExp(Config.SIMPLENOT ?
+        standardValidator : extendedValidator, 'g');
     },
 
   ACCEPT_NODE = 'r[r.length]=c[k];if(f&&false===f(c[k]))break main;else continue main;',
