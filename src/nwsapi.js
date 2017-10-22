@@ -133,41 +133,57 @@
   Selectors = { },
 
   Operators = {
-     '=': "n=='%m'",
-    '^=': "n.indexOf('%m')==0",
-    '*=': "n.indexOf('%m')>-1",
-    '|=': "(n+'-').indexOf('%m-')==0",
-    '~=': "(' '+n+' ').indexOf(' %m ')>-1",
-    '$=': "n.substr(n.length-'%m'.length)=='%m'"
+     '=': { p1: '^',
+            p2: '$',
+            p3: 'true' },
+    '^=': { p1: '^',
+            p2: '',
+            p3: 'true' },
+    '$=': { p1: '',
+            p2: '$',
+            p3: 'true' },
+    '*=': { p1: '',
+            p2: '',
+            p3: 'true' },
+    '|=': { p1: '^',
+            p2: '(-|$)',
+            p3: 'true' },
+    '~=': { p1: '(^|\\s)',
+            p2: '(\\s|$)',
+            p3: 'true' }
   },
 
   concatCall =
-    function(data, elements, callback) {
-      var i = -1, element;
-      while ((element = elements[++i])) {
-        if (false === callback(data[data.length] = element)) { break; }
+    function(nodes, callback) {
+      var i = 0, l = nodes.length, list = Array(l);
+      while (l > i) {
+        if (false === callback(list[i] = nodes[i])) break;
+        ++i;
       }
-      return data;
+      return list;
+    },
+
+  toArray =
+    function(nodes) {
+      var l = nodes.length, list = Array(l);
+      while (l) { --l; list[l] = nodes[l]; }
+      return list;
     },
 
   switchContext =
-    function(from, force) {
+    function(context, force) {
       var oldDoc = doc;
-      lastContext = from;
-      doc = from.ownerDocument || from;
+      doc = context.ownerDocument || context;
       if (force || oldDoc !== doc) {
         root = doc.documentElement;
-        XML_DOCUMENT = doc.createElement('DiV').nodeName == 'DiV';
-        QUIRKS_MODE = !XML_DOCUMENT &&
-          typeof doc.compatMode == 'string' ?
-          doc.compatMode.indexOf('CSS') < 0 :
-          (function() {
-            var style = doc.createElement('div').style;
-            return style && (style.width = 1) && style.width == '1px';
-          })();
-
-        Config.CACHING && Dom.setCache(true, doc);
+        HTML_DOCUMENT = isHTML(doc);
+        QUIRKS_MODE = HTML_DOCUMENT &&
+          doc.compatMode.indexOf('CSS') < 0;
+        ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
+        Snapshot.doc = doc;
+        Snapshot.root = root;
       }
+      return (Snapshot.from = context);
     },
 
   codePointToUTF16 =
@@ -202,135 +218,112 @@
 
   convertEscapes =
     function(str) {
-      return str.replace(reEscapedChars,
+      return REX.HasEscapes.test(str) ?
+        str.replace(REX.FixEscapes,
           function(substring, p1, p2) {
             return p2 ? '\\' + p2 :
-              /^[0-9a-fA-F]/.test(p1) ? codePointToUTF16(parseInt(p1, 16)) :
-              /^[\\\x22\x27]/.test(p1) ? substring :
+              REX.HexNumbers.test(p1) ? codePointToUTF16(parseInt(p1, 16)) :
+              REX.EscOrQuote.test(p1) ? substring :
               p1;
           }
-        );
+        ) : str;
     },
 
   unescapeIdentifier =
     function(str) {
-      return str.replace(reEscapedChars,
+      return REX.HasEscapes.test(str) ?
+        str.replace(REX.FixEscapes,
           function(substring, p1, p2) {
             return p2 ? p2 :
-              /^[0-9a-fA-F]/.test(p1) ? stringFromCodePoint(parseInt(p1, 16)) :
-              /^[\\\x22\x27]/.test(p1) ? substring :
+              REX.HexNumbers.test(p1) ? stringFromCodePoint(parseInt(p1, 16)) :
+              REX.EscOrQuote.test(p1) ? substring :
               p1;
           }
-        );
+        ) : str;
     },
 
-  byIdRaw =
-    function(id, elements) {
-      var i = -1, element;
-      while ((element = elements[++i])) {
-        if (element.getAttribute('id') == id) {
-          break;
-        }
-      }
-      return element || null;
+  method = {
+    '#': 'getElementById',
+    '*': 'getElementsByTagName',
+    '.': 'getElementsByClassName'
     },
 
-  _byId = !IE_LT_9 ?
-    function(id, from) {
-      id = (/\\/).test(id) ? unescapeIdentifier(id) : id;
-      return from.getElementById && from.getElementById(id) ||
-        byIdRaw(id, from.getElementsByTagName('*'));
-    } :
-    function(id, from) {
-      var element = null;
-      id = (/\\/).test(id) ? unescapeIdentifier(id) : id;
-      if (XML_DOCUMENT || from.nodeType != 9) {
-        return byIdRaw(id, from.getElementsByTagName('*'));
-      }
-      if ((element = from.getElementById(id)) &&
-        element.name == id && from.getElementsByName) {
-        return byIdRaw(id, from.getElementsByName(id));
-      }
-      return element;
+  compat = {
+    '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
+    '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
+    '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
     },
+
+  domapi = {
+    '#': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementById(n); return z = z ? [ z ] : none; };},
+    '*': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByTagName(n); return f ? concatCall(z, f) : toArray(z); };},
+    '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
+    },
+
+  hasDuplicateId =
+    function(id, context) {
+      var i = 0, cloned, element, fragment;
+
+      cloned = context.firstElementChild.cloneNode(true);
+      fragment = doc.createDocumentFragment();
+      fragment.appendChild(cloned);
+
+      while ((element = fragment.getElementById(id))) {
+        element.parentNode.removeChild(element); ++i;
+        if (i > 1) { break; }
+      }
+
+      return i > 1;
+    },
+
+  // recursive DOM LTR traversal, configurable by replacing
+  // the conditional part (@) to accept returned elements
+  walk =
+    '"use strict"; var i = 0, r = []; return function w(e) {' +
+    'if (@) { r[i] = e; ++i; } e = e.firstElementChild;' +
+    'while (e) { w(e); e = e.nextElementSibling; }' +
+    'return r; };',
 
   byId =
-    function(id, from) {
-      from || (from = doc);
-      if (lastContext !== from) { switchContext(from); }
-      return _byId(id, from);
+    function(id, context) {
+      var element, elements, resolver;
+
+      id = unescapeIdentifier(id);
+      id = id.replace(/\x00|\\$/g, '\ufffd');
+
+      if (!(Config.DUPLICATE && hasDuplicateId(id, context))) {
+        if ('getElementById' in context) {
+          return (element = context.getElementById(id)) ? [ element ] : none;
+        }
+      }
+
+      context.nodeType != 1 && (context = context.firstElementChild);
+      resolver = Function('t', walk.replace('@', idTest))(id);
+      elements = resolver(context);
+
+      return Config.DUPLICATE ? elements : elements[0] || null;
     },
 
-  byTagRaw =
-    function(tag, from) {
-      var any = tag == '*', element = from, elements = [ ], next = element.firstChild;
-      any || (tag = tag.toUpperCase());
+  byTag =
+    function(tag, context) {
+      var i = 0, any = tag == '*', element = context,
+      elements = Array(), next = element.firstElementChild;
+      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
       while ((element = next)) {
-        if (element.tagName > '@' && (any || element.tagName.toUpperCase() == tag)) {
-          elements[elements.length] = element;
+        if (any || element.nodeName == tag) {
+          elements[i] = element; ++i;
         }
-        if ((next = element.firstChild || element.nextSibling)) continue;
-        while (!next && (element = element.parentNode) && element !== from) {
-          next = element.nextSibling;
+        if ((next = element.firstElementChild || element.nextElementSibling)) continue;
+        while (!next && (element = element.parentNode) && element !== context) {
+          next = element.nextElementSibling;
         }
       }
       return elements;
     },
 
-  contains = 'compareDocumentPosition' in root ?
-    function(container, element) {
-      return (container.compareDocumentPosition(element) & 16) == 16;
-    } : 'contains' in root ?
-    function(container, element) {
-      return container !== element && container.contains(element);
-    } :
-    function(container, element) {
-      while ((element = element.parentNode)) {
-        if (element === container) return true;
-      }
-      return false;
-    },
-
-  getAttribute = !IE_LT_9 ?
-    function(node, attribute) {
-      return node.getAttribute(attribute);
-    } :
-    function(node, attribute) {
-      attribute = attribute.toLowerCase();
-      if (typeof node[attribute] == 'object') {
-        return node.attributes[attribute] &&
-          node.attributes[attribute].value;
-      }
-      return (
-        attribute == 'type' ? node.getAttribute(attribute) :
-        ATTR_URIDATA[attribute] ? node.getAttribute(attribute, 2) :
-        ATTR_BOOLEAN[attribute] ? node.getAttribute(attribute) ? attribute : 'false' :
-          (node = node.getAttributeNode(attribute)) && node.value);
-    },
-
-  hasAttribute = !IE_LT_9 && root.hasAttribute ?
-    function(node, attribute) {
-      return node.hasAttribute(attribute);
-    } :
-    function(node, attribute) {
-      var obj = node.getAttributeNode(attribute = attribute.toLowerCase());
-      return ATTR_DEFAULT[attribute] && attribute != 'value' ?
-        node[ATTR_DEFAULT[attribute]] : obj && obj.specified;
-    },
-
-  isEmpty =
-    function(node) {
-      node = node.firstChild;
-      while (node) {
-        if (node.nodeType == 3 || node.nodeName > '@') return false;
-        node = node.nextSibling;
-      }
-      return true;
-    },
-
-  isLink =
-    function(element) {
-      return hasAttribute(element, 'href') && LINK_NODES[element.nodeName];
+  byClass =
+    function(cls, context) {
+      return byTag('*', context);
     },
 
   nthElement =
