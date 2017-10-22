@@ -229,7 +229,7 @@ test("child and adjacent", function() {
 	t( "No element deep selector", "div.foo > span > a", [] );
 	t( "No element not selector", ".container div:not(.excluded) div", [] );
 
-	// NWSAPI accepts syntax shortcuts like "> *" but querySelectorAll() does not, so we use correct syntax here
+	// NWMatcher accepts syntax shortcuts like "> *" but querySelectorAll() does not, so we use correct syntax here
 	isSet( NW.Dom.select("* > :first-child", document.getElementById("nothiddendiv")), q("nothiddendivchild"), "Verify child context positional selector" );
 	isSet( NW.Dom.select("* > :nth-child(1)", document.getElementById("nothiddendiv")), q("nothiddendivchild"), "Verify child context positional selector" );
 	isSet( NW.Dom.select("* > *:first-child", document.getElementById("nothiddendiv")), q("nothiddendivchild"), "Verify child context positional selector" );
@@ -365,11 +365,20 @@ test("pseudo (:) selectors", function() {
 	//t( "Not - recursive", "#form option:not(:not(:selected))[id^='option3']", [ "option3b", "option3c"] );
 
 	t( ":not() failing interior", "p:not(.foo)", ["firstp","ap","sndp","en","sap","first"] );
-	t( ":not() failing interior", "p:not(div.foo)", ["firstp","ap","sndp","en","sap","first"] );
-	t( ":not() failing interior", "p:not(p.foo)", ["firstp","ap","sndp","en","sap","first"] );
+
+// invalid compound selector inside :not() pseudo-class
+//	t( ":not() failing interior", "p:not(div.foo)", ["firstp","ap","sndp","en","sap","first"] );
+//	t( ":not() failing interior", "p:not(p.foo)", ["firstp","ap","sndp","en","sap","first"] );
+	t( ":not() failing interior", "p:not(div)", ["firstp","ap","sndp","en","sap","first"] );
+	t( ":not() failing interior", "p:not(.foo)", ["firstp","ap","sndp","en","sap","first"] );
+
 	t( ":not() failing interior", "p:not(#blargh)", ["firstp","ap","sndp","en","sap","first"] );
-	t( ":not() failing interior", "p:not(div#blargh)", ["firstp","ap","sndp","en","sap","first"] );
-	t( ":not() failing interior", "p:not(p#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+
+// invalid compound selector inside :not() pseudo-class
+//	t( ":not() failing interior", "p:not(div#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+//	t( ":not() failing interior", "p:not(p#blargh)", ["firstp","ap","sndp","en","sap","first"] );
+	t( ":not() failing interior", "p:not(div)", ["firstp","ap","sndp","en","sap","first"] );
+	t( ":not() failing interior", "p:not(#blargh)", ["firstp","ap","sndp","en","sap","first"] );
 
 	t( ":not Multiple", "p:not(a)", ["firstp","ap","sndp","en","sap","first"] );
 	//t( ":not Multiple", "p:not(a, b)", ["firstp","ap","sndp","en","sap","first"] );

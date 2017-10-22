@@ -93,14 +93,14 @@
         if (typeof args[args.length - 1] != 'string') {
           context = args.pop();
         }
-        return NW.Dom.select(args.join(', '), context, Element.extend);
+        return NW.Dom.select(args.join(', '), context);
       }
 
       Element.addMethods({
         match: function(element, selector) {
           return !Object.isString(selector) && Object.isFunction(selector.match) ?
             selector.match($(element)) :
-            NW.Dom.match(element, selector);
+            NW.Dom.match(selector, element);
         }
       });
 

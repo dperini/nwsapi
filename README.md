@@ -34,17 +34,21 @@ You can read more about NWSAPI [features and compliance](https://github.com/dper
 
 ### DOM Selection
 
-#### `first( selector, context )`
+#### `ancestor( selector, context, callback )`
 
-Returns a reference to the first element matching `selector`, starting at `context`.
+Returns a reference to the nearest ancestor element matching `selector`, starting at `context`. Returns `null` if no element is found. If `callback` is provided, it is invoked for the matched element.
 
-#### `match( element, selector, context )`
+#### `first( selector, context, callback )`
 
-Returns `true` if `element` matches `selector`, starting at `context`; returns `false` otherwise.
+Returns a reference to the first element matching `selector`, starting at `context`. Returns `null` if no element matches. If `callback` is provided, it is invoked for the matched element.
+
+#### `match( selector, element, callback )`
+
+Returns `true` if `element` matches `selector`, starting at `context`; returns `false` otherwise. If `callback` is provided, it is invoked for the matched element.
 
 #### `select( selector, context, callback )`
 
-Returns an array of all the elements matching `selector`, starting at `context`. If `callback` is provided, it is invoked for each matching element.
+Returns an array of all the elements matching `selector`, starting at `context`; returns empty `Array` otherwise. If `callback` is provided, it is invoked for each matching element.
 
 
 ### DOM Helpers

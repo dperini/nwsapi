@@ -131,7 +131,7 @@
   Combinators = { },
 
   Selectors = { },
-/*
+
   Operators = {
      '=': { p1: '^',
             p2: '$',
@@ -151,15 +151,6 @@
     '~=': { p1: '(^|\\s)',
             p2: '(\\s|$)',
             p3: 'true' }
-  },
-*/
-  Operators = {
-     '=': "n=='%m'",
-    '^=': "n.indexOf('%m')==0",
-    '*=': "n.indexOf('%m')>-1",
-    '|=': "(n+'-').indexOf('%m-')==0",
-    '~=': "(' '+n+' ').indexOf(' %m ')>-1",
-    '$=': "n.substr(n.length-'%m'.length)=='%m'"
   },
 
   concatCall =
@@ -365,6 +356,17 @@
         if (element.nodeName == type) ++count;
       }
       return count;
+    },
+
+  inherit =
+    function(element, tag, property) {
+      var name = element.nodeName;
+      while(element.parentElement) {
+        if (name == tag) { break; }
+        element = element.parentElement;
+        name = element.nodeName.toLowerCase();
+      }
+      return name == tag ? element : null;
     },
 
   isHTML =
@@ -579,7 +581,7 @@
       for (i = 0, l = groups.length; l > i; ++i) {
         token = groups[i];
         if (!seen[token] && (seen[token] = true)) {
-          source += compileSelector(token, macro, mode, callback, false);
+          source += compileSelector(token, macro, mode, callback);
         }
       }
 
@@ -604,292 +606,423 @@
     },
 
   compileSelector =
-    function(selector, source, mode, callback) {
+    function(expression, source, mode, callback) {
 
-      var a, b, n, k = 0, expr, match, result, status, test, type, vars;
+      var a, b, n,
+      compat, expr, match, result, status, symbol, test,
+      type, selector = expression, selector_string, vars;
+
+      // the original 'select' or 'match' selector string
+      // before normalization and optimization processing
+      selector_string = mode ? lastSelected : lastMatched;
 
       while (selector) {
 
-        k++;
+        selector = selector.replace(/^[\x20\t\n\r\f]+([>+~])/, '$1');
+        selector = selector.replace(/^\t+/, ' ');
 
-        if ((match = selector.match(Patterns.universal))) {
-          expr = '';
-        }
+        symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector.charAt(0);
 
-        else if ((match = selector.match(Patterns.id))) {
-          match[1] = (/\\/).test(match[1]) ? convertEscapes(match[1]) : match[1];
-          source = 'if(' + (!HTML_DOCUMENT ?
-            'e.getAttribute("id")' :
-            '(e.submit?e.getAttribute("id"):e.id)') +
-            '=="' + match[1] + '"' +
-            '){' + source + '}';
-        }
+        switch (symbol) {
 
-        else if ((match = selector.match(Patterns.tagName))) {
-          test = Config.SVG_LCASE ? '||e.nodeName=="' + match[1].toLowerCase() + '"' : '';
-          source = 'if(e.nodeName' + (!HTML_DOCUMENT ?
-            '=="' + match[1] + '"' : '.toUpperCase()' +
-            '=="' + match[1].toUpperCase() + '"' + test) +
-            '){' + source + '}';
-        }
-
-        else if ((match = selector.match(Patterns.className))) {
-          match[1] = (/\\/).test(match[1]) ? convertEscapes(match[1]) : match[1];
-          match[1] = QUIRKS_MODE ? match[1].toLowerCase() : match[1];
-          source = 'if((n=' + (!HTML_DOCUMENT ?
-            'e.getAttribute("class")' : 'e.className') +
-            ')&&n.length&&(" "+' + (QUIRKS_MODE ? 'n.toLowerCase()' : 'n') +
-            '.replace(/' + WSP + '+/g," ")+" ").indexOf(" ' + match[1] + ' ")>-1' +
-            '){' + source + '}';
-        }
-
-        else if ((match = selector.match(Patterns.attribute))) {
-          expr = match[1].split(':');
-          expr = expr.length == 2 ? expr[1] : expr[0] + '';
-          if (match[2] && !Operators[match[2]]) {
-            emit('Unsupported operator in attribute selectors "' + selector + '"');
-            return '';
-          }
-          test = 'false';
-          if (match[2] && match[4] && (test = Operators[match[2]])) {
-            match[4] = (/\\/).test(match[4]) ? convertEscapes(match[4]) : match[4];
-            type = match[5] == 'i' || HTML_TABLE[expr.toLowerCase()];
-            test = test.replace(/\%m/g, type ? match[4].toLowerCase() : match[4]);
-          } else if (match[2] == '!=' || match[2] == '=') {
-            test = 'n' + match[2] + '=""';
-          }
-          source = 'if(n=e.hasAttribute("' + match[1] + '")){' +
-            (match[2] ? 'n=e.getAttribute("' + match[1] + '")' : '') +
-            (type && match[2] ? '.toLowerCase();' : ';') +
-            'if(' + (match[2] ? test : 'n') + '){' + source + '}}';
-        }
-
-        else if ((match = selector.match(Patterns.adjacent))) {
-          source = 'var N' + k + '=e;while(e&&(e=e.previousSibling)){if(e.nodeName>"@"){' + source + 'break;}}e=N' + k + ';';
-        }
-
-        else if ((match = selector.match(Patterns.relative))) {
-          source = 'var N' + k + '=e;e=e.parentNode.firstChild;while(e&&e!==N' + k + '){if(e.nodeName>"@"){' + source + '}e=e.nextSibling;}e=N' + k + ';';
-        }
-
-        else if ((match = selector.match(Patterns.children))) {
-          source = 'var N' + k + '=e;while(e&&e!==s.root&&e!==s.from&&(e=e.parentNode)){' + source + 'break;}e=N' + k + ';';
-        }
-
-        else if ((match = selector.match(Patterns.ancestor))) {
-          source = 'var N' + k + '=e;while(e&&e!==s.root&&e!==s.from&&(e=e.parentNode)){' + source + '}e=N' + k + ';';
-        }
-
-        else if ((match = selector.match(Patterns.spseudos)) && match[1]) {
-          switch (match[1]) {
-            case 'root':
-              if (match[3]) {
-                source = 'if(e===s.root||s.root.contains(e)){' + source + '}';
-              } else {
-                source = 'if(e===s.root){' + source + '}';
-              }
-              break;
-            case 'empty':
-              source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' + source + '}';
-              break;
-            default:
-              if (match[1] && match[2]) {
-                if (match[2] == 'n') {
-                  source = 'if(e!==s.root){' + source + '}';
-                  break;
-                } else if (match[2] == 'even') {
-                  a = 2;
-                  b = 0;
-                } else if (match[2] == 'odd') {
-                  a = 2;
-                  b = 1;
-                } else {
-                  b = ((n = match[2].match(/(-?\d+)$/)) ? parseInt(n[1], 10) : 0);
-                  a = ((n = match[2].match(/(-?\d*)n/i)) ? parseInt(n[1], 10) : 0);
-                  if (n && n[1] == '-') a = -1;
-                }
-                test = a > 1 ?
-                  (/last/i.test(match[1])) ? '(n-(' + b + '))%' + a + '==0' :
-                  'n>=' + b + '&&(n-(' + b + '))%' + a + '==0' : a < -1 ?
-                  (/last/i.test(match[1])) ? '(n-(' + b + '))%' + a + '==0' :
-                  'n<=' + b + '&&(n-(' + b + '))%' + a + '==0' : a === 0 ?
-                  'n==' + b : a == -1 ? 'n<=' + b : 'n>=' + b;
-                source =
-                  'if(e!==s.root){' +
-                    'n=s[' + (/-of-type/i.test(match[1]) ? '"nthOfType"' : '"nthElement"') + ']' +
-                      '(e,' + (/last/i.test(match[1]) ? 'true' : 'false') + ');' +
-                    'if(' + test + '){' + source + '}' +
-                  '}';
-              } else {
-                a = /first/i.test(match[1]) ? 'previous' : 'next';
-                n = /only/i.test(match[1]) ? 'previous' : 'next';
-                b = /first|last/i.test(match[1]);
-                type = /-of-type/i.test(match[1]) ? '&&n.nodeName!=e.nodeName' : '&&n.nodeName<"@"';
-                source = 'if(e!==s.root){' +
-                  ( 'n=e;while((n=n.' + a + 'Sibling)' + type + ');if(!n){' + (b ? source :
-                    'n=e;while((n=n.' + n + 'Sibling)' + type + ');if(!n){' + source + '}') + '}' ) + '}';
-              }
-              break;
-          }
-        }
-
-        else if ((match = selector.match(Patterns.dpseudos)) && match[1]) {
-          switch (match[1].match(/^\w+/)[0]) {
-            case 'matches':
-              expr = match[3].replace(REX.TrimSpaces, '');
-              source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e,s.from)){' + source +'}';
-              break;
-            case 'not':
-              expr = match[3].replace(REX.TrimSpaces, '');
-              if (Config.SIMPLENOT && !reSimpleNot.test(expr)) {
-                emit('Negation pseudo-class only accepts simple selectors "' + selector + '"');
-                return '';
-              } else {
-                source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source +'}';
-              }
-              break;
-            case 'checked':
-              source = 'if((typeof e.form!=="undefined"&&(/^(?:radio|checkbox)$/i).test(e.type)&&e.checked)' +
-                (Config.USE_HTML5 ? '||(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' : '') +
-                '){' + source + '}';
-              break;
-            case 'disabled':
-              source = 'if(((typeof e.form!=="undefined"' +
-                (Config.USE_HTML5 ? '' : '&&!(/^hidden$/i).test(e.type)') +
-                ')||/a|area|link/i.test(e.nodeName))&&e.disabled===true){' + source + '}';
-              break;
-            case 'enabled':
-              source = 'if(((typeof e.form!=="undefined"' +
-                (Config.USE_HTML5 ? '' : '&&!(/^hidden$/i).test(e.type)') +
-                ')||/a|area|link/i.test(e.nodeName))&&e.disabled===false){' + source + '}';
-              break;
-            case 'lang':
-              test = '';
-              if (match[2]) test = match[2].substr(0, 2) + '-';
-              source = 'do{(n=e.lang||"").toLowerCase();' +
-                'if((n==""&&s.root.lang=="' + match[2].toLowerCase() + '")||' +
-                '(n&&(n=="' + match[2].toLowerCase() +
-                '"||n.substr(0,3)=="' + test.toLowerCase() + '")))' +
-                '{' + source + 'break;}}while((e=e.parentNode)&&e!==s.from);';
-              break;
-            case 'target':
-              source = 'if(e.id==s.doc.location.hash.slice(1)){' + source + '}';
-              break;
-            case 'link':
-              source = 'if((/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
-              break;
-            case 'visited':
-              source = 'if((/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
-              break;
-            case 'active':
-              source = 'if(e===s.doc.activeElement){' + source + '}';
-              break;
-            case 'hover':
-              source = 'if(e===s.doc.hoverElement){' + source + '}';
-              break;
-            case 'focus':
-              source = 'hasFocus' in doc ?
-                'if(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' :
-                'if(e===s.doc.activeElement&&(e.type||e.href)){' + source + '}';
-              break;
-            case 'selected':
-              source = 'if(/^option$/i.test(e.nodeName)&&(e.selected||e.checked)){' + source + '}';
-              break;
-            default:
-              break;
-          }
-        }
-
-        else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
-          switch (match[1].match(/^[-\w]+/)[0]) {
-            case 'default':
-              source = 'if(typeof e.form!=="undefined"&&(e===s.first("[type=submit]",e.form))||' +
-                '((/^(radio|checkbox)$/i.test(e.type)||/^option$/i.test(e.nodeName))&&' +
-                '(e.defaultChecked||e.defaultSelected))){' + source + '}';
-              break;
-            case 'indeterminate':
-              source = 'if(typeof e.form!=="undefined"&&(/^progress$/i.test(e.type)&&!e.value)||' +
-                '(/^radio$/i.test(e.type)&&!s.first("[name="+e.name+"]:checked",e.form))||' +
-                '(/^checkbox$/i.test(e.type)&&e.indeterminate)){' + source + '}';
-              break;
-            case 'optional':
-              source = 'if(typeof e.form!=="undefined"&&e.required===false){' + source + '}';
-              break;
-            case 'required':
-              source = 'if(typeof e.form!=="undefined"&&e.required===true){' + source + '}';
-              break;
-            case 'read-write':
-              source = 'if(typeof e.form!=="undefined"&&e.readOnly===false){' + source + '}';
-              break;
-            case 'read-only':
-              source = 'if(typeof e.form!=="undefined"&&e.readOnly===true){' + source + '}';
-              break;
-            case 'invalid':
-              source = 'if(((/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
-                '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity()){' + source + '}';
-              break;
-            case 'valid':
-              source = 'if(((/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
-                '(e.willValidate&&!e.formNoValidate))&&e.checkValidity()){' + source + '}';
-              break;
-            case 'in-range':
-              source = 'if(typeof e.form!=="undefined"&&' +
-                '(e.getAttribute("min")||e.getAttribute("max"))&&' +
-                '!(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
-              break;
-            case 'out-of-range':
-              source = 'if(typeof e.form!=="undefined"&&' +
-                '(e.getAttribute("min")||e.getAttribute("max"))&&' +
-                '(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
-              break;
-            default:
-              break;
-          }
-        }
-
-        else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
-          source = 'if(!(/1|11/).test(e.nodeType)){' + source + '}';
-        }
-
-        else {
-
-          expr = false;
-          status = false;
-          for (expr in Selectors) {
-            if ((match = selector.match(Selectors[expr].Expression)) && match[1]) {
-              result = Selectors[expr].Callback(match, source, mode, callback);
-              if ('match' in result) { match = result.match; }
-              vars = result.modvar;
-              if (mode) {
-                 vars && S_VARS.indexOf(vars) < 0 && (S_VARS[S_VARS.length] = vars);
-              } else {
-                 vars && M_VARS.indexOf(vars) < 0 && (M_VARS[M_VARS.length] = vars);
-              }
-              source = result.source;
-              status = result.status;
-              if (status) { break; }
+          case '*':
+            match = selector.match(Patterns.universal);
+            source = 'if(true' +
+              '){' + source + '}';
+            break;
+          case '#':
+            match = selector.match(Patterns.id);
+            compat = HTML_DOCUMENT ? ATTR_ID : 'e.getAttribute("id")';
+            source = 'if(' + compat + '=="' + convertEscapes(match[1]) + '"' +
+              '){' + source + '}';
+            break;
+          case '.':
+            match = selector.match(Patterns.className);
+            compat = HTML_DOCUMENT ? 'e.className' : 'e.getAttribute("class")';
+            source = 'if(/(^|\\s)' + match[1] + '(\\s|$)/.test(' + compat + ')' +
+              '){' + source + '}';
+            break;
+          case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
+            match = selector.match(Patterns.tagName);
+            compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
+            source = 'if(e.nodeName=="' + convertEscapes(compat) + '"' +
+              '){' + source + '}';
+            break;
+          case '|':
+            match = selector.match(Patterns.namespace);
+            if (match[1] == '*') break; else if (match[1])
+            emit('\'' + selector_string + '\' is not a valid selector');
+            compat = doc.lookupNamespaceURI(match[1]);
+            source = 'if(' + (match[1] === undefined ? '!e.namespaceURI' :
+              match[1] === null ? 'e.namespaceURI=="' + compat + '"' : '') +
+              '){' + source + '}';
+            break;
+          case '[':
+            match = selector.match(Patterns.attribute);
+            expr = match[1].split(':');
+            expr = expr.length == 2 ? expr[1] : expr[0];
+            if (match[2] && !(test = Operators[match[2]])) {
+              emit('unsupported operator in attribute selector \'' + selector + '\'');
+              return '';
             }
-          }
+            if (match[4] === '') {
+              test = match[2] == '~=' ?
+                { p1: '^\\s', p2: '+$', p3: 'true' } :
+                  match[2] in ATTR_STD_OPS && match[2] != '~=' ?
+                { p1: '^',    p2: '$',  p3: 'true' } : test;
+            } else {
+              // whitespace separated list but value contains space
+              if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
+                source = 'if(false){' + source + '}';
+                break;
+              }
+            }
+            type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
+            source = 'if(' + (!match[2] ?
+              'e.hasAttribute("' + match[1] + '")' :
+              (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
+              'e.getAttribute("' + match[1] + '")==""' :
+              '(/' + test.p1 + convertEscapes(match[4]).
+              replace(REX.RegExpChar, '\\$&') + test.p2 + '/' + type +
+              ').test(e.getAttribute("' + match[1] + '"))===' + test.p3)) +
+              '){' + source + '}';
+            break;
 
-          if (!status) {
-            emit('Unknown pseudo-class selector "' + selector + '"');
-            return '';
-          }
+          // *** General sibling combinator
+          // E ~ F (F relative sibling of E)
+          case '~':
+            match = selector.match(Patterns.relative);
+            source = 'if(e.previousElementSibling){n=e;e=e.parentNode.firstElementChild;while(e&&e!==n){' + source + 'e=e.nextElementSibling;}e=n;}';
+            break;
+          // *** Adjacent sibling combinator
+          // E + F (F adiacent sibling of E)
+          case '+':
+            match = selector.match(Patterns.adjacent);
+            source = 'if(e.previousElementSibling){n=e;if(e=e.previousElementSibling){' + source + '}e=n;}';
+            break;
+          // *** Descendant combinator
+          // E F (E ancestor of F)
+          case ' ':
+            match = selector.match(Patterns.ancestor);
+            source = 'n=e;while(e=e.parentElement){' + source + '}e=n;';
+            break;
+          // *** Child combinator
+          // E > F (F children of E)
+          case '>':
+            match = selector.match(Patterns.children);
+            source = 'n=e;if(e=e.parentElement){' + source + '}e=n;';
+            break;
 
-          if (!expr) {
-            emit('Unknown token in selector "' + selector + '"');
-            return '';
-          }
+          case (symbol in Combinators ? symbol : undefined):
+            // for other registered combinators extensions
+            match[match.length - 1] = '*';
+            source = Combinators[symbol](match) + source;
+            break;
+
+          // *** Structural pseudo-classes
+          // :root, :scope, :empty,
+          // :first-child, :last-child, :only-child,
+          // :first-of-type, :last-of-type, :only-of-type,
+          // :nth-child(), :nth-last-child(), :nth-of-type(), :nth-last-of-type()
+          case ':':
+            if ((match = selector.match(Patterns.struct_n)) && match[1]) {
+              switch (match[1].match(/^[-\w]+/)[0]) {
+                case 'scope':
+                  match = [ selector_string.replace(':scope', '').replace(/^(\s*)|(\s*)$/, '') ];
+                  source = compileSelector(match[0].replace(/\x22/g, '\\"'), source, false, null, false);
+                  break;
+                case 'root':
+                  // there can only be one :root element, so exit the loop once found
+                  source = 'if(e===s.root){' + source + (mode ? 'break main;' : '') + '}';
+                  break;
+                case 'empty':
+                  source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' + source + '}';
+                  break;
+                case 'only-child':
+                  source = 'if(e.parentNode.firstElementChild===e.parentNode.lastElementChild){' + source + '}';
+                  break;
+                case 'last-child':
+                  source = 'if(e===e.parentNode.lastElementChild){' + source + '}';
+                  break;
+                case 'first-child':
+                  source = 'if(e===e.parentNode.firstElementChild){' + source + '}';
+                  break;
+                case 'only-of-type':
+                  source = 'o=e.nodeName;' +
+                    'n=e;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' +
+                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!=o);}if(!n){' + source + '}';
+                  break;
+                case 'last-of-type':
+                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' + source + '}';
+                  break;
+                case 'first-of-type':
+                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(!n){' + source + '}';
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            else if ((match = selector.match(Patterns.struct_p)) && match[1]) {
+              switch (match[1].match(/^[-\w]+/)[0]) {
+                case 'nth-child':
+                case 'nth-of-type':
+                case 'nth-last-child':
+                case 'nth-last-of-type':
+                  // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
+                  expr = /-of-type/i.test(match[1]);
+                  if (match[1] && match[2]) {
+                    type = /last/i.test(match[1]);
+                    if (match[2] == 'n') {
+                      source = 'if(true){' + source + '}';
+                      break;
+                    } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
+                      test = 'n%2==0';
+                    } else if (match[2] === 'odd' || match[2] == '2n1' || match[2] == '2n+1') {
+                      test = 'n%2==1';
+                    } else {
+                      f = /n/i.test(match[2]);
+                      n = match[2].split('n');
+                      a = parseInt(n[0], 10) || 0;
+                      b = parseInt(n[1], 10) || 0;
+                      if (n[0] == '-') { a = -1; }
+                      if (n[0] == '+') { a = +1; }
+                      test = (b ? '(n' + (b > 0 ? '-' : '+') + Math.abs(b) + ')' : 'n') + '%' + a + '==0' ;
+                      test =
+                        a >= +1 ? (f ? 'n>' + (b - 1) + (Math.abs(a) != 1 ? '&&' + test : '') : 'n==' + a) :
+                        a <= -1 ? (f ? 'n<' + (b + 1) + (Math.abs(a) != 1 ? '&&' + test : '') : 'n==' + a) :
+                        a === 0 ? (n[0] ? 'n==' + b : 'n>' + (b - 1)) : 'false';
+                    }
+                    expr = expr ? 'OfType' : 'Element';
+                    type = type ? 'true' : 'false';
+                    source = 'n=s.nth' + expr + '(e,' + type + ');if(' + test + '){' + source + '}';
+                  }
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            else if ((match = selector.match(Patterns.dpseudos)) && match[1]) {
+              switch (match[1].match(/^[-\w]+/)[0]) {
+                case 'matches':
+                  expr = match[3].replace(REX.TrimSpaces, '');
+                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  break;
+                case 'not':
+                  if (Config.SIMPLENOT && !reSimpleNot.test(match[3])) {
+                    emit('\'' + selector + '\' is not a valid selector');
+                    return '';
+                  }
+                  expr = match[3].replace(REX.TrimSpaces, '');
+                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  break;
+                case 'checked':
+                  source = 'if((/^input$/i.test(e.nodeName)&&' +
+                    '(/^(?:radio|checkbox)$/i).test(e.type)&&e.checked)||' +
+                    '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
+                    '){' + source + '}';
+                  break;
+                case 'disabled':
+                  // https://www.w3.org/TR/html5/forms.html#enabling-and-disabling-form-controls:-the-disabled-attribute
+                  source =
+                    'if(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
+                      '"disabled" in e &&(e.disabled===true||' +
+                      '(n=s.inherit(e,"fieldset"))&&(n=s.first("legend",n))&&!n.contains(e))' +
+                    '){' + source + '}';
+                  break;
+                case 'enabled':
+                  source =
+                    'if(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
+                      '"disabled" in e &&e.disabled===false' +
+                    '){' + source + '}';
+                  break;
+                case 'lang':
+                  test = '';
+                  match[2] = match[2].toLowerCase();
+                  if (match[2]) test = match[2].substr(0, 2) + '-';
+                  source = 'do{if((s.doc.compareDocumentPosition(e)&16)&&' +
+                    '(e.lang||"")==""&&s.root.lang==="' + match[2] + '"||' +
+                    '(e.lang&&(e.lang.toLowerCase()=="' + match[2] + '"||' +
+                    '(e.lang.substr(0,3)=="' + test + '")))' +
+                    '){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
+                  break;
+                case 'target':
+                  source = 'if((s.doc.compareDocumentPosition(e)&16)&&location.hash&&e.id==location.hash.slice(1)){' + source + '}';
+                  break;
+                case 'link':
+                  source = 'if(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")){' + source + '}';
+                  break;
+                case 'visited':
+                  source = 'if(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited){' + source + '}';
+                  break;
+                case 'active':
+                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(e===s.doc.activeElement){' + source + '}' : source;
+                  break;
+                case 'hover':
+                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(e===s.doc.hoverElement){' + source + '}' : source;
+                  break;
+                case 'focus':
+                  source = 'hasFocus' in doc ?
+                    'if(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' :
+                    'if(e===s.doc.activeElement&&(e.type||e.href)){' + source + '}';
+                  break;
+                case 'selected':
+                  source = 'if(/^option$/i.test(e.nodeName)&&(e.selected||e.checked)){' + source + '}';
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
+              switch (match[1].match(/^[-\w]+/)[0]) {
+                case 'default':
+                  source =
+                    'if("form" in e && e.form){' +
+                      'var x=0;n=[];' +
+                      'if(e.type=="image")n=e.form.getElementsByTagName("input");' +
+                      'if(e.type=="submit")n=e.form.elements;' +
+                      'while(n[x]&&e!==n[x]){' +
+                        'if(n[x].type=="image")break;' +
+                        'if(n[x].type=="submit")break;' +
+                        'x++;' +
+                      '}' +
+                    '}' +
+                    'if(e.form&&(e===n[x]&&/^image|submit$/i.test(e.type))||' +
+                      '((/^option$/i.test(e.nodeName))&&e.defaultSelected)||' +
+                      '((/^(radio|checkbox)$/i.test(e.type))&&e.defaultChecked)' +
+                    '){' + source + '}';
+                  break;
+                case 'indeterminate':
+                  source =
+                    'if(' +
+                      '(typeof e.form!=="undefined"&&(/^progress$/i.test(e.type)&&!e.value)||' +
+                      '(/^radio$/i.test(e.type)&&!s.first("[name="+e.name+"]:checked",e.form))||' +
+                      '(/^checkbox$/i.test(e.type)&&e.indeterminate))' +
+                    '){' + source + '}';
+                  break;
+                case 'optional':
+                  source =
+                    'if(' +
+                      '(/^input|select|textarea$/i.test(e.nodeName)&&!e.required)' +
+                    '){' + source + '}';
+                  break;
+                case 'required':
+                  source =
+                    'if(' +
+                      '(/^input|select|textarea$/i.test(e.nodeName)&&e.required)' +
+                    '){' + source + '}';
+                  break;
+                case 'read-write':
+                  source =
+                    'if(' +
+                      '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
+                      '(/^password|text$/i.test(e.type)&&!e.readOnly&&!e.disabled))||' +
+                      '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
+                    '){' + source + '}';
+                  break;
+                case 'read-only':
+                  source =
+                    'if(' +
+                      '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
+                      '(/^password|text$/i.test(e.type)&&e.readOnly)' +
+                    '){' + source + '}';
+                  break;
+                case 'invalid':
+                  source =
+                    'if(((' +
+                      '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                      '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
+                      '(/^fieldset$/i.test(e.nodeName)&&s.first(":invalid",e))' +
+                    '){' + source + '}';
+                  break;
+                case 'valid':
+                  source =
+                    'if(((' +
+                      '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                      '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
+                      '(/^fieldset$/i.test(e.nodeName)&&s.first(":valid",e))' +
+                    '){' + source + '}';
+                  break;
+                case 'in-range':
+                  source =
+                    'if(' +
+                      '(/^input$/i.test(e.nodeName))&&' +
+                      '(e.willValidate&&!e.formNoValidate)&&' +
+                      '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
+                      '(/^date|datetime-local|month|number|range|time|week$/i.test(e.type))&&' +
+                      '(/^range$/i.test(e.type)||e.getAttribute("min")||e.getAttribute("max"))' +
+                    '){' + source + '}';
+                  break;
+                case 'out-of-range':
+                  source =
+                    'if(' +
+                      '(/^input$/i.test(e.nodeName))&&' +
+                      '(e.willValidate&&!e.formNoValidate)&&' +
+                      '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
+                      '(/^date|datetime-local|month|number|range|time|week$/i.test(e.type))&&' +
+                      '(/^range$/i.test(e.type)||e.getAttribute("min")||e.getAttribute("max"))' +
+                    '){' + source + '}';
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
+              source = 'if(!(/1|11/).test(e.nodeType)){' + source + '}';
+            }
+
+            else {
+
+              expr = false;
+              status = false;
+
+              for (expr in Selectors) {
+                if ((match = selector.match(Selectors[expr].Expression)) && match[1]) {
+                  result = Selectors[expr].Callback(match, source, mode, callback);
+                  if ('match' in result) { match = result.match; }
+                  vars = result.modvar;
+                  if (mode) {
+                     vars && S_VARS.indexOf(vars) < 0 && (S_VARS[S_VARS.length] = vars);
+                  } else {
+                     vars && M_VARS.indexOf(vars) < 0 && (M_VARS[M_VARS.length] = vars);
+                  }
+                  source = result.source;
+                  status = result.status;
+                  if (status) { break; }
+                }
+              }
+
+              if (!status) {
+                emit('unknown pseudo-class selector \'' + selector + '\'');
+                return '';
+              }
+
+              if (!expr) {
+                emit('unknown token in selector \'' + selector + '\'');
+                return '';
+              }
+
+            }
+            break;
+
+        default:
+          emit('unknown pseudo-class selector \'' + selector + '\'');
+          break;
 
         }
+        // end of switch symbol
 
         if (!match) {
-          emit('Invalid syntax in selector "' + selector + '"');
+          emit('invalid syntax in selector \'' + selector + '\'');
           return '';
         }
 
-        selector = match && match[match.length - 1];
+        selector = match.pop();
       }
+      // end of while selector
 
       return source;
     },
@@ -1113,6 +1246,8 @@
 
     first: first,
     match: match,
+
+    inherit: inherit,
 
     nthOfType: nthOfType,
     nthElement: nthElement

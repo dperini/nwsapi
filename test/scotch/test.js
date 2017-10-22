@@ -40,7 +40,7 @@ function getById(element){
 //The tests...
 (function(runner){
   //NWSAPI methods; aliased for convenience
-  var select = NW.Dom.select, match = NW.Dom.match;
+  var select = NW.Dom.select, match = function(element, selector) { return NW.Dom.match(selector, element); };
   runner.addGroup("Basic Selectors").addTests(null, {
     "*": function(){
       //Universal selector
