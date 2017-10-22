@@ -21,36 +21,39 @@ NW.Dom.registerSelector(
   /^\:((?:(nth|eq|lt|gt)\(([^()]*)\))|(?:even|odd|first|last))(.*)/i,
   (function(global) {
 
-    return function(match, source, selector) {
+    return function(match, source, mode, callback) {
 
-      var status = true, ACCEPT_NODE = NW.Dom.ACCEPT_NODE;
+      var status = true,
+      macro = mode ? NW.Dom.S_BODY : NW.Dom.M_BODY;
+
+      macro = macro.replace('@', typeof callback == 'function' ? (mode ? NW.Dom.S_TEST : NW.Dom.M_TEST) : '');
 
       switch (match[1].toLowerCase()) {
         case 'odd':
-          source = source.replace(ACCEPT_NODE, 'if((x=x^1)==0){' + ACCEPT_NODE + '}');
+          source = source.replace(macro, 'if((n=n^1)==0){' + macro + '}');
           break;
         case 'even':
-          source = source.replace(ACCEPT_NODE, 'if((x=x^1)==1){' + ACCEPT_NODE + '}');
+          source = source.replace(macro, 'if((n=n^1)==1){' + macro + '}');
           break;
         case 'first':
-          source = 'n=h.getElementsByTagName(e.nodeName);if(n.length&&n[0]===e){' + source + '}';
+          source = 'n=s.root.getElementsByTagName(e.nodeName);if(n.length&&n[0]===e){' + source + '}';
           break;
         case 'last':
-          source = 'n=h.getElementsByTagName(e.nodeName);if(n.length&&n[n.length-1]===e){' + source + '}';
+          source = 'n=s.root.getElementsByTagName(e.nodeName);if(n.length&&n[n.length-1]===e){' + source + '}';
           break;
         default:
           switch (match[2].toLowerCase()) {
             case 'nth':
-              source = 'n=h.getElementsByTagName(e.nodeName);if(n.length&&n[' + match[3] + ']===e){' + source + '}';
+              source = 'n=s.root.getElementsByTagName(e.nodeName);if(n.length&&n[' + match[3] + ']===e){' + source + '}';
               break;
             case 'eq':
-              source = source.replace(ACCEPT_NODE, 'if(x++==' + match[3] + '){' + ACCEPT_NODE + '}');
+              source = source.replace(macro, 'if(x++==' + match[3] + '){' + macro + '}');
               break;
             case 'lt':
-              source = source.replace(ACCEPT_NODE, 'if(x++<' + match[3] + '){' + ACCEPT_NODE + '}');
+              source = source.replace(macro, 'if(x++<' + match[3] + '){' + macro + '}');
               break;
             case 'gt':
-              source = source.replace(ACCEPT_NODE, 'if(x++>' + match[3] + '){' + ACCEPT_NODE + '}');
+              source = source.replace(macro, 'if(x++>' + match[3] + '){' + macro + '}');
               break;
             default:
               status = false;
@@ -62,7 +65,8 @@ NW.Dom.registerSelector(
       // compiler will add this to "source"
       return {
         'source': source,
-        'status': status
+        'status': status,
+        'modvar': 'x=0'
       };
 
     };
@@ -75,13 +79,16 @@ NW.Dom.registerSelector(
   /^\:(has|checkbox|file|image|password|radio|reset|submit|text|button|input|header|hidden|visible|parent)(?:\(\s*(["']*)?([^'"()]*)\2\s*\))?(.*)/i,
   (function(global) {
 
-    return function(match, source) {
+    return function(match, source, mode, callback) {
 
-      var status = true, ACCEPT_NODE = NW.Dom.ACCEPT_NODE;
+      var status = true,
+      macro = mode ? NW.Dom.S_BODY : NW.Dom.M_BODY;
+
+      macro = macro.replace('@', typeof callback == 'function' ? (mode ? NW.Dom.S_TEST : NW.Dom.M_TEST) : '');
 
       switch(match[1].toLowerCase()) {
         case 'has':
-          source = source.replace(ACCEPT_NODE, 'if(e.getElementsByTagName("' + match[3].replace(/^\s|\s$/g, '') + '")[0]){' + ACCEPT_NODE + '}');
+          source = source.replace(macro, 'if(e.getElementsByTagName("' + match[3].replace(/^\s|\s$/g, '') + '")[0]){' + macro + '}');
           break;
         case 'checkbox':
         case 'file':

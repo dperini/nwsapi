@@ -131,7 +131,7 @@
   Combinators = { },
 
   Selectors = { },
-
+/*
   Operators = {
      '=': { p1: '^',
             p2: '$',
@@ -151,6 +151,15 @@
     '~=': { p1: '(^|\\s)',
             p2: '(\\s|$)',
             p3: 'true' }
+  },
+*/
+  Operators = {
+     '=': "n=='%m'",
+    '^=': "n.indexOf('%m')==0",
+    '*=': "n.indexOf('%m')>-1",
+    '|=': "(n+'-').indexOf('%m-')==0",
+    '~=': "(' '+n+' ').indexOf(' %m ')>-1",
+    '$=': "n.substr(n.length-'%m'.length)=='%m'"
   },
 
   concatCall =
@@ -333,16 +342,25 @@
 
   nthElement =
     function(element, last) {
-      var count = 1, succ = last ? 'nextSibling' : 'previousSibling';
+      var count = 1, succ;
+      if (last == 2) return -1;
+      succ = last ?
+        'nextElementSibling' :
+        'previousElementSibling';
       while ((element = element[succ])) {
-        if (element.nodeName > '@') ++count;
+        ++count;
       }
       return count;
     },
 
   nthOfType =
     function(element, last) {
-      var count = 1, succ = last ? 'nextSibling' : 'previousSibling', type = element.nodeName;
+      var count = 1, succ, type;
+      if (last == 2) return -1;
+      type = element.nodeName;
+      succ = last ?
+        'nextElementSibling' :
+        'previousElementSibling';
       while ((element = element[succ])) {
         if (element.nodeName == type) ++count;
       }
@@ -390,8 +408,8 @@
     DUPLICATE: true,
 
     SIMPLENOT: true,
+    SVG_LCASE: false,
     USE_HTML5: true,
-    COMPATNTH: true,
 
     LOGERRORS: true,
     VERBOSITY: true
@@ -586,9 +604,9 @@
     },
 
   compileSelector =
-    function(selector, source, mode) {
+    function(selector, source, mode, callback) {
 
-      var a, b, n, k = 0, expr, match, result, status, test, type;
+      var a, b, n, k = 0, expr, match, result, status, test, type, vars;
 
       while (selector) {
 
@@ -600,27 +618,28 @@
 
         else if ((match = selector.match(Patterns.id))) {
           match[1] = (/\\/).test(match[1]) ? convertEscapes(match[1]) : match[1];
-          source = 'if(' + (XML_DOCUMENT ?
-            's.getAttribute(e,"id")' :
-            '(e.submit?s.getAttribute(e,"id"):e.id)') +
+          source = 'if(' + (!HTML_DOCUMENT ?
+            'e.getAttribute("id")' :
+            '(e.submit?e.getAttribute("id"):e.id)') +
             '=="' + match[1] + '"' +
             '){' + source + '}';
         }
 
         else if ((match = selector.match(Patterns.tagName))) {
-          source = 'if(e.nodeName' + (XML_DOCUMENT ?
-            '=="' + match[1] + '"' : TO_UPPER_CASE +
-            '=="' + match[1].toUpperCase() + '"') +
+          test = Config.SVG_LCASE ? '||e.nodeName=="' + match[1].toLowerCase() + '"' : '';
+          source = 'if(e.nodeName' + (!HTML_DOCUMENT ?
+            '=="' + match[1] + '"' : '.toUpperCase()' +
+            '=="' + match[1].toUpperCase() + '"' + test) +
             '){' + source + '}';
         }
 
         else if ((match = selector.match(Patterns.className))) {
           match[1] = (/\\/).test(match[1]) ? convertEscapes(match[1]) : match[1];
           match[1] = QUIRKS_MODE ? match[1].toLowerCase() : match[1];
-          source = 'if((n=' + (XML_DOCUMENT ?
+          source = 'if((n=' + (!HTML_DOCUMENT ?
             'e.getAttribute("class")' : 'e.className') +
             ')&&n.length&&(" "+' + (QUIRKS_MODE ? 'n.toLowerCase()' : 'n') +
-            '.replace(/' + whitespace + '+/g," ")+" ").indexOf(" ' + match[1] + ' ")>-1' +
+            '.replace(/' + WSP + '+/g," ")+" ").indexOf(" ' + match[1] + ' ")>-1' +
             '){' + source + '}';
         }
 
@@ -634,13 +653,13 @@
           test = 'false';
           if (match[2] && match[4] && (test = Operators[match[2]])) {
             match[4] = (/\\/).test(match[4]) ? convertEscapes(match[4]) : match[4];
-            type = match[5] || (XML_DOCUMENT ? XHTML_TABLE : HTML_TABLE)[expr.toLowerCase()];
+            type = match[5] == 'i' || HTML_TABLE[expr.toLowerCase()];
             test = test.replace(/\%m/g, type ? match[4].toLowerCase() : match[4]);
           } else if (match[2] == '!=' || match[2] == '=') {
             test = 'n' + match[2] + '=""';
           }
-          source = 'if(n=s.hasAttribute(e,"' + match[1] + '")){' +
-            (match[2] ? 'n=s.getAttribute(e,"' + match[1] + '")' : '') +
+          source = 'if(n=e.hasAttribute("' + match[1] + '")){' +
+            (match[2] ? 'n=e.getAttribute("' + match[1] + '")' : '') +
             (type && match[2] ? '.toLowerCase();' : ';') +
             'if(' + (match[2] ? test : 'n') + '){' + source + '}}';
         }
@@ -654,29 +673,29 @@
         }
 
         else if ((match = selector.match(Patterns.children))) {
-          source = 'var N' + k + '=e;while(e&&e!==h&&e!==g&&(e=e.parentNode)){' + source + 'break;}e=N' + k + ';';
+          source = 'var N' + k + '=e;while(e&&e!==s.root&&e!==s.from&&(e=e.parentNode)){' + source + 'break;}e=N' + k + ';';
         }
 
         else if ((match = selector.match(Patterns.ancestor))) {
-          source = 'var N' + k + '=e;while(e&&e!==h&&e!==g&&(e=e.parentNode)){' + source + '}e=N' + k + ';';
+          source = 'var N' + k + '=e;while(e&&e!==s.root&&e!==s.from&&(e=e.parentNode)){' + source + '}e=N' + k + ';';
         }
 
         else if ((match = selector.match(Patterns.spseudos)) && match[1]) {
           switch (match[1]) {
             case 'root':
               if (match[3]) {
-                source = 'if(e===h||s.contains(h,e)){' + source + '}';
+                source = 'if(e===s.root||s.root.contains(e)){' + source + '}';
               } else {
-                source = 'if(e===h){' + source + '}';
+                source = 'if(e===s.root){' + source + '}';
               }
               break;
             case 'empty':
-              source = 'if(s.isEmpty(e)){' + source + '}';
+              source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' + source + '}';
               break;
             default:
               if (match[1] && match[2]) {
                 if (match[2] == 'n') {
-                  source = 'if(e!==h){' + source + '}';
+                  source = 'if(e!==s.root){' + source + '}';
                   break;
                 } else if (match[2] == 'even') {
                   a = 2;
@@ -696,7 +715,7 @@
                   'n<=' + b + '&&(n-(' + b + '))%' + a + '==0' : a === 0 ?
                   'n==' + b : a == -1 ? 'n<=' + b : 'n>=' + b;
                 source =
-                  'if(e!==h){' +
+                  'if(e!==s.root){' +
                     'n=s[' + (/-of-type/i.test(match[1]) ? '"nthOfType"' : '"nthElement"') + ']' +
                       '(e,' + (/last/i.test(match[1]) ? 'true' : 'false') + ');' +
                     'if(' + test + '){' + source + '}' +
@@ -706,7 +725,7 @@
                 n = /only/i.test(match[1]) ? 'previous' : 'next';
                 b = /first|last/i.test(match[1]);
                 type = /-of-type/i.test(match[1]) ? '&&n.nodeName!=e.nodeName' : '&&n.nodeName<"@"';
-                source = 'if(e!==h){' +
+                source = 'if(e!==s.root){' +
                   ( 'n=e;while((n=n.' + a + 'Sibling)' + type + ');if(!n){' + (b ? source :
                     'n=e;while((n=n.' + n + 'Sibling)' + type + ');if(!n){' + source + '}') + '}' ) + '}';
               }
@@ -717,20 +736,20 @@
         else if ((match = selector.match(Patterns.dpseudos)) && match[1]) {
           switch (match[1].match(/^\w+/)[0]) {
             case 'matches':
-              expr = match[3].replace(reTrimSpaces, '');
-              source = 'if(s.match(e, "' + expr.replace(/\x22/g, '\\"') + '",g)){' + source +'}';
+              expr = match[3].replace(REX.TrimSpaces, '');
+              source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e,s.from)){' + source +'}';
               break;
             case 'not':
-              expr = match[3].replace(reTrimSpaces, '');
+              expr = match[3].replace(REX.TrimSpaces, '');
               if (Config.SIMPLENOT && !reSimpleNot.test(expr)) {
                 emit('Negation pseudo-class only accepts simple selectors "' + selector + '"');
                 return '';
               } else {
-                if ('compatMode' in doc) {
-                  source = 'if(!' + compile(expr, '', false) + '(e,s,d,h,g)){' + source + '}';
-                } else {
-                  source = 'if(!s.match(e, "' + expr.replace(/\x22/g, '\\"') + '",g)){' + source +'}';
-                }
+//                if ('compatMode' in doc) {
+//                  source = 'if(!' + compile(expr, false, callback) + '(c,f)){' + source + '}';
+//                } else {
+                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source +'}';
+//                }
               }
               break;
             case 'checked':
@@ -741,41 +760,41 @@
             case 'disabled':
               source = 'if(((typeof e.form!=="undefined"' +
                 (Config.USE_HTML5 ? '' : '&&!(/^hidden$/i).test(e.type)') +
-                ')||s.isLink(e))&&e.disabled===true){' + source + '}';
+                ')||/a|area|link/i.test(e.nodeName))&&e.disabled===true){' + source + '}';
               break;
             case 'enabled':
               source = 'if(((typeof e.form!=="undefined"' +
                 (Config.USE_HTML5 ? '' : '&&!(/^hidden$/i).test(e.type)') +
-                ')||s.isLink(e))&&e.disabled===false){' + source + '}';
+                ')||/a|area|link/i.test(e.nodeName))&&e.disabled===false){' + source + '}';
               break;
             case 'lang':
               test = '';
               if (match[2]) test = match[2].substr(0, 2) + '-';
               source = 'do{(n=e.lang||"").toLowerCase();' +
-                'if((n==""&&h.lang=="' + match[2].toLowerCase() + '")||' +
+                'if((n==""&&s.root.lang=="' + match[2].toLowerCase() + '")||' +
                 '(n&&(n=="' + match[2].toLowerCase() +
                 '"||n.substr(0,3)=="' + test.toLowerCase() + '")))' +
-                '{' + source + 'break;}}while((e=e.parentNode)&&e!==g);';
+                '{' + source + 'break;}}while((e=e.parentNode)&&e!==s.from);';
               break;
             case 'target':
-              source = 'if(e.id==d.location.hash.slice(1)){' + source + '}';
+              source = 'if(e.id==s.doc.location.hash.slice(1)){' + source + '}';
               break;
             case 'link':
-              source = 'if(s.isLink(e)&&!e.visited){' + source + '}';
+              source = 'if((/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
               break;
             case 'visited':
-              source = 'if(s.isLink(e)&&e.visited){' + source + '}';
+              source = 'if((/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
               break;
             case 'active':
-              source = 'if(e===d.activeElement){' + source + '}';
+              source = 'if(e===s.doc.activeElement){' + source + '}';
               break;
             case 'hover':
-              source = 'if(e===d.hoverElement){' + source + '}';
+              source = 'if(e===s.doc.hoverElement){' + source + '}';
               break;
             case 'focus':
               source = 'hasFocus' in doc ?
-                'if(e===d.activeElement&&d.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' :
-                'if(e===d.activeElement&&(e.type||e.href)){' + source + '}';
+                'if(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' :
+                'if(e===s.doc.activeElement&&(e.type||e.href)){' + source + '}';
               break;
             case 'selected':
               source = 'if(/^option$/i.test(e.nodeName)&&(e.selected||e.checked)){' + source + '}';
@@ -819,12 +838,12 @@
               break;
             case 'in-range':
               source = 'if(typeof e.form!=="undefined"&&' +
-                '(s.getAttribute(e,"min")||s.getAttribute(e,"max"))&&' +
+                '(e.getAttribute("min")||e.getAttribute("max"))&&' +
                 '!(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
               break;
             case 'out-of-range':
               source = 'if(typeof e.form!=="undefined"&&' +
-                '(s.getAttribute(e,"min")||s.getAttribute(e,"max"))&&' +
+                '(e.getAttribute("min")||e.getAttribute("max"))&&' +
                 '(e.validity.rangeUnderflow||e.validity.rangeOverflow)){' + source + '}';
               break;
             default:
@@ -842,8 +861,14 @@
           status = false;
           for (expr in Selectors) {
             if ((match = selector.match(Selectors[expr].Expression)) && match[1]) {
-              result = Selectors[expr].Callback(match, source);
+              result = Selectors[expr].Callback(match, source, mode, callback);
               if ('match' in result) { match = result.match; }
+              vars = result.modvar;
+              if (mode) {
+                 vars && S_VARS.indexOf(vars) < 0 && (S_VARS[S_VARS.length] = vars);
+              } else {
+                 vars && M_VARS.indexOf(vars) < 0 && (M_VARS[M_VARS.length] = vars);
+              }
               source = result.source;
               status = result.status;
               if (status) { break; }
@@ -1037,6 +1062,7 @@
         };
       }
 
+//console.log(resolver.factory.toString());
       return resolver.factory(resolver.builder, callback);
     },
 
