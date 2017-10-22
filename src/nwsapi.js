@@ -1217,6 +1217,69 @@
       };
     },
 
+  // Query Selector API
+  // placeholders to methods references
+  _closest = Element.prototype.closest,
+  _matches = Element.prototype.matches,
+  _querySelector = Document.prototype.querySelector,
+  _querySelectorAll = Document.prototype.querySelectorAll,
+
+  // override Query Selector API methods
+  install =
+    function() {
+      Element.prototype.closest =
+        function closest() {
+          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
+          if (!('nodeType' in this)) { emit('\'closest\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
+          return arguments.length < 1 ? ancestor.apply(this, [ ]) :
+                 arguments.length < 2 ? ancestor.apply(this, [ arguments[0], this ]) :
+                                        ancestor.apply(this, [ arguments[0], this, arguments[1] ]);
+        };
+
+      Element.prototype.matches =
+        function matches() {
+          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
+          if (!('nodeType' in this)) { emit('\'matches\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
+          return arguments.length < 1 ? match.apply(this, [ ]) :
+                 arguments.length < 2 ? match.apply(this, [ arguments[0], this ]) :
+                                        match.apply(this, [ arguments[0], this ]);
+        };
+
+      Element.prototype.querySelector =
+      Document.prototype.querySelector =
+      DocumentFragment.prototype.querySelector =
+        function querySelector() {
+          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
+          if (!('nodeType' in this)) { emit('\'querySelector\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
+          return arguments.length < 1 ? first.apply(this, [ ]) :
+                 arguments.length < 2 ? first.apply(this, [ arguments[0], this ]) :
+                                        first.apply(this, [ arguments[0], this, arguments[1] ]);
+        };
+
+      Element.prototype.querySelectorAll =
+      Document.prototype.querySelectorAll =
+      DocumentFragment.prototype.querySelectorAll =
+        function querySelectorAll() {
+          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
+          if (!('nodeType' in this)) { emit('\'querySelectorAll\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
+          return arguments.length < 1 ? select.apply(this, [ ]) :
+                 arguments.length < 2 ? select.apply(this, [ arguments[0], this ]) :
+                                        select.apply(this, [ arguments[0], this, arguments[1] ]);
+        };
+    },
+
+  uninstall =
+    function() {
+      Element.prototype.closest = _closest;
+      Element.prototype.matches = _matches;
+      Element.prototype.querySelector =
+      Document.prototype.querySelector =
+      DocumentFragment.prototype.querySelector = _querySelector;
+      Element.prototype.querySelectorAll =
+      Document.prototype.querySelectorAll =
+      DocumentFragment.prototype.querySelectorAll = _querySelectorAll;
+    },
+
   /*-------------------------------- STORAGE ---------------------------------*/
 
   // empty set
@@ -1289,6 +1352,9 @@
     Snapshot: Snapshot,
 
     Version: version,
+
+    install: install,
+    uninstall: uninstall,
 
     Operators: Operators,
     Selectors: Selectors,
