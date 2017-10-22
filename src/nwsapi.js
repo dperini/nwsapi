@@ -392,8 +392,16 @@
     },
 
   emit =
-    function(message) {
-      if (Config.VERBOSITY) { throw Error(message); }
+    function(message, proto) {
+      var err;
+      if (Config.VERBOSITY) {
+        if (proto) {
+          err = new proto(message);
+        } else {
+          err = new DOMException(message, SyntaxError());
+        }
+        throw err;
+      }
       if (Config.LOGERRORS && console && console.log) {
         console.log(message);
       }
