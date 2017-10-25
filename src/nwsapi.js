@@ -836,7 +836,7 @@
                     return '';
                   }
                   expr = match[3].replace(REX.TrimSpaces, '');
-                  source = compileSelector(expr.replace(/\x22/g, '\\"'), source, false, callback, true);
+                  source = compileSelector(expr, source, false, callback, true);
                   break;
                 case 'checked':
                   source = 'if(' + N + '((/^input$/i.test(e.nodeName)&&' +
