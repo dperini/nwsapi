@@ -599,7 +599,7 @@
       for (i = 0, l = groups.length; l > i; ++i) {
         token = groups[i];
         if (!seen[token] && (seen[token] = true)) {
-          source += compileSelector(token, macro, mode, callback);
+          source += compileSelector(token, macro, mode, callback, false);
         }
       }
 
@@ -624,9 +624,12 @@
     },
 
   compileSelector =
-    function(expression, source, mode, callback) {
+    function(expression, source, mode, callback, not) {
 
+      // N is the negation pseudo-class flag
+      // D is the default inverted negation flag
       var a, b, n,
+      N = not ? '!' : '', D = not ? '' : '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
@@ -645,35 +648,35 @@
 
           case '*':
             match = selector.match(Patterns.universal);
-            source = 'if(true' +
+            source = 'if(' + N + 'true' +
               '){' + source + '}';
             break;
           case '#':
             match = selector.match(Patterns.id);
             compat = HTML_DOCUMENT ? ATTR_ID : 'e.getAttribute("id")';
-            source = 'if(' + compat + '=="' + convertEscapes(match[1]) + '"' +
-              '){' + source + '}';
+            source = 'if(' + N + '(' + compat + '=="' + convertEscapes(match[1]) + '"' +
+              ')){' + source + '}';
             break;
           case '.':
             match = selector.match(Patterns.className);
             compat = HTML_DOCUMENT ? 'e.className' : 'e.getAttribute("class")';
-            source = 'if(/(^|\\s)' + match[1] + '(\\s|$)/.test(' + compat + ')' +
-              '){' + source + '}';
+            source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/.test(' + compat + ')' +
+              ')){' + source + '}';
             break;
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
-            source = 'if(e.nodeName=="' + convertEscapes(compat) + '"' +
-              '){' + source + '}';
+            source = 'if(' + N + '(e.nodeName=="' + convertEscapes(compat) + '"' +
+              ')){' + source + '}';
             break;
           case '|':
             match = selector.match(Patterns.namespace);
             if (match[1] == '*') break; else if (match[1])
             emit('\'' + selector_string + '\' is not a valid selector');
             compat = doc.lookupNamespaceURI(match[1]);
-            source = 'if(' + (match[1] === undefined ? '!e.namespaceURI' :
+            source = 'if(' + N + '(' + (match[1] === undefined ? '!e.namespaceURI' :
               match[1] === null ? 'e.namespaceURI=="' + compat + '"' : '') +
-              '){' + source + '}';
+              ')){' + source + '}';
             break;
           case '[':
             match = selector.match(Patterns.attribute);
@@ -691,32 +694,32 @@
             } else {
               // whitespace separated list but value contains space
               if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
-                source = 'if(false){' + source + '}';
+                source = 'if(' + N + 'false){' + source + '}';
                 break;
               }
             }
             type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
-            source = 'if(' + (!match[2] ?
+            source = 'if(' + N + '(' + (!match[2] ?
               'e.hasAttribute("' + match[1] + '")' :
               (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
               'e.getAttribute("' + match[1] + '")==""' :
               '(/' + test.p1 + convertEscapes(match[4]).
               replace(REX.RegExpChar, '\\$&') + test.p2 + '/' + type +
               ').test(e.getAttribute("' + match[1] + '"))===' + test.p3)) +
-              '){' + source + '}';
+              ')){' + source + '}';
             break;
 
           // *** General sibling combinator
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
-            source = 'if(e.previousElementSibling){n=e;e=e.parentNode.firstElementChild;while(e&&e!==n){' + source + 'e=e.nextElementSibling;}e=n;}';
+            source = 'if(' + N + '(e.previousElementSibling)){n=e;e=e.parentNode.firstElementChild;while(e&&e!==n){' + source + 'e=e.nextElementSibling;}e=n;}';
             break;
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
-            source = 'if(e.previousElementSibling){n=e;if(e=e.previousElementSibling){' + source + '}e=n;}';
+            source = 'if(' + N + '(e.previousElementSibling)){n=e;if(e=e.previousElementSibling){' + source + '}e=n;}';
             break;
           // *** Descendant combinator
           // E F (E ancestor of F)
@@ -751,30 +754,30 @@
                   break;
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
-                  source = 'if(e===s.root){' + source + (mode ? 'break main;' : '') + '}';
+                  source = 'if(' + N + '(e===s.root)){' + source + (mode ? 'break main;' : '') + '}';
                   break;
                 case 'empty':
-                  source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' + source + '}';
+                  source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
                   break;
                 case 'only-child':
-                  source = 'if(e.parentNode.firstElementChild===e.parentNode.lastElementChild){' + source + '}';
+                  source = 'if(' + N + '(e.parentNode.firstElementChild===e.parentNode.lastElementChild)){' + source + '}';
                   break;
                 case 'last-child':
-                  source = 'if(e===e.parentNode.lastElementChild){' + source + '}';
+                  source = 'if(' + N + '(e===e.parentNode.lastElementChild)){' + source + '}';
                   break;
                 case 'first-child':
-                  source = 'if(e===e.parentNode.firstElementChild){' + source + '}';
+                  source = 'if(' + N + '(e===e.parentNode.firstElementChild)){' + source + '}';
                   break;
                 case 'only-of-type':
                   source = 'o=e.nodeName;' +
                     'n=e;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!=o);}if(!n){' + source + '}';
+                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!=o);}if(' + D + 'n){' + source + '}';
                   break;
                 case 'last-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' + source + '}';
+                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 case 'first-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(!n){' + source + '}';
+                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 default:
                   break;
@@ -792,7 +795,7 @@
                   if (match[1] && match[2]) {
                     type = /last/i.test(match[1]);
                     if (match[2] == 'n') {
-                      source = 'if(true){' + source + '}';
+                      source = 'if(' + N + 'true){' + source + '}';
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
                       test = 'n%2==0';
@@ -813,7 +816,7 @@
                     }
                     expr = expr ? 'OfType' : 'Element';
                     type = type ? 'true' : 'false';
-                    source = 'n=s.nth' + expr + '(e,' + type + ');if(' + test + '){' + source + '}';
+                    source = 'n=s.nth' + expr + '(e,' + type + ');if(' + N + '(' + test + ')){' + source + '}';
                   }
                   break;
                 default:
@@ -825,7 +828,7 @@
               switch (match[1].match(/^[-\w]+/)[0]) {
                 case 'matches':
                   expr = match[3].replace(REX.TrimSpaces, '');
-                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + ',e")){' + source + '}';
                   break;
                 case 'not':
                   if (Config.SIMPLENOT && !reSimpleNot.test(match[3])) {
@@ -833,60 +836,60 @@
                     return '';
                   }
                   expr = match[3].replace(REX.TrimSpaces, '');
-                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  source = compileSelector(expr.replace(/\x22/g, '\\"'), source, false, callback, true);
                   break;
                 case 'checked':
-                  source = 'if((/^input$/i.test(e.nodeName)&&' +
+                  source = 'if(' + N + '((/^input$/i.test(e.nodeName)&&' +
                     '(/^(?:radio|checkbox)$/i).test(e.type)&&e.checked)||' +
                     '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'disabled':
                   // https://www.w3.org/TR/html5/forms.html#enabling-and-disabling-form-controls:-the-disabled-attribute
                   source =
-                    'if(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
+                    'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
                       '"disabled" in e &&(e.disabled===true||' +
                       '(n=s.inherit(e,"fieldset"))&&(n=s.first("legend",n))&&!n.contains(e))' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'enabled':
                   source =
-                    'if(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
+                    'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
                       '"disabled" in e &&e.disabled===false' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'lang':
                   test = '';
                   match[2] = match[2].toLowerCase();
                   if (match[2]) test = match[2].substr(0, 2) + '-';
-                  source = 'do{if((s.doc.compareDocumentPosition(e)&16)&&' +
+                  source = 'do{if((' + N + '(s.doc.compareDocumentPosition(e)&16)&&' +
                     '(e.lang||"")==""&&s.root.lang==="' + match[2] + '"||' +
                     '(e.lang&&(e.lang.toLowerCase()=="' + match[2] + '"||' +
                     '(e.lang.substr(0,3)=="' + test + '")))' +
-                    '){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
+                    ')){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
                   break;
                 case 'target':
-                  source = 'if((s.doc.compareDocumentPosition(e)&16)&&location.hash&&e.id==location.hash.slice(1)){' + source + '}';
+                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&location.hash&&e.id==location.hash.slice(1))){' + source + '}';
                   break;
                 case 'link':
-                  source = 'if(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")){' + source + '}';
+                  source = 'if(' + N + '(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited){' + source + '}';
+                  source = 'if(' + N + '(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
                   break;
                 case 'active':
-                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(e===s.doc.activeElement){' + source + '}' : source;
+                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(' + N + '(e===s.doc.activeElement)){' + source + '}' : source;
                   break;
                 case 'hover':
-                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(e===s.doc.hoverElement){' + source + '}' : source;
+                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(' + N + '(e===s.doc.hoverElement)){' + source + '}' : source;
                   break;
                 case 'focus':
                   source = 'hasFocus' in doc ?
-                    'if(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' :
-                    'if(e===s.doc.activeElement&&(e.type||e.href)){' + source + '}';
+                    'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
+                    'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
                   break;
                 case 'selected':
-                  source = 'if(/^option$/i.test(e.nodeName)&&(e.selected||e.checked)){' + source + '}';
+                  source = 'if(' + N + '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))){' + source + '}';
                   break;
                 default:
                   break;
@@ -897,7 +900,7 @@
               switch (match[1].match(/^[-\w]+/)[0]) {
                 case 'default':
                   source =
-                    'if("form" in e && e.form){' +
+                    'if(' + N + '("form" in e && e.form)){' +
                       'var x=0;n=[];' +
                       'if(e.type=="image")n=e.form.getElementsByTagName("input");' +
                       'if(e.type=="submit")n=e.form.elements;' +
@@ -907,14 +910,14 @@
                         'x++;' +
                       '}' +
                     '}' +
-                    'if(e.form&&(e===n[x]&&/^image|submit$/i.test(e.type))||' +
+                    'if(' + N + '(e.form&&(e===n[x]&&/^image|submit$/i.test(e.type))||' +
                       '((/^option$/i.test(e.nodeName))&&e.defaultSelected)||' +
                       '((/^(radio|checkbox)$/i.test(e.type))&&e.defaultChecked)' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'indeterminate':
                   source =
-                    'if(' +
+                    'if(' + N +
                       '(typeof e.form!=="undefined"&&(/^progress$/i.test(e.type)&&!e.value)||' +
                       '(/^radio$/i.test(e.type)&&!s.first("[name="+e.name+"]:checked",e.form))||' +
                       '(/^checkbox$/i.test(e.type)&&e.indeterminate))' +
@@ -922,34 +925,34 @@
                   break;
                 case 'optional':
                   source =
-                    'if(' +
+                    'if(' + N +
                       '(/^input|select|textarea$/i.test(e.nodeName)&&!e.required)' +
                     '){' + source + '}';
                   break;
                 case 'required':
                   source =
-                    'if(' +
+                    'if(' + N +
                       '(/^input|select|textarea$/i.test(e.nodeName)&&e.required)' +
                     '){' + source + '}';
                   break;
                 case 'read-write':
                   source =
-                    'if(' +
+                    'if(' + N + '(' +
                       '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
                       '(/^password|text$/i.test(e.type)&&!e.readOnly&&!e.disabled))||' +
                       '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'read-only':
                   source =
-                    'if(' +
+                    'if(' + N + '(' +
                       '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
                       '(/^password|text$/i.test(e.type)&&e.readOnly)' +
-                    '){' + source + '}';
+                    ')){' + source + '}';
                   break;
                 case 'invalid':
                   source =
-                    'if(((' +
+                    'if(' + N + '((' +
                       '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
                       '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
                       '(/^fieldset$/i.test(e.nodeName)&&s.first(":invalid",e))' +
@@ -957,7 +960,7 @@
                   break;
                 case 'valid':
                   source =
-                    'if(((' +
+                    'if(' + N + '((' +
                       '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
                       '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
                       '(/^fieldset$/i.test(e.nodeName)&&s.first(":valid",e))' +
@@ -965,7 +968,7 @@
                   break;
                 case 'in-range':
                   source =
-                    'if(' +
+                    'if(' + N +
                       '(/^input$/i.test(e.nodeName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
@@ -975,7 +978,7 @@
                   break;
                 case 'out-of-range':
                   source =
-                    'if(' +
+                    'if(' + N +
                       '(/^input$/i.test(e.nodeName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
@@ -989,7 +992,7 @@
             }
 
             else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
-              source = 'if(!(/1|11/).test(e.nodeType)){' + source + '}';
+              source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
             else {
