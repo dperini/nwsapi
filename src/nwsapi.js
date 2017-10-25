@@ -624,10 +624,10 @@
       // before normalization and optimization processing
       selector_string = mode ? lastSelected : lastMatched;
 
-      while (selector) {
+      selector = selector.replace(/\s+/g, ' ');
+      selector = selector.replace(/\s*([>+~])\s*/g, '$1');
 
-        selector = selector.replace(/^[\x20\t\n\r\f]+([>+~])/, '$1');
-        selector = selector.replace(/^\t+/, ' ');
+      while (selector) {
 
         symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector.charAt(0);
 
@@ -1097,8 +1097,7 @@
       // normalize selector
       expression = selector.
         replace(/\x00|\\$/g, '\ufffd').
-        replace(REX.TrimSpaces, '').
-        replace(/\x20+/g, ' ');
+        replace(REX.TrimSpaces, '');
 
       // parse and validate expression and split possible selector groups
       if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
@@ -1172,8 +1171,7 @@
       // normalize selector
       expression = selector.
         replace(/\x00|\\$/g, '\ufffd').
-        replace(REX.TrimSpaces, '').
-        replace(/\x20+/g, ' ');
+        replace(REX.TrimSpaces, '');
 
       // parse and validate expression and split possible selector groups
       if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
