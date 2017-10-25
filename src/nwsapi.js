@@ -331,32 +331,42 @@
       return byTag('*', context);
     },
 
-  nthElement =
-    function(element, last) {
-      var count = 1, succ;
-      if (last == 2) return -1;
-      succ = last ?
-        'nextElementSibling' :
-        'previousElementSibling';
-      while ((element = element[succ])) {
-        ++count;
+  nthElement = (function() {
+    var parents = Array(), elements = Array();
+    return function(element, dir) {
+      // ensure caches are emptied after each run, invoking with dir = 2
+      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
+      var e, i, j, l, parent = element.parentNode;
+      if ((i = parents.indexOf(parent)) < 0) {
+        i = parents.length;
+        parents[i] = parent;
+        elements[i] = Array();
+        e = parent.firstElementChild;
+        while (e) { elements[i].push(e); e = e.nextElementSibling; }
       }
-      return count;
-    },
+      for (j = 0, l = elements[i].length; l > j; ++j) { if (elements[i][j] === element) break; }
+      return dir ? l - j : j + 1;
+    };
+  })(),
 
-  nthOfType =
-    function(element, last) {
-      var count = 1, succ, type;
-      if (last == 2) return -1;
-      type = element.nodeName;
-      succ = last ?
-        'nextElementSibling' :
-        'previousElementSibling';
-      while ((element = element[succ])) {
-        if (element.nodeName == type) ++count;
+  nthOfType = (function() {
+    var parents = Array(), elements = Array();
+    return function(element, dir) {
+      // ensure caches are emptied after each run, invoking with dir = 2
+      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
+      var e, i, j, l, name = element.nodeName, parent = element.parentNode;
+      if ((i = parents.indexOf(parent)) < 0 || !(elements[i] && elements[i][name])) {
+        i = parents.length;
+        parents[i] = parent;
+        elements[i] = Object();
+        elements[i][name] = Array();
+        e = parent.firstElementChild;
+        while (e) { if (e.nodeName == name) elements[i][name].push(e); e = e.nextElementSibling; }
       }
-      return count;
-    },
+      for (j = 0, l = elements[i][name].length; l > j; ++j) { if (elements[i][name][j] === element) break; }
+      return dir ? l - j : j + 1;
+    };
+  })(),
 
   inherit =
     function(element, tag, property) {
