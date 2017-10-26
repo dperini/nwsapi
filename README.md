@@ -11,10 +11,16 @@ To include NWSAPI in a standard web page:
 <script type="text/javascript" src="nwsapi.js"></script>
 ```
 
+To include NWSAPI in a standard web page and automatically replace the native QSA:
+
+```html
+<script type="text/javascript" src="nwsapi.js" onload="NW.Dom.install()"></script>
+```
+
 To use it with Node.js:
 
 ```
-$ npm install nwsapi
+$ npm install nwsapi (not published on npm yet)
 ```
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
@@ -22,7 +28,7 @@ NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environm
 
 ## Supported Selectors
 
-Here is a list of all the CSS2/CSS3 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
+Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
 
 
 ## Features and Compliance
@@ -65,18 +71,6 @@ Returns an array of elements having the specified tag name `tag`, optionally fil
 
 Returns an array of elements having the specified class name `class`, optionally filtered to descendants of the element `from`.
 
-#### `byName( name, from )`
-
-Returns an array of elements having the specified value `name` for their name attribute, optionally filtered to descendants of the element `from`.
-
-#### `getAttribute( element, attribute )`
-
-Return the value read from the attribute of `element` with name `attribute`, as a string.
-
-#### `hasAttribute( element, attribute )`
-
-Returns true `element` has an attribute with name `attribute` set; returns `false` otherwise.
-
 
 ### Engine Configuration
 
@@ -84,14 +78,14 @@ Returns true `element` has an attribute with name `attribute` set; returns `fals
 
 The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
 
-* `CACHING`:   false - false to disable caching of result sets, true to enable
 * `ESCAPECHR`: true  - true to allow CSS escaped identifiers, false to disallow
 * `NON_ASCII`: true  - true to allow identifiers containing non-ASCII (utf-8) chars
 * `SELECTOR3`: true  - switch syntax RE, true to use Level 3, false to use Level 2
 * `UNICODE16`: true  - true to allow identifiers containing Unicode (utf-16) chars
-* `SHORTCUTS`: false - false to disable mangled selector strings like "+div" or "ul>"
+* `BUGFIX_ID`: true  - true to bugfix forms when using reserved words for controls
+* `DUPLICATE`: true  - true to allow multiple elements having the same id (strict)
 * `SIMPLENOT`: true  - true to disallow complex selectors nested in ':not()' classes
-* `UNIQUE_ID`: true  - true to disallow multiple elements with the same id (strict)
+* `SVG_LCASE`: false - false to disallow lowercase SVG elements in HTML documents
 * `USE_HTML5`: true  - true to use HTML5 specs for ":checked" and similar UI states
 * `VERBOSITY`: true  - true to throw exceptions, false to skip throwing exceptions
 * `LOGERRORS`: true  - true to print console errors or warnings, false to mute them
@@ -102,12 +96,16 @@ Example:
 NW.Dom.configure( { LOGERRORS: false, VERBOSITY: false } );
 ```
 
+#### `registerCombinator( symbol, resolver )`
+
+Registers a new symbol and its matching resolver in the combinators table.
+
 #### `registerOperator( symbol, resolver )`
 
-Registers a new symbol and its matching resolver in the operators table. Example:
+Registers a new symbol and its matching resolver in the attribute operators table. Example:
 
 ```js
-NW.Dom.registerOperator( '!=', 'n!="%m"' );
+NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );
 ```
 
 #### `registerSelector( name, rexp, func )`
