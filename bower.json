@@ -12,14 +12,14 @@
   ],
   "keywords": [
     "javascript",
-    "nwsapi",
     "selector",
     "matcher",
-    "library"
+    "library",
+    "nwsapi"
   ],
   "license": "MIT",
   "ignore": [
-    "**/.*",
+    "*/.*",
     "*.md",
     "bin",
     "test",
@@ -32,4 +32,3 @@
     ".gitattributes"
   ]
 }
-

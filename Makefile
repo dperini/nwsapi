@@ -1,3 +1,4 @@
+#
 # Makefile
 #
 # NWSAPI distribution builder
@@ -6,6 +7,8 @@
 #
 # - nwjslint.sh (writes to lint.log)
 # - nwpackjs.sh (writes to dist.log)
+#
+# minifier by Dean Edwards
 #
 
 # getting path
@@ -23,7 +26,7 @@ ifeq ($(filter -s,$(MAKEFLAGS)),)
 MAKEFLAGS += -s
 endif
 
-# shell scripts
+# shell scripts directory
 SCRIPTS=${SOURCES}/build/scripts
 
 # default all stages

@@ -6,9 +6,10 @@
   "main": "./src/nwsapi",
   "keywords": [
     "css",
+    "css3",
+    "css4",
     "matcher",
-    "selector",
-    "ender"
+    "selector"
   ],
   "licenses": [
     {
