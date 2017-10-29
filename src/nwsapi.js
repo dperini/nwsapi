@@ -629,7 +629,7 @@
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
       var a, b, n,
-      N = not ? '!' : '', D = not ? '' : '!',
+      N = not ? '!' : '', D = not ? '' : '!', pseudo,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
@@ -747,7 +747,8 @@
           // :nth-child(), :nth-last-child(), :nth-of-type(), :nth-last-of-type()
           case ':':
             if ((match = selector.match(Patterns.struct_n)) && match[1]) {
-              switch (match[1].match(/^[-\w]+/)[0]) {
+              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
+              switch (pseudo) {
                 case 'scope':
                   match = [ selector_string.replace(':scope', '').replace(/^(\s*)|(\s*)$/, '') ];
                   source = compileSelector(match[0].replace(/\x22/g, '\\"'), source, false, null, false);
@@ -785,7 +786,8 @@
             }
 
             else if ((match = selector.match(Patterns.struct_p)) && match[1]) {
-              switch (match[1].match(/^[-\w]+/)[0]) {
+              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
+              switch (pseudo) {
                 case 'nth-child':
                 case 'nth-of-type':
                 case 'nth-last-child':
@@ -825,7 +827,8 @@
             }
 
             else if ((match = selector.match(Patterns.dpseudos)) && match[1]) {
-              switch (match[1].match(/^[-\w]+/)[0]) {
+              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
+              switch (pseudo) {
                 case 'matches':
                   expr = match[3].replace(REX.TrimSpaces, '');
                   source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + ',e")){' + source + '}';
@@ -897,7 +900,8 @@
             }
 
             else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
-              switch (match[1].match(/^[-\w]+/)[0]) {
+              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
+              switch (pseudo) {
                 case 'default':
                   source =
                     'if(' + N + '("form" in e && e.form)){' +
