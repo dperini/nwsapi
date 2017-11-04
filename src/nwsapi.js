@@ -288,6 +288,8 @@
   // cross document methods: byId, byTag, byCls, byTagCls
   idTest = 't==' + FIX_ID,
   tagMatch = 't.test(e.nodeName)', tagTest = 'a||(e.nodeName==t)',
+  clsMatch = 'c.test(e.getAttribute?e.getAttribute("class"):e.className)',
+  tagclsMatch = tagMatch + '&&' + clsMatch,
 
   byId =
     function(id, context) {
@@ -311,24 +313,88 @@
 
   byTag =
     function(tag, context) {
-      var i = 0, any = tag == '*', element = context,
-      elements = Array(), next = element.firstElementChild;
-      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
-      while ((element = next)) {
-        if (any || element.nodeName == tag) {
-          elements[i] = element; ++i;
-        }
-        if ((next = element.firstElementChild || element.nextElementSibling)) continue;
-        while (!next && (element = element.parentNode) && element !== context) {
-          next = element.nextElementSibling;
-        }
+      var elements, resolver,
+      m = tag.indexOf(','), nTag, reTag, any = tag == '*', t;
+
+      if (m < 0 && method['*'] in context) {
+        return context[method['*']](tag);
       }
+
+      context || (context = doc);
+
+      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
+
+      if (m > 0) {
+        t = tagMatch;
+        tag = tag.trim();
+        nTag = tag.split(REX.SplitComma);
+        reTag = RegExp('^' + nTag.join('|') + '$');
+      } else t = tagTest;
+
+      resolver = Function('t, a', walk.replace('@', t))(reTag || tag, any);
+      elements = resolver(context);
+
+      if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
+
       return elements;
     },
 
   byClass =
     function(cls, context) {
-      return byTag('*', context);
+      var elements, resolver,
+      m = cls.indexOf(','), nCls, reCls, cs;
+
+      if (m < 0 && method['.'] in context) {
+        return context[method['.']](cls);
+      }
+
+      cls = cls.replace(REX.RegExpChar, '\\$&');
+      cs = QUIRKS_MODE ? 'i' : '';
+
+      if (m > 0) {
+        cls = cls.trim();
+        cls = unescapeIdentifier(cls);
+        nCls = cls.split(REX.SplitComma).join('|');
+      } else nCls = cls;
+
+      reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
+
+      context.nodeType == 1 || (context = context.firstElementChild);
+      resolver = Function('c', walk.replace('@', clsMatch))(reCls);
+      elements = resolver(context);
+
+      return elements;
+    },
+
+  byTagCls =
+    function(tagcls, context) {
+      var elements, resolver,
+      tag, cls, cs;
+
+      tag = tagcls.split('-')[0];
+      cls = tagcls.split('-')[1];
+
+      context || (context = doc);
+
+      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
+      cls = cls.replace(REX.RegExpChar, '\\$&');
+      cs = QUIRKS_MODE ? 'i' : '';
+
+      tag = tag.trim();
+      nTag = tag.split(REX.SplitComma);
+      reTag = RegExp('^' + nTag.join('|') + '$');
+
+      cls = cls.trim();
+      cls = unescapeIdentifier(cls);
+      nCls = cls.split(REX.SplitComma).join('|');
+      reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
+
+      resolver = Function('t, c', walk.replace('@', tagclsMatch))(reTag, reCls);
+      elements = resolver(context);
+
+      if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
+
+      return elements;
     },
 
   nthElement = (function() {
