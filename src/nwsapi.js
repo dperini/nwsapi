@@ -1303,6 +1303,25 @@
             }
           }
         }
+      } else {
+        var tn = '', nt = 0, cn = '', nc = 0;
+        for (var i = 0, l = expression.length; l > i; ++i) {
+          if ((token = expression[i].match(reOptimizer)) && (ident = token[2])) {
+            symbol = token[1] || '*';
+            ident = unescapeIdentifier(ident);
+          }
+          if (symbol == '*') { ++nt; tn += i === 0 ? ident : ',' + ident; }
+          if (symbol == '.') { ++nc; cn += i === 0 ? ident : ',' + ident; }
+        }
+        if (nt == l) {
+          builder = compat['*'](context, tn);
+        } else if (nc == l) {
+          builder = compat['.'](context, cn);
+        } else if (nt + nc == l) {
+          builder = compat['?'](context, tn + '-' + cn);
+        } else {
+          builder = compat['*'](context, '*');
+        }
       }
       return {
         builder: builder || resolvers['*'](context, '*'),
