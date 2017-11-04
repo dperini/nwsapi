@@ -628,7 +628,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n,
+      var a, b, n, x_error = '',
       N = not ? '!' : '', D = not ? '' : '!', pseudo,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -781,6 +781,7 @@
                   source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   break;
               }
             }
@@ -822,6 +823,7 @@
                   }
                   break;
                 default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   break;
               }
             }
@@ -895,6 +897,7 @@
                   source = 'if(' + N + '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))){' + source + '}';
                   break;
                 default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   break;
               }
             }
@@ -991,6 +994,7 @@
                     '){' + source + '}';
                   break;
                 default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   break;
               }
             }
@@ -1034,14 +1038,14 @@
             break;
 
         default:
-          emit('unknown pseudo-class selector \'' + selector + '\'');
+          emit('\'' + selector_string + '\' is not a valid selector' + x_error);
           break;
 
         }
         // end of switch symbol
 
         if (!match) {
-          emit('invalid syntax in selector \'' + selector + '\'');
+          emit('\'' + selector_string + '\' is not a valid selector' + x_error);
           return '';
         }
 
