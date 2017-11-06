@@ -1329,16 +1329,19 @@
       };
     },
 
-  // Query Selector API
-  // placeholders to methods references
-  _closest = Element.prototype.closest,
-  _matches = Element.prototype.matches,
-  _querySelector = Document.prototype.querySelector,
-  _querySelectorAll = Document.prototype.querySelectorAll,
+  // Query Selector API placeholders to native references
+  _closest, _matches, _querySelector, _querySelectorAll,
 
-  // override Query Selector API methods
+  // overrides Query Selector API methods
   install =
     function() {
+
+      // save native QSA references
+      _closest = Element.prototype.closest;
+      _matches = Element.prototype.matches;
+      _querySelector = Document.prototype.querySelector;
+      _querySelectorAll = Document.prototype.querySelectorAll;
+
       Element.prototype.closest =
         function closest() {
           var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
@@ -1380,8 +1383,10 @@
         };
     },
 
+  // restore Query Selector API methods
   uninstall =
     function() {
+      // reinstates QSA native references
       Element.prototype.closest = _closest;
       Element.prototype.matches = _matches;
       Element.prototype.querySelector =
