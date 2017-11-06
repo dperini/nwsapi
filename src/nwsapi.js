@@ -1317,8 +1317,8 @@
           builder = compat['*'](context, tn);
         } else if (nc == l) {
           builder = compat['.'](context, cn);
-        } else if (nt + nc == l) {
-          builder = compat['?'](context, tn + '-' + cn);
+//        } else if (nt + nc == l) {
+//          builder = compat['?'](context, tn + '-' + cn);
         } else {
           builder = compat['*'](context, '*');
         }
