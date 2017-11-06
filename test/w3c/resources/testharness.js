@@ -27,25 +27,6 @@ policies and contribution forms [3].
         message_events: ["start", "test_state", "result", "completion"]
     };
 
-    document.onkeydown =
-      function(e) {
-        if (e.ctrlKey && e.altKey) {
-//          location.search = location.search == '' ? '?nw' : '';
-          if (location.search.slice(-3) == '?nw') {
-            location.replace(location.href.substring(0, location.href.length - 3));
-          } else {
-            location.search = location.search == '' ? '?nw' : '';
-//            location.replace(location.href);
-          }
-          window.addEventListener('load', function() { window.focus(); });
-//          setTimeout(function() { window.focus(); }, 100);
-        }
-      }
-
-    if (location.search	== '?nw') {
-//      document.write('<scr' + 'ipt' + ' src="../../../../../../src/nwsapi.js"' + ' onload="NW.Dom.install()">' + '<\/scr' + 'ipt>');
-    }
-
     var xhtml_ns = "http://www.w3.org/1999/xhtml";
 
     /*
@@ -1015,6 +996,10 @@ policies and contribution forms [3].
 
     function assert_array_equals(actual, expected, description)
     {
+        assert(typeof actual === "object" && actual !== null && "length" in actual,
+               "assert_array_equals", description,
+               "value is ${actual}, expected array",
+               {actual:actual});
         assert(actual.length === expected.length,
                "assert_array_equals", description,
                "lengths differ, expected ${expected} got ${actual}",
