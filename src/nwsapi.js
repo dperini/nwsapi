@@ -449,7 +449,7 @@
     function(node) {
       var doc = node.ownerDocument || node, root = doc.documentElement;
       return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
-        doc.createElement('DiV').nodeName != 'DiV' && !(doc instanceof XMLDocument);
+        doc.createElement('DiV').nodeName != 'DiV' && !(doc instanceof global.XMLDocument);
     },
 
   configure =
@@ -474,7 +474,7 @@
         if (proto) {
           err = new proto(message);
         } else {
-          err = new DOMException(message, SyntaxError());
+          err = new global.DOMException(message, 'SyntaxError');
         }
         throw err;
       }
