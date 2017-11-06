@@ -943,10 +943,10 @@
                   source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&location.hash&&e.id==location.hash.slice(1))){' + source + '}';
                   break;
                 case 'link':
-                  source = 'if(' + N + '(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if(' + N + '(/a|area|link/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ? 'if(' + N + '(e===s.doc.activeElement)){' + source + '}' : source;
@@ -990,11 +990,10 @@
                   break;
                 case 'indeterminate':
                   source =
-                    'if(' + N +
-                      '(typeof e.form!=="undefined"&&(/^progress$/i.test(e.type)&&!e.value)||' +
-                      '(/^radio$/i.test(e.type)&&!s.first("[name="+e.name+"]:checked",e.form))||' +
-                      '(/^checkbox$/i.test(e.type)&&e.indeterminate))' +
-                    '){' + source + '}';
+                    'if(' + N + '(/^progress$/i.test(e.nodeName)&&!e.hasAttribute("value"))||' +
+                      '(/^input$/i.test(e.nodeName)&&(/^checkbox$/i.test(e.type)&&e.indeterminate)||' +
+                      '(/^radio$/i.test(e.type)&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+                    ')){' + source + '}';
                   break;
                 case 'optional':
                   source =
