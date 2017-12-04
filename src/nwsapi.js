@@ -614,7 +614,7 @@
         standardValidator : extendedValidator, 'g');
     },
 
-  F_INIT = '"use strict";return function Resolver(c,f)',
+  F_INIT = '"use strict";return function Resolver(c,f,x)',
 
   S_HEAD = 'var r=[],e,n,o,j=-1,k=-1',
   M_HEAD = 'var r=!1,e,n,o',
@@ -816,8 +816,7 @@
               pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
               switch (pseudo) {
                 case 'scope':
-                  match = [ selector_string.replace(':scope', '').replace(/^(\s*)|(\s*)$/, '') ];
-                  source = compileSelector(match[0].replace(/\x22/g, '\\"'), source, false, null, false);
+                  source = 'if((x||e).contains(e)){' + source + '}';
                   break;
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
@@ -1234,7 +1233,7 @@
 
       if (selector && !callback && (resolver = selectResolvers[selector])) {
         if (resolver.context === context) {
-          return resolver.factory(resolver.builder, callback);
+          return resolver.factory(resolver.builder, callback, context);
         }
       }
 
@@ -1283,7 +1282,7 @@
         };
       }
 
-      return resolver.factory(resolver.builder, callback);
+      return resolver.factory(resolver.builder, callback, context);
     },
 
   collect =
