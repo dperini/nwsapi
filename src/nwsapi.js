@@ -404,6 +404,26 @@
       return elements;
     },
 
+  hasAttributeNS =
+    function(e, name) {
+      var i, l, attr = e.getAttributeNames(),
+      name = RegExp(':?' + name + '$', 'i');
+      for (i = 0, l = attr.length; l > i; ++i) {
+        if (name.test(attr[i])) return true;
+      }
+      return false;
+    },
+
+  getAttributeNS =
+    function(e, name) {
+      var i, l, attr = e.getAttributeNames(),
+      name = RegExp(':?' + name + '$', 'i');
+      for (i = 0, l = attr.length; l > i; ++i) {
+        if (name.test(attr[i])) return e.getAttribute(attr[i]);
+      }
+      return null;
+    },
+
   nthElement = (function() {
     var parents = Array(), elements = Array();
     return function(element, dir) {
@@ -501,7 +521,6 @@
     DUPLICATE: true,
 
     SIMPLENOT: true,
-    SVG_LCASE: false,
     USE_HTML5: true,
 
     LOGERRORS: true,
@@ -747,9 +766,8 @@
             match = selector.match(Patterns.namespace);
             if (match[1] == '*') break; else if (match[1])
             emit('\'' + selector_string + '\' is not a valid selector');
-            compat = doc.lookupNamespaceURI(match[1]);
             source = 'if(' + N + '(' + (match[1] === undefined ? '!e.namespaceURI' :
-              match[1] === null ? 'e.namespaceURI=="' + compat + '"' : '') +
+              match[1] === null ? 'e.namespaceURI=="' + NAMESPACE_URI + '"' : '') +
               ')){' + source + '}';
             break;
           case '[':
@@ -774,6 +792,8 @@
             }
             type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
             source = 'if(' + N + '(' + (!match[2] ?
+              '(e.namespaceURI!="' + NAMESPACE_URI + '")?' +
+              's.hasAttributeNS(e,"' + match[1] + '"):' +
               'e.hasAttribute("' + match[1] + '")' :
               (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
               'e.getAttribute("' + match[1] + '")==""' :
@@ -1437,8 +1457,10 @@
     inherit: inherit,
 
     nthOfType: nthOfType,
-    nthElement: nthElement
+    nthElement: nthElement,
 
+    hasAttributeNS: hasAttributeNS,
+    getAttributeNS: getAttributeNS
   },
 
   Dom = {
@@ -1462,6 +1484,9 @@
     byId: byId,
     byTag: byTag,
     byClass: byClass,
+
+    hasAttributeNS: hasAttributeNS,
+    getAttributeNS: getAttributeNS,
 
     match: match,
     first: first,
