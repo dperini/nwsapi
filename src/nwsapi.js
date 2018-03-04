@@ -15,7 +15,7 @@
  *  http://javascript.nwbox.com/nwsapi/nwsapi.js
  */
 
-(function(global, factory) {
+(function Export(global, factory) {
 
   'use strict';
 
@@ -25,10 +25,10 @@
     define(factory);
   } else {
     global.NW || (global.NW = { });
-    global.NW.Dom = factory(global);
+    global.NW.Dom = factory(global, Export);
   }
 
-})(this, function(global) {
+})(this, function Factory(global, Export) {
 
   var version = 'nwsapi-2.0.0',
 
