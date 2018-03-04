@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2017 Diego Perini
+ * Copyright (C) 2007-2018 Diego Perini
  * All rights reserved.
  *
  * nwsapi.js - Fast CSS Selectors API Engine
@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.0.0
  * Created: 20070722
- * Release: 20171022
+ * Release: 20180301
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -108,6 +108,8 @@
 
   QUIRKS_MODE,
   HTML_DOCUMENT,
+  NAMESPACE_URI,
+  PREFIX,
 
   ATTR_ID = 'e.id',
 
@@ -177,6 +179,9 @@
       if (force || oldDoc !== doc) {
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
+        PREFIX = root.prefix;
+        NAMESPACE_URI =
+          doc.lookupNamespaceURI(PREFIX);
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
@@ -287,7 +292,8 @@
   // coditional tests to accept returned elements in the
   // cross document methods: byId, byTag, byCls, byTagCls
   idTest = 't==' + FIX_ID,
-  tagMatch = 't.test(e.nodeName)', tagTest = 'a||(e.nodeName==t)',
+  tagTest = 'a||(e.nodeName==t)',
+  tagMatch = 't.test(e.nodeName)',
   clsMatch = 'c.test(e.getAttribute?e.getAttribute("class"):e.className)',
   tagclsMatch = tagMatch + '&&' + clsMatch,
 
@@ -314,10 +320,13 @@
   byTag =
     function(tag, context) {
       var elements, resolver,
+      get = HTML_DOCUMENT ? method['*'] : method['*'] + 'NS',
       m = tag.indexOf(','), nTag, reTag, any = tag == '*', t;
 
-      if (m < 0 && method['*'] in context) {
-        return context[method['*']](tag);
+      if (m < 0 && get in context) {
+        return HTML_DOCUMENT ?
+          context[get](tag) :
+          context[get]('*', tag);
       }
 
       context || (context = doc);
@@ -332,6 +341,7 @@
       } else t = tagTest;
 
       resolver = Function('t, a', walk.replace('@', t))(reTag || tag, any);
+
       elements = resolver(context);
 
       if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
@@ -449,7 +459,7 @@
     function(node) {
       var doc = node.ownerDocument || node, root = doc.documentElement;
       return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
-        doc.createElement('DiV').nodeName != 'DiV' && !(doc instanceof global.XMLDocument);
+        doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html');
     },
 
   configure =
@@ -732,7 +742,8 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
-            source = 'if(' + N + '(e.nodeName=="' + convertEscapes(compat) + '"' +
+            source = 'if(' + N + '(e.' + (HTML_DOCUMENT ? 'node' : 'local') +
+              'Name=="' + convertEscapes(compat) + '"' +
               ')){' + source + '}';
             break;
           case '|':
@@ -1379,6 +1390,7 @@
                  arguments.length < 2 ? select.apply(this, [ arguments[0], this ]) :
                                         select.apply(this, [ arguments[0], this, arguments[1] ]);
         };
+
     },
 
   // restore Query Selector API methods
