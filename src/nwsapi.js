@@ -1360,7 +1360,7 @@
 
   // overrides Query Selector API methods
   install =
-    function() {
+    function(all) {
 
       // save native QSA references
       _closest = Element.prototype.closest;
@@ -1407,6 +1407,17 @@
                  arguments.length < 2 ? select.apply(this, [ arguments[0], this ]) :
                                         select.apply(this, [ arguments[0], this, arguments[1] ]);
         };
+
+      if (all) {
+        document.addEventListener('load', function(e) {
+          var c, d, r, s, t = e.target;
+          if (/iframe/i.test(t.nodeName)) {
+            c = '(' + Export + ')(this, ' + Factory + ');'; d = t.contentDocument;
+            s = d.createElement('script'); s.textContent = c + 'NW.Dom.install()';
+            r = d.documentElement; r.removeChild(r.insertBefore(s, r.firstChild));
+          }
+        }, true);
+      }
 
     },
 
