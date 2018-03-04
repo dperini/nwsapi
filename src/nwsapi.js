@@ -63,7 +63,7 @@
   REX = {
     HasEscapes: RegExp(ESC),
     HexNumbers: RegExp('^' + HEX),
-    SplitComma: RegExp('\\s*,\\s*'),
+    SplitComma: RegExp('\\s?,\\s?'),
     TokensSymb: RegExp('\\#|\\.|\\*'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
     RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
@@ -85,8 +85,8 @@
   pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write',
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
-  params_1 = '(?:\\(\\s*(even|odd|(?:[-+]{0,1}\\s*\\d*\\s*)*n?(?:[-+]{0,1}\\s*\\d*\\s*))\\s*\\))',
-  negation = '|(?:matches|not)\\(\\s*(:' + struct_2 + params_1 + '|[^()]*)\\s*\\)',
+  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]{0,1}\\s?\\d*\\s?)*n?(?:[-+]{0,1}\\s?\\d*\\s?))\\s?\\))',
+  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*)\\s?\\)',
 
   Patterns = {
     struct_n: RegExp('^:(' + struct_1 + ')?(.*)', 'i'),
@@ -95,9 +95,9 @@
     dpseudos: RegExp('^:(' + pseudo_1 + '|' + pseudo_2 + negation + ')?(.*)', 'i'),
     epseudos: RegExp('^:(:?(?:' + pseudo_4 + ')|:(?:' + pseudo_5 + '))?(.*)', 'i'),
     hpseudos: RegExp('^:(' + pseudo_3 + ')?(.*)', 'i'),
-    children: RegExp('^' + WSP + '*\\>' + WSP + '*(.*)'),
-    adjacent: RegExp('^' + WSP + '*\\+' + WSP + '*(.*)'),
-    relative: RegExp('^' + WSP + '*\\~' + WSP + '*(.*)'),
+    children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
+    adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
+    relative: RegExp('^' + WSP + '?\\~' + WSP + '?(.*)'),
     ancestor: RegExp('^' + WSP + '+(.*)'),
    universal: RegExp('^\\*(.*)'),
    namespace: RegExp('^(\\w+|\\*)?\\|(.*)')
@@ -552,15 +552,15 @@
         '\\[' +
           // attribute presence
           '(?:\\*\\|)?' +
-          WSP + '*' +
+          WSP + '?' +
           '(' + identifier + '(?::' + identifier + ')?)' +
-          WSP + '*' +
+          WSP + '?' +
           '(?:' +
-            '(' + CFG.operators + ')' + WSP + '*' +
+            '(' + CFG.operators + ')' + WSP + '?' +
             '(?:' + attrparser + ')' +
           ')?' +
           // attribute case sensitivity
-          WSP + '*' + '(i)?' + WSP + '*' +
+          WSP + '?' + '(i)?' + WSP + '?' +
         '\\]';
 
       attrmatcher = attributes.replace(attrparser, attrvalues);
@@ -592,8 +592,8 @@
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + identifier + pseudoclass + ')|' +
-          '(?:' + WSP + '*' + CFG.combinators + WSP + '*)|' +
-          '(?:' + WSP + '*,' + WSP + '*)' +
+          '(?:' + WSP + '?' + CFG.combinators + WSP + '?)|' +
+          '(?:' + WSP + '?,' + WSP + '?)' +
         ')+';
 
       reSimpleNot = RegExp(
@@ -713,8 +713,8 @@
       // before normalization and optimization processing
       selector_string = mode ? lastSelected : lastMatched;
 
-      selector = selector.replace(/\s+/g, ' ');
-      selector = selector.replace(/\s*([>+~])\s*/g, '$1');
+      selector = selector.replace(/\s{1,2}/g, ' ');
+      selector = selector.replace(/\s?([>+~])\s?/g, '$1');
 
       while (selector) {
 
@@ -1145,7 +1145,7 @@
     function(selector) {
       var i, l,
       groups = selector.
-        replace(/,\s*,/g, ',').
+        replace(/,\s?,/g, ',').
         replace(/\\,/g, '\ufffd').
         split(REX.SplitGroup);
       for (i = 0, l = groups.length; l > i; ++i) {
