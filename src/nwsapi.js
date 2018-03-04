@@ -109,7 +109,6 @@
   QUIRKS_MODE,
   HTML_DOCUMENT,
   NAMESPACE_URI,
-  PREFIX,
 
   ATTR_ID = 'e.id',
 
@@ -179,9 +178,7 @@
       if (force || oldDoc !== doc) {
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
-        PREFIX = root.prefix;
-        NAMESPACE_URI =
-          doc.lookupNamespaceURI(PREFIX);
+        NAMESPACE_URI = root.namespaceURI;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
