@@ -50,7 +50,6 @@
   STR = {
     alphalodash: '[_a-zA-Z]',
     pseudoparms: '[-+]?\\d*',
-    skip_groups: '\\[.*\\]|\\(.*\\)|\\{.*\\}',
     doublequote: '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
     singlequote: "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
 
@@ -64,10 +63,9 @@
     HasEscapes: RegExp(ESC),
     HexNumbers: RegExp('^' + HEX),
     SplitComma: RegExp('\\s?,\\s?'),
-    TokensSymb: RegExp('\\#|\\.|\\*'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
     RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
-    TrimSpaces: RegExp('[\\n\\r\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
+    TrimSpaces: RegExp('[\\r\\n\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
     FixEscapes: RegExp('\\\\(' + HEX + '{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
   },
@@ -406,7 +404,7 @@
 
   hasAttributeNS =
     function(e, name) {
-      var i, l, attr = e.getAttributeNames(),
+      var i, l, attr = e.getAttributeNames();
       name = RegExp(':?' + name + '$', 'i');
       for (i = 0, l = attr.length; l > i; ++i) {
         if (name.test(attr[i])) return true;
@@ -416,7 +414,7 @@
 
   getAttributeNS =
     function(e, name) {
-      var i, l, attr = e.getAttributeNames(),
+      var i, l, attr = e.getAttributeNames();
       name = RegExp(':?' + name + '$', 'i');
       for (i = 0, l = attr.length; l > i; ++i) {
         if (name.test(attr[i])) return e.getAttribute(attr[i]);
@@ -600,7 +598,7 @@
         ')+\\))*';
 
       standardValidator =
-        '(?=[\\x20\\t\\n\\r\\f]*[^>+~(){}<>])' +
+        '(?=' + WSP + '?[^>+~(){}<>])' +
         '(?:' +
           // universal * &
           // namespace *|*
