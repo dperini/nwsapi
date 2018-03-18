@@ -186,22 +186,28 @@
       return (Snapshot.from = context);
     },
 
+  // convert single codepoint to UTF-16 encoding
   codePointToUTF16 =
     function(codePoint) {
+      // out of range, use replacement character
       if (codePoint < 1 || codePoint > 0x10ffff ||
         (codePoint > 0xd7ff && codePoint < 0xe000)) {
         return '\\ufffd';
       }
+      // javascript strings are UTF-16 encoded
       if (codePoint < 0x10000) {
         var lowHex = '000' + codePoint.toString(16);
         return '\\u' + lowHex.substr(lowHex.length - 4);
       }
+      // supplementary high + low surrogates
       return '\\u' + (((codePoint - 0x10000) >> 0x0a) + 0xd800).toString(16) +
              '\\u' + (((codePoint - 0x10000) % 0x400) + 0xdc00).toString(16);
     },
 
+  // convert single codepoint to string
   stringFromCodePoint =
     function(codePoint) {
+      // out of range, use replacement character
       if (codePoint < 1 || codePoint > 0x10ffff ||
         (codePoint > 0xd7ff && codePoint < 0xe000)) {
         return '\ufffd';
@@ -216,27 +222,39 @@
           ((codePoint - 0x10000) % 0x400) + 0xdc00);
     },
 
+  // convert escape sequence in a CSS string or identifier
+  // to javascript string with javascript escape sequences
   convertEscapes =
     function(str) {
       return REX.HasEscapes.test(str) ?
         str.replace(REX.FixEscapes,
           function(substring, p1, p2) {
+            // unescaped " or '
             return p2 ? '\\' + p2 :
+              // javascript strings are UTF-16 encoded
               REX.HexNumbers.test(p1) ? codePointToUTF16(parseInt(p1, 16)) :
+              // \' \"
               REX.EscOrQuote.test(p1) ? substring :
+              // \g \h \. \# etc
               p1;
           }
         ) : str;
     },
 
+  // convert escape sequence in a CSS string or identifier
+  // to javascript string with characters representations
   unescapeIdentifier =
     function(str) {
       return REX.HasEscapes.test(str) ?
         str.replace(REX.FixEscapes,
           function(substring, p1, p2) {
+            // unescaped " or '
             return p2 ? p2 :
+              // javascript strings are UTF-16 encoded
               REX.HexNumbers.test(p1) ? stringFromCodePoint(parseInt(p1, 16)) :
+              // \' \"
               REX.EscOrQuote.test(p1) ? substring :
+              // \g \h \. \# etc
               p1;
           }
         ) : str;
@@ -260,6 +278,7 @@
     '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
     },
 
+  // check context for duplicate Ids
   hasDuplicateId =
     function(id, context) {
       var i = 0, cloned, element, fragment;
@@ -292,42 +311,62 @@
   clsMatch = 'c.test(e.getAttribute?e.getAttribute("class"):e.className)',
   tagclsMatch = tagMatch + '&&' + clsMatch,
 
+  // getElementById from context
   byId =
     function(id, context) {
       var element, elements, resolver;
 
+      // ensure a default context
+      context || (context = doc);
+
+      // unescape special chars in
+      // identifier if is necessary
       id = unescapeIdentifier(id);
       id = id.replace(/\x00|\\$/g, '\ufffd');
 
+      // check if the duplicate config option is enabled
       if (!(Config.DUPLICATE && hasDuplicateId(id, context))) {
+        // if available use the DOM API to collect the nodes
         if ('getElementById' in context) {
           return (element = context.getElementById(id)) ? [ element ] : none;
         }
       }
 
+      // use a DOM tree walk fallback to collect the nodes
+
+      // for non-elements contexts start from first element child
       context.nodeType != 1 && (context = context.firstElementChild);
+
+      // build the resolver and execute it
       resolver = Function('t', walk.replace('@', idTest))(id);
       elements = resolver(context);
 
       return Config.DUPLICATE ? elements : elements[0] || null;
     },
 
+  // getElementsByTagName from context
   byTag =
     function(tag, context) {
       var elements, resolver,
       get = HTML_DOCUMENT ? method['*'] : method['*'] + 'NS',
       m = tag.indexOf(','), nTag, reTag, any = tag == '*', t;
 
+      // ensure a default context
+      context || (context = doc);
+
+      // if available use the DOM API to collect the nodes
       if (m < 0 && get in context) {
         return HTML_DOCUMENT ?
           context[get](tag) :
           context[get]('*', tag);
       }
 
-      context || (context = doc);
+      // use a DOM tree walk fallback to collect the nodes
 
+      // prepare the tag name filter regexp
       tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
 
+      // multiple tag names
       if (m > 0) {
         t = tagMatch;
         tag = tag.trim();
@@ -335,27 +374,37 @@
         reTag = RegExp('^' + nTag.join('|') + '$');
       } else t = tagTest;
 
+      // build the resolver and execute it
       resolver = Function('t, a', walk.replace('@', t))(reTag || tag, any);
-
       elements = resolver(context);
 
+      // remove possible non-element nodes from the collected nodes
       if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
 
       return elements;
     },
 
+  // getElementsByClassName from context
   byClass =
     function(cls, context) {
       var elements, resolver,
       m = cls.indexOf(','), nCls, reCls, cs;
 
+      // ensure a default context
+      context || (context = doc);
+
+      // if available use the DOM API to collect the nodes
       if (m < 0 && method['.'] in context) {
         return context[method['.']](cls);
       }
 
+      // use a DOM tree walk fallback to collect the nodes
+
+      // prepare the class name filter regexp
       cls = cls.replace(REX.RegExpChar, '\\$&');
       cs = QUIRKS_MODE ? 'i' : '';
 
+      // multiple class names
       if (m > 0) {
         cls = cls.trim();
         cls = unescapeIdentifier(cls);
@@ -364,44 +413,62 @@
 
       reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
 
+      // for non-element contexts start from first element child
       context.nodeType == 1 || (context = context.firstElementChild);
+
+      // build the resolver and execute it
       resolver = Function('c', walk.replace('@', clsMatch))(reCls);
       elements = resolver(context);
 
       return elements;
     },
 
+  // getElementsByTagCls from context
   byTagCls =
     function(tagcls, context) {
       var elements, resolver,
       tag, cls, cs;
 
-      tag = tagcls.split('-')[0];
-      cls = tagcls.split('-')[1];
-
+      // ensure a default context
       context || (context = doc);
 
+      // multiple tag names
+      tag = tagcls.split('-')[0];
+
+      // multiple class names
+      cls = tagcls.split('-')[1];
+
+      // use a DOM tree walk to collect nodes having both
+      // tag and class since no equivalent DOM API exists
+
+      // prepare shortcuts for tag and class match
       tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
       cls = cls.replace(REX.RegExpChar, '\\$&');
       cs = QUIRKS_MODE ? 'i' : '';
 
+      // prepare the tag name filter regexp
       tag = tag.trim();
       nTag = tag.split(REX.SplitComma);
       reTag = RegExp('^' + nTag.join('|') + '$');
 
+      // prepare the class name filter regexp
       cls = cls.trim();
       cls = unescapeIdentifier(cls);
       nCls = cls.split(REX.SplitComma).join('|');
       reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
 
+      // build the resolver and execute it
       resolver = Function('t, c', walk.replace('@', tagclsMatch))(reTag, reCls);
       elements = resolver(context);
 
+      // remove possible non-element nodes from the collected nodes
       if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
 
       return elements;
     },
 
+  // namespace aware hasAttribute
+  // helper for XML/XHTML documents
   hasAttributeNS =
     function(e, name) {
       var i, l, attr = e.getAttributeNames();
@@ -412,6 +479,8 @@
       return false;
     },
 
+  // namespace aware getAttribute
+  // helper for XML/XHTML documents
   getAttributeNS =
     function(e, name) {
       var i, l, attr = e.getAttributeNames();
@@ -422,6 +491,7 @@
       return null;
     },
 
+  // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
   nthElement = (function() {
     var parents = Array(), elements = Array();
     return function(element, dir) {
@@ -440,6 +510,7 @@
     };
   })(),
 
+  // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
   nthOfType = (function() {
     var parents = Array(), elements = Array();
     return function(element, dir) {
@@ -459,6 +530,7 @@
     };
   })(),
 
+  // elements inherit ancestor properties
   inherit =
     function(element, tag, property) {
       var name = element.nodeName;
@@ -470,6 +542,7 @@
       return name == tag ? element : null;
     },
 
+  // check if the document type is HTML
   isHTML =
     function(node) {
       var doc = node.ownerDocument || node, root = doc.documentElement;
@@ -477,6 +550,7 @@
         doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html');
     },
 
+  // configure the engine to use special handling
   configure =
     function(option) {
       if (typeof option == 'string') { return !!Config[option]; }
@@ -492,6 +566,7 @@
       return true;
     },
 
+  // centralized error and exceptions handling
   emit =
     function(message, proto) {
       var err;
@@ -508,6 +583,7 @@
       }
     },
 
+  // special handling flags
   Config = {
 
     ESCAPECHR: true,
@@ -525,6 +601,7 @@
     VERBOSITY: true
   },
 
+  // execute the engine initialization code
   initialize =
     function(doc) {
       setIdentifierSyntax();
@@ -533,6 +610,7 @@
       switchContext(doc, true);
     },
 
+  // build validation regexps used by the engine
   setIdentifierSyntax =
     function() {
 
@@ -658,12 +736,15 @@
   S_VARS = [ ],
   M_VARS = [ ],
 
+  // compile groups or single selector strings into
+  // executable functions for matching or selecting
   compile =
     function(groups, mode, callback) {
 
       var i, l, key, factory, selector, token, vars, res = '',
       head = '', loop = '', macro = '', source = '', seen = { };
 
+      // make sure that the input string is an array
       if (typeof groups == 'string') groups = [groups];
 
       selector = groups.join(', ');
@@ -713,6 +794,7 @@
       return mode ? (selectLambdas[key] = factory) : (matchLambdas[key] = factory);
     },
 
+  // build conditional code to check components of selector strings
   compileSelector =
     function(expression, source, mode, callback, not) {
 
@@ -727,32 +809,39 @@
       // before normalization and optimization processing
       selector_string = mode ? lastSelected : lastMatched;
 
+      // ensure selector has single whitespaces
       selector = selector.replace(/\s{1,2}/g, ' ');
+      // isolate selector combinators/components
       selector = selector.replace(/\s?([>+~])\s?/g, '$1');
 
       while (selector) {
 
+        // get namespace prefix if present or get first char of selector
         symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector.charAt(0);
 
         switch (symbol) {
 
+          // universal resolver
           case '*':
             match = selector.match(Patterns.universal);
             source = 'if(' + N + 'true' +
               '){' + source + '}';
             break;
+          // id resolver
           case '#':
             match = selector.match(Patterns.id);
             compat = HTML_DOCUMENT ? ATTR_ID : 'e.getAttribute("id")';
             source = 'if(' + N + '(' + compat + '=="' + convertEscapes(match[1]) + '"' +
               ')){' + source + '}';
             break;
+          // class name resolver
           case '.':
             match = selector.match(Patterns.className);
             compat = HTML_DOCUMENT ? 'e.className' : 'e.getAttribute("class")';
             source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/.test(' + compat + ')' +
               ')){' + source + '}';
             break;
+          // tag name resolver
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
@@ -760,6 +849,7 @@
               'Name=="' + convertEscapes(compat) + '"' +
               ')){' + source + '}';
             break;
+          // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
             if (match[1] == '*') break; else if (match[1])
@@ -768,6 +858,7 @@
               match[1] === null ? 'e.namespaceURI=="' + NAMESPACE_URI + '"' : '') +
               ')){' + source + '}';
             break;
+          // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
             expr = match[1].split(':');
@@ -995,6 +1086,7 @@
               }
             }
 
+            // Level 4 pseudo-classes for form validation (was web-forms)
             else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
               pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
               switch (pseudo) {
@@ -1091,27 +1183,35 @@
               }
             }
 
+            // allow pseudo-elements as :after/:before (single or double colon)
             else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
             else {
 
+              // reset
               expr = false;
               status = false;
 
+              // process registered selector extensions
               for (expr in Selectors) {
                 if ((match = selector.match(Selectors[expr].Expression)) && match[1]) {
                   result = Selectors[expr].Callback(match, source, mode, callback);
                   if ('match' in result) { match = result.match; }
                   vars = result.modvar;
                   if (mode) {
+                     // add extra needed variables to the selector resolver
                      vars && S_VARS.indexOf(vars) < 0 && (S_VARS[S_VARS.length] = vars);
                   } else {
+                     // add extra needed variables to the matcher resolver
                      vars && M_VARS.indexOf(vars) < 0 && (M_VARS[M_VARS.length] = vars);
                   }
+                  // extension source code
                   source = result.source;
+                  // extension status code
                   status = result.status;
+                  // break on status error
                   if (status) { break; }
                 }
               }
@@ -1141,6 +1241,7 @@
           return '';
         }
 
+        // pop last component
         selector = match.pop();
       }
       // end of while selector
@@ -1148,6 +1249,7 @@
       return source;
     },
 
+  // optimize selectors removing already checked components
   optimize =
     function(expression, token) {
       var index = token.index,
@@ -1158,6 +1260,7 @@
           '*' : '') : '') + expression.slice(index + length);
     },
 
+  // parse selector groups in an array
   parseGroup =
     function(selector) {
       var i, l,
@@ -1298,10 +1401,12 @@
         return Config.VERBOSITY ? undefined : none;
       }
 
+      // prepare factory and closure for specific document types
       resolver = collect(
         groups.length < 2 ? expression : groups, context, callback,
         HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
 
+      // save/reuse factory and closure collection
       if (!selectResolvers[selector] && !callback) {
         selectResolvers[selector] = {
           builder: resolver.builder,
@@ -1313,6 +1418,7 @@
       return resolver.factory(resolver.builder, callback, context);
     },
 
+  // prepare factory resolvers and closure collections
   collect =
     function(expression, context, callback, resolvers) {
       var builder, factory, ident, symbol, token;
@@ -1358,7 +1464,7 @@
   // Query Selector API placeholders to native references
   _closest, _matches, _querySelector, _querySelectorAll,
 
-  // overrides Query Selector API methods
+  // overrides Query Selector API methods (only for browsers)
   install =
     function(all) {
 
@@ -1421,7 +1527,7 @@
 
     },
 
-  // restore Query Selector API methods
+  // restore Query Selector API methods (only for browsers)
   uninstall =
     function() {
       // reinstates QSA native references
@@ -1444,16 +1550,19 @@
   lastMatched,
   lastSelected,
 
-  // context
+  // last context
   lastMatchContext,
   lastSelectContext,
 
+  // cached lambdas
   matchLambdas = { },
   selectLambdas = { },
 
+  // cached resolvers
   matchResolvers = { },
   selectResolvers = { },
 
+  // passed to resolvers
   Snapshot = {
 
     doc: doc,
@@ -1474,7 +1583,10 @@
     getAttributeNS: getAttributeNS
   },
 
+  // public exported methods/objects
   Dom = {
+
+    // exported cache objects
 
     lastMatched: lastMatched,
     lastSelected: lastSelected,
@@ -1485,12 +1597,16 @@
     matchResolvers: matchResolvers,
     selectResolvers: selectResolvers,
 
+    // exported compiler macros
+
     CFG: CFG,
 
     M_BODY: M_BODY,
     S_BODY: S_BODY,
     M_TEST: M_TEST,
     S_TEST: S_TEST,
+
+    // exported engine methods
 
     byId: byId,
     byTag: byTag,
@@ -1519,6 +1635,7 @@
     Operators: Operators,
     Selectors: Selectors,
 
+    // register a new selector combinator symbol and its related function resolver
     registerCombinator:
       function(combinator, resolver) {
         var i = 0, l = combinator.length, symbol;
@@ -1538,6 +1655,7 @@
         }
       },
 
+    // register a new attribute operator symbol and its related function resolver
     registerOperator:
       function(operator, resolver) {
         var i = 0, l = operator.length, symbol;
@@ -1556,6 +1674,7 @@
         }
       },
 
+    // register a new selector symbol and its related function resolver
     registerSelector:
       function(name, rexp, func) {
         Selectors[name] || (Selectors[name] = {
