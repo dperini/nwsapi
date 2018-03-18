@@ -83,7 +83,7 @@
   pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write',
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
-  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]{0,1}\\s?\\d*\\s?)*n?(?:[-+]{0,1}\\s?\\d*\\s?))\\s?\\))',
+  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?\\))',
   negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*)\\s?\\)',
 
   Patterns = {
@@ -911,6 +911,8 @@
                     expr = expr ? 'OfType' : 'Element';
                     type = type ? 'true' : 'false';
                     source = 'n=s.nth' + expr + '(e,' + type + ');if(' + N + '(' + test + ')){' + source + '}';
+                  } else {
+                    emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   }
                   break;
                 default:
