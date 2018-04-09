@@ -810,7 +810,7 @@
       selector_string = mode ? lastSelected : lastMatched;
 
       // ensure selector has single whitespaces
-      selector = selector.replace(/\s{1,2}/g, ' ');
+      selector = selector.replace(/[\n\r\f]{1,2}/g, ' ');
       // isolate selector combinators/components
       selector = selector.replace(/\s?([>+~])\s?/g, '$1');
 
