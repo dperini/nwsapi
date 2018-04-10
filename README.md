@@ -2,6 +2,13 @@
 
 Fast CSS Selectors API Engine
 
+NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely rewritten to be easily extended and maintained.
+
+It is a pure Javascript RTL (right-to-left) selector parser and compiler with no extenal dependencies especially written for headless environment and newer browsers.
+
+It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers.
+
+This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.
 
 ## Installation
 
@@ -20,7 +27,7 @@ To include NWSAPI in a standard web page and automatically replace the native QS
 To use it with Node.js:
 
 ```
-$ npm install nwsapi (not published on npm yet)
+$ npm install nwsapi
 ```
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
