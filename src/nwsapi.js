@@ -653,7 +653,10 @@
           ')?' +
           // attribute case sensitivity
           WSP + '?' + '(i)?' + WSP + '?' +
-        '\\]';
+        // see <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
+        // allow mangled|unclosed selector syntax if at the end of the qSA string
+        // needed to pass current WP tests and mimic browsers behavior 'a[href=#'
+        '(?:\\]|$)';
 
       attrmatcher = attributes.replace(attrparser, attrvalues);
 
