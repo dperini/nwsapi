@@ -906,7 +906,8 @@
             break;
           // *** Descendant combinator
           // E F (E ancestor of F)
-          case ' ':
+          case '\x09':
+          case '\x20':
             match = selector.match(Patterns.ancestor);
             source = 'n=e;while(e=e.parentElement){' + source + '}e=n;';
             break;
