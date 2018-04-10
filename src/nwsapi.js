@@ -852,14 +852,18 @@
               'Name=="' + convertEscapes(compat) + '"' +
               ')){' + source + '}';
             break;
-          // namespace resolver
+          // namespace|tag resolver
           case '|':
             match = selector.match(Patterns.namespace);
-            if (match[1] == '*') break; else if (match[1])
-            emit('\'' + selector_string + '\' is not a valid selector');
-            source = 'if(' + N + '(' + (match[1] === undefined ? '!e.namespaceURI' :
-              match[1] === null ? 'e.namespaceURI=="' + NAMESPACE_URI + '"' : '') +
-              ')){' + source + '}';
+            if (match[1] == '*') {
+              source = 'if(' + N + '(true)){' + source + '}';
+            } else if (match[1] === undefined || match[1] == '') {
+              source = 'if(' + N + '(e.namespaceURI===null)){' + source + '}';
+            } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
+              source = 'if(' + N + '(e.namespaceURI==="' + match[1] + '")){' + source + '}';
+            } else {
+              emit('\'' + selector_string + '\' is not a valid selector');
+            }
             break;
           // attributes resolver
           case '[':
