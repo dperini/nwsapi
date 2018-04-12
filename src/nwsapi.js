@@ -852,15 +852,15 @@
               'Name=="' + convertEscapes(compat) + '"' +
               ')){' + source + '}';
             break;
-          // namespace|tag resolver
+          // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
             if (match[1] == '*') {
-              source = 'if(' + N + '(true)){' + source + '}';
-            } else if (match[1] === undefined || match[1] == '') {
-              source = 'if(' + N + '(e.namespaceURI===null)){' + source + '}';
+              source = 'if(' + N + 'true){' + source + '}';
+            } else if (!match[1]) {
+              source = 'if(' + N + '(!e.namespaceURI)){' + source + '}';
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
-              source = 'if(' + N + '(e.namespaceURI==="' + match[1] + '")){' + source + '}';
+              source = 'if(' + N + '(e.namespaceURI==="' + NAMESPACE_URI + '")){' + source + '}';
             } else {
               emit('\'' + selector_string + '\' is not a valid selector');
             }
