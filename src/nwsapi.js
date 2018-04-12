@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.0beta
+ * Version: 2.0.0beta1
  * Created: 20070722
- * Release: 20180322
+ * Release: 20180411
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -21,7 +21,7 @@
 
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory;
-  } else if (typeof define === 'function' && define["amd"]) {
+  } else if (typeof define === 'function' && define['amd']) {
     define(factory);
   } else {
     global.NW || (global.NW = { });
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.0beta',
+  var version = 'nwsapi-2.0.0beta1',
 
   doc = global.document,
   nav = global.navigator,
@@ -614,7 +614,7 @@
   setIdentifierSyntax =
     function() {
 
-      var identifer,
+      var identifier,
       extendedValidator,
       standardValidator,
       attrparser, attrvalues,
@@ -860,7 +860,7 @@
             } else if (!match[1]) {
               source = 'if(' + N + '(!e.namespaceURI)){' + source + '}';
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
-              source = 'if(' + N + '(e.namespaceURI==="' + NAMESPACE_URI + '")){' + source + '}';
+              source = 'if(' + N + '(e.namespaceURI=="' + NAMESPACE_URI + '")){' + source + '}';
             } else {
               emit('\'' + selector_string + '\' is not a valid selector');
             }
