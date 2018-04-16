@@ -1066,7 +1066,7 @@
                     ')){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
                   break;
                 case 'target':
-                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&location.hash&&e.id==location.hash.slice(1))){' + source + '}';
+                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
                   break;
                 case 'link':
                   source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
