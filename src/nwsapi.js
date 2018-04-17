@@ -738,7 +738,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, x_error = '',
+      var a, b, n, x_error = '', NS,
       N = not ? '!' : '', D = not ? '' : '!', pseudo,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -783,13 +783,17 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
-            source = 'if(' + N + '(e.' + (HTML_DOCUMENT ? 'node' : 'local') +
-              'Name=="' + convertEscapes(compat) + '"' +
+            source = 'if(' + N + '(' +
+              (NS === void 0 ? 'e.nodeName=="' + convertEscapes(compat) + '"' :
+                (NS === '*' ? '/' + match[1] + '/i.test(e.nodeName)' :
+                  (NS === null ? 'e.nodeName==e.localName' :
+                    'e.namespaceURI=="' + NAMESPACE_URI + '"'))) +
               ')){' + source + '}';
             break;
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
+            NS = match[1] || null;
             if (match[1] == '*') {
               source = 'if(' + N + 'true){' + source + '}';
             } else if (!match[1]) {
