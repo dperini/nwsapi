@@ -306,10 +306,9 @@
   // coditional tests to accept returned elements in the
   // cross document methods: byId, byTag, byCls, byTagCls
   idTest = 't==' + FIX_ID,
-  tagTest = 'a||(e.nodeName==t)',
-  tagMatch = 't.test(e.nodeName)',
-  clsMatch = 'c.test(e.getAttribute?e.getAttribute("class"):e.className)',
-  tagclsMatch = tagMatch + '&&' + clsMatch,
+  tagMatch = 'a||t.test(e.nodeName)',
+  clsMatch = 'c.test(e.getAttribute?' +
+    'e.getAttribute("class"):e.className)',
 
   // getElementById from context
   byId =
@@ -332,8 +331,6 @@
         }
       }
 
-      // use a DOM tree walk fallback to collect the nodes
-
       // for non-elements contexts start from first element child
       context.nodeType != 1 && (context = context.firstElementChild);
 
@@ -344,38 +341,29 @@
       return Config.DUPLICATE ? elements : elements[0] || null;
     },
 
-  // getElementsByTagName from context
+  // specialized getElementsByTagName
+  // collect one or multiple tag names from context
+  // @tag may be a tag name or an array of tag names
   byTag =
     function(tag, context) {
-      var elements, resolver,
-      get = HTML_DOCUMENT ? method['*'] : method['*'] + 'NS',
-      m = tag.indexOf(','), nTag, reTag, any = tag == '*', t;
+      var elements, resolver, nTag = '', reTag, any;
 
-      // ensure a default context
-      context || (context = doc);
+      if (typeof tag == 'string') { tag = [ tag ]; }
 
       // if available use the DOM API to collect the nodes
-      if (m < 0 && get in context) {
-        return HTML_DOCUMENT ?
-          context[get](tag) :
-          context[get]('*', tag);
+      if (tag.length < 2 && method['*'] in context) {
+        return context[method['*']](tag[0]);
       }
 
-      // use a DOM tree walk fallback to collect the nodes
-
-      // prepare the tag name filter regexp
-      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
-
       // multiple tag names
-      if (m > 0) {
-        t = tagMatch;
-        tag = tag.trim();
-        nTag = tag.split(REX.SplitComma);
-        reTag = RegExp('^' + nTag.join('|') + '$');
-      } else t = tagTest;
+      tag.map(function(e) {
+        if (e == '*') { any = true; }
+        else nTag += '|' + e.replace(REX.RegExpChar, '\\$&');
+      });
+      reTag = RegExp('^(?:' + nTag.slice(1) + ')$', 'i');
 
       // build the resolver and execute it
-      resolver = Function('t, a', walk.replace('@', t))(reTag || tag, any);
+      resolver = Function('t, a', walk.replace('@', tagMatch))(reTag, any);
       elements = resolver(context);
 
       // remove possible non-element nodes from the collected nodes
@@ -384,85 +372,32 @@
       return elements;
     },
 
-  // getElementsByClassName from context
+  // specialized getElementsByClassName
+  // collect one or multiple class names from context
+  // @cls may be a class name or an array of class names
   byClass =
     function(cls, context) {
-      var elements, resolver,
-      m = cls.indexOf(','), nCls, reCls, cs;
+      var elements, resolver, nCls = '', reCls, cs;
 
-      // ensure a default context
-      context || (context = doc);
+      if (typeof cls == 'string') { cls = [ cls ]; }
 
       // if available use the DOM API to collect the nodes
-      if (m < 0 && method['.'] in context) {
-        return context[method['.']](cls);
+      if (cls.length < 2 && method['.'] in context) {
+        return context[method['.']](cls[0]);
       }
 
-      // use a DOM tree walk fallback to collect the nodes
-
       // prepare the class name filter regexp
-      cls = cls.replace(REX.RegExpChar, '\\$&');
       cs = QUIRKS_MODE ? 'i' : '';
 
       // multiple class names
-      if (m > 0) {
-        cls = cls.trim();
-        cls = unescapeIdentifier(cls);
-        nCls = cls.split(REX.SplitComma).join('|');
-      } else nCls = cls;
-
-      reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
-
-      // for non-element contexts start from first element child
-      context.nodeType == 1 || (context = context.firstElementChild);
+      cls.map(function(e) {
+        nCls += '|' + e.replace(REX.RegExpChar, '\\$&');
+      });
+      reCls = RegExp('(^|\\s)' + nCls.slice(1) + '(\\s|$)', cs);
 
       // build the resolver and execute it
       resolver = Function('c', walk.replace('@', clsMatch))(reCls);
       elements = resolver(context);
-
-      return elements;
-    },
-
-  // getElementsByTagCls from context
-  byTagCls =
-    function(tagcls, context) {
-      var elements, resolver,
-      tag, cls, cs;
-
-      // ensure a default context
-      context || (context = doc);
-
-      // multiple tag names
-      tag = tagcls.split('-')[0];
-
-      // multiple class names
-      cls = tagcls.split('-')[1];
-
-      // use a DOM tree walk to collect nodes having both
-      // tag and class since no equivalent DOM API exists
-
-      // prepare shortcuts for tag and class match
-      tag = HTML_DOCUMENT ? tag.toUpperCase() : tag;
-      cls = cls.replace(REX.RegExpChar, '\\$&');
-      cs = QUIRKS_MODE ? 'i' : '';
-
-      // prepare the tag name filter regexp
-      tag = tag.trim();
-      nTag = tag.split(REX.SplitComma);
-      reTag = RegExp('^' + nTag.join('|') + '$');
-
-      // prepare the class name filter regexp
-      cls = cls.trim();
-      cls = unescapeIdentifier(cls);
-      nCls = cls.split(REX.SplitComma).join('|');
-      reCls = RegExp('(^|\\s)' + nCls + '(\\s|$)', cs);
-
-      // build the resolver and execute it
-      resolver = Function('t, c', walk.replace('@', tagclsMatch))(reTag, reCls);
-      elements = resolver(context);
-
-      // remove possible non-element nodes from the collected nodes
-      if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
 
       return elements;
     },
@@ -1444,21 +1379,19 @@
           }
         }
       } else {
-        var tn = '', nt = 0, cn = '', nc = 0;
+        var tn = Array(), ts = Object(), cn = Array(), cs = Object();
         for (var i = 0, l = expression.length; l > i; ++i) {
           if ((token = expression[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
             ident = unescapeIdentifier(ident);
           }
-          if (symbol == '*') { ++nt; tn += i === 0 ? ident : ',' + ident; }
-          if (symbol == '.') { ++nc; cn += i === 0 ? ident : ',' + ident; }
+          if (symbol == '*') { if (!ts[ident] && (ts[ident] = true)) { tn.push(ident); }}
+          if (symbol == '.') { if (!cs[ident] && (cs[ident] = true)) { cn.push(ident); }}
         }
-        if (nt == l) {
+        if (tn.length == l) {
           builder = compat['*'](context, tn);
-        } else if (nc == l) {
+        } else if (cn.length == l) {
           builder = compat['.'](context, cn);
-//        } else if (nt + nc == l) {
-//          builder = compat['?'](context, tn + '-' + cn);
         } else {
           builder = compat['*'](context, '*');
         }
