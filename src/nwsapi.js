@@ -412,7 +412,7 @@
 
       // if available use the DOM API to collect the nodes
       if (tag.length < 2 && method['*'] in context) {
-        return context[method['*']](tag[0]);
+        return context[method['*'] + 'NS']('*', tag[0]);
       }
 
       // multiple tag names
@@ -844,10 +844,8 @@
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
             source = 'if(' + N + '(' +
-              (NS === void 0 ? 'e.nodeName=="' + convertEscapes(compat) + '"' :
-                (NS === '*' ? '/' + match[1] + '/i.test(e.nodeName)' :
-                  (NS === null ? 'e.nodeName==e.localName' :
-                    'e.namespaceURI=="' + NAMESPACE_URI + '"'))) +
+                'e.localName=="' + match[1] + '"' +
+                '||e.nodeName=="' + compat + '"' +
               ')){' + source + '}';
             break;
           // namespace resolver
