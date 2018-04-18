@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2007-2018 Diego Perini
  * All rights reserved.
@@ -105,6 +106,7 @@
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
   QUIRKS_MODE,
+  HAS_DUPE_IDS,
   HTML_DOCUMENT,
   NAMESPACE_URI,
 
@@ -174,6 +176,9 @@
       var oldDoc = doc;
       doc = context.ownerDocument || context;
       if (force || oldDoc !== doc) {
+        // force a new check for each document change
+        // performed before the next select operation
+        HAS_DUPE_IDS = undefined;
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
         NAMESPACE_URI = root.namespaceURI;
@@ -281,17 +286,35 @@
   // check context for duplicate Ids
   hasDuplicateId =
     function(id, context) {
-      var i = 0, cloned, element, fragment;
+      var i = 0, cloned, element, fragment, r = Object();
 
-      cloned = context.firstElementChild.cloneNode(true);
-      fragment = doc.createDocumentFragment();
-      fragment.appendChild(cloned);
+      context = context.nodeType == 1 ?
+        context : context.firstElementChild;
 
-      while ((element = fragment.getElementById(id))) {
-        element.parentNode.removeChild(element); ++i;
-        if (i > 1) { break; }
+      if (typeof id == 'string') {
+
+        cloned = context.cloneNode(true);
+        fragment = doc.createDocumentFragment();
+        fragment.appendChild(cloned);
+
+        while ((element = fragment.getElementById(id))) {
+          element.removeAttribute('id'); ++i;
+          if (i > 1) { break; }
+        }
+
+      } else {
+
+        e = context.getElementsByTagName('*');
+        while (e[i]) {
+          if (e[i].id) {
+            if (!r[e[i].id]) {
+              r[e[i].id] = true;
+            } else return true;
+          }
+          ++i;
+        }
+        i = 0;
       }
-
       return i > 1;
     },
 
@@ -315,16 +338,12 @@
     function(id, context) {
       var element, elements, resolver;
 
-      // ensure a default context
-      context || (context = doc);
-
-      // unescape special chars in
-      // identifier if is necessary
+      // unescape identifier
       id = unescapeIdentifier(id);
       id = id.replace(/\x00|\\$/g, '\ufffd');
 
       // check if the duplicate config option is enabled
-      if (!(Config.DUPLICATE && hasDuplicateId(id, context))) {
+      if (!HAS_DUPE_IDS) {
         // if available use the DOM API to collect the nodes
         if ('getElementById' in context) {
           return (element = context.getElementById(id)) ? [ element ] : none;
@@ -338,7 +357,7 @@
       resolver = Function('t', walk.replace('@', idTest))(id);
       elements = resolver(context);
 
-      return Config.DUPLICATE ? elements : elements[0] || null;
+      return elements;
     },
 
   // specialized getElementsByTagName
@@ -527,7 +546,6 @@
     UNICODE16: true,
 
     BUGFIX_ID: true,
-    DUPLICATE: true,
 
     SIMPLENOT: true,
     USE_HTML5: true,
@@ -1313,6 +1331,10 @@
         if (resolver.context === context) {
           return resolver.factory(resolver.builder, callback, context);
         }
+      }
+
+      if (HAS_DUPE_IDS === undefined) {
+        HAS_DUPE_IDS = hasDuplicateId(null, context);
       }
 
       // arguments validation
