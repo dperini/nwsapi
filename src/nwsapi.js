@@ -275,17 +275,21 @@
   set_compat =
     function() {
 
-      return {
+      return Config.FASTCOMMA == false ? {
         '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
         '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
         '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
+      } : {
+        '#': function(c, n, z) { return function(e, f) { return validate(c, n, z, '#') ? z : (z = byId(n, c)); }; },
+        '*': function(c, n, z) { return function(e, f) { return validate(c, n, z, '*') ? z : (z = byTag(n, c)); }; },
+        '.': function(c, n, z) { return function(e, f) { return validate(c, n, z, '.') ? z : (z = byClass(n, c)); }; },
       };
     },
 
   domapi,
 
   set_domapi =
-   function() {
+    function() {
 
       var mapped = {
         '@': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
@@ -334,6 +338,25 @@
         i = 0;
       }
       return i > 1;
+    },
+
+  // validate memoized HTMLCollections
+  validate =
+    function(context, ident, list, type) {
+      var c, i, j, k, l, m, els, test;
+      if (!list) { return false; }
+      l = list.length;
+      k = ident.length;
+      m = method[type];
+      for (i = 0; k > i; ++i) {
+        elms = context[m](ident[i]);
+        if (!els) continue; test = toArray(els);
+        for (j = 0, c = 0; l > j; ++j) {
+          if (list[j] === test[c]) { ++c; }
+        }
+        if (test.length !== c) { return false; }
+      }
+      return true;
     },
 
   // recursive DOM LTR traversal, configurable by replacing
@@ -564,6 +587,7 @@
     UNICODE16: true,
 
     BUGFIX_ID: true,
+    FASTCOMMA: true,
 
     SIMPLENOT: true,
     USE_HTML5: true,
