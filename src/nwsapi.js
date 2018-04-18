@@ -555,6 +555,8 @@
         if (i == 'SIMPLENOT') {
           matchResolvers = { };
           selectResolvers = { };
+        } else if (i == 'FASTCOMMA') {
+          set_compat();
         }
       }
       setIdentifierSyntax();
