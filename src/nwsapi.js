@@ -80,7 +80,7 @@
   struct_2 = '(?:nth(?:-last)?(?:-child|-of-type))',
   pseudo_1 = 'any-link|link|visited|target|active|focus|hover',
   pseudo_2 = 'checked|disabled|enabled|selected|local-link(?:\\(\\d*\\))?|lang\\(([-\\w]{2,})\\)',
-  pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write',
+  pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write|placeholder-shown',
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
   params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?\\))',
@@ -1183,6 +1183,13 @@
                       '(/^date|datetime-local|month|number|range|time|week$/i.test(e.type))&&' +
                       '(/^range$/i.test(e.type)||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' + source + '}';
+                  break;
+                case 'placeholder-shown':
+                  source =
+                    'if(' + N + '(' +
+                      'e.hasAttribute("placeholder")&&' +
+                      '!s.match(":focus",e)' +
+                    ')){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\' is not a valid selector' + x_error);
