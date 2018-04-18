@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2007-2018 Diego Perini
  * All rights reserved.
@@ -271,16 +270,35 @@
     '.': 'getElementsByClassName'
     },
 
-  compat = {
-    '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
-    '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
-    '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
+  compat,
+
+  set_compat =
+    function() {
+
+      return {
+        '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
+        '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
+        '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
+      };
     },
 
-  domapi = {
-    '#': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementById(n); return z = z ? [ z ] : none; };},
-    '*': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByTagName(n); return f ? concatCall(z, f) : toArray(z); };},
-    '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
+  domapi,
+
+  set_domapi =
+   function() {
+
+      var mapped = {
+        '@': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
+        '#': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementById(n); return z = z ? [ z ] : none; };},
+        '*': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByTagName(n); return f ? concatCall(z, f) : toArray(z); };},
+        '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };},
+      };
+
+      natives = mapped;
+      if (HAS_DUPE_IDS) natives['#'] =  mapped['@'];
+      delete natives['@'];
+
+      return natives;
     },
 
   // check context for duplicate Ids
@@ -1335,6 +1353,8 @@
 
       if (HAS_DUPE_IDS === undefined) {
         HAS_DUPE_IDS = hasDuplicateId(null, context);
+        compat = set_compat();
+        domapi = set_domapi();
       }
 
       // arguments validation
