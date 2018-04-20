@@ -542,7 +542,7 @@
     function(node) {
       var doc = node.ownerDocument || node, root = doc.documentElement;
       return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
-        doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html');
+        doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html') > 0;
     },
 
   // configure the engine to use special handling
