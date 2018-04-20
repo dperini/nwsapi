@@ -346,7 +346,7 @@
       k = ident.length;
       m = method[type];
       for (i = 0; k > i; ++i) {
-        elms = context[m](ident[i]);
+        els = context[m](ident[i]);
         if (!els) continue; test = toArray(els);
         for (j = 0, c = 0; l > j; ++j) {
           if (list[j] === test[c]) { ++c; }
