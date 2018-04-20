@@ -33,7 +33,6 @@
   var version = 'nwsapi-2.0.0beta2',
 
   doc = global.document,
-  nav = global.navigator,
   root = doc.documentElement,
 
   COM = '>+~',
@@ -72,8 +71,6 @@
 
   reOptimizer,
   reSimpleNot,
-  reSimpleMul,
-  reSimpleUni,
   reValidator,
 
   struct_1 = '(?:root|empty|scope)|(?:(?:first|last|only)(?:-child|-of-type))',
@@ -701,9 +698,6 @@
         ')$');
 
       reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?:(?:\\[.*\\])|:[-\\w]+(?:\\(.*\\))?)*)$');
-
-      reSimpleUni = RegExp('^([.#]?)(-?(?:-{2}|[_a-zA-Z]|[^\x00-\x9f])(?:-|[0-9]|[_a-zA-Z]|[^\x00-\x9f])*)$');
-      reSimpleMul = RegExp('^(\\.?)(-?(?:-{2}|[_a-zA-Z]|[^\x00-\x9f])(?:-|[0-9]|[_a-zA-Z]|[^\x00-\x9f])*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
