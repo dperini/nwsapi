@@ -19,7 +19,7 @@
 
   'use strict';
 
-  if (typeof module == 'object' && typeof exports == 'object') {
+  if (typeof module === 'object' && typeof exports === 'object') {
     module.exports = factory;
   } else if (typeof define === 'function' && define['amd']) {
     define(factory);
@@ -112,7 +112,7 @@
     '=': 1, '^=': 1, '$=': 1, '|=': 1, '*=': 1, '~=': 1
   },
 
-  FIX_ID = '(typeof(e.id)=="string"?e.id:e.getAttribute("id"))',
+  FIX_ID = '(typeof(e.id)==="string"?e.id:e.getAttribute("id"))',
 
   HTML_TABLE = {
     'accept': 1, 'accept-charset': 1, 'align': 1, 'alink': 1, 'axis': 1,
@@ -272,7 +272,7 @@
   set_compat =
     function() {
 
-      return Config.FASTCOMMA == false ? {
+      return !Config.FASTCOMMA ? {
         '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
         '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
         '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
@@ -307,10 +307,10 @@
     function(id, context) {
       var i = 0, cloned, element, fragment, r = Object();
 
-      context = context.nodeType == 1 ?
+      context = context.nodeType === 1 ?
         context : context.firstElementChild;
 
-      if (typeof id == 'string') {
+      if (typeof id === 'string') {
 
         cloned = context.cloneNode(true);
         fragment = doc.createDocumentFragment();
@@ -366,7 +366,7 @@
 
   // coditional tests to accept returned elements in the
   // cross document methods: byId, byTag, byCls, byTagCls
-  idTest = 't==' + FIX_ID,
+  idTest = 't===' + FIX_ID,
   tagMatch = 'a||t.test(e.nodeName)',
   clsMatch = 'c.test(e.getAttribute?' +
     'e.getAttribute("class"):e.className)',
@@ -389,7 +389,7 @@
       }
 
       // for non-elements contexts start from first element child
-      context.nodeType != 1 && (context = context.firstElementChild);
+      context.nodeType !== 1 && (context = context.firstElementChild);
 
       // build the resolver and execute it
       resolver = Function('t', walk.replace('@', idTest))(id);
@@ -405,7 +405,7 @@
     function(tag, context) {
       var elements, resolver, nTag = '', reTag, any;
 
-      if (typeof tag == 'string') { tag = [ tag ]; }
+      if (typeof tag === 'string') { tag = [ tag ]; }
 
       // if available use the DOM API to collect the nodes
       if (tag.length < 2 && method['*'] in context) {
@@ -414,7 +414,7 @@
 
       // multiple tag names
       tag.map(function(e) {
-        if (e == '*') { any = true; }
+        if (e === '*') { any = true; }
         else nTag += '|' + e.replace(REX.RegExpChar, '\\$&');
       });
       reTag = RegExp('^(?:' + nTag.slice(1) + ')$', 'i');
@@ -424,7 +424,7 @@
       elements = resolver(context);
 
       // remove possible non-element nodes from the collected nodes
-      if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
+      if (elements[0] && elements[0].nodeType !== 1) { elements.shift(); }
 
       return elements;
     },
@@ -436,7 +436,7 @@
     function(cls, context) {
       var elements, resolver, nCls = '', reCls, cs;
 
-      if (typeof cls == 'string') { cls = [ cls ]; }
+      if (typeof cls === 'string') { cls = [ cls ]; }
 
       // if available use the DOM API to collect the nodes
       if (cls.length < 2 && method['.'] in context) {
@@ -488,7 +488,7 @@
     var parents = Array(), elements = Array();
     return function(element, dir) {
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
+      if (dir === 2) { parents.length = 0; elements.length = 0; return -1; }
       var e, i, j, l, parent = element.parentNode;
       if ((i = parents.indexOf(parent)) < 0) {
         i = parents.length;
@@ -507,7 +507,7 @@
     var parents = Array(), elements = Array();
     return function(element, dir) {
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
+      if (dir === 2) { parents.length = 0; elements.length = 0; return -1; }
       var e, i, j, l, name = element.nodeName, parent = element.parentNode;
       if ((i = parents.indexOf(parent)) < 0 || !(elements[i] && elements[i][name])) {
         i = parents.length;
@@ -515,7 +515,7 @@
         elements[i] = Object();
         elements[i][name] = Array();
         e = parent.firstElementChild;
-        while (e) { if (e.nodeName == name) elements[i][name].push(e); e = e.nextElementSibling; }
+        while (e) { if (e.nodeName === name) elements[i][name].push(e); e = e.nextElementSibling; }
       }
       for (j = 0, l = elements[i][name].length; l > j; ++j) { if (elements[i][name][j] === element) break; }
       return dir ? l - j : j + 1;
@@ -527,32 +527,32 @@
     function(element, tag, property) {
       var name = element.nodeName;
       while(element.parentElement) {
-        if (name == tag) { break; }
+        if (name === tag) { break; }
         element = element.parentElement;
         name = element.nodeName.toLowerCase();
       }
-      return name == tag ? element : null;
+      return name === tag ? element : null;
     },
 
   // check if the document type is HTML
   isHTML =
     function(node) {
       var doc = node.ownerDocument || node, root = doc.documentElement;
-      return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
-        doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html') > 0;
+      return doc.nodeType === 9 && ('body' in doc) && root.nodeName === 'HTML' &&
+        doc.createElement('DiV').nodeName !== 'DiV' && doc.contentType.indexOf('/html') > 0;
     },
 
   // configure the engine to use special handling
   configure =
     function(option) {
-      if (typeof option == 'string') { return !!Config[option]; }
-      if (typeof option != 'object') { return Config; }
+      if (typeof option === 'string') { return !!Config[option]; }
+      if (typeof option !== 'object') { return Config; }
       for (var i in option) {
         Config[i] = !!option[i];
-        if (i == 'SIMPLENOT') {
+        if (i === 'SIMPLENOT') {
           matchResolvers = { };
           selectResolvers = { };
-        } else if (i == 'FASTCOMMA') {
+        } else if (i === 'FASTCOMMA') {
           set_compat();
         }
       }
@@ -739,7 +739,7 @@
       head = '', loop = '', macro = '', source = '', seen = { };
 
       // make sure that the input string is an array
-      if (typeof groups == 'string') groups = [groups];
+      if (typeof groups === 'string') groups = [groups];
 
       selector = groups.join(', ');
       key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
@@ -825,7 +825,7 @@
           case '#':
             match = selector.match(Patterns.id);
             compat = HTML_DOCUMENT ? ATTR_ID : 'e.getAttribute("id")';
-            source = 'if(' + N + '(' + compat + '=="' + convertEscapes(match[1]) + '"' +
+            source = 'if(' + N + '(' + compat + '==="' + convertEscapes(match[1]) + '"' +
               ')){' + source + '}';
             break;
           // class name resolver
@@ -840,20 +840,20 @@
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
             source = 'if(' + N + '(' +
-                'e.localName=="' + match[1] + '"' +
-                '||e.nodeName=="' + compat + '"' +
+                'e.localName==="' + match[1] + '"' +
+                '||e.nodeName==="' + compat + '"' +
               ')){' + source + '}';
             break;
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
             NS = match[1] || null;
-            if (match[1] == '*') {
+            if (match[1] === '*') {
               source = 'if(' + N + 'true){' + source + '}';
             } else if (!match[1]) {
               source = 'if(' + N + '(!e.namespaceURI)){' + source + '}';
-            } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
-              source = 'if(' + N + '(e.namespaceURI=="' + NAMESPACE_URI + '")){' + source + '}';
+            } else if (typeof match[1] === 'string' && root.prefix === match[1]) {
+              source = 'if(' + N + '(e.namespaceURI==="' + NAMESPACE_URI + '")){' + source + '}';
             } else {
               emit('\'' + selector_string + '\' is not a valid selector');
             }
@@ -862,30 +862,30 @@
           case '[':
             match = selector.match(Patterns.attribute);
             expr = match[1].split(':');
-            expr = expr.length == 2 ? expr[1] : expr[0];
+            expr = expr.length === 2 ? expr[1] : expr[0];
             if (match[2] && !(test = Operators[match[2]])) {
               emit('unsupported operator in attribute selector \'' + selector + '\'');
               return '';
             }
             if (match[4] === '') {
-              test = match[2] == '~=' ?
+              test = match[2] === '~=' ?
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
-                  match[2] in ATTR_STD_OPS && match[2] != '~=' ?
+                  match[2] in ATTR_STD_OPS && match[2] !== '~=' ?
                 { p1: '^',    p2: '$',  p3: 'true' } : test;
             } else {
               // whitespace separated list but value contains space
-              if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
+              if (match[2] === '~=' && match[4].indexOf(' ') > -1) {
                 source = 'if(' + N + 'false){' + source + '}';
                 break;
               }
             }
             type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
             source = 'if(' + N + '(' + (!match[2] ?
-              '(e.namespaceURI!="' + NAMESPACE_URI + '")?' +
+              '(e.namespaceURI!=="' + NAMESPACE_URI + '")?' +
               's.hasAttributeNS(e,"' + match[1] + '"):' +
               'e.hasAttribute("' + match[1] + '")' :
-              (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
-              'e.getAttribute("' + match[1] + '")==""' :
+              (!match[4] && match[2] in ATTR_STD_OPS && match[2] !== '~=' ?
+              'e.getAttribute("' + match[1] + '")===""' :
               '(/' + test.p1 + convertEscapes(match[4]).
               replace(REX.RegExpChar, '\\$&') + test.p2 + '/' + type +
               ').test(e.getAttribute("' + match[1] + '"))===' + test.p3)) +
@@ -954,14 +954,14 @@
                   break;
                 case 'only-of-type':
                   source = 'o=e.nodeName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!=o);}if(' + D + 'n){' + source + '}';
+                    'n=e;while((n=n.nextElementSibling)&&n.nodeName!==o);if(!n){' +
+                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!==o);}if(' + D + 'n){' + source + '}';
                   break;
                 case 'last-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
+                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!==o);if(' + D + 'n){' + source + '}';
                   break;
                 case 'first-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
+                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!==o);if(' + D + 'n){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\' is not a valid selector' + x_error);
@@ -980,25 +980,25 @@
                   expr = /-of-type/i.test(match[1]);
                   if (match[1] && match[2]) {
                     type = /last/i.test(match[1]);
-                    if (match[2] == 'n') {
+                    if (match[2] === 'n') {
                       source = 'if(' + N + 'true){' + source + '}';
                       break;
-                    } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
-                      test = 'n%2==0';
-                    } else if (match[2] === 'odd' || match[2] == '2n1' || match[2] == '2n+1') {
-                      test = 'n%2==1';
+                    } else if (match[2] === 'even' || match[2] === '2n0' || match[2] === '2n+0' || match[2] === '2n') {
+                      test = 'n%2===0';
+                    } else if (match[2] === 'odd' || match[2] === '2n1' || match[2] === '2n+1') {
+                      test = 'n%2===1';
                     } else {
                       f = /n/i.test(match[2]);
                       n = match[2].split('n');
                       a = parseInt(n[0], 10) || 0;
                       b = parseInt(n[1], 10) || 0;
-                      if (n[0] == '-') { a = -1; }
-                      if (n[0] == '+') { a = +1; }
-                      test = (b ? '(n' + (b > 0 ? '-' : '+') + Math.abs(b) + ')' : 'n') + '%' + a + '==0' ;
+                      if (n[0] === '-') { a = -1; }
+                      if (n[0] === '+') { a = +1; }
+                      test = (b ? '(n' + (b > 0 ? '-' : '+') + Math.abs(b) + ')' : 'n') + '%' + a + '===0' ;
                       test =
-                        a >= +1 ? (f ? 'n>' + (b - 1) + (Math.abs(a) != 1 ? '&&' + test : '') : 'n==' + a) :
-                        a <= -1 ? (f ? 'n<' + (b + 1) + (Math.abs(a) != 1 ? '&&' + test : '') : 'n==' + a) :
-                        a === 0 ? (n[0] ? 'n==' + b : 'n>' + (b - 1)) : 'false';
+                        a >= +1 ? (f ? 'n>' + (b - 1) + (Math.abs(a) !== 1 ? '&&' + test : '') : 'n===' + a) :
+                        a <= -1 ? (f ? 'n<' + (b + 1) + (Math.abs(a) !== 1 ? '&&' + test : '') : 'n===' + a) :
+                        a === 0 ? (n[0] ? 'n===' + b : 'n>' + (b - 1)) : 'false';
                     }
                     expr = expr ? 'OfType' : 'Element';
                     type = type ? 'true' : 'false';
@@ -1053,13 +1053,13 @@
                   match[2] = match[2].toLowerCase();
                   if (match[2]) test = match[2].substr(0, 2) + '-';
                   source = 'do{if((' + N + '(s.doc.compareDocumentPosition(e)&16)&&' +
-                    '(e.lang||"")==""&&s.root.lang==="' + match[2] + '"||' +
-                    '(e.lang&&(e.lang.toLowerCase()=="' + match[2] + '"||' +
-                    '(e.lang.substr(0,3)=="' + test + '")))' +
+                    '(e.lang||"")===""&&s.root.lang==="' + match[2] + '"||' +
+                    '(e.lang&&(e.lang.toLowerCase()==="' + match[2] + '"||' +
+                    '(e.lang.substr(0,3)==="' + test + '")))' +
                     ')){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
                   break;
                 case 'target':
-                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
+                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id===s.doc.location.hash.slice(1))){' + source + '}';
                   break;
                 case 'link':
                   source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
@@ -1075,7 +1075,7 @@
                   break;
                 case 'focus':
                   source = 'hasFocus' in doc ?
-                    'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
+                    'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex==="number"))){' + source + '}' :
                     'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
                   break;
                 case 'selected':
@@ -1095,11 +1095,11 @@
                   source =
                     'if(' + N + '("form" in e && e.form)){' +
                       'var x=0;n=[];' +
-                      'if(e.type=="image")n=e.form.getElementsByTagName("input");' +
-                      'if(e.type=="submit")n=e.form.elements;' +
+                      'if(e.type==="image")n=e.form.getElementsByTagName("input");' +
+                      'if(e.type==="submit")n=e.form.elements;' +
                       'while(n[x]&&e!==n[x]){' +
-                        'if(n[x].type=="image")break;' +
-                        'if(n[x].type=="submit")break;' +
+                        'if(n[x].type==="image")break;' +
+                        'if(n[x].type==="submit")break;' +
                         'x++;' +
                       '}' +
                     '}' +
@@ -1132,7 +1132,7 @@
                     'if(' + N + '(' +
                       '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
                       '(/^password|text$/i.test(e.type)&&!e.readOnly&&!e.disabled))||' +
-                      '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
+                      '(e.hasAttribute("contenteditable")||(s.doc.designMode==="on"))' +
                     ')){' + source + '}';
                   break;
                 case 'read-only':
@@ -1314,7 +1314,7 @@
       }
 
       // selector NULL or UNDEFINED
-      if (typeof selector != 'string') {
+      if (typeof selector !== 'string') {
         selector = '' + selector;
       }
 
@@ -1324,7 +1324,7 @@
         replace(REX.TrimSpaces, '');
 
       // parse and validate expression and split possible selector groups
-      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
+      if ((groups = expression.match(reValidator)) && groups.join('') === expression) {
         groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
         if (groups.indexOf('') > -1) {
           emit('invalid or illegal string specified');
@@ -1349,7 +1349,7 @@
         emit('not enough arguments', TypeError);
       }
       return select(selector, context,
-        typeof callback == 'function' ?
+        typeof callback === 'function' ?
         function firstMatch(element) {
           callback(element);
           return false;
@@ -1394,7 +1394,7 @@
       }
 
       // selector NULL or UNDEFINED
-      if (typeof selector != 'string') {
+      if (typeof selector !== 'string') {
         selector = '' + selector;
       }
 
@@ -1404,7 +1404,7 @@
         replace(REX.TrimSpaces, '');
 
       // parse and validate expression and split possible selector groups
-      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
+      if ((groups = expression.match(reValidator)) && groups.join('') === expression) {
         groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
         if (groups.indexOf('') > -1) {
           emit('invalid or illegal string specified');
@@ -1418,7 +1418,7 @@
       // prepare factory and closure for specific document types
       resolver = collect(
         groups.length < 2 ? expression : groups, context, callback,
-        HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
+        HTML_DOCUMENT && context.nodeType !== 11 ? domapi : compat);
 
       // save/reuse factory and closure collection
       if (!selectResolvers[selector] && !callback) {
@@ -1436,14 +1436,14 @@
   collect =
     function(expression, context, callback, resolvers) {
       var builder, factory, ident, symbol, token;
-      if (typeof expression == 'string') {
+      if (typeof expression === 'string') {
         if ((token = expression.match(reOptimizer)) && (ident = token[2])) {
           symbol = token[1] || '*';
           ident = unescapeIdentifier(ident);
-          if (!(symbol == '#' && context.nodeType == 1)) {
+          if (!(symbol === '#' && context.nodeType === 1)) {
             if ('.#*'.indexOf(symbol) > -1) {
               builder = resolvers[symbol](context, ident);
-              if (HTML_DOCUMENT && context.nodeType != 11) {
+              if (HTML_DOCUMENT && context.nodeType !== 11) {
                 expression = optimize(expression, token);
               }
             }
@@ -1456,12 +1456,12 @@
             symbol = token[1] || '*';
             ident = unescapeIdentifier(ident);
           }
-          if (symbol == '*') { if (!ts[ident] && (ts[ident] = true)) { tn.push(ident); }}
-          if (symbol == '.') { if (!cs[ident] && (cs[ident] = true)) { cn.push(ident); }}
+          if (symbol === '*') { if (!ts[ident] && (ts[ident] = true)) { tn.push(ident); }}
+          if (symbol === '.') { if (!cs[ident] && (cs[ident] = true)) { cn.push(ident); }}
         }
-        if (tn.length == l) {
+        if (tn.length === l) {
           builder = compat['*'](context, tn);
-        } else if (cn.length == l) {
+        } else if (cn.length === l) {
           builder = compat['.'](context, cn);
         } else {
           builder = compat['*'](context, '*');
@@ -1652,7 +1652,7 @@
       function(combinator, resolver) {
         var i = 0, l = combinator.length, symbol;
         for (; l > i; ++i) {
-          if (combinator.charAt(i) != '=') {
+          if (combinator.charAt(i) !== '=') {
             symbol = combinator.charAt(i);
             break;
           }
@@ -1672,7 +1672,7 @@
       function(operator, resolver) {
         var i = 0, l = operator.length, symbol;
         for (; l > i; ++i) {
-          if (operator.charAt(i) != '=') {
+          if (operator.charAt(i) !== '=') {
             symbol = operator.charAt(i);
             break;
           }
