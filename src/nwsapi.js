@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.0.0beta2
  * Created: 20070722
- * Release: 20180417
+ * Release: 20180422
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -21,7 +21,7 @@
 
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory;
-  } else if (typeof define === 'function' && define['amd']) {
+  } else if (typeof define == 'function' && define['amd']) {
     define(factory);
   } else {
     global.NW || (global.NW = { });
@@ -101,10 +101,10 @@
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
+  NAMESPACE,
   QUIRKS_MODE,
   HAS_DUPE_IDS,
   HTML_DOCUMENT,
-  NAMESPACE_URI,
 
   ATTR_ID = 'e.id',
 
@@ -177,7 +177,7 @@
         HAS_DUPE_IDS = undefined;
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
-        NAMESPACE_URI = root.namespaceURI;
+        NAMESPACE = root.namespaceURI;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
@@ -271,15 +271,14 @@
 
   set_compat =
     function() {
-
-      return Config.FASTCOMMA == false ? {
+      return !Config.FASTCOMMA ? {
         '#': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
         '*': function(c, n, z) { return function(e, f) { return byTag(n, c); }; },
         '.': function(c, n, z) { return function(e, f) { return byClass(n, c); }; }
       } : {
         '#': function(c, n, z) { return function(e, f) { return validate(c, n, z, '#') ? z : (z = byId(n, c)); }; },
         '*': function(c, n, z) { return function(e, f) { return validate(c, n, z, '*') ? z : (z = byTag(n, c)); }; },
-        '.': function(c, n, z) { return function(e, f) { return validate(c, n, z, '.') ? z : (z = byClass(n, c)); }; },
+        '.': function(c, n, z) { return function(e, f) { return validate(c, n, z, '.') ? z : (z = byClass(n, c)); }; }
       };
     },
 
@@ -287,18 +286,15 @@
 
   set_domapi =
     function() {
-
       var mapped = {
         '@': function(c, n, z) { return function(e, f) { return byId(n, c); }; },
         '#': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementById(n); return z = z ? [ z ] : none; };},
         '*': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByTagName(n); return f ? concatCall(z, f) : toArray(z); };},
-        '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };},
+        '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
       };
-
       natives = mapped;
-      if (HAS_DUPE_IDS) natives['#'] =  mapped['@'];
+      if (HAS_DUPE_IDS) natives['#'] = mapped['@'];
       delete natives['@'];
-
       return natives;
     },
 
@@ -853,7 +849,7 @@
             } else if (!match[1]) {
               source = 'if(' + N + '(!e.namespaceURI)){' + source + '}';
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
-              source = 'if(' + N + '(e.namespaceURI=="' + NAMESPACE_URI + '")){' + source + '}';
+              source = 'if(' + N + '(e.namespaceURI=="' + NAMESPACE + '")){' + source + '}';
             } else {
               emit('\'' + selector_string + '\' is not a valid selector');
             }
@@ -867,7 +863,7 @@
               emit('unsupported operator in attribute selector \'' + selector + '\'');
               return '';
             }
-            if (match[4] === '') {
+            if (match[4] == '') {
               test = match[2] == '~=' ?
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
                   match[2] in ATTR_STD_OPS && match[2] != '~=' ?
@@ -881,7 +877,7 @@
             }
             type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
             source = 'if(' + N + '(' + (!match[2] ?
-              '(e.namespaceURI!="' + NAMESPACE_URI + '")?' +
+              '(e.namespaceURI!="' + NAMESPACE + '")?' +
               's.hasAttributeNS(e,"' + match[1] + '"):' +
               'e.hasAttribute("' + match[1] + '")' :
               (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
@@ -985,7 +981,7 @@
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
                       test = 'n%2==0';
-                    } else if (match[2] === 'odd' || match[2] == '2n1' || match[2] == '2n+1') {
+                    } else if (match[2] == 'odd'  || match[2] == '2n1' || match[2] == '2n+1') {
                       test = 'n%2==1';
                     } else {
                       f = /n/i.test(match[2]);
