@@ -1250,13 +1250,13 @@
 
   // optimize selectors removing already checked components
   optimize =
-    function(expression, token) {
+    function(selector, token) {
       var index = token.index,
       length = token[1].length + token[2].length;
-      return expression.slice(0, index) +
-        (' >+~'.indexOf(expression.charAt(index - 1)) > -1 ?
-          (':['.indexOf(expression.charAt(index + length + 1)) > -1 ?
-          '*' : '') : '') + expression.slice(index + length);
+      return selector.slice(0, index) +
+        (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
+          (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
+          '*' : '') : '') + selector.slice(index + length);
     },
 
   // parse selector groups in an array
@@ -1287,7 +1287,7 @@
   match =
     function _matches(selector, element, callback) {
 
-      var expression, groups;
+      var groups;
 
       lastMatched = selector;
 
@@ -1310,13 +1310,13 @@
       }
 
       // normalize selector
-      expression = selector.
+      selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.TrimSpaces, '');
 
-      // parse and validate expression and split possible selector groups
-      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
-        groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
+      // parse, validate and split possible selector groups
+      if ((groups = selector.match(reValidator)) && groups.join('') == selector) {
+        groups = /\,/.test(selector) ? parseGroup(selector) : [selector];
         if (groups.indexOf('') > -1) {
           emit('invalid or illegal string specified');
           return Config.VERBOSITY ? undefined : false;
@@ -1355,7 +1355,7 @@
   select =
     function _querySelectorAll(selector, context, callback) {
 
-      var expression, groups, resolver, token;
+      var groups, resolver, token;
 
       lastSelected = selector;
 
@@ -1390,13 +1390,13 @@
       }
 
       // normalize selector
-      expression = selector.
+      selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.TrimSpaces, '');
 
-      // parse and validate expression and split possible selector groups
-      if ((groups = expression.match(reValidator)) && groups.join('') == expression) {
-        groups = /\,/.test(expression) ? parseGroup(expression) : [expression];
+      // parse, validate and split possible selector groups
+      if ((groups = selector.match(reValidator)) && groups.join('') == selector) {
+        groups = /\,/.test(selector) ? parseGroup(selector) : [selector];
         if (groups.indexOf('') > -1) {
           emit('invalid or illegal string specified');
           return Config.VERBOSITY ? undefined : none;
@@ -1408,7 +1408,7 @@
 
       // prepare factory and closure for specific document types
       resolver = collect(
-        groups.length < 2 ? expression : groups, context, callback,
+        groups.length < 2 ? selector : groups, context, callback,
         HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
 
       // save/reuse factory and closure collection
@@ -1425,25 +1425,25 @@
 
   // prepare factory resolvers and closure collections
   collect =
-    function(expression, context, callback, resolvers) {
+    function(selector, context, callback, resolvers) {
       var builder, factory, ident, symbol, token;
-      if (typeof expression == 'string') {
-        if ((token = expression.match(reOptimizer)) && (ident = token[2])) {
+      if (typeof selector == 'string') {
+        if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           symbol = token[1] || '*';
           ident = unescapeIdentifier(ident);
           if (!(symbol == '#' && context.nodeType == 1)) {
             if ('.#*'.indexOf(symbol) > -1) {
               builder = resolvers[symbol](context, ident);
               if (HTML_DOCUMENT && context.nodeType != 11) {
-                expression = optimize(expression, token);
+                selector = optimize(selector, token);
               }
             }
           }
         }
       } else {
         var tn = Array(), ts = Object(), cn = Array(), cs = Object();
-        for (var i = 0, l = expression.length; l > i; ++i) {
-          if ((token = expression[i].match(reOptimizer)) && (ident = token[2])) {
+        for (var i = 0, l = selector.length; l > i; ++i) {
+          if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
             ident = unescapeIdentifier(ident);
           }
@@ -1460,7 +1460,7 @@
       }
       return {
         builder: builder || resolvers['*'](context, '*'),
-        factory: factory || compile(expression, true, callback)
+        factory: factory || compile(selector, true, callback)
       };
     },
 
