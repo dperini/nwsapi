@@ -868,23 +868,18 @@
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
                   match[2] in ATTR_STD_OPS && match[2] != '~=' ?
                 { p1: '^',    p2: '$',  p3: 'true' } : test;
-            } else {
+            } else if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
               // whitespace separated list but value contains space
-              if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
-                source = 'if(' + N + 'false){' + source + '}';
-                break;
-              }
+              source = 'if(' + N + 'false){' + source + '}';
+              break;
+            } else if (match[4]) {
+              match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
-            type = !HTML_DOCUMENT || !HTML_TABLE[expr.toLowerCase()] ? '' : 'i';
-            source = 'if(' + N + '(' + (!match[2] ?
-              '(e.namespaceURI!="' + NAMESPACE + '")?' +
-              's.hasAttributeNS(e,"' + match[1] + '"):' +
-              'e.hasAttribute("' + match[1] + '")' :
-              (!match[4] && match[2] in ATTR_STD_OPS && match[2] != '~=' ?
-              'e.getAttribute("' + match[1] + '")==""' :
-              '(/' + test.p1 + convertEscapes(match[4]).
-              replace(REX.RegExpChar, '\\$&') + test.p2 + '/' + type +
-              ').test(e.getAttribute("' + match[1] + '"))===' + test.p3)) +
+            type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
+            source = 'if(' + N + '(' + (!match[2] ? 'e.namespaceURI!="' +
+              NAMESPACE + '"?s.hasAttributeNS(e,"' + match[1] + '"):' + 'e.hasAttribute("' + match[1] + '")' :
+              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + match[1] + '")==""' :
+              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + match[1] + '"))==' + test.p3) +
               ')){' + source + '}';
             break;
 
