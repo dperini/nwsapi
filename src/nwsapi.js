@@ -1184,7 +1184,7 @@
 
             // allow pseudo-elements as :after/:before (single or double colon)
             else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
-              source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
+              source = 'if(' + D + '/^1+$/.test(e.nodeType)){' + source + '}';
             }
 
             else {
