@@ -35,5 +35,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/dperini/nwsapi.git"
+  },
+  "scripts": {
+    "test": "node test/unit"
   }
 }
