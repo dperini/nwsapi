@@ -858,7 +858,7 @@
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
-            NS = match[1] || null;
+            match.pop();
             if (match[1] == '*') {
               source = 'if(' + N + 'true){' + source + '}';
             } else if (!match[1]) {
@@ -878,7 +878,7 @@
               emit('unsupported operator in attribute selector \'' + selector + '\'');
               return '';
             }
-            if (match[4] == '') {
+            if (match[4] === '') {
               test = match[2] == '~=' ?
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
                   match[2] in ATTR_STD_OPS && match[2] != '~=' ?
