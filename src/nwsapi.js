@@ -101,6 +101,24 @@
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
+  // special handling flags
+  Config = {
+
+    ESCAPECHR: true,
+    NON_ASCII: true,
+    SELECTOR3: true,
+    UNICODE16: true,
+
+    BUGFIX_ID: true,
+    FASTCOMMA: true,
+
+    SIMPLENOT: true,
+    USE_HTML5: true,
+
+    LOGERRORS: true,
+    VERBOSITY: true
+  },
+
   MIXEDCASE,
   NAMESPACE,
   QUIRKS_MODE,
@@ -269,8 +287,6 @@
     '.': 'getElementsByClassName'
     },
 
-  compat,
-
   set_compat =
     function() {
       return !Config.FASTCOMMA ? {
@@ -284,7 +300,7 @@
       };
     },
 
-  domapi,
+  compat = set_compat(),
 
   set_domapi =
     function() {
@@ -299,6 +315,8 @@
       delete natives['@'];
       return natives;
     },
+
+  domapi = set_domapi(),
 
   // check context for duplicate Ids
   hasDuplicateId =
@@ -584,24 +602,6 @@
         console.log(message);
       }
     },
-
-  // special handling flags
-  Config = {
-
-    ESCAPECHR: true,
-    NON_ASCII: true,
-    SELECTOR3: true,
-    UNICODE16: true,
-
-    BUGFIX_ID: true,
-    FASTCOMMA: true,
-
-    SIMPLENOT: true,
-    USE_HTML5: true,
-
-    LOGERRORS: true,
-    VERBOSITY: true
-  },
 
   // execute the engine initialization code
   initialize =
@@ -1304,11 +1304,11 @@
 
       var groups;
 
-      lastMatched = selector;
-
       if (element && matchResolvers[selector]) {
         return !!matchResolvers[selector](element, callback);
       }
+
+      lastMatched = selector;
 
       // arguments validation
       if (arguments.length === 0) {
@@ -1372,19 +1372,18 @@
 
       var groups, resolver, token;
 
-      lastSelected = selector;
-
-      context || (context = doc);
-
       if (selector && !callback && (resolver = selectResolvers[selector])) {
         if (resolver.context === context) {
           return resolver.factory(resolver.builder, callback, context);
         }
       }
 
+      lastSelected = selector;
+
+      context || (context = doc);
+
       if (HAS_DUPE_IDS === undefined) {
         HAS_DUPE_IDS = hasDuplicateId(null, context);
-        compat = set_compat();
         domapi = set_domapi();
       }
 
