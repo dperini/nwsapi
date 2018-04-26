@@ -616,13 +616,14 @@
   setIdentifierSyntax =
     function() {
 
-      var identifier,
+      var syntax = '',
       extendedValidator,
       standardValidator,
+      ident_mini, identifier,
       attrparser, attrvalues,
       attributes, attrmatcher,
       pseudoclass, pseudoparms,
-      syntax = '', start = Config['SELECTOR3'] ? '-{2}|' : '';
+      start = Config['SELECTOR3'] ? '-{2}|' : '';
 
       Config['NON_ASCII'] && (syntax += '|' + STR.non_asc_chr);
       Config['UNICODE16'] && (syntax += '|' + STR.unicode_chr);
@@ -631,6 +632,8 @@
       syntax += (
         Config['UNICODE16'] ||
         Config['ESCAPECHR']) ? '' : '|' + STR.any_esc_chr;
+
+      ident_mini = '(?:[-0-9]|' + start + STR.alphalodash + syntax + ')+';
 
       identifier = '\\-?' +
         '(?:' + start + STR.alphalodash + syntax + ')' +
@@ -705,7 +708,7 @@
           '(?:' + attributes + ')+|' +
         ')$');
 
-      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?:(?:\\[.*\\])|:[-\\w]+|:[\\w]+(?:\\(.*\\))?)*)$');
+      reOptimizer = RegExp('(?:([.#]?)(' + ident_mini + ')?(?::[-\\w]+|\\[[^\\x5d]+\\]|\\([^\\x29]+\\))*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
@@ -1438,23 +1441,24 @@
   // prepare factory resolvers and closure collections
   collect =
     function(selector, context, callback, resolvers) {
-      var builder, factory, ident, symbol, token;
+      var i, l, cn, cs, tn, ts, builder, factory, ident, symbol, token;
       if (typeof selector == 'string') {
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
-          symbol = token[1] || '*';
-          ident = unescapeIdentifier(ident);
-          if (!(symbol == '#' && context.nodeType == 1)) {
-            if ('.#*'.indexOf(symbol) > -1) {
-              builder = resolvers[symbol](context, ident);
-              if (HTML_DOCUMENT && context.nodeType != 11) {
-                selector = optimize(selector, token);
-              }
+          if ((symbol = token[1] || '*') && context[method[symbol]]) {
+            builder = resolvers[symbol](context, unescapeIdentifier(ident));
+            if (HTML_DOCUMENT) {
+              index = token.index;
+              length = token[1].length + token[2].length;
+              selector = selector.slice(0, index) +
+                (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
+                  (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
+                    '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
             }
           }
         }
       } else {
-        var tn = Array(), ts = Object(), cn = Array(), cs = Object();
-        for (var i = 0, l = selector.length; l > i; ++i) {
+        tn = Array(); ts = Object(); cn = Array(); cs = Object();
+        for (i = 0, l = selector.length; l > i; ++i) {
           if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
             ident = unescapeIdentifier(ident);
@@ -1462,13 +1466,9 @@
           if (symbol == '*') { if (!ts[ident] && (ts[ident] = true)) { tn.push(ident); }}
           if (symbol == '.') { if (!cs[ident] && (cs[ident] = true)) { cn.push(ident); }}
         }
-        if (tn.length == l) {
-          builder = compat['*'](context, tn);
-        } else if (cn.length == l) {
-          builder = compat['.'](context, cn);
-        } else {
-          builder = compat['*'](context, '*');
-        }
+        (tn.length == l) ? (builder = compat['*'](context, tn)) :
+        (cn.length == l) ? (builder = compat['.'](context, cn)) :
+                           (builder = compat['*'](context, '*'));
       }
       return {
         builder: builder || resolvers['*'](context, '*'),
