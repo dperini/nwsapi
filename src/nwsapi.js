@@ -1372,10 +1372,14 @@
 
       var groups, resolver, token;
 
-      if (selector && !callback && (resolver = selectResolvers[selector])) {
-        if (resolver.context === context) {
-          return resolver.factory(resolver.builder, callback, context);
+      if (selector) {
+
+        if ((resolver = selectResolvers[selector])) {
+          if (resolver.context === context && resolver.usrcall === callback) {
+            return resolver.factory(resolver.builder, callback, context);
+          }
         }
+
       }
 
       lastSelected = selector;
@@ -1430,6 +1434,7 @@
         selectResolvers[selector] = {
           builder: resolver.builder,
           factory: resolver.factory,
+          usrcall: callback,
           context: context
         };
       }
