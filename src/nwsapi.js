@@ -101,6 +101,7 @@
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
+  MIXEDCASE,
   NAMESPACE,
   QUIRKS_MODE,
   HAS_DUPE_IDS,
@@ -180,6 +181,7 @@
         NAMESPACE = root.namespaceURI;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
+        MIXEDCASE = hasMixedContentType(doc);
         ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
         Snapshot.doc = doc;
         Snapshot.root = root;
@@ -331,6 +333,16 @@
         i = 0;
       }
       return i > 1;
+    },
+
+  // check context for mixed content
+  hasMixedContentType =
+    function(context) {
+
+      context = context.nodeType == 1 ?
+        context : context.firstElementChild;
+
+      return context.getElementsByTagNameNS(null, '*').length > 0;
     },
 
   // validate memoized HTMLCollections
@@ -834,10 +846,10 @@
           // tag name resolver
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
             source = 'if(' + N + '(' +
-                'e.localName=="' + match[1] + '"' +
-                '||e.nodeName=="' + compat + '"' +
+              (!MIXEDCASE && HTML_DOCUMENT ?
+              'e.nodeName=="' + match[1].toUpperCase() + '"' :
+              '/^' + match[1] + '$/i.test(e.localName)') +
               ')){' + source + '}';
             break;
           // namespace resolver
