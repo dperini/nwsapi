@@ -27,43 +27,6 @@ policies and contribution forms [3].
         message_events: ["start", "test_state", "result", "completion"]
     };
 
-    // ==================== BEGIN: nwsapi mod
-    var stateObj = { 'start': 'nw' };
-
-    if (window.location.hash == '') {
-        window.history.replaceState(stateObj, 'nwsapi', '#nw' );
-    }
-
-    if (window.location.hash == '#nw') {
-        var s = document.createElement('script'),
-        h = document.getElementsByTagName('head')[0];
-        s.onload = function() { NW.Dom.install(true); };
-        s.src = '/resources/nwsapi.js'; h.insertBefore(s, null);
-    }
-
-    window.addEventListener('keydown', handleState, true);
-    window.addEventListener('load', function(e) { window.focus(); });
-
-    function handleState(e) {
-        if (e.ctrlKey && e.altKey) {
-            switch (window.location.hash) {
-                case '#nw':
-                    window.history.replaceState(stateObj, 'w3capi', '#w3' );
-                    window.location.hash = '#w3';
-                    window.location.reload(true);
-                    break;
-                case '#w3':
-                    window.history.replaceState(stateObj, 'nwsapi', '#nw' );
-                    window.location.hash = '#nw';
-                    window.location.reload(true);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    // ==================== END: nwsapi mod
-
     var xhtml_ns = "http://www.w3.org/1999/xhtml";
 
     /*

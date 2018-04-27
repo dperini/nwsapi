@@ -67,15 +67,15 @@ function interfaceCheck(type, obj) {
   test(function() {
     var list = obj.querySelectorAll("div");
     if (obj.ownerDocument) { // The object is not a Document
-      assert_true(list instanceof obj.ownerDocument.defaultView.Array, "The result should be an instance of an Array")
+      assert_true(list instanceof obj.ownerDocument.defaultView.NodeList, "The result should be an instance of a NodeList")
     } else { // The object is a Document
-      assert_true(list instanceof obj.defaultView.Array, "The result should be an instance of an Array")
+      assert_true(list instanceof obj.defaultView.NodeList, "The result should be an instance of a NodeList")
     }
-  }, type + ".querySelectorAll returns Array instance")
+  }, type + ".querySelectorAll returns NodeList instance")
 }
 
 /*
- * Verify that the Array returned by querySelectorAll is static and and that a new list is created after
+ * Verify that the NodeList returned by querySelectorAll is static and and that a new list is created after
  * each call. A static list should not be affected by subsequent changes to the DOM.
  */
 function verifyStaticList(type, doc, root) {
@@ -88,13 +88,13 @@ function verifyStaticList(type, doc, root) {
     var div = doc.createElement("div");
     (root.body || root).appendChild(div);
 
-    assert_equals(pre.length, preLength, "The length of the Array should not change.")
-  }, type + ": static Array")
+    assert_equals(pre.length, preLength, "The length of the NodeList should not change.")
+  }, type + ": static NodeList")
 
   test(function() {
     post = root.querySelectorAll("div"),
-    assert_equals(post.length, preLength + 1, "The length of the new Array should be 1 more than the previous list.")
-  }, type + ": new Array")
+    assert_equals(post.length, preLength + 1, "The length of the new NodeList should be 1 more than the previous list.")
+  }, type + ": new NodeList")
 }
 
 /*
