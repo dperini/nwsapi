@@ -805,7 +805,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, x_error = '', NS,
+      var a, b, n, name, x_error = '', NS,
       N = not ? '!' : '', D = not ? '' : '!', pseudo,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -872,7 +872,9 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
-            expr = match[1].split(':');
+            NS = !MIXEDCASE && match[0].match(/(\*|\w+)\|[-\w]+/);
+            name = match[1];
+            expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
             if (match[2] && !(test = Operators[match[2]])) {
               emit('unsupported operator in attribute selector \'' + selector + '\'');
@@ -891,10 +893,10 @@
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
-            source = 'if(' + N + '(' + (!match[2] ? 'e.namespaceURI!="' +
-              NAMESPACE + '"?s.hasAttributeNS(e,"' + match[1] + '"):' + 'e.hasAttribute("' + match[1] + '")' :
-              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + match[1] + '")==""' :
-              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + match[1] + '"))==' + test.p3) +
+            source = 'if(' + N + '(' + (!match[2] ?
+              (MIXEDCASE && NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
+              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
+              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
             break;
 
