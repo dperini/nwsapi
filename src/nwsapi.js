@@ -749,13 +749,15 @@
       var i, l, key, factory, selector, token, vars, res = '',
       head = '', loop = '', macro = '', source = '', seen = { };
 
-      // make sure that the input string is an array
+      // 'groups' may be a string, convert it to array
       if (typeof groups == 'string') groups = [groups];
 
       selector = groups.join(', ');
       key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
 
-      switch (mode) {
+      // ensure 'mode' type is boolean
+      // true = select / false = match
+      switch (!!mode) {
         case true:
           if (selectLambdas[key]) { return selectLambdas[key]; }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL;
@@ -772,11 +774,15 @@
           break;
       }
 
-      for (i = 0, l = groups.length; l > i; ++i) {
-        token = groups[i];
-        if (!seen[token] && (seen[token] = true)) {
-          source += compileSelector(token, macro, mode, callback, false);
+      if (groups.length > 1) {
+        for (i = 0, l = groups.length; l > i; ++i) {
+          token = groups[i];
+          if (!seen[token] && (seen[token] = true)) {
+            source += compileSelector(token, macro, mode, callback, false);
+          }
         }
+      } else {
+        source += compileSelector(groups[0], macro, mode, callback, false);
       }
 
       vars = S_VARS.join(',') || M_VARS.join(',');
@@ -794,7 +800,7 @@
       }
       vars += ';';
 
-      factory = Function('s', F_INIT + '{' + head + vars + loop + 'return r; }')(Snapshot);
+      factory = Function('s', F_INIT + '{' + head + vars + loop + 'return r;}')(Snapshot);
 
       return mode ? (selectLambdas[key] = factory) : (matchLambdas[key] = factory);
     },
