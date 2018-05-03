@@ -708,7 +708,7 @@
           '(?:' + attributes + ')+|' +
         ')$');
 
-      reOptimizer = RegExp('(?:([.#]?)(' + ident_mini + ')?(?::[-\\w]+|\\[[^\\x5d]+\\]|\\([^\\x29]+\\))*)$');
+      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[.+\\]|\\(.+\\))*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
