@@ -309,7 +309,7 @@
         '#': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementById(n); return z = z ? [ z ] : none; };},
         '*': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByTagName(n); return f ? concatCall(z, f) : toArray(z); };},
         '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
-      };
+      },
       natives = mapped;
       if (HAS_DUPE_IDS) natives['#'] = mapped['@'];
       delete natives['@'];
@@ -321,7 +321,7 @@
   // check context for duplicate Ids
   hasDuplicateId =
     function(id, context) {
-      var i = 0, cloned, element, fragment, r = Object();
+      var i = 0, e, cloned, element, fragment, r = Object();
 
       context = context.nodeType == 1 ?
         context : context.firstElementChild;
@@ -811,7 +811,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, name, x_error = '', NS,
+      var a, b, n, f, name, x_error = '', NS,
       N = not ? '!' : '', D = not ? '' : '!', pseudo,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -1453,7 +1453,7 @@
   // prepare factory resolvers and closure collections
   collect =
     function(selector, context, callback, resolvers) {
-      var i, l, cn, cs, tn, ts, builder, factory, ident, symbol, token;
+      var i, l, cn, cs, tn, ts, builder, factory, ident, index, symbol, token;
       if (typeof selector == 'string') {
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           if ((symbol = token[1] || '*') && context[method[symbol]]) {
