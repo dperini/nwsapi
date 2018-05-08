@@ -320,46 +320,26 @@
 
   // check context for duplicate Ids
   hasDuplicateId =
-    function(id, context) {
-      var i = 0, e, cloned, element, fragment, r = Object();
-
-      context = context.nodeType == 1 ?
-        context : context.firstElementChild;
-
-      if (typeof id == 'string') {
-
-        cloned = context.cloneNode(true);
-        fragment = doc.createDocumentFragment();
-        fragment.appendChild(cloned);
-
-        while ((element = fragment.getElementById(id))) {
-          element.removeAttribute('id'); ++i;
-          if (i > 1) { break; }
+    function(context) {
+      var i = 0, e, r = Object();
+      e = byTag('*', context);
+      while (e[i]) {
+        if (e[i].id) {
+          if (!r[e[i].id]) {
+            r[e[i].id] = true;
+          } else return true;
         }
-
-      } else {
-
-        e = context.getElementsByTagName('*');
-        while (e[i]) {
-          if (e[i].id) {
-            if (!r[e[i].id]) {
-              r[e[i].id] = true;
-            } else return true;
-          }
-          ++i;
-        }
-        i = 0;
+        ++i;
       }
-      return i > 1;
+      return false;
     },
 
   // check context for mixed content
   hasMixedContentType =
     function(context) {
-
-      context = context.nodeType == 1 ?
-        context : context.firstElementChild;
-
+      if (context.nodeType == 11 && context.firstElementChild) {
+        context = context.firstElementChild;
+      }
       return context.getElementsByTagNameNS(null, '*').length > 0;
     },
 
@@ -1395,7 +1375,7 @@
       context || (context = doc);
 
       if (HAS_DUPE_IDS === undefined) {
-        HAS_DUPE_IDS = hasDuplicateId(null, context);
+        HAS_DUPE_IDS = hasDuplicateId(context);
         domapi = set_domapi();
       }
 
