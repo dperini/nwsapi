@@ -372,33 +372,33 @@
 
   // coditional tests to accept returned elements in the
   // cross document methods: byId, byTag, byCls, byTagCls
-  idTest = 't==' + FIX_ID,
+  idTest = 't.test(' + FIX_ID + ')',
   tagMatch = 'a||t.test(e.nodeName)',
   clsMatch = 'c.test(e.getAttribute?' +
     'e.getAttribute("class"):e.className)',
 
   // getElementById from context
   byId =
-    function(id, context) {
-      var element, elements, resolver;
+    function(ids, context) {
+      var element, elements, nIds = '', reIds, resolver;
 
-      // unescape identifier
-      id = unescapeIdentifier(id);
-      id = id.replace(/\x00|\\$/g, '\ufffd');
+      if (typeof ids == 'string') { ids = [ ids ]; }
 
-      // check if the duplicate config option is enabled
-      if (!HAS_DUPE_IDS) {
-        // if available use the DOM API to collect the nodes
-        if ('getElementById' in context) {
-          return (element = context.getElementById(id)) ? [ element ] : none;
-        }
+      // if duplicates are disallowed use DOM API to collect the nodes
+      if (!HAS_DUPE_IDS && ids.length < 2 && method['#'] in context) {
+        element = context.getElementById(unescapeIdentifier(ids[0]));
+        return element ? [ element ] : none;
       }
+
+      // multiple tag names
+      ids.map(function(e) { nIds += '|' + e.replace(REX.RegExpChar, '\\$&'); });
+      reIds = RegExp('^(?:' + nIds.slice(1) + ')$', 'i');
 
       // for non-elements contexts start from first element child
       context.nodeType != 1 && (context = context.firstElementChild);
 
       // build the resolver and execute it
-      resolver = Function('t', walk.replace('@', idTest))(id);
+      resolver = Function('t', walk.replace('@', idTest))(reIds);
       elements = resolver(context);
 
       return elements;
@@ -1292,17 +1292,6 @@
       return source;
     },
 
-  // optimize selectors removing already checked components
-  optimize =
-    function(selector, token) {
-      var index = token.index,
-      length = token[1].length + token[2].length;
-      return selector.slice(0, index) +
-        (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
-          (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
-          '*' : '') : '') + selector.slice(index + length);
-    },
-
   // parse selector groups in an array
   parseGroup =
     function(selector) {
@@ -1471,41 +1460,51 @@
       return resolver.factory(resolver.builder, callback, context);
     },
 
+  // optimize selectors removing already checked components
+  optimize =
+    function(selector, token) {
+      var index = token.index,
+      length = token[1].length + token[2].length;
+      return selector.slice(0, index) +
+        (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
+          (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
+          '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
+    },
+
   // prepare factory resolvers and closure collections
   collect =
     function(selector, context, callback, resolvers) {
-      var i, l, cn, cs, tn, ts, builder, factory, ident, index, symbol, token;
+      var i, j, l, done, items, prev, builder, ident, symbol, token;
       if (typeof selector == 'string') {
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           if ((symbol = token[1] || '*') && context[method[symbol]]) {
             builder = resolvers[symbol](context, unescapeIdentifier(ident));
-            if (HTML_DOCUMENT) {
-              index = token.index;
-              length = token[1].length + token[2].length;
-              selector = selector.slice(0, index) +
-                (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
-                  (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
-                    '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
-            }
+            if (HTML_DOCUMENT) { selector = optimize(selector, token); }
           }
         }
       } else {
-        tn = Array(); ts = Object(); cn = Array(); cs = Object();
+        items = { '#': Array(), '.': Array(), '*': Array() };
         for (i = 0, l = selector.length; l > i; ++i) {
           if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
-            ident = unescapeIdentifier(ident);
+            if (prev == ident) {
+              j = i - 1;
+              selector[j] = optimize(selector[j], token);
+              selector[i] = optimize(selector[i], token);
+            }
+            if (!done && (done = true)) { prev = ident; }
           }
-          if (symbol == '*') { if (!ts[ident] && (ts[ident] = true)) { tn.push(ident); }}
-          if (symbol == '.') { if (!cs[ident] && (cs[ident] = true)) { cn.push(ident); }}
+          if (items[symbol]) items[symbol].push(ident);
         }
-        (tn.length == l) ? (builder = compat['*'](context, tn)) :
-        (cn.length == l) ? (builder = compat['.'](context, cn)) :
-                           (builder = compat['*'](context, '*'));
+        if (items[symbol] && items[symbol].length == l) {
+          builder = compat[symbol](context, items[symbol]);
+        } else {
+          builder = compat['*'](context, '*');
+        }
       }
       return {
         builder: builder || resolvers['*'](context, '*'),
-        factory: factory || compile(selector, true, callback)
+        factory: compile(selector, true, callback)
       };
     },
 
