@@ -35,37 +35,20 @@
   doc = global.document,
   root = doc.documentElement,
 
-  COM = '>+~',
-  ESC = '\\\\',
-  HEX = '[0-9a-fA-F]',
-  SPC = ' \\t\\r\\n\\f',
-  WSP = '[' + SPC + ']',
+  WSP = '[\\x20\\t\\r\\n\\f]',
 
   CFG = {
     operators: '[~*^$|]=|=',
-    combinators: '[' + SPC + COM + '](?=[^' + COM + '])'
-  },
-
-  STR = {
-    alphalodash: '[_a-zA-Z]',
-    pseudoparms: '[-+]?\\d*',
-    doublequote: '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
-    singlequote: "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
-
-    any_esc_chr: ESC + '.',
-    non_asc_chr: '[^\\x00-\\x9f]',
-    escaped_chr: ESC + '[^\\r\\n\\f0-9a-fA-F]',
-    unicode_chr: ESC + HEX + '{1,6}(?:\\r\\n|' + WSP + ')?'
+    combinators: '[\\x20\\t\\r\\n\\f>+~](?=[^>+~])'
   },
 
   REX = {
-    HasEscapes: RegExp(ESC),
-    HexNumbers: RegExp('^' + HEX),
-    SplitComma: RegExp('\\s?,\\s?'),
+    HasEscapes: RegExp('\\\\'),
+    HexNumbers: RegExp('^[0-9a-fA-F]'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
     RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
     TrimSpaces: RegExp('[\\r\\n\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
-    FixEscapes: RegExp('\\\\(' + HEX + '{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
+    FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
   },
 
@@ -103,11 +86,6 @@
 
   // special handling flags
   Config = {
-
-    ESCAPECHR: true,
-    NON_ASCII: true,
-    SELECTOR3: true,
-    UNICODE16: true,
 
     BUGFIX_ID: true,
     FASTCOMMA: true,
@@ -446,16 +424,14 @@
 
       // if available use the DOM API to collect the nodes
       if (cls.length < 2 && method['.'] in context) {
-        return context[method['.']](cls[0]);
+        return context[method['.']](unescapeIdentifier(cls[0]));
       }
 
       // prepare the class name filter regexp
       cs = QUIRKS_MODE ? 'i' : '';
 
       // multiple class names
-      cls.map(function(e) {
-        nCls += '|' + e.replace(REX.RegExpChar, '\\$&');
-      });
+      cls.map(function(e) { nCls += '|' + e.replace(REX.RegExpChar, '\\$&'); });
       reCls = RegExp('(^|\\s)' + nCls.slice(1) + '(\\s|$)', cs);
 
       // build the resolver and execute it
@@ -637,34 +613,30 @@
   setIdentifierSyntax =
     function() {
 
-      var syntax = '',
-      extendedValidator,
-      standardValidator,
-      ident_mini, identifier,
-      attrparser, attrvalues,
-      attributes, attrmatcher,
-      pseudoclass, pseudoparms,
-      start = Config['SELECTOR3'] ? '-{2}|' : '';
+      var identifier =
+        // doesn't start with a digit
+        '(?=[^0-9])' +
+        // can start with double dash
+        '(?:-{2}' +
+          // may include ascii chars
+          '|[a-zA-Z0-9-_]' +
+          // any escaped chars
+          '|\\\\.' +
+          // non-ascii chars
+          '|[^\\x00-\\x9f]' +
+          // escaped chars
+          '|\\\\.[^\\r\\n\\f0-9a-fA-F]' +
+          // unicode chars
+          '|\\\\.[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?' +
+        ')+',
 
-      Config['NON_ASCII'] && (syntax += '|' + STR.non_asc_chr);
-      Config['UNICODE16'] && (syntax += '|' + STR.unicode_chr);
-      Config['ESCAPECHR'] && (syntax += '|' + STR.escaped_chr);
+      pseudoparms = '(?:[-+]?\\d*)(?:n[-+]?\\d*)',
+      doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
+      singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
 
-      syntax += (
-        Config['UNICODE16'] ||
-        Config['ESCAPECHR']) ? '' : '|' + STR.any_esc_chr;
+      attrparser = identifier + '|' + doublequote + '|' + singlequote,
 
-      ident_mini = '(?:[-0-9]|' + start + STR.alphalodash + syntax + ')+';
-
-      identifier = '\\-?' +
-        '(?:' + start + STR.alphalodash + syntax + ')' +
-        '(?:-|[0-9]|' + STR.alphalodash + syntax + ')*';
-
-      attrparser = identifier +
-        '|' + STR.doublequote +
-        '|' + STR.singlequote;
-
-      attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)\\3';
+      attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)\\3',
 
       attributes =
         '\\[' +
@@ -682,13 +654,9 @@
         // see <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
         // allow mangled|unclosed selector syntax if at the end of the qSA string
         // needed to pass current WP tests and mimic browsers behavior 'a[href=#'
-        '(?:\\]|$)';
+        '(?:\\]|$)',
 
-      attrmatcher = attributes.replace(attrparser, attrvalues);
-
-      pseudoparms =
-          '(?:'  + STR.pseudoparms + ')' +
-          '(?:n' + STR.pseudoparms + ')' ;
+      attrmatcher = attributes.replace(attrparser, attrvalues),
 
       pseudoclass =
         '(?:\\(' +
@@ -702,7 +670,7 @@
           ')|' +
           '(?:[.#]?' + identifier + ')|' +
           '(?:' + attributes + ')' +
-        ')+\\))*';
+        ')+\\))*',
 
       standardValidator =
         '(?=' + WSP + '?[^>+~(){}<>])' +
@@ -715,7 +683,9 @@
           '(?:::?' + identifier + pseudoclass + ')|' +
           '(?:' + WSP + '?' + CFG.combinators + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)' +
-        ')+';
+        ')+',
+
+      extendedValidator = standardValidator.replace(pseudoclass, '.*');
 
       reSimpleNot = RegExp(
         '^(' +
@@ -735,8 +705,6 @@
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
       Patterns.className = RegExp('^\\.(' + identifier + ')(.*)');
       Patterns.attribute = RegExp('^(?:' + attrmatcher + ')(.*)');
-
-      extendedValidator = standardValidator.replace(pseudoclass, '.*');
 
       reValidator = RegExp(Config.SIMPLENOT ?
         standardValidator : extendedValidator, 'g');
@@ -1448,7 +1416,7 @@
         HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
 
       // save/reuse factory and closure collection
-      if (!selectResolvers[selector] && !callback) {
+      if (!selectResolvers[selector]) {
         selectResolvers[selector] = {
           builder: resolver.builder,
           factory: resolver.factory,
