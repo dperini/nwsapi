@@ -11,10 +11,14 @@ iframe { visibility: hidden; position: absolute; }
 
 <h3>Latest W3C test suite</h3>
 
+<p style="warning">NOTE: These tests require a running HTTP server to execute.<br>
+If you have PHP7 installed you can start the embedded HTTP server executing the<br>
+shell script "w3c-test.php" that you can find in the "test" directory.</p>
+
 <p style="warning">NOTE: In each of the tests of this section (Latest W3C test suite),
 it is possible to press CTRL+ALT keys to switch between native (#w3) and nwsapi (#nw)</p>
 
-<p><strong>querySelector, querySelectorAll, matches, closest (Level 4):</strong></p>
+<p><strong>WPT /dom/nodes/ - querySelector, querySelectorAll, matches, closest (Level 4):</strong></p>
 <ul>
 	<li><a href="/dom/nodes/ParentNode-querySelector-All-xht.xht">querySelector All - XHTML</a></li>
 	<li><a href="/dom/nodes/ParentNode-querySelector-All.html">querySelector All - HTML</a></li>
@@ -22,7 +26,7 @@ it is possible to press CTRL+ALT keys to switch between native (#w3) and nwsapi 
 	<li><a href="/dom/nodes/Element-closest.html">Element Closest</a></li>
 </ul>
 
-<p><strong>pseudo-classes (Level 4):</strong></p>
+<p><strong>WPT /html/semantics/selectors/pseudo-classes - (Level 4):</strong></p>
 <ul>
 	<li><a href="/html/semantics/selectors/pseudo-classes/checked.html">checked</a></li>
 	<li><a href="/html/semantics/selectors/pseudo-classes/default.html">default</a></li>
@@ -36,6 +40,18 @@ it is possible to press CTRL+ALT keys to switch between native (#w3) and nwsapi 
 	<li><a href="/html/semantics/selectors/pseudo-classes/readwrite-readonly.html">read-write and read-only</a></li>
 	<li><a href="/html/semantics/selectors/pseudo-classes/required-optional.html">required and optional</a></li>
 	<li><a href="/html/semantics/selectors/pseudo-classes/valid-invalid.html">valid and invalid</a></li>
+</ul>
+
+<p><strong>JSDOM specific tests depending on NWSAPI</strong></p>
+<ul>
+	<li><a href="/jsdom/dom/nodes/DocumentFragment-getElementById.html">DocumentFragment-getElementById.html</a></li>
+	<li><a href="/jsdom/dom/nodes/Node-cloneNode-svg.html">Node-cloneNode-svg.html</a></li>
+	<li><a href="/jsdom/dom/nodes/ParentNode-querySelector-escapes.html">ParentNode-querySelector-escapes.html</a></li>
+	<li><a href="/jsdom/dom/nodes/svg-template-querySelector.html">svg-template-querySelector.html</a></li>
+	<li><a href="/jsdom/svg/element-svg.html">element-svg.html</a></li>
+	<li><a href="/jsdom/svg/element.html">element.html</a></li>
+	<li><a href="/jsdom/svg/svganimatedstring.html">svganimatedstring.html</a></li>
+	<li><a href="/jsdom/html/start-tag-body.html">start-tag-body.html</a></li>
 </ul>
 
 </body>
