@@ -491,40 +491,81 @@
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
   nthElement = (function() {
-    var parents = Array(), elements = Array();
+    var idx, len, set, parent, parents = Array(), nodes = Array();
     return function(element, dir) {
+      var e, i, j, k, l;
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
-      var e, i, j, l, parent = element.parentNode;
-      if ((i = parents.indexOf(parent)) < 0) {
-        i = parents.length;
-        parents[i] = parent;
-        elements[i] = Array();
-        e = parent.firstElementChild;
-        while (e) { elements[i].push(e); e = e.nextElementSibling; }
+      if (dir == 2) { nodes.length = 0; parents.length = 0; parent = null; return -1; }
+      if (parent === element.parentNode) {
+        i = set; j = idx; l = len;
+      } else {
+        l = parents.length;
+        parent = element.parentNode;
+        for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
+          if (parents[j] === parent) { i = j; break; }
+          if (parents[k] === parent) { i = k; break; }
+        }
+        if (i < 0) {
+          parents[i = l] = parent;
+          l = 0; nodes[i] = Array();
+
+          e = parent.firstElementChild;
+          while (e) { nodes[i][l] = e; if (e === element) j = l; e = e.nextElementSibling; ++l; }
+          set = i; idx = 0; len = l;
+          if (l < 2) return l;
+        } else {
+          l = nodes[i].length;
+          set = i;
+        }
       }
-      for (j = 0, l = elements[i].length; l > j; ++j) { if (elements[i][j] === element) break; }
-      return dir ? l - j : j + 1;
+      if (element !== nodes[i][j] && element !== nodes[i][j = 0]) {
+        for (j = 0, e = nodes[i], k = l - 1; l > j; ++j, --k) {
+          if (e[j] === element) { break; }
+          if (e[k] === element) { j = k; break; }
+        }
+      }
+      idx = j + 1; len = l;
+      return dir ? l - j : idx;
     };
   })(),
 
   // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
   nthOfType = (function() {
-    var parents = Array(), elements = Array();
+    var idx, len, set, parent, parents = Array(), nodes = Array();
     return function(element, dir) {
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { parents.length = 0; elements.length = 0; return -1; }
-      var e, i, j, l, name = element.nodeName, parent = element.parentNode;
-      if ((i = parents.indexOf(parent)) < 0 || !(elements[i] && elements[i][name])) {
-        i = parents.length;
-        parents[i] = parent;
-        elements[i] = Object();
-        elements[i][name] = Array();
-        e = parent.firstElementChild;
-        while (e) { if (e.nodeName == name) elements[i][name].push(e); e = e.nextElementSibling; }
+      if (dir == 2) { nodes.length = 0; parents.length = 0; parent = null; return -1; }
+      var e, i, j, k, l, name = element.nodeName;
+      if (nodes[set] && nodes[set][name] && parent === element.parentNode) {
+        i = set; j = idx; l = len;
+      } else {
+        l = parents.length;
+        parent = element.parentNode;
+        for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
+          if (parents[j] === parent) { i = j; break; }
+          if (parents[k] === parent) { i = k; break; }
+        }
+        if (i < 0 || !nodes[i][name]) {
+          parents[i = l] = parent;
+          nodes[i] || (nodes[i] = Object());
+          l = 0; nodes[i][name] = Array();
+          e = parent.firstElementChild;
+          while (e) { if (e === element) j = l; if (e.nodeName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
+          set = i; idx = j; len = l;
+          if (l < 2) return l;
+        } else {
+          l = nodes[i][name].length;
+          set = i;
+        }
       }
-      for (j = 0, l = elements[i][name].length; l > j; ++j) { if (elements[i][name][j] === element) break; }
-      return dir ? l - j : j + 1;
+      if (element !== nodes[i][name][j] && element !== nodes[i][name][j = 0]) {
+        for (j = 0, e = nodes[i][name], k = l - 1; l > j; ++j, --k) {
+          if (e[j] === element) { break; }
+          if (e[k] === element) { j = k; break; }
+        }
+      }
+      idx = j + 1; len = l;
+      return dir ? l - j : idx;
     };
   })(),
 
