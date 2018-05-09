@@ -890,26 +890,26 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
-            source = 'if(' + N + '(e.previousElementSibling)){n=e;e=e.parentNode.firstElementChild;while(e&&e!==n){' + source + 'e=e.nextElementSibling;}e=n;}';
+            source = 'n=e;while((e=e.previousElementSibling)){' + source + '}e=n;';
             break;
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
-            source = 'if(' + N + '(e.previousElementSibling)){n=e;if(e=e.previousElementSibling){' + source + '}e=n;}';
+            source = 'n=e;if((e=e.previousElementSibling)){' + source + '}e=n;';
             break;
           // *** Descendant combinator
           // E F (E ancestor of F)
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
-            source = 'n=e;while(e=e.parentElement){' + source + '}e=n;';
+            source = 'n=e;while((e=e.parentElement)){' + source + '}e=n;';
             break;
           // *** Child combinator
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
-            source = 'n=e;if(e=e.parentElement){' + source + '}e=n;';
+            source = 'n=e;if((e=e.parentElement)){' + source + '}e=n;';
             break;
 
           case (symbol in Combinators ? symbol : undefined):
