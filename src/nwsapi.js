@@ -605,9 +605,7 @@
   initialize =
     function(doc) {
       setIdentifierSyntax();
-      lastMatchContext = doc;
-      lastSelectContext = doc;
-      switchContext(doc, true);
+      lastContext = switchContext(doc, true);
     },
 
   // build validation regexps used by the engine
@@ -846,7 +844,8 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             source = 'if(' + N + '(' +
-              (!MIXEDCASE && HTML_DOCUMENT ?
+              (!MIXEDCASE && HTML_DOCUMENT &&
+              (lastContext && lastContext.nodeType !=11) ?
               'e.nodeName=="' + match[1].toUpperCase() + '"' :
               '/^' + match[1] + '$/i.test(e.localName)') +
               ')){' + source + '}';
@@ -1385,8 +1384,8 @@
       } else if (arguments[0] === '') {
         emit('\'\' is not a valid selector');
         return Config.VERBOSITY ? undefined : none;
-      } else if (lastSelectContext !== context) {
-        lastSelectContext = switchContext(context);
+      } else if (lastContext !== context) {
+        lastContext = switchContext(context);
       }
 
       // selector NULL or UNDEFINED
@@ -1562,13 +1561,12 @@
   // empty set
   none = Array(),
 
+  // context
+  lastContext,
+
   // selector
   lastMatched,
   lastSelected,
-
-  // last context
-  lastMatchContext,
-  lastSelectContext,
 
   // cached lambdas
   matchLambdas = { },
