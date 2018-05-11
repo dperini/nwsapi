@@ -368,7 +368,7 @@
         return element ? [ element ] : none;
       }
 
-      // multiple tag names
+      // multiple ids names
       ids.map(function(e) { nIds += '|' + e.replace(REX.RegExpChar, '\\$&'); });
       reIds = RegExp('^(?:' + nIds.slice(1) + ')$', 'i');
 
@@ -620,14 +620,14 @@
         '(?:-{2}' +
           // may include ascii chars
           '|[a-zA-Z0-9-_]' +
-          // any escaped chars
-          '|\\\\.' +
           // non-ascii chars
           '|[^\\x00-\\x9f]' +
           // escaped chars
-          '|\\\\.[^\\r\\n\\f0-9a-fA-F]' +
+          '|\\\\[^\\r\\n\\f0-9a-fA-F]' +
           // unicode chars
-          '|\\\\.[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?' +
+          '|\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?' +
+          // any escaped chars
+          '|\\\\.' +
         ')+',
 
       pseudoparms = '(?:[-+]?\\d*)(?:n[-+]?\\d*)',
