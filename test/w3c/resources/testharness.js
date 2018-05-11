@@ -35,10 +35,17 @@ policies and contribution forms [3].
     }
 
     if (window.location.hash == '#nw') {
-        var s = document.createElement('script'),
-        h = document.getElementsByTagName('head')[0];
-        s.onload = function() { NW.Dom.install(true); };
-        s.src = '/resources/nwsapi.js'; h.insertBefore(s, null);
+        if (false) {
+            var s = document.createElement('script'),
+            h = document.getElementsByTagName('head')[0];
+            s.onload = function() { NW.Dom.install(true); };
+            s.src = '/resources/nwsapi.js'; h.insertBefore(s, null);
+        } else {
+            request = new XMLHttpRequest();
+            request.open('GET', '/resources/nwsapi.js', false);
+            request.send();
+            Function(request.responseText + 'NW.Dom.install(true);')();
+        }
     }
 
     window.addEventListener('keydown', handleState, true);
