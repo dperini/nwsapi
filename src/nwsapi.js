@@ -562,7 +562,7 @@
     function(node) {
       var doc = node.ownerDocument || node;
       return doc.nodeType == 9 &&
-        doc.contentType.indexOf('/html') > 0;
+        doc.contentType.indexOf('/html') > 0 &&
         doc.createElement('DiV').nodeName == 'DIV';
     },
 
@@ -1184,8 +1184,7 @@
                 case 'placeholder-shown':
                   source =
                     'if(' + N + '(' +
-                      'e.hasAttribute("placeholder")&&' +
-                      '!s.match(":focus",e)' +
+                      'e.hasAttribute("placeholder")&&e.type!="submit"&&!s.match(":focus",e)' +
                     ')){' + source + '}';
                   break;
                 default:
