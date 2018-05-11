@@ -174,10 +174,10 @@
         HAS_DUPE_IDS = undefined;
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
-        NAMESPACE = root.namespaceURI;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         MIXEDCASE = hasMixedContentType(doc);
+        NAMESPACE = root && root.namespaceURI;
         ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
         Snapshot.doc = doc;
         Snapshot.root = root;
@@ -560,9 +560,10 @@
   // check if the document type is HTML
   isHTML =
     function(node) {
-      var doc = node.ownerDocument || node, root = doc.documentElement;
-      return doc.nodeType == 9 && ('body' in doc) && root.nodeName == 'HTML' &&
-        doc.createElement('DiV').nodeName != 'DiV' && doc.contentType.indexOf('/html') > 0;
+      var doc = node.ownerDocument || node;
+      return doc.nodeType == 9 &&
+        doc.contentType.indexOf('/html') > 0;
+        doc.createElement('DiV').nodeName == 'DIV';
     },
 
   // configure the engine to use special handling
