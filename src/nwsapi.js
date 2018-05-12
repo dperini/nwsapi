@@ -331,11 +331,12 @@
       m = method[type];
       for (i = 0; k > i; ++i) {
         els = context[m](ident[i]);
-        if (!els) continue; test = toArray(els);
+        if (!els) continue;
+        test = toArray(els);
         for (j = 0, c = 0; l > j; ++j) {
           if (list[j] === test[c]) { ++c; }
         }
-        if (test.length !== c) { return false; }
+        if (c === 0 || test.length !== c) { return false; }
       }
       return true;
     },
