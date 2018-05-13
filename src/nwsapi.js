@@ -312,13 +312,33 @@
       return false;
     },
 
+  // detect case sensitivity of the nodeName property
+  // for elements created in the context owner document
+  isCaseSensitive =
+    function(context) {
+      var d = context.ownerDocument || context;
+      return !isHTML(doc) ||
+             d.createElement('div').nodeName ==
+             d.createElement('DIV').nodeName;
+    },
+
   // check context for mixed content
   hasMixedContentType =
     function(context) {
-      if (context.nodeType == 11 && context.firstElementChild) {
-        context = context.firstElementChild;
+      var dns, all_nodes, dns_nodes;
+
+      if (root) {
+        // the root element namespace
+        dns = root.namespaceURI;
+      } else {
+        // default html/xhtml namespace
+        dns = 'http://www.w3.org/1999/xhtml';
       }
-      return context.getElementsByTagNameNS(null, '*').length > 0;
+
+      all_nodes = doc.getElementsByTagNameNS('*', '*').length;
+      dns_nodes = doc.getElementsByTagNameNS(dns, '*').length;
+
+      return (all_nodes - dns_nodes) > 0;
     },
 
   // validate memoized HTMLCollections
@@ -845,10 +865,9 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             source = 'if(' + N + '(' +
-              (!MIXEDCASE && HTML_DOCUMENT &&
-              (lastContext && lastContext.nodeType !=11) ?
-              'e.nodeName=="' + match[1].toUpperCase() + '"' :
-              '/^' + match[1] + '$/i.test(e.localName)') +
+              (isCaseSensitive(lastContext) ?
+              '/^' + match[1] + '$/i.test(e.nodeName)' :
+              'e.nodeName=="' + match[1].toUpperCase() + '"') +
               ')){' + source + '}';
             break;
           // namespace resolver
