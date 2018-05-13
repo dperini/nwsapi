@@ -1204,7 +1204,9 @@
                 case 'placeholder-shown':
                   source =
                     'if(' + N + '(' +
-                      'e.hasAttribute("placeholder")&&e.type!="submit"&&!s.match(":focus",e)' +
+                      '(/^input|textarea$/i.test(e.nodeName))&&e.hasAttribute("placeholder")&&' +
+                      '(/^textarea|password|number|search|email|text|tel|url$/i.test(e.type))&&' +
+                      '(!s.match(":focus",e))' +
                     ')){' + source + '}';
                   break;
                 default:
