@@ -102,6 +102,7 @@
   QUIRKS_MODE,
   HAS_DUPE_IDS,
   HTML_DOCUMENT,
+  CASE_SENSITIVE,
 
   ATTR_ID = 'e.id',
 
@@ -761,6 +762,9 @@
       // 'groups' may be a string, convert it to array
       if (typeof groups == 'string') groups = [groups];
 
+      // detect case sensitivity of element nodeName
+      CASE_SENSITIVE = isCaseSensitive(lastContext);
+
       selector = groups.join(', ');
       key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
 
@@ -865,7 +869,7 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             source = 'if(' + N + '(' +
-              (!HTML_DOCUMENT || isCaseSensitive(lastContext) ?
+              (!HTML_DOCUMENT || CASE_SENSITIVE ?
               '/^' + match[1] + '$/i.test(e.nodeName)' :
               'e.nodeName=="' + match[1].toUpperCase() + '"') +
               ')){' + source + '}';
