@@ -837,7 +837,7 @@
       while (selector) {
 
         // get namespace prefix if present or get first char of selector
-        symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector.charAt(0);
+        symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector[0];
 
         switch (symbol) {
 
@@ -1456,8 +1456,8 @@
       var index = token.index,
       length = token[1].length + token[2].length;
       return selector.slice(0, index) +
-        (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
-          (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
+        (' >+~'.indexOf(selector[index - 1]) > -1 ?
+          (':['.indexOf(selector[index + length + 1]) > -1 ?
           '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
     },
 
@@ -1676,8 +1676,8 @@
       function(combinator, resolver) {
         var i = 0, l = combinator.length, symbol;
         for (; l > i; ++i) {
-          if (combinator.charAt(i) != '=') {
-            symbol = combinator.charAt(i);
+          if (combinator[i] != '=') {
+            symbol = combinator[i];
             break;
           }
         }
@@ -1696,8 +1696,8 @@
       function(operator, resolver) {
         var i = 0, l = operator.length, symbol;
         for (; l > i; ++i) {
-          if (operator.charAt(i) != '=') {
-            symbol = operator.charAt(i);
+          if (operator[i] != '=') {
+            symbol = operator[i];
             break;
           }
         }
