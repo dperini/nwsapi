@@ -81,14 +81,8 @@ Returns an array of elements having the specified class name `class`, optionally
 
 The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
 
-* `ESCAPECHR`: true  - true to allow CSS escaped identifiers, false to disallow
-* `NON_ASCII`: true  - true to allow identifiers containing non-ASCII (utf-8) chars
-* `SELECTOR3`: true  - switch syntax RE, true to use Level 3, false to use Level 2
-* `UNICODE16`: true  - true to allow identifiers containing Unicode (utf-16) chars
 * `BUGFIX_ID`: true  - true to bugfix forms when using reserved words for controls
-* `DUPLICATE`: true  - true to allow multiple elements having the same id (strict)
 * `SIMPLENOT`: true  - true to disallow complex selectors nested in ':not()' classes
-* `SVG_LCASE`: false - false to disallow lowercase SVG elements in HTML documents
 * `USE_HTML5`: true  - true to use HTML5 specs for ":checked" and similar UI states
 * `VERBOSITY`: true  - true to throw exceptions, false to skip throwing exceptions
 * `LOGERRORS`: true  - true to print console errors or warnings, false to mute them
