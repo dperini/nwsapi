@@ -1056,8 +1056,8 @@
                   source = compileSelector(expr, source, false, callback, true);
                   break;
                 case 'checked':
-                  source = 'if(' + N + '((/^input$/i.test(e.nodeName)&&' +
-                    '(/^(?:radio|checkbox)$/i).test(e.type)&&e.checked)||' +
+                  source = 'if(' + N + '(/^input$/i.test(e.nodeName)&&' +
+                    '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
                     '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
                     ')){' + source + '}';
                   break;
@@ -1130,16 +1130,16 @@
                         'x++;' +
                       '}' +
                     '}' +
-                    'if(' + N + '(e.form&&(e===n[x]&&/^image|submit$/i.test(e.type))||' +
+                    'if(' + N + '(e.form&&(e===n[x]&&"|image|submit|".includes("|"+e.type+"|"))||' +
                       '((/^option$/i.test(e.nodeName))&&e.defaultSelected)||' +
-                      '((/^(radio|checkbox)$/i.test(e.type))&&e.defaultChecked)' +
+                      '(("|radio|checkbox|".includes("|"+e.type+"|"))&&e.defaultChecked)' +
                     ')){' + source + '}';
                   break;
                 case 'indeterminate':
                   source =
                     'if(' + N + '(/^progress$/i.test(e.nodeName)&&!e.hasAttribute("value"))||' +
-                      '(/^input$/i.test(e.nodeName)&&(/^checkbox$/i.test(e.type)&&e.indeterminate)||' +
-                      '(/^radio$/i.test(e.type)&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+                      '(/^input$/i.test(e.nodeName)&&("checkbox"==e.type&&e.indeterminate)||' +
+                      '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' + source + '}';
                   break;
                 case 'optional':
@@ -1158,7 +1158,7 @@
                   source =
                     'if(' + N + '(' +
                       '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
-                      '(/^password|text$/i.test(e.type)&&!e.readOnly&&!e.disabled))||' +
+                      '("|password|text|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
                       '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
                     ')){' + source + '}';
                   break;
@@ -1166,7 +1166,7 @@
                   source =
                     'if(' + N + '(' +
                       '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
-                      '(/^password|text$/i.test(e.type)&&e.readOnly)' +
+                      '("|password|text|".includes("|"+e.type+"|")&&e.readOnly)' +
                     ')){' + source + '}';
                   break;
                 case 'invalid':
@@ -1191,8 +1191,8 @@
                       '(/^input$/i.test(e.nodeName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
-                      '(/^date|datetime-local|month|number|range|time|week$/i.test(e.type))&&' +
-                      '(/^range$/i.test(e.type)||e.getAttribute("min")||e.getAttribute("max"))' +
+                      '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
+                      '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' + source + '}';
                   break;
                 case 'out-of-range':
@@ -1201,15 +1201,15 @@
                       '(/^input$/i.test(e.nodeName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
-                      '(/^date|datetime-local|month|number|range|time|week$/i.test(e.type))&&' +
-                      '(/^range$/i.test(e.type)||e.getAttribute("min")||e.getAttribute("max"))' +
+                      '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
+                      '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' + source + '}';
                   break;
                 case 'placeholder-shown':
                   source =
                     'if(' + N + '(' +
                       '(/^input|textarea$/i.test(e.nodeName))&&e.hasAttribute("placeholder")&&' +
-                      '(/^textarea|password|number|search|email|text|tel|url$/i.test(e.type))&&' +
+                      '("|textarea|password|number|search|email|text|tel|url".includes("|"+e.type+"|"))&&' +
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
                   break;
