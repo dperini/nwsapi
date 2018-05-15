@@ -339,7 +339,7 @@
       all_nodes = d.getElementsByTagNameNS('*', '*').length;
       dns_nodes = d.getElementsByTagNameNS(dns, '*').length;
 
-      return (all_nodes - dns_nodes) > 0;
+      return all_nodes != dns_nodes;
     },
 
   // validate memoized HTMLCollections
@@ -762,8 +762,8 @@
       // 'groups' may be a string, convert it to array
       if (typeof groups == 'string') groups = [groups];
 
-      // detect case sensitivity of element nodeName
-      CASE_SENSITIVE = isCaseSensitive(lastContext);
+      // detect contexts having mixed namespaces elements
+      MIXED_NS = hasMixedNamespace(lastContext);
 
       selector = groups.join(', ');
       key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
@@ -868,10 +868,10 @@
           // tag name resolver
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if(' + N + '(' +
-              (!HTML_DOCUMENT || CASE_SENSITIVE ?
+            compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
+            source = 'if(' + N + '(' + (MIXED_NS || lastContext.nodeType == 11 ?
               '/^' + match[1] + '$/i.test(e.nodeName)' :
-              'e.nodeName=="' + match[1].toUpperCase() + '"') +
+              'e.nodeName=="' + compat + '"') +
               ')){' + source + '}';
             break;
           // namespace resolver
@@ -1399,7 +1399,6 @@
 
       if (HAS_DUPE_IDS === undefined) {
         HAS_DUPE_IDS = hasDuplicateId(context);
-        MIXED_NS = hasMixedNamespace(context);
         domapi = set_domapi();
       }
 
