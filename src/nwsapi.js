@@ -1468,7 +1468,7 @@
   // prepare factory resolvers and closure collections
   collect =
     function(selector, context, callback, resolvers) {
-      var i, j, l, done, items, prev, builder, ident, symbol, token;
+      var i, l, items, builder, ident, symbol, token;
       if (typeof selector == 'string') {
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           if ((symbol = token[1] || '*') && context[method[symbol]]) {
@@ -1481,12 +1481,6 @@
         for (i = 0, l = selector.length; l > i; ++i) {
           if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
-            if (prev == ident) {
-              j = i - 1;
-              selector[j] = optimize(selector[j], token);
-              selector[i] = optimize(selector[i], token);
-            }
-            if (!done && (done = true)) { prev = ident; }
           }
           if (items[symbol]) items[symbol].push(ident);
         }
