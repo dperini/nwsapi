@@ -869,7 +869,8 @@
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
-            source = 'if(' + N + '(' + (MIXED_NS || lastContext.nodeType == 11 ?
+            source = 'if(' + N + '(' +
+              (!HTML_DOCUMENT || MIXED_NS || lastContext.nodeType == 11 ?
               '/^' + match[1] + '$/i.test(e.nodeName)' :
               'e.nodeName=="' + compat + '"') +
               ')){' + source + '}';
