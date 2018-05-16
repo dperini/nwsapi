@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.0beta3
+ * Version: 2.0.0beta4
  * Created: 20070722
- * Release: 20180514
+ * Release: 20180515
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.0beta3',
+  var version = 'nwsapi-2.0.0beta4',
 
   doc = global.document,
   root = doc.documentElement,
@@ -102,7 +102,6 @@
   QUIRKS_MODE,
   HAS_DUPE_IDS,
   HTML_DOCUMENT,
-  CASE_SENSITIVE,
 
   ATTR_ID = 'e.id',
 
@@ -312,21 +311,11 @@
       return false;
     },
 
-  // detect case sensitivity of the nodeName property
-  // for elements created in the context owner document
-  isCaseSensitive =
-    function(context) {
-      var d = context.ownerDocument || context;
-      return d.createElement('div').nodeName ==
-             d.createElement('DIV').nodeName;
-    },
-
   // check context for mixed content
   hasMixedNamespace =
     function(context) {
       var d = context.ownerDocument || context,
       dns, all_nodes, dns_nodes;
-
       if (root) {
         // the root element namespace
         dns = root.namespaceURI;
@@ -338,7 +327,6 @@
       // check to see if all nodes are in the same namespace
       all_nodes = d.getElementsByTagNameNS('*', '*').length;
       dns_nodes = d.getElementsByTagNameNS(dns, '*').length;
-
       return all_nodes != dns_nodes;
     },
 
@@ -566,18 +554,6 @@
       return dir ? l - j : idx;
     };
   })(),
-
-  // elements inherit ancestor properties
-  inherit =
-    function(element, tag, property) {
-      var name = element.nodeName;
-      while(element.parentElement) {
-        if (name == tag) { break; }
-        element = element.parentElement;
-        name = element.nodeName.toLowerCase();
-      }
-      return name == tag ? element : null;
-    },
 
   // check if the document type is HTML
   isHTML =
@@ -1062,16 +1038,12 @@
                   break;
                 case 'disabled':
                   // https://www.w3.org/TR/html5/forms.html#enabling-and-disabling-form-controls:-the-disabled-attribute
-                  source =
-                    'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
-                      '"disabled" in e &&(e.disabled===true||' +
-                      '(n=s.inherit(e,"fieldset"))&&(n=s.first("legend",n))&&!n.contains(e))' +
+                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e&&' +
+                    '(e.disabled===true||(n=s.ancestor("fieldset",e))&&(n=s.first("legend",n))&&!n.contains(e))' +
                     ')){' + source + '}';
                   break;
                 case 'enabled':
-                  source =
-                    'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&' +
-                      '"disabled" in e &&e.disabled===false' +
+                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e &&e.disabled===false' +
                     ')){' + source + '}';
                   break;
                 case 'lang':
@@ -1606,7 +1578,7 @@
     first: first,
     match: match,
 
-    inherit: inherit,
+    ancestor: ancestor,
 
     nthOfType: nthOfType,
     nthElement: nthElement,
