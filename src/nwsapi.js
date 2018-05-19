@@ -477,16 +477,20 @@
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
   nthElement = (function() {
-    var idx, len, set, parent, parents = Array(), nodes = Array();
+    var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
     return function(element, dir) {
-      var e, i, j, k, l;
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { nodes.length = 0; parents.length = 0; parent = null; return -1; }
-      if (parent === element.parentNode) {
+      if (dir == 2) {
+        idx = 0; len = 0; set = 0; nodes.length = 0;
+        parents.length = 0; parent = undefined;
+        return -1;
+      }
+      var e, i, j, k, l;
+      if (parent === element.parentElement) {
         i = set; j = idx; l = len;
       } else {
         l = parents.length;
-        parent = element.parentNode;
+        parent = element.parentElement;
         for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
           if (parents[j] === parent) { i = j; break; }
           if (parents[k] === parent) { i = k; break; }
@@ -494,8 +498,7 @@
         if (i < 0) {
           parents[i = l] = parent;
           l = 0; nodes[i] = Array();
-
-          e = parent.firstElementChild;
+          e = parent && parent.firstElementChild || element;
           while (e) { nodes[i][l] = e; if (e === element) j = l; e = e.nextElementSibling; ++l; }
           set = i; idx = 0; len = l;
           if (l < 2) return l;
@@ -517,16 +520,20 @@
 
   // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
   nthOfType = (function() {
-    var idx, len, set, parent, parents = Array(), nodes = Array();
+    var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
     return function(element, dir) {
       // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) { nodes.length = 0; parents.length = 0; parent = null; return -1; }
+      if (dir == 2) {
+        idx = 0; len = 0; set = 0; nodes.length = 0;
+        parents.length = 0; parent = undefined;
+        return -1;
+      }
       var e, i, j, k, l, name = element.nodeName;
-      if (nodes[set] && nodes[set][name] && parent === element.parentNode) {
+      if (nodes[set] && nodes[set][name] && parent === element.parentElement) {
         i = set; j = idx; l = len;
       } else {
         l = parents.length;
-        parent = element.parentNode;
+        parent = element.parentElement;
         for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
           if (parents[j] === parent) { i = j; break; }
           if (parents[k] === parent) { i = k; break; }
@@ -535,7 +542,7 @@
           parents[i = l] = parent;
           nodes[i] || (nodes[i] = Object());
           l = 0; nodes[i][name] = Array();
-          e = parent.firstElementChild;
+          e = parent && parent.firstElementChild || element;
           while (e) { if (e === element) j = l; if (e.nodeName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
           set = i; idx = j; len = l;
           if (l < 2) return l;
@@ -946,13 +953,13 @@
                   source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
                   break;
                 case 'only-child':
-                  source = 'if(' + N + '(e.parentNode.firstElementChild===e.parentNode.lastElementChild)){' + source + '}';
+                  source = 'if(' + N + '(!e.nextElementSibling&&!e.previousElementSibling)){' + source + '}';
                   break;
                 case 'last-child':
-                  source = 'if(' + N + '(e===e.parentNode.lastElementChild)){' + source + '}';
+                  source = 'if(' + N + '(!e.nextElementSibling)){' + source + '}';
                   break;
                 case 'first-child':
-                  source = 'if(' + N + '(e===e.parentNode.firstElementChild)){' + source + '}';
+                  source = 'if(' + N + '(!e.previousElementSibling)){' + source + '}';
                   break;
                 case 'only-of-type':
                   source = 'o=e.nodeName;' +
@@ -984,6 +991,12 @@
                     type = /last/i.test(match[1]);
                     if (match[2] == 'n') {
                       source = 'if(' + N + 'true){' + source + '}';
+                      break;
+                    } else if (match[2] == '1') {
+                      test = type ? 'next' : 'previous';
+                      source = expr ? 'n=e;o=e.nodeName;' +
+                        'while((n=n.' + test + 'ElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}' :
+                        'if(' + N + '!e.' + test + 'ElementSibling){' + source + '}';
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
                       test = 'n%2==0';
