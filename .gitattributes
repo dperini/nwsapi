@@ -1,0 +1,4 @@
+* linguist-vendored
+*.js linguist-vendored=false
+bin/* -crlf -diff -merge
+* eol=lf
