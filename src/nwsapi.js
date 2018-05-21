@@ -1376,12 +1376,14 @@
   select =
     function _querySelectorAll(selector, context, callback) {
 
-      var groups, resolver, token;
+      var groups, resolver;
 
-      if (selector) {
+      context || (context = doc);
 
-        if ((resolver = selectResolvers[selector])) {
-          if (resolver.context === context && resolver.usrcall === callback) {
+      if (selector){
+
+        if (!callback && (resolver = selectResolvers[selector])) {
+          if (resolver.context === context) {
             return resolver.factory(resolver.builder, callback, context);
           }
         }
@@ -1389,8 +1391,6 @@
       }
 
       lastSelected = selector;
-
-      context || (context = doc);
 
       if (HAS_DUPE_IDS === undefined) {
         HAS_DUPE_IDS = hasDuplicateId(context);
@@ -1436,7 +1436,7 @@
         HTML_DOCUMENT && context.nodeType != 11 ? domapi : compat);
 
       // save/reuse factory and closure collection
-      if (!selectResolvers[selector]) {
+      if (!selectResolvers[selector] && !callback) {
         selectResolvers[selector] = {
           builder: resolver.builder,
           factory: resolver.factory,
@@ -1444,7 +1444,6 @@
           context: context
         };
       }
-
       return resolver.factory(resolver.builder, callback, context);
     },
 
@@ -1454,8 +1453,8 @@
       var index = token.index,
       length = token[1].length + token[2].length;
       return selector.slice(0, index) +
-        (' >+~'.indexOf(selector[index - 1]) > -1 ?
-          (':['.indexOf(selector[index + length + 1]) > -1 ?
+        (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
+          (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
           '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
     },
 
@@ -1467,19 +1466,25 @@
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           if ((symbol = token[1] || '*') && context[method[symbol]]) {
             builder = resolvers[symbol](context, unescapeIdentifier(ident));
-            if (HTML_DOCUMENT) { selector = optimize(selector, token); }
+            selector = optimize(selector, token);
           }
         }
       } else {
-        items = { '#': Array(), '.': Array(), '*': Array() };
+        var id = '', cn = '', tn = '', ni = 0, nc = 0, nt = 0;
         for (i = 0, l = selector.length; l > i; ++i) {
           if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
           }
-          if (items[symbol]) items[symbol].push(ident);
+          if (symbol == '#') { ++ni; id += i === 0 ? ident : ',' + ident; }
+          if (symbol == '.') { ++nc; cn += i === 0 ? ident : ',' + ident; }
+          if (symbol == '*') { ++nt; tn += i === 0 ? ident : ',' + ident; }
         }
-        if (items[symbol] && items[symbol].length == l) {
-          builder = compat[symbol](context, items[symbol]);
+        if (ni == l) {
+          builder = compat['#'](context, id.split(','));
+        } else if (nc == l) {
+          builder = compat['.'](context, cn.split(','));
+        } else if (nt == l) {
+          builder = compat['*'](context, tn.split(','));
         } else {
           builder = compat['*'](context, '*');
         }
