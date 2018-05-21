@@ -59,12 +59,12 @@
   struct_1 = '(?:root|empty|scope)|(?:(?:first|last|only)(?:-child|-of-type))',
   struct_2 = '(?:nth(?:-last)?(?:-child|-of-type))',
   pseudo_1 = 'any-link|link|visited|target|active|focus|hover',
-  pseudo_2 = 'checked|disabled|enabled|selected|local-link(?:\\(\\d*\\))?|lang\\(([-\\w]{2,})\\)',
+  pseudo_2 = 'checked|disabled|enabled|selected|local-link(?:\\(\\d*(?:\\)|$))?|lang\\(([-\\w]{2,})(?:\\)|$)',
   pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write|placeholder-shown',
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
-  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?\\))',
-  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*)\\s?\\)',
+  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?(?:\\)|$))',
+  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*)\\s?(?:\\)|$)',
 
   Patterns = {
     struct_n: RegExp('^:(' + struct_1 + ')?(.*)', 'i'),
@@ -617,6 +617,20 @@
   setIdentifierSyntax =
     function() {
 
+      // NOTE: SPECIAL CASES IN CSS SYNTAX PARSING RULES
+      //
+      // The <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
+      // allow mangled|unclosed selector syntax at the end of selectors strings
+      //
+      // These are the non capturing representations of each character: ' " ] )
+      //
+      // (?:\\'|$) - missing close double quotes
+      // (?:\\"|$) - missing close single quote
+      // (?:\\]|$) - missing close square bracket
+      // (?:\\)|$) - missing close round parens
+      //
+      // use the above four patterns to find instances throughout the code
+
       var identifier =
         // doesn't start with a digit
         '(?=[^0-9])' +
@@ -635,12 +649,12 @@
         ')+',
 
       pseudoparms = '(?:[-+]?\\d*)(?:n[-+]?\\d*)',
-      doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"',
-      singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'",
+      doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*(?:"|$)',
+      singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*(?:'|$)",
 
       attrparser = identifier + '|' + doublequote + '|' + singlequote,
 
-      attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)\\3',
+      attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)(?:\\3|$)',
 
       attributes =
         '\\[' +
@@ -655,9 +669,6 @@
           ')?' +
           // attribute case sensitivity
           WSP + '?' + '(i)?' + WSP + '?' +
-        // see <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
-        // allow mangled|unclosed selector syntax if at the end of the qSA string
-        // needed to pass current WP tests and mimic browsers behavior 'a[href=#'
         '(?:\\]|$)',
 
       attrmatcher = attributes.replace(attrparser, attrvalues),
@@ -670,11 +681,11 @@
           '(?:\\*|\\|)|' +
           '(?:' +
             '(?::' + identifier +
-            '(?:\\(' + pseudoparms + '?\\))?|' +
+            '(?:\\(' + pseudoparms + '?(?:\\)|$))?|' +
           ')|' +
           '(?:[.#]?' + identifier + ')|' +
           '(?:' + attributes + ')' +
-        ')+\\))*',
+        ')+(?:\\)|$))*',
 
       standardValidator =
         '(?=' + WSP + '?[^>+~(){}<>])' +
@@ -699,11 +710,11 @@
           '(?!:not)' +
           '(?:[.:#]?' +
           '(?:' + identifier + ')+|' +
-          '(?:\\([^()]*\\))' + ')+|' +
+          '(?:\\([^()]*(?:\\)|$))' + ')+|' +
           '(?:' + attributes + ')+|' +
         ')$');
 
-      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[.+\\]|\\(.+\\))*)$');
+      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[[^\\]]+(?:\\]|$)|\\([^\\)]+(?:\\)|$))*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
