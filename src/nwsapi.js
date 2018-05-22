@@ -1466,7 +1466,7 @@
         if ((token = selector.match(reOptimizer)) && (ident = token[2])) {
           if ((symbol = token[1] || '*') && context[method[symbol]]) {
             builder = resolvers[symbol](context, unescapeIdentifier(ident));
-            selector = optimize(selector, token);
+            if (HTML_DOCUMENT) { selector = optimize(selector, token); }
           }
         }
       } else {
