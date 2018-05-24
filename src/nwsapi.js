@@ -674,7 +674,7 @@
       attrmatcher = attributes.replace(attrparser, attrvalues),
 
       pseudoclass =
-        '(?:\\(' +
+        '(?:\\(' + WSP + '*' +
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
@@ -685,7 +685,7 @@
           ')|' +
           '(?:[.#]?' + identifier + ')|' +
           '(?:' + attributes + ')' +
-        ')+(?:\\)|$))*',
+        ')+' + '(?:' + WSP + '*)(?:\\)|$))*',
 
       standardValidator =
         '(?=' + WSP + '?[^>+~(){}<>])' +
@@ -708,10 +708,10 @@
           // namespace negation :not(*|*)
           '(?:\\*|\\*\\|\\*)|' +
           '(?!:not)' +
-          '(?:[.:#]?' +
-          '(?:' + identifier + ')+|' +
+          '(?:' + WSP + '*[.:#]?' +
+          '(?:' + identifier + WSP + '*)+|' +
           '(?:\\([^()]*(?:\\)|$))' + ')+|' +
-          '(?:' + attributes + ')+|' +
+          '(?:' + WSP + '*' + attributes + WSP + '*)+|' +
         ')$');
 
       reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[[^\\]]+(?:\\]|$)|\\([^\\)]+(?:\\)|$))*)$');
