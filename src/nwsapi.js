@@ -89,6 +89,7 @@
 
     BUGFIX_ID: true,
     FASTCOMMA: true,
+    IDS_DUPES: false,
 
     SIMPLENOT: true,
     USE_HTML5: true,
@@ -100,7 +101,6 @@
   MIXED_NS,
   NAMESPACE,
   QUIRKS_MODE,
-  HAS_DUPE_IDS,
   HTML_DOCUMENT,
 
   ATTR_ID = 'e.id',
@@ -171,7 +171,6 @@
       if (force || oldDoc !== doc) {
         // force a new check for each document change
         // performed before the next select operation
-        HAS_DUPE_IDS = undefined;
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
         QUIRKS_MODE = HTML_DOCUMENT &&
@@ -288,7 +287,7 @@
         '.': function(c, n, z) { return function(e, f) { if (e && z) return z; z = c.getElementsByClassName(n); return f ? concatCall(z, f) : toArray(z); };}
       },
       natives = mapped;
-      if (HAS_DUPE_IDS) natives['#'] = mapped['@'];
+      if (Config.IDS_DUPES) natives['#'] = mapped['@'];
       delete natives['@'];
       return natives;
     },
@@ -373,7 +372,7 @@
       if (typeof ids == 'string') { ids = [ ids ]; }
 
       // if duplicates are disallowed use DOM API to collect the nodes
-      if (!HAS_DUPE_IDS && ids.length < 2 && method['#'] in context) {
+      if (!Config.IDS_DUPES && ids.length < 2 && method['#'] in context) {
         element = context.getElementById(unescapeIdentifier(ids[0]));
         return element ? [ element ] : none;
       }
@@ -1391,11 +1390,6 @@
       }
 
       lastSelected = selector;
-
-      if (HAS_DUPE_IDS === undefined) {
-        HAS_DUPE_IDS = hasDuplicateId(context);
-        domapi = set_domapi();
-      }
 
       // arguments validation
       if (arguments.length === 0) {
