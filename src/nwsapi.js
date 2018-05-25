@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.0.0
  * Created: 20070722
- * Release: 20180517
+ * Release: 20180524
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -89,7 +89,9 @@
 
     BUGFIX_ID: true,
     FASTCOMMA: true,
+
     IDS_DUPES: false,
+    MIXEDCASE: false,
 
     SIMPLENOT: true,
     USE_HTML5: true,
@@ -98,7 +100,7 @@
     VERBOSITY: true
   },
 
-  MIXED_NS,
+  MIXEDCASE,
   NAMESPACE,
   QUIRKS_MODE,
   HTML_DOCUMENT,
@@ -173,6 +175,7 @@
         // performed before the next select operation
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
+        MIXEDCASE = Config.MIXEDCASE;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         NAMESPACE = root && root.namespaceURI;
@@ -293,41 +296,6 @@
     },
 
   domapi = set_domapi(),
-
-  // check context for duplicate Ids
-  hasDuplicateId =
-    function(context) {
-      var i = 0, e, r = Object();
-      e = byTag('*', context);
-      while (e[i]) {
-        if (e[i].id) {
-          if (!r[e[i].id]) {
-            r[e[i].id] = true;
-          } else return true;
-        }
-        ++i;
-      }
-      return false;
-    },
-
-  // check context for mixed content
-  hasMixedNamespace =
-    function(context) {
-      var d = context.ownerDocument || context,
-      dns, all_nodes, dns_nodes;
-      if (root) {
-        // the root element namespace
-        dns = root.namespaceURI;
-      } else {
-        // default html/xhtml namespace
-        dns = 'http://www.w3.org/1999/xhtml';
-      }
-
-      // check to see if all nodes are in the same namespace
-      all_nodes = d.getElementsByTagNameNS('*', '*').length;
-      dns_nodes = d.getElementsByTagNameNS(dns, '*').length;
-      return all_nodes != dns_nodes;
-    },
 
   // validate memoized HTMLCollections
   validate =
@@ -755,9 +723,6 @@
       // 'groups' may be a string, convert it to array
       if (typeof groups == 'string') groups = [groups];
 
-      // detect contexts having mixed namespaces elements
-      MIXED_NS = hasMixedNamespace(lastContext);
-
       selector = groups.join(', ');
       key = selector + '_' + (mode ? '1' : '0') + (callback ? '1' : '0');
 
@@ -861,7 +826,7 @@
             match = selector.match(Patterns.tagName);
             compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
             source = 'if(' + N + '(' +
-              (!HTML_DOCUMENT || MIXED_NS || lastContext.nodeType == 11 ?
+              (!HTML_DOCUMENT || MIXEDCASE || lastContext.nodeType == 11 ?
               '/^' + match[1] + '$/i.test(e.nodeName)' :
               'e.nodeName=="' + compat + '"') +
               ')){' + source + '}';
@@ -883,7 +848,7 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
-            NS = !MIXED_NS && match[0].match(/(\*|\w+)\|[-\w]+/);
+            NS = !MIXEDCASE && match[0].match(/(\*|\w+)\|[-\w]+/);
             name = match[1];
             expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
@@ -905,7 +870,7 @@
             }
             type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
             source = 'if(' + N + '(' + (!match[2] ?
-              (MIXED_NS && NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
+              (MIXEDCASE && NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
