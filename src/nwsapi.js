@@ -92,6 +92,7 @@
 
     IDS_DUPES: false,
     MIXEDCASE: false,
+    SVG_LCASE: false,
 
     SIMPLENOT: true,
     USE_HTML5: true,
@@ -549,7 +550,12 @@
           matchResolvers = { };
           selectResolvers = { };
         } else if (i == 'FASTCOMMA') {
-          set_compat();
+          compat = set_compat();
+        } else if (i == 'IDS_DUPES') {
+          domapi = set_domapi();
+        } else if (i == 'SVG_LCASE') {
+          // nwmatcher backward compatibile
+          Config.MIXEDCASE = Config[i];
         }
       }
       setIdentifierSyntax();
