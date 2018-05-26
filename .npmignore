@@ -1,0 +1,11 @@
+bin/
+lib/
+test/
+dist/
+build/
+Makefile
+bower.json
+.eslintrc.yml
+.gitattributes
+.gitignore
+.npmignore
