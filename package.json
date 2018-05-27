@@ -17,6 +17,7 @@
       "url": "http://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
   ],
+  "license": "MIT",
   "author": {
     "name": "Diego Perini",
     "email": "diego.perini@gmail.com",
