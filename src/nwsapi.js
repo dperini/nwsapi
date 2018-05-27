@@ -84,15 +84,13 @@
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
-  // special handling flags
   Config = {
 
-    BUGFIX_ID: true,
     FASTCOMMA: true,
+    IDS_DUPES: true,
 
-    IDS_DUPES: false,
-    MIXEDCASE: false,
-    SVG_LCASE: false,
+    MIXEDCASE: true,
+    SVG_LCASE: true,
 
     SIMPLENOT: true,
     USE_HTML5: true,
@@ -106,13 +104,9 @@
   QUIRKS_MODE,
   HTML_DOCUMENT,
 
-  ATTR_ID = 'e.id',
-
   ATTR_STD_OPS = {
     '=': 1, '^=': 1, '$=': 1, '|=': 1, '*=': 1, '~=': 1
   },
-
-  FIX_ID = '(typeof(e.id)=="string"?e.id:e.getAttribute("id"))',
 
   HTML_TABLE = {
     'accept': 1, 'accept-charset': 1, 'align': 1, 'alink': 1, 'axis': 1,
@@ -180,7 +174,6 @@
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         NAMESPACE = root && root.namespaceURI;
-        ATTR_ID = Config.BUGFIX_ID ? FIX_ID : 'e.id';
         Snapshot.doc = doc;
         Snapshot.root = root;
       }
@@ -319,45 +312,36 @@
     },
 
   // recursive DOM LTR traversal, configurable by replacing
-  // the conditional part (@) to accept returned elements
+  // the conditional part (@) that accept returned elements
   walk =
-    '"use strict"; var i = 0, r = []; return function w(e) {' +
-    'if (@) { r[i] = e; ++i; } e = e.firstElementChild;' +
-    'while (e) { w(e); e = e.nextElementSibling; }' +
-    'return r; };',
-
-  // coditional tests to accept returned elements in the
-  // cross document methods: byId, byTag, byCls, byTagCls
-  idTest = 't.test(' + FIX_ID + ')',
-  tagMatch = 'a||t.test(e.nodeName)',
-  clsMatch = 'c.test(e.getAttribute?' +
-    'e.getAttribute("class"):e.className)',
+    '"use strict"; var i = 0, r = Array(); return function treewalk(e) {' +
+    'if (e.nodeType == 1 && @) { r[i++] = e; } e = e.firstElementChild;' +
+    'while (e) { treewalk(e); e = e.nextElementSibling; } return r; };',
 
   // getElementById from context
   byId =
     function(ids, context) {
-      var element, elements, nIds = '', reIds, resolver;
+      var element, resolver, test, reIds;
 
       if (typeof ids == 'string') { ids = [ ids ]; }
 
       // if duplicates are disallowed use DOM API to collect the nodes
       if (!Config.IDS_DUPES && ids.length < 2 && method['#'] in context) {
-        element = context.getElementById(unescapeIdentifier(ids[0]));
+        element = context.getElementById(ids[0]);
         return element ? [ element ] : none;
       }
 
       // multiple ids names
-      ids.map(function(e) { nIds += '|' + e.replace(REX.RegExpChar, '\\$&'); });
-      reIds = RegExp('^(?:' + nIds.slice(1) + ')$', 'i');
-
-      // for non-elements contexts start from first element child
-      context.nodeType != 1 && (context = context.firstElementChild);
+      if (ids.length > 1) {
+        test = 't.test(e.getAttribute("id"))';
+        reIds = RegExp('^(?:' + ids.join('|') + ')$', 'i');
+      } else {
+        test = 'e.getAttribute("id")==t';
+      }
 
       // build the resolver and execute it
-      resolver = Function('t', walk.replace('@', idTest))(reIds);
-      elements = resolver(context);
-
-      return elements;
+      resolver = Function('t', walk.replace('@', test))(reIds || ids[0]);
+      return resolver(context);
     },
 
   // specialized getElementsByTagName
@@ -365,30 +349,28 @@
   // @tag may be a tag name or an array of tag names
   byTag =
     function(tag, context) {
-      var elements, resolver, nTag = '', reTag, any;
+      var resolver, test, reTag;
 
       if (typeof tag == 'string') { tag = [ tag ]; }
 
       // if available use the DOM API to collect the nodes
       if (tag.length < 2 && method['*'] in context) {
-        return context[method['*'] + 'NS']('*', tag[0]);
+        return context[method['*']](tag[0]);
       }
 
       // multiple tag names
-      tag.map(function(e) {
-        if (e == '*') { any = true; }
-        else nTag += '|' + e.replace(REX.RegExpChar, '\\$&');
-      });
-      reTag = RegExp('^(?:' + nTag.slice(1) + ')$', 'i');
+      if (tag.includes('*')) {
+        test = 'true';
+      } else if (tag.length > 1) {
+        test = 't.test(e.nodeName)';
+        reTag = RegExp('^(?:' + tag.join('|') + ')$', 'i');
+      } else {
+        test = 'e.nodeName==t';
+      }
 
       // build the resolver and execute it
-      resolver = Function('t, a', walk.replace('@', tagMatch))(reTag, any);
-      elements = resolver(context);
-
-      // remove possible non-element nodes from the collected nodes
-      if (elements[0] && elements[0].nodeType != 1) { elements.shift(); }
-
-      return elements;
+      resolver = Function('t', walk.replace('@', test))(reTag || tag[0]);
+      return resolver(context);
     },
 
   // specialized getElementsByClassName
@@ -396,27 +378,25 @@
   // @cls may be a class name or an array of class names
   byClass =
     function(cls, context) {
-      var elements, resolver, nCls = '', reCls, cs;
+      var resolver, test, reCls, cs;
 
       if (typeof cls == 'string') { cls = [ cls ]; }
 
       // if available use the DOM API to collect the nodes
       if (cls.length < 2 && method['.'] in context) {
-        return context[method['.']](unescapeIdentifier(cls[0]));
+        return context[method['.']](cls[0]);
       }
 
       // prepare the class name filter regexp
       cs = QUIRKS_MODE ? 'i' : '';
 
       // multiple class names
-      cls.map(function(e) { nCls += '|' + e.replace(REX.RegExpChar, '\\$&'); });
-      reCls = RegExp('(^|\\s)' + nCls.slice(1) + '(\\s|$)', cs);
+      test = 'c.test(e.getAttribute("class"))';
+      reCls = RegExp('(^|\\s)' + cls.join('|') + '(\\s|$)', cs);
 
       // build the resolver and execute it
-      resolver = Function('c', walk.replace('@', clsMatch))(reCls);
-      elements = resolver(context);
-
-      return elements;
+      resolver = Function('c', walk.replace('@', test))(reCls || cls[0]);
+      return resolver(context);
     },
 
   // namespace aware hasAttribute
@@ -554,7 +534,6 @@
         } else if (i == 'IDS_DUPES') {
           domapi = set_domapi();
         } else if (i == 'SVG_LCASE') {
-          // nwmatcher backward compatibile
           Config.MIXEDCASE = Config[i];
         }
       }
@@ -816,15 +795,13 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
-            compat = HTML_DOCUMENT ? ATTR_ID : 'e.getAttribute("id")';
-            source = 'if(' + N + '(' + compat + '=="' + convertEscapes(match[1]) + '"' +
+            source = 'if(' + N + '(e.getAttribute("id")=="' + convertEscapes(match[1]) + '"' +
               ')){' + source + '}';
             break;
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
-            compat = HTML_DOCUMENT ? 'e.className' : 'e.getAttribute("class")';
-            source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/.test(' + compat + ')' +
+            source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/.test(e.getAttribute("class"))' +
               ')){' + source + '}';
             break;
           // tag name resolver
