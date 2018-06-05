@@ -576,8 +576,8 @@
       //
       // These are the non capturing representations of each character: ' " ] )
       //
-      // (?:\\'|$) - missing close double quotes
-      // (?:\\"|$) - missing close single quote
+      // (?:\\"|$) - missing close double quotes
+      // (?:\\'|$) - missing close single quote
       // (?:\\]|$) - missing close square bracket
       // (?:\\)|$) - missing close round parens
       //
@@ -901,7 +901,7 @@
               pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
               switch (pseudo) {
                 case 'scope':
-                  source = 'if((x||e).contains(e)){' + source + '}';
+                  source = 'if((s.from.compareDocumentPosition(e)&20)==20){' + source + '}';
                   break;
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
