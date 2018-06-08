@@ -1416,10 +1416,10 @@
         for (i = 0, l = selector.length; l > i; ++i) {
           if ((token = selector[i].match(reOptimizer)) && (ident = token[2])) {
             symbol = token[1] || '*';
+            if (symbol == '#') { ++ni; id += i === 0 ? ident : ',' + ident; }
+            if (symbol == '.') { ++nc; cn += i === 0 ? ident : ',' + ident; }
+            if (symbol == '*') { ++nt; tn += i === 0 ? ident : ',' + ident; }
           }
-          if (symbol == '#') { ++ni; id += i === 0 ? ident : ',' + ident; }
-          if (symbol == '.') { ++nc; cn += i === 0 ? ident : ',' + ident; }
-          if (symbol == '*') { ++nt; tn += i === 0 ? ident : ',' + ident; }
         }
         if (ni == l) {
           builder = compat['#'](context, id.split(','));
