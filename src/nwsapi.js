@@ -801,7 +801,8 @@
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
-            source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/.test(e.getAttribute("class"))' +
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))'
+            source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/' + compat +
               ')){' + source + '}';
             break;
           // tag name resolver
