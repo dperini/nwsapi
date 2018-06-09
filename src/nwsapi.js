@@ -89,14 +89,12 @@
     FASTCOMMA: true,
     IDS_DUPES: true,
 
-    MIXEDCASE: true,
     SIMPLENOT: true,
 
     LOGERRORS: true,
     VERBOSITY: true
   },
 
-  MIXEDCASE,
   NAMESPACE,
   QUIRKS_MODE,
   HTML_DOCUMENT,
@@ -167,7 +165,6 @@
         // performed before the next select operation
         root = doc.documentElement;
         HTML_DOCUMENT = isHTML(doc);
-        MIXEDCASE = Config.MIXEDCASE;
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
         NAMESPACE = root && root.namespaceURI;
@@ -394,30 +391,6 @@
       // build the resolver and execute it
       resolver = Function('c', walk.replace('@', test))(reCls || cls[0]);
       return resolver(context);
-    },
-
-  // namespace aware hasAttribute
-  // helper for XML/XHTML documents
-  hasAttributeNS =
-    function(e, name) {
-      var i, l, attr = e.getAttributeNames();
-      name = RegExp(':?' + name + '$', 'i');
-      for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i])) return true;
-      }
-      return false;
-    },
-
-  // namespace aware getAttribute
-  // helper for XML/XHTML documents
-  getAttributeNS =
-    function(e, name) {
-      var i, l, attr = e.getAttributeNames();
-      name = RegExp(':?' + name + '$', 'i');
-      for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i])) return e.getAttribute(attr[i]);
-      }
-      return null;
     },
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
@@ -796,18 +769,14 @@
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))'
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))';
             source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/' + compat +
               ')){' + source + '}';
             break;
           // tag name resolver
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            compat = HTML_DOCUMENT ? match[1].toUpperCase() : match[1];
-            source = 'if(' + N + '(' +
-              (!HTML_DOCUMENT || MIXEDCASE || lastContext.nodeType == 11 ?
-              '/^' + match[1] + '$/i.test(e.nodeName)' :
-              'e.nodeName=="' + compat + '"') +
+            source = 'if(' + N + '(e.nodeName.toLowerCase()=="' + match[1].toLowerCase() + '"' +
               ')){' + source + '}';
             break;
           // namespace resolver
@@ -827,7 +796,7 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
-            NS = !MIXEDCASE && match[0].match(/(\*|\w+)\|[-\w]+/);
+            NS = match[0].match(/(\*|\w+)\|[-\w]+/);
             name = match[1];
             expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
@@ -848,8 +817,7 @@
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
-            source = 'if(' + N + '(' + (!match[2] ?
-              (MIXEDCASE && NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
+            source = 'if(' + N + '(' + (!match[2] ? 'e.hasAttribute("' + name + '")' :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
@@ -1548,10 +1516,7 @@
     ancestor: ancestor,
 
     nthOfType: nthOfType,
-    nthElement: nthElement,
-
-    hasAttributeNS: hasAttributeNS,
-    getAttributeNS: getAttributeNS
+    nthElement: nthElement
   },
 
   // public exported methods/objects
@@ -1582,9 +1547,6 @@
     byId: byId,
     byTag: byTag,
     byClass: byClass,
-
-    hasAttributeNS: hasAttributeNS,
-    getAttributeNS: getAttributeNS,
 
     match: match,
     first: first,
