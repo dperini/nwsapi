@@ -90,10 +90,7 @@
     IDS_DUPES: true,
 
     MIXEDCASE: true,
-    SVG_LCASE: true,
-
     SIMPLENOT: true,
-    USE_HTML5: true,
 
     LOGERRORS: true,
     VERBOSITY: true
@@ -533,8 +530,6 @@
           compat = set_compat();
         } else if (i == 'IDS_DUPES') {
           domapi = set_domapi();
-        } else if (i == 'SVG_LCASE') {
-          Config.MIXEDCASE = Config[i];
         }
       }
       setIdentifierSyntax();
