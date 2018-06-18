@@ -315,14 +315,23 @@
   // getElementById from context
   byId =
     function(ids, context) {
-      var element, resolver, test, reIds;
+      var e, elements, resolver, test, reIds, api = method['#'];
 
       if (typeof ids == 'string') { ids = [ ids ]; }
 
-      // if duplicates are disallowed use DOM API to collect the nodes
-      if (!Config.IDS_DUPES && ids.length < 2 && method['#'] in context) {
-        element = context.getElementById(ids[0]);
-        return element ? [ element ] : none;
+      if (!Config.IDS_DUPES && ids.length < 2 && context[api]) {
+        return (e = context[api](ids[0])) ? [ e ] : none;
+      } else if (Config.IDS_DUPES && ids.length < 2) {
+        if ('all' in context) {
+          if ((e = context.all[ids[0]])) {
+            // bugfixing
+            if (e.nodeType == 1) return e.getAttribute('id') != ids[0] ? [ ] : [ e ];
+            for (i = 0, l = e.length, elements = [ ]; l > i; ++i) {
+              if (e[i].id == ids[0]) elements[elements.length] = e[i];
+            }
+            return elements && elements.length ? elements : [ elements ];
+          } else return none;
+        }
       }
 
       // multiple ids names
