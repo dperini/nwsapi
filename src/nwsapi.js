@@ -955,7 +955,7 @@
               switch (pseudo) {
                 case 'matches':
                   expr = match[3].replace(REX.TrimSpaces, '');
-                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + ',e")){' + source + '}';
+                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e,f)){' + source + '}';
                   break;
                 case 'not':
                   if (Config.SIMPLENOT && !reSimpleNot.test(match[3])) {
