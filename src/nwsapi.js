@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.4
+ * Version: 2.0.5
  * Created: 20070722
- * Release: 20180618
+ * Release: 20180710
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.4',
+  var version = 'nwsapi-2.0.5',
 
   doc = global.document,
   root = doc.documentElement,
@@ -288,13 +288,12 @@
   // validate memoized HTMLCollections
   validate =
     function(context, ident, list, type) {
-      var c, i, j, k, l, m, els, test;
+      var c, i, j, k, l, els, test;
       if (!list) { return false; }
       l = list.length;
       k = ident.length;
-      m = method[type];
       for (i = 0; k > i; ++i) {
-        els = context[m](ident[i]);
+        els = compat[type](context, ident[i]);
         if (!els) continue;
         test = toArray(els);
         for (j = 0, c = 0; l > j; ++j) {
