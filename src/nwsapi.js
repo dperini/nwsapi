@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.5
+ * Version: 2.0.6
  * Created: 20070722
- * Release: 20180710
+ * Release: 20180718
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.5',
+  var version = 'nwsapi-2.0.6',
 
   doc = global.document,
   root = doc.documentElement,
@@ -304,12 +304,12 @@
       return true;
     },
 
-  // recursive DOM LTR traversal, configurable by replacing
+  // iterative DOM LTR traversal, configurable by replacing
   // the conditional part (@) that accept returned elements
   walk =
-    '"use strict"; var i = 0, r = Array(); return function treewalk(e) {' +
-    'if (e.nodeType == 1 && @) { r[i++] = e; } e = e.firstElementChild;' +
-    'while (e) { treewalk(e); e = e.nextElementSibling; } return r; };',
+    '"use strict"; return function(c) { var e = c, r = [ ], n = e.firstElementChild; while(e = n) {' +
+    'if (@) { r[r.length] = e; } if (n = e.firstElementChild || e.nextElementSibling) continue;' +
+    'while (!n && (e = e.parentElement) && e !== c) { n = e.nextElementSibling; } } return r; }',
 
   // getElementById from context
   byId =
@@ -393,11 +393,11 @@
       cs = QUIRKS_MODE ? 'i' : '';
 
       // multiple class names
-      test = 'c.test(e.getAttribute("class"))';
+      test = 't.test(e.getAttribute("class"))';
       reCls = RegExp('(^|\\s)' + cls.join('|') + '(\\s|$)', cs);
 
       // build the resolver and execute it
-      resolver = Function('c', walk.replace('@', test))(reCls || cls[0]);
+      resolver = Function('t', walk.replace('@', test))(reCls || cls[0]);
       return resolver(context);
     },
 
