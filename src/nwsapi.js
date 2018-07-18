@@ -63,7 +63,7 @@
   pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write|placeholder-shown',
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
-  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?(?:\\)|$))',
+  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
   negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*|[^\\(]*\\([^\\)]*\\))\\s?(?:\\)|$)',
 
   Patterns = {
