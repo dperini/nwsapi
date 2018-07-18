@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.6
+ * Version: 2.0.7
  * Created: 20070722
- * Release: 20180718
+ * Release: 20180719
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -64,7 +64,7 @@
   pseudo_4 = 'after|before|first-letter|first-line',
   pseudo_5 = 'selection|backdrop|placeholder',
   params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*n?)(?:[-+]?\\d+)?)\\s?(?:\\)|$))',
-  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*)\\s?(?:\\)|$)',
+  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*|[^\\(]*\\([^\\)]*\\))\\s?(?:\\)|$)',
 
   Patterns = {
     struct_n: RegExp('^:(' + struct_1 + ')?(.*)', 'i'),
