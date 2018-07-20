@@ -990,14 +990,10 @@
                     ')){' + source + '}';
                   break;
                 case 'lang':
-                  test = '';
-                  match[2] = match[2].toLowerCase();
-                  if (match[2]) test = match[2].substr(0, 2) + '-';
-                  source = 'do{if((' + N + '(s.doc.compareDocumentPosition(e)&16)&&' +
-                    '(e.lang||"")==""&&s.root.lang==="' + match[2] + '"||' +
-                    '(e.lang&&(e.lang.toLowerCase()=="' + match[2] + '"||' +
-                    '(e.lang.substr(0,3)=="' + test + '")))' +
-                    ')){' + source + '}}while(e!==s.root&&(e=e.parentElement));';
+                  source = 'var p=null;if(' + N + '(e.isConnected&&(e.lang==""&&' +
+                    '(p=s.ancestor("[lang]",e))&&p.lang=="' + match[2] + '")||' +
+                    '/(?:^|-)' + match[2] + '(?:-|$)/i.test(e.lang))' +
+                    '){' + source + '};';
                   break;
                 case 'target':
                   source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
