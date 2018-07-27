@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.7
+ * Version: 2.0.8
  * Created: 20070722
- * Release: 20180719
+ * Release: 20180727
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.6',
+  var version = 'nwsapi-2.0.8',
 
   doc = global.document,
   root = doc.documentElement,
@@ -56,30 +56,38 @@
   reSimpleNot,
   reValidator,
 
-  struct_1 = '(?:root|empty|scope)|(?:(?:first|last|only)(?:-child|-of-type))',
-  struct_2 = '(?:nth(?:-last)?(?:-child|-of-type))',
-  pseudo_1 = 'any-link|link|visited|target|active|focus|hover',
-  pseudo_2 = 'checked|disabled|enabled|selected|local-link(?:\\(\\d*(?:\\)|$))?|lang\\(([-\\w]{2,})(?:\\)|$)',
-  pseudo_3 = 'default|indeterminate|optional|required|valid|invalid|in-range|out-of-range|read-only|read-write|placeholder-shown',
-  pseudo_4 = 'after|before|first-letter|first-line',
-  pseudo_5 = 'selection|backdrop|placeholder',
-  params_1 = '(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
-  negation = '|(?:matches|not)\\(\\s?(:' + struct_2 + params_1 + '|[^()]*|[^\\(]*\\([^\\)]*\\))\\s?(?:\\)|$)',
+  struct_1 = '(root|empty|blank|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
+  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
+
+  pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
+  pseudo_2 = ':?(after|before|first-letter|first-line|selection|backdrop|placeholder)\\b',
+
+  noparm_1 = '(link|visited|target|scope|hover|active|focus|enabled|disabled|read-only|read-write|placeholder-shown)\\b',
+  noparm_2 = '(default|checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
+
+  logicals = '(matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
 
   Patterns = {
-    struct_n: RegExp('^:(' + struct_1 + ')?(.*)', 'i'),
-    struct_p: RegExp('^:(' + struct_2 + params_1 + ')?(.*)', 'i'),
-    spseudos: RegExp('^:(' + struct_1 + '|' + struct_2 + params_1 + ')?(.*)', 'i'),
-    dpseudos: RegExp('^:(' + pseudo_1 + '|' + pseudo_2 + negation + ')?(.*)', 'i'),
-    epseudos: RegExp('^:(:?(?:' + pseudo_4 + ')|:(?:' + pseudo_5 + '))?(.*)', 'i'),
-    hpseudos: RegExp('^:(' + pseudo_3 + ')?(.*)', 'i'),
+    // pseudo-classes
+    struct_n: RegExp('^:(?:' + struct_1 + ')(.*)', 'i'),
+    struct_p: RegExp('^:(?:' + struct_2 + ')(.*)', 'i'),
+    hpseudos: RegExp('^:(?:' + pseudo_1 + ')(.*)', 'i'),
+    epseudos: RegExp('^:(?:' + pseudo_2 + ')(.*)', 'i'),
+    lpseudos: RegExp('^:(?:' + logicals + ')(.*)', 'i'),
+    fpseudos: RegExp('^:(?:' + noparm_1 + ')(.*)', 'i'),
+    ipseudos: RegExp('^:(?:' + noparm_2 + ')(.*)', 'i'),
+    // combinators symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
     relative: RegExp('^' + WSP + '?\\~' + WSP + '?(.*)'),
     ancestor: RegExp('^' + WSP + '+(.*)'),
+   // universal & namespace
    universal: RegExp('^\\*(.*)'),
    namespace: RegExp('^(\\w+|\\*)?\\|(.*)')
   },
+
+  // regexp to aproximate detection of RTL languages (Arabic)
+  RTL = RegExp('^[\\u0591-\\u08ff\\ufb1d-\\ufdfd\\ufe70-\\ufefc ]+$'),
 
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
@@ -744,7 +752,7 @@
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
       var a, b, n, f, name, x_error = '', NS,
-      N = not ? '!' : '', D = not ? '' : '!', pseudo,
+      N = not ? '!' : '', D = not ? '' : '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
@@ -863,25 +871,29 @@
             source = Combinators[symbol](match) + source;
             break;
 
-          // *** Structural pseudo-classes
-          // :root, :scope, :empty,
+          // *** tree-structural pseudo-classes
+          // :root, :empty, :blank
           // :first-child, :last-child, :only-child,
           // :first-of-type, :last-of-type, :only-of-type,
-          // :nth-child(), :nth-last-child(), :nth-of-type(), :nth-last-of-type()
           case ':':
-            if ((match = selector.match(Patterns.struct_n)) && match[1]) {
-              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
-              switch (pseudo) {
-                case 'scope':
-                  source = 'if((s.from.compareDocumentPosition(e)&20)==20){' + source + '}';
-                  break;
+            if ((match = selector.match(Patterns.struct_n))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
                   source = 'if(' + N + '(e===s.root)){' + source + (mode ? 'break main;' : '') + '}';
                   break;
                 case 'empty':
+                  // matches elements that don't contain elements or text nodes
                   source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
                   break;
+                case 'blank':
+                  // matches elements that only contain line-break or whitespace
+                  source = 'n=e.firstChild;while(n&&!n.nodeType!=3)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
+                  break;
+
+                // *** child-indexed pseudo-classes
+                // :first-child, :last-child, :only-child
                 case 'only-child':
                   source = 'if(' + N + '(!e.nextElementSibling&&!e.previousElementSibling)){' + source + '}';
                   break;
@@ -891,6 +903,9 @@
                 case 'first-child':
                   source = 'if(' + N + '(!e.previousElementSibling)){' + source + '}';
                   break;
+
+                // *** typed child-indexed pseudo-classes
+                // :only-of-type, :last-of-type, :first-of-type
                 case 'only-of-type':
                   source = 'o=e.nodeName;' +
                     'n=e;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' +
@@ -908,14 +923,16 @@
               }
             }
 
-            else if ((match = selector.match(Patterns.struct_p)) && match[1]) {
-              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
-              switch (pseudo) {
+            // *** child-indexed & typed child-indexed pseudo-classes
+            // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
+            // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
+            else if ((match = selector.match(Patterns.struct_p))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
                 case 'nth-child':
                 case 'nth-of-type':
                 case 'nth-last-child':
                 case 'nth-last-of-type':
-                  // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
                   expr = /-of-type/i.test(match[1]);
                   if (match[1] && match[2]) {
                     type = /last/i.test(match[1]);
@@ -958,25 +975,95 @@
               }
             }
 
-            else if ((match = selector.match(Patterns.dpseudos)) && match[1]) {
-              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
-              switch (pseudo) {
+            // *** logical combination pseudo-classes
+            // :matches( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
+            else if ((match = selector.match(Patterns.lpseudos))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
                 case 'matches':
-                  expr = match[3].replace(REX.TrimSpaces, '');
+                  expr = match[2].replace(REX.TrimSpaces, '');
                   source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e,f)){' + source + '}';
                   break;
                 case 'not':
-                  if (Config.SIMPLENOT && !reSimpleNot.test(match[3])) {
+                  if (Config.SIMPLENOT && !reSimpleNot.test(match[2])) {
                     emit('\'' + selector + '\' is not a valid selector');
                     return '';
                   }
-                  expr = match[3].replace(REX.TrimSpaces, '');
+                  expr = match[2].replace(REX.TrimSpaces, '');
                   source = compileSelector(expr, source, false, callback, true);
                   break;
-                case 'checked':
-                  source = 'if(' + N + '(/^input$/i.test(e.nodeName)&&' +
-                    '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
-                    '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
+                default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  break;
+              }
+            }
+
+            // *** linguistic pseudo-classes
+            // :dir( ltr / rtl ), :lang( en )
+            else if ((match = selector.match(Patterns.hpseudos))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
+                case 'dir':
+                  source = 'var p;if(' + N + '(' +
+                    '(/' + match[2] + '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
+                    '(/' + match[2] + '/i.test(p.dir))||(e.dir==""||e.dir=="auto")&&' +
+                    '(' + (match[2] == 'ltr' ? '!':'')+ RTL +'.test(e.textContent)))' +
+                    '){' + source + '};';
+                  break;
+                case 'lang':
+                  expr = '(?:^|-)' + match[2] + '(?:-|$)';
+                  source = 'var p;if(' + N + '(' +
+                    '(e.isConnected&&(e.lang==""&&(p=s.ancestor("[lang]",e)))&&' +
+                    '(p.lang=="' + match[2] + '")||/'+ expr +'/i.test(e.lang)))' +
+                    '){' + source + '};';
+                  break;
+                default:
+                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  break;
+              }
+            }
+
+            // *** location, user actiond and input pseudo-classes
+            else if ((match = selector.match(Patterns.fpseudos))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
+                // *** location pseudo-classes
+                // :link, :visited, :target, :scope
+                case 'link':
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
+                  break;
+                case 'visited':
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  break;
+                case 'target':
+                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
+                  break;
+                case 'scope':
+                  source = 'if((s.from.compareDocumentPosition(e)&20)==20){' + source + '}';
+                  break;
+
+                // *** user actions pseudo-classes
+                // :hover, :active, :focus
+                case 'hover':
+                  source = 'hasFocus' in doc && doc.hasFocus() ?
+                    'if(' + N + '(e===s.doc.hoverElement)){' + source + '}' :
+                    'if(' + D + 'true){' + source + '}';
+                  break;
+                case 'active':
+                  source = 'hasFocus' in doc && doc.hasFocus() ?
+                    'if(' + N + '(e===s.doc.activeElement)){' + source + '}' :
+                    'if(' + D + 'true){' + source + '}';
+                  break;
+                case 'focus':
+                  source = 'hasFocus' in doc ?
+                    'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
+                    'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
+                  break;
+
+                // *** user interface and form pseudo-classes
+                // :enabled, :disabled, :read-only, :read-write, :placeholder-shown
+                case 'enabled':
+                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e &&e.disabled===false' +
                     ')){' + source + '}';
                   break;
                 case 'disabled':
@@ -985,38 +1072,28 @@
                     '(e.disabled===true||(n=s.ancestor("fieldset",e))&&(n=s.first("legend",n))&&!n.contains(e))' +
                     ')){' + source + '}';
                   break;
-                case 'enabled':
-                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e &&e.disabled===false' +
+                case 'read-only':
+                  source =
+                    'if(' + N + '(' +
+                      '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
+                      '("|password|text|".includes("|"+e.type+"|")&&e.readOnly)' +
                     ')){' + source + '}';
                   break;
-                case 'lang':
-                  source = 'var p=null;if(' + N + '(e.isConnected&&(e.lang==""&&' +
-                    '(p=s.ancestor("[lang]",e))&&p.lang=="' + match[2] + '")||' +
-                    '/(?:^|-)' + match[2] + '(?:-|$)/i.test(e.lang))' +
-                    '){' + source + '};';
+                case 'read-write':
+                  source =
+                    'if(' + N + '(' +
+                      '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
+                      '("|password|text|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
+                      '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
+                    ')){' + source + '}';
                   break;
-                case 'target':
-                  source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
-                  break;
-                case 'link':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
-                  break;
-                case 'visited':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
-                  break;
-                case 'active':
-                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(' + N + '(e===s.doc.activeElement)){' + source + '}' : source;
-                  break;
-                case 'hover':
-                  source = 'hasFocus' in doc && doc.hasFocus() ? 'if(' + N + '(e===s.doc.hoverElement)){' + source + '}' : source;
-                  break;
-                case 'focus':
-                  source = 'hasFocus' in doc ?
-                    'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
-                    'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
-                  break;
-                case 'selected':
-                  source = 'if(' + N + '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))){' + source + '}';
+                case 'placeholder-shown':
+                  source =
+                    'if(' + N + '(' +
+                      '(/^input|textarea$/i.test(e.nodeName))&&e.hasAttribute("placeholder")&&' +
+                      '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
+                      '(!s.match(":focus",e))' +
+                    ')){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\' is not a valid selector' + x_error);
@@ -1024,10 +1101,12 @@
               }
             }
 
-            // Level 4 pseudo-classes for form validation (was web-forms)
-            else if ((match = selector.match(Patterns.hpseudos)) && match[1]) {
-              pseudo = match[1].match(/^[-\w]+/)[0].toLowerCase();
-              switch (pseudo) {
+            // *** input pseudo-classes for form validation (was web-forms)
+            // :default, :checked, :indeterminate, :valid, :invalid
+            // :in-range, :out-of-range, :required, :optional
+            else if ((match = selector.match(Patterns.ipseudos))) {
+              match[1] = match[1].toLowerCase()
+              switch (match[1]) {
                 case 'default':
                   source =
                     'if(' + N + '("form" in e && e.form)){' +
@@ -1045,6 +1124,12 @@
                       '(("|radio|checkbox|".includes("|"+e.type+"|"))&&e.defaultChecked)' +
                     ')){' + source + '}';
                   break;
+                case 'checked':
+                  source = 'if(' + N + '(/^input$/i.test(e.nodeName)&&' +
+                    '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
+                    '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
+                    ')){' + source + '}';
+                  break;
                 case 'indeterminate':
                   source =
                     'if(' + N + '(/^progress$/i.test(e.nodeName)&&!e.hasAttribute("value"))||' +
@@ -1052,32 +1137,17 @@
                       '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' + source + '}';
                   break;
-                case 'optional':
-                  source =
-                    'if(' + N +
-                      '(/^input|select|textarea$/i.test(e.nodeName)&&!e.required)' +
-                    '){' + source + '}';
-                  break;
                 case 'required':
                   source =
                     'if(' + N +
                       '(/^input|select|textarea$/i.test(e.nodeName)&&e.required)' +
                     '){' + source + '}';
                   break;
-                case 'read-write':
+                case 'optional':
                   source =
-                    'if(' + N + '(' +
-                      '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
-                      '("|password|text|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
-                      '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
-                    ')){' + source + '}';
-                  break;
-                case 'read-only':
-                  source =
-                    'if(' + N + '(' +
-                      '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
-                      '("|password|text|".includes("|"+e.type+"|")&&e.readOnly)' +
-                    ')){' + source + '}';
+                    'if(' + N +
+                      '(/^input|select|textarea$/i.test(e.nodeName)&&!e.required)' +
+                    '){' + source + '}';
                   break;
                 case 'invalid':
                   source =
@@ -1115,14 +1185,7 @@
                       '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' + source + '}';
                   break;
-                case 'placeholder-shown':
-                  source =
-                    'if(' + N + '(' +
-                      '(/^input|textarea$/i.test(e.nodeName))&&e.hasAttribute("placeholder")&&' +
-                      '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
-                      '(!s.match(":focus",e))' +
-                    ')){' + source + '}';
-                  break;
+
                 default:
                   emit('\'' + selector_string + '\' is not a valid selector' + x_error);
                   break;
@@ -1130,7 +1193,7 @@
             }
 
             // allow pseudo-elements as :after/:before (single or double colon)
-            else if ((match = selector.match(Patterns.epseudos)) && match[1]) {
+            else if ((match = selector.match(Patterns.epseudos))) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
@@ -1142,7 +1205,7 @@
 
               // process registered selector extensions
               for (expr in Selectors) {
-                if ((match = selector.match(Selectors[expr].Expression)) && match[1]) {
+                if ((match = selector.match(Selectors[expr].Expression))) {
                   result = Selectors[expr].Callback(match, source, mode, callback);
                   if ('match' in result) { match = result.match; }
                   vars = result.modvar;
