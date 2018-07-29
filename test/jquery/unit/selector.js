@@ -329,9 +329,9 @@ test("attributes", function() {
 	t("Empty values", "#select1 option[value='']", ["option1a"]);
 	t("Empty values", "#select1 option:not([value=''])", ["option1b","option1c","option1d"]);
 	
-	t("Select options via :selected", "#select1 option:selected", ["option1a"] );
-	t("Select options via :selected", "#select2 option:selected", ["option2d"] );
-	t("Select options via :selected", "#select3 option:selected", ["option3b", "option3c"] );
+	t("Select options via :checked", "#select1 option:checked", ["option1a"] );
+	t("Select options via :checked", "#select2 option:checked", ["option2d"] );
+	t("Select options via :checked", "#select3 option:checked", ["option3b", "option3c"] );
 	
 	t( "Grouped Form Elements", "input[name='foo[bar]']", ["hidden2"] );
 	
@@ -351,7 +351,7 @@ test("pseudo (:) selectors", function() {
 	t( "Disabled UI Element", "#form input:disabled", ["text2"] );
 	t( "Checked UI Element", "#form input:checked", ["radio2","check1"] );
 
-	t( "Selected Option Element", "#form option:selected", ["option1a","option2d","option3b","option3c"] );
+	t( "Selected Option Element", "#form option:checked", ["option1a","option2d","option3b","option3c"] );
 	//t( "Text Contains", "a:contains('Google')", ["google","groups"] );
 	//t( "Text Contains", "a:contains('Google Groups')", ["groups"] );
 
@@ -360,9 +360,9 @@ test("pseudo (:) selectors", function() {
 
 	t( "Element Preceded By", "p ~ div", ["foo", "moretests","tabindex-tests", "liveHandlerOrder"] );
 	t( "Not", "a.blog:not(.link)", ["mark"] );
-	//t( "Not - multiple", "#form option:not(:contains('Nothing'),#option1b,:selected)", ["option1c", "option1d", "option2b", "option2c", "option3d", "option3e"] );
+	//t( "Not - multiple", "#form option:not(:contains('Nothing'),#option1b,:checked)", ["option1c", "option1d", "option2b", "option2c", "option3d", "option3e"] );
 	//t( "Not - complex", "#form option:not([id^='opt']:nth-child(-n+3))", [ "option1d", "option2d", "option3d", "option3e"] );
-	//t( "Not - recursive", "#form option:not(:not(:selected))[id^='option3']", [ "option3b", "option3c"] );
+	//t( "Not - recursive", "#form option:not(:not(:checked))[id^='option3']", [ "option3b", "option3c"] );
 
 	t( ":not() failing interior", "p:not(.foo)", ["firstp","ap","sndp","en","sap","first"] );
 
