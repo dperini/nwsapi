@@ -52,10 +52,6 @@
     SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
   },
 
-  reOptimizer,
-  reSimpleNot,
-  reValidator,
-
   struct_1 = '(root|empty|blank|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
   struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
 
@@ -89,9 +85,18 @@
   // regexp to aproximate detection of RTL languages (Arabic)
   RTL = RegExp('^[\\u0591-\\u08ff\\ufb1d-\\ufdfd\\ufe70-\\ufefc ]+$'),
 
+  // emulate firefox error strings
+  qsNotArgs = 'Not enough arguments',
+  qsInvalid = ' is not a valid selector',
+
+  // detect structural pseudo-classes in selectors
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
   reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
 
+  // placeholder for global regexp
+  reOptimizer, reSimpleNot, reValidator,
+
+  // special handling configuration flags
   Config = {
 
     FASTCOMMA: true,
@@ -751,7 +756,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, f, name, x_error = '', NS,
+      var a, b, n, f, name, NS,
       N = not ? '!' : '', D = not ? '' : '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -806,7 +811,7 @@
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
               source = 'if(' + N + '(e.namespaceURI=="' + NAMESPACE + '")){' + source + '}';
             } else {
-              emit('\'' + selector_string + '\' is not a valid selector');
+              emit('\'' + selector_string + '\'' + qsInvalid);
             }
             break;
           // attributes resolver
@@ -817,7 +822,7 @@
             expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
             if (match[2] && !(test = Operators[match[2]])) {
-              emit('unsupported operator in attribute selector \'' + selector + '\'');
+              emit('\'' + selector_string + '\'' + qsInvalid);
               return '';
             }
             if (match[4] === '') {
@@ -918,7 +923,7 @@
                   source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -966,11 +971,11 @@
                     type = type ? 'true' : 'false';
                     source = 'n=s.nth' + expr + '(e,' + type + ');if(' + N + '(' + test + ')){' + source + '}';
                   } else {
-                    emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                    emit('\'' + selector_string + '\'' + qsInvalid);
                   }
                   break;
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -986,14 +991,14 @@
                   break;
                 case 'not':
                   if (Config.SIMPLENOT && !reSimpleNot.test(match[2])) {
-                    emit('\'' + selector + '\' is not a valid selector');
+                    emit('\'' + selector_string + '\'' + qsInvalid);
                     return '';
                   }
                   expr = match[2].replace(REX.TrimSpaces, '');
                   source = compileSelector(expr, source, false, callback, true);
                   break;
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1018,7 +1023,7 @@
                     '){' + source + '};';
                   break;
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1096,7 +1101,7 @@
                     ')){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1187,7 +1192,7 @@
                   break;
 
                 default:
-                  emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+                  emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1239,14 +1244,14 @@
             break;
 
         default:
-          emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+          emit('\'' + selector_string + '\'' + qsInvalid);
           break;
 
         }
         // end of switch symbol
 
         if (!match) {
-          emit('\'' + selector_string + '\' is not a valid selector' + x_error);
+          emit('\'' + selector_string + '\'' + qsInvalid);
           return '';
         }
 
@@ -1296,10 +1301,10 @@
 
       // arguments validation
       if (arguments.length === 0) {
-        emit('not enough arguments', TypeError);
+        emit(qsNotArgs, TypeError);
         return Config.VERBOSITY ? undefined : false;
       } else if (arguments[1] === '') {
-        emit('\'\' is not a valid selector');
+        emit('\'\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : false;
       }
 
@@ -1317,11 +1322,11 @@
       if ((groups = selector.match(reValidator)) && groups.join('') == selector) {
         groups = /\,/.test(selector) ? parseGroup(selector) : [selector];
         if (groups.indexOf('') > -1) {
-          emit('invalid or illegal string specified');
+          emit(qsInvalid);
           return Config.VERBOSITY ? undefined : false;
         }
       } else {
-        emit('\'' + selector + '\' is not a valid selector');
+        emit('\'' + selector + '\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : false;
       }
 
@@ -1336,7 +1341,7 @@
   first =
     function _querySelector(selector, context, callback) {
       if (arguments.length === 0) {
-        emit('not enough arguments', TypeError);
+        emit(qsNotArgs, TypeError);
       }
       return select(selector, context,
         typeof callback == 'function' ?
@@ -1372,10 +1377,10 @@
 
       // arguments validation
       if (arguments.length === 0) {
-        emit('not enough arguments', TypeError);
+        emit(qsNotArgs, TypeError);
         return Config.VERBOSITY ? undefined : none;
       } else if (arguments[0] === '') {
-        emit('\'\' is not a valid selector');
+        emit('\'\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : none;
       } else if (lastContext !== context) {
         lastContext = switchContext(context);
@@ -1395,11 +1400,11 @@
       if ((groups = selector.match(reValidator)) && groups.join('') == selector) {
         groups = /\,/.test(selector) ? parseGroup(selector) : [selector];
         if (groups.indexOf('') > -1) {
-          emit('invalid or illegal string specified');
+          emit(qsInvalid);
           return Config.VERBOSITY ? undefined : none;
         }
       } else {
-        emit('\'' + selector + '\' is not a valid selector');
+        emit('\'' + selector + '\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : none;
       }
 
