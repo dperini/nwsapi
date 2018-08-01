@@ -39,32 +39,33 @@ pushd . &> /dev/null
 cd $SOURCES
 
 # ensure empty
-> dist/$PKGNAME-src.js
-> dist/$PKGNAME-min.js
+#> dist/$PKGNAME-src.js
+> dist/$PKGNAME.min.js
 
-cat build/HEADER >> dist/$PKGNAME-pac.js
+cat build/HEADER >> dist/$PKGNAME.min.js
 
 # add selector engine to source file
-cat src/nwsapi.js >> dist/$PKGNAME-src.js
+#cat src/nwsapi.js >> dist/$PKGNAME-src.js
 
 # add selector engine to minified file
-cat src/nwsapi.js | $JSMIN | tr -d "\n" >> dist/$PKGNAME-min.js
+cat src/nwsapi.js | $JSMIN | tr -d "\n" >> dist/$PKGNAME.min.js
+echo >> dist/$PKGNAME.min.js
 
 # minification of variables and privates
 echo ""
 echo -ne "NW: starting minification, takes time please wait, "
-$JSVM build/scripts/nwpacker.js < dist/nwsapi-src.js >> dist/nwsapi-pac.js
+#$JSVM build/scripts/nwpacker.js < dist/nwsapi-src.js >> dist/nwsapi-pac.js
 echo -ne "complete..."
 echo ""
 
 # build a compressed version of the minified file 
-gzip -c -n9 dist/$PKGNAME-pac.js > dist/$PKGNAME-zip.js
+#gzip -c -n9 dist/$PKGNAME-pac.js > dist/$PKGNAME-zip.js
 
 # build a versioned file name of the minified file
 #cp dist/$PKGNAME-pac.js dist/$PKGNAME-$RELEASE.js
 
 # now copy packed file to the real nwsapi.js
-cp dist/nwsapi-pac.js dist/nwsapi.js
+#cp dist/nwsapi-pac.js dist/nwsapi.js
 
 popd &> /dev/null
 

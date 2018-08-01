@@ -18,7 +18,7 @@ SOURCES=./
 .SUFFIXES:
 
 # just in case they exists
-.PHONY: all clean dist lint test
+.PHONY: all clean dist lint
 
 # add a SILENT flag to stop
 # showing directories access
@@ -54,5 +54,5 @@ lint:
 	@${SCRIPTS}/nwjslint.sh ${SOURCES}
 
 # test stage
-test:
-	@${SCRIPTS}/nwtestjs.sh ${SOURCES}
+#test:
+#	@${SCRIPTS}/nwtestjs.sh ${SOURCES}
