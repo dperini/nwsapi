@@ -750,7 +750,7 @@
       return mode ? (selectLambdas[key] = factory) : (matchLambdas[key] = factory);
     },
 
-  // build conditional code to check components of selector strings
+  // build code to check components of selector strings
   compileSelector =
     function(expression, source, mode, callback, not) {
 
@@ -882,7 +882,7 @@
           // :first-of-type, :last-of-type, :only-of-type,
           case ':':
             if ((match = selector.match(Patterns.struct_n))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
@@ -928,7 +928,7 @@
             // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
             // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
             else if ((match = selector.match(Patterns.struct_p))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'nth-child':
                 case 'nth-of-type':
@@ -979,7 +979,7 @@
             // *** logical combination pseudo-classes
             // :matches( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
             else if ((match = selector.match(Patterns.lpseudos))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'matches':
                   expr = match[2].replace(REX.TrimSpaces, '');
@@ -1002,7 +1002,7 @@
             // *** linguistic pseudo-classes
             // :dir( ltr / rtl ), :lang( en )
             else if ((match = selector.match(Patterns.hpseudos))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'dir':
                   source = 'var p;if(' + N + '(' +
@@ -1026,7 +1026,7 @@
 
             // *** location, user actiond and input pseudo-classes
             else if ((match = selector.match(Patterns.fpseudos))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 // *** location pseudo-classes
                 // :link, :visited, :target, :scope
@@ -1106,7 +1106,7 @@
             // :default, :checked, :indeterminate, :valid, :invalid
             // :in-range, :out-of-range, :required, :optional
             else if ((match = selector.match(Patterns.ipseudos))) {
-              match[1] = match[1].toLowerCase()
+              match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'default':
                   source =
