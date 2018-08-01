@@ -1,11 +1,6 @@
-bin/
-lib/
-test/
-dist/
-build/
-Makefile
-bower.json
-.eslintrc.yml
-.gitattributes
-.gitignore
-.npmignore
+/*
+!dist/nwsapi.min.js
+!src/nwsapi.js
+!package.json
+!README.md
+!LICENSE
