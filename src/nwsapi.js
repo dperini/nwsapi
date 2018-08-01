@@ -52,7 +52,7 @@
     SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
   },
 
-  struct_1 = '(root|empty|blank|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
+  struct_1 = '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
   struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
 
   pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
@@ -877,7 +877,7 @@
             break;
 
           // *** tree-structural pseudo-classes
-          // :root, :empty, :blank
+          // :root, :empty
           // :first-child, :last-child, :only-child,
           // :first-of-type, :last-of-type, :only-of-type,
           case ':':
@@ -891,10 +891,6 @@
                 case 'empty':
                   // matches elements that don't contain elements or text nodes
                   source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
-                  break;
-                case 'blank':
-                  // matches elements that only contain line-break or whitespace
-                  source = 'n=e.firstChild;while(n&&!n.nodeType!=3)){n=n.nextSibling}if(' + D + 'n){' + source + '}';
                   break;
 
                 // *** child-indexed pseudo-classes
