@@ -53,7 +53,7 @@
   },
 
   struct_1 = '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s*[-+]?\\s*\\d*)?)\\s?(?:\\)|$))',
+  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
 
   pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
   pseudo_2 = ':?(after|before|first-letter|first-line|selection|backdrop|placeholder)\\b',
@@ -766,7 +766,7 @@
       selector_string = mode ? lastSelected : lastMatched;
 
       // isolate selector combinators/components
-      selector = selector.replace(/\s?([>+~])\s?/g, '$1');
+      selector = selector.replace(/\s*([>+~-])\s*/g, '$1');
 
       while (selector) {
 
