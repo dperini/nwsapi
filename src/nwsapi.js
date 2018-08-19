@@ -49,11 +49,12 @@
     RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
     TrimSpaces: RegExp('[\\r\\n\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
-    SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
+    SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g'),
+    CombineWhitespace: RegExp(WSP + '+', 'g')
   },
 
   struct_1 = '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
+  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\)|$))',
 
   pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
   pseudo_2 = ':?(after|before|first-letter|first-line|selection|backdrop|placeholder)\\b',
@@ -589,7 +590,7 @@
           '|\\\\.' +
         ')+',
 
-      pseudoparms = '(?:[-+]?\\d*)(?:n[-+]?\\d*)',
+      pseudoparms = '(?:[-+]?\\d*)(?:n' + WSP + '?[-+]?' + WSP + '?\\d*)',
       doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*(?:"|$)',
       singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*(?:'|$)",
 
@@ -1312,6 +1313,7 @@
       // normalize selector
       selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.CombineWhitespace, ' ').
         replace(REX.TrimSpaces, '');
 
       // parse, validate and split possible selector groups
@@ -1390,6 +1392,7 @@
       // normalize selector
       selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.CombineWhitespace, ' ').
         replace(REX.TrimSpaces, '');
 
       // parse, validate and split possible selector groups
