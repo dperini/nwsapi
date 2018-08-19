@@ -691,8 +691,9 @@
 			t( "Nth-child", "#form #select1 option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
 
 			t( "Nth-child", "#form #select1 option:nth-child(3n +3)", ["option1c"] );
-			t( "Nth-child", "#form #select1 option:nth-child(3n +  3)", ["option1c"] );
-			t( "Nth-child", "#form #select1 option:nth-child(3n + 3)", ["option1c"] );
+			t( "Nth-child", "#form #select1 option:nth-child(3n  +  3)", ["option1c"] );
+			t( "Nth-child", "#form #select1 option:nth-child(3n- 3)", ["option1c"] );
+			t( "Nth-child", "#form #select1 option:nth-child(3n  -  3)", ["option1c"] );
 
 			t( "Attribute Exists", "a[title]", ["google"] );
 			t( "Attribute Exists", "*[title]", ["google"] );
