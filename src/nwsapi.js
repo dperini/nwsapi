@@ -53,7 +53,7 @@
   },
 
   struct_1 = '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n[-+]?\\d*)?)\\s?(?:\\)|$))',
+  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\)|$))',
 
   pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
   pseudo_2 = ':?(after|before|first-letter|first-line|selection|backdrop|placeholder)\\b',
@@ -558,19 +558,23 @@
   setIdentifierSyntax =
     function() {
 
+      //
       // NOTE: SPECIAL CASES IN CSS SYNTAX PARSING RULES
       //
       // The <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
       // allow mangled|unclosed selector syntax at the end of selectors strings
       //
-      // These are the non capturing representations of each character: ' " ] )
+      // Literal equivalent hex representations of the characters: " ' ` ] )
       //
-      // (?:\\"|$) - missing close double quotes
-      // (?:\\'|$) - missing close single quote
-      // (?:\\]|$) - missing close square bracket
-      // (?:\\)|$) - missing close round parens
+      //     \\x22 = " - double quotes     \\x5b = [ - open square bracket
+      //     \\x27 = ' - single quote      \\x5d = ] - closed square bracket
+      //     \\x60 = ` - back tick         \\x28 = ( - open round parens
+      //     \\x5c = \ - back slash        \\x29 = ) - closed round parens
       //
-      // use the above four patterns to find instances throughout the code
+      // use the above hex form to find instances throughout the code, using
+      // the hex format prevents false matching of open and closed instances
+      // pairs, coloring breakage and other editors highlightning problems.
+      //
 
       var identifier =
         // doesn't start with a digit
@@ -589,7 +593,8 @@
           '|\\\\.' +
         ')+',
 
-      pseudoparms = '(?:[-+]?\\d*)(?:n[-+]?\\d*)',
+      pseudonames = '[-\\w]+',
+      pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
       doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*(?:"|$)',
       singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*(?:'|$)",
 
@@ -615,18 +620,21 @@
       attrmatcher = attributes.replace(attrparser, attrvalues),
 
       pseudoclass =
-        '(?:\\(' + WSP + '*' +
+        '(?:\\x28' + WSP + '*' +
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
           '(?:\\*|\\|)|' +
           '(?:' +
-            '(?::' + identifier +
-            '(?:\\(' + pseudoparms + '?(?:\\)|$))?|' +
+            '(?::' + pseudonames +
+            '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
           ')|' +
           '(?:[.#]?' + identifier + ')|' +
           '(?:' + attributes + ')' +
-        ')+' + '(?:' + WSP + '*)(?:\\)|$))*',
+          ')+|' +
+          '(?:' + WSP + '?,' + WSP + '?)|' +
+          '(?:' + WSP + '?)|' +
+          '(?:\\x29|$))*',
 
       standardValidator =
         '(?=' + WSP + '?[^>+~(){}<>])' +
@@ -636,9 +644,10 @@
           '(?:\\*|\\|)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
-          '(?:::?' + identifier + pseudoclass + ')|' +
+          '(?:::?' + pseudonames + pseudoclass + ')|' +
           '(?:' + WSP + '?' + CFG.combinators + WSP + '?)|' +
-          '(?:' + WSP + '?,' + WSP + '?)' +
+          '(?:' + WSP + '?,' + WSP + '?)|' +
+          '(?:' + WSP + '?)' +
         ')+',
 
       extendedValidator = standardValidator.replace(pseudoclass, '.*');
@@ -649,13 +658,13 @@
           // namespace negation :not(*|*)
           '(?:\\*|\\*\\|\\*)|' +
           '(?!:not)' +
-          '(?:' + WSP + '*[.:#]?' +
-          '(?:' + identifier + WSP + '*)+|' +
-          '(?:\\([^()]*(?:\\)|$))' + ')+|' +
-          '(?:' + WSP + '*' + attributes + WSP + '*)+|' +
+          '(?:' + WSP + '?[.:#]?' +
+          '(?:' + identifier + WSP + '?)+|' +
+          '(?:\\x28[^()]*(?:\\x29|$))' + ')+|' +
+          '(?:' + WSP + '?' + attributes + WSP + '?)+|' +
         ')$');
 
-      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[[^\\]]+(?:\\]|$)|\\([^\\)]+(?:\\)|$))*)$');
+      reOptimizer = RegExp('(?:([.:#*]?)(' + identifier + ')(?::[-\\w]+|\\[[^\\]]+(?:\\]|$)|\\x28[^\\)]+(?:\\x29|$))*)$');
 
       Patterns.id = RegExp('^#(' + identifier + ')(.*)');
       Patterns.tagName = RegExp('^(' + identifier + ')(.*)');
