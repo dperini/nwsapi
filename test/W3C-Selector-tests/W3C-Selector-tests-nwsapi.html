@@ -605,18 +605,18 @@
 			t( "Multiple ID selectors using UTF8", "#台北Táiběi, #台北", ["台北Táiběi","台北"] );
 			t( "Descendant ID selector using UTF8", "div #台北", ["台北"] );
 			t( "Child ID selector using UTF8", "form > #台北", ["台北"] );
-	
+
 			t( "Escaped ID", "#foo\\:bar", ["foo:bar"] );
 			t( "Escaped ID", "#test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 			t( "Descendant escaped ID", "div #foo\\:bar", ["foo:bar"] );
 			t( "Descendant escaped ID", "div #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
 			t( "Child escaped ID", "form > #foo\\:bar", ["foo:bar"] );
 			t( "Child escaped ID", "form > #test\\.foo\\[5\\]bar", ["test.foo[5]bar"] );
-	
+
 			t( "ID Selector, child ID present", "#form > #radio1", ["radio1"] ); // bug #267
 			t( "ID Selector, not an ancestor ID", "#form #first", [] );
 			t( "ID Selector, not a child ID", "#form > #option1a", [] );
-			
+
 			t( "All Children of ID", "#foo > *", ["sndp", "en", "sap"] );
 			t( "All Children of ID with no children", "#firstUL > *", [] );
 
@@ -628,7 +628,7 @@
 			t( "Class Selector", ".blog.link", ["simon"] );
 			t( "Class Selector w/ Element", "a.blog", ["mark","simon"] );
 			t( "Parent Class Selector", "p .blog", ["mark","simon"] );
-	
+
 			t( "Class selector using UTF8", ".台北Táiběi", ["utf8class1"] );
 			t( "Class selector using UTF8", ".台北", ["utf8class1","utf8class2"] );
 			t( "Class selector using UTF8", ".台北Táiběi.台北", ["utf8class1"] );
@@ -689,6 +689,15 @@
 			t( "Nth-child", "#form #select1 option:nth-child(3n-3)", ["option1c"] );
 			t( "Nth-child", "#form #select1 option:nth-child(3n+0)", ["option1c"] );
 			t( "Nth-child", "#form #select1 option:nth-child(-n+3)", ["option1a", "option1b", "option1c"] );
+
+			t( "Pseudo-class with multiple WSP leading and around parameters", "#form #select1 option:nth-child(   3n   -   3)", ["option1c"] );
+			t( "Pseudo-class with multiple WSP trailing and around parameters", "#form #select1 option:nth-child(3n   -   3   )", ["option1c"] );
+			t( "Pseudo-class with \\t and WSP leading and around parameters", "#form #select1 option:nth-child(\t   3n   -   3)", ["option1c"] );
+			t( "Pseudo-class with \\t and WSP trailing and around parameters", "#form #select1 option:nth-child(3n   -   3   \t)", ["option1c"] );
+			t( "Pseudo-class with WSP and \\t before and around parameters", "#form #select1 option:nth-child(   \t   3n   -   3)", ["option1c"] );
+			t( "Pseudo-class with WSP and \\t after and around parameters", "#form #select1 option:nth-child(3n   -   3   \t   )", ["option1c"] );
+			t( "Pseudo-class with multiple WSP and \\t mixed before parameters", "#form #select1 option:nth-child(  \t\t\t  3n  -  3)", ["option1c"] );
+			t( "Pseudo-class with multiple WSP and \\t mixed after parameters", "#form #select1 option:nth-child(3n  -  3  \t\t\t  )", ["option1c"] );
 
 			t( "Attribute Exists", "a[title]", ["google"] );
 			t( "Attribute Exists", "*[title]", ["google"] );

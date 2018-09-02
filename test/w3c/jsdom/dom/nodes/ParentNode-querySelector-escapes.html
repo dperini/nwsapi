@@ -104,7 +104,6 @@ testMatched("\u{fffd}surrogate", "#\\00DFFFsurrogate");
 testMatched("\u{10ffff}", "#\\10fFfF");
 testMatched("\u{10ffff}0", "#\\10fFfF0");
 testMatched("\u{100000}00", "#\\10000000");
-testMatched("eof\u{fffd}", "#eof\\");
 
 testMatched("simple-ident", "#simple-ident");
 testMatched("testing123", "#testing123");
