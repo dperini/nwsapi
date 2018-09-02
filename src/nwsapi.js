@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.0.8
  * Created: 20070722
- * Release: 20180727
+ * Release: 20180901
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -38,40 +38,58 @@
   WSP = '[\\x20\\t\\r\\n\\f]',
 
   CFG = {
+    // extensions
     operators: '[~*^$|]=|=',
-    combinators: '[\\x20\\t\\r\\n\\f>+~](?=[^>+~])'
+    combinators: '[\\x20\\t>+~](?=[^>+~])'
+  },
+
+  NOT = {
+    // not enclosed in double/single/parens/square
+    double_enc: '(?=(?:[^"]*["][^"]*["])*[^"]*$)',
+    single_enc: "(?=(?:[^']*['][^']*['])*[^']*$)",
+    parens_enc: '(?![^\\x28]*\\x29)',
+    square_enc: '(?![^\\x5b]*\\x5d)'
   },
 
   REX = {
+    // regular expressions
     HasEscapes: RegExp('\\\\'),
     HexNumbers: RegExp('^[0-9a-fA-F]'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
-    RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])' ,'g'),
-    TrimSpaces: RegExp('[\\r\\n\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
+    RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.*+?()[\\]{}|\\/])', 'g'),
+    TrimSpaces: RegExp('[\\n\\r\\f]+|^' + WSP + '+|' + WSP + '+$', 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
-    SplitGroup: RegExp(WSP + '*,' + WSP + '*(?![^\\[]*\\]|[^\\(]*\\)|[^\\{]*\\})', 'g')
+    CombineWSP: RegExp('[\\n\\r\\f\\x20]+' + NOT.single_enc + NOT.double_enc, 'g'),
+    TabCharWSP: RegExp('(\\x20?\\t+\\x20?)' + NOT.single_enc + NOT.double_enc, 'g'),
+    CommaGroup: RegExp(WSP + '+,' + WSP + '+' + NOT.single_enc + NOT.double_enc, 'g'),
+    SplitGroup: RegExp(WSP + '?,' + WSP + '?' + NOT.square_enc + NOT.parens_enc, 'g')
   },
 
-  struct_1 = '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-  struct_2 = '(nth(?:-last)?(?:-child|-of-type))(?:\\(\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\)|$))',
-
-  pseudo_1 = '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
-  pseudo_2 = ':?(after|before|first-letter|first-line|selection|backdrop|placeholder)\\b',
-
-  noparm_1 = '(link|visited|target|scope|hover|active|focus|enabled|disabled|read-only|read-write|placeholder-shown)\\b',
-  noparm_2 = '(default|checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
-
-  logicals = '(matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
+  GROUPS = {
+    // pseudo-classes requiring parameters
+    linguistic: '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
+    logicalsel: '(matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
+    treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
+    // pseudo-classes not requiring parameters
+    locationpc: '(link|visited|target|scope)\\b',
+    useraction: '(hover|active|focus|focus-within)\\b',
+    structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
+    pseudoelem: ':?(after|before|first-letter|first-line|selection|placeholder)\\b',
+    inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
+    inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b'
+  },
 
   Patterns = {
     // pseudo-classes
-    struct_n: RegExp('^:(?:' + struct_1 + ')(.*)', 'i'),
-    struct_p: RegExp('^:(?:' + struct_2 + ')(.*)', 'i'),
-    hpseudos: RegExp('^:(?:' + pseudo_1 + ')(.*)', 'i'),
-    epseudos: RegExp('^:(?:' + pseudo_2 + ')(.*)', 'i'),
-    lpseudos: RegExp('^:(?:' + logicals + ')(.*)', 'i'),
-    fpseudos: RegExp('^:(?:' + noparm_1 + ')(.*)', 'i'),
-    ipseudos: RegExp('^:(?:' + noparm_2 + ')(.*)', 'i'),
+    treestruct: RegExp('^:(?:' + GROUPS.treestruct + ')(.*)', 'i'),
+    structural: RegExp('^:(?:' + GROUPS.structural + ')(.*)', 'i'),
+    linguistic: RegExp('^:(?:' + GROUPS.linguistic + ')(.*)', 'i'),
+    pseudoelem: RegExp('^:(?:' + GROUPS.pseudoelem + ')(.*)', 'i'),
+    useraction: RegExp('^:(?:' + GROUPS.useraction + ')(.*)', 'i'),
+    inputstate: RegExp('^:(?:' + GROUPS.inputstate + ')(.*)', 'i'),
+    inputvalue: RegExp('^:(?:' + GROUPS.inputvalue + ')(.*)', 'i'),
+    locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
+    logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
     // combinators symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
@@ -890,7 +908,7 @@
           // :first-child, :last-child, :only-child,
           // :first-of-type, :last-of-type, :only-of-type,
           case ':':
-            if ((match = selector.match(Patterns.struct_n))) {
+            if ((match = selector.match(Patterns.structural))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'root':
@@ -936,7 +954,7 @@
             // *** child-indexed & typed child-indexed pseudo-classes
             // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
             // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
-            else if ((match = selector.match(Patterns.struct_p))) {
+            else if ((match = selector.match(Patterns.treestruct))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'nth-child':
@@ -987,7 +1005,7 @@
 
             // *** logical combination pseudo-classes
             // :matches( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
-            else if ((match = selector.match(Patterns.lpseudos))) {
+            else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'matches':
@@ -1010,7 +1028,7 @@
 
             // *** linguistic pseudo-classes
             // :dir( ltr / rtl ), :lang( en )
-            else if ((match = selector.match(Patterns.hpseudos))) {
+            else if ((match = selector.match(Patterns.linguistic))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'dir':
@@ -1033,12 +1051,11 @@
               }
             }
 
-            // *** location, user actiond and input pseudo-classes
-            else if ((match = selector.match(Patterns.fpseudos))) {
+            // *** location pseudo-classes
+            // :link, :visited, :target, :scope
+            else if ((match = selector.match(Patterns.locationpc))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
-                // *** location pseudo-classes
-                // :link, :visited, :target, :scope
                 case 'link':
                   source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
                   break;
@@ -1051,9 +1068,17 @@
                 case 'scope':
                   source = 'if((s.from.compareDocumentPosition(e)&20)==20){' + source + '}';
                   break;
+                default:
+                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  break;
+              }
+            }
 
-                // *** user actions pseudo-classes
-                // :hover, :active, :focus
+            // *** user actions pseudo-classes
+            // :hover, :active, :focus
+            else if ((match = selector.match(Patterns.useraction))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
                     'if(' + N + '(e===s.doc.hoverElement)){' + source + '}' :
@@ -1069,9 +1094,17 @@
                     'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
                     'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
                   break;
+                default:
+                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  break;
+              }
+            }
 
-                // *** user interface and form pseudo-classes
-                // :enabled, :disabled, :read-only, :read-write, :placeholder-shown
+            // *** user interface and form pseudo-classes
+            // :enabled, :disabled, :read-only, :read-write, :placeholder-shown, :default
+            else if ((match = selector.match(Patterns.inputstate))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
                 case 'enabled':
                   source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e &&e.disabled===false' +
                     ')){' + source + '}';
@@ -1105,18 +1138,6 @@
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
                   break;
-                default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
-                  break;
-              }
-            }
-
-            // *** input pseudo-classes for form validation (was web-forms)
-            // :default, :checked, :indeterminate, :valid, :invalid
-            // :in-range, :out-of-range, :required, :optional
-            else if ((match = selector.match(Patterns.ipseudos))) {
-              match[1] = match[1].toLowerCase();
-              switch (match[1]) {
                 case 'default':
                   source =
                     'if(' + N + '("form" in e && e.form)){' +
@@ -1134,6 +1155,18 @@
                       '(("|radio|checkbox|".includes("|"+e.type+"|"))&&e.defaultChecked)' +
                     ')){' + source + '}';
                   break;
+                default:
+                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  break;
+              }
+            }
+
+            // *** input pseudo-classes (for form validation)
+            // :checked, :indeterminate, :valid, :invalid
+            // :in-range, :out-of-range, :required, :optional
+            else if ((match = selector.match(Patterns.inputvalue))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
                 case 'checked':
                   source = 'if(' + N + '(/^input$/i.test(e.nodeName)&&' +
                     '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
@@ -1203,7 +1236,7 @@
             }
 
             // allow pseudo-elements as :after/:before (single or double colon)
-            else if ((match = selector.match(Patterns.epseudos))) {
+            else if ((match = selector.match(Patterns.pseudoelem))) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
@@ -1318,9 +1351,12 @@
         selector = '' + selector;
       }
 
-      // normalize selector
+      // normalize input selector string
       selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.CombineWSP, '\x20').
+        replace(REX.TabCharWSP, '\t').
+        replace(REX.CommaGroup, ',').
         replace(REX.TrimSpaces, '');
 
       // parse, validate and split possible selector groups
@@ -1396,9 +1432,12 @@
         selector = '' + selector;
       }
 
-      // normalize selector
+      // normalize input selector string
       selector = selector.
         replace(/\x00|\\$/g, '\ufffd').
+        replace(REX.CombineWSP, '\x20').
+        replace(REX.TabCharWSP, '\t').
+        replace(REX.CommaGroup, ',').
         replace(REX.TrimSpaces, '');
 
       // parse, validate and split possible selector groups
