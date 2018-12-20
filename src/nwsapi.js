@@ -228,13 +228,6 @@
       return (context[api]('*', '*').length - context[api](ns, '*').length) > 0;
     },
 
-  toArray =
-    function(nodes) {
-      var l = nodes.length, list = Array(l);
-      while (l) { --l; list[l] = nodes[l]; }
-      return list;
-    },
-
   switchContext =
     function(context, force) {
       var oldDoc = doc;
@@ -534,19 +527,16 @@
 
   // configure the engine to use special handling
   configure =
-    function(option) {
+    function(option, clear) {
       if (typeof option == 'string') { return !!Config[option]; }
       if (typeof option != 'object') { return Config; }
       for (var i in option) {
         Config[i] = !!option[i];
-        if (i == 'SIMPLENOT') {
-          matchResolvers = { };
-          selectResolvers = { };
-        } else if (i == 'FASTCOMMA') {
-          compat = set_compat();
-        } else if (i == 'IDS_DUPES') {
-          domapi = set_domapi();
-        }
+      }
+      // clear lambda cache
+      if (clear) {
+        matchResolvers = { };
+        selectResolvers = { };
       }
       setIdentifierSyntax();
       return true;
