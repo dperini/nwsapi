@@ -1616,7 +1616,7 @@
           if (!('nodeType' in this)) { emit('\'closest\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
           return arguments.length < 1 ? ancestor.apply(this, [ ]) :
                  arguments.length < 2 ? ancestor.apply(this, [ arguments[0], this ]) :
-                                        ancestor.apply(this, [ arguments[0], this, arguments[1] ]);
+                                        ancestor.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
         };
 
       Element.prototype.matches =
@@ -1625,7 +1625,7 @@
           if (!('nodeType' in this)) { emit('\'matches\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
           return arguments.length < 1 ? match.apply(this, [ ]) :
                  arguments.length < 2 ? match.apply(this, [ arguments[0], this ]) :
-                                        match.apply(this, [ arguments[0], this ]);
+                                        match.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
         };
 
       Element.prototype.querySelector =
@@ -1636,7 +1636,7 @@
           if (!('nodeType' in this)) { emit('\'querySelector\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
           return arguments.length < 1 ? first.apply(this, [ ]) :
                  arguments.length < 2 ? first.apply(this, [ arguments[0], this ]) :
-                                        first.apply(this, [ arguments[0], this, arguments[1] ]);
+                                        first.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
         };
 
       Element.prototype.querySelectorAll =
@@ -1647,7 +1647,7 @@
           if (!('nodeType' in this)) { emit('\'querySelectorAll\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
           return arguments.length < 1 ? select.apply(this, [ ]) :
                  arguments.length < 2 ? select.apply(this, [ arguments[0], this ]) :
-                                        select.apply(this, [ arguments[0], this, arguments[1] ]);
+                                        select.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
         };
 
       if (all) {
@@ -1713,6 +1713,7 @@
 
     nthOfType: nthOfType,
     nthElement: nthElement
+
   },
 
   // public exported methods/objects
