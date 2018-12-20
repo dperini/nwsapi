@@ -80,9 +80,10 @@
     locationpc: '(link|visited|target|scope)\\b',
     useraction: '(hover|active|focus|focus-within)\\b',
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-    pseudoelem: ':?(after|before|first-letter|first-line|selection|placeholder)\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
-    inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b'
+    inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
+    pseudo_dbl: '(after|before|first-letter|first-line|-webkit-[-a-zA-Z]{2,})\\b',
+    pseudo_sng: ':(after|before|first-letter|first-line|selection|placeholder)\\b'
   },
 
   Patterns = {
@@ -90,12 +91,13 @@
     treestruct: RegExp('^:(?:' + GROUPS.treestruct + ')(.*)', 'i'),
     structural: RegExp('^:(?:' + GROUPS.structural + ')(.*)', 'i'),
     linguistic: RegExp('^:(?:' + GROUPS.linguistic + ')(.*)', 'i'),
-    pseudoelem: RegExp('^:(?:' + GROUPS.pseudoelem + ')(.*)', 'i'),
     useraction: RegExp('^:(?:' + GROUPS.useraction + ')(.*)', 'i'),
     inputstate: RegExp('^:(?:' + GROUPS.inputstate + ')(.*)', 'i'),
     inputvalue: RegExp('^:(?:' + GROUPS.inputvalue + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
+    pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
+    pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
     // combinators symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
@@ -764,13 +766,13 @@
       // before normalization and optimization processing
       selector_string = mode ? lastSelected : lastMatched;
 
-      // isolate selector combinators/components
-      selector = selector.replace(/\s?([>+~])\s?/g, '$1');
+      // isolate selector combinators/components and normalize whitespace
+      selector = selector.replace(STD.combinator, '$1');//.replace(STD.whitespace, ' ');
 
       while (selector) {
 
         // get namespace prefix if present or get first char of selector
-        symbol = /^(?:\w+|\*)\|/.test(selector) ? '|' : selector[0];
+        symbol = STD.apimethods.test(selector) ? '|' : selector[0];
 
         switch (symbol) {
 
@@ -780,12 +782,14 @@
             source = 'if(' + N + 'true' +
               '){' + source + '}';
             break;
+
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
             source = 'if(' + N + '(e.getAttribute("id")=="' + convertEscapes(match[1]) + '"' +
               ')){' + source + '}';
             break;
+
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
@@ -793,12 +797,14 @@
             source = 'if(' + N + '(/(^|\\s)' + match[1] + '(\\s|$)/' + compat +
               ')){' + source + '}';
             break;
+
           // tag name resolver
           case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
             source = 'if(' + N + '(e.nodeName.toLowerCase()=="' + match[1].toLowerCase() + '"' +
               ')){' + source + '}';
             break;
+
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
@@ -813,6 +819,7 @@
               emit('\'' + selector_string + '\'' + qsInvalid);
             }
             break;
+
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
@@ -869,6 +876,7 @@
             source = 'n=e;if((e=e.parentElement)){' + source + '}e=n;';
             break;
 
+          // *** user supplied combinators extensions
           case (symbol in Combinators ? symbol : undefined):
             // for other registered combinators extensions
             match[match.length - 1] = '*';
@@ -876,7 +884,7 @@
             break;
 
           // *** tree-structural pseudo-classes
-          // :root, :empty
+          // :root, :empty,
           // :first-child, :last-child, :only-child,
           // :first-of-type, :last-of-type, :only-of-type,
           case ':':
@@ -1213,15 +1221,23 @@
                       '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' + source + '}';
                   break;
-
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
               }
             }
 
-            // allow pseudo-elements as :after/:before (single or double colon)
-            else if ((match = selector.match(Patterns.pseudoelem))) {
+            // allow pseudo-elements starting with single colon (:)
+            // :after, :before, :first-letter, :first-line
+            // :placeholder-shown, :-webkit-<foo-bar>
+            else if ((match = selector.match(Patterns.pseudo_sng))) {
+              source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
+            }
+
+            // allow pseudo-elements starting with double colon (::)
+            // ::after, ::before, ::marker, ::placeholder,
+            // ::inactive-selection, ::selection
+            else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
@@ -1331,7 +1347,7 @@
         return Config.VERBOSITY ? undefined : false;
       }
 
-      // selector NULL or UNDEFINED
+      // selectors NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
       }
