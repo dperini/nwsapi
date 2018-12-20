@@ -332,101 +332,94 @@
     '.': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byClass(n, c); }; }
     },
 
-  // iterative DOM LTR traversal, configurable by replacing
-  // the conditional part (@) that accept returned elements
-  walk =
-    '"use strict"; return function(c) { var e = c, r = [ ], n = e.firstElementChild; while(e = n) {' +
-    'if (@) { r[r.length] = e; } if (n = e.firstElementChild || e.nextElementSibling) continue;' +
-    'while (!n && (e = e.parentElement) && e !== c) { n = e.nextElementSibling; } } return r; }',
+  // find duplicate ids using iterative walk
+  byIdRaw =
+    function(id, context) {
+      var node = context, nodes = [ ], next = node.firstElementChild;
+      while ((node = next)) {
+        node.id == id && (nodes[nodes.length] = node);
+        if ((next = node.firstElementChild || node.nextElementSibling)) continue;
+        while (!next && (node = node.parentElement) && node !== context) {
+          next = node.nextElementSibling;
+        }
+      }
+      return nodes;
+    },
 
-  // getElementById from context
+  // context agnostic getElementById
   byId =
-    function(ids, context) {
-      var e, elements, resolver, test, reIds, api = method['#'];
+    function(id, context) {
+      var e, nodes, api = method['#'];
 
-      if (typeof ids == 'string') { ids = [ ids ]; }
-
-      if (!Config.IDS_DUPES && ids.length < 2 && context[api]) {
-        return (e = context[api](ids[0])) ? [ e ] : none;
-      } else if (Config.IDS_DUPES && ids.length < 2) {
+      // duplicates id allowed
+      if (Config.IDS_DUPES === false) {
+        if (api in context) {
+          return (e = context[api](id)) ? [ e ] : none;
+        }
+      } else {
         if ('all' in context) {
-          if ((e = context.all[ids[0]])) {
-            // bugfixing
-            if (e.nodeType == 1) return e.getAttribute('id') != ids[0] ? [ ] : [ e ];
-            for (i = 0, l = e.length, elements = [ ]; l > i; ++i) {
-              if (e[i].id == ids[0]) elements[elements.length] = e[i];
+          if ((e = context.all[id])) {
+            if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
+            else if (id == 'length') return (e = context[api](id)) ? [ e ] : none;
+            for (i = 0, l = e.length, nodes = [ ]; l > i; ++i) {
+              if (e[i].id == id) nodes[nodes.length] = e[i];
             }
-            return elements && elements.length ? elements : [ elements ];
+            return nodes && nodes.length ? nodes : [ nodes ];
           } else return none;
         }
       }
 
-      // multiple ids names
-      if (ids.length > 1) {
-        test = 't.test(e.getAttribute("id"))';
-        reIds = RegExp('^(?:' + ids.join('|') + ')$', 'i');
-      } else {
-        test = 'e.getAttribute("id")==t';
-      }
-
-      // build the resolver and execute it
-      resolver = Function('t', walk.replace('@', test))(reIds || ids[0]);
-      return resolver(context);
+      return byIdRaw(id, context);
     },
 
-  // specialized getElementsByTagName
-  // collect one or multiple tag names from context
-  // @tag may be a tag name or an array of tag names
+  // context agnostic getElementsByTagName
   byTag =
     function(tag, context) {
-      var resolver, test, reTag;
-
-      if (typeof tag == 'string') { tag = [ tag ]; }
-
-      // if available use the DOM API to collect the nodes
-      if (tag.length < 2 && method['*'] in context) {
-        return context[method['*']](tag[0]);
-      }
-
-      // multiple tag names
-      if (tag.includes('*')) {
-        test = 'true';
-      } else if (tag.length > 1) {
-        test = 't.test(e.nodeName)';
-        reTag = RegExp('^(?:' + tag.join('|') + ')$', 'i');
+      var e, nodes, api = method['*'];
+      // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
+      if (api in context) {
+        return context[api](tag);
       } else {
-        test = 'e.nodeName==t';
+        // DOCUMENT_FRAGMENT_NODE (11)
+        if ((e = context.firstElementChild)) {
+          tag = tag.toLowerCase();
+          if (!(e.nextElementSibling || tag == '*' || e.nodeName.toLowerCase() == tag)) {
+            return e[api](tag);
+          } else {
+            nodes = [ ];
+            do {
+              if (tag == '*' || e.nodeName.toLowerCase() == tag) nodes[nodes.length] = e;
+              concatList(nodes, e[api](tag));
+            } while ((e = e.nextElementSibling));
+          }
+        } else nodes = none;
       }
-
-      // build the resolver and execute it
-      resolver = Function('t', walk.replace('@', test))(reTag || tag[0]);
-      return resolver(context);
+      return nodes;
     },
 
-  // specialized getElementsByClassName
-  // collect one or multiple class names from context
-  // @cls may be a class name or an array of class names
+  // context agnostic getElementsByClassName
   byClass =
     function(cls, context) {
-      var resolver, test, reCls, cs;
-
-      if (typeof cls == 'string') { cls = [ cls ]; }
-
-      // if available use the DOM API to collect the nodes
-      if (cls.length < 2 && method['.'] in context) {
-        return context[method['.']](cls[0]);
+      var e, nodes, api = method['.'], reCls;
+      // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
+      if (api in context) {
+        return context[api](cls);
+      } else {
+        // DOCUMENT_FRAGMENT_NODE (11)
+        if ((e = context.firstElementChild)) {
+          reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '');
+          if (!(e.nextElementSibling || reCls.test(e.className))) {
+            return e[api](cls);
+          } else {
+            nodes = [ ];
+            do {
+              if (reCls.test(e.className)) nodes[nodes.length] = e;
+              concatList(nodes, e[api](cls));
+            } while ((e = e.nextElementSibling));
+          }
+        } else nodes = none;
       }
-
-      // prepare the class name filter regexp
-      cs = QUIRKS_MODE ? 'i' : '';
-
-      // multiple class names
-      test = 't.test(e.getAttribute("class"))';
-      reCls = RegExp('(^|\\s)' + cls.join('|') + '(\\s|$)', cs);
-
-      // build the resolver and execute it
-      resolver = Function('t', walk.replace('@', test))(reCls || cls[0]);
-      return resolver(context);
+      return nodes;
     },
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
