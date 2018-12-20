@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.0.9
+ * Version: 2.1.x-WIP
  * Created: 20070722
- * Release: 20180901
+ * Release: 20181218
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.0.9',
+  var version = 'nwsapi-2.1.x-WIP',
 
   doc = global.document,
   root = doc.documentElement,
@@ -178,6 +178,50 @@
         ++i;
       }
       return list;
+    },
+
+  concatList =
+    function(list, nodes) {
+      var i = -1, l = nodes.length;
+      while (l--) { list[list.length] = nodes[++i]; }
+      return list;
+    },
+
+  documentOrder =
+    function(a, b) {
+      if (!hasDupes && a === b) {
+        hasDupes = true;
+        return 0;
+      }
+      return a.compareDocumentPosition(b) & 4 ? -1 : 1;
+    },
+
+  hasDupes = false,
+
+  unique =
+    function(nodes) {
+      var i = 0, j = -1, l = nodes.length + 1, list = [ ];
+      while (--l) {
+        if (nodes[i++] === nodes[i]) continue;
+        list[++j] = nodes[i - 1];
+      }
+      hasDupes = false;
+      return list;
+    },
+
+  // check context for mixed content
+  hasMixedCaseTagNames =
+    function(context) {
+      var ns, api = 'getElementsByTagNameNS';
+
+      // current host context (ownerDocument)
+      context = context.ownerDocument || context;
+
+      // documentElement (root) element namespace or default html/xhtml namespace
+      ns = context.documentElement.namespaceURI || 'http://www.w3.org/1999/xhtml';
+
+      // checking the number of non HTML nodes in the document
+      return (context[api]('*', '*').length - context[api](ns, '*').length) > 0;
     },
 
   toArray =
@@ -1478,6 +1522,42 @@
         (' >+~'.indexOf(selector.charAt(index - 1)) > -1 ?
           (':['.indexOf(selector.charAt(index + length + 1)) > -1 ?
           '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
+    },
+
+  results_from =
+    function(resolver, context, callback) {
+      var i, k, l, list, nodes = [ ],
+      f = resolver.factory, h = resolver.htmlset,
+      n = resolver.nodeset, r = resolver.results;
+      for (i = 0, k = 0, l = n.length; l > i; ++i) {
+        list = r && h[i] ? h[i]() : compat[n[i][0]](context, n[i].slice(1))();
+        if (f[i] !== null) {
+          if (r && h[i]) {
+            if (list.item || validate(resolver, n[i], list)) {
+              ++k;
+            } else {
+              f[i](list, callback, context, nodes);
+            }
+          } else {
+            f[i](list, callback, context, nodes);
+          }
+        } else {
+          if (list.length !== 0) {
+            list.length == 1 ?
+              nodes[nodes.length] = list[0] :
+              concatList(nodes, list);
+          }
+        }
+        if (r && h[i]) {
+          if (k == l) { nodes = r; }
+        } else {
+          if (l > 1 && nodes.length > 1) {
+            nodes.sort(documentOrder);
+            hasDupes && (nodes = unique(nodes));
+          }
+        }
+      }
+      return nodes;
     },
 
   // prepare factory resolvers and closure collections
