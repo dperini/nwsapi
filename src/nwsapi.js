@@ -125,7 +125,7 @@
 
   // special handling configuration flags
   Config = {
-    IDS_DUPES: false,
+    IDS_DUPES: true,
     LIVECACHE: true,
     MIXEDCASE: true,
     LOGERRORS: true,
@@ -578,8 +578,7 @@
       //     \\x60 = ` - back tick         \\x28 = ( - open round parens
       //     \\x5c = \ - back slash        \\x29 = ) - closed round parens
       //
-      // use the above hex form to find instances throughout the code, using
-      // the hex format prevents false matching of open and closed instances
+      // using hex format prevents false matches of opened/closed instances
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
@@ -762,8 +761,7 @@
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
-      // the original 'select' or 'match' selector string
-      // before normalization and optimization processing
+      // original 'select' or 'match' selector string before normalization
       selector_string = mode ? lastSelected : lastMatched;
 
       // isolate selector combinators/components and normalize whitespace
@@ -779,14 +777,16 @@
           // universal resolver
           case '*':
             match = selector.match(Patterns.universal);
-            source = 'if(' + N + 'true' +
-              '){' + source + '}';
+            if (N == '!') {
+              source = 'if(' + N + 'true' +
+                '){' + source + '}';
+            }
             break;
 
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
-            source = 'if(' + N + '(e.getAttribute("id")=="' + convertEscapes(match[1]) + '"' +
+            source = 'if(' + N + '(/^' + match[1] + '$/.test(e.getAttribute("id"))' +
               ')){' + source + '}';
             break;
 
@@ -799,16 +799,18 @@
             break;
 
           // tag name resolver
-          case (symbol.match(/[a-zA-Z]/) ? symbol : undefined):
+          case (/[a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if(' + N + '(e.nodeName.toLowerCase()=="' + match[1].toLowerCase() + '"' +
+            source = 'if(' + N + '(e.nodeName' +
+              (Config.MIXEDCASE || hasMixedCaseTagNames(doc) ?
+                '.toLowerCase()=="' + match[1].toLowerCase() + '"' :
+                '=="' + match[1].toUpperCase() + '"') +
               ')){' + source + '}';
             break;
 
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
-            match.pop();
             if (match[1] == '*') {
               source = 'if(' + N + 'true){' + source + '}';
             } else if (!match[1]) {
@@ -823,7 +825,7 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
-            NS = match[0].match(/(\*|\w+)\|[-\w]+/);
+            NS = match[0].match(STD.namespaces);
             name = match[1];
             expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
@@ -836,7 +838,7 @@
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
                   match[2] in ATTR_STD_OPS && match[2] != '~=' ?
                 { p1: '^',    p2: '$',  p3: 'true' } : test;
-            } else if (match[2] == '~=' && match[4].indexOf(' ') > -1) {
+            } else if (match[2] == '~=' && match[4].includes(' ')) {
               // whitespace separated list but value contains space
               source = 'if(' + N + 'false){' + source + '}';
               break;
@@ -1228,15 +1230,13 @@
             }
 
             // allow pseudo-elements starting with single colon (:)
-            // :after, :before, :first-letter, :first-line
-            // :placeholder-shown, :-webkit-<foo-bar>
+            // :after, :before, :first-letter, :first-line, :placeholder-shown, :-webkit-<foo-bar>
             else if ((match = selector.match(Patterns.pseudo_sng))) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
-            // ::after, ::before, ::marker, ::placeholder,
-            // ::inactive-selection, ::selection
+            // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
             }
@@ -1254,10 +1254,10 @@
                   if ('match' in result) { match = result.match; }
                   vars = result.modvar;
                   if (mode) {
-                     // add extra needed variables to the selector resolver
+                     // add extra select() vars
                      vars && S_VARS.indexOf(vars) < 0 && (S_VARS[S_VARS.length] = vars);
                   } else {
-                     // add extra needed variables to the matcher resolver
+                     // add extra match() vars
                      vars && M_VARS.indexOf(vars) < 0 && (M_VARS[M_VARS.length] = vars);
                   }
                   // extension source code
@@ -1304,9 +1304,9 @@
 
   // equivalent of w3c 'closest' method
   ancestor =
-    function _closest(selector, element, callback) {
+    function _closest(selectors, element, callback) {
       while (element) {
-        if (match(selector, element, callback)) break;
+        if (match(selectors, element, callback)) break;
         element = element.parentElement;
       }
       return element;
@@ -1320,9 +1320,9 @@
     },
 
   match_collect =
-    function(expressions, callback) {
-      for (var i = 0, l = expressions.length, f = [ ]; l > i; ++i)
-        f[i] = compile(expressions[i], false, callback);
+    function(selectors, callback) {
+      for (var i = 0, l = selectors.length, f = [ ]; l > i; ++i)
+        f[i] = compile(selectors[i], false, callback);
       return { factory: f };
     },
 
@@ -1347,7 +1347,7 @@
         return Config.VERBOSITY ? undefined : false;
       }
 
-      // selectors NULL or UNDEFINED
+      // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
       }
@@ -1428,7 +1428,7 @@
         lastContext = switchContext(context);
       }
 
-      // selectors NULL or UNDEFINED
+      // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
       }
@@ -1463,7 +1463,7 @@
         concatCall(nodes, callback) : nodes;
     },
 
-  // optimize selectors removing already checked components
+  // optimize selectors avoiding duplicated checks
   optimize =
     function(selector, token) {
       var index = token.index,
@@ -1554,10 +1554,10 @@
       };
     },
 
-  // Query Selector API placeholders to native references
+  // QSA placeholders to native references
   _closest, _matches, _querySelector, _querySelectorAll,
 
-  // overrides Query Selector API methods (only for browsers)
+  // overrides QSA methods (only for browsers)
   install =
     function(all) {
 
@@ -1620,7 +1620,7 @@
 
     },
 
-  // restore Query Selector API methods (only for browsers)
+  // restore QSA methods (only for browsers)
   uninstall =
     function() {
       // reinstates QSA native references
@@ -1633,8 +1633,6 @@
       Document.prototype.querySelectorAll =
       DocumentFragment.prototype.querySelectorAll = _querySelectorAll;
     },
-
-  /*-------------------------------- STORAGE ---------------------------------*/
 
   // empty set
   none = Array(),
