@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2007-2018 Diego Perini
+ * Copyright (C) 2007-2019 Diego Perini
  * All rights reserved.
  *
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.1.x-WIP
+ * Version: 2.1.0
  * Created: 20070722
- * Release: 20181218
+ * Release: 20190118
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.1.x-WIP',
+  var version = 'nwsapi-2.1.0',
 
   doc = global.document,
   root = doc.documentElement,
@@ -68,7 +68,7 @@
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
     apimethods: RegExp('^(?:[a-z]+|\\*)\\|', 'i'),
-    namespaces: RegExp('(\\*|[a-z]+)\\|[-a-z]+', 'i'),
+    namespaces: RegExp('(\\*|[a-z]+)\\|[-a-z]+', 'i')
   },
 
   GROUPS = {
@@ -77,12 +77,12 @@
     logicalsel: '(matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
-    locationpc: '(link|visited|target|scope)\\b',
+    locationpc: '(link|visited|target)\\b',
     useraction: '(hover|active|focus|focus-within)\\b',
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
-    pseudo_dbl: '(after|before|first-letter|first-line|-webkit-[-a-zA-Z]{2,})\\b',
+    pseudo_dbl: '(after|before|first-letter|first-line|-webkit-[-a-zA-Z0-9]{2,})\\b',
     pseudo_sng: ':(after|before|first-letter|first-line|selection|placeholder)\\b'
   },
 
@@ -573,10 +573,10 @@
       //
       // Literal equivalent hex representations of the characters: " ' ` ] )
       //
-      //     \\x22 = " - double quotes     \\x5b = [ - open square bracket
-      //     \\x27 = ' - single quote      \\x5d = ] - closed square bracket
-      //     \\x60 = ` - back tick         \\x28 = ( - open round parens
-      //     \\x5c = \ - back slash        \\x29 = ) - closed round parens
+      //     \\x22 = " - double quotes    \\x5b = [ - open square bracket
+      //     \\x27 = ' - single quote     \\x5d = ] - closed square bracket
+      //     \\x60 = ` - back tick        \\x28 = ( - open round parens
+      //     \\x5c = \ - back slash       \\x29 = ) - closed round parens
       //
       // using hex format prevents false matches of opened/closed instances
       // pairs, coloring breakage and other editors highlightning problems.
@@ -756,7 +756,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, f, name, nested, NS,
+      var a, b, n, f, i, l, name, nested, NS,
       N = not ? '!' : '', D = not ? '' : '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -886,9 +886,7 @@
             break;
 
           // *** tree-structural pseudo-classes
-          // :root, :empty,
-          // :first-child, :last-child, :only-child,
-          // :first-of-type, :last-of-type, :only-of-type,
+          // :root, :empty, :first-child, :last-child, :only-child, :first-of-type, :last-of-type, :only-of-type
           case ':':
             if ((match = selector.match(Patterns.structural))) {
               match[1] = match[1].toLowerCase();
@@ -935,7 +933,6 @@
 
             // *** child-indexed & typed child-indexed pseudo-classes
             // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
-            // 4 cases: 1 (nth) x 4 (child, of-type, last-child, last-of-type)
             else if ((match = selector.match(Patterns.treestruct))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
@@ -995,10 +992,10 @@
                     emit(':matches() pseudo-class cannot be nested');
                   }
                   nested = true;
-                  expr = match[2].replace(REX.commagroup, ',').replace(REX.TrimSpaces, '');
+                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   // check nested compound selectors s1, s2
                   expr = match[2].match(REX.SplitGroup);
-                  for (var i = 0, l = expr.length; l > i; ++i) {
+                  for (i = 0, l = expr.length; l > i; ++i) {
                     expr[i] = expr[i].replace(REX.TrimSpaces, '');
                     source = 'if(s.match("' + expr[i].replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   }
@@ -1007,10 +1004,10 @@
                   if (not == true || nested == true) {
                     emit(':not() pseudo-class cannot be nested');
                   }
-                  expr = match[2].replace(REX.commagroup, ',').replace(REX.TrimSpaces, '');
+                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   // check nested compound selectors s1, s2
                   expr = match[2].match(REX.SplitGroup);
-                  for (var i = 0, l = expr.length; l > i; ++i) {
+                  for (i = 0, l = expr.length; l > i; ++i) {
                     expr[i] = expr[i].replace(REX.TrimSpaces, '');
                     source = compileSelector(expr[i], source, false, callback, true);
                   }
@@ -1047,7 +1044,7 @@
             }
 
             // *** location pseudo-classes
-            // :link, :visited, :target, :scope
+            // :link, :visited, :target
             else if ((match = selector.match(Patterns.locationpc))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
@@ -1059,9 +1056,6 @@
                   break;
                 case 'target':
                   source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
-                  break;
-                case 'scope':
-                  source = 'if((s.from.compareDocumentPosition(e)&20)==20){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
@@ -1157,8 +1151,7 @@
             }
 
             // *** input pseudo-classes (for form validation)
-            // :checked, :indeterminate, :valid, :invalid
-            // :in-range, :out-of-range, :required, :optional
+            // :checked, :indeterminate, :valid, :invalid, :in-range, :out-of-range, :required, :optional
             else if ((match = selector.match(Patterns.inputvalue))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
@@ -1302,9 +1295,23 @@
       return source;
     },
 
+  // replace ':scope' pseudo-class with element references
+  makeref =
+    function(selectors, element) {
+      return selectors.replace(/:scope/i,
+        element.nodeName.toLowerCase() +
+        (element.id ? '#' + element.id : '') +
+        (element.className ? '.' + element.classList[0] : ''));
+    },
+
   // equivalent of w3c 'closest' method
   ancestor =
     function _closest(selectors, element, callback) {
+
+      if ((/:scope/i).test(selectors)) {
+        selectors = makeref(selectors, element);
+      }
+
       while (element) {
         if (match(selectors, element, callback)) break;
         element = element.parentElement;
@@ -1350,6 +1357,10 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
+      }
+
+      if ((/:scope/i).test(selectors)) {
+        selectors = makeref(selectors, element);
       }
 
       // normalize input string
@@ -1431,6 +1442,10 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
+      }
+
+      if ((/:scope/i).test(selectors)) {
+        selectors = makeref(selectors, context);
       }
 
       // normalize input string
