@@ -129,7 +129,7 @@
     .blox15:not([foo="blox14"]) { background-color: lime; }
     .blox16:not(.blox15) { background-color: lime; }
 
-    /* :only-of-type tests */
+    :only-of-type tests */
     .blox17:only-of-type { background-color: lime; }
     .blox18:only-of-type { background-color: red; }
     .blox18:not(:only-of-type) { background-color: lime; }
@@ -193,8 +193,6 @@
     .plus .t1:hover + .unitTest + .unitTest { background-color: red; }
   </style>
   <style type="text/test" id="error">
-    .blox16:not(.blox15[foo="blox14"]) { background-color: red; }
-
     /* Tests from http://www.w3.org/Style/CSS/Test/CSS3/Selectors/20060307/html/index.html */
     div:not(:not(div)) { background: red; }
 
@@ -827,7 +825,7 @@
   <div class="test not">
     <div class="blox14 unitTest" title="negation pseudo-class with argument being an element type selector"></div>
     <div class="blox15 unitTest" foo="blox15" title="negation pseudo-class with argument being an attribute selector"></div>
-    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts only simple selectors for argument"></div>
+    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts complex selectors for argument"></div>
   </div>
 
   <div class="test onlyOfType">
@@ -1036,7 +1034,7 @@
   <div class="test not">
     <div class="blox14 unitTest" title="negation pseudo-class with argument being an element type selector"></div>
     <div class="blox15 unitTest" foo="blox15" title="negation pseudo-class with argument being an attribute selector"></div>
-    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts only simple selectors for argument"></div>
+    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts complex selectors for argument"></div>
   </div>
 
   <div class="test onlyOfType">

@@ -184,12 +184,6 @@ engines = {
 
       var i, items, length, link, node, rules, style;
 
-      // for nwsapi, disable complex selectors nested in
-      // :not() pseudo-classes to comply with specifications
-      if (engine.indexOf('nwsapi') > -1) {
-        NW.Dom.configure({ 'SIMPLENOT': true });
-      }
-
       if (engine == 'querySelectorAll' && typeof doc.querySelectorAll == 'undefined') {
         alert('NOTE: This browser don\'t support Query Selectors API.\n' +
           'The stylesheet will be loaded from an external css file.');

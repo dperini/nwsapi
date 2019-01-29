@@ -111,7 +111,6 @@
     .blox15:not([foo="blox14"]) { background-color: lime; }
     .blox16 { background-color: red; }
     .blox16:not(.blox15) { background-color: lime; }
-    .blox16:not(.blox15[foo="blox14"]) { background-color: red; }
 
     /* :only-of-type tests */
     .blox17 { background-color: red; }
@@ -257,7 +256,7 @@
   <div class="test not">
     <div class="blox14 unitTest" title="negation pseudo-class with argument being an element type selector"></div>
     <div class="blox15 unitTest" foo="blox15" title="negation pseudo-class with argument being an attribute selector"></div>
-    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts only simple selectors for argument"></div>
+    <div class="blox16 unitTest" foo="blox15" title="negation pseudo-class accepts complex selectors for argument"></div>
   </div>
 
   <div class="test onlyOfType">
