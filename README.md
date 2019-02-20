@@ -84,7 +84,7 @@ Returns an array of elements having the specified class name `class`, optionally
 The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
 
 * `IDS_DUPES`: true  - true to allow using multiple elements having the same id, false to disallow
-* `LIVECACHE`: true  - true for caching both results and resolvers, false for caching only resolvers
+* `LIVECACHE`: false - true for caching both results and resolvers, false for caching only resolvers
 * `MIXEDCASE`: true  - true to match tag names case insensitive, false to match using case sensitive
 * `LOGERRORS`: true  - true to print errors and warnings to the console, false to mute both of them
 
