@@ -126,7 +126,7 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    LIVECACHE: true,
+    LIVECACHE: false,
     MIXEDCASE: true,
     LOGERRORS: true,
     VERBOSITY: true
