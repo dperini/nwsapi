@@ -424,6 +424,30 @@
       return nodes;
     },
 
+  // namespace aware hasAttribute
+  // helper for XML/XHTML documents
+  hasAttributeNS =
+    function(e, name) {
+      var i, l, attr = e.getAttributeNames();
+      name = RegExp(':?' + name + '$', 'i');
+      for (i = 0, l = attr.length; l > i; ++i) {
+        if (name.test(attr[i])) return true;
+      }
+      return false;
+    },
+
+  // namespace aware getAttribute
+  // helper for XML/XHTML documents
+  getAttributeNS =
+    function(e, name) {
+      var i, l, attr = e.getAttributeNames();
+      name = RegExp(':?' + name + '$', 'i');
+      for (i = 0, l = attr.length; l > i; ++i) {
+        if (name.test(attr[i])) return e.getAttribute(attr[i]);
+      }
+      return null;
+    },
+
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
   nthElement = (function() {
     var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
@@ -846,7 +870,8 @@
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
-            source = 'if(' + N + '(' + (!match[2] ? 'e.hasAttribute("' + name + '")' :
+            source = 'if(' + N + '(' + (!match[2] ?
+              (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
@@ -1682,7 +1707,10 @@
     ancestor: ancestor,
 
     nthOfType: nthOfType,
-    nthElement: nthElement
+    nthElement: nthElement,
+
+    hasAttributeNS: hasAttributeNS,
+    getAttributeNS: getAttributeNS 
 
   },
 
