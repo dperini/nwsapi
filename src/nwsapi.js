@@ -528,8 +528,10 @@
     function(node) {
       var doc = node.ownerDocument || node;
       return doc.nodeType == 9 &&
-        doc.contentType.indexOf('/html') > 0 &&
-        doc.createElement('DiV').nodeName == 'DIV';
+        // contentType not in IE <= 11
+        'contentType' in doc ?
+          doc.contentType.indexOf('/html') > 0 :
+          doc.createElement('DiV').nodeName == 'DIV';
     },
 
   // configure the engine to use special handling
