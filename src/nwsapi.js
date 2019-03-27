@@ -361,7 +361,7 @@
       } else {
         if ('all' in context) {
           if ((e = context.all[id])) {
-            if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
+            if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
             else if (id == 'length') return (e = context[api](id)) ? [ e ] : none;
             for (i = 0, l = e.length, nodes = [ ]; l > i; ++i) {
               if (e[i].id == id) nodes[nodes.length] = e[i];
@@ -429,23 +429,11 @@
   hasAttributeNS =
     function(e, name) {
       var i, l, attr = e.getAttributeNames();
-      name = RegExp(':?' + name + '$', 'i');
+      HTML_DOCUMENT && (name = name.toLowerCase());
       for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i])) return true;
+        if (name == attr[i].toLowerCase()) return true;
       }
       return false;
-    },
-
-  // namespace aware getAttribute
-  // helper for XML/XHTML documents
-  getAttributeNS =
-    function(e, name) {
-      var i, l, attr = e.getAttributeNames();
-      name = RegExp(':?' + name + '$', 'i');
-      for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i])) return e.getAttribute(attr[i]);
-      }
-      return null;
     },
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
@@ -870,8 +858,8 @@
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 'i' : '';
-            source = 'if(' + N + '(' + (!match[2] ?
-              (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
+            source = 'if(' + N + '(' +
+              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
@@ -1709,9 +1697,7 @@
     nthOfType: nthOfType,
     nthElement: nthElement,
 
-    hasAttributeNS: hasAttributeNS,
-    getAttributeNS: getAttributeNS 
-
+    hasAttributeNS: hasAttributeNS
   },
 
   // public exported methods/objects
