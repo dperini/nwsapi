@@ -62,7 +62,8 @@
     SplitGroup: RegExp('((?:\\x28[^\\x29]*\\x29|\\[[^\\]]*\\]|\\\\.|[^,])+)', 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     CombineWSP: RegExp('[\\n\\r\\f\\x20]+' + NOT.single_enc + NOT.double_enc, 'g'),
-    TabCharWSP: RegExp('(\\x20?\\t+\\x20?)' + NOT.single_enc + NOT.double_enc, 'g')
+    TabCharWSP: RegExp('(\\x20?\\t+\\x20?)' + NOT.single_enc + NOT.double_enc, 'g'),
+    PseudosWSP: RegExp('\\s+([-+])\\s+' + NOT.square_enc, 'g')
   },
 
   STD = {
@@ -1382,7 +1383,7 @@
       parsed = selectors.
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.CombineWSP, '\x20').
-        replace(/\s+([-+])\s+/g, '$1').
+        replace(REX.PseudosWSP, '$1').
         replace(REX.TabCharWSP, '\t').
         replace(REX.CommaGroup, ',').
         replace(REX.TrimSpaces, '');
@@ -1467,7 +1468,7 @@
       parsed = selectors.
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.CombineWSP, '\x20').
-        replace(/\s+([-+])\s+/g, '$1').
+        replace(REX.PseudosWSP, '$1').
         replace(REX.TabCharWSP, '\t').
         replace(REX.CommaGroup, ',').
         replace(REX.TrimSpaces, '');
