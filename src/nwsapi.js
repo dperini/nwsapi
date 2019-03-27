@@ -1099,6 +1099,11 @@
                     'if(' + N + '(e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
                     'if(' + N + '(e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
                   break;
+                case 'focus-within':
+                  source = 'hasFocus' in doc ?
+                    'n=s.doc.activeElement;while(e){if(e===n||e.parentNode===n)break;}' +
+                    'if(' + N + '(e===n&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' : source;
+                  break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
                   break;
