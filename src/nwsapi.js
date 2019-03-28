@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.1.1
+ * Version: 2.1.2
  * Created: 20070722
- * Release: 20190224
+ * Release: 20190328
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.1.1',
+  var version = 'nwsapi-2.1.2',
 
   doc = global.document,
   root = doc.documentElement,
@@ -671,7 +671,10 @@
           '(?:' + WSP + '?)' +
         ')+';
 
-      // global
+      // the following global RE is used to return the
+      // deepest nodeName in selector strings and then
+      // use it to retrieve all possible matching nodes
+      // that will be filtered by compiled resolvers
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
         '(' + identifier + ')' +
