@@ -1255,7 +1255,7 @@
             // allow pseudo-elements starting with double colon (::)
             // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
-              source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
+              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
             }
 
             else {
