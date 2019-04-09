@@ -1249,7 +1249,7 @@
             // allow pseudo-elements starting with single colon (:)
             // :after, :before, :first-letter, :first-line, :placeholder-shown, :-webkit-<foo-bar>
             else if ((match = selector.match(Patterns.pseudo_sng))) {
-              source = 'if(' + D + '(/1|11/).test(e.nodeType)){' + source + '}';
+              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
