@@ -1007,7 +1007,7 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'matches':
-                  if (not == true || nested == true) {
+                  if (not === true || nested === true) {
                     emit(':matches() pseudo-class cannot be nested');
                   }
                   nested = true;
@@ -1020,7 +1020,7 @@
                   }
                   break;
                 case 'not':
-                  if (not == true || nested == true) {
+                  if (not === true || nested === true) {
                     emit(':not() pseudo-class cannot be nested');
                   }
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
