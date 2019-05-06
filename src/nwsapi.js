@@ -83,8 +83,10 @@
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
-    pseudo_dbl: '(after|before|first-letter|first-line|-webkit-[-a-zA-Z0-9]{2,})\\b',
-    pseudo_sng: ':(after|before|first-letter|first-line|selection|placeholder)\\b'
+    /** pseudo-elements starting with single colon (:) */
+    pseudo_sng: '(after|before|first-letter|first-line)\\b',
+    /** pseudo-elements starting with double colon (::) */
+    pseudo_dbl: ':(after|before|first-letter|first-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\\b'
   },
 
   Patterns = {
@@ -1247,13 +1249,13 @@
             }
 
             // allow pseudo-elements starting with single colon (:)
-            // :after, :before, :first-letter, :first-line, :placeholder-shown, :-webkit-<foo-bar>
+            // :after, :before, :first-letter, :first-line
             else if ((match = selector.match(Patterns.pseudo_sng))) {
               source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
-            // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection
+            // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection, ::-webkit-<foo-bar>
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
             }
