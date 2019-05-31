@@ -432,7 +432,7 @@
   hasAttributeNS =
     function(e, name) {
       var i, l, attr = e.getAttributeNames();
-      name = RegExp(':?' + name + '$', 'i');
+      name = RegExp(':?' + name + '$', HTML_DOCUMENT ? 'i' : '');
       for (i = 0, l = attr.length; l > i; ++i) {
         if (name.test(attr[i])) return true;
       }
