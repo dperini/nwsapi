@@ -432,9 +432,9 @@
   hasAttributeNS =
     function(e, name) {
       var i, l, attr = e.getAttributeNames();
-      HTML_DOCUMENT && (name = name.toLowerCase());
+      name = RegExp(':?' + name + '$', 'i');
       for (i = 0, l = attr.length; l > i; ++i) {
-        if (name == attr[i].toLowerCase()) return true;
+        if (name.test(attr[i])) return true;
       }
       return false;
     },
