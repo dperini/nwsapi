@@ -34,6 +34,7 @@
 
   doc = global.document,
   root = doc.documentElement,
+  slice = Array.prototype.slice,
 
   WSP = '[\\x20\\t\\r\\n\\f]',
 
@@ -127,7 +128,6 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    LIVECACHE: false,
     MIXEDCASE: true,
     LOGERRORS: true,
     VERBOSITY: true
@@ -381,13 +381,13 @@
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return context[api](tag);
+        return slice.call(context[api](tag));
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           tag = tag.toLowerCase();
           if (!(e.nextElementSibling || tag == '*' || e.nodeName.toLowerCase() == tag)) {
-            return e[api](tag);
+            return slice.call(e[api](tag));
           } else {
             nodes = [ ];
             do {
@@ -406,13 +406,13 @@
       var e, nodes, api = method['.'], reCls;
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return context[api](cls);
+        return slice.call(context[api](cls));
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '');
           if (!(e.nextElementSibling || reCls.test(e.className))) {
-            return e[api](cls);
+            return slice.call(e[api](cls));
           } else {
             nodes = [ ];
             do {
