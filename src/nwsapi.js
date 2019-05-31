@@ -1444,8 +1444,27 @@
       if (selectors) {
         if ((resolver = selectResolvers[selectors])) {
           if (resolver.context === context && resolver.callback === callback) {
-            nodes = results_from(resolver, context, callback);
-            Config.LIVECACHE  && !(/\[[^\]]*\]/).test(selectors) && (resolver.results = nodes);
+            var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset, nodes = [ ];
+            if (n.length > 1) {
+              for (var i = 0, l = n.length, list; l > i; ++i) {
+                list = compat[n[i][0]](context, n[i].slice(1))();
+                if (f[i] !== null) {
+                  f[i](list, callback, context, nodes);
+                } else {
+                  nodes = nodes.concat(list);
+                }
+              }
+              if (l > 1 && nodes.length > 1) {
+                nodes.sort(documentOrder);
+                hasDupes && (nodes = unique(nodes));
+              }
+            } else {
+              if (f[0]) {
+                nodes = f[0](h[0](), callback, context, nodes);
+              } else {
+                nodes = h[0]();
+              }
+            }
             return typeof callback == 'function' ?
               concatCall(nodes, callback) : nodes;
           }
@@ -1498,7 +1517,7 @@
       // save/reuse factory and closure collection
       selectResolvers[selectors] = collect(expressions, context, callback);
 
-      nodes = results_from(selectResolvers[selectors], context, callback);
+      nodes = selectResolvers[selectors].results;
 
       return typeof callback == 'function' ?
         concatCall(nodes, callback) : nodes;
@@ -1515,74 +1534,36 @@
           '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
     },
 
-  results_from =
-    function(resolver, context, callback) {
-      var i, k, l, list, nodes = [ ],
-      f = resolver.factory, h = resolver.htmlset,
-      n = resolver.nodeset, r = resolver.results;
-      for (i = 0, k = 0, l = n.length; l > i; ++i) {
-        list = r && h[i] ? h[i]() : compat[n[i][0]](context, n[i].slice(1))();
-        if (f[i] !== null) {
-          if (r && h[i]) {
-            if (list.item || validate(resolver, n[i], list)) {
-              ++k;
-            } else {
-              f[i](list, callback, context, nodes);
-            }
-          } else {
-            f[i](list, callback, context, nodes);
-          }
-        } else {
-          if (list.length !== 0) {
-            list.length == 1 ?
-              nodes[nodes.length] = list[0] :
-              concatList(nodes, list);
-          }
-        }
-        if (r && h[i]) {
-          if (k == l) { nodes = r; }
-        } else {
-          if (l > 1 && nodes.length > 1) {
-            nodes.sort(documentOrder);
-            hasDupes && (nodes = unique(nodes));
-          }
-        }
-      }
-      return nodes;
-    },
-
-  // validate memoized HTMLCollection
-  validate =
-    function(resolver, n, s) {
-      var c = 0, i = 0, l = s.length, m;
-      if (l === 0) { return false; }
-      m = compat[n[0]](resolver.context, n.slice(1))();
-      if (m.item && s.item) {
-        while (l > i) { if (m.item(i) === s.item(c)) { ++i; ++c; } else return false; }
-      } else {
-        while (l > i) { if (m[i] === s[c]) { ++i; ++c;} else return false; }
-      }
-      return m.length == c;
-    },
-
   // prepare factory resolvers and closure collections
   collect =
     function(selectors, context, callback) {
-      var i, l, token, seen = { }, factory = [ ], htmlset = [ ], nodeset = [ ];
+      var i, l, token, seen = { }, factory = [ ], htmlset = [ ], nodeset = [ ], results = [ ];
       for (i = 0, l = selectors.length; l > i; ++i) {
         if (!seen[selectors[i]] && (seen[selectors[i]] = true)) {
+
           if ((token = selectors[i].match(reOptimizer)) && token[1] != ':') {
-            Config.LIVECACHE && !(/\[[^\]]*\]/).test(selectors[i]) && (htmlset[i] = compat[token[1] || '*'](context, token[2]));
-            nodeset[i] = (token[1] || '*') + token[2];
+            token[1] || (token[1] = '*');
             selectors[i] = optimize(selectors[i], token);
-          } else if (token && token[1] != ':') {
-            Config.LIVECACHE && !(/\[[^\]]*\]/).test(selectors[i]) && (htmlset[i] = compat['*'](context, '*'));
-            nodeset[i] = '**';
           } else {
-            nodeset[i] = '**';
+            token = ['', '*', '*'];
           }
+
+          nodeset[i] = token[1] + token[2];
+          htmlset[i] = compat[token[1]](context, token[2]);
           factory[i] = selectors[i] == '*' ? null : compile(selectors[i], true, null);
+
+          if (factory[i]) {
+            factory[i](htmlset[i](), callback, context, results);
+          } else {
+            results = results.concat(htmlset[i]());
+          }
+
         }
+      }
+
+      if (l > 1) {
+        results.sort(documentOrder);
+        hasDupes && (results = unique(results));
       }
 
       return {
@@ -1591,7 +1572,7 @@
         factory: factory,
         htmlset: htmlset,
         nodeset: nodeset,
-        results: null
+        results: results
       };
     },
 
