@@ -516,6 +516,7 @@
 					pass = hasPassed( results, ids );
 				} catch(e) {
 					pass = expectError && /syntax|error/i.test(e.name);
+					if (!pass) console.log(e);
 				}
 	
 				assert( pass, type + ": " + name + " (" + nq + ")" +
@@ -724,6 +725,11 @@
 			t( ":not() Existing attribute", "#form select:not([multiple])", ["select1", "select2"]);
 			t( ":not() Equals attribute", "#form select:not([name=select1])", ["select2", "select3"]);
 			t( ":not() Equals quoted attribute", "#form select:not([name='select1'])", ["select2", "select3"]);
+
+			t( ":matches() Existing attribute", ":matches(#form select[multiple])", ["select3"]);
+			t( ":matches() Equals attribute", ":matches(#form select[name=select1], #form select[name=select2])", ["select1", "select2"]);
+			t( ":matches() Equals quoted attribute", ":matches(#form select[name='select1'], #form select[name='select2'])", ["select1", "select2"]);
+			t( ":matches() With invalid selector", ":matches(#form select[multiple], :-test-invalid)", [], undefined, true);
 
 			t( "First Child", "p:first-child", ["firstp","sndp"] );
 			t( "Last Child", "p:last-child", ["sap"] );

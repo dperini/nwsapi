@@ -486,7 +486,7 @@
 				}
 			}
 
-			function t( name, q, ids, restrict, ids2 ) {
+			function t( name, q, ids, restrict, expectError ) {
 				var pass = true;
 
 				if ( restrict === false && root != document )
@@ -502,7 +502,8 @@
 					var results = query(q);
 					pass = hasPassed( results, ids );
 				} catch(e) {
-				  	pass = typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR;
+					pass = expectError && typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR;
+					if (!pass) console.log(e);
 				}
 	
 				assert( pass, type + ": " + name + " (" + nq + ")" +
@@ -572,13 +573,13 @@
 			var lin = query("#lengthtest input");
 			assert( lin && lin.length, type + ': &lt;input name="length"&gt; cannot be found under IE' );
 
-			t( "Broken Selector", "[" );
-			t( "Broken Selector", "(" );
-			t( "Broken Selector", "{" );
-			t( "Broken Selector", "<" );
-			t( "Broken Selector", "()" );
-			t( "Broken Selector", "<>" );
-			t( "Broken Selector", "{}" );
+			t( "Broken Selector", "[", undefined, undefined, true );
+			t( "Broken Selector", "(", undefined, undefined, true );
+			t( "Broken Selector", "{", undefined, undefined, true );
+			t( "Broken Selector", "<", undefined, undefined, true );
+			t( "Broken Selector", "()", undefined, undefined, true );
+			t( "Broken Selector", "<>", undefined, undefined, true );
+			t( "Broken Selector", "{}", undefined, undefined, true );
 
 			t( "ID Selector", "#body", ["body"], false );
 			t( "ID Selector w/ Element", "body#body", ["body"], false );
@@ -702,6 +703,11 @@
 			t( ":not() Existing attribute", "#form select:not([multiple])", ["select1", "select2"]);
 			t( ":not() Equals attribute", "#form select:not([name=select1])", ["select2", "select3"]);
 			t( ":not() Equals quoted attribute", "#form select:not([name='select1'])", ["select2", "select3"]);
+
+			t( ":matches() Existing attribute", ":matches(#form select[multiple])", ["select3"]);
+			t( ":matches() Equals attribute", ":matches(#form select[name=select1], #form select[name=select2])", ["select1", "select2"]);
+			t( ":matches() Equals quoted attribute", ":matches(#form select[name='select1'], #form select[name='select2'])", ["select1", "select2"]);
+			t( ":matches() With invalid selector", ":matches(#form select[multiple], :-test-invalid)", [], undefined, true);
 
 			t( "First Child", "p:first-child", ["firstp","sndp"] );
 			t( "Last Child", "p:last-child", ["sap"] );
