@@ -84,9 +84,9 @@
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
-    /** pseudo-elements starting with single colon (:) */
+    // pseudo-elements starting with single colon (:)
     pseudo_sng: '(after|before|first-letter|first-line)\\b',
-    /** pseudo-elements starting with double colon (::) */
+    // pseudo-elements starting with double colon (::)
     pseudo_dbl: ':(after|before|first-letter|first-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\\b'
   },
 
@@ -102,7 +102,7 @@
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
     pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
     pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
-    // combinators symbols
+    // combinator symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
     relative: RegExp('^' + WSP + '?\\~' + WSP + '?(.*)'),
@@ -1550,7 +1550,7 @@
 
           nodeset[i] = token[1] + token[2];
           htmlset[i] = compat[token[1]](context, token[2]);
-          factory[i] = selectors[i] == '*' ? null : compile(selectors[i], true, null);
+          factory[i] = compile(selectors[i], true, null);
 
           if (factory[i]) {
             factory[i](htmlset[i](), callback, context, results);
