@@ -1324,7 +1324,7 @@
   // replace ':scope' pseudo-class with element references
   makeref =
     function(selectors, element) {
-      return selectors.replace(/:scope/i,
+      return selectors.replace(/:scope/ig,
         element.nodeName.toLowerCase() +
         (element.id ? '#' + element.id : '') +
         (element.className ? '.' + element.classList[0] : ''));
