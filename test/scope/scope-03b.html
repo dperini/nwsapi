@@ -15,6 +15,7 @@
   var aNode = NW.Dom.first('.a')
   var entriesUnscoped = NW.Dom.select('body div', aNode);
   var entriesScoped = NW.Dom.select(':scope body div', aNode);
+  var entriesMultipleScoped = NW.Dom.select(':scope > .a1, :scope > .a2', aNode);
 
   if (entriesUnscoped.length !== 2) {
     console.log('1. Invalid number of entries, should be 2, got ' + entriesUnscoped.length);
@@ -26,6 +27,12 @@
     console.log('2. Invalid number of entries, should be 0, got ' + entriesScoped.length);
   } else {
     console.log('2. Passed!');
+  }
+
+  if (entriesMultipleScoped.length !== 2) {
+    console.log('3. Invalid number of entries, should be 2, got ' + entriesScoped.length);
+  } else {
+    console.log('3. Passed!');
   }
 
 </script>
