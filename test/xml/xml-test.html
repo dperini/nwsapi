@@ -8,17 +8,22 @@
 <body>
 <script>
 onload = function() {
-  var parser, string, dom, el;
+  var parser, string, dom, elNone, elStar, elPipe;
   parser = new window.DOMParser();
   string = '<?xml version="1.0"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title></dc:title></cp:coreProperties>';
   dom = parser.parseFromString(string, 'text/xml');
-  el = dom.querySelectorAll('coreProperties');
-  if (el.length === 1) {
+  elNone = dom.querySelectorAll('coreProperties');
+  elStar = dom.querySelectorAll('*|coreProperties');
+  elPipe = dom.querySelectorAll('|coreProperties');
+
+  if (elNone.length === 1 && elStar.length === 1 && elPipe.length === 0) {
     console.log('Passed!');
   } else {
     console.log('Failed!');
   }
-  console.log(el);
+  console.log("elNone:", elNone);
+  console.log("elStar:", elStar);
+  console.log("elPipe:", elPipe);
 };
 </script>
 
