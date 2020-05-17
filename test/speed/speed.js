@@ -29,11 +29,11 @@
 	returned = { },
 
 	// selectors list
-    selectors = [ ],
+	selectors = [ ],
 
 	// build URL params
 	useQSA = false,
-    urlParams = { },
+	urlParams = { },
 
 	// benchmark options
 	maxTime = 0.5,
