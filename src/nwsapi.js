@@ -1537,28 +1537,29 @@
   // prepare factory resolvers and closure collections
   collect =
     function(selectors, context, callback) {
-      var i, l, token, seen = { }, factory = [ ], htmlset = [ ], nodeset = [ ], results = [ ];
-      for (i = 0, l = selectors.length; l > i; ++i) {
-        if (!seen[selectors[i]] && (seen[selectors[i]] = true)) {
 
-          if ((token = selectors[i].match(reOptimizer)) && token[1] != ':') {
+      var i, l, seen = { }, token = ['', '*', '*'], optimized = selectors,
+      factory = [ ], htmlset = [ ], nodeset = [ ], results = [ ], type;
+
+      for (i = 0, l = selectors.length; l > i; ++i) {
+
+        if (!seen[selectors[i]] && (seen[selectors[i]] = true)) {
+          type = selectors[i].match(reOptimizer);
+          if (type && type[1] != ':' && (token = type)) {
             token[1] || (token[1] = '*');
-            selectors[i] = optimize(selectors[i], token);
+            optimized[i] = optimize(optimized[i], token);
           } else {
             token = ['', '*', '*'];
           }
+		}
 
-          nodeset[i] = token[1] + token[2];
-          htmlset[i] = compat[token[1]](context, token[2]);
-          factory[i] = compile(selectors[i], true, null);
+        nodeset[i] = token[1] + token[2];
+        htmlset[i] = compat[token[1]](context, token[2]);
+        factory[i] = compile(optimized[i], true, null);
 
-          if (factory[i]) {
-            factory[i](htmlset[i](), callback, context, results);
-          } else {
-            results = results.concat(htmlset[i]());
-          }
-
-        }
+        factory[i] ?
+          factory[i](htmlset[i](), callback, context, results) :
+          result.concat(htmlset[i]());
       }
 
       if (l > 1) {
@@ -1574,6 +1575,7 @@
         nodeset: nodeset,
         results: results
       };
+
     },
 
   // QSA placeholders to native references
