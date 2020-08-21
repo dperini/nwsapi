@@ -534,7 +534,7 @@
         // contentType not in IE <= 11
         'contentType' in doc ?
           doc.contentType.indexOf('/html') > 0 :
-          doc.createElement('DiV').localName == 'DIV';
+          doc.createElement('DiV').localName == 'div';
     },
 
   // configure the engine to use special handling
@@ -823,7 +823,7 @@
             match = selector.match(Patterns.tagName);
             source = 'if(' + N + '(e.localName' +
               (Config.MIXEDCASE || hasMixedCaseTagNames(doc) ?
-                '.toLowerCase()=="' + match[1].toLowerCase() + '"' :
+                '=="' + match[1].toLowerCase() + '"' :
                 '=="' + match[1].toUpperCase() + '"') +
               ')){' + source + '}';
             break;
@@ -1325,7 +1325,7 @@
   makeref =
     function(selectors, element) {
       return selectors.replace(/:scope/ig,
-        element.localName.toLowerCase() +
+        element.localName +
         (element.id ? '#' + element.id : '') +
         (element.className ? '.' + element.classList[0] : ''));
     },
