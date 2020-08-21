@@ -776,7 +776,7 @@
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, f, i, l, name, nested, NS,
+      var a, b, n, f, i, l, name, NS,
       N = not ? '!' : '', D = not ? '' : '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
@@ -1011,26 +1011,12 @@
                 case 'is':
                 case 'where':
                 case 'matches':
-                  nested = true;
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  // check nested compound selectors s1, s2
-                  expr = match[2].match(REX.SplitGroup);
-                  for (i = 0, l = expr.length; l > i; ++i) {
-                    expr[i] = expr[i].replace(REX.TrimSpaces, '');
-                    source = 'if(s.match("' + expr[i].replace(/\x22/g, '\\"') + '",e)){' + source + '}';
-                  }
+                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 case 'not':
-                  if (not === true || nested === true) {
-                    emit(':not() pseudo-class cannot be nested');
-                  }
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  // check nested compound selectors s1, s2
-                  expr = match[2].match(REX.SplitGroup);
-                  for (i = 0, l = expr.length; l > i; ++i) {
-                    expr[i] = expr[i].replace(REX.TrimSpaces, '');
-                    source = compileSelector(expr[i], source, false, callback, true);
-                  }
+                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
