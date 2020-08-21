@@ -388,12 +388,12 @@
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           tag = tag.toLowerCase();
-          if (!(e.nextElementSibling || tag == '*' || e.nodeName.toLowerCase() == tag)) {
+          if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
             return slice.call(e[api]('*', tag));
           } else {
             nodes = [ ];
             do {
-              if (tag == '*' || e.nodeName.toLowerCase() == tag) nodes[nodes.length] = e;
+              if (tag == '*' || e.localName == tag) nodes[nodes.length] = e;
               concatList(nodes, e[api]('*', tag));
             } while ((e = e.nextElementSibling));
           }
@@ -492,7 +492,7 @@
         parents.length = 0; parent = undefined;
         return -1;
       }
-      var e, i, j, k, l, name = element.nodeName;
+      var e, i, j, k, l, name = element.localName;
       if (nodes[set] && nodes[set][name] && parent === element.parentElement) {
         i = set; j = idx; l = len;
       } else {
@@ -507,7 +507,7 @@
           nodes[i] || (nodes[i] = Object());
           l = 0; nodes[i][name] = Array();
           e = parent && parent.firstElementChild || element;
-          while (e) { if (e === element) j = l; if (e.nodeName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
+          while (e) { if (e === element) j = l; if (e.localName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
           set = i; idx = j; len = l;
           if (l < 2) return l;
         } else {
@@ -534,7 +534,7 @@
         // contentType not in IE <= 11
         'contentType' in doc ?
           doc.contentType.indexOf('/html') > 0 :
-          doc.createElement('DiV').nodeName == 'DIV';
+          doc.createElement('DiV').localName == 'DIV';
     },
 
   // configure the engine to use special handling
@@ -674,7 +674,7 @@
         ')+';
 
       // the following global RE is used to return the
-      // deepest nodeName in selector strings and then
+      // deepest localName in selector strings and then
       // use it to retrieve all possible matching nodes
       // that will be filtered by compiled resolvers
       reOptimizer = RegExp(
@@ -821,7 +821,7 @@
           // tag name resolver
           case (/[a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if(' + N + '(e.nodeName' +
+            source = 'if(' + N + '(e.localName' +
               (Config.MIXEDCASE || hasMixedCaseTagNames(doc) ?
                 '.toLowerCase()=="' + match[1].toLowerCase() + '"' :
                 '=="' + match[1].toUpperCase() + '"') +
@@ -936,15 +936,15 @@
                 // *** typed child-indexed pseudo-classes
                 // :only-of-type, :last-of-type, :first-of-type
                 case 'only-of-type':
-                  source = 'o=e.nodeName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.nodeName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.nodeName!=o);}if(' + D + 'n){' + source + '}';
+                  source = 'o=e.localName;' +
+                    'n=e;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
+                    'n=e;while((n=n.previousElementSibling)&&n.localName!=o);}if(' + D + 'n){' + source + '}';
                   break;
                 case 'last-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.nextElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
+                  source = 'n=e;o=e.localName;while((n=n.nextElementSibling)&&n.localName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 case 'first-of-type':
-                  source = 'n=e;o=e.nodeName;while((n=n.previousElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}';
+                  source = 'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(' + D + 'n){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
@@ -969,8 +969,8 @@
                       break;
                     } else if (match[2] == '1') {
                       test = type ? 'next' : 'previous';
-                      source = expr ? 'n=e;o=e.nodeName;' +
-                        'while((n=n.' + test + 'ElementSibling)&&n.nodeName!=o);if(' + D + 'n){' + source + '}' :
+                      source = expr ? 'n=e;o=e.localName;' +
+                        'while((n=n.' + test + 'ElementSibling)&&n.localName!=o);if(' + D + 'n){' + source + '}' :
                         'if(' + N + '!e.' + test + 'ElementSibling){' + source + '}';
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
@@ -1070,10 +1070,10 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'link':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.nodeName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if(' + N + '(/^a|area|link$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
                   break;
                 case 'target':
                   source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
@@ -1121,26 +1121,26 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'enabled':
-                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e &&e.disabled===false' +
+                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
                     ')){' + source + '}';
                   break;
                 case 'disabled':
                   // https://www.w3.org/TR/html5/forms.html#enabling-and-disabling-form-controls:-the-disabled-attribute
-                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.nodeName))&&"disabled" in e&&' +
+                  source = 'if(' + N + '(("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e&&' +
                     '(e.disabled===true||(n=s.ancestor("fieldset",e))&&(n=s.first("legend",n))&&!n.contains(e))' +
                     ')){' + source + '}';
                   break;
                 case 'read-only':
                   source =
                     'if(' + N + '(' +
-                      '(/^textarea$/i.test(e.nodeName)&&(e.readOnly||e.disabled))||' +
+                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
                       '("|password|text|".includes("|"+e.type+"|")&&e.readOnly)' +
                     ')){' + source + '}';
                   break;
                 case 'read-write':
                   source =
                     'if(' + N + '(' +
-                      '((/^textarea$/i.test(e.nodeName)&&!e.readOnly&&!e.disabled)||' +
+                      '((/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
                       '("|password|text|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
                       '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
                     ')){' + source + '}';
@@ -1148,7 +1148,7 @@
                 case 'placeholder-shown':
                   source =
                     'if(' + N + '(' +
-                      '(/^input|textarea$/i.test(e.nodeName))&&e.hasAttribute("placeholder")&&' +
+                      '(/^input|textarea$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
                       '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
@@ -1166,7 +1166,7 @@
                       '}' +
                     '}' +
                     'if(' + N + '(e.form&&(e===n[x]&&"|image|submit|".includes("|"+e.type+"|"))||' +
-                      '((/^option$/i.test(e.nodeName))&&e.defaultSelected)||' +
+                      '((/^option$/i.test(e.localName))&&e.defaultSelected)||' +
                       '(("|radio|checkbox|".includes("|"+e.type+"|"))&&e.defaultChecked)' +
                     ')){' + source + '}';
                   break;
@@ -1182,50 +1182,50 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'checked':
-                  source = 'if(' + N + '(/^input$/i.test(e.nodeName)&&' +
+                  source = 'if(' + N + '(/^input$/i.test(e.localName)&&' +
                     '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
-                    '(/^option$/i.test(e.nodeName)&&(e.selected||e.checked))' +
+                    '(/^option$/i.test(e.localName)&&(e.selected||e.checked))' +
                     ')){' + source + '}';
                   break;
                 case 'indeterminate':
                   source =
-                    'if(' + N + '(/^progress$/i.test(e.nodeName)&&!e.hasAttribute("value"))||' +
-                      '(/^input$/i.test(e.nodeName)&&("checkbox"==e.type&&e.indeterminate)||' +
+                    'if(' + N + '(/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
+                      '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate)||' +
                       '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' + source + '}';
                   break;
                 case 'required':
                   source =
                     'if(' + N +
-                      '(/^input|select|textarea$/i.test(e.nodeName)&&e.required)' +
+                      '(/^input|select|textarea$/i.test(e.localName)&&e.required)' +
                     '){' + source + '}';
                   break;
                 case 'optional':
                   source =
                     'if(' + N +
-                      '(/^input|select|textarea$/i.test(e.nodeName)&&!e.required)' +
+                      '(/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
                     '){' + source + '}';
                   break;
                 case 'invalid':
                   source =
                     'if(' + N + '((' +
-                      '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                      '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                       '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
-                      '(/^fieldset$/i.test(e.nodeName)&&s.first(":invalid",e))' +
+                      '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))' +
                     '){' + source + '}';
                   break;
                 case 'valid':
                   source =
                     'if(' + N + '((' +
-                      '(/^form$/i.test(e.nodeName)&&!e.noValidate)||' +
+                      '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                       '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                      '(/^fieldset$/i.test(e.nodeName)&&s.first(":valid",e))' +
+                      '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +
                     '){' + source + '}';
                   break;
                 case 'in-range':
                   source =
                     'if(' + N +
-                      '(/^input$/i.test(e.nodeName))&&' +
+                      '(/^input$/i.test(e.localName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
                       '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
@@ -1235,7 +1235,7 @@
                 case 'out-of-range':
                   source =
                     'if(' + N +
-                      '(/^input$/i.test(e.nodeName))&&' +
+                      '(/^input$/i.test(e.localName))&&' +
                       '(e.willValidate&&!e.formNoValidate)&&' +
                       '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
                       '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
@@ -1325,7 +1325,7 @@
   makeref =
     function(selectors, element) {
       return selectors.replace(/:scope/ig,
-        element.nodeName.toLowerCase() +
+        element.localName.toLowerCase() +
         (element.id ? '#' + element.id : '') +
         (element.className ? '.' + element.classList[0] : ''));
     },
@@ -1634,7 +1634,7 @@
       if (all) {
         document.addEventListener('load', function(e) {
           var c, d, r, s, t = e.target;
-          if (/iframe/i.test(t.nodeName)) {
+          if (/iframe/i.test(t.localName)) {
             c = '(' + Export + ')(this, ' + Factory + ');'; d = t.contentDocument;
             s = d.createElement('script'); s.textContent = c + 'NW.Dom.install()';
             r = d.documentElement; r.removeChild(r.insertBefore(s, r.firstChild));
