@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>DocumentFragment.prototype.getElementById</title>
+<link rel="help" href="https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid">
+<link rel="author" title="Domenic Denicola" href="mailto:d@domenic.me">
+
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<script>
+"use strict";
+
+test(() => {
+  const frag = document.createDocumentFragment();
+  const div = document.createElement("div");
+  const _g = document.createElement("_g");
+  const b = document.createElement("b");
+  b.appendChild(document.createTextNode('hey'));
+  _g.appendChild(b);
+  div.appendChild(_g);
+  frag.appendChild(div);
+
+  assert_equals(
+          frag.querySelector("div > _g > b").textContent,
+          'hey',
+          "It must returns the test when if there is an element starting with an underscore"
+  );
+});
+</script>
