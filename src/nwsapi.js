@@ -1235,14 +1235,18 @@
 
             // allow pseudo-elements starting with single colon (:)
             // :after, :before, :first-letter, :first-line
+            // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_sng))) {
-              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
+              source = 'if(e.element&&e.type.toLowerCase()=="' +
+              ':' + match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
             // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection, ::-webkit-<foo-bar>
+            // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
-              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
+              source = 'if(e.element&&e.type.toLowerCase()=="' +
+              match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             else {
