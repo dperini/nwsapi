@@ -867,9 +867,9 @@
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if(' + N + '(' +
-              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute("' + name + '")') :
-              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute("' + name + '")==""' :
-              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute("' + name + '"))==' + test.p3) +
+              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute&&e.hasAttribute("' + name + '")') :
+              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute&&e.getAttribute("' + name + '")==""' :
+              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute&&e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
             break;
 
@@ -1238,14 +1238,18 @@
 
             // allow pseudo-elements starting with single colon (:)
             // :after, :before, :first-letter, :first-line
+            // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_sng))) {
-              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
+              source = 'if(e.element&&e.type.toLowerCase()=="' +
+              ':' + match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
             // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection, ::-webkit-<foo-bar>
+            // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
-              source = 'if(' + D + '(e.nodeType==1)){' + source + '}';
+              source = 'if(e.element&&e.type.toLowerCase()=="' +
+              match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             else {
