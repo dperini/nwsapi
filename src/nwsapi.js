@@ -385,9 +385,9 @@
       if (api in context) {
         return slice.call(context[api]('*', tag));
       } else {
+        tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
-          tag = tag.toLowerCase();
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
             return slice.call(e[api]('*', tag));
           } else {
