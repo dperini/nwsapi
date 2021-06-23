@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.0
  * Created: 20070722
- * Release: 20191102
+ * Release: 20210622
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -79,7 +79,7 @@
     logicalsel: '(is|where|matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
-    locationpc: '(link|visited|target)\\b',
+    locationpc: '(any-link|link|visited|target)\\b',
     useraction: '(hover|active|focus|focus-within)\\b',
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
@@ -1050,15 +1050,18 @@
             }
 
             // *** location pseudo-classes
-            // :link, :visited, :target
+            // :any-link, :link, :visited, :target
             else if ((match = selector.match(Patterns.locationpc))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
+                case 'any-link':
+                  source = 'if(' + N + '(/^a|area$/i.test(e.localName)&&e.hasAttribute("href")||e.visited)){' + source + '}';
+                  break;
                 case 'link':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(' + N + '(/^a|area$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if(' + N + '(/^a|area|link$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if(' + N + '(/^a|area$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
                   break;
                 case 'target':
                   source = 'if(' + N + '((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
