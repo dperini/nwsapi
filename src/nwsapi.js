@@ -787,6 +787,10 @@
       // isolate selector combinators/components and normalize whitespace
       selector = selector.replace(STD.combinator, '$1');//.replace(STD.whitespace, ' ');
 
+      // javascript needs a label to break
+      // out of the while loops processing
+      selector_recursion_label:
+
       while (selector) {
 
         // get namespace prefix if present or get first char of selector
@@ -1295,7 +1299,7 @@
 
         default:
           emit('\'' + selector_string + '\'' + qsInvalid);
-          break;
+          break selector_recursion_label;
 
         }
         // end of switch symbol
