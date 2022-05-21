@@ -750,7 +750,7 @@
           break;
       }
 
-      source = compileSelector(selector, macro, mode, callback, false);
+      source = compileSelector(selector, macro, mode, callback);
 
       loop += mode || mode === null ? '{' + source + '}' : source;
 
@@ -772,12 +772,11 @@
 
   // build conditional code to check components of selector strings
   compileSelector =
-    function(expression, source, mode, callback, not) {
+    function(expression, source, mode, callback) {
 
       // N is the negation pseudo-class flag
       // D is the default inverted negation flag
-      var a, b, n, f, i, l, name, NS,
-      N = not ? '!' : '', D = not ? '' : '!',
+      var a, b, n, f, i, l, name, NS, N = '', D = '!',
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
