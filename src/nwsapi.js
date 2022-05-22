@@ -1546,7 +1546,7 @@
           } else {
             token = ['', '*', '*'];
           }
-		}
+        }
 
         nodeset[i] = token[1] + token[2];
         htmlset[i] = compat[token[1]](context, token[2]);
