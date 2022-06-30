@@ -32,6 +32,8 @@ var match = [
   ["[foo='bar' i][foo='bar' i]", ["", "foo", "BAR"]],
   ["[foo='BAR'][foo='bar' i]", ["", "foo", "BAR"]],
   ["[foo='bar' i][foo='BAR']", ["", "foo", "BAR"]],
+  ["[foo='bari']", ["", "foo", "bari"]],
+  ["[foo=bari]", ["", "foo", "bari"]]
 ];
 var nomatch = [
   ["[missingattr] /* sanity check (no match) */", ["", "foo", "BAR"]],

@@ -637,7 +637,7 @@
             '(?:' + attrparser + ')' +
           ')?' +
           // attribute case sensitivity
-          WSP + '?' + '(i)?' + WSP + '?' +
+          '(' + WSP + '+i)?' + WSP + '*' +
         '(?:\\]|$)',
 
       attrmatcher = attributes.replace(attrparser, attrvalues),
@@ -846,36 +846,48 @@
             break;
 
           // attributes resolver
-          case '[':
+          case '[': {
+            let attributeSelector, operator, value, caseValue;
+
             match = selector.match(Patterns.attribute);
-            NS = match[0].match(STD.namespaces);
-            name = match[1];
-            expr = name.split(':');
-            expr = expr.length == 2 ? expr[1] : expr[0];
-            if (match[2] && !(test = Operators[match[2]])) {
-              emit('\'' + selector_string + '\'' + qsInvalid);
+            [attributeSelector, name, operator, , value = '', caseValue = ''] = match;
+
+            if (operator && !(test = Operators[operator])) {
+              emit(`'${selector_string}'${qsInvalid}`);
               return '';
             }
-            if (match[4] === '') {
-              test = match[2] == '~=' ?
-                { p1: '^\\s', p2: '+$', p3: 'true' } :
-                  match[2] in ATTR_STD_OPS && match[2] != '~=' ?
-                { p1: '^',    p2: '$',  p3: 'true' } : test;
-            } else if (match[2] == '~=' && match[4].includes(' ')) {
-              // whitespace separated list but value contains space
-              source = 'if(' + N + 'false){' + source + '}';
-              break;
-            } else if (match[4]) {
-              match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
-            }
-            type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
-            source = 'if(' + N + '(' +
-              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute&&e.hasAttribute("' + name + '")') :
-              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute&&e.getAttribute("' + name + '")==""' :
-              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute&&e.getAttribute("' + name + '"))==' + test.p3) +
-              ')){' + source + '}';
-            break;
 
+            if (value === '') {
+              if (operator == '~=') {
+                test = { p1: '^\\s', p2: '+$', p3: 'true' };
+              } else if (operator in ATTR_STD_OPS && operator != '~=') {
+                test = { p1: '^', p2: '$', p3: 'true' };
+              }
+            } else {
+              if (operator == '~=' && value.includes(' ')) {
+                // whitespace separated list but value contains space
+                source = `if(${N}false){${source}}`;
+                break;
+              }
+              value = convertEscapes(value).replace(REX.RegExpChar, '\\$&');
+            }
+
+            NS = attributeSelector.match(STD.namespaces);
+
+            const [nameOrNS, nameWoNS] = name.split(':');
+            expr = nameWoNS || nameOrNS;
+            type = caseValue.trim() == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
+
+            let compare_attr;
+            if (operator) {
+              compare_attr = `(/${test.p1}${value}${test.p2}/${type}).test(e.getAttribute('${name}')) == ${test.p3}`;
+            } else {
+              compare_attr = NS ? `s.hasAttributeNS(e, '${name}')` : `e.hasAttribute('${name}')`;
+            }
+
+            source = `if(${N}(${compare_attr})){${source}}`;
+            break;
+          }
           // *** General sibling combinator
           // E ~ F (F relative sibling of E)
           case '~':
