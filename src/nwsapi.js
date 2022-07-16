@@ -84,6 +84,8 @@
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
+    // pseudo-classes for parsing only selectors
+    pseudo_nop: '(autofill|-webkit-autofill)\\b',
     // pseudo-elements starting with single colon (:)
     pseudo_sng: '(after|before|first-letter|first-line)\\b',
     // pseudo-elements starting with double colon (::)
@@ -102,6 +104,7 @@
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
     pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
     pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
+    pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
     // combinator symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
@@ -1253,6 +1256,11 @@
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
                 match[0].toLowerCase() + '"){e=e.element;' + source + '}';
+            }
+
+            // placeholder for parsed only no-op selectors
+            else if ((match = selector.match(Patterns.pseudo_nop))) {
+                source = 'if(' + N + 'false' + '){' + source + '}';
             }
 
             else {
