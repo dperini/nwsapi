@@ -330,7 +330,7 @@
 
   method = {
     '#': 'getElementById',
-    '*': 'getElementsByTagNameNS',
+    '*': 'getElementsByTagName',
     '.': 'getElementsByClassName'
     },
 
