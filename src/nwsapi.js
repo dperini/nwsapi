@@ -1440,14 +1440,14 @@
   select =
     function _querySelectorAll(selectors, context, callback) {
 
-      var expressions, nodes, parsed, resolver;
+      var expressions, nodes = [ ], parsed, resolver;
 
       context || (context = doc);
 
       if (selectors) {
         if ((resolver = selectResolvers[selectors])) {
           if (resolver.context === context && resolver.callback === callback) {
-            var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset, nodes = [ ];
+            var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset;
             if (n.length > 1) {
               for (var i = 0, l = n.length, list; l > i; ++i) {
                 list = compat[n[i][0]](context, n[i].slice(1))();
