@@ -102,9 +102,9 @@
     inputvalue: RegExp('^:(?:' + GROUPS.inputvalue + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
-    pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
-    pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
     pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
+    pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
+    pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
     // combinator symbols
     children: RegExp('^' + WSP + '?\\>' + WSP + '?(.*)'),
     adjacent: RegExp('^' + WSP + '?\\+' + WSP + '?(.*)'),
@@ -1249,7 +1249,7 @@
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_sng))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
-              ':' + match[0].toLowerCase() + '"){e=e.element;' + source + '}';
+                ':' + match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             // allow pseudo-elements starting with double colon (::)
@@ -1257,12 +1257,12 @@
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
-              match[0].toLowerCase() + '"){e=e.element;' + source + '}';
+                match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             // placeholder for parsed only no-op selectors
             else if ((match = selector.match(Patterns.pseudo_nop))) {
-                source = 'if(' + N + 'false' + '){' + source + '}';
+              source = 'if(' + N + 'false' + '){' + source + '}';
             }
 
             else {
