@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.0
  * Created: 20070722
- * Release: 20210622
+ * Release: 20220901
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.0',
+  var version = 'nwsapi-2.2.2',
 
   doc = global.document,
   root = doc.documentElement,
