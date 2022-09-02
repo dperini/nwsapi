@@ -37,6 +37,8 @@
     html.nopass .pass { display: none; }
   </style>
   <style type="text/test" id="test">
+    div:not(:not(div)) { background: lime; }
+
     /* :target selector */
     .target :target { background-color: lime; }
 
@@ -194,8 +196,6 @@
   </style>
   <style type="text/test" id="error">
     /* Tests from http://www.w3.org/Style/CSS/Test/CSS3/Selectors/20060307/html/index.html */
-    div:not(:not(div)) { background: red; }
-
     div, { background: red; }
     .5cm { background: red; }
     foo &amp; address, p { background: red; }
