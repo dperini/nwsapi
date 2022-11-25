@@ -642,7 +642,7 @@
             '(?:' + attrparser + ')' +
           ')?' +
           // attribute case sensitivity
-          '(?:' + WSP + '?\\b(i|I))?' + WSP + '?' +
+          '(?:' + WSP + '?\\b(i))?' + WSP + '?' +
         '(?:\\]|$)',
 
       attrmatcher = attributes.replace(attrparser, attrvalues),
@@ -873,7 +873,7 @@
             } else if (match[4]) {
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
             }
-            type = match[5].toLowerCase() == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
+            type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if(' + N + '(' +
               (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute&&e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute&&e.getAttribute("' + name + '")==""' :
