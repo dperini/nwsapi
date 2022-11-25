@@ -642,7 +642,7 @@
             '(?:' + attrparser + ')' +
           ')?' +
           // attribute case sensitivity
-          '(?:' + WSP + '?\\b(i))?' + WSP + '?' +
+          '(?:' + WSP + '?\\b(i|I))?' + WSP + '?' +
         '(?:\\]|$)',
 
       attrmatcher = attributes.replace(attrparser, attrvalues),
