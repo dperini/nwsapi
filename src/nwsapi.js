@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.0
+ * Version: 2.2.2
  * Created: 20070722
  * Release: 20220901
  *
@@ -134,6 +134,7 @@
   Config = {
     IDS_DUPES: true,
     MIXEDCASE: true,
+    NONDIGITS: true,
     LOGERRORS: true,
     VERBOSITY: true
   },
@@ -606,7 +607,7 @@
 
       var identifier =
         // doesn't start with a digit
-        '(?=[^0-9])' +
+        (Config.NONDIGITS ? '(?=[^0-9])' : '') +
         // can start with double dash
         '(?:-{2}' +
           // may include ascii chars
