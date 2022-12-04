@@ -36,6 +36,8 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
+  HSP = '[\\x20\\t]',
+  VSP = '[\\r\\n\\f]',
   WSP = '[\\x20\\t\\r\\n\\f]',
 
   CFG = {
@@ -57,8 +59,8 @@
     HasEscapes: RegExp('\\\\'),
     HexNumbers: RegExp('^[0-9a-fA-F]'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
-    RegExpChar: RegExp('(?:(?!\\\\)[\\\\^$.,*+?()[\\]{}|\\/])', 'g'),
-    TrimSpaces: RegExp('[\\r\\n\\f]|^' + WSP + '+|' + WSP + '+$', 'g'),
+    RegExpChar: RegExp('(?!\\\\)[\\\\^$.,*+?()[\\]{}|\\/]', 'g'),
+    TrimSpaces: RegExp('^' + WSP + '+|' + WSP + '+$|' + VSP, 'g'),
     SplitGroup: RegExp('(\\([^)]*\\)|\\[[^[]*\\]|\\\\.|[^,])+', 'g'),
     CommaGroup: RegExp('(\\s*,\\s*)' + NOT.square_enc + NOT.parens_enc, 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
