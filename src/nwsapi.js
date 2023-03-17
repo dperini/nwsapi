@@ -901,7 +901,7 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
-            source = 'n=e;while((e=e.parentElement)){' + source + '}e=n;';
+            source = 'n=e;while(e && (e=e.parentElement)){' + source + '}e=n;';
             break;
           // *** Child combinator
           // E > F (F children of E)
