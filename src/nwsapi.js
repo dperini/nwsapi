@@ -832,10 +832,7 @@
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if(' + N + '(e.localName' +
-              (Config.MIXEDCASE || hasMixedCaseTagNames(doc) ?
-                '=="' + match[1].toLowerCase() + '"' :
-                '=="' + match[1].toUpperCase() + '"') +
+            source = 'if(' + N + '(e.localName' + '=="' + match[1] + '"' +
               ')){' + source + '}';
             break;
 
