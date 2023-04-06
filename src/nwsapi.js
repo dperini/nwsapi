@@ -78,7 +78,7 @@
   GROUPS = {
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
-    logicalsel: '(is|where|matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
+    logicalsel: '(is|where|matches|not)\\x28\\s?([^\\[]*\\[[^\\]]*\\]|[^\\(]*\\([^\\)]*\\)|[^()]*)\\s?(?:\\x29|$)',
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any-link|link|visited|target)\\b',
