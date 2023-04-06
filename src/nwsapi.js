@@ -362,7 +362,7 @@
   // context agnostic getElementById
   byId =
     function(id, context) {
-      var e, nodes, api = method['#'];
+      var e, i, l, nodes, api = method['#'];
 
       // duplicates id allowed
       if (Config.IDS_DUPES === false) {
