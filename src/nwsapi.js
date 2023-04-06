@@ -135,7 +135,6 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    MIXEDCASE: true,
     NONDIGITS: true,
     LOGERRORS: true,
     VERBOSITY: true
@@ -222,21 +221,6 @@
       }
       hasDupes = false;
       return list;
-    },
-
-  // check context for mixed content
-  hasMixedCaseTagNames =
-    function(context) {
-      var ns, api = 'getElementsByTagNameNS';
-
-      // current host context (ownerDocument)
-      context = context.ownerDocument || context;
-
-      // documentElement (root) element namespace or default html/xhtml namespace
-      ns = context.documentElement.namespaceURI || 'http://www.w3.org/1999/xhtml';
-
-      // checking the number of non HTML nodes in the document
-      return (context[api]('*', '*').length - context[api](ns, '*').length) > 0;
     },
 
   switchContext =
