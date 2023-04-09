@@ -82,7 +82,7 @@
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any-link|link|visited|target)\\b',
-    useraction: '(hover|active|focus-within|focus)\\b',
+    useraction: '(hover|active|focus|focus-within)\\b',
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
@@ -1088,7 +1088,7 @@
                   break;
                 case 'focus-within':
                   source = 'hasFocus' in doc ?
-                    'n=s.doc.activeElement;while(e){if(e===n||e.parentNode===n)break;}' +
+                    'n=s.doc.activeElement;if(n===e)break;while(e&&(e=e.parentNode)){if(n===e)break;}' +
                     'if(' + N + '(e===n&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' : source;
                   break;
                 default:
