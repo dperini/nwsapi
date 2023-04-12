@@ -1550,7 +1550,7 @@
 
         factory[i] ?
           factory[i](htmlset[i](), callback, context, results) :
-          result.concat(htmlset[i]());
+          results.concat(htmlset[i]());
       }
 
       if (l > 1) {
