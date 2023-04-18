@@ -852,12 +852,12 @@
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
                   match[2] in ATTR_STD_OPS && match[2] != '~=' ?
                 { p1: '^',    p2: '$',  p3: 'true' } : test;
-            } else if (match[2] == '~=' && match[4].includes(' ')) {
-              // whitespace separated list but value contains space
-              source = 'if(' + N + 'false){' + source + '}';
-              break;
             } else if (match[4]) {
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
+              if (match[2] == '~=' && match[4].includes(' ')) {
+                source = 'if(' + N + 'false){' + source + '}';
+                break;
+              }
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if(' + N + '(' +
