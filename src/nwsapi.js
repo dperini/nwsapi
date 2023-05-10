@@ -78,7 +78,7 @@
   GROUPS = {
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
-    logicalsel: '(is|where|matches|not)(?:\\x28\\s?((?:[.:#*]?[-\\w]+)|(?:\\[([^\\[\\]]*)\\])|.*)\\s?\\x29)', 
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?((?:[.:#*]?[-\\w]+)|(?:\\[([^\\[\\]]*)\\])|.*)\\s?\\x29)', 
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
     locationpc: '(any-link|link|visited|target)\\b',
@@ -1002,6 +1002,11 @@
                 case 'not':
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  break;
+                case 'has':
+                  let referenceElement = selector_string.split(':')[0]
+                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
+                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + ',' + referenceElement + '",e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
