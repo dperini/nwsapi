@@ -766,7 +766,7 @@
   compileSelector =
     function(expression, source, mode, callback) {
 
-      var a, b, n, f, k = 0, name, NS,
+      var a, b, n, f, k = 0, name, NS, referenceElement,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, selector_string, vars;
 
@@ -1004,7 +1004,7 @@
                   source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  let referenceElement = selector_string.split(':')[0]
+                  referenceElement = selector_string.split(':')[0];
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + ',' + referenceElement + '",e)){' + source + '}';
                   break;
