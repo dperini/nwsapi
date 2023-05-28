@@ -1562,14 +1562,16 @@
     },
 
   // QSA placeholders to native references
-  _closest = Element.prototype.closest,
-  _matches = Element.prototype.matches,
-  _querySelector = Document.prototype.querySelector,
-  _querySelectorAll = Document.prototype.querySelectorAll,
+  _closest, _matches, _querySelector, _querySelectorAll,
 
   // overrides QSA methods (only for browsers)
   install =
     function(all) {
+      // save references
+      _closest = Element.prototype.closest;
+      _matches = Element.prototype.matches;
+      _querySelector = Document.prototype.querySelector;
+      _querySelectorAll = Document.prototype.querySelectorAll;
 
       Element.prototype.closest =
         function closest() {
@@ -1627,7 +1629,7 @@
   // restore QSA methods (only for browsers)
   uninstall =
     function() {
-      // reinstates QSA native references
+      // restore references
       Element.prototype.closest = _closest;
       Element.prototype.matches = _matches;
       Element.prototype.querySelector =
