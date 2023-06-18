@@ -1630,14 +1630,18 @@
   uninstall =
     function() {
       // restore references
-      Element.prototype.closest = _closest;
-      Element.prototype.matches = _matches;
-      Element.prototype.querySelector =
-      Document.prototype.querySelector =
-      DocumentFragment.prototype.querySelector = _querySelector;
-      Element.prototype.querySelectorAll =
-      Document.prototype.querySelectorAll =
-      DocumentFragment.prototype.querySelectorAll = _querySelectorAll;
+      if (_closest) { Element.prototype.closest = _closest; }
+      if (_matches) { Element.prototype.matches = _matches; }
+      if (_querySelector) {
+        Element.prototype.querySelector =
+        Document.prototype.querySelector =
+        DocumentFragment.prototype.querySelector = _querySelector;
+      }
+      if (_querySelectorAll) {
+        Element.prototype.querySelectorAll =
+        Document.prototype.querySelectorAll =
+        DocumentFragment.prototype.querySelectorAll = _querySelectorAll;
+      }
     },
 
   // empty set
