@@ -1573,44 +1573,39 @@
       _querySelector = Document.prototype.querySelector;
       _querySelectorAll = Document.prototype.querySelectorAll;
 
+      function parseQSArgs() {
+        var method = arguments[arguments.length - 1];
+        return (
+          arguments.length < 2 ?
+            method.apply(this, [ ]) :
+          arguments.length < 3 ?
+            method.apply(this, [ arguments[0], this ]) :
+            method.apply(this, [ arguments[0], this,
+              typeof arguments[1] == 'function' ? arguments[1] : undefined ]));
+      }
+
       Element.prototype.closest =
         function closest() {
-          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
-          if (!('nodeType' in this)) { emit('\'closest\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
-          return arguments.length < 1 ? ancestor.apply(this, [ ]) :
-                 arguments.length < 2 ? ancestor.apply(this, [ arguments[0], this ]) :
-                                        ancestor.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(closest));
         };
 
       Element.prototype.matches =
         function matches() {
-          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
-          if (!('nodeType' in this)) { emit('\'matches\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
-          return arguments.length < 1 ? match.apply(this, [ ]) :
-                 arguments.length < 2 ? match.apply(this, [ arguments[0], this ]) :
-                                        match.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(match));
         };
 
       Element.prototype.querySelector =
       Document.prototype.querySelector =
       DocumentFragment.prototype.querySelector =
         function querySelector() {
-          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
-          if (!('nodeType' in this)) { emit('\'querySelector\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
-          return arguments.length < 1 ? first.apply(this, [ ]) :
-                 arguments.length < 2 ? first.apply(this, [ arguments[0], this ]) :
-                                        first.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
         };
 
       Element.prototype.querySelectorAll =
       Document.prototype.querySelectorAll =
       DocumentFragment.prototype.querySelectorAll =
         function querySelectorAll() {
-          var ctor = Object.getPrototypeOf(this).__proto__.__proto__.constructor.name;
-          if (!('nodeType' in this)) { emit('\'querySelectorAll\' called on an object that does not implement interface ' + ctor + '.', TypeError); }
-          return arguments.length < 1 ? select.apply(this, [ ]) :
-                 arguments.length < 2 ? select.apply(this, [ arguments[0], this ]) :
-                                        select.apply(this, [ arguments[0], this, typeof arguments[1] == 'function' ? arguments[1] : undefined ]);
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
         };
 
       if (all) {
