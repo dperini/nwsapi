@@ -1069,22 +1069,20 @@
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.hoverElement)){' + source + '}' :
-                    'if(false){' + source + '}';
+                    'if((e===s.doc.hoverElement)){' + source + '}' : source;
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.activeElement)){' + source + '}' :
-                    'if(false){' + source + '}';
+                    'if((e===s.doc.activeElement)){' + source + '}' : source;
                   break;
                 case 'focus':
                   source = 'hasFocus' in doc ?
-                    'if((e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' :
-                    'if((e===s.doc.activeElement&&(e.type||e.href))){' + source + '}';
+                    'if(e.parentElement&&e.parentElement.style.display!="none"&&' +
+                    'e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' : source;
                   break;
                 case 'focus-within':
                   source = 'hasFocus' in doc ?
-                    'n=s.doc.activeElement;if(n===e)break;while(e&&(e=e.parentNode)){if(n===e)break;}' +
+                    'n=s.doc.activeElement;if(e!==n){while(n&&(n=n.parentElement)){if(e===n)break;}}' +
                     'if((e===n&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' : source;
                   break;
                 default:
