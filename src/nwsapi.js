@@ -1584,7 +1584,7 @@
 
       Element.prototype.closest =
         function closest() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(closest));
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(ancestor));
         };
 
       Element.prototype.matches =
