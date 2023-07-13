@@ -1305,6 +1305,11 @@
   // replace ':scope' pseudo-class with element references
   makeref =
     function(selectors, element) {
+      // DOCUMENT_NODE (9)
+      if (element.nodeType === 9) {
+        element = element.documentElement;
+      }
+
       return selectors.replace(/:scope/ig,
         element.localName +
         (element.id ? '#' + element.id : '') +
