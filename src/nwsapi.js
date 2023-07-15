@@ -1069,11 +1069,13 @@
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.hoverElement)){' + source + '}' : source;
+                    'if((e===s.doc.hoverElement)){' + source + '}' :
+                    'if(false){' + source + '}';
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.activeElement)){' + source + '}' : source;
+                    'if((e===s.doc.activeElement)){' + source + '}' :
+                    'if(false){' + source + '}';
                   break;
                 case 'focus':
                   source = 'hasFocus' in doc ?
