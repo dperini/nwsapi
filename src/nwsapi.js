@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.7
  * Created: 20070722
- * Release: 20230701
+ * Release: 20231201
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -1567,7 +1567,9 @@
     },
 
   // QSA placeholders to native references
-  _closest, _matches, _querySelector, _querySelectorAll,
+  _closest, _matches,
+  _querySelector, _querySelectorAll,
+  _querySelectorDoc, _querySelectorAllDoc,
 
   // overrides QSA methods (only for browsers)
   install =
@@ -1575,8 +1577,12 @@
       // save references
       _closest = Element.prototype.closest;
       _matches = Element.prototype.matches;
-      _querySelector = Document.prototype.querySelector;
-      _querySelectorAll = Document.prototype.querySelectorAll;
+
+      _querySelector = Element.prototype.querySelector;
+      _querySelectorAll = Element.prototype.querySelectorAll;
+
+      _querySelectorDoc = Document.prototype.querySelector;
+      _querySelectorAllDoc = Document.prototype.querySelectorAll;
 
       function parseQSArgs() {
         var method = arguments[arguments.length - 1];
@@ -1590,35 +1596,47 @@
       }
 
       Element.prototype.closest =
+      HTMLElement.prototype.closest =
         function closest() {
           return parseQSArgs.apply(this, [].slice.call(arguments).concat(ancestor));
         };
 
       Element.prototype.matches =
+      HTMLElement.prototype.matches =
         function matches() {
           return parseQSArgs.apply(this, [].slice.call(arguments).concat(match));
         };
 
       Element.prototype.querySelector =
+      HTMLElement.prototype.querySelector =
+        function querySelector() {
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
+        };
+
+      Element.prototype.querySelectorAll =
+      HTMLElement.prototype.querySelectorAll =
+        function querySelectorAll() {
+          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
+        };
+
       Document.prototype.querySelector =
       DocumentFragment.prototype.querySelector =
         function querySelector() {
           return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
         };
 
-      Element.prototype.querySelectorAll =
       Document.prototype.querySelectorAll =
       DocumentFragment.prototype.querySelectorAll =
         function querySelectorAll() {
           return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
-        };
+      };
 
       if (all) {
         document.addEventListener('load', function(e) {
           var c, d, r, s, t = e.target;
           if (/iframe/i.test(t.localName)) {
-            c = '(' + Export + ')(this, ' + Factory + ');'; d = t.contentDocument;
-            s = d.createElement('script'); s.textContent = c + 'NW.Dom.install()';
+            c = '(' + Export + ')(this, ' + Factory + ');'; d = t.ownerDocument;
+            s = d.createElement('script'); s.textContent = c + 'NW.Dom.install(true)';
             r = d.documentElement; r.removeChild(r.insertBefore(s, r.firstChild));
           }
         }, true);
@@ -1630,17 +1648,25 @@
   uninstall =
     function() {
       // restore references
-      if (_closest) { Element.prototype.closest = _closest; }
-      if (_matches) { Element.prototype.matches = _matches; }
+      if (_closest) {
+        Element.prototype.closest = _closest;
+        HTMLElement.prototype.closest = _closest;
+      }
+      if (_matches) {
+        Element.prototype.matches = _matches;
+        HTMLElement.prototype.matches = _matches;
+      }
       if (_querySelector) {
         Element.prototype.querySelector =
-        Document.prototype.querySelector =
-        DocumentFragment.prototype.querySelector = _querySelector;
-      }
-      if (_querySelectorAll) {
+        HTMLElement.prototype.querySelector = _querySelector;
         Element.prototype.querySelectorAll =
+        HTMLElement.prototype.querySelectorAll = _querySelector;
+      }
+      if (_querySelectorAllDoc) {
+        Document.prototype.querySelector =
+        DocumentFragment.prototype.querySelector = _querySelectorDoc;
         Document.prototype.querySelectorAll =
-        DocumentFragment.prototype.querySelectorAll = _querySelectorAll;
+        DocumentFragment.prototype.querySelectorAll = _querySelectorAllDoc;
       }
     },
 
