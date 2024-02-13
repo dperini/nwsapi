@@ -3,7 +3,7 @@
     /* element type selector */
     body { background-color: red; margin: 10px; padding: 10px; color: lime; font-family: sans-serif; }
     div { background-color: red; }
-    div.header { background-color: #e0e0e0; color: black; padding: 10px; margin-bottom: 10px;}
+    DIV.header { background-color: #e0e0e0; color: black; padding: 10px; margin-bottom: 10px;}
     /* class selector */
     .unitTest { font-size: 0px; width: 10px; background-color: red; margin: 0px; margin-right: 2px; float: left; }
     .test { margin-bottom: 2px; background-color: green;}
