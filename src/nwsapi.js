@@ -810,7 +810,7 @@
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
+            source = 'if((e.localName=="' + match[1].toLowerCase() + '")){' + source + '}';
             break;
 
           // namespace resolver
