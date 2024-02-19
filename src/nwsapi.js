@@ -114,7 +114,7 @@
     ancestor: RegExp('^' + WSP + '+(.*)'),
    // universal & namespace
    universal: RegExp('^\\*(.*)'),
-   namespace: RegExp('^(\\w+|\\*)?\\|(.*)')
+   namespace: RegExp('^(\\*|[a-z]+\\|)?\\|(.*)')
   },
 
   // regexp to aproximate detection of RTL languages (Arabic)
@@ -639,7 +639,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\|)|' +
+          '(?:\\*|[a-z]+)|' +
           '(?:' +
             '(?::' + pseudonames +
             '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -656,7 +656,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\|)|' +
+          '(?:\\*|[a-z]+)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
