@@ -593,7 +593,7 @@
 
       var identifier =
         // doesn't start with a digit
-        (Config.NONDIGITS ? '(?=[^0-9])' : '') +
+        (Config.NONDIGITS ? '(?!^[0-9])' : '') +
         // can start with double dash
         '(?:-{2}' +
           // may include ascii chars
