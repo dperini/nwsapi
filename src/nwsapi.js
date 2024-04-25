@@ -72,7 +72,7 @@
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
     apimethods: RegExp('^(?:[a-z]+|\\*)\\|', 'i'),
-    namespaces: RegExp('(\\*|[a-z]+)\\|[-a-z]+', 'i')
+    namespaces: RegExp('^(?:[*][a-z]*)(?:[|][-a-z]+)', 'i')
   },
 
   GROUPS = {
@@ -113,8 +113,8 @@
     relative: RegExp('^' + WSP + '?\\~' + WSP + '?(.*)'),
     ancestor: RegExp('^' + WSP + '+(.*)'),
    // universal & namespace
-   universal: RegExp('^\\*(.*)'),
-   namespace: RegExp('^(\\*|[a-z]+\\|)?\\|(.*)')
+   universal: RegExp('^([*])(.*)'),
+   namespace: RegExp('^([*]|\\w+)?\\|(.*)')
   },
 
   // regexp to aproximate detection of RTL languages (Arabic)
@@ -317,7 +317,7 @@
 
   method = {
     '#': 'getElementById',
-    '*': 'getElementsByTagName',
+    '*': 'getElementsByTagNameNS',
     '|': 'getElementsByTagNameNS',
     '.': 'getElementsByClassName'
     },
@@ -325,7 +325,7 @@
   compat = {
     '#': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byId(n, c); }; },
     '*': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byTag(n, c); }; },
-    '|': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byTag(n, c); }; },
+    '|': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byTagNS(n, c); }; },
     '.': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byClass(n, c); }; }
     },
 
@@ -369,30 +369,37 @@
       return byIdRaw(id, context);
     },
 
+  // wrapped up namespaced TagName api calls
+  byTagNS =
+    function(context, tag) {
+      return byTag(tag, context);
+  },
+
   // context agnostic getElementsByTagName
   byTag =
     function(tag, context) {
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](tag));
+        return slice.call(context[api]('*', tag));
       } else {
-        tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
+          tag = tag.toLowerCase();
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api](tag));
+            return slice.call(e[api]('*', tag));
           } else {
             nodes = [ ];
             do {
               if (tag == '*' || e.localName == tag) nodes[nodes.length] = e;
-              concatList(nodes, e[api](tag));
+              concatList(nodes, e[api]('*', tag));
             } while ((e = e.nextElementSibling));
           }
         } else nodes = none;
       }
       return nodes;
     },
+
 
   // context agnostic getElementsByClassName
   byClass =
@@ -639,7 +646,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:\\*|[a-z]+)|' +
+          '(?:[*|]|[a-zA-Z]+)|' +
           '(?:' +
             '(?::' + pseudonames +
             '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -656,7 +663,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:\\*|[a-z]+)|' +
+          '(?:[*|]|[a-zA-Z]+)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
@@ -810,7 +817,7 @@
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if((e.localName=="' + match[1].toLowerCase() + '")){' + source + '}';
+            source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
             break;
 
           // namespace resolver

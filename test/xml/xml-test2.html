@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test case</title>
+    <script src="../../src/nwsapi.js" onload="NW.Dom.install()"></script>
+  </head>
+  <body>
+    <script>
+        onload = function() {
+            const xml = '<?xml version="1.0"?><Foo><bar></bar></Foo>';
+            const dom = new window.DOMParser().parseFromString(xml, 'text/xml');
+            console.log('0. Expected [Foo]', dom.querySelectorAll('Foo')); // Passed
+            console.log('1. Expected []',    dom.querySelectorAll('foo')); // Passed
+            console.log('2. Expected [bar]', dom.querySelectorAll('bar')); // Passed
+            console.log('3. Expected []',    dom.querySelectorAll('foo bar')); // Passed
+            console.log('4. Expected [bar]', dom.querySelectorAll('Foo bar')); // Failed!
+
+            const xml2 = xml.toLowerCase();
+            const dom2 = new window.DOMParser().parseFromString(xml2, 'text/xml');
+            console.log('10. Expected [bar]', dom2.querySelectorAll('bar')); // Passed
+            console.log('11. Expected []',    dom2.querySelectorAll('Bar')); // Passed
+            console.log('12. Expected [bar]', dom2.querySelectorAll('foo bar')); // Passed
+            console.log('13. Expected []',    dom2.querySelectorAll('Foo bar')); // Failed!
+            console.log('14. Expected []',    dom2.querySelectorAll('FOO bar')); // Failed!
+            console.log('15. Expected []',    dom2.querySelectorAll('foo BAR')); // Passed
+            console.log('16. Expected []',    dom2.querySelectorAll('FOO BAR')); // Passed
+        };
+    </script>
+  </body>
+</html>
