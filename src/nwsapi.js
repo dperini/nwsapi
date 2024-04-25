@@ -82,7 +82,7 @@
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
     locationpc: '(any-link|link|visited|target)\\b',
-    useraction: '(hover|active|focus-within|focus)\\b',
+    useraction: '(hover|active|focus-within|focus-visible|focus)\\b',
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
     inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
@@ -534,6 +534,19 @@
         'contentType' in doc ?
           doc.contentType.indexOf('/html') > 0 :
           doc.createElement('DiV').localName == 'div';
+    },
+
+  // check focusable element
+  isFocusable =
+    function(node) {
+      var doc = node.ownerDocument;
+      if (doc.defaultView.frameElement) { return false; }
+      if (doc.hasFocus() && node == doc.activeElement) {
+        if (node.type || node.href || typeof node.tabIndex == 'number') {
+          return true;
+        }
+      }
+      return false;
     },
 
   // configure the engine to use special handling
@@ -1076,23 +1089,28 @@
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.hoverElement)){' + source + '}' :
-                    'if(false){' + source + '}';
+                    'if((e===s.doc.hoverElement)){' + source + '}' : 'if(false){' + source + '}';
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.activeElement)){' + source + '}' :
-                    'if(false){' + source + '}';
+                    'if((e===s.doc.activeElement)){' + source + '}' : 'if(false){' + source + '}';
                   break;
                 case 'focus':
                   source = 'hasFocus' in doc ?
-                    'if(e.parentElement&&e.parentElement.style.display!="none"&&' +
-                    'e===s.doc.activeElement&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number")){' + source + '}' : source;
+                    'if(s.isFocusable(e)&&' +
+                    'e===s.doc.activeElement){' + source + '}' : 'if(false){' + source + '}';
+                  break;
+                case 'focus-visible':
+                  source = 'hasFocus' in doc ?
+                    'if(s.isFocusable(e)){' +
+                    'n=s.doc.activeElement;if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}' +
+                    'if((e===n&&e.autofocus)){' + source + '}' : source;
                   break;
                 case 'focus-within':
                   source = 'hasFocus' in doc ?
-                    'n=s.doc.activeElement;if(e!==n){while(n&&(n=n.parentElement)){if(e===n)break;}}' +
-                    'if((e===n&&s.doc.hasFocus()&&(e.type||e.href||typeof e.tabIndex=="number"))){' + source + '}' : source;
+                    'if(s.isFocusable(e)){' +
+                    'n=s.doc.activeElement;if(n!==e){while(n){n=n.parentElement;{if(n===e)break;}}' +
+                    'if((n===e&&n.autofocus)){' + source + '}' : source;
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
