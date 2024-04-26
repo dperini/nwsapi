@@ -43,6 +43,7 @@
   do_test("div#test7"                  , "test1" , "test7");
 
   do_test(".div3 > .div2"              , "test12", "test7");
+  do_test("[class=\"div2\"]:has(div)"  , "test12", "test7");
   do_test(".div3 > .div1"              , "test12", "");
   do_test("form > input[required]"     , "test9" , "");
   do_test("fieldset > select[required]", "test12", "test3");

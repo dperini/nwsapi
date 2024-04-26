@@ -1026,7 +1026,7 @@
                 case 'has':
                   referenceElement = selector_string.split(':')[0];
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  source = 'if(s.match("' + referenceElement + '",e) && e.querySelector("'+ expr.replace(/\x22/g, '\\"') +'")){' + source + '}';
+                  source = 'if(s.match("' + referenceElement.replace(/\x22/g, '\\"') + '",e) && e.querySelector("'+ expr.replace(/\x22/g, '\\"') +'")){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
