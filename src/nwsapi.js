@@ -40,6 +40,7 @@
   VSP = '[\\r\\n\\f]',
   WSP = '[\\x20\\t\\r\\n\\f]',
 
+
   CFG = {
     // extensions
     operators: '[~*^$|]=|=',
@@ -400,7 +401,6 @@
       return nodes;
     },
 
-
   // context agnostic getElementsByClassName
   byClass =
     function(cls, context) {
@@ -662,17 +662,18 @@
           '(?:[*|]|[a-zA-Z]+)|' +
           '(?:' +
             '(?::' + pseudonames +
-            '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
-          ')|' +
-          '(?:[.#]?' + identifier + ')|' +
-          '(?:' + attributes + ')' +
+              '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
+            ')|' +
+            '(?:[.#]?' + identifier + ')|' +
+            '(?:' + attributes + ')' +
           ')+|' +
+          '(?:' + WSP + '?[>+~]' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)|' +
           '(?:\\x29|$))*',
 
       standardValidator =
-        '(?=' + WSP + '?[^>+~(){}<>])' +
+      '(?=' + WSP + '?[^>+~(){}<>])' +
         '(?:' +
           // universal * &
           // namespace *|*
@@ -680,7 +681,7 @@
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
-          '(?:' + WSP + '?' + CFG.combinators + WSP + '?)|' +
+          '(?:' + WSP + '?' + '[>+~]' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)' +
         ')+';
