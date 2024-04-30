@@ -1730,6 +1730,7 @@
     nthOfType: nthOfType,
     nthElement: nthElement,
 
+    isFocusable: isFocusable,
     hasAttributeNS: hasAttributeNS
   },
 
