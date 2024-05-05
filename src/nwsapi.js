@@ -80,19 +80,19 @@
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
     logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(\\[([^\\[\\]]*)\\]|[^()\\[\\]]*|.*)\\s?\\x29)',
-    treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
+    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
-    locationpc: '(any-link|link|visited|target)\\b',
-    useraction: '(hover|active|focus-within|focus-visible|focus)\\b',
-    structural: '(root|empty|(?:(?:first|last|only)(?:-child|-of-type)))\\b',
-    inputstate: '(enabled|disabled|read-only|read-write|placeholder-shown|default)\\b',
-    inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range)\\b',
+    locationpc: '(any\\-link|link|visited|target)\\b',
+    useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
+    structural: '(root|empty|(?:(?:first|last|only)(?:-child|\\-of\\-type)))\\b',
+    inputstate: '(enabled|disabled|read\\-only|read\\-write|placeholder\\-shown|default)\\b',
+    inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in\\-range|out\\-of\\-range)\\b',
     // pseudo-classes for parsing only selectors
-    pseudo_nop: '(autofill|-webkit-autofill)\\b',
+    pseudo_nop: '(autofill|-webkit\\-autofill)\\b',
     // pseudo-elements starting with single colon (:)
-    pseudo_sng: '(after|before|first-letter|first-line)\\b',
+    pseudo_sng: '(after|before|first\\-letter|first\\-line)\\b',
     // pseudo-elements starting with double colon (::)
-    pseudo_dbl: ':(after|before|first-letter|first-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\\b'
+    pseudo_dbl: ':(after|before|first\\-letter|first\\-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\\b'
   },
 
   Patterns = {
@@ -613,7 +613,7 @@
 
       var identifier =
         // doesn't start with a digit
-        (Config.NONDIGITS ? '(?!^[0-9])' : '') +
+        (Config.NONDIGITS ? '(?=[^0-9])' : '') +
         // can start with double dash
         '(?:-{2}' +
           // may include ascii chars
@@ -659,7 +659,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[a-zA-Z]+)|' +
+          '(?:[*|][a-zA-Z]+)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -667,21 +667,22 @@
             '(?:[.#]?' + identifier + ')|' +
             '(?:' + attributes + ')' +
           ')+|' +
-          '(?:' + WSP + '?[>+~]' + WSP + '?)|' +
+          '(?:' + WSP + '?[>+~][^>+~]' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)|' +
-          '(?:\\x29|$))*',
+          '(?:\\x29|$)' +
+        ')*',
 
       standardValidator =
-      '(?=' + WSP + '?[^>+~(){}<>])' +
+        '(?=' + WSP + '?[\\s^>+~(){}<>]{1})|' +
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[a-zA-Z]+)|' +
+          '(?:[*|]|[a-zA-Z0-9]+)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
-          '(?:' + WSP + '?' + '[>+~]' + WSP + '?)|' +
+          '(?:' + WSP + '?[>+~][^>+~]' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)' +
         ')+';
