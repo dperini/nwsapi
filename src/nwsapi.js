@@ -117,8 +117,8 @@
    namespace: RegExp('^([*]|\\w+)?\\|(.*)')
   },
 
-  // regexp to aproximate detection of RTL languages (Arabic)
-  RTL = RegExp('^[\\u0591-\\u08ff\\ufb1d-\\ufdfd\\ufe70-\\ufefc ]+$'),
+  // regexp to better aproximate detection of RTL languages (Arabic)
+  RTL = RegExp('^(?:[\\u0627-\\u064a]|[\\u0591-\\u08ff]|[\\ufb1d-\\ufdfd]|[\\ufe70-\\ufefc])+$'),
 
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
@@ -1041,10 +1041,10 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'dir':
-                  source = 'var p;if((' +
-                    '(/' + match[2] + '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
-                    '(/' + match[2] + '/i.test(p.dir))||(e.dir==""||e.dir=="auto")&&' +
-                    '(' + (match[2] == 'ltr' ? '!':'')+ RTL +'.test(e.textContent)))' +
+                  source = 'var p;if((e.isConnected&&' +
+                   '/rtl|ltr|auto/i.test("' + match[2] + '"))&&' +
+                    '(/' + match[2] + '/i.test(e.dir)||((p=s.ancestor("[dir]", e))&&/' + match[2] + '/i.test(p.dir)))||' +
+                    '(e.hasAttribute("dir"&&e.dir!="auto")&&' + RTL +'.test(e.textContent))' +
                     '){' + source + '};';
                   break;
                 case 'lang':
