@@ -540,8 +540,8 @@
   isFocusable =
     function(node) {
       var doc = node.ownerDocument;
-      if (doc.defaultView.frameElement) { return false; }
-      if (doc.hasFocus() && node == doc.activeElement) {
+       if (node.contentDocument&&node.localName== 'iframe') { return false; }
+       if (doc.hasFocus() && node == doc.activeElement) {
         if (node.type || node.href || typeof node.tabIndex == 'number') {
           return true;
         }
@@ -659,7 +659,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*|][a-zA-Z]+)|' +
+          '(?:[*|][_a-zA-Z0-9-]+)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -678,7 +678,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[a-zA-Z0-9]+)|' +
+          '(?:[*|]|[a-zA-Z0-9-]+)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
@@ -1085,22 +1085,21 @@
             }
 
             // *** user actions pseudo-classes
-            // :hover, :active, :focus, :focus-within
+            // :hover, :active, :focus, :focus-visible, :focus-within
             else if ((match = selector.match(Patterns.useraction))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.hoverElement)){' + source + '}' : 'if(false){' + source + '}';
+                    'if((e===s.doc.hoverElement)){' + source + '}' : source;
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.activeElement)){' + source + '}' : 'if(false){' + source + '}';
+                    'if((e===s.doc.activeElement)){' + source + '}' : source;
                   break;
                 case 'focus':
-                  source = 'hasFocus' in doc ?
-                    'if(s.isFocusable(e)&&' +
-                    'e===s.doc.activeElement){' + source + '}' : 'if(false){' + source + '}';
+                  source = 'hasFocus'in doc ?
+                    'if(s.isFocusable(e)&&e===s.doc.activeElement){' + source + '}' : source;
                   break;
                 case 'focus-visible':
                   source = 'hasFocus' in doc ?
