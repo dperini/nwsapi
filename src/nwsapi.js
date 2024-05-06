@@ -40,7 +40,6 @@
   VSP = '[\\r\\n\\f]',
   WSP = '[\\x20\\t\\r\\n\\f]',
 
-
   CFG = {
     // extensions
     operators: '[~*^$|]=|=',
@@ -1479,8 +1478,10 @@
                 nodes = h[0]();
               }
             }
-            return typeof callback == 'function' ?
-              concatCall(nodes, callback) : nodes;
+            if (typeof callback == 'function') {
+              nodes = concatCall(nodes, callback);
+            }
+            return nodes;
           }
         }
       }
@@ -1533,8 +1534,10 @@
 
       nodes = selectResolvers[selectors].results;
 
-      return typeof callback == 'function' ?
-        concatCall(nodes, callback) : nodes;
+      if (typeof callback == 'function') {
+        nodes = concatCall(nodes, callback);
+      }
+      return nodes;
     },
 
   // optimize selectors avoiding duplicated checks
