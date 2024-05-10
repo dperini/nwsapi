@@ -76,7 +76,7 @@
   GROUPS = {
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$)',
-    logicalsel: '(is|where|matches|not)\\x28\\s?([^()]*|[^\\x28]*\\x28[^\\x29]*\\x29)\\s?(?:\\x29|$)',
+    logicalsel: '(is|where|matches|not)(?:\\x28\\s?(\\[([^\\[\\]]*)\\]|[^()\\[\\]]*|.*)\\s?\\x29)',
     treestruct: '(nth(?:-last)?(?:-child|-of-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any-link|link|visited|target)\\b',
@@ -604,22 +604,12 @@
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
-      var identifier =
-        // doesn't start with a digit
-        '(?=[^0-9])' +
-        // can start with double dash
-        '(?:-{2}' +
-          // may include ascii chars
-          '|[a-zA-Z0-9-_]' +
-          // non-ascii chars
-          '|[^\\x00-\\x9f]' +
-          // escaped chars
-          '|\\\\[^\\r\\n\\f0-9a-fA-F]' +
-          // unicode chars
-          '|\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?' +
-          // any escaped chars
-          '|\\\\.' +
-        ')+',
+      // @see https://drafts.csswg.org/css-syntax-3/#ident-token-diagram
+      var nonascii = '[^\\x00-\\x9f]',
+      esctoken = '\\\\(?:[^\\r\\n\\f\\da-fA-F]|[\\da-fA-F]{1,6}\\s*)',
+      identifier =
+        '(?:--|-?(?:[a-zA-Z_]|' + nonascii + '|' + esctoken + '))' +
+        '(?:[\\w-]|' + nonascii + '|' + esctoken + ')*',
 
       pseudonames = '[-\\w]+',
       pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
@@ -655,11 +645,12 @@
           '(?:\\*|\\|)|' +
           '(?:' +
             '(?::' + pseudonames +
-            '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
-          ')|' +
-          '(?:[.#]?' + identifier + ')|' +
-          '(?:' + attributes + ')' +
+              '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
+            ')|' +
+            '(?:[.#]?' + identifier + ')|' +
+            '(?:' + attributes + ')' +
           ')+|' +
+          '(?:' + WSP + '?[>+~]' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)|' +
           '(?:\\x29|$))*',
@@ -1329,6 +1320,11 @@
   // replace ':scope' pseudo-class with element references
   makeref =
     function(selectors, element) {
+      // DOCUMENT_NODE (9)
+      if (element.nodeType === 9) {
+        element = element.documentElement;
+      }
+
       return selectors.replace(/:scope/ig,
         element.localName +
         (element.id ? '#' + element.id : '') +
