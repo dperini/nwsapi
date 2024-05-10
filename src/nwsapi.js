@@ -1103,13 +1103,13 @@
                 case 'focus-visible':
                   source = 'hasFocus' in doc ?
                     'if(s.isFocusable(e)){' +
-                    'n=s.doc.activeElement;if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}' +
+                    'n=s.doc.activeElement;if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}}' +
                     'if((e===n&&e.autofocus)){' + source + '}' : source;
                   break;
                 case 'focus-within':
                   source = 'hasFocus' in doc ?
                     'if(s.isFocusable(e)){' +
-                    'n=s.doc.activeElement;if(n!==e){while(n){n=n.parentElement;{if(n===e)break;}}' +
+                    'n=s.doc.activeElement;if(n!==e){while(n){n=n.parentElement;if(n===e)break;}}}' +
                     'if((n===e&&n.autofocus)){' + source + '}' : source;
                   break;
                 default:
