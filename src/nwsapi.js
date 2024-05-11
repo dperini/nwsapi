@@ -71,8 +71,8 @@
 
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
-    apimethods: RegExp('^(?:[a-z]+|\\*)\\|', 'i'),
-    namespaces: RegExp('^(?:[*][a-z]*)(?:[|][-a-z]+)', 'i')
+    apimethods: RegExp('^(?:\\w+|[*])\\|', 'g'),
+    namespaces: RegExp('([*]|\\w+)[|]\\w+', 'g')
   },
 
   GROUPS = {
@@ -639,7 +639,7 @@
       attributes =
         '\\[' +
           // attribute presence
-          '(?:\\*\\|)?' +
+          '(?:[*]\\|\\w+)?' +
           WSP + '?' +
           '(' + identifier + '(?::' + identifier + ')?)' +
           WSP + '?' +
@@ -658,7 +658,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*|][_a-zA-Z0-9-]+)|' +
+          '(?:[*]|\\|\\w+)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -677,7 +677,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[a-zA-Z0-9-]+)|' +
+          '(?:[*]|\\|\\w+)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
