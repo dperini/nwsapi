@@ -866,7 +866,6 @@
                 { p1: '^',    p2: '$',  p3: 'true' } : test;
             } else if (match[2] == '~=' && match[4].includes(' ')) {
               // whitespace separated list but value contains space
-              source = 'if(false){' + source + '}';
               break;
             } else if (match[4]) {
               match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
@@ -1265,7 +1264,7 @@
 
             // placeholder for parsed only no-op selectors
             else if ((match = selector.match(Patterns.pseudo_nop))) {
-              source = 'if(false){' + source + '}';
+              break;
             }
 
             else {
