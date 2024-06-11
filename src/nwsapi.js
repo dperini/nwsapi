@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.10
  * Created: 20070722
- * Release: 20240512
+ * Release: 20240611
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -71,8 +71,8 @@
 
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
-    apimethods: RegExp('^(?:\\w+|[*])\\|', 'g'),
-    namespaces: RegExp('([*]|\\w+)[|]\\w+', 'g')
+    apimethods: RegExp('^(?:\\w+|\\*)\\|'),
+    namespaces: RegExp('(\\*|\\w+)\\|\\w+')
   },
 
   GROUPS = {
@@ -113,8 +113,8 @@
     relative: RegExp('^' + WSP + '?\\~' + WSP + '?(.*)'),
     ancestor: RegExp('^' + WSP + '+(.*)'),
    // universal & namespace
-   universal: RegExp('^([*])(.*)'),
-   namespace: RegExp('^([*]|\\w+)?\\|(.*)')
+   universal: RegExp('^(\\*)(.*)'),
+   namespace: RegExp('^(\\*|[-\\w]+)?\\|(.*)')
   },
 
   // regexp to better aproximate detection of RTL languages (Arabic)
@@ -610,22 +610,19 @@
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
-      var identifier =
-        // doesn't start with a digit
-        (Config.NONDIGITS ? '(?=[^0-9])' : '') +
-        // can start with double dash
-        '(?:-{2}' +
-          // may include ascii chars
-          '|[a-zA-Z0-9-_]' +
-          // non-ascii chars
-          '|[^\\x00-\\x9f]' +
-          // escaped chars
-          '|\\\\[^\\r\\n\\f0-9a-fA-F]' +
-          // unicode chars
-          '|\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?' +
-          // any escaped chars
-          '|\\\\.' +
-        ')+',
+      var
+
+      // non-ascii chars
+      noascii = '[^\\x00-\\x9f]',
+      // escaped chars
+      escaped = '\\\\[^\\r\\n\\f0-9a-fA-F]',
+      // unicode chars
+      unicode = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?',
+
+      // can start with single/double dash
+      // but it can not start with a digit
+      identifier = '-?(?:[a-zA-Z_-]|' + noascii + '|' + escaped + '|' + unicode + ')' +
+          '(?:-{2}|[0-9]|[a-zA-Z_-]|' + noascii + '|' + escaped + '|' + unicode + ')*',
 
       pseudonames = '[-\\w]+',
       pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
@@ -639,7 +636,7 @@
       attributes =
         '\\[' +
           // attribute presence
-          '(?:[*]\\|\\w+)?' +
+          '(?:\\*\\|)?' +
           WSP + '?' +
           '(' + identifier + '(?::' + identifier + ')?)' +
           WSP + '?' +
@@ -658,7 +655,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*]|\\|\\w+)|' +
+          '(?:\\*|\\|)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -673,15 +670,15 @@
         ')*',
 
       standardValidator =
-        '(?=' + WSP + '?[\\s^>+~(){}<>]{1})|' +
+        '(?=' + WSP + '?[^>+~(){}<>])' +
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:[*]|\\|\\w+)|' +
+          '(?:\\*|\\|)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
-          '(?:' + WSP + '?[>+~][^>+~]' + WSP + '?)|' +
+          '(?:' + WSP + '?' + CFG.combinators + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)' +
         ')+';
