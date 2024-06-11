@@ -135,7 +135,6 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    NONDIGITS: true,
     LOGERRORS: true,
     VERBOSITY: true
   },
