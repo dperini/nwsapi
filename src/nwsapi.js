@@ -1037,10 +1037,10 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'dir':
-                  source = 'var p;if((e.isConnected&&' +
-                   '/rtl|ltr|auto/i.test("' + match[2] + '"))&&' +
-                    '(/' + match[2] + '/i.test(e.dir)||((p=s.ancestor("[dir]", e))&&/' + match[2] + '/i.test(p.dir)))||' +
-                    '(e.hasAttribute("dir"&&e.dir!="auto")&&' + RTL +'.test(e.textContent))' +
+                  source = 'var p;if((' +
+                    '(/' + match[2] + '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
+                    '(/' + match[2] + '/i.test(p.dir))||(e.dir==""||e.dir=="auto")&&' +
+                    '(' + (match[2] == 'ltr' ? '!':'')+ RTL +'.test(e.textContent)))' +
                     '){' + source + '};';
                   break;
                 case 'lang':
