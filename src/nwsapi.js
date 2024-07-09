@@ -1132,14 +1132,14 @@
                   source =
                     'if((' +
                       '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                      '("|password|text|".includes("|"+e.type+"|")&&e.readOnly)' +
+                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&e.readOnly)' +
                     ')){' + source + '}';
                   break;
                 case 'read-write':
                   source =
                     'if((' +
                       '((/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                      '("|password|text|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
+                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
                       '(e.hasAttribute("contenteditable")||(s.doc.designMode=="on"))' +
                     ')){' + source + '}';
                   break;
