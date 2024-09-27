@@ -1123,10 +1123,31 @@
                     ')){' + source + '}';
                   break;
                 case 'disabled':
-                  // https://www.w3.org/TR/html5/forms.html#enabling-and-disabling-form-controls:-the-disabled-attribute
-                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e&&' +
-                    '(e.disabled===true||(n=s.ancestor("fieldset",e))&&(n=s.first("legend",n))&&!n.contains(e))' +
-                    ')){' + source + '}';
+                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
+                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
+                    // L is true if the first legend element of the fieldset contains the element
+                    'var x=0,N=[],F=false,L=false;' +
+                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
+                      'n=e.parentElement;' +
+                      'while(n){' +
+                        'if(n.localName=="fieldset"){' +
+                          'N[x++]=n;' +
+                          'if(n.disabled===true){' +
+                            'F=true;' +
+                            'break;' +
+                          '}' +
+                        '}' +
+                        'n=n.parentElement;' +
+                      '}' +
+                      'for(var x=0;x<N.length;x++){' +
+                        'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
+                          'L=true;' +
+                          'break;' +
+                        '}' +
+                      '}' +
+                    '}' +
+                    'if(e.disabled===true||(F&&!L)){' + source + '}}';
                   break;
                 case 'read-only':
                   source =
