@@ -654,7 +654,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[\\w-])|' +
+          '(?:[*]|[\\w-])|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
