@@ -1022,7 +1022,7 @@
                 case 'has':
                   referenceElement = selector_string.split(':')[0];
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  test = /^\s*>\s*/.test(expr) ? ':scope ' : '';
+                  test = /^\s*>\s*/.test(expr) ? '* ' : '';
                   source = 'if(s.first("' + test + expr.replace(/\x22/g, '\\"') + '").parentElement===e){' + source + '}';
                   break;
                 default:
