@@ -1022,7 +1022,8 @@
                 case 'has':
                   referenceElement = selector_string.split(':')[0];
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  source = 'if(s.match("' + referenceElement.replace(/\x22/g, '\\"') + '",e) && e.querySelector("'+ expr.replace(/\x22/g, '\\"') +'")){' + source + '}';
+                  test = /^\s*>\s*/.test(expr) ? ':scope ' : '';
+                  source = 'if(s.first("' + test + expr.replace(/\x22/g, '\\"') + '").parentElement===e){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
