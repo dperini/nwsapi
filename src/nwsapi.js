@@ -1068,23 +1068,18 @@
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
             else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
+              expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
               switch (match[1]) {
                 case 'is':
                 case 'where':
                 case 'matches':
-                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 case 'not':
-                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  referenceElement = selector_string.split(':')[0];
-                  expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-                  test = /^\s*>\s*/.test(expr) ? '* ' : '';
-                  source = 'if(s.first("' + test + expr.replace(/\x22/g, '\\"') + '").parentElement===e){' + source + '}';
-                  source = 'if(s.match(":scope ' + expr.replace(/\x22/g, '\\"') + ',e")){' + source + '}';
+                  source = 'if(e.querySelector(":scope ' + expr.replace(/\x22/g, '\\"') + '")){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
