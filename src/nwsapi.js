@@ -142,6 +142,7 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
+    ANODELIST: true,
     LOGERRORS: true,
     VERBOSITY: true
   },
@@ -206,6 +207,41 @@
       while (l--) { list[list.length] = nodes[++i]; }
       return list;
     },
+
+  toNodeList =
+    function() {
+      // create a DocumentFragment
+      var emptyNL = document.createDocumentFragment().childNodes;
+
+      // this is returned from a self-executing function so that
+      // the DocumentFragment isn't repeatedly created.
+      return function(nodeArray) {
+        // check if it's already a nodelist.
+        if (nodeArray instanceof NodeList) return nodeArray;
+
+        // i f it's a single element, wrap it in a classic array.
+        if (!Array.isArray(nodeArray)) nodeArray = [nodeArray];
+
+        // base an object on emptyNL
+        var fakeNL = Object.create(emptyNL, {
+          'length': {
+            value: nodeArray.length, enumerable: false
+          },
+          'item': {
+            "value": function(i) {
+              return this[+i || 0];
+            },
+            enumerable: false
+          }
+        });
+
+        // copy the array elemnts
+        nodeArray.forEach((v, i) => fakeNL[i] = v);
+
+        // return an object pretending to be a NodeList.
+        return fakeNL;
+      }
+    }(),
 
   documentOrder =
     function(a, b) {
@@ -403,7 +439,7 @@
           }
         } else nodes = none;
       }
-      return nodes;
+      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
     },
 
   // context agnostic getElementsByClassName
@@ -428,7 +464,7 @@
           }
         } else nodes = none;
       }
-      return nodes;
+      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
     },
 
   // namespace aware hasAttribute
@@ -1048,6 +1084,7 @@
                   expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
                   test = /^\s*>\s*/.test(expr) ? '* ' : '';
                   source = 'if(s.first("' + test + expr.replace(/\x22/g, '\\"') + '").parentElement===e){' + source + '}';
+                  source = 'if(s.match(":scope ' + expr.replace(/\x22/g, '\\"') + ',e")){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
@@ -1549,7 +1586,7 @@
             if (typeof callback == 'function') {
               nodes = concatCall(nodes, callback);
             }
-            return nodes;
+            return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
           }
         }
       }
@@ -1605,7 +1642,7 @@
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback);
       }
-      return nodes;
+      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
     },
 
   // optimize selectors avoiding duplicated checks
