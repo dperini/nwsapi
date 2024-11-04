@@ -32,8 +32,8 @@ path=`dirname $0`
 # from browser intrernal QS api to nwsapi 
 #
 # Always copy the main wpt testing component first
-# we need a local copy to be able to inject nwsapi
-#
+# no need to keep a local copy of that to inject it
+# reuse original testharness.js from wpt/resources
 cp ../wpt/resources/testharness.js ./test/wpt/
 
 cp ./test/wpt/favicon.svg ../wpt/
