@@ -86,6 +86,10 @@
     structural: '(root|empty|(?:(?:first|last|only)(?:-child|\\-of\\-type)))\\b',
     inputstate: '(enabled|disabled|read\\-only|read\\-write|placeholder\\-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in\\-range|out\\-of\\-range)\\b',
+    // pseudo-classes not requiring parameters and describing functional state
+    rsrc_state: '(playing|paused|seeking|buffering|stalled|muted|volume-locked)\\b',
+    disp_state: '(open|closed|modal|fullscreen|picture-in-picture)\\b',
+    time_state: '(current|past|future)\\b',
     // pseudo-classes for parsing only selectors
     pseudo_nop: '(autofill|-webkit\\-autofill)\\b',
     // pseudo-elements starting with single colon (:)
@@ -102,6 +106,9 @@
     useraction: RegExp('^:(?:' + GROUPS.useraction + ')(.*)', 'i'),
     inputstate: RegExp('^:(?:' + GROUPS.inputstate + ')(.*)', 'i'),
     inputvalue: RegExp('^:(?:' + GROUPS.inputvalue + ')(.*)', 'i'),
+    rsrc_state: RegExp('^:(?:' + GROUPS.rsrc_state + ')(.*)', 'i'),
+    disp_state: RegExp('^:(?:' + GROUPS.disp_state + ')(.*)', 'i'),
+    time_state: RegExp('^:(?:' + GROUPS.time_state + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
     pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
@@ -545,6 +552,23 @@
         }
       }
       return false;
+    },
+
+  // check media resources is playing
+  isPlaying =
+    function(node) {
+      // for <audio>, <video>, <source> and <track> elements
+      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
+      return function(node) {
+        !!(media && media.currentTime > 0 && !media.paused && !media.ended && media.readyState > 2) ||
+        !!(
+          parent &&
+          parent.currentTime > 0 &&
+          !parent.paused &&
+          !parent.ended &&
+          parent.readyState > 2
+        );
+      };
     },
 
   // configure the engine to use special handling
@@ -1260,6 +1284,33 @@
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
+                  break;
+              }
+            }
+
+            // resources state pseudo-classes (multimedia state)
+            // :playing, :paused, :seeking, :buffering, :stalled, :muted, :volume-locked
+            else if ((match = selector.match(Patterns.rsrc_state))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
+                case 'playing':
+                  source = 'if(s.isPlaying(e)){' + source + '}';
+                  break;
+                case 'paused':
+                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                case 'seeking':
+                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                  break;
+                case 'buffering':
+                  break;
+                case 'stalled':
+                  break;
+                case 'muted':
+                  source = 'if(e.localName=="audio"&&e.getAttribute("muted")){'
+                  break;
+                case 'volume-locked':
+                  break;
+                default:
                   break;
               }
             }
