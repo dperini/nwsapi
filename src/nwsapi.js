@@ -127,9 +127,6 @@
   // regexp to better aproximate detection of RTL languages (Arabic)
   RTL = RegExp('^(?:[\\u0627-\\u064a]|[\\u0591-\\u08ff]|[\\ufb1d-\\ufdfd]|[\\ufe70-\\ufefc])+$'),
 
-  ACTIVE = null,
-  HOVER = null,
-
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
   qsInvalid = ' is not a valid selector',
@@ -1146,11 +1143,11 @@
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===HOVER)){' + source + '}' : source;
+                    'if(e===s.HOVER){' + source + '}' : source;
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===ACTIVE){' + source + '}' : source;
+                    'if(e===s.ACTIVE){' + source + '}' : source;
                   break;
                 case 'focus':
                   source = 'hasFocus'in doc ?
@@ -1334,6 +1331,7 @@
                   break;
                 case 'paused':
                   source = 'if(!s.isPlaying(e)){' + source + '}';
+                  break;
                 case 'seeking':
                   source = 'if(!s.isPlaying(e)){' + source + '}';
                   break;
@@ -1342,7 +1340,7 @@
                 case 'stalled':
                   break;
                 case 'muted':
-                  source = 'if(e.localName=="audio"&&e.getAttribute("muted")){'
+                  source = 'if(e.localName=="audio"&&e.getAttribute("muted")){' + source + '}';
                   break;
                 case 'volume-locked':
                   break;
@@ -1711,11 +1709,11 @@
       _closest = Element.prototype.closest;
       _matches = Element.prototype.matches;
 
-      global.addEventListener('mousedown', function(e) { ACTIVE = e.target; }, true);
-      global.addEventListener('mouseup', function(e) { ACTIVE = null; }, true);
+      global.addEventListener('mousedown', function(e) { Snapshot.ACTIVE = e.target; }, true);
+      global.addEventListener('mouseup', function(e) { Snapshot.ACTIVE = null; }, true);
 
-      global.addEventListener('mouseover', function(e) { HOVER = e.target; }, true);
-      global.addEventListener('mouseout', function(e) { HOVER = null; }, true);
+      global.addEventListener('mouseover', function(e) { Snapshot.HOVER = e.target; }, true);
+      global.addEventListener('mouseout', function(e) { Snapshot.HOVER = null; }, true);
 
       _querySelector = Element.prototype.querySelector;
       _querySelectorAll = Element.prototype.querySelectorAll;
