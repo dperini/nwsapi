@@ -127,6 +127,9 @@
   // regexp to better aproximate detection of RTL languages (Arabic)
   RTL = RegExp('^(?:[\\u0627-\\u064a]|[\\u0591-\\u08ff]|[\\ufb1d-\\ufdfd]|[\\ufe70-\\ufefc])+$'),
 
+  ACTIVE = null,
+  HOVER = null,
+
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
   qsInvalid = ' is not a valid selector',
@@ -144,6 +147,7 @@
     IDS_DUPES: true,
     ANODELIST: true,
     LOGERRORS: true,
+    USR_EVENT: true,
     VERBOSITY: true
   },
 
@@ -1142,11 +1146,11 @@
               switch (match[1]) {
                 case 'hover':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.hoverElement)){' + source + '}' : source;
+                    'if((e===HOVER)){' + source + '}' : source;
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if((e===s.doc.activeElement)){' + source + '}' : source;
+                    'if((e===ACTIVE){' + source + '}' : source;
                   break;
                 case 'focus':
                   source = 'hasFocus'in doc ?
@@ -1706,6 +1710,12 @@
       // save references
       _closest = Element.prototype.closest;
       _matches = Element.prototype.matches;
+
+      global.addEventListener('mousedown', function(e) { ACTIVE = e.target; }, true);
+      global.addEventListener('mouseup', function(e) { ACTIVE = null; }, true);
+
+      global.addEventListener('mouseover', function(e) { HOVER = e.target; }, true);
+      global.addEventListener('mouseout', function(e) { HOVER = null; }, true);
 
       _querySelector = Element.prototype.querySelector;
       _querySelectorAll = Element.prototype.querySelectorAll;
