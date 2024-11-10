@@ -591,6 +591,27 @@
       return false;
     },
 
+  // check if node content is editable
+  isContentEditable =
+    function(node) {
+      let attrValue = 'inherit';
+      if (node.hasAttribute('contenteditable')) {
+        attrValue = node.getAttribute('contenteditable');
+      }
+      switch (attrValue) {
+        case '':
+        case 'plaintext-only':
+        case 'true':
+          return true;
+        case 'false':
+          return false;
+        default:
+          if (node.parentNode && node.parentNode.nodeType === 1) {
+            return isContentEditable(node.parentNode);
+          }
+          return false;
+      }
+
   // check media resources is playing
   isPlaying =
     function(node) {
@@ -1211,16 +1232,17 @@
                   source =
                     'if((' +
                       '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&e.readOnly)' +
-                    ')){' + source + '}';
+                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&(e.readOnly||e.disabled))||' +
+                      '!s.isContentEditable(e)' +
+                    ')&&s.doc.designMode==="off"){' + source + '}';
                   break;
                 case 'read-write':
                   source =
-                    'if((' +
-                      '((/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled))||' +
-                      '((e.hasAttribute("contenteditable")&&e.getAttribute("contenteditable")!="false")||(s.doc.designMode=="on"))' +
-                    ')){' + source + '}';
+                    'if(' +
+                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
+                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                      's.isContentEditable(e)||s.doc.designMode==="on"' +
+                    '){' + source + '}';
                   break;
                 case 'placeholder-shown':
                   source =
@@ -1843,6 +1865,7 @@
     nthElement: nthElement,
 
     isFocusable: isFocusable,
+    isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS
   },
 
