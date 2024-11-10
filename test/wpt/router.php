@@ -7,7 +7,7 @@ if (preg_match('/resources\/testharness\.js$/', $_SERVER["REQUEST_URI"])) {
 
     readfile('./src/nwsapi.js');
     readfile('./test/wpt/wpt-helper.js');
-    readfile('./test/wpt/testharness.js');
+    readfile('../wpt/resources/testharness.js');
     
 } else {
     
