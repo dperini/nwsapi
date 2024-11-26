@@ -237,7 +237,7 @@
         });
 
         // copy the array elemnts
-        nodeArray.forEach((v, i) => fakeNL[i] = v);
+        nodeArray.forEach(function(v, i) { fakeNL[i] = v });
 
         // return an object pretending to be a NodeList.
         return fakeNL;
