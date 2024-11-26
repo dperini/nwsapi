@@ -611,6 +611,7 @@
           }
           return false;
       }
+    },
 
   // check media resources is playing
   isPlaying =
