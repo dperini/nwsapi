@@ -220,7 +220,7 @@
         // check if it's already a nodelist.
         if (nodeArray instanceof NodeList) return nodeArray;
 
-        // i f it's a single element, wrap it in a classic array.
+        // if it's a single element, wrap it in a classic array
         if (!Array.isArray(nodeArray)) nodeArray = [nodeArray];
 
         // base an object on emptyNL
@@ -237,7 +237,7 @@
         });
 
         // copy the array elemnts
-        nodeArray.forEach(function(v, i) { fakeNL[i] = v });
+        nodeArray.forEach((v, i) => fakeNL[i] = v);
 
         // return an object pretending to be a NodeList.
         return fakeNL;
@@ -594,7 +594,7 @@
   // check if node content is editable
   isContentEditable =
     function(node) {
-      let attrValue = 'inherit';
+      var attrValue = 'inherit';
       if (node.hasAttribute('contenteditable')) {
         attrValue = node.getAttribute('contenteditable');
       }
