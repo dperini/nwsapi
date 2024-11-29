@@ -237,11 +237,11 @@
         });
 
         // copy the array elemnts
-        nodeArray.forEach((v, i) => fakeNL[i] = v);
+        nodeArray.forEach(function (v, i) { fakeNL[i] = v; });
 
         // return an object pretending to be a NodeList.
         return fakeNL;
-      }
+      };
     }(),
 
   documentOrder =
@@ -615,19 +615,12 @@
 
   // check media resources is playing
   isPlaying =
-    function(node) {
+    function(media) {
       // for <audio>, <video>, <source> and <track> elements
       var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
-      return function(node) {
-        !!(media && media.currentTime > 0 && !media.paused && !media.ended && media.readyState > 2) ||
-        !!(
-          parent &&
-          parent.currentTime > 0 &&
-          !parent.paused &&
-          !parent.ended &&
-          parent.readyState > 2
-        );
-      };
+      return (
+        !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
+        !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
     },
 
   // configure the engine to use special handling
