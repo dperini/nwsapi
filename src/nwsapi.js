@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.15
+ * Version: 2.2.16
  * Created: 20070722
  * Release: 20240927
  *
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.15',
+  var version = 'nwsapi-2.2.16',
 
   doc = global.document,
   root = doc.documentElement,
@@ -218,7 +218,7 @@
       // the DocumentFragment isn't repeatedly created.
       return function(nodeArray) {
         // check if it's already a nodelist.
-        if (nodeArray instanceof NodeList) return nodeArray;
+        if (nodeArray instanceof global.NodeList) return nodeArray;
 
         // if it's a single element, wrap it in a classic array
         if (!Array.isArray(nodeArray)) nodeArray = [nodeArray];
@@ -440,7 +440,7 @@
           }
         } else nodes = none;
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
+      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
     },
 
   // context agnostic getElementsByClassName
@@ -465,7 +465,7 @@
           }
         } else nodes = none;
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
+      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
     },
 
   // namespace aware hasAttribute
@@ -1599,7 +1599,7 @@
             if (typeof callback == 'function') {
               nodes = concatCall(nodes, callback);
             }
-            return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
+            return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
           }
         }
       }
@@ -1655,7 +1655,7 @@
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback);
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof NodeList ? nodes : toNodeList(nodes);
+      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
     },
 
   // optimize selectors avoiding duplicated checks
