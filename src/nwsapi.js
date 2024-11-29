@@ -212,7 +212,7 @@
   toNodeList =
     function() {
       // create a DocumentFragment
-      var emptyNL = document.createDocumentFragment().childNodes;
+      var emptyNL = doc.createDocumentFragment().childNodes;
 
       // this is returned from a self-executing function so that
       // the DocumentFragment isn't repeatedly created.
