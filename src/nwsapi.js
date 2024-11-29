@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.14
+ * Version: 2.2.15
  * Created: 20070722
  * Release: 20240927
  *
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.14',
+  var version = 'nwsapi-2.2.15',
 
   doc = global.document,
   root = doc.documentElement,
@@ -142,7 +142,7 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    ANODELIST: true,
+    ANODELIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
     VERBOSITY: true
