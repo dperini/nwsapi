@@ -212,7 +212,7 @@
   toNodeList =
     function() {
       // create a DocumentFragment
-      var emptyNL = document.createDocumentFragment().childNodes;
+      var emptyNL = global.document.createDocumentFragment().childNodes;
 
       // this is returned from a self-executing function so that
       // the DocumentFragment isn't repeatedly created.
@@ -229,7 +229,7 @@
             value: nodeArray.length, enumerable: false
           },
           'item': {
-            "value": function(i) {
+            'value': function(i) {
               return this[+i || 0];
             },
             enumerable: false
