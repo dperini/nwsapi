@@ -29,6 +29,19 @@
   }
 
 })(this, function Factory(global, Export) {
+  /**
+   * Generate a regex that matches a balanced set of parentheses.
+   * Outermost parentheses are excluded so any amount of children can be handled.
+   * See https://stackoverflow.com/a/35271017 for reference
+   *
+   * @param {number} depth
+   * @return {string}
+   */
+  function createMatchingParensRegex(depth) {
+    var out =  ('\\([^)(]*?(?:'.repeat(depth) + '\\([^)(]*?\\)' + '[^)(]*?)*?\\)'.repeat(depth));
+    // remove outermost escaped parens
+    return out.slice(2, out.length - 2);
+  }
 
   var version = 'nwsapi-2.2.16',
 
@@ -78,7 +91,7 @@
   GROUPS = {
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
-    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(\\[([^\\[\\]]*)\\]|[^()\\[\\]]*|.*)\\s?\\x29)',
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + createMatchingParensRegex(3) + ')\\s?\\x29)',
     treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target)\\b',
