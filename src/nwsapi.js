@@ -225,7 +225,7 @@
   toNodeList =
     function() {
       // create a DocumentFragment
-      var emptyNL = global.document.createDocumentFragment().childNodes;
+      var emptyNL = doc.createDocumentFragment().childNodes;
 
       // this is returned from a self-executing function so that
       // the DocumentFragment isn't repeatedly created.
@@ -1798,7 +1798,7 @@
       };
 
       if (all) {
-        document.addEventListener('load', function(e) {
+        doc.addEventListener('load', function(e) {
           var c, d, r, s, t = e.target;
           if (/iframe/i.test(t.localName)) {
             c = '(' + Export + ')(this, ' + Factory + ');'; d = t.ownerDocument;
