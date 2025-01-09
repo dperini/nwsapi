@@ -1378,6 +1378,11 @@
               }
             }
 
+            // placeholder for parsed only no-op selectors
+            else if ((match = selector.match(Patterns.pseudo_nop))) {
+              break;
+            }
+
             // allow pseudo-elements starting with single colon (:)
             // :after, :before, :first-letter, :first-line
             // assert: e.type is in double-colon format, like ::after
@@ -1392,11 +1397,6 @@
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
                 match[0].toLowerCase() + '"){e=e.element;' + source + '}';
-            }
-
-            // placeholder for parsed only no-op selectors
-            else if ((match = selector.match(Patterns.pseudo_nop))) {
-              break;
             }
 
             else {
