@@ -31,10 +31,6 @@ path=`dirname $0`
 # Each reload will change the environment used
 # from browser intrernal QS api to nwsapi 
 #
-# Always copy the main wpt testing component first
-# no need to keep a local copy of that to inject it
-# reuse original testharness.js from wpt/resources
-cp ../wpt/resources/testharness.js ./test/wpt/
 
 cp ./test/wpt/favicon.svg ../wpt/
 cp ./test/wpt/index.html ../wpt/
