@@ -3,63 +3,70 @@
 <head id="head">
 <title>WPT Selectors-API Test Suite</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<style>iframe { visibility: hidden; position: absolute; }</style>
+<style>
+tt { background-color: red; }
+iframe { visibility: hidden; position: absolute; }
+</style>
 </head>
 <body>
 
 <p><h1>Web Platform Test Suite</h1></p>
 
-<p><h2>DOM Nodes</h2></p>
+<p><h3>dir() + :focus (historical nwsapi bugs)<F2></h3></p>
+<ul>
+ <li><a href="http://localhost:8000/html/semantics/selectors/pseudo-classes/dir01.html">dir01 (1 / 1)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/dir-pseudo-on-bdi-element.html">dir-pseudo-on-bidi-element (5 / 5)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/focus-display-none-001.html">focus-display-none-001 (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/focus-visible-014.html">focus-visible-014 (1 / 1)</a></li>
+</ul>
 
 <p><h3>Element interface</h3></p>
 <ul>
- <li><a href="http://localhost:8000/dom/nodes/Element-setAttribute.html">Element-setAttribute</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-hasAttribute.html">Element-hasAttribute</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-hasAttributes.html">Element-hasAttributes</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-removeAttribute.html">Element-removeAttribute</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-removeAttributeNS.html">Element-removeAttributeNS</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-classlist.html">Element-classlist</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-closest.html">Element-closest</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-matches.html">Element-matches</a></li>
- <li><a href="http://localhost:8000/dom/nodes/Element-webkitMatchesSelector.html">Element-webkitMatchesSelector</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-setAttribute.html">Element-setAttribute (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-hasAttribute.html">Element-hasAttribute (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-hasAttributes.html">Element-hasAttributes (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-removeAttribute.html">Element-removeAttribute (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-removeAttributeNS.html">Element-removeAttributeNS (1 / 1)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-classlist.html">Element-classlist (1420 / 1420)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-closest.html">Element-closest (29 / 29)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-matches.html">Element-matches (669 / 669)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/Element-webkitMatchesSelector.html">Element-webkitMatchesSelector (669 / 669)</a></li>
 </ul>
 
 <p><h3>ParentNode interface</h3></p>
 <ul>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-append.html">ParentNode-append</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-children.html">ParentNode-children</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-prepend.html">ParentNode-prepend</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All-content.html">ParentNode-querySelector-All-content.html</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All-content.xht">ParentNode-querySelector-All-content.xht</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All.html">ParentNode-querySelector-All</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All-xht.xht">ParentNode-querySelector-All-xht</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectorAll-removed-elements.html">ParentNode-querySelectorAll-removed-elements</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-case-insensitive.html">ParentNode-querySelector-case-insensitive</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-escapes.html">ParentNode-querySelector-escapes</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-scope.html">ParentNode-querySelector-scope</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectors-exclusive.html">ParentNode-querySelectors-exclusive</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectors-namespaces.html">ParentNode-querySelectors-namespaces</a></li>
- <li><a href="http://localhost:8000/dom/nodes/ParentNode-replaceChildren.html">ParentNode-replaceChildren</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-append.html">ParentNode-append (23 / 23)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-children.html">ParentNode-children (1 / 1)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-prepend.html">ParentNode-prepend (22 / 22)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All.html">ParentNode-querySelector-All (1975 / 1975)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-All-xht.xht">ParentNode-querySelector-All-xht (1975 / 1975)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectorAll-removed-elements.html">ParentNode-querySelectorAll-removed-elements (1 / 1)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-case-insensitive.html">ParentNode-querySelector-case-insensitive (2 / 2)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-escapes.html">ParentNode-querySelector-escapes (68 / 68)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelector-scope.html">ParentNode-querySelector-scope (4 / 4)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectors-exclusive.html">ParentNode-querySelectors-exclusive (1 / 1)</a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-querySelectors-namespaces.html">ParentNode-querySelectors-namespaces <tt>(0 / 1)</tt></a></li>
+ <li><a href="http://localhost:8000/dom/nodes/ParentNode-replaceChildren.html">ParentNode-replaceChildren (29 / 29)</a></li>
 </ul>
 
 <p><h3>The :has() pseudo-class</h3></p>
 <ul>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nth-child.html">has-with-nth-child</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-not.html">has-with-not</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-pseudo-class.html">has-with-pseudo-class</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-complex.html">nesting-parent-containing-complex</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-hover.html">nesting-parent-containing-hover</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nth-child.html">has-with-nth-child (5 / 5)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-not.html">has-with-not (21 / 21)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-pseudo-class.html">has-with-pseudo-class (41 / 41)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-complex.html">nesting-parent-containing-complex (37 / 37)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-hover.html">nesting-parent-containing-hover <tt>(0 / 1)</tt></a></li>
 </ul>
 
 <p><h3>Testing the :has() pseudo-class</h3></p>
 <ul>
- <li><a href="http://localhost:8000/css/selectors/has-argument-with-explicit-scope.html">has-argument-with-explicit-scope</a></li>
- <li><a href="http://localhost:8000/css/selectors/has-basic.html">has-basic</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nth-child.html">has-with-nth-child</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-not.html">has-with-not</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-pseudo-class.html">has-with-pseudo-class</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-complex.html">nesting-parent-containing-complex</a></li>
- <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-hover.html">nesting-parent-containing-hover</a></li>
+	<li><a href="http://localhost:8000/css/selectors/has-argument-with-explicit-scope.html">has-argument-with-explicit-scope <tt>(10 / 13)</tt></a></li>
+ <li><a href="http://localhost:8000/css/selectors/has-basic.html">has-basic (16 / 18)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nth-child.html">has-with-nth-child(5 / 5)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-not.html">has-with-not (21 / 21)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-pseudo-class.html">has-with-pseudo-class (41 / 41)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-complex.html">nesting-parent-containing-complex (37 / 37)</a></li>
+ <li><a href="http://localhost:8000/css/selectors/invalidation/has-with-nesting-parent-containing-hover.html">nesting-parent-containing-hover <tt>(0 / 1)</tt></a></li>
 </ul>
 <!--
 has-argument-with-explicit-scope.html    has-style-sharing-004.html               has-style-sharing-pseudo-004.html
