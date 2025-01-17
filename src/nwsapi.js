@@ -373,7 +373,7 @@
 
   method = {
     '#': 'getElementById',
-    '*': 'getElementsByTagNameNS',
+    '*': 'getElementsByTagName',
     '|': 'getElementsByTagNameNS',
     '.': 'getElementsByClassName'
     },
@@ -437,18 +437,18 @@
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api]('*', tag));
+        return slice.call(context[api](tag));
       } else {
+        tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
-          tag = tag.toLowerCase();
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api]('*', tag));
+            return slice.call(e[api](tag));
           } else {
             nodes = [ ];
             do {
               if (tag == '*' || e.localName == tag) nodes[nodes.length] = e;
-              concatList(nodes, e[api]('*', tag));
+              concatList(nodes, e[api](tag));
             } while ((e = e.nextElementSibling));
           }
         } else nodes = none;
