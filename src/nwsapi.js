@@ -1112,7 +1112,13 @@
                   source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  source = 'if(e.querySelector(":scope ' + expr.replace(/\x22/g, '\\"') + '")){' + source + '}';
+                         if (/^\s*[+]/.test(match[2])) {
+                    source = 'if((e.parentElement.querySelectorAll("*' + expr.replace(/\x22/g, '\\"') + '")).includes(e.nextElementSibling)){' + source + '}';
+                  } else if (/^\s*[~]/.test(match[2])) {
+                    source = 'if([].slice.call(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                  } else { 
+                    source = 'if(e.querySelector(":scope ' + expr.replace(/\x22/g, '\\"') + '")){' + source + '}';
+                  }
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
