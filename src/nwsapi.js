@@ -96,7 +96,7 @@
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
-    structural: '(root|empty|(?:(?:first|last|only)(?:-child|\\-of\\-type)))\\b',
+    structural: '(scope|root|empty|(?:(?:first|last|only)(?:-child|\\-of\\-type)))\\b',
     inputstate: '(enabled|disabled|read\\-only|read\\-write|placeholder\\-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in\\-range|out\\-of\\-range)\\b',
     // pseudo-classes not requiring parameters and describing functional state
@@ -1002,6 +1002,10 @@
             if ((match = selector.match(Patterns.structural))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
+               case 'scope':
+                  // use the root (documentElement) when comparing against a document
+                  source = 'if(e===(s.from.nodeType===9?s.root:s.from)){' + source + '}';
+                  break;
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
                   source = 'if((e===s.root)){' + source + (mode ? 'break main;' : '') + '}';
@@ -1460,28 +1464,13 @@
       return source;
     },
 
-  // replace ':scope' pseudo-class with element references
-  makeref =
-    function(selectors, element) {
-      // DOCUMENT_NODE (9)
-      if (element.nodeType === 9) {
-        element = element.documentElement;
-      }
-
-      return selectors.replace(/:scope/ig,
-        element.localName +
-        (element.id ? '#' + element.id : '') +
-        (element.className ? '.' + element.classList[0] : ''));
-    },
-
   // equivalent of w3c 'closest' method
   ancestor =
     function _closest(selectors, element, callback) {
-
-      if ((/:scope/i).test(selectors)) {
-        selectors = makeref(selectors, element);
-      }
-
+      // replace DOCUMENT with first element (root) 
+      if (element.nodeType === 9) element = root;
+      // replace :scope with element tag references
+      selectors = selectors.replace(/:scope/ig, element.localName);
       while (element) {
         if (match(selectors, element, callback)) break;
         element = element.parentElement;
@@ -1527,10 +1516,6 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
-      }
-
-      if ((/:scope/i).test(selectors)) {
-        selectors = makeref(selectors, element);
       }
 
       // normalize input string
@@ -1633,10 +1618,6 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
-      }
-
-      if ((/:scope/i).test(selectors)) {
-        selectors = makeref(selectors, context);
       }
 
       // normalize input string
