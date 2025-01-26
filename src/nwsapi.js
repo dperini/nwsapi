@@ -743,7 +743,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:[*]|[\\w-])|' +
+          '(?:\\*\\|)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -762,7 +762,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:[*|]|[\\w-]+)|' +
+          '(?:\\*\\|)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
