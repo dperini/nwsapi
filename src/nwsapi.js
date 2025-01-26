@@ -1540,7 +1540,7 @@
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : false;
         }
-      } else {
+      } else if (!selectors.match(/\s*\*\s*/)) {
         emit('\'' + selectors + '\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : false;
       }
@@ -1642,7 +1642,7 @@
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : false;
         }
-      } else {
+      } else if (!selectors.match(/\s*\*\s*/)) {
         emit('\'' + selectors + '\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : false;
       }
