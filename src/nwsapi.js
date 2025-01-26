@@ -85,7 +85,7 @@
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
     apimethods: RegExp('^(?:\\w+|\\*)\\|'),
-    namespaces: RegExp('^(?:[*|][\\w-]*)+', 'g')
+    namespaces: RegExp('(\\*|\\w+)|(\\w+)', 'g')
   },
 
   GROUPS = {
