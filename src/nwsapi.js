@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.16
+ * Version: 2.2.18
  * Created: 20070722
- * Release: 20240927
+ * Release: 20250301
  *
  * License:
  *  http://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -43,7 +43,7 @@
     return out.slice(2, out.length - 2);
   }
 
-  var version = 'nwsapi-2.2.16',
+  var version = 'nwsapi-2.2.18',
 
   doc = global.document,
   root = doc.documentElement,
