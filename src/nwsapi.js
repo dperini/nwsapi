@@ -85,7 +85,7 @@
   STD = {
     combinator: RegExp('\\s?([>+~])\\s?', 'g'),
     apimethods: RegExp('^(?:\\w+|\\*)\\|'),
-    namespaces: RegExp('(\\*|\\w+)|(\\w+)', 'g')
+    namespaces: RegExp('(\\*|\\w+)\\|[\\w-]+')
   },
 
   GROUPS = {
@@ -134,7 +134,7 @@
     ancestor: RegExp('^' + WSP + '+(.*)'),
    // universal & namespace
    universal: RegExp('^(\\*)(.*)'),
-   namespace: RegExp('^(\\*|[-\\w]+)?\\|(.*)')
+   namespace: RegExp('^(\\*|[\\w-]+)?\\|(.*)')
   },
 
   // regexp to better aproximate detection of RTL languages (Arabic)
@@ -743,7 +743,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:\\*\\|)|' +
+          '(?:\\*|\\*\\|)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -762,7 +762,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:\\*\\|)|' +
+          '(?:\\*|\\*\\|)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
@@ -922,7 +922,7 @@
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
-            if (match[1] == '*') {
+                   if (match[1] == '*') {
               source = 'if(true){' + source + '}';
             } else if (!match[1]) {
               source = 'if((!e.namespaceURI)){' + source + '}';
