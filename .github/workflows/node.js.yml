@@ -1,4 +1,4 @@
-            - name: Setup Node.js environment
+ name: nwsapi
   uses: actions/setup-node@v4.2.0
   with:
     # Set always-auth in npmrc.
