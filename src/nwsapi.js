@@ -1247,18 +1247,18 @@
                   break;
                 case 'read-only':
                   source =
-                    'if((' +
+                    'if(' +
                       '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&(e.readOnly||e.disabled))||' +
-                      '!s.isContentEditable(e)' +
-                    ')&&s.doc.designMode==="off"){' + source + '}';
+                      '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||e.disabled):true))||' +
+                      '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
+                    '){' + source + '}';
                   break;
                 case 'read-write':
                   source =
                     'if(' +
                       '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                      '("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
-                      's.isContentEditable(e)||s.doc.designMode==="on"' +
+                      '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                      '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' + source + '}';
                   break;
                 case 'placeholder-shown':
