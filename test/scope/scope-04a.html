@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>test nwsapi</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+			@media (min-width: 768px) {
+				.md\:p-4 {
+					padding: 1rem;
+				}
+			}
+		</style>
+	</head>
+	<body class="md:p-4">
+
+		<div data-test="foo"></div>
+
+		<script type="text/javascript" src="../../src/nwsapi.js" onload="NW.Dom.install()"></script>
+
+		<script>
+			console.log(document.body.querySelector(":scope > [data-test=\"foo\"]"));
+		</script>>
+
+	</body>
+</html>
+

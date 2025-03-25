@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <script src="./src/nwsapi.js"></script>
+    <script type="module">
+      const parent = document.querySelector("div");
+      console.log("NWSAPI", [...NW.Dom.select(":scope > div", parent)].map(d => d.className));
+      console.log("NATIVE", [...parent.querySelectorAll(":scope > div")].map(d => d.className));
+    </script>
+  </head>
+  <body>
+    <div>
+      <div class=outer>
+        <div class=inner></div>
+      </div>
+      <div class=other-outer></div>
+    </div>
+  </body>
+</html>
