@@ -222,15 +222,19 @@
       return list;
     },
 
+  // only define the toNodeList helper if explicitly enabled in Config,
+  // a safety measure for headless hosts missing feature/implementation
   toNodeList =
+    Config.ANODELIST == false ?
+    function(x) { return x; } :
     function() {
       // create a DocumentFragment
       var emptyNL = doc.createDocumentFragment().childNodes;
 
       // this is returned from a self-executing function so that
-      // the DocumentFragment isn't repeatedly created.
+      // the DocumentFragment isn't repeatedly created
       return function(nodeArray) {
-        // check if it's already a nodelist.
+        // check if it is already a nodelist
         if (nodeArray instanceof global.NodeList) return nodeArray;
 
         // if it's a single element, wrap it in a classic array
@@ -1116,7 +1120,7 @@
                     source = 'if(e.parentElement && [].slice.call(e.parentElement.querySelectorAll("*' + expr.replace(/\x22/g, '\\"') + '")).includes(e.nextElementSibling)){' + source + '}';
                   } else if (/^\s*[~]/.test(match[2])) {
                     source = 'if([].slice.call(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-                  } else { 
+                  } else {
                     source = 'if(e.querySelector(":scope ' + expr.replace(/\x22/g, '\\"') + '")){' + source + '}';
                   }
                   break;
@@ -1473,7 +1477,7 @@
   // equivalent of w3c 'closest' method
   ancestor =
     function _closest(selectors, element, callback) {
-      // replace DOCUMENT with first element (root) 
+      // replace DOCUMENT with first element (root)
       if (element.nodeType === 9) element = root;
       // replace :scope with element tag references
       selectors = selectors.replace(/:scope/ig, element.localName);
