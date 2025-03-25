@@ -1187,8 +1187,7 @@
                   source = 'if(e===s.HOVER){' + source + '}';
                   break;
                 case 'active':
-                  source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if(e===s.ACTIVE){' + source + '}' : source;
+                  source = 'if(e===s.doc.activeElement){' + source + '}';
                   break;
                 case 'focus':
                   source = 'hasFocus'in doc ?
@@ -1735,9 +1734,6 @@
       // save references
       _closest = Element.prototype.closest;
       _matches = Element.prototype.matches;
-
-      global.addEventListener('mousedown', function(e) { Snapshot.ACTIVE = e.target; }, true);
-      global.addEventListener('mouseup', function(e) { Snapshot.ACTIVE = null; }, true);
 
       _querySelector = Element.prototype.querySelector;
       _querySelectorAll = Element.prototype.querySelectorAll;
