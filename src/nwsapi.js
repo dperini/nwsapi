@@ -1184,8 +1184,7 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'hover':
-                  source = 'hasFocus' in doc && doc.hasFocus() ?
-                    'if(e===s.HOVER){' + source + '}' : source;
+                  source = 'if(e===s.HOVER){' + source + '}';
                   break;
                 case 'active':
                   source = 'hasFocus' in doc && doc.hasFocus() ?
@@ -1717,6 +1716,14 @@
 
     },
 
+  // handlers needed for the :hover pseudo-class
+  // track state change in browsers and headless
+  initEnv =
+    (function() {
+      doc.addEventListener('mouseover', function(e) { Snapshot.HOVER = e.target; }, true);
+      doc.addEventListener('mouseout', function(e) { Snapshot.HOVER = null; }, true);
+    })(),
+
   // QSA placeholders to native references
   _closest, _matches,
   _querySelector, _querySelectorAll,
@@ -1731,9 +1738,6 @@
 
       global.addEventListener('mousedown', function(e) { Snapshot.ACTIVE = e.target; }, true);
       global.addEventListener('mouseup', function(e) { Snapshot.ACTIVE = null; }, true);
-
-      global.addEventListener('mouseover', function(e) { Snapshot.HOVER = e.target; }, true);
-      global.addEventListener('mouseout', function(e) { Snapshot.HOVER = null; }, true);
 
       _querySelector = Element.prototype.querySelector;
       _querySelectorAll = Element.prototype.querySelectorAll;
