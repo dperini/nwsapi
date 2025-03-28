@@ -595,14 +595,15 @@
           doc.createElement('DiV').localName == 'div';
     },
 
-  // check focusable element
+  // return node if node is focusable
+  // or false if node isn't focusable
   isFocusable =
     function(node) {
       var doc = node.ownerDocument;
        if (node.contentDocument&&node.localName== 'iframe') { return false; }
-       if (doc.hasFocus() && node == doc.activeElement) {
+       if (doc.hasFocus() && node === doc.activeElement) {
         if (node.type || node.href || typeof node.tabIndex == 'number') {
-          return true;
+          return node;
         }
       }
       return false;
@@ -1190,20 +1191,17 @@
                   source = 'if(e===s.doc.activeElement){' + source + '}';
                   break;
                 case 'focus':
-                  source = 'hasFocus'in doc ?
-                    'if(s.isFocusable(e)&&e===s.doc.activeElement){' + source + '}' : source;
+                  source = 'if(s.isFocusable(e)){' + source + '}';
                   break;
                 case 'focus-visible':
-                  source = 'hasFocus' in doc ?
-                    'if(s.isFocusable(e)){' +
-                    'n=s.doc.activeElement;if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}}' +
-                    'if((e===n&&e.autofocus)){' + source + '}' : source;
+                  source = 'if(n=s.isFocusable(e)){' +
+                    'if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}}' +
+                    'if((e===n||e.autofocus)){' + source + '}';
                   break;
                 case 'focus-within':
-                  source = 'hasFocus' in doc ?
-                    'if(s.isFocusable(e)){' +
-                    'n=s.doc.activeElement;if(n!==e){while(n){n=n.parentElement;if(n===e)break;}}}' +
-                    'if((n===e&&n.autofocus)){' + source + '}' : source;
+                  source = 'if(n=s.isFocusable(e)){' +
+                    'if(n!==e){while(n){n=n.parentElement;if(n===e)break;}}}' +
+                    'if((n===e||n.autofocus)){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
