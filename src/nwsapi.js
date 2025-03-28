@@ -1498,25 +1498,22 @@
       return { factory: f };
     },
 
-  // equivalent of w3c 'matches' method
-  match =
-    function _matches(selectors, element, callback) {
+  // unique parser type matching/selecting
+  parse =
+    function(selectors, type) {
 
       var expressions, parsed;
 
-      if (element && matchResolvers[selectors]) {
-        return match_assert(matchResolvers[selectors].factory, element, callback);
-      }
-
-      lastMatched = selectors;
+      if (type) lastSelected = selectors;
+      else lastMatched = selectors;
 
       // arguments validation
       if (arguments.length === 0) {
         emit(qsNotArgs, TypeError);
-        return Config.VERBOSITY ? undefined : false;
+        return Config.VERBOSITY ? undefined : (type ? none : false);
       } else if (arguments[0] === '') {
         emit('\'\'' + qsInvalid);
-        return Config.VERBOSITY ? undefined : false;
+        return Config.VERBOSITY ? undefined : (type ? none : false);
       }
 
       // input NULL or UNDEFINED
@@ -1538,12 +1535,27 @@
         expressions = parsed.match(REX.SplitGroup);
         if (parsed[parsed.length - 1] == ',') {
           emit(qsInvalid);
-          return Config.VERBOSITY ? undefined : false;
+          return Config.VERBOSITY ? undefined : (type ? none : false);
         }
       } else {
         emit('\'' + selectors + '\'' + qsInvalid);
-        return Config.VERBOSITY ? undefined : false;
+        return Config.VERBOSITY ? undefined : (type ? none : false);
       }
+
+      return expressions;
+    },
+
+  // equivalent of w3c 'matches' method
+  match =
+    function _matches(selectors, element, callback) {
+
+      var expressions;
+
+      if (element && matchResolvers[selectors]) {
+        return match_assert(matchResolvers[selectors].factory, element, callback);
+      }
+
+      expressions = parse(selectors, false);
 
       matchResolvers[selectors] = match_collect(expressions, callback);
 
@@ -1608,43 +1620,14 @@
         }
       }
 
-      lastSelected = selectors;
+      expressions = parse(selectors, true);
 
       // arguments validation
-      if (arguments.length === 0) {
-        emit(qsNotArgs, TypeError);
-        return Config.VERBOSITY ? undefined : none;
-      } else if (arguments[0] === '') {
-        emit('\'\'' + qsInvalid);
-        return Config.VERBOSITY ? undefined : none;
+      if (arguments.length === 0 || arguments[0] === '') {
+        emit(qsInvalid);
+        return Config.VERBOSITY ? undefined : (type ? false : none);
       } else if (lastContext !== context) {
         lastContext = switchContext(context);
-      }
-
-      // input NULL or UNDEFINED
-      if (typeof selectors != 'string') {
-        selectors = '' + selectors;
-      }
-
-      // normalize input string
-      parsed = selectors.
-        replace(/\x00|\\$/g, '\ufffd').
-        replace(REX.CombineWSP, '\x20').
-        replace(REX.PseudosWSP, '$1').
-        replace(REX.TabCharWSP, '\t').
-        replace(REX.CommaGroup, ',').
-        replace(REX.TrimSpaces, '');
-
-      // parse, validate and split possible compound selectors
-      if ((expressions = parsed.match(reValidator)) && expressions.join('') == parsed) {
-        expressions = parsed.match(REX.SplitGroup);
-        if (parsed[parsed.length - 1] == ',') {
-          emit(qsInvalid);
-          return Config.VERBOSITY ? undefined : false;
-        }
-      } else {
-        emit('\'' + selectors + '\'' + qsInvalid);
-        return Config.VERBOSITY ? undefined : false;
       }
 
       // save/reuse factory and closure collection
@@ -1961,11 +1944,9 @@
           Callback: func
         });
       }
-
   };
 
   initialize(doc);
 
   return Dom;
-
 });
