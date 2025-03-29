@@ -1,8 +1,8 @@
 {
   "name": "nwsapi",
-  "version": "2.2.19",
+  "version": "2.2.20",
   "description": "Fast CSS Selectors API Engine",
-  "homepage": "http://javascript.nwbox.com/nwsapi/",
+  "homepage": "https://javascript.nwbox.com/nwsapi/",
   "main": "./src/nwsapi",
   "keywords": [
     "css",
@@ -14,24 +14,24 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://javascript.nwbox.com/nwsapi/MIT-LICENSE"
+      "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
   ],
   "license": "MIT",
   "author": {
     "name": "Diego Perini",
     "email": "diego.perini@gmail.com",
-    "web": "http://www.iport.it/"
+    "web": "https://www.iport.it/"
   },
   "maintainers": [
     {
       "name": "Diego Perini",
       "email": "diego.perini@gmail.com",
-      "web": "http://www.iport.it/"
+      "web": "https://www.iport.it/"
     }
   ],
   "bugs": {
-    "url": "http://github.com/dperini/nwsapi/issues"
+    "url": "https://github.com/dperini/nwsapi/issues"
   },
   "repository": {
     "type": "git",
