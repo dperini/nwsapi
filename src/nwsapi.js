@@ -1388,7 +1388,7 @@
               }
             }
 
-            // placeholder for parsed only no-op selectors
+            // placeholder for parse only no-op selectors
             else if ((match = selector.match(Patterns.pseudo_nop))) {
               break;
             }
@@ -1546,15 +1546,11 @@
   match =
     function _matches(selectors, element, callback) {
 
-      var expressions;
-
       if (element && matchResolvers[selectors]) {
         return match_assert(matchResolvers[selectors].factory, element, callback);
       }
 
-      expressions = parse(selectors, false);
-
-      matchResolvers[selectors] = match_collect(expressions, callback);
+      matchResolvers[selectors] = match_collect(parse(selectors, false), callback);
 
       return match_assert(matchResolvers[selectors].factory, element, callback);
     },
@@ -1562,9 +1558,6 @@
   // equivalent of w3c 'querySelector' method
   first =
     function _querySelector(selectors, context, callback) {
-      if (arguments.length === 0) {
-        emit(qsNotArgs, TypeError);
-      }
       return select(selectors, context,
         typeof callback == 'function' ?
         function firstMatch(element) {
@@ -1581,16 +1574,17 @@
   select =
     function _querySelectorAll(selectors, context, callback) {
 
-      var expressions, nodes = [ ], parsed, resolver;
+      var nodes = [ ], resolver;
 
-      arguments.length === 0 &&
-	emit(qsNotArgs, TypeError);
+      arguments.length == 0 &&
+        emit(qsNotArgs, TypeError);
 
-       context || (context = doc);
+      context || (context = doc);
         lastContext !== context &&
           (lastContext = switchContext(context));
 
       if (selectors) {
+
         if ((resolver = selectResolvers[selectors])) {
           if (resolver.context === context && resolver.callback === callback) {
             var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset;
@@ -1622,16 +1616,8 @@
         }
       }
 
-      expressions = parse(selectors, true);
-
-      // arguments validation
-      if (arguments.length === 0 || arguments[0] === '') {
-        emit(qsInvalid);
-        return Config.VERBOSITY ? undefined : (type ? false : none);
-      }
-
       // save/reuse factory and closure collection
-      selectResolvers[selectors] = collect(expressions, context, callback);
+      selectResolvers[selectors] = collect(parse(selectors, true), context, callback);
 
       nodes = selectResolvers[selectors].results;
 
