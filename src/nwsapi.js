@@ -1502,10 +1502,7 @@
   parse =
     function(selectors, type) {
 
-      var expressions, parsed;
-
-      if (type) lastSelected = selectors;
-      else lastMatched = selectors;
+      var parsed;
 
       // arguments validation
       if (arguments.length === 0) {
@@ -1531,8 +1528,8 @@
         replace(REX.TrimSpaces, '');
 
       // parse, validate and split possible compound selectors
-      if ((expressions = parsed.match(reValidator)) && expressions.join('') == parsed) {
-        expressions = parsed.match(REX.SplitGroup);
+      if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
+        selectors = parsed.match(REX.SplitGroup);
         if (parsed[parsed.length - 1] == ',') {
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : (type ? none : false);
@@ -1542,7 +1539,7 @@
         return Config.VERBOSITY ? undefined : (type ? none : false);
       }
 
-      return expressions;
+      return selectors;
     },
 
   // equivalent of w3c 'matches' method
