@@ -1586,7 +1586,12 @@
 
       var expressions, nodes = [ ], parsed, resolver;
 
-      context || (context = doc);
+      arguments.length === 0 &&
+	emit(qsNotArgs, TypeError);
+
+       context || (context = doc);
+        lastContext !== context &&
+          (lastContext = switchContext(context));
 
       if (selectors) {
         if ((resolver = selectResolvers[selectors])) {
@@ -1626,8 +1631,6 @@
       if (arguments.length === 0 || arguments[0] === '') {
         emit(qsInvalid);
         return Config.VERBOSITY ? undefined : (type ? false : none);
-      } else if (lastContext !== context) {
-        lastContext = switchContext(context);
       }
 
       // save/reuse factory and closure collection
