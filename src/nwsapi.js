@@ -1007,7 +1007,7 @@
             if ((match = selector.match(Patterns.structural))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
-               case 'scope':
+                case 'scope':
                   // use the root (documentElement) when comparing against a document
                   source = 'if(e===(s.from.nodeType===9?s.root:s.from)){' + source + '}';
                   break;
@@ -1470,13 +1470,25 @@
       return source;
     },
 
+  // replace :scope context element as a
+  // a reference in the selector string
+  makeref =
+    function(selectors, element) {
+      // replace DOCUMENT with first element (root)
+      if (element.nodeType === 9) {
+        element = element.documentElement;
+      }
+      return selectors.replace(/:scope/i,
+        (element.localName) +
+        (element.id ? '#' + escape(element.id) : '') +
+        (element.className ? '.' + escape(element.classList[0]) : ''));
+    },
+
   // equivalent of w3c 'closest' method
   ancestor =
     function _closest(selectors, element, callback) {
-      // replace DOCUMENT with first element (root)
-      if (element.nodeType === 9) element = root;
-      // replace :scope with element tag references
-      selectors = selectors.replace(/:scope/ig, element.localName);
+      parse(selectors, true);
+      selectors = makeref(selectors, element);
       while (element) {
         if (match(selectors, element, callback)) break;
         element = element.parentElement;
@@ -1498,7 +1510,8 @@
       return { factory: f };
     },
 
-  // unique parser type matching/selecting
+  // unique parser entry point for all
+  // methods (type matching/selecting)
   parse =
     function(selectors, type) {
 
@@ -1516,6 +1529,10 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
+      }
+
+      if ((/:scope/i).test(selectors)) {
+        selectors = makeref(selectors, Snapshot.from);
       }
 
       // normalize input string
@@ -1584,7 +1601,6 @@
           (lastContext = switchContext(context));
 
       if (selectors) {
-
         if ((resolver = selectResolvers[selectors])) {
           if (resolver.context === context && resolver.callback === callback) {
             var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset;
