@@ -92,6 +92,8 @@
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
     logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + createMatchingParensRegex(3) + ')\\s?\\x29)',
+//  logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(\\[([^\\[\\]]*)\\]|[^()\\[\\]]*|.*)\\s?\\x29)',
+//  logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
     treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target)\\b',
@@ -1107,22 +1109,23 @@
             else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
               expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
+              expr = expr.replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
                 case 'where':
                 case 'matches':
-                  source = 'if(s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'not':
-                  source = 'if(!s.match("' + expr.replace(/\x22/g, '\\"') + '",e)){' + source + '}';
+                  source = 'if(!s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'has':
-                         if (/^\s*[+]/.test(match[2])) {
-                    source = 'if(e.parentElement && [].slice.call(e.parentElement.querySelectorAll("*' + expr.replace(/\x22/g, '\\"') + '")).includes(e.nextElementSibling)){' + source + '}';
+                  if (/^\s*[+]/.test(match[2])) {
+                    source = 'if(e.parentElement && [].slice.call(e.parentElement.querySelectorAll("*' + expr + '")).includes(e.nextElementSibling)){' + source + '}';
                   } else if (/^\s*[~]/.test(match[2])) {
-                    source = 'if([].slice.call(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                    source = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
                   } else {
-                    source = 'if(e.querySelector(":scope ' + expr.replace(/\x22/g, '\\"') + '")){' + source + '}';
+                    source = 'if(e.querySelector(":scope ' + expr + '")){' + source + '}';
                   }
                   break;
                 default:
