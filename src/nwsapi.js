@@ -81,7 +81,7 @@
     logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
     treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
-    locationpc: '(any\\-link|link|visited|target)\\b',
+    locationpc: '(any\\-link|link|visited|target|defined)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
     structural: '(scope|root|empty|(?:(?:first|last|only)(?:-child|\\-of\\-type)))\\b',
     inputstate: '(enabled|disabled|read\\-only|read\\-write|placeholder\\-shown|default)\\b',
@@ -1145,7 +1145,7 @@
             }
 
             // *** location pseudo-classes
-            // :any-link, :link, :visited, :target
+            // :any-link, :link, :visited, :target, :defined
             else if ((match = selector.match(Patterns.locationpc))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
@@ -1160,6 +1160,9 @@
                   break;
                 case 'target':
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
+                  break;
+                case 'defined':
+                  source = 'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' + source + '}';
                   break;
                 default:
                   emit('\'' + selector_string + '\'' + qsInvalid);
