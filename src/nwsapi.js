@@ -91,7 +91,7 @@
     disp_state: '(open|closed|modal|fullscreen|picture-in-picture)\\b',
     time_state: '(current|past|future)\\b',
     // pseudo-classes for parsing only selectors
-    pseudo_nop: '(autofill|-webkit\\-autofill|-moz\\-read\\-only)\\b',
+    pseudo_nop: '(autofill|-webkit\\-autofill|[-](?:webkit|moz|op|ms)(?:[-][a-zA-Z0-9]{2,})+)\\b',
     // pseudo-elements starting with single colon (:)
     pseudo_sng: '(after|before|first\\-letter|first\\-line)\\b',
     // pseudo-elements starting with double colon (::)
