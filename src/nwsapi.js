@@ -787,26 +787,49 @@
 
   F_INIT = '"use strict";return function Resolver(c,f,x,r)',
 
+  /*
+  // S - M - N
+  //
+  // SELECT
+  // MATCH
+  // NONE
+  //
+  */
+
   S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
   M_HEAD = 'var e,n,o',
+  N_HEAD = 'var e,n,o',
 
   S_LOOP = 'main:while((e=c[++k]))',
-  N_LOOP = 'main:while((e=c.item(++k)))',
   M_LOOP = 'e=c;',
+  N_LOOP = 'main:while((e=c.item(++k)))',
 
   S_BODY = 'r[++j]=c[k];',
-  N_BODY = 'r[++j]=c.item(k);',
   M_BODY = '',
+  N_BODY = 'r[++j]=c.item(k);',
 
   S_TAIL = 'continue main;',
   M_TAIL = 'r=true;',
+  N_TAIL = 'r=true;',
 
   S_TEST = 'if(f(c[k])){break main;}',
-  N_TEST = 'if(f(c.item(k))){break main;}',
   M_TEST = 'f(c);',
+  N_TEST = 'if(f(c.item(k))){break main;}',
 
   S_VARS = [ ],
   M_VARS = [ ],
+  N_VARS = [ ],
+
+  // compile groups or single selector strings into
+  // executable functions for matching or selecting
+
+  S_TEST = 'if(f(c[k])){break main;}',
+  M_TEST = 'f(c);',
+  N_TEST = 'if(f(c.item(k))){break main;}',
+
+  S_VARS = [ ],
+  M_VARS = [ ],
+  N_VARS = [ ],
 
   // compile groups or single selector strings into
   // executable functions for matching or selecting
@@ -832,8 +855,8 @@
           break;
         case null:
           if (selectLambdas[selector]) { return selectLambdas[selector]; }
-          macro = N_BODY + (callback ? N_TEST : '') + S_TAIL;
-          head = S_HEAD;
+          macro = N_BODY + (callback ? N_TEST : '') + N_TAIL;
+          head = N_HEAD;
           loop = N_LOOP;
           break;
         default:
@@ -849,10 +872,11 @@
         loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : '';
       }
 
-      if (S_VARS[0] || M_VARS[0]) {
-        vars = ',' + (S_VARS.join(',') || M_VARS.join(','));
+      if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
+        vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0]);
         S_VARS.length = 0;
         M_VARS.length = 0;
+        N_VARS.length = 0;
       }
 
       factory = Function('s', F_INIT + '{' + head + vars + ';' + loop + 'return r;}')(Snapshot);
@@ -1859,10 +1883,13 @@
 
     CFG: CFG,
 
-    M_BODY: M_BODY,
     S_BODY: S_BODY,
-    M_TEST: M_TEST,
+    M_BODY: M_BODY,
+    N_BODY: M_BODY,
+
     S_TEST: S_TEST,
+    M_TEST: M_TEST,
+    N_TEST: N_TEST,
 
     // exported engine methods
 
