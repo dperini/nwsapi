@@ -1115,12 +1115,20 @@
 
             // *** logical combination pseudo-classes
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
+            // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
             else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
               expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
               expr = expr.replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
+                  source =
+                    'try{' +
+                      'if(s.match("' + expr + '",e)){' + source + '}' +
+                    '}catch(E){' +
+                      'console.log(E)' +
+                    '}';
+                  break;
                 case 'where':
                 case 'matches':
                   source = 'if(s.match("' + expr + '",e)){' + source + '}';
