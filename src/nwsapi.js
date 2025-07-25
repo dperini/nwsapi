@@ -1137,12 +1137,14 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  if (/^\s*[+]/.test(match[2])) {
-                    source = 'if(e.parentElement && [].slice.call(e.parentElement.querySelectorAll("*' + expr + '")).includes(e.nextElementSibling)){' + source + '}';
-                  } else if (/^\s*[~]/.test(match[2])) {
-                    source = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                  if (/^\s*(\+|\~)/.test(match[2])) {
+                    source = 'if(e.parentElement&&Array.from(e.parentElement' +
+                      (/^\s*[+]/.test(match[2]) ?
+                        '.querySelectorAll("*' + expr + '")' : '.children') +
+                        ').includes(e.nextElementSibling)){' + source + '}';
                   } else {
-                    source = 'if(e.querySelector(":scope ' + expr + '")){' + source + '}';
+                    source = 'if(e.querySelector(":scope ' + expr + '"))' +
+                      '{' + source + '}';
                   }
                   break;
                 default:
