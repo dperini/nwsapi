@@ -890,13 +890,10 @@
 
       var a, b, n, f, k = 0, name, NS, referenceElement,
       compat, expr, match, result, status, symbol, test,
-      type, selector = expression, selector_string, vars;
+      type, selector = expression, vars;
 
-      // original 'select' or 'match' selector string before normalization
-      selector_string = mode ? lastSelected : lastMatched;
-
-      // isolate selector combinators/components and normalize whitespace
-      selector = selector.replace(STD.combinator, '$1');//.replace(STD.whitespace, ' ');
+      // isolate selector combinators
+      selector = selector.replace(STD.combinator, '$1');
 
       // javascript needs a label to break
       // out of the while loops processing
@@ -945,7 +942,7 @@
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
               source = 'if((e.namespaceURI=="' + NAMESPACE + '")){' + source + '}';
             } else {
-              emit('\'' + selector_string + '\'' + qsInvalid);
+              emit('\'' + expression + '\'' + qsInvalid);
             }
             break;
 
@@ -957,7 +954,7 @@
             expr = name.split(':');
             expr = expr.length == 2 ? expr[1] : expr[0];
             if (match[2] && !(test = Operators[match[2]])) {
-              emit('\'' + selector_string + '\'' + qsInvalid);
+              emit('\'' + expression + '\'' + qsInvalid);
               return '';
             }
             if (match[4] === '') {
@@ -1057,7 +1054,7 @@
                   source = 'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(!n){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1104,11 +1101,11 @@
                     type = type ? 'true' : 'false';
                     source = 'n=s.nth' + expr + '(e,' + type + ');if((' + test + ')){' + source + '}';
                   } else {
-                    emit('\'' + selector_string + '\'' + qsInvalid);
+                    emit('\'' + expression + '\'' + qsInvalid);
                   }
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1148,7 +1145,7 @@
                   }
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1173,7 +1170,7 @@
                     '){' + source + '};';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1199,7 +1196,7 @@
                   source = 'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1229,7 +1226,7 @@
                     'if((n===e||n.autofocus)){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1312,7 +1309,7 @@
                     ')){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1380,7 +1377,7 @@
                     '){' + source + '}';
                   break;
                 default:
-                  emit('\'' + selector_string + '\'' + qsInvalid);
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -1476,14 +1473,14 @@
             break;
 
         default:
-          emit('\'' + selector_string + '\'' + qsInvalid);
+          emit('\'' + expression + '\'' + qsInvalid);
           break selector_recursion_label;
 
         }
         // end of switch symbol
 
         if (!match) {
-          emit('\'' + selector_string + '\'' + qsInvalid);
+          emit('\'' + expression + '\'' + qsInvalid);
           return '';
         }
 
@@ -1841,10 +1838,6 @@
   // context
   lastContext,
 
-  // selector
-  lastMatched,
-  lastSelected,
-
   // cached lambdas
   matchLambdas = { },
   selectLambdas = { },
@@ -1879,9 +1872,6 @@
   Dom = {
 
     // exported cache objects
-
-    lastMatched: lastMatched,
-    lastSelected: lastSelected,
 
     matchLambdas: matchLambdas,
     selectLambdas: selectLambdas,
