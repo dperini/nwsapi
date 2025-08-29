@@ -142,7 +142,7 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
-    ANODELIST: false,
+    NODE_LIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
     VERBOSITY: true
@@ -212,7 +212,7 @@
   // only define the toNodeList helper if explicitly enabled in Config,
   // a safety measure for headless hosts missing feature/implementation
   toNodeList =
-    Config.ANODELIST == false ?
+    Config.NODE_LIST == false ?
     function(x) { return x; } :
     function() {
       // create a DocumentFragment
@@ -222,7 +222,7 @@
       // the DocumentFragment isn't repeatedly created
       return function(nodeArray) {
         // check if it is already a nodelist
-        if (nodeArray instanceof global.NodeList) return nodeArray;
+        if (isInstanceOf(nodeArray)) return nodeArray;
 
         // if it's a single element, wrap it in a classic array
         if (!Array.isArray(nodeArray)) nodeArray = [nodeArray];
@@ -247,6 +247,11 @@
         return fakeNL;
       };
     }(),
+
+  isInstanceOf =
+    function(nodes) {
+      return nodes instanceof global.NodeList;
+    },
 
   documentOrder =
     function(a, b) {
@@ -444,7 +449,9 @@
           }
         } else nodes = none;
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
+      return !Config.NODE_LIST ?
+        nodes : isInstanceOf(nodes) ?
+        nodes : toNodeList(nodes);
     },
 
   // context agnostic getElementsByClassName
@@ -469,7 +476,9 @@
           }
         } else nodes = none;
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
+      return !Config.NODE_LIST ?
+        nodes : isInstanceof(nodes) ?
+        nodes : toNodeList(nodes);
     },
 
   // namespace aware hasAttribute
@@ -1649,7 +1658,9 @@
             if (typeof callback == 'function') {
               nodes = concatCall(nodes, callback);
             }
-            return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
+            return !Config.NODE_LIST ?
+              nodes : isInstanceOf(nodes) ?
+              nodes : toNodeList(nodes);
           }
         }
       }
@@ -1662,7 +1673,9 @@
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback);
       }
-      return !Config.ANODELIST ? nodes : nodes instanceof global.NodeList ? nodes : toNodeList(nodes);
+      return !Config.NODE_LIST ?
+        nodes : isInstanceOf(nodes) ?
+        nodes : toNodeList(nodes);
     },
 
   // optimize selectors avoiding duplicated checks
