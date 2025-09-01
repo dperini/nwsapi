@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.21
+ * Version: 2.2.22
  * Created: 20070722
- * Release: 20250726
+ * Release: 20250901
  *
  * License:
  *  https://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.21',
+  var version = 'nwsapi-2.2.22',
 
   doc = global.document,
   root = doc.documentElement,
@@ -44,6 +44,10 @@
     // extensions
     operators: '[~*^$|]=|=',
     combinators: '[\\x20\\t>+~](?=[^>+~])'
+  },
+
+  HAS = {
+    nestedself: ':has\\x28(?::has\\x28|.*)\\x29)\\x29',
   },
 
   NOT = {
@@ -142,6 +146,7 @@
   // special handling configuration flags
   Config = {
     IDS_DUPES: true,
+    FORGIVING: true,
     NODE_LIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
@@ -1120,22 +1125,27 @@
             }
 
             // *** logical combination pseudo-classes
-            // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ])
+            // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ]),
+            // :has( s1, [ s2, ... ]) no nesting is allowed for
             // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
             else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
-              expr = match[2].replace(REX.CommaGroup, ',').replace(REX.TrimSpaces, '');
-              expr = expr.replace(/\x22/g, '\\"');
+              expr = match[2]
+                .replace(REX.CommaGroup, ',')
+                .replace(REX.TrimSpaces, '')
+                .replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
-                  source =
-                    'try{' +
-                      'if(s.match("' + expr + '",e)){' + source + '}' +
-                    '}catch(E){' +
-                      'console.log(E)' +
-                    '}';
-                  break;
                 case 'where':
+                  if (Config.FORGIVING) {
+                    source =
+                      'try{' +
+                        'if(s.match("' + expr + '",e)){' + source + '}' +
+                      '}catch(E){}';
+                  } else {
+                    source = 'if(s.match("' + expr + '",e)){' + source + '}';
+                  }
+                  break;
                 case 'matches':
                   source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   break;
@@ -1469,11 +1479,19 @@
               }
 
               if (!status) {
+                if (Config.FORGIVING &&
+                  selector.match(/(:(?:is|where)\x28)/)) {
+                  return '';
+                }
                 emit('unknown pseudo-class selector \'' + selector + '\'');
                 return '';
               }
 
               if (!expr) {
+                if (Config.FORGIVING &&
+                  selector.match(/(:(?:is|where)\x28)/)) {
+                  return '';
+                }
                 emit('unknown token in selector \'' + selector + '\'');
                 return '';
               }
@@ -1489,6 +1507,10 @@
         // end of switch symbol
 
         if (!match) {
+          if (Config.FORGIVING &&
+            selector.match(/(:(?:is|where)\x28)/)) {
+            return '';
+          }
           emit('\'' + expression + '\'' + qsInvalid);
           return '';
         }
@@ -1583,8 +1605,13 @@
           return Config.VERBOSITY ? undefined : (type ? none : false);
         }
       } else {
-        emit('\'' + selectors + '\'' + qsInvalid);
-        return Config.VERBOSITY ? undefined : (type ? none : false);
+        if (Config.FORGIVING) {
+          // forgiving pseudos allow to continue even after parse errors
+          if (!(parsed.includes(':is(') || parsed.includes(':where('))) {
+            emit('\'' + selectors + '\'' + qsInvalid);
+            return Config.VERBOSITY ? undefined : (type ? none : false);
+          }
+        }
       }
 
       return selectors;
