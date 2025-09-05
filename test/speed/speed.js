@@ -5,14 +5,8 @@
 
 	// selector engines
 	var engines = {
-		'qsa':
-				'd.querySelectorAll(s)',
-
-		'nwsapi':
-				'NW.Dom.select(s, d)',
-
-		'nwmatcher':
-				'NW.Dom.select(s, d)'
+		'nwsapi': 'NW.Dom.select(s, d)',
+		'qsa': 'd.querySelectorAll(s)',
 	},
 
 	// Used to indicate whether console profiling is begin run
