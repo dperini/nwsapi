@@ -380,10 +380,10 @@
     },
 
   compat = {
-    '#': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byId(n, c); }; },
-    '*': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byTag(n, c); }; },
-    '|': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byTagNS(n, c); }; },
-    '.': function(c, n) { REX.HasEscapes.test(n) && (n = unescapeIdentifier(n)); return function(e, f) { return byClass(n, c); }; }
+    '#': (c, n) => (e, f) => byId(n, c),
+    '*': (c, n) => (e, f) => byTag(n, c),
+    '|': (c, n) => (e, f) => byTagNS(n, c),
+    '.': (c, n) => (e, f) => byClass(n, c),
     },
 
   // find duplicate ids using iterative walk
@@ -902,7 +902,7 @@
   compileSelector =
     function(expression, source, mode, callback) {
 
-      var a, b, n, f, k = 0, name, NS, referenceElement,
+      var a, b, n, f, name, NS, referenceElement,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, vars;
 
@@ -914,8 +914,6 @@
       selector_recursion_label:
 
       while (selector) {
-
-        ++k;
 
         // get namespace prefix if present or get first char of selector
         symbol = STD.apimethods.test(selector) ? '|' : selector[0];
@@ -949,7 +947,7 @@
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
-                   if (match[1] == '*') {
+            if (match[1] == '*') {
               source = 'if(true){' + source + '}';
             } else if (!match[1]) {
               source = 'if((!e.namespaceURI)){' + source + '}';
@@ -994,26 +992,29 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
-            source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'while(e&&(e=e.previousElementSibling)){' + source + '}';
             break;
+
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
-            source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'if(e&&(e=e.previousElementSibling)){' + source + '}';
             break;
+
           // *** Descendant combinator
           // E F (E ancestor of F)
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
-            source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'while(e&&(e=e.parentElement)){' + source + '}';
             break;
+
           // *** Child combinator
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
-            source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'if(e&&(e=e.parentElement)){' + source + '}';
             break;
 
           // *** user supplied combinators extensions
@@ -1660,10 +1661,14 @@
 
       if (selectors) {
         if ((resolver = selectResolvers[selectors])) {
-          if (resolver.context === context && resolver.callback === callback) {
-            var f = resolver.factory, h = resolver.htmlset, n = resolver.nodeset;
+          if (resolver.context === context &&
+            resolver.callback === callback) {
+            var i, l, list,
+              f = resolver.factory,
+              h = resolver.htmlset,
+              n = resolver.nodeset;
             if (n.length > 1) {
-              for (var i = 0, l = n.length, list; l > i; ++i) {
+              for (i = 0, l = n.length; l > i; ++i) {
                 list = compat[n[i][0]](context, n[i].slice(1))();
                 if (f[i] !== null) {
                   f[i](list, callback, context, nodes);
@@ -1736,6 +1741,7 @@
         }
 
         nodeset[i] = token[1] + token[2];
+        token[2] = unescapeIdentifier(token[2]);
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
