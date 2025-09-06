@@ -1,6 +1,6 @@
 {
   "name": "nwsapi",
-  "version": "2.2.21",
+  "version": "2.2.22",
   "description": "Fast CSS Selectors API Engine",
   "homepage": "https://javascript.nwbox.com/nwsapi/",
   "main": "./src/nwsapi",
