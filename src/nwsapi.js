@@ -1590,7 +1590,7 @@
       }
 
       // normalize input string
-      parsed = selectors.
+      parsed = unescape(selectors).
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.CombineWSP, '\x20').
         replace(REX.PseudosWSP, '$1').
