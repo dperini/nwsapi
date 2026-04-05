@@ -2,7 +2,7 @@
   "name": "nwsapi",
   "version": "2.2.23",
   "description": "Fast CSS Selectors API Engine",
-  "homepage": "https://javascript.nwbox.com/nwsapi/",
+  "homepage": "https://github.com/dperini/nwsapi/",
   "main": "./src/nwsapi",
   "keywords": [
     "css",
@@ -10,12 +10,6 @@
     "css4",
     "matcher",
     "selector"
-  ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
-    }
   ],
   "license": "MIT",
   "author": {
@@ -38,6 +32,12 @@
     "url": "git://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "clean": "node ./scripts/clean.mjs",
+    "min": "node ./scripts/min.mjs",
+    "lint": "npx eslint src/nwsapi.js"
+  },
+  "devDependencies": {
+    "eslint": "9.31.0",
+    "terser": "5.46.1"
   }
 }

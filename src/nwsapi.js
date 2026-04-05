@@ -486,7 +486,7 @@
         } else nodes = none;
       }
       return !Config.NODE_LIST ?
-        nodes : isInstanceof(nodes) ?
+        nodes : isInstanceOf(nodes) ?
         nodes : toNodeList(nodes);
     },
 
