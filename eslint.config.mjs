@@ -5,7 +5,7 @@ import globals from 'globals';
 export default defineConfig([
   js.configs.recommended,
   {
-    files: ['src/**/*.js', 'test/**/*.js'],
+    files: ['src/**/*.js', 'scripts/**/*.js', 'test/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'script',
@@ -23,6 +23,7 @@ export default defineConfig([
       'no-control-regex': 'off',
       'no-useless-escape': 'off',
       'no-redeclare': 'off',
+      'no-empty': 'off',
 
       'default-case': 'error',
       'no-duplicate-case': 'error',

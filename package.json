@@ -34,10 +34,14 @@
   "scripts": {
     "clean": "node ./scripts/clean.mjs",
     "min": "node ./scripts/min.mjs",
-    "lint": "npx eslint src/nwsapi.js"
+    "lint": "npx eslint src/nwsapi.js",
+    "test:browser": "npx playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.5.2",
     "eslint": "9.31.0",
+    "playwright": "^1.59.1",
     "terser": "5.46.1"
   }
 }
