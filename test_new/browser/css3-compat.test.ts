@@ -1,24 +1,6 @@
-import { runScenarios, type SelectorScenario } from "./harness";
+import { runScenarios } from "./harness";
 
-const scenarios: SelectorScenario[] =
-[
-  // {
-  //   name: 'issue 160 adjacent-descendant regression',
-  //   html: `
-  //     <div>
-  //       <div class="neighbor"></div>
-  //       <div>
-  //         <a>
-  //           <img class="target">
-  //         </a>
-  //       </div>
-  //     </div>
-  //   `,
-  //   tests: [
-  //     { selector: '.neighbor + div .target', expect: { count: 1 } },
-  //     { selector: '.neighbor + * .target', expect: { count: 1 } },
-  //   ],
-  // },
+runScenarios('css3 compat', 'normal',  [
   {
     name: 'test 0 basic selectors',
     html: `
@@ -600,6 +582,24 @@ const scenarios: SelectorScenario[] =
       { selector: '.blox28[class~="unitTEST" i]', expect: { count: 1 } },
     ],
   },
-];
-
-runScenarios('css3 compat', scenarios);
+  {
+    name: 'attribute s-flag divergence',
+    modifier: 'fail',
+    html: `
+      <div class="test attrCaseInsensitive">
+        <div class="blox20 unitTest"></div>
+        <div class="blox22 unitTest"></div>
+        <div class="blox25 unitTest"></div>
+        <div class="blox27 unitTest"></div>
+      </div>
+    `,
+    cases: [
+      { selector: '.blox20[class="blox20 unitTest" s]' },
+      { selector: '.blox22[class*="22 unitt" s]' },
+      { selector: '.blox22[class*="22 unitT" s]' },
+      { selector: '.blox25[class^="blox" s]' },
+      { selector: '.blox27[class$="TEst" s]' },
+      { selector: '.blox27[class$="Test" s]' },
+    ],
+  },
+]);

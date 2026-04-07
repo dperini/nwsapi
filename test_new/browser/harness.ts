@@ -8,16 +8,20 @@ export type SelectorScenario = {
   browsers?: BrowserName[];
   cases: SelectorCase[];
   setupPage?: (page: Page) => void | Promise<void>;
+  modifier?: TestModifier;
 };
 
-const browserNames = ['chromium', 'firefox', 'webkit'] as const;
-type BrowserName = typeof browserNames[number];
+const BROWSER_NAMES = ['chromium', 'firefox', 'webkit'] as const;
+type BrowserName = typeof BROWSER_NAMES[number];
 
 type SelectorCase = {
   selector: string;
   root?: SelectorRoot;
   expect?: SelectorExpectation;
 };
+
+type DescribeModifier = 'normal' | 'skip' | 'only' | 'fixme';
+type TestModifier = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
 
 type SelectorExpectation = {
   exact?: boolean;
@@ -31,16 +35,15 @@ type SelectorExpectation = {
 type SelectorResult = {
   exactMatch: boolean;
   mismatchMsg: string;
-  native: {
-    count: number;
-    ids: string[];
-    threw: boolean;
-  };
-  nw: {
-    count: number;
-    ids: string[];
-    threw: boolean;
-  };
+} & Record<Engine, EngineResult>;
+
+const ENGINES = ['native', 'nw'] as const;
+type Engine = typeof ENGINES[number];
+
+type EngineResult = {
+  count: number;
+  ids: string[];
+  threw: boolean;
 };
 
 type SelectorRoot =
@@ -48,8 +51,13 @@ type SelectorRoot =
   | { kind: 'id'; value: string }
   | { kind: 'selector'; value: string };
 
-export function runScenarios(label: string, scenarios: SelectorScenario[]): void {
-  test.describe(label, () => {
+export function runScenarios(
+  label: string,
+  modifier: DescribeModifier,
+  scenarios: SelectorScenario[],
+): void {
+  const describeFn = getDescribeFn(modifier);
+  describeFn(label, () => {
     let browsers: Record<BrowserName, Browser>;
     let pages: Record<BrowserName, Page>;
 
@@ -73,11 +81,12 @@ export function runScenarios(label: string, scenarios: SelectorScenario[]): void
     });
 
     test.afterAll(async () => {
-      await Promise.all(browserNames.map((name) => browsers[name].close()));
+      await Promise.all(BROWSER_NAMES.map((name) => browsers[name].close()));
     });
 
     for (const s of scenarios) {
-      test(s.name, async () => {
+      const testFn = getTestFn(s.modifier);
+      testFn(s.name, async () => {
         await runScenario(s, pages);
       });
     }
@@ -85,7 +94,7 @@ export function runScenarios(label: string, scenarios: SelectorScenario[]): void
 }
 
 async function runScenario(s: SelectorScenario, pages: Record<BrowserName, Page>): Promise<void> {
-  const scenarioBrowsers = s.browsers ?? browserNames;
+  const scenarioBrowsers = s.browsers ?? BROWSER_NAMES;
 
   for (const browserName of scenarioBrowsers) {
     const page = pages[browserName];
@@ -99,33 +108,37 @@ async function runScenario(s: SelectorScenario, pages: Record<BrowserName, Page>
       if (exp.throws) {
         expect(result.nw.threw, msg).toBe(true);
         continue;
-      } else {
-        expect(result.nw.threw, msg).toBe(false);
       }
+
+      expect(result.nw.threw, msg).toBe(false);
 
       const skipNative = result.native.threw;
 
       if (exp.count !== undefined) {
-        if (!skipNative) expect(result.native.count, msg).toBe(exp.count);
-        expect(result.nw.count, msg).toBe(exp.count);
+        expectEngines(result, msg, 'count', (r, label) => {
+          expect(r.count, label).toEqual(exp.count);
+        });
       }
 
       if (exp.ids) {
-        if (!skipNative) expect(result.native.ids, msg).toEqual(exp.ids);
-        expect(result.nw.ids, msg).toEqual(exp.ids);
+        expectEngines(result, msg, 'ids', (r, label) => {
+          expect(r.ids, label).toEqual(exp.ids);
+        });
       }
 
       if (exp.includesIds) {
         for (const id of exp.includesIds) {
-          if (!skipNative) expect(result.native.ids, msg).toContain(id);
-          expect(result.nw.ids, msg).toContain(id);
+          expectEngines(result, msg, 'ids', (r, label) => {
+            expect(r.ids, label).toContain(id);
+          });
         }
       }
 
       if (exp.excludesIds) {
         for (const id of exp.excludesIds) {
-          if (!skipNative) expect(result.native.ids, msg).not.toContain(id);
-          expect(result.nw.ids, msg).not.toContain(id);
+          expectEngines(result, msg, 'ids', (r, label) => {
+            expect(r.ids, label).not.toContain(id);
+          });
         }
       }
 
@@ -134,6 +147,49 @@ async function runScenario(s: SelectorScenario, pages: Record<BrowserName, Page>
       }
     }
   }
+}
+
+function expectEngines(
+  result: SelectorResult,
+  baseMsg: string,
+  key: keyof EngineResult,
+  check: (r: EngineResult, label: string) => void
+): void {
+  for (const engine of ENGINES) {
+    const r = result[engine];
+    if (r.threw) continue;
+
+    const sameIds = (a: string[], b: string[]): boolean  => 
+      a.length === b.length && a.every((x, i) => x === b[i]);
+
+    const enginesWithSameOutcome = ENGINES.filter((e) => {
+      if (result[e].threw) return false;
+      switch (key) {
+        case 'count': return r.count === result[e].count;
+        case 'ids': return sameIds(r.ids, result[e].ids);
+        case 'threw': return r.threw === result[e].threw;
+        default: assertNever(key);
+      }
+    });
+
+    const label = `[engine=${enginesWithSameOutcome.join('+')}] ${baseMsg}`;
+    check(r, label);
+  }
+}
+
+function getDescribeFn(mode?: DescribeModifier) {
+  if (mode === 'skip') return test.describe.skip;
+  if (mode === 'only') return test.describe.only;
+  if (mode === 'fixme') return test.describe.fixme;
+  return test.describe;
+}
+
+function getTestFn(mode?: TestModifier) {
+  if (mode === 'skip') return test.skip;
+  if (mode === 'only') return test.only;
+  if (mode === 'fixme') return test.fixme;
+  if (mode === 'fail') return test.fail;
+  return test;
 }
 
 async function setupPage(page: Page, scenario: SelectorScenario): Promise<void> {
@@ -230,4 +286,8 @@ async function evalSelector(page: Page, selCase: SelectorCase): Promise<Selector
       nw: { count: nw.length, ids: nwIds, threw: !!nwError },
     };
   }, selCase);
+}
+
+function assertNever(x: never): never {
+  throw new Error(`Unexpected key: ${x}`);
 }
