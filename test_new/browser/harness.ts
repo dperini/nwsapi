@@ -244,10 +244,12 @@ async function evalSelector(page: Page, selCase: SelectorCase): Promise<Selector
       };
     }
 
-    const nativeIds = native.map((el) => el.id);
-    const nwIds = nw.map((el: Element) => el.id);
+    const nativeIds = native.map((el) => el.getAttribute('id') ?? '');
+    const nwIds = nw.map((el) => el.getAttribute('id') ?? '');
+    // const nativeIds = native.map((el) => el.id);
+    // const nwIds = nw.map((el: Element) => el.id);
 
-    const describe = (el: Element | undefined) => {
+    let describe = (el: Element | undefined) => {
       if (!el) return '(missing)';
       return {
         tag: el.tagName.toLowerCase(),
