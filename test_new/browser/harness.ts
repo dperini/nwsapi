@@ -24,17 +24,20 @@ type DescribeModifier = 'normal' | 'skip' | 'only' | 'fixme';
 type TestModifier = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
 
 type SelectorExpectation = {
-  exact?: boolean;
+  allowMismatch?: boolean;
   count?: number;
   ids?: string[];
   includesIds?: string[];
   excludesIds?: string[];
+  classes?: string[];
+  includesClasses?: string[];
+  excludesClasses?: string[];
   throws?: boolean;
+  equivalentTo?: { selector: string; root?: SelectorRoot };
 };
 
 type SelectorResult = {
-  exactMatch: boolean;
-  mismatchMsg: string;
+  mismatchMsg?: string;
 } & Record<Engine, EngineResult>;
 
 const ENGINES = ['native', 'nw'] as const;
@@ -43,7 +46,9 @@ type Engine = typeof ENGINES[number];
 type EngineResult = {
   count: number;
   ids: string[];
+  classes: string[];
   threw: boolean;
+  equivalentToFailMsg?: string;
 };
 
 type SelectorRoot =
@@ -102,48 +107,80 @@ async function runScenario(s: SelectorScenario, pages: Record<BrowserName, Page>
 
     for (const c of s.cases) {
       const result = await evalSelector(page, c);
-      const exp = c.expect ?? { exact: true };
-      const msg = `[${browserName}] ${s.name} :: ${c.selector}\n${result.mismatchMsg}`;
 
-      if (exp.throws) {
+      const expectation = c.expect ?? {};
+      const allowMismatch = expectation.allowMismatch ?? false;
+      const msg = `[${browserName}] ${s.name} :: ${c.selector}${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
+
+      if (expectation.throws) {
         expect(result.nw.threw, msg).toBe(true);
         continue;
       }
 
       expect(result.nw.threw, msg).toBe(false);
 
-      const skipNative = result.native.threw;
+      const nativeThrew = result.native.threw;
 
-      if (exp.count !== undefined) {
+      if (expectation.count !== undefined) {
         expectEngines(result, msg, 'count', (r, label) => {
-          expect(r.count, label).toEqual(exp.count);
+          expect(r.count, label).toEqual(expectation.count);
         });
       }
 
-      if (exp.ids) {
+      if (expectation.ids) {
         expectEngines(result, msg, 'ids', (r, label) => {
-          expect(r.ids, label).toEqual(exp.ids);
+          expect(r.ids, label).toEqual(expectation.ids);
         });
       }
 
-      if (exp.includesIds) {
-        for (const id of exp.includesIds) {
+      if (expectation.includesIds) {
+        for (const id of expectation.includesIds) {
           expectEngines(result, msg, 'ids', (r, label) => {
             expect(r.ids, label).toContain(id);
           });
         }
       }
 
-      if (exp.excludesIds) {
-        for (const id of exp.excludesIds) {
+      if (expectation.excludesIds) {
+        for (const id of expectation.excludesIds) {
           expectEngines(result, msg, 'ids', (r, label) => {
             expect(r.ids, label).not.toContain(id);
           });
         }
       }
 
-      if ((exp.exact ?? true) && !skipNative) {
-        expect(result.exactMatch, msg).toBe(true);
+      if (expectation.classes) {
+        expectEngines(result, msg, 'classes', (r, label) => {
+          expect(r.classes, label).toEqual(expectation.classes);
+        });
+      }
+
+      if (expectation.includesClasses) {
+        for (const cls of expectation.includesClasses) {
+          expectEngines(result, msg, 'classes', (r, label) => {
+            const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
+            expect(classTokens, label).toContain(cls);
+          });
+        }
+      }
+
+      if (expectation.excludesClasses) {
+        for (const cls of expectation.excludesClasses) {
+          expectEngines(result, msg, 'classes', (r, label) => {
+            const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
+            expect(classTokens, label).not.toContain(cls);
+          });
+        }
+      }
+
+      if (expectation.equivalentTo) {
+        expectEngines(result, msg, 'equivalentToFailMsg', (r, label) => {
+          expect(r.equivalentToFailMsg, label).toBeUndefined();
+        });
+      }
+
+      if (!allowMismatch && !nativeThrew) {
+        expect(result.mismatchMsg, msg).toBeUndefined();
       }
     }
   }
@@ -167,12 +204,15 @@ function expectEngines(
       switch (key) {
         case 'count': return r.count === result[e].count;
         case 'ids': return sameIds(r.ids, result[e].ids);
+        case 'classes': return sameIds(r.classes, result[e].classes);
         case 'threw': return r.threw === result[e].threw;
+        case 'equivalentToFailMsg': return e === engine;
         default: assertNever(key);
       }
     });
 
-    const label = `[engine=${enginesWithSameOutcome.join('+')}] ${baseMsg}`;
+    let label = `[engine=${enginesWithSameOutcome.join('+')}] ${baseMsg}`;
+    if (r.equivalentToFailMsg && key === 'equivalentToFailMsg') label += `\n${r.equivalentToFailMsg}`;
     check(r, label);
   }
 }
@@ -207,49 +247,20 @@ async function setupPage(page: Page, scenario: SelectorScenario): Promise<void> 
 }
 
 async function evalSelector(page: Page, selCase: SelectorCase): Promise<SelectorResult> {
-  return await page.evaluate((t) => {
-    const root =
-      t.root?.kind === 'document' || !t.root ? document
-      : t.root.kind === 'id' ? document.getElementById(t.root.value)
-      : document.querySelector(t.root.value);
-    
-    if (!root) {
-      return {
-        exactMatch: false,
-        mismatchMsg: `Root element not found for selector: ${JSON.stringify(t.root)}`,
-        native: { count: 0, ids: [], threw: false },
-        nw: { count: 0, ids: [], threw: false },
-      };
-    }
+  return await page.evaluate((c) => {
+    const native: EngineResult = { count: 0, ids: [], classes: [], threw: false };
+    const nw: EngineResult = { count: 0, ids: [], classes: [], threw: false };
 
-    let native: Element[] = [];
-    let nw: Element[] = [];
-    let nativeError = '';
-    let nwError = '';
+    type QueryResult = { elements: Element[]; error: string };
+    const runQuery = (query: () => Element[]): QueryResult => {
+      try {
+        return { elements: query(), error: '' };
+      } catch (e) {
+        return { elements: [], error: e instanceof Error ? e.message : String(e) };
+      }
+    };
 
-    try { native = [...root.querySelectorAll(t.selector)]; }
-    catch (e) { nativeError = e instanceof Error ? e.message : String(e); }
-
-    try { nw = NW.Dom.select(t.selector, root); }
-    catch (e) { nwError = e instanceof Error ? e.message : String(e); }
-
-    if (nwError) {
-      return {
-        exactMatch: false,
-        mismatchMsg: nativeError && nwError
-          ? `Both threw:\n  native error: ${nativeError}\n  nw error: ${nwError}`
-          : `NW threw an error while native did not: ${nwError}`,
-        native: { count: 0, ids: [], threw: !!nativeError },
-        nw: { count: 0, ids: [], threw: !!nwError },
-      };
-    }
-
-    const nativeIds = native.map((el) => el.getAttribute('id') ?? '');
-    const nwIds = nw.map((el) => el.getAttribute('id') ?? '');
-    // const nativeIds = native.map((el) => el.id);
-    // const nwIds = nw.map((el: Element) => el.id);
-
-    let describe = (el: Element | undefined) => {
+    const describe = (el: Element | undefined) => {
       if (!el) return '(missing)';
       return {
         tag: el.tagName.toLowerCase(),
@@ -259,34 +270,95 @@ async function evalSelector(page: Page, selCase: SelectorCase): Promise<Selector
       };
     };
 
-    let exactMatch = true;
-    let mismatchMsg = '';
+    type NamedQueryResult = { name: string; result: QueryResult };
+    const compareQueryResults = (a: NamedQueryResult, b: NamedQueryResult): string | undefined => {
+      if (a.result.error || b.result.error) {
+        if (a.result.error && b.result.error) return `Both threw:\n  ${a.name} error: ${a.result.error}\n  ${b.name} error: ${b.result.error}`;
+        return a.result.error
+          ? `${a.name} threw while ${b.name} did not: ${a.result.error}`
+          : `${b.name} threw while ${a.name} did not: ${b.result.error}`;
+      }
 
-    if (native.length !== nw.length) {
-      exactMatch = false;
-      mismatchMsg =
-        `count mismatch: native=${native.length}, nw=${nw.length}\n` +
-        `first native=${JSON.stringify(describe(native[0]))}\n` +
-        `first nw=${JSON.stringify(describe(nw[0]))}`;
-    } else {
-      for (let i = 0; i < native.length; ++i) {
-        if (native[i] !== nw[i]) {
-          exactMatch = false;
-          mismatchMsg =
-            `element mismatch at index ${i}\n` +
-            `native=${JSON.stringify(describe(native[i]))}\n` +
-            `nw=${JSON.stringify(describe(nw[i]))}`;
+      const aElems = a.result.elements;
+      const bElems = b.result.elements;
+
+      let mismatchMsg: string | undefined;
+      if (aElems.length !== bElems.length) {
+        mismatchMsg = `Count mismatch: ${a.name}=${aElems.length}, ${b.name}=${bElems.length}`;
+      }
+
+      const maxLen = Math.max(aElems.length, bElems.length);
+      for (let i = 0; i < maxLen; ++i) {
+        if (aElems[i] !== bElems[i]) {
+          mismatchMsg = mismatchMsg ? mismatchMsg + '\n' : '';
+          mismatchMsg += `Element mismatch at index ${i}:\n` +
+            `${a.name}[${i}] = ${JSON.stringify(describe(aElems[i]))}\n` +
+            `${b.name}[${i}] = ${JSON.stringify(describe(bElems[i]))}`;
           break;
         }
       }
+
+      return mismatchMsg;
+    };
+
+    const getRoot = (root: SelectorRoot | undefined): ParentNode | null => {
+      return !root || root.kind === 'document' ? document
+        : root.kind === 'id' ? document.getElementById(root.value)
+        : root.kind === 'selector' ? document.querySelector(root.value)
+        : null; // impossible case
     }
 
-    return {
-      exactMatch,
-      mismatchMsg,
-      native: { count: native.length, ids: nativeIds, threw: !!nativeError },
-      nw: { count: nw.length, ids: nwIds, threw: !!nwError },
-    };
+    const root = getRoot(c.root);
+    
+    if (!root) {
+      return {
+        native, nw,
+        mismatchMsg: `Root element not found for selector: ${JSON.stringify(c.root)}`,
+      };
+    }
+
+    const nativeRes = runQuery(() => [...root.querySelectorAll(c.selector)]);
+    const nwRes = runQuery(() => NW.Dom.select(c.selector, root));
+    [{ engine: native, res: nativeRes }, { engine: nw, res: nwRes }]
+      .forEach(({ engine, res }) => {
+        engine.count = res.elements.length;
+        engine.ids = res.elements.map((el) => el.getAttribute('id') ?? '');
+        engine.classes = res.elements.map((el) => el.getAttribute('class') ?? '');
+        engine.threw = !!res.error;
+      });
+
+    const mismatchMsg = compareQueryResults(
+      { name: 'native', result: nativeRes },
+      { name: 'nw', result: nwRes },
+    );
+
+    if (c.expect?.equivalentTo) {
+      const eqSelector = c.expect.equivalentTo.selector;
+      const eqRoot = getRoot(c.expect.equivalentTo.root);
+
+      let eqNativeRes: QueryResult;
+      let eqNwRes: QueryResult;
+      if (!eqRoot) {
+        const error = `Equivalent selector root not found: ${JSON.stringify(c.expect.equivalentTo.root)}`;
+        eqNativeRes = { elements: [], error };
+        eqNwRes = { elements: [], error };
+      } else {
+        eqNativeRes = runQuery(() => [...eqRoot.querySelectorAll(eqSelector)]);
+        eqNwRes = runQuery(() => NW.Dom.select(eqSelector, eqRoot));
+      }
+
+      native.equivalentToFailMsg = compareQueryResults(
+        { name: `native(${c.selector})`, result: nativeRes },
+        { name: `native(${eqSelector})`, result: eqNativeRes },
+      );
+
+      nw.equivalentToFailMsg = compareQueryResults(
+        { name: `nw(${c.selector})`, result: nwRes },
+        { name: `nw(${eqSelector})`, result: eqNwRes },
+      );
+    }
+
+    return { mismatchMsg, native, nw };
   }, selCase);
 }
 
