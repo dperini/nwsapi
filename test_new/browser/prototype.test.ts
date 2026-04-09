@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 import { expect } from "@playwright/test";
 
 runScenarios('prototype 1', 'normal', [
@@ -10,13 +10,13 @@ runScenarios('prototype 1', 'normal', [
         </div>
       </div>`,
     cases: [
-      { selector: '.test_class', expect: { count: 2, ids: ['test_div_parent', 'test_div_child'] } },
+      { select: '.test_class', expect: { count: 2, ids: ['test_div_parent', 'test_div_child'] } },
       { 
-        selector: '.test_class',
-        root: { kind: 'id', value: 'test_div_parent' },
+        select: '.test_class',
+        scope: { by: 'id', id: 'test_div_parent' },
         expect: { count: 1, ids: ['test_div_child'] }
       },
-      { selector: '.non_existent', expect: { count: 0, ids: [] } },
+      { select: '.non_existent', expect: { count: 0, ids: [] } },
     ],
   },
 ]);
@@ -146,282 +146,282 @@ runScenarios('prototype 2', 'normal', [
     htmlMode: 'document',
     cases: [
       // testSelectorWithTagName
-      { selector: 'li' },
-      { selector: 'strong', expect: { ids: ['strong'] } },
-      { selector: 'nonexistent', expect: { count: 0, ids: [] } },
-      { selector: '*' },
+      { select: 'li' },
+      { select: 'strong', expect: { ids: ['strong'] } },
+      { select: 'nonexistent', expect: { count: 0, ids: [] } },
+      { select: '*' },
 
       // testSelectorWithId
-      { selector: '#fixtures', expect: { ids: ['fixtures'] } },
-      { selector: '#nonexistent', expect: { count: 0, ids: [] } },
-      { selector: '#troubleForm', expect: { ids: ['troubleForm'] } },
+      { select: '#fixtures', expect: { ids: ['fixtures'] } },
+      { select: '#nonexistent', expect: { count: 0, ids: [] } },
+      { select: '#troubleForm', expect: { ids: ['troubleForm'] } },
 
       // testSelectorWithClassName
-      { selector: '.first', expect: { ids: ['p', 'link_1', 'item_1'] } },
-      { selector: '.second', expect: { count: 0, ids: [] } },
+      { select: '.first', expect: { ids: ['p', 'link_1', 'item_1'] } },
+      { select: '.second', expect: { count: 0, ids: [] } },
 
       // testSelectorWithTagNameAndId
-      { selector: 'strong#strong', expect: { ids: ['strong'] } },
-      { selector: 'p#strong', expect: { count: 0, ids: [] } },
+      { select: 'strong#strong', expect: { ids: ['strong'] } },
+      { select: 'p#strong', expect: { count: 0, ids: [] } },
 
       // testSelectorWithTagNameAndClassName
-      { selector: 'a.internal', expect: { ids: ['link_1', 'link_2'] } },
-      { selector: 'a.internal.highlight', expect: { ids: ['link_2'] } },
-      { selector: 'a.highlight.internal', expect: { ids: ['link_2'] } },
-      { selector: 'a.highlight.internal.nonexistent', expect: { count: 0, ids: [] } },
+      { select: 'a.internal', expect: { ids: ['link_1', 'link_2'] } },
+      { select: 'a.internal.highlight', expect: { ids: ['link_2'] } },
+      { select: 'a.highlight.internal', expect: { ids: ['link_2'] } },
+      { select: 'a.highlight.internal.nonexistent', expect: { count: 0, ids: [] } },
 
       // testSelectorWithIdAndClassName
-      { selector: '#link_2.internal', expect: { ids: ['link_2'] } },
-      { selector: '.internal#link_2', expect: { ids: ['link_2'] } },
-      { selector: '#link_2.internal.highlight', expect: { ids: ['link_2'] } },
-      { selector: '#link_2.internal.nonexistent', expect: { count: 0, ids: [] } },
+      { select: '#link_2.internal', expect: { ids: ['link_2'] } },
+      { select: '.internal#link_2', expect: { ids: ['link_2'] } },
+      { select: '#link_2.internal.highlight', expect: { ids: ['link_2'] } },
+      { select: '#link_2.internal.nonexistent', expect: { count: 0, ids: [] } },
 
       // testSelectorWithTagNameAndIdAndClassName
-      { selector: 'a#link_2.internal', expect: { ids: ['link_2'] } },
-      { selector: 'a.internal#link_2', expect: { ids: ['link_2'] } },
-      { selector: 'li#item_1.first', expect: { ids: ['item_1'] } },
-      { selector: 'li#item_1.nonexistent', expect: { count: 0, ids: [] } },
-      { selector: 'li#item_1.first.nonexistent', expect: { count: 0, ids: [] } },
+      { select: 'a#link_2.internal', expect: { ids: ['link_2'] } },
+      { select: 'a.internal#link_2', expect: { ids: ['link_2'] } },
+      { select: 'li#item_1.first', expect: { ids: ['item_1'] } },
+      { select: 'li#item_1.nonexistent', expect: { count: 0, ids: [] } },
+      { select: 'li#item_1.first.nonexistent', expect: { count: 0, ids: [] } },
 
       // test$$MatchesAncestryWithTokensSeparatedByWhitespace
-      { selector: '#fixtures a *', expect: { ids: ['em2', 'em', 'span'] } },
-      { selector: 'div#fixtures p', expect: { ids: ['p'] } },
+      { select: '#fixtures a *', expect: { ids: ['em2', 'em', 'span'] } },
+      { select: 'div#fixtures p', expect: { ids: ['p'] } },
 
       // test$$CombinesResultsWhenMultipleExpressionsArePassed
-      { selector: '#p a, ul#list li', expect: { ids: ['link_1', 'link_2', 'item_1', 'item_2', 'item_3'] } },
+      { select: '#p a, ul#list li', expect: { ids: ['link_1', 'link_2', 'item_1', 'item_2', 'item_3'] } },
 
       // testSelectorWithTagNameAndAttributeExistence
-      { selector: 'h1[class]', expect: { equivalentTo: { selector: '#fixtures h1' } } },
-      { selector: 'h1[CLASS]', expect: { equivalentTo: { selector: '#fixtures h1' } } },
-      { selector: 'li#item_3[class]', expect: { ids: ['item_3'] } },
+      { select: 'h1[class]', expect: { equivalentTo: { search: '#fixtures h1' } } },
+      { select: 'h1[CLASS]', expect: { equivalentTo: { search: '#fixtures h1' } } },
+      { select: 'li#item_3[class]', expect: { ids: ['item_3'] } },
 
       // testSelectorWithTagNameAndSpecificAttributeValue
-      { selector: 'a[href="#"]', expect: { ids: ['link_1', 'link_2', 'link_3'] } },
-      { selector: "a[href='#']", expect: { ids: ['link_1', 'link_2', 'link_3'] } },
+      { select: 'a[href="#"]', expect: { ids: ['link_1', 'link_2', 'link_3'] } },
+      { select: "a[href='#']", expect: { ids: ['link_1', 'link_2', 'link_3'] } },
 
       // testSelectorWithTagNameAndWhitespaceTokenizedAttributeValue
-      { selector: 'a[class~="internal"]', expect: { ids: ['link_1', 'link_2'] } },
-      { selector: 'a[class~=internal]', expect: { ids: ['link_1', 'link_2'] } },
+      { select: 'a[class~="internal"]', expect: { ids: ['link_1', 'link_2'] } },
+      { select: 'a[class~=internal]', expect: { ids: ['link_1', 'link_2'] } },
 
       // testSelectorWithAttributeAndNoTagName
-      { selector: '[href]', root: { kind: 'selector', value: 'body' }, expect: { equivalentTo: { selector: 'a[href]' } } },
-      { selector: '[class~=internal]', expect: { equivalentTo: { selector: 'a[class~="internal"]' } } },
-      { selector: '[id]', expect: { equivalentTo: { selector: '*[id]' } } },
-      { selector: '[type=radio]', expect: { ids: ['checked_radio', 'unchecked_radio'] } },
-      { selector: '[type=checkbox]', expect: { equivalentTo: { selector: '*[type=checkbox]' } } },
-      { selector: '[title]', expect: { ids: ['with_title', 'commaParent'] } },
-      { selector: '#troubleForm [type=radio]', expect: { equivalentTo: { selector: '#troubleForm *[type=radio]' } } },
-      { selector: '#troubleForm [type]', expect: { equivalentTo: { selector: '#troubleForm *[type]' } } },
+      { select: '[href]', scope: { by: 'first', selector: 'body' }, expect: { equivalentTo: { search: 'a[href]' } } },
+      { select: '[class~=internal]', expect: { equivalentTo: { search: 'a[class~="internal"]' } } },
+      { select: '[id]', expect: { equivalentTo: { search: '*[id]' } } },
+      { select: '[type=radio]', expect: { ids: ['checked_radio', 'unchecked_radio'] } },
+      { select: '[type=checkbox]', expect: { equivalentTo: { search: '*[type=checkbox]' } } },
+      { select: '[title]', expect: { ids: ['with_title', 'commaParent'] } },
+      { select: '#troubleForm [type=radio]', expect: { equivalentTo: { search: '#troubleForm *[type=radio]' } } },
+      { select: '#troubleForm [type]', expect: { equivalentTo: { search: '#troubleForm *[type]' } } },
 
       // testSelectorWithAttributeContainingDash
-      { selector: '[foo-bar]', expect: { ids: ['attr_with_dash'] } }, // attribute with hyphen
+      { select: '[foo-bar]', expect: { ids: ['attr_with_dash'] } }, // attribute with hyphen
 
       // testSelectorWithUniversalAndHyphenTokenizedAttributeValue
-      { selector: '*[xml:lang|="es"]', expect: { ids: ['item_3'] } },
-      { selector: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] } },
+      { select: '*[xml:lang|="es"]', expect: { ids: ['item_3'] } },
+      { select: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] } },
 
       // testSelectorWithTagNameAndNegatedAttributeValue
-      { selector: 'a:not([href="#"])', expect: { count: 0, ids: [] } },
+      { select: 'a:not([href="#"])', expect: { count: 0, ids: [] } },
 
       // testSelectorWithBracketAttributeValue
-      { selector: '#troubleForm2 input[name="brackets[5][]"]', expect: { ids: ['chk_1', 'chk_2'] } },
-      { selector: '#troubleForm2 input[name="brackets[5][]"]:checked', expect: { ids: ['chk_1'] } },
-      { selector: '#troubleForm2 input[name="brackets[5][]"][value="2"]', expect: { ids: ['chk_2'] } },
-      { selector: '#troubleForm2 input[name=brackets\\[5\\]\\[\\]]', expect: { equivalentTo: { selector: '#troubleForm2 input[name="brackets[5][]"]' }, count: 2 } },
+      { select: '#troubleForm2 input[name="brackets[5][]"]', expect: { ids: ['chk_1', 'chk_2'] } },
+      { select: '#troubleForm2 input[name="brackets[5][]"]:checked', expect: { ids: ['chk_1'] } },
+      { select: '#troubleForm2 input[name="brackets[5][]"][value="2"]', expect: { ids: ['chk_2'] } },
+      { select: '#troubleForm2 input[name=brackets\\[5\\]\\[\\]]', expect: { equivalentTo: { search: '#troubleForm2 input[name="brackets[5][]"]' }, count: 2 } },
 
       // test$$WithNestedAttributeSelectors
-      { selector: 'div[style] p[id] strong', expect: { ids: ['strong'] } },
+      { select: 'div[style] p[id] strong', expect: { ids: ['strong'] } },
 
       // testSelectorWithMultipleConditions
-      { selector: 'a[class~=external][href="#"]', expect: { ids: ['link_3'] } },
-      { selector: 'a[class~=external]:not([href="#"])', expect: { count: 0, ids: [] } },
+      { select: 'a[class~=external][href="#"]', expect: { ids: ['link_3'] } },
+      { select: 'a[class~=external]:not([href="#"])', expect: { count: 0, ids: [] } },
 
       // derived from testSelectorMatchElements
-      { selector: '#list li', expect: { ids: ['item_1', 'item_2', 'item_3'] } },
-      { selector: '#fixtures a.internal', expect: { ids: ['link_1', 'link_2'] } },
-      { selector: '#fixtures p.last', expect: { count: 0, ids: [] } },
-      { selector: '#fixtures .inexistant, #fixtures a.internal', expect: { ids: ['link_1', 'link_2'] } },
+      { select: '#list li', expect: { ids: ['item_1', 'item_2', 'item_3'] } },
+      { select: '#fixtures a.internal', expect: { ids: ['link_1', 'link_2'] } },
+      { select: '#fixtures p.last', expect: { count: 0, ids: [] } },
+      { select: '#fixtures .inexistant, #fixtures a.internal', expect: { ids: ['link_1', 'link_2'] } },
 
       // derived from testSelectorFindElement
-      { selector: '#list li', expect: { ids: ['item_1', 'item_2', 'item_3'] } },
-      { selector: '#list li#item_3', expect: { ids: ['item_3'] } },
-      { selector: '#list em', expect: { count: 0, ids: [] } },
+      { select: '#list li', expect: { ids: ['item_1', 'item_2', 'item_3'] } },
+      { select: '#list li#item_3', expect: { ids: ['item_3'] } },
+      { select: '#list em', expect: { count: 0, ids: [] } },
 
       // derived from testElementMatch
-      { selector: 'span', expect: { includesIds: ['dupL1'] } },
-      { selector: 'span#dupL1', expect: { includesIds: ['dupL1'] } },
-      { selector: 'div > span', expect: { includesIds: ['dupL1'] } },         // child combinator
-      { selector: '#dupContainer span', expect: { includesIds: ['dupL1'] } }, // descendant combinator
-      { selector: '#dupL1', expect: { includesIds: ['dupL1'] } },             // ID only
-      { selector: 'span.span_foo', expect: { includesIds: ['dupL1'] } },      // class name 1
-      { selector: 'span.span_bar', expect: { includesIds: ['dupL1'] } },      // class name 2
-      { selector: 'span:first-child', expect: { includesIds: ['dupL1'] } },   // first-child pseudoclass
+      { select: 'span', expect: { includesIds: ['dupL1'] } },
+      { select: 'span#dupL1', expect: { includesIds: ['dupL1'] } },
+      { select: 'div > span', expect: { includesIds: ['dupL1'] } },         // child combinator
+      { select: '#dupContainer span', expect: { includesIds: ['dupL1'] } }, // descendant combinator
+      { select: '#dupL1', expect: { includesIds: ['dupL1'] } },             // ID only
+      { select: 'span.span_foo', expect: { includesIds: ['dupL1'] } },      // class name 1
+      { select: 'span.span_bar', expect: { includesIds: ['dupL1'] } },      // class name 2
+      { select: 'span:first-child', expect: { includesIds: ['dupL1'] } },   // first-child pseudoclass
 
-      { selector: 'span.span_wtf', expect: { excludesIds: ['dupL1'] } },      // bogus class name
-      { selector: '#dupL2', expect: { excludesIds: ['dupL1'] } },             // different ID
-      { selector: 'div', expect: { excludesIds: ['dupL1'] } },                // different tag name
-      { selector: 'span span', expect: { excludesIds: ['dupL1'] } },          // different ancestry
-      { selector: 'span > span', expect: { excludesIds: ['dupL1'] } },        // different parent
-      { selector: 'span:nth-child(5)', expect: { excludesIds: ['dupL1'] } },  // different pseudoclass
+      { select: 'span.span_wtf', expect: { excludesIds: ['dupL1'] } },      // bogus class name
+      { select: '#dupL2', expect: { excludesIds: ['dupL1'] } },             // different ID
+      { select: 'div', expect: { excludesIds: ['dupL1'] } },                // different tag name
+      { select: 'span span', expect: { excludesIds: ['dupL1'] } },          // different ancestry
+      { select: 'span > span', expect: { excludesIds: ['dupL1'] } },        // different parent
+      { select: 'span:nth-child(5)', expect: { excludesIds: ['dupL1'] } },  // different pseudoclass
 
-      { selector: 'a[rel^=external]', expect: { includesIds: ['link_1'], excludesIds: ['link_2'] } },
-      { selector: 'a[rel^="external"]', expect: { includesIds: ['link_1'] } },
-      { selector: "a[rel^='external']", expect: { includesIds: ['link_1'] } },
+      { select: 'a[rel^=external]', expect: { includesIds: ['link_1'], excludesIds: ['link_2'] } },
+      { select: 'a[rel^="external"]', expect: { includesIds: ['link_1'] } },
+      { select: "a[rel^='external']", expect: { includesIds: ['link_1'] } },
 
       // testSelectorWithSpaceInAttributeValue
-      { selector: 'cite[title="hello world!"]', expect: { ids: ['with_title'] } },
+      { select: 'cite[title="hello world!"]', expect: { ids: ['with_title'] } },
 
       // testSelectorWithNamespacedAttributes
       { 
-        selector: '[xml:lang]',
+        select: '[xml:lang]',
         expect: {
           allowMismatch: true, // some browsers don't support selecting by namespaced attributes
           count: 2,
           includesIds: ['item_3'],
-          equivalentTo: { selector: '*[xml:lang]' }
+          equivalentTo: { search: '*[xml:lang]' }
         }
       },
 
       // testSelectorWithChild
-      { selector: 'p.first > a', expect: { ids: ['link_1', 'link_2'] } },
-      { selector: 'div#grandfather > div', expect: { ids: ['father', 'uncle'] } },
-      { selector: '#level1>span', expect: { ids: ['level2_1', 'level2_2'] } },
-      { selector: '#level1 > span', expect: { ids: ['level2_1', 'level2_2'] } },
-      { selector: '#level2_1 > *', expect: { ids: ['level3_1', 'level3_2'] } },
-      { selector: 'div > #nonexistent', expect: { count: 0, ids: [] } },
-      { selector: '#level1 > span' },
+      { select: 'p.first > a', expect: { ids: ['link_1', 'link_2'] } },
+      { select: 'div#grandfather > div', expect: { ids: ['father', 'uncle'] } },
+      { select: '#level1>span', expect: { ids: ['level2_1', 'level2_2'] } },
+      { select: '#level1 > span', expect: { ids: ['level2_1', 'level2_2'] } },
+      { select: '#level2_1 > *', expect: { ids: ['level3_1', 'level3_2'] } },
+      { select: 'div > #nonexistent', expect: { count: 0, ids: [] } },
+      { select: '#level1 > span' },
 
       // testSelectorWithAdjacence
-      { selector: 'div.brothers + div.brothers', expect: { ids: ['uncle'] } },
-      { selector: 'div.brothers + div', expect: { ids: ['uncle'] } },
-      { selector: '#level2_1+span', expect: { ids: ['level2_2'] } },
-      { selector: '#level2_1 + span', expect: { ids: ['level2_2'] } },
-      { selector: '#level2_1 + *', expect: { ids: ['level2_2'] } },
-      { selector: '#level2_2 + span', expect: { count: 0, ids: [] } },
-      { selector: '#level3_1 + span', expect: { ids: ['level3_2'] } },
-      { selector: '#level3_1 + *', expect: { ids: ['level3_2'] } },
-      { selector: '#level3_2 + *', expect: { count: 0, ids: [] } },
-      { selector: '#level3_1 + em', expect: { count: 0, ids: [] } },
+      { select: 'div.brothers + div.brothers', expect: { ids: ['uncle'] } },
+      { select: 'div.brothers + div', expect: { ids: ['uncle'] } },
+      { select: '#level2_1+span', expect: { ids: ['level2_2'] } },
+      { select: '#level2_1 + span', expect: { ids: ['level2_2'] } },
+      { select: '#level2_1 + *', expect: { ids: ['level2_2'] } },
+      { select: '#level2_2 + span', expect: { count: 0, ids: [] } },
+      { select: '#level3_1 + span', expect: { ids: ['level3_2'] } },
+      { select: '#level3_1 + *', expect: { ids: ['level3_2'] } },
+      { select: '#level3_2 + *', expect: { count: 0, ids: [] } },
+      { select: '#level3_1 + em', expect: { count: 0, ids: [] } },
 
       // testSelectorWithLaterSibling
-      { selector: 'h1 ~ ul', expect: { ids: ['list'] } },
-      { selector: '#level2_1 ~ span', expect: { ids: ['level2_2'] } },
-      { selector: '#level2_1 ~ *', expect: { ids: ['level2_2', 'level2_3'] } },
-      { selector: '#level2_2 ~ span', expect: { count: 0, ids: [] } },
-      { selector: '#level3_2 ~ *', expect: { count: 0, ids: [] } },
-      { selector: '#level3_1 ~ em', expect: { count: 0, ids: [] } },
-      { selector: '#level3_1 ~ #level3_2', expect: { ids: ['level3_2'] } },
-      { selector: 'span ~ #level3_2', expect: { ids: ['level3_2'] } },
-      { selector: 'div ~ #level3_2', expect: { count: 0, ids: [] } },
-      { selector: 'div ~ #level2_3', expect: { count: 0, ids: [] } },
+      { select: 'h1 ~ ul', expect: { ids: ['list'] } },
+      { select: '#level2_1 ~ span', expect: { ids: ['level2_2'] } },
+      { select: '#level2_1 ~ *', expect: { ids: ['level2_2', 'level2_3'] } },
+      { select: '#level2_2 ~ span', expect: { count: 0, ids: [] } },
+      { select: '#level3_2 ~ *', expect: { count: 0, ids: [] } },
+      { select: '#level3_1 ~ em', expect: { count: 0, ids: [] } },
+      { select: '#level3_1 ~ #level3_2', expect: { ids: ['level3_2'] } },
+      { select: 'span ~ #level3_2', expect: { ids: ['level3_2'] } },
+      { select: 'div ~ #level3_2', expect: { count: 0, ids: [] } },
+      { select: 'div ~ #level2_3', expect: { count: 0, ids: [] } },
 
       // testSelectorWithNewAttributeOperators
-      { selector: 'div[class^=bro]', expect: { ids: ['father', 'uncle'] } },              // matching beginning of string
-      { selector: 'div[class$=men]', expect: { ids: ['father', 'uncle'] } },              // matching end of string
-      { selector: 'div[class*="ers m"]', expect: { ids: ['father', 'uncle'] } },          // matching substring
-      { selector: '#level1 *[id^="level2_"]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
-      { selector: '#level1 *[id^=level2_]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
-      { selector: '#level1 *[id$="_1"]', expect: { ids: ['level2_1', 'level3_1'] } },
-      { selector: '#level1 *[id$=_1]', expect: { ids: ['level2_1', 'level3_1'] } },
-      { selector: '#level1 *[id*="2"]', expect: { ids: ['level2_1', 'level3_2', 'level2_2', 'level2_3'] } },
-      { selector: "#level1 *[id*='2']", expect: { ids: ['level2_1', 'level3_2', 'level2_2', 'level2_3'] } },
+      { select: 'div[class^=bro]', expect: { ids: ['father', 'uncle'] } },              // matching beginning of string
+      { select: 'div[class$=men]', expect: { ids: ['father', 'uncle'] } },              // matching end of string
+      { select: 'div[class*="ers m"]', expect: { ids: ['father', 'uncle'] } },          // matching substring
+      { select: '#level1 *[id^="level2_"]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
+      { select: '#level1 *[id^=level2_]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
+      { select: '#level1 *[id$="_1"]', expect: { ids: ['level2_1', 'level3_1'] } },
+      { select: '#level1 *[id$=_1]', expect: { ids: ['level2_1', 'level3_1'] } },
+      { select: '#level1 *[id*="2"]', expect: { ids: ['level2_1', 'level3_2', 'level2_2', 'level2_3'] } },
+      { select: "#level1 *[id*='2']", expect: { ids: ['level2_1', 'level3_2', 'level2_2', 'level2_3'] } },
 
       // benchmark(function() { $$('#level1 *[id^=level2_]') }, 1000, '[^=]')
-      { selector: '#level1 *[id^=level2_]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
+      { select: '#level1 *[id^=level2_]', expect: { ids: ['level2_1', 'level2_2', 'level2_3'] } },
       // benchmark(function() { $$('#level1 *[id$=_1]') }, 1000, '[$=]')
-      { selector: '#level1 *[id$=_1]', expect: { ids: ['level2_1', 'level3_1'] } },
+      { select: '#level1 *[id$=_1]', expect: { ids: ['level2_1', 'level3_1'] } },
       // benchmark(function() { $$('#level1 *[id*=_2]') }, 1000, '[*=]')
-      { selector: '#level1 *[id*=_2]', expect: { ids: ['level3_2', 'level2_2'] } },
+      { select: '#level1 *[id*=_2]', expect: { ids: ['level3_2', 'level2_2'] } },
 
       // testSelectorWithDuplicates
-      { selector: 'div div' },
-      { selector: '#dupContainer span span', expect: { ids: ['dupL2', 'dupL3', 'dupL4', 'dupL5'] } },
+      { select: 'div div' },
+      { select: '#dupContainer span span', expect: { ids: ['dupL2', 'dupL3', 'dupL4', 'dupL5'] } },
 
       // benchmark(function() { $$('#dupContainer span span') }, 1000)
-      { selector: '#dupContainer span span', expect: { ids: ['dupL2', 'dupL3', 'dupL4', 'dupL5'] } },
+      { select: '#dupContainer span span', expect: { ids: ['dupL2', 'dupL3', 'dupL4', 'dupL5'] } },
 
       // testSelectorWithFirstLastOnlyNthNthLastChild
-      { selector: '#level1>*:first-child', expect: { ids: ['level2_1'] } },
-      { selector: '#level1 *:first-child', expect: { ids: ['level2_1', 'level3_1', 'level_only_child'] } },
-      { selector: '#level1>*:last-child', expect: { ids: ['level2_3'] } },
-      { selector: '#level1 *:last-child', expect: { ids: ['level3_2', 'level_only_child', 'level2_3'] } },
-      { selector: '#level1>div:last-child', expect: { ids: ['level2_3'] } },
-      { selector: '#level1 div:last-child', expect: { ids: ['level2_3'] } },
-      { selector: '#level1>div:first-child', expect: { count: 0, ids: [] } },
-      { selector: '#level1>span:last-child', expect: { count: 0, ids: [] } },
-      { selector: '#level1 span:first-child', expect: { ids: ['level2_1', 'level3_1'] } },
-      { selector: '#level1:first-child', expect: { count: 0, ids: [] } },
-      { selector: '#level1>*:only-child', expect: { count: 0, ids: [] } },
-      { selector: '#level1 *:only-child', expect: { ids: ['level_only_child'] } },
-      { selector: '#level1:only-child', expect: { count: 0, ids: [] } },
-      { selector: '#p *:nth-last-child(2)', expect: { ids: ['link_2'] } },                // nth-last-child
-      { selector: '#p *:nth-child(3)', expect: { ids: ['link_2'] } },                     // nth-child
-      { selector: '#p a:nth-child(3)', expect: { ids: ['link_2'] } },                     // nth-child
-      { selector: '#list > li:nth-child(n+2)', expect: { ids: ['item_2', 'item_3'] } },
-      { selector: '#list > li:nth-child(-n+2)', expect: { ids: ['item_1', 'item_2'] } },
+      { select: '#level1>*:first-child', expect: { ids: ['level2_1'] } },
+      { select: '#level1 *:first-child', expect: { ids: ['level2_1', 'level3_1', 'level_only_child'] } },
+      { select: '#level1>*:last-child', expect: { ids: ['level2_3'] } },
+      { select: '#level1 *:last-child', expect: { ids: ['level3_2', 'level_only_child', 'level2_3'] } },
+      { select: '#level1>div:last-child', expect: { ids: ['level2_3'] } },
+      { select: '#level1 div:last-child', expect: { ids: ['level2_3'] } },
+      { select: '#level1>div:first-child', expect: { count: 0, ids: [] } },
+      { select: '#level1>span:last-child', expect: { count: 0, ids: [] } },
+      { select: '#level1 span:first-child', expect: { ids: ['level2_1', 'level3_1'] } },
+      { select: '#level1:first-child', expect: { count: 0, ids: [] } },
+      { select: '#level1>*:only-child', expect: { count: 0, ids: [] } },
+      { select: '#level1 *:only-child', expect: { ids: ['level_only_child'] } },
+      { select: '#level1:only-child', expect: { count: 0, ids: [] } },
+      { select: '#p *:nth-last-child(2)', expect: { ids: ['link_2'] } },                // nth-last-child
+      { select: '#p *:nth-child(3)', expect: { ids: ['link_2'] } },                     // nth-child
+      { select: '#p a:nth-child(3)', expect: { ids: ['link_2'] } },                     // nth-child
+      { select: '#list > li:nth-child(n+2)', expect: { ids: ['item_2', 'item_3'] } },
+      { select: '#list > li:nth-child(-n+2)', expect: { ids: ['item_1', 'item_2'] } },
 
       // benchmark(function() { $$('#level1 *:first-child') }, 1000, ':first-child')
-      { selector: '#level1 *:first-child', expect: { ids: ['level2_1', 'level3_1', 'level_only_child'] } },
+      { select: '#level1 *:first-child', expect: { ids: ['level2_1', 'level3_1', 'level_only_child'] } },
       // benchmark(function() { $$('#level1 *:last-child') }, 1000, ':last-child')
-      { selector: '#level1 *:last-child', expect: { ids: ['level3_2', 'level_only_child', 'level2_3'] } },
+      { select: '#level1 *:last-child', expect: { ids: ['level3_2', 'level_only_child', 'level2_3'] } },
       // benchmark(function() { $$('#level1 *:only-child') }, 1000, ':only-child')
-      { selector: '#level1 *:only-child', expect: { ids: ['level_only_child'] } },
+      { select: '#level1 *:only-child', expect: { ids: ['level_only_child'] } },
 
       // testSelectorWithFirstLastNthNthLastOfType
-      { selector: '#p a:nth-of-type(2)', expect: { ids: ['link_2'] } },       // nth-of-type
-      { selector: '#p a:nth-of-type(1)', expect: { ids: ['link_1'] } },       // nth-of-type
-      { selector: '#p a:nth-last-of-type(1)', expect: { ids: ['link_2'] } },  // nth-last-of-type
-      { selector: '#p a:first-of-type', expect: { ids: ['link_1'] } },        // first-of-type
-      { selector: '#p a:last-of-type', expect: { ids: ['link_2'] } },         // last-of-type
+      { select: '#p a:nth-of-type(2)', expect: { ids: ['link_2'] } },       // nth-of-type
+      { select: '#p a:nth-of-type(1)', expect: { ids: ['link_1'] } },       // nth-of-type
+      { select: '#p a:nth-last-of-type(1)', expect: { ids: ['link_2'] } },  // nth-last-of-type
+      { select: '#p a:first-of-type', expect: { ids: ['link_1'] } },        // first-of-type
+      { select: '#p a:last-of-type', expect: { ids: ['link_2'] } },         // last-of-type
 
       // testSelectorWithNot
-      { selector: '#p a:not(:first-of-type)', expect: { ids: ['link_2'] } },         // first-of-type
-      { selector: '#p a:not(:last-of-type)', expect: { ids: ['link_1'] } },          // last-of-type
-      { selector: '#p a:not(:nth-of-type(1))', expect: { ids: ['link_2'] } },        // nth-of-type
-      { selector: '#p a:not(:nth-last-of-type(1))', expect: { ids: ['link_1'] } },   // nth-last-of-type
-      { selector: '#p a:not([rel~=nofollow])', expect: { ids: ['link_2'] } },        // attribute 1
-      { selector: '#p a:not([rel^=external])', expect: { ids: ['link_2'] } },        // attribute 2
-      { selector: '#p a:not([rel$=nofollow])', expect: { ids: ['link_2'] } },        // attribute 3
-      { selector: '#p a:not([rel$="nofollow"]) > em', expect: { ids: ['em'] } },     // attribute 4
-      { selector: '#list li:not(#item_1):not(#item_3)', expect: { ids: ['item_2'] } }, // adjacent :not clauses
-      { selector: '#grandfather > div:not(#uncle) #son', expect: { ids: ['son'] } },
-      { selector: '#p a:not([rel$="nofollow"]) em', expect: { ids: ['em'] } },       // attribute 4 + all descendants
-      { selector: '#p a:not([rel$="nofollow"])>em', expect: { ids: ['em'] } },       // attribute 4 (without whitespace)
+      { select: '#p a:not(:first-of-type)', expect: { ids: ['link_2'] } },         // first-of-type
+      { select: '#p a:not(:last-of-type)', expect: { ids: ['link_1'] } },          // last-of-type
+      { select: '#p a:not(:nth-of-type(1))', expect: { ids: ['link_2'] } },        // nth-of-type
+      { select: '#p a:not(:nth-last-of-type(1))', expect: { ids: ['link_1'] } },   // nth-last-of-type
+      { select: '#p a:not([rel~=nofollow])', expect: { ids: ['link_2'] } },        // attribute 1
+      { select: '#p a:not([rel^=external])', expect: { ids: ['link_2'] } },        // attribute 2
+      { select: '#p a:not([rel$=nofollow])', expect: { ids: ['link_2'] } },        // attribute 3
+      { select: '#p a:not([rel$="nofollow"]) > em', expect: { ids: ['em'] } },     // attribute 4
+      { select: '#list li:not(#item_1):not(#item_3)', expect: { ids: ['item_2'] } }, // adjacent :not clauses
+      { select: '#grandfather > div:not(#uncle) #son', expect: { ids: ['son'] } },
+      { select: '#p a:not([rel$="nofollow"]) em', expect: { ids: ['em'] } },       // attribute 4 + all descendants
+      { select: '#p a:not([rel$="nofollow"])>em', expect: { ids: ['em'] } },       // attribute 4 (without whitespace)
 
       // testSelectorWithEnabledDisabledChecked
-      { selector: '#troubleForm > *:disabled', expect: { ids: ['disabled_text_field'] } },
-      { selector: '#troubleForm > *:enabled', expect: { ids: ['hidden', 'enabled_text_field', 'checked_box', 'unchecked_box', 'checked_radio', 'unchecked_radio'] } },
-      { selector: '#troubleForm *:checked', expect: { ids: ['checked_box', 'checked_radio'] } },
+      { select: '#troubleForm > *:disabled', expect: { ids: ['disabled_text_field'] } },
+      { select: '#troubleForm > *:enabled', expect: { ids: ['hidden', 'enabled_text_field', 'checked_box', 'unchecked_box', 'checked_radio', 'unchecked_radio'] } },
+      { select: '#troubleForm *:checked', expect: { ids: ['checked_box', 'checked_radio'] } },
 
       // testIdenticalResultsFromEquivalentSelectors
-      { selector: 'div.brothers', expect: { equivalentTo: { selector: 'div[class~=brothers]' } } },
-      { selector: 'div.brothers', expect: { equivalentTo: { selector: 'div[class~=brothers].brothers' } } },
-      { selector: 'div:not(.brothers)', expect: { equivalentTo: { selector: 'div:not([class~=brothers])' } } },
-      { selector: 'li ~ li', expect: { equivalentTo: { selector: 'li:not(:first-child)' } } },
-      { selector: 'ul > li', expect: { equivalentTo: { selector: 'ul > li:nth-child(n)' } } },
-      { selector: 'ul > li:nth-child(even)', expect: { equivalentTo: { selector: 'ul > li:nth-child(2n)' } } },
-      { selector: 'ul > li:nth-child(odd)', expect: { equivalentTo: { selector: 'ul > li:nth-child(2n+1)' } } },
-      { selector: 'ul > li:first-child', expect: { equivalentTo: { selector: 'ul > li:nth-child(1)' } } },
-      { selector: 'ul > li:last-child', expect: { equivalentTo: { selector: 'ul > li:nth-last-child(1)' } } },
-      { selector: 'ul > li:nth-child(n-128)', expect: { equivalentTo: { selector: 'ul > li' } } },
-      { selector: 'ul > li:nth-child(n-999)', expect: { equivalentTo: { selector: 'ul > li' } } },
-      { selector: 'ul>li', expect: { equivalentTo: { selector: 'ul > li' } } },
-      { selector: '#p a:not([rel$="nofollow"])>em', expect: { equivalentTo: { selector: '#p a:not([rel$="nofollow"]) > em' } } },
+      { select: 'div.brothers', expect: { equivalentTo: { search: 'div[class~=brothers]' } } },
+      { select: 'div.brothers', expect: { equivalentTo: { search: 'div[class~=brothers].brothers' } } },
+      { select: 'div:not(.brothers)', expect: { equivalentTo: { search: 'div:not([class~=brothers])' } } },
+      { select: 'li ~ li', expect: { equivalentTo: { search: 'li:not(:first-child)' } } },
+      { select: 'ul > li', expect: { equivalentTo: { search: 'ul > li:nth-child(n)' } } },
+      { select: 'ul > li:nth-child(even)', expect: { equivalentTo: { search: 'ul > li:nth-child(2n)' } } },
+      { select: 'ul > li:nth-child(odd)', expect: { equivalentTo: { search: 'ul > li:nth-child(2n+1)' } } },
+      { select: 'ul > li:first-child', expect: { equivalentTo: { search: 'ul > li:nth-child(1)' } } },
+      { select: 'ul > li:last-child', expect: { equivalentTo: { search: 'ul > li:nth-last-child(1)' } } },
+      { select: 'ul > li:nth-child(n-128)', expect: { equivalentTo: { search: 'ul > li' } } },
+      { select: 'ul > li:nth-child(n-999)', expect: { equivalentTo: { search: 'ul > li' } } },
+      { select: 'ul>li', expect: { equivalentTo: { search: 'ul > li' } } },
+      { select: '#p a:not([rel$="nofollow"])>em', expect: { equivalentTo: { search: '#p a:not([rel$="nofollow"]) > em' } } },
 
       // testSelectorsThatShouldReturnNothing
-      { selector: 'span:empty > *', expect: { count: 0, ids: [] } },
-      { selector: 'div.brothers:not(.brothers)', expect: { count: 0, ids: [] } },
-      { selector: '#level2_2 :only-child:not(:last-child)', expect: { count: 0, ids: [] } },
-      { selector: '#level2_2 :only-child:not(:first-child)', expect: { count: 0, ids: [] } },
+      { select: 'span:empty > *', expect: { count: 0, ids: [] } },
+      { select: 'div.brothers:not(.brothers)', expect: { count: 0, ids: [] } },
+      { select: '#level2_2 :only-child:not(:last-child)', expect: { count: 0, ids: [] } },
+      { select: '#level2_2 :only-child:not(:first-child)', expect: { count: 0, ids: [] } },
 
       // testCommasFor$$
-      { selector: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
-      { selector: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
-      { selector: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
-      { selector: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
+      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
+      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
+      { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
+      { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
 
       // testElementDownWithDotAndColon
-      { selector: '#dupContainer\\.withdot\\:active #dupL4_dotcolon', expect: { ids: ['dupL4_dotcolon'] } }
+      { select: '#dupContainer\\.withdot\\:active #dupL4_dotcolon', expect: { ids: ['dupL4_dotcolon'] } }
     ],
   },
 
@@ -437,8 +437,8 @@ runScenarios('prototype 2', 'normal', [
     },
     cases: [
       // testSelectorWithEmpty
-      { selector: '#level1 *:empty', expect: { ids: ['level3_1', 'level3_2', 'level2_3'] } },
-      { selector: '#level_only_child:empty', expect: { count: 0, ids: [] } }, // newlines count as content
+      { select: '#level1 *:empty', expect: { ids: ['level3_1', 'level3_2', 'level2_3'] } },
+      { select: '#level_only_child:empty', expect: { count: 0, ids: [] } }, // newlines count as content
     ],
   },
 

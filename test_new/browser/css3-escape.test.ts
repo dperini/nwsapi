@@ -1,5 +1,5 @@
 import { type Page } from "@playwright/test";
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 const setupNw = async (page: Page) => {
   await page.evaluate(() => {
@@ -20,8 +20,8 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // 4.3.7 from https://www.w3.org/TR/css-syntax-3/#consume-an-escaped-code-point
-      { selector: '#nonescaped', expect: { count: 1 } },
-      { selector: '.nonescaped', expect: { count: 1 } },
+      { select: '#nonescaped', expect: { count: 1 } },
+      { select: '.nonescaped', expect: { count: 1 } },
     ],
   },
   {
@@ -36,17 +36,17 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // - escape hex digit
-      { selector: '#\\30 nextIsWhiteSpace', expect: { count: 1 } },
-      { selector: '.\\30 nextIsWhiteSpace', expect: { count: 1 } },
+      { select: '#\\30 nextIsWhiteSpace', expect: { count: 1 } },
+      { select: '.\\30 nextIsWhiteSpace', expect: { count: 1 } },
 
-      { selector: '#\\30nextIsNotHexLetters', expect: { count: 1 } },
-      { selector: '.\\30nextIsNotHexLetters', expect: { count: 1 } },
+      { select: '#\\30nextIsNotHexLetters', expect: { count: 1 } },
+      { select: '.\\30nextIsNotHexLetters', expect: { count: 1 } },
 
-      { selector: '#\\000030connectHexMoreThan6Hex', expect: { count: 1 } },
-      { selector: '.\\000030connectHexMoreThan6Hex', expect: { count: 1 } },
+      { select: '#\\000030connectHexMoreThan6Hex', expect: { count: 1 } },
+      { select: '.\\000030connectHexMoreThan6Hex', expect: { count: 1 } },
 
-      { selector: '#\\000030 spaceMoreThan6Hex', expect: { count: 1 } },
-      { selector: '.\\000030 spaceMoreThan6Hex', expect: { count: 1 } },
+      { select: '#\\000030 spaceMoreThan6Hex', expect: { count: 1 } },
+      { select: '.\\000030 spaceMoreThan6Hex', expect: { count: 1 } },
     ],
   },
   // {
@@ -86,17 +86,17 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     },
     cases: [
       // 1. zero points
-      { selector: '#one\\0', expect: { count: 1 } },
-      { selector: '.one\\0', expect: { count: 1 } },
+      { select: '#one\\0', expect: { count: 1 } },
+      { select: '.one\\0', expect: { count: 1 } },
 
-      { selector: '#two\\0', expect: { count: 0 } },
-      { selector: '.two\\0', expect: { count: 0 } },
+      { select: '#two\\0', expect: { count: 0 } },
+      { select: '.two\\0', expect: { count: 0 } },
 
-      { selector: '#three\\000000', expect: { count: 1 } },
-      { selector: '.three\\000000', expect: { count: 1 } },
+      { select: '#three\\000000', expect: { count: 1 } },
+      { select: '.three\\000000', expect: { count: 1 } },
 
-      { selector: '#four\\000000', expect: { count: 0 } },
-      { selector: '.four\\000000', expect: { count: 0 } },
+      { select: '#four\\000000', expect: { count: 0 } },
+      { select: '.four\\000000', expect: { count: 0 } },
     ],
   },
   {
@@ -115,20 +115,20 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // 2. surrogate points
-      { selector: '#\\d83d surrogateFirstA', expect: { count: 1, ids: ['\u{fffd}surrogateFirstA'] } },
-      { selector: '.\\d83d surrogateFirstA', expect: { count: 1, ids: ['\u{fffd}surrogateFirstA'] } },
-      { selector: '#\\d83d surrogateFirstB', expect: { count: 0 } },
-      { selector: '.\\d83d surrogateFirstB', expect: { count: 0 } },
+      { select: '#\\d83d surrogateFirstA', expect: { count: 1, ids: ['\u{fffd}surrogateFirstA'] } },
+      { select: '.\\d83d surrogateFirstA', expect: { count: 1, ids: ['\u{fffd}surrogateFirstA'] } },
+      { select: '#\\d83d surrogateFirstB', expect: { count: 0 } },
+      { select: '.\\d83d surrogateFirstB', expect: { count: 0 } },
 
-      { selector: '#surrogateSecondC\\dd11', expect: { count: 1, ids: ['surrogateSecondC\u{fffd}'] } },
-      { selector: '.surrogateSecondC\\dd11', expect: { count: 1, ids: ['surrogateSecondC\u{fffd}'] } },
-      { selector: '#surrogateSecondD\\dd11', expect: { count: 0 } },
-      { selector: '.surrogateSecondD\\dd11', expect: { count: 0 } },
+      { select: '#surrogateSecondC\\dd11', expect: { count: 1, ids: ['surrogateSecondC\u{fffd}'] } },
+      { select: '.surrogateSecondC\\dd11', expect: { count: 1, ids: ['surrogateSecondC\u{fffd}'] } },
+      { select: '#surrogateSecondD\\dd11', expect: { count: 0 } },
+      { select: '.surrogateSecondD\\dd11', expect: { count: 0 } },
 
-      { selector: '#surrogatePairE\\d83d\\dd11', expect: { count: 1, ids: ['surrogatePairE\u{fffd}\u{fffd}'] } },
-      { selector: '.surrogatePairE\\d83d\\dd11', expect: { count: 1, ids: ['surrogatePairE\u{fffd}\u{fffd}'] } },
-      { selector: '#surrogatePairF\\d83d\\dd11', expect: { count: 0 } },
-      { selector: '.surrogatePairF\\d83d\\dd11', expect: { count: 0 } },
+      { select: '#surrogatePairE\\d83d\\dd11', expect: { count: 1, ids: ['surrogatePairE\u{fffd}\u{fffd}'] } },
+      { select: '.surrogatePairE\\d83d\\dd11', expect: { count: 1, ids: ['surrogatePairE\u{fffd}\u{fffd}'] } },
+      { select: '#surrogatePairF\\d83d\\dd11', expect: { count: 0 } },
+      { select: '.surrogatePairF\\d83d\\dd11', expect: { count: 0 } },
     ],
   },
   {
@@ -141,20 +141,20 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // 3. out of range points
-      { selector: '#outOfRangeA\\110000', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
-      { selector: '.outOfRangeA\\110000', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '#outOfRangeA\\110000', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '.outOfRangeA\\110000', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
 
-      { selector: '#outOfRangeA\\110030', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
-      { selector: '.outOfRangeA\\110030', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '#outOfRangeA\\110030', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '.outOfRangeA\\110030', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
 
-      { selector: '#outOfRangeB\\110030', expect: { count: 0 } },
-      { selector: '.outOfRangeB\\110030', expect: { count: 0 } },
+      { select: '#outOfRangeB\\110030', expect: { count: 0 } },
+      { select: '.outOfRangeB\\110030', expect: { count: 0 } },
 
-      { selector: '#outOfRangeA\\555555', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
-      { selector: '.outOfRangeA\\555555', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '#outOfRangeA\\555555', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '.outOfRangeA\\555555', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
 
-      { selector: '#outOfRangeA\\ffffff', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
-      { selector: '.outOfRangeA\\ffffff', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '#outOfRangeA\\ffffff', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
+      { select: '.outOfRangeA\\ffffff', expect: { count: 1, ids: ['outOfRangeA\u{fffd}'] } },
     ],
   },
   {
@@ -167,11 +167,11 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // trailing backslash escapes EOF -> U+FFFD
-      { selector: '#eofA\\', expect: { count: 1, ids: ['eofA\u{fffd}'] } },
-      { selector: '.eofA\\', expect: { count: 1, ids: ['eofA\u{fffd}'] } },
+      { select: '#eofA\\', expect: { count: 1, ids: ['eofA\u{fffd}'] } },
+      { select: '.eofA\\', expect: { count: 1, ids: ['eofA\u{fffd}'] } },
 
-      { selector: '#eofB\\', expect: { count: 0 } },
-      { selector: '.eofB\\', expect: { count: 0 } },
+      { select: '#eofB\\', expect: { count: 0 } },
+      { select: '.eofB\\', expect: { count: 0 } },
     ],
   },
   {
@@ -184,14 +184,14 @@ runScenarios('css3 escaped identifiers', 'normal',  [
       </div>`,
     setupPage: setupNw,
     cases: [
-      { selector: '#\\.comma', expect: { count: 1, ids: ['.comma'] } },
-      { selector: '.\\.comma', expect: { count: 1, ids: ['.comma'] } },
+      { select: '#\\.comma', expect: { count: 1, ids: ['.comma'] } },
+      { select: '.\\.comma', expect: { count: 1, ids: ['.comma'] } },
 
-      { selector: '#\\-minus', expect: { count: 1, ids: ['-minus'] } },
-      { selector: '.\\-minus', expect: { count: 1, ids: ['-minus'] } },
+      { select: '#\\-minus', expect: { count: 1, ids: ['-minus'] } },
+      { select: '.\\-minus', expect: { count: 1, ids: ['-minus'] } },
 
-      { selector: '#\\g', expect: { count: 1, ids: ['g'] } },
-      { selector: '.\\g', expect: { count: 1, ids: ['g'] } },
+      { select: '#\\g', expect: { count: 1, ids: ['g'] } },
+      { select: '.\\g', expect: { count: 1, ids: ['g'] } },
     ],
   },
   {
@@ -211,29 +211,29 @@ runScenarios('css3 escaped identifiers', 'normal',  [
       </div>`,
     setupPage: setupNw,
     cases: [
-      { selector: '#\\61 BMPRegular', expect: { count: 1, ids: ['aBMPRegular'] } },
-      { selector: '.\\61 BMPRegular', expect: { count: 1, ids: ['aBMPRegular'] } },
+      { select: '#\\61 BMPRegular', expect: { count: 1, ids: ['aBMPRegular'] } },
+      { select: '.\\61 BMPRegular', expect: { count: 1, ids: ['aBMPRegular'] } },
 
-      { selector: '#\\1f511 nonBMP', expect: { count: 1, ids: ['\u{1f511}nonBMP'] } },
-      { selector: '.\\1f511 nonBMP', expect: { count: 1, ids: ['\u{1f511}nonBMP'] } },
+      { select: '#\\1f511 nonBMP', expect: { count: 1, ids: ['\u{1f511}nonBMP'] } },
+      { select: '.\\1f511 nonBMP', expect: { count: 1, ids: ['\u{1f511}nonBMP'] } },
 
-      { selector: '#\\30\\30 continueEscapesA', expect: { count: 1, ids: ['00continueEscapesA'] } },
-      { selector: '.\\30\\30 continueEscapesA', expect: { count: 1, ids: ['00continueEscapesA'] } },
+      { select: '#\\30\\30 continueEscapesA', expect: { count: 1, ids: ['00continueEscapesA'] } },
+      { select: '.\\30\\30 continueEscapesA', expect: { count: 1, ids: ['00continueEscapesA'] } },
 
-      { selector: '#\\30 \\30 continueEscapesB', expect: { count: 1, ids: ['00continueEscapesB'] } },
-      { selector: '.\\30 \\30 continueEscapesB', expect: { count: 1, ids: ['00continueEscapesB'] } },
+      { select: '#\\30 \\30 continueEscapesB', expect: { count: 1, ids: ['00continueEscapesB'] } },
+      { select: '.\\30 \\30 continueEscapesB', expect: { count: 1, ids: ['00continueEscapesB'] } },
 
-      { selector: '#continueEscapesC\\30 \\30 ', expect: { count: 1, ids: ['continueEscapesC00'] } },
-      { selector: '.continueEscapesC\\30 \\30 ', expect: { count: 1, ids: ['continueEscapesC00'] } },
+      { select: '#continueEscapesC\\30 \\30 ', expect: { count: 1, ids: ['continueEscapesC00'] } },
+      { select: '.continueEscapesC\\30 \\30 ', expect: { count: 1, ids: ['continueEscapesC00'] } },
 
-      { selector: '#continueEscapesD\\30 \\30', expect: { count: 1, ids: ['continueEscapesD00'] } },
-      { selector: '.continueEscapesD\\30 \\30', expect: { count: 1, ids: ['continueEscapesD00'] } },
+      { select: '#continueEscapesD\\30 \\30', expect: { count: 1, ids: ['continueEscapesD00'] } },
+      { select: '.continueEscapesD\\30 \\30', expect: { count: 1, ids: ['continueEscapesD00'] } },
 
-      { selector: '#continueEscapesE\\30\\30 ', expect: { count: 1, ids: ['continueEscapesE00'] } },
-      { selector: '.continueEscapesE\\30\\30 ', expect: { count: 1, ids: ['continueEscapesE00'] } },
+      { select: '#continueEscapesE\\30\\30 ', expect: { count: 1, ids: ['continueEscapesE00'] } },
+      { select: '.continueEscapesE\\30\\30 ', expect: { count: 1, ids: ['continueEscapesE00'] } },
 
-      { selector: '#continueEscapesF\\30\\30', expect: { count: 1, ids: ['continueEscapesF00'] } },
-      { selector: '.continueEscapesF\\30\\30', expect: { count: 1, ids: ['continueEscapesF00'] } },
+      { select: '#continueEscapesF\\30\\30', expect: { count: 1, ids: ['continueEscapesF00'] } },
+      { select: '.continueEscapesF\\30\\30', expect: { count: 1, ids: ['continueEscapesF00'] } },
     ],
   },
 
@@ -265,62 +265,62 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // ident tests case from CSS tests of chromium source: https://goo.gl/3Cxdov
-      { selector: '#hel\\6CoA', expect: { count: 1, ids: ['helloA'] } },
-      { selector: '.hel\\6CoA', expect: { count: 1, ids: ['helloA'] } },
+      { select: '#hel\\6CoA', expect: { count: 1, ids: ['helloA'] } },
+      { select: '.hel\\6CoA', expect: { count: 1, ids: ['helloA'] } },
 
-      { selector: '#hel\\6C oB', expect: { count: 1, ids: ['helloB'] } },
-      { selector: '.hel\\6C oB', expect: { count: 1, ids: ['helloB'] } },
+      { select: '#hel\\6C oB', expect: { count: 1, ids: ['helloB'] } },
+      { select: '.hel\\6C oB', expect: { count: 1, ids: ['helloB'] } },
 
-      { selector: '#\\26 B', expect: { count: 1, ids: ['&B'] } },
-      { selector: '.\\26 B', expect: { count: 1, ids: ['&B'] } },
+      { select: '#\\26 B', expect: { count: 1, ids: ['&B'] } },
+      { select: '.\\26 B', expect: { count: 1, ids: ['&B'] } },
 
-      { selector: '#spac\\65\r\nsA', expect: { count: 1, ids: ['spacesA'] } },
-      { selector: '.spac\\65\r\nsA', expect: { count: 1, ids: ['spacesA'] } },
+      { select: '#spac\\65\r\nsA', expect: { count: 1, ids: ['spacesA'] } },
+      { select: '.spac\\65\r\nsA', expect: { count: 1, ids: ['spacesA'] } },
 
-      { selector: '#sp\\61\tc\\65\fsB', expect: { count: 1, ids: ['spacesB'] } },
-      { selector: '.sp\\61\tc\\65\fsB', expect: { count: 1, ids: ['spacesB'] } },
+      { select: '#sp\\61\tc\\65\fsB', expect: { count: 1, ids: ['spacesB'] } },
+      { select: '.sp\\61\tc\\65\fsB', expect: { count: 1, ids: ['spacesB'] } },
 
-      { selector: '#\\E000', expect: { count: 1, ids: ['\u{E000}'] } },
-      { selector: '.\\E000', expect: { count: 1, ids: ['\u{E000}'] } },
+      { select: '#\\E000', expect: { count: 1, ids: ['\u{E000}'] } },
+      { select: '.\\E000', expect: { count: 1, ids: ['\u{E000}'] } },
 
-      { selector: '#testA\\D799', expect: { count: 1, ids: ['testA\u{D799}'] } },
-      { selector: '.testA\\D799', expect: { count: 1, ids: ['testA\u{D799}'] } },
+      { select: '#testA\\D799', expect: { count: 1, ids: ['testA\u{D799}'] } },
+      { select: '.testA\\D799', expect: { count: 1, ids: ['testA\u{D799}'] } },
 
-      { selector: '#te\\s\\tB', expect: { count: 1, ids: ['testB'] } },
-      { selector: '.te\\s\\tB', expect: { count: 1, ids: ['testB'] } },
+      { select: '#te\\s\\tB', expect: { count: 1, ids: ['testB'] } },
+      { select: '.te\\s\\tB', expect: { count: 1, ids: ['testB'] } },
 
-      { selector: '#\\.\\,\\:\\!', expect: { count: 1, ids: ['.,:!'] } },
-      { selector: '.\\.\\,\\:\\!', expect: { count: 1, ids: ['.,:!'] } },
+      { select: '#\\.\\,\\:\\!', expect: { count: 1, ids: ['.,:!'] } },
+      { select: '.\\.\\,\\:\\!', expect: { count: 1, ids: ['.,:!'] } },
 
-      { selector: '#nullA\\0', expect: { count: 1, ids: ['nullA\u{fffd}'] } },
-      { selector: '.nullA\\0', expect: { count: 1, ids: ['nullA\u{fffd}'] } },
+      { select: '#nullA\\0', expect: { count: 1, ids: ['nullA\u{fffd}'] } },
+      { select: '.nullA\\0', expect: { count: 1, ids: ['nullA\u{fffd}'] } },
 
-      { selector: '#nullB\\0000', expect: { count: 1, ids: ['nullB\u{fffd}'] } },
-      { selector: '.nullB\\0000', expect: { count: 1, ids: ['nullB\u{fffd}'] } },
+      { select: '#nullB\\0000', expect: { count: 1, ids: ['nullB\u{fffd}'] } },
+      { select: '.nullB\\0000', expect: { count: 1, ids: ['nullB\u{fffd}'] } },
 
-      { selector: '#largeA\\110000', expect: { count: 1, ids: ['largeA\u{fffd}'] } },
-      { selector: '.largeA\\110000', expect: { count: 1, ids: ['largeA\u{fffd}'] } },
+      { select: '#largeA\\110000', expect: { count: 1, ids: ['largeA\u{fffd}'] } },
+      { select: '.largeA\\110000', expect: { count: 1, ids: ['largeA\u{fffd}'] } },
 
-      { selector: '#largeB\\23456a', expect: { count: 1, ids: ['largeB\u{fffd}'] } },
-      { selector: '.largeB\\23456a', expect: { count: 1, ids: ['largeB\u{fffd}'] } },
+      { select: '#largeB\\23456a', expect: { count: 1, ids: ['largeB\u{fffd}'] } },
+      { select: '.largeB\\23456a', expect: { count: 1, ids: ['largeB\u{fffd}'] } },
 
-      { selector: '#surrogateA\\D800', expect: { count: 1, ids: ['surrogateA\u{fffd}'] } },
-      { selector: '.surrogateA\\D800', expect: { count: 1, ids: ['surrogateA\u{fffd}'] } },
+      { select: '#surrogateA\\D800', expect: { count: 1, ids: ['surrogateA\u{fffd}'] } },
+      { select: '.surrogateA\\D800', expect: { count: 1, ids: ['surrogateA\u{fffd}'] } },
 
-      { selector: '#surrogateB\\0DBAC', expect: { count: 1, ids: ['surrogateB\u{fffd}'] } },
-      { selector: '.surrogateB\\0DBAC', expect: { count: 1, ids: ['surrogateB\u{fffd}'] } },
+      { select: '#surrogateB\\0DBAC', expect: { count: 1, ids: ['surrogateB\u{fffd}'] } },
+      { select: '.surrogateB\\0DBAC', expect: { count: 1, ids: ['surrogateB\u{fffd}'] } },
 
-      { selector: '#\\00DFFFsurrogateC', expect: { count: 1, ids: ['\u{fffd}surrogateC'] } },
-      { selector: '.\\00DFFFsurrogateC', expect: { count: 1, ids: ['\u{fffd}surrogateC'] } },
+      { select: '#\\00DFFFsurrogateC', expect: { count: 1, ids: ['\u{fffd}surrogateC'] } },
+      { select: '.\\00DFFFsurrogateC', expect: { count: 1, ids: ['\u{fffd}surrogateC'] } },
 
-      { selector: '#\\10fFfF', expect: { count: 1, ids: ['\u{10ffff}'] } },
-      { selector: '.\\10fFfF', expect: { count: 1, ids: ['\u{10ffff}'] } },
+      { select: '#\\10fFfF', expect: { count: 1, ids: ['\u{10ffff}'] } },
+      { select: '.\\10fFfF', expect: { count: 1, ids: ['\u{10ffff}'] } },
 
-      { selector: '#\\10fFfF0', expect: { count: 1, ids: ['\u{10ffff}0'] } },
-      { selector: '.\\10fFfF0', expect: { count: 1, ids: ['\u{10ffff}0'] } },
+      { select: '#\\10fFfF0', expect: { count: 1, ids: ['\u{10ffff}0'] } },
+      { select: '.\\10fFfF0', expect: { count: 1, ids: ['\u{10ffff}0'] } },
 
-      { selector: '#\\10000000', expect: { count: 1, ids: ['\u{100000}00'] } },
-      { selector: '.\\10000000', expect: { count: 1, ids: ['\u{100000}00'] } },
+      { select: '#\\10000000', expect: { count: 1, ids: ['\u{100000}00'] } },
+      { select: '.\\10000000', expect: { count: 1, ids: ['\u{100000}00'] } },
     ],
   },
   {
@@ -346,50 +346,50 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     setupPage: setupNw,
     cases: [
       // ident tests case from CSS tests of chromium source: https://goo.gl/3Cxdov
-      { selector: '#simple-ident', expect: { count: 1, ids: ['simple-ident'] } },
-      { selector: '.simple-ident', expect: { count: 1, ids: ['simple-ident'] } },
+      { select: '#simple-ident', expect: { count: 1, ids: ['simple-ident'] } },
+      { select: '.simple-ident', expect: { count: 1, ids: ['simple-ident'] } },
 
-      { selector: '#testing123', expect: { count: 1, ids: ['testing123'] } },
-      { selector: '.testing123', expect: { count: 1, ids: ['testing123'] } },
+      { select: '#testing123', expect: { count: 1, ids: ['testing123'] } },
+      { select: '.testing123', expect: { count: 1, ids: ['testing123'] } },
 
-      { selector: '#_underscore', expect: { count: 1, ids: ['_underscore'] } },
-      { selector: '._underscore', expect: { count: 1, ids: ['_underscore'] } },
+      { select: '#_underscore', expect: { count: 1, ids: ['_underscore'] } },
+      { select: '._underscore', expect: { count: 1, ids: ['_underscore'] } },
 
-      { selector: '#-text', expect: { count: 1, ids: ['-text'] } },
-      { selector: '.-text', expect: { count: 1, ids: ['-text'] } },
+      { select: '#-text', expect: { count: 1, ids: ['-text'] } },
+      { select: '.-text', expect: { count: 1, ids: ['-text'] } },
 
-      { selector: '#-\\6d', expect: { count: 1, ids: ['-m'] } },
-      { selector: '.-\\6d', expect: { count: 1, ids: ['-m'] } },
+      { select: '#-\\6d', expect: { count: 1, ids: ['-m'] } },
+      { select: '.-\\6d', expect: { count: 1, ids: ['-m'] } },
 
-      { selector: '#--abc', expect: { count: 1, ids: ['--abc'] } },
-      { selector: '.--abc', expect: { count: 1, ids: ['--abc'] } },
+      { select: '#--abc', expect: { count: 1, ids: ['--abc'] } },
+      { select: '.--abc', expect: { count: 1, ids: ['--abc'] } },
 
-      { selector: '#--', expect: { count: 1, ids: ['--'] } },
-      { selector: '.--', expect: { count: 1, ids: ['--'] } },
+      { select: '#--', expect: { count: 1, ids: ['--'] } },
+      { select: '.--', expect: { count: 1, ids: ['--'] } },
 
-      { selector: '#--11', expect: { count: 1, ids: ['--11'] } },
-      { selector: '.--11', expect: { count: 1, ids: ['--11'] } },
+      { select: '#--11', expect: { count: 1, ids: ['--11'] } },
+      { select: '.--11', expect: { count: 1, ids: ['--11'] } },
 
-      { selector: '#---', expect: { count: 1, ids: ['---'] } },
-      { selector: '.---', expect: { count: 1, ids: ['---'] } },
+      { select: '#---', expect: { count: 1, ids: ['---'] } },
+      { select: '.---', expect: { count: 1, ids: ['---'] } },
 
-      { selector: '#\u{2003}', expect: { count: 1, ids: ['\u{2003}'] } },
-      { selector: '.\u{2003}', expect: { count: 1, ids: ['\u{2003}'] } },
+      { select: '#\u{2003}', expect: { count: 1, ids: ['\u{2003}'] } },
+      { select: '.\u{2003}', expect: { count: 1, ids: ['\u{2003}'] } },
 
-      { selector: '#\u{A0}', expect: { count: 1, ids: ['\u{A0}'] } },
-      { selector: '.\u{A0}', expect: { count: 1, ids: ['\u{A0}'] } },
+      { select: '#\u{A0}', expect: { count: 1, ids: ['\u{A0}'] } },
+      { select: '.\u{A0}', expect: { count: 1, ids: ['\u{A0}'] } },
 
-      { selector: '#\u{1234}', expect: { count: 1, ids: ['\u{1234}'] } },
-      { selector: '.\u{1234}', expect: { count: 1, ids: ['\u{1234}'] } },
+      { select: '#\u{1234}', expect: { count: 1, ids: ['\u{1234}'] } },
+      { select: '.\u{1234}', expect: { count: 1, ids: ['\u{1234}'] } },
 
-      { selector: '#\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
-      { selector: '.\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
+      { select: '#\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
+      { select: '.\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
 
-      { selector: '#\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
-      { selector: '.\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
+      { select: '#\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
+      { select: '.\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
 
-      { selector: '#ab\u{0}c', expect: { count: 1, ids: ['ab\u{fffd}c'] } },
-      { selector: '.ab\u{0}c', expect: { count: 1, ids: ['ab\u{fffd}c'] } },
+      { select: '#ab\u{0}c', expect: { count: 1, ids: ['ab\u{fffd}c'] } },
+      { select: '.ab\u{0}c', expect: { count: 1, ids: ['ab\u{fffd}c'] } },
     ],
   },
   {
@@ -397,16 +397,16 @@ runScenarios('css3 escaped identifiers', 'normal',  [
     html: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
     setupPage: setupNw,
     cases: [
-      { selector: '#spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },
+      { select: '#spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },
     ],
   },
   {
     name: 'spaces in ident class selector mismatch',
-    modifier: 'fail',
+    status: 'fail',
     html: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
     setupPage: setupNw,
     cases: [
-      { selector: '.spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },
+      { select: '.spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },
     ],
   },
 ]);

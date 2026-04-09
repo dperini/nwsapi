@@ -1,6 +1,11 @@
+import type { PwHelpers } from './browser/harness/browser';
+
 export {};
 
 declare global {
+  interface Window {
+    __pwHelpers: PwHelpers;
+  }
   const NW: {
     Dom: {
       select(

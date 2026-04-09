@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('scope', 'normal', [
   {
@@ -11,9 +11,9 @@ runScenarios('scope', 'normal', [
       </ul>
     `,
     cases: [
-      { selector: 'ul a', expect: { count: 2 } },
-      { selector: '#scope', expect: { count: 1 } },
-      { selector: 'a', root: { kind: 'id', value: 'scope' }, expect: { count: 1 } },
+      { select: 'ul a', expect: { count: 2 } },
+      { select: '#scope', expect: { count: 1 } },
+      { select: 'a', scope: { by: 'id', id: 'scope' }, expect: { count: 1 } },
     ],
   },
 
@@ -27,10 +27,10 @@ runScenarios('scope', 'normal', [
       </ul>
     `,
     cases: [
-      { selector: '#scope', expect: { count: 1 } },
-      { selector: ':scope ul a', root: { kind: 'id', value: 'scope' }, expect: { count: 0, ids: [] } },
-      { selector: ':scope body ul a', root: { kind: 'id', value: 'scope' }, expect: { count: 0, ids: [] } },
-      { selector: ':scope a', root: { kind: 'id', value: 'scope' }, expect: { count: 1 } },
+      { select: '#scope', expect: { count: 1 } },
+      { select: ':scope ul a', scope: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
+      { select: ':scope body ul a', scope: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
+      { select: ':scope a', scope: { by: 'id', id: 'scope' }, expect: { count: 1 } },
     ],
   },
 
@@ -43,9 +43,9 @@ runScenarios('scope', 'normal', [
       </div>
     `,
     cases: [
-      { selector: '.a', expect: { count: 1 } },
-      { selector: 'body div', root: { kind: 'selector', value: '.a' }, expect: { count: 2 } },
-      { selector: ':scope body div', root: { kind: 'selector', value: '.a' }, expect: { count: 0, ids: [] } },
+      { select: '.a', expect: { count: 1 } },
+      { select: 'body div', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
+      { select: ':scope body div', scope: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
     ],
   },
 
@@ -59,9 +59,9 @@ runScenarios('scope', 'normal', [
       </div>
     `,
     cases: [
-      { selector: 'div', expect: { count: 1 } },
-      { selector: ':scope > p', root: { kind: 'selector', value: 'div' }, expect: { count: 1 } },
-      { selector: ':scope > span', root: { kind: 'selector', value: 'div' }, expect: { count: 0, ids: [] } },
+      { select: 'div', expect: { count: 1 } },
+      { select: ':scope > p', scope: { by: 'first', selector: 'div' }, expect: { count: 1 } },
+      { select: ':scope > span', scope: { by: 'first', selector: 'div' }, expect: { count: 0, ids: [] } },
     ],
   },
 
@@ -74,15 +74,15 @@ runScenarios('scope', 'normal', [
       </div>
     `,
     cases: [
-      { selector: 'body div', root: { kind: 'selector', value: '.a' }, expect: { count: 2 } },
-      { selector: ':scope body div', root: { kind: 'selector', value: '.a' }, expect: { count: 0, ids: [] } },
-      { selector: ':scope > .a1, :scope > .a2', root: { kind: 'selector', value: '.a' }, expect: { count: 2 } },
+      { select: 'body div', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
+      { select: ':scope body div', scope: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
+      { select: ':scope > .a1, :scope > .a2', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
     ],
   },
 
   {
     name: 'scope-04a',
-    modifier: 'fixme',
+    status: 'fixme',
     htmlMode: 'document',
     html: `
       <!DOCTYPE html>
@@ -99,13 +99,13 @@ runScenarios('scope', 'normal', [
       </html>
     `,
     cases: [
-      { selector: ':scope > [data-test="foo"]', root: { kind: 'selector', value: 'body' }, expect: { count: 1 } },
+      { select: ':scope > [data-test="foo"]', scope: { by: 'first', selector: 'body' }, expect: { count: 1 } },
     ],
   },
 
   {
     name: 'scope-04b',
-    modifier: 'fixme',
+    status: 'fixme',
     html: `
       <div>
         <div class="outer">
@@ -116,8 +116,8 @@ runScenarios('scope', 'normal', [
     `,
     cases: [
       {
-        selector: ':scope > div',
-        root: { kind: 'selector', value: 'div' },
+        select: ':scope > div',
+        scope: { by: 'first', selector: 'div' },
         expect: {
           classes: ['outer', 'other-outer']
         },

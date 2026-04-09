@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('jsvm', 'normal',  [
   {
@@ -20,8 +20,8 @@ runScenarios('jsvm', 'normal',  [
       </div>
     `,
     cases: [
-      { selector: '#test1 div:not(:empty)', expect: { count: 4 } },
-      { selector: '#test1 div:nth-child(even):empty', expect: { count: 2 } },
+      { select: '#test1 div:not(:empty)', expect: { count: 4 } },
+      { select: '#test1 div:nth-child(even):empty', expect: { count: 2 } },
     ],
   },
 ]);

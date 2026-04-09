@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('quirks', 'normal', [
   {
@@ -24,10 +24,10 @@ runScenarios('quirks', 'normal', [
       </body>
       </html>`,
     cases: [
-      { selector: '#dom [class~=foobar]', expect: { ids: ['d1'] } },
-      { selector: '#qsa [class~=foobar]', expect: { ids: ['q1'] } },
-      { selector: '#dom [class~=foobar i]', expect: { ids: ['d1', 'd2', 'd3'] } },
-      { selector: '#qsa [class~=foobar i]', expect: { ids: ['q1', 'q2', 'q3'] } },
+      { select: '#dom [class~=foobar]', expect: { ids: ['d1'] } },
+      { select: '#qsa [class~=foobar]', expect: { ids: ['q1'] } },
+      { select: '#dom [class~=foobar i]', expect: { ids: ['d1', 'd2', 'd3'] } },
+      { select: '#qsa [class~=foobar i]', expect: { ids: ['q1', 'q2', 'q3'] } },
     ],
   },
   {
@@ -52,10 +52,10 @@ runScenarios('quirks', 'normal', [
       </body>
       </html>`,
     cases: [
-      { selector: '#dom [class~=foobar]', expect: { ids: ['d1'] } },
-      { selector: '#qsa [class~=foobar]', expect: { ids: ['q1'] } },
-      { selector: '#dom [class~=foobar i]', expect: { ids: ['d1', 'd2', 'd3'] } },
-      { selector: '#qsa [class~=foobar i]', expect: { ids: ['q1', 'q2', 'q3'] } },
+      { select: '#dom [class~=foobar]', expect: { ids: ['d1'] } },
+      { select: '#qsa [class~=foobar]', expect: { ids: ['q1'] } },
+      { select: '#dom [class~=foobar i]', expect: { ids: ['d1', 'd2', 'd3'] } },
+      { select: '#qsa [class~=foobar i]', expect: { ids: ['q1', 'q2', 'q3'] } },
     ],
   }
 ]);

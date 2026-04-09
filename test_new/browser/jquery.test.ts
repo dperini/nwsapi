@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 const html = `
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -268,33 +268,33 @@ runScenarios('jquery', 'normal', [
     htmlMode: 'document',
     cases: [
       // Compare universal selection directly against native behavior.
-      { selector: '*' },
+      { select: '*' },
 
-      { selector: 'p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'body', expect: { ids: ['body'] } },
-      { selector: 'html', expect: { ids: ['html'] } },
-      { selector: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'body', expect: { ids: ['body'] } },
+      { select: 'html', expect: { ids: ['html'] } },
+      { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
       // scoped selection
-      { selector: 'param', root: { kind: 'id', value: 'object1' }, expect: { count: 2 } },
+      { select: 'param', scope: { by: 'id', id: 'object1' }, expect: { count: 2 } },
 
       // Consistency checks for multiple selector groups
-      { selector: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
-      { selector: '#length', expect: { count: 1 } },
-      { selector: '#lengthtest input', expect: { count: 2 } },
+      { select: '#length', expect: { count: 1 } },
+      { select: '#lengthtest input', expect: { count: 2 } },
 
       // Duplicate / sort-order checks from the original suite, expressed as counts.
-      { selector: '*', expect: { count: 187 } },
-      { selector: '*, *', expect: { count: 187 } },
+      { select: '*', expect: { count: 187 } },
+      { select: '*, *', expect: { count: 187 } },
 
-      { selector: 'p', expect: { count: 6 } },
-      { selector: 'p, div p', expect: { count: 6 } },
+      { select: 'p', expect: { count: 6 } },
+      { select: 'p, div p', expect: { count: 6 } },
 
-      { selector: 'h2, h1', expect: { ids: ['header', 'banner', 'userAgent'] } },
-      { selector: 'p, p a', expect: { ids: ['firstp', 'simon1', 'ap', 'google', 'groups', 'anchor1', 'mark', 'sndp', 'en', 'yahoo', 'sap', 'anchor2', 'simon', 'first'] } },
+      { select: 'h2, h1', expect: { ids: ['header', 'banner', 'userAgent'] } },
+      { select: 'p, p a', expect: { ids: ['firstp', 'simon1', 'ap', 'google', 'groups', 'anchor1', 'mark', 'sndp', 'en', 'yahoo', 'sap', 'anchor2', 'simon', 'first'] } },
 
       // jQuery extension pseudo, not native CSS
       // { selector: 'h2:first, h1:first', expect: { ids: ['header', 'banner'] } },
@@ -306,20 +306,20 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: '[', expect: { throws: true } },
-      { selector: '(', expect: { throws: true } },
-      { selector: '{', expect: { throws: true } },
-      { selector: '<', expect: { throws: true } },
-      { selector: '()', expect: { throws: true } },
-      { selector: '<>', expect: { throws: true } },
+      { select: '[', expect: { throws: true } },
+      { select: '(', expect: { throws: true } },
+      { select: '{', expect: { throws: true } },
+      { select: '<', expect: { throws: true } },
+      { select: '()', expect: { throws: true } },
+      { select: '<>', expect: { throws: true } },
 
-      { selector: ':nth-child(2n+-0)', expect: { throws: true } },
-      { selector: ':nth-child(- 1n)', expect: { throws: true } },
-      { selector: ':nth-child(-1 n)', expect: { throws: true } },
-      { selector: ':first-child(n)', expect: { throws: true } },
-      { selector: ':last-child(n)', expect: { throws: true } },
-      { selector: ':only-child(n)', expect: { throws: true } },
-      { selector: ':nth-child(2+0)', expect: { throws: true } },
+      { select: ':nth-child(2n+-0)', expect: { throws: true } },
+      { select: ':nth-child(- 1n)', expect: { throws: true } },
+      { select: ':nth-child(-1 n)', expect: { throws: true } },
+      { select: ':first-child(n)', expect: { throws: true } },
+      { select: ':last-child(n)', expect: { throws: true } },
+      { select: ':only-child(n)', expect: { throws: true } },
+      { select: ':nth-child(2+0)', expect: { throws: true } },
     ],
   },
 
@@ -328,40 +328,40 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: '#body', expect: { ids: ['body'] } },
-      { selector: 'body#body', expect: { ids: ['body'] } },
-      { selector: 'ul#first', expect: { ids: [] } },
+      { select: '#body', expect: { ids: ['body'] } },
+      { select: 'body#body', expect: { ids: ['body'] } },
+      { select: 'ul#first', expect: { ids: [] } },
 
-      { selector: '#firstp #simon1', expect: { ids: ['simon1'] } },
-      { selector: '#firstp #foobar', expect: { ids: [] } },
+      { select: '#firstp #simon1', expect: { ids: ['simon1'] } },
+      { select: '#firstp #foobar', expect: { ids: [] } },
 
-      { selector: '#台北Táiběi', expect: { ids: ['台北Táiběi'] } },
-      { selector: '#台北Táiběi, #台北', expect: { ids: ['台北Táiběi', '台北'] } },
-      { selector: 'div #台北', expect: { ids: ['台北'] } },
-      { selector: 'form > #台北', expect: { ids: ['台北'] } },
+      { select: '#台北Táiběi', expect: { ids: ['台北Táiběi'] } },
+      { select: '#台北Táiběi, #台北', expect: { ids: ['台北Táiběi', '台北'] } },
+      { select: 'div #台北', expect: { ids: ['台北'] } },
+      { select: 'form > #台北', expect: { ids: ['台北'] } },
 
-      { selector: '#foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: '#test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
-      { selector: 'div #foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: 'div #test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
-      { selector: 'form > #foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: 'form > #test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: '#foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: '#test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: 'div #foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: 'div #test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: 'form > #foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: 'form > #test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
 
-      { selector: '#form > #radio1', expect: { ids: ['radio1'] } }, // bug #267
-      { selector: '#form #first', expect: { ids: [] } },
-      { selector: '#form > #option1a', expect: { ids: [] } },
+      { select: '#form > #radio1', expect: { ids: ['radio1'] } }, // bug #267
+      { select: '#form #first', expect: { ids: [] } },
+      { select: '#form > #option1a', expect: { ids: [] } },
 
-      { selector: '#foo > *', expect: { ids: ['sndp', 'en', 'sap'] } },
-      { selector: '#firstUL > *', expect: { ids: [] } },
+      { select: '#foo > *', expect: { ids: ['sndp', 'en', 'sap'] } },
+      { select: '#firstUL > *', expect: { ids: [] } },
 
-      { selector: '#lengthtest', expect: { ids: ['lengthtest'] } },
-      { selector: '#asdfasdf #foobar', expect: { ids: [] } }, // bug #986
+      { select: '#lengthtest', expect: { ids: ['lengthtest'] } },
+      { select: '#asdfasdf #foobar', expect: { ids: [] } }, // bug #986
 
-      { selector: 'body div#form', expect: { ids: [] } },
+      { select: 'body div#form', expect: { ids: [] } },
 
-      { selector: '#types_all', expect: { ids: ['types_all'] } },
-      { selector: '#fx-queue', expect: { ids: ['fx-queue'] } },
-      { selector: '#name\\+value', expect: { ids: ['name+value'] } },
+      { select: '#types_all', expect: { ids: ['types_all'] } },
+      { select: '#fx-queue', expect: { ids: ['fx-queue'] } },
+      { select: '#name\\+value', expect: { ids: ['name+value'] } },
     ],
   },
   {
@@ -388,8 +388,8 @@ runScenarios('jquery', 'normal', [
       });
     },
     cases: [
-      { selector: '#tName1', expect: { ids: ['tName1'] } },
-      { selector: '#tName2', expect: { ids: [] } },
+      { select: '#tName1', expect: { ids: ['tName1'] } },
+      { select: '#tName2', expect: { ids: [] } },
     ],
   },
 
@@ -398,31 +398,31 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: '.blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: '.GROUPS', expect: { ids: ['groups'] } },
-      { selector: '.blog.link', expect: { ids: ['simon'] } },
-      { selector: 'a.blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: 'p .blog', expect: { ids: ['mark', 'simon'] } },
+      { select: '.blog', expect: { ids: ['mark', 'simon'] } },
+      { select: '.GROUPS', expect: { ids: ['groups'] } },
+      { select: '.blog.link', expect: { ids: ['simon'] } },
+      { select: 'a.blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'p .blog', expect: { ids: ['mark', 'simon'] } },
 
       // Repeated as in the original test
-      { selector: 'p .blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: 'p .blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: 'p .blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: 'p .blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'p .blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'p .blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'p .blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'p .blog', expect: { ids: ['mark', 'simon'] } },
 
-      { selector: '.台北Táiběi', expect: { ids: ['utf8class1'] } },
-      { selector: '.台北', expect: { ids: ['utf8class1', 'utf8class2'] } },
-      { selector: '.台北Táiběi.台北', expect: { ids: ['utf8class1'] } },
-      { selector: '.台北Táiběi, .台北', expect: { ids: ['utf8class1', 'utf8class2'] } },
-      { selector: 'div .台北Táiběi', expect: { ids: ['utf8class1'] } },
-      { selector: 'form > .台北Táiběi', expect: { ids: ['utf8class1'] } },
+      { select: '.台北Táiběi', expect: { ids: ['utf8class1'] } },
+      { select: '.台北', expect: { ids: ['utf8class1', 'utf8class2'] } },
+      { select: '.台北Táiběi.台北', expect: { ids: ['utf8class1'] } },
+      { select: '.台北Táiběi, .台北', expect: { ids: ['utf8class1', 'utf8class2'] } },
+      { select: 'div .台北Táiběi', expect: { ids: ['utf8class1'] } },
+      { select: 'form > .台北Táiběi', expect: { ids: ['utf8class1'] } },
 
-      { selector: '.foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: '.test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
-      { selector: 'div .foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: 'div .test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
-      { selector: 'form > .foo\\:bar', expect: { ids: ['foo:bar'] } },
-      { selector: 'form > .test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: '.foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: '.test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: 'div .foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: 'div .test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
+      { select: 'form > .foo\\:bar', expect: { ids: ['foo:bar'] } },
+      { select: 'form > .test\\.foo\\[5\\]bar', expect: { ids: ['test.foo[5]bar'] } },
     ],
   },
 
@@ -471,21 +471,21 @@ runScenarios('jquery', 'normal', [
       });
     },
     cases: [
-      { selector: 'input[name=action]', expect: { ids: ['text1'] } },
-      { selector: "input[name='action']", expect: { ids: ['text1'] } },
-      { selector: 'input[name="action"]', expect: { ids: ['text1'] } },
+      { select: 'input[name=action]', expect: { ids: ['text1'] } },
+      { select: "input[name='action']", expect: { ids: ['text1'] } },
+      { select: 'input[name="action"]', expect: { ids: ['text1'] } },
 
-      { selector: '[name=test]', expect: { ids: ['length', 'fx-queue'] } },
-      { selector: '[name=div]', expect: { ids: ['fadein'] } },
-      { selector: '*[name=iframe]', expect: { ids: ['iframe'] } },
+      { select: '[name=test]', expect: { ids: ['length', 'fx-queue'] } },
+      { select: '[name=div]', expect: { ids: ['fadein'] } },
+      { select: '*[name=iframe]', expect: { ids: ['iframe'] } },
 
-      { selector: "input[name='types[]']", expect: { ids: ['types_all', 'types_anime', 'types_movie'] } },
+      { select: "input[name='types[]']", expect: { ids: ['types_all', 'types_anime', 'types_movie'] } },
 
-      { selector: '#form input[name=action]', expect: { ids: ['text1'] } },
-      { selector: "#form input[name='foo[bar]']", expect: { ids: ['hidden2'] } },
+      { select: '#form input[name=action]', expect: { ids: ['text1'] } },
+      { select: "#form input[name='foo[bar]']", expect: { ids: ['hidden2'] } },
 
-      { selector: '[name=tName1]', expect: { ids: ['tName1ID'] } },
-      { selector: '[name=tName2]', expect: { ids: ['tName2ID'] } },
+      { select: '[name=tName1]', expect: { ids: ['tName1ID'] } },
+      { select: '[name=tName2]', expect: { ids: ['tName2ID'] } },
     ],
   },
 
@@ -494,10 +494,10 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: 'h2, p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'h2 , p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'h2 , p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'h2,p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'h2, p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'h2 , p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'h2 , p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'h2,p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
     ],
   },
 
@@ -506,40 +506,40 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: 'p > a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
-      { selector: 'p> a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
-      { selector: 'p >a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
-      { selector: 'p>a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
+      { select: 'p > a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
+      { select: 'p> a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
+      { select: 'p >a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
+      { select: 'p>a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
 
-      { selector: 'p > a.blog', expect: { ids: ['mark', 'simon'] } },
-      { selector: 'code > *', expect: { ids: ['anchor1', 'anchor2'] } },
-      { selector: 'p > * > *', expect: { ids: ['anchor1', 'anchor2'] } },
+      { select: 'p > a.blog', expect: { ids: ['mark', 'simon'] } },
+      { select: 'code > *', expect: { ids: ['anchor1', 'anchor2'] } },
+      { select: 'p > * > *', expect: { ids: ['anchor1', 'anchor2'] } },
 
-      { selector: 'a + a', expect: { ids: ['groups'] } },
-      { selector: 'a +a', expect: { ids: ['groups'] } },
-      { selector: 'a+ a', expect: { ids: ['groups'] } },
-      { selector: 'a+a', expect: { ids: ['groups'] } },
+      { select: 'a + a', expect: { ids: ['groups'] } },
+      { select: 'a +a', expect: { ids: ['groups'] } },
+      { select: 'a+ a', expect: { ids: ['groups'] } },
+      { select: 'a+a', expect: { ids: ['groups'] } },
 
-      { selector: 'p + p', expect: { ids: ['ap', 'en', 'sap'] } },
-      { selector: 'p#firstp + p', expect: { ids: ['ap'] } },
-      { selector: 'p[lang=en] + p', expect: { ids: ['sap'] } },
-      { selector: 'a.GROUPS + code + a', expect: { ids: ['mark'] } },
+      { select: 'p + p', expect: { ids: ['ap', 'en', 'sap'] } },
+      { select: 'p#firstp + p', expect: { ids: ['ap'] } },
+      { select: 'p[lang=en] + p', expect: { ids: ['sap'] } },
+      { select: 'a.GROUPS + code + a', expect: { ids: ['mark'] } },
 
-      { selector: 'a + a, code > a', expect: { ids: ['groups', 'anchor1', 'anchor2'] } },
+      { select: 'a + a, code > a', expect: { ids: ['groups', 'anchor1', 'anchor2'] } },
 
-      { selector: 'div.blah > p > a', expect: { ids: [] } },
-      { selector: 'div.foo > span > a', expect: { ids: [] } },
-      { selector: '.container div:not(.excluded) div', expect: { ids: [] } },
+      { select: 'div.blah > p > a', expect: { ids: [] } },
+      { select: 'div.foo > span > a', expect: { ids: [] } },
+      { select: '.container div:not(.excluded) div', expect: { ids: [] } },
 
-      { selector: '* > :first-child', root: { kind: 'id', value: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
-      { selector: '* > :nth-child(1)', root: { kind: 'id', value: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
-      { selector: '* > *:first-child', root: { kind: 'id', value: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > :first-child', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > :nth-child(1)', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > *:first-child', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
 
-      { selector: '.fototab > .thumbnails > a', expect: { ids: [] } },
+      { select: '.fototab > .thumbnails > a', expect: { ids: [] } },
 
-      { selector: 'p:first-child', expect: { ids: ['firstp', 'sndp'] } },
-      { selector: 'p:nth-child(1)', expect: { ids: ['firstp', 'sndp'] } },
-      { selector: 'p:not(:nth-child(1))', expect: { ids: ['ap', 'en', 'sap', 'first'] } },
+      { select: 'p:first-child', expect: { ids: ['firstp', 'sndp'] } },
+      { select: 'p:nth-child(1)', expect: { ids: ['firstp', 'sndp'] } },
+      { select: 'p:not(:nth-child(1))', expect: { ids: ['ap', 'en', 'sap', 'first'] } },
     ],
   },
 
@@ -566,7 +566,7 @@ runScenarios('jquery', 'normal', [
       });
     },
     cases: [
-      { selector: 'p:first-child', expect: { ids: [] } },
+      { select: 'p:first-child', expect: { ids: [] } },
     ],
   },
 
@@ -575,31 +575,31 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: 'p:last-child', expect: { ids: ['sap'] } },
-      { selector: 'a:last-child', expect: { ids: ['simon1', 'anchor1', 'mark', 'yahoo', 'anchor2', 'simon', 'liveLink1', 'liveLink2'] } },
+      { select: 'p:last-child', expect: { ids: ['sap'] } },
+      { select: 'a:last-child', expect: { ids: ['simon1', 'anchor1', 'mark', 'yahoo', 'anchor2', 'simon', 'liveLink1', 'liveLink2'] } },
 
-      { selector: '#main form#form > *:nth-child(2)', expect: { ids: ['text1'] } },
-      { selector: '#main form#form > :nth-child(2)', expect: { ids: ['text1'] } },
+      { select: '#main form#form > *:nth-child(2)', expect: { ids: ['text1'] } },
+      { select: '#main form#form > :nth-child(2)', expect: { ids: ['text1'] } },
 
       // changed `select:first` to `select:first-of-type`; `:first` is jQuery-only 
-      { selector: '#form select:first-of-type option:nth-child(3)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(0n+3)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(1n+0)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(1n)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(n)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(even)', expect: { ids: ['option1b', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(odd)', expect: { ids: ['option1a', 'option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(2n)', expect: { ids: ['option1b', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(2n+1)', expect: { ids: ['option1a', 'option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n+1)', expect: { ids: ['option1a', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n+2)', expect: { ids: ['option1b'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n+3)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n-1)', expect: { ids: ['option1b'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n-2)', expect: { ids: ['option1a', 'option1d'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n-3)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(3n+0)', expect: { ids: ['option1c'] } },
-      { selector: '#form select:first-of-type option:nth-child(-n+3)', expect: { ids: ['option1a', 'option1b', 'option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(3)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(0n+3)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(1n+0)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(1n)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(n)', expect: { ids: ['option1a', 'option1b', 'option1c', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(even)', expect: { ids: ['option1b', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(odd)', expect: { ids: ['option1a', 'option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(2n)', expect: { ids: ['option1b', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(2n+1)', expect: { ids: ['option1a', 'option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(3n)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(3n+1)', expect: { ids: ['option1a', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(3n+2)', expect: { ids: ['option1b'] } },
+      { select: '#form select:first-of-type option:nth-child(3n+3)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(3n-1)', expect: { ids: ['option1b'] } },
+      { select: '#form select:first-of-type option:nth-child(3n-2)', expect: { ids: ['option1a', 'option1d'] } },
+      { select: '#form select:first-of-type option:nth-child(3n-3)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(3n+0)', expect: { ids: ['option1c'] } },
+      { select: '#form select:first-of-type option:nth-child(-n+3)', expect: { ids: ['option1a', 'option1b', 'option1c'] } },
     ],
   },
 
@@ -618,59 +618,59 @@ runScenarios('jquery', 'normal', [
       });
     },
     cases: [
-      { selector: 'a[title]', expect: { ids: ['google'] } },
-      { selector: '*[title]', expect: { ids: ['google'] } },
-      { selector: '[title]', expect: { ids: ['google'] } },
-      { selector: 'a[ title ]', expect: { ids: ['google'] } },
+      { select: 'a[title]', expect: { ids: ['google'] } },
+      { select: '*[title]', expect: { ids: ['google'] } },
+      { select: '[title]', expect: { ids: ['google'] } },
+      { select: 'a[ title ]', expect: { ids: ['google'] } },
 
-      { selector: "a[rel='bookmark']", expect: { ids: ['simon1'] } },
-      { selector: 'a[rel="bookmark"]', expect: { ids: ['simon1'] } },
-      { selector: 'a[rel=bookmark]', expect: { ids: ['simon1'] } },
-      { selector: "a[href='http://www.google.com/']", expect: { ids: ['google'] } },
-      { selector: "a[ rel = 'bookmark' ]", expect: { ids: ['simon1'] } },
+      { select: "a[rel='bookmark']", expect: { ids: ['simon1'] } },
+      { select: 'a[rel="bookmark"]', expect: { ids: ['simon1'] } },
+      { select: 'a[rel=bookmark]', expect: { ids: ['simon1'] } },
+      { select: "a[href='http://www.google.com/']", expect: { ids: ['google'] } },
+      { select: "a[ rel = 'bookmark' ]", expect: { ids: ['simon1'] } },
 
-      { selector: "p a[href^='#']", expect: { ids: ['anchor2'] } },
-      { selector: 'p a[href*="#"]', expect: { ids: ['simon1', 'anchor2'] } },
+      { select: "p a[href^='#']", expect: { ids: ['anchor2'] } },
+      { select: 'p a[href*="#"]', expect: { ids: ['simon1', 'anchor2'] } },
 
-      { selector: 'form label[for]', expect: { ids: ['label-for'] } },
-      { selector: '#form [for=action]', expect: { ids: ['label-for'] } },
+      { select: 'form label[for]', expect: { ids: ['label-for'] } },
+      { select: '#form [for=action]', expect: { ids: ['label-for'] } },
 
       // Disabled tests - expandos don't work in all browsers
       // { selector: 'form input[test]', expect: { ids: ['text1', 'text2'] } },
       // { selector: 'form input[test=0]', expect: { ids: ['text1'] } },
       // { selector: 'form input[test=1]', expect: { ids: ['text2'] } },
 
-      { selector: "input[name^='foo[']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name^='foo[bar]']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name*='[bar]']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name$='bar]']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name$='[bar]']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name$='foo[bar]']", expect: { ids: ['hidden2'] } },
-      { selector: "input[name*='foo[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name^='foo[']", expect: { ids: ['hidden2'] } },
+      { select: "input[name^='foo[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name*='[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name$='bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name$='[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name$='foo[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name*='foo[bar]']", expect: { ids: ['hidden2'] } },
 
-      { selector: "#form input[type='radio'], #form input[type='hidden']", expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
-      { selector: '#form input[type=\'radio\'], #form input[type="hidden"]', expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
-      { selector: "#form input[type='radio'], #form input[type=hidden]", expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
+      { select: "#form input[type='radio'], #form input[type='hidden']", expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
+      { select: '#form input[type=\'radio\'], #form input[type="hidden"]', expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
+      { select: "#form input[type='radio'], #form input[type=hidden]", expect: { ids: ['radio1', 'radio2', 'hidden1'] } },
 
-      { selector: 'span[lang=中文]', expect: { ids: ['台北'] } },
+      { select: 'span[lang=中文]', expect: { ids: ['台北'] } },
 
-      { selector: "a[href ^= 'http://www']", expect: { ids: ['google', 'yahoo'] } },
-      { selector: "a[href $= 'org/']", expect: { ids: ['mark'] } },
-      { selector: "a[href *= 'google']", expect: { ids: ['google', 'groups'] } },
-      { selector: "#ap a:not([hreflang='en'])", expect: { ids: ['google', 'groups', 'anchor1'] } },
+      { select: "a[href ^= 'http://www']", expect: { ids: ['google', 'yahoo'] } },
+      { select: "a[href $= 'org/']", expect: { ids: ['mark'] } },
+      { select: "a[href *= 'google']", expect: { ids: ['google', 'groups'] } },
+      { select: "#ap a:not([hreflang='en'])", expect: { ids: ['google', 'groups', 'anchor1'] } },
 
-      { selector: "#select1 option[value='']", expect: { ids: ['option1a'] } },
-      { selector: "#select1 option:not([value=''])", expect: { ids: ['option1b', 'option1c', 'option1d'] } },
+      { select: "#select1 option[value='']", expect: { ids: ['option1a'] } },
+      { select: "#select1 option:not([value=''])", expect: { ids: ['option1b', 'option1c', 'option1d'] } },
 
-      { selector: '#select1 option:checked', expect: { ids: ['option1a'] } },
-      { selector: '#select2 option:checked', expect: { ids: ['option2d'] } },
-      { selector: '#select3 option:checked', expect: { ids: ['option3b', 'option3c'] } },
+      { select: '#select1 option:checked', expect: { ids: ['option1a'] } },
+      { select: '#select2 option:checked', expect: { ids: ['option2d'] } },
+      { select: '#select3 option:checked', expect: { ids: ['option3b', 'option3c'] } },
 
-      { selector: "input[name='foo[bar]']", expect: { ids: ['hidden2'] } },
+      { select: "input[name='foo[bar]']", expect: { ids: ['hidden2'] } },
 
-      { selector: '#form select:not([multiple])', expect: { ids: ['select1', 'select2'] } },
-      { selector: '#form select:not([name=select1])', expect: { ids: ['select2', 'select3'] } },
-      { selector: "#form select:not([name='select1'])", expect: { ids: ['select2', 'select3'] } },
+      { select: '#form select:not([multiple])', expect: { ids: ['select1', 'select2'] } },
+      { select: '#form select:not([name=select1])', expect: { ids: ['select2', 'select3'] } },
+      { select: "#form select:not([name='select1'])", expect: { ids: ['select2', 'select3'] } },
     ],
   },
 
@@ -679,16 +679,16 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: 'p:first-child', expect: { ids: ['firstp', 'sndp'] } },
-      { selector: 'p:last-child', expect: { ids: ['sap'] } },
-      { selector: 'a:only-child', expect: { ids: ['simon1', 'anchor1', 'yahoo', 'anchor2', 'liveLink1', 'liveLink2'] } },
-      { selector: 'ul:empty', expect: { ids: ['firstUL'] } },
+      { select: 'p:first-child', expect: { ids: ['firstp', 'sndp'] } },
+      { select: 'p:last-child', expect: { ids: ['sap'] } },
+      { select: 'a:only-child', expect: { ids: ['simon1', 'anchor1', 'yahoo', 'anchor2', 'liveLink1', 'liveLink2'] } },
+      { select: 'ul:empty', expect: { ids: ['firstUL'] } },
 
-      { selector: '#form input:not([type=hidden]):enabled', expect: { ids: ['text1', 'radio1', 'radio2', 'check1', 'check2', 'hidden2', 'name', 'search'] } },
-      { selector: '#form input:disabled', expect: { ids: ['text2'] } },
-      { selector: '#form input:checked', expect: { ids: ['radio2', 'check1'] } },
+      { select: '#form input:not([type=hidden]):enabled', expect: { ids: ['text1', 'radio1', 'radio2', 'check1', 'check2', 'hidden2', 'name', 'search'] } },
+      { select: '#form input:disabled', expect: { ids: ['text2'] } },
+      { select: '#form input:checked', expect: { ids: ['radio2', 'check1'] } },
 
-      { selector: '#form option:checked', expect: { ids: ['option1a', 'option2d', 'option3b', 'option3c'] } },
+      { select: '#form option:checked', expect: { ids: ['option1a', 'option2d', 'option3b', 'option3c'] } },
 
       // jQuery-only text pseudos; not valid in the native-parity harness
       // { selector: "a:contains('Google')", expect: { ids: ['google', 'groups'] } },
@@ -696,33 +696,33 @@ runScenarios('jquery', 'normal', [
       // { selector: "a:contains('Google Groups (Link)')", expect: { ids: ['groups'] } },
       // { selector: "a:contains('(Link)')", expect: { ids: ['groups'] } },
 
-      { selector: 'p ~ div', expect: { ids: ['foo', 'moretests', 'tabindex-tests', 'liveHandlerOrder'] } },
-      { selector: 'a.blog:not(.link)', expect: { ids: ['mark'] } },
+      { select: 'p ~ div', expect: { ids: ['foo', 'moretests', 'tabindex-tests', 'liveHandlerOrder'] } },
+      { select: 'a.blog:not(.link)', expect: { ids: ['mark'] } },
       // { selector: "#form option:not(:contains('Nothing'),#option1b,:checked)", expect: { ids: ['option1c', 'option1d', 'option2b', 'option2c', 'option3d', 'option3e'] } },
-      { selector: "#form option:not([id^='opt']:nth-child(-n+3))", expect: { ids: ['option1d', 'option2d', 'option3d', 'option3e'] } },
-      { selector: "#form option:not(:not(:checked))[id^='option3']", expect: { ids: ['option3b', 'option3c'] } },
-      { selector: 'p:not(.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: "#form option:not([id^='opt']:nth-child(-n+3))", expect: { ids: ['option1d', 'option2d', 'option3d', 'option3e'] } },
+      { select: "#form option:not(:not(:checked))[id^='option3']", expect: { ids: ['option3b', 'option3c'] } },
+      { select: 'p:not(.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
       // invalid compound selector inside :not() pseudo-class
-      { selector: 'p:not(div.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(p.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(div.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(p.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(.foo)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
       // invalid compound selector inside :not() pseudo-class
-      { selector: 'p:not(div#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(p#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(div#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(p#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(#blargh)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
-      { selector: 'p:not(a)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(a, b)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(a, b, div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
-      { selector: 'p:not(p)', expect: { ids: [] } },
-      { selector: 'p:not(a,p)', expect: { ids: [] } },
-      { selector: 'p:not(p,a)', expect: { ids: [] } },
-      { selector: 'p:not(a,p,b)', expect: { ids: [] } },
+      { select: 'p:not(a)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(a, b)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(a, b, div)', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
+      { select: 'p:not(p)', expect: { ids: [] } },
+      { select: 'p:not(a,p)', expect: { ids: [] } },
+      { select: 'p:not(p,a)', expect: { ids: [] } },
+      { select: 'p:not(a,p,b)', expect: { ids: [] } },
       // { selector: ':input:not(:image,:input,:submit)', expect: { ids: [] } },
 
       // jQuery-only positional pseudos; keep parked for now
@@ -747,7 +747,7 @@ runScenarios('jquery', 'normal', [
   // Preserved from the original suite but not active in the native-parity harness,
   {
     name: 'jquery visibility and position pseudos (legacy)',
-    modifier: 'skip',
+    status: 'skip',
     html: html,
     htmlMode: 'document',
     setupPage: async (page) => {
@@ -784,42 +784,42 @@ runScenarios('jquery', 'normal', [
       });
     },
     cases: [
-      { selector: 'div#nothiddendiv:eq(0)', expect: { ids: ['nothiddendiv'] } },
-      { selector: 'div#nothiddendiv:last', expect: { ids: ['nothiddendiv'] } },
-      { selector: 'div#nothiddendiv:not(:gt(0))', expect: { ids: ['nothiddendiv'] } },
-      { selector: '#foo > :not(:first)', expect: { ids: ['en', 'sap'] } },
-      { selector: 'select > :not(:gt(2))', expect: { ids: ['option1a', 'option1b', 'option1c'] } },
-      { selector: 'select:lt(2) :not(:first)', expect: { ids: ['option1b', 'option1c', 'option1d', 'option2a', 'option2b', 'option2c', 'option2d'] } },
-      { selector: 'div.nothiddendiv:eq(0)', expect: { ids: ['nothiddendiv'] } },
-      { selector: 'div.nothiddendiv:last', expect: { ids: ['nothiddendiv'] } },
-      { selector: 'div.nothiddendiv:not(:lt(0))', expect: { ids: ['nothiddendiv'] } },
+      { select: 'div#nothiddendiv:eq(0)', expect: { ids: ['nothiddendiv'] } },
+      { select: 'div#nothiddendiv:last', expect: { ids: ['nothiddendiv'] } },
+      { select: 'div#nothiddendiv:not(:gt(0))', expect: { ids: ['nothiddendiv'] } },
+      { select: '#foo > :not(:first)', expect: { ids: ['en', 'sap'] } },
+      { select: 'select > :not(:gt(2))', expect: { ids: ['option1a', 'option1b', 'option1c'] } },
+      { select: 'select:lt(2) :not(:first)', expect: { ids: ['option1b', 'option1c', 'option1d', 'option2a', 'option2b', 'option2c', 'option2d'] } },
+      { select: 'div.nothiddendiv:eq(0)', expect: { ids: ['nothiddendiv'] } },
+      { select: 'div.nothiddendiv:last', expect: { ids: ['nothiddendiv'] } },
+      { select: 'div.nothiddendiv:not(:lt(0))', expect: { ids: ['nothiddendiv'] } },
 
-      { selector: 'div div:eq(0)', expect: { ids: ['nothiddendivchild'] } },
-      { selector: 'div div:eq(5)', expect: { ids: ['t2037'] } },
-      { selector: 'div div:eq(27)', expect: { ids: ['hide'] } },
-      { selector: 'div div:first', expect: { ids: ['nothiddendivchild'] } },
-      { selector: 'div > div:first', expect: { ids: ['nothiddendivchild'] } },
-      { selector: '#dl div:first div:first', expect: { ids: ['foo'] } },
-      { selector: '#dl div:first > div:first', expect: { ids: ['foo'] } },
-      { selector: 'div#nothiddendiv:first > div:first', expect: { ids: ['nothiddendivchild'] } },
+      { select: 'div div:eq(0)', expect: { ids: ['nothiddendivchild'] } },
+      { select: 'div div:eq(5)', expect: { ids: ['t2037'] } },
+      { select: 'div div:eq(27)', expect: { ids: ['hide'] } },
+      { select: 'div div:first', expect: { ids: ['nothiddendivchild'] } },
+      { select: 'div > div:first', expect: { ids: ['nothiddendivchild'] } },
+      { select: '#dl div:first div:first', expect: { ids: ['foo'] } },
+      { select: '#dl div:first > div:first', expect: { ids: ['foo'] } },
+      { select: 'div#nothiddendiv:first > div:first', expect: { ids: ['nothiddendivchild'] } },
     ],
   },
 
   {
     name: 'form and header pseudo selectors',
-    modifier: 'skip', // form pseudo selectors are jQuery-only;
+    status: 'skip', // form pseudo selectors are jQuery-only;
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: '#form :input', expect: { ids: ['text1', 'text2', 'radio1', 'radio2', 'check1', 'check2', 'hidden1', 'hidden2', 'name', 'search', 'button', 'area1', 'select1', 'select2', 'select3'] } },
-      { selector: '#form :radio', expect: { ids: ['radio1', 'radio2'] } },
-      { selector: '#form :checkbox', expect: { ids: ['check1', 'check2'] } },
-      { selector: '#form :text:not(#search)', expect: { ids: ['text1', 'text2', 'hidden2', 'name'] } },
-      { selector: '#form :radio:checked', expect: { ids: ['radio2'] } },
-      { selector: '#form :checkbox:checked', expect: { ids: ['check1'] } },
-      { selector: '#form :radio:checked, #form :checkbox:checked', expect: { ids: ['radio2', 'check1'] } },
+      { select: '#form :input', expect: { ids: ['text1', 'text2', 'radio1', 'radio2', 'check1', 'check2', 'hidden1', 'hidden2', 'name', 'search', 'button', 'area1', 'select1', 'select2', 'select3'] } },
+      { select: '#form :radio', expect: { ids: ['radio1', 'radio2'] } },
+      { select: '#form :checkbox', expect: { ids: ['check1', 'check2'] } },
+      { select: '#form :text:not(#search)', expect: { ids: ['text1', 'text2', 'hidden2', 'name'] } },
+      { select: '#form :radio:checked', expect: { ids: ['radio2'] } },
+      { select: '#form :checkbox:checked', expect: { ids: ['check1'] } },
+      { select: '#form :radio:checked, #form :checkbox:checked', expect: { ids: ['radio2', 'check1'] } },
 
-      { selector: ':header', expect: { ids: ['header', 'banner', 'userAgent'] } },
+      { select: ':header', expect: { ids: ['header', 'banner', 'userAgent'] } },
     ],
   },
 
@@ -828,7 +828,7 @@ runScenarios('jquery', 'normal', [
     html: html,
     htmlMode: 'document',
     cases: [
-      { selector: 'p:has(a)', expect: { ids: ['firstp', 'ap', 'en', 'sap'] } },
+      { select: 'p:has(a)', expect: { ids: ['firstp', 'ap', 'en', 'sap'] } },
     ],
   },
 

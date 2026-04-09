@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('html5', 'normal', [
   {
@@ -25,21 +25,21 @@ runScenarios('html5', 'normal', [
       <hr>
     `,
     cases: [
-      { selector: 'abbr:first-of-type', expect: { ids: ['IBA'] } },
-      { selector: 'abbr:last-of-type', expect: { ids: ['UK'] } },
-      { selector: 'mark:only-of-type', expect: { ids: ['NUM'] } },
-      { selector: 'abbr:nth-of-type(1)', expect: { ids: ['IBA'] } },
-      { selector: 'abbr:nth-of-type(2)', expect: { ids: ['UK'] } },
-      { selector: 'abbr:nth-last-of-type(1)', expect: { ids: ['UK'] } },
-      { selector: 'abbr:nth-last-of-type(2)', expect: { ids: ['IBA'] } },
-      { selector: 'section li:first-of-type', expect: { ids: ['first'] } },
-      { selector: 'section li:last-of-type', expect: { ids: ['last'] } },
+      { select: 'abbr:first-of-type', expect: { ids: ['IBA'] } },
+      { select: 'abbr:last-of-type', expect: { ids: ['UK'] } },
+      { select: 'mark:only-of-type', expect: { ids: ['NUM'] } },
+      { select: 'abbr:nth-of-type(1)', expect: { ids: ['IBA'] } },
+      { select: 'abbr:nth-of-type(2)', expect: { ids: ['UK'] } },
+      { select: 'abbr:nth-last-of-type(1)', expect: { ids: ['UK'] } },
+      { select: 'abbr:nth-last-of-type(2)', expect: { ids: ['IBA'] } },
+      { select: 'section li:first-of-type', expect: { ids: ['first'] } },
+      { select: 'section li:last-of-type', expect: { ids: ['last'] } },
     ],
   },
 
   {
     name: 'table :not() selector test',
-    modifier: 'fixme',
+    status: 'fixme',
     html: `
       <div>
         <h1>&nbsp;Your Search Results</h1>
@@ -191,7 +191,7 @@ runScenarios('html5', 'normal', [
     `,
     cases: [
       {
-        selector: 'tbody > tr:nth-of-type(n+6):not(:nth-of-type(17)) > td:nth-of-type(2) > a:not(:nth-of-type(2))',
+        select: 'tbody > tr:nth-of-type(n+6):not(:nth-of-type(17)) > td:nth-of-type(2) > a:not(:nth-of-type(2))',
         expect: { ids: ['AV11UXA'] },
       },
     ],

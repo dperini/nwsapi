@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('css3 compat', 'normal',  [
   {
@@ -30,21 +30,21 @@ runScenarios('css3 compat', 'normal',  [
     setupPage: async (page) => { await page.evaluate(() => { location.hash = 'target'; });},
     cases: [
       /* element type selector */
-      { selector: 'body', expect: { count: 1 } },
-      { selector: 'div', expect: { count: 6 } },
-      { selector: 'div.header', expect: { count: 1 } },
-      { selector: 'div.footer', expect: { count: 1 } },
-      { selector: 'h3, h4, p, ul', expect: { count: 5 } },
+      { select: 'body', expect: { count: 1 } },
+      { select: 'div', expect: { count: 6 } },
+      { select: 'div.header', expect: { count: 1 } },
+      { select: 'div.footer', expect: { count: 1 } },
+      { select: 'h3, h4, p, ul', expect: { count: 5 } },
 
       /* class selector */
-      { selector: '.unitTest', expect: { count: 2 } },
-      { selector: '.test', expect: { count: 2 } },
+      { select: '.unitTest', expect: { count: 2 } },
+      { select: '.test', expect: { count: 2 } },
 
       /* group of selectors */
-      { selector: '.unitTest, .test', expect: { count: 4 } },
+      { select: '.unitTest, .test', expect: { count: 4 } },
 
       /* :target selector */
-      { selector: '.target :target', expect: { count: 1 } },
+      { select: '.target :target', expect: { count: 1 } },
     ],
   },
   {
@@ -62,8 +62,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test 1 : childhood selector */
-      { selector: 'html > body', expect: { count: 1 } },
-      { selector: '.test > .blox1', expect: { count: 1 } },
+      { select: 'html > body', expect: { count: 1 } },
+      { select: '.test > .blox1', expect: { count: 1 } },
     ],
   },
   {
@@ -78,14 +78,14 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* attribute with a value */
-      { selector: '.blox2[align]', expect: { count: 1 } },
+      { select: '.blox2[align]', expect: { count: 1 } },
 
       /* attribute with empty value */
-      { selector: '.blox3[align]', expect: { count: 1 } },
+      { select: '.blox3[align]', expect: { count: 1 } },
 
       /* attribute with almost similar name */
-      { selector: '.blox4, .blox5', expect: { count: 2 } },
-      { selector: '.blox4[align], .blox5[align]', expect: { count: 0 } },
+      { select: '.blox4, .blox5', expect: { count: 2 } },
+      { select: '.blox4[align], .blox5[align]', expect: { count: 0 } },
     ],
   },
   {
@@ -99,11 +99,11 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test 3 : attribute value selector */
-      { selector: '.blox6[align="center"]', expect: { count: 1 } },
-      { selector: '.blox6[align="c"]', expect: { count: 0 } },
-      { selector: '.blox6[align="centera"]', expect: { count: 0 } },
-      { selector: '.blox6[foo="\\e9"]', expect: { count: 1 } },
-      { selector: '.blox6[\\_foo="\\e9"]', expect: { count: 1 } },
+      { select: '.blox6[align="center"]', expect: { count: 1 } },
+      { select: '.blox6[align="c"]', expect: { count: 0 } },
+      { select: '.blox6[align="centera"]', expect: { count: 0 } },
+      { select: '.blox6[foo="\\e9"]', expect: { count: 1 } },
+      { select: '.blox6[\\_foo="\\e9"]', expect: { count: 1 } },
     ],
   },
   {
@@ -118,11 +118,11 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test 4 : [~=] */
-      { selector: '.blox7[class~="foo"]', expect: { count: 1 } },
-      { selector: '.blox8, .blox9, .blox10', expect: { count: 3 } },
-      { selector: '.blox8[class~=""]', expect: { count: 0 } },
-      { selector: '.blox9[foo~=""]', expect: { count: 0 } },
-      { selector: '.blox10[foo~="foo"]', expect: { count: 0 } },
+      { select: '.blox7[class~="foo"]', expect: { count: 1 } },
+      { select: '.blox8, .blox9, .blox10', expect: { count: 3 } },
+      { select: '.blox8[class~=""]', expect: { count: 0 } },
+      { select: '.blox9[foo~=""]', expect: { count: 0 } },
+      { select: '.blox10[foo~="foo"]', expect: { count: 0 } },
     ],
   },
   {
@@ -137,12 +137,12 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test5 [^=] */
-      { selector: '.attrStart > .t3', expect: { count: 1 } },
-      { selector: '.attrStart > .t1[class^="unit"]', expect: { count: 1 } },
-      { selector: '.attrStart > .t2', expect: { count: 1 } },
-      { selector: '.attrStart > .t2[class^="nit"]', expect: { count: 0 } },
-      { selector: '.attrStart > .t3[align^=""]', expect: { count: 0 } },
-      { selector: '.attrStart > .t4[foo^="\\e9"]', expect: { count: 1 } },
+      { select: '.attrStart > .t3', expect: { count: 1 } },
+      { select: '.attrStart > .t1[class^="unit"]', expect: { count: 1 } },
+      { select: '.attrStart > .t2', expect: { count: 1 } },
+      { select: '.attrStart > .t2[class^="nit"]', expect: { count: 0 } },
+      { select: '.attrStart > .t3[align^=""]', expect: { count: 0 } },
+      { select: '.attrStart > .t4[foo^="\\e9"]', expect: { count: 1 } },
     ],
   },
   {
@@ -157,12 +157,12 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test6 [$=] */
-      { selector: '.attrEnd > .t3', expect: { count: 1 } },
-      { selector: '.attrEnd > .t1[class$="t1"]', expect: { count: 1 } },
-      { selector: '.attrEnd > .t2', expect: { count: 1 } },
-      { selector: '.attrEnd > .t2[class$="unit"]', expect: { count: 0 } },
-      { selector: '.attrEnd > .t3[align$=""]', expect: { count: 0 } },
-      { selector: '.attrEnd > .t4[foo$="\\e9"]', expect: { count: 1 } },
+      { select: '.attrEnd > .t3', expect: { count: 1 } },
+      { select: '.attrEnd > .t1[class$="t1"]', expect: { count: 1 } },
+      { select: '.attrEnd > .t2', expect: { count: 1 } },
+      { select: '.attrEnd > .t2[class$="unit"]', expect: { count: 0 } },
+      { select: '.attrEnd > .t3[align$=""]', expect: { count: 0 } },
+      { select: '.attrEnd > .t4[foo$="\\e9"]', expect: { count: 1 } },
     ],
   },
   {
@@ -177,12 +177,12 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* test7 [*=] */
-      { selector: '.attrMiddle > .t3', expect: { count: 1 } },
-      { selector: '.attrMiddle > .t1[class*="t t"]', expect: { count: 1 } },
-      { selector: '.attrMiddle > .t2', expect: { count: 1 } },
-      { selector: '.attrMiddle > .t2[class*="a"]', expect: { count: 0 } },
-      { selector: '.attrMiddle > .t3[align*=""]', expect: { count: 0 } },
-      { selector: '.attrMiddle > .t4[foo*="\\e9"]', expect: { count: 1 } },
+      { select: '.attrMiddle > .t3', expect: { count: 1 } },
+      { select: '.attrMiddle > .t1[class*="t t"]', expect: { count: 1 } },
+      { select: '.attrMiddle > .t2', expect: { count: 1 } },
+      { select: '.attrMiddle > .t2[class*="a"]', expect: { count: 0 } },
+      { select: '.attrMiddle > .t3[align*=""]', expect: { count: 0 } },
+      { select: '.attrMiddle > .t4[foo*="\\e9"]', expect: { count: 1 } },
     ],
   },
   {
@@ -196,10 +196,10 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :first-child tests */
-      { selector: '.firstChild .unitTest:first-child', expect: { count: 1 } },
-      { selector: '.blox12:first-child', expect: { count: 0 } },
-      { selector: '.blox13:first-child', expect: { count: 0 } },
-      { selector: '.blox12, .blox13', expect: { count: 2 } },
+      { select: '.firstChild .unitTest:first-child', expect: { count: 1 } },
+      { select: '.blox12:first-child', expect: { count: 0 } },
+      { select: '.blox13:first-child', expect: { count: 0 } },
+      { select: '.blox12, .blox13', expect: { count: 2 } },
     ],
   },
   {
@@ -263,28 +263,28 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :nth-child(n) tests */
-      { selector: '.nthchild1 > :nth-last-child(odd)', expect: { count: 3 } },
-      { selector: '.nthchild1 > :nth-child(odd)', expect: { count: 3 } },
+      { select: '.nthchild1 > :nth-last-child(odd)', expect: { count: 3 } },
+      { select: '.nthchild1 > :nth-child(odd)', expect: { count: 3 } },
 
-      { selector: '.nthchild2 > :nth-last-child(even)', expect: { count: 3 } },
-      { selector: '.nthchild2 > :nth-child(even)', expect: { count: 3 } },
+      { select: '.nthchild2 > :nth-last-child(even)', expect: { count: 3 } },
+      { select: '.nthchild2 > :nth-child(even)', expect: { count: 3 } },
 
-      { selector: '.nthchild3 > :nth-child(3n+2)', expect: { count: 2 } },
-      { selector: '.nthchild3 > :nth-last-child(3n+1)', expect: { count: 2 } },
-      { selector: '.nthchild3 > :nth-last-child(3n+3)', expect: { count: 2 } },
+      { select: '.nthchild3 > :nth-child(3n+2)', expect: { count: 2 } },
+      { select: '.nthchild3 > :nth-last-child(3n+1)', expect: { count: 2 } },
+      { select: '.nthchild3 > :nth-last-child(3n+3)', expect: { count: 2 } },
 
-      { selector: '.nthoftype1 > div:nth-of-type(odd)', expect: { count: 2 } },
-      { selector: '.nthoftype1 > div:nth-last-of-type(odd)', expect: { count: 2 } },
-      { selector: '.nthoftype1 > p', expect: { count: 3 } },
+      { select: '.nthoftype1 > div:nth-of-type(odd)', expect: { count: 2 } },
+      { select: '.nthoftype1 > div:nth-last-of-type(odd)', expect: { count: 2 } },
+      { select: '.nthoftype1 > p', expect: { count: 3 } },
 
-      { selector: '.nthoftype2 > div:nth-of-type(even)', expect: { count: 2 } },
-      { selector: '.nthoftype2 > div:nth-last-of-type(even)', expect: { count: 2 } },
-      { selector: '.nthoftype2 > p', expect: { count: 3 } },
+      { select: '.nthoftype2 > div:nth-of-type(even)', expect: { count: 2 } },
+      { select: '.nthoftype2 > div:nth-last-of-type(even)', expect: { count: 2 } },
+      { select: '.nthoftype2 > p', expect: { count: 3 } },
 
-      { selector: '.nthoftype3 > div:nth-of-type(3n+1)', expect: { count: 2 } },
-      { selector: '.nthoftype3 > div:nth-last-of-type(3n+1)', expect: { count: 2 } },
-      { selector: '.nthoftype3 > div:nth-last-of-type(3n+2)', expect: { count: 2 } },
-      { selector: '.nthoftype3 > p', expect: { count: 4 } },
+      { select: '.nthoftype3 > div:nth-of-type(3n+1)', expect: { count: 2 } },
+      { select: '.nthoftype3 > div:nth-last-of-type(3n+1)', expect: { count: 2 } },
+      { select: '.nthoftype3 > div:nth-last-of-type(3n+2)', expect: { count: 2 } },
+      { select: '.nthoftype3 > p', expect: { count: 4 } },
     ],
   },
   {
@@ -298,10 +298,10 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :not() tests */
-      { selector: '.blox14:not(span)', expect: { count: 1 } },
-      { selector: '.blox15:not([foo="blox14"])', expect: { count: 1 } },
-      { selector: '.blox16', expect: { count: 1 } },
-      { selector: '.blox16:not(.blox15)', expect: { count: 1 } },
+      { select: '.blox14:not(span)', expect: { count: 1 } },
+      { select: '.blox15:not([foo="blox14"])', expect: { count: 1 } },
+      { select: '.blox16', expect: { count: 1 } },
+      { select: '.blox16:not(.blox15)', expect: { count: 1 } },
     ],
   },
   {
@@ -315,10 +315,10 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :only-of-type tests */
-      { selector: '.blox17', expect: { count: 1 } },
-      { selector: '.blox17:only-of-type', expect: { count: 1 } },
-      { selector: '.blox18:only-of-type', expect: { count: 0 } },
-      { selector: '.blox18:not(:only-of-type)', expect: { count: 2 } },
+      { select: '.blox17', expect: { count: 1 } },
+      { select: '.blox17:only-of-type', expect: { count: 1 } },
+      { select: '.blox18:only-of-type', expect: { count: 0 } },
+      { select: '.blox18:not(:only-of-type)', expect: { count: 2 } },
     ],
   },
   {
@@ -331,9 +331,9 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :last-child tests */
-      { selector: '.lastChild > p', expect: { count: 1 } },
-      { selector: '.lastChild > :last-child', expect: { count: 1 } },
-      { selector: '.lastChild > :not(:last-child)', expect: { count: 1 } },
+      { select: '.lastChild > p', expect: { count: 1 } },
+      { select: '.lastChild > :last-child', expect: { count: 1 } },
+      { select: '.lastChild > :not(:last-child)', expect: { count: 1 } },
     ],
   },
   {
@@ -348,9 +348,9 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :first-of-type tests */
-      { selector: '.firstOfType > p', expect: { count: 2 } },
-      { selector: '.firstOfType > *:first-of-type', expect: { count: 2 } },
-      { selector: '*.firstOfType > :not(:first-of-type)', expect: { count: 2 } },
+      { select: '.firstOfType > p', expect: { count: 2 } },
+      { select: '.firstOfType > *:first-of-type', expect: { count: 2 } },
+      { select: '*.firstOfType > :not(:first-of-type)', expect: { count: 2 } },
     ],
   },
 
@@ -367,9 +367,9 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :last-of-type tests */
-      { selector: '.lastOfType > p', expect: { count: 2 } },
-      { selector: '.lastOfType > *:last-of-type', expect: { count: 2 } },
-      { selector: '*.lastOfType > :not(:last-of-type)', expect: { count: 2 } },
+      { select: '.lastOfType > p', expect: { count: 2 } },
+      { select: '.lastOfType > *:last-of-type', expect: { count: 2 } },
+      { select: '*.lastOfType > :not(:last-of-type)', expect: { count: 2 } },
     ],
   },
   {
@@ -384,8 +384,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :only-child tests */
-      { selector: '.onlyChild > *:not(:only-child)', expect: { count: 2 } },
-      { selector: '.onlyChild > .unitTest > *:only-child', expect: { count: 1 } },
+      { select: '.onlyChild > *:not(:only-child)', expect: { count: 2 } },
+      { select: '.onlyChild > .unitTest > *:only-child', expect: { count: 1 } },
     ],
   },
   {
@@ -401,8 +401,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :only-of-type tests */
-      { selector: '.onlyOfType *:only-of-type', expect: { count: 2 } },
-      { selector: '.onlyOfType *:not(:only-of-type)', expect: { count: 2 } },
+      { select: '.onlyOfType *:only-of-type', expect: { count: 2 } },
+      { select: '.onlyOfType *:not(:only-of-type)', expect: { count: 2 } },
     ],
   },
 
@@ -419,11 +419,11 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* :empty tests */
-      { selector: '.empty > .isEmpty', expect: { count: 2 } },
-      { selector: '.empty > *.isEmpty:empty', expect: { count: 2 } },
-      { selector: '.empty > .isNotEmpty', expect: { count: 3 } },
-      { selector: '.empty > .isNotEmpty:empty', expect: { count: 0 } },
-      { selector: '.empty > .isNotEmpty:not(:empty)', expect: { count: 3 } },
+      { select: '.empty > .isEmpty', expect: { count: 2 } },
+      { select: '.empty > *.isEmpty:empty', expect: { count: 2 } },
+      { select: '.empty > .isNotEmpty', expect: { count: 3 } },
+      { select: '.empty > .isNotEmpty:empty', expect: { count: 0 } },
+      { select: '.empty > .isNotEmpty:not(:empty)', expect: { count: 3 } },
     ],
   },
   {
@@ -443,11 +443,11 @@ runScenarios('css3 compat', 'normal',  [
     },
     cases: [
       /* :lang() tests */
-      { selector: '.lang :lang(en)', expect: { count: 2 } },
-      { selector: '.lang :lang(fr)', expect: { count: 1 } },
-      { selector: '.lang .t1', expect: { count: 1 } },
-      { selector: '.lang .t1:lang(es)', expect: { count: 1 } },
-      { selector: '.lang :lang(es-AR)', expect: { count: 0 } },
+      { select: '.lang :lang(en)', expect: { count: 2 } },
+      { select: '.lang :lang(fr)', expect: { count: 1 } },
+      { select: '.lang .t1', expect: { count: 1 } },
+      { select: '.lang .t1:lang(es)', expect: { count: 1 } },
+      { select: '.lang :lang(es-AR)', expect: { count: 0 } },
     ],
   },
   {
@@ -467,13 +467,13 @@ runScenarios('css3 compat', 'normal',  [
     },
     cases: [
       /* [|=] tests */
-      { selector: '.attrLang .t1', expect: { count: 1 } },
-      { selector: '.attrLang .t1[lang|="en"]', expect: { count: 0 } },
-      { selector: '.attrLang [lang|="fr"]', expect: { count: 1 } },
-      { selector: '.attrLang .t2[lang|="en"]', expect: { count: 1 } },
-      { selector: '.attrLang .t3', expect: { count: 1 } },
-      { selector: '.attrLang .t3[lang|="es"]', expect: { count: 1 } },
-      { selector: '.attrLang [lang|="es-AR"]', expect: { count: 0 } },
+      { select: '.attrLang .t1', expect: { count: 1 } },
+      { select: '.attrLang .t1[lang|="en"]', expect: { count: 0 } },
+      { select: '.attrLang [lang|="fr"]', expect: { count: 1 } },
+      { select: '.attrLang .t2[lang|="en"]', expect: { count: 1 } },
+      { select: '.attrLang .t3', expect: { count: 1 } },
+      { select: '.attrLang .t3[lang|="es"]', expect: { count: 1 } },
+      { select: '.attrLang [lang|="es-AR"]', expect: { count: 0 } },
     ],
   },
 
@@ -499,10 +499,10 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* UI tests */
-      { selector: '.UI .t1:enabled > .unitTest', expect: { count: 1 } },
-      { selector: '.UI .t2:disabled > .unitTest', expect: { count: 1 } },
-      { selector: '.UI .t3:checked + div', expect: { count: 1 } },
-      { selector: '.UI .t4:not(:checked) + div', expect: { count: 1 } },
+      { select: '.UI .t1:enabled > .unitTest', expect: { count: 1 } },
+      { select: '.UI .t2:disabled > .unitTest', expect: { count: 1 } },
+      { select: '.UI .t3:checked + div', expect: { count: 1 } },
+      { select: '.UI .t4:not(:checked) + div', expect: { count: 1 } },
     ],
   },
   {
@@ -518,8 +518,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* ~ combinator tests */
-      { selector: '.tilda .t1', expect: { count: 1 } },
-      { selector: '.tilda .t1 ~ .unitTest', expect: { count: 3 } },
+      { select: '.tilda .t1', expect: { count: 1 } },
+      { select: '.tilda .t1 ~ .unitTest', expect: { count: 3 } },
     ],
   },
   {
@@ -534,8 +534,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* + combinator tests */
-      { selector: '.plus .t1, .plus .t2', expect: { count: 2 } },
-      { selector: '.plus .t1 + .unitTest + .unitTest', expect: { count: 1 } },
+      { select: '.plus .t1, .plus .t2', expect: { count: 2 } },
+      { select: '.plus .t1 + .unitTest + .unitTest', expect: { count: 1 } },
     ],
   },
   {
@@ -560,31 +560,31 @@ runScenarios('css3 compat', 'normal',  [
       </div>
     `,
     cases: [
-      { selector: '.blox23s1[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s2[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s3[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s4[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s5[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s6[foo="blox" i]', expect: { count: 1 } },
-      { selector: '.blox23s1[foo="blox" erroneous]', expect: { throws: true } },
-      { selector: '.blox19[class="BLOX19 UNITTEST" i]', expect: { count: 1 } },
-      { selector: '.blox20[class="BLOX20 UNITTEST" i]', expect: { count: 1 } },
-      { selector: '.blox20[class="blox20 unitTest" s]', expect: { throws: true } },
-      { selector: '.blox21[class*="21 UN" i]', expect: { count: 1 } },
-      { selector: '.blox22[class*="22 unitt" s]', expect: { throws: true } },
-      { selector: '.blox22[class*="22 unitT" s]', expect: { throws: true } },
-      { selector: '.blox24[class^="BLOX" i]', expect: { count: 1 } },
-      { selector: '.blox25[class^="BLOX"]', expect: { count: 0 } },
-      { selector: '.blox25[class^="blox" s]', expect: { throws: true } },
-      { selector: '.blox26[class$="tEST" i]', expect: { count: 1 } },
-      { selector: '.blox27[class$="TEst" s]', expect: { throws: true } },
-      { selector: '.blox27[class$="Test" s]', expect: { throws: true } },
-      { selector: '.blox28[class~="unitTEST" i]', expect: { count: 1 } },
+      { select: '.blox23s1[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s2[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s3[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s4[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s5[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s6[foo="blox" i]', expect: { count: 1 } },
+      { select: '.blox23s1[foo="blox" erroneous]', expect: { throws: true } },
+      { select: '.blox19[class="BLOX19 UNITTEST" i]', expect: { count: 1 } },
+      { select: '.blox20[class="BLOX20 UNITTEST" i]', expect: { count: 1 } },
+      { select: '.blox20[class="blox20 unitTest" s]', expect: { throws: true } },
+      { select: '.blox21[class*="21 UN" i]', expect: { count: 1 } },
+      { select: '.blox22[class*="22 unitt" s]', expect: { throws: true } },
+      { select: '.blox22[class*="22 unitT" s]', expect: { throws: true } },
+      { select: '.blox24[class^="BLOX" i]', expect: { count: 1 } },
+      { select: '.blox25[class^="BLOX"]', expect: { count: 0 } },
+      { select: '.blox25[class^="blox" s]', expect: { throws: true } },
+      { select: '.blox26[class$="tEST" i]', expect: { count: 1 } },
+      { select: '.blox27[class$="TEst" s]', expect: { throws: true } },
+      { select: '.blox27[class$="Test" s]', expect: { throws: true } },
+      { select: '.blox28[class~="unitTEST" i]', expect: { count: 1 } },
     ],
   },
   {
     name: 'attribute s-flag divergence',
-    modifier: 'fail',
+    status: 'fail',
     html: `
       <div class="test attrCaseInsensitive">
         <div class="blox20 unitTest"></div>
@@ -594,12 +594,12 @@ runScenarios('css3 compat', 'normal',  [
       </div>
     `,
     cases: [
-      { selector: '.blox20[class="blox20 unitTest" s]' },
-      { selector: '.blox22[class*="22 unitt" s]' },
-      { selector: '.blox22[class*="22 unitT" s]' },
-      { selector: '.blox25[class^="blox" s]' },
-      { selector: '.blox27[class$="TEst" s]' },
-      { selector: '.blox27[class$="Test" s]' },
+      { select: '.blox20[class="blox20 unitTest" s]' },
+      { select: '.blox22[class*="22 unitt" s]' },
+      { select: '.blox22[class*="22 unitT" s]' },
+      { select: '.blox25[class^="blox" s]' },
+      { select: '.blox27[class$="TEst" s]' },
+      { select: '.blox27[class$="Test" s]' },
     ],
   },
 ]);

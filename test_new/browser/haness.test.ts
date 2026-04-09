@@ -1,4 +1,4 @@
-import { runScenarios } from "./harness";
+import { runScenarios } from "./harness/scenarios";
 
 runScenarios('scope', 'normal', [
   {
@@ -9,10 +9,10 @@ runScenarios('scope', 'normal', [
       <div id="three"></div>
     `,
     cases: [
-      { selector: 'div', expect: { classes: ['outer primary', 'other-outer', ''] } },
-      { selector: 'div', expect: { includesClasses: ['other-outer'] } },
-      { selector: 'div', expect: { includesClasses: ['outer', 'primary'] } },
-      { selector: 'div', expect: { excludesClasses: ['missing-class'] } },
+      { select: 'div', expect: { classes: ['outer primary', 'other-outer', ''] } },
+      { select: 'div', expect: { includesClasses: ['other-outer'] } },
+      { select: 'div', expect: { includesClasses: ['outer', 'primary'] } },
+      { select: 'div', expect: { excludesClasses: ['missing-class'] } },
     ],
   }
 ]);
