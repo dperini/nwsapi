@@ -336,7 +336,11 @@
 
   // convert escape sequence in a CSS string or identifier
   // to javascript string with javascript escape sequences
-  convertEscapes =
+  escapeIdentifier =
+    global.CSS && typeof global.CSS.escape == 'function' ?
+    function(str) {
+      return global.CSS.escape(str);
+    } :
     function(str) {
       return REX.HasEscapes.test(str) ?
         str.replace(REX.FixEscapes,
@@ -978,7 +982,7 @@
               // whitespace separated list but value contains space
               break;
             } else if (match[4]) {
-              match[4] = convertEscapes(match[4]).replace(REX.RegExpChar, '\\$&');
+              match[4] = escapeIdentifier(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if((' +
@@ -1160,8 +1164,7 @@
                         '.querySelectorAll("*' + expr + '")' : '.children') +
                         ').includes(e.nextElementSibling)){' + source + '}';
                   } else {
-                    source = 'if(e.querySelector(":scope ' + expr + '"))' +
-                      '{' + source + '}';
+                    source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
                   }
                   break;
                 default:
@@ -1534,8 +1537,8 @@
       }
       return selectors.replace(/:scope/i,
         (element.localName) +
-        (element.id ? '#' + escape(element.id) : '') +
-        (element.className ? '.' + escape(element.classList[0]) : ''));
+        (element.id ? '#' + escapeIdentifier(element.id) : '') +
+        (element.className ? '.' + escapeIdentifier(element.classList[0]) : ''));
     },
 
   // equivalent of w3c 'closest' method
@@ -1590,7 +1593,7 @@
       }
 
       // normalize input string
-      parsed = unescape(selectors).
+      parsed = selectors.
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.CombineWSP, '\x20').
         replace(REX.PseudosWSP, '$1').
@@ -1903,6 +1906,7 @@
 
     first: first,
     match: match,
+    select: select,
 
     ancestor: ancestor,
 
@@ -1943,9 +1947,10 @@
     byTag: byTag,
     byClass: byClass,
 
-    match: match,
     first: first,
+    match: match,
     select: select,
+
     closest: ancestor,
 
     compile: compile,
