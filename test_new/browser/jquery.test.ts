@@ -276,7 +276,7 @@ runScenarios('jquery', 'normal', [
       { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
 
       // scoped selection
-      { select: 'param', scope: { by: 'id', id: 'object1' }, expect: { count: 2 } },
+      { select: 'param', ref: { by: 'id', id: 'object1' }, expect: { count: 2 } },
 
       // Consistency checks for multiple selector groups
       { select: 'div p', expect: { ids: ['firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
@@ -531,9 +531,9 @@ runScenarios('jquery', 'normal', [
       { select: 'div.foo > span > a', expect: { ids: [] } },
       { select: '.container div:not(.excluded) div', expect: { ids: [] } },
 
-      { select: '* > :first-child', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
-      { select: '* > :nth-child(1)', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
-      { select: '* > *:first-child', scope: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > :first-child', ref: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > :nth-child(1)', ref: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
+      { select: '* > *:first-child', ref: { by: 'id', id: 'nothiddendiv' }, expect: { ids: ['nothiddendivchild'] } },
 
       { select: '.fototab > .thumbnails > a', expect: { ids: [] } },
 

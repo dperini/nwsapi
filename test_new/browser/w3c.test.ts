@@ -457,8 +457,8 @@ runScenarios('w3c', 'normal', [
     cases: [
       { select: 'meta[charset="utf-8"', expect: { ids: ['expected'] } },
       { select: 'meta[charset="utf-8', expect: { ids: ['expected'] } },
-      { select: 'span:not([class])', scope: { by: 'id', id: 'container' }, expect: { count: 1 } },
-      { select: 'span:not([class)', scope: { by: 'id', id: 'container' }, expect: { throws: true } },
+      { select: 'span:not([class])', ref: { by: 'id', id: 'container' }, expect: { count: 1 } },
+      { select: 'span:not([class)', ref: { by: 'id', id: 'container' }, expect: { throws: true } },
     ],
   },
 ]);

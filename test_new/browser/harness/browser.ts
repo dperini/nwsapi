@@ -1,24 +1,23 @@
-import type { Engine, EquivalentTo, ScopeRef } from "./scenarios";
+import type { Engine, EquivalentCase, ContextRef } from "./scenarios";
 
 export interface PwHelpers {
-  resolveScope(ref: ScopeRef | undefined): ParentNode | null;
+  resolveContext(ref: ContextRef | undefined): QueryContext | null;
   runQuery(query: () => Element[]): QueryResult;
   compareQueryResults(
     a: NamedQueryResult,
     b: NamedQueryResult
   ): string | undefined;
   toEngineResult(res: QueryResult): EngineResult;
-  getResults(
-    engines: EngineQueries,
-    query: string,
-    ref?: ScopeRef,
-    equivTo?: EquivalentTo
-  ): EngineQueryResults;
+  getResults(queryFn: EngineQuery, query: string, ref?: ContextRef): EngineAndQueryResult;
+  getEngineQuery(c: EquivalentCase, n: Engine): EngineQuery;
+  getCaseQuery(c: EquivalentCase): string;
+  getCaseLabel(c: EquivalentCase, n: Engine): string;
 }
 
 export type EvalResult = {
   info: string;
   mismatchMsg?: string;
+  equivMismatchMsg?: string;
 } & Record<Engine, EngineResult>;
 
 export type EngineResult = {
@@ -26,16 +25,30 @@ export type EngineResult = {
   ids: string[];
   classes: string[];
   threw: boolean;
-  equivalentToFailMsg?: string;
 };
 
-export type EngineQueries = Record<Engine, EngineQuery>;
-export type EngineQuery = (query: string, scope: ParentNode) => () => Element[];
-export type EngineQueryResults = Record<Engine, { queryResult: QueryResult; engineResult: EngineResult; }>;
+export type EngineQuery = (query: string, ctx: QueryContext) => () => Element[];
+export type EngineAndQueryResult = { queryResult: QueryResult; engineResult: EngineResult; };
 export type NamedQueryResult = { name: string; result: QueryResult; };
 export type QueryResult = { elements: Element[]; error: string };
 
 export function installBrowserHelpers(): void {
+  function assertNever(x: never): never {
+    throw new Error(`Unexpected key: ${x}`);
+  }
+
+  function isElement(x: unknown): x is Element {
+    return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 1;
+  }
+
+  // function isDocument(x: unknown): x is Document {
+  //   return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 9;
+  // }
+
+  function isDocFrag(x: unknown): x is DocumentFragment {
+    return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 11;
+  }
+
   function runQuery(query: () => Element[]) {
     try {
       return { elements: query(), error: '' };
@@ -46,12 +59,9 @@ export function installBrowserHelpers(): void {
 
   function describe(el: Element | undefined) {
     if (!el) return '(missing)';
-    return {
-      tag: el.tagName.toLowerCase(),
-      id: el.id || null,
-      className: el.className || '',
-      html: el.outerHTML.replace(/\s+/g, ' ').slice(0, 120),
-    };
+    const id = el.getAttribute('id');
+    const className = el.getAttribute('class');
+    return `<${el.tagName.toLowerCase()}${id ? ` id='${id}'` : ''}${className ? ` class='${className}'` : ''}>`;
   }
 
   function compareQueryResults(a: NamedQueryResult, b: NamedQueryResult): string | undefined {
@@ -60,8 +70,8 @@ export function installBrowserHelpers(): void {
         return `Both threw:\n  ${a.name} error: ${a.result.error}\n  ${b.name} error: ${b.result.error}`;
       }
       return a.result.error
-        ? `${a.name} threw while ${b.name} did not: ${a.result.error}`
-        : `${b.name} threw while ${a.name} did not: ${b.result.error}`;
+        ? `Mismatch\n  ${a.name} threw while ${b.name} did not.\n  error: ${a.result.error}`
+        : `Mismatch\n  ${b.name} threw while ${a.name} did not.\n  error: ${b.result.error}`;
     }
 
     const aElems = a.result.elements;
@@ -69,7 +79,7 @@ export function installBrowserHelpers(): void {
 
     let mismatchMsg: string | undefined;
     if (aElems.length !== bElems.length) {
-      mismatchMsg = `Count mismatch: ${a.name}=${aElems.length}, ${b.name}=${bElems.length}`;
+      mismatchMsg = `Count mismatch:\n  ${a.name} = ${aElems.length}\n  ${b.name} = ${bElems.length}`;
     }
 
     const maxLen = Math.max(aElems.length, bElems.length);
@@ -77,8 +87,8 @@ export function installBrowserHelpers(): void {
       if (aElems[i] !== bElems[i]) {
         mismatchMsg = mismatchMsg ? mismatchMsg + '\n' : '';
         mismatchMsg += `Element mismatch at index ${i}:\n` +
-          `${a.name}[${i}] = ${JSON.stringify(describe(aElems[i]))}\n` +
-          `${b.name}[${i}] = ${JSON.stringify(describe(bElems[i]))}`;
+          `  ${a.name}[${i}] = ${describe(aElems[i])}\n` +
+          `  ${b.name}[${i}] = ${describe(bElems[i])}`;
         break;
       }
     }
@@ -86,7 +96,7 @@ export function installBrowserHelpers(): void {
     return mismatchMsg;
   }
 
-  function resolveScope(ref?: ScopeRef): ParentNode | null {
+  function resolveContext(ref?: ContextRef): QueryContext | null {
     return !ref || ref.by === 'document' ? document
       : ref.by === 'id' ? document.getElementById(ref.id)
       : ref.by === 'first' ? document.querySelector(ref.selector)
@@ -102,43 +112,177 @@ export function installBrowserHelpers(): void {
     };
   }
 
-  function getResults(engines: EngineQueries, query: string, ref?: ScopeRef, equivTo?: EquivalentTo): EngineQueryResults{
-    const scope = resolveScope(ref);
-    const equivScope = resolveScope(equivTo?.scope);
+  function getResults(queryFn: EngineQuery, query: string, ref?: ContextRef): EngineAndQueryResult {
+    const context = resolveContext(ref);
 
-    const build = (name: Engine, queryFn: EngineQuery) => {
-      const queryResult: QueryResult = scope
-        ? runQuery(queryFn(query, scope))
-        : { elements: [], error: `Scope target not found for ref: ${JSON.stringify(ref)}` };
+    const queryResult: QueryResult = context
+      ? runQuery(queryFn(query, context))
+      : { elements: [], error: `Could not resolve context from ref:: ${JSON.stringify(ref)}` };
 
-      const engineResult = toEngineResult(queryResult);
+    const engineResult = toEngineResult(queryResult);
+    return { queryResult, engineResult };
+  }
 
-      if (equivTo) {
-        const equivQuery = equivTo.search;
-        const equivRes: QueryResult = equivScope
-          ? runQuery(queryFn(equivQuery, equivScope))
-          : { elements: [], error: `Equivalent scope target not found: ${JSON.stringify(equivTo.scope)}` };
+  function getEngineQuery(c: EquivalentCase, ng: Engine): EngineQuery {
+    switch (true) {
+      case 'select' in c:
+        if (ng === 'native') return (query, ctx) => () => [...ctx.querySelectorAll(query)];
+        if (ng === 'nw') return (query, ctx) => () => NW.Dom.select(query, ctx);
+        break;
 
-        engineResult.equivalentToFailMsg = compareQueryResults(
-          { name: `${name}(${query})`, result: queryResult },
-          { name: `${name}(${equivQuery})`, result: equivRes },
-        );
-      }
+      case 'first' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () => {
+            const el = ctx.querySelector(query);
+            return el ? [el] : [];
+          };
+        }
+        if (ng === 'nw') {
+          return (query, ctx) => () => {
+            const el = NW.Dom.first(query, ctx);
+            return el ? [el] : [];
+          };
+        }
+        break;
 
-      return { queryResult, engineResult };
-    };
+      case 'byTag' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () =>
+            isDocFrag(ctx)
+              ? [...ctx.querySelectorAll(query)]
+              : [...ctx.getElementsByTagName(query)];
+        }
+        if (ng === 'nw') return (query, ctx) => () => NW.Dom.byTag(query, ctx);
+        break;
 
-    return {
-      native: build('native', engines.native),
-      nw: build('nw', engines.nw),
-    };
+      case 'byClass' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () =>
+            isDocFrag(ctx)
+              ? [...ctx.querySelectorAll(`.${query}`)]
+              : [...ctx.getElementsByClassName(query)];
+        }
+        if (ng === 'nw') return (query, ctx) => () => NW.Dom.byClass(query, ctx);
+        break;
+
+      case 'byId' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () => {
+            const el = isElement(ctx)
+              ? ctx.querySelector(`#${CSS.escape(query)}`)
+              : ctx.getElementById(query);
+            return el ? [el] : [];
+          };
+        }
+        if (ng === 'nw') return (query, ctx) => () => NW.Dom.byId(query, ctx);
+        break;
+
+      case 'match' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () => {
+            if (!isElement(ctx)) throw new Error(`Context for 'match' case must be an Element`);
+            const el = ctx;
+            return el.matches(query) ? [el] : [];
+          };
+        }
+        if (ng === 'nw') {
+          return (query, ctx) => () => {
+            if (!isElement(ctx)) throw new Error(`Context for 'match' case must be an Element`);
+            const el = ctx;
+            return NW.Dom.match(query, el) ? [el] : [];
+          };
+        }
+        break;
+
+      case 'closest' in c:
+        if (ng === 'native') {
+          return (query, ctx) => () => {
+            if (!isElement(ctx)) throw new Error(`Context for 'closest' case must be an Element`);
+            const el = ctx;
+            const hit = el.closest(query);
+            return hit ? [hit] : [];
+          };
+        }
+        if (ng === 'nw') {
+          return (query, ctx) => () => {
+            if (!isElement(ctx)) throw new Error(`Context for 'closest' case must be an Element`);
+            const el = ctx;
+            const hit = NW.Dom.closest(query, el);
+            return hit ? [hit] : [];
+          };
+        }
+        break;
+
+      default:
+        throw assertNever(c);
+    }
+
+    throw assertNever(ng);
+  }
+
+  function getCaseQuery(c: EquivalentCase): string {
+    switch (true) {
+      case 'select' in c: return c.select;
+      case 'first' in c: return c.first;
+      case 'byTag' in c: return c.byTag;
+      case 'byClass' in c: return c.byClass;
+      case 'byId' in c: return c.byId;
+      case 'match' in c: return c.match;
+      case 'closest' in c: return c.closest;
+      default: throw assertNever(c);
+    }
+  }
+
+  function getCaseLabel(c: EquivalentCase, engine: Engine): string {
+    switch (true) {
+      case 'select' in c:
+        return engine === 'native'
+          ? `querySelectorAll(${c.select})`
+          : `NW.Dom.select(${c.select})`;
+
+      case 'first' in c:
+        return engine === 'native'
+          ? `querySelector(${c.first})`
+          : `NW.Dom.first(${c.first})`;
+
+      case 'byTag' in c:
+        return engine === 'native'
+          ? `byTag:${c.byTag}`
+          : `NW.Dom.byTag(${c.byTag})`;
+
+      case 'byClass' in c:
+        return engine === 'native'
+          ? `byClass:${c.byClass}`
+          : `NW.Dom.byClass(${c.byClass})`;
+
+      case 'byId' in c:
+        return engine === 'native'
+          ? `byId:${c.byId}`
+          : `NW.Dom.byId(${c.byId})`;
+
+      case 'match' in c:
+        return engine === 'native'
+          ? `matches(${c.match})`
+          : `NW.Dom.match(${JSON.stringify(c.match)})`;
+
+      case 'closest' in c:
+        return engine === 'native'
+          ? `closest(${c.closest})`
+          : `NW.Dom.closest(${c.closest})`;
+
+      default:
+        throw assertNever(c);
+    }
   }
 
   window.__pwHelpers = {
-    resolveScope,
+    resolveContext,
     runQuery,
     compareQueryResults,
     toEngineResult,
     getResults,
+    getEngineQuery,
+    getCaseQuery,
+    getCaseLabel,
   };
 };

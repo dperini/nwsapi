@@ -1,18 +1,24 @@
 import test, { chromium, expect, firefox, webkit } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { evalSelectCase, type SelectCase } from './select';
-import { assertNever } from '../../utils/type';
-import { installBrowserHelpers, type EngineResult, type EvalResult } from './browser';
+import { assertNever, type DistributiveOmit } from '../../utils/type';
+import { installBrowserHelpers, type EngineResult, type EvalResult, type EngineQuery } from './browser';
 
-type Case = SelectCase;
-const isSelectCase = (c: Case): c is SelectCase => 'select' in c;
+export type SelectCase = { select: string; ref?: ContextRef; expect?: Expectation };
+export type ByIdCase = { byId: string; ref?: ContextRef; expect?: Expectation };
+export type ByTagCase = { byTag: string; ref?: ContextRef; expect?: Expectation };
+export type ByClassCase = { byClass: string; ref?: ContextRef; expect?: Expectation };
+export type MatchCase = { match: string; ref: ContextRef; expect?: Expectation };
+export type FirstCase = { first: string; ref?: ContextRef; expect?: Expectation };
+export type ClosestCase = { closest: string; ref: ContextRef; expect?: Expectation };
+
+export type TestCase = SelectCase | ByIdCase | ByTagCase | ByClassCase | MatchCase | FirstCase | ClosestCase;
 
 export type Scenario = {
   name: string;
   html: string;
   htmlMode?: 'body' | 'document';
   browsers?: BrowserName[];
-  cases: Case[];
+  cases: TestCase[];
   setupPage?: (page: Page) => void | Promise<void>;
   status?: TestStatus;
 };
@@ -27,13 +33,14 @@ export type Expectation = {
   includesClasses?: string[];
   excludesClasses?: string[];
   throws?: boolean;
-  equivalentTo?: EquivalentTo;
+  equivalentCase?: EquivalentCase;
 };
 
-export type EquivalentTo = { search: string; scope?: ScopeRef };
+export type EquivalentCase = DistributiveOmit<TestCase, 'expect'>;
+// const foo: EquivalentCase = { select: 'div' }; // just to verify the type
 
 const BROWSER_NAMES = ['chromium', 'firefox', 'webkit'] as const;
-export type BrowserName = typeof BROWSER_NAMES[number];
+type BrowserName = typeof BROWSER_NAMES[number];
 
 type DescribeStatus = 'normal' | 'skip' | 'only' | 'fixme';
 type TestStatus = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
@@ -41,7 +48,7 @@ type TestStatus = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
 export const ENGINES = ['native', 'nw'] as const;
 export type Engine = typeof ENGINES[number];
 
-export type ScopeRef =
+export type ContextRef =
   | { by: 'document' }
   | { by: 'id'; id: string }
   | { by: 'first'; selector: string };
@@ -85,21 +92,56 @@ export function runScenarios(label: string, status: DescribeStatus, scenarios: S
   });
 }
 
-export async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promise<void> {
+async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promise<void> {
   const scenarioBrowsers = s.browsers ?? BROWSER_NAMES;
 
   for (const browserName of scenarioBrowsers) {
     const page = pages[browserName];
     await setupPage(page, s);
     for (const c of s.cases) {
-      let result: EvalResult | undefined;
-      if (isSelectCase(c)) result = await evalSelectCase(page, c);
-      else throw new Error(`Unsupported case type in scenario "${s.name}" for browser "${browserName}"`);
-
+      const result = await evalCase(page, c);
       const expectation = c.expect ?? {};
       checkResult(result, expectation, browserName, s.name);
     }
   }
+}
+
+async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
+  return await page.evaluate((c) => {
+    const pw = window.__pwHelpers;
+    const query = pw.getCaseQuery(c);
+    // const info = pw.getCaseLabel(c);
+    const equivCase = c.expect?.equivalentCase;
+
+    const nwFn: EngineQuery = pw.getEngineQuery(c, 'nw');
+    const nativeFn: EngineQuery = pw.getEngineQuery(c, 'native');
+
+    const nwRes = pw.getResults(nwFn, query, c.ref);
+    const nativeRes = pw.getResults(nativeFn, query, c.ref);
+
+    const mismatchMsg = pw.compareQueryResults(
+      { name: `native:${pw.getCaseLabel(c, 'native')}`, result: nativeRes.queryResult },
+      { name: `nw:${pw.getCaseLabel(c, 'nw')}`, result: nwRes.queryResult },
+    );
+
+    let equivMismatchMsg: string | undefined;
+    if (equivCase) {
+      const nwEquivFn = pw.getEngineQuery(equivCase, 'nw');
+      const nwEquivQuery = pw.getCaseQuery(equivCase);
+      const nwEquivRes = pw.getResults(nwEquivFn, nwEquivQuery, equivCase.ref);
+
+      equivMismatchMsg = pw.compareQueryResults(
+        { name: `nw:${pw.getCaseLabel(c, 'nw')}`, result: nwRes.queryResult },
+        { name: `nwEquiv:${pw.getCaseLabel(equivCase, 'nw')}`, result: nwEquivRes.queryResult },
+      );
+    }
+
+    return {
+      info: query, mismatchMsg, equivMismatchMsg,
+      native: nativeRes.engineResult,
+      nw: nwRes.engineResult
+    };
+  }, testCase);
 }
 
 function getDescribeFn(mode?: DescribeStatus) {
@@ -131,7 +173,7 @@ async function setupPage(page: Page, scenario: Scenario): Promise<void> {
   if (scenario.setupPage) await scenario.setupPage(page);
 }
 
-export function expectEngines(
+function runEngineChecks(
   result: EvalResult,
   baseMsg: string,
   key: keyof EngineResult,
@@ -151,20 +193,18 @@ export function expectEngines(
         case 'ids': return sameIds(r.ids, result[e].ids);
         case 'classes': return sameIds(r.classes, result[e].classes);
         case 'threw': return r.threw === result[e].threw;
-        case 'equivalentToFailMsg': return e === engine;
         default: assertNever(key);
       }
     });
 
     let label = `[engine=${enginesWithSameOutcome.join('+')}] ${baseMsg}`;
-    if (r.equivalentToFailMsg && key === 'equivalentToFailMsg') label += `\n${r.equivalentToFailMsg}`;
     check(r, label);
   }
 }
 
 function checkResult(result: EvalResult, expectation: Expectation, browserName: BrowserName, scenarioName: string): void {
   const allowMismatch = expectation.allowMismatch ?? false;
-  const msg = `[${browserName}] ${scenarioName} :: ${result.info}${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
+  const msg = `[${browserName}] :: ${scenarioName} :: ${result.info}${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
 
   if (expectation.throws) {
     expect(result.nw.threw, msg).toBe(true);
@@ -173,23 +213,21 @@ function checkResult(result: EvalResult, expectation: Expectation, browserName: 
 
   expect(result.nw.threw, msg).toBe(false);
 
-  const nativeThrew = result.native.threw;
-
   if (expectation.count !== undefined) {
-    expectEngines(result, msg, 'count', (r, label) => {
+    runEngineChecks(result, msg, 'count', (r, label) => {
       expect(r.count, label).toEqual(expectation.count);
     });
   }
 
   if (expectation.ids) {
-    expectEngines(result, msg, 'ids', (r, label) => {
+    runEngineChecks(result, msg, 'ids', (r, label) => {
       expect(r.ids, label).toEqual(expectation.ids);
     });
   }
 
   if (expectation.includesIds) {
     for (const id of expectation.includesIds) {
-      expectEngines(result, msg, 'ids', (r, label) => {
+      runEngineChecks(result, msg, 'ids', (r, label) => {
         expect(r.ids, label).toContain(id);
       });
     }
@@ -197,21 +235,21 @@ function checkResult(result: EvalResult, expectation: Expectation, browserName: 
 
   if (expectation.excludesIds) {
     for (const id of expectation.excludesIds) {
-      expectEngines(result, msg, 'ids', (r, label) => {
+      runEngineChecks(result, msg, 'ids', (r, label) => {
         expect(r.ids, label).not.toContain(id);
       });
     }
   }
 
   if (expectation.classes) {
-    expectEngines(result, msg, 'classes', (r, label) => {
+    runEngineChecks(result, msg, 'classes', (r, label) => {
       expect(r.classes, label).toEqual(expectation.classes);
     });
   }
 
   if (expectation.includesClasses) {
     for (const cls of expectation.includesClasses) {
-      expectEngines(result, msg, 'classes', (r, label) => {
+      runEngineChecks(result, msg, 'classes', (r, label) => {
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
         expect(classTokens, label).toContain(cls);
       });
@@ -220,20 +258,20 @@ function checkResult(result: EvalResult, expectation: Expectation, browserName: 
 
   if (expectation.excludesClasses) {
     for (const cls of expectation.excludesClasses) {
-      expectEngines(result, msg, 'classes', (r, label) => {
+      runEngineChecks(result, msg, 'classes', (r, label) => {
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
         expect(classTokens, label).not.toContain(cls);
       });
     }
   }
 
-  if (expectation.equivalentTo) {
-    expectEngines(result, msg, 'equivalentToFailMsg', (r, label) => {
-      expect(r.equivalentToFailMsg, label).toBeUndefined();
-    });
+  if (!allowMismatch && !result.native.threw) {
+    const mismatch = !!result.mismatchMsg;
+    expect(mismatch, `${msg}\n${result.mismatchMsg}`).toBe(false);
   }
 
-  if (!allowMismatch && !nativeThrew) {
-    expect(result.mismatchMsg, msg).toBeUndefined();
+  if (expectation.equivalentCase) {
+    const equivMismatch = !!result.equivMismatchMsg;
+    expect(equivMismatch, `${msg}\n${result.equivMismatchMsg}`).toBe(false);
   }
 }

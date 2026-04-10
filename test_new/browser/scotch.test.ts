@@ -116,7 +116,7 @@ runScenarios('scotch', 'normal', [
 
       // E — Type selector
       { select: 'li' },
-      { select: 'strong', scope: { by: 'id', id: 'fixtures' }, expect: { ids: ['strong'] } },
+      { select: 'strong', ref: { by: 'id', id: 'fixtures' }, expect: { ids: ['strong'] } },
       { select: 'nonexistent', expect: { count: 0 } },
 
       // #id — ID selector
@@ -159,23 +159,23 @@ runScenarios('scotch', 'normal', [
     setupPage: setupNw,
     cases: [
       // [foo]
-      { select: '[href]', scope: { by: 'first', selector: 'body' }, expect: { equivalentTo: { search: 'a[href]', scope: { by: 'first', selector: 'body' } } } },
-      { select: '[class~=internal]', expect: { equivalentTo: { search: 'a[class~="internal"]' } } },
-      { select: '[id]', expect: { equivalentTo: { search: '*[id]' } } },
+      { select: '[href]', ref: { by: 'first', selector: 'body' }, expect: { equivalentCase: { select: 'a[href]', ref: { by: 'first', selector: 'body' } } } },
+      { select: '[class~=internal]', expect: { equivalentCase: { select: 'a[class~="internal"]' } } },
+      { select: '[id]', expect: { equivalentCase: { select: '*[id]' } } },
       { select: '[type=radio]', expect: { ids: ['checked_radio', 'unchecked_radio'] } },
-      { select: '[type=checkbox]', expect: { equivalentTo: { search: '*[type=checkbox]' } } },
+      { select: '[type=checkbox]', expect: { equivalentCase: { select: '*[type=checkbox]' } } },
       { select: '[title]', expect: { ids: ['with_title', 'commaParent'] } },
-      { select: '#troubleForm [type=radio]', expect: { equivalentTo: { search: '#troubleForm *[type=radio]' } } },
-      { select: '#troubleForm [type]', expect: { equivalentTo: { search: '#troubleForm *[type]' } } },
+      { select: '#troubleForm [type=radio]', expect: { equivalentCase: { select: '#troubleForm *[type=radio]' } } },
+      { select: '#troubleForm [type]', expect: { equivalentCase: { select: '#troubleForm *[type]' } } },
 
       // E[foo]
-      { select: 'h1[class]', expect: { equivalentTo: { search: '#fixtures h1' } } },
-      { select: 'h1[CLASS]', expect: { equivalentTo: { search: '#fixtures h1' } } },
+      { select: 'h1[class]', expect: { equivalentCase: { select: '#fixtures h1' } } },
+      { select: 'h1[CLASS]', expect: { equivalentCase: { select: '#fixtures h1' } } },
       { select: 'li#item_3[class]', expect: { ids: ['item_3'] } },
       { select: '#troubleForm2 input[name="brackets[5][]"]', expect: { ids: ['chk_1', 'chk_2'] } },
       { select: '#troubleForm2 input[name="brackets[5][]"]:checked', expect: { ids: ['chk_1'] } },
       { select: 'cite[title="hello world!"]', expect: { ids: ['with_title'] } },
-      { select: '[xml:lang]', expect: { allowMismatch: true, count: 2, includesIds: ['item_3'], equivalentTo: { search: '*[xml:lang]' } } },
+      { select: '[xml:lang]', expect: { allowMismatch: true, count: 2, includesIds: ['item_3'], equivalentCase: { select: '*[xml:lang]' } } },
       { select: '*[xml:lang]', expect: { allowMismatch: true, count: 2, includesIds: ['item_3'] } },
 
       // E[foo="bar"]
@@ -442,18 +442,18 @@ runScenarios('scotch', 'normal', [
     htmlMode: 'document',
     setupPage: setupNw,
     cases: [
-      { select: 'div.brothers', expect: { equivalentTo: { search: 'div[class~=brothers]' } } },
-      { select: 'div.brothers', expect: { equivalentTo: { search: 'div[class~=brothers].brothers' } } },
-      { select: 'div:not(.brothers)', expect: { equivalentTo: { search: 'div:not([class~=brothers])' } } },
-      { select: 'li ~ li', expect: { equivalentTo: { search: 'li:not(:first-child)' } } },
-      { select: 'ul > li', expect: { equivalentTo: { search: 'ul > li:nth-child(n)' } } },
-      { select: 'ul > li:nth-child(even)', expect: { equivalentTo: { search: 'ul > li:nth-child(2n)' } } },
-      { select: 'ul > li:nth-child(odd)', expect: { equivalentTo: { search: 'ul > li:nth-child(2n+1)' } } },
-      { select: 'ul > li:first-child', expect: { equivalentTo: { search: 'ul > li:nth-child(1)' } } },
-      { select: 'ul > li:last-child', expect: { equivalentTo: { search: 'ul > li:nth-last-child(1)' } } },
-      { select: 'ul > li:nth-child(n-128)', expect: { equivalentTo: { search: 'ul > li' } } },
-      { select: 'ul>li', expect: { equivalentTo: { search: 'ul > li' } } },
-      { select: '#p a:not([rel$="nofollow"])>em', expect: { equivalentTo: { search: '#p a:not([rel$="nofollow"]) > em' } } },
+      { select: 'div.brothers', expect: { equivalentCase: { select: 'div[class~=brothers]' } } },
+      { select: 'div.brothers', expect: { equivalentCase: { select: 'div[class~=brothers].brothers' } } },
+      { select: 'div:not(.brothers)', expect: { equivalentCase: { select: 'div:not([class~=brothers])' } } },
+      { select: 'li ~ li', expect: { equivalentCase: { select: 'li:not(:first-child)' } } },
+      { select: 'ul > li', expect: { equivalentCase: { select: 'ul > li:nth-child(n)' } } },
+      { select: 'ul > li:nth-child(even)', expect: { equivalentCase: { select: 'ul > li:nth-child(2n)' } } },
+      { select: 'ul > li:nth-child(odd)', expect: { equivalentCase: { select: 'ul > li:nth-child(2n+1)' } } },
+      { select: 'ul > li:first-child', expect: { equivalentCase: { select: 'ul > li:nth-child(1)' } } },
+      { select: 'ul > li:last-child', expect: { equivalentCase: { select: 'ul > li:nth-last-child(1)' } } },
+      { select: 'ul > li:nth-child(n-128)', expect: { equivalentCase: { select: 'ul > li' } } },
+      { select: 'ul>li', expect: { equivalentCase: { select: 'ul > li' } } },
+      { select: '#p a:not([rel$="nofollow"])>em', expect: { equivalentCase: { select: '#p a:not([rel$="nofollow"]) > em' } } },
     ],
   },
 

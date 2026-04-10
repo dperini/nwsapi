@@ -13,7 +13,7 @@ runScenarios('scope', 'normal', [
     cases: [
       { select: 'ul a', expect: { count: 2 } },
       { select: '#scope', expect: { count: 1 } },
-      { select: 'a', scope: { by: 'id', id: 'scope' }, expect: { count: 1 } },
+      { select: 'a', ref: { by: 'id', id: 'scope' }, expect: { count: 1 } },
     ],
   },
 
@@ -28,9 +28,9 @@ runScenarios('scope', 'normal', [
     `,
     cases: [
       { select: '#scope', expect: { count: 1 } },
-      { select: ':scope ul a', scope: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
-      { select: ':scope body ul a', scope: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
-      { select: ':scope a', scope: { by: 'id', id: 'scope' }, expect: { count: 1 } },
+      { select: ':scope ul a', ref: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
+      { select: ':scope body ul a', ref: { by: 'id', id: 'scope' }, expect: { count: 0, ids: [] } },
+      { select: ':scope a', ref: { by: 'id', id: 'scope' }, expect: { count: 1 } },
     ],
   },
 
@@ -44,8 +44,8 @@ runScenarios('scope', 'normal', [
     `,
     cases: [
       { select: '.a', expect: { count: 1 } },
-      { select: 'body div', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
-      { select: ':scope body div', scope: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
+      { select: 'body div', ref: { by: 'first', selector: '.a' }, expect: { count: 2 } },
+      { select: ':scope body div', ref: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
     ],
   },
 
@@ -60,8 +60,8 @@ runScenarios('scope', 'normal', [
     `,
     cases: [
       { select: 'div', expect: { count: 1 } },
-      { select: ':scope > p', scope: { by: 'first', selector: 'div' }, expect: { count: 1 } },
-      { select: ':scope > span', scope: { by: 'first', selector: 'div' }, expect: { count: 0, ids: [] } },
+      { select: ':scope > p', ref: { by: 'first', selector: 'div' }, expect: { count: 1 } },
+      { select: ':scope > span', ref: { by: 'first', selector: 'div' }, expect: { count: 0, ids: [] } },
     ],
   },
 
@@ -74,9 +74,9 @@ runScenarios('scope', 'normal', [
       </div>
     `,
     cases: [
-      { select: 'body div', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
-      { select: ':scope body div', scope: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
-      { select: ':scope > .a1, :scope > .a2', scope: { by: 'first', selector: '.a' }, expect: { count: 2 } },
+      { select: 'body div', ref: { by: 'first', selector: '.a' }, expect: { count: 2 } },
+      { select: ':scope body div', ref: { by: 'first', selector: '.a' }, expect: { count: 0, ids: [] } },
+      { select: ':scope > .a1, :scope > .a2', ref: { by: 'first', selector: '.a' }, expect: { count: 2 } },
     ],
   },
 
@@ -99,7 +99,7 @@ runScenarios('scope', 'normal', [
       </html>
     `,
     cases: [
-      { select: ':scope > [data-test="foo"]', scope: { by: 'first', selector: 'body' }, expect: { count: 1 } },
+      { select: ':scope > [data-test="foo"]', ref: { by: 'first', selector: 'body' }, expect: { count: 1 } },
     ],
   },
 
@@ -117,7 +117,7 @@ runScenarios('scope', 'normal', [
     cases: [
       {
         select: ':scope > div',
-        scope: { by: 'first', selector: 'div' },
+        ref: { by: 'first', selector: 'div' },
         expect: {
           classes: ['outer', 'other-outer']
         },
