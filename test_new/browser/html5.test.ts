@@ -39,7 +39,6 @@ runScenarios('html5', 'normal', [
 
   {
     name: 'table :not() selector test',
-    status: 'fixme',
     html: `
       <div>
         <h1>&nbsp;Your Search Results</h1>
@@ -193,6 +192,7 @@ runScenarios('html5', 'normal', [
       {
         select: 'tbody > tr:nth-of-type(n+6):not(:nth-of-type(17)) > td:nth-of-type(2) > a:not(:nth-of-type(2))',
         expect: { ids: ['AV11UXA'] },
+        status: 'fixme',
       },
     ],
   },

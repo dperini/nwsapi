@@ -70,8 +70,8 @@ export function installBrowserHelpers(): void {
         return `Both threw:\n  ${a.name} error: ${a.result.error}\n  ${b.name} error: ${b.result.error}`;
       }
       return a.result.error
-        ? `Mismatch\n  ${a.name} threw while ${b.name} did not.\n  error: ${a.result.error}`
-        : `Mismatch\n  ${b.name} threw while ${a.name} did not.\n  error: ${b.result.error}`;
+        ? `Throw mismatch:\n  ${a.name} threw while ${b.name} did not.\n  error: ${a.result.error}`
+        : `Throw mismatch:\n  ${b.name} threw while ${a.name} did not.\n  error: ${b.result.error}`;
     }
 
     const aElems = a.result.elements;
@@ -86,7 +86,7 @@ export function installBrowserHelpers(): void {
     for (let i = 0; i < maxLen; ++i) {
       if (aElems[i] !== bElems[i]) {
         mismatchMsg = mismatchMsg ? mismatchMsg + '\n' : '';
-        mismatchMsg += `Element mismatch at index ${i}:\n` +
+        mismatchMsg += `First element mismatch at index ${i}:\n` +
           `  ${a.name}[${i}] = ${describe(aElems[i])}\n` +
           `  ${b.name}[${i}] = ${describe(bElems[i])}`;
         break;

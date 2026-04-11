@@ -1,15 +1,22 @@
-import test, { chromium, expect, firefox, webkit } from '@playwright/test';
+import { test, chromium, expect, firefox, webkit } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
 import { assertNever, type DistributiveOmit } from '../../utils/type';
 import { installBrowserHelpers, type EngineResult, type EvalResult, type EngineQuery } from './browser';
 
-export type SelectCase = { select: string; ref?: ContextRef; expect?: Expectation };
-export type ByIdCase = { byId: string; ref?: ContextRef; expect?: Expectation };
-export type ByTagCase = { byTag: string; ref?: ContextRef; expect?: Expectation };
-export type ByClassCase = { byClass: string; ref?: ContextRef; expect?: Expectation };
-export type MatchCase = { match: string; ref: ContextRef; expect?: Expectation };
-export type FirstCase = { first: string; ref?: ContextRef; expect?: Expectation };
-export type ClosestCase = { closest: string; ref: ContextRef; expect?: Expectation };
+type HarnessMode = 'normal' | 'fixme';
+const rawHarnessMode = process.env.HARNESS_MODE;
+if (rawHarnessMode !== undefined && rawHarnessMode !== 'normal' && rawHarnessMode !== 'fixme') {
+  throw new Error(`Invalid HARNESS_MODE: ${rawHarnessMode}`);
+}
+const HARNESS_MODE: HarnessMode = rawHarnessMode ?? 'normal';
+
+export type SelectCase =  { select: string;  ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
+export type ByIdCase =    { byId: string;    ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
+export type ByTagCase =   { byTag: string;   ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
+export type ByClassCase = { byClass: string; ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
+export type FirstCase =   { first: string;   ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
+export type MatchCase =   { match: string;   ref:  ContextRef; expect?: Expectation, status?: CaseStatus };
+export type ClosestCase = { closest: string; ref:  ContextRef; expect?: Expectation, status?: CaseStatus };
 
 export type TestCase = SelectCase | ByIdCase | ByTagCase | ByClassCase | MatchCase | FirstCase | ClosestCase;
 
@@ -20,7 +27,7 @@ export type Scenario = {
   browsers?: BrowserName[];
   cases: TestCase[];
   setupPage?: (page: Page) => void | Promise<void>;
-  status?: TestStatus;
+  status?: ScenarioStatus;
 };
 
 export type Expectation = {
@@ -42,8 +49,9 @@ export type EquivalentCase = DistributiveOmit<TestCase, 'expect'>;
 const BROWSER_NAMES = ['chromium', 'firefox', 'webkit'] as const;
 type BrowserName = typeof BROWSER_NAMES[number];
 
-type DescribeStatus = 'normal' | 'skip' | 'only' | 'fixme';
-type TestStatus = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
+type ScenariosStatus = 'normal' | 'skip' | 'only'; // | 'fixme';
+type ScenarioStatus = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
+type CaseStatus = 'normal' | 'skip' | 'fixme' | 'fail';
 
 export const ENGINES = ['native', 'nw'] as const;
 export type Engine = typeof ENGINES[number];
@@ -53,7 +61,7 @@ export type ContextRef =
   | { by: 'id'; id: string }
   | { by: 'first'; selector: string };
 
-export function runScenarios(label: string, status: DescribeStatus, scenarios: Scenario[]): void {
+export function runScenarios(label: string, status: ScenariosStatus, scenarios: Scenario[]): void {
   const describeFn = getDescribeFn(status);
   describeFn(label, () => {
     let browsers: Record<BrowserName, Browser>;
@@ -84,6 +92,9 @@ export function runScenarios(label: string, status: DescribeStatus, scenarios: S
     });
 
     for (const s of scenarios) {
+      const hasFixme = s.status === 'fixme' || s.cases.some(c => c.status === 'fixme');
+      if (HARNESS_MODE === 'fixme' && !hasFixme) continue;
+      
       const testFn = getTestFn(s.status);
       testFn(s.name, async () => {
         await runScenario(s, pages);
@@ -98,12 +109,48 @@ async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promi
   for (const browserName of scenarioBrowsers) {
     const page = pages[browserName];
     await setupPage(page, s);
+
     for (const c of s.cases) {
-      const result = await evalCase(page, c);
-      const expectation = c.expect ?? {};
-      checkResult(result, expectation, browserName, s.name);
+      await runCase(page, c, browserName, s);
     }
   }
+}
+
+async function runCase(page: Page, c: TestCase, browserName: BrowserName, s: Scenario): Promise<void> {
+  if (c.status === 'skip') return;
+  if (s.status !== 'fixme' && HARNESS_MODE === 'fixme' && c.status !== 'fixme') {
+    return;
+  }
+
+  const result = await evalCase(page, c);
+  const expectation = c.expect ?? {};
+
+  let thrown: unknown = undefined;
+  try {
+    checkResult(result, expectation, browserName, s.name);
+  } catch (err) {
+    thrown = err;
+  }
+
+  const status = c.status ?? 'normal';
+
+  if (status === 'normal') {
+    if (thrown) throw thrown;
+    return;
+  }
+
+  if (status === 'fixme' || status === 'fail') {
+    if (thrown) {
+      if (HARNESS_MODE === 'fixme') throw thrown;
+      return;
+    }
+    throw new Error(
+      `[${browserName}] :: ${s.name} :: ${result.info}\n` +
+      `Case is marked '${status}' but unexpectedly passed.`,
+    );
+  }
+
+  assertNever(status);
 }
 
 async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
@@ -144,17 +191,21 @@ async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
   }, testCase);
 }
 
-function getDescribeFn(mode?: DescribeStatus) {
+function getDescribeFn(mode?: ScenariosStatus) {
   if (mode === 'skip') return test.describe.skip;
   if (mode === 'only') return test.describe.only;
-  if (mode === 'fixme') return test.describe.fixme;
+  // if (mode === 'fixme') return test.describe.fixme;
   return test.describe;
 }
 
-function getTestFn(mode?: TestStatus) {
+function getTestFn(mode?: ScenarioStatus) {
   if (mode === 'skip') return test.skip;
   if (mode === 'only') return test.only;
-  if (mode === 'fixme') return test.fixme;
+  // if (mode === 'fixme') return test.fixme;
+  if (mode === 'fixme') {
+    if (HARNESS_MODE === 'fixme') return test;
+    return test.fixme;
+  }
   if (mode === 'fail') return test.fail;
   return test;
 }
@@ -267,7 +318,7 @@ function checkResult(result: EvalResult, expectation: Expectation, browserName: 
 
   if (!allowMismatch && !result.native.threw) {
     const mismatch = !!result.mismatchMsg;
-    expect(mismatch, `${msg}\n${result.mismatchMsg}`).toBe(false);
+    expect(mismatch, `${msg}`).toBe(false); // \n${result.mismatchMsg}
   }
 
   if (expectation.equivalentCase) {
