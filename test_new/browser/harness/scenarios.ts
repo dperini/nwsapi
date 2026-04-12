@@ -11,13 +11,14 @@ if (rawHarnessMode !== undefined && rawHarnessMode !== 'normal' && rawHarnessMod
 }
 const HARNESS_MODE: HarnessMode = rawHarnessMode ?? 'normal';
 
-export type SelectCase =  { select: string;  ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
-export type ByIdCase =    { byId: string;    ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
-export type ByTagCase =   { byTag: string;   ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
-export type ByClassCase = { byClass: string; ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
-export type FirstCase =   { first: string;   ref?: ContextRef; expect?: Expectation, status?: CaseStatus };
-export type MatchCase =   { match: string;   ref:  ContextRef; expect?: Expectation, status?: CaseStatus };
-export type ClosestCase = { closest: string; ref:  ContextRef; expect?: Expectation, status?: CaseStatus };
+type CaseBase = { expect?: Expectation; status?: CaseStatus; browsers?: BrowserName[]; };
+export type SelectCase =  { select: string;  ref?: ContextRef; } & CaseBase;
+export type ByIdCase =    { byId: string;    ref?: ContextRef; } & CaseBase;
+export type ByTagCase =   { byTag: string;   ref?: ContextRef; } & CaseBase;
+export type ByClassCase = { byClass: string; ref?: ContextRef; } & CaseBase;
+export type FirstCase =   { first: string;   ref?: ContextRef; } & CaseBase;
+export type MatchCase =   { match: string;   ref:  ContextRef; } & CaseBase;
+export type ClosestCase = { closest: string; ref:  ContextRef; } & CaseBase;
 
 export type TestCase = SelectCase | ByIdCase | ByTagCase | ByClassCase | MatchCase | FirstCase | ClosestCase;
 
@@ -27,6 +28,14 @@ export type Scenario = {
   html: string;
   htmlMode?: 'body' | 'document';
   browsers?: BrowserName[];
+  steps?: ScenarioStep[];
+
+  // ergonomic sugar for simple scenarios that don't require multiple steps
+  setupPage?: (page: Page) => void | Promise<void>;
+  cases?: TestCase[];
+};
+
+type ScenarioStep = {
   setupPage?: (page: Page) => void | Promise<void>;
   cases: TestCase[];
 };
@@ -44,7 +53,7 @@ export type Expectation = {
   equivalentCase?: EquivalentCase;
 };
 
-export type EquivalentCase = DistributiveOmit<TestCase, 'expect'>;
+export type EquivalentCase = DistributiveOmit<TestCase, 'expect' | 'status' | 'browsers'>;
 // const foo: EquivalentCase = { select: 'div' }; // just to verify the type
 
 const BROWSER_NAMES = ['chromium', 'firefox', 'webkit'] as const;
@@ -52,7 +61,7 @@ type BrowserName = typeof BROWSER_NAMES[number];
 
 type ScenariosStatus = 'normal' | 'skip' | 'only'; // | 'fixme';
 type ScenarioStatus = 'normal' | 'skip' | 'only' | 'fixme' | 'fail';
-type CaseStatus = 'normal' | 'skip' | 'fixme' | 'fail';
+type CaseStatus = 'normal' | 'skip' | 'fixme' | 'fail' | 'only';
 
 export const ENGINES = ['native', 'nw'] as const;
 export type Engine = typeof ENGINES[number];
@@ -66,15 +75,16 @@ export type ContextRef =
 export type ContextHome = 'document' | 'detached' | 'fragment';
 export type NwsapiId = 'nwsapi-bootstrap';
 
-type Misfail = { passedEverywhere: boolean; info: string; }
+type Misfail = { passedEverywhere: boolean; resultInfo: string; stepIndex: number; caseIndex: number; };
 type CaseInfo = {
   browser: BrowserName;
   scenario: Scenario;
   case: TestCase;
+  stepIndex: number;
   caseIndex: number;
+  stepCaseIndex: number;
   misfails: Record<number, Misfail>;
 };
-
 
 export function runScenarios(label: string, status: ScenariosStatus, scenarios: Scenario[]): void {
   const describeFn = getDescribeFn(status);
@@ -106,10 +116,20 @@ export function runScenarios(label: string, status: ScenariosStatus, scenarios: 
       await Promise.all(BROWSER_NAMES.map((name) => browsers[name].close()));
     });
 
+    const scenarioHas = (s: Scenario, status: 'only' | 'fixme'): boolean =>
+      s.status === status ||
+        !!s.cases?.some(c => c.status === status) ||
+        !!s.steps?.some(step => step.cases.some(c => c.status === status));
+
+    const hasScenariosOnly = scenarios.some(s => scenarioHas(s, 'only'));
+
     for (const s of scenarios) {
-      const hasFixme = s.status === 'fixme' || s.cases.some(c => c.status === 'fixme');
+      const hasFixme = scenarioHas(s, 'fixme');
       if (HARNESS_MODE === 'fixme' && !hasFixme) continue;
-      
+
+      const hasOnly = scenarioHas(s, 'only');
+      if (hasScenariosOnly && !hasOnly) continue;
+
       const testFn = getTestFn(s.status);
       testFn(s.name, async () => {
         await runScenario(s, pages);
@@ -121,29 +141,49 @@ export function runScenarios(label: string, status: ScenariosStatus, scenarios: 
 async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promise<void> {
   const scenarioBrowsers = s.browsers ?? BROWSER_NAMES;
 
-  // collection of cases marked as 'fail' and their accumulated outcomes
+  // cases marked 'fail' and whether they passed in every applicable browser so far
   const misfails: Record<number, Misfail> = {};
+
+  const steps: ScenarioStep[] = [
+    ...(s.steps ?? []),
+    ...(s.cases?.length ? [{ cases: s.cases }] : []),
+  ];
+
+  const hasOnlyCases = steps.some(step => step.cases.some(c => c.status === 'only'));
 
   for (const browserName of scenarioBrowsers) {
     const page = pages[browserName];
-    await setupPage(page, s);
+    await initPage(page, s);
 
-    for (let i = 0; i < s.cases.length; ++i) {
-       const c = s.cases[i];
-       await runCase(page, { browser: browserName, scenario: s, case: c, caseIndex: i, misfails: misfails });
+    let stepCaseIndex = 0;
+    for (let stepIndex = 0; stepIndex < steps.length; ++stepIndex) {
+      const step = steps[stepIndex];
+      if (step.setupPage) await step.setupPage(page);
+      for (let caseIndex = 0; caseIndex < step.cases.length; ++caseIndex) {
+        const c = step.cases[caseIndex];
+        if (hasOnlyCases && c.status !== 'only') continue;
+        await runCase(
+          page,
+          {
+            browser: browserName, scenario: s, case: c,
+            stepIndex, caseIndex, stepCaseIndex, misfails
+          }
+        );
+        stepCaseIndex++;
+      }
     }
   }
 
-  for (const [caseIndex, misFail] of Object.entries(misfails)) {
+  // At the end of the scenario, check if any 'fail' cases passed unexpectedly in all browsers
+  for (const [_scIndex, misFail] of Object.entries(misfails)) {
     if (misFail.passedEverywhere) {
-      const i = Number(caseIndex);
+      const { stepIndex, caseIndex } = misFail;
       throw new Error(
-        `Case #${i + 1} :: ${s.name} :: ${misFail.info}\n` +
-        `Case is marked 'fail' but unexpectedly passed.`,
+        `Step #${stepIndex + 1}, Case #${caseIndex + 1} was marked 'fail' but unexpectedly passed in every applicable browser.\n` +
+        `${s.name} :: ${misFail.resultInfo}\n`
       );
     }
   }
-
 }
 
 async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
@@ -153,6 +193,7 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
   if (s.status !== 'fixme' && HARNESS_MODE === 'fixme' && c.status !== 'fixme') {
     return;
   }
+  if (c.browsers && !c.browsers.includes(caseInfo.browser)) return;
 
   const result = await evalCase(page, c);
   const expectation = c.expect ?? {};
@@ -166,17 +207,18 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
 
   const status = c.status ?? 'normal';
 
-  if (status === 'normal') {
+  if (status === 'normal' || status === 'only') {
     if (thrown) throw thrown;
     return;
   }
 
   if (status === 'fail') {
     const curPassed = !thrown;
-    const prevPassed = caseInfo.misfails[caseInfo.caseIndex]?.passedEverywhere ?? true;
+    const prevPassed = caseInfo.misfails[caseInfo.stepCaseIndex]?.passedEverywhere ?? true;
     const passedEverywhere = curPassed && prevPassed;
-    const info = caseInfo.misfails[caseInfo.caseIndex]?.info || result.info;
-    caseInfo.misfails[caseInfo.caseIndex] = { passedEverywhere, info };
+    const resultInfo = caseInfo.misfails[caseInfo.stepCaseIndex]?.resultInfo ?? result.info;
+    const { stepIndex, caseIndex } = caseInfo;
+    caseInfo.misfails[caseInfo.stepCaseIndex] = { passedEverywhere, resultInfo, stepIndex, caseIndex };
     return;
   }
 
@@ -216,7 +258,9 @@ async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
       const nwEquivQuery = pw.getCaseQuery(equivCase);
 
       const equivCtx = pw.resolveContext(equivCase.ref);
-      const equivCtxErrorMsg = equivCtx ? undefined : `Could not resolve equivalent context from ref: ${pw.stringify(equivCase.ref)}`;
+      const equivCtxErrorMsg = !equivCtx
+        ? `Could not resolve equivalent context from ref: ${pw.stringify(equivCase.ref)}`
+        : undefined;
       const nwEquivRes = pw.getResults(nwEquivFn, nwEquivQuery, equivCtx, equivCtxErrorMsg);
 
       if (pw.isRehomed(c.ref) || pw.isRehomed(equivCase.ref)) {
@@ -259,7 +303,7 @@ function getTestFn(mode?: ScenarioStatus) {
   return test;
 }
 
-async function setupPage(page: Page, scenario: Scenario): Promise<void> {
+async function initPage(page: Page, scenario: Scenario): Promise<void> {
   if (scenario.htmlMode === 'document') {
     await page.setContent(scenario.html);
     const script = await page.addScriptTag({ path: 'src/nwsapi.js' });
@@ -301,40 +345,42 @@ function runEngineChecks(
       }
     });
 
-    let label = `[engine=${enginesWithSameOutcome.join('+')}] ${baseMsg}`;
+    let label = ` · engines=${enginesWithSameOutcome.join('+')}${baseMsg}`;
     check(r, label);
   }
 }
 
 function checkResult(result: EvalResult, expectation: Expectation, caseInfo: CaseInfo): void {
   const allowMismatch = expectation.allowMismatch ?? false;
-  const { caseIndex, browser, scenario: s } = caseInfo;
-  const header = `Case #${caseIndex + 1}`;
-  const msg = `[${browser}] :: ${s.name} :: ${result.info}${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
+  const { stepIndex, caseIndex, browser, scenario: s } = caseInfo;
+  const header = `${s.name}\nStep #${stepIndex + 1}, Case #${caseIndex + 1} · browser=${browser}`;
+  const msg = 
+    `\nQuery: ${result.info}` +
+    `${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
 
   if (expectation.throws) {
-    expect(result.nw.threw, `${header} ${msg}`).toBe(true);
+    expect(result.nw.threw, `${header}${msg}`).toBe(true);
     return;
   }
 
-  expect(result.nw.threw, `${header} ${msg}`).toBe(false);
+  expect(result.nw.threw, `${header}${msg}`).toBe(false);
 
   if (expectation.count !== undefined) {
     runEngineChecks(result, msg, 'count', (r, label) => {
-      expect(r.count, `${header} ${label}`).toEqual(expectation.count);
+      expect(r.count, `${header}${label}`).toEqual(expectation.count);
     });
   }
 
   if (expectation.ids) {
     runEngineChecks(result, msg, 'ids', (r, label) => {
-      expect(r.ids, `${header} ${label}`).toEqual(expectation.ids);
+      expect(r.ids, `${header}${label}`).toEqual(expectation.ids);
     });
   }
 
   if (expectation.includesIds) {
     for (const id of expectation.includesIds) {
       runEngineChecks(result, msg, 'ids', (r, label) => {
-        expect(r.ids, `${header} ${label}`).toContain(id);
+        expect(r.ids, `${header}${label}`).toContain(id);
       });
     }
   }
@@ -342,14 +388,14 @@ function checkResult(result: EvalResult, expectation: Expectation, caseInfo: Cas
   if (expectation.excludesIds) {
     for (const id of expectation.excludesIds) {
       runEngineChecks(result, msg, 'ids', (r, label) => {
-        expect(r.ids, `${header} ${label}`).not.toContain(id);
+        expect(r.ids, `${header}${label}`).not.toContain(id);
       });
     }
   }
 
   if (expectation.classes) {
     runEngineChecks(result, msg, 'classes', (r, label) => {
-      expect(r.classes, `${header} ${label}`).toEqual(expectation.classes);
+      expect(r.classes, `${header}${label}`).toEqual(expectation.classes);
     });
   }
 
@@ -357,7 +403,7 @@ function checkResult(result: EvalResult, expectation: Expectation, caseInfo: Cas
     for (const cls of expectation.includesClasses) {
       runEngineChecks(result, msg, 'classes', (r, label) => {
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
-        expect(classTokens, `${header} ${label}`).toContain(cls);
+        expect(classTokens, `${header}${label}`).toContain(cls);
       });
     }
   }
@@ -366,18 +412,18 @@ function checkResult(result: EvalResult, expectation: Expectation, caseInfo: Cas
     for (const cls of expectation.excludesClasses) {
       runEngineChecks(result, msg, 'classes', (r, label) => {
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
-        expect(classTokens, `${header} ${label}`).not.toContain(cls);
+        expect(classTokens, `${header}${label}`).not.toContain(cls);
       });
     }
   }
 
   if (!allowMismatch && !result.native.threw) {
     const mismatch = !!result.mismatchMsg;
-    expect(mismatch, `${header} ${msg}`).toBe(false);
+    expect(mismatch, `${header}${msg}`).toBe(false);
   }
 
   if (expectation.equivalentCase) {
     const equivMismatch = !!result.equivMismatchMsg;
-    expect(equivMismatch, `${header} ${msg}\n${result.equivMismatchMsg}`).toBe(false);
+    expect(equivMismatch, `${header}${msg}\n${result.equivMismatchMsg}`).toBe(false);
   }
 }

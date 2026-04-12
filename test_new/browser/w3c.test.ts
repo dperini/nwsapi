@@ -1924,7 +1924,7 @@ runScenarios('w3c', 'normal', [
       <input id="input1" autofocus>
     `,
     setupPage: async (page) => {
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     },
     cases: [
       { select: ':focus', expect: { ids: ['input1'] } },
@@ -2177,17 +2177,503 @@ runScenarios('w3c', 'normal', [
     ]
   },
 
+  {
+    name: 'html/semantics/selectors/pseudo-classes/inrange-outofrange',
+    browsers: ['chromium'], // Firefox and WebKit are flaky here.
+    html: `
+      <!DOCTYPE html>
+      <meta charset=utf-8>
+      <title>Selector: pseudo-classes (:in-range, :out-of-range)</title>
+      <link rel="author" title="Denis Ah-Kang" href="mailto:denis@w3.org" id="link1">
+      <link rel="author" title="Chris Rebert" href="http://chrisrebert.com" id="link2">
+      <link rel="help" href="https://html.spec.whatwg.org/multipage/#selector-in-range" id="link3">
+      <link rel="help" href="https://html.spec.whatwg.org/multipage/#selector-out-of-range" id="link4">
+      <script src="/resources/testharness.js"></script>
+      <script src="/resources/testharnessreport.js"></script>
+      <script src="utils.js"></script>
+      <div id="log"></div>
+      <input type=number value=0 min=0 max=10 id=number1>
+      <input type=number value=0 min=0 max=10 id=number2 disabled>
+      <input type=number value=0 min=1 max=10 id=number3>
+      <input type=number value=11 min=0 max=10 id=number4>
+      <input type=number value=0 min=0 max=10 id=number5 readonly>
 
+      <input type="date" min="2005-10-10" max="2020-10-10" value="2010-10-10" id="datein">
+      <input type="date" min="2010-10-10" max="2020-10-10" value="2005-10-10" id="dateunder">
+      <input type="date" min="2010-10-10" max="2020-10-10" value="2030-10-10" id="dateover">
 
+      <input type="time" min="01:00:00" max="05:00:00" value="02:00:00" id="timein">
+      <input type="time" min="02:00:00" max="05:00:00" value="01:00:00" id="timeunder">
+      <input type="time" min="02:00:00" max="05:00:00" value="07:00:00" id="timeover">
 
+      <input type="week" min="2016-W05" max="2016-W10" value="2016-W07" id="weekin">
+      <input type="week" min="2016-W05" max="2016-W10" value="2016-W02" id="weekunder">
+      <input type="week" min="2016-W05" max="2016-W10" value="2016-W26" id="weekover">
 
+      <input type="month" min="2000-04" max="2000-09" value="2000-06" id="monthin">
+      <input type="month" min="2000-04" max="2000-09" value="2000-02" id="monthunder">
+      <input type="month" min="2000-04" max="2000-09" value="2000-11" id="monthover">
 
+      <input type="datetime-local" min="2008-03-12T23:59:59" max="2015-02-13T23:59:59" value="2012-11-28T23:59:59" id="datetimelocalin">
+      <input type="datetime-local" min="2008-03-12T23:59:59" max="2015-02-13T23:59:59" value="2008-03-01T23:59:59" id="datetimelocalunder">
+      <input type="datetime-local" min="2008-03-12T23:59:59" max="2015-02-13T23:59:59" value="2016-01-01T23:59:59" id="datetimelocalover">
 
+      <!-- None of the following have range limitations since they have neither min nor max attributes -->
+      <input type="number" value="0" id="numbernolimit">
+      <input type="date" value="2010-10-10" id="datenolimit">
+      <input type="time" value="02:00:00" id="timenolimit">
+      <input type="week" value="2016-W07" id="weeknolimit">
+      <input type="month" value="2000-06" id="monthnolimit">
+      <input type="datetime-local" value="2012-11-28T23:59:59" id="datetimelocalnolimit">
 
+      <!-- range inputs have default minimum of 0 and default maximum of 100 -->
+      <input type="range" value="50" id="range0">
 
+      <!-- range input's value gets immediately clamped to the nearest boundary point -->
+      <input type="range" min="2" max="7" value="5" id="range1">
+      <input type="range" min="2" max="7" value="1" id="range2">
+      <input type="range" min="2" max="7" value="9" id="range3">
 
+      <!-- None of the following input types can have range limitations -->
+      <input min="1" value="0" type="text">
+      <input min="1" value="0" type="search">
+      <input min="1" value="0" type="url">
+      <input min="1" value="0" type="tel">
+      <input min="1" value="0" type="email">
+      <input min="1" value="0" type="password">
+      <input min="1" value="#000000" type="color">
+      <input min="1" value="0" type="checkbox">
+      <input min="1" value="0" type="radio">
+      <input min="1" value="0" type="file">
+      <input min="1" value="0" type="submit">
+      <input min="1" value="0" type="image">
+      <!-- The following types are also barred from constraint validation -->
+      <input min="1" value="0" type="hidden">
+      <input min="1" value="0" type="button">
+      <input min="1" value="0" type="reset">
+    `,
+    steps: [
+      {
+        cases: [
+          { select: ':in-range', expect: { ids: ['number1', 'datein', 'timein', 'weekin', 'monthin', 'datetimelocalin', 'range0', 'range1', 'range2', 'range3'] } },
+          { select: ':out-of-range', expect: { ids: ['number3', 'number4', 'dateunder', 'dateover', 'timeunder', 'timeover', 'weekunder', 'weekover', 'monthunder', 'monthover', 'datetimelocalunder', 'datetimelocalover'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('number1') as HTMLInputElement).value = '-10'; }); },
+        cases: [
+          { select: ':in-range', expect: { ids: ['datein', 'timein', 'weekin', 'monthin', 'datetimelocalin', 'range0', 'range1', 'range2', 'range3'] } },
+          { select: ':out-of-range', expect: { ids: ['number1', 'number3', 'number4', 'dateunder', 'dateover', 'timeunder', 'timeover', 'weekunder', 'weekover', 'monthunder', 'monthover', 'datetimelocalunder', 'datetimelocalover'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('number3') as HTMLInputElement).min = '0'; }); },
+        cases: [
+          { select: ':in-range', expect: { ids: ['number3', 'datein', 'timein', 'weekin', 'monthin', 'datetimelocalin', 'range0', 'range1', 'range2', 'range3'] } },
+          { select: ':out-of-range', expect: { ids: ['number1', 'number4', 'dateunder', 'dateover', 'timeunder', 'timeover', 'weekunder', 'weekover', 'monthunder', 'monthover', 'datetimelocalunder', 'datetimelocalover'] } },
+        ],
+      },
+    ],
+  },
 
+  {
+    name: 'html/semantics/selectors/pseudo-classes/link',
+    status: 'fixme', // the original test is sus. link3 doesn't even exist in the DOM...
+    html: `
+      <!DOCTYPE html>
+      <meta charset=utf-8>
+      <title>Selector: pseudo-classes (:link)</title>
+      <link rel="author" title="Denis Ah-Kang" href="mailto:denis@w3.org" id=link1>
+      <link rel=help href="https://html.spec.whatwg.org/multipage/#pseudo-classes" id=link2>
+      <div id="log"></div>
+      <a id=link4></a>
+      <area id=link5></area>
+      <link id=link6></link>
+      <a href="http://www.w3.org" id=link7></a>
+      <area href="http://www.w3.org" id=link8></area>
+      <link href="http://www.w3.org" id=link9></link>
+      <a href="http://[" id=link10></a>
+    `,
+    htmlMode: 'document',
+    steps: [
+      {
+        cases: [
+          { select: ':link', expect: { ids: ['link1', 'link2', 'link3', 'link7', 'link8', 'link9', 'link10'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('link9')?.removeAttribute('href'); }); },
+        cases: [
+          { select: ':link', expect: { ids: ['link1', 'link2', 'link3', 'link7', 'link8', 'link10'] } },
+        ],
+      },
+    ],
+  },
 
+  {
+    name: 'html/semantics/selectors/pseudo-classes/placeholder-shown-type-change',
+    html: `
+      <input id="input" type="submit" placeholder="placeholder">
+      <span id="sibling">This text should be green.</span>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: ':placeholder-shown + span', expect: { ids: [] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('input') as HTMLInputElement).type = 'text'; }); },
+        cases: [
+          { select: ':placeholder-shown + span', expect: { ids: ['sibling'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    // source filename is misleading, this test is about both :read-only and :read-write
+    name: 'html/semantics/selectors/pseudo-classes/readwrite-readonly-type-change',
+    html: `
+      <input id="hiddenInput" type="hidden" required>
+      <span id="sibling">This text should be green on lime background.</span>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: ':required + span', expect: { ids: [] }, status: 'fixme' },
+          { select: ':not(:optional) + span', expect: { ids: [] }, status: 'fixme' },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('hiddenInput') as HTMLInputElement).type = 'text'; }); },
+        cases: [
+          { select: ':required + span', expect: { ids: ['sibling'] } },
+          { select: ':not(:optional) + span', expect: { ids: ['sibling'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/semantics/selectors/pseudo-classes/readwrite-readonly',
+    // browsers: ['webkit'], 
+    html: `
+      <div id=set0>
+      <!-- The readonly attribute does not apply to the following input types -->
+      <input id=checkbox1 type=checkbox>
+      <input id=hidden1 type=hidden value=abc>
+      <input id=range1 type=range>
+      <input id=color1 type=color>
+      <input id=radio1 type=radio>
+      <input id=file1 type=file>
+      <input id=submit1 type=submit>
+      <input id=image1 type=image>
+      <input id=button1 type=button value="Button">
+      <input id=reset1 type=reset>
+      </div>
+
+      <div id=set1>
+      <input id=input1>
+      <input id=input2 readonly>
+      <input id=input3 disabled>
+      <input id=input4 type=checkbox>
+      <input id=input5 type=checkbox readonly>
+      </div>
+
+      <div id=set2>
+      <textarea id=textarea1>textarea1</textarea>
+      <textarea readonly id=textarea2>textarea2</textarea>
+      </div>
+
+      <div id=set3>
+      <textarea id=textarea3>textarea3</textarea>
+      <textarea disabled id=textarea4>textarea4</textarea>
+      </div>
+
+      <div id=set4>
+      <p id=p1>paragraph1.</p>
+      <p id=p2 contenteditable>paragraph2.</p>
+      </div>
+    `,
+    htmlMode: 'document',
+    steps: [
+      {
+        cases: [
+          // WebKit differs here on input[type=color]; expected browser variance.
+          { select: '#set0 :read-write', expect: { ids: [] }, status: 'fail' },
+          { select: '#set0 :read-only', expect: { ids: ['checkbox1', 'hidden1', 'range1', 'color1', 'radio1', 'file1', 'submit1', 'image1', 'button1', 'reset1'] }, status: 'fail' },
+          { select: '#set1 :read-write', expect: { ids: ['input1'] } },
+          { select: '#set1 :read-only', expect: { ids: ['input2', 'input3', 'input4', 'input5'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('input1')?.setAttribute('readonly', 'readonly'); }); },
+        cases: [
+          { select: '#set1 :read-write', expect: { ids: [] } },
+          { select: '#set1 :read-only', expect: { ids: ['input1', 'input2', 'input3', 'input4', 'input5'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('input1')?.removeAttribute('readonly'); }); },
+        cases: [
+          { select: '#set1 :read-write', expect: { ids: ['input1'] } },
+          { select: '#set1 :read-only', expect: { ids: ['input2', 'input3', 'input4', 'input5'] } },
+        ],
+      },
+      {
+        cases: [
+          { select: '#set2 :read-write', expect: { ids: ['textarea1'] } },
+          { select: '#set2 :read-only', expect: { ids: ['textarea2'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('textarea1')?.setAttribute('readonly', 'readonly'); }); },
+        cases: [
+          { select: '#set2 :read-write', expect: { ids: [] } },
+          { select: '#set2 :read-only', expect: { ids: ['textarea1', 'textarea2'] } },
+        ],
+      },
+      {
+        cases: [
+          { select: '#set3 :read-write', expect: { ids: ['textarea3'] } },
+          { select: '#set3 :read-only', expect: { ids: ['textarea4'] } },
+          { select: '#set4 :read-write', expect: { ids: ['p2'] } },
+          { select: '#set4 :read-only', expect: { ids: ['p1'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.designMode = 'on'; }); },
+        cases: [
+          { select: '#set4 :read-write', expect: { ids: ['p1', 'p2'] }, status: 'fixme' },
+          { select: '#set4 :read-only', expect: { ids: [] }, status: 'fixme' },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/semantics/selectors/pseudo-classes/required-optional-hidden',
+    html: `
+      <input id="hiddenInput" type="hidden" required>
+      <span id="sibling">This text should be green on lime background.</span>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: ':required + span', expect: { ids: [] }, status: 'fixme' },
+          { select: ':not(:optional) + span', expect: { ids: [] }, status: 'fixme' },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('hiddenInput') as HTMLInputElement).type = 'text'; }); },
+        cases: [
+          { select: ':required + span', expect: { ids: ['sibling'] } },
+          { select: ':not(:optional) + span', expect: { ids: ['sibling'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/semantics/selectors/pseudo-classes/required-optional',
+    html: `
+      <input type=text id=text1 value="foobar" required>
+      <input type=text id=text2 required>
+      <input type=text id=text3>
+      <select id=select1 required>
+       <optgroup label="options" id=optgroup1>
+         <option value="option1" id=option1>option1
+      </select>
+      <select id=select2>
+       <optgroup label="options" id=optgroup2>
+         <option value="option2" id=option2>option2
+      </select>
+      <textarea required id=textarea1>textarea1</textarea>
+      <textarea id=textarea2>textarea2</textarea>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: ':required', expect: { ids: ['text1', 'text2', 'select1', 'textarea1'] } },
+          { select: ':optional', expect: { ids: ['text3', 'select2', 'textarea2'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('text1')?.removeAttribute('required'); }); },
+        cases: [
+          { select: ':required', expect: { ids: ['text2', 'select1', 'textarea1'] } },
+          { select: ':optional', expect: { ids: ['text1', 'text3', 'select2', 'textarea2'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { document.getElementById('select2')?.setAttribute('required', 'required'); }); },
+        cases: [
+          { select: ':required', expect: { ids: ['text2', 'select1', 'select2', 'textarea1'] } },
+          { select: ':optional', expect: { ids: ['text1', 'text3', 'textarea2'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/semantics/selectors/pseudo-classes/valid-invalid',
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+      <meta charset=utf-8>
+      <title>Selector: pseudo-classes (:valid, :invalid)</title>
+      <link rel="author" title="Denis Ah-Kang" href="mailto:denis@w3.org" id=link1>
+      <link rel=help href="https://html.spec.whatwg.org/multipage/#pseudo-classes" id=link2>
+      <script src="/resources/testharness.js"></script>
+      <script src="/resources/testharnessreport.js"></script>
+      <script src="utils.js"></script>
+      <style>
+        #styleTests form, #styleTests fieldset, #failExample { background-color:red; }
+        #styleTests > :valid, #validExample { background-color:green; }
+        #styleTests > :invalid, #invalidExample { background-color:lime; }
+      </style>
+      </head>
+      <body>
+      <div id="log"></div>
+      <div id='simpleConstraints'>
+        <input type=text id=text1 value="foobar" required>
+        <input type=text id=text2 required>
+      </div>
+      <div id='FormSelection'>
+        <form id=form1>
+          <input type=text id=text3 value="foobar" required>
+        </form>
+        <form id=form2>
+          <input type=text id=text4 required>
+        </form>
+      </div>
+      <div id='FieldSetSelection'>
+        <fieldset id=fieldset1>
+          <input type=text id=text5 value="foobar" required>
+        </fieldset>
+        <fieldset id=fieldset2>
+          <input type=text id=text6 required>
+        </fieldset>
+      </div>
+      <div id='patternConstraints'>
+        <input type=text id=text7 value="AAA" pattern="[0-9][A-Z]{3}">
+        <input type=text id=text8 value="0AAA" pattern="[0-9][A-Z]{3}">
+      </div>
+      <div id='numberConstraints'>
+        <input type=number id=number1 value=0 min=1>
+        <input type=number id=number2 value=1 min=1>
+      </div>
+      <div id='styleTests'>
+        <form>
+        </form>
+        <form>
+          <input type=text min=8 value=4>
+        </form>
+        <form>
+          <input type=number min=8 value=4>
+        </form>
+        <fieldset>
+        </fieldset>
+        <fieldset>
+          <input type=text min=8 value=4>
+        </fieldset>
+        <fieldset>
+          <input type=number min=8 value=4>
+        </fieldset>
+        <div id='validExample'></div>
+        <div id='invalidExample'></div>
+        <div id='failExample'></div>
+      </div>
+    `,
+    htmlMode: 'document',
+    steps: [
+      {
+        cases: [
+          { select: '#simpleConstraints :valid', expect: { ids: ['text1'] } },
+          { select: '#FormSelection :valid', expect: { ids: ['form1', 'text3'] } },
+          { select: '#FieldSetSelection :valid', expect: { ids: ['fieldset1', 'text5'] } },
+          { select: '#patternConstraints :valid', expect: { ids: ['text8'] } },
+          { select: '#numberConstraints :valid', expect: { ids: ['number2'] } },
+
+          { select: '#simpleConstraints :invalid', expect: { ids: ['text2'] } },
+          { select: '#FormSelection :invalid', expect: { ids: ['form2', 'text4'] } },
+          { select: '#FieldSetSelection :invalid', expect: { ids: ['fieldset2', 'text6'] } },
+          { select: '#patternConstraints :invalid', expect: { ids: ['text7'] } },
+          { select: '#numberConstraints :invalid', expect: { ids: ['number1'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('text7') as HTMLInputElement).value = '0BBB'; }); },
+        cases: [
+          { select: '#patternConstraints :valid', expect: { ids: ['text7', 'text8'] } },
+          { select: '#patternConstraints :invalid', expect: { ids: [] } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => { (document.getElementById('text8') as HTMLInputElement).value = 'BBB'; }); },
+        cases: [
+          { select: '#patternConstraints :valid', expect: { ids: ['text7'] } },
+          { select: '#patternConstraints :invalid', expect: { ids: ['text8'] } },
+        ],
+      },
+
+      {
+        cases: [
+          { select: '#styleTests form:valid', expect: { count: 2 } },
+          { select: '#styleTests form:invalid', expect: { count: 1 } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const elems = document.querySelectorAll('#styleTests form');
+          const empty = elems[0];
+          const valid = elems[1];
+          const invalid = elems[2];
+          const validInput = valid.querySelector('input')!;
+          const invalidInput = invalid.querySelector('input')!;
+
+          empty.appendChild(validInput.cloneNode());
+          empty.appendChild(invalidInput.cloneNode());
+
+          (validInput as HTMLInputElement).type = 'number';
+          (invalidInput as HTMLInputElement).type = 'text';
+        }); },
+        cases: [
+          { select: '#styleTests form:valid', expect: { count: 1 } },
+          { select: '#styleTests form:invalid', expect: { count: 2 } },
+        ],
+      },
+
+      {
+        cases: [
+          { select: '#styleTests fieldset:valid', expect: { count: 2 }, status: 'fixme' },
+          { select: '#styleTests fieldset:invalid', expect: { count: 1 } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const elems = document.querySelectorAll('#styleTests fieldset');
+          const empty = elems[0];
+          const valid = elems[1];
+          const invalid = elems[2];
+          const validInput = valid.querySelector('input')!;
+          const invalidInput = invalid.querySelector('input')!;
+
+          empty.appendChild(validInput.cloneNode());
+          empty.appendChild(invalidInput.cloneNode());
+
+          (validInput as HTMLInputElement).type = 'number';
+          (invalidInput as HTMLInputElement).type = 'text';
+        }); },
+        cases: [
+          { select: '#styleTests fieldset:valid', expect: { count: 1 }, status: 'fixme' },
+          { select: '#styleTests fieldset:invalid', expect: { count: 2 } },
+        ],
+      },
+    ],
+  },
 
 
 

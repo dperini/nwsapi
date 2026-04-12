@@ -113,4 +113,31 @@ runScenarios('scope', 'normal', [
     ]
   },
 
+  {
+    name: 'steps/basic-accumulation',
+    html: `
+      <div id="box"></div>
+    `,
+    steps: [
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => { document.getElementById('box')!.classList.add('a'); });
+        },
+        cases: [
+          { select: '#box.a', expect: { ids: ['box'] } },
+          { select: '#box.b', expect: { ids: [] } },
+        ],
+      },
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => { document.getElementById('box')!.classList.add('b'); });
+        },
+        cases: [
+          { select: '#box.a', expect: { ids: ['box'] } },
+          { select: '#box.b', expect: { ids: ['box'] } },
+        ],
+      },
+    ],
+  },
+
 ]);
