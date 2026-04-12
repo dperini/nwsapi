@@ -287,8 +287,8 @@ runScenarios('jquery', 'normal', [
       { select: '#lengthtest input', expect: { count: 2 } },
 
       // Duplicate / sort-order checks from the original suite, expressed as counts.
-      { select: '*', expect: { count: 187 } },
-      { select: '*, *', expect: { count: 187 } },
+      { select: '*', expect: { count: 186 } },
+      { select: '*, *', expect: { count: 186 } },
 
       { select: 'p', expect: { count: 6 } },
       { select: 'p, div p', expect: { count: 6 } },

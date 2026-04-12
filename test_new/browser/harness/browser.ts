@@ -1,17 +1,16 @@
-import type { Engine, EquivalentCase, ContextRef } from "./scenarios";
+import { type Engine, type EquivalentCase, type ContextRef, type ContextHome, NwsapiId } from "./scenarios";
 
 export interface PwHelpers {
   resolveContext(ref: ContextRef | undefined): QueryContext | null;
   runQuery(query: () => Element[]): QueryResult;
-  compareQueryResults(
-    a: NamedQueryResult,
-    b: NamedQueryResult
-  ): string | undefined;
+  compareQueryResults(a: NamedQueryResult, b: NamedQueryResult): string | undefined;
   toEngineResult(res: QueryResult): EngineResult;
-  getResults(queryFn: EngineQuery, query: string, ref?: ContextRef): EngineAndQueryResult;
+  getResults(queryFn: EngineQuery, query: string, ctx: QueryContext | null, ctxErrorMsg?: string): EngineAndQueryResult;
   getEngineQuery(c: EquivalentCase, n: Engine): EngineQuery;
   getCaseQuery(c: EquivalentCase): string;
   getCaseLabel(c: EquivalentCase, n: Engine): string;
+  stringify(obj: unknown): string;
+  isRehomed(ref?: ContextRef): boolean;
 }
 
 export type EvalResult = {
@@ -49,9 +48,25 @@ export function installBrowserHelpers(): void {
     return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 11;
   }
 
+  function isRehomed(ref?: ContextRef): boolean {
+    return !!ref && ref.by !== 'document' && ref.by !== 'iframe' && !!ref.home && ref.home !== 'document';
+  }
+
+  // Source - https://stackoverflow.com/a/65443215
+  function stringify(obj: unknown): string {
+    let json = JSON.stringify(obj, null, 2) as string | undefined;
+    if (json === undefined) return String(obj);
+    json = json.replace(/^[\t ]*"[^:\n\r]+(?<!\\)":/gm, function (match) {
+        return match.replace(/"/g, "");
+    });
+    return json.replace(/"/g, "'").replace(/\s+/g, ' ');
+  }
+
   function runQuery(query: () => Element[]) {
     try {
-      return { elements: query(), error: '' };
+      const id: NwsapiId = 'nwsapi-bootstrap';
+      const els = query().filter((el) => el.getAttribute('id') !== id);
+      return { elements: els, error: '' };
     } catch (e) {
       return { elements: [], error: e instanceof Error ? e.message : String(e) };
     }
@@ -97,10 +112,36 @@ export function installBrowserHelpers(): void {
   }
 
   function resolveContext(ref?: ContextRef): QueryContext | null {
-    return !ref || ref.by === 'document' ? document
-      : ref.by === 'id' ? document.getElementById(ref.id)
+    if (!ref || ref.by === 'document') return document;
+
+    if (ref.by === 'iframe') {
+      const iframe = document.getElementById(ref.id);
+      if (!(iframe instanceof HTMLIFrameElement)) return null;
+      return iframe.contentDocument ?? null;
+    }
+
+    const el = ref.by === 'id' ? document.getElementById(ref.id)
       : ref.by === 'first' ? document.querySelector(ref.selector)
       : null;
+
+    if (!el) return null;
+
+    const home: ContextHome = ref.home ?? 'document';
+    if (home === 'document') return el;
+
+    const clone = el.cloneNode(true);
+    if (!isElement(clone)) return null;
+    if (home === 'detached') return clone;
+
+    if (home === 'fragment') {
+      const frag = document.createDocumentFragment();
+      frag.appendChild(clone);
+
+      // Return the clone rehomed so matches/closest stay sane.
+      return clone;
+    }
+
+    return null;
   }
 
   function toEngineResult(res: QueryResult): EngineResult {
@@ -112,12 +153,10 @@ export function installBrowserHelpers(): void {
     };
   }
 
-  function getResults(queryFn: EngineQuery, query: string, ref?: ContextRef): EngineAndQueryResult {
-    const context = resolveContext(ref);
-
-    const queryResult: QueryResult = context
-      ? runQuery(queryFn(query, context))
-      : { elements: [], error: `Could not resolve context from ref:: ${JSON.stringify(ref)}` };
+  function getResults(queryFn: EngineQuery, query: string, ctx: QueryContext | null, ctxErrorMsg?: string): EngineAndQueryResult {
+    const queryResult: QueryResult = ctx
+      ? runQuery(queryFn(query, ctx))
+      : { elements: [], error: ctxErrorMsg ?? 'No context provided' };
 
     const engineResult = toEngineResult(queryResult);
     return { queryResult, engineResult };
@@ -263,7 +302,7 @@ export function installBrowserHelpers(): void {
       case 'match' in c:
         return engine === 'native'
           ? `matches(${c.match})`
-          : `NW.Dom.match(${JSON.stringify(c.match)})`;
+          : `NW.Dom.match(${c.match})`;
 
       case 'closest' in c:
         return engine === 'native'
@@ -284,5 +323,7 @@ export function installBrowserHelpers(): void {
     getEngineQuery,
     getCaseQuery,
     getCaseLabel,
+    stringify,
+    isRehomed,
   };
 };
