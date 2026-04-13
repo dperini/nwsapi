@@ -68,9 +68,10 @@ export type Engine = typeof ENGINES[number];
 
 export type ContextRef =
   | { by: 'document' }
-  | { by: 'id'; id: string; home?: ContextHome }
-  | { by: 'first'; selector: string; home?: ContextHome }
-  | { by: 'iframe'; id: string }
+  | { by: 'id'; id: string; home?: ContextHome; within?: ContextRef }
+  | { by: 'first'; selector: string; home?: ContextHome; within?: ContextRef }
+  | { by: 'iframe'; id: string; within?: ContextRef }
+  | { by: 'template'; id: string; within?: ContextRef }
 
 export type ContextHome = 'document' | 'detached' | 'fragment';
 export type NwsapiId = 'nwsapi-bootstrap';

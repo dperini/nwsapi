@@ -2675,6 +2675,729 @@ runScenarios('w3c', 'normal', [
     ],
   },
 
+  {
+    name: 'html/syntax/parsing/template/template-is-a-foster-parent-element',
+    html: `
+      <div id="tmplParent">
+        <template id="tmpl1">
+          <table id="tbl">
+            <tr><td>Cell 1</td></tr>
+            <!-- Misplaced <div>. It should be foster parented -->
+            <div id="orphanDiv">Orphan div content</div>
+            <tr><td>Cell 2</td></tr>
+          </table>
+        </template>
+      </div>
+    `,
+    cases: [
+      // foster-parented before the table in template content
+      { select: '#orphanDiv', expect: { ids: [] } },
+      { select: '#orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+      { select: 'table #orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: [] } },
+      { select: '#orphanDiv + table', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['tbl'] } },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/template-is-a-foster-parent-element-without-table',
+    // status: 'only',
+    html: `
+      <div id="tmplParent">
+        <template id="tmpl1">
+          <tr><td>Cell 1</td></tr>
+          <!-- Misplaced <div>. It should be foster parented -->
+          <div id="orphanDiv">Orphan div content</div>
+          <tr><td>Cell 2</td></tr>
+        </template>
+      </div>
+    `,
+    cases: [
+      // without a table, rows and div remain sibling content
+      { select: '#orphanDiv', expect: { ids: [] } },
+      { select: '#orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+      { select: 'table', ref: { by: 'template', id: 'tmpl1' }, expect: { count: 0 } },
+      { select: 'tr', ref: { by: 'template', id: 'tmpl1' }, expect: { count: 2 } },
+      { select: 'tr + #orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+      { select: 'tr ~ #orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/template-is-not-a-foster-parent-element',
+    html: `
+      <div id="tmplParent">
+        <template id="tmpl1">
+          <div id="fosterParent">
+            <table id="tbl">
+              <tr><td>Cell 1</td></tr>
+              <!-- Misplaced <div>. It should be foster parented -->
+              <div id="orphanDiv">Orphan div content</div>
+              <tr><td>Cell 2</td></tr>
+            </table>
+          </div>
+        </template>
+      </div>
+    `,
+    cases: [
+      // orphanDiv is foster-parented to fosterParent inside template content
+      { select: '#orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+      { select: 'table #orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: [] } },
+      { select: '#fosterParent > #orphanDiv', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['orphanDiv'] } },
+      { select: '#orphanDiv + table', ref: { by: 'template', id: 'tmpl1' }, expect: { ids: ['tbl'] } },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/template-is-not-a-foster-parent-element-lower-in-stack',
+    html: `
+      <div id="fosterParent">
+        <table id="tbl">
+          <tr><td><template id="tmpl1">Template content</template></td></tr>
+          <!-- Misplaced <div>. It should be foster parented -->
+          <div id="orphanDiv">Orphan div content</div>
+          <tr><td>Cell 2</td></tr>
+        </table>
+      </div>
+    `,
+    cases: [
+      // normal foster-parenting applies; template does not capture orphanDiv
+      { select: '#tmpl1', expect: { ids: ['tmpl1'] } },
+      { select: '#orphanDiv', expect: { ids: ['orphanDiv'] } },
+      { select: 'table #orphanDiv', expect: { ids: [] } },
+      { select: '#fosterParent > #orphanDiv', expect: { ids: ['orphanDiv'] } },
+      { select: '#orphanDiv + table', expect: { ids: ['tbl'] } },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/generating-of-implied-end-tags',
+    html: `<div id="host"></div>`,
+    steps: [
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => {
+            document.body.innerHTML = '<template id="tpl"><table id="tbl"><tr id="tr"><td id="td"></template>';
+          });
+        },
+        cases: [
+          { select: '#tpl', expect: { ids: ['tpl'] } },
+          { select: '#tbl', expect: { ids: [] } },
+          { select: '#tr', expect: { ids: [] } },
+          { select: '#td', expect: { ids: [] } },
+          { select: '#tbl', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['tbl'] } },
+          { select: '#tr', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['tr'] } },
+          { select: '#td', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['td'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => {
+            document.body.innerHTML = '<template id="tpl"><div id="dv">Div content</template>';
+          });
+        },
+        cases: [
+          { select: '#tpl', expect: { ids: ['tpl'] } },
+          { select: '#dv', expect: { ids: [] } },
+          { select: '#dv', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['dv'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => {
+            document.body.innerHTML = '<template id="tpl">Template text<div id="dv">Div content</template>';
+          });
+        },
+        cases: [
+          { select: '#tpl', expect: { ids: ['tpl'] } },
+          { select: '#dv', expect: { ids: [] } },
+          { select: '#dv', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['dv'] } },
+        ],
+      },
+      {
+        setupPage: async (page) => {
+          await page.evaluate(() => {
+            document.body.innerHTML = '<template id="tpl"><div id="dv">Div content</span></template>';
+          });
+        },
+        cases: [
+          { select: '#tpl', expect: { ids: ['tpl'] } },
+          { select: '#dv', expect: { ids: [] } },
+          { select: '#dv', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['dv'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/ignore-body-token',
+    html: `
+      <template id="tpl"></template>
+    `,
+    steps: [
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const template = document.getElementById('tpl') as HTMLTemplateElement;
+          template.innerHTML = '<body></body>';
+        }); },
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tpl' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tpl' }, expect: { count: 0 } },
+        ],
+      },
+
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const template = document.getElementById('tpl') as HTMLTemplateElement;
+          template.innerHTML = '<body><div id="div1">Some content</div></body>';
+        }); },
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tpl' }, expect: { count: 0 } },
+          { select: '#div1', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div1'] } },
+          { select: 'div', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div1'] } },
+        ],
+      },
+
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const template = document.getElementById('tpl') as HTMLTemplateElement;
+          template.innerHTML = '<body><div <div id="div1">Some content</div></body><div id="div2">Some valid content</div>';
+        }); },
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tpl' }, expect: { count: 0 } },
+          { select: '#div1', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div1'] } },
+          { select: '#div2', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div2'] } },
+          { select: 'div', ref: { by: 'template', id: 'tpl' }, expect: { count: 2 } },
+        ],
+      },
+
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const template = document.getElementById('tpl') as HTMLTemplateElement;
+          template.innerHTML = '<div id="div1">Some valid content</div><body><div id="div2">Some content</div></body>';
+        }); },
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tpl' }, expect: { count: 0 } },
+          { select: '#div1', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div1'] } },
+          { select: '#div2', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['div2'] } },
+          { select: 'div', ref: { by: 'template', id: 'tpl' }, expect: { count: 2 } },
+        ],
+      },
+
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          const template = document.getElementById('tpl') as HTMLTemplateElement;
+          template.innerHTML = '<template id="t2"><body><span>Body!<span></body></template>';
+        }); },
+        cases: [
+          { select: '#t2', ref: { by: 'template', id: 'tpl' }, expect: { ids: ['t2'] } },
+          { select: 'body', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl' } }, expect: { count: 0 } },
+          { select: 'span', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl' } }, expect: { count: 2 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/ignore-frameset-token',
+    html: `
+      <template id="tpl-frameset-only">
+        <frameset cols="25%,*,25%">
+          <frame src="frame_a.htm">
+          <frame src="frame_b.htm">
+          <frame src="frame_c.htm">
+        </frameset>
+      </template>
+
+      <template id="tpl-valid-before-frameset">
+        <div id="div-before">Some text</div>
+        <frameset cols="25%,*,25%">
+          <frame src="frame_a.htm">
+          <frame src="frame_b.htm">
+          <frame src="frame_c.htm">
+        </frameset>
+      </template>
+
+      <template id="tpl-valid-after-frameset">
+        <frameset cols="25%,*,25%">
+          <frame src="frame_a.htm">
+          <frame src="frame_b.htm">
+          <frame src="frame_c.htm">
+        </frameset>
+        <div id="div-after">Some text</div>
+      </template>
+
+      <template id="tpl-nested-template">
+        <template id="t2">
+          <frameset cols="25%,*,25%">
+            <frame src="frame_a.htm">
+            <frame src="frame_b.htm">
+            <frame src="frame_c.htm">
+          </frameset>
+        </template>
+      </template>
+    `,
+    steps: [
+      // frameset is ignored inside template content
+      {
+        cases: [
+          { select: 'frameset', ref: { by: 'template', id: 'tpl-frameset-only' }, expect: { count: 0 } },
+          { select: 'frame', ref: { by: 'template', id: 'tpl-frameset-only' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tpl-frameset-only' }, expect: { count: 0 } },
+        ],
+      },
+
+      // valid content before frameset survives
+      {
+        cases: [
+          { select: 'frameset', ref: { by: 'template', id: 'tpl-valid-before-frameset' }, expect: { count: 0 } },
+          { select: 'frame', ref: { by: 'template', id: 'tpl-valid-before-frameset' }, expect: { count: 0 } },
+          { select: '#div-before', ref: { by: 'template', id: 'tpl-valid-before-frameset' }, expect: { ids: ['div-before'] } },
+          { select: 'div', ref: { by: 'template', id: 'tpl-valid-before-frameset' }, expect: { ids: ['div-before'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-before-frameset' }, expect: { count: 1 } },
+        ],
+      },
+
+      // valid content after frameset survives
+      {
+        cases: [
+          { select: 'frameset', ref: { by: 'template', id: 'tpl-valid-after-frameset' }, expect: { count: 0 } },
+          { select: 'frame', ref: { by: 'template', id: 'tpl-valid-after-frameset' }, expect: { count: 0 } },
+          { select: '#div-after', ref: { by: 'template', id: 'tpl-valid-after-frameset' }, expect: { ids: ['div-after'] } },
+          { select: 'div', ref: { by: 'template', id: 'tpl-valid-after-frameset' }, expect: { ids: ['div-after'] } },
+        ],
+      },
+
+      // nested template survives; frameset inside it is ignored
+      {
+        cases: [
+          { select: '#t2', ref: { by: 'template', id: 'tpl-nested-template' }, expect: { ids: ['t2'] } },
+          { select: 'frameset', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-template' } }, expect: { count: 0 } },
+          { select: 'frame', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-template' } }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-template' } }, expect: { count: 0 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/ignore-head-token',
+    html: `
+      <template id="tpl-head-empty">
+        <head></head>
+      </template>
+
+      <template id="tpl-head-title">
+        <head><title>test</title></head>
+      </template>
+
+      <template id="tpl-valid-before-head">
+        <div id="div-before">Some text</div><head><title>test</title></head>
+      </template>
+
+      <template id="tpl-head-before-valid">
+        <head><title>test</title></head><div id="div-after">Some text</div>
+      </template>
+
+      <template id="tpl-nested-head">
+        <template id="t2"><head><title>test</title></head></template>
+      </template>
+    `,
+    steps: [
+      // empty head is ignored
+      {
+        cases: [
+          { select: 'head', ref: { by: 'template', id: 'tpl-head-empty' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tpl-head-empty' }, expect: { count: 0 } },
+        ],
+      },
+
+      // children of ignored head survive
+      {
+        cases: [
+          { select: 'head', ref: { by: 'template', id: 'tpl-head-title' }, expect: { count: 0 } },
+          { select: 'title', ref: { by: 'template', id: 'tpl-head-title' }, expect: { count: 1 } },
+          { select: '*', ref: { by: 'template', id: 'tpl-head-title' }, expect: { count: 1 } },
+        ],
+      },
+
+      // valid content before head survives
+      {
+        cases: [
+          { select: 'head', ref: { by: 'template', id: 'tpl-valid-before-head' }, expect: { count: 0 } },
+          { select: '#div-before', ref: { by: 'template', id: 'tpl-valid-before-head' }, expect: { ids: ['div-before'] } },
+          { select: 'title', ref: { by: 'template', id: 'tpl-valid-before-head' }, expect: { count: 1 } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-before-head' }, expect: { count: 2 } },
+        ],
+      },
+
+      // valid content after head survives
+      {
+        cases: [
+          { select: 'head', ref: { by: 'template', id: 'tpl-head-before-valid' }, expect: { count: 0 } },
+          { select: 'title', ref: { by: 'template', id: 'tpl-head-before-valid' }, expect: { count: 1 } },
+          { select: '#div-after', ref: { by: 'template', id: 'tpl-head-before-valid' }, expect: { ids: ['div-after'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-head-before-valid' }, expect: { count: 2 } },
+        ],
+      },
+
+      // nested template survives; head inside it is ignored
+      {
+        cases: [
+          { select: '#t2', ref: { by: 'template', id: 'tpl-nested-head' }, expect: { ids: ['t2'] } },
+          { select: 'head', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-head' } }, expect: { count: 0 } },
+          { select: 'title', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-head' } }, expect: { count: 1 } },
+          { select: '*', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-head' } }, expect: { count: 1 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/ignore-html-token',
+    html: `
+      <template id="tpl-html-empty">
+        <html><body></body></html>
+      </template>
+
+      <template id="tpl-valid-before-html">
+        <div id="div-before">Some text</div><html><body></body></html>
+      </template>
+
+      <template id="tpl-html-before-valid">
+        <html><body></body></html><div id="div-after">Some text</div>
+      </template>
+
+      <template id="tpl-nested-html">
+        <template id="t2"><html><body></body></html></template>
+      </template>
+
+      <template id="tpl-valid-inside-html">
+        <html><div id="div-inside-html">Some text</div></html>
+      </template>
+
+      <template id="tpl-valid-inside-html-body">
+        <html><body><div id="div-inside-body">Some text</div><body></html>
+      </template>
+
+      <template id="tpl-valid-between-html-body">
+        <html><span id="span1">Span</span><body><div id="div1">Some text</div><body></html>
+      </template>
+    `,
+    steps: [
+      // empty html/body is ignored
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-html-empty' }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 'tpl-html-empty' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tpl-html-empty' }, expect: { count: 0 } },
+        ],
+      },
+
+      // valid content before html survives
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-valid-before-html' }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 'tpl-valid-before-html' }, expect: { count: 0 } },
+          { select: '#div-before', ref: { by: 'template', id: 'tpl-valid-before-html' }, expect: { ids: ['div-before'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-before-html' }, expect: { count: 1 } },
+        ],
+      },
+
+      // valid content after html survives
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-html-before-valid' }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 'tpl-html-before-valid' }, expect: { count: 0 } },
+          { select: '#div-after', ref: { by: 'template', id: 'tpl-html-before-valid' }, expect: { ids: ['div-after'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-html-before-valid' }, expect: { count: 1 } },
+        ],
+      },
+
+      // nested template survives; html/body inside it are ignored
+      {
+        cases: [
+          { select: '#t2', ref: { by: 'template', id: 'tpl-nested-html' }, expect: { ids: ['t2'] } },
+          { select: 'html', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-html' } }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-html' } }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 't2', within: { by: 'template', id: 'tpl-nested-html' } }, expect: { count: 0 } },
+        ],
+      },
+
+      // valid content inside ignored html survives
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-valid-inside-html' }, expect: { count: 0 } },
+          { select: '#div-inside-html', ref: { by: 'template', id: 'tpl-valid-inside-html' }, expect: { ids: ['div-inside-html'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-inside-html' }, expect: { count: 1 } },
+        ],
+      },
+
+      // valid content inside ignored html/body survives
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-valid-inside-html-body' }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 'tpl-valid-inside-html-body' }, expect: { count: 0 } },
+          { select: '#div-inside-body', ref: { by: 'template', id: 'tpl-valid-inside-html-body' }, expect: { ids: ['div-inside-body'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-inside-html-body' }, expect: { count: 1 } },
+        ],
+      },
+
+      // valid content both before and inside ignored body survives
+      {
+        cases: [
+          { select: 'html', ref: { by: 'template', id: 'tpl-valid-between-html-body' }, expect: { count: 0 } },
+          { select: 'body', ref: { by: 'template', id: 'tpl-valid-between-html-body' }, expect: { count: 0 } },
+          { select: '#span1', ref: { by: 'template', id: 'tpl-valid-between-html-body' }, expect: { ids: ['span1'] } },
+          { select: '#div1', ref: { by: 'template', id: 'tpl-valid-between-html-body' }, expect: { ids: ['div1'] } },
+          { select: '*', ref: { by: 'template', id: 'tpl-valid-between-html-body' }, expect: { count: 2 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/start-tag-body',
+    html: `
+      <template id="tmpl-body-only">
+        <body></body>
+      </template>
+
+      <template id="tmpl-body-text">
+        <body>Body text content</body>
+      </template>
+
+      <template id="tmpl-body-elements">
+        <body>
+          <div id="div1">DIV 1</div>
+          <div id="div2">DIV 2</div>
+        </body>
+      </template>
+
+      <template id="tmpl-nested-body">
+        <template id="tmpl2">
+          <body>
+            <div id="nested-div1">DIV 1</div>
+            <div id="nested-div2">DIV 2</div>
+          </body>
+        </template>
+      </template>
+    `,
+    steps: [
+      // bare body tag is ignored
+      {
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tmpl-body-only' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tmpl-body-only' }, expect: { count: 0 } },
+        ],
+      },
+
+      // body tag is ignored but its text survives
+      {
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tmpl-body-text' }, expect: { count: 0 } },
+          { select: '*', ref: { by: 'template', id: 'tmpl-body-text' }, expect: { count: 0 } },
+        ],
+      },
+
+      // body tag is ignored but child elements survive
+      {
+        cases: [
+          { select: 'body', ref: { by: 'template', id: 'tmpl-body-elements' }, expect: { count: 0 } },
+          { select: '#div1', ref: { by: 'template', id: 'tmpl-body-elements' }, expect: { ids: ['div1'] } },
+          { select: '#div2', ref: { by: 'template', id: 'tmpl-body-elements' }, expect: { ids: ['div2'] } },
+          { select: '*', ref: { by: 'template', id: 'tmpl-body-elements' }, expect: { count: 2 } },
+        ],
+      },
+
+      // nested template: body is ignored inside nested template content too
+      {
+        cases: [
+          { select: '#tmpl2', ref: { by: 'template', id: 'tmpl-nested-body' }, expect: { ids: ['tmpl2'] } },
+          { select: 'body', ref: { by: 'template', id: 'tmpl2', within: { by: 'template', id: 'tmpl-nested-body' } }, expect: { count: 0 } },
+          { select: '#nested-div1', ref: { by: 'template', id: 'tmpl2', within: { by: 'template', id: 'tmpl-nested-body' } }, expect: { ids: ['nested-div1'] } },
+          { select: '#nested-div2', ref: { by: 'template', id: 'tmpl2', within: { by: 'template', id: 'tmpl-nested-body' } }, expect: { ids: ['nested-div2'] } },
+          { select: '*', ref: { by: 'template', id: 'tmpl2', within: { by: 'template', id: 'tmpl-nested-body' } }, expect: { count: 2 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'html/syntax/parsing/template/template-end-tag-without-start-one',
+    html: '',
+    steps: [
+      // lone stray </template> is ignored
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '</template>';
+        }); },
+        cases: [
+          { select: 'body *', expect: { count: 0 } },
+        ],
+      },
+
+      // stray </template> after a valid template is ignored
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '<template id="tmpl"></template></template>';
+        }); },
+        cases: [
+          { select: '#tmpl', expect: { ids: ['tmpl'] } },
+          { select: 'body *', expect: { count: 1 } },
+        ],
+      },
+
+      // stray </template> before a valid template is ignored
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '</template><template id="tmpl"></template>';
+        }); },
+        cases: [
+          { select: '#tmpl', expect: { ids: ['tmpl'] } },
+          { select: 'body *', expect: { count: 1 } },
+        ],
+      },
+
+      // stray </template> before valid template and title is ignored
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '</template><template id="tmpl"></template><title id="title1"></title>';
+        }); },
+        cases: [
+          { select: '#tmpl', expect: { ids: ['tmpl'] } },
+          { select: '#title1', expect: { ids: ['title1'] } },
+          { select: 'body *', expect: { count: 2 } },
+        ],
+      },
+
+      // stray </template> after valid template and title is ignored
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '<template id="tmpl"></template><title id="title1"></title></template>';
+        }); },
+        cases: [
+          { select: '#tmpl', expect: { ids: ['tmpl'] } },
+          { select: '#title1', expect: { ids: ['title1'] } },
+          { select: 'body *', expect: { count: 2 } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'jsdom/dom/nodes/documentfragment-getelementbyid',
+    html: `
+      <div id="frag-root"></div>
+
+      <div id="frag-dupes">
+        <div id="foo"></div>
+        <span id="foo"></span>
+      </div>
+
+      <div id="frag-empty-id">
+        <span>hello</span>
+        <div id=""></div>
+      </div>
+
+      <template id="tmpl">
+        <div id="bar">
+          <span id="foo" class="first-foo"></span>
+        </div>
+        <div id="foo" class="second-foo">
+          <span id="foo" class="third-foo"></span>
+          <ul id="bar">
+            <li id="foo" class="fourth-foo"></li>
+          </ul>
+        </div>
+      </template>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: '#foo', ref: { by: 'id', id: 'frag-root', home: 'fragment' }, expect: { count: 0 } },
+          { byId: 'foo', ref: { by: 'id', id: 'frag-root', home: 'fragment' }, expect: { count: 0 } },
+        ],
+      },
+      {
+        cases: [
+          { select: '#foo', ref: { by: 'id', id: 'frag-dupes', home: 'fragment' }, expect: { count: 2 } },
+          { byId: 'foo', ref: { by: 'id', id: 'frag-dupes', home: 'fragment' }, expect: { ids: ['foo'] }, status: 'fixme' },
+        ],
+      },
+      {
+        cases: [
+          { byId: '', ref: { by: 'id', id: 'frag-empty-id', home: 'fragment' }, expect: { count: 0 }, status: 'fixme' },
+        ],
+      },
+      {
+        cases: [
+          { select: '#foo', ref: { by: 'template', id: 'tmpl' }, expect: { count: 4 } },
+          { byId: 'foo', ref: { by: 'template', id: 'tmpl' }, expect: { ids: ['foo'], classes: ['first-foo'] }, status: 'fixme' },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'jsdom/dom/nodes/queryselector',
+    html: `<div id="host"></div>`,
+    steps: [
+      {
+        setupPage: async (page) => { await page.evaluate(() => {
+          document.body.innerHTML = '<div id="host"></div>';
+
+          const host = document.getElementById('host')!;
+          const g = document.createElement('_g');
+          const b = document.createElement('b');
+
+          b.className = 'hit';
+          b.appendChild(document.createTextNode('hey'));
+          g.appendChild(b);
+          host.appendChild(g);
+        }); },
+        cases: [
+          { select: '_g > b', ref: { by: 'id', id: 'host' }, expect: { count: 1, classes: ['hit'] } },
+          { select: '_g > b', ref: { by: 'id', id: 'host', home: 'fragment' }, expect: { count: 1, classes: ['hit'] } },
+        ],
+      },
+    ],
+  },
+
+  {
+    name: 'jsdom/dom/nodes/svg-template-query-selector',
+    html: `
+      <template id="template1"><div></div></template>
+      <template id="template2"><svg class="svg-hit"></svg></template>
+      <template id="template3"><div id="wrap"><svg class="nested-svg-hit"></svg></div></template>
+    `,
+    cases: [
+      { select: 'div', ref: { by: 'template', id: 'template1' }, expect: { count: 1 } },
+      { select: 'svg', ref: { by: 'template', id: 'template2' }, expect: { count: 1, classes: ['svg-hit'] } },
+      { select: 'svg', ref: { by: 'id', id: 'wrap', within: { by: 'template', id: 'template3' } }, expect: { count: 1, classes: ['nested-svg-hit'] } },
+      { select: 'div > svg', ref: { by: 'template', id: 'template3' }, expect: { count: 1, classes: ['nested-svg-hit'] } },
+    ],
+  },
+
+  {
+    name: 'jsdom/svg/element-svg',
+    html: `
+      <svg id="first">
+        <g id="group"></g>
+      </svg>
+      <svg id="second" requiredExtensions=" http://example.org/SVGExtensionXYZ/1.0  def " systemLanguage="en,zh"></svg>
+    `,
+    steps: [
+      {
+        cases: [
+          { select: '#group', expect: { ids: ['group'] } },
+          { select: '#group', ref: { by: 'first', selector: 'svg' }, expect: { count: 1 } },
+          { select: ':scope > *', ref: { by: 'first', selector: 'svg' }, expect: { count: 1 }, status: 'fixme' },
+          { select: '#group', ref: { by: 'first', selector: 'svg' }, expect: { equivalentCase: { first: ':scope > *', ref: { by: 'first', selector: 'svg' } } }, status: 'fixme' },
+          { select: '#group', expect: { equivalentCase: { first: '#first > *'} } },
+        ],
+      },
+    ],
+  },
 
 
 ]);

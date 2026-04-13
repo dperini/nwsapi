@@ -40,16 +40,21 @@ export function installBrowserHelpers(): void {
     return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 1;
   }
 
-  // function isDocument(x: unknown): x is Document {
-  //   return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 9;
-  // }
+  function isDocument(x: unknown): x is Document {
+    return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 9;
+  }
 
   function isDocFrag(x: unknown): x is DocumentFragment {
     return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 11;
   }
 
   function isRehomed(ref?: ContextRef): boolean {
-    return !!ref && ref.by !== 'document' && ref.by !== 'iframe' && !!ref.home && ref.home !== 'document';
+    if (!ref || ref.by === 'document') return false;
+    if (isRehomed(ref.within)) return true;
+    return ref.by !== 'iframe'
+      && ref.by !== 'template'
+      && !!ref.home
+      && ref.home !== 'document';
   }
 
   // Source - https://stackoverflow.com/a/65443215
@@ -111,17 +116,33 @@ export function installBrowserHelpers(): void {
     return mismatchMsg;
   }
 
+  function queryId(base: QueryContext, id: string): Element | null {
+    if ('getElementById' in base && typeof base.getElementById === 'function') {
+      return base.getElementById(id);
+    }
+    return base.querySelector(`#${CSS.escape(id)}`);
+  }
+
   function resolveContext(ref?: ContextRef): QueryContext | null {
     if (!ref || ref.by === 'document') return document;
 
+    const base = ref.within ? resolveContext(ref.within) : document;
+    if (!base) return null;
+
     if (ref.by === 'iframe') {
-      const iframe = document.getElementById(ref.id);
+      const iframe = queryId(base, ref.id);
       if (!(iframe instanceof HTMLIFrameElement)) return null;
       return iframe.contentDocument ?? null;
     }
 
-    const el = ref.by === 'id' ? document.getElementById(ref.id)
-      : ref.by === 'first' ? document.querySelector(ref.selector)
+    if (ref.by === 'template') {
+      const tmpl = queryId(base, ref.id);
+      if (!(tmpl instanceof HTMLTemplateElement)) return null;
+      return tmpl.content;
+    }
+
+    const el = ref.by === 'id' ? queryId(base, ref.id)
+      : ref.by === 'first' ? base.querySelector(ref.selector)
       : null;
 
     if (!el) return null;
@@ -207,9 +228,12 @@ export function installBrowserHelpers(): void {
       case 'byId' in c:
         if (ng === 'native') {
           return (query, ctx) => () => {
-            const el = isElement(ctx)
-              ? ctx.querySelector(`#${CSS.escape(query)}`)
-              : ctx.getElementById(query);
+            const useFragmentBase = c.ref && 'home' in c.ref && c.ref.home === 'fragment' && isDocFrag(ctx.parentNode);
+            const base = useFragmentBase ? ctx.parentNode : ctx;
+            const el = isElement(base)
+              ? base.querySelector(`#${CSS.escape(query)}`)
+              : base.getElementById(query);
+
             return el ? [el] : [];
           };
         }
