@@ -906,7 +906,7 @@
   compileSelector =
     function(expression, source, mode, callback) {
 
-      var a, b, n, f, name, NS, referenceElement,
+      var a, b, n, f, k = 0, name, NS, referenceElement,
       compat, expr, match, result, status, symbol, test,
       type, selector = expression, vars;
 
@@ -918,6 +918,8 @@
       selector_recursion_label:
 
       while (selector) {
+
+	++k;
 
         // get namespace prefix if present or get first char of selector
         symbol = STD.apimethods.test(selector) ? '|' : selector[0];
@@ -996,14 +998,14 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
-            source = 'while(e&&(e=e.previousElementSibling)){' + source + '}';
+            source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
-            source = 'if(e&&(e=e.previousElementSibling)){' + source + '}';
+            source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
           // *** Descendant combinator
@@ -1011,14 +1013,14 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
-            source = 'while(e&&(e=e.parentElement)){' + source + '}';
+            source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
           // *** Child combinator
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
-            source = 'if(e&&(e=e.parentElement)){' + source + '}';
+            source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
           // *** user supplied combinators extensions
