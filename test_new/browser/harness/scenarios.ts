@@ -1,8 +1,8 @@
 import { test, chromium, expect, firefox, webkit } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { assertNever, type DistributiveOmit } from '../../utils/type';
+import { assertNever, type Permutations, type DistributiveOmit } from '../../utils/type';
 import { installBrowserHelpers } from './browser';
-import type { EngineResult, EvalResult, EngineQuery } from './browser';
+import type { EngineResult, EvalResult, EngineAndQueryResult, NamedQueryResult } from './browser';
 
 type HarnessMode = 'normal' | 'fixme';
 const rawHarnessMode = process.env.HARNESS_MODE;
@@ -11,7 +11,6 @@ if (rawHarnessMode !== undefined && rawHarnessMode !== 'normal' && rawHarnessMod
 }
 const HARNESS_MODE: HarnessMode = rawHarnessMode ?? 'normal';
 
-type CaseBase = { expect?: Expectation; status?: CaseStatus; browsers?: BrowserName[]; };
 export type SelectCase =  { select: string;  ref?: ContextRef; } & CaseBase;
 export type ByIdCase =    { byId: string;    ref?: ContextRef; } & CaseBase;
 export type ByTagCase =   { byTag: string;   ref?: ContextRef; } & CaseBase;
@@ -19,6 +18,13 @@ export type ByClassCase = { byClass: string; ref?: ContextRef; } & CaseBase;
 export type FirstCase =   { first: string;   ref?: ContextRef; } & CaseBase;
 export type MatchCase =   { match: string;   ref:  ContextRef; } & CaseBase;
 export type ClosestCase = { closest: string; ref:  ContextRef; } & CaseBase;
+
+type CaseBase = {
+  expect?: Expectation;
+  status?: CaseStatus;
+  browsers?: BrowserName[];
+  engines?: Engine[];
+};
 
 export type TestCase = SelectCase | ByIdCase | ByTagCase | ByClassCase | MatchCase | FirstCase | ClosestCase;
 
@@ -41,7 +47,6 @@ type ScenarioStep = {
 };
 
 export type Expectation = {
-  allowMismatch?: boolean;
   count?: number;
   ids?: string[];
   includesIds?: string[];
@@ -53,7 +58,7 @@ export type Expectation = {
   equivalentCase?: EquivalentCase;
 };
 
-export type EquivalentCase = DistributiveOmit<TestCase, 'expect' | 'status' | 'browsers'>;
+export type EquivalentCase = DistributiveOmit<TestCase, 'expect' | 'status' | 'browsers' | 'engines'>;
 // const foo: EquivalentCase = { select: 'div' }; // just to verify the type
 
 const BROWSER_NAMES = ['chromium', 'firefox', 'webkit'] as const;
@@ -70,13 +75,15 @@ export type ContextRef =
   | { by: 'document' }
   | { by: 'id'; id: string; home?: ContextHome; within?: ContextRef }
   | { by: 'first'; selector: string; home?: ContextHome; within?: ContextRef }
+  | { by: 'documentElement'; home?: ContextHome; }
   | { by: 'iframe'; id: string; within?: ContextRef }
   | { by: 'template'; id: string; within?: ContextRef }
 
 export type ContextHome = 'document' | 'detached' | 'fragment';
 export type NwsapiId = 'nwsapi-bootstrap';
 
-type Misfail = { passedEverywhere: boolean; resultInfo: string; stepIndex: number; caseIndex: number; };
+type PassTracker = { passedEverywhere: boolean; resultInfo: string; stepIndex: number; caseIndex: number; };
+
 type CaseInfo = {
   browser: BrowserName;
   scenario: Scenario;
@@ -84,7 +91,8 @@ type CaseInfo = {
   stepIndex: number;
   caseIndex: number;
   stepCaseIndex: number;
-  misfails: Record<number, Misfail>;
+  misfails: Record<number, PassTracker>;
+  misfixes: Record<number, PassTracker>;
 };
 
 export function runScenarios(label: string, status: ScenariosStatus, scenarios: Scenario[]): void {
@@ -142,8 +150,9 @@ export function runScenarios(label: string, status: ScenariosStatus, scenarios: 
 async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promise<void> {
   const scenarioBrowsers = s.browsers ?? BROWSER_NAMES;
 
-  // cases marked 'fail' and whether they passed in every applicable browser so far
-  const misfails: Record<number, Misfail> = {};
+  // cases marked fail/fixme and whether they passed in every applicable browser so far
+  const misfails: Record<number, PassTracker> = {};
+  const misfixes: Record<number, PassTracker> = {};
 
   const steps: ScenarioStep[] = [
     ...(s.steps ?? []),
@@ -167,7 +176,7 @@ async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promi
           page,
           {
             browser: browserName, scenario: s, case: c,
-            stepIndex, caseIndex, stepCaseIndex, misfails
+            stepIndex, caseIndex, stepCaseIndex, misfails, misfixes,
           }
         );
         stepCaseIndex++;
@@ -175,20 +184,24 @@ async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promi
     }
   }
 
-  // At the end of the scenario, check if any 'fail' cases passed unexpectedly in all browsers
-  for (const [_scIndex, misFail] of Object.entries(misfails)) {
-    if (misFail.passedEverywhere) {
-      const { stepIndex, caseIndex } = misFail;
+  // At the end of the scenario, check if any 'fail' or 'fixme' cases passed unexpectedly
+  const throwOnUnexpectedPass = (kind: 'fail' | 'fixme', trackers: Record<number, PassTracker>) => {
+    for (const tracker of Object.values(trackers)) {
+      if (!tracker.passedEverywhere) continue;
       throw new Error(
-        `Step #${stepIndex + 1}, Case #${caseIndex + 1} was marked 'fail' but unexpectedly passed in every applicable browser.\n` +
-        `${s.name} :: ${misFail.resultInfo}\n`
+        `${s.name}\n` +
+        `Step #${tracker.stepIndex + 1}, Case #${tracker.caseIndex + 1} · Marked '${kind}' but passed unexpectedly.\n` +
+        `Query: ${tracker.resultInfo}`
       );
     }
-  }
+  };
+
+  throwOnUnexpectedPass('fail', misfails);
+  throwOnUnexpectedPass('fixme', misfixes);
 }
 
 async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
-  const { scenario: s, case: c } = caseInfo;
+  const { scenario: s, case: c, stepIndex, caseIndex, stepCaseIndex } = caseInfo;
 
   if (c.status === 'skip') return;
   if (s.status !== 'fixme' && HARNESS_MODE === 'fixme' && c.status !== 'fixme') {
@@ -213,20 +226,24 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
     return;
   }
 
+  const updatePassTracker = (trackers: Record<number, PassTracker>) => {
+    const prevPassed = trackers[stepCaseIndex]?.passedEverywhere ?? true;
+    trackers[stepCaseIndex] = {
+      passedEverywhere: !thrown && prevPassed,
+      resultInfo: trackers[stepCaseIndex]?.resultInfo ?? result.info,
+      stepIndex,
+      caseIndex,
+    };
+  };
+
   if (status === 'fail') {
-    const curPassed = !thrown;
-    const prevPassed = caseInfo.misfails[caseInfo.stepCaseIndex]?.passedEverywhere ?? true;
-    const passedEverywhere = curPassed && prevPassed;
-    const resultInfo = caseInfo.misfails[caseInfo.stepCaseIndex]?.resultInfo ?? result.info;
-    const { stepIndex, caseIndex } = caseInfo;
-    caseInfo.misfails[caseInfo.stepCaseIndex] = { passedEverywhere, resultInfo, stepIndex, caseIndex };
+    updatePassTracker(caseInfo.misfails);
     return;
   }
 
   if (status === 'fixme') {
-    if (thrown && HARNESS_MODE === 'fixme') {
-      throw thrown;
-    }
+    updatePassTracker(caseInfo.misfixes);
+    if (thrown && HARNESS_MODE === 'fixme') throw thrown;
     return;
   }
 
@@ -236,52 +253,59 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
 async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
   return await page.evaluate((c) => {
     const pw = window.__pwHelpers;
+
     const query = pw.getCaseQuery(c);
-    const equivCase = c.expect?.equivalentCase;
-
-    const nwFn: EngineQuery = pw.getEngineQuery(c, 'nw');
-    const nativeFn: EngineQuery = pw.getEngineQuery(c, 'native');
-
     const ctx = pw.resolveContext(c.ref);
     const ctxErrorMsg = ctx ? undefined : `Could not resolve context from ref: ${pw.stringify(c.ref)}`;
 
-    const nwRes = pw.getResults(nwFn, query, ctx, ctxErrorMsg);
-    const nativeRes = pw.getResults(nativeFn, query, ctx, ctxErrorMsg);
+    const equivCase = c.expect?.equivalentCase;
+    const equivQuery = equivCase ? pw.getCaseQuery(equivCase) : undefined;
+    const equivCtx = equivCase ? pw.resolveContext(equivCase?.ref) : null;
+    const equivCtxErrorMsg = equivCase && !equivCtx
+      ? `Could not resolve equivalent context from ref: ${pw.stringify(equivCase.ref)}`
+      : undefined;
+    let equivMismatchMsg = equivCase && (pw.isRehomed(c.ref) || pw.isRehomed(equivCase.ref))
+      ? `Equivalent-case assertion unsupported because one or more contexts were rehomed.\n` +
+        `Identity-based equivalence is only supported for document-backed contexts.\n` +
+        `  case context: ${pw.stringify(c.ref)}${pw.isRehomed(c.ref) ? ' (rehomed)' : ''}\n` +
+        `  equivalent case context: ${pw.stringify(equivCase.ref)}${pw.isRehomed(equivCase.ref) ? ' (rehomed)' : ''}`
+      : undefined;
 
-    const mismatchMsg = pw.compareQueryResults(
-      { name: `native:${pw.getCaseLabel(c, 'native')}`, result: nativeRes.queryResult },
-      { name: `nw:${pw.getCaseLabel(c, 'nw')}`, result: nwRes.queryResult },
-    );
+    const allEngines: Permutations<Engine> = ['native', 'nw'];
+    const engines = c.engines ?? allEngines;
+    const engineResults: Partial<Record<Engine, EngineAndQueryResult>> = {};
+    const makeNamedQr = (tc: TestCase, ng: Engine, res: EngineAndQueryResult, suffix = ''): NamedQueryResult =>
+      ({ name: `${ng}${suffix}:${pw.getCaseLabel(tc, ng)}`, result: res.queryResult });
 
-    let equivMismatchMsg: string | undefined;
-    if (equivCase) {
-      const nwEquivFn = pw.getEngineQuery(equivCase, 'nw');
-      const nwEquivQuery = pw.getCaseQuery(equivCase);
+    let mismatchMsg: string | undefined;
+    let firstNamedQr: NamedQueryResult | undefined;
 
-      const equivCtx = pw.resolveContext(equivCase.ref);
-      const equivCtxErrorMsg = !equivCtx
-        ? `Could not resolve equivalent context from ref: ${pw.stringify(equivCase.ref)}`
-        : undefined;
-      const nwEquivRes = pw.getResults(nwEquivFn, nwEquivQuery, equivCtx, equivCtxErrorMsg);
+    for (const engine of engines) {
+      const fn = pw.getEngineQuery(c, engine);
+      const res = pw.getResults(fn, query, ctx, ctxErrorMsg);
+      engineResults[engine] = res;
 
-      if (pw.isRehomed(c.ref) || pw.isRehomed(equivCase.ref)) {
-        equivMismatchMsg =
-          `Equivalent-case assertion unsupported because one or more contexts were rehomed.\n` +
-          `Identity-based equivalence is only supported for document-backed contexts.\n` +
-          `  case context: ${pw.stringify(c.ref)}${pw.isRehomed(c.ref) ? ' (rehomed)' : ''}\n` +
-          `  equivalent case context: ${pw.stringify(equivCase.ref)}${pw.isRehomed(equivCase.ref) ? ' (rehomed)' : ''}`
-      } else {
-        equivMismatchMsg = pw.compareQueryResults(
-          { name: `nw:${pw.getCaseLabel(c, 'nw')}`, result: nwRes.queryResult },
-          { name: `nwEquiv:${pw.getCaseLabel(equivCase, 'nw')}`, result: nwEquivRes.queryResult },
+      const namedQr = makeNamedQr(c, engine, res);
+      if (!mismatchMsg && firstNamedQr) {
+        mismatchMsg = pw.compareQueryResults(firstNamedQr, namedQr);
+      }
+      firstNamedQr ??= namedQr;
+
+      if (!equivMismatchMsg && equivCase && equivQuery) {
+        const equivFn = pw.getEngineQuery(equivCase, engine);
+        const equivRes = pw.getResults(equivFn, equivQuery, equivCtx, equivCtxErrorMsg);
+        equivMismatchMsg ??= pw.compareQueryResults(
+          namedQr,
+          makeNamedQr(equivCase, engine, equivRes, 'Equiv')
         );
       }
     }
 
     return {
       info: query, mismatchMsg, equivMismatchMsg,
-      native: nativeRes.engineResult,
-      nw: nwRes.engineResult
+      engineResults: Object.fromEntries(
+        engines.map((engine) => [engine, engineResults[engine]!.engineResult])
+      ),
     };
   }, testCase);
 }
@@ -328,43 +352,40 @@ function runEngineChecks(
   key: keyof EngineResult,
   check: (r: EngineResult, label: string) => void
 ): void {
-  for (const engine of ENGINES) {
-    const r = result[engine];
-    if (r.threw) continue;
+  const entries = Object.entries(result.engineResults) as [Engine, EngineResult][];
 
-    const sameIds = (a: string[], b: string[]): boolean  => 
-      a.length === b.length && a.every((x, i) => x === b[i]);
+  const sameIds = (a: string[], b: string[]): boolean =>
+    a.length === b.length && a.every((x, i) => x === b[i]);
 
-    const enginesWithSameOutcome = ENGINES.filter((e) => {
-      if (result[e].threw) return false;
-      switch (key) {
-        case 'count': return r.count === result[e].count;
-        case 'ids': return sameIds(r.ids, result[e].ids);
-        case 'classes': return sameIds(r.classes, result[e].classes);
-        case 'threw': return r.threw === result[e].threw;
-        default: assertNever(key);
-      }
-    });
+  for (const [, r] of entries) {
+    const enginesWithSameOutcome = entries
+      .filter(([, other]) => {
+        switch (key) {
+          case 'count':   return r.count === other.count;
+          case 'ids':     return sameIds(r.ids, other.ids);
+          case 'classes': return sameIds(r.classes, other.classes);
+          case 'threw':   return r.threw === other.threw;
+          default:        return assertNever(key);
+        }
+      })
+      .map(([engine]) => engine);
 
-    let label = ` · engines=${enginesWithSameOutcome.join('+')}${baseMsg}`;
+    const label = ` · engines=${enginesWithSameOutcome.join('+')}${baseMsg}`;
     check(r, label);
   }
 }
 
 function checkResult(result: EvalResult, expectation: Expectation, caseInfo: CaseInfo): void {
-  const allowMismatch = expectation.allowMismatch ?? false;
   const { stepIndex, caseIndex, browser, scenario: s } = caseInfo;
   const header = `${s.name}\nStep #${stepIndex + 1}, Case #${caseIndex + 1} · browser=${browser}`;
-  const msg = 
+  const msg =
     `\nQuery: ${result.info}` +
-    `${result.mismatchMsg && !allowMismatch ? `\n${result.mismatchMsg}` : ''}`;
+    `${result.mismatchMsg ? `\n${result.mismatchMsg}` : ''}`;
 
-  if (expectation.throws) {
-    expect(result.nw.threw, `${header}${msg}`).toBe(true);
-    return;
-  }
-
-  expect(result.nw.threw, `${header}${msg}`).toBe(false);
+  runEngineChecks(result, msg, 'threw', (r, label) => {
+    expect(r.threw, `${header}${label}`).toBe(expectation.throws ?? false);
+  });
+  if (expectation.throws) return;
 
   if (expectation.count !== undefined) {
     runEngineChecks(result, msg, 'count', (r, label) => {
@@ -418,10 +439,7 @@ function checkResult(result: EvalResult, expectation: Expectation, caseInfo: Cas
     }
   }
 
-  if (!allowMismatch && !result.native.threw) {
-    const mismatch = !!result.mismatchMsg;
-    expect(mismatch, `${header}${msg}`).toBe(false);
-  }
+  expect(!!result.mismatchMsg, `${header}${msg}`).toBe(false);
 
   if (expectation.equivalentCase) {
     const equivMismatch = !!result.equivMismatchMsg;

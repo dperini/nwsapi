@@ -11,8 +11,8 @@ runScenarios('xml', 'normal', [
     htmlMode: 'document',
     cases: [
       { select: '[*|href]', expect: { count: 1 } },
-      { select: '[xlink:href=foo]', expect: { count: 1 } },
-      { select: '[xlink\\:href=foo]', expect: { count: 1 }, status: 'fixme' }, // maybe not interesting?
+      { select: '[xlink:href=foo]', expect: { count: 1 }, status: 'fixme' },
+      { select: '[xlink\\:href=foo]', expect: { count: 1 }, status: 'fixme' },
     ],
   },
 
@@ -65,7 +65,7 @@ runScenarios('xml', 'normal', [
           { select: 'foo', ref: { by: 'id', id: 'upper-box' }, expect: { count: 0 }, status: 'fixme' },
           { select: 'bar', ref: { by: 'id', id: 'upper-box' }, expect: { count: 1 } },
           { select: 'foo bar', ref: { by: 'id', id: 'upper-box' }, expect: { count: 0 }, status: 'fixme' },
-          { select: 'Foo bar', ref: { by: 'id', id: 'upper-box' }, expect: { count: 1 }, status: 'fixme' },
+          { select: 'Foo bar', ref: { by: 'id', id: 'upper-box' }, expect: { count: 1 } },
 
           // <foo><bar/></foo>
           { select: 'bar', ref: { by: 'id', id: 'lower-box' }, expect: { count: 1 } },

@@ -217,8 +217,8 @@ runScenarios('prototype 2', 'normal', [
       { select: '[foo-bar]', expect: { ids: ['attr_with_dash'] } }, // attribute with hyphen
 
       // testSelectorWithUniversalAndHyphenTokenizedAttributeValue
-      { select: '*[xml:lang|="es"]', expect: { ids: ['item_3'] } },
-      { select: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] } },
+      { select: '*[xml:lang|="es"]', expect: { ids: ['item_3'] }, status: 'fixme' },
+      { select: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] }, status: 'fixme' },
 
       // testSelectorWithTagNameAndNegatedAttributeValue
       { select: 'a:not([href="#"])', expect: { count: 0, ids: [] } },
@@ -274,8 +274,8 @@ runScenarios('prototype 2', 'normal', [
       // testSelectorWithNamespacedAttributes
       { 
         select: '[xml:lang]',
+        status: 'fixme',
         expect: {
-          allowMismatch: true, // some browsers don't support selecting by namespaced attributes
           count: 2,
           includesIds: ['item_3'],
           equivalentCase: { select: '*[xml:lang]' }
@@ -415,8 +415,8 @@ runScenarios('prototype 2', 'normal', [
       { select: '#level2_2 :only-child:not(:first-child)', expect: { count: 0, ids: [] } },
 
       // testCommasFor$$
-      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
-      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
+      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
+      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
       { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
       { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
 

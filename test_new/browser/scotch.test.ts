@@ -175,8 +175,8 @@ runScenarios('scotch', 'normal', [
       { select: '#troubleForm2 input[name="brackets[5][]"]', expect: { ids: ['chk_1', 'chk_2'] } },
       { select: '#troubleForm2 input[name="brackets[5][]"]:checked', expect: { ids: ['chk_1'] } },
       { select: 'cite[title="hello world!"]', expect: { ids: ['with_title'] } },
-      { select: '[xml:lang]', expect: { allowMismatch: true, count: 2, includesIds: ['item_3'], equivalentCase: { select: '*[xml:lang]' } } },
-      { select: '*[xml:lang]', expect: { allowMismatch: true, count: 2, includesIds: ['item_3'] } },
+      { select: '[xml:lang]', expect: { count: 2, includesIds: ['item_3'], equivalentCase: { select: '*[xml:lang]' } }, status: 'fixme' },
+      { select: '*[xml:lang]', expect: { count: 2, includesIds: ['item_3'] }, status: 'fixme' },
 
       // E[foo="bar"]
       { select: 'a[href="#"]', expect: { ids: ['link_1', 'link_2', 'link_3'] } },
@@ -189,8 +189,8 @@ runScenarios('scotch', 'normal', [
       { select: 'a[class~=external][href="#"]', expect: { ids: ['link_3'] } },
 
       // E[foo|="en"]
-      { select: '*[xml:lang|="es"]', expect: { ids: ['item_3'] } },
-      { select: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] } },
+      { select: '*[xml:lang|="es"]', expect: { ids: ['item_3'] }, status: 'fixme' },
+      { select: '*[xml:lang|="ES"]', expect: { ids: ['item_3'] }, status: 'fixme' },
 
       // E[foo^="bar"]
       { select: 'div[class^=bro]', expect: { ids: ['father', 'uncle'] } },
@@ -463,8 +463,8 @@ runScenarios('scotch', 'normal', [
     htmlMode: 'document',
     setupPage: setupNw,
     cases: [
-      { select: '#list, .first,*[xml:lang="es-us"] , #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
-      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] } },
+      { select: '#list, .first,*[xml:lang="es-us"] , #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
+      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
       { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
       { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
     ],

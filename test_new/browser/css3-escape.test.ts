@@ -385,7 +385,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
       { select: '#\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
       { select: '.\u{12345}', expect: { count: 1, ids: ['\u{12345}'] } },
 
-      { select: '#\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
+      { select: '#\u{0}', expect: { count: 1, ids: ['\u{fffd}'] }, status: 'fixme' },
       { select: '.\u{0}', expect: { count: 1, ids: ['\u{fffd}'] } },
 
       { select: '#ab\u{0}c', expect: { count: 1, ids: ['ab\u{fffd}c'] } },

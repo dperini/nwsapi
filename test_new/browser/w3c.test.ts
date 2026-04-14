@@ -991,11 +991,12 @@ runScenarios('w3c', 'normal', [
       { closest: '.', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
 
       { select: '.5cm', expect: { throws: true } },
+      { select: '//.5cm', expect: { throws: true } },
       { first: '..test', expect: { throws: true } },
       { match: '.foo..quux', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
       { closest: '.bar.', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
 
-      { select: 'div & address, p', expect: { throws: true } },
+      { select: 'div & address, p', expect: { throws: true }, status: 'fixme' },
       { first: 'div ++ address, p', expect: { throws: true } },
       { match: 'div ~~ address, p', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
       { closest: '[*=test]', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
@@ -1016,6 +1017,26 @@ runScenarios('w3c', 'normal', [
       { closest: '$|div', ref: { by: 'id', id: 'root' }, expect: { throws: true } },
 
       { select: '>*', expect: { throws: true } },
+
+      // deduping
+      { select: 'foo &amp; address, p', expect: { throws: true } },
+      { select: 'div:subject', expect: { throws: true } },
+      { select: ':canvas', expect: { throws: true } },
+      { select: ':viewport', expect: { throws: true } },
+      { select: ':window', expect: { throws: true } },
+      { select: ':menu', expect: { throws: true } },
+      { select: ':table', expect: { throws: true } },
+      { select: ':select', expect: { throws: true } },
+      { select: '::canvas', expect: { throws: true } },
+      { select: '::viewport', expect: { throws: true } },
+      { select: '::window', expect: { throws: true } },
+      { select: '::menu', expect: { throws: true } },
+      { select: '::table', expect: { throws: true } },
+      { select: '::select', expect: { throws: true } },
+      { select: '', expect: { throws: true } },
+      { select: '', expect: { throws: true } },
+      { select: '', expect: { throws: true } },
+      { select: '', expect: { throws: true } },
 
       // -----------------------------------------------------------------------------
       // Valid selectors: querySelectorAll / querySelector

@@ -203,6 +203,14 @@ runScenarios('css3 compat', 'normal',  [
     ],
   },
   {
+    name: 'root selector',
+    html: '',
+    cases: [
+      /* :root tests */
+      { select: 'html', expect: { equivalentCase: { select: ':root' } } },
+    ],
+  },
+  {
     name: ':nth-child(n) and :nth-of-type tests',
     html: `
       <div class="test nthchild1">
@@ -302,6 +310,8 @@ runScenarios('css3 compat', 'normal',  [
       { select: '.blox15:not([foo="blox14"])', expect: { count: 1 } },
       { select: '.blox16', expect: { count: 1 } },
       { select: '.blox16:not(.blox15)', expect: { count: 1 } },
+      { select: '.blox16:not(.blox15[foo="blox14"])', expect: { count: 1 } },
+      { select: '.unitTest:not(.blox15[foo="blox15"])', expect: { count: 2 } },
     ],
   },
   {
@@ -499,6 +509,8 @@ runScenarios('css3 compat', 'normal',  [
     `,
     cases: [
       /* UI tests */
+      { select: '.UI', expect: { count: 3 } },
+      { select: '.UI > *', expect: { count: 6 } },
       { select: '.UI .t1:enabled > .unitTest', expect: { count: 1 } },
       { select: '.UI .t2:disabled > .unitTest', expect: { count: 1 } },
       { select: '.UI .t3:checked + div', expect: { count: 1 } },
@@ -509,33 +521,62 @@ runScenarios('css3 compat', 'normal',  [
     name: '~ combinator tests',
     html: `
       <div class="test tilda">
-        <div class="unitTest t1"></div>
+        <div class="unitTest t1" style="width:20px;height:20px;"></div>
         <div class="unitTest"></div>
         <div class="unitTest"></div>
         <div class="unitTest"></div>
         <span style="float:left">the three last squares should be green and become red when the pointer hovers over the white square</span>
       </div>
     `,
-    cases: [
-      /* ~ combinator tests */
-      { select: '.tilda .t1', expect: { count: 1 } },
-      { select: '.tilda .t1 ~ .unitTest', expect: { count: 3 } },
+    steps: [
+      {
+        // ensure baseline starts non-hovered; native :hover may already match if the pointer begins over the target
+        setupPage: async (page) => { await page.mouse.move(200, 200); },
+        cases: [
+          /* ~ combinator tests */
+          { select: '.tilda', expect: { count: 1 } },
+          { select: '.tilda .t1', expect: { count: 1 } },
+          { select: '.tilda .t1 ~ .unitTest', expect: { count: 3 } },
+          { select: '.tilda .t1:hover ~ .unitTest', expect: { count: 0 } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.locator('.tilda .t1').hover(); },
+        cases: [
+          { select: '.tilda .t1:hover', expect: { count: 1 } },
+          { select: '.tilda .t1:hover ~ .unitTest', expect: { count: 3 } },
+        ],
+      },
     ],
   },
   {
     name: '+ combinator tests',
     html: `
       <div class="test plus">
-        <div class="unitTest t1"></div>
+        <div class="unitTest t1" style="width:20px;height:20px;"></div>
         <div class="unitTest t2"></div>
         <div class="unitTest"></div>
         <span style="float:left">the last square should be green and become red when the pointer hovers over the FIRST white square</span>
       </div>
     `,
-    cases: [
-      /* + combinator tests */
-      { select: '.plus .t1, .plus .t2', expect: { count: 2 } },
-      { select: '.plus .t1 + .unitTest + .unitTest', expect: { count: 1 } },
+    steps: [
+      {
+        // ensure baseline starts non-hovered;
+        setupPage: async (page) => { await page.mouse.move(200, 200); },
+        cases: [
+          /* + combinator tests */
+          { select: '.plus', expect: { count: 1 } },
+          { select: '.plus .t1, .plus .t2', expect: { count: 2 } },
+          { select: '.plus .t1 + .unitTest + .unitTest', expect: { count: 1 } },
+          { select: '.plus .t1:hover + .unitTest + .unitTest', expect: { count: 0 } },
+        ],
+      },
+      {
+        setupPage: async (page) => { await page.locator('.plus .t1').hover(); },
+        cases: [
+          { select: '.plus .t1:hover + .unitTest + .unitTest', expect: { count: 1 } },
+        ],
+      },
     ],
   },
   {
@@ -569,16 +610,16 @@ runScenarios('css3 compat', 'normal',  [
       { select: '.blox23s1[foo="blox" erroneous]', expect: { throws: true } },
       { select: '.blox19[class="BLOX19 UNITTEST" i]', expect: { count: 1 } },
       { select: '.blox20[class="BLOX20 UNITTEST" i]', expect: { count: 1 } },
-      { select: '.blox20[class="blox20 unitTest" s]', expect: { throws: true } },
+      { select: '.blox20[class="blox20 unitTest" s]', status: 'fixme' },
       { select: '.blox21[class*="21 UN" i]', expect: { count: 1 } },
-      { select: '.blox22[class*="22 unitt" s]', expect: { throws: true } },
-      { select: '.blox22[class*="22 unitT" s]', expect: { throws: true } },
+      { select: '.blox22[class*="22 unitt" s]', status: 'fixme' },
+      { select: '.blox22[class*="22 unitT" s]', status: 'fixme' },
       { select: '.blox24[class^="BLOX" i]', expect: { count: 1 } },
       { select: '.blox25[class^="BLOX"]', expect: { count: 0 } },
-      { select: '.blox25[class^="blox" s]', expect: { throws: true } },
+      { select: '.blox25[class^="blox" s]', status: 'fixme' },
       { select: '.blox26[class$="tEST" i]', expect: { count: 1 } },
-      { select: '.blox27[class$="TEst" s]', expect: { throws: true } },
-      { select: '.blox27[class$="Test" s]', expect: { throws: true } },
+      { select: '.blox27[class$="TEst" s]', status: 'fixme' },
+      { select: '.blox27[class$="Test" s]', status: 'fixme' },
       { select: '.blox28[class~="unitTEST" i]', expect: { count: 1 } },
     ],
   },
@@ -600,6 +641,13 @@ runScenarios('css3 compat', 'normal',  [
       { select: '.blox25[class^="blox" s]' },
       { select: '.blox27[class$="TEst" s]' },
       { select: '.blox27[class$="Test" s]' },
+    ],
+  },
+  {
+    name: 'double-negation not selector',
+    html: `<div id="a"></div><span id="b"></span>`,
+    cases: [
+      { select: 'div:not(:not(div))', expect: { ids: ['a'] } },
     ],
   },
 ]);

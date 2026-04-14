@@ -17,7 +17,8 @@ export type EvalResult = {
   info: string;
   mismatchMsg?: string;
   equivMismatchMsg?: string;
-} & Record<Engine, EngineResult>;
+  engineResults: Partial<Record<Engine, EngineResult>>;
+};
 
 export type EngineResult = {
   count: number;
@@ -48,14 +49,11 @@ export function installBrowserHelpers(): void {
     return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 11;
   }
 
-  function isRehomed(ref?: ContextRef): boolean {
-    if (!ref || ref.by === 'document') return false;
-    if (isRehomed(ref.within)) return true;
-    return ref.by !== 'iframe'
-      && ref.by !== 'template'
-      && !!ref.home
-      && ref.home !== 'document';
-  }
+function isRehomed(ref?: ContextRef): boolean {
+  if (!ref) return false;
+  if ('within' in ref && isRehomed(ref.within)) return true;
+  return 'home' in ref && !!ref.home && ref.home !== 'document';
+}
 
   // Source - https://stackoverflow.com/a/65443215
   function stringify(obj: unknown): string {
@@ -126,7 +124,7 @@ export function installBrowserHelpers(): void {
   function resolveContext(ref?: ContextRef): QueryContext | null {
     if (!ref || ref.by === 'document') return document;
 
-    const base = ref.within ? resolveContext(ref.within) : document;
+    const base = 'within' in ref && ref.within ? resolveContext(ref.within) : document;
     if (!base) return null;
 
     if (ref.by === 'iframe') {
@@ -143,6 +141,7 @@ export function installBrowserHelpers(): void {
 
     const el = ref.by === 'id' ? queryId(base, ref.id)
       : ref.by === 'first' ? base.querySelector(ref.selector)
+      : ref.by === 'documentElement' ? document.documentElement
       : null;
 
     if (!el) return null;
