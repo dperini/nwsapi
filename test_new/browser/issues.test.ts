@@ -3,7 +3,6 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('issues', 'normal',  [
   {
     name: 'issue 160 adjacent-descendant regression',
-    status: 'fixme',
     html: `
       <div>
         <div class="neighbor"></div>
@@ -16,7 +15,7 @@ runScenarios('issues', 'normal',  [
     `,
     cases: [
       { select: '.neighbor + div .target', expect: { count: 1 } },
-      { select: '.neighbor + * .target', expect: { count: 1 } },
+      { select: '.neighbor + * .target', expect: { count: 1 }, status: 'fixme' },
     ],
   },
 ]);

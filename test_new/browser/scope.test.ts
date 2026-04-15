@@ -82,7 +82,6 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-04a',
-    status: 'fixme',
     htmlMode: 'document',
     html: `
       <!DOCTYPE html>
@@ -99,13 +98,12 @@ runScenarios('scope', 'normal', [
       </html>
     `,
     cases: [
-      { select: ':scope > [data-test="foo"]', ref: { by: 'first', selector: 'body' }, expect: { count: 1 } },
+      { select: ':scope > [data-test="foo"]', ref: { by: 'first', selector: 'body' }, expect: { count: 1 }, status: 'fixme' },
     ],
   },
 
   {
     name: 'scope-04b',
-    status: 'fixme',
     html: `
       <div>
         <div class="outer">
@@ -121,6 +119,7 @@ runScenarios('scope', 'normal', [
         expect: {
           classes: ['outer', 'other-outer']
         },
+        status: 'fixme',
       },
     ],
   },
