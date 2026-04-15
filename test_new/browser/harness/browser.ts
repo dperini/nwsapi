@@ -49,11 +49,11 @@ export function installBrowserHelpers(): void {
     return typeof x === 'object' && x !== null && 'nodeType' in x && x.nodeType === 11;
   }
 
-function isRehomed(ref?: ContextRef): boolean {
-  if (!ref) return false;
-  if ('within' in ref && isRehomed(ref.within)) return true;
-  return 'home' in ref && !!ref.home && ref.home !== 'document';
-}
+  function isRehomed(ref?: ContextRef): boolean {
+    if (!ref) return false;
+    if ('within' in ref && isRehomed(ref.within)) return true;
+    return 'home' in ref && !!ref.home && ref.home !== 'document';
+  }
 
   // Source - https://stackoverflow.com/a/65443215
   function stringify(obj: unknown): string {

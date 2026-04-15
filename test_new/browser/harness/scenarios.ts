@@ -34,6 +34,7 @@ export type Scenario = {
   html: string;
   htmlMode?: 'body' | 'document';
   browsers?: BrowserName[];
+  engines?: Engine[];
   steps?: ScenarioStep[];
 
   // ergonomic sugar for simple scenarios that don't require multiple steps
@@ -208,6 +209,7 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
     return;
   }
   if (c.browsers && !c.browsers.includes(caseInfo.browser)) return;
+  c.engines = c.engines ?? s.engines;
 
   const result = await evalCase(page, c);
   const expectation = c.expect ?? {};
@@ -370,79 +372,106 @@ function runEngineChecks(
       })
       .map(([engine]) => engine);
 
-    const label = ` · engines=${enginesWithSameOutcome.join('+')}${baseMsg}`;
-    check(r, label);
+    const engineLabel = ` · Engines=${enginesWithSameOutcome.join('+')}${baseMsg}`;
+    check(r, engineLabel);
   }
 }
 
 function checkResult(result: EvalResult, expectation: Expectation, caseInfo: CaseInfo): void {
   const { stepIndex, caseIndex, browser, scenario: s } = caseInfo;
-  const header = `${s.name}\nStep #${stepIndex + 1}, Case #${caseIndex + 1} · browser=${browser}`;
+  const header = `${s.name}\nStep #${stepIndex + 1}, Case #${caseIndex + 1} · Browser=${browser}`;
   const msg =
     `\nQuery: ${result.info}` +
-    `${result.mismatchMsg ? `\n${result.mismatchMsg}` : ''}`;
+    `\nContext: ${formatContextRef(caseInfo.case.ref)}` +
+    `${result.mismatchMsg ? `\n\n${result.mismatchMsg}` : ''}`;
 
-  runEngineChecks(result, msg, 'threw', (r, label) => {
-    expect(r.threw, `${header}${label}`).toBe(expectation.throws ?? false);
+  runEngineChecks(result, msg, 'threw', (r, nglabel) => {
+    const errLabel = `Expected ${expectation.throws ? 'a throw' : 'no throw'}, got ${r.threw ? 'a throw' : 'no throw'}.`;
+    expect(r.threw, `${errLabel}\n\n${header}${nglabel}`).toBe(expectation.throws ?? false);
   });
   if (expectation.throws) return;
 
   if (expectation.count !== undefined) {
-    runEngineChecks(result, msg, 'count', (r, label) => {
-      expect(r.count, `${header}${label}`).toEqual(expectation.count);
+    runEngineChecks(result, msg, 'count', (r, ngLabel) => {
+      const errLabel = `Expected count ${expectation.count}, got ${r.count}.`;
+      expect(r.count, `${errLabel}\n\n${header}${ngLabel}`).toEqual(expectation.count);
     });
   }
 
   if (expectation.ids) {
-    runEngineChecks(result, msg, 'ids', (r, label) => {
-      expect(r.ids, `${header}${label}`).toEqual(expectation.ids);
+    runEngineChecks(result, msg, 'ids', (r, ngLabel) => {
+      const errLabel = `Expected ids ${JSON.stringify(expectation.ids)}, got ${JSON.stringify(r.ids)}.`;
+      expect(r.ids, `${errLabel}\n\n${header}${ngLabel}`).toEqual(expectation.ids);
     });
   }
 
   if (expectation.includesIds) {
     for (const id of expectation.includesIds) {
-      runEngineChecks(result, msg, 'ids', (r, label) => {
-        expect(r.ids, `${header}${label}`).toContain(id);
+      runEngineChecks(result, msg, 'ids', (r, ngLabel) => {
+        const errLabel = `Expected ids to include ${JSON.stringify(id)}, got ${JSON.stringify(r.ids)}.`;
+        expect(r.ids, `${errLabel}\n\n${header}${ngLabel}`).toContain(id);
       });
     }
   }
 
   if (expectation.excludesIds) {
     for (const id of expectation.excludesIds) {
-      runEngineChecks(result, msg, 'ids', (r, label) => {
-        expect(r.ids, `${header}${label}`).not.toContain(id);
+      runEngineChecks(result, msg, 'ids', (r, ngLabel) => {
+        const errLabel = `Expected ids not to include ${JSON.stringify(id)}, got ${JSON.stringify(r.ids)}.`;
+        expect(r.ids, `${errLabel}\n\n${header}${ngLabel}`).not.toContain(id);
       });
     }
   }
 
   if (expectation.classes) {
-    runEngineChecks(result, msg, 'classes', (r, label) => {
-      expect(r.classes, `${header}${label}`).toEqual(expectation.classes);
+    runEngineChecks(result, msg, 'classes', (r, ngLabel) => {
+      const errLabel = `Expected classes ${JSON.stringify(expectation.classes)}, got ${JSON.stringify(r.classes)}.`;
+      expect(r.classes, `${errLabel}\n\n${header}${ngLabel}`).toEqual(expectation.classes);
     });
   }
 
   if (expectation.includesClasses) {
     for (const cls of expectation.includesClasses) {
-      runEngineChecks(result, msg, 'classes', (r, label) => {
+      runEngineChecks(result, msg, 'classes', (r, ngLabel) => {
+        const errLabel = `Expected classes to include ${JSON.stringify(cls)}, got ${JSON.stringify(r.classes)}.`;
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
-        expect(classTokens, `${header}${label}`).toContain(cls);
+        expect(classTokens, `${errLabel}\n\n${header}${ngLabel}`).toContain(cls);
       });
     }
   }
 
   if (expectation.excludesClasses) {
     for (const cls of expectation.excludesClasses) {
-      runEngineChecks(result, msg, 'classes', (r, label) => {
+      runEngineChecks(result, msg, 'classes', (r, ngLabel) => {
+        const errLabel = `Expected classes not to include ${JSON.stringify(cls)}, got ${JSON.stringify(r.classes)}.`;
         const classTokens = r.classes.flatMap(s => s.trim() ? s.trim().split(/\s+/) : []);
-        expect(classTokens, `${header}${label}`).not.toContain(cls);
+        expect(classTokens, `${errLabel}\n\n${header}${ngLabel}`).not.toContain(cls);
       });
     }
   }
 
-  expect(!!result.mismatchMsg, `${header}${msg}`).toBe(false);
+  expect(!!result.mismatchMsg, `Expected engine agreement, but they differed.\n\n${header}${msg}`).toBe(false);
 
   if (expectation.equivalentCase) {
+    const errLabel = `Expected this case to match its equivalent case, but it did not.`;
     const equivMismatch = !!result.equivMismatchMsg;
-    expect(equivMismatch, `${header}${msg}\n${result.equivMismatchMsg}`).toBe(false);
+    expect(equivMismatch, `${errLabel}\n\n${header}${msg}\n${result.equivMismatchMsg}`).toBe(false);
   }
+}
+
+function formatContextRef(ref?: ContextRef): string {
+  if (!ref) return 'document';
+  let base: string;
+  switch (ref.by) {
+    case 'document': base = 'document'; break;
+    case 'id': base = `id(${ref.id})`; break;
+    case 'first': base = `first(${ref.selector})`; break;
+    case 'documentElement': base = 'documentElement'; break;
+    case 'iframe': base = `iframe(${ref.id})`; break;
+    case 'template': base = `template(${ref.id})`; break;
+    default: assertNever(ref);
+  }
+  if ('home' in ref && ref.home) base += `:${ref.home}`;
+  if ('within' in ref && ref.within) base = `${formatContextRef(ref.within)} > ${base}`;
+  return base;
 }
