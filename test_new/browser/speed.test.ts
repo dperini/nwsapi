@@ -6,8 +6,8 @@ const html = readFileSync('test_new/browser/speed_selectors.html', 'utf8');
 runScenarios('speed', 'normal', [
   {
     name: 'default',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: '#title' },
       { select: 'h1#title' },
@@ -58,8 +58,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'descendants_only',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'ul li a span' },
       { select: 'ul li span' },
@@ -81,8 +81,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'descendant_and_siblings',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div ul li a span' },
       { select: 'div ul li a' },
@@ -120,8 +120,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'tree-structural_child-indexed',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div:last-child' },
       { select: 'div:only-child' },
@@ -146,8 +146,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'tree-structural_typed_child-indexed',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div:last-of-type' },
       { select: 'div:only-of-type' },
@@ -172,8 +172,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'comma-separated_group_or_selector_list',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div, ul, li, a' },
       { select: 'div, ul, li' },
@@ -196,8 +196,8 @@ runScenarios('speed', 'normal', [
 
   {
     name: 'negation_tree-structural_child-indexed',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div:not(:last-child)' },
       { select: 'div:not(:only-child)' },
@@ -222,8 +222,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'negation_tree-structural_typed_child-indexed',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'div:not(:last-of-type)' },
       { select: 'div:not(:only-of-type)' },
@@ -248,8 +248,8 @@ runScenarios('speed', 'normal', [
   },
   {
     name: 'matches_and_negation_dynamic_and_user_actions',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: ':lang(fr)' },
       { select: ':visited' },
@@ -273,8 +273,8 @@ runScenarios('speed', 'normal', [
     // active/focus does not seem to be stable. also, not supported in any of the browsers.
     name: 'matches_and_negation_dynamic_and_user_actions - active/focus',
     status: 'fixme',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: ':active' },
       { select: ':focus' },

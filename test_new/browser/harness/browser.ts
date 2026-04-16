@@ -1,7 +1,7 @@
 import { type Engine, type EquivalentCase, type ContextRef, type ContextHome, NwsapiId } from "./scenarios";
 
 export interface PwHelpers {
-  resolveContext(ref: ContextRef | undefined): QueryContext | null;
+  resolveContext(doc:Document, ref?: ContextRef): QueryContext | null;
   runQuery(query: () => Element[]): QueryResult;
   compareQueryResults(a: NamedQueryResult, b: NamedQueryResult): string | undefined;
   toEngineResult(res: QueryResult): EngineResult;
@@ -121,10 +121,10 @@ export function installBrowserHelpers(): void {
     return base.querySelector(`#${CSS.escape(id)}`);
   }
 
-  function resolveContext(ref?: ContextRef): QueryContext | null {
-    if (!ref || ref.by === 'document') return document;
+  function resolveContext(doc: Document, ref?: ContextRef): QueryContext | null {
+    if (!ref || ref.by === 'document') return doc;
 
-    const base = 'within' in ref && ref.within ? resolveContext(ref.within) : document;
+    const base = 'within' in ref && ref.within ? resolveContext(doc, ref.within) : doc;
     if (!base) return null;
 
     if (ref.by === 'iframe') {
@@ -141,7 +141,7 @@ export function installBrowserHelpers(): void {
 
     const el = ref.by === 'id' ? queryId(base, ref.id)
       : ref.by === 'first' ? base.querySelector(ref.selector)
-      : ref.by === 'documentElement' ? document.documentElement
+      : ref.by === 'documentElement' ? doc.documentElement
       : null;
 
     if (!el) return null;
@@ -154,7 +154,7 @@ export function installBrowserHelpers(): void {
     if (home === 'detached') return clone;
 
     if (home === 'fragment') {
-      const frag = document.createDocumentFragment();
+      const frag = doc.createDocumentFragment();
       frag.appendChild(clone);
 
       // Return the clone rehomed so matches/closest stay sane.

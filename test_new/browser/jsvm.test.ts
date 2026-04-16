@@ -3,7 +3,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('jsvm', 'normal',  [
   {
     name: 'load test selectors',
-    html: `
+    markup: `
       <div id="test1">
         <div class="notempty">
         </div>

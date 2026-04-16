@@ -107,8 +107,8 @@ const setupNw = async (page: Page) => {
 runScenarios('scotch', 'normal', [
   {
     name: 'Basic Selectors',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       // * — Universal selector
@@ -154,8 +154,8 @@ runScenarios('scotch', 'normal', [
   },
   {
     name: 'Attribute Selectors',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       // [foo]
@@ -229,8 +229,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Attribute Selectors — invalid unquoted values',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     status: 'fixme',
     cases: [
@@ -244,7 +244,7 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Structural pseudo-classes',
-    html,
+    markup: html,
     setupPage: setupNw,
     cases: [
       // E:first-child
@@ -300,8 +300,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Structural pseudo-classes — E:empty',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: async (page) => {
       await setupNw(page);
       await page.evaluate(() => {
@@ -319,8 +319,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'E:not(s)',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       { select: 'a:not([href="#"])', expect: { count: 0 } },
@@ -343,8 +343,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'UI element states pseudo-classes',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       // E:disabled
@@ -357,8 +357,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Combinators',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       // E F — Descendant
@@ -410,8 +410,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'NW.Dom.match',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       { select: 'span', expect: { includesIds: ['dupL1'] } },
@@ -438,8 +438,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Equivalent Selectors',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       { select: 'div.brothers', expect: { equivalentCase: { select: 'div[class~=brothers]' } } },
@@ -459,8 +459,8 @@ runScenarios('scotch', 'normal', [
 
   {
     name: 'Multiple Selectors',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: setupNw,
     cases: [
       { select: '#list, .first,*[xml:lang="es-us"] , #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },

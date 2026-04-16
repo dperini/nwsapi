@@ -31,8 +31,8 @@ export type TestCase = SelectCase | ByIdCase | ByTagCase | ByClassCase | MatchCa
 export type Scenario = {
   name: string;
   status?: ScenarioStatus;
-  html: string;
-  htmlMode?: 'body' | 'document';
+  markup: string;
+  markupMode?: 'html-body' | 'html-document' | 'xml-document';
   browsers?: BrowserName[];
   engines?: Engine[];
   steps?: ScenarioStep[];
@@ -164,12 +164,14 @@ async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promi
 
   for (const browserName of scenarioBrowsers) {
     const page = pages[browserName];
+    const wrappedPage = s.markupMode === 'xml-document' ? wrapPageForXml(page) : page;
+
     await initPage(page, s);
 
     let stepCaseIndex = 0;
     for (let stepIndex = 0; stepIndex < steps.length; ++stepIndex) {
       const step = steps[stepIndex];
-      if (step.setupPage) await step.setupPage(page);
+      if (step.setupPage) await step.setupPage(wrappedPage);
       for (let caseIndex = 0; caseIndex < step.cases.length; ++caseIndex) {
         const c = step.cases[caseIndex];
         if (hasOnlyCases && c.status !== 'only') continue;
@@ -211,7 +213,7 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
   if (c.browsers && !c.browsers.includes(caseInfo.browser)) return;
   c.engines = c.engines ?? s.engines;
 
-  const result = await evalCase(page, c);
+  const result = await evalCase(page, caseInfo);
   const expectation = c.expect ?? {};
 
   let thrown: unknown = undefined;
@@ -252,17 +254,19 @@ async function runCase(page: Page, caseInfo: CaseInfo): Promise<void> {
   assertNever(status);
 }
 
-async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
-  return await page.evaluate((c) => {
+async function evalCase(page: Page, caseInfo: CaseInfo): Promise<EvalResult> {
+  const { scenario: s, case: c } = caseInfo;
+  return await page.evaluate(({c, isXml} ) => {
     const pw = window.__pwHelpers;
+    const doc = isXml ? window.__pwXml : window.document;
 
     const query = pw.getCaseQuery(c);
-    const ctx = pw.resolveContext(c.ref);
+    const ctx = pw.resolveContext(doc, c.ref);
     const ctxErrorMsg = ctx ? undefined : `Could not resolve context from ref: ${pw.stringify(c.ref)}`;
 
     const equivCase = c.expect?.equivalentCase;
     const equivQuery = equivCase ? pw.getCaseQuery(equivCase) : undefined;
-    const equivCtx = equivCase ? pw.resolveContext(equivCase?.ref) : null;
+    const equivCtx = equivCase ? pw.resolveContext(doc, equivCase?.ref) : null;
     const equivCtxErrorMsg = equivCase && !equivCtx
       ? `Could not resolve equivalent context from ref: ${pw.stringify(equivCase.ref)}`
       : undefined;
@@ -309,7 +313,7 @@ async function evalCase(page: Page, testCase: TestCase): Promise<EvalResult> {
         engines.map((engine) => [engine, engineResults[engine]!.engineResult])
       ),
     };
-  }, testCase);
+  }, {c: caseInfo.case, isXml: s.markupMode === 'xml-document' });
 }
 
 function getDescribeFn(mode?: ScenariosStatus) {
@@ -331,21 +335,33 @@ function getTestFn(mode?: ScenarioStatus) {
 }
 
 async function initPage(page: Page, scenario: Scenario): Promise<void> {
-  if (scenario.htmlMode === 'document') {
-    await page.setContent(scenario.html);
-    const script = await page.addScriptTag({ path: 'src/nwsapi.js' });
-    await script.evaluate((el) => {
-      const id: NwsapiId = 'nwsapi-bootstrap';
-      (el as HTMLScriptElement).id = id;
-    });
-    if (scenario.setupPage) await scenario.setupPage(page);
-    return;
+  if (scenario.markupMode === 'xml-document') {
+    await page.setContent(`<!DOCTYPE html><html><body>dummy content</body></html>`);
+    await installNwsapi(page);
+    await page.evaluate((xmlString) => {
+      window.__pwXml = new DOMParser().parseFromString(xmlString, 'text/xml');
+    }, scenario.markup);
+  } else if (scenario.markupMode === 'html-document') {
+    await page.setContent(scenario.markup);
+    await installNwsapi(page);
+  } else if (scenario.markupMode === 'html-body' || !scenario.markupMode) {
+    await page.evaluate((bodyHtml) => {
+      document.body.innerHTML = bodyHtml;
+    }, scenario.markup);
+  } else {
+    assertNever(scenario.markupMode);
   }
 
-  await page.evaluate((bodyHtml) => {
-    document.body.innerHTML = bodyHtml;
-  }, scenario.html);
-  if (scenario.setupPage) await scenario.setupPage(page);
+  if (scenario.setupPage) {
+    await scenario.setupPage(page);
+  }
+}
+
+async function installNwsapi(page: Page): Promise<void> {
+  const script = await page.addScriptTag({ path: 'src/nwsapi.js' });
+  await script.evaluate((el) => {
+    (el as HTMLScriptElement).id = 'nwsapi-bootstrap' satisfies NwsapiId;
+  });
 }
 
 function runEngineChecks(
@@ -474,4 +490,35 @@ function formatContextRef(ref?: ContextRef): string {
   if ('home' in ref && ref.home) base += `:${ref.home}`;
   if ('within' in ref && ref.within) base = `${formatContextRef(ref.within)} > ${base}`;
   return base;
+}
+
+function wrapPageForXml(page: Page): Page {
+  return new Proxy(page, {
+    get(target, prop, receiver) {
+      if (prop !== 'evaluate') return Reflect.get(target, prop, receiver);
+
+      return async (fn: unknown, arg?: unknown) => {
+        if (typeof fn !== 'function') {
+          throw new Error('xml proxy currently supports only function evaluate callbacks');
+        }
+
+        const fnSource = fn.toString();
+
+        return target.evaluate(({ fnSource, arg }) => {
+          window.__pwArg = arg;
+          try {
+            return eval(`
+              (() => {
+                const document = window.__pwXml;
+                const fn = (${fnSource});
+                return fn(window.__pwArg);
+              })()
+            `);
+          } finally {
+            delete window.__pwArg;
+          }
+        }, { fnSource, arg });
+      };
+    },
+  }) as Page;
 }

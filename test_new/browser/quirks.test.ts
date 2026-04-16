@@ -3,8 +3,8 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('quirks', 'normal', [
   {
     name: 'class token matching in standard mode',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -32,8 +32,8 @@ runScenarios('quirks', 'normal', [
   },
   {
     name: 'class token matching in quirks mode',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <html>
         <head>
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />

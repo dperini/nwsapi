@@ -8,6 +8,8 @@ declare global {
 
   interface Window {
     __pwHelpers: PwHelpers;
+    __pwXml: XMLDocument;
+    __pwArg: unknown;
   }
 
   const NW: {

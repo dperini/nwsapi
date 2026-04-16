@@ -4,7 +4,7 @@ import { expect } from "@playwright/test";
 runScenarios('prototype 1', 'normal', [
   {
     name: 'selector engine basics',
-    html: `
+    markup: `
       <div id="test_div_parent" class="test_class">
         <div id="test_div_child" class="test_class">
         </div>
@@ -142,8 +142,8 @@ const nwsapiProtoTestHtml = `
 runScenarios('prototype 2', 'normal', [
   {
     name: 'standard prototype selectors',
-    html: nwsapiProtoTestHtml,
-    htmlMode: 'document',
+    markup: nwsapiProtoTestHtml,
+    markupMode: 'html-document',
     cases: [
       // testSelectorWithTagName
       { select: 'li' },
@@ -427,8 +427,8 @@ runScenarios('prototype 2', 'normal', [
 
   {
     name: 'empty pseudo after mutation',
-    htmlMode: 'document',
-    html: nwsapiProtoTestHtml,
+    markupMode: 'html-document',
+    markup: nwsapiProtoTestHtml,
     setupPage: async (page) => {
       await page.evaluate(() => {
         const el = document.getElementById('level3_1');
@@ -444,7 +444,7 @@ runScenarios('prototype 2', 'normal', [
 
   {
     name: 'selectors on detached nodes',
-    html: '',
+    markup: '',
     cases: [],
     setupPage: async (page) => {
       const result = await page.evaluate(() => {
@@ -466,7 +466,7 @@ runScenarios('prototype 2', 'normal', [
 
   {
     name: 'descendant selector on dynamic subtree',
-    html: '',
+    markup: '',
     cases: [],
     setupPage: async (page) => {
       const result = await page.evaluate(() => {

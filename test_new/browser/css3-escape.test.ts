@@ -16,7 +16,7 @@ const setupNw = async (page: Page) => {
 runScenarios('css3 escaped identifiers', 'normal',  [
   {
     name: 'non-escaped identifier',
-    html: `<div><span id="nonescaped" class="nonescaped"></span></div>`,
+    markup: `<div><span id="nonescaped" class="nonescaped"></span></div>`,
     setupPage: setupNw,
     cases: [
       // 4.3.7 from https://www.w3.org/TR/css-syntax-3/#consume-an-escaped-code-point
@@ -26,7 +26,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'escape hex digit identifier',
-    html: `
+    markup: `
       <div>
         <span id="0nextIsWhiteSpace" class="0nextIsWhiteSpace"></span>
         <span id="0nextIsNotHexLetters" class="0nextIsNotHexLetters"></span>
@@ -54,7 +54,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   // }
   {
     name: 'zero points',
-    html: '', // set up page in setupPage callback to avoid issues with unrepresentable characters in HTML source
+    markup: '', // set up page in setupPage callback to avoid issues with unrepresentable characters in HTML source
     // html: `
     //   <div>
     //     <span id="one\u{fffd}" class="one\u{fffd}"></span>
@@ -101,7 +101,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'surrogate points',
-    html: `
+    markup: `
       <div>
         <span id="\u{fffd}surrogateFirstA" class="\u{fffd}surrogateFirstA"></span>
         <span id="\ud83dsurrogateFirstB" class="\ud83dsurrogateFirstB"></span>
@@ -133,7 +133,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'out of range points',
-    html: `
+    markup: `
       <div>
         <span id="outOfRangeA\u{fffd}" class="outOfRangeA\u{fffd}"></span>
         <span id="outOfRangeB\u{30}" class="outOfRangeB\u{30}"></span>
@@ -159,7 +159,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'escape eof',
-    html: `
+    markup: `
       <div>
         <span id="eofA\u{fffd}" class="eofA\u{fffd}"></span>
         <span id="eofB\\" class="eofB\\"></span>
@@ -176,7 +176,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'escape anything else',
-    html: `
+    markup: `
       <div>
         <span id=".comma" class=".comma"></span>
         <span id="-minus" class="-minus"></span>
@@ -196,7 +196,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'non edge cases',
-    html: `
+    markup: `
       <div>
         <span id="aBMPRegular" class="aBMPRegular"></span>
         <span id="\u{1f511}nonBMP" class="\u{1f511}nonBMP"></span>
@@ -239,7 +239,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
 
   {
     name: 'chromium ident cases 1',
-    html: `
+    markup: `
       <div>
         <span id="helloA" class="helloA"></span>
         <span id="helloB" class="helloB"></span>
@@ -325,7 +325,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'chromium ident cases 2',
-    html: `
+    markup: `
       <div>
         <span id="simple-ident" class="simple-ident"></span>
         <span id="testing123" class="testing123"></span>
@@ -394,7 +394,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   },
   {
     name: 'spaces in ident id selector',
-    html: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
+    markup: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
     setupPage: setupNw,
     cases: [
       { select: '#spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },
@@ -403,7 +403,7 @@ runScenarios('css3 escaped identifiers', 'normal',  [
   {
     name: 'spaces in ident class selector mismatch',
     status: 'fail',
-    html: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
+    markup: `<div><span id="spaces in\tident" class="spaces in\tident"></span></div>`,
     setupPage: setupNw,
     cases: [
       { select: '.spaces\\ in\\\tident', expect: { count: 1, ids: ['spaces in\tident'] } },

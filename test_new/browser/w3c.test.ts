@@ -4,7 +4,7 @@ import { runScenarios } from './harness/scenarios';
 runScenarios('w3c iframes', 'normal', [
   {
     name: 'css/selectors/syntax',
-    html: `
+    markup: `
       <!doctype html>
       <title>Selectors: syntax of case-sensitivity attribute selector</title>
       <link rel="help" href="https://drafts.csswg.org/selectors/#attribute-case">
@@ -205,7 +205,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'css/selectors/syntax',
     status: 'fixme',
-    html: `
+    markup: `
       <!doctype html>
       <title>Selectors: syntax of case-sensitivity attribute selector</title>
       <link rel="help" href="https://drafts.csswg.org/selectors/#attribute-case">
@@ -285,7 +285,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'css/selectors/semantics',
     status: 'fixme',
-    html: `<div id="test"></div>`,
+    markup: `<div id="test"></div>`,
     cases: [],
     setupPage: async (page) => {
       page.on('console', (msg) => { console.log(`[browser:${msg.type()}] ${msg.text()}`); });
@@ -413,7 +413,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'dom/nodes/child-indexed-pseudo-class',
-    html: `<div></div>`,
+    markup: `<div></div>`,
     cases: [
       { select: 'div:first-child' },
       { select: 'div:last-child' },
@@ -439,8 +439,8 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'dome/nodes/missing-right-token',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -464,8 +464,8 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'dom/nodes/element-closest',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE HTML>
       <html>
       <meta charset=utf8>
@@ -536,8 +536,8 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'dom/nodes/selectors',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE html>
       <html id="html" lang="en">
       <head id="head">
@@ -1373,7 +1373,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/scripting-1/template-end-tag-without-start-one-in-body',
-    html: `
+    markup: `
       </template>
       <div>The file contains several &lt;/template&gt; tag in HTML body without start one</div>
       </template></template>
@@ -1386,7 +1386,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/scripting-1/html-start-tag-in-body',
-    html: `
+    markup: `
       <template id="tmpl"><html class="htmlClass"></html></template><html id="htmlId" tabindex="5">
     `,
     cases: [
@@ -1399,7 +1399,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/scripting-1/template-contents-body',
-    html: `
+    markup: `
       <template><body></body></template>
     `,
     // BODY tokens inside template contents are ignored
@@ -1411,7 +1411,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/scripting-1/template-contents-div-no-end-tag',
-    html: `
+    markup: `
       <template>
         <div>Hello, template
       </template>
@@ -1440,7 +1440,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/scripting-1/template-contents-frameset',
     // FRAMESET inside template is ignored; template stays empty.
-    html: `
+    markup: `
       <template><frameset></frameset></template>
     `,
     cases: [
@@ -1452,7 +1452,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/scripting-1/template-contents-head',
     // HEAD inside template is ignored; template stays empty.
-    html: `
+    markup: `
       <template><head></head></template>
     `,
     cases: [
@@ -1464,7 +1464,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/scripting-1/template-contents-html',
     // HTML inside template is ignored; template stays empty.
-    html: `
+    markup: `
       <template><html></html></template>
     `,
     cases: [
@@ -1475,7 +1475,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/scripting-1/template-contents-table-no-end-tag',
-    html: `
+    markup: `
       <template>
         <table>
           <tr>
@@ -1511,7 +1511,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/checked-001-manual',
-    html: `
+    markup: `
       <p><input checked type="checkbox"> <span>X</span></p>
       <p><input checked type="radio" name="x"> <span>X</span> <input checked type="radio" name="x"> <span>X</span></p>
       <p><select><option selected>X</option></select></p>
@@ -1526,7 +1526,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/checked-type-change',
-    html: `
+    markup: `
       <input id="checked" type="text" checked>
       <span id="sibling">This text should be green.</span>
     `,
@@ -1551,7 +1551,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/checked',
-    html: `
+    markup: `
       <select id="select1">
         <optgroup label="options" id="optgroup1">
           <option value="option1" id="option1" selected>option1
@@ -1621,7 +1621,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/default',
-    html: `
+    markup: `
       <form>
         <button id="button1" type="button">button1</button>
         <button id="button2" type="submit">button2</button>
@@ -1695,7 +1695,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/dir',
-    html: `
+    markup: `
       <!DOCTYPE html>
       <html id=html>
         <head id=head>
@@ -1734,7 +1734,7 @@ runScenarios('w3c', 'normal', [
         </body>
       </html>
     `,
-    htmlMode: 'document',
+    markupMode: 'html-document',
     setupPage: async (page) => {
       const result = await page.evaluate(() => {
         const native_ltr = [...document.querySelectorAll(':dir(ltr)')].map(el => el.id);
@@ -1768,7 +1768,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/dir01',
-    html: `
+    markup: `
       <div>This text is left to right<div id="div1" style="direction:rtl">this is right to left</div></div>
       <div>This text is left to right<span id="div2" style="direction:rtl">this is left to right</span></div>
     `,
@@ -1779,7 +1779,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/disabled',
-    html: `
+    markup: `
       <style>
         #input4 {display:none;}
       </style>
@@ -1902,7 +1902,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/enabled',
-    html: `
+    markup: `
       <a id=link3></a>
       <area id=link4></area>
       <link id=link5></link>
@@ -1941,7 +1941,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/autofocus',
-    html: `
+    markup: `
       <input id="input1" autofocus>
     `,
     setupPage: async (page) => {
@@ -1954,7 +1954,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/focus-none',
-    html: `
+    markup: `
       <input id="input1">
     `,
     cases: [
@@ -1965,7 +1965,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/selectors/pseudo-classes/focus',
     // browsers: ['chromium', 'webkit'], // Firefox doesn't support :focus inside iframe ??
-    html: `
+    markup: `
     <!DOCTYPE html>
     <title>Selector: pseudo-classes (:focus)</title>
     <link rel="author" title="Denis Ah-Kang" href="mailto:denis@w3.org" id=link1>
@@ -1982,7 +1982,7 @@ runScenarios('w3c', 'normal', [
         <iframe id=iframe srcdoc='<input id="inputiframe" type="text" value="foobar">'></iframe>
       </body>
     `,
-    htmlMode: 'document',
+    markupMode: 'html-document',
     setupPage: async (page) => {
       const result = await page.evaluate(async () => {
         const iframe = document.getElementById('iframe') as HTMLIFrameElement;
@@ -2044,7 +2044,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/indeterminate-radio',
-    html: `
+    markup: `
       <input id="radio1" type="radio" name="radios">
       <div id="test"></div>
       <input type="radio" name="radios" checked>
@@ -2061,7 +2061,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/indeterminate-type-change',
-    html: `
+    markup: `
       <input id="indeterminate" type="text">
       <span id="sibling">This text should be green.</span>
     `,
@@ -2088,7 +2088,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/indeterminate',
-    html: `
+    markup: `
       <input type=checkbox id=checkbox1>
       <input type=checkbox id=checkbox2>
       <input type=radio id=radio1 checked>
@@ -2161,7 +2161,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/inrange-outofrange-type-change',
-    html: `
+    markup: `
       <input id="t1" type="text" min="0" max="10" value="5">
       <span id="sibling1">This text should be green.</span>
       <input id="t2" type="text" min="0" max="10" value="50">
@@ -2201,7 +2201,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/selectors/pseudo-classes/inrange-outofrange',
     browsers: ['chromium'], // Firefox and WebKit are flaky here.
-    html: `
+    markup: `
       <!DOCTYPE html>
       <meta charset=utf-8>
       <title>Selector: pseudo-classes (:in-range, :out-of-range)</title>
@@ -2300,7 +2300,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/selectors/pseudo-classes/link',
     status: 'fixme', // the original test is sus. link3 doesn't even exist in the DOM...
-    html: `
+    markup: `
       <!DOCTYPE html>
       <meta charset=utf-8>
       <title>Selector: pseudo-classes (:link)</title>
@@ -2315,7 +2315,7 @@ runScenarios('w3c', 'normal', [
       <link href="http://www.w3.org" id=link9></link>
       <a href="http://[" id=link10></a>
     `,
-    htmlMode: 'document',
+    markupMode: 'html-document',
     steps: [
       {
         cases: [
@@ -2333,7 +2333,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/placeholder-shown-type-change',
-    html: `
+    markup: `
       <input id="input" type="submit" placeholder="placeholder">
       <span id="sibling">This text should be green.</span>
     `,
@@ -2355,7 +2355,7 @@ runScenarios('w3c', 'normal', [
   {
     // source filename is misleading, this test is about both :read-only and :read-write
     name: 'html/semantics/selectors/pseudo-classes/readwrite-readonly-type-change',
-    html: `
+    markup: `
       <input id="hiddenInput" type="hidden" required>
       <span id="sibling">This text should be green on lime background.</span>
     `,
@@ -2379,7 +2379,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/semantics/selectors/pseudo-classes/readwrite-readonly',
     // browsers: ['webkit'], 
-    html: `
+    markup: `
       <div id=set0>
       <!-- The readonly attribute does not apply to the following input types -->
       <input id=checkbox1 type=checkbox>
@@ -2417,7 +2417,7 @@ runScenarios('w3c', 'normal', [
       <p id=p2 contenteditable>paragraph2.</p>
       </div>
     `,
-    htmlMode: 'document',
+    markupMode: 'html-document',
     steps: [
       {
         cases: [
@@ -2475,7 +2475,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/required-optional-hidden',
-    html: `
+    markup: `
       <input id="hiddenInput" type="hidden" required>
       <span id="sibling">This text should be green on lime background.</span>
     `,
@@ -2498,7 +2498,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/required-optional',
-    html: `
+    markup: `
       <input type=text id=text1 value="foobar" required>
       <input type=text id=text2 required>
       <input type=text id=text3>
@@ -2539,7 +2539,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/semantics/selectors/pseudo-classes/valid-invalid',
-    html: `
+    markup: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -2608,7 +2608,7 @@ runScenarios('w3c', 'normal', [
         <div id='failExample'></div>
       </div>
     `,
-    htmlMode: 'document',
+    markupMode: 'html-document',
     steps: [
       {
         cases: [
@@ -2698,7 +2698,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/template-is-a-foster-parent-element',
-    html: `
+    markup: `
       <div id="tmplParent">
         <template id="tmpl1">
           <table id="tbl">
@@ -2722,7 +2722,7 @@ runScenarios('w3c', 'normal', [
   {
     name: 'html/syntax/parsing/template/template-is-a-foster-parent-element-without-table',
     // status: 'only',
-    html: `
+    markup: `
       <div id="tmplParent">
         <template id="tmpl1">
           <tr><td>Cell 1</td></tr>
@@ -2745,7 +2745,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/template-is-not-a-foster-parent-element',
-    html: `
+    markup: `
       <div id="tmplParent">
         <template id="tmpl1">
           <div id="fosterParent">
@@ -2770,7 +2770,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/template-is-not-a-foster-parent-element-lower-in-stack',
-    html: `
+    markup: `
       <div id="fosterParent">
         <table id="tbl">
           <tr><td><template id="tmpl1">Template content</template></td></tr>
@@ -2792,7 +2792,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/generating-of-implied-end-tags',
-    html: `<div id="host"></div>`,
+    markup: `<div id="host"></div>`,
     steps: [
       {
         setupPage: async (page) => {
@@ -2851,7 +2851,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/ignore-body-token',
-    html: `
+    markup: `
       <template id="tpl"></template>
     `,
     steps: [
@@ -2920,7 +2920,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/ignore-frameset-token',
-    html: `
+    markup: `
       <template id="tpl-frameset-only">
         <frameset cols="25%,*,25%">
           <frame src="frame_a.htm">
@@ -3002,7 +3002,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/ignore-head-token',
-    html: `
+    markup: `
       <template id="tpl-head-empty">
         <head></head>
       </template>
@@ -3075,7 +3075,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/ignore-html-token',
-    html: `
+    markup: `
       <template id="tpl-html-empty">
         <html><body></body></html>
       </template>
@@ -3178,7 +3178,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/start-tag-body',
-    html: `
+    markup: `
       <template id="tmpl-body-only">
         <body></body>
       </template>
@@ -3245,7 +3245,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'html/syntax/parsing/template/template-end-tag-without-start-one',
-    html: '',
+    markup: '',
     steps: [
       // lone stray </template> is ignored
       {
@@ -3307,7 +3307,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'jsdom/dom/nodes/documentfragment-getelementbyid',
-    html: `
+    markup: `
       <div id="frag-root"></div>
 
       <div id="frag-dupes">
@@ -3361,7 +3361,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'jsdom/dom/nodes/queryselector',
-    html: `<div id="host"></div>`,
+    markup: `<div id="host"></div>`,
     steps: [
       {
         setupPage: async (page) => { await page.evaluate(() => {
@@ -3386,7 +3386,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'jsdom/dom/nodes/svg-template-query-selector',
-    html: `
+    markup: `
       <template id="template1"><div></div></template>
       <template id="template2"><svg class="svg-hit"></svg></template>
       <template id="template3"><div id="wrap"><svg class="nested-svg-hit"></svg></div></template>
@@ -3401,7 +3401,7 @@ runScenarios('w3c', 'normal', [
 
   {
     name: 'jsdom/svg/element-svg',
-    html: `
+    markup: `
       <svg id="first">
         <g id="group"></g>
       </svg>

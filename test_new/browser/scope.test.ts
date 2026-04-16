@@ -3,7 +3,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('scope', 'normal', [
   {
     name: 'scope-01a',
-    html: `
+    markup: `
       <ul>
         <li id="scope"><a>abc</a></li>
         <li>def</li>
@@ -19,7 +19,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-01b',
-    html: `
+    markup: `
       <ul>
         <li id="scope"><a>abc</a></li>
         <li>def</li>
@@ -36,7 +36,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-02a/02b',
-    html: `
+    markup: `
       <div class="a">
         <div class="a1"></div>
         <div class="a2"></div>
@@ -51,7 +51,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-03a',
-    html: `
+    markup: `
       <div class="block">
         <p class="para">
           <span class="inline">hello</span>
@@ -67,7 +67,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-03b',
-    html: `
+    markup: `
       <div class="a">
         <div class="a1"></div>
         <div class="a2"></div>
@@ -82,8 +82,8 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-04a',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -104,7 +104,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'scope-04b',
-    html: `
+    markup: `
       <div>
         <div class="outer">
           <div class="inner"></div>

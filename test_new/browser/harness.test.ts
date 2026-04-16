@@ -4,7 +4,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('scope', 'normal', [
   {
     name: 'classes',
-    html: `
+    markup: `
       <div id="one" class="outer primary"></div>
       <div id="two" class="other-outer"></div>
       <div id="three"></div>
@@ -19,8 +19,8 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'context-home',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!DOCTYPE html>
       <html lang="en">
         <body>
@@ -56,9 +56,9 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'equivalent cases that are detached should fail',
-    htmlMode: 'document',
+    markupMode: 'html-document',
     status: 'fail',
-    html: `
+    markup: `
       <!DOCTYPE html>
       <html>
         <body>
@@ -93,7 +93,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'setup page can be used to verify test assumptions',
-    html: `
+    markup: `
       <div class="x"></div>
       <div class="x"></div>
       <span></span>
@@ -115,7 +115,7 @@ runScenarios('scope', 'normal', [
 
   {
     name: 'steps/basic-accumulation',
-    html: `
+    markup: `
       <div id="box"></div>
     `,
     steps: [
@@ -139,5 +139,24 @@ runScenarios('scope', 'normal', [
       },
     ],
   },
+
+  {
+    name: 'xml-basic',
+    markupMode: 'xml-document',
+    markup: `
+      <root>
+        <Foo id="upper">
+          <bar></bar>
+        </Foo>
+      </root>`,
+    cases: [
+      { select: 'Foo', expect: { count: 1 } },
+      { select: 'foo', expect: { count: 0 } },
+      { select: 'bar', expect: { count: 1 } },
+      { select: 'Foo bar', expect: { count: 1 } },
+      { select: 'foo bar', expect: { count: 0 } },
+      { select: 'bar', ref: { by: 'id', id: 'upper' }, expect: { count: 1 } },
+    ],
+  }
 
 ]);

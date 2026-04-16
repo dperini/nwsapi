@@ -4,7 +4,7 @@ import { runScenarios } from './harness/scenarios';
 runScenarios('w3c - selector', 'normal', [
   {
     name: ':root selector contexts',
-    html: `<div id="foo"><span id="bar"></span></div>`,
+    markup: `<div id="foo"><span id="bar"></span></div>`,
     cases: [
       { select: ':root', expect: { count: 1 } },
       { select: ':root', ref: { by: 'id', id: 'foo' }, expect: { count: 0 } },

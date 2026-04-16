@@ -3,7 +3,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('html5', 'normal', [
   {
     name: 'html5 elements selection test',
-    html: `
+    markup: `
       <h1>NWSAPI HTML5 elements selection test</h1>
 
       <p>Usual nonsense content...</p>
@@ -39,7 +39,7 @@ runScenarios('html5', 'normal', [
 
   {
     name: 'table :not() selector test',
-    html: `
+    markup: `
       <div>
         <h1>&nbsp;Your Search Results</h1>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">

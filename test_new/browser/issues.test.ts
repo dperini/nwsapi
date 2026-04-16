@@ -3,7 +3,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('issues', 'normal',  [
   {
     name: 'issue 160 adjacent-descendant regression',
-    html: `
+    markup: `
       <div>
         <div class="neighbor"></div>
         <div>

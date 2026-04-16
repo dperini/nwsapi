@@ -265,8 +265,8 @@ const html = `
 runScenarios('jquery', 'normal', [
   {
     name: 'element selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       // Compare universal selection directly against native behavior.
       { select: '*' },
@@ -306,8 +306,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'broken selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: '[', expect: { throws: true } },
       { select: '(', expect: { throws: true } },
@@ -329,8 +329,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'id selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: '#body', expect: { ids: ['body'] } },
       { select: 'body#body', expect: { ids: ['body'] } },
@@ -371,8 +371,8 @@ runScenarios('jquery', 'normal', [
   },
   {
     name: 'id selectors after document fragment append',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: async (page) => {
       await page.evaluate(() => {
         const main = document.getElementById('main');
@@ -400,8 +400,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'class selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: '.blog', expect: { ids: ['mark', 'simon'] } },
       { select: '.GROUPS', expect: { ids: ['groups'] } },
@@ -429,7 +429,7 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'class selectors in detached subtree',
-    html: '',
+    markup: '',
     cases: [],
     setupPage: async (page) => {
       const result = await page.evaluate(() => {
@@ -450,8 +450,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'name selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: async (page) => {
       await page.evaluate(() => {
         const main = document.getElementById('main');
@@ -493,8 +493,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'multiple selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'h2, p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
       { select: 'h2 , p', expect: { ids: ['banner', 'userAgent', 'firstp', 'ap', 'sndp', 'en', 'sap', 'first'] } },
@@ -510,8 +510,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'child and adjacent selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'p > a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
       { select: 'p> a', expect: { ids: ['simon1', 'google', 'groups', 'mark', 'yahoo', 'simon'] } },
@@ -552,8 +552,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'first-child cache invalidation',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: async (page) => {
       await page.evaluate(() => {
         const div = document.createElement('div');
@@ -579,8 +579,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'last-child and nth-child selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'p:last-child', expect: { ids: ['sap'] } },
       { select: 'a:last-child', expect: { ids: ['simon1', 'anchor1', 'mark', 'yahoo', 'anchor2', 'simon', 'liveLink1', 'liveLink2'] } },
@@ -621,8 +621,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'attribute selectors',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     setupPage: async (page) => {
       await page.evaluate(() => {
         const anchor2 = document.getElementById('anchor2') as HTMLAnchorElement | null;
@@ -706,8 +706,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'pseudo selectors 1',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'p:first-child', expect: { ids: ['firstp', 'sndp'] } },
       { select: 'p:last-child', expect: { ids: ['sap'] } },
@@ -781,8 +781,8 @@ runScenarios('jquery', 'normal', [
   {
     name: 'jquery visibility and position pseudos (legacy)',
     status: 'skip',
-    html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     steps: [
       {
         // 0x0 with zero font metrics
@@ -845,8 +845,8 @@ runScenarios('jquery', 'normal', [
   {
     name: 'form and header pseudo selectors',
     status: 'skip', // form pseudo selectors are jQuery-only;
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: '#form :input', expect: { ids: ['text1', 'text2', 'radio1', 'radio2', 'check1', 'check2', 'hidden1', 'hidden2', 'name', 'search', 'button', 'area1', 'select1', 'select2', 'select3'] } },
       { select: '#form :radio', expect: { ids: ['radio1', 'radio2'] } },
@@ -862,8 +862,8 @@ runScenarios('jquery', 'normal', [
 
   {
     name: ':has() selector',
-    html: html,
-    htmlMode: 'document',
+    markup: html,
+    markupMode: 'html-document',
     cases: [
       { select: 'p:has(a)', expect: { ids: ['firstp', 'ap', 'en', 'sap'] } },
     ],
@@ -871,7 +871,7 @@ runScenarios('jquery', 'normal', [
 
   {
     name: 'escaped attribute selector values',
-    html: `
+    markup: `
       <div id="moretests">
         <div id="nonnodes"><span>hi</span> there <!-- mon ami --></div>
 

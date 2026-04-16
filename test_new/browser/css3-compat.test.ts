@@ -3,7 +3,7 @@ import { runScenarios } from "./harness/scenarios";
 runScenarios('css3 compat', 'normal',  [
   {
     name: 'test 0 basic selectors',
-    html: `
+    markup: `
       <div class="header">
         <h3>CSS 3 Selectors tests</h3>
         <p><small><a href="http://www.disruptive-innovations.com/zoo/css3tests/selectorTest.html">Original</a> CSS work by Daniel Glazman (c) <a href="http://www.disruptive-innovations.com">Disruptive Innovations</a> 2008</small></p>
@@ -49,8 +49,8 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 1 childhood selector',
-    htmlMode: 'document',
-    html: `
+    markupMode: 'html-document',
+    markup: `
       <!doctype html>
       <html>
         <body>
@@ -68,7 +68,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 2 attribute existence selector',
-    html: `
+    markup: `
       <div class="test attributeExistence">
         <div class="blox2 unitTest" align="center"></div>
         <div class="blox3 unitTest" align=""></div>
@@ -90,7 +90,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 3 attribute value selector',
-    html: `
+    markup: `
       <div class="test attributeValue">
         <div class="blox6 unitTest" align="center"></div>
         <div class="blox6 unitTest" foo="é"></div>
@@ -108,7 +108,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 4 space-separated attribute selector',
-    html: `
+    markup: `
       <div class="test attributeSpaceSeparatedValues">
         <div class="blox7 foo unitTest"></div>
         <div class="blox8 unitTest"></div>
@@ -127,7 +127,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 5 attribute starts-with selector',
-    html: `
+    markup: `
       <div class="test attrStart">
         <div class="unitTest t1"></div>
         <div class="unitTest t2"></div>
@@ -147,7 +147,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 6 attribute ends-with selector',
-    html: `
+    markup: `
       <div class="test attrEnd">
         <div class="unitTest t1"></div>
         <div class="unitTest t2"></div>
@@ -167,7 +167,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'test 7 attribute contains selector',
-    html: `
+    markup: `
       <div class="test attrMiddle">
         <div class="unitTest t1"></div>
         <div class="unitTest t2"></div>
@@ -187,7 +187,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'first-child selector',
-    html: `
+    markup: `
       <div class="test firstChild">
         <div class="unitTest"></div>
         <div class="blox12 unitTest"></div>
@@ -204,7 +204,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'root selector',
-    html: '',
+    markup: '',
     cases: [
       /* :root tests */
       { select: 'html', expect: { equivalentCase: { select: ':root' } } },
@@ -212,7 +212,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':nth-child(n) and :nth-of-type tests',
-    html: `
+    markup: `
       <div class="test nthchild1">
         <div class="unitTest"></div>
         <div class="unitTest"></div>
@@ -297,7 +297,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'not pseudo-class selector',
-    html: `
+    markup: `
       <div class="test not">
         <div class="blox14 unitTest"></div>
         <div class="blox15 unitTest" foo="blox15"></div>
@@ -316,7 +316,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':only-of-type tests',
-    html: `
+    markup: `
       <div class="test onlyOfType">
         <div class="blox17 unitTest"></div>
         <p class="blox18 unitTest"></p>
@@ -333,7 +333,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':last-child tests',
-    html: `
+    markup: `
       <div class="test lastChild">
         <p class="unitTest"></p>
         <div class="unitTest"></div>&nbsp;
@@ -348,7 +348,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':first-of-type tests',
-    html: `
+    markup: `
       <div class="test firstOfType">
         <p class="unitTest"></p>
         <div class="unitTest"></div>
@@ -367,7 +367,7 @@ runScenarios('css3 compat', 'normal',  [
 
   {
     name: ':last-of-type tests',
-    html: `
+    markup: `
       <div class="test lastOfType">
         <p class="unitTest"></p>
         <div class="unitTest"></div>
@@ -384,7 +384,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':only-child tests',
-    html: `
+    markup: `
       <div class="test onlyChild">
         <div class="unitTest"></div>
         <div class="unitTest">
@@ -400,7 +400,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':only-of-type tests 2',
-    html: `
+    markup: `
       <div class="test onlyOfType">
         <p class="unitTest"></p>
         <div class="unitTest">
@@ -418,7 +418,7 @@ runScenarios('css3 compat', 'normal',  [
 
   {
     name: ':empty tests',
-    html: `
+    markup: `
       <div class="test empty">
         <div class="unitTest isEmpty"></div>
         <div class="unitTest isNotEmpty"> </div>
@@ -438,7 +438,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: ':lang() tests',
-    html: `
+    markup: `
       <div class="test lang">
         <div class="unitTest"></div>
         <div class="unitTest" lang="fr"></div>
@@ -462,7 +462,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: '[|=] tests',
-    html: `
+    markup: `
       <div class="test attrLang">
         <div class="unitTest t1"></div>
         <div class="unitTest" lang="fr"></div>
@@ -489,7 +489,7 @@ runScenarios('css3 compat', 'normal',  [
 
   {
     name: 'UI tests',
-    html: `
+    markup: `
       <div class="test UI">
         <button name="submit" type="submit" value="submit" class="t1">
           <div class="unitTest"></div>
@@ -519,7 +519,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: '~ combinator tests',
-    html: `
+    markup: `
       <div class="test tilda">
         <div class="unitTest t1" style="width:20px;height:20px;"></div>
         <div class="unitTest"></div>
@@ -551,7 +551,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: '+ combinator tests',
-    html: `
+    markup: `
       <div class="test plus">
         <div class="unitTest t1" style="width:20px;height:20px;"></div>
         <div class="unitTest t2"></div>
@@ -581,7 +581,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'attribute case sensitivity identifier tests',
-    html: `
+    markup: `
       <div class="test attrCaseInsensitive">
         <div class="blox23s1 unitTest" foo="blox"></div>
         <div class="blox23s2 unitTest" foo="blox"></div>
@@ -626,7 +626,7 @@ runScenarios('css3 compat', 'normal',  [
   {
     name: 'attribute s-flag divergence',
     status: 'fail',
-    html: `
+    markup: `
       <div class="test attrCaseInsensitive">
         <div class="blox20 unitTest"></div>
         <div class="blox22 unitTest"></div>
@@ -645,7 +645,7 @@ runScenarios('css3 compat', 'normal',  [
   },
   {
     name: 'double-negation not selector',
-    html: `<div id="a"></div><span id="b"></span>`,
+    markup: `<div id="a"></div><span id="b"></span>`,
     cases: [
       { select: 'div:not(:not(div))', expect: { ids: ['a'] } },
     ],
