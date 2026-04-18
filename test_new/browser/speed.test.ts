@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { runScenarios } from './harness/scenarios';
 
-const html = readFileSync('test_new/browser/speed_selectors.html', 'utf8');
+const html = readFileSync('test_new/browser/fixtures/speed/selectors.html', 'utf8');
 
 runScenarios('speed', 'normal', [
   {

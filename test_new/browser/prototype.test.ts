@@ -268,6 +268,29 @@ runScenarios('prototype 2', 'normal', [
       { select: 'a[rel^="external"]', expect: { includesIds: ['link_1'] } },
       { select: "a[rel^='external']", expect: { includesIds: ['link_1'] } },
 
+
+      // testElementMatch
+      { match: 'span', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },
+      { match: 'span#dupL1', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },
+      { match: 'div > span', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },         // child combinator
+      { match: '#dupContainer span', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } }, // descendant combinator
+      { match: '#dupL1', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },              // ID only
+      { match: 'span.span_foo', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },       // class name 1
+      { match: 'span.span_bar', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },       // class name 2
+      { match: 'span:first-child', ref: { by: 'id', id: 'dupL1' }, expect: { ids: ['dupL1'] } },    // first-child pseudoclass
+
+      { match: 'span.span_wtf', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },              // bogus class name
+      { match: '#dupL2', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },                      // different ID
+      { match: 'div', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },                         // different tag name
+      { match: 'span span', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },                   // different ancestry
+      { match: 'span > span', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },                 // different parent
+      { match: 'span:nth-child(5)', ref: { by: 'id', id: 'dupL1' }, expect: { ids: [] } },           // different pseudoclass
+
+      { match: 'a[rel^=external]', ref: { by: 'id', id: 'link_2' }, expect: { ids: [] } },
+      { match: 'a[rel^=external]', ref: { by: 'id', id: 'link_1' }, expect: { ids: ['link_1'] } },
+      { match: 'a[rel^="external"]', ref: { by: 'id', id: 'link_1' }, expect: { ids: ['link_1'] } },
+      { match: "a[rel^='external']", ref: { by: 'id', id: 'link_1' }, expect: { ids: ['link_1'] } },
+
       // testSelectorWithSpaceInAttributeValue
       { select: 'cite[title="hello world!"]', expect: { ids: ['with_title'] } },
 
@@ -416,8 +439,6 @@ runScenarios('prototype 2', 'normal', [
 
       // testCommasFor$$
       { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
-      { select: '#list, .first, *[xml:lang="es-us"], #troubleForm', expect: { ids: ['p', 'link_1', 'list', 'item_1', 'item_3', 'troubleForm'] }, status: 'fixme' },
-      { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
       { select: 'form[title*="commas,"], input[value="#commaOne,#commaTwo"]', expect: { ids: ['commaParent', 'commaChild'] } },
 
       // testElementDownWithDotAndColon

@@ -33,6 +33,7 @@ export type Scenario = {
   status?: ScenarioStatus;
   markup: string;
   markupMode?: 'html-body' | 'html-document' | 'xml-document';
+  url?: string;
   browsers?: BrowserName[];
   engines?: Engine[];
   steps?: ScenarioStep[];
@@ -117,8 +118,6 @@ export function runScenarios(label: string, status: ScenariosStatus, scenarios: 
 
       for (const page of Object.values(pages)) {
         await page.setContent('<!doctype html><html><body></body></html>');
-        await page.evaluate(installBrowserHelpers);
-        await page.addScriptTag({ path: 'src/nwsapi.js' });
       }
     });
 
@@ -166,12 +165,13 @@ async function runScenario(s: Scenario, pages: Record<BrowserName, Page>): Promi
     const page = pages[browserName];
     const wrappedPage = s.markupMode === 'xml-document' ? wrapPageForXml(page) : page;
 
-    await initPage(page, s);
+    await initPage(wrappedPage, s);
 
     let stepCaseIndex = 0;
     for (let stepIndex = 0; stepIndex < steps.length; ++stepIndex) {
       const step = steps[stepIndex];
       if (step.setupPage) await step.setupPage(wrappedPage);
+      ensureHarnessInstalled(wrappedPage);
       for (let caseIndex = 0; caseIndex < step.cases.length; ++caseIndex) {
         const c = step.cases[caseIndex];
         if (hasOnlyCases && c.status !== 'only') continue;
@@ -335,11 +335,28 @@ function getTestFn(mode?: ScenarioStatus) {
 }
 
 async function initPage(page: Page, scenario: Scenario): Promise<void> {
+  if (scenario.url && page.url() !== scenario.url) {
+    await page.route(scenario.url, async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/html',
+        body: '<!doctype html><html><body></body></html>',
+      });
+    });
+
+    await page.goto(scenario.url);
+  }
+
+  await ensureHarnessInstalled(page);
+
   if (scenario.markupMode === 'xml-document') {
     await page.setContent(`<!DOCTYPE html><html><body>dummy content</body></html>`);
-    await installNwsapi(page);
     await page.evaluate((xmlString) => {
-      window.__pwXml = new DOMParser().parseFromString(xmlString, 'text/xml');
+      const xml = new DOMParser().parseFromString(xmlString, 'text/xml');
+      if (xml.getElementsByTagName('parsererror').length) {
+        throw new Error(`invalid xml-document markup: ${xml.documentElement?.textContent ?? 'parsererror'}`);
+      }
+      window.__pwXml = xml;
     }, scenario.markup);
   } else if (scenario.markupMode === 'html-document') {
     await page.setContent(scenario.markup);
@@ -354,6 +371,22 @@ async function initPage(page: Page, scenario: Scenario): Promise<void> {
 
   if (scenario.setupPage) {
     await scenario.setupPage(page);
+    await ensureHarnessInstalled(page);
+  }
+}
+
+async function ensureHarnessInstalled(page: Page): Promise<void> {
+  const state = await page.evaluate(() => ({
+    hasHelpers: !!window.__pwHelpers,
+    hasNwsapi: !!NW?.Dom,
+  })).catch(() => ({ hasHelpers: false, hasNwsapi: false }));
+
+  if (!state.hasHelpers) {
+    await page.evaluate(installBrowserHelpers);
+  }
+
+  if (!state.hasNwsapi) {
+    await page.addScriptTag({ path: 'src/nwsapi.js' });
   }
 }
 
