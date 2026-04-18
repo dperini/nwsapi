@@ -52,7 +52,7 @@ import { runScenarios } from './harness/scenarios';
 runScenarios('jquery', 'normal', [
   {
     name: 'id selectors',
-    html: `<div id="a"></div><div id="b"></div>`,
+    markup: `<div id="a"></div><div id="b"></div>`,
     cases: [
       { select: '#a', expect: { ids: ['a'] } },
       { select: '#b', expect: { ids: ['b'] } },
@@ -73,3 +73,15 @@ Scenarios can:
 - attach expectations such as `count`, `ids`, `classes`, `throws`, and inclusion/exclusion checks
 - use context refs when a query should run relative to a specific node, including rehomed contexts for detached nodes and fragments
 - mark scenarios or cases as `skip`, `only`, `fail`, or `fixme`
+
+## Philosophy
+
+The harness reduces selector tests to two things: a query and a context.
+
+Cases always compare `NW.Dom` against native browser behavior. Explicit expectations are extra assertions on top of that comparison.
+
+Contexts can also be rehomed, so the same ref can be tested in its original document, detached, or inside a `DocumentFragment`.
+
+## Notes
+
+For simple iframes, `srcdoc` is often enough. For more control, give the scenario a `url` to ground the parent page, then navigate the frame to routed HTML on the same origin.
