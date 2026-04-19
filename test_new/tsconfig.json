@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "lib": ["esnext", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"]
+}
