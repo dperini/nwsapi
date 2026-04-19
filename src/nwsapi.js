@@ -984,7 +984,7 @@
               // whitespace separated list but value contains space
               break;
             } else if (match[4]) {
-              match[4] = escapeIdentifier(match[4]).replace(REX.RegExpChar, '\\$&');
+              match[4] = CSS.escape(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if((' +
@@ -1539,8 +1539,8 @@
       }
       return selectors.replace(/:scope/i,
         (element.localName) +
-        (element.id ? '#' + escapeIdentifier(element.id) : '') +
-        (element.className ? '.' + escapeIdentifier(element.classList[0]) : ''));
+        (element.id ? '#' + CSS.escape(element.id) : '') +
+        (element.className ? '.' + CSS.escape(element.classList[0]) : ''));
     },
 
   // equivalent of w3c 'closest' method
@@ -1588,10 +1588,6 @@
       // input NULL or UNDEFINED
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
-      }
-
-      if ((/:scope/i).test(selectors)) {
-        selectors = makeref(selectors, Snapshot.from);
       }
 
       // normalize input string
@@ -1746,7 +1742,6 @@
         }
 
         nodeset[i] = token[1] + token[2];
-        token[2] = unescapeIdentifier(token[2]);
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
