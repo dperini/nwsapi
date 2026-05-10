@@ -36,9 +36,9 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
-  HSP = '[\\x20\\t]',
-  VSP = '[\\r\\n\\f]',
-  WSP = '[\\x20\\t\\r\\n\\f]',
+  HSP = '\\x20\\t',
+  VSP = '\\r\\n\\f',
+  WSP = '[' + HSP + VSP + ']',
 
   CFG = {
     // extensions
@@ -337,10 +337,10 @@
   // convert escape sequence in a CSS string or identifier
   // to javascript string with javascript escape sequences
   escapeIdentifier =
-    global.CSS && typeof global.CSS.escape == 'function' ?
-    function(str) {
-      return global.CSS.escape(str);
-    } :
+//    global.CSS && typeof global.CSS.escape == 'function' ?
+//    function(str) {
+//      return global.CSS.escape(str);
+//    } :
     function(str) {
       return REX.HasEscapes.test(str) ?
         str.replace(REX.FixEscapes,
@@ -712,15 +712,13 @@
 
       // non-ascii chars
       noascii = '[^\\x00-\\x9f]',
-      // escaped chars
-      escaped = '\\\\[^\\r\\n\\f0-9a-fA-F]',
       // unicode chars
-      unicode = '\\\\[0-9a-fA-F]{1,6}(?:\\r\\n|\\s)?',
+      unicode = '\\\\[0-9a-fA-F]{1,6}',
 
       // can start with single/double dash
       // but it can not start with a digit
-      identifier = '-?(?:[a-zA-Z_-]|' + noascii + '|' + escaped + '|' + unicode + ')' +
-          '(?:-{2}|[0-9]|[a-zA-Z_-]|' + noascii + '|' + escaped + '|' + unicode + ')*',
+      identifier = '(?:-|--|' + unicode + '[' + HSP + ']' +
+                    '?|\\\\[^' + VSP + ']|' + noascii + '|[\\w-])+',
 
       pseudonames = '[-\\w]+',
       pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
@@ -984,7 +982,7 @@
               // whitespace separated list but value contains space
               break;
             } else if (match[4]) {
-              match[4] = CSS.escape(match[4]).replace(REX.RegExpChar, '\\$&');
+              match[4] = escapeIdentifier(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if((' +
@@ -1539,8 +1537,8 @@
       }
       return selectors.replace(/:scope/i,
         (element.localName) +
-        (element.id ? '#' + CSS.escape(element.id) : '') +
-        (element.className ? '.' + CSS.escape(element.classList[0]) : ''));
+        (element.id ? '#' + escapeIdentifier(element.id) : '') +
+        (element.className ? '.' + escapeIdentifier(element.classList[0]) : ''));
     },
 
   // equivalent of w3c 'closest' method
@@ -1742,6 +1740,7 @@
         }
 
         nodeset[i] = token[1] + token[2];
+	token[2] = unescapeIdentifier(token[2]);
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
