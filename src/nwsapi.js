@@ -46,10 +46,6 @@
     combinators: '[\\x20\\t>+~](?=[^>+~])'
   },
 
-  HAS = {
-    nestedself: ':has\\x28(?::has\\x28|.*)\\x29)\\x29',
-  },
-
   NOT = {
     // not enclosed in double/single/parens/square
     double_enc: '(?=(?:[^"]*["][^"]*["])*[^"]*$)',
@@ -81,9 +77,9 @@
 
   GROUPS = {
     // pseudo-classes requiring parameters
-    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
-    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
-    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
+    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$))',
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?(?:\\x29|$))',
+    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target|defined)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
@@ -1579,6 +1575,9 @@
         emit(qsNotArgs, TypeError);
         return Config.VERBOSITY ? undefined : (type ? none : false);
       } else if (arguments[0] === '') {
+        emit('\'\'' + qsInvalid);
+        return Config.VERBOSITY ? undefined : (type ? none : false);
+      } else if (/^[.#]?\d/.test(selectors)) {
         emit('\'\'' + qsInvalid);
         return Config.VERBOSITY ? undefined : (type ? none : false);
       }
