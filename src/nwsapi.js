@@ -1,13 +1,13 @@
 /*
- * Copyright (C) 2007-2025 Diego Perini
+ * Copyright (C) 2007-2026 Diego Perini
  * All rights reserved.
  *
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.23
+ * Version: 2.2.24
  * Created: 20070722
- * Release: 20251205
+ * Release: 20260606
  *
  * License:
  *  https://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.23',
+  var version = 'nwsapi-2.2.24',
 
   doc = global.document,
   root = doc.documentElement,
