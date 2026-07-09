@@ -913,7 +913,7 @@
 
       while (selector) {
 
-	++k;
+        ++k;
 
         // get namespace prefix if present or get first char of selector
         symbol = STD.apimethods.test(selector) ? '|' : selector[0];
@@ -1235,14 +1235,13 @@
                   source = 'if(s.isFocusable(e)){' + source + '}';
                   break;
                 case 'focus-visible':
-                  source = 'if(n=s.isFocusable(e)){' +
-                    'if(e!==n){while(e){e=e.parentElement;if(e===n)break;}}}' +
-                    'if((e===n||e.autofocus)){' + source + '}';
+                  source = 'if(s.isFocusable(e)&&' +
+                    '(/input|select|textarea/i.test(e.localName)&&' +
+                    '(e.hasAttribute("contenteditable")||s.keyboardFocus)))' +
+                    '{' + source + '}';
                   break;
                 case 'focus-within':
-                  source = 'if(n=s.isFocusable(e)){' +
-                    'if(n!==e){while(n){n=n.parentElement;if(n===e)break;}}}' +
-                    'if((n===e||n.autofocus)){' + source + '}';
+                  source = 'if(e.contains(s.doc.activeElement)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1739,7 +1738,7 @@
         }
 
         nodeset[i] = token[1] + token[2];
-	token[2] = unescapeIdentifier(token[2]);
+        token[2] = unescapeIdentifier(token[2]);
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
