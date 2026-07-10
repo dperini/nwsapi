@@ -1286,6 +1286,7 @@
                     'if(e.disabled===true||(F&&!L)){' + source + '}}';
                   break;
                 case 'read-only':
+                case '-moz-read-only':
                   source =
                     'if(' +
                       '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
@@ -1294,12 +1295,17 @@
                     '){' + source + '}';
                   break;
                 case 'read-write':
+                case '-moz-read-write':
                   source =
                     'if(' +
                       '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
                       '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
                       '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' + source + '}';
+                  break;
+                case 'autofill':
+                case '-webkit-autofill':
+                  source = 'if(e.matches&&e.matches(":-webkit-autofill,:autofill")){' + source + '}';
                   break;
                 case 'placeholder-shown':
                   source =
