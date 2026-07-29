@@ -2,11 +2,27 @@
 
 Fast CSS Selectors API Engine
 
-![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
+![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/Support & Sponsoring
+
+NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+
+    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+
+    Buy Me a Coffee: Make a one-time tip or contribution.
+
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
 
 NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely reworked to be easily extended and maintained. It is a right-to-left selector parser and compiler written in pure Javascript with no external dependencies. It was initially thought as a cross browser library to improve event delegation and web page scraping in various frameworks but it has become a popular replacement of the native CSS selection and matching functionality in newer browsers and headless environments.
 
-It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.
+It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.Support & Sponsoring
+
+NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+
+    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+
+    Buy Me a Coffee: Make a one-time tip or contribution.
+
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
 
 ## Installation
 
@@ -29,7 +45,15 @@ $ npm install nwsapi
 ```
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
+Support & Sponsoring
 
+NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+
+    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+
+    Buy Me a Coffee: Make a one-time tip or contribution.
+
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
 
 ## Supported Selectors
 
@@ -49,7 +73,15 @@ You can read more about NWSAPI [features and compliance](https://github.com/dper
 
 Returns a reference to the nearest ancestor element matching `selector`, starting at `context`. Returns `null` if no element is found. If `callback` is provided, it is invoked for the matched element.
 
-#### `first( selector, context, callback )`
+#### `first( selector, context, callback )`Support & Sponsoring
+
+NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+
+    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+
+    Buy Me a Coffee: Make a one-time tip or contribution.
+
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
 
 Returns a reference to the first element matching `selector`, starting at `context`. Returns `null` if no element matches. If `callback` is provided, it is invoked for the matched element.
 
@@ -130,3 +162,13 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
     };
   })(this));
 ```
+
+Support & Sponsoring
+
+NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+
+    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+
+    Buy Me a Coffee: Make a one-time tip or contribution.
+
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
