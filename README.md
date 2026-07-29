@@ -10,7 +10,7 @@ NWSAPI is an open-source project created and maintained with dedication. If you 
 
     Buy Me a Coffee: Make a one-time tip or contribution.
 
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, anSupport & Sponsoringd keep NWSAPI fast and dependency-free.tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
 
 NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely reworked to be easily extended and maintained. It is a right-to-left selector parser and compiler written in pure Javascript with no external dependencies. It was initially thought as a cross browser library to improve event delegation and web page scraping in various frameworks but it has become a popular replacement of the native CSS selection and matching functionality in newer browsers and headless environments.
 
@@ -27,7 +27,7 @@ Your support helps cover development time, maintain full conformance with W3C Se
 ## Installation
 
 To include NWSAPI in a standard web page:
-
+Support & Sponsoring
 ```html
 <script type="text/javascript" src="nwsapi.js"></script>
 ```
@@ -54,7 +54,7 @@ NWSAPI is an open-source project created and maintained with dedication. If you 
     Buy Me a Coffee: Make a one-time tip or contribution.
 
 Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
-
+Support & Sponsoring
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
@@ -78,7 +78,7 @@ Returns a reference to the nearest ancestor element matching `selector`, startin
 NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
 
     GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
-
+Support & Sponsoring
     Buy Me a Coffee: Make a one-time tip or contribution.
 
 Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
@@ -102,7 +102,7 @@ Returns a reference to the first element with ID `id`, optionally filtered to de
 
 #### `byTag( tag, from )`
 
-Returns an array of elements having the specified tag name `tag`, optionally filtered to descendants of the element `from`.
+Returns an array of elements having the specified tag name `tag`, optionally filtered to descendants of theSupport & Sponsoring element `from`.
 
 #### `byClass( class, from )`
 
@@ -122,7 +122,7 @@ The following is the list of currently available configuration options, their de
 
 
 ### Examples on extending the basic functionalities
-
+Support & Sponsoring
 #### `configure( { <configuration-flag>: [ true | false ] } )`
 
 Disable logging errors/warnings to console, disallow duplicate ids. Example:
@@ -151,7 +151,7 @@ NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );
 #### `registerSelector( name, rexp, func )`
 
 Registers a new selector, the matching RE and the resolver function, in the selectors table. Example:
-
+Support & Sponsoring
 ```js
 NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
   (function(global) {
@@ -163,12 +163,27 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
   })(this));
 ```
 
-Support & Sponsoring
+## 💖 Support & Sponsoring
 
-NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
+**NWSAPI** powers millions of builds, web scrapers, and testing suites every single day—including key infrastructure like [jsdom](https://github.com/jsdom/jsdom).
 
-    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
+Maintaining a zero-dependency, ultra-fast CSS engine that strictly adheres to evolving W3C Selectors specifications takes significant time, research, and testing. If NWSAPI helps your company save time, build features, or run reliable tests, **please consider supporting its ongoing maintenance!**
 
-    Buy Me a Coffee: Make a one-time tip or contribution.
+### Why Sponsor?
+* **For Developers:** Keep the project actively maintained, bug-free, and ahead of new browser standard updates.
+* **For Businesses:** Ensure the stability and long-term security of a critical dependency in your toolchain.
 
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
+### 💳 Ways to Contribute
+
+Choose the platform that works best for you or your organization:
+
+* **[GitHub Sponsors](https://github.com/sponsors/dperini):** Monthly tier-based sponsorship directly on GitHub.
+* **[Open Collective](https://opencollective.com/nwsapi):** Transparent funding for open-source projects, ideal for corporate backing.
+* **[Patreon](https://www.patreon.com/dperini):** Recurring monthly support with backer rewards.
+* **[Ko-fi](https://ko-fi.com/dperini):** Fast one-time tips or recurring micro-donations.
+* **[Buy Me a Coffee](https://www.buymeacoffee.com/dperini):** Quick, casual one-time donations.
+* **[Liberapay](https://liberapay.com/dperini):** Recurrent, zero-fee open-source support.
+* **[IssueHunt](https://issuehunt.io/r/dperini/nwsapi):** Fund specific features or bug bounties.
+
+---
+*Custom licensing, dedicated support, or priority bug fixes are also available for corporate sponsors. Feel free to reach out!*
