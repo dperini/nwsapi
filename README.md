@@ -2,31 +2,15 @@
 
 Fast CSS Selectors API Engine
 
-![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/Support & Sponsoring
-
-NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
-
-    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
-
-    Buy Me a Coffee: Make a one-time tip or contribution.
-
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, anSupport & Sponsoringd keep NWSAPI fast and dependency-free.tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
+![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwshttps://ko-fi.com/dperiniapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
 
 NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely reworked to be easily extended and maintained. It is a right-to-left selector parser and compiler written in pure Javascript with no external dependencies. It was initially thought as a cross browser library to improve event delegation and web page scraping in various frameworks but it has become a popular replacement of the native CSS selection and matching functionality in newer browsers and headless environments.
 
-It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.Support & Sponsoring
-
-NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
-
-    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
-
-    Buy Me a Coffee: Make a one-time tip or contribution.
-
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
+It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.
 
 ## Installation
 
-To include NWSAPI in a standard web page:
+To include NWSAPI in a standard web page:https://ko-fi.com/dperini
 Support & Sponsoring
 ```html
 <script type="text/javascript" src="nwsapi.js"></script>
@@ -53,7 +37,7 @@ NWSAPI is an open-source project created and maintained with dedication. If you 
 
     Buy Me a Coffee: Make a one-time tip or contribution.
 
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
+Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-https://ko-fi.com/dperinifree.
 Support & Sponsoring
 ## Supported Selectors
 
@@ -80,7 +64,7 @@ NWSAPI is an open-source project created and maintained with dedication. If you 
     GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
 Support & Sponsoring
     Buy Me a Coffee: Make a one-time tip or contribution.
-
+https://ko-fi.com/dperini
 Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
 
 Returns a reference to the first element matching `selector`, starting at `context`. Returns `null` if no element matches. If `callback` is provided, it is invoked for the matched element.
@@ -122,7 +106,7 @@ The following is the list of currently available configuration options, their de
 
 
 ### Examples on extending the basic functionalities
-Support & Sponsoring
+Support & Sponsoringhttps://ko-fi.com/dperini
 #### `configure( { <configuration-flag>: [ true | false ] } )`
 
 Disable logging errors/warnings to console, disallow duplicate ids. Example:
@@ -145,7 +129,7 @@ NW.Dom.registerCombinator( '^', 'e.parentElement' );
 Registers a new symbol and its matching resolver in the attribute operators table. Example:
 
 ```js
-NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );
+NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );https://ko-fi.com/dperini
 ```
 
 #### `registerSelector( name, rexp, func )`
