@@ -3,26 +3,42 @@ name: nwsapi
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v6
 
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v7
       with:
-        node-version: '14'
+        node-version: '24'
+        cache: pnpm
 
     - name: Install dependencies
-      run: npm install
+      run: pnpm install --frozen-lockfile
+
+    - name: Lint
+      run: pnpm run lint
+
+    - name: Clone upstream test suites (sparse + shallow)
+      run: pnpm run upstream:clone
+
+    - name: Verify upstream pins
+      run: pnpm run upstream:verify
+
+    - name: Install Playwright browsers
+      run: pnpm exec playwright install --with-deps chromium
 
     - name: Run tests
-      run: npm testIs the NodeJS yaml configuration needed in my "nwsapi" repository ?
+      run: pnpm test

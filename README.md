@@ -2,7 +2,7 @@
 
 Fast CSS Selectors API Engine
 
-![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwshttps://ko-fi.com/dperiniapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
+![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
 
 NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely reworked to be easily extended and maintained. It is a right-to-left selector parser and compiler written in pure Javascript with no external dependencies. It was initially thought as a cross browser library to improve event delegation and web page scraping in various frameworks but it has become a popular replacement of the native CSS selection and matching functionality in newer browsers and headless environments.
 
@@ -30,10 +30,17 @@ $ npm install nwsapi
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
 
-
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
+
+State pseudo-classes from [Selectors Level 4](https://www.w3.org/TR/selectors-4/):
+
+* `:open` and `:closed` — match `<details>`/`<dialog>` elements by their `open` DOM property; other host-language states (open `<select>` drop-downs, `<input>` pickers) are matched only when the host exposes the native pseudo-class.
+* `:modal` and `:fullscreen` — match the document's `fullscreenElement` (including the vendor-prefixed forms) and otherwise defer to the host's native `:modal`/`:fullscreen`, since the `<dialog>` "is modal" flag has no DOM reflection.
+* `:picture-in-picture` — matches the document's `pictureInPictureElement`, or the host's native pseudo-class.
+* `:popover-open` (and its `:popover` alias) — requires the `popover` attribute plus the host's native `:popover-open`, because the attribute declares capability rather than the showing state.
+* `:current`, `:past`, `:future` — parsed as valid but match nothing: these moved to Selectors Level 5, which mandates they must not match when no timeline is defined (a static DOM has none). Only the bare forms are supported; the functional `:current(<selector-list>)` form (which no browser ships) is a parse error.
 
 
 ## Features and Compliance
@@ -130,6 +137,39 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
     };
   })(this));
 ```
+
+## Development
+
+Requires Node.js >= 24 and [pnpm](https://pnpm.io) (the version pinned in `packageManager`).
+
+```sh
+pnpm install                  # install pinned dev dependencies
+pnpm run lint                 # eslint (flat config)
+pnpm run min                  # build dist/nwsapi.min.js (terser)
+
+# upstream web-platform-tests (sparse + shallow, pinned in .gitmodules)
+pnpm run upstream:clone       # materialize upstream/wpt at the pinned ref
+pnpm run upstream:verify      # verify ref, sparse patterns and manifest hash
+
+# run upstream WPT selector tests against src/nwsapi.js (Playwright)
+pnpm exec playwright install chromium
+pnpm run test:upstream                                   # full suite
+WPT_FILTER='Attribute presence' pnpm run test:upstream   # individual selectors
+WPT_SECTION='Combinators' pnpm run test:upstream         # a whole section
+
+# benchmarks (mitata + jsdom), ported from the legacy test/speed suite
+pnpm run bench                                  # all preset groups
+pnpm run bench -- --preset default              # one group
+pnpm run bench -- --selector 'div:not(.example)' # a single selector
+
+# serve the WPT checkout + repo for interactive debugging via portless
+pnpm run serve                # -> https://nwsapi.localhost (proxies $PORT)
+# first run on a new machine: `pnpm exec portless trust` once (sudo prompt)
+# to install the local CA and start the HTTPS proxy
+```
+
+The `upstream/` directory is git-ignored on purpose: the pin of record is the
+`ref` field in `.gitmodules` (see `docs/upstream.md`).
 
 ## 💖 Support & Sponsoring
 
