@@ -88,7 +88,7 @@
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in\\-range|out\\-of\\-range)\\b',
     // pseudo-classes not requiring parameters and describing functional state
     rsrc_state: '(playing|paused|seeking|buffering|stalled|muted|volume-locked)\\b',
-    disp_state: '(open|closed|modal|fullscreen|picture-in-picture)\\b',
+    disp_state: '(open|modal|fullscreen|picture-in-picture)\\b',
     time_state: '(current|past|future)\\b',
     // pseudo-classes for parsing only selectors
     pseudo_nop: '(autofill|-webkit\\-autofill)\\b',
@@ -482,7 +482,7 @@
         } else nodes = none;
       }
       return !Config.NODE_LIST ?
-        nodes : isInstanceof(nodes) ?
+        nodes : isInstanceOf(nodes) ?
         nodes : toNodeList(nodes);
     },
 
@@ -636,7 +636,7 @@
   isPlaying =
     function(media) {
       // for <audio>, <video>, <source> and <track> elements
-      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
+      var parent = /^(?:audio|video)$/i.test(media.localName) ? null : media.parentElement;
       return (
         !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
         !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
@@ -847,7 +847,7 @@
   // executable functions for matching or selecting
   compile =
     function(selector, mode, callback) {
-      var factory, token, head = '', loop = '', macro = '', source = '', vars = '';
+      var factory, token, head = '', loop = '', macro = '', source, vars = '';
 
       // 'mode' can be boolean or null
       // true = select / false = match
@@ -1415,23 +1415,67 @@
                   source = 'if(s.isPlaying(e)){' + source + '}';
                   break;
                 case 'paused':
-                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'seeking':
-                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.seeking===true)){' + source + '}';
                   break;
                 case 'buffering':
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.networkState===2&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'stalled':
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.networkState===2&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'muted':
                   source = 'if(e.localName=="audio"&&e.getAttribute("muted")){' + source + '}';
                   break;
                 case 'volume-locked':
+                  // the user-agent/OS volume lock has no DOM reflection,
+                  // valid but never matching in this engine
+                  source = 'if(false){' + source + '}';
                   break;
                 default:
                   break;
               }
+            }
+
+            // *** display state pseudo-classes
+            // :open, :modal, :fullscreen, :picture-in-picture
+            else if ((match = selector.match(Patterns.disp_state))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
+                case 'open':
+                  // https://html.spec.whatwg.org/multipage/semantics-other.html#selector-open
+                  // open <select> drop-down boxes and <input> pickers are rendering
+                  // states with no DOM reflection, only <details> and <dialog> can
+                  // be detected through the presence of their 'open' attribute
+                  source = 'if((/^(?:details|dialog)$/.test(e.localName)&&' +
+                    'e.namespaceURI=="http://www.w3.org/1999/xhtml"&&e.hasAttribute("open"))){' + source + '}';
+                  break;
+                case 'modal':
+                  // the <dialog> 'is modal' flag is not exposed to the DOM, only
+                  // the fullscreen flag half of ':modal' can be detected here
+                  source = 'if((s.doc.fullscreenElement&&s.doc.fullscreenElement===e)){' + source + '}';
+                  break;
+                case 'fullscreen':
+                  source = 'if((s.doc.fullscreenElement&&s.doc.fullscreenElement===e)){' + source + '}';
+                  break;
+                case 'picture-in-picture':
+                  source = 'if((s.doc.pictureInPictureElement&&s.doc.pictureInPictureElement===e)){' + source + '}';
+                  break;
+                default:
+                  emit('\'' + expression + '\'' + qsInvalid);
+                  break;
+              }
+            }
+
+            // *** time-dimensional pseudo-classes (Selectors Level 5)
+            // :current, :past, :future
+            else if ((match = selector.match(Patterns.time_state))) {
+              // no timeline is defined for elements of a static DOM, per
+              // https://drafts.csswg.org/selectors-5/#time-pseudos these
+              // pseudo-classes are valid but must not match any element
+              source = 'if(false){' + source + '}';
             }
 
             // placeholder for parse only no-op selectors
@@ -1915,7 +1959,8 @@
 
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
-    hasAttributeNS: hasAttributeNS
+    hasAttributeNS: hasAttributeNS,
+    isPlaying: isPlaying
   },
 
   // public exported methods/objects
