@@ -1,4 +1,4 @@
-/*
+/*\\\\\\\\\
  * Copyright (C) 2007-2026 Diego Perini
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.24
  * Created: 20070722
- * Release: 20260606
+ * Release: 20260709
  *
  * License:
  *  https://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -77,9 +77,9 @@
 
   GROUPS = {
     // pseudo-classes requiring parameters
-    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$))',
-    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?(?:\\x29|$))',
-    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
+    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
+    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target|defined)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
@@ -124,8 +124,13 @@
    namespace: RegExp('^(\\*|[\\w-]+)?\\|(.*)')
   },
 
-  // regexp to better aproximate detection of RTL languages (Arabic)
-  RTL = RegExp('^(?:[\\u0627-\\u064a]|[\\u0591-\\u08ff]|[\\ufb1d-\\ufdfd]|[\\ufe70-\\ufefc])+$'),
+  // regular expression to better aproximate
+  // detection of RTL languages (like Arabic)
+  RTL = RegExp('^(?:' +
+    '[\\u0627-\\u064a]|' +
+    '[\\u0591-\\u08ff]|' +
+    '[\\ufb1d-\\ufdfd]|' +
+    '[\\ufe70-\\ufefc])+$'),
 
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
@@ -333,10 +338,6 @@
   // convert escape sequence in a CSS string or identifier
   // to javascript string with javascript escape sequences
   escapeIdentifier =
-//    global.CSS && typeof global.CSS.escape == 'function' ?
-//    function(str) {
-//      return global.CSS.escape(str);
-//    } :
     function(str) {
       return REX.HasEscapes.test(str) ?
         str.replace(REX.FixEscapes,
@@ -797,9 +798,12 @@
       Patterns.attribute = RegExp('^(?:' + attrmatcher + ')(.*)');
     },
 
-  F_INIT = '"use strict";return function Resolver(c,f,x,r)',
-
   /*
+  //
+  // Resolver Compiler Functions
+  //
+  // Type of operations
+  //
   // S - M - N
   //
   // SELECT
@@ -807,6 +811,8 @@
   // NONE
   //
   */
+
+  F_INIT = '"use strict";return function Resolver(c,f,x,r)',
 
   S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
   M_HEAD = 'var e,n,o',
@@ -834,20 +840,9 @@
 
   // compile groups or single selector strings into
   // executable functions for matching or selecting
-
-  S_TEST = 'if(f(c[k])){break main;}',
-  M_TEST = 'f(c);',
-  N_TEST = 'if(f(c.item(k))){break main;}',
-
-  S_VARS = [ ],
-  M_VARS = [ ],
-  N_VARS = [ ],
-
-  // compile groups or single selector strings into
-  // executable functions for matching or selecting
   compile =
     function(selector, mode, callback) {
-      var factory, token, head = '', loop = '', macro = '', source = '', vars = '';
+      var factory, head = '', loop = '', macro = '', source = '', vars = '';
 
       // 'mode' can be boolean or null
       // true = select / false = match
@@ -900,9 +895,9 @@
   compileSelector =
     function(expression, source, mode, callback) {
 
-      var a, b, n, f, k = 0, name, NS, referenceElement,
-      compat, expr, match, result, status, symbol, test,
-      type, selector = expression, vars;
+      var a, b, n, f, k = 0, compat, name,
+      NS, expr, match, result, status, symbol,
+      test, type, selector = expression, vars;
 
       // isolate selector combinators
       selector = selector.replace(STD.combinator, '$1');
@@ -1132,8 +1127,8 @@
             else if ((match = selector.match(Patterns.logicalsel))) {
               match[1] = match[1].toLowerCase();
               expr = match[2]
-                .replace(REX.CommaGroup, ',')
-                .replace(REX.TrimSpaces, '')
+//                .replace(REX.CommaGroup, ',')
+//                .replace(REX.TrimSpaces, '')
                 .replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
@@ -1154,15 +1149,26 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  if (/^\s*(\+|\~)/.test(match[2])) {
-                    source = 'if(e.parentElement&&Array.from(e.parentElement' +
-                      (/^\s*[+]/.test(match[2]) ?
-                        '.querySelectorAll("*' + expr + '")' : '.children') +
-                        ').includes(e.nextElementSibling)){' + source + '}';
-                  } else {
+                  if (expr == ':scope') {
+                    source = 'if(s.has("' + expr + '",e)){' + source + '}';
+                    break;
+                  }
+
+                  // check for combinators
+                  // having mangled context
+                  t = expr.charAt(0);
+
+                  if (t == '+') {
+                    source  = 'if(s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
+                  } else if (t == '~') {
+                    source  = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+		  } else if (t == '>') {
                     source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
+                  } else {
+                    source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
                   }
                   break;
+
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
                   break;
@@ -1448,7 +1454,8 @@
             }
 
             // allow pseudo-elements starting with double colon (::)
-            // ::after, ::before, ::marker, ::placeholder, ::inactive-selection, ::selection, ::-webkit-<foo-bar>
+            // ::after, ::before, ::marker, ::placeholder, ::selection,
+	    // ::inactive-selection, ::-webkit-<foo-bar>
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
@@ -1485,7 +1492,7 @@
 
               if (!status) {
                 if (Config.FORGIVING &&
-                  selector.match(/(:(?:is|where)\x28)/)) {
+                  selector.match(/(:(?:is|where)\\x28)/)) {
                   return '';
                 }
                 emit('unknown pseudo-class selector \'' + selector + '\'');
@@ -1513,7 +1520,7 @@
 
         if (!match) {
           if (Config.FORGIVING &&
-            selector.match(/(:(?:is|where)\x28)/)) {
+            selector.match(/(:(?:is|where)\\x28)/)) {
             return '';
           }
           emit('\'' + expression + '\'' + qsInvalid);
@@ -1632,6 +1639,12 @@
       matchResolvers[selectors] = match_collect(parse(selectors, false), callback);
 
       return match_assert(matchResolvers[selectors].factory, element, callback);
+    },
+
+  // true if element matches the selector
+  has =
+    function(selector, context, callback) {
+      return collect(parse(selector, true), context, callback).results.length > 0;
     },
 
   // equivalent of w3c 'querySelector' method
@@ -1904,6 +1917,7 @@
 
     byTag: byTag,
 
+    has: has,
     first: first,
     match: match,
     select: select,
@@ -2020,4 +2034,5 @@
   initialize(doc);
 
   return Dom;
+
 });
