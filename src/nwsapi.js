@@ -1,4 +1,4 @@
-/*\\\\\\\\\
+/*
  * Copyright (C) 2007-2026 Diego Perini
  * All rights reserved.
  *
@@ -214,6 +214,37 @@
       while (l--) { list[list.length] = nodes[++i]; }
       return list;
     },
+
+  // caching limit for resolvers
+  CACHE_LIMIT = 1000,
+
+  // simplified the caching operations
+  // using a Map object for resolvers
+  createCache = function(limit) {
+    var cache = new Map();
+    limit || (limit = CACHE_LIMIT);
+    return {
+      clr: function() {
+        cache
+      },
+      get: function(key) {
+        if (!cache.has(key)) return undefined;
+        var val = cache.get(key);
+        cache.delete(key);
+        cache.set(key, val);
+        return val;
+      },
+      set: function(key, val) {
+        if (cache.has(key)) cache.delete(key);
+        else if (cache.size >= limit) {
+          cache.delete(cache.keys().next().value);
+        }
+        cache.set(key, val);
+      },
+      // cached lambdas list for debugging purpose
+      _map: cache
+    };
+  },
 
   // only define the toNodeList helper if explicitly enabled in Config,
   // a safety measure for headless hosts missing feature/implementation
@@ -653,8 +684,10 @@
       }
       // clear lambda cache
       if (clear) {
-        matchResolvers = { };
-        selectResolvers = { };
+        matchLambdas.clear();
+        selectLambdas.clear();
+        matchResolvers.clear();
+        selectResolvers.clear();
       }
       setIdentifierSyntax();
       return true;
@@ -849,21 +882,21 @@
       // null to use collection.item()
       switch (mode) {
         case true:
-          if (selectLambdas[selector]) { return selectLambdas[selector]; }
+          if ((factory = selectLambdas.get(selector))) { return factory; }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL;
           head = S_HEAD;
           loop = S_LOOP;
           break;
         case false:
-          if (matchLambdas[selector]) { return matchLambdas[selector]; }
+          if ((factory = matchLambdas.get(selector))) { return factory; }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL;
           head = M_HEAD;
           loop = M_LOOP;
           break;
         case null:
-          if (selectLambdas[selector]) { return selectLambdas[selector]; }
+          if ((factory = selectLambdas.get(selector))) { return factory; }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL;
-          head = N_HEAD;
+          head = N_HEAD; 
           loop = N_LOOP;
           break;
         default:
@@ -888,7 +921,13 @@
 
       factory = Function('s', F_INIT + '{' + head + vars + ';' + loop + 'return r;}')(Snapshot);
 
-      return mode || mode === null ? (selectLambdas[selector] = factory) : (matchLambdas[selector] = factory);
+      if (mode || mode === null) {
+        selectLambdas.set(selector, factory);
+      } else {
+        matchLambdas.set(selector, factory);
+      }
+
+      return factory;
     },
 
   // build conditional code to check components of selector strings
@@ -1162,7 +1201,7 @@
                     source  = 'if(s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
                   } else if (t == '~') {
                     source  = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-		  } else if (t == '>') {
+                  } else if (t == '>') {
                     source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
                   } else {
                     source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
@@ -1455,7 +1494,7 @@
 
             // allow pseudo-elements starting with double colon (::)
             // ::after, ::before, ::marker, ::placeholder, ::selection,
-	    // ::inactive-selection, ::-webkit-<foo-bar>
+            // ::inactive-selection, ::-webkit-<foo-bar>
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
               source = 'if(e.element&&e.type.toLowerCase()=="' +
@@ -1676,7 +1715,7 @@
           (lastContext = switchContext(context));
 
       if (selectors) {
-        if ((resolver = selectResolvers[selectors])) {
+        if ((resolver = selectResolvers.get(selectors))) {
           if (resolver.context === context &&
             resolver.callback === callback) {
             var i, l, list,
@@ -1714,9 +1753,9 @@
       }
 
       // save/reuse factory and closure collection
-      selectResolvers[selectors] = collect(parse(selectors, true), context, callback);
+      selectResolvers.set(selectors, collect(parse(selectors, true), context, callback));
 
-      nodes = selectResolvers[selectors].results;
+      nodes = selectResolvers.get(selectors).results;
 
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback);
@@ -1901,12 +1940,12 @@
   lastContext,
 
   // cached lambdas
-  matchLambdas = { },
-  selectLambdas = { },
-
+  matchLambdas = createCache(),
+  selectLambdas = createCache(),
+        
   // cached resolvers
-  matchResolvers = { },
-  selectResolvers = { },
+  matchResolvers = createCache(),
+  selectResolvers = createCache(),
 
   // passed to resolvers
   Snapshot = {
