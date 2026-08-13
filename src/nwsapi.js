@@ -628,20 +628,6 @@
           doc.createElement('DiV').localName == 'div';
     },
 
-  // return node if node is focusable
-  // or false if node isn't focusable
-  isFocusable =
-    function(node) {
-      var doc = node.ownerDocument;
-       if (node.contentDocument&&node.localName== 'iframe') { return false; }
-       if (doc.hasFocus() && node === doc.activeElement) {
-        if (node.type || node.href || typeof node.tabIndex == 'number') {
-          return node;
-        }
-      }
-      return false;
-    },
-
   // check if node content is editable
   isContentEditable =
     function(node) {
@@ -662,6 +648,46 @@
           }
           return false;
       }
+    },
+
+  // return node if node is focusable
+  // or false if node isn't focusable
+  isFocusable =
+    function(node) {
+      var doc = node.ownerDocument;
+       if (node.contentDocument&&node.localName== 'iframe') { return false; }
+       if (doc.hasFocus() && node === doc.activeElement) {
+        if (node.type || node.href || typeof node.tabIndex == 'number') {
+          return node;
+        }
+      }
+      return false;
+    },
+
+  // track the changes of the FullScreen mode/state
+  isFullscreen =
+    function(e) {
+      addEventListener('enterFullscreen', function(e) { FullScreen_state = true; });
+      addEventListener('exitFullscreen', function(e) { Fullscreen_state = false; });
+    },
+
+  // dialog and details elements are the default targets
+  // elements that we check for the open or closed state
+  isOpen =
+    function(element) {
+      // there are other elements that can be in the open or closed state
+      // document, windows and frames/iframes all have open and close properties
+      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
+      return (
+        !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
+        !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
+    },
+
+  // track the changes of the PictureInPicture mode/state
+  isPictureInPicture =
+    function(e) {
+      addEventListener('enterPictureInPicture', function(e) { PictureInPicture_state = true; });
+      addEventListener('exitPictureInPicture', function(e) { PictureInPicture_state = false; });
     },
 
   // check media resources is playing
@@ -1473,6 +1499,46 @@
                   source = 'if(e.localName=="audio"&&e.getAttribute("muted")){' + source + '}';
                   break;
                 case 'volume-locked':
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            // display state pseudo-classes
+            // :open, :closed, :modal, :fullscreen, :picture-in-picture
+            else if ((match = selector.match(Patterns.rsrc_state))) {
+              match[1] = match[1].toLowerCase();
+              switch (match[1]) {
+                case 'open':
+                  source = 'if("open" in e&&e.open||isOpen(e)){' + source + '}';
+                  break;
+                case 'closed':
+                  source = 'if("open" ìn e&&!e.open||!isOpen(e)){' + source + '}';
+                  break;
+                case 'modal':
+                  source = 'if(' +
+                  'e.localName=="details"&&e.modal===true||' +
+                  'e.localName=="dialog"&&e.modal===true||' +
+                  'e.getAttribute("aria-modal")===true' +
+                  '){' + source + '}';
+                  break;
+                // the fullscreen API ihttps://www.w3.org/TR/fullscreen
+                // see also https://fullscreen.spec.whatwg.org
+                case 'fullscreen':
+                  source = 'if(' +
+                    's.doc.defaultView.fullScreen||' +
+                    's.doc.fullscreenElement===e||' +
+                    isFullScreen+
+                  '){' + source + '}';
+                  break;
+                // the pictureInPicturer API https://www.w3.org/TR/picture-in-picture/
+                case 'picture-in-picture':
+                  source = 'if(' +
+                    's.doc.pictureInPictureElement===e||' +
+                    's.doc.defaultView.pictureInPicture||' +
+                    isPictureInPicture +
+                  '){' + source + '}';
                   break;
                 default:
                   break;
