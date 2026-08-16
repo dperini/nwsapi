@@ -1507,7 +1507,7 @@
 
             // display state pseudo-classes
             // :open, :closed, :modal, :fullscreen, :picture-in-picture
-            else if ((match = selector.match(Patterns.rsrc_state))) {
+            else if ((match = selector.match(Patterns.disp_state))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'open':
