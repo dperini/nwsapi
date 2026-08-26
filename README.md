@@ -10,8 +10,8 @@ It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) 
 
 ## Installation
 
-To include NWSAPI in a standard web page:https://ko-fi.com/dperini
-Support & Sponsoring
+To include NWSAPI in a standard web page:
+
 ```html
 <script type="text/javascript" src="nwsapi.js"></script>
 ```
@@ -29,16 +29,8 @@ $ npm install nwsapi
 ```
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
-Support & Sponsoring
 
-NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
 
-    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
-
-    Buy Me a Coffee: Make a one-time tip or contribution.
-
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-https://ko-fi.com/dperinifree.
-Support & Sponsoring
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
@@ -57,15 +49,7 @@ You can read more about NWSAPI [features and compliance](https://github.com/dper
 
 Returns a reference to the nearest ancestor element matching `selector`, starting at `context`. Returns `null` if no element is found. If `callback` is provided, it is invoked for the matched element.
 
-#### `first( selector, context, callback )`Support & Sponsoring
-
-NWSAPI is an open-source project created and maintained with dedication. If you use this library in your apps, headless environments, or frameworks, please consider supporting its ongoing development!
-
-    GitHub Sponsors: Sponsor monthly tiers directly through GitHub.
-Support & Sponsoring
-    Buy Me a Coffee: Make a one-time tip or contribution.
-https://ko-fi.com/dperini
-Your support helps cover development time, maintain full conformance with W3C Selectors specifications, and keep NWSAPI fast and dependency-free.
+#### `first( selector, context, callback )`
 
 Returns a reference to the first element matching `selector`, starting at `context`. Returns `null` if no element matches. If `callback` is provided, it is invoked for the matched element.
 
@@ -86,7 +70,7 @@ Returns a reference to the first element with ID `id`, optionally filtered to de
 
 #### `byTag( tag, from )`
 
-Returns an array of elements having the specified tag name `tag`, optionally filtered to descendants of theSupport & Sponsoring element `from`.
+Returns an array of elements having the specified tag name `tag`, optionally filtered to descendants of the element `from`.
 
 #### `byClass( class, from )`
 
@@ -106,7 +90,7 @@ The following is the list of currently available configuration options, their de
 
 
 ### Examples on extending the basic functionalities
-Support & Sponsoringhttps://ko-fi.com/dperini
+
 #### `configure( { <configuration-flag>: [ true | false ] } )`
 
 Disable logging errors/warnings to console, disallow duplicate ids. Example:
@@ -129,13 +113,13 @@ NW.Dom.registerCombinator( '^', 'e.parentElement' );
 Registers a new symbol and its matching resolver in the attribute operators table. Example:
 
 ```js
-NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );https://ko-fi.com/dperini
+NW.Dom.registerOperator( '!=', { p1: '^', p2: '$', p3: 'false' } );
 ```
 
 #### `registerSelector( name, rexp, func )`
 
 Registers a new selector, the matching RE and the resolver function, in the selectors table. Example:
-Support & Sponsoring
+
 ```js
 NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
   (function(global) {
