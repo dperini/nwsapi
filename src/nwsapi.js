@@ -87,8 +87,8 @@
     inputstate: '(enabled|disabled|read\\-only|read\\-write|placeholder\\-shown|default)\\b',
     inputvalue: '(checked|indeterminate|required|optional|valid|invalid|in\\-range|out\\-of\\-range)\\b',
     // pseudo-classes not requiring parameters and describing functional state
-    rsrc_state: '(playing|paused|seeking|buffering|stalled|muted|volume-locked)\\b',
-    disp_state: '(open|closed|modal|fullscreen|picture-in-picture)\\b',
+    rsrc_state: '(playing|paused|seeking|buffering|stalled|muted|volume\\-locked)\\b',
+    disp_state: '(open|closed|modal|fullscreen|picture\\-in\\-picture|popover\\-open|popover)\\b',
     time_state: '(current|past|future)\\b',
     // pseudo-classes for parsing only selectors
     pseudo_nop: '(autofill|-webkit\\-autofill)\\b',
@@ -922,7 +922,7 @@
         case null:
           if ((factory = selectLambdas.get(selector))) { return factory; }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL;
-          head = N_HEAD; 
+          head = N_HEAD;
           loop = N_LOOP;
           break;
         default:
@@ -1511,10 +1511,10 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'open':
-                  source = 'if("open" in e&&e.open||isOpen(e)){' + source + '}';
+                  source = 'if("open" in e&&e.open||s.isOpen(e)){' + source + '}';
                   break;
                 case 'closed':
-                  source = 'if("open" ìn e&&!e.open||!isOpen(e)){' + source + '}';
+                  source = 'if("open" ìn e&&!e.open||!s.isOpen(e)){' + source + '}';
                   break;
                 case 'modal':
                   source = 'if(' +
@@ -1523,7 +1523,7 @@
                   'e.getAttribute("aria-modal")===true' +
                   '){' + source + '}';
                   break;
-                // the fullscreen API ihttps://www.w3.org/TR/fullscreen
+                // the fullscreen API https://www.w3.org/TR/fullscreen
                 // see also https://fullscreen.spec.whatwg.org
                 case 'fullscreen':
                   source = 'if(' +
@@ -1539,6 +1539,12 @@
                     's.doc.defaultView.pictureInPicture||' +
                     isPictureInPicture +
                   '){' + source + '}';
+                  break;
+                case 'popover':
+                  source = 'if(e.getAttribute("popover"){' + source + '}';
+                  break;
+                case 'popover-open':
+                  source = 'if(e.getAttribute("popover", "open")){' + source + '}';
                   break;
                 default:
                   break;
@@ -2008,7 +2014,7 @@
   // cached lambdas
   matchLambdas = createCache(),
   selectLambdas = createCache(),
-        
+
   // cached resolvers
   matchResolvers = createCache(),
   selectResolvers = createCache(),
@@ -2032,6 +2038,7 @@
     nthOfType: nthOfType,
     nthElement: nthElement,
 
+    isOpen: isOpen,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS
