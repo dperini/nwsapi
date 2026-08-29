@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NWSAPI :has() sibling root regression</title>
+</head>
+<body>
+
+<div class="subject"><span id="target" class="target"></span></div>
+<div class="sibling"></div>
+
+<script src="../src/nwsapi.js"></script>
+<script>
+var cases = [
+  [document.documentElement, ':has(+ p)', false],
+  [document.documentElement, ':has(~ p)', false],
+  [document.getElementById('target'), '.subject:has(~ .sibling) .target', true]
+];
+
+cases.forEach(function(test) {
+  var actual = NW.Dom.match(test[1], test[0]);
+  if (actual !== test[2]) {
+    throw new Error(test[1] + ': expected ' + test[2] + ', received ' + actual);
+  }
+});
+
+document.body.setAttribute('data-result', 'pass');
+</script>
+
+</body>
+</html>

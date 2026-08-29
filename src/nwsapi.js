@@ -1297,9 +1297,9 @@
                   t = expr.charAt(0);
 
                   if (t == '+') {
-                    source  = 'if(s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
+                    source  = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
                   } else if (t == '~') {
-                    source  = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                    source  = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
                   } else if (t == '>') {
                     source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
                   } else {
