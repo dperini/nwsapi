@@ -702,30 +702,65 @@
       return false;
     },
 
-  // track the changes of the FullScreen mode/state
-  isFullscreen =
-    function(e) {
-      addEventListener('enterFullscreen', function(e) { FullScreen_state = true; });
-      addEventListener('exitFullscreen', function(e) { Fullscreen_state = false; });
+  // use the native selector state when it is available; when NWSAPI has
+  // installed itself, _matches retains the native implementation
+  matchesNative =
+    function(node, selector) {
+      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
+        node.mozMatchesSelector || node.msMatchesSelector;
+      if (!matcher) return false;
+      try {
+        return matcher.call(node, selector);
+      } catch (e) {
+        return false;
+      }
     },
 
-  // dialog and details elements are the default targets
-  // elements that we check for the open or closed state
+  // :open and :closed have a portable DOM state for details and dialog.
+  // Native matching extends support to host-language states such as pickers.
   isOpen =
-    function(element) {
-      // there are other elements that can be in the open or closed state
-      // document, windows and frames/iframes all have open and close properties
-      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
-      return (
-        !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
-        !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
+    function(node) {
+      return (/^(details|dialog)$/i.test(node.localName) && node.open === true) ||
+        matchesNative(node, ':open');
     },
 
-  // track the changes of the PictureInPicture mode/state
+  isClosed =
+    function(node) {
+      return (/^(details|dialog)$/i.test(node.localName) && node.open === false) ||
+        matchesNative(node, ':closed');
+    },
+
+  isFullscreen =
+    function(node) {
+      var doc = node.ownerDocument;
+      return matchesNative(node, ':fullscreen') || !!(doc && (
+        doc.fullscreenElement === node ||
+        doc.webkitFullscreenElement === node ||
+        doc.mozFullScreenElement === node ||
+        doc.msFullscreenElement === node));
+    },
+
+  // A modal dialog cannot be distinguished from dialog.show() without the
+  // native :modal state. Fullscreen is explicitly modal per the WPT suite.
+  isModal =
+    function(node) {
+      return matchesNative(node, ':modal') || isFullscreen(node);
+    },
+
   isPictureInPicture =
-    function(e) {
-      addEventListener('enterPictureInPicture', function(e) { PictureInPicture_state = true; });
-      addEventListener('exitPictureInPicture', function(e) { PictureInPicture_state = false; });
+    function(node) {
+      var doc = node.ownerDocument;
+      return matchesNative(node, ':picture-in-picture') || !!(doc && (
+        doc.pictureInPictureElement === node ||
+        node.webkitPresentationMode === 'picture-in-picture'));
+    },
+
+  // The popover attribute declares capability, not the showing state. The
+  // native pseudo-class is therefore required until an explicit state API is
+  // available. :popover is retained as an alias for existing callers.
+  isPopoverOpen =
+    function(node) {
+      return node.hasAttribute('popover') && matchesNative(node, ':popover-open');
     },
 
   // check media resources is playing
@@ -1344,10 +1379,10 @@
                   source = 'if(s.isFocusable(e)){' + source + '}';
                   break;
                 case 'focus-visible':
-                  source = 'if(s.isFocusable(e)&&' +
-                    '(/input|select|textarea/i.test(e.localName)&&' +
-                    '(e.hasAttribute("contenteditable")||s.keyboardFocus)))' +
-                    '{' + source + '}';
+                  // The v2.x branch has no reliable keyboard-modality state.
+                  // An element with observable input focus is the conservative
+                  // behavior shared by focus and focus-visible in this line.
+                  source = 'if(s.isFocusable(e)){' + source + '}';
                   break;
                 case 'focus-within':
                   source = 'if(e.contains(s.doc.activeElement)){' + source + '}';
@@ -1543,48 +1578,32 @@
               }
             }
 
-            // display state pseudo-classes
-            // :open, :closed, :modal, :fullscreen, :picture-in-picture
+            // display state pseudo-classes. Helpers use native matching when
+            // available and otherwise only properties observable from the DOM.
             else if ((match = selector.match(Patterns.disp_state))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'open':
-                  source = 'if("open" in e&&e.open||s.isOpen(e)){' + source + '}';
+                  source = 'if(s.isOpen(e)){' + source + '}';
                   break;
                 case 'closed':
-                  source = 'if("open" ìn e&&!e.open||!s.isOpen(e)){' + source + '}';
+                  source = 'if(s.isClosed(e)){' + source + '}';
                   break;
                 case 'modal':
-                  source = 'if(' +
-                  'e.localName=="details"&&e.modal===true||' +
-                  'e.localName=="dialog"&&e.modal===true||' +
-                  'e.getAttribute("aria-modal")===true' +
-                  '){' + source + '}';
+                  source = 'if(s.isModal(e)){' + source + '}';
                   break;
-                // the fullscreen API https://www.w3.org/TR/fullscreen
-                // see also https://fullscreen.spec.whatwg.org
                 case 'fullscreen':
-                  source = 'if(' +
-                    's.doc.defaultView.fullScreen||' +
-                    's.doc.fullscreenElement===e||' +
-                    isFullScreen+
-                  '){' + source + '}';
+                  source = 'if(s.isFullscreen(e)){' + source + '}';
                   break;
-                // the pictureInPicturer API https://www.w3.org/TR/picture-in-picture/
                 case 'picture-in-picture':
-                  source = 'if(' +
-                    's.doc.pictureInPictureElement===e||' +
-                    's.doc.defaultView.pictureInPicture||' +
-                    isPictureInPicture +
-                  '){' + source + '}';
+                  source = 'if(s.isPictureInPicture(e)){' + source + '}';
                   break;
                 case 'popover':
-                  source = 'if(e.getAttribute("popover"){' + source + '}';
-                  break;
                 case 'popover-open':
-                  source = 'if(e.getAttribute("popover", "open")){' + source + '}';
+                  source = 'if(s.isPopoverOpen(e)){' + source + '}';
                   break;
                 default:
+                  emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
             }
@@ -2080,6 +2099,11 @@
     nthElement: nthElement,
 
     isOpen: isOpen,
+    isClosed: isClosed,
+    isModal: isModal,
+    isFullscreen: isFullscreen,
+    isPictureInPicture: isPictureInPicture,
+    isPopoverOpen: isPopoverOpen,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS
