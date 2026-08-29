@@ -215,34 +215,72 @@
       return list;
     },
 
-  // caching limit for resolvers
+  // caching limit for compiled resolver functions
   CACHE_LIMIT = 1000,
 
-  // simplified the caching operations
-  // using a Map object for resolvers
+  // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
+  // never DOM result sets. A prefixed dictionary avoids user-key collisions
+  // and a doubly linked list keeps the least-recently-used entry at the head.
   createCache = function(limit) {
-    var cache = new Map();
+    var cache = { }, head = null, tail = null, size = 0,
+      prefix = '\x01', has = function(key) {
+        return Object.prototype.hasOwnProperty.call(cache, prefix + key);
+      }, unlink = function(entry) {
+        entry.prev ? entry.prev.next = entry.next : head = entry.next;
+        entry.next ? entry.next.prev = entry.prev : tail = entry.prev;
+      }, link = function(entry) {
+        entry.prev = tail;
+        entry.next = null;
+        tail ? tail.next = entry : head = entry;
+        tail = entry;
+      }, promote = function(entry) {
+        if (entry !== tail) {
+          unlink(entry);
+          link(entry);
+        }
+      }, remove = function(entry) {
+        unlink(entry);
+        delete cache[entry.key];
+        --size;
+      };
+
     limit || (limit = CACHE_LIMIT);
+
     return {
-      clr: function() {
-        cache
+      clear: function() {
+        cache = { };
+        head = tail = null;
+        size = 0;
       },
       get: function(key) {
-        if (!cache.has(key)) return undefined;
-        var val = cache.get(key);
-        cache.delete(key);
-        cache.set(key, val);
-        return val;
+        var entry;
+        if (!has(key)) return undefined;
+        entry = cache[prefix + key];
+        promote(entry);
+        return entry.value;
       },
-      set: function(key, val) {
-        if (cache.has(key)) cache.delete(key);
-        else if (cache.size >= limit) {
-          cache.delete(cache.keys().next().value);
+      has: function(key) {
+        return has(key);
+      },
+      set: function(key, value) {
+        var entry, entryKey = prefix + key;
+
+        if (has(key)) {
+          entry = cache[entryKey];
+          entry.value = value;
+          promote(entry);
+        } else {
+          size >= limit && remove(head);
+          entry = { key: entryKey, value: value, prev: null, next: null };
+          cache[entryKey] = entry;
+          link(entry);
+          ++size;
         }
-        cache.set(key, val);
+        return value;
       },
-      // cached lambdas list for debugging purpose
-      _map: cache
+      size: function() {
+        return size;
+      }
     };
   },
 
@@ -1743,13 +1781,16 @@
   match =
     function _matches(selectors, element, callback) {
 
-      if (element && matchResolvers[selectors]) {
-        return match_assert(matchResolvers[selectors].factory, element, callback);
+      var resolver;
+
+      if (element && (resolver = matchResolvers.get(selectors))) {
+        return match_assert(resolver.factory, element, callback);
       }
 
-      matchResolvers[selectors] = match_collect(parse(selectors, false), callback);
+      resolver = match_collect(parse(selectors, false), callback);
+      matchResolvers.set(selectors, resolver);
 
-      return match_assert(matchResolvers[selectors].factory, element, callback);
+      return match_assert(resolver.factory, element, callback);
     },
 
   // true if element matches the selector
