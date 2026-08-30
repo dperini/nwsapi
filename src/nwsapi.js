@@ -5,9 +5,9 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.25
+ * Version: 2.2.26
  * Created: 20070722
- * Release: 20260827
+ * Release: 20260829
  *
  * License:
  *  https://javascript.nwbox.com/nwsapi/MIT-LICENSE
@@ -30,7 +30,7 @@
 
 })(this, function Factory(global, Export) {
 
-  var version = 'nwsapi-2.2.25',
+  var version = 'nwsapi-2.2.26',
 
   doc = global.document,
   root = doc.documentElement,
@@ -1297,9 +1297,9 @@
                   t = expr.charAt(0);
 
                   if (t == '+') {
-                    source  = 'if(s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
+                    source  = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
                   } else if (t == '~') {
-                    source  = 'if(Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                    source  = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
                   } else if (t == '>') {
                     source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
                   } else {
