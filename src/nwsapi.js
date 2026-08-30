@@ -7,7 +7,7 @@
  * Author: Diego Perini <diego.perini at gmail com>
  * Version: 2.2.26
  * Created: 20070722
- * Release: 20260829
+ * Release: 20260830
  *
  * License:
  *  https://javascript.nwbox.com/nwsapi/MIT-LICENSE
