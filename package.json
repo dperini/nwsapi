@@ -38,6 +38,10 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test": "node ./test/jsdom-state-pseudo-classes.js"
+  },
+  "devDependencies": {
+    "jsdom": "20.0.3"
   }
 }

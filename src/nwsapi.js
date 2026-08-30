@@ -702,17 +702,22 @@
       return false;
     },
 
+  nativeMatchActive = false,
+
   // use the native selector state when it is available; when NWSAPI has
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
       var matcher = _matches || node.matches || node.webkitMatchesSelector ||
         node.mozMatchesSelector || node.msMatchesSelector;
-      if (!matcher) return false;
+      if (!matcher || nativeMatchActive) return false;
       try {
+        nativeMatchActive = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
+      } finally {
+        nativeMatchActive = false;
       }
     },
 
