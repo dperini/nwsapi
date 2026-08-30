@@ -1292,21 +1292,22 @@
                     break;
                   }
 
-                  // check for combinators
-                  // having mangled context
-                  t = expr.charAt(0);
-
-                  if (t == '+') {
-                    source  = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
-                  } else if (t == '~') {
-                    source  = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-                  } else if (t == '>') {
-                    source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
-                  } else {
-                    source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
+                  // combinators having mangled context
+                  switch (expr.charAt(0)) {
+                    case '+':
+                      source = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
+                      break;
+                    case '~':
+                      source = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
+                      break;
+                    case '>':
+                      source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
+                      break;
+                     default:
+                      source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
+                      break;
                   }
                   break;
-
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
                   break;
