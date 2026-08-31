@@ -38,6 +38,15 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test": "jest --runInBand"
+  },
+  "devDependencies": {
+    "jest": "30.4.2"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/test/**/*.test.js"
+    ]
   }
 }

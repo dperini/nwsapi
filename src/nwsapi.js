@@ -24,17 +24,21 @@
   } else if (typeof define == 'function' && define['amd']) {
     define(factory);
   } else {
+    var proto = global.Element && global.Element.prototype;
     global.NW || (global.NW = { });
-    global.NW.Dom = factory(global, Export);
+    global.NW.Dom = factory(global, Export, proto && (
+      proto.matches || proto.webkitMatchesSelector ||
+      proto.mozMatchesSelector || proto.msMatchesSelector));
   }
 
-})(this, function Factory(global, Export) {
+})(this, function Factory(global, Export, platformMatches) {
 
   var version = 'nwsapi-2.2.27',
 
   doc = global.document,
   root = doc.documentElement,
   slice = Array.prototype.slice,
+  nativeMatcher = typeof platformMatches == 'function' ? platformMatches : null,
 
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
@@ -702,19 +706,20 @@
       return false;
     },
 
-  // use the native selector state when it is available; when NWSAPI has
-  // installed itself, _matches retains the native implementation
+  // use only the platform matcher captured when the factory was created;
+  // node.matches may itself delegate to this NWSAPI instance
   matchesNative =
-    function(node, selector) {
-      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
-        node.mozMatchesSelector || node.msMatchesSelector;
-      if (!matcher) return false;
-      try {
-        return matcher.call(node, selector);
-      } catch (e) {
+    nativeMatcher ?
+      function(node, selector) {
+        try {
+          return nativeMatcher.call(node, selector);
+        } catch (e) {
+          return false;
+        }
+      } :
+      function() {
         return false;
-      }
-    },
+      },
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
