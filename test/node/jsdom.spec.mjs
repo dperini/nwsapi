@@ -221,6 +221,10 @@ test.describe('what the selector cache holds on to', () => {
     // otherwise the test proves nothing about the cache.
     expect(await subtreeSurvives({ query: null })).toBe(false);
     expect(await subtreeSurvives({ query: 'div.host span.leaf' })).toBe(false);
+    // Two required ancestor tags, which is what turns on the ancestor
+    // filter: its summaries key on elements, so they have to be dropped with
+    // the call rather than held until the next one.
+    expect(await subtreeSurvives({ query: 'body div span' })).toBe(false);
   });
 
   test('a cached plan is reused across contexts', () => {
