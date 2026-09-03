@@ -9,6 +9,8 @@
  * playwright.config.mjs.
  */
 import { createRequire } from 'node:module';
+import v8 from 'node:v8';
+import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
@@ -158,5 +160,79 @@ test.describe('logical selector arguments containing parentheses', () => {
     expect(ids('div:not([class]')).toEqual(['b']);
     expect(ids('div:not([class')).toEqual(['b']);
     expect(ids('div:is([class="x"')).toEqual(['a']);
+  });
+});
+
+test.describe('what the selector cache holds on to', () => {
+  // The cache keeps a plan per selector. A plan that also carried the result
+  // list and the context kept every element it had matched alive for as long
+  // as that selector stayed cached, which in a jsdom suite means for the life
+  // of the document. WeakRef answers this directly, where a heap reading only
+  // ever suggests an answer.
+  function exposeGc() {
+    if (typeof globalThis.gc === 'function') {
+      return globalThis.gc;
+    }
+    // Playwright runs this file without --expose-gc.
+    v8.setFlagsFromString('--expose-gc');
+    try {
+      return vm.runInNewContext('gc');
+    } finally {
+      v8.setFlagsFromString('--no-expose-gc');
+    }
+  }
+
+  async function collectGarbage(gc) {
+    for (let i = 0; i < 5; ++i) {
+      gc();
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
+
+  async function subtreeSurvives({ query }) {
+    const gc = exposeGc();
+    const { document, NW } = build('<!doctype html><body></body>');
+
+    const ref = (() => {
+      const host = document.createElement('div');
+      host.className = 'host';
+      for (let i = 0; i < 200; ++i) {
+        const leaf = document.createElement('span');
+        leaf.className = 'leaf';
+        host.appendChild(leaf);
+      }
+      document.body.appendChild(host);
+      if (query) {
+        NW.select(query, document);
+      }
+      host.remove();
+      return new WeakRef(host);
+    })();
+
+    await collectGarbage(gc);
+    const alive = ref.deref() !== undefined;
+    // The engine has to outlive the reading, or there is nothing to retain.
+    expect(NW).toBeTruthy();
+    return alive;
+  }
+
+  test('a removed subtree is collectable, queried or not', async () => {
+    // Control: with no query at all the subtree must already be collectable,
+    // otherwise the test proves nothing about the cache.
+    expect(await subtreeSurvives({ query: null })).toBe(false);
+    expect(await subtreeSurvives({ query: 'div.host span.leaf' })).toBe(false);
+  });
+
+  test('a cached plan is reused across contexts', () => {
+    const { document, NW } = build(
+      '<!doctype html><body><div id=one><p class=t>a</p></div>' +
+        '<div id=two><p class=t>b</p><p class=t>c</p></div></body>',
+    );
+    // The plan is context-free, so the second context must not see the first
+    // context's answer: caching the results is exactly how that would happen.
+    expect(NW.select('p.t', document.getElementById('one')).length).toBe(1);
+    expect(NW.select('p.t', document.getElementById('two')).length).toBe(2);
+    expect(NW.select('p.t', document.getElementById('one')).length).toBe(1);
+    expect(NW.select('p.t', document).length).toBe(3);
   });
 });
