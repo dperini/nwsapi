@@ -36,6 +36,19 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
+  // The host matcher is captured here, before anything can replace it, and
+  // node.matches is never consulted at match time. A host is free to wire
+  // Element.prototype.matches back to this engine, which is what jsdom does,
+  // and calling it while resolving a state pseudo-class re-enters the lambda
+  // that asked for the state: the recursion only ends when the stack does,
+  // and the RangeError is swallowed below (dperini/nwsapi#172, #171, #177).
+  // Passing a document alone, as jsdom does, leaves no matcher at all, which
+  // is the intended outcome: there is no native state to read.
+  NATIVE_MATCHES = (function(proto) {
+    return (proto && (proto.matches || proto.webkitMatchesSelector ||
+      proto.mozMatchesSelector || proto.msMatchesSelector)) || null;
+  })(global.Element && global.Element.prototype),
+
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
   WSP = '[' + HSP + VSP + ']',
@@ -66,7 +79,8 @@
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     CombineWSP: RegExp('[\\n\\r\\f\\x20]+' + NOT.single_enc + NOT.double_enc, 'g'),
     TabCharWSP: RegExp('(\\x20?\\t+\\x20?)' + NOT.single_enc + NOT.double_enc, 'g'),
-    PseudosWSP: RegExp('\\s+([-+])\\s+' + NOT.square_enc, 'g')
+    PseudosWSP: RegExp('\\s+([-+])\\s+' + NOT.square_enc, 'g'),
+    LogicalPfx: RegExp('^:(is|where|matches|not|has)\\x28', 'i')
   },
 
   STD = {
@@ -75,11 +89,15 @@
     namespaces: RegExp('(\\*|\\w+)\\|[\\w-]+')
   },
 
+  // private pseudo-class standing for the element a relative :has()
+  // argument is anchored to, see has()
+  HAS_ANCHOR = ':-nwsapi-anchor',
+
   GROUPS = {
     // pseudo-classes requiring parameters
-    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
-    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
-    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
+    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$))',
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?(?:\\x29|$))',
+    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target|defined)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
@@ -111,6 +129,7 @@
     time_state: RegExp('^:(?:' + GROUPS.time_state + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
+    has_anchor: RegExp('^:(?:' + HAS_ANCHOR.slice(1) + ')\\b(.*)', 'i'),
     pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
     pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
     pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
@@ -442,6 +461,41 @@
         ) : str;
     },
 
+  // split ':is(', ':where(', ':matches(', ':not(' and ':has(' into their
+  // selector list argument and the rest of the selector. The argument can
+  // nest parentheses and quote them, which a single regular expression
+  // cannot track, so the closing parenthesis is located by scanning. An
+  // argument left unclosed is closed by EOF, as the CSS Syntax parser does
+  // with any open construct. Returns a match-like array so that callers can
+  // pop() the remainder the same way they do with a RegExp match.
+  matchLogical =
+    function(selector) {
+      var chr, close, escaped, depth = 1, i, l, quote = '',
+      match = selector.match(REX.LogicalPfx);
+
+      if (!match) { return null; }
+
+      for (i = match[0].length, l = selector.length; l > i; ++i) {
+        chr = selector.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28') { ++depth; }
+        else if (chr == '\x29' && --depth === 0) { break; }
+      }
+
+      // i is the closing parenthesis, or the EOF that stands in for it
+      close = l > i ? i + 1 : i;
+
+      return [
+        selector.slice(0, close),
+        match[1],
+        selector.slice(match[0].length, i).replace(REX.TrimSpaces, ''),
+        selector.slice(close)
+      ];
+    },
+
   method = {
     '#': 'getElementById',
     '*': 'getElementsByTagName',
@@ -702,17 +756,24 @@
       return false;
     },
 
+  // set while the captured host matcher runs, see NATIVE_MATCHES
+  matchingNative = false,
+
   // use the native selector state when it is available; when NWSAPI has
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
-        node.mozMatchesSelector || node.msMatchesSelector;
-      if (!matcher) return false;
+      var matcher = _matches || NATIVE_MATCHES;
+      // the captured matcher can still be a host wrapper that delegates back
+      // to this engine, in which case the outer answer is the only one
+      if (!matcher || matchingNative) { return false; }
       try {
+        matchingNative = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
+      } finally {
+        matchingNative = false;
       }
     },
 
@@ -888,7 +949,10 @@
             '(?:[.#]?' + identifier + ')|' +
             '(?:' + attributes + ')' +
           ')+|' +
-          '(?:' + WSP + '?[>+~][^>+~]' + WSP + '?)|' +
+          // the combinator is only recognized, not consumed: taking the
+          // character after it swallows the '[' of a following attribute
+          // selector, which then cannot be parsed (dperini/nwsapi#175)
+          '(?:' + WSP + '?[>+~](?=[^>+~])' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)|' +
           '(?:\\x29|$)' +
@@ -1258,16 +1322,19 @@
               }
             }
 
+            // *** private anchor pseudo-class
+            // the implied anchor of a relative :has() argument
+            else if ((match = selector.match(Patterns.has_anchor))) {
+              source = 'if(e===s.anchor){' + source + '}';
+            }
+
             // *** logical combination pseudo-classes
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ]),
             // :has( s1, [ s2, ... ]) no nesting is allowed for
             // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
-            else if ((match = selector.match(Patterns.logicalsel))) {
+            else if ((match = matchLogical(selector))) {
               match[1] = match[1].toLowerCase();
-              expr = match[2]
-//                .replace(REX.CommaGroup, ',')
-//                .replace(REX.TrimSpaces, '')
-                .replace(/\x22/g, '\\"');
+              expr = match[2].replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
                 case 'where':
@@ -1292,21 +1359,11 @@
                     break;
                   }
 
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '~':
-                      source = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '>':
-                      source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                     default:
-                      source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                  }
+                  // a sibling argument matches outside of the subtree of
+                  // the anchor, so it is collected from the parent element
+                  source = /^[+~]/.test(expr) ?
+                    'if(e.parentElement&&s.has("' + HAS_ANCHOR + ' ' + expr + '",e,e.parentElement)){' + source + '}' :
+                    'if(s.has("' + HAS_ANCHOR + ' ' + expr + '",e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1675,7 +1732,7 @@
 
               if (!status) {
                 if (Config.FORGIVING &&
-                  selector.match(/(:(?:is|where)\\x28)/)) {
+                  selector.match(/(:(?:is|where)\x28)/)) {
                   return '';
                 }
                 emit('unknown pseudo-class selector \'' + selector + '\'');
@@ -1703,7 +1760,7 @@
 
         if (!match) {
           if (Config.FORGIVING &&
-            selector.match(/(:(?:is|where)\\x28)/)) {
+            selector.match(/(:(?:is|where)\x28)/)) {
             return '';
           }
           emit('\'' + expression + '\'' + qsInvalid);
@@ -1802,7 +1859,9 @@
         if (Config.FORGIVING) {
           // forgiving pseudos allow to continue even after parse errors
           if (!(parsed.includes(':is(') || parsed.includes(':where('))) {
-            emit('\'' + selectors + '\'' + qsInvalid);
+            // 'selectors' holds the fragments the validator did match, which
+            // read as a mangled selector once joined by String()
+            emit('\'' + parsed + '\'' + qsInvalid);
             return Config.VERBOSITY ? undefined : (type ? none : false);
           }
         }
@@ -1828,9 +1887,25 @@
     },
 
   // true if element matches the selector
+  // Test the relative argument of a :has() against 'anchor'. The implied
+  // anchor is compiled as the private ':-nwsapi-anchor' pseudo-class rather
+  // than as ':scope', because an explicit ':scope' written inside the
+  // argument keeps referring to the scoping root of the outer query.
+  // 'context' is the subtree the candidates are collected from: the anchor
+  // itself for descendant arguments, its parent for the sibling ones, whose
+  // candidates live outside the anchor's subtree. The outer selection is
+  // still in progress, so the previous anchor is restored before returning.
   has =
-    function(selector, context, callback) {
-      return collect(parse(selector, true), context, callback).results.length > 0;
+    function(selector, anchor, context, callback) {
+      var previous = Snapshot.anchor;
+      Snapshot.anchor = anchor;
+      try {
+        return collect(parse(selector, true), context || anchor, callback).results.length > 0;
+      } finally {
+        // a forgiving :is() swallows the error of a nested invalid selector,
+        // the anchor of the pending outer :has() must survive that
+        Snapshot.anchor = previous;
+      }
     },
 
   // equivalent of w3c 'querySelector' method
@@ -2100,6 +2175,9 @@
     doc: doc,
     from: doc,
     root: root,
+
+    // element a relative :has() argument is anchored to, see has()
+    anchor: null,
 
     byTag: byTag,
 

@@ -43,6 +43,7 @@
     "prepack": "pnpm run min",
     "serve": "portless nwsapi node scripts/serve.mjs",
     "test": "playwright test",
+    "test:node": "playwright test --project=node",
     "test:upstream": "playwright test --project=upstream",
     "upstream:clone": "node scripts/git-partial-submodule.mjs clone",
     "upstream:verify": "node scripts/git-partial-submodule.mjs verify"
