@@ -11,7 +11,6 @@ import { defineConfig } from '@playwright/test';
  * (e.g. via portless) be picked up instead.
  */
 export default defineConfig({
-  testDir: 'test/upstream',
   testMatch: '*.spec.mjs',
   fullyParallel: true,
   // Baseline rewrites (wpt.spec.mjs read-modify-writes expectations.json per
@@ -23,8 +22,14 @@ export default defineConfig({
     baseURL: 'http://localhost:8000',
   },
   projects: [
+    // node-side regressions, exercised against jsdom rather than a browser
+    {
+      name: 'node',
+      testDir: 'test/node',
+    },
     {
       name: 'upstream',
+      testDir: 'test/upstream',
       use: { browserName: 'chromium' },
     },
     // Only chromium binaries are installed right now. When firefox/webkit
