@@ -236,3 +236,73 @@ test.describe('what the selector cache holds on to', () => {
     expect(NW.select('p.t', document).length).toBe(3);
   });
 });
+
+test.describe('id lookups without document.all', () => {
+  // jsdom does not implement document.all, so nwsapi's id path fell through
+  // to walking the subtree: 2.4ms against 43ns for getElementById on a
+  // 6300-element document. These lock in the behavior the fast paths must
+  // preserve — duplicate ids all match, an element-scoped query is scoped,
+  // and an escaped id still resolves.
+  const MARKUP =
+    '<!doctype html><body>' +
+    '<div id=outer><span id=dup>1</span></div>' +
+    '<span id=dup>2</span><span id=uniq>3</span><b id="a.b">esc</b>' +
+    '</body>';
+
+  test('select() returns every element carrying the id', () => {
+    const { document, NW } = build(MARKUP);
+    const text = list => list.map(node => node.textContent);
+
+    expect(text(NW.select('#dup', document))).toEqual(['1', '2']);
+    expect(text(NW.select('#dup', document.getElementById('outer')))).toEqual(['1']);
+    expect(text(NW.select('#uniq', document))).toEqual(['3']);
+    expect(NW.select('#nope', document)).toEqual([]);
+  });
+
+  test('select() finds ids inside a detached subtree', () => {
+    // The miss fast path asks the document, which knows nothing about a
+    // detached subtree, so that case has to keep walking.
+    const { document, NW } = build(MARKUP);
+    const detached = document.createElement('div');
+    detached.innerHTML = '<b id=det>d</b>';
+    expect(NW.select('#det', detached).map(node => node.textContent)).toEqual(['d']);
+  });
+
+  test('first() returns the first in tree order', () => {
+    const { document, NW } = build(MARKUP);
+    const text = node => (node ? node.textContent : null);
+
+    expect(text(NW.first('#dup', document))).toBe('1');
+    expect(text(NW.first('#dup', document.getElementById('outer')))).toBe('1');
+    expect(text(NW.first('#uniq', document))).toBe('3');
+    expect(text(NW.first('#a\\.b', document))).toBe('esc');
+    expect(NW.first('#nope', document)).toBeNull();
+  });
+
+  test('first() still invokes the callback', () => {
+    const { document, NW } = build(MARKUP);
+    const seen = [];
+    const found = NW.first('#uniq', document, node => seen.push(node.textContent));
+    expect(found.textContent).toBe('3');
+    expect(seen).toEqual(['3']);
+  });
+
+  test('an id lookup does not walk the document', () => {
+    // A document big enough that walking it is visible: the fast path is
+    // sub-microsecond and a walk is milliseconds, so the ceiling separates
+    // the two by orders of magnitude without being timing-flaky.
+    let markup = '<!doctype html><body>';
+    for (let i = 0; i < 4000; ++i) {
+      markup += `<div class=n><span>${i}</span></div>`;
+    }
+    markup += '<i id=needle>found</i></body>';
+    const { document, NW } = build(markup);
+
+    const started = Date.now();
+    for (let i = 0; i < 200; ++i) {
+      expect(NW.first('#needle', document).textContent).toBe('found');
+      expect(NW.select('#missing', document)).toEqual([]);
+    }
+    expect(Date.now() - started).toBeLessThan(500);
+  });
+});

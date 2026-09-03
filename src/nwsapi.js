@@ -89,6 +89,9 @@
     namespaces: RegExp('(\\*|\\w+)\\|[\\w-]+')
   },
 
+  // elements that can carry a hyperlink, see isLink()
+  reLinkName = RegExp('^(?:a|area)$', 'i'),
+
   // private pseudo-class standing for the element a relative :has()
   // argument is anchored to, see has()
   HAS_ANCHOR = ':-nwsapi-anchor',
@@ -161,6 +164,7 @@
 
   // placeholder for global regexp
   reOptimizer,
+  reSimpleId,
   reValidator,
 
   // special handling configuration flags
@@ -501,9 +505,11 @@
     },
 
   // find duplicate ids using iterative walk
+  // Walk 'context' in tree order collecting elements carrying 'id'. The walk
+  // can start at 'from', an element already known to be the first match.
   byIdRaw =
-    function(id, context) {
-      var node = context, nodes = [ ], next = node.firstElementChild;
+    function(id, context, from) {
+      var node = context, nodes = [ ], next = from || node.firstElementChild;
       while ((node = next)) {
         node.id == id && (nodes[nodes.length] = node);
         if ((next = node.firstElementChild || node.nextElementSibling)) continue;
@@ -517,7 +523,7 @@
   // context agnostic getElementById
   byId =
     function(id, context) {
-      var e, i, l, nodes, api = method['#'];
+      var e, i, l, nodes, ownerDoc, api = method['#'];
 
       // duplicates id allowed
       if (Config.IDS_DUPES === false) {
@@ -535,6 +541,26 @@
             return nodes && nodes.length ? nodes : [ nodes ];
           } else return none;
         }
+      }
+
+      // Without document.all — jsdom does not implement it — every '#id'
+      // used to walk the whole subtree, which measures 2.5ms against 43ns
+      // for getElementById on a 6300-element document. getElementById cannot
+      // answer on its own, because a document may carry the same id more
+      // than once and all of them match, but it does settle two things in
+      // constant time: whether the id exists anywhere, and where the first
+      // one is, since it returns the first in tree order and any duplicate
+      // has to follow it.
+      ownerDoc = context.nodeType == 9 ? context : context.ownerDocument;
+
+      if (ownerDoc && ownerDoc.getElementById &&
+        (context.nodeType == 9 || context.isConnected)) {
+        e = ownerDoc.getElementById(id);
+        // nothing in the document carries the id, so nothing under context does
+        if (!e) { return none; }
+        // scoped to an element, the first document-order match may sit
+        // outside it, and a match inside it would then be missed
+        if (context.nodeType == 9) { return byIdRaw(id, context, e); }
       }
 
       return byIdRaw(id, context);
@@ -814,6 +840,17 @@
       return node.hasAttribute('popover') && matchesNative(node, ':popover-open');
     },
 
+  // ':link', ':any-link' and ':visited' share this test. Hoisting it out of
+  // the generated source is not only deduplication: a regular expression
+  // literal inside a compiled resolver is evaluated once per element tested,
+  // and every evaluation allocates a RegExp. Here the pattern is built once.
+  // The inline version also read /^a|area$/, which alternates '^a' with
+  // 'area$' and so matched any element whose name begins with 'a'.
+  isLink =
+    function(node) {
+      return reLinkName.test(node.localName) && node.hasAttribute('href');
+    },
+
   // check media resources is playing
   isPlaying =
     function(media) {
@@ -966,6 +1003,9 @@
       // deepest localName in selector strings and then
       // use it to retrieve all possible matching nodes
       // that will be filtered by compiled resolvers
+      // a lone '#id', the shape querySelector is asked for most often
+      reSimpleId = RegExp('^#(' + identifier + ')$');
+
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
         '(' + identifier + ')' +
@@ -1392,13 +1432,13 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'any-link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")||e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)||e.visited)){' + source + '}';
                   break;
                 case 'link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(s.isLink(e)){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
@@ -1503,7 +1543,7 @@
                 case 'placeholder-shown':
                   source =
                     'if((' +
-                      '(/^input|textarea$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
+                      '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
                       '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
@@ -1914,6 +1954,23 @@
 
   first =
     function _querySelector(selectors, context, callback) {
+      var element, match;
+
+      // A lone '#id' against a document is the id map's own question, and
+      // the first match in tree order is exactly what getElementById
+      // returns. Going through select() instead means building the whole
+      // candidate list first, and without document.all that list is built by
+      // walking the document: 2.4ms against 43ns here. Duplicate ids do not
+      // change the answer, only which of them comes first, and they cannot
+      // precede this one. Scoped to an element the first document-order
+      // match may sit outside it, so that case takes the ordinary path.
+      if (selectors && context && context.nodeType == 9 &&
+        context.getElementById && (match = reSimpleId.exec(selectors))) {
+        element = context.getElementById(unescapeIdentifier(match[1]));
+        if (element && typeof callback == 'function') { callback(element); }
+        return element || null;
+      }
+
       return select(selectors, context,
         typeof callback == 'function' ?
         function firstMatchCallback(element) {
@@ -2214,6 +2271,7 @@
     isFullscreen: isFullscreen,
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
+    isLink: isLink,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS,
