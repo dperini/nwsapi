@@ -1,5 +1,10 @@
 # Upstream WPT selector tests
 
+This is the `upstream` Playwright project, which runs in Chromium. The
+`node` project (`test/node`) is separate: it covers regressions that only
+appear when nwsapi is the engine behind a host's `matches()`, so it runs
+against jsdom in node and needs no browser.
+
 This suite runs real [web-platform-tests](https://github.com/web-platform-tests/wpt)
 pages from the pinned checkout in `upstream/wpt` (WPT master @ `7aed663`)
 inside Chromium, with this repo's `src/nwsapi.js` installed over the native

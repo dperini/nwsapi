@@ -146,6 +146,10 @@ Requires Node.js >= 24 and [pnpm](https://pnpm.io) (the version pinned in `packa
 pnpm install                  # install pinned dev dependencies
 pnpm run lint                 # eslint (flat config)
 pnpm run min                  # build dist/nwsapi.min.js (terser)
+pnpm test                     # both suites below
+
+# node-side regressions against jsdom, no browser needed
+pnpm run test:node
 
 # upstream web-platform-tests (sparse + shallow, pinned in .gitmodules)
 pnpm run upstream:clone       # materialize upstream/wpt at the pinned ref
