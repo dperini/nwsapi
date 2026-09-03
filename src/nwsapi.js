@@ -234,74 +234,61 @@
       return list;
     },
 
-  // caching limit for compiled resolver functions
-  CACHE_LIMIT = 1000,
+  // Caching limit for compiled resolver functions, per cache. Measured with
+  // bench/cache.bench.mjs: raising it from 1000 costs nothing on a working
+  // set that already fits (30 selectors: within noise) and is worth 12x on
+  // one that fits 4096 but not 1000, which is a smaller working set than it
+  // sounds — a ':not()' selector occupies two entries, the selector and the
+  // argument its compiled form matches at run time. 8192 buys no further
+  // speed and doubles the worst case, which is ~6.9mb per instance with
+  // every cache full, reached only by a caller that has that many distinct
+  // selectors to begin with. Same value as the nwsapi fork in jsdom's
+  // current engine.
+  CACHE_LIMIT = 4096,
 
-  // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
-  // never DOM result sets. A prefixed dictionary avoids user-key collisions
-  // and a doubly linked list keeps the least-recently-used entry at the head.
+  // Bounded LRU cache for query plans. A Map iterates in insertion order,
+  // so re-inserting an entry on use makes the iteration order the LRU order,
+  // and the oldest key is the first one the iterator yields. That is the
+  // whole eviction policy: no linked list of entry objects, and no key
+  // prefix to keep user selectors away from Object.prototype, which cost a
+  // second copy of every selector string per cache and another on every
+  // lookup.
   createCache = function(limit) {
-    var cache = { }, head = null, tail = null, size = 0,
-      prefix = '\x01', has = function(key) {
-        return Object.prototype.hasOwnProperty.call(cache, prefix + key);
-      }, unlink = function(entry) {
-        entry.prev ? entry.prev.next = entry.next : head = entry.next;
-        entry.next ? entry.next.prev = entry.prev : tail = entry.prev;
-      }, link = function(entry) {
-        entry.prev = tail;
-        entry.next = null;
-        tail ? tail.next = entry : head = entry;
-        tail = entry;
-      }, promote = function(entry) {
-        if (entry !== tail) {
-          unlink(entry);
-          link(entry);
-        }
-      }, remove = function(entry) {
-        unlink(entry);
-        delete cache[entry.key];
-        --size;
-      };
+    var cache = new Map();
 
     limit || (limit = CACHE_LIMIT);
 
     return {
       clear: function() {
-        cache = { };
-        head = tail = null;
-        size = 0;
+        cache.clear();
       },
       get: function(key) {
-        var entry;
-        if (!has(key)) return undefined;
-        entry = cache[prefix + key];
-        promote(entry);
-        return entry.value;
+        if (!cache.has(key)) { return undefined; }
+        var value = cache.get(key);
+        // mark as most recently used
+        cache.delete(key);
+        cache.set(key, value);
+        return value;
       },
       has: function(key) {
-        return has(key);
+        return cache.has(key);
       },
       set: function(key, value) {
-        var entry, entryKey = prefix + key;
-
-        if (has(key)) {
-          entry = cache[entryKey];
-          entry.value = value;
-          promote(entry);
-        } else {
-          size >= limit && remove(head);
-          entry = { key: entryKey, value: value, prev: null, next: null };
-          cache[entryKey] = entry;
-          link(entry);
-          ++size;
+        if (cache.has(key)) {
+          cache.delete(key);
+        } else if (cache.size >= limit) {
+          // the first key in iteration order is the least recently used
+          cache.delete(cache.keys().next().value);
         }
+        cache.set(key, value);
         return value;
       },
       size: function() {
-        return size;
+        return cache.size;
       }
     };
   },
+
 
   // only define the toNodeList helper if explicitly enabled in Config,
   // a safety measure for headless hosts missing feature/implementation
@@ -383,6 +370,9 @@
         NAMESPACE = root && root.namespaceURI;
         Snapshot.doc = doc;
         Snapshot.root = root;
+        // a ':hover' lambda compiled against one document is reused for the
+        // next one, which needs its own listeners to have any state to read
+        hoverWanted && trackHover();
       }
       return (Snapshot.from = context);
     },
@@ -1428,6 +1418,7 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'hover':
+                  trackHover();
                   source = 'if(e===s.HOVER){' + source + '}';
                   break;
                 case 'active':
@@ -1808,11 +1799,15 @@
       return r;
     },
 
+  // The compiled resolvers, cached as-is: a wrapper object per selector buys
+  // nothing and the match cache holds one entry for every selector seen,
+  // including the argument of every ':not()' and ':is()', which the compiled
+  // form matches through this same path at run time.
   match_collect =
     function(selectors, callback) {
       for (var i = 0, l = selectors.length, f = [ ]; l > i; ++i)
         f[i] = compile(selectors[i], false, callback);
-      return { factory: f };
+      return f;
     },
 
   // unique parser entry point for all
@@ -1877,13 +1872,13 @@
       var resolver;
 
       if (element && (resolver = matchResolvers.get(selectors))) {
-        return match_assert(resolver.factory, element, callback);
+        return match_assert(resolver, element, callback);
       }
 
       resolver = match_collect(parse(selectors, false), callback);
       matchResolvers.set(selectors, resolver);
 
-      return match_assert(resolver.factory, element, callback);
+      return match_assert(resolver, element, callback);
     },
 
   // true if element matches the selector
@@ -1909,17 +1904,23 @@
     },
 
   // equivalent of w3c 'querySelector' method
+  // A stable identity for the common no-callback case. A cached plan is only
+  // reused when the callback matches, and a closure allocated per call never
+  // does, so every querySelector() rebuilt the plan it had just cached.
+  firstMatch =
+    function firstMatch() {
+      return false;
+    },
+
   first =
     function _querySelector(selectors, context, callback) {
       return select(selectors, context,
         typeof callback == 'function' ?
-        function firstMatch(element) {
+        function firstMatchCallback(element) {
           callback(element);
           return false;
         } :
-        function firstMatch() {
-          return false;
-        }
+        firstMatch
       )[0] || null;
     },
 
@@ -1938,11 +1939,9 @@
 
       if (selectors) {
         if ((resolver = selectResolvers.get(selectors))) {
-          if (resolver.context === context &&
-            resolver.callback === callback) {
+          if (resolver.callback === callback) {
             var i, l, list,
               f = resolver.factory,
-              h = resolver.htmlset,
               n = resolver.nodeset;
             if (n.length > 1) {
               for (i = 0, l = n.length; l > i; ++i) {
@@ -1958,11 +1957,8 @@
                 hasDupes && (nodes = unique(nodes));
               }
             } else {
-              if (f[0]) {
-                nodes = f[0](h[0](), callback, context, nodes);
-              } else {
-                nodes = h[0]();
-              }
+              list = compat[n[0][0]](context, n[0].slice(1))();
+              nodes = f[0] ? f[0](list, callback, context, nodes) : list;
             }
             if (typeof callback == 'function') {
               nodes = concatCall(nodes, callback);
@@ -1974,10 +1970,20 @@
         }
       }
 
-      // save/reuse factory and closure collection
-      selectResolvers.set(selectors, collect(parse(selectors, true), context, callback));
+      resolver = collect(parse(selectors, true), context, callback);
+      nodes = resolver.results;
 
-      nodes = selectResolvers.get(selectors).results;
+      // Cache the query plan, never the answer. 'results' is a live list of
+      // matched elements and 'htmlset' closes over the context, so caching
+      // the whole collection kept a removed subtree alive for as long as its
+      // selector stayed in the cache. What is kept here is context-free,
+      // which also lets a plan be reused across contexts instead of only for
+      // the one it was built against.
+      selectResolvers.set(selectors, {
+        callback: callback,
+        factory: resolver.factory,
+        nodeset: resolver.nodeset
+      });
 
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback);
@@ -2017,8 +2023,10 @@
           }
         }
 
-        nodeset[i] = token[1] + token[2];
+        // unescape before recording the token: 'nodeset' is what a later
+        // run rebuilds its candidate list from, so the two must agree
         token[2] = unescapeIdentifier(token[2]);
+        nodeset[i] = token[1] + token[2];
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
@@ -2043,13 +2051,22 @@
 
     },
 
-  // handlers needed for the :hover pseudo-class
-  // track state change in browsers and headless
-  initEnv =
-    (function() {
+  // Handlers needed for the :hover pseudo-class, installed the first time a
+  // ':hover' selector is compiled rather than for every document the engine
+  // is attached to. Most callers never ask for :hover, and a host that holds
+  // many documents at once was paying two capture-phase listeners, and a
+  // reference to the last hovered element, for each of them.
+  hoverWanted = false,
+  hoverTracked = new WeakSet(),
+
+  trackHover =
+    function() {
+      hoverWanted = true;
+      if (!doc || hoverTracked.has(doc)) { return; }
+      hoverTracked.add(doc);
       doc.addEventListener('mouseover', function(e) { Snapshot.HOVER = e.target; }, true);
-      doc.addEventListener('mouseout', function(e) { Snapshot.HOVER = null; }, true);
-    })(),
+      doc.addEventListener('mouseout', function() { Snapshot.HOVER = null; }, true);
+    },
 
   // QSA placeholders to native references
   _closest, _matches,
