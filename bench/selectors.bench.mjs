@@ -18,6 +18,7 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +46,11 @@ Usage:
   node bench/selectors.bench.mjs [options]
 
 Options:
+  --compare <path>    Also time a second nwsapi build, loaded from <path>,
+                      in the same process and the same document, so the two
+                      are interleaved rather than compared across runs. Use
+                      a file extracted from git, e.g.
+                      git show 2e9498f:src/nwsapi.js > /tmp/upstream.js
   --preset <name>     Run only the named preset group. Repeatable, and each
                       value may be a comma-separated list. Default: all.
   --selector <match>  Run only selectors whose text contains <match>, or,
@@ -71,6 +77,7 @@ function parseCli(argv) {
       args,
       allowPositionals: false,
       options: {
+        compare: { type: 'string' },
         preset: { type: 'string', multiple: true },
         selector: { type: 'string' },
         list: { type: 'boolean', default: false },
@@ -196,6 +203,17 @@ async function main() {
     DOMException: dom.window.DOMException,
   });
 
+  // A second build of the engine, bound to the same document, timed in the
+  // same process: absolute numbers drift by tens of percent between runs, so
+  // a speedup is only meaningful as a ratio of two measurements taken
+  // microseconds apart.
+  let NW2 = null;
+  if (values.compare !== undefined) {
+    const comparePath = path.resolve(values.compare);
+    const compareFactory = createRequire(import.meta.url)(comparePath);
+    NW2 = compareFactory({ document, DOMException: dom.window.DOMException });
+  }
+
   const plan = [];
   const issues = [];
 
@@ -256,13 +274,28 @@ async function main() {
   }
 
   for (const { presetName, selector } of plan) {
+    // Read the arguments out of an array inside the timed function. Passed
+    // as constants the whole call is loop-invariant and V8 hoists it out of
+    // the loop, and it does so far more readily for plain interpreted code
+    // than for an opaque `new Function` closure, which flatters whichever
+    // engine compiles less. The values need not differ; the load is enough.
+    const args = [[selector, document]];
+
     group(`${presetName} ▸ ${selector}`, () => {
       summary(() => {
         bench('nwsapi', () => {
-          do_not_optimize(NW.select(selector, document));
+          const [s, c] = args[0];
+          do_not_optimize(NW.select(s, c));
         });
+        if (NW2) {
+          bench('nwsapi (compare)', () => {
+            const [s, c] = args[0];
+            do_not_optimize(NW2.select(s, c));
+          });
+        }
         bench('jsdom qsa', () => {
-          do_not_optimize(document.querySelectorAll(selector));
+          const [s, c] = args[0];
+          do_not_optimize(c.querySelectorAll(s));
         });
       });
     });
