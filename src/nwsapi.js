@@ -983,6 +983,7 @@
       identifier = '(?:-|--|' + unicode + '[' + HSP + ']' +
                     '?|\\\\[^' + VSP + ']|' + noascii + '|[\\w-])+',
 
+      parenthesized,
       pseudonames = '[-\\w]+',
       pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
       doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*(?:"|$)',
@@ -1052,13 +1053,25 @@
       // a lone '#id', the shape querySelector is asked for most often
       reSimpleId = RegExp('^#(' + identifier + ')$');
 
+      // The parenthesized part has to tolerate nesting. Written as
+      // '\\x28[^\\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class — ':not(:nth-of-type(2n))',
+      // ':is(.a, .b)' inside ':has()' — matched nothing at all, and a
+      // selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      // Two levels reach ':not(:not(:not(span)))'; deeper than that falls
+      // back to the unoptimized scan, as before.
+      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)';
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)';
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)';
+
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
         '(' + identifier + ')' +
         '(?:' +
           ':[-\\w]+|' +
           '\\[[^\\]]+(?:\\]|$)|' +
-          '\\x28[^\\x29]+(?:\\x29|$)' +
+          parenthesized +
         ')*)$');
 
       // global
