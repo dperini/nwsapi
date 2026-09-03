@@ -2157,37 +2157,37 @@
       Element.prototype.closest =
       HTMLElement.prototype.closest =
         function closest() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(ancestor));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(ancestor));
         };
 
       Element.prototype.matches =
       HTMLElement.prototype.matches =
         function matches() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(match));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(match));
         };
 
       Element.prototype.querySelector =
       HTMLElement.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(first));
         };
 
       Element.prototype.querySelectorAll =
       HTMLElement.prototype.querySelectorAll =
         function querySelectorAll() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(select));
         };
 
       Document.prototype.querySelector =
       DocumentFragment.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(first));
         };
 
       Document.prototype.querySelectorAll =
       DocumentFragment.prototype.querySelectorAll =
         function querySelectorAll() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
+          return parseQSArgs.apply(this, slice.call(arguments).concat(select));
       };
 
       if (all) {
