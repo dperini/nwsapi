@@ -1980,6 +1980,16 @@
             emit('\'' + parsed + '\'' + qsInvalid);
             return Config.VERBOSITY ? undefined : (type ? none : false);
           }
+          // The validator cannot read this selector, but it holds a
+          // forgiving list, which may be where the part it cannot read
+          // lives. Hand on the selector itself rather than the fragments
+          // the validator did match: compiled, the argument of an :is() or
+          // :where() is evaluated inside a try/catch, so the unreadable part
+          // drops out and the rest of the selector still applies. Returning
+          // the fragments compiled each of them as a selector of its own,
+          // which made 'div:not(:is(svg|div))' match every element in the
+          // document rather than the divs.
+          selectors = parsed.match(REX.SplitGroup) || [ parsed ];
         }
       }
 

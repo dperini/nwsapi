@@ -306,3 +306,177 @@ test.describe('id lookups without document.all', () => {
     expect(Date.now() - started).toBeLessThan(500);
   });
 });
+
+test.describe('generated code that only reads correctly by accident', () => {
+  // /^a|area$/ alternates '^a' with 'area$' instead of anchoring an
+  // alternation, so it accepts any name starting with 'a'. The engine
+  // agreed with browsers on <a> and <area>, which is why the WPT suite
+  // never caught it.
+  test(':link and :any-link need an <a> or <area>', () => {
+    const { document, NW } = build(
+      '<!doctype html><body>' +
+        '<a id=a href="#">a</a><area id=r href="#">' +
+        '<abbr id=b href="#">abbr</abbr><article id=c href="#">art</article>' +
+        '<audio id=d href="#"></audio>' +
+        '</body>',
+    );
+    const ids = selector => NW.select(selector, document).map(node => node.id);
+
+    expect(ids(':link')).toEqual(['a', 'r']);
+    expect(ids(':any-link')).toEqual(['a', 'r']);
+    expect(ids(':visited')).toEqual([]);
+    // an <a> without href is not a link
+    document.getElementById('a').removeAttribute('href');
+    expect(ids(':link')).toEqual(['r']);
+  });
+
+  test(':placeholder-shown needs an <input> or <textarea>', () => {
+    // Same shape of mistake, /^input|textarea$/, masked by the conditions
+    // around it rather than by being right.
+    const { document, NW } = build(
+      '<!doctype html><body>' +
+        '<input id=a placeholder=p>' +
+        '<input-thing id=b placeholder=p></input-thing>' +
+        '<textarea id=c placeholder=p></textarea>' +
+        '</body>',
+    );
+    expect(NW.select(':placeholder-shown', document).map(node => node.id)).toEqual(['a', 'c']);
+  });
+});
+
+test.describe(':hover tracking is installed on demand', () => {
+  function buildCounting(html) {
+    const dom = new JSDOM(html);
+    const { window } = dom;
+    const seen = [];
+    const original = window.document.addEventListener.bind(window.document);
+    window.document.addEventListener = function (type, ...rest) {
+      seen.push(type);
+      return original(type, ...rest);
+    };
+    delete require.cache[require.resolve(nwsapiPath)];
+    const NW = require(nwsapiPath)({
+      document: window.document,
+      DOMException: window.DOMException,
+    });
+    return { window, document: window.document, NW, mouseListeners: () => seen.filter(t => t.startsWith('mouse')) };
+  }
+
+  test('no listeners until a :hover selector is compiled', () => {
+    const { document, NW, mouseListeners } = buildCounting('<!doctype html><body><p id=p>x</p></body>');
+    expect(mouseListeners()).toEqual([]);
+
+    NW.select('p', document);
+    expect(mouseListeners(), 'an ordinary selector must not install them').toEqual([]);
+
+    expect(NW.select('p:hover', document)).toEqual([]);
+    expect(mouseListeners()).toEqual(['mouseover', 'mouseout']);
+  });
+
+  test(':hover still matches once tracking is installed', () => {
+    const { window, document, NW } = buildCounting('<!doctype html><body><p id=p>x</p></body>');
+    const target = document.getElementById('p');
+
+    expect(NW.match(':hover', target)).toBe(false);
+    target.dispatchEvent(new window.MouseEvent('mouseover', { bubbles: true }));
+    expect(NW.match(':hover', target)).toBe(true);
+    target.dispatchEvent(new window.MouseEvent('mouseout', { bubbles: true }));
+    expect(NW.match(':hover', target)).toBe(false);
+  });
+});
+
+test.describe('what a cached plan replays', () => {
+  test('an escaped identifier resolves the same way twice', () => {
+    // The plan records the token its candidate list is fetched with. It used
+    // to record the escaped form while the first run selected on the
+    // unescaped one, so the second call — the one served from the cache —
+    // asked the document for a different name.
+    const { document, NW } = build(
+      '<!doctype html><body><i id=t class="a.b">x</i><i id=u class="c d">y</i></body>',
+    );
+    for (const selector of ['.a\\.b', 'i.a\\.b', '.c.d']) {
+      const first = NW.select(selector, document).map(node => node.id);
+      const second = NW.select(selector, document).map(node => node.id);
+      expect(second, `${selector} differs when served from the cache`).toEqual(first);
+      expect(first.length).toBe(1);
+    }
+  });
+
+  test('a selector still resolves after the cache has turned over', () => {
+    // More distinct selectors than the cache holds, so the entry for the
+    // selector under test is evicted and rebuilt. The two-generation policy
+    // drops a whole generation at a time, which is exactly where a stale or
+    // half-dropped plan would show up.
+    const { document, NW } = build('<!doctype html><body><b id=hot class=hot>h</b></body>');
+    const hot = () => NW.select('b.hot', document).map(node => node.id);
+
+    expect(hot()).toEqual(['hot']);
+    for (let i = 0; i < 5000; ++i) {
+      NW.select(`.filler-${i}:not(.other-${i})`, document);
+    }
+    expect(hot(), 'evicted and recompiled must agree with the first answer').toEqual(['hot']);
+  });
+});
+
+test.describe('agreement with the reference engine', () => {
+  // jsdom 30 resolves selectors with @asamuzakjp/dom-selector, so
+  // querySelectorAll here is a second implementation rather than this one.
+  // These are the shapes whose candidate list the optimizer had to be taught
+  // to read; a wrong list changes the answer, not just the speed.
+  const SELECTORS = [
+    'div:not(:nth-of-type(2n))',
+    'div:not(:nth-child(3))',
+    'div:is(.a):not(:where(.b))',
+    'div:not(:not(:not(span)))',
+    'div:has(:is(.a .b))',
+    'p:nth-child(3)',
+    'p:nth-last-child(3)',
+    'p:nth-of-type(3)',
+    'p:nth-child(2n+1)',
+    'div > p:not(.a):nth-child(2)',
+    '.a:not([data-x]) + p',
+    'div:not(:is(svg|div))',
+    ':where(svg|div)',
+  ];
+
+  test('the same elements, in the same order', () => {
+    let markup = '<!doctype html><body>';
+    for (let i = 0; i < 40; ++i) {
+      markup += `<div id=d${i} class="${i % 3 === 0 ? 'a' : 'b'}"${i % 5 === 0 ? ' data-x=1' : ''}>` +
+        `<p id=p${i}a class="${i % 2 ? 'a' : 'c'}">1</p><p id=p${i}b>2</p><span id=s${i}>3</span>` +
+        '</div>';
+    }
+    markup += '</body>';
+    const { document, NW } = build(markup);
+
+    for (const selector of SELECTORS) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, `${selector} disagrees with the reference engine`).toEqual(reference);
+    }
+  });
+
+  test('the namespace gaps are where they are known to be', () => {
+    // Two shapes the engine does not answer the way the reference does, both
+    // older than this branch — 2.2.24 and 2.2.27 throw on each. They are
+    // asserted rather than left out, so the boundary is recorded and moving
+    // it has to be deliberate.
+    const { document, NW } = build('<!doctype html><body><div id=d><p id=p>x</p></div></body>');
+
+    // A namespace-qualified type selector is not supported at all. The
+    // reference matches the div, since '*|div' is any namespace.
+    expect(() => NW.select('*|div', document)).toThrow();
+    expect(Array.from(document.querySelectorAll('*|div'), node => node.id)).toEqual(['d']);
+
+    // A forgiving list drops as a whole rather than per item: the engine
+    // evaluates the argument of :is() in one try/catch, so one unreadable
+    // item takes the readable ones with it. The reference keeps the 'p'.
+    expect(NW.select('p:is(svg|p, p)', document)).toEqual([]);
+    expect(Array.from(document.querySelectorAll('p:is(svg|p, p)'), node => node.id)).toEqual(['p']);
+
+    // Same gap seen from the subject side: the readable '.a' branch is lost
+    // along with the unreadable one.
+    expect(NW.select('div:is(svg|div, #d)', document)).toEqual([]);
+    expect(Array.from(document.querySelectorAll('div:is(svg|div, #d)'), node => node.id)).toEqual(['d']);
+  });
+});
