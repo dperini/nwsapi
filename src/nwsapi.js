@@ -76,6 +76,10 @@
     namespaces: RegExp('(\\*|\\w+)\\|[\\w-]+')
   },
 
+  // private pseudo-class standing for the element a relative :has()
+  // argument is anchored to, see has()
+  HAS_ANCHOR = ':-nwsapi-anchor',
+
   GROUPS = {
     // pseudo-classes requiring parameters
     linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$))',
@@ -112,6 +116,7 @@
     time_state: RegExp('^:(?:' + GROUPS.time_state + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
+    has_anchor: RegExp('^:(?:' + HAS_ANCHOR.slice(1) + ')\\b(.*)', 'i'),
     pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
     pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
     pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
@@ -1294,6 +1299,12 @@
               }
             }
 
+            // *** private anchor pseudo-class
+            // the implied anchor of a relative :has() argument
+            else if ((match = selector.match(Patterns.has_anchor))) {
+              source = 'if(e===s.anchor){' + source + '}';
+            }
+
             // *** logical combination pseudo-classes
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ]),
             // :has( s1, [ s2, ... ]) no nesting is allowed for
@@ -1325,21 +1336,11 @@
                     break;
                   }
 
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '~':
-                      source = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '>':
-                      source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                     default:
-                      source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                  }
+                  // a sibling argument matches outside of the subtree of
+                  // the anchor, so it is collected from the parent element
+                  source = /^[+~]/.test(expr) ?
+                    'if(e.parentElement&&s.has("' + HAS_ANCHOR + ' ' + expr + '",e,e.parentElement)){' + source + '}' :
+                    'if(s.has("' + HAS_ANCHOR + ' ' + expr + '",e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1861,9 +1862,25 @@
     },
 
   // true if element matches the selector
+  // Test the relative argument of a :has() against 'anchor'. The implied
+  // anchor is compiled as the private ':-nwsapi-anchor' pseudo-class rather
+  // than as ':scope', because an explicit ':scope' written inside the
+  // argument keeps referring to the scoping root of the outer query.
+  // 'context' is the subtree the candidates are collected from: the anchor
+  // itself for descendant arguments, its parent for the sibling ones, whose
+  // candidates live outside the anchor's subtree. The outer selection is
+  // still in progress, so the previous anchor is restored before returning.
   has =
-    function(selector, context, callback) {
-      return collect(parse(selector, true), context, callback).results.length > 0;
+    function(selector, anchor, context, callback) {
+      var previous = Snapshot.anchor;
+      Snapshot.anchor = anchor;
+      try {
+        return collect(parse(selector, true), context || anchor, callback).results.length > 0;
+      } finally {
+        // a forgiving :is() swallows the error of a nested invalid selector,
+        // the anchor of the pending outer :has() must survive that
+        Snapshot.anchor = previous;
+      }
     },
 
   // equivalent of w3c 'querySelector' method
@@ -2133,6 +2150,9 @@
     doc: doc,
     from: doc,
     root: root,
+
+    // element a relative :has() argument is anchored to, see has()
+    anchor: null,
 
     byTag: byTag,
 
