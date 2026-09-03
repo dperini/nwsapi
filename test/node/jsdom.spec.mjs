@@ -129,6 +129,27 @@ test.describe('logical selector arguments containing parentheses', () => {
     expect(ids(':is(div, :is(span))')).toEqual(['a', 'b']);
   });
 
+  test('a pseudo-class may be followed by a quoted attribute selector', () => {
+    // dperini/nwsapi#175: the combinator inside the validator's pseudo-class
+    // pattern consumed the character after it, eating the '[' of the next
+    // attribute selector. Needs all three: the i flag, a pseudo-class on the
+    // same compound, and a quoted attribute selector after the combinator.
+    const { document, NW } = build('<div><p class="a">t</p><p class="b" id="t"></p></div>');
+    const target = document.getElementById('t');
+
+    expect(NW.match("[class*='a' i]:not(:empty) + [class*='b']", target)).toBe(true);
+    expect(NW.match('[class*="a" i]:not(:empty) + [class*="b"]', target)).toBe(true);
+    expect(NW.match("[class*='a' i]:not(.x) + [class*='b']", target)).toBe(true);
+    expect(NW.match("[class*='a' i]:not(:empty) + [class*='zz']", target)).toBe(false);
+  });
+
+  test('a parse error reports the selector, not the fragments that matched', () => {
+    const { NW } = build('<!doctype html><body></body>');
+    // The fragments joined by String() read as a corrupted selector, which is
+    // how dperini/nwsapi#175 came to be reported as mangled quotes.
+    expect(() => NW.select('div ??? span')).toThrow(/'div \?\?\? span'/);
+  });
+
   test('an unclosed argument is closed by EOF', () => {
     const { document, NW } = build('<!doctype html><body><div id=a class=x></div><div id=b></div></body>');
     const ids = selector => NW.select(selector, document.body).map(e => e.id);
