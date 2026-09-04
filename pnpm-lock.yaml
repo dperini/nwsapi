@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    caniuse-lite:
+      specifier: 1.0.30001810
+      version: 1.0.30001810
+
 importers:
 
   .:
@@ -14,6 +20,9 @@ importers:
       '@playwright/test':
         specifier: 1.62.1
         version: 1.62.1
+      caniuse-lite:
+        specifier: 'catalog:'
+        version: 1.0.30001810
       eslint:
         specifier: 10.8.0
         version: 10.8.0
@@ -207,6 +216,9 @@ packages:
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
+
+  caniuse-lite@1.0.30001810:
+    resolution: {integrity: sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg==}
 
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
@@ -698,6 +710,8 @@ snapshots:
       balanced-match: 4.0.4
 
   buffer-from@1.1.2: {}
+
+  caniuse-lite@1.0.30001810: {}
 
   commander@2.20.3: {}
 

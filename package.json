@@ -40,6 +40,7 @@
     "bench:cache": "node --expose-gc bench/cache.bench.mjs",
     "bench:memory": "node --expose-gc bench/memory.bench.mjs",
     "bench:report": "node --expose-gc bench/report.mjs",
+    "browsers:share": "node scripts/browser-share.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint .",
     "min": "node scripts/min.mjs",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.1",
+    "caniuse-lite": "catalog:",
     "eslint": "10.8.0",
     "globals": "17.8.0",
     "jsdom": "30.0.1",

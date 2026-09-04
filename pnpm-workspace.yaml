@@ -1,6 +1,10 @@
 engineStrict: true
 saveExact: true
 
+# shared version for anything that asks for 'catalog:'
+catalog:
+  caniuse-lite: 1.0.30001810
+
 # supply-chain guard: only install package versions older than 24h
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:

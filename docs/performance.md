@@ -209,36 +209,47 @@ about 15 years ago, and a few features want one from about 9. A host older or
 stranger than that is what `LEGACY` is for, and what it buys back is the
 host's behavior, not the language's.
 
-**And how much of the web that is.** From `caniuse-lite` 1.0.30001734, whose
-newest browser release is dated August 2025, as a share of the 96.7% of usage
-it records:
+**And how much of the web that is.** `pnpm run browsers:share` prints it from
+the `caniuse-lite` in devDependencies. From 1.0.30001810, whose newest browser
+release is dated 2026-07-30, as a share of the 96.7% of usage it records:
 
-| browsers                                                | share of usage |
-| ------------------------------------------------------- | -------------- |
-| IE 8 and older — the quirk `LEGACY` exists for          | 0.03%          |
-| any browser released before 2011                        | 0.03%          |
-| all Internet Explorer                                   | 0.67%          |
-| any browser released before 2016                        | 0.86%          |
-| any browser released before September 2017              | 1.09%          |
-| any browser released before 2020                        | 1.65%          |
+| browsers                                       | share of usage |
+| ---------------------------------------------- | -------------- |
+| IE 8 and older — the quirk `LEGACY` exists for | 0.0000%        |
+| IE 9 to 11, which do not have that quirk       | 0.2663%        |
+| any browser released before 2016               | 0.4877%        |
+| any browser released before September 2017     | 0.8229%        |
+| any browser released before 2020               | 1.1240%        |
 
-So the option covers about three page views in ten thousand, and the newest
-DOM feature this engine needs is missing from about one in a hundred. That is
-the shape of the trade: the default costs those three nothing they were going
-to get anyway, since one flag turns the old handling back on.
+Read the first two rows together: what is left of Internet Explorer is IE 11,
+and IE 11 puts elements in an element collection like everything else. So the
+global sample has nothing left that needs this option at all, and the newest
+DOM feature the engine wants is missing from under 1% of page views.
 
-Re-run it when the number matters, against whatever `caniuse-lite` is nearby:
+The per-place tables in the same package are sampled separately and are
+coarser, and they do still record some. Share of each place's own page views:
 
-```js
-const { agents } = require('caniuse-lite/dist/unpacker/agents.js');
-let share = 0;
-for (const [id, agent] of Object.entries(agents)) {
-  for (const [version, usage] of Object.entries(agent.usage_global || {})) {
-    if (id === 'ie' && Number.parseFloat(version) <= 8) { share += usage || 0; }
-  }
-}
-console.log(share.toFixed(4) + '%');
-```
+| place                | IE 8 and older | all IE |
+| -------------------- | -------------- | ------ |
+| China                | 0.900%         | 5.398% |
+| Ireland              | 0.357% (IE 7)  | 0.357% |
+| Japan                | 0.154%         | 0.206% |
+| Russia               | 0.088%         | 0.146% |
+| Taiwan               | 0.050%         | 0.099% |
+| Netherlands, Germany, Ukraine, Algeria, Cambodia, French Guiana, Cape Verde | under 0.02% each | |
+
+Twelve of the 232 places in the data record any of it. Multiplied by roughly
+how many people are online in each — about 1.09 billion in China, 104 million
+in Japan, 130 million in Russia, 4.6 million in Ireland — the whole set comes
+to something like ten million people, and 97% of that is the one Chinese line
+item. The two views disagree because they are different samples at the same
+noise floor, so the size of this population is somewhere between nothing and
+ten million, and shrinking either way: the dataset from a year earlier put the
+global figure at 0.0332%, or about two million.
+
+Which is the shape of the trade. The option costs the other 99.9% one property
+read per candidate if it is on by default, and costs those users nothing when
+it is off, because one flag turns it back on.
 
 ### Do not pay for what an earlier stage guarantees
 
