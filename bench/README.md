@@ -152,6 +152,40 @@ Three things to know before you read a bar:
    `DISAGREES` and exits non-zero if an engine returns a different set. A
    fast wrong answer is not a fast answer.
 
+### The star: when the other engine is not matching at all
+
+Some rows in `standing.svg` carry a `*`, and the printed table says
+`(jsdom answered from its result cache)`. jsdom 30's engine remembers the
+result of a query and hands the same answer back until the document changes.
+A benchmark that asks for one selector in a loop never changes the document,
+so those rows time a lookup in a memo against a real match, which is not a
+comparison of two engines.
+
+The report measures every case a second way to show that: it appends one
+element to the body and removes it again before each query, which leaves the
+document as it was and makes both engines start over. The cost of that change
+is measured on its own and subtracted. `div:not(:nth-of-type(2n))` over 6344
+elements is the clearest example:
+
+| regime                            | nwsapi   | jsdom's engine |
+| --------------------------------- | -------- | -------------- |
+| same query, document untouched    | 0.136 ms | 0.019 ms       |
+| one element in and out in between | 0.904 ms | 0.806 ms       |
+
+Both rows are from one run, since absolute milliseconds drift between runs and
+only the two numbers on the same row were measured microseconds apart.
+
+Neither row is the whole story. The first says their memo is worth having and
+we do not have one. The second is mostly a cost neither engine controls: once
+the document has changed, jsdom rebuilds the collection behind every tag and
+class lookup, and that alone accounts for most of both numbers. The gap that
+is left is the part the selector engines are responsible for, and it is much
+smaller than the first row suggests.
+
+This engine keeps no result cache on purpose. Handing back a remembered set
+means knowing every way the document could have changed since, and getting
+that wrong returns a wrong answer rather than a slow one.
+
 ### Why timings are taken the way they are
 
 Two habits, both there for a reason you can reproduce:

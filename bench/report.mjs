@@ -151,6 +151,13 @@ function measure(runners, rounds, iterations) {
   return samples.map(median);
 }
 
+// A repeated query jsdom answers from its result cache costs a fraction of the
+// same query after the document changed. Ours has no result cache, so the gap
+// between the two regimes is what marks the row.
+function isMemo(row) {
+  return row.changedJsdom > row.jsdom * 4;
+}
+
 function iterationsFor(ms) {
   // enough repetitions that a case is timed over milliseconds, not noise
   if (ms > 1) { return 20; }
@@ -294,9 +301,13 @@ function main() {
     const dom = new JSDOM(spec.html());
     const { document } = dom.window;
     const options = { document, DOMException: dom.window.DOMException };
+    // the smallest change a document can have: one element in, one element
+    // out, which leaves it as it was and invalidates what was cached about it
+    const probe = document.createElement('b');
     worlds[name] = {
       document,
       note: spec.note,
+      touch: () => { document.body.append(probe); probe.remove(); },
       elements: document.getElementsByTagName('*').length,
       engines: {
         nwsapi: require(path.join(repoRoot, 'src', 'nwsapi.js'))(options),
@@ -326,6 +337,17 @@ function main() {
     const iterations = iterationsFor(timeOnce(runners[0], 3));
     const times = measure(runners, rounds, iterations);
 
+    // The same queries again, with the document changed in between. jsdom 30's
+    // engine keeps the result of a query until the document changes, so the
+    // numbers above can be a memo answering rather than a selector matching.
+    // Both engines pay the same change, and its own cost is subtracted.
+    const touch = world.touch;
+    const changedRunners = runners.map(run => () => { touch(); return run(); });
+    const changedTimes = measure(
+      [...changedRunners, touch], rounds, iterationsFor(timeOnce(changedRunners[0], 3)));
+    const touchCost = changedTimes[changedTimes.length - 1];
+    const changed = changedTimes.slice(0, -1).map(ms => Math.max(ms - touchCost, 0));
+
     results.push({
       ...testCase,
       matches: found,
@@ -334,6 +356,8 @@ function main() {
       nwsapi: times[0],
       baseline: baseline ? times[1] : null,
       jsdom: times[times.length - 1],
+      changedNwsapi: changed[0],
+      changedJsdom: changed[changed.length - 1],
     });
   }
 
@@ -353,8 +377,23 @@ function main() {
         `  ${row.selector.padEnd(width)}  nwsapi ${row.nwsapi.toFixed(3)}ms` +
           (row.baseline === null ? '' : `  baseline ${row.baseline.toFixed(3)}ms`) +
           `  jsdom ${row.jsdom.toFixed(3)}ms  ${ratio >= 1 ? `${ratio.toFixed(1)}x faster` : `${(1 / ratio).toFixed(1)}x slower`}` +
-          `  n=${row.matches}${row.agrees ? '' : ' DISAGREES'}`,
+          `  n=${row.matches}${row.agrees ? '' : ' DISAGREES'}` +
+          (isMemo(row) ? '  (jsdom answered from its result cache)' : ''),
       );
+    }
+
+    const memos = results.filter(isMemo);
+    if (memos.length) {
+      console.log('\nthe same shapes with the document changed between queries');
+      const memoWidth = Math.max(...memos.map(row => row.selector.length));
+      for (const row of memos) {
+        const ratio = row.changedJsdom / row.changedNwsapi;
+        console.log(
+          `  ${row.selector.padEnd(memoWidth)}  nwsapi ${row.changedNwsapi.toFixed(3)}ms` +
+            `  jsdom ${row.changedJsdom.toFixed(3)}ms  ` +
+            (ratio >= 1 ? `${ratio.toFixed(1)}x faster` : `${(1 / ratio).toFixed(1)}x slower`),
+        );
+      }
     }
   }
 
@@ -371,10 +410,13 @@ function main() {
       subtitle: 'milliseconds per query, lower is better — median of ' + rounds + ' interleaved rounds',
       seriesNames,
       rows: results.map(row => ({
-        label: row.selector.length > 30 ? `${row.selector.slice(0, 29)}…` : row.selector,
+        label: (row.selector.length > 30 ? `${row.selector.slice(0, 29)}…` : row.selector) +
+          (isMemo(row) ? ' *' : ''),
         values: values.baseline ? [row.nwsapi, row.baseline, row.jsdom] : [row.nwsapi, row.jsdom],
       })),
-      footer: "jsdom 30 answers querySelectorAll with @asamuzakjp/dom-selector, a separate implementation",
+      footer: 'jsdom 30 answers querySelectorAll with @asamuzakjp/dom-selector, a separate ' +
+        'implementation.  * marks a shape it answered from its result cache, which holds until ' +
+        'the document changes; run the report to see the same shape after a change',
     }),
   );
 

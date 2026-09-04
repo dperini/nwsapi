@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1010" height="592"
-  viewBox="0 0 1010 592" font-family="Inter,system-ui,-apple-system,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1010" height="634"
+  viewBox="0 0 1010 634" font-family="Inter,system-ui,-apple-system,sans-serif">
   <defs>
     <linearGradient id="bar-0" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#a98bff" stop-opacity="0.95"/>
@@ -26,150 +26,162 @@
     @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     @media (prefers-reduced-motion: reduce) { .bar rect { animation: none; } }
   </style>
-  <rect width="1010" height="592" fill="#0b0b12"/>
+  <rect width="1010" height="634" fill="#0b0b12"/>
   <text x="24" y="40" fill="#e7e5f2" font-size="17" font-weight="600">Where this branch changed the cost</text>
   <text x="24" y="62" fill="rgba(231,229,242,0.62)" font-size="12">milliseconds per query, lower is better — baseline against this tree</text>
     <rect x="286" y="72" width="10" height="10" rx="2" fill="#a98bff"/>
     <text x="302" y="81" fill="rgba(231,229,242,0.62)" font-size="11.5">nwsapi (this tree)</text>
     <rect x="454" y="72" width="10" height="10" rx="2" fill="#f05abe"/>
     <text x="470" y="81" fill="rgba(231,229,242,0.62)" font-size="11.5">nwsapi (baseline)</text>
-    <line x1="300" y1="104" x2="300" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="300" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.001ms</text>
-    <line x1="420" y1="104" x2="420" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="420" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.01ms</text>
-    <line x1="540" y1="104" x2="540" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="540" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.1ms</text>
-    <line x1="660" y1="104" x2="660" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="660" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">1ms</text>
-    <line x1="780" y1="104" x2="780" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="780" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">10ms</text>
-    <line x1="900" y1="104" x2="900" y2="514" stroke="rgba(255,255,255,0.075)"/>
-    <text x="900" y="534" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">100ms</text>
+    <line x1="300" y1="104" x2="300" y2="556" stroke="rgba(255,255,255,0.075)"/>
+    <text x="300" y="576" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.01ms</text>
+    <line x1="450" y1="104" x2="450" y2="556" stroke="rgba(255,255,255,0.075)"/>
+    <text x="450" y="576" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.1ms</text>
+    <line x1="600" y1="104" x2="600" y2="556" stroke="rgba(255,255,255,0.075)"/>
+    <text x="600" y="576" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">1ms</text>
+    <line x1="750" y1="104" x2="750" y2="556" stroke="rgba(255,255,255,0.075)"/>
+    <text x="750" y="576" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">10ms</text>
+    <line x1="900" y1="104" x2="900" y2="556" stroke="rgba(255,255,255,0.075)"/>
+    <text x="900" y="576" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">100ms</text>
     <text x="286" y="135" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div:not(:nth-of-type(2n))  338.3x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div:not(:nth-of-type(2n))  380.1x</text>
     <g class="bar" style="--delay:0.00s">
-      <rect x="300" y="118" width="259.1" height="9" rx="2"
+      <rect x="300" y="118" width="170.0" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="567.085620926347" y="125" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.144</text>
+      <text x="477.9795245970387" y="125" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.136</text>
     </g>
     <g class="bar" style="--delay:0.00s">
-      <rect x="300" y="128" width="562.6" height="9" rx="2"
+      <rect x="300" y="128" width="557.0" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="870.6043453320278" y="135" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">48.79</text>
+      <text x="864.9588913448312" y="135" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">51.65</text>
     </g>
     <text x="286" y="177" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div ul li a  50.7x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">.sidebar .row .link  40.7x</text>
     <g class="bar" style="--delay:0.05s">
-      <rect x="300" y="160" width="228.6" height="9" rx="2"
+      <rect x="300" y="160" width="65.3" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="536.6315360944147" y="167" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.080</text>
+      <text x="373.25734715957094" y="167" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.027</text>
     </g>
     <g class="bar" style="--delay:0.05s">
-      <rect x="300" y="170" width="433.2" height="9" rx="2"
+      <rect x="300" y="170" width="306.7" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="741.1995966665638" y="177" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">4.07</text>
+      <text x="614.703870201846" y="177" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.11</text>
     </g>
     <text x="286" y="219" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">.sidebar .row .link  42.0x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div ul li a  37.9x</text>
     <g class="bar" style="--delay:0.10s">
-      <rect x="300" y="202" width="175.0" height="9" rx="2"
+      <rect x="300" y="202" width="129.6" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="482.9895425716422" y="209" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.029</text>
+      <text x="437.5812967888682" y="209" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.073</text>
     </g>
     <g class="bar" style="--delay:0.10s">
-      <rect x="300" y="212" width="369.8" height="9" rx="2"
+      <rect x="300" y="212" width="366.3" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="677.8351670114739" y="219" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.21</text>
+      <text x="674.3004417872139" y="219" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">2.77</text>
     </g>
     <text x="286" y="261" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">dl dd a  32.9x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">dl dd a  25.4x</text>
     <g class="bar" style="--delay:0.15s">
-      <rect x="300" y="244" width="225.6" height="9" rx="2"
+      <rect x="300" y="244" width="125.4" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="533.5667781263031" y="251" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.076</text>
+      <text x="433.3512880436324" y="251" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.068</text>
     </g>
     <g class="bar" style="--delay:0.15s">
-      <rect x="300" y="254" width="407.7" height="9" rx="2"
+      <rect x="300" y="254" width="336.1" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="715.6888058225593" y="261" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">2.50</text>
+      <text x="644.1080280335514" y="261" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.74</text>
     </g>
     <text x="286" y="303" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">.sidebar ul li a  20.9x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">.sidebar ul li a  21.4x</text>
     <g class="bar" style="--delay:0.20s">
-      <rect x="300" y="286" width="208.3" height="9" rx="2"
+      <rect x="300" y="286" width="107.7" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="516.2839220735186" y="293" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.054</text>
+      <text x="415.6562934100665" y="293" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.052</text>
     </g>
     <g class="bar" style="--delay:0.20s">
-      <rect x="300" y="296" width="366.7" height="9" rx="2"
+      <rect x="300" y="296" width="307.1" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="674.6867178178699" y="303" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.14</text>
+      <text x="615.1036687109593" y="303" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.12</text>
     </g>
     <text x="286" y="345" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div p a  14.6x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div p a  14.9x</text>
     <g class="bar" style="--delay:0.25s">
-      <rect x="300" y="328" width="256.3" height="9" rx="2"
+      <rect x="300" y="328" width="167.9" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="564.2847527457343" y="335" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.137</text>
+      <text x="475.8758038077503" y="335" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.132</text>
     </g>
     <g class="bar" style="--delay:0.25s">
-      <rect x="300" y="338" width="396.2" height="9" rx="2"
+      <rect x="300" y="338" width="343.8" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="704.1760467109793" y="345" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">2.00</text>
+      <text x="651.8224414443591" y="345" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.96</text>
     </g>
     <text x="286" y="387" fill="#e7e5f2" font-size="12.5"
       text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">body a  3.8x</text>
     <g class="bar" style="--delay:0.30s">
-      <rect x="300" y="370" width="311.7" height="9" rx="2"
+      <rect x="300" y="370" width="232.1" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="619.6758585274611" y="377" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.396</text>
+      <text x="540.1276707700551" y="377" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.353</text>
     </g>
     <g class="bar" style="--delay:0.30s">
-      <rect x="300" y="380" width="381.6" height="9" rx="2"
+      <rect x="300" y="380" width="319.6" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="689.6250004867916" y="387" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.51</text>
+      <text x="627.6081662954282" y="387" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.35</text>
     </g>
     <text x="286" y="429" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div:nth-child(3)  2.6x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">div:nth-child(3)  2.5x</text>
     <g class="bar" style="--delay:0.35s">
-      <rect x="300" y="412" width="203.4" height="9" rx="2"
+      <rect x="300" y="412" width="101.1" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="511.42600743086723" y="419" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.050</text>
+      <text x="409.0518369756181" y="419" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.047</text>
     </g>
     <g class="bar" style="--delay:0.35s">
-      <rect x="300" y="422" width="254.1" height="9" rx="2"
+      <rect x="300" y="422" width="161.1" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="562.0515985128102" y="429" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.131</text>
+      <text x="469.08358520230024" y="429" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.119</text>
     </g>
     <text x="286" y="471" fill="#e7e5f2" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">.example  1.1x</text>
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">ul li a  2.5x</text>
     <g class="bar" style="--delay:0.40s">
-      <rect x="300" y="454" width="116.7" height="9" rx="2"
+      <rect x="300" y="454" width="269.4" height="9" rx="2"
         fill="url(#bar-0)" filter="url(#halo)"/>
-      <text x="424.67869534828867" y="461" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.009</text>
+      <text x="577.3945955769027" y="461" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.625</text>
     </g>
     <g class="bar" style="--delay:0.40s">
-      <rect x="300" y="464" width="123.4" height="9" rx="2"
+      <rect x="300" y="464" width="329.0" height="9" rx="2"
         fill="url(#bar-1)" filter="url(#halo)"/>
-      <text x="431.3565248040478" y="471" fill="rgba(231,229,242,0.62)"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.011</text>
+      <text x="637.0096358629494" y="471" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.56</text>
     </g>
-  <text x="24" y="564" fill="rgba(231,229,242,0.62)" font-size="11">only shapes that moved by more than 5%; every result still agrees with the reference engine</text>
+    <text x="286" y="513" fill="#e7e5f2" font-size="12.5"
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">button,[role="button"]  1.1x</text>
+    <g class="bar" style="--delay:0.45s">
+      <rect x="300" y="496" width="277.1" height="9" rx="2"
+        fill="url(#bar-0)" filter="url(#halo)"/>
+      <text x="585.0647242332803" y="503" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.703</text>
+    </g>
+    <g class="bar" style="--delay:0.45s">
+      <rect x="300" y="506" width="284.9" height="9" rx="2"
+        fill="url(#bar-1)" filter="url(#halo)"/>
+      <text x="592.9087404012912" y="513" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.793</text>
+    </g>
+  <text x="24" y="606" fill="rgba(231,229,242,0.62)" font-size="11">only shapes that moved by more than 5%; every result still agrees with the reference engine</text>
 </svg>
