@@ -531,6 +531,30 @@
       return list;
     },
 
+  // True when the text is a single compound selector: one comma-free item
+  // with no combinator of its own, so it only ever tests the element it is
+  // handed. A comma, a space, '>', '+' or '~' inside parentheses, brackets or
+  // quotes belongs to that construct and does not count.
+  isCompound =
+    function(text) {
+      var chr, depth = 0, escaped, i = 0, l = text.length, quote = '';
+
+      for (; l > i; ++i) {
+        chr = text.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28' || chr == '\x5b') { ++depth; }
+        else if (chr == '\x29' || chr == '\x5d') { --depth; }
+        else if (depth === 0 && (chr == ',' || chr == '>' || chr == '+' ||
+          chr == '~' || chr == ' ' || chr == '\t' || chr == '\n' ||
+          chr == '\f' || chr == '\r')) { return false; }
+      }
+
+      return l > 0;
+    },
+
   // split ':is(', ':where(', ':matches(', ':not(' and ':has(' into their
   // selector list argument and the rest of the selector. The argument can
   // nest parentheses and quote them, which a single regular expression
@@ -1282,6 +1306,9 @@
   // whether the selector walks ancestors at all, see the guard in compile()
   A_WALK = false,
 
+  // names the flag an inlined ':not()' argument writes, one per compile
+  notFlag = 0,
+
   // compile groups or single selector strings into
   // executable functions for matching or selecting
   compile =
@@ -1373,7 +1400,8 @@
 
       var a, b, n, f, k = 0, compat, name,
       NS, expr, match, pendingTag, result, status, symbol,
-      test, type, selector = expression, vars;
+      test, type, selector = expression, vars,
+      A_HOLD, A_KEEP, A_MOVE, argument, flag, nested;
 
       A_REQD.length = 0;
       A_PEND.length = 0;
@@ -1683,7 +1711,32 @@
                   source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'not':
-                  source = 'if(!s.match("' + expr + '",e)){' + source + '}';
+                  // A compound argument compiles in place. Going back out
+                  // through match() costs a cache lookup and a resolver call
+                  // on every candidate to answer what the inlined conditions
+                  // answer directly, and ':not()' is common enough in a
+                  // compound that the call shows up in a profile.
+                  // An argument carrying a combinator keeps the call: walking
+                  // inside the negation would move the 'e' the surrounding
+                  // loop is holding.
+                  if (isCompound(argument = match[2])) {
+                    // the argument compiles as its own selector, so the tags
+                    // it names are not tags the candidate must have
+                    A_KEEP = A_REQD.slice();
+                    A_HOLD = A_PEND.slice();
+                    A_MOVE = A_WALK;
+                    flag = '_n' + notFlag++;
+                    nested = compileSelector(argument, flag + '=true;', mode, callback);
+                    A_REQD.length = 0;
+                    A_REQD.push.apply(A_REQD, A_KEEP);
+                    A_PEND.length = 0;
+                    A_PEND.push.apply(A_PEND, A_HOLD);
+                    A_WALK = A_MOVE;
+                    source = 'var ' + flag + '=false;' + nested +
+                      'if(!' + flag + '){' + source + '}';
+                  } else {
+                    source = 'if(!s.match("' + expr + '",e)){' + source + '}';
+                  }
                   break;
                 case 'has':
                   if (expr == ':scope') {
