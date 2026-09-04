@@ -169,8 +169,8 @@ elements is the clearest example:
 
 | regime                            | nwsapi   | jsdom's engine |
 | --------------------------------- | -------- | -------------- |
-| same query, document untouched    | 0.136 ms | 0.019 ms       |
-| one element in and out in between | 0.904 ms | 0.806 ms       |
+| same query, document untouched    | 0.141 ms | 0.019 ms       |
+| one element in and out in between | 1.029 ms | 1.033 ms       |
 
 Both rows are from one run, since absolute milliseconds drift between runs and
 only the two numbers on the same row were measured microseconds apart.
@@ -178,9 +178,10 @@ only the two numbers on the same row were measured microseconds apart.
 Neither row is the whole story. The first says their memo is worth having and
 we do not have one. The second is mostly a cost neither engine controls: once
 the document has changed, jsdom rebuilds the collection behind every tag and
-class lookup, and that alone accounts for most of both numbers. The gap that
-is left is the part the selector engines are responsible for, and it is much
-smaller than the first row suggests.
+class lookup, and that alone accounts for most of both numbers. What is left
+after that is the part the selector engines are responsible for, and on this
+shape the two are now level — which the first row, read on its own, would
+have called a 7x loss.
 
 This engine keeps no result cache on purpose. Handing back a remembered set
 means knowing every way the document could have changed since, and getting
