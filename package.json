@@ -49,6 +49,7 @@
     }
   },
   "scripts": {
+    "test:optimizer": "node --test test/optimizer-nesting.test.cjs",
     "lint": "eslint ./src/nwsapi.js"
   }
 }
