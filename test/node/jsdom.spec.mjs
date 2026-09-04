@@ -466,6 +466,60 @@ test.describe('agreement with the reference engine', () => {
     }
   });
 
+  test('the form pseudo-classes answer what a browser answers', () => {
+    // The expected sets here come from Chromium, not from jsdom: on these
+    // four selectors jsdom's engine and the browser disagree, and this engine
+    // sides with the browser. test/upstream/browser-agreement.spec.mjs is
+    // where that comparison is made against a live browser; this pins the
+    // answers so they can be checked without one, and
+    // docs/dom-selector-differences.md records the disagreement.
+    const { document, NW } = build(
+      '<!doctype html><body><div id=d>' +
+        '<input id=i1 disabled><input id=i2><input id=i3 required>' +
+        '<input id=i4 type=email value="not-an-email">' +
+        '<fieldset id=fs disabled><legend id=lg><input id=li1></legend><input id=fi1></fieldset>' +
+        '<fieldset id=fs2><input id=fi2></fieldset>' +
+        '<form id=f1><input id=fi3 required><button id=b1>go</button></form>' +
+        '</div></body>',
+    );
+    const ids = selector => NW.select(selector, document).map(node => node.id);
+
+    // a disabled control is barred from constraint validation, so it matches
+    // neither ':valid' nor ':invalid'
+    expect(ids(':valid')).toEqual(['i2', 'fs', 'li1', 'fs2', 'fi2', 'b1']);
+    expect(ids(':invalid')).toEqual(['i3', 'i4', 'f1', 'fi3']);
+    expect(ids('input:valid')).toEqual(['i2', 'li1', 'fi2']);
+
+    // a button is optional outright, and a fieldset-disabled control is
+    // read-only rather than read-write
+    expect(ids(':optional')).toEqual(['i1', 'i2', 'i4', 'li1', 'fi1', 'fi2', 'b1']);
+    expect(ids('button:optional')).toEqual(['b1']);
+    expect(ids(':read-write')).toEqual(['i2', 'i3', 'i4', 'li1', 'fi2', 'fi3']);
+    expect(ids('fieldset :read-write')).toEqual(['li1', 'fi2']);
+    expect(ids('input:not(:read-write)')).toEqual(['i1', 'fi1']);
+  });
+
+  test(':defined matches every element that is not an undefined custom one', () => {
+    const { window, document, NW } = build(
+      '<!doctype html><body><div id=d1></div><my-thing id=mt></my-thing>' +
+        '<button id=b1 is="fancy-btn">x</button></body>',
+    );
+    const ids = () => NW.select(':defined', document).map(node => node.id).filter(Boolean);
+
+    // a built-in element is defined; a custom element is not until it has a
+    // definition and has been upgraded to it, and a customized built-in whose
+    // definition does not exist is in the same position
+    expect(ids()).toEqual(['d1']);
+
+    window.customElements.define('my-thing', class extends window.HTMLElement {});
+    expect(ids()).toEqual(['d1', 'mt']);
+
+    window.customElements.define('fancy-btn', class extends window.HTMLButtonElement {}, { extends: 'button' });
+    // the existing element is not upgraded by a later definition of an 'is'
+    // form, which is what the reference engine says too
+    expect(ids()).toEqual(Array.from(document.querySelectorAll(':defined'), node => node.id).filter(Boolean));
+  });
+
   test(':disabled and :enabled are complements, fieldsets included', () => {
     // A control inside a disabled fieldset is disabled unless it sits in that
     // fieldset's first legend child, and an option is disabled by the

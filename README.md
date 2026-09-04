@@ -198,8 +198,10 @@ The `upstream/` directory is git-ignored on purpose: the pin of record is the
 
 What makes this engine fast, what was tried and rejected, and how to measure a
 change before claiming it: `docs/performance.md`. Running on a host that
-answers none of the modern DOM: `docs/legacy.md`. The benchmark harnesses and
-how to read their charts: `bench/README.md`.
+answers none of the modern DOM: `docs/legacy.md`. Where jsdom's engine and a
+browser disagree, and which of those are not this engine's bugs:
+`docs/dom-selector-differences.md`. The benchmark harnesses and how to read
+their charts: `bench/README.md`.
 
 ## 💖 Support & Sponsoring
 
