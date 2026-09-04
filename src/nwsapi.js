@@ -2435,12 +2435,15 @@
                   source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
                     '"disabled" in e&&s.isDisabled(e))){' + source + '}';
                   break;
+                // Disabled counts here, and a control inside a disabled
+                // fieldset is disabled even though its own property says
+                // otherwise, which is what s.isDisabled() answers.
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
-                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                      '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||e.disabled):true))||' +
+                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
+                      '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
                       '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' + source + '}';
                   break;
@@ -2448,8 +2451,8 @@
                 case '-moz-read-write':
                   source =
                     'if(' +
-                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                      '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
+                      '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
                       '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' + source + '}';
                   break;
@@ -2506,14 +2509,19 @@
                       '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' + source + '}';
                   break;
+                // https://html.spec.whatwg.org/#selector-required
                 case 'required':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
+                    'if((/^(?:input|select|textarea)$/i.test(e.localName)&&e.required)' +
                     '){' + source + '}';
                   break;
+                // ':optional' takes a button as well, which has no required
+                // property to read, and the anchors matter: written as
+                // '/^input|select|textarea$/' the pattern reads as '^input' or
+                // 'select' or 'textarea$' and matches by accident
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!e.required)' +
                     '){' + source + '}';
                   break;
                 case 'invalid':
@@ -2524,12 +2532,18 @@
                       '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))' +
                     '){' + source + '}';
                   break;
+                // A fieldset is valid when none of the controls under it is
+                // invalid, which is not the same as one of them being valid:
+                // a fieldset holding no validation candidates at all is
+                // valid, and asking for a ':valid' descendant said otherwise.
+                // Chromium agrees, and so does
+                // https://html.spec.whatwg.org/#selector-valid
                 case 'valid':
                   source =
                     'if(((' +
                       '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                       '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                      '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +
+                      '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
                     '){' + source + '}';
                   break;
                 case 'in-range':
