@@ -667,6 +667,27 @@
     },
 
   // check if node content is editable
+  // Whether an element is defined, which every built-in element is. Only
+  // a custom element can be undefined: one whose name carries a hyphen, or a
+  // built-in carrying an 'is' attribute, and in both cases only until a
+  // definition exists and the element has been upgraded to it.
+  // https://dom.spec.whatwg.org/#concept-element-defined
+  isDefined =
+    function(element) {
+      var custom, name = element.localName, registry, view;
+
+      if (name.indexOf('-') < 0) {
+        if (!element.hasAttribute('is')) { return true; }
+        name = element.getAttribute('is') || name;
+      }
+
+      view = doc.defaultView;
+      registry = view && view.customElements;
+      if (!registry || !registry.get) { return false; }
+      custom = registry.get(name);
+      return !!custom && element instanceof custom;
+    },
+
   isContentEditable =
     function(node) {
       var attrValue = 'inherit';
@@ -1357,7 +1378,7 @@
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
                   break;
                 case 'defined':
-                  source = 'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' + source + '}';
+                  source = 'if(s.isDefined(e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -2099,6 +2120,7 @@
     nthOfType: nthOfType,
     nthElement: nthElement,
 
+    isDefined: isDefined,
     isOpen: isOpen,
     isClosed: isClosed,
     isModal: isModal,
