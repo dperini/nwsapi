@@ -3,27 +3,26 @@ name: nwsapi
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v7
+      uses: actions/checkout@v2
 
     - name: Setup Node.js
-      uses: actions/setup-node@v7
+      uses: actions/setup-node@v2
       with:
-        node-version: latest
-        package-manager-cache: false
+        node-version: '14'
 
     - name: Install dependencies
       run: npm install
 
     - name: Run tests
-      run: npm test
+      run: npm testIs the NodeJS yaml configuration needed in my "nwsapi" repository ?
