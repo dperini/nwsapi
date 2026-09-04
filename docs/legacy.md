@@ -29,7 +29,7 @@ compile, so the ordinary path carries no branch and no call:
 
 In the third case `hTag` is a local of the resolver, declared in its own head
 as `hTag=s.tagOf`, so a candidate costs one call rather than a property load
-and a call. Only the helpers a selector actually uses are declared.
+and a call. Only the helpers a selector uses are declared.
 
 The engine's own loops — the sibling walks behind `:nth-child()`, the subtree
 walk behind `#id`, the fragment walks in `byTag()` and `byClass()` — keep

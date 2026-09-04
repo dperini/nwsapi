@@ -190,7 +190,7 @@ async function main() {
   // whole process. The legacy harness loaded the fixture into fresh iframes,
   // but by the time Benchmark.js finished its warmup cycles both engines were
   // running against a fully parsed, warm document anyway -- so sharing a
-  // single warmed document matches what the old numbers actually measured
+  // single warmed document matches what the old numbers measured
   // (steady-state selection speed, with each engine's internal selector
   // caches primed). The tradeoff: cold-start costs (first parse/compile of a
   // selector) are amortized away and are not visible in these results.
