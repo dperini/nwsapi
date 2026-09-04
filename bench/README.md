@@ -201,3 +201,7 @@ Two habits, both there for a reason you can reproduce:
 If you take a number from here and cannot reproduce it, suspect the method
 before the engine: run it twice, and check whether the two runs agree with
 each other before comparing them to anything else.
+
+For what these measurements led to — the optimizations the engine keeps, and
+the ones that were measured and thrown away — see
+[`docs/performance.md`](../docs/performance.md).

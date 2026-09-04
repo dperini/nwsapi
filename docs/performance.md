@@ -1,0 +1,243 @@
+# Performance
+
+This is what we learned making this engine fast, kept next to the code so the
+next change does not re-learn it. Every number here was measured with
+`bench/report.mjs` or `bench/selectors.bench.mjs`, and the ones with a `->`
+compare two builds in one process. If you are about to optimize something,
+read [How to measure](#how-to-measure) first, then
+[What did not work](#what-did-not-work) so you do not spend a day on
+something already ruled out.
+
+## Where the time goes
+
+A query has two halves:
+
+1. **Fetch.** Ask the host for a candidate list — `getElementsByTagName`,
+   `getElementsByClassName`, `getElementById`. `collect()` picks the part of
+   the selector to fetch by, and it picks the rightmost one.
+2. **Filter.** Run the compiled resolver over that list. The resolver is
+   JavaScript this engine generated for that one selector, so the selector is
+   parsed once and matched many times.
+
+Almost all of the cost is **calls across the host boundary**: reading
+`localName`, calling `getAttribute`, stepping to `parentElement`. In jsdom
+each of those goes through a wrapper object; in a browser each is a call into
+C++. Ordinary JavaScript around them is close to free by comparison, and that
+one fact decides most of what follows. Over 6344 elements in jsdom, one read
+per element and nothing else, with the value consumed so it cannot be
+optimized away:
+
+| read                       | cost     |
+| -------------------------- | -------- |
+| `e.localName`              | 0.244 ms |
+| `e.nodeName`               | 0.353 ms |
+| `e.className`              | 0.429 ms |
+| `e.id`                     | 0.447 ms |
+| `e.parentElement`          | 0.529 ms |
+| `e.getAttribute('id')`     | 0.663 ms |
+| `e.hasAttribute('href')`   | 0.668 ms |
+| `e.previousElementSibling` | 0.698 ms |
+| `e.getAttribute('class')`  | 0.738 ms |
+
+So: **fewer host calls beats cleverer JavaScript**, and a property read beats
+a method call that answers the same question.
+
+## The rules that paid
+
+### Fetch the smallest list you can, and let the index do the work
+
+`getElementsByClassName` over 800 elements carrying 12 classes each costs
+0.042 ms. Testing the same class per element costs 0.123 ms with a regular
+expression, 0.141 ms with a hand-rolled scan, and 0.297 ms with
+`classList.contains`. Asking the host for a named index is cheaper than any
+per-element test, so the fetch does as much of the work as it can and the
+resolver only tests what is left.
+
+### Sometimes the direction is wrong, not the code
+
+`div ul li a` matched right to left starts from every `<a>` and rejects them
+one at a time: 2370 candidates to return 10. Descending from the leftmost tag
+asks each level for the next, and the set shrinks before it grows —
+94 -> 6 -> 21 -> 10. Same answer, two orders of magnitude apart:
+
+| selector      | right to left | descending |
+| ------------- | ------------- | ---------- |
+| `div ul li a` | 1.189 ms      | 0.098 ms   |
+| `div p a`     | 1.277 ms      | 0.139 ms   |
+| `dl dd a`     | 1.181 ms      | 0.075 ms   |
+
+Descending is not always cheaper: it costs one scoped lookup per element of
+every level it iterates, so a level that explodes pays more than the pass it
+replaced. `descendChain()` budgets the lookups against the size of the pass
+it is replacing, and bounds the levels still to come by how many elements of
+their part the whole context holds. That is what takes `ul li a`
+(160 + 604 lookups against 2370 anchors, 1.56 ms -> 0.63 ms) and declines
+`.app .card .row a` (1 + 400 + 800 against 430) before it has spent 400
+lookups finding out.
+
+### Reject a candidate before walking its ancestors
+
+A candidate can only match `div ul li a` if a div, a ul and a li all appear
+above it, and that is much cheaper to answer than the match. The tags above
+an element are summarized as bits in one integer; an element's summary is its
+parent's summary plus the parent's own bit, so a chain is walked once rather
+than once per candidate. Bits collide, which only costs a candidate that was
+going to be rejected — the filter never decides a match, it only skips work.
+This is what Blink does for CSS with
+[`selector_filter.h`](https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_filter.h).
+
+| selector       | before  | after    |
+| -------------- | ------- | -------- |
+| `div ul li a`  | 2.66 ms | 1.08 ms  |
+| `ul li a span` | 1.28 ms | 0.382 ms |
+| `dl dd a`      | 1.68 ms | 1.07 ms  |
+
+A filter that rejects nothing is pure overhead, so it samples its own keep
+rate over the first 64 candidates and switches off when it is not earning,
+retrying after 4096. Without that, `main section ul li a` paid 0.660 ms for a
+filter that kept everything; with it, 0.329 ms.
+
+### Cheapest check first, in generated code especially
+
+When several conditions have to hold, the first one decides what the rest
+cost. Source order is written for a reader; execution order is what the
+machine pays, and a code generator emits conditions in the order it parses
+them — which here meant the last one emitted ran first, so `div[data-x="1"]`
+tested the attribute on every candidate before asking whether it was a `div`.
+Holding the tag test and applying it when the compound ends measured
+1.09x-1.27x on the selectors it affects.
+
+The same reasoning one level up: read the size of a batch before touching it.
+A budget that drains *while* the work happens is worse than no budget, since
+it pays for most of the work and then throws it away — measured 3x slower
+than not descending at all on one such path.
+
+### Prefer the property to the call, and the comparison to the pattern
+
+Three cases of the same lesson in the generated conditions. The numbers are
+for the whole test, pattern or comparison included, over the same 6344
+elements:
+
+- A class test called `getAttribute('class')`; the attribute is reflected as
+  a property, so it reads `e.className` and falls back when the reflection is
+  not a string (in a browser, SVG gives an `SVGAnimatedString`). 0.477 ms
+  against 0.770 ms.
+- An id test ran `/^title$/.test(e.getAttribute('id'))`. An exact comparison
+  is what the selector means: `e.id == "title"`, 0.383 ms against 0.717 ms.
+- An attribute value test built a regular expression for `[data-x="1"]`,
+  where the DOM already hands back a string. A string comparison is
+  1.05-1.08x — small, because the cost is `getAttribute` rather than the
+  match, but it is free to take.
+
+### Do not pay for what an earlier stage guarantees
+
+- An attribute test asked the candidate for `getAttribute` before calling it.
+  Matching is handed one node by a caller and keeps that guard; selecting
+  works through a list of elements this engine fetched itself, so the read
+  only confirms what the fetch already guarantees. Dropping it there measured
+  1.11x.
+- A selector whose only part was used for the fetch still compiled a resolver
+  that copied its input — `div`, `.example`, one item of `label, [aria-label]`.
+  There is no resolver for that now, 1.03x on wide selections.
+- `:not(.a)` called back into `match()` per candidate, which costs a cache
+  lookup and a resolver call to answer what one inlined condition answers. A
+  compound argument compiles in place; one carrying a combinator keeps the
+  call, because walking inside the negation would move the element the
+  surrounding loop is holding.
+
+### Watch what the JIT does with the generated code
+
+`--trace-deopt` on a mixed workload reported "reason: out of bounds" against
+`Resolver` on **every call**: the candidate loop was written
+`while((e=c[++k]))`, which finds the end of a list by reading one index past
+it, and V8 answers an out-of-bounds load by throwing away the optimized code.
+Bounding the loop with the length removed it. The throughput change was
+modest (1.31x on one shape, noise on others), but a function that deoptimizes
+per call cannot be reasoned about at all.
+
+Re-run that check after touching codegen:
+
+```sh
+node --expose-gc --trace-deopt bench/report.mjs --rounds 1 2>&1 |
+  grep 'JSFunction Resolver'
+```
+
+A whole report run — 21 cases, thousands of queries — currently prints one
+line, `reason: wrong map`, which is a resolver seeing its second kind of
+element and settling. What must not appear is `out of bounds`, or a count
+that scales with the number of queries: that is a resolver being thrown away
+and rebuilt per call.
+
+### Caches: measure the size, and do not hold the DOM
+
+- A strict LRU evicted with `Map.delete`, and V8 keeps a deleted entry in the
+  backing store until the map rehashes, so finding the oldest entry walked
+  every tombstone. `Map.set` was 28% of run time on an 8000-selector
+  workload. Two generations — fill the young one, promote it, drop the old one
+  whole — took 3000 selectors from 22.72 ms to 0.973 ms.
+- A cached plan must not carry results or a context, or a query keeps every
+  element it matched alive. The retention rule is checked by a test using
+  `WeakRef`, not by review.
+- The ancestor filter's summaries key on elements, so they are dropped with
+  the call that built them: an element that moved in between would otherwise
+  carry a summary describing where it used to be.
+
+### Skip work whole queries do not need
+
+- `#id` walked the document, because nwsapi reaches for `document.all` and
+  jsdom does not implement it. `getElementById` cannot answer alone (a
+  document may hold an id twice, and `querySelectorAll` matches all of them),
+  but it settles in constant time whether the id exists at all —
+  `select('#missing')` 2.19 ms -> 0.0007 ms — and where the first one is,
+  which is all `querySelector` wants: 3.74 ms -> 0.0007 ms.
+- `:hover` needs two capture-phase listeners and a reference to the last
+  hovered element. They are installed the first time a `:hover` selector is
+  compiled, not for every document the engine attaches to.
+- A constant `:nth-child(3)` needs no index: the generated code counts
+  siblings and stops as soon as the index is exceeded. 116 us -> 46.5 us. The
+  of-type forms keep the cached list, since comparing the name of every
+  sibling stepped over costs more than the list avoids (measured 2.0x and
+  2.6x slower).
+
+## What did not work
+
+Each of these was implemented and measured, and each is here so it stays
+dead:
+
+| idea                                             | result                                                               |
+| ------------------------------------------------ | -------------------------------------------------------------------- |
+| Greedy ancestor walks for descendant chains      | 10 walks and 885 walks cost the same once the filter rejects first    |
+| Memoized chain state per candidate               | 2.16 ms against 1.31 ms                                              |
+| One document-order pass with a level stack       | the bare traversal of 6344 elements costs 1.9 ms, more than the query |
+| `:nth-of-type` counting via a scoped tag lookup  | 1.3x on `div`, 1.7x worse on `p` and `li`                            |
+| `collection.item(i)` or `Array.from` to copy     | quadratic through jsdom's proxy: 66 us per element at n=2370          |
+| `classList.contains` for a class test            | 0.297 ms against 0.123 ms for the regular expression                 |
+| Hoisting regular expression literals out of codegen | direction flipped between runs                                    |
+| Dropping the `e&&` guard before a combinator walk | no measurable change; it is a local test, not a host call            |
+| A result cache keyed by selector                 | not attempted on purpose, see below                                  |
+
+The last one is a design decision rather than a measurement. jsdom 30's
+engine keeps the result of a query until the document changes, which is worth
+7x on a repeated query and is why some rows of the standing report need
+reading twice (`bench/README.md` explains the star). Handing back a
+remembered set means knowing every way the document could have changed since,
+and getting that wrong returns a wrong answer rather than a slow one.
+
+## How to measure
+
+The full contract is in `bench/README.md`. The short version:
+
+- **Interleave, in one process.** Absolute timings drift by tens of percent
+  between runs, so two numbers measured minutes apart say nothing and the same
+  two measured microseconds apart say everything. `bench/report.mjs
+  --baseline <path>` runs two builds and jsdom's engine in one process; get a
+  baseline with `git show <ref>:src/nwsapi.js > /tmp/before.js`.
+- **Check the answer before the time.** The report compares every result
+  against `querySelectorAll` and fails if they disagree. A fast wrong answer
+  is not a fast answer.
+- **Measure the shape you are claiming.** An ordering change only shows up
+  when two conditions survive to run; a cache change only shows up on a
+  working set that does not fit. Most compounds reach the matcher with one
+  condition left, because the fetch already used the other one.
+- **Write down what failed.** Add it to the table above with its number. The
+  value of a performance pass is mostly in what it rules out.

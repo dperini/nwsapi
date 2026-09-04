@@ -175,6 +175,10 @@ pnpm run serve                # -> https://nwsapi.localhost (proxies $PORT)
 The `upstream/` directory is git-ignored on purpose: the pin of record is the
 `ref` field in `.gitmodules` (see `docs/upstream.md`).
 
+What makes this engine fast, what was tried and rejected, and how to measure a
+change before claiming it: `docs/performance.md`. The benchmark harnesses and
+how to read their charts: `bench/README.md`.
+
 ## 💖 Support & Sponsoring
 
 **NWSAPI** powers millions of builds, web scrapers, and testing suites every single day—including key infrastructure like [jsdom](https://github.com/jsdom/jsdom).
