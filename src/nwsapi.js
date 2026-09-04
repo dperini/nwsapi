@@ -1454,10 +1454,10 @@
       //
       // The guard is for a host whose tag collection is not all elements: in
       // IE up to 8, getElementsByTagName('*') included comment nodes, which
-      // have no getAttribute. IE 9 stopped, and no host in the support matrix
-      // does it, so a selection trusts its own fetch and Config.LEGACY buys
-      // the guard back for one that needs it. Matching is guarded either way,
-      // since that is where a caller's own node arrives.
+      // have no getAttribute. That browser is from 2009 and IE 9 stopped doing
+      // it in 2011, so a selection trusts its own fetch and Config.LEGACY buys
+      // the guard back for a host that still needs it. Matching is guarded
+      // either way, since that is where a caller's own node arrives.
       getA = Config.LEGACY || mode === false ?
         'e.getAttribute&&e.getAttribute(' : 'e.getAttribute(';
       hasA = Config.LEGACY || mode === false ?

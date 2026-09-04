@@ -91,9 +91,11 @@ Returns an array of elements having the specified class name `class`, optionally
 The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
 
 * `IDS_DUPES`: true  - true to allow using multiple elements having the same id, false to disallow
-* `LIVECACHE`: true  - true for caching both results and resolvers, false for caching only resolvers
-* `MIXEDCASE`: true  - true to match tag names case insensitive, false to match using case sensitive
+* `FORGIVING`: true  - true for `:is()`/`:where()` to drop an item they cannot read, false to throw on it
+* `LEGACY`: false    - true for a host that hands back something other than an element from a tag or class lookup, see below
+* `NODE_LIST`: false - true to return a `NodeList`, false to return an `Array`; it reads `NodeList` off the global object, so it works only where that is the host's own global (a browser), and throws when the engine is loaded as a module
 * `LOGERRORS`: true  - true to print errors and warnings to the console, false to mute both of them
+* `VERBOSITY`: true  - true to throw on an invalid selector, false to answer it as no match
 
 
 ### Examples on extending the basic functionalities
@@ -112,10 +114,11 @@ says. With it off, the generated tests read reflected properties and call the
 host directly, which assumes a tag or class lookup returns elements and that
 `id` reflects as a string. Turn it on for a host that breaks either
 assumption — IE up to 8 put comment nodes in a `getElementsByTagName('*')`
-collection — and the tests ask each candidate for the method before calling
-it, as they did up to 2.2.27, so such a collection is a non-match rather than
-a `TypeError`. It is not a language switch: a build tool can lower the syntax
-in this file, but it cannot change what the host hands back.
+collection, a browser from March 2009 that predates Node.js itself — and the
+tests then ask each candidate for the method before calling it, as they did up
+to 2.2.27, so such a collection is a non-match rather than a `TypeError`. It
+is not a language switch: a build tool can lower the syntax in this file, but
+it cannot change what the host hands back.
 
 Changing `LEGACY` or `FORGIVING` clears the compiled resolvers, since both are
 read while a selector compiles.

@@ -145,6 +145,15 @@ first, the way every version up to 2.2.27 did. It exists because a host that
 puts a comment node in a `*` collection — IE up to 8 — has no `getAttribute`
 on every candidate.
 
+How old that is: IE 8 shipped in March 2009, over 17 years ago. Node.js was
+two months from its first release, npm was a year away, the first iPad was a
+year away, Instagram was 18 months away, and *Game of Thrones* was two years
+from airing. IE 9 stopped putting comments in that collection 15 years ago,
+and Microsoft retired the last IE in June 2022. Which is the point of putting
+this behind an option rather than in the middle of a per-candidate test: it is
+a promise to a host nobody here can test against, so it should cost nothing to
+the hosts we can.
+
 Note what the flag is *not* about: the language. A build tool can lower the
 syntax in this file to anything, and `Map` and `WeakSet` have polyfills, so
 the way the source is written sets no floor for where it runs. What a build
@@ -187,18 +196,18 @@ moved out of line instead of behind a flag:
 build tool lowers syntax and `Map` and `WeakSet` have polyfills. The floor is
 set by the DOM this engine calls, which no build step supplies:
 
-| what it calls               | needs                                        | used by                        |
-| --------------------------- | -------------------------------------------- | ------------------------------ |
-| `getAttributeNames()`       | Chrome 61, Safari 10.1, Firefox 45; never IE | namespaced attribute selectors |
-| `isConnected`               | Chrome 51, Safari 10, Firefox 49; never IE   | `:lang()`                      |
-| `Element.prototype.closest` | Chrome 41, Safari 9, Firefox 35; never IE    | installing over the host       |
-| `classList`                 | IE 10                                        | building a selector for a node |
-| `firstElementChild`, `previousElementSibling`, `getElementsByClassName` | IE 9 | the fetch and the walks   |
+| what it calls               | first shipped in                        | how long ago     | used by                        |
+| --------------------------- | --------------------------------------- | ---------------- | ------------------------------ |
+| `getAttributeNames()`       | Chrome 61, Safari 10.1, Firefox 45 (2017) | 9 years        | namespaced attribute selectors |
+| `isConnected`               | Chrome 51, Safari 10, Firefox 49 (2016) | 10 years         | `:lang()`                      |
+| `Element.prototype.closest` | Chrome 41, Safari 9, Firefox 35 (2015)  | over a decade    | installing over the host       |
+| `classList`                 | IE 10 (2012)                            | 14 years         | building a selector for a node |
+| `firstElementChild`, `previousElementSibling`, `getElementsByClassName` | IE 9 (2011) | 15 years | the fetch and the walks |
 
-So the parts of the engine that most selectors use want an IE 9-era DOM, and
-a few features want a 2016-2017 one. A host older or stranger than that is
-what `LEGACY` is for, and it is the host's behavior being bought back, not
-the language's.
+None of those exist in IE 8 or earlier. So most selectors want a DOM from
+about 15 years ago, and a few features want one from about 9. A host older or
+stranger than that is what `LEGACY` is for, and what it buys back is the
+host's behavior, not the language's.
 
 ### Do not pay for what an earlier stage guarantees
 
