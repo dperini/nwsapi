@@ -569,4 +569,42 @@ test.describe('a descendant chain of tags answered by descending', () => {
       expect(mine, selector).toEqual(reference);
     }
   });
+
+  // A level wide enough to matter is routed by counting how many elements of
+  // the last part the context holds, so these cover the wide shapes and the
+  // one hazard the counting brings: a count outliving the document it
+  // describes.
+  function wide(inner, tail) {
+    let html = '<!doctype html><body>';
+    for (let i = 0; i < 200; ++i) {
+      html += `<ul id=u${i}><li id=l${i}>${inner(i)}</li></ul>`;
+    }
+    return build(`${html}${tail ?? ''}</body>`);
+  }
+
+  test('a level too wide for the budget answers the same', () => {
+    const { document, NW } = wide(i => `<a id=a${i}>${i}</a>`, '<a id=loose>x</a>');
+    for (const selector of ['ul li a', 'ul li', 'body ul li a', 'body li a']) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, selector).toEqual(reference);
+      expect(mine.length, selector).toBeGreaterThan(0);
+    }
+  });
+
+  test('a count taken before a change does not decide the answer', () => {
+    // Nothing of the last part is in the document, so the count taken on the
+    // first query is zero. It may pick the route for the second query and
+    // must not stand in for its answer.
+    const { document, NW } = wide(() => '');
+    expect(NW.select('ul li a', document)).toEqual([]);
+
+    const link = document.createElement('a');
+    link.id = 'late';
+    document.getElementById('l7').append(link);
+    expect(NW.select('ul li a', document).map(node => node.id)).toEqual(['late']);
+
+    link.remove();
+    expect(NW.select('ul li a', document)).toEqual([]);
+  });
 });

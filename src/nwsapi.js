@@ -408,6 +408,9 @@
   switchContext =
     function(context, force) {
       var oldDoc = doc;
+      // the counts descendChain() routes by were taken in the context being
+      // left, and mean nothing in the next one
+      partCounts.clear();
       doc = context.ownerDocument || context;
       if (force || oldDoc !== doc) {
         // force a new check for each document change
@@ -2263,13 +2266,15 @@
   // matches being expanded twice.
   //
   // It is not always the cheaper answer. The cost is the number of scoped
-  // lookups, one per element of every level, and a level that explodes pays
-  // more than the walk it replaced: 'ul li a' descends 160 -> 604 -> 885 and
-  // takes 670 lookups where the ordinary path takes one pass over 2370
-  // anchors. Both gates below are about that, and both are cheap to read
-  // before any work is done.
-  DESCENT_ENTRIES = 100,
-  DESCENT_BUDGET = 512,
+  // lookups, one per element of every level, so descendChain() budgets those
+  // against the size of the pass they replace and gives up when a level
+  // would take it over.
+  //
+  // The level size at which that budget is worth reading, see descendChain().
+  DESCENT_PROBE = 128,
+
+  // one count per chain part, for the context they were counted in
+  partCounts = new Map(),
 
   // candidates sampled before the ancestor filter decides whether it is
   // rejecting enough to be worth its own cost, and the number of those it may
@@ -2335,9 +2340,29 @@
       return out;
     },
 
+  // How many elements of one chain part the context holds, remembered per
+  // context. The answer chooses a route and never an answer, so one that has
+  // gone stale under a mutation can cost the slower path but cannot produce a
+  // wrong result. A part carrying both a tag and a class is counted by its
+  // class, which is what fetchLevel() asks the host for.
+  countPart =
+    function(part, context) {
+      var count, key = part.cls !== undefined ? '.' + part.cls : part.tag;
+
+      if ((count = partCounts.get(key)) === undefined) {
+        count = (part.cls !== undefined ?
+          context.getElementsByClassName(part.cls) :
+          context.getElementsByTagName(part.tag)).length;
+        partCounts.set(key, count);
+      }
+
+      return count;
+    },
+
   descendChain =
     function(chain, context) {
-      var budget = DESCENT_BUDGET, i, j, k, l, level, next, node, part, prev;
+      var budget = -1, i, j, k, l, level, m, next, node, part, prev,
+      size, spent = 0, want;
 
       // a DocumentFragment has neither lookup, and byClass()/byTag() walk it
       // by hand; the ordinary path already knows how
@@ -2345,26 +2370,38 @@
         return null;
       }
 
-      // Read the size off the live collection before copying it: a wide
-      // first level is the shape that loses, and declining then costs only
-      // the lookup the ordinary path was going to make anyway.
-      part = chain[0];
-      level = part.cls !== undefined ?
-        context.getElementsByClassName(part.cls) :
-        context.getElementsByTagName(part.tag);
+      l = chain.length;
+      level = fetchLevel(chain[0], context, [ ]);
+      size = level.length;
 
-      if (level.length > DESCENT_ENTRIES) { return null; }
-
-      level = fetchLevel(part, context, [ ]);
-
-      for (k = 1, l = chain.length; l > k; ++k) {
-        // The size of a level is known before anything is done with it, and
-        // a level about to be iterated is one scoped lookup per element. A
-        // budget checked while spending it is worse than useless here: it
-        // pays for most of a wide level and then throws the work away, which
-        // measured 3x slower than not descending at all on '.app .card .row
-        // a', where '.card' is 400 elements.
-        if (level.length > DESCENT_ENTRIES) { return null; }
+      for (k = 1; l > k; ++k) {
+        // What descending costs is one scoped lookup per element of every
+        // level it iterates; what it replaces is one pass over the elements of
+        // the last part. So that count is the budget, and the levels still to
+        // come are bounded by how many elements of their part the whole
+        // context holds. Both are counts of a live collection, which is a scan
+        // of the context, so they are only asked for once a level is wide
+        // enough for the answer to change the route: 0.060ms over 6344
+        // elements against 0.78us for the scoped lookup being decided, so a
+        // level of a hundred elements is cheaper to iterate than to ask about.
+        //
+        // A constant limit cannot decide this, because the same number means
+        // different things in different documents. 'ul li a' iterates 160 +
+        // 604 elements against 2370 anchors and descending wins by 2.6x; '.app
+        // .card .row a' iterates 1 + 400 + 800 against 430 anchors and loses.
+        // Bounding the levels to come is what declines the second one before
+        // it has spent 400 lookups finding that out.
+        if (size > DESCENT_PROBE) {
+          // A count of zero is not answered as an empty result here. The
+          // counts are remembered, and a remembered one can be older than the
+          // document: it may only choose between two routes that agree, never
+          // stand in for what one of them would have found.
+          if (budget < 0) { budget = countPart(chain[l - 1], context); }
+          want = spent + size;
+          for (m = k + 1; l > m; ++m) { want += countPart(chain[m - 1], context); }
+          if (want > budget) { return null; }
+        }
+        spent += size;
         part = chain[k];
         next = [ ];
         prev = null;
@@ -2374,13 +2411,10 @@
           // covered and would come back a second time
           if (prev !== null && prev.contains(node)) { continue; }
           prev = node;
-          if (--budget < 0) { return null; }
           fetchLevel(part, node, next);
-          // stop as soon as the level is too wide to be worth iterating,
-          // rather than filling it out first
-          if (next.length > DESCENT_ENTRIES && l > k + 1) { return null; }
         }
         level = next;
+        size = level.length;
       }
 
       return level;
