@@ -209,6 +209,37 @@ about 15 years ago, and a few features want one from about 9. A host older or
 stranger than that is what `LEGACY` is for, and what it buys back is the
 host's behavior, not the language's.
 
+**And how much of the web that is.** From `caniuse-lite` 1.0.30001734, whose
+newest browser release is dated August 2025, as a share of the 96.7% of usage
+it records:
+
+| browsers                                                | share of usage |
+| ------------------------------------------------------- | -------------- |
+| IE 8 and older — the quirk `LEGACY` exists for          | 0.03%          |
+| any browser released before 2011                        | 0.03%          |
+| all Internet Explorer                                   | 0.67%          |
+| any browser released before 2016                        | 0.86%          |
+| any browser released before September 2017              | 1.09%          |
+| any browser released before 2020                        | 1.65%          |
+
+So the option covers about three page views in ten thousand, and the newest
+DOM feature this engine needs is missing from about one in a hundred. That is
+the shape of the trade: the default costs those three nothing they were going
+to get anyway, since one flag turns the old handling back on.
+
+Re-run it when the number matters, against whatever `caniuse-lite` is nearby:
+
+```js
+const { agents } = require('caniuse-lite/dist/unpacker/agents.js');
+let share = 0;
+for (const [id, agent] of Object.entries(agents)) {
+  for (const [version, usage] of Object.entries(agent.usage_global || {})) {
+    if (id === 'ie' && Number.parseFloat(version) <= 8) { share += usage || 0; }
+  }
+}
+console.log(share.toFixed(4) + '%');
+```
+
 ### Do not pay for what an earlier stage guarantees
 
 - An attribute test asked the candidate for `getAttribute` before calling
