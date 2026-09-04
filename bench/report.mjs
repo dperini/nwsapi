@@ -110,6 +110,10 @@ const CASES = [
   { group: 'library queries', doc: 'components', selector: 'button,[role="button"]' },
   { group: 'library queries', doc: 'components', selector: 'label,[aria-label],[aria-labelledby]' },
   { group: 'library queries', doc: 'components', selector: '.btn.primary' },
+  // an id the resolver tests, rather than one it looks the candidates up by:
+  // reOptimizer fetches by the rightmost part, so an id further left is
+  // checked per candidate
+  { group: 'library queries', doc: 'components', selector: '#root .card' },
 
   { group: 'pseudo-classes', doc: 'documentation', selector: 'div:not(:nth-of-type(2n))' },
   { group: 'pseudo-classes', doc: 'documentation', selector: 'div:nth-child(3)' },

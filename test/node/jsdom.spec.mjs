@@ -466,6 +466,26 @@ test.describe('agreement with the reference engine', () => {
     }
   });
 
+  test('an id the resolver tests, escaped every way the syntax allows', () => {
+    // A plain '#id' is looked up by the id map. An id anywhere else in the
+    // selector is compiled into a comparison against the value the DOM hands
+    // back, so the escapes in the selector have to be resolved to the same
+    // string the document holds.
+    const { document, NW } = build(
+      '<!doctype html><body><div id=plain><p id="a.b">1</p><p id="a:b">2</p>' +
+        '<p id="café">3</p><p id="x y">4</p></div><div id=PLAIN></div></body>',
+    );
+    for (const selector of [
+      'div#plain', 'p#a\\.b', 'p#a\\3A b', 'p#caf\\e9 ', 'p#café',
+      'div#plain p#a\\.b', '#plain > #a\\.b', 'div#PLAIN', 'p#x\\ y',
+      '[id="a.b"]', 'div:not(#plain)',
+    ]) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, selector).toEqual(reference);
+    }
+  });
+
   test('a forgiving list drops only the item it cannot read', () => {
     const { document, NW } = build('<!doctype html><body><div id=d><p id=p>x</p></div></body>');
     const ids = selector => NW.select(selector, document).map(node => node.id);
