@@ -1,0 +1,6 @@
+Answer an id selector from the id map instead of walking
+
+byId() reaches for document.all and falls back to walking the subtree element by element when it is missing. jsdom does not implement document.all, so every '#id' takes the walk: 2.4ms on a 6300-element document against 43ns for getElementById. jsdom is where most of nwsapi's traffic is, so this is the common case rather than the fallback.
+ getElementById cannot answer on its own, since a document may carry an id more than once and querySelectorAll matches all of them. It does settle two things in constant time, and each buys back one case:
+ - whether the id exists anywhere. If the document has none, no descendant of any context has one either, so select('#missing') returns immediately: 2.19ms to 0.0007ms. - where the first one is, in tree order. querySelector wants exactly that, so a lone '#id' against a document is answered by the id map: first('#title') 3.74ms to 0.0007ms.
+ For select() against a hit the walk still runs, because the duplicates have to be found, but it starts at the first match since none can precede it. Element-scoped queries keep the old path, because the first document-order match may sit outside the context and a match inside it would be missed. So does a detached subtree, which the document's id map knows nothing about.

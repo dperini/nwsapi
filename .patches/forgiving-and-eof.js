@@ -36,19 +36,6 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
-  // The host matcher is captured here, before anything can replace it, and
-  // node.matches is never consulted at match time. A host is free to wire
-  // Element.prototype.matches back to this engine, which is what jsdom does,
-  // and calling it while resolving a state pseudo-class re-enters the lambda
-  // that asked for the state: the recursion only ends when the stack does,
-  // and the RangeError is swallowed below. Passing a document alone, as jsdom
-  // does, leaves no matcher at all, which is the intended outcome: there is
-  // no native state to read.
-  NATIVE_MATCHES = (function(proto) {
-    return (proto && (proto.matches || proto.webkitMatchesSelector ||
-      proto.mozMatchesSelector || proto.msMatchesSelector)) || null;
-  })(global.Element && global.Element.prototype),
-
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
   WSP = '[' + HSP + VSP + ']',
@@ -79,7 +66,8 @@
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     CombineWSP: RegExp('[\\n\\r\\f\\x20]+' + NOT.single_enc + NOT.double_enc, 'g'),
     TabCharWSP: RegExp('(\\x20?\\t+\\x20?)' + NOT.single_enc + NOT.double_enc, 'g'),
-    PseudosWSP: RegExp('\\s+([-+])\\s+' + NOT.square_enc, 'g')
+    PseudosWSP: RegExp('\\s+([-+])\\s+' + NOT.square_enc, 'g'),
+    LogicalPfx: RegExp('^:(is|where|matches|not|has)\\x28', 'i')
   },
 
   STD = {
@@ -90,9 +78,9 @@
 
   GROUPS = {
     // pseudo-classes requiring parameters
-    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?\\x29)',
-    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?\\x29)',
-    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?\\x29)',
+    linguistic: '(dir|lang)(?:\\x28\\s?([-\\w]{2,})\\s?(?:\\x29|$))',
+    logicalsel: '(is|where|matches|not|has)(?:\\x28\\s?(' + '[^()]*|.*' + ')\\s?(?:\\x29|$))',
+    treestruct: '(nth(?:-last)?(?:-child|-of\\-type))(?:\\x28\\s?(even|odd|(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)?)\\s?(?:\\x29|$))',
     // pseudo-classes not requiring parameters
     locationpc: '(any\\-link|link|visited|target|defined)\\b',
     useraction: '(hover|active|focus\\-within|focus\\-visible|focus)\\b',
@@ -455,6 +443,41 @@
         ) : str;
     },
 
+  // split ':is(', ':where(', ':matches(', ':not(' and ':has(' into their
+  // selector list argument and the rest of the selector. The argument can
+  // nest parentheses and quote them, which a single regular expression
+  // cannot track, so the closing parenthesis is located by scanning. An
+  // argument left unclosed is closed by EOF, as the CSS Syntax parser does
+  // with any open construct. Returns a match-like array so that callers can
+  // pop() the remainder the same way they do with a RegExp match.
+  matchLogical =
+    function(selector) {
+      var chr, close, escaped, depth = 1, i, l, quote = '',
+      match = selector.match(REX.LogicalPfx);
+
+      if (!match) { return null; }
+
+      for (i = match[0].length, l = selector.length; l > i; ++i) {
+        chr = selector.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28') { ++depth; }
+        else if (chr == '\x29' && --depth === 0) { break; }
+      }
+
+      // i is the closing parenthesis, or the EOF that stands in for it
+      close = l > i ? i + 1 : i;
+
+      return [
+        selector.slice(0, close),
+        match[1],
+        selector.slice(match[0].length, i).replace(REX.TrimSpaces, ''),
+        selector.slice(close)
+      ];
+    },
+
   method = {
     '#': 'getElementById',
     '*': 'getElementsByTagName',
@@ -719,22 +742,15 @@
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var matcher = _matches || NATIVE_MATCHES;
-      // the captured matcher can still be a host wrapper that delegates back
-      // to this engine, in which case the outer answer is the only one
-      if (!matcher || matchingNative) { return false; }
+      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
+        node.mozMatchesSelector || node.msMatchesSelector;
+      if (!matcher) return false;
       try {
-        matchingNative = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
-      } finally {
-        matchingNative = false;
       }
     },
-
-  // set while the captured host matcher runs, see NATIVE_MATCHES
-  matchingNative = false,
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
@@ -1282,12 +1298,9 @@
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ]),
             // :has( s1, [ s2, ... ]) no nesting is allowed for
             // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
-            else if ((match = selector.match(Patterns.logicalsel))) {
+            else if ((match = matchLogical(selector))) {
               match[1] = match[1].toLowerCase();
-              expr = match[2]
-//                .replace(REX.CommaGroup, ',')
-//                .replace(REX.TrimSpaces, '')
-                .replace(/\x22/g, '\\"');
+              expr = match[2].replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
                 case 'where':
@@ -1681,7 +1694,7 @@
 
               if (!status) {
                 if (Config.FORGIVING &&
-                  selector.match(/(:(?:is|where)\\x28)/)) {
+                  selector.match(/(:(?:is|where)\x28)/)) {
                   return '';
                 }
                 emit('unknown pseudo-class selector \'' + selector + '\'');
@@ -1709,7 +1722,7 @@
 
         if (!match) {
           if (Config.FORGIVING &&
-            selector.match(/(:(?:is|where)\\x28)/)) {
+            selector.match(/(:(?:is|where)\x28)/)) {
             return '';
           }
           emit('\'' + expression + '\'' + qsInvalid);
@@ -1811,6 +1824,16 @@
             emit('\'' + selectors + '\'' + qsInvalid);
             return Config.VERBOSITY ? undefined : (type ? none : false);
           }
+          // The validator cannot read this selector, but it holds a
+          // forgiving list, which may be where the part it cannot read
+          // lives. Hand on the selector itself rather than the fragments the
+          // validator did match: compiled, the argument of an :is() or
+          // :where() is evaluated inside a try/catch, so the unreadable part
+          // drops out and the rest of the selector still applies. Returning
+          // the fragments compiled each of them as a selector of its own,
+          // which made 'div:not(:is(svg|div))' match every element in the
+          // document rather than the divs.
+          selectors = parsed.match(REX.SplitGroup) || [ parsed ];
         }
       }
 

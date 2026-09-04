@@ -1,0 +1,5 @@
+Answer a constant nth-child index without building the sibling list
+
+':nth-child(3)' compiles to n=s.nthElement(e,false) followed by n==3, and nthElement numbers an element by building the sibling list of its parent. That is the right trade for an an+b form, which has to know where the element sits, and pure overhead for a constant index, which only has to know whether three steps back runs out of siblings. The generated code now counts siblings and stops as soon as the index is exceeded, so it walks at most b of them and allocates nothing.
+ div:nth-child(3) 115.99us -> 46.54us 2.49x div:nth-last-child(3) 115.18us -> 46.08us 2.50x div:nth-child(7) 115.47us -> 81.02us 1.43x li:nth-child(2) 253.96us -> 197.74us 1.28x
+ Only the -child forms. Of-type has to compare the name of every sibling it steps over, and reading localName through the host on each one costs more than the list it avoids — measured 2.0x and 2.6x slower than the cached list for ':nth-of-type(3)' and ':nth-last-of-type(3)' — so those keep it. The an+b forms are untouched: ':nth-child(2n)' and ':nth-child(n+3)' still need the index. Results agree with the native engine on every form tested.

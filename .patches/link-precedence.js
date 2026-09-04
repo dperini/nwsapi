@@ -36,19 +36,6 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
-  // The host matcher is captured here, before anything can replace it, and
-  // node.matches is never consulted at match time. A host is free to wire
-  // Element.prototype.matches back to this engine, which is what jsdom does,
-  // and calling it while resolving a state pseudo-class re-enters the lambda
-  // that asked for the state: the recursion only ends when the stack does,
-  // and the RangeError is swallowed below. Passing a document alone, as jsdom
-  // does, leaves no matcher at all, which is the intended outcome: there is
-  // no native state to read.
-  NATIVE_MATCHES = (function(proto) {
-    return (proto && (proto.matches || proto.webkitMatchesSelector ||
-      proto.mozMatchesSelector || proto.msMatchesSelector)) || null;
-  })(global.Element && global.Element.prototype),
-
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
   WSP = '[' + HSP + VSP + ']',
@@ -144,6 +131,9 @@
     '[\\u0591-\\u08ff]|' +
     '[\\ufb1d-\\ufdfd]|' +
     '[\\ufe70-\\ufefc])+$'),
+
+  // elements that can carry a hyperlink, see isLink()
+  reLinkName = RegExp('^(?:a|area)$', 'i'),
 
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
@@ -719,22 +709,15 @@
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var matcher = _matches || NATIVE_MATCHES;
-      // the captured matcher can still be a host wrapper that delegates back
-      // to this engine, in which case the outer answer is the only one
-      if (!matcher || matchingNative) { return false; }
+      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
+        node.mozMatchesSelector || node.msMatchesSelector;
+      if (!matcher) return false;
       try {
-        matchingNative = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
-      } finally {
-        matchingNative = false;
       }
     },
-
-  // set while the captured host matcher runs, see NATIVE_MATCHES
-  matchingNative = false,
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
@@ -781,6 +764,12 @@
   isPopoverOpen =
     function(node) {
       return node.hasAttribute('popover') && matchesNative(node, ':popover-open');
+    },
+
+  // ':link', ':any-link' and ':visited' share this test
+  isLink =
+    function(node) {
+      return reLinkName.test(node.localName) && node.hasAttribute('href');
     },
 
   // check media resources is playing
@@ -1365,13 +1354,13 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'any-link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")||e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)||e.visited)){' + source + '}';
                   break;
                 case 'link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(s.isLink(e)){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
@@ -1475,7 +1464,7 @@
                 case 'placeholder-shown':
                   source =
                     'if((' +
-                      '(/^input|textarea$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
+                      '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
                       '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
@@ -2125,6 +2114,7 @@
     isFullscreen: isFullscreen,
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
+    isLink: isLink,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS

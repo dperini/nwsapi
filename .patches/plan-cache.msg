@@ -1,0 +1,7 @@
+Cache the query plan, not the answer
+
+select() caches the whole return of collect(), which carries 'results' — the matched elements — and 'htmlset', closures over the context. A removed subtree therefore stays alive for as long as its selector stays in the cache, which in a jsdom test suite is the life of the document.
+ Confirmed with WeakRef rather than heap arithmetic: a detached subtree survives a forced GC after one select() and does not survive without it. Measured with a heap benchmark, retained-after-removal falls from 11.12mb to 1.32mb.
+ What is cached now is the plan alone — compiled resolvers plus optimizer tokens, all context-free — and the candidate list is rebuilt from the context on each call. Being context-free, a plan is also reused across contexts rather than only for the one it was built against, where before a second context missed the cache entirely and rebuilt the plan.
+ 'nodeset' now records the unescaped identifier the first run selects on. It recorded the escaped form while the first run selected on the unescaped one, so a rebuilt candidate list could ask the document for a different name.
+ first() also stops allocating a fresh callback closure per call for the common no-callback case: the cached plan is only reused when the callback matches, and a new closure never does, so every querySelector() rebuilt the plan it had just cached. That is 1.09-1.12x on 'div.example'.
