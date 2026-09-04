@@ -26,6 +26,22 @@
  * (asamuzaK/domSelector#284, July 2026), and a disabled control has
  * validity.valid true. So a difference against jsdom on these is not a bug
  * here, and matching it would make this engine wrong in a browser.
+ *
+ * Where Blink decides each of them, pinned so the lines keep meaning what
+ * they mean:
+ *   ':enabled'    https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2696
+ *   ':disabled'   https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2713
+ *   ':read-only'  https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2725
+ *   ':read-write' https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2738
+ *   ':optional'   https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2751
+ *   ':valid'      https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2811
+ *   ':defined'    https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L3139
+ * and the three that carry the substance: a button is optional outright
+ * (https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_button_element.h#L113), a control's validity
+ * pseudo-classes are its willValidate()
+ * (https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_form_control_element.cc#L373), and a
+ * fieldset is valid when none of its controls is a candidate and invalid
+ * (https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_field_set_element.cc#L108).
  */
 /* global document, window */
 // ^ the page.evaluate() callbacks below run inside Chromium, not in Node.

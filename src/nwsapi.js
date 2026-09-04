@@ -1231,6 +1231,14 @@
   // a control inside a disabled fieldset is disabled too, unless it sits in
   // that fieldset's first legend.
   // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+  //
+  // Blink walks it the same way, and the reason the walk carries on past a
+  // legend is visible there: a legend only excuses the fieldset it belongs
+  // to, so a legend ancestor is remembered and compared against that
+  // fieldset's own first legend before the walk continues.
+  // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/listed_element.cc#L702
+  // and IsActuallyDisabled(), its own attribute or that state:
+  // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/listed_element.cc#L738
   isDisabled =
     function(element) {
       var legend, name = tagOf(element), node;
@@ -1268,6 +1276,12 @@
   // built in that carries an 'is' attribute, and in both cases only until a
   // definition exists and the element has been upgraded to it.
   // https://dom.spec.whatwg.org/#concept-element-defined
+  //
+  // Blink reads it off the element's custom element state, uncustomized or
+  // custom being the two that count as defined:
+  // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/dom/element.h#L1201
+  // and ':defined' is that and nothing else:
+  // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L3139
   isDefined =
     function(element) {
       var custom, name = tagOf(element), registry, view;
@@ -2425,6 +2439,11 @@
             else if ((match = selector.match(Patterns.inputstate))) {
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
+                // Blink runs both off one predicate, so they cannot disagree:
+                // MatchesEnabledPseudoClass() is !IsDisabledFormControl().
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_form_control_element.cc#L337
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2696 (':enabled')
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2713 (':disabled')
                 case 'enabled':
                   // the complement of ':disabled' over the same elements, so
                   // an input inside a disabled fieldset is neither
@@ -2438,6 +2457,8 @@
                 // Disabled counts here, and a control inside a disabled
                 // fieldset is disabled even though its own property says
                 // otherwise, which is what s.isDisabled() answers.
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2725 (':read-only')
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2738 (':read-write')
                 case 'read-only':
                 case '-moz-read-only':
                   source =
@@ -2516,7 +2537,11 @@
                     '){' + source + '}';
                   break;
                 // ':optional' takes a button as well, which has no required
-                // property to read, and the anchors matter: written as
+                // property to read: Blink answers true for one without asking
+                // anything else.
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_button_element.h#L113
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2751
+                // The anchors matter too: written as
                 // '/^input|select|textarea$/' the pattern reads as '^input' or
                 // 'select' or 'textarea$' and matches by accident
                 case 'optional':
@@ -2536,8 +2561,18 @@
                 // invalid, which is not the same as one of them being valid:
                 // a fieldset holding no validation candidates at all is
                 // valid, and asking for a ':valid' descendant said otherwise.
-                // Chromium agrees, and so does
                 // https://html.spec.whatwg.org/#selector-valid
+                //
+                // Blink: ':valid' is MatchesValidityPseudoClasses() and
+                // IsValidElement(), where a fieldset answers true to the first
+                // and loops its controls for the second, failing only on one
+                // that is a candidate and invalid.
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/css/selector_checker.cc#L2811
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_field_set_element.cc#L108
+                //
+                // For a control the first half is willValidate(), which is
+                // what bars a disabled one from matching at all:
+                // https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_form_control_element.cc#L373
                 case 'valid':
                   source =
                     'if(((' +
