@@ -107,14 +107,16 @@ NW.Dom.configure( { LOGERRORS: false, IDS_DUPES: false } );
 ```
 NOTE: NW.Dom.configure() without parameters return the current configuration.
 
-`LEGACY` (off by default) is for a host older than the baseline this source
-already requires — it is written with arrow functions and `Map`, so nothing
-before 2015 can run it at all. With `LEGACY` off, the generated tests read
-reflected properties and call the host directly, because every host that can
-run this code returns elements from a tag or class lookup and reflects `id` as
-a string. Turn it on for one that does neither: the tests then ask each
-candidate for the method before calling it, as they did up to 2.2.27, and a
-collection holding a comment node is a non-match rather than a `TypeError`.
+`LEGACY` (off by default) is for a host that does not behave the way the DOM
+says. With it off, the generated tests read reflected properties and call the
+host directly, which assumes a tag or class lookup returns elements and that
+`id` reflects as a string. Turn it on for a host that breaks either
+assumption — IE up to 8 put comment nodes in a `getElementsByTagName('*')`
+collection — and the tests ask each candidate for the method before calling
+it, as they did up to 2.2.27, so such a collection is a non-match rather than
+a `TypeError`. It is not a language switch: a build tool can lower the syntax
+in this file, but it cannot change what the host hands back.
+
 Changing `LEGACY` or `FORGIVING` clears the compiled resolvers, since both are
 read while a selector compiles.
 

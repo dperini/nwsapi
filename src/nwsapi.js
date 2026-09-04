@@ -198,12 +198,14 @@
   Config = {
     IDS_DUPES: true,
     FORGIVING: true,
-    // Handling for hosts older than the baseline this source already needs.
-    // It is written with arrow functions and Map, so it cannot run anywhere
-    // before 2015, and every host that can run it returns elements from a tag
-    // or class lookup and reflects id as a string. Turn this on for a host
-    // that does neither — the generated tests then ask each candidate for the
-    // method before calling it, as they did up to 2.2.27.
+    // Handling for a host that does not behave the way the DOM says. The
+    // generated tests read reflected properties and call the host without
+    // asking whether it has the method, which assumes a tag or class lookup
+    // returns elements and that id reflects as a string. Turn this on for a
+    // host that breaks either assumption — the tests then ask each candidate
+    // for the method before calling it, as they did up to 2.2.27. It is not
+    // about the language: a build tool can lower the syntax here to anything,
+    // but it cannot make a collection stop handing back comment nodes.
     LEGACY: false,
     NODE_LIST: false,
     LOGERRORS: true,
@@ -1450,14 +1452,12 @@
       // fetched itself, and one property read per candidate to learn what
       // the fetch already guarantees measured 1.11x on an attribute test.
       //
-      // The guard was for a host whose tag collection was not all elements:
-      // in IE up to 8, getElementsByTagName('*') included comment nodes,
-      // which have no getAttribute. That host cannot reach this code, which
-      // is written with arrow functions and Map, and IE 9 stopped doing it
-      // anyway. A host that returns a non-element from a tag or class lookup
-      // now gets a TypeError from a selection where it used to get no match;
-      // matching is unchanged, since that is where a caller's own node
-      // arrives.
+      // The guard is for a host whose tag collection is not all elements: in
+      // IE up to 8, getElementsByTagName('*') included comment nodes, which
+      // have no getAttribute. IE 9 stopped, and no host in the support matrix
+      // does it, so a selection trusts its own fetch and Config.LEGACY buys
+      // the guard back for one that needs it. Matching is guarded either way,
+      // since that is where a caller's own node arrives.
       getA = Config.LEGACY || mode === false ?
         'e.getAttribute&&e.getAttribute(' : 'e.getAttribute(';
       hasA = Config.LEGACY || mode === false ?

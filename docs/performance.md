@@ -136,15 +136,22 @@ depend on the reflection being what the DOM says it is. Where that is only
 true of hosts newer than some version, the old handling belongs behind a flag
 rather than in the middle of the hot expression.
 
-**`Config.LEGACY`, off by default**, is that flag. With it off, an attribute
-test calls `e.getAttribute("x")` and an id test compares `e.id`; with it on,
-both ask the candidate for the method first, the way every version up to
-2.2.27 did. It exists because a host that puts a comment node in a `*`
-collection — IE up to 8 — has no `getAttribute` on every candidate. Nothing
-before 2015 can execute this source anyway (see the floor below), so the
-default assumes a DOM that behaves, and the flag buys back the old behavior
-for a host that does not. Toggling it clears the compiled resolvers, since the
-flag is read while a selector compiles.
+**`Config.LEGACY`, off by default**, is that flag, and it is the only option
+this work adds — `FORGIVING` is upstream's and is about whether `:is()` and
+`:where()` swallow an item they cannot read, which has nothing to do with the
+host. With `LEGACY` off, an attribute test calls `e.getAttribute("x")` and an
+id test compares `e.id`; with it on, both ask the candidate for the method
+first, the way every version up to 2.2.27 did. It exists because a host that
+puts a comment node in a `*` collection — IE up to 8 — has no `getAttribute`
+on every candidate.
+
+Note what the flag is *not* about: the language. A build tool can lower the
+syntax in this file to anything, and `Map` and `WeakSet` have polyfills, so
+the way the source is written sets no floor for where it runs. What a build
+tool cannot do is change how the host behaves — a collection that hands back
+comment nodes keeps doing it — and that is exactly the kind of difference an
+option has to carry. Toggling it clears the compiled resolvers, since the flag
+is read while a selector compiles.
 
 The one exception that is **not** legacy stays in the default path, and is
 moved out of line instead of behind a flag:
@@ -176,12 +183,22 @@ moved out of line instead of behind a flag:
   shadow it, because named properties are only exposed for names that are
   not already on the prototype chain.
 
-**How far back this code can run at all.** Upstream 2.2.27 already uses arrow
-functions, and this branch adds `Map` and `WeakSet` — all ES2015, all
-shipping together in Chrome 45, Firefox 45, Safari 10 and Edge 12. So the
-floor is 2015-2016 browsers, and IE cannot execute the source at any version.
-That is what makes the guard below safe to drop: the host quirk it protected
-against belongs to a browser that cannot reach the code.
+**How far back this code can run at all.** Not a syntax question, since a
+build tool lowers syntax and `Map` and `WeakSet` have polyfills. The floor is
+set by the DOM this engine calls, which no build step supplies:
+
+| what it calls               | needs                                        | used by                        |
+| --------------------------- | -------------------------------------------- | ------------------------------ |
+| `getAttributeNames()`       | Chrome 61, Safari 10.1, Firefox 45; never IE | namespaced attribute selectors |
+| `isConnected`               | Chrome 51, Safari 10, Firefox 49; never IE   | `:lang()`                      |
+| `Element.prototype.closest` | Chrome 41, Safari 9, Firefox 35; never IE    | installing over the host       |
+| `classList`                 | IE 10                                        | building a selector for a node |
+| `firstElementChild`, `previousElementSibling`, `getElementsByClassName` | IE 9 | the fetch and the walks   |
+
+So the parts of the engine that most selectors use want an IE 9-era DOM, and
+a few features want a 2016-2017 one. A host older or stranger than that is
+what `LEGACY` is for, and it is the host's behavior being bought back, not
+the language's.
 
 ### Do not pay for what an earlier stage guarantees
 
