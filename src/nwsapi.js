@@ -847,14 +847,23 @@
   // the generated code so the ordinary path never sees the branch.
   //
   // The subject is older than this engine. A selector matches *attributes*,
-  // and IE up to 7 answered getAttribute() with the DOM property behind the
+  // and several hosts answered getAttribute() with the DOM property behind the
   // attribute instead, which made the two indistinguishable through that one
   // call. Every library of the era carried a table for it: jQuery split
-  // .attr() from .prop() in 1.6 over exactly this and kept propFix, and
-  // My-Library (https://github.com/david-mark/My-Library) feature-tested each
-  // case rather than sniffing. The behaviors are catalogued at
-  // https://perfectionkills.com/ and https://mathiasbynens.be/notes, and the
-  // modern statement of the split is
+  // .attr() from .prop() in 1.6 over exactly this and kept propFix.
+  //
+  // The behaviors below are taken from David Mark's survey of them, which
+  // tested each one across the browsers of the day rather than sniffing:
+  // "A is for Attributes / Attributes are Awful",
+  // https://web.archive.org/web/20091217095816/http://www.cinsoft.net/attributes.html
+  // (his library is at https://github.com/david-mark/My-Library). What he
+  // concluded is what these helpers do: read the DOM property by attribute
+  // name, and answer null for an attribute the markup never set rather than
+  // the property's default. Three of his findings are the reason this is not
+  // simpler than it looks, and each is marked below.
+  //
+  // Also catalogued at https://perfectionkills.com/ and
+  // https://mathiasbynens.be/notes; the modern statement of the split is
   // https://jakearchibald.com/2024/attributes-vs-properties/.
   // -------------------------------------------------------------------------
 
@@ -869,26 +878,83 @@
     'usemap': 'useMap', 'valign': 'vAlign'
   },
 
-  // Attributes it resolved to an absolute URL. Its second argument, 2, asks
-  // for the markup instead, which is what the selector is comparing against.
-  // Ignored by every other host, so it is safe to pass.
+  // Attributes a host resolved to an absolute URL, where the selector is
+  // comparing against the markup. IE up to 7 took a second argument, 2, to
+  // ask for the markup instead; Opera up to 9.27 resolved a form action with
+  // no such argument to ask otherwise, and 8.54 resolved six of these. So
+  // which read returns the markup is detected per document rather than
+  // assumed, in probeAttributes().
   LEGACY_URLS = {
     'action': 1, 'background': 1, 'cite': 1, 'classid': 1, 'codebase': 1,
     'data': 1, 'href': 1, 'longdesc': 1, 'profile': 1, 'src': 1, 'usemap': 1
   },
 
+  // 'flag' for the second argument, 'node' for the attribute node, 'plain'
+  // when the ordinary read already answers the markup
+  LEGACY_URL_READ = 'flag',
+  LEGACY_PROBE = './nwsapi-probe',
+
+  probeAttributes =
+    function(document) {
+      var element, node;
+
+      LEGACY_URL_READ = 'flag';
+      try {
+        element = document.createElement('a');
+        element.setAttribute('href', LEGACY_PROBE);
+        if (element.getAttribute('href', 2) === LEGACY_PROBE) { return; }
+        node = element.attributes && element.attributes.getNamedItem &&
+          element.attributes.getNamedItem('href');
+        if (node && (node.value === LEGACY_PROBE || node.nodeValue === LEGACY_PROBE)) {
+          LEGACY_URL_READ = 'node';
+          return;
+        }
+        if (element.getAttribute('href') === LEGACY_PROBE) { LEGACY_URL_READ = 'plain'; }
+        // nothing answered the markup, so the second argument stays the best
+        // of the three: it is what the host most likely to resolve took
+      } catch (e) {
+        // a host that cannot create an element is not one to probe
+      }
+    },
+
+  // The attribute node for a name, under the name the host filed it under.
+  legacyAttrNode =
+    function(e, lower) {
+      var attrs = e.attributes, node;
+      if (!attrs) { return null; }
+      node = attrs.getNamedItem ? attrs.getNamedItem(lower) : attrs[lower];
+      if (!node && LEGACY_NAMES[lower]) {
+        node = attrs.getNamedItem ?
+          attrs.getNamedItem(LEGACY_NAMES[lower]) : attrs[LEGACY_NAMES[lower]];
+      }
+      return node || null;
+    },
+
   // The attribute of an element, whatever the host does with it.
   legacyAttrOf =
     function(e, name) {
-      var node, value, lower;
+      var lower, node, value;
 
       if (!e || e.nodeType != 1) { return null; }
       lower = name.toLowerCase();
+      node = legacyAttrNode(e, lower);
 
-      // the markup of a URL attribute, not the resolution of it
+      // Presence is the attribute node's to answer, not the property's. A
+      // property default is not an attribute, and IE 6 and 7 answered
+      // getAttribute('enctype') with the form default when the markup had set
+      // nothing at all (Mark, "Known Exceptions"). Where the host keeps an
+      // attributes collection, that collection decides.
+      if (e.attributes && (!node || node.specified === false)) { return null; }
+
+      // A URL attribute, read the way this host answers the markup.
       if (LEGACY_URLS[lower] && e.getAttribute) {
-        value = e.getAttribute(name, 2);
-        if (value != null && typeof value == 'string') { return value; }
+        if (LEGACY_URL_READ == 'node' && node) {
+          value = node.value !== undefined ? node.value : node.nodeValue;
+        } else {
+          value = LEGACY_URL_READ == 'plain' ?
+            e.getAttribute(name) : e.getAttribute(name, 2);
+        }
+        if (typeof value == 'string') { return value; }
       }
 
       if (e.getAttribute) {
@@ -896,33 +962,24 @@
         if (value == null && LEGACY_NAMES[lower]) {
           value = e.getAttribute(LEGACY_NAMES[lower]);
         }
-        if (value != null) {
-          // a style attribute came back as an object, an event handler as a
-          // function, and a boolean attribute as true or false
-          if (typeof value == 'string') { return value; }
-          if (lower == 'style') { return e.style ? e.style.cssText : null; }
-          if (value === true) { return lower; }
-          if (value === false) { return null; }
-          return String(value);
-        }
       }
-
-      // The attribute node holds the markup. On that host every attribute the
-      // element could have was present, so 'specified' is what separates the
-      // ones the markup set from the ones it did not.
-      node = e.attributes && (e.attributes.getNamedItem ?
-        e.attributes.getNamedItem(name) : e.attributes[name]);
-      if (!node && LEGACY_NAMES[lower] && e.attributes) {
-        node = e.attributes.getNamedItem ?
-          e.attributes.getNamedItem(LEGACY_NAMES[lower]) :
-          e.attributes[LEGACY_NAMES[lower]];
-      }
-      if (node && (node.specified === undefined || node.specified)) {
+      if (value == null && node) {
         value = node.value !== undefined ? node.value : node.nodeValue;
-        return value === true ? lower : value === false ? null : value;
       }
+      if (value == null) { return null; }
 
-      return null;
+      if (typeof value == 'string') { return value; }
+      // a style attribute came back as an object and an event handler as a
+      // function
+      if (lower == 'style') { return e.style ? e.style.cssText : null; }
+      // A boolean attribute came back as the property's true or false. Read
+      // as '' when it is present, which is the markup of '<input checked>'
+      // and the only answer available: this host cannot say whether the
+      // markup wrote 'checked' or 'checked="checked"', a loss Mark documents
+      // under "Booleans" and settles the same way.
+      if (value === true) { return ''; }
+      if (value === false) { return null; }
+      return String(value);
     },
 
   legacyHasAttrOf =
@@ -1036,6 +1093,7 @@
 
   useLegacy =
     function(on) {
+      if (on) { probeAttributes(doc); }
       attrOf = on ? legacyAttrOf : function(e, name) { return e.getAttribute(name); };
       hasAttrOf = on ? legacyHasAttrOf : function(e, name) { return e.hasAttribute(name); };
       tagOf = on ? legacyTagOf : function(e) { return e.localName; };

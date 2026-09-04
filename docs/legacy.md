@@ -46,21 +46,51 @@ answers, and leaving them on would put a helper call in a per-element loop.
 Most of these are the attribute-versus-property split. A selector matches
 **attributes**, and the hosts in question answered `getAttribute()` with the
 DOM **property** behind the attribute, which made the two indistinguishable
-through that one call. Every library of the era carried a table for it: jQuery
-split `.attr()` from `.prop()` in 1.6 and kept `propFix`, and David Mark's
-[My-Library](https://github.com/david-mark/My-Library) feature-tested each
-case rather than sniffing the browser. The behaviors are catalogued at
-[perfectionkills.com](https://perfectionkills.com/) and
-[mathiasbynens.be/notes](https://mathiasbynens.be/notes), and the modern
-statement of the split is Jake Archibald's
+through that one call. jQuery split `.attr()` from `.prop()` in 1.6 over
+exactly this and kept `propFix`.
+
+The table below follows David Mark's survey of those behaviors,
+[A is for Attributes](https://web.archive.org/web/20091217095816/http://www.cinsoft.net/attributes.html),
+which tested each one across the browsers of the day rather than sniffing for
+them; his library is [My-Library](https://github.com/david-mark/My-Library).
+His conclusion is what these helpers do, and he puts it more bluntly than a
+table can: read the DOM property **by attribute name**, and answer `null` for
+an attribute the markup never set rather than the property's default. He calls
+the alternative "the basic concept botched by the various attr methods found
+in major libraries".
+
+Three of his findings are why this is less obvious than it looks, and each one
+is a test here:
+
+1. **A missing attribute could answer a default.** IE 6 and 7 answered
+   `getAttribute('enctype')` with the form's default when the markup had set
+   nothing, so a value cannot decide presence. Presence comes from the
+   attribute node, where `specified` says what the markup set.
+2. **Boolean attributes lose a distinction that cannot be recovered.** The
+   host answers the property, so `<input checked>` and
+   `<input checked="checked">` read the same. He reports the empty string for
+   both, which is the markup of the bare form, and so does this engine: the
+   presence test works either way, and the value test agrees with the
+   reference engine on the bare form.
+3. **URL resolution was not one browser's bug.** IE up to 7 resolved URL
+   attributes and took a second argument, `2`, to ask for the markup. Opera up
+   to 9.27 resolved a form `action` with no way to ask otherwise, and 8.54
+   resolved six of them. So which read returns the markup is detected once per
+   document — the second argument, the attribute node, or the ordinary read —
+   rather than assumed.
+
+Also catalogued at [perfectionkills.com](https://perfectionkills.com/) and
+[mathiasbynens.be/notes](https://mathiasbynens.be/notes); the modern statement
+of the split is Jake Archibald's
 [attributes vs properties](https://jakearchibald.com/2024/attributes-vs-properties/).
 
 | what the host did | what the helper does |
 | --- | --- |
 | `getAttribute('class')` answered `null`; the value was only on `className`. Same for `for` and `htmlFor`, and the camel-cased names like `colspan` and `maxlength`. | Asks for the attribute, then for the property name it was hidden behind. |
-| `getAttribute('href')` answered an absolute URL, not the markup. The second argument, `2`, asked for the markup. | Passes `2` for the URL attributes. Other hosts ignore it. |
+| `getAttribute('href')` answered an absolute URL, not the markup. Some hosts took a second argument, `2`, to ask for the markup; others took nothing. | Probes once per document with a relative URL to find which read answers the markup, then uses that one. |
+| A missing attribute could answer the property's default, such as a form's `enctype`. | Takes presence from the attribute node and its `specified` flag, never from a value. |
 | `getAttribute('style')` answered a style object, and an event attribute answered a function. | Reads `style.cssText` for `style`, and stringifies anything else that is not a string. |
-| A boolean attribute like `checked` answered `true` or `false`. | Reads `true` as present, which is what `[checked]` asks, and as the attribute name, which is what `[checked="checked"]` compares. |
+| A boolean attribute like `checked` answered `true` or `false`. | Reads `true` as the empty string, which is the markup of `<input checked>`. `[checked]` and `[checked=""]` both work; `[checked="checked"]` cannot be told apart on such a host. |
 | No `hasAttribute` at all. | Falls back to the attribute node, where `specified` separates an attribute the markup set from one the element merely could have had. |
 | `getElementsByTagName('*')` and `children` included comment nodes. | Filters the fetch to elements, so a comment never reaches a test that would throw on it. |
 | No `firstElementChild`, `nextElementSibling`, `previousElementSibling` or `parentElement`. | Walks `firstChild`/`nextSibling`/`parentNode` and skips anything that is not an element. |
@@ -89,6 +119,11 @@ Those browsers cannot be run here, so `test/node/legacy-host.mjs` stands in for
 them. It wraps a jsdom document in a `Proxy` that hides the modern APIs and
 answers the old ones the old way, including the comment nodes in a tag
 collection and every attribute behaviour in the table above.
+
+It takes a `urls` option, because one of the findings above is that hosts
+differed in how a URL attribute could be read: `'flag'` answers the markup to
+a second argument the way IE up to 7 did, and `'plain'` never answers it the
+way Opera did. Both are tested.
 
 `test/node/legacy.spec.mjs` then runs 64 selector shapes through it — tags,
 classes, ids, every attribute operator, all four combinators, the structural

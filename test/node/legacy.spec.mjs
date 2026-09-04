@@ -164,12 +164,49 @@ test.describe('the attribute quirks that host had', () => {
     expect(ids(NW.select('[for="x"]', host))).toEqual(['a1']);
   });
 
-  test('a boolean attribute is present rather than "true"', () => {
-    const { NW, host } = build(MARKUP);
+  test('a boolean attribute reads as the markup of the bare form', () => {
+    // The host answers the property, so '<input checked>' and
+    // '<input checked="checked">' are indistinguishable. Mark settles that
+    // by reporting the empty string, which is the markup of the bare form,
+    // and this engine does the same: the presence test works either way and
+    // the value test agrees with the reference engine on the bare form.
+    const { NW, host, document } = build(MARKUP);
     expect(host.getElementById('i1').getAttribute('checked')).toBe(true);
+
     expect(ids(NW.select('input[checked]', host))).toEqual(['i1']);
-    expect(ids(NW.select('input[checked="checked"]', host))).toEqual(['i1']);
     expect(ids(NW.select('input[disabled]', host))).toEqual(['i2']);
+
+    for (const selector of ['input[checked]', 'input[checked=""]', 'input[checked="checked"]']) {
+      expect(ids(NW.select(selector, host)), selector)
+        .toEqual(ids(document.querySelectorAll(selector)));
+    }
+  });
+
+  test('a property default is not an attribute', () => {
+    // IE 6 and 7 answered getAttribute('enctype') with the form default when
+    // the markup had set nothing, so a value cannot decide presence.
+    const { NW, host, document } = build(MARKUP);
+    const form = host.getElementById('f1');
+    expect(form.getAttribute('enctype')).toBe('application/x-www-form-urlencoded');
+    expect(form.attributes.getNamedItem('enctype')).toBeNull();
+
+    expect(ids(NW.select('form[enctype]', host))).toEqual([]);
+    expect(ids(document.querySelectorAll('form[enctype]'))).toEqual([]);
+    expect(NW.match('[enctype]', form)).toBe(false);
+  });
+
+  test('a host with no way to ask for the markup of a URL', () => {
+    // Opera up to 9.27 resolved a form action and took no second argument,
+    // so the read that answers the markup is detected rather than assumed.
+    const { NW, host, document } = build(MARKUP, { urls: 'plain' });
+    const link = host.getElementById('a1');
+    expect(link.getAttribute('href')).toBe('http://legacy.example/go');
+    expect(link.getAttribute('href', 2)).toBe('http://legacy.example/go');
+
+    for (const selector of ['a[href="./go"]', 'a[href^="./"]', 'a[href]']) {
+      expect(ids(NW.select(selector, host)), selector)
+        .toEqual(ids(document.querySelectorAll(selector)));
+    }
   });
 
   test('a style attribute is a presence test, not an object stringified', () => {

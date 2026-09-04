@@ -13,16 +13,22 @@
  *   - no firstElementChild, nextElementSibling, previousElementSibling or
  *     parentElement, only the node-level traversal
  *   - getAttribute answered through the DOM property, so 'class' and 'for'
- *     were only reachable as className and htmlFor, a URL attribute came
- *     back resolved unless the second argument was 2, style came back as an
+ *     were only reachable as className and htmlFor, style came back as an
  *     object and a boolean attribute as true or false
+ *   - a URL attribute came back resolved. IE up to 7 took a second argument,
+ *     2, to ask for the markup; Opera up to 9.27 resolved a form action with
+ *     no way to ask otherwise, which the 'urls' option selects between
+ *   - a missing attribute could answer the property's default: IE 6 and 7
+ *     answered getAttribute('enctype') with the form default
  *   - attributes held every attribute the element could have, with
  *     specified saying which the markup had set
  *
- * The catalogue behind those: https://perfectionkills.com/,
- * https://github.com/david-mark/My-Library, jQuery's propFix and attrHooks,
- * and https://jakearchibald.com/2024/attributes-vs-properties/ for the
- * attribute-versus-property split itself.
+ * The catalogue behind those is David Mark's survey, which tested each one
+ * across the browsers of the day:
+ * https://web.archive.org/web/20091217095816/http://www.cinsoft.net/attributes.html
+ * (library at https://github.com/david-mark/My-Library). Also
+ * https://perfectionkills.com/, jQuery's propFix and attrHooks, and
+ * https://jakearchibald.com/2024/attributes-vs-properties/ for the split.
  */
 
 const HIDDEN = new Set([
@@ -55,7 +61,11 @@ const URLS = new Set(['action', 'cite', 'data', 'href', 'longdesc', 'src', 'usem
 // Attributes it answered with the property's boolean rather than a string.
 const BOOLEANS = new Set(['checked', 'disabled', 'selected', 'readonly', 'multiple']);
 
-export function legacyHost(document, { comments = true } = {}) {
+// Property defaults a missing attribute could answer with, which is why
+// presence has to come from the attribute node rather than from a value.
+const DEFAULTS = { enctype: 'application/x-www-form-urlencoded' };
+
+export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
   const cache = new WeakMap();
   // proxy back to the node it stands for, so a method of the host is called
   // with the nodes it expects rather than with the wrappers
@@ -97,14 +107,16 @@ export function legacyHost(document, { comments = true } = {}) {
     const lower = String(name).toLowerCase();
     const node = element.attributes.getNamedItem(lower);
     if (!node) {
-      // that host exposed the property under a different name for these, and
-      // nothing at all under the markup name
-      return null;
+      // the property's default, for the handful of attributes that had one,
+      // and otherwise nothing: the property name was where the value lived
+      return DEFAULTS[lower] ?? null;
     }
     if (lower === 'style') { return element.style; }
     if (BOOLEANS.has(lower)) { return true; }
-    if (URLS.has(lower) && mode !== 2) {
-      // resolved against the document, the way it answered without the flag
+    if (URLS.has(lower) && !(urls === 'flag' && mode === 2)) {
+      // resolved against the document. With urls: 'flag' the second argument
+      // asks for the markup, the way IE up to 7 answered; with urls: 'plain'
+      // there is no way to ask, the way Opera answered.
       return `http://legacy.example/${node.value.replace(/^[./]+/, '')}`;
     }
     if (PROPS[lower]) { return null; }
