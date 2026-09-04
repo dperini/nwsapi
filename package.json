@@ -37,6 +37,7 @@
   "packageManager": "pnpm@11.18.0",
   "scripts": {
     "bench": "node --expose-gc bench/selectors.bench.mjs",
+    "bench:accessors": "node bench/accessors.bench.mjs",
     "bench:cache": "node --expose-gc bench/cache.bench.mjs",
     "bench:memory": "node --expose-gc bench/memory.bench.mjs",
     "bench:report": "node --expose-gc bench/report.mjs",

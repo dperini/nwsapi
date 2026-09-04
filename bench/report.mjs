@@ -11,27 +11,28 @@
  * means anything:
  *
  *   nwsapi     the working tree
- *   baseline   another build, by default the release this branch started from
+ *   baseline   another build, passed with --baseline
  *   jsdom      querySelectorAll, which jsdom 30 answers with
- *              @asamuzakjp/dom-selector — a second implementation, not this one
+ *              @asamuzakjp/dom-selector - a second implementation, not this one
+ *
+ * The timing, the documents, the world builder and the charts are shared with
+ * the other benchmarks here; see bench/lib/.
  *
  * Usage:
  *   node --expose-gc bench/report.mjs [--baseline <path>] [--out bench/charts]
  *     [--json] [--rounds 5]
  */
 
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
-import { fileURLToPath } from 'node:url';
 
-import { JSDOM } from 'jsdom';
-
-const require = createRequire(import.meta.url);
-const here = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = path.resolve(here, '..');
+import { chart } from './lib/chart.mjs';
+import { DOCUMENTS } from './lib/documents.mjs';
+import { repoRoot } from './lib/paths.mjs';
+import { iterationsFor, measure, timeOnce } from './lib/timing.mjs';
+import { world } from './lib/world.mjs';
 
 const USAGE = `nwsapi standing report (jsdom)
 
@@ -46,49 +47,6 @@ Options:
   --json             Print the measurements as JSON on stdout.
   --help             Show this help.
 `;
-
-// ---------------------------------------------------------------------------
-// Documents. Each one stands for a place selectors come from.
-// ---------------------------------------------------------------------------
-
-function documentation() {
-  return readFileSync(path.join(repoRoot, 'test', 'speed', 'example', 'selectors.html'), 'utf8');
-}
-
-// Atomic CSS: one short class per declaration, a dozen stacked per element,
-// container classes that are selective. StyleX, Tailwind, CSS modules.
-function atomic() {
-  let html = '<!doctype html><html><body><div class="app layout"><nav class="sidebar">';
-  for (let i = 0; i < 30; ++i) {
-    html += `<ul class="menu"><li class="row"><a class="link" href="#">s${i}</a></li></ul>`;
-  }
-  html += '</nav><main class="content">';
-  for (let i = 0; i < 400; ++i) {
-    html += `<section class="card surface elevated"><ul class="list stack">` +
-      `<li class="row item"><a class="link primary" href="#">a${i}</a></li>` +
-      `<li class="row"><span class="badge">${i}</span></li></ul></section>`;
-  }
-  return `${html}</main></div></body></html>`;
-}
-
-// A component tree as testing-library sees it: roles, labels, test ids.
-function components() {
-  let html = '<!doctype html><html><body><div id="root" class="app">';
-  for (let i = 0; i < 300; ++i) {
-    html += `<div class="card flex" data-testid="card-${i}">` +
-      `<button type="button" class="btn primary" data-testid="btn-${i}" aria-label="Action ${i}">Go</button>` +
-      `<label for="in-${i}">Name</label>` +
-      `<input id="in-${i}" class="input" placeholder="n" data-testid="in-${i}">` +
-      `<span class="badge">${i}</span><a href="#x" class="link">more</a></div>`;
-  }
-  return `${html}</div></body></html>`;
-}
-
-const DOCUMENTS = {
-  documentation: { html: documentation, note: 'a spec page, the shape hand-written CSS runs against' },
-  atomic: { html: atomic, note: 'atomic CSS: many short classes, selective containers' },
-  components: { html: components, note: 'a component tree as testing-library queries it' },
-};
 
 // ---------------------------------------------------------------------------
 // Cases. Grouped by what they exercise, so a chart reads as an argument.
@@ -125,157 +83,12 @@ const CASES = [
   { group: 'single lookups', doc: 'documentation', selector: 'div' },
 ];
 
-// ---------------------------------------------------------------------------
-// Timing
-// ---------------------------------------------------------------------------
-
-function timeOnce(fn, iterations) {
-  fn();
-  const started = process.hrtime.bigint();
-  for (let i = 0; i < iterations; ++i) {
-    fn();
-  }
-  return Number(process.hrtime.bigint() - started) / iterations / 1e6;
-}
-
-function median(values) {
-  const sorted = [...values].sort((a, b) => a - b);
-  return sorted[(sorted.length - 1) >> 1];
-}
-
-// Rounds are interleaved across engines rather than run engine by engine, so a
-// slow patch of machine time lands on all three instead of one.
-function measure(runners, rounds, iterations) {
-  const samples = runners.map(() => []);
-  for (let round = 0; round < rounds; ++round) {
-    for (let i = 0; i < runners.length; ++i) {
-      samples[i].push(timeOnce(runners[i], iterations));
-    }
-  }
-  return samples.map(median);
-}
-
 // A repeated query jsdom answers from its result cache costs a fraction of the
 // same query after the document changed. Ours has no result cache, so the gap
 // between the two regimes is what marks the row.
 function isMemo(row) {
   return row.changedJsdom > row.jsdom * 4;
 }
-
-function iterationsFor(ms) {
-  // enough repetitions that a case is timed over milliseconds, not noise
-  if (ms > 1) { return 20; }
-  if (ms > 0.1) { return 100; }
-  return 500;
-}
-
-// ---------------------------------------------------------------------------
-// Charts, following docs/design/repo/charts.md in socket-wheelhouse: a
-// blue-black canvas, hairline grid, and the violet -> pink -> blue gradient
-// carrying the series color, with a soft halo rather than a hard glow.
-// ---------------------------------------------------------------------------
-
-const INK = {
-  canvas: '#0b0b12',
-  grid: 'rgba(255,255,255,0.075)',
-  text: '#e7e5f2',
-  muted: 'rgba(231,229,242,0.62)',
-  series: ['#a98bff', '#f05abe', '#358ff3'],
-};
-
-function escapeText(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function defs() {
-  return `  <defs>
-    ${INK.series.map((color, i) => `<linearGradient id="bar-${i}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
-      <stop offset="100%" stop-color="${color}" stop-opacity="0.55"/>
-    </linearGradient>`).join('\n    ')}
-    <filter id="halo" x="-50%" y="-50%" width="300%" height="300%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
-      <feColorMatrix in="blur" type="matrix"
-        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.5 0" result="halo"/>
-      <feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>`;
-}
-
-// Grouped horizontal bars: one row per case, one bar per engine. Horizontal
-// because selector text is long and a rotated label is hard to read.
-function chart({ title, subtitle, rows, seriesNames, footer }) {
-  const padTop = 118, padLeft = 300, padRight = 110, rowHeight = 26, groupGap = 16;
-  const barHeight = Math.floor((rowHeight - 6) / seriesNames.length);
-  const plotWidth = 600;
-  const height = padTop + rows.length * (rowHeight + groupGap) + 96;
-  const width = padLeft + plotWidth + padRight;
-
-  // Log scale. These timings span three orders of magnitude — 0.010ms next to
-  // 56ms — and on a linear axis every bar but the worst one disappears.
-  const values = rows.flatMap(row => row.values.filter(v => v !== null && v > 0));
-  const lo = Math.pow(10, Math.floor(Math.log10(Math.min(...values))));
-  const hi = Math.pow(10, Math.ceil(Math.log10(Math.max(...values))));
-  const span = Math.log10(hi) - Math.log10(lo);
-  const scale = value => Math.max(2, ((Math.log10(Math.max(value, lo)) - Math.log10(lo)) / span) * plotWidth);
-
-  const decades = [];
-  for (let power = Math.log10(lo); power <= Math.log10(hi) + 0.001; ++power) {
-    decades.push(Math.pow(10, power));
-  }
-  const ticks = decades.map(value => {
-    const x = padLeft + ((Math.log10(value) - Math.log10(lo)) / span) * plotWidth;
-    const label = value >= 1 ? `${value}ms` : `${value.toFixed(String(value).length - 2)}ms`;
-    return `    <line x1="${x}" y1="${padTop - 14}" x2="${x}" y2="${height - 78}" stroke="${INK.grid}"/>
-    <text x="${x}" y="${height - 58}" fill="${INK.muted}" font-size="11" text-anchor="middle">${label}</text>`;
-  }).join('\n');
-
-  const bars = rows.map((row, rowIndex) => {
-    const top = padTop + rowIndex * (rowHeight + groupGap);
-    const label = `    <text x="${padLeft - 14}" y="${top + rowHeight / 2 + 4}" fill="${INK.text}" font-size="12.5"
-      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">${escapeText(row.label)}</text>`;
-    const drawn = row.values.map((value, seriesIndex) => {
-      if (value === null) { return ''; }
-      const y = top + seriesIndex * barHeight;
-      const w = Math.max(1, scale(value));
-      const delay = (rowIndex * 0.05).toFixed(2);
-      return `    <g class="bar" style="--delay:${delay}s">
-      <rect x="${padLeft}" y="${y}" width="${w.toFixed(1)}" height="${barHeight - 1}" rx="2"
-        fill="url(#bar-${seriesIndex})" filter="url(#halo)"/>
-      <text x="${Math.min(padLeft + w + 8, padLeft + plotWidth + 6)}" y="${y + barHeight - 3}" fill="${INK.muted}"
-        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">${value < 1 ? value.toFixed(3) : value.toFixed(2)}</text>
-    </g>`;
-    }).join('\n');
-    return `${label}\n${drawn}`;
-  }).join('\n');
-
-  const legend = seriesNames.map((name, i) => {
-    const x = padLeft - 14 + i * 168;
-    return `    <rect x="${x}" y="${padTop - 46}" width="10" height="10" rx="2" fill="${INK.series[i]}"/>
-    <text x="${x + 16}" y="${padTop - 37}" fill="${INK.muted}" font-size="11.5">${escapeText(name)}</text>`;
-  }).join('\n');
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"
-  viewBox="0 0 ${width} ${height}" font-family="Inter,system-ui,-apple-system,sans-serif">
-${defs()}
-  <style>
-    .bar rect { transform-box: fill-box; transform-origin: left center;
-      animation: grow 640ms cubic-bezier(0,0.7,0.5,1) both; animation-delay: var(--delay); }
-    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-    @media (prefers-reduced-motion: reduce) { .bar rect { animation: none; } }
-  </style>
-  <rect width="${width}" height="${height}" fill="${INK.canvas}"/>
-  <text x="24" y="40" fill="${INK.text}" font-size="17" font-weight="600">${escapeText(title)}</text>
-  <text x="24" y="62" fill="${INK.muted}" font-size="12">${escapeText(subtitle)}</text>
-${legend}
-${ticks}
-${bars}
-  <text x="24" y="${height - 28}" fill="${INK.muted}" font-size="11">${escapeText(footer)}</text>
-</svg>
-`;
-}
-
-// ---------------------------------------------------------------------------
 
 function main() {
   const argv = process.argv.slice(2).filter((arg, i, all) => !(arg === '--' && all.indexOf('--') === i));
@@ -302,31 +115,14 @@ function main() {
   // One document per shape, each with its own engine instances.
   const worlds = {};
   for (const [name, spec] of Object.entries(DOCUMENTS)) {
-    const dom = new JSDOM(spec.html());
-    const { document } = dom.window;
-    const options = { document, DOMException: dom.window.DOMException };
-    // the smallest change a document can have: one element in, one element
-    // out, which leaves it as it was and invalidates what was cached about it
-    const probe = document.createElement('b');
-    worlds[name] = {
-      document,
-      note: spec.note,
-      touch: () => { document.body.append(probe); probe.remove(); },
-      elements: document.getElementsByTagName('*').length,
-      engines: {
-        nwsapi: require(path.join(repoRoot, 'src', 'nwsapi.js'))(options),
-        baseline: values.baseline
-          ? require(path.resolve(values.baseline))(options)
-          : null,
-      },
-    };
+    worlds[name] = world(spec.html(), { baseline: values.baseline });
   }
 
   const results = [];
   for (const testCase of CASES) {
-    const world = worlds[testCase.doc];
-    const { document } = world;
-    const { nwsapi, baseline } = world.engines;
+    const place = worlds[testCase.doc];
+    const { document } = place;
+    const { nwsapi, baseline } = place.engines;
     const selector = testCase.selector;
 
     // Correctness before timing: a number from an engine that disagrees with
@@ -345,7 +141,7 @@ function main() {
     // engine keeps the result of a query until the document changes, so the
     // numbers above can be a memo answering rather than a selector matching.
     // Both engines pay the same change, and its own cost is subtracted.
-    const touch = world.touch;
+    const touch = () => place.touch();
     const changedRunners = runners.map(run => () => { touch(); return run(); });
     const changedTimes = measure(
       [...changedRunners, touch], rounds, iterationsFor(timeOnce(changedRunners[0], 3)));
@@ -356,7 +152,7 @@ function main() {
       ...testCase,
       matches: found,
       agrees: found === reference,
-      elements: world.elements,
+      elements: place.elements,
       nwsapi: times[0],
       baseline: baseline ? times[1] : null,
       jsdom: times[times.length - 1],
