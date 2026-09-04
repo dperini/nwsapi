@@ -91,3 +91,79 @@ parseable.
 
 - A full run across all presets is long; use `--preset`/`--selector` to
   narrow the run while iterating on engine changes.
+
+## The standing report, and the charts
+
+`selectors.bench.mjs` answers one question at a time: *did this change make
+this selector faster?* That is the question you want while editing the
+engine, and it is the wrong one for a README, because a list of 201 numbers
+does not tell anyone where the engine stands.
+
+`report.mjs` answers the other question: *how does this engine do on the
+selectors people write?* It runs a fixed set of cases, prints a table, and
+writes two SVG charts.
+
+```sh
+pnpm run bench:report                                     # table + charts
+pnpm run bench:report -- --baseline /tmp/old-nwsapi.js    # add a second build
+pnpm run bench:report -- --json > results.json            # the raw numbers
+```
+
+To compare against an older build, write one out of git first:
+
+```sh
+git show 2e9498f:src/nwsapi.js > /tmp/old-nwsapi.js
+```
+
+### What the cases are
+
+Selectors do not all come from the same place, so the report uses three
+documents and groups the cases by what they exercise:
+
+| document        | what it stands for                                               |
+| --------------- | ---------------------------------------------------------------- |
+| `documentation` | a spec page — the shape hand-written CSS runs against             |
+| `atomic`        | atomic CSS: many short classes per element, selective containers  |
+| `components`    | a component tree, queried the way testing-library queries one     |
+
+The atomic and component documents exist because most selectors reaching a
+selector engine today are generated, not typed by a person. Tailwind, StyleX
+and CSS modules emit short single classes; testing-library asks for roles,
+labels and test ids. Tuning only against a spec page optimizes for the
+minority case.
+
+### How to read the charts
+
+Both charts are in `bench/charts/`.
+
+- **`standing.svg`** — every case, this engine against jsdom's.
+- **`gains.svg`** — only the cases a baseline build makes different, worst
+  first.
+
+Three things to know before you read a bar:
+
+1. **Shorter is better.** The axis is milliseconds for one query.
+2. **The axis is logarithmic.** Each gridline is 10x the one before it. The
+   numbers on these charts span from 0.009 ms to 48 ms, and on a normal axis
+   everything except the slowest bar would be an invisible sliver. A bar
+   twice as long is 10x slower, not 2x.
+3. **A number without a match count means nothing.** The report checks every
+   result against `querySelectorAll` before timing it, and prints
+   `DISAGREES` and exits non-zero if an engine returns a different set. A
+   fast wrong answer is not a fast answer.
+
+### Why timings are taken the way they are
+
+Two habits, both there for a reason you can reproduce:
+
+- **Engines are timed interleaved, in one process.** Absolute timings on a
+  laptop drift by tens of percent between runs — background work, thermal
+  state, a different heap layout. Two numbers measured seconds apart are not
+  comparable; the same two measured microseconds apart are. Every ratio in
+  these charts comes from rounds that alternate between engines.
+- **Each case reports a median of several rounds.** One round can catch a
+  garbage collection. The median cannot.
+
+If you take a number from here and cannot reproduce it, suspect the method
+before the engine: run it twice, and check whether the two runs agree with
+each other before comparing them to anything else.

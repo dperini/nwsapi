@@ -37,6 +37,9 @@
   "packageManager": "pnpm@11.18.0",
   "scripts": {
     "bench": "node --expose-gc bench/selectors.bench.mjs",
+    "bench:cache": "node --expose-gc bench/cache.bench.mjs",
+    "bench:memory": "node --expose-gc bench/memory.bench.mjs",
+    "bench:report": "node --expose-gc bench/report.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint .",
     "min": "node scripts/min.mjs",

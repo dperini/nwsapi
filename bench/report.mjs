@@ -194,17 +194,27 @@ function defs() {
 // Grouped horizontal bars: one row per case, one bar per engine. Horizontal
 // because selector text is long and a rotated label is hard to read.
 function chart({ title, subtitle, rows, seriesNames, footer }) {
-  const padTop = 96, padLeft = 260, padRight = 96, rowHeight = 26, groupGap = 16;
+  const padTop = 118, padLeft = 300, padRight = 110, rowHeight = 26, groupGap = 16;
   const barHeight = Math.floor((rowHeight - 6) / seriesNames.length);
-  const plotWidth = 620;
+  const plotWidth = 600;
   const height = padTop + rows.length * (rowHeight + groupGap) + 96;
   const width = padLeft + plotWidth + padRight;
-  const max = Math.max(...rows.flatMap(row => row.values.filter(v => v !== null)));
-  const scale = value => (value / max) * plotWidth;
 
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map(fraction => {
-    const x = padLeft + fraction * plotWidth;
-    const label = (max * fraction).toFixed(max < 1 ? 2 : 1);
+  // Log scale. These timings span three orders of magnitude — 0.010ms next to
+  // 56ms — and on a linear axis every bar but the worst one disappears.
+  const values = rows.flatMap(row => row.values.filter(v => v !== null && v > 0));
+  const lo = Math.pow(10, Math.floor(Math.log10(Math.min(...values))));
+  const hi = Math.pow(10, Math.ceil(Math.log10(Math.max(...values))));
+  const span = Math.log10(hi) - Math.log10(lo);
+  const scale = value => Math.max(2, ((Math.log10(Math.max(value, lo)) - Math.log10(lo)) / span) * plotWidth);
+
+  const decades = [];
+  for (let power = Math.log10(lo); power <= Math.log10(hi) + 0.001; ++power) {
+    decades.push(Math.pow(10, power));
+  }
+  const ticks = decades.map(value => {
+    const x = padLeft + ((Math.log10(value) - Math.log10(lo)) / span) * plotWidth;
+    const label = value >= 1 ? `${value}ms` : `${value.toFixed(String(value).length - 2)}ms`;
     return `    <line x1="${x}" y1="${padTop - 14}" x2="${x}" y2="${height - 78}" stroke="${INK.grid}"/>
     <text x="${x}" y="${height - 58}" fill="${INK.muted}" font-size="11" text-anchor="middle">${label}</text>`;
   }).join('\n');
@@ -221,17 +231,17 @@ function chart({ title, subtitle, rows, seriesNames, footer }) {
       return `    <g class="bar" style="--delay:${delay}s">
       <rect x="${padLeft}" y="${y}" width="${w.toFixed(1)}" height="${barHeight - 1}" rx="2"
         fill="url(#bar-${seriesIndex})" filter="url(#halo)"/>
-      <text x="${padLeft + w + 8}" y="${y + barHeight - 3}" fill="${INK.muted}" font-size="10.5"
-        font-family="ui-monospace,SFMono-Regular,Menlo,monospace">${value < 1 ? value.toFixed(3) : value.toFixed(2)}</text>
+      <text x="${Math.min(padLeft + w + 8, padLeft + plotWidth + 6)}" y="${y + barHeight - 3}" fill="${INK.muted}"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">${value < 1 ? value.toFixed(3) : value.toFixed(2)}</text>
     </g>`;
     }).join('\n');
     return `${label}\n${drawn}`;
   }).join('\n');
 
   const legend = seriesNames.map((name, i) => {
-    const x = padLeft + i * 150;
-    return `    <rect x="${x}" y="${padTop - 44}" width="10" height="10" rx="2" fill="${INK.series[i]}"/>
-    <text x="${x + 16}" y="${padTop - 35}" fill="${INK.muted}" font-size="11.5">${escapeText(name)}</text>`;
+    const x = padLeft - 14 + i * 168;
+    return `    <rect x="${x}" y="${padTop - 46}" width="10" height="10" rx="2" fill="${INK.series[i]}"/>
+    <text x="${x + 16}" y="${padTop - 37}" fill="${INK.muted}" font-size="11.5">${escapeText(name)}</text>`;
   }).join('\n');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"
@@ -244,12 +254,12 @@ ${defs()}
     @media (prefers-reduced-motion: reduce) { .bar rect { animation: none; } }
   </style>
   <rect width="${width}" height="${height}" fill="${INK.canvas}"/>
-  <text x="${padLeft - 14}" y="38" fill="${INK.text}" font-size="17" font-weight="600">${escapeText(title)}</text>
-  <text x="${padLeft - 14}" y="58" fill="${INK.muted}" font-size="12">${escapeText(subtitle)}</text>
+  <text x="24" y="40" fill="${INK.text}" font-size="17" font-weight="600">${escapeText(title)}</text>
+  <text x="24" y="62" fill="${INK.muted}" font-size="12">${escapeText(subtitle)}</text>
 ${legend}
 ${ticks}
 ${bars}
-  <text x="${padLeft - 14}" y="${height - 30}" fill="${INK.muted}" font-size="11">${escapeText(footer)}</text>
+  <text x="24" y="${height - 28}" fill="${INK.muted}" font-size="11">${escapeText(footer)}</text>
 </svg>
 `;
 }
