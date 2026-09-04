@@ -1328,12 +1328,13 @@
     function(expression, source, mode, callback) {
 
       var a, b, n, f, k = 0, compat, name,
-      NS, expr, match, result, status, symbol,
+      NS, expr, match, pendingTag, result, status, symbol,
       test, type, selector = expression, vars;
 
       A_REQD.length = 0;
       A_PEND.length = 0;
       A_WALK = false;
+      pendingTag = '';
 
       // isolate selector combinators
       selector = selector.replace(STD.combinator, '$1');
@@ -1375,7 +1376,8 @@
             // the same string the comparison uses, so the filter built from
             // it cannot reject anything this test would have accepted
             A_PEND[A_PEND.length] = match[1];
-            source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
+            // held, not applied: see the note on test order above
+            pendingTag = 'if((e.localName=="' + match[1] + '")){';
             break;
 
           // namespace resolver
@@ -1441,6 +1443,7 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1448,6 +1451,7 @@
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1456,6 +1460,7 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             // whatever stands to the left of this now has to appear above
             // the candidate. A sibling combinator does not promote, but it
             // does not disqualify either: siblings share a parent, so an
@@ -1470,6 +1475,7 @@
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             A_REQD.push.apply(A_REQD, A_PEND);
             A_PEND.length = 0;
             source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
@@ -2054,6 +2060,8 @@
         selector = match.pop();
       }
       // end of while selector
+
+      if (pendingTag) { source = pendingTag + source + '}'; }
 
       return source;
     },
