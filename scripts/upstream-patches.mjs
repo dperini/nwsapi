@@ -373,9 +373,9 @@ that need it share one definition.`,
 
       return edit(
         source,
-        `    isFocusable: isFocusable,`,
+        `    hasAttributeNS: hasAttributeNS`,
         `    isLink: isLink,
-    isFocusable: isFocusable,`,
+    hasAttributeNS: hasAttributeNS`,
         'link-precedence: export',
       );
     },
@@ -531,11 +531,11 @@ does a detached subtree, which the document's id map knows nothing about.`,
 
       source = edit(
         source,
-        `      reOptimizer = RegExp(`,
+        `      Patterns.id = RegExp(`,
         `      // a lone '#id', the shape querySelector is asked for most often
       reSimpleId = RegExp('^#(' + identifier + ')$');
 
-      reOptimizer = RegExp(`,
+      Patterns.id = RegExp(`,
         'id-lookup: build reSimpleId',
       );
 
@@ -783,10 +783,8 @@ from run-to-run noise.`,
     apply(source) {
       source = edit(
         source,
-        `  slice = Array.prototype.slice,`,
-        `  slice = Array.prototype.slice,
-
-  // Build [ ...args, tail ] in one allocation. The QSA wrappers below hand
+        `  install =`,
+        `  // Build [ ...args, tail ] in one allocation. The QSA wrappers below hand
   // their own arguments plus a resolver to parseQSArgs; slicing and then
   // concatenating allocates twice, ~113ns per call against ~9ns sized by
   // arity. Unrolled to eight, well past the three these wrappers take,
@@ -805,7 +803,9 @@ from run-to-run noise.`,
       case 8: return [args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], tail];
       default: return slice.call(args).concat(tail);
     }
-  },`,
+  },
+
+  install =`,
         'wrapper-arguments: helper',
       );
 
@@ -1007,8 +1007,8 @@ summary describing where it used to be.`,
     apply(source) {
       source = edit(
         source,
-        `  // check media resources is playing
-  isPlaying =`,
+        `  // check if the document type is HTML
+  isHTML =`,
         `  // A candidate can only match 'div ul li a' if a div, a ul and a li are
   // all somewhere above it. That is far cheaper to answer than the match
   // itself: the tags above an element are summarized as bits in one integer,
@@ -1073,8 +1073,8 @@ summary describing where it used to be.`,
       return true;
     },
 
-  // check media resources is playing
-  isPlaying =`,
+  // check if the document type is HTML
+  isHTML =`,
         'ancestor-filter: helpers',
       );
 
@@ -1206,10 +1206,11 @@ summary describing where it used to be.`,
 
       return edit(
         source,
-        `    isFocusable: isFocusable,`,
-        `    ancestorMask: ancestorMask,
-    clearAncestorMasks: clearAncestorMasks,
-    isFocusable: isFocusable,`,
+        `    ancestor: ancestor,`,
+        `    ancestor: ancestor,
+
+    ancestorMask: ancestorMask,
+    clearAncestorMasks: clearAncestorMasks,`,
         'ancestor-filter: export',
       );
     },
@@ -1241,7 +1242,7 @@ a disabled fieldset came out read-write there too; they ask the helper now.`,
     apply(source) {
       source = edit(
         source,
-        `  isContentEditable =`,
+        `  isFocusable =`,
         `  // Whether a form control is disabled, which is not only its own
   // property: a control inside a disabled fieldset is disabled too, unless it
   // sits in that fieldset's first legend child.
@@ -1277,7 +1278,7 @@ a disabled fieldset came out read-write there too; they ask the helper now.`,
       return false;
     },
 
-  isContentEditable =`,
+  isFocusable =`,
         'disabled-complement: helper',
       );
 
@@ -1361,9 +1362,9 @@ a disabled fieldset came out read-write there too; they ask the helper now.`,
 
       return edit(
         source,
-        `    isOpen: isOpen,`,
+        `    isModal: isModal,`,
         `    isDisabled: isDisabled,
-    isOpen: isOpen,`,
+    isModal: isModal,`,
         'disabled-complement: export',
       );
     },
