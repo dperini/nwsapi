@@ -30,6 +30,7 @@ function edit(source, from, to, what) {
 
 export const PATCHES = [
   {
+    kind: 'fix',
     name: 'jsdom-reentry',
     title: 'Stop state pseudo-classes from re-entering the engine',
     issues: ['172', '171', '177'],
@@ -115,6 +116,7 @@ This combines the two approaches already proposed in #176 and #170.`,
   },
 
   {
+    kind: 'fix',
     name: 'forgiving-and-eof',
     title: 'Fix the forgiving fallback and EOF-terminated arguments',
     issues: [],
@@ -255,6 +257,7 @@ whose forgiving argument is already evaluated inside a try/catch.`,
   },
 
   {
+    kind: 'fix',
     name: 'attribute-after-pseudo',
     title: 'Let a pseudo-class be followed by a quoted attribute selector',
     issues: ['175'],
@@ -297,6 +300,7 @@ commas, which reads as corrupted quotes. It now names the selector.`,
   },
 
   {
+    kind: 'fix',
     name: 'link-precedence',
     title: 'Anchor the alternation in the :link and :placeholder-shown tests',
     issues: [],
@@ -376,14 +380,260 @@ that need it share one definition.`,
       );
     },
   },
+  {
+    kind: 'perf',
+    name: 'optimizer-nesting',
+    title: 'Read the last token of a selector that ends in a nested pseudo-class',
+    issues: [],
+    body: `Before testing candidates, collect() asks reOptimizer for the last
+simple token of a selector and uses it to fetch the candidates by tag, class
+or id. The parenthesized part of that pattern is '\\x28[^\\x29]+(?:\\x29|$)',
+which stops at the first ')', so a final compound holding a nested functional
+pseudo-class does not match at all — and a selector the optimizer cannot read
+is answered by walking every element in the context.
+
+'div:not(:nth-of-type(2n))' therefore tests every element in the document
+instead of the divs, and since ':not()' evaluates its argument through
+s.match() per element, each of those elements resolves nth-of-type. On a
+6300-element page that is 6344 resolutions building 3911 sibling caches over
+196312 steps, for a selector whose subject is a div.
+
+The parenthesized part now tolerates two levels of nesting, which reaches
+':not(:not(:not(span)))'. Deeper than that falls back to the unoptimized scan,
+as before. Both the old and new patterns stay linear on unbalanced input:
+3200 unclosed parentheses match in 0.02ms.
+
+  div:not(:nth-of-type(2n))          45.62ms -> 134.92us    338x
+  div:not(:nth-child(3))              9.42ms -> 123.94us     76x
+  div:is(.example):not(:where(.x))    2.65ms ->  39.45us     67x
+  div:not(.x)                        27.93us ->  27.75us       -
+
+Results are unchanged; the four above agree with the native engine.`,
+    apply(source) {
+      return edit(
+        source,
+        `      reOptimizer = RegExp(
+        '(?:([.:#*]?)' +
+        '(' + identifier + ')' +
+        '(?:' +
+          ':[-\\\\w]+|' +
+          '\\\\[[^\\\\]]+(?:\\\\]|$)|' +
+          '\\\\x28[^\\\\x29]+(?:\\\\x29|$)' +
+        ')*)$');`,
+        `      // The parenthesized part has to tolerate nesting. Written as
+      // '\\x28[^\\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class matches nothing at all, and
+      // a selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      parenthesized = '\\\\x28[^\\\\x28\\\\x29]*(?:\\\\x29|$)';
+      parenthesized = '\\\\x28(?:[^\\\\x28\\\\x29]|' + parenthesized + ')*(?:\\\\x29|$)';
+      parenthesized = '\\\\x28(?:[^\\\\x28\\\\x29]|' + parenthesized + ')*(?:\\\\x29|$)';
+
+      reOptimizer = RegExp(
+        '(?:([.:#*]?)' +
+        '(' + identifier + ')' +
+        '(?:' +
+          ':[-\\\\w]+|' +
+          '\\\\[[^\\\\]]+(?:\\\\]|$)|' +
+          parenthesized +
+        ')*)$');`,
+        'optimizer-nesting: pattern',
+      );
+    },
+  },
+  {
+    kind: 'perf',
+    name: 'id-lookup',
+    title: 'Answer an id selector from the id map instead of walking',
+    issues: [],
+    body: `byId() reaches for document.all and falls back to walking the
+subtree element by element when it is missing. jsdom does not implement
+document.all, so every '#id' takes the walk: 2.4ms on a 6300-element document
+against 43ns for getElementById. jsdom is where most of nwsapi's traffic is,
+so this is the common case rather than the fallback.
+
+getElementById cannot answer on its own, since a document may carry an id
+more than once and querySelectorAll matches all of them. It does settle two
+things in constant time, and each buys back one case:
+
+  - whether the id exists anywhere. If the document has none, no descendant
+    of any context has one either, so select('#missing') returns immediately:
+    2.19ms to 0.0007ms.
+  - where the first one is, in tree order. querySelector wants exactly that,
+    so a lone '#id' against a document is answered by the id map:
+    first('#title') 3.74ms to 0.0007ms.
+
+For select() against a hit the walk still runs, because the duplicates have
+to be found, but it starts at the first match since none can precede it.
+Element-scoped queries keep the old path, because the first document-order
+match may sit outside the context and a match inside it would be missed. So
+does a detached subtree, which the document's id map knows nothing about.`,
+    apply(source) {
+      source = edit(
+        source,
+        `  byIdRaw =
+    function(id, context) {
+      var node = context, nodes = [ ], next = node.firstElementChild;`,
+        `  // Walk 'context' in tree order collecting elements carrying 'id'. The
+  // walk can start at 'from', an element already known to be the first match.
+  byIdRaw =
+    function(id, context, from) {
+      var node = context, nodes = [ ], next = from || node.firstElementChild;`,
+        'id-lookup: byIdRaw start',
+      );
+
+      source = edit(
+        source,
+        `  byId =
+    function(id, context) {
+      var e, i, l, nodes, api = method['#'];`,
+        `  byId =
+    function(id, context) {
+      var e, i, l, nodes, ownerDoc, api = method['#'];`,
+        'id-lookup: byId locals',
+      );
+
+      source = edit(
+        source,
+        `      return byIdRaw(id, context);
+    },`,
+        `      // Without document.all, every '#id' used to walk the whole subtree,
+      // which measures 2.4ms against 43ns for getElementById on a
+      // 6300-element document. getElementById cannot answer on its own,
+      // because a document may carry the same id more than once and all of
+      // them match, but it does settle two things in constant time: whether
+      // the id exists anywhere, and where the first one is, since it returns
+      // the first in tree order and any duplicate has to follow it.
+      ownerDoc = context.nodeType == 9 ? context : context.ownerDocument;
+
+      if (ownerDoc && ownerDoc.getElementById &&
+        (context.nodeType == 9 || context.isConnected)) {
+        e = ownerDoc.getElementById(id);
+        // nothing in the document carries the id, so nothing under context does
+        if (!e) { return none; }
+        // scoped to an element, the first document-order match may sit
+        // outside it, and a match inside it would then be missed
+        if (context.nodeType == 9) { return byIdRaw(id, context, e); }
+      }
+
+      return byIdRaw(id, context);
+    },`,
+        'id-lookup: byId fast paths',
+      );
+
+      source = edit(
+        source,
+        `  reOptimizer,`,
+        `  reOptimizer,
+  reSimpleId,`,
+        'id-lookup: declare reSimpleId',
+      );
+
+      source = edit(
+        source,
+        `      reOptimizer = RegExp(`,
+        `      // a lone '#id', the shape querySelector is asked for most often
+      reSimpleId = RegExp('^#(' + identifier + ')$');
+
+      reOptimizer = RegExp(`,
+        'id-lookup: build reSimpleId',
+      );
+
+      return edit(
+        source,
+        `  first =
+    function _querySelector(selectors, context, callback) {
+      return select(selectors, context,`,
+        `  first =
+    function _querySelector(selectors, context, callback) {
+      var element, match;
+
+      // A lone '#id' against a document is the id map's own question, and the
+      // first match in tree order is exactly what getElementById returns.
+      // Going through select() means building the whole candidate list first,
+      // and without document.all that list is built by walking the document:
+      // 2.4ms against 43ns here. Duplicate ids do not change the answer, only
+      // which of them comes first, and they cannot precede this one. Scoped
+      // to an element the first document-order match may sit outside it, so
+      // that case takes the ordinary path.
+      if (selectors && context && context.nodeType == 9 &&
+        context.getElementById && (match = reSimpleId.exec(selectors))) {
+        element = context.getElementById(unescapeIdentifier(match[1]));
+        if (element && typeof callback == 'function') { callback(element); }
+        return element || null;
+      }
+
+      return select(selectors, context,`,
+        'id-lookup: first() fast path',
+      );
+    },
+  },
+
+  {
+    kind: 'perf',
+    name: 'nth-constant',
+    title: 'Answer a constant nth-child index without building the sibling list',
+    issues: [],
+    body: `':nth-child(3)' compiles to n=s.nthElement(e,false) followed by
+n==3, and nthElement numbers an element by building the sibling list of its
+parent. That is the right trade for an an+b form, which has to know where the
+element sits, and pure overhead for a constant index, which only has to know
+whether three steps back runs out of siblings. The generated code now counts
+siblings and stops as soon as the index is exceeded, so it walks at most b of
+them and allocates nothing.
+
+  div:nth-child(3)         115.99us ->  46.54us   2.49x
+  div:nth-last-child(3)    115.18us ->  46.08us   2.50x
+  div:nth-child(7)         115.47us ->  81.02us   1.43x
+  li:nth-child(2)          253.96us -> 197.74us   1.28x
+
+Only the -child forms. Of-type has to compare the name of every sibling it
+steps over, and reading localName through the host on each one costs more
+than the list it avoids — measured 2.0x and 2.6x slower than the cached list
+for ':nth-of-type(3)' and ':nth-last-of-type(3)' — so those keep it. The an+b
+forms are untouched: ':nth-child(2n)' and ':nth-child(n+3)' still need the
+index. Results agree with the native engine on every form tested.`,
+    apply(source) {
+      return edit(
+        source,
+        `                    expr = expr ? 'OfType' : 'Element';
+                    type = type ? 'true' : 'false';
+                    source = 'n=s.nth' + expr + '(e,' + type + ');if((' + test + ')){' + source + '}';`,
+        `                    // A constant index needs no index. nth(Element|OfType)
+                    // builds the sibling list of the parent to number the
+                    // element within it, which is the right trade for an an+b
+                    // form that has to know where the element sits, and pure
+                    // overhead for ':nth-child(3)', which only has to know
+                    // whether three steps back runs out of siblings.
+                    //
+                    // Only for the -child forms: of-type has to compare the
+                    // name of every sibling it steps over, and reading
+                    // localName through the host on each one costs more than
+                    // the list it avoids.
+                    if (test == 'n==' + a && a >= 1 && !expr) {
+                      test = type ? 'next' : 'previous';
+                      source = 'n=1,o=e;' +
+                        'while(n<=' + a + '&&(o=o.' + test + 'ElementSibling))++n;' +
+                        'if(n==' + a + '){' + source + '}';
+                      break;
+                    }
+                    expr = expr ? 'OfType' : 'Element';
+                    type = type ? 'true' : 'false';
+                    source = 'n=s.nth' + expr + '(e,' + type + ');if((' + test + ')){' + source + '}';`,
+        'nth-constant: fast path',
+      );
+    },
+  },
 ];
 
 function main() {
-  const [target, ...flags] = process.argv.slice(2);
+  const argv = process.argv.slice(2);
+  const flags = argv.filter(arg => arg.startsWith('--'));
+  const target = argv.find(arg => !arg.startsWith('--'));
   if (flags.includes('--list') || !target) {
     for (const patch of PATCHES) {
       const refs = patch.issues.length ? ` (#${patch.issues.join(', #')})` : '';
-      console.log(`${patch.name.padEnd(22)} ${patch.title}${refs}`);
+      console.log(`${patch.kind.padEnd(5)} ${patch.name.padEnd(22)} ${patch.title}${refs}`);
     }
     if (!target) {
       console.log('\nUsage: node scripts/upstream-patches.mjs <upstream-checkout>');
@@ -396,7 +646,11 @@ function main() {
   const out = path.join(target, '.patches');
   mkdirSync(out, { recursive: true });
 
+  const only = flags.filter(f => f.startsWith('--only=')).map(f => f.slice(7));
   for (const patch of PATCHES) {
+    if (only.length && !only.includes(patch.kind) && !only.includes(patch.name)) {
+      continue;
+    }
     const patched = patch.apply(original);
     if (patched === original) {
       throw new Error(`${patch.name}: produced no change`);
