@@ -494,3 +494,79 @@ test.describe('agreement with the reference engine', () => {
     expect(Array.from(document.querySelectorAll('*|div'), node => node.id)).toEqual(['d']);
   });
 });
+
+test.describe('a descendant chain of tags answered by descending', () => {
+  // 'div ul li a' matched right to left starts from every <a> in the context.
+  // Descending from the leftmost tag instead returns the answer directly, so
+  // these cover what the resolver would otherwise have guaranteed: document
+  // order, no duplicates, scoping, and the cases that must not take the path.
+  function fixture() {
+    return build(
+      '<!doctype html><body>' +
+        '<div id=d1><ul id=u1><li id=l1><a id=a1>1</a></li></ul></div>' +
+        // nested same-tag chains: the naive descent returns these twice
+        '<div id=d2><div id=d3><ul id=u2><li id=l2><a id=a2>2</a>' +
+        '<ul id=u3><li id=l3><a id=a3>3</a></li></ul></li></ul></div></div>' +
+        '<ul id=u4><li id=l4><a id=a4>4</a></li></ul>' +
+        '<a id=a5>5</a>' +
+        '</body>',
+    );
+  }
+
+  test('the same elements as the reference engine, in the same order', () => {
+    const { document, NW } = fixture();
+    for (const selector of [
+      'div ul li a', 'div div ul li a', 'ul li a', 'body a', 'div ul', 'ul li',
+      'body div div', 'html body ul li a',
+    ]) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, selector).toEqual(reference);
+    }
+  });
+
+  test('a nested match is returned once', () => {
+    // u3 sits inside u2, so a3 is reachable through both; descending level by
+    // level would collect it twice without the containment check.
+    const { document, NW } = fixture();
+    expect(NW.select('ul li a', document).map(node => node.id)).toEqual(['a1', 'a2', 'a3', 'a4']);
+    expect(NW.select('ul ul li a', document).map(node => node.id)).toEqual(['a3']);
+  });
+
+  test('scoped to an element, and to a detached subtree', () => {
+    const { document, NW } = fixture();
+    const scope = document.getElementById('d2');
+    expect(NW.select('ul li a', scope).map(node => node.id)).toEqual(['a2', 'a3']);
+    expect(Array.from(scope.querySelectorAll('ul li a'), node => node.id)).toEqual(['a2', 'a3']);
+
+    const detached = document.createElement('div');
+    detached.innerHTML = '<ul><li><a id=x>x</a></li></ul>';
+    expect(NW.select('ul li a', detached).map(node => node.id)).toEqual(['x']);
+  });
+
+  test('a callback still sees every match', () => {
+    // The descent returns the answer rather than a candidate list, so a query
+    // carrying a callback has to stay on the ordinary path.
+    const { document, NW } = fixture();
+    const seen = [];
+    const found = NW.select('ul li a', document, node => seen.push(node.id));
+    expect(found.map(node => node.id)).toEqual(['a1', 'a2', 'a3', 'a4']);
+    expect(seen).toEqual(['a1', 'a2', 'a3', 'a4']);
+  });
+
+  test('first() returns the first in tree order', () => {
+    const { document, NW } = fixture();
+    expect(NW.first('div ul li a', document).id).toBe('a1');
+    expect(NW.first('ul ul li a', document).id).toBe('a3');
+    expect(NW.first('div span a', document)).toBeNull();
+  });
+
+  test('a chain that is not plain tags is unaffected', () => {
+    const { document, NW } = fixture();
+    for (const selector of ['div.x ul li a', 'div ul li a.y', 'div > ul li a', 'div ul li a:first-child']) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, selector).toEqual(reference);
+    }
+  });
+});

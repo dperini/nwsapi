@@ -2167,6 +2167,60 @@
       return false;
     },
 
+  // A chain of type selectors separated by descendant combinators, and
+  // nothing else: 'div ul li a'. Matched right to left it starts from every
+  // <a> in the context, which on a documentation page is thousands of
+  // elements to reject one at a time. Descending instead starts from the
+  // elements of the leftmost tag and asks each level for the next tag, so the
+  // set shrinks before it grows: 'div ul li a' goes 94 -> 6 -> 21 -> 10.
+  //
+  // Each level keeps only elements not already contained by the previous one
+  // it kept, which leaves the subtrees disjoint. That makes the result free
+  // of duplicates and in document order without sorting, and stops nested
+  // matches being expanded twice.
+  //
+  // It is not always the cheaper answer. The cost is the number of scoped
+  // lookups, one per element of every level, and a level that explodes pays
+  // more than the walk it replaced: 'ul li a' descends 160 -> 604 -> 885 and
+  // takes 670 lookups where the ordinary path takes one pass over 2370
+  // anchors. Both gates below are about that, and both are cheap to read
+  // before any work is done.
+  DESCENT_ENTRIES = 100,
+  DESCENT_BUDGET = 512,
+
+  reTagChain = RegExp('^[A-Za-z][-\\w]*(?:\\x20[A-Za-z][-\\w]*)+$'),
+
+  descendChain =
+    function(chain, context) {
+      var budget = DESCENT_BUDGET, found, i, j, k, l, level, next, node, prev;
+
+      level = context.getElementsByTagName(chain[0]);
+      // a wide first level is the shape that loses, and it is known here
+      // before a single scoped lookup has been made
+      if (level.length > DESCENT_ENTRIES) { return null; }
+      level = sliceCall(level);
+
+      for (k = 1, l = chain.length; l > k; ++k) {
+        next = [ ];
+        prev = null;
+        for (i = 0, j = level.length; j > i; ++i) {
+          node = level[i];
+          // contained by the last element kept, so its matches are already
+          // covered and would come back a second time
+          if (prev !== null && prev.contains(node)) { continue; }
+          prev = node;
+          if (--budget < 0) { return null; }
+          found = node.getElementsByTagName(chain[k]);
+          for (var m = 0, n = found.length; n > m; ++m) {
+            next[next.length] = found[m];
+          }
+        }
+        level = next;
+      }
+
+      return level;
+    },
+
   // Test the relative argument of a :has() against 'anchor'. The implied
   // anchor is compiled as the private ':-nwsapi-anchor' pseudo-class rather
   // than as ':scope', because an explicit ':scope' written inside the
@@ -2230,7 +2284,7 @@
   select =
     function _querySelectorAll(selectors, context, callback) {
 
-      var nodes = [ ], resolver;
+      var descended, nodes = [ ], resolver;
 
       arguments.length == 0 &&
         emit(qsNotArgs, TypeError);
@@ -2238,6 +2292,17 @@
       context || (context = doc);
         lastContext !== context &&
           (lastContext = switchContext(context));
+
+      // A plain descendant chain of tags is answered by descending, when the
+      // shape of the document makes that the cheaper direction. No callback:
+      // the ordinary path is what applies one, and this returns the answer
+      // rather than a candidate list.
+      if (selectors && callback === undefined && reTagChain.test(selectors) &&
+        (descended = descendChain(selectors.split('\x20'), context))) {
+        return !Config.NODE_LIST ?
+          descended : isInstanceOf(descended) ?
+          descended : toNodeList(descended);
+      }
 
       if (selectors) {
         if ((resolver = selectResolvers.get(selectors))) {
