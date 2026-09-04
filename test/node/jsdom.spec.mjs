@@ -466,6 +466,78 @@ test.describe('agreement with the reference engine', () => {
     }
   });
 
+  test('the class of an SVG element is not a string', () => {
+    // Element.className reflects the class attribute as a string, except on
+    // SVGElement, where SVG 1.1 defined it as an SVGAnimatedString and the
+    // browsers still ship that. jsdom implements it the same way, so this
+    // covers the browser behavior too. Reading it without checking the type
+    // matches the class against '[object SVGAnimatedString]' and quietly
+    // finds nothing.
+    const { document, NW } = build(
+      '<!doctype html><body><div class="x big" id=d></div>' +
+        '<svg id=s class="y wide"><rect id=r class=z></rect></svg></body>',
+    );
+    expect(typeof document.getElementById('s').className).toBe('object');
+
+    // the class has to be a part the fetch did not use, or the resolver never
+    // tests it: candidates come back from getElementsByClassName already
+    for (const selector of [
+      '.y.wide', '.wide.y', 'svg.y.wide', '.y > .z', '.y .z', '.y rect',
+      '.x.big', 'div.x.big', '[class~="y"]',
+    ]) {
+      const mine = NW.select(selector, document).map(node => node.id);
+      const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+      expect(mine, selector).toEqual(reference);
+    }
+    expect(NW.match('.y.wide', document.getElementById('s'))).toBe(true);
+  });
+
+  test('LEGACY restores the handling a pre-2015 host needed', () => {
+    // The generated tests read reflected properties and call the host without
+    // asking whether it has the method, because every host that can run this
+    // source returns elements from a tag or class lookup. LEGACY is for one
+    // that does not: IE up to 8 put comment nodes in a '*' collection.
+    const { document, NW } = build(
+      '<!doctype html><body><a href="#" id=a class="x big">x</a><!-- c --></body>',
+    );
+    const comment = document.body.childNodes[1];
+    const scope = document.createElement('div');
+    scope.innerHTML = '<a href="#" id=b class="x big">y</a>';
+    const link = scope.firstChild;
+    // a host handing back something that is not an element
+    scope.getElementsByTagName = () => [link, document.createComment('c')];
+    scope.getElementsByClassName = () => [link, document.createComment('c')];
+
+    // by default the fetch is trusted, so a collection like that is an error
+    // rather than a non-match
+    expect(() => NW.select('[href]', scope)).toThrow();
+    expect(() => NW.select('.x.big', scope)).toThrow();
+    // a tag test reads a property, so it rejects the comment either way
+    expect(NW.select('a.x', scope).map(node => node.id)).toEqual(['b']);
+
+    try {
+      NW.configure({ LEGACY: true });
+      expect(NW.select('[href]', scope).map(node => node.id)).toEqual(['b']);
+      expect(NW.select('.x.big', scope).map(node => node.id)).toEqual(['b']);
+      expect(NW.match('.x', comment)).toBe(false);
+      expect(NW.match('[href]', comment)).toBe(false);
+      expect(NW.match('#a', comment)).toBe(false);
+
+      // and the ordinary answers do not change under it
+      for (const selector of ['a.x', 'a#a', '#a.big', 'a[href]', '.x.big']) {
+        const mine = NW.select(selector, document).map(node => node.id);
+        const reference = Array.from(document.querySelectorAll(selector), node => node.id);
+        expect(mine, selector).toEqual(reference);
+      }
+    } finally {
+      NW.configure({ LEGACY: false });
+    }
+
+    // flipping the flag has to reach the compiled resolvers, not just the
+    // next selector nobody has asked for yet
+    expect(() => NW.select('[href]', scope)).toThrow();
+  });
+
   test('an id the resolver tests, escaped every way the syntax allows', () => {
     // A plain '#id' is looked up by the id map. An id anywhere else in the
     // selector is compiled into a comparison against the value the DOM hands

@@ -198,6 +198,13 @@
   Config = {
     IDS_DUPES: true,
     FORGIVING: true,
+    // Handling for hosts older than the baseline this source already needs.
+    // It is written with arrow functions and Map, so it cannot run anywhere
+    // before 2015, and every host that can run it returns elements from a tag
+    // or class lookup and reflects id as a string. Turn this on for a host
+    // that does neither — the generated tests then ask each candidate for the
+    // method before calling it, as they did up to 2.2.27.
+    LEGACY: false,
     NODE_LIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
@@ -753,6 +760,17 @@
       return false;
     },
 
+  // The class of an element, for the one element kind whose reflection is not
+  // a string. SVG 1.1 defined SVGElement.className as an SVGAnimatedString,
+  // SVG 2 deprecated it, and the browsers still ship it, so this is a live
+  // case rather than a legacy one — but it is a rare one, and it lives here
+  // instead of in every generated resolver that tests a class.
+  classOf =
+    function(e) {
+      var value = e.className;
+      return typeof value == 'string' ? value : e.getAttribute('class');
+    },
+
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
   nthElement = (function() {
     var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
@@ -1083,6 +1101,12 @@
       if (typeof option == 'string') { return !!Config[option]; }
       if (typeof option != 'object') { return Config; }
       for (var i in option) {
+        // FORGIVING and LEGACY are read while a selector compiles, so a
+        // resolver built under the old value would answer the next query with
+        // it. Changing either clears the caches whether asked to or not.
+        if ((i == 'FORGIVING' || i == 'LEGACY') && Config[i] !== !!option[i]) {
+          clear = true;
+        }
         Config[i] = !!option[i];
       }
       // clear lambda cache
@@ -1274,9 +1298,9 @@
   // detects its end by reading one past the last index, and V8 answers an
   // out-of-bounds load by deoptimizing the whole resolver — visible under
   // --trace-deopt as "reason: out of bounds" against Resolver on every call.
-  S_HEAD = 'var e,n,o,q,j=r.length-1,k=-1,l=c.length',
-  M_HEAD = 'var e,n,o,q',
-  N_HEAD = 'var e,n,o,q,k=-1,l=c.length',
+  S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
+  M_HEAD = 'var e,n,o',
+  N_HEAD = 'var e,n,o,k=-1,l=c.length',
 
   S_LOOP = 'main:while(++k<l&&(e=c[k])!==undefined)',
   M_LOOP = 'e=c;',
@@ -1425,8 +1449,19 @@
       // caller has; selecting works through a list of elements the engine
       // fetched itself, and one property read per candidate to learn what
       // the fetch already guarantees measured 1.11x on an attribute test.
-      getA = mode === false ? 'e.getAttribute&&e.getAttribute(' : 'e.getAttribute(';
-      hasA = mode === false ? 'e.hasAttribute&&e.hasAttribute(' : 'e.hasAttribute(';
+      //
+      // The guard was for a host whose tag collection was not all elements:
+      // in IE up to 8, getElementsByTagName('*') included comment nodes,
+      // which have no getAttribute. That host cannot reach this code, which
+      // is written with arrow functions and Map, and IE 9 stopped doing it
+      // anyway. A host that returns a non-element from a tag or class lookup
+      // now gets a TypeError from a selection where it used to get no match;
+      // matching is unchanged, since that is where a caller's own node
+      // arrives.
+      getA = Config.LEGACY || mode === false ?
+        'e.getAttribute&&e.getAttribute(' : 'e.getAttribute(';
+      hasA = Config.LEGACY || mode === false ?
+        'e.hasAttribute&&e.hasAttribute(' : 'e.hasAttribute(';
 
       A_REQD.length = 0;
       A_PEND.length = 0;
@@ -1463,9 +1498,13 @@
             // attribute, per 6344 elements. escapeIdentifier turns the CSS
             // escapes into JavaScript ones, so only the quote is escaped
             // after it.
+            // Unlike the class, this reflection has no exception: 'id' is a
+            // string on Element for every element kind, SVG and MathML and
+            // XML included, and a form's named properties do not shadow it.
+            // Only a host from before that was true reads the attribute.
             expr = escapeIdentifier(match[1]).replace(/\x22/g, '\\"');
-            source = 'if(((typeof(q=e.id)=="string"?q:e.getAttribute("id"))=="' +
-              expr + '")){' + source + '}';
+            source = 'if((' + (Config.LEGACY ? getA + '"id")' : 'e.id') +
+              '=="' + expr + '")){' + source + '}';
             break;
 
           // class name resolver
@@ -1473,12 +1512,13 @@
             match = selector.match(Patterns.className);
             // The class attribute is reflected as a property, and reading a
             // property is cheaper than calling through the host to look an
-            // attribute up: 0.477ms against 0.770ms over 6344 elements. The
-            // reflection is a string on an HTML element and an
-            // SVGAnimatedString on an SVG one in a browser, so the type is
-            // checked and the attribute asked for when it is not a string.
-            compat = (QUIRKS_MODE ? 'i' : '') +
-              '.test(typeof(q=e.className)=="string"?q:e.getAttribute("class"))';
+            // attribute up: 0.477ms against 0.770ms over 6344 elements.
+            // classOf() is where the one element kind whose reflection is not
+            // a string is dealt with, so the rare case is not written into
+            // every resolver; a legacy host asks for the attribute instead,
+            // since it may be holding something that is not an element.
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' +
+              (Config.LEGACY ? getA + '"class")' : 's.classOf(e)') + ')';
             source = 'if((/(^|\\s)' + match[1] + '(\\s|$)/' + compat + ')){' + source + '}';
             break;
 
@@ -2910,6 +2950,7 @@
     mayMatch: mayMatch,
     ancestorMask: ancestorMask,
     clearAncestorMasks: clearAncestorMasks,
+    classOf: classOf,
     isLink: isLink,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,

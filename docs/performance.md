@@ -129,13 +129,68 @@ elements:
   1.05-1.08x — small, because the cost is `getAttribute` rather than the
   match, but it is free to take.
 
+### Keep the legacy path out of the common one
+
+Two of those changes trade a host call for a reflected property, so they
+depend on the reflection being what the DOM says it is. Where that is only
+true of hosts newer than some version, the old handling belongs behind a flag
+rather than in the middle of the hot expression.
+
+**`Config.LEGACY`, off by default**, is that flag. With it off, an attribute
+test calls `e.getAttribute("x")` and an id test compares `e.id`; with it on,
+both ask the candidate for the method first, the way every version up to
+2.2.27 did. It exists because a host that puts a comment node in a `*`
+collection — IE up to 8 — has no `getAttribute` on every candidate. Nothing
+before 2015 can execute this source anyway (see the floor below), so the
+default assumes a DOM that behaves, and the flag buys back the old behavior
+for a host that does not. Toggling it clears the compiled resolvers, since the
+flag is read while a selector compiles.
+
+The one exception that is **not** legacy stays in the default path, and is
+moved out of line instead of behind a flag:
+
+- **`className` on an SVG element is not a string.** SVG 1.1 defined
+  `SVGElement.className` as an `SVGAnimatedString`, SVG 2 deprecated it, and
+  Chrome, Safari, Firefox and jsdom all still expose it. Reading it without
+  checking the type matches the class against `[object SVGAnimatedString]` and
+  quietly finds nothing. So a class test calls `s.classOf(e)`, one function
+  that reads the property and asks for the attribute when it is not a string,
+  rather than writing that choice into every generated resolver. Measured
+  against the inline form, the call is free: 0.504 ms, where the inline check
+  is 0.557 ms and no check at all is 0.517 ms. A test covers it (`the class of
+  an SVG element is not a string`) and it fails without the check.
+- **Before DOM4, `className` lived on `HTMLElement`, not `Element`.** In
+  those browsers an XML or MathML element had no `className` at all, so the
+  same type check is what makes the fallback correct there rather than an
+  accident.
+- **In IE up to 7, `getAttribute('class')` returned null** — the attribute
+  had to be asked for as `className`, the same mapping that made `for` into
+  `htmlFor`. That era also had `getAttribute` hand back property values
+  rather than attribute strings: `href` came back resolved to an absolute
+  URL unless you passed the non-standard second argument, `style` came back
+  as an object. So the property read this engine now prefers was also the
+  more reliable of the two on the browsers that had those quirks. (History,
+  not something this engine still handles: it cannot run there, see below.)
+- **`e.id` has no such exception.** `id` is a string on `Element` for every
+  element kind, SVG included, and a form's named-property getter does not
+  shadow it, because named properties are only exposed for names that are
+  not already on the prototype chain.
+
+**How far back this code can run at all.** Upstream 2.2.27 already uses arrow
+functions, and this branch adds `Map` and `WeakSet` — all ES2015, all
+shipping together in Chrome 45, Firefox 45, Safari 10 and Edge 12. So the
+floor is 2015-2016 browsers, and IE cannot execute the source at any version.
+That is what makes the guard below safe to drop: the host quirk it protected
+against belongs to a browser that cannot reach the code.
+
 ### Do not pay for what an earlier stage guarantees
 
-- An attribute test asked the candidate for `getAttribute` before calling it.
-  Matching is handed one node by a caller and keeps that guard; selecting
-  works through a list of elements this engine fetched itself, so the read
-  only confirms what the fetch already guarantees. Dropping it there measured
-  1.11x.
+- An attribute test asked the candidate for `getAttribute` before calling
+  it. Selecting works through a list of elements this engine fetched itself,
+  so the read only confirms what the fetch already guarantees; dropping it
+  measured 1.11x on the test alone and 2-3% end to end. Matching keeps the
+  guard, since that is where a caller's own node arrives, and `Config.LEGACY`
+  restores it for a selection too.
 - A selector whose only part was used for the fetch still compiled a resolver
   that copied its input — `div`, `.example`, one item of `label, [aria-label]`.
   There is no resolver for that now, 1.03x on wide selections.
