@@ -22,14 +22,30 @@ if (!target) {
   process.exit(1);
 }
 
-function load(file) {
-  const dom = new JSDOM(
-    '<!doctype html><body>' +
-      '<a id=a href="#">a</a><abbr id=b href="#">abbr</abbr>' +
-      '<div id=d class=x><p id=p class="a">t</p><p id=q class="b"></p></div>' +
-      '<input id=i placeholder=p>' +
-      '</body>',
-  );
+// The form probes need controls, a disabled fieldset and a fieldset holding
+// no validation candidate at all, which would change what the older probes
+// see, so they get their own document.
+const BASE_MARKUP = '<!doctype html><body>' +
+  '<a id=a href="#">a</a><abbr id=b href="#">abbr</abbr>' +
+  '<div id=d class=x><p id=p class="a">t</p><p id=q class="b"></p></div>' +
+  '<input id=i placeholder=p>' +
+  '</body>';
+
+const FORM_MARKUP = '<!doctype html><body>' +
+  '<input id=i1 disabled><input id=i2><input id=i3 required>' +
+  '<fieldset id=fs disabled>' +
+    '<legend id=lg><input id=li1></legend><input id=fi1>' +
+    '<fieldset id=fsin><input id=fi3></fieldset>' +
+  '</fieldset>' +
+  '<fieldset id=fsempty></fieldset>' +
+  '<fieldset id=fsok><input id=fi2></fieldset>' +
+  '<button id=b1>go</button>' +
+  '<select id=se><optgroup id=og disabled><option id=op1>a</option></optgroup></select>' +
+  '<my-thing id=mt></my-thing>' +
+  '</body>';
+
+function load(file, markup) {
+  const dom = new JSDOM(markup || BASE_MARKUP);
   const { window } = dom;
   delete require.cache[require.resolve(file)];
   const NW = require(file)({
@@ -104,6 +120,57 @@ const PROBES = {
   },
 };
 
+// The same idea for the form-state pseudo-classes, on their own document.
+const FORM_PROBES = {
+  // nothing may match ':enabled' and ':disabled' both
+  enabledAndDisabled({ document, NW }) {
+    try {
+      const enabled = NW.select(':enabled', document);
+      const disabled = NW.select(':disabled', document);
+      return `ids=${enabled.filter(e => disabled.includes(e)).map(e => e.id).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+  optionalButton({ document, NW }) {
+    try {
+      return `ids=${NW.select('button:optional', document).map(e => e.id).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+  // a fieldset with no validation candidate under it, and one inside a
+  // disabled fieldset, where every control is barred from validation
+  validFieldsets({ document, NW }) {
+    try {
+      return `ids=${NW.select('fieldset:valid', document).map(e => e.id).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+  definedBuiltIns({ document, NW }) {
+    try {
+      return `ids=${NW.select(':defined', document).map(e => e.id).filter(Boolean).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+  readWriteInFieldset({ document, NW }) {
+    try {
+      return `ids=${NW.select('fieldset :read-write', document).map(e => e.id).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+  formsOrdinary({ document, NW }) {
+    try {
+      return `ids=${NW.select('input[required], fieldset > input', document).map(e => e.id).join()}`;
+    } catch {
+      return 'THREW';
+    }
+  },
+};
+
 // What each patch is expected to change, relative to upstream master.
 const EXPECTED = {
   'jsdom-reentry': { reentry: 'reentrant=none' },
@@ -114,6 +181,18 @@ const EXPECTED = {
   },
   'attribute-after-pseudo': { attrAfterPseudo: 'match=true' },
   'link-precedence': { link: 'ids=a', placeholder: 'ids=i' },
+};
+
+const FORM_EXPECTED = {
+  'disabled-complement': {
+    enabledAndDisabled: 'ids=',
+    readWriteInFieldset: 'ids=li1,fi2',
+  },
+  'optional-anchors': { optionalButton: 'ids=b1' },
+  'valid-fieldset': { validFieldsets: 'ids=fs,fsin,fsempty,fsok' },
+  'defined-built-ins': {
+    definedBuiltIns: 'ids=i1,i2,i3,fs,lg,li1,fi1,fsin,fi3,fsempty,fsok,fi2,b1,se,og,op1',
+  },
 };
 
 const baseline = {};
@@ -153,5 +232,37 @@ for (const [patch, expected] of Object.entries(EXPECTED)) {
   }
 }
 
-console.log(failures ? `\n${failures} problem(s)` : '\nevery patch fixes what it claims and nothing else');
+// the form-state patches, against the document built for them
+const formBaseline = {};
+for (const [name, probe] of Object.entries(FORM_PROBES)) {
+  formBaseline[name] = probe(load(path.join(target, 'src', 'nwsapi.js'), FORM_MARKUP));
+}
+
+console.log('');
+console.log('upstream master, form document:');
+for (const [name, value] of Object.entries(formBaseline)) {
+  console.log(`  ${name.padEnd(20)} ${value}`);
+}
+
+for (const [patch, expected] of Object.entries(FORM_EXPECTED)) {
+  const file = path.join(target, '.patches', `${patch}.js`);
+  console.log('');
+  console.log(`${patch}:`);
+  for (const [name, probe] of Object.entries(FORM_PROBES)) {
+    const value = probe(load(file, FORM_MARKUP));
+    const want = expected[name];
+    if (want !== undefined) {
+      const ok = value === want;
+      if (!ok) { ++failures; }
+      console.log(`  ${ok ? 'FIXED  ' : 'FAILED '} ${name.padEnd(20)} ${formBaseline[name]} -> ${value}` +
+        (ok ? '' : `   expected ${want}`));
+    } else if (value !== formBaseline[name]) {
+      ++failures;
+      console.log(`  UNCLAIMED ${name.padEnd(18)} ${formBaseline[name]} -> ${value}`);
+    }
+  }
+}
+
+console.log('');
+console.log(failures ? `${failures} problem(s)` : 'every patch fixes what it claims and nothing else');
 process.exit(failures ? 1 : 0);

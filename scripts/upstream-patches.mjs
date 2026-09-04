@@ -1214,6 +1214,280 @@ summary describing where it used to be.`,
       );
     },
   },
+  {
+    kind: 'fix',
+    name: 'disabled-complement',
+    title: 'Make :enabled the complement of :disabled, fieldsets included',
+    issues: [],
+    body: `':disabled' walks the ancestry for a disabled fieldset, as the spec
+requires, while ':enabled' reads only the element's own disabled property. An
+input inside a disabled fieldset therefore matches both, and browsers match
+neither pseudo-class twice: Blink runs them off one predicate, where
+MatchesEnabledPseudoClass() is !IsDisabledFormControl().
+https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_form_control_element.cc#L337
+
+The ancestry rule moves into one isDisabled() helper that both ask, which also
+lets the rule follow the spec rather than approximate it. A disabled fieldset
+disables its descendants unless they sit in that fieldset's first legend
+child; a legend excuses only the fieldset it belongs to, so the walk carries on
+outward past it; and an option is disabled by the optgroup it is a child of,
+whose own disabled property reflects only that optgroup's attribute. Blink
+walks it the same way, keeping a legend ancestor and comparing it against that
+fieldset's own legend before continuing.
+https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/listed_element.cc#L702
+
+':read-only' and ':read-write' read the same own-property, so a control inside
+a disabled fieldset came out read-write there too; they ask the helper now.`,
+    apply(source) {
+      source = edit(
+        source,
+        `  isContentEditable =`,
+        `  // Whether a form control is disabled, which is not only its own
+  // property: a control inside a disabled fieldset is disabled too, unless it
+  // sits in that fieldset's first legend child.
+  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+  isDisabled =
+    function(element) {
+      var legend, name = element.localName, node;
+
+      if (element.disabled === true) { return true; }
+
+      // an optgroup is disabled by its own attribute and nothing else; an
+      // option is also disabled by the optgroup it is a child of
+      if (name == 'optgroup') { return false; }
+      if (name == 'option') {
+        node = element.parentElement;
+        return !!node && node.localName == 'optgroup' && node.disabled === true;
+      }
+
+      // any disabled fieldset above it, unless it sits in that fieldset's
+      // first legend child, which excuses that fieldset and no other
+      node = element.parentElement;
+      while (node) {
+        if (node.localName == 'fieldset' && node.disabled === true) {
+          legend = node.firstElementChild;
+          while (legend && legend.localName != 'legend') {
+            legend = legend.nextElementSibling;
+          }
+          if (!(legend && legend.contains(element))) { return true; }
+        }
+        node = node.parentElement;
+      }
+
+      return false;
+    },
+
+  isContentEditable =`,
+        'disabled-complement: helper',
+      );
+
+      source = edit(
+        source,
+        `                case 'enabled':
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
+                    ')){' + source + '}';
+                  break;`,
+        `                case 'enabled':
+                  // the complement of ':disabled' over the same elements
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&!s.isDisabled(e))){' + source + '}';
+                  break;`,
+        'disabled-complement: enabled',
+      );
+
+      source = edit(
+        source,
+        `                case 'disabled':
+                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
+                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
+                    // L is true if the first legend element of the fieldset contains the element
+                    'var x=0,N=[],F=false,L=false;' +
+                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
+                      'n=e.parentElement;' +
+                      'while(n){' +
+                        'if(n.localName=="fieldset"){' +
+                          'N[x++]=n;' +
+                          'if(n.disabled===true){' +
+                            'F=true;' +
+                            'break;' +
+                          '}' +
+                        '}' +
+                        'n=n.parentElement;' +
+                      '}' +
+                      'for(var x=0;x<N.length;x++){' +
+                        'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
+                          'L=true;' +
+                          'break;' +
+                        '}' +
+                      '}' +
+                    '}' +
+                    'if(e.disabled===true||(F&&!L)){' + source + '}}';
+                  break;`,
+        `                case 'disabled':
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&s.isDisabled(e))){' + source + '}';
+                  break;`,
+        'disabled-complement: disabled',
+      );
+
+      source = edit(
+        source,
+        `                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +`,
+        `                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +`,
+        'disabled-complement: read-only textarea',
+      );
+
+      source = edit(
+        source,
+        `?(e.readOnly||e.disabled):true))||' +`,
+        `?(e.readOnly||s.isDisabled(e)):true))||' +`,
+        'disabled-complement: read-only input',
+      );
+
+      source = edit(
+        source,
+        `                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +`,
+        `                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +`,
+        'disabled-complement: read-write textarea',
+      );
+
+      source = edit(
+        source,
+        `.includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +`,
+        `.includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +`,
+        'disabled-complement: read-write input',
+      );
+
+      return edit(
+        source,
+        `    isOpen: isOpen,`,
+        `    isDisabled: isDisabled,
+    isOpen: isOpen,`,
+        'disabled-complement: export',
+      );
+    },
+  },
+  {
+    kind: 'fix',
+    name: 'optional-anchors',
+    title: 'Anchor the :required and :optional tests, and let :optional take a button',
+    issues: [],
+    body: `/^input|select|textarea$/ alternates '^input' with 'select' and with
+'textarea$' rather than anchoring an alternation, so it accepts any element
+whose name begins with 'input', any name containing 'select', and any ending
+in 'textarea'. Both pseudo-classes use it.
+
+':optional' also has to match button elements, which the HTML spec lists first
+among the ones it matches and which Blink answers true for outright.
+https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_button_element.h#L113
+
+A button has no required property, so '!e.required' is true for one and the
+list is the only change needed.`,
+    apply(source) {
+      source = edit(
+        source,
+        `                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +`,
+        `                    'if((/^(?:input|select|textarea)$/i.test(e.localName)&&e.required)' +`,
+        'optional-anchors: required',
+      );
+
+      return edit(
+        source,
+        `                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +`,
+        `                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!e.required)' +`,
+        'optional-anchors: optional',
+      );
+    },
+  },
+  {
+    kind: 'fix',
+    name: 'valid-fieldset',
+    title: 'A fieldset is :valid when none of its controls is invalid',
+    issues: [],
+    body: `':valid' asks whether a fieldset contains a ':valid' descendant. The
+rule is that none of its controls may be invalid, which is a different thing: a
+fieldset holding no validation candidates at all is valid, and was matching
+neither ':valid' nor ':invalid'. A fieldset inside a disabled fieldset is the
+common case, since every control under it is barred from validation.
+
+Blink answers true for a fieldset's validity pseudo-classes and then loops its
+controls, failing only on one that is a candidate and invalid.
+https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/html/forms/html_field_set_element.cc#L108`,
+    apply(source) {
+      return edit(
+        source,
+        `                      '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +`,
+        `                      '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +`,
+        'valid-fieldset: emission',
+      );
+    },
+  },
+  {
+    kind: 'fix',
+    name: 'defined-built-ins',
+    title: 'Every built-in element is :defined',
+    issues: [],
+    body: `':defined' asks the custom element registry about the candidate's tag
+name and requires an instanceof match, so it matches upgraded custom elements
+and nothing else. Every built-in element is defined; only a custom element can
+be undefined, and only until a definition exists and it has been upgraded.
+Browsers read it off the element's custom element state, where uncustomized and
+custom are the two that count as defined.
+https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer/core/dom/element.h#L1201
+
+The test reads the hyphen in the name first, which is what makes a name a
+custom element name, and asks for the 'is' attribute only when there is none,
+so an ordinary element costs one string scan.`,
+    apply(source) {
+      source = edit(
+        source,
+        `  isContentEditable =`,
+        `  // Whether an element is defined, which every built-in element is. Only
+  // a custom element can be undefined: one whose name carries a hyphen, or a
+  // built-in carrying an 'is' attribute, and in both cases only until a
+  // definition exists and the element has been upgraded to it.
+  // https://dom.spec.whatwg.org/#concept-element-defined
+  isDefined =
+    function(element) {
+      var custom, name = element.localName, registry, view;
+
+      if (name.indexOf('-') < 0) {
+        if (!element.hasAttribute('is')) { return true; }
+        name = element.getAttribute('is') || name;
+      }
+
+      view = doc.defaultView;
+      registry = view && view.customElements;
+      if (!registry || !registry.get) { return false; }
+      custom = registry.get(name);
+      return !!custom && element instanceof custom;
+    },
+
+  isContentEditable =`,
+        'defined-built-ins: helper',
+      );
+
+      source = edit(
+        source,
+        `                case 'defined':
+                  source = 'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' + source + '}';
+                  break;`,
+        `                case 'defined':
+                  source = 'if(s.isDefined(e)){' + source + '}';
+                  break;`,
+        'defined-built-ins: emission',
+      );
+
+      return edit(
+        source,
+        `    isOpen: isOpen,`,
+        `    isDefined: isDefined,
+    isOpen: isOpen,`,
+        'defined-built-ins: export',
+      );
+    },
+  },
 ];
 
 function main() {
