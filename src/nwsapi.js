@@ -690,6 +690,41 @@
 
   // return node if node is focusable
   // or false if node isn't focusable
+  // Whether a form control is disabled, which is not only its own
+  // property: a control inside a disabled fieldset is disabled too, unless it
+  // sits in that fieldset's first legend child.
+  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+  isDisabled =
+    function(element) {
+      var legend, name = element.localName, node;
+
+      if (element.disabled === true) { return true; }
+
+      // an optgroup is disabled by its own attribute and nothing else; an
+      // option is also disabled by the optgroup it is a child of
+      if (name == 'optgroup') { return false; }
+      if (name == 'option') {
+        node = element.parentElement;
+        return !!node && node.localName == 'optgroup' && node.disabled === true;
+      }
+
+      // any disabled fieldset above it, unless it sits in that fieldset's
+      // first legend child, which excuses that fieldset and no other
+      node = element.parentElement;
+      while (node) {
+        if (node.localName == 'fieldset' && node.disabled === true) {
+          legend = node.firstElementChild;
+          while (legend && legend.localName != 'legend') {
+            legend = legend.nextElementSibling;
+          }
+          if (!(legend && legend.contains(element))) { return true; }
+        }
+        node = node.parentElement;
+      }
+
+      return false;
+    },
+
   isFocusable =
     function(node) {
       var doc = node.ownerDocument;
@@ -1400,42 +1435,20 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'enabled':
-                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
-                    ')){' + source + '}';
+                  // the complement of ':disabled' over the same elements
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&!s.isDisabled(e))){' + source + '}';
                   break;
                 case 'disabled':
-                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
-                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
-                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
-                    // L is true if the first legend element of the fieldset contains the element
-                    'var x=0,N=[],F=false,L=false;' +
-                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
-                      'n=e.parentElement;' +
-                      'while(n){' +
-                        'if(n.localName=="fieldset"){' +
-                          'N[x++]=n;' +
-                          'if(n.disabled===true){' +
-                            'F=true;' +
-                            'break;' +
-                          '}' +
-                        '}' +
-                        'n=n.parentElement;' +
-                      '}' +
-                      'for(var x=0;x<N.length;x++){' +
-                        'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
-                          'L=true;' +
-                          'break;' +
-                        '}' +
-                      '}' +
-                    '}' +
-                    'if(e.disabled===true||(F&&!L)){' + source + '}}';
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&s.isDisabled(e))){' + source + '}';
                   break;
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
-                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                      '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||e.disabled):true))||' +
+                      '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
+                      '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
                       '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' + source + '}';
                   break;
@@ -1443,8 +1456,8 @@
                 case '-moz-read-write':
                   source =
                     'if(' +
-                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                      '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                      '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
+                      '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
                       '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' + source + '}';
                   break;
@@ -2101,6 +2114,7 @@
 
     isOpen: isOpen,
     isClosed: isClosed,
+    isDisabled: isDisabled,
     isModal: isModal,
     isFullscreen: isFullscreen,
     isPictureInPicture: isPictureInPicture,
