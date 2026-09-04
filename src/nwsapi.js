@@ -577,6 +577,21 @@
     '.': (c, n) => (e, f) => byClass(n, c),
     },
 
+  // The same four lookups without the closures. compat builds one closure to
+  // capture the context and a second to defer the call, so a cached plan
+  // allocated two per candidate list on every query to reach a function it
+  // could have called directly.
+  // Lazily, because these are assigned further down this same declaration:
+  // naming them here binds undefined. The arrow still saves the two closures
+  // compat allocates per call, one to capture the context and one to defer.
+  fetch = {
+    '#': (n, c) => byId(n, c),
+    '*': (n, c) => byTag(n, c),
+    // byTagNS takes its arguments the other way round
+    '|': (n, c) => byTagNS(c, n),
+    '.': (n, c) => byClass(n, c)
+    },
+
   // find duplicate ids using iterative walk
   // Walk 'context' in tree order collecting elements carrying 'id'. The walk
   // can start at 'from', an element already known to be the first match.
@@ -1190,13 +1205,17 @@
 
   F_INIT = '"use strict";return function Resolver(c,f,x,r)',
 
-  S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
+  // 'l' bounds the candidate loop. Written as while((e=c[++k])) the loop
+  // detects its end by reading one past the last index, and V8 answers an
+  // out-of-bounds load by deoptimizing the whole resolver — visible under
+  // --trace-deopt as "reason: out of bounds" against Resolver on every call.
+  S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
   M_HEAD = 'var e,n,o',
-  N_HEAD = 'var e,n,o',
+  N_HEAD = 'var e,n,o,k=-1,l=c.length',
 
-  S_LOOP = 'main:while((e=c[++k]))',
+  S_LOOP = 'main:while(++k<l&&(e=c[k])!==undefined)',
   M_LOOP = 'e=c;',
-  N_LOOP = 'main:while((e=c.item(++k)))',
+  N_LOOP = 'main:while(++k<l&&(e=c.item(k))!==undefined)',
 
   S_BODY = 'r[++j]=c[k];',
   M_BODY = '',
@@ -2312,7 +2331,7 @@
               n = resolver.nodeset;
             if (n.length > 1) {
               for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))();
+                list = fetch[n[i][0]](n[i].slice(1), context);
                 if (f[i] !== null) {
                   f[i](list, callback, context, nodes);
                 } else {
@@ -2324,7 +2343,7 @@
                 hasDupes && (nodes = unique(nodes));
               }
             } else {
-              list = compat[n[0][0]](context, n[0].slice(1))();
+              list = fetch[n[0][0]](n[0].slice(1), context);
               nodes = f[0] ? f[0](list, callback, context, nodes) : list;
             }
             if (typeof callback == 'function') {
