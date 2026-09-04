@@ -69,7 +69,6 @@ const placeLimit = values.places ? Number.parseInt(values.places, 10) : 12;
 // the note it came from, and only the dates and the shares are computed.
 const NEEDS = [
   { label: 'getElementsByClassName', caniuse: 'getelementsbyclassname', usedBy: 'the class fetch' },
-  { label: 'classList', caniuse: 'classlist', usedBy: 'building a selector for a node' },
   { label: 'closest()', caniuse: 'element-closest', usedBy: 'installing over the host' },
   { label: 'matches()', caniuse: 'matchesselector', usedBy: 'handing a state pseudo-class back' },
   {

@@ -425,6 +425,17 @@
         // force a new check for each document change
         // performed before the next select operation
         root = doc.documentElement;
+        // A host that does not behave the way the DOM says needs the legacy
+        // handling whether the caller knew to ask for it or not. Only ever
+        // turned on here, never off, so an explicit Config.LEGACY stands.
+        if (!Config.LEGACY && detectLegacy(doc)) {
+          Config.LEGACY = true;
+          matchLambdas.clear();
+          selectLambdas.clear();
+          matchResolvers.clear();
+          selectResolvers.clear();
+        }
+        useLegacy(Config.LEGACY);
         HTML_DOCUMENT = isHTML(doc);
         QUIRKS_MODE = HTML_DOCUMENT &&
           doc.compatMode.indexOf('CSS') < 0;
@@ -633,7 +644,21 @@
   // can start at 'from', an element already known to be the first match.
   byIdRaw =
     function(id, context, from) {
-      var node = context, nodes = [ ], next = from || node.firstElementChild;
+      var node = context, nodes = [ ], next;
+
+      if (Config.LEGACY) {
+        next = from || firstOf(node);
+        while ((node = next)) {
+          idOf(node) == id && (nodes[nodes.length] = node);
+          if ((next = firstOf(node) || nextOf(node))) { continue; }
+          while (!next && (node = upOf(node)) && node !== context) {
+            next = nextOf(node);
+          }
+        }
+        return nodes;
+      }
+
+      next = from || node.firstElementChild;
       while ((node = next)) {
         node.id == id && (nodes[nodes.length] = node);
         if ((next = node.firstElementChild || node.nextElementSibling)) continue;
@@ -657,10 +682,12 @@
       } else {
         if ('all' in context) {
           if ((e = context.all[id])) {
-            if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
+            if (e.nodeType == 1) return attrOf(e, 'id') != id ? [ ] : [ e ];
             else if (id == 'length') return (e = context[api](id)) ? [ e ] : none;
             for (i = 0, l = e.length, nodes = [ ]; l > i; ++i) {
-              if (e[i].id == id) nodes[nodes.length] = e[i];
+              if (e[i] && e[i].nodeType == 1 && idOf(e[i]) == id) {
+                nodes[nodes.length] = e[i];
+              }
             }
             return nodes && nodes.length ? nodes : [ nodes ];
           } else return none;
@@ -678,7 +705,7 @@
       ownerDoc = context.nodeType == 9 ? context : context.ownerDocument;
 
       if (ownerDoc && ownerDoc.getElementById &&
-        (context.nodeType == 9 || context.isConnected)) {
+        (context.nodeType == 9 || connectedOf(context))) {
         e = ownerDoc.getElementById(id);
         // nothing in the document carries the id, so nothing under context does
         if (!e) { return none; }
@@ -696,13 +723,38 @@
       return byTag(tag, context);
   },
 
+  // Elements only. A collection on a host that behaves holds nothing else, so
+  // this is the legacy path: IE up to 8 put comment nodes in the one that
+  // getElementsByTagName('*') returned, and a comment answers no test the
+  // generated code asks.
+  elementsOf =
+    function(nodes) {
+      var i, l, out = [ ];
+      for (i = 0, l = nodes.length; l > i; ++i) {
+        if (nodes[i] && nodes[i].nodeType == 1) { out[out.length] = nodes[i]; }
+      }
+      return out;
+    },
+
   // context agnostic getElementsByTagName
   byTag =
     function(tag, context) {
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return sliceCall(context[api](tag));
+        nodes = sliceCall(context[api](tag));
+        return Config.LEGACY ? elementsOf(nodes) : nodes;
+      } else if (Config.LEGACY) {
+        // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
+        // traversal, so the children are walked by hand
+        tag = tag.toLowerCase();
+        nodes = [ ];
+        e = firstOf(context);
+        while (e) {
+          if (tag == '*' || tagOf(e) == tag) { nodes[nodes.length] = e; }
+          if (e[api]) { concatList(nodes, elementsOf(e[api](tag))); }
+          e = nextOf(e);
+        }
       } else {
         tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
@@ -726,10 +778,21 @@
   // context agnostic getElementsByClassName
   byClass =
     function(cls, context) {
-      var e, nodes, api = method['.'], reCls;
+      var e, i, l, nodes, api = method['.'], reCls;
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return sliceCall(context[api](cls));
+        nodes = sliceCall(context[api](cls));
+        return Config.LEGACY ? elementsOf(nodes) : nodes;
+      } else if (Config.LEGACY) {
+        // A host from before this lookup existed. Every element under the
+        // context is asked for its class instead, which is what the engine
+        // would otherwise have the fetch avoid.
+        reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '');
+        nodes = [ ];
+        e = byTag('*', context);
+        for (i = 0, l = e.length; l > i; ++i) {
+          if (reCls.test(classOf(e[i]))) { nodes[nodes.length] = e[i]; }
+        }
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
@@ -754,7 +817,7 @@
   // helper for XML/XHTML documents
   hasAttributeNS =
     function(e, name) {
-      var i, l, attr = e.getAttributeNames();
+      var i, l, attr = attrNamesOf(e);
       name = RegExp(':?' + name + '$', HTML_DOCUMENT ? 'i' : '');
       for (i = 0, l = attr.length; l > i; ++i) {
         if (name.test(attr[i])) return true;
@@ -770,7 +833,232 @@
   classOf =
     function(e) {
       var value = e.className;
-      return typeof value == 'string' ? value : e.getAttribute('class');
+      if (typeof value == 'string') { return value; }
+      // an SVGAnimatedString carries the markup in baseVal, which is cheaper
+      // to read than asking for the attribute again
+      if (value && typeof value.baseVal == 'string') { return value.baseVal; }
+      return attrOf(e, 'class');
+    },
+
+  // -------------------------------------------------------------------------
+  // Reading a host that does not behave the way the DOM says, which is what
+  // Config.LEGACY selects. Everything here answers the same question as the
+  // property read it replaces, and each one is a helper rather than a line in
+  // the generated code so the ordinary path never sees the branch.
+  //
+  // The subject is older than this engine. A selector matches *attributes*,
+  // and IE up to 7 answered getAttribute() with the DOM property behind the
+  // attribute instead, which made the two indistinguishable through that one
+  // call. Every library of the era carried a table for it: jQuery split
+  // .attr() from .prop() in 1.6 over exactly this and kept propFix, and
+  // My-Library (https://github.com/david-mark/My-Library) feature-tested each
+  // case rather than sniffing. The behaviors are catalogued at
+  // https://perfectionkills.com/ and https://mathiasbynens.be/notes, and the
+  // modern statement of the split is
+  // https://jakearchibald.com/2024/attributes-vs-properties/.
+  // -------------------------------------------------------------------------
+
+  // Attribute names that host answered under a different one, because it went
+  // through the property. The same map jQuery carried, for the same reason.
+  LEGACY_NAMES = {
+    'accesskey': 'accessKey', 'cellpadding': 'cellPadding',
+    'cellspacing': 'cellSpacing', 'class': 'className', 'colspan': 'colSpan',
+    'contenteditable': 'contentEditable', 'for': 'htmlFor',
+    'frameborder': 'frameBorder', 'maxlength': 'maxLength',
+    'readonly': 'readOnly', 'rowspan': 'rowSpan', 'tabindex': 'tabIndex',
+    'usemap': 'useMap', 'valign': 'vAlign'
+  },
+
+  // Attributes it resolved to an absolute URL. Its second argument, 2, asks
+  // for the markup instead, which is what the selector is comparing against.
+  // Ignored by every other host, so it is safe to pass.
+  LEGACY_URLS = {
+    'action': 1, 'background': 1, 'cite': 1, 'classid': 1, 'codebase': 1,
+    'data': 1, 'href': 1, 'longdesc': 1, 'profile': 1, 'src': 1, 'usemap': 1
+  },
+
+  // The attribute of an element, whatever the host does with it.
+  legacyAttrOf =
+    function(e, name) {
+      var node, value, lower;
+
+      if (!e || e.nodeType != 1) { return null; }
+      lower = name.toLowerCase();
+
+      // the markup of a URL attribute, not the resolution of it
+      if (LEGACY_URLS[lower] && e.getAttribute) {
+        value = e.getAttribute(name, 2);
+        if (value != null && typeof value == 'string') { return value; }
+      }
+
+      if (e.getAttribute) {
+        value = e.getAttribute(name);
+        if (value == null && LEGACY_NAMES[lower]) {
+          value = e.getAttribute(LEGACY_NAMES[lower]);
+        }
+        if (value != null) {
+          // a style attribute came back as an object, an event handler as a
+          // function, and a boolean attribute as true or false
+          if (typeof value == 'string') { return value; }
+          if (lower == 'style') { return e.style ? e.style.cssText : null; }
+          if (value === true) { return lower; }
+          if (value === false) { return null; }
+          return String(value);
+        }
+      }
+
+      // The attribute node holds the markup. On that host every attribute the
+      // element could have was present, so 'specified' is what separates the
+      // ones the markup set from the ones it did not.
+      node = e.attributes && (e.attributes.getNamedItem ?
+        e.attributes.getNamedItem(name) : e.attributes[name]);
+      if (!node && LEGACY_NAMES[lower] && e.attributes) {
+        node = e.attributes.getNamedItem ?
+          e.attributes.getNamedItem(LEGACY_NAMES[lower]) :
+          e.attributes[LEGACY_NAMES[lower]];
+      }
+      if (node && (node.specified === undefined || node.specified)) {
+        value = node.value !== undefined ? node.value : node.nodeValue;
+        return value === true ? lower : value === false ? null : value;
+      }
+
+      return null;
+    },
+
+  legacyHasAttrOf =
+    function(e, name) {
+      if (!e || e.nodeType != 1) { return false; }
+      if (e.hasAttribute) { return e.hasAttribute(name); }
+      return legacyAttrOf(e, name) !== null;
+    },
+
+  // The tag name, lowercased the way a selector for an HTML document is.
+  legacyTagOf =
+    function(e) {
+      if (!e) { return ''; }
+      if (typeof e.localName == 'string') { return e.localName; }
+      // nodeName is upper case for an HTML element and carries the prefix in
+      // XML, so the part after a colon is the local name
+      var name = e.nodeName;
+      if (typeof name != 'string') { return ''; }
+      name = name.slice(name.indexOf(':') + 1);
+      return HTML_DOCUMENT ? name.toLowerCase() : name;
+    },
+
+  // The id. A form on that host exposed its controls as properties, so a
+  // control named 'id' could stand in front of the element's own id, which is
+  // why this asks the attribute rather than the property for a form.
+  legacyIdOf =
+    function(e) {
+      var value = e && e.id;
+      if (typeof value == 'string' && legacyTagOf(e) != 'form') { return value; }
+      return legacyAttrOf(e, 'id') || '';
+    },
+
+  legacyClassOf =
+    function(e) {
+      var value = e && e.className;
+      if (typeof value == 'string') { return value; }
+      if (value && typeof value.baseVal == 'string') { return value.baseVal; }
+      return legacyAttrOf(e, 'class') || '';
+    },
+
+  legacyUpOf =
+    function(e) {
+      var node = e.parentElement;
+      if (node !== undefined) { return node; }
+      node = e.parentNode;
+      return node && node.nodeType == 1 ? node : null;
+    },
+
+  legacyNextOf =
+    function(e) {
+      var node = e.nextElementSibling;
+      if (node !== undefined) { return node; }
+      node = e.nextSibling;
+      while (node && node.nodeType != 1) { node = node.nextSibling; }
+      return node || null;
+    },
+
+  legacyPrevOf =
+    function(e) {
+      var node = e.previousElementSibling;
+      if (node !== undefined) { return node; }
+      node = e.previousSibling;
+      while (node && node.nodeType != 1) { node = node.previousSibling; }
+      return node || null;
+    },
+
+  legacyFirstOf =
+    function(e) {
+      var node = e.firstElementChild;
+      if (node !== undefined) { return node; }
+      node = e.firstChild;
+      while (node && node.nodeType != 1) { node = node.nextSibling; }
+      return node || null;
+    },
+
+  // Every attribute name the markup set, for the namespace-aware tests.
+  legacyAttrNamesOf =
+    function(e) {
+      var i, l, names = [ ], attrs;
+      if (e.getAttributeNames) { return e.getAttributeNames(); }
+      attrs = e.attributes;
+      for (i = 0, l = attrs ? attrs.length : 0; l > i; ++i) {
+        if (attrs[i] && (attrs[i].specified === undefined || attrs[i].specified)) {
+          names[names.length] = attrs[i].name !== undefined ? attrs[i].name : attrs[i].nodeName;
+        }
+      }
+      return names;
+    },
+
+  // Whether the node is in a document, which ':lang()' needs to know.
+  legacyConnectedOf =
+    function(e) {
+      var node = e;
+      if (e.isConnected !== undefined) { return e.isConnected; }
+      while (node.parentNode) { node = node.parentNode; }
+      return node.nodeType == 9;
+    },
+
+  // The bindings the engine's own loops call. useLegacy() points them at one
+  // set or the other, so neither set pays for the other's existence.
+  attrOf = function(e, name) { return e.getAttribute(name); },
+  hasAttrOf = function(e, name) { return e.hasAttribute(name); },
+  tagOf = function(e) { return e.localName; },
+  idOf = function(e) { return e.id; },
+  upOf = function(e) { return e.parentElement; },
+  nextOf = function(e) { return e.nextElementSibling; },
+  prevOf = function(e) { return e.previousElementSibling; },
+  firstOf = function(e) { return e.firstElementChild; },
+  attrNamesOf = function(e) { return e.getAttributeNames(); },
+  connectedOf = function(e) { return e.isConnected; },
+
+  useLegacy =
+    function(on) {
+      attrOf = on ? legacyAttrOf : function(e, name) { return e.getAttribute(name); };
+      hasAttrOf = on ? legacyHasAttrOf : function(e, name) { return e.hasAttribute(name); };
+      tagOf = on ? legacyTagOf : function(e) { return e.localName; };
+      idOf = on ? legacyIdOf : function(e) { return e.id; };
+      upOf = on ? legacyUpOf : function(e) { return e.parentElement; };
+      nextOf = on ? legacyNextOf : function(e) { return e.nextElementSibling; };
+      prevOf = on ? legacyPrevOf : function(e) { return e.previousElementSibling; };
+      firstOf = on ? legacyFirstOf : function(e) { return e.firstElementChild; };
+      attrNamesOf = on ? legacyAttrNamesOf : function(e) { return e.getAttributeNames(); };
+      connectedOf = on ? legacyConnectedOf : function(e) { return e.isConnected; };
+    },
+
+  // What a host has to be missing for the legacy handling to be needed. A
+  // caller can set Config.LEGACY by hand; this catches the host that needs it
+  // without anyone having noticed.
+  detectLegacy =
+    function(document) {
+      var root = document && document.documentElement;
+      return !!root && (
+        !root.hasAttribute ||
+        !document.getElementsByClassName ||
+        root.firstElementChild === undefined ||
+        typeof root.localName != 'string');
     },
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
@@ -784,11 +1072,11 @@
         return -1;
       }
       var e, i, j, k, l;
-      if (parent === element.parentElement) {
+      if (parent === (Config.LEGACY ? upOf(element) : element.parentElement)) {
         i = set; j = idx; l = len;
       } else {
         l = parents.length;
-        parent = element.parentElement;
+        parent = Config.LEGACY ? upOf(element) : element.parentElement;
         for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
           if (parents[j] === parent) { i = j; break; }
           if (parents[k] === parent) { i = k; break; }
@@ -796,8 +1084,12 @@
         if (i < 0) {
           parents[i = l] = parent;
           l = 0; nodes[i] = Array();
-          e = parent && parent.firstElementChild || element;
-          while (e) { nodes[i][l] = e; if (e === element) j = l; e = e.nextElementSibling; ++l; }
+          e = parent ? firstOf(parent) || element : element;
+          if (Config.LEGACY) {
+            while (e) { nodes[i][l] = e; if (e === element) j = l; e = nextOf(e); ++l; }
+          } else {
+            while (e) { nodes[i][l] = e; if (e === element) j = l; e = e.nextElementSibling; ++l; }
+          }
           set = i; idx = 0; len = l;
           if (l < 2) return l;
         } else {
@@ -826,12 +1118,13 @@
         parents.length = 0; parent = undefined;
         return -1;
       }
-      var e, i, j, k, l, name = element.localName;
-      if (nodes[set] && nodes[set][name] && parent === element.parentElement) {
+      var e, i, j, k, l, name = Config.LEGACY ? tagOf(element) : element.localName;
+      if (nodes[set] && nodes[set][name] &&
+        parent === (Config.LEGACY ? upOf(element) : element.parentElement)) {
         i = set; j = idx; l = len;
       } else {
         l = parents.length;
-        parent = element.parentElement;
+        parent = Config.LEGACY ? upOf(element) : element.parentElement;
         for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
           if (parents[j] === parent) { i = j; break; }
           if (parents[k] === parent) { i = k; break; }
@@ -840,8 +1133,12 @@
           parents[i = l] = parent;
           nodes[i] || (nodes[i] = Object());
           l = 0; nodes[i][name] = Array();
-          e = parent && parent.firstElementChild || element;
-          while (e) { if (e === element) j = l; if (e.localName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
+          e = parent ? firstOf(parent) || element : element;
+          if (Config.LEGACY) {
+            while (e) { if (e === element) j = l; if (tagOf(e) == name) { nodes[i][name][l] = e; ++l; } e = nextOf(e); }
+          } else {
+            while (e) { if (e === element) j = l; if (e.localName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
+          }
           set = i; idx = j; len = l;
           if (l < 2) return l;
         } else {
@@ -1084,7 +1381,7 @@
   // 'area$' and so matched any element whose name begins with 'a'.
   isLink =
     function(node) {
-      return reLinkName.test(node.localName) && node.hasAttribute('href');
+      return reLinkName.test(tagOf(node)) && hasAttrOf(node, 'href');
     },
 
   // check media resources is playing
@@ -1119,6 +1416,7 @@
         matchResolvers.clear();
         selectResolvers.clear();
       }
+      useLegacy(Config.LEGACY);
       setIdentifierSyntax();
       return true;
     },
@@ -1340,11 +1638,70 @@
   // names the flag an inlined ':not()' argument writes, one per compile
   notFlag = 0,
 
+  // Which helpers a compile asked for, so the resolver's head declares those
+  // and no others. Reset by compile(), not by compileSelector(), because a
+  // nested ':not()' argument compiles into the same function.
+  H_USED = { },
+
+  // How the generated code reads the host. On a host that behaves it is the
+  // property, written straight into the resolver. On one that does not it is
+  // a helper, reached through a local alias declared in the resolver's own
+  // head rather than through the snapshot on every candidate.
+  //
+  // Choosing between the two while the selector compiles is the point: the
+  // ordinary path carries neither a branch nor a call, and the legacy path
+  // carries one call and no feature test.
+  helper =
+    function(alias, name) {
+      H_USED[alias] = name;
+      return alias;
+    },
+
+  readDirect = {
+    tag: function(v) { return v + '.localName'; },
+    id: function(v) { return v + '.id'; },
+    cls: function(v) { return helper('hCls', 'classOf') + '(' + v + ')'; },
+    up: function(v) { return v + '.parentElement'; },
+    next: function(v) { return v + '.nextElementSibling'; },
+    prev: function(v) { return v + '.previousElementSibling'; },
+    attr: function(v, name) { return v + '.getAttribute("' + name + '")'; },
+    has: function(v, name) { return v + '.hasAttribute("' + name + '")'; }
+  },
+
+  // the same reads where the host may answer none of them
+  readHelped = {
+    tag: function(v) { return helper('hTag', 'tagOf') + '(' + v + ')'; },
+    id: function(v) { return helper('hId', 'idOf') + '(' + v + ')'; },
+    cls: function(v) { return helper('hCls', 'classOf') + '(' + v + ')'; },
+    up: function(v) { return helper('hUp', 'upOf') + '(' + v + ')'; },
+    next: function(v) { return helper('hNext', 'nextOf') + '(' + v + ')'; },
+    prev: function(v) { return helper('hPrev', 'prevOf') + '(' + v + ')'; },
+    attr: function(v, name) { return helper('hAttr', 'attrOf') + '(' + v + ',"' + name + '")'; },
+    has: function(v, name) { return helper('hHas', 'hasAttrOf') + '(' + v + ',"' + name + '")'; }
+  },
+
+  // Matching is handed one node by a caller, which may be anything the caller
+  // has, so on a host that behaves the attribute tests still ask for the
+  // method first. Selecting works through a list this engine fetched itself.
+  readGuarded = {
+    tag: readDirect.tag,
+    id: readDirect.id,
+    cls: readDirect.cls,
+    up: readDirect.up,
+    next: readDirect.next,
+    prev: readDirect.prev,
+    attr: function(v, name) { return v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'; },
+    has: function(v, name) { return v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'; }
+  },
+
   // compile groups or single selector strings into
   // executable functions for matching or selecting
   compile =
     function(selector, mode, callback) {
-      var factory, i, mask, head = '', loop = '', macro = '', source, vars = '';
+      var alias, aliases, factory, i, mask, head = '', loop = '', macro = '', source, vars = '';
+
+      // one compile, one set of helper aliases
+      H_USED = { };
 
       // 'mode' can be boolean or null
       // true = select / false = match
@@ -1394,7 +1751,7 @@
       // A_WALK: a chain of child combinators takes one step per combinator
       // whatever the depth, so there is no walk for the filter to save and
       // its own lookup is a loss — measured 1.47x on 'div.example > p > a'.
-      if ((mode || mode === null) && A_WALK && A_REQD.length > 1) {
+      if ((mode || mode === null) && A_WALK && A_REQD.length > 1 && !Config.LEGACY) {
         for (i = 0, mask = 0; A_REQD.length > i; ++i) {
           mask |= tagBit(A_REQD[i]);
         }
@@ -1426,6 +1783,15 @@
         N_VARS.length = 0;
       }
 
+      // Declare the helpers this resolver uses as locals of the resolver.
+      // Reaching them through the snapshot would be a property load on every
+      // candidate; reaching them through a local is a register.
+      aliases = '';
+      for (alias in H_USED) {
+        aliases += ',' + alias + '=s.' + H_USED[alias];
+      }
+      vars += aliases;
+
       factory = Function('s', F_INIT + '{' + head + vars + ';' + loop + 'return r;}')(Snapshot);
 
       if (mode || mode === null) {
@@ -1444,24 +1810,13 @@
       var a, b, n, f, k = 0, compat, name,
       NS, expr, match, pendingTag, result, status, symbol,
       test, type, selector = expression, vars,
-      A_HOLD, A_KEEP, A_MOVE, argument, flag, getA, hasA, nested;
+      A_HOLD, A_KEEP, A_MOVE, argument, flag, nested, read;
 
-      // Whether an attribute test asks the candidate for the method first.
-      // Matching is handed one node by a caller, which may be anything a
-      // caller has; selecting works through a list of elements the engine
-      // fetched itself, and one property read per candidate to learn what
-      // the fetch already guarantees measured 1.11x on an attribute test.
-      //
-      // The guard is for a host whose tag collection is not all elements: in
-      // IE up to 8, getElementsByTagName('*') included comment nodes, which
-      // have no getAttribute. That browser is from 2009 and IE 9 stopped doing
-      // it in 2011, so a selection trusts its own fetch and Config.LEGACY buys
-      // the guard back for a host that still needs it. Matching is guarded
-      // either way, since that is where a caller's own node arrives.
-      getA = Config.LEGACY || mode === false ?
-        'e.getAttribute&&e.getAttribute(' : 'e.getAttribute(';
-      hasA = Config.LEGACY || mode === false ?
-        'e.hasAttribute&&e.hasAttribute(' : 'e.hasAttribute(';
+      // Config.LEGACY replaces every host read in the generated code with a
+      // helper; otherwise the reads are written in place, and matching keeps
+      // the guard because that is where a caller's own node arrives. See the
+      // emit tables above.
+      read = Config.LEGACY ? readHelped : mode === false ? readGuarded : readDirect;
 
       A_REQD.length = 0;
       A_PEND.length = 0;
@@ -1503,8 +1858,7 @@
             // XML included, and a form's named properties do not shadow it.
             // Only a host from before that was true reads the attribute.
             expr = escapeIdentifier(match[1]).replace(/\x22/g, '\\"');
-            source = 'if((' + (Config.LEGACY ? getA + '"id")' : 'e.id') +
-              '=="' + expr + '")){' + source + '}';
+            source = 'if((' + read.id('e') + '=="' + expr + '")){' + source + '}';
             break;
 
           // class name resolver
@@ -1517,8 +1871,7 @@
             // a string is dealt with, so the rare case is not written into
             // every resolver; a legacy host asks for the attribute instead,
             // since it may be holding something that is not an element.
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' +
-              (Config.LEGACY ? getA + '"class")' : 's.classOf(e)') + ')';
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' + read.cls('e') + ')';
             source = 'if((/(^|\\s)' + match[1] + '(\\s|$)/' + compat + ')){' + source + '}';
             break;
 
@@ -1529,7 +1882,7 @@
             // it cannot reject anything this test would have accepted
             A_PEND[A_PEND.length] = match[1];
             // held, not applied: see the note on test order above
-            pendingTag = 'if((e.localName=="' + match[1] + '")){';
+            pendingTag = 'if((' + read.tag('e') + '=="' + match[1] + '")){';
             break;
 
           // namespace resolver
@@ -1578,16 +1931,16 @@
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if((' +
-              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : hasA + '"' + name + '")') :
-              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? getA + '"' + name + '")==""' :
+              (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : read.has('e', name)) :
+              !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? read.attr('e', name) + '==""' :
               // '[data-testid="x"]' is the shape libraries ask for most, and
               // an exact case-sensitive match is a string compare. Built as a
               // regular expression it is compiled once but evaluated per
               // element, against a value the DOM already hands back as a
               // string.
               match[2] == '=' && type == '' && test.p3 == 'true' ?
-              getA + '"' + name + '")=="' + expr + '"' :
-              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(' + getA + '"' + name + '"))==' + test.p3) +
+              read.attr('e', name) + '=="' + expr + '"' :
+              '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(' + read.attr('e', name) + ')==' + test.p3) +
               ')){' + source + '}';
             break;
 
@@ -1596,7 +1949,7 @@
           case '~':
             match = selector.match(Patterns.relative);
             if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
-            source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'var N' + k + '=e;while(e&&(e=' + read.prev('e') + ')){' + source + '}e=N' + k + ';';
             break;
 
           // *** Adjacent sibling combinator
@@ -1604,7 +1957,7 @@
           case '+':
             match = selector.match(Patterns.adjacent);
             if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
-            source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
+            source = 'var N' + k + '=e;if(e&&(e=' + read.prev('e') + ')){' + source + '}e=N' + k + ';';
             break;
 
           // *** Descendant combinator
@@ -1620,7 +1973,7 @@
             A_REQD.push.apply(A_REQD, A_PEND);
             A_PEND.length = 0;
             A_WALK = true;
-            source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'var N' + k + '=e;while(e&&(e=' + read.up('e') + ')){' + source + '}e=N' + k + ';';
             break;
 
           // *** Child combinator
@@ -1630,7 +1983,7 @@
             if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             A_REQD.push.apply(A_REQD, A_PEND);
             A_PEND.length = 0;
-            source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
+            source = 'var N' + k + '=e;if(e&&(e=' + read.up('e') + ')){' + source + '}e=N' + k + ';';
             break;
 
           // *** user supplied combinators extensions
@@ -1662,27 +2015,29 @@
                 // *** child-indexed pseudo-classes
                 // :first-child, :last-child, :only-child
                 case 'only-child':
-                  source = 'if((!e.nextElementSibling&&!e.previousElementSibling)){' + source + '}';
+                  source = 'if((!' + read.next('e') + '&&!' + read.prev('e') + ')){' + source + '}';
                   break;
                 case 'last-child':
-                  source = 'if((!e.nextElementSibling)){' + source + '}';
+                  source = 'if((!' + read.next('e') + ')){' + source + '}';
                   break;
                 case 'first-child':
-                  source = 'if((!e.previousElementSibling)){' + source + '}';
+                  source = 'if((!' + read.prev('e') + ')){' + source + '}';
                   break;
 
                 // *** typed child-indexed pseudo-classes
                 // :only-of-type, :last-of-type, :first-of-type
                 case 'only-of-type':
-                  source = 'o=e.localName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.localName!=o);}if(!n){' + source + '}';
+                  source = 'o=' + read.tag('e') + ';' +
+                    'n=e;while((n=' + read.next('n') + ')&&' + read.tag('n') + '!=o);if(!n){' +
+                    'n=e;while((n=' + read.prev('n') + ')&&' + read.tag('n') + '!=o);}if(!n){' + source + '}';
                   break;
                 case 'last-of-type':
-                  source = 'n=e;o=e.localName;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' + source + '}';
+                  source = 'n=e;o=' + read.tag('e') + ';while((n=' + read.next('n') + ')&&' +
+                    read.tag('n') + '!=o);if(!n){' + source + '}';
                   break;
                 case 'first-of-type':
-                  source = 'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(!n){' + source + '}';
+                  source = 'n=e;o=' + read.tag('e') + ';while((n=' + read.prev('n') + ')&&' +
+                    read.tag('n') + '!=o);if(!n){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1706,10 +2061,10 @@
                       source = 'if(true){' + source + '}';
                       break;
                     } else if (match[2] == '1') {
-                      test = type ? 'next' : 'previous';
-                      source = expr ? 'n=e;o=e.localName;' +
-                        'while((n=n.' + test + 'ElementSibling)&&n.localName!=o);if(!n){' + source + '}' :
-                        'if(!e.' + test + 'ElementSibling){' + source + '}';
+                      test = type ? read.next : read.prev;
+                      source = expr ? 'n=e;o=' + read.tag('e') + ';' +
+                        'while((n=' + test('n') + ')&&' + read.tag('n') + '!=o);if(!n){' + source + '}' :
+                        'if(!' + test('e') + '){' + source + '}';
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
                       test = 'n%2==0';
@@ -1744,9 +2099,9 @@
                     // the cached list for ':nth-of-type(3)' and
                     // ':nth-last-of-type(3)'.
                     if (test == 'n==' + a && a >= 1 && !expr) {
-                      test = type ? 'next' : 'previous';
+                      test = type ? read.next : read.prev;
                       source = 'n=1,o=e;' +
-                        'while(n<=' + a + '&&(o=o.' + test + 'ElementSibling))++n;' +
+                        'while(n<=' + a + '&&(o=' + test('o') + '))++n;' +
                         'if(n==' + a + '){' + source + '}';
                       break;
                     }
@@ -2247,14 +2602,24 @@
   // a reference in the selector string
   makeref =
     function(selectors, element) {
+      var id, name;
+
       // replace DOCUMENT with first element (root)
       if (element.nodeType === 9) {
         element = element.documentElement;
       }
+
+      id = idOf(element);
+      // The first token of the class attribute. Read from the text rather
+      // than through classList, which was the only place this engine needed
+      // that API and is one more thing an older host does not have.
+      name = classOf(element);
+      name = name ? String(name).split(/\s+/)[0] : '';
+
       return selectors.replace(/:scope/i,
-        (element.localName) +
-        (element.id ? '#' + escapeIdentifier(element.id) : '') +
-        (element.className ? '.' + escapeIdentifier(element.classList[0]) : ''));
+        tagOf(element) +
+        (id ? '#' + escapeIdentifier(id) : '') +
+        (name ? '.' + escapeIdentifier(name) : ''));
     },
 
   // equivalent of w3c 'closest' method
@@ -2264,7 +2629,7 @@
       selectors = makeref(selectors, element);
       while (element) {
         if (match(selectors, element, callback)) break;
-        element = element.parentElement;
+        element = upOf(element);
       }
       return element;
     },
@@ -2498,8 +2863,10 @@
       size, spent = 0, want;
 
       // a DocumentFragment has neither lookup, and byClass()/byTag() walk it
-      // by hand; the ordinary path already knows how
-      if (!context.getElementsByClassName || !context.getElementsByTagName) {
+      // by hand; the ordinary path already knows how. A legacy host reads its
+      // levels through helpers, which is the ordinary path's job as well.
+      if (Config.LEGACY ||
+        !context.getElementsByClassName || !context.getElementsByTagName) {
         return null;
       }
 
@@ -2951,6 +3318,17 @@
     ancestorMask: ancestorMask,
     clearAncestorMasks: clearAncestorMasks,
     classOf: classOf,
+
+    // called by the generated code only when Config.LEGACY is on
+    attrOf: legacyAttrOf,
+    hasAttrOf: legacyHasAttrOf,
+    tagOf: legacyTagOf,
+    idOf: legacyIdOf,
+    upOf: legacyUpOf,
+    nextOf: legacyNextOf,
+    prevOf: legacyPrevOf,
+    firstOf: legacyFirstOf,
+
     isLink: isLink,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
