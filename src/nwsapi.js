@@ -233,7 +233,7 @@
     },
 
   // caching limit for compiled resolver functions
-  CACHE_LIMIT = 1000,
+  CACHE_LIMIT = 4096,
 
   // Bounded cache for query plans, in two generations.
   //
