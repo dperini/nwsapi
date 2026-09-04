@@ -64,6 +64,16 @@ function build(markup, options) {
   return { window, host, document: window.document, NW };
 }
 
+function buildModern(markup) {
+  const dom = new JSDOM(markup);
+  delete require.cache[require.resolve(nwsapiPath)];
+  const NW = require(nwsapiPath)({
+    document: dom.window.document,
+    DOMException: dom.window.DOMException,
+  });
+  return { window: dom.window, document: dom.window.document, NW };
+}
+
 const ids = nodes => Array.from(nodes, node => node.id || node.nodeName.toLowerCase());
 
 test.describe('a host that needs the legacy handling', () => {
@@ -128,6 +138,115 @@ test.describe('a host that needs the legacy handling', () => {
       const reference = ids(document.getElementById('d2').querySelectorAll(selector));
       expect(mine, selector).toEqual(reference);
     }
+  });
+});
+
+test.describe('pseudo-classes on a host that needs the handling', () => {
+  // Some of these read properties older than the hosts LEGACY is for, so
+  // they work there; others read properties that postdate them, so they
+  // match nothing. Either way none of them may throw, and the ones that can
+  // work have to agree with the reference engine.
+  const FORM = '<!doctype html><html lang=en><body><div id=d1>' +
+    '<input id=i1 disabled><input id=i2><input id=i3 type=checkbox checked>' +
+    '<a id=a1 href="#x">l</a><span id=s1></span>' +
+    '<fieldset id=fs disabled><legend id=lg><input id=i5></legend><input id=i4></fieldset>' +
+    '<select id=se><optgroup id=og disabled><option id=op>o</option></optgroup></select>' +
+    '</div></body></html>';
+
+  const PSEUDOS = [
+    ':disabled', ':enabled', ':checked', ':lang(en)', ':link', ':any-link',
+    ':target', ':required', ':optional', ':read-write', ':read-only',
+    ':empty', ':root', ':placeholder-shown', ':indeterminate', ':defined',
+    ':valid', ':invalid', ':default', ':open', ':closed', ':modal',
+  ];
+
+  test('the legacy path answers what the ordinary path answers', () => {
+    // Compared against this engine on a modern host rather than against
+    // jsdom, because the two disagree about a few of these on any host: a
+    // disabled control is barred from constraint validation, so it does not
+    // match ':valid' here and does there. What this test is for is whether
+    // the legacy reads change an answer, and they must not.
+    const legacy = build(FORM);
+    const modern = buildModern(FORM);
+    expect(legacy.NW.configure().LEGACY).toBe(true);
+    expect(modern.NW.configure().LEGACY).toBe(false);
+
+    for (const selector of PSEUDOS) {
+      let mine;
+      expect(() => { mine = ids(legacy.NW.select(selector, legacy.host)); }, selector).not.toThrow();
+      expect(mine, selector).toEqual(ids(modern.NW.select(selector, modern.document)));
+    }
+  });
+
+  test('the ones older than those hosts work, and agree with the reference', () => {
+    // These read properties that predate the hosts LEGACY is for, or none at
+    // all, so a legacy host can answer them and the reference engine agrees.
+    const { NW, host, document } = build(FORM);
+    for (const selector of [
+      ':disabled', ':enabled', ':checked', ':lang(en)', ':link', ':any-link',
+      ':target', ':empty', ':root', ':defined', ':optional',
+    ]) {
+      expect(ids(NW.select(selector, host)), selector)
+        .toEqual(ids(document.querySelectorAll(selector)));
+    }
+  });
+});
+
+test.describe('what a legacy resolver is allowed to contain', () => {
+  // The reads the generated code makes are the whole point of the option, so
+  // this audits the code itself rather than an answer: with LEGACY on, no
+  // resolver may read the host directly. It is what caught the twenty
+  // pseudo-class emissions that were still doing it.
+  const DIRECT = /\b[eno]\.(localName|nodeName|className|classList|id|parentElement|firstElementChild|nextElementSibling|previousElementSibling|getAttribute|hasAttribute|isConnected|attributes|children)\b/;
+
+  const SHAPES = [
+    'div', '.x', '#d', '[href]', '[href="#"]', '[class~="x"]', '[title="A" i]',
+    'div p', 'div > p', 'p + a', 'p ~ a', 'div p a', 'p, span',
+    ':first-child', ':last-child', ':only-child', ':first-of-type',
+    ':last-of-type', ':only-of-type', ':nth-child(3)', ':nth-child(2n+1)',
+    ':nth-of-type(2)', ':nth-last-child(2)', ':nth-last-of-type(1)',
+    ':empty', ':root', ':scope', ':not(.x)', ':is(.x)', ':where(p, a)',
+    ':has(p)', ':has(> p)', ':lang(en)', ':dir(ltr)', ':link', ':any-link',
+    ':visited', ':target', ':enabled', ':disabled', ':checked',
+    ':indeterminate', ':required', ':optional', ':valid', ':invalid',
+    ':in-range', ':out-of-range', ':read-only', ':read-write',
+    ':placeholder-shown', ':default', ':defined', ':hover', ':focus',
+    ':active', ':muted', ':playing', ':paused', ':seeking', ':buffering',
+    ':stalled', ':open', ':closed', ':modal', ':fullscreen',
+    ':picture-in-picture', ':popover-open', ':local-link',
+  ];
+
+  test('no resolver reads the host directly', () => {
+    const { NW } = build(MARKUP);
+    expect(NW.configure().LEGACY).toBe(true);
+
+    const offenders = [];
+    for (const selector of SHAPES) {
+      for (const mode of [true, false]) {
+        let code;
+        try {
+          const factory = NW.compile(selector, mode, null);
+          // a selector the fetch answers on its own compiles to no resolver
+          code = factory ? String(factory) : '';
+        } catch {
+          // a selector this build rejects is not this test's business
+          continue;
+        }
+        const found = code.match(DIRECT);
+        if (found) { offenders.push(`${selector} [${mode ? 'select' : 'match'}] reads ${found[0]}`); }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test('the ordinary path still reads the host directly', () => {
+    // the other half of the bargain: with the option off, the reads are
+    // written in place and cost neither a call nor a branch
+    const { NW } = buildModern(MARKUP);
+    expect(NW.configure().LEGACY).toBe(false);
+    expect(String(NW.compile('div p', true, null))).toContain('.localName');
+    expect(String(NW.compile('[href]', true, null))).toContain('.hasAttribute');
+    expect(String(NW.compile(':first-child', true, null))).toContain('.previousElementSibling');
   });
 });
 

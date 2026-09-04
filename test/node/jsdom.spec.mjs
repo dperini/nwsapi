@@ -466,6 +466,32 @@ test.describe('agreement with the reference engine', () => {
     }
   });
 
+  test(':disabled and :enabled are complements, fieldsets included', () => {
+    // A control inside a disabled fieldset is disabled unless it sits in that
+    // fieldset's first legend child, and an option is disabled by the
+    // optgroup it belongs to. ':enabled' used to read only the element's own
+    // property, so it matched controls that ':disabled' matched as well.
+    const { document, NW } = build(
+      '<!doctype html><body><div><input id=i1 disabled><input id=i2>' +
+        '<fieldset id=fs disabled><legend id=lg><input id=i5></legend><input id=i4>' +
+          '<fieldset id=fs3><legend id=lg3><input id=i7></legend></fieldset></fieldset>' +
+        '<fieldset id=fs2><input id=i6></fieldset>' +
+        '<fieldset id=fs4 disabled><div><legend id=lg4><input id=i8></legend></div></fieldset>' +
+        '<select id=se><optgroup id=og disabled><option id=op>o</option></optgroup>' +
+          '<optgroup id=og2><option id=op2 disabled>o</option><option id=op3>o</option></optgroup>' +
+        '</select></div></body>',
+    );
+    const ids = selector => NW.select(selector, document).map(node => node.id);
+    const reference = selector => Array.from(document.querySelectorAll(selector), node => node.id);
+
+    for (const selector of [':disabled', ':enabled', 'input:disabled', 'option:disabled']) {
+      expect(ids(selector), selector).toEqual(reference(selector));
+    }
+    // and no element is both
+    const both = ids(':disabled').filter(id => ids(':enabled').includes(id));
+    expect(both).toEqual([]);
+  });
+
   test('the class of an SVG element is not a string', () => {
     // Element.className reflects the class attribute as a string, except on
     // SVGElement, where SVG 1.1 defined it as an SVGAnimatedString and the

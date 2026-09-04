@@ -1227,11 +1227,70 @@
     },
 
   // check if node content is editable
+  // Whether a form control is disabled, which is not only its own property:
+  // a control inside a disabled fieldset is disabled too, unless it sits in
+  // that fieldset's first legend.
+  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+  isDisabled =
+    function(element) {
+      var legend, name = tagOf(element), node;
+
+      // its own attribute, whatever kind of control it is
+      if (element.disabled === true) { return true; }
+
+      // an optgroup is disabled by its own attribute and nothing else; an
+      // option is also disabled by the optgroup it is a child of, whose
+      // 'disabled' property reflects only that optgroup's own attribute
+      if (name == 'optgroup') { return false; }
+      if (name == 'option') {
+        node = upOf(element);
+        return !!node && tagOf(node) == 'optgroup' && node.disabled === true;
+      }
+
+      // Any disabled fieldset above it disables it, unless it sits inside
+      // that fieldset's first legend child. A legend only excuses the
+      // fieldset it belongs to, so the walk carries on past it.
+      node = upOf(element);
+      while (node) {
+        if (tagOf(node) == 'fieldset' && node.disabled === true) {
+          legend = firstOf(node);
+          while (legend && tagOf(legend) != 'legend') { legend = nextOf(legend); }
+          if (!(legend && legend.contains(element))) { return true; }
+        }
+        node = upOf(node);
+      }
+
+      return false;
+    },
+
+  // Whether an element is defined, which every built-in element is. Only a
+  // custom element can be undefined: one whose name carries a hyphen, or one
+  // built in that carries an 'is' attribute, and in both cases only until a
+  // definition exists and the element has been upgraded to it.
+  // https://dom.spec.whatwg.org/#concept-element-defined
+  isDefined =
+    function(element) {
+      var custom, name = tagOf(element), registry, view;
+
+      // the cheap half first: a name without a hyphen is only a candidate
+      // when the markup asked for a customized built-in
+      if (name.indexOf('-') < 0) {
+        if (!hasAttrOf(element, 'is')) { return true; }
+        name = attrOf(element, 'is') || name;
+      }
+
+      view = doc.defaultView;
+      registry = view && view.customElements;
+      if (!registry || !registry.get) { return false; }
+      custom = registry.get(name);
+      return !!custom && element instanceof custom;
+    },
+
   isContentEditable =
     function(node) {
       var attrValue = 'inherit';
-      if (node.hasAttribute('contenteditable')) {
-        attrValue = node.getAttribute('contenteditable');
+      if (hasAttrOf(node, 'contenteditable')) {
+        attrValue = attrOf(node, 'contenteditable');
       }
       switch (attrValue) {
         case '':
@@ -1738,6 +1797,34 @@
     has: function(v, name) { return helper('hHas', 'hasAttrOf') + '(' + v + ',"' + name + '")'; }
   },
 
+  // The read tables cover the compound and the combinators, which is where
+  // every selector goes. The pseudo-classes are another thirty emission
+  // sites, most of them a tag test in front of a property that postdates the
+  // hosts LEGACY is for, and converting each one by hand is how one gets
+  // missed. So a legacy resolver takes one pass over the code that was
+  // generated, rewriting the reads it recognizes into the same helper calls.
+  // Only the vocabulary this file emits, and only when the option is on.
+  helpReads =
+    function(code) {
+      var swap = function(alias, name) {
+        return function(all, v) { return helper(alias, name) + '(' + v + ')'; };
+      };
+      var swapNamed = function(alias, name) {
+        return function(all, v, attr) { return helper(alias, name) + '(' + v + ',' + attr + ')'; };
+      };
+      return code
+        .replace(/([eno])\.localName\b/g, swap('hTag', 'tagOf'))
+        .replace(/([eno])\.className\b/g, swap('hCls', 'classOf'))
+        .replace(/([eno])\.id\b/g, swap('hId', 'idOf'))
+        .replace(/([eno])\.parentElement\b/g, swap('hUp', 'upOf'))
+        .replace(/([eno])\.nextElementSibling\b/g, swap('hNext', 'nextOf'))
+        .replace(/([eno])\.previousElementSibling\b/g, swap('hPrev', 'prevOf'))
+        .replace(/([eno])\.firstElementChild\b/g, swap('hFirst', 'firstOf'))
+        .replace(/([eno])\.isConnected\b/g, swap('hConn', 'connectedOf'))
+        .replace(/([eno])\.hasAttribute\((\x22[^\x22]*\x22)\)/g, swapNamed('hHas', 'hasAttrOf'))
+        .replace(/([eno])\.getAttribute\((\x22[^\x22]*\x22)\)/g, swapNamed('hAttr', 'attrOf'));
+    },
+
   // Matching is handed one node by a caller, which may be anything the caller
   // has, so on a host that behaves the attribute tests still ask for the
   // method first. Selecting works through a list this engine fetched itself.
@@ -1788,6 +1875,9 @@
       }
 
       source = compileSelector(selector, macro, mode, callback);
+
+      // the reads the pseudo-class emissions still write by hand
+      if (Config.LEGACY) { source = helpReads(source); }
 
       // Nothing was left to test. It happens whenever the candidates were
       // fetched by the only thing the selector says — 'div', '.example', or
@@ -2292,7 +2382,7 @@
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
                   break;
                 case 'defined':
-                  source = 'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' + source + '}';
+                  source = 'if(s.isDefined(e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -2336,35 +2426,14 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'enabled':
-                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
-                    ')){' + source + '}';
+                  // the complement of ':disabled' over the same elements, so
+                  // an input inside a disabled fieldset is neither
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&!s.isDisabled(e))){' + source + '}';
                   break;
                 case 'disabled':
-                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
-                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
-                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
-                    // L is true if the first legend element of the fieldset contains the element
-                    'var x=0,N=[],F=false,L=false;' +
-                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
-                      'n=e.parentElement;' +
-                      'while(n){' +
-                        'if(n.localName=="fieldset"){' +
-                          'N[x++]=n;' +
-                          'if(n.disabled===true){' +
-                            'F=true;' +
-                            'break;' +
-                          '}' +
-                        '}' +
-                        'n=n.parentElement;' +
-                      '}' +
-                      'for(var x=0;x<N.length;x++){' +
-                        'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
-                          'L=true;' +
-                          'break;' +
-                        '}' +
-                      '}' +
-                    '}' +
-                    'if(e.disabled===true||(F&&!L)){' + source + '}}';
+                  source = 'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&s.isDisabled(e))){' + source + '}';
                   break;
                 case 'read-only':
                 case '-moz-read-only':
@@ -3365,6 +3434,8 @@
     nthOfType: nthOfType,
     nthElement: nthElement,
 
+    isDefined: isDefined,
+    isDisabled: isDisabled,
     isOpen: isOpen,
     isClosed: isClosed,
     isModal: isModal,
@@ -3386,6 +3457,7 @@
     nextOf: legacyNextOf,
     prevOf: legacyPrevOf,
     firstOf: legacyFirstOf,
+    connectedOf: legacyConnectedOf,
 
     isLink: isLink,
     isFocusable: isFocusable,

@@ -37,6 +37,12 @@ their direct property reads and take a second loop for the legacy case. Those
 run per sibling rather than per query, which is the one place a helper call
 would show up in a measurement.
 
+The pseudo-classes are another thirty emission sites, most of them a tag test
+in front of a property. Converting each by hand is how one gets missed, so a
+legacy resolver takes one pass over the code that was generated and rewrites
+the reads it recognizes into the same helper calls. There is a test that
+audits the output: no legacy resolver may contain a direct host read.
+
 Two optimizations stay off under the option: the ancestor filter and the
 descent. Both only ever skip work, so switching them off changes speed and not
 answers, and leaving them on would put a helper call in a per-element loop.
@@ -102,11 +108,22 @@ of the split is Jake Archibald's
 
 ## What it does not do
 
-- **The HTML5 pseudo-classes.** `:checked`, `:disabled`, `:valid`,
-  `:placeholder-shown`, `:playing` and their neighbours read properties that
-  postdate these hosts — `validity`, `readOnly`, `networkState`. On a host
-  without them the tests read `undefined` and match nothing, which is the
-  behaviour a selector for a feature the host does not have should have.
+- **The pseudo-classes whose properties postdate those hosts.** `:valid`,
+  `:invalid`, `:in-range`, `:playing` and their neighbours read `validity`,
+  `networkState` and friends. On a host without them the tests read
+  `undefined` and match nothing, which is what a selector for a feature the
+  host does not have should do. They do not throw, which is tested.
+
+  The ones whose properties are older than those hosts do work, and agree
+  with the reference engine: `:checked`, `:disabled`, `:enabled`, `:empty`,
+  `:root`, `:link`, `:any-link`, `:target`, `:lang()`, `:defined`,
+  `:optional`, `:read-write` and `:read-only`. Two of them only started
+  working while this was being written, because the audit that found the
+  direct reads also found two bugs in the ordinary path: `:enabled` matched
+  controls that `:disabled` matched as well, since it read only the element's
+  own property and not the fieldset above it, and `:defined` matched nothing
+  at all, since it asked the custom element registry about every element
+  including the built-in ones.
 - **`install()`.** Replacing the host's own `querySelectorAll` needs
   `Element.prototype`, which the oldest hosts do not expose. Use the engine's
   own `select()`, `match()` and `first()` there.
