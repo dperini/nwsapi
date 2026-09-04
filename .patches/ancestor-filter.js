@@ -36,19 +36,6 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
-  // The host matcher is captured here, before anything can replace it, and
-  // node.matches is never consulted at match time. A host is free to wire
-  // Element.prototype.matches back to this engine, which is what jsdom does,
-  // and calling it while resolving a state pseudo-class re-enters the lambda
-  // that asked for the state: the recursion only ends when the stack does,
-  // and the RangeError is swallowed below. Passing a document alone, as jsdom
-  // does, leaves no matcher at all, which is the intended outcome: there is
-  // no native state to read.
-  NATIVE_MATCHES = (function(proto) {
-    return (proto && (proto.matches || proto.webkitMatchesSelector ||
-      proto.mozMatchesSelector || proto.msMatchesSelector)) || null;
-  })(global.Element && global.Element.prototype),
-
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
   WSP = '[' + HSP + VSP + ']',
@@ -668,6 +655,70 @@
     };
   })(),
 
+  // A candidate can only match 'div ul li a' if a div, a ul and a li are
+  // all somewhere above it. That is far cheaper to answer than the match
+  // itself: the tags above an element are summarized as bits in one integer,
+  // and an element's summary is its parent's summary plus the parent's own
+  // bit, so the walk is paid once per chain rather than once per candidate.
+  // Bits collide, which only costs a candidate that would have been
+  // rejected, and the summary is a filter — a candidate that survives it is
+  // still matched in full.
+  ancestorMasks = new Map(),
+
+  // candidates arrive in document order, so consecutive ones usually share a
+  // parent: answering from the last one skips the Map entirely
+  lastMaskNode = null,
+  lastMaskValue = 0,
+
+  tagBits = Object.create(null),
+
+  tagBit =
+    function(name) {
+      var i = 0, l = name.length, h = 0, bit = tagBits[name];
+      if (bit !== undefined) { return bit; }
+      for (; l > i; ++i) { h = (h * 31 + name.charCodeAt(i)) | 0; }
+      return (tagBits[name] = 1 << (h & 31));
+    },
+
+  ancestorMask =
+    function(node) {
+      var i, mask, chain = [ ], parent = node.parentElement;
+
+      if (parent === lastMaskNode) {
+        return lastMaskValue;
+      }
+
+      // walk up to the nearest ancestor already summarized, iteratively: a
+      // recursive form would be bounded by the stack, not by the document
+      while (parent) {
+        mask = ancestorMasks.get(parent);
+        if (mask !== undefined) { break; }
+        chain[chain.length] = parent;
+        parent = parent.parentElement;
+      }
+
+      mask = mask === undefined ? 0 : mask | tagBit(parent.localName);
+
+      // then back down, summarizing each ancestor on the way
+      for (i = chain.length - 1; i > -1; --i) {
+        ancestorMasks.set(chain[i], mask);
+        mask |= tagBit(chain[i].localName);
+      }
+
+      lastMaskNode = node.parentElement;
+      lastMaskValue = mask;
+
+      return mask;
+    },
+
+  clearAncestorMasks =
+    function() {
+      ancestorMasks.clear();
+      lastMaskNode = null;
+      lastMaskValue = 0;
+      return true;
+    },
+
   // check if the document type is HTML
   isHTML =
     function(node) {
@@ -719,22 +770,15 @@
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var matcher = _matches || NATIVE_MATCHES;
-      // the captured matcher can still be a host wrapper that delegates back
-      // to this engine, in which case the outer answer is the only one
-      if (!matcher || matchingNative) { return false; }
+      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
+        node.mozMatchesSelector || node.msMatchesSelector;
+      if (!matcher) return false;
       try {
-        matchingNative = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
-      } finally {
-        matchingNative = false;
       }
     },
-
-  // set while the captured host matcher runs, see NATIVE_MATCHES
-  matchingNative = false,
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
@@ -990,11 +1034,18 @@
   M_VARS = [ ],
   N_VARS = [ ],
 
+  // tag names a candidate must have somewhere above it, the ones still
+  // waiting for a combinator that makes them an ancestor, and whether the
+  // selector walks ancestors at all, see ancestorMask()
+  A_REQD = [ ],
+  A_PEND = [ ],
+  A_WALK = false,
+
   // compile groups or single selector strings into
   // executable functions for matching or selecting
   compile =
     function(selector, mode, callback) {
-      var factory, head = '', loop = '', macro = '', source = '', vars = '';
+      var factory, i, mask, head = '', loop = '', macro = '', source = '', vars = '';
 
       // 'mode' can be boolean or null
       // true = select / false = match
@@ -1024,7 +1075,29 @@
 
       source = compileSelector(selector, macro, mode, callback);
 
+      // Guard the candidate loop with the ancestor filter. Only for a
+      // selection: matching one element has no candidates to reject, and the
+      // walk the filter pays for would be the walk it saves. Only when the
+      // selector walks ancestors: a chain of child combinators takes one step
+      // per combinator whatever the depth, so there is nothing to save and
+      // the lookup is a loss. Two required tags or more, so the cheap shapes
+      // do not pay a Map lookup to learn what a single comparison tells them.
+      if ((mode || mode === null) && A_WALK && A_REQD.length > 1) {
+        for (i = 0, mask = 0; A_REQD.length > i; ++i) {
+          mask |= tagBit(A_REQD[i]);
+        }
+        source = 'if((s.ancestorMask(e)&' + mask + ')==' + mask + '){' + source + '}';
+      }
+
       loop += mode || mode === null ? '{' + source + '}' : source;
+
+      // Drop the summaries with the call that built them. They key on
+      // elements, so holding them past the call would keep a removed subtree
+      // alive, and an element that moves in the meantime would carry a
+      // summary describing where it used to be.
+      if (mask) {
+        loop += 's.clearAncestorMasks();';
+      }
 
       if (mode || mode === null && selector.includes(':nth')) {
         loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : '';
@@ -1056,6 +1129,10 @@
       var a, b, n, f, k = 0, compat, name,
       NS, expr, match, result, status, symbol,
       test, type, selector = expression, vars;
+
+      A_REQD.length = 0;
+      A_PEND.length = 0;
+      A_WALK = false;
 
       // isolate selector combinators
       selector = selector.replace(STD.combinator, '$1');
@@ -1094,6 +1171,9 @@
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
+            // the same string the comparison uses, so a filter built from it
+            // cannot reject anything this test would have accepted
+            A_PEND[A_PEND.length] = match[1];
             source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
             break;
 
@@ -1160,6 +1240,13 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
+            // whatever stands to the left of this now has to appear above the
+            // candidate. A sibling combinator does not promote, but it does
+            // not disqualify either: siblings share a parent, so an ancestor
+            // of a sibling above that parent is still an ancestor.
+            A_REQD.push.apply(A_REQD, A_PEND);
+            A_PEND.length = 0;
+            A_WALK = true;
             source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1167,6 +1254,8 @@
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
+            A_REQD.push.apply(A_REQD, A_PEND);
+            A_PEND.length = 0;
             source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
@@ -2125,6 +2214,8 @@
     isFullscreen: isFullscreen,
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
+    ancestorMask: ancestorMask,
+    clearAncestorMasks: clearAncestorMasks,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     hasAttributeNS: hasAttributeNS
