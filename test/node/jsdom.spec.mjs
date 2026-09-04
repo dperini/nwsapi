@@ -440,6 +440,12 @@ test.describe('agreement with the reference engine', () => {
     'div > p:not(.a):nth-child(2)',
     '.a:not([data-x]) + p',
     'div:not(:is(svg|div))',
+    // a comma inside a nested functional pseudo-class does not separate two
+    // selectors; splitting the group on it produced fragments like ' span)'
+    ':is(p:not(.b), span)',
+    ':is(p:is(.a, .c), span)',
+    'div:not(p:not(.a), span)',
+    ':is([data-x="a,b"], span)',
     ':where(svg|div)',
   ];
 
@@ -460,27 +466,31 @@ test.describe('agreement with the reference engine', () => {
     }
   });
 
-  test('the namespace gaps are where they are known to be', () => {
-    // Two shapes the engine does not answer the way the reference does, both
-    // older than this branch — 2.2.24 and 2.2.27 throw on each. They are
-    // asserted rather than left out, so the boundary is recorded and moving
-    // it has to be deliberate.
+  test('a forgiving list drops only the item it cannot read', () => {
+    const { document, NW } = build('<!doctype html><body><div id=d><p id=p>x</p></div></body>');
+    const ids = selector => NW.select(selector, document).map(node => node.id);
+    const reference = selector => Array.from(document.querySelectorAll(selector), node => node.id);
+
+    // The unreadable item is the namespace-qualified one; the readable item
+    // beside it still applies.
+    for (const selector of ['p:is(svg|p, p)', 'div:is(svg|div, #d)', ':where(svg|p, p)']) {
+      expect(ids(selector), selector).toEqual(reference(selector));
+    }
+    // A list of nothing but unreadable items matches nothing, and does not
+    // throw the way a non-forgiving list does.
+    expect(ids(':is(svg|p)')).toEqual([]);
+    expect(() => NW.select('svg|p', document)).toThrow();
+  });
+
+  test('the namespace gap is where it is known to be', () => {
+    // The one shape the engine still does not answer the way the reference
+    // does, and older than this branch: 2.2.24 and 2.2.27 throw on it too.
+    // Asserted rather than left out, so moving the boundary is deliberate.
     const { document, NW } = build('<!doctype html><body><div id=d><p id=p>x</p></div></body>');
 
-    // A namespace-qualified type selector is not supported at all. The
+    // A namespace-qualified type selector is not supported on its own. The
     // reference matches the div, since '*|div' is any namespace.
     expect(() => NW.select('*|div', document)).toThrow();
     expect(Array.from(document.querySelectorAll('*|div'), node => node.id)).toEqual(['d']);
-
-    // A forgiving list drops as a whole rather than per item: the engine
-    // evaluates the argument of :is() in one try/catch, so one unreadable
-    // item takes the readable ones with it. The reference keeps the 'p'.
-    expect(NW.select('p:is(svg|p, p)', document)).toEqual([]);
-    expect(Array.from(document.querySelectorAll('p:is(svg|p, p)'), node => node.id)).toEqual(['p']);
-
-    // Same gap seen from the subject side: the readable '.a' branch is lost
-    // along with the unreadable one.
-    expect(NW.select('div:is(svg|div, #d)', document)).toEqual([]);
-    expect(Array.from(document.querySelectorAll('div:is(svg|div, #d)'), node => node.id)).toEqual(['d']);
   });
 });

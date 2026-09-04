@@ -102,7 +102,6 @@
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
     RegExpChar: RegExp('(?!\\\\)[\\\\^$.,*+?()[\\]{}|\\/]', 'g'),
     TrimSpaces: RegExp('^' + WSP + '+|' + WSP + '+$|' + VSP, 'g'),
-    SplitGroup: RegExp('(\\([^)]*\\)|\\[[^[]*\\]|\\\\.|[^,])+', 'g'),
     CommaGroup: RegExp('(\\s*,\\s*)' + NOT.square_enc + NOT.parens_enc, 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
     CombineWSP: RegExp('[\\n\\r\\f\\x20]+' + NOT.single_enc + NOT.double_enc, 'g'),
@@ -499,6 +498,34 @@
               p1;
           }
         ) : str;
+    },
+
+  // Split a selector list on its top-level commas. A comma inside a nested
+  // functional pseudo-class, an attribute value or a quoted string does not
+  // separate two selectors, so this scans rather than splits on the comma.
+  splitList =
+    function(text) {
+      var chr, depth = 0, escaped, i = 0, l = text.length,
+      quote = '', start = 0, list = [ ];
+
+      for (; l > i; ++i) {
+        chr = text.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28' || chr == '\x5b') { ++depth; }
+        else if (chr == '\x29' || chr == '\x5d') { --depth; }
+        else if (chr == ',' && depth === 0) {
+          // trimmed: the space after a comma belongs to the list, not to the
+          // selector, and a leading one reads as a descendant combinator
+          list[list.length] = text.slice(start, i).replace(REX.TrimSpaces, '');
+          start = i + 1;
+        }
+      }
+      list[list.length] = text.slice(start).replace(REX.TrimSpaces, '');
+
+      return list;
     },
 
   // split ':is(', ':where(', ':matches(', ':not(' and ':has(' into their
@@ -1561,10 +1588,9 @@
                 case 'is':
                 case 'where':
                   if (Config.FORGIVING) {
-                    source =
-                      'try{' +
-                        'if(s.match("' + expr + '",e)){' + source + '}' +
-                      '}catch(E){}';
+                    // one item at a time, so an unreadable one drops alone
+                    source = 'if(s.matchForgiving(["' +
+                      splitList(expr).join('","') + '"],e)){' + source + '}';
                   } else {
                     source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   }
@@ -2077,7 +2103,7 @@
 
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
-        selectors = parsed.match(REX.SplitGroup);
+        selectors = splitList(parsed);
         if (parsed[parsed.length - 1] == ',') {
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : (type ? none : false);
@@ -2100,7 +2126,7 @@
           // the fragments compiled each of them as a selector of its own,
           // which made 'div:not(:is(svg|div))' match every element in the
           // document rather than the divs.
-          selectors = parsed.match(REX.SplitGroup) || [ parsed ];
+          selectors = splitList(parsed);
         }
       }
 
@@ -2124,6 +2150,23 @@
     },
 
   // true if element matches the selector
+  // ':is()' and ':where()' take a forgiving selector list: an item this
+  // engine cannot read is dropped, and the items it can read still apply.
+  // Evaluating the list in one match() would let one unreadable item take
+  // the readable ones with it, which is how 'p:is(svg|p, p)' came to match
+  // nothing where the reference engine matches the p.
+  matchForgiving =
+    function(list, element) {
+      for (var i = 0, l = list.length; l > i; ++i) {
+        try {
+          if (match(list[i], element)) { return true; }
+        } catch (e) {
+          // an item this engine cannot read is not a match, and not an error
+        }
+      }
+      return false;
+    },
+
   // Test the relative argument of a :has() against 'anchor'. The implied
   // anchor is compiled as the private ':-nwsapi-anchor' pseudo-class rather
   // than as ':scope', because an explicit ':scope' written inside the
@@ -2473,6 +2516,7 @@
     isFullscreen: isFullscreen,
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
+    matchForgiving: matchForgiving,
     ancestorMask: ancestorMask,
     clearAncestorMasks: clearAncestorMasks,
     isLink: isLink,
