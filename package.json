@@ -43,6 +43,7 @@
     "bench:report": "node --expose-gc bench/report.mjs",
     "browsers:share": "node scripts/browser-share.mjs",
     "engines:diff": "node scripts/engine-differences.mjs",
+    "upstream:refs": "node scripts/check-references.mjs",
     "clean": "node scripts/clean.mjs",
     "lint": "eslint .",
     "min": "node scripts/min.mjs",

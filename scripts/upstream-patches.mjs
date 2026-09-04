@@ -28,6 +28,114 @@ function edit(source, from, to, what) {
   return source.replace(from, () => to);
 }
 
+// The Chromium tree is pinned, so a line number keeps meaning what it meant.
+const CHROME = 'https://github.com/chromium/chromium/blob/155.0.8041.1/third_party/blink/renderer';
+
+// Per patch: the spec that defines the behavior, the Chromium line that
+// implements it, MDN where a reader wants prose, and what else the change was
+// reasoned from. Rendered into each patch message by refsFor().
+const REFERENCES = {
+  'jsdom-reentry': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#modal-state', "':modal' and the state pseudo-classes"],
+    ['spec', 'https://html.spec.whatwg.org/#attr-dialog-open', "the dialog open attribute, and the 'is modal' flag that has no reflection"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L3199', "':modal' asks the element, not another selector engine"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:modal', ""],
+  ],
+  'forgiving-and-eof': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#typedef-forgiving-selector-list', "a forgiving selector list drops the items it cannot parse"],
+    ['spec', 'https://drafts.csswg.org/css-syntax/#consume-simple-block', "a construct left open at EOF is closed rather than rejected"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2516', "':is()' and ':where()' match any item in the list"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:is', ""],
+  ],
+  'attribute-after-pseudo': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#attribute-selectors', "attribute selectors, including the case-sensitivity flag"],
+    ['spec', 'https://drafts.csswg.org/selectors-4/#attribute-case', "the 'i' flag this pattern has to survive"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors', ""],
+  ],
+  'link-precedence': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#the-any-link-pseudo', "':any-link' matches an a or area element with an href"],
+    ['spec', 'https://html.spec.whatwg.org/#selector-placeholder-shown', "':placeholder-shown', for the pattern of the same shape"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2550', "':any-link' is one IsLink() predicate"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2553', "':link' is the same predicate, unvisited"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:any-link', ""],
+  ],
+  'optimizer-nesting': [
+    ['spec', 'https://drafts.csswg.org/css-syntax/#consume-simple-block', "why a parenthesized part has to tolerate nesting"],
+    ['spec', 'https://drafts.csswg.org/selectors-4/#matches', "the functional pseudo-classes that put parentheses inside a compound"],
+  ],
+  'id-lookup': [
+    ['spec', 'https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid', "getElementById returns the first element in tree order"],
+    ['spec', 'https://dom.spec.whatwg.org/#scope-match-a-selectors-string', "what a scoped query has to match"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById', ""],
+  ],
+  'nth-constant': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#nth-child-pseudo', "the An+B forms, of which a constant index is one"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2443', "':nth-child' goes through a cache of sibling indexes"],
+    ['chromium', 'CHROME/core/dom/nth_index_cache.h', "that cache, which is the same trade this patch avoids for a constant"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:nth-child', ""],
+  ],
+  'cache-two-generation': [
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map', "the delete semantics this replaces"],
+    ['reading', 'https://zod.dev/blog/reducing-memory-footprint', "the same measurement discipline applied to a library that caches heavily"],
+  ],
+  'cache-limit': [
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map', ""],
+    ['reading', 'https://zod.dev/blog/reducing-memory-footprint', "why a cache size is measured rather than chosen"],
+  ],
+  'wrapper-arguments': [
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments', "the arguments object these wrappers forward"],
+  ],
+  'plan-cache': [
+    ['spec', 'https://dom.spec.whatwg.org/#dom-parentnode-queryselectorall', "querySelectorAll answers with a static list, so a cached answer would be wrong"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll', ""],
+  ],
+  'ancestor-filter': [
+    ['spec', 'https://drafts.csswg.org/selectors-4/#descendant-combinators', "what a descendant combinator requires of the ancestors"],
+    ['chromium', 'CHROME/core/css/selector_filter.h', "the same idea in Blink: a bitset summary that only ever skips work"],
+  ],
+  'disabled-complement': [
+    ['spec', 'https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute', "the fieldset, legend and optgroup rules"],
+    ['spec', 'https://drafts.csswg.org/selectors-4/#enableddisabled', "':enabled' and ':disabled' as complements"],
+    ['chromium', 'CHROME/core/html/forms/listed_element.cc#L702', "the ancestry walk, including why it continues past a legend"],
+    ['chromium', 'CHROME/core/html/forms/listed_element.cc#L738', "IsActuallyDisabled(): the own attribute or the ancestor state"],
+    ['chromium', 'CHROME/core/html/forms/html_form_control_element.cc#L337', "the two pseudo-classes as one predicate"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:disabled', ""],
+  ],
+  'optional-anchors': [
+    ['spec', 'https://html.spec.whatwg.org/#selector-optional', "the list of elements that match, which opens with button"],
+    ['spec', 'https://html.spec.whatwg.org/#selector-required', "and the list for the other half"],
+    ['chromium', 'CHROME/core/html/forms/html_button_element.h#L113', "a button is optional outright"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2751', "how ':optional' is dispatched"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:optional', ""],
+  ],
+  'valid-fieldset': [
+    ['spec', 'https://html.spec.whatwg.org/#selector-valid', "a fieldset matches when all of its controls satisfy their constraints"],
+    ['chromium', 'CHROME/core/html/forms/html_field_set_element.cc#L108', "the loop that fails only on a candidate that is invalid"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L2811', "':valid' as the pair of checks"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:valid', ""],
+  ],
+  'defined-built-ins': [
+    ['spec', 'https://dom.spec.whatwg.org/#concept-element-defined', "uncustomized and custom are the two states that count as defined"],
+    ['spec', 'https://html.spec.whatwg.org/#custom-elements-core-concepts', "what makes a name a custom element name"],
+    ['chromium', 'CHROME/core/dom/element.h#L1201', "the state read, with the same spec link in its own comment"],
+    ['chromium', 'CHROME/core/css/selector_checker.cc#L3139', "':defined' is that and nothing else"],
+    ['mdn', 'https://developer.mozilla.org/en-US/docs/Web/CSS/:defined', ""],
+  ],
+};
+
+function refsFor(name) {
+  const refs = REFERENCES[name];
+  if (!refs) {
+    return '';
+  }
+  const label = { spec: 'Spec', chromium: 'Chromium', mdn: 'MDN', reading: 'Reading' };
+  const lines = refs.map(([kind, url, note]) => {
+    const link = url.startsWith('CHROME/') ? CHROME + url.slice('CHROME'.length) : url;
+    return `- ${label[kind]}: ${link}${note ? ` — ${note}` : ''}`;
+  });
+  return `\n\nReferences:\n\n${lines.join('\n')}`;
+}
+
 export const PATCHES = [
   {
     kind: 'fix',
@@ -1527,7 +1635,7 @@ function main() {
       : '';
     writeFileSync(
       path.join(out, `${patch.name}.msg`),
-      `${patch.title}\n\n${patch.body.replace(/\n(?!\n)/g, ' ').replace(/  +/g, ' ')}${refs}\n`,
+      `${patch.title}\n\n${patch.body.replace(/\n(?!\n)/g, ' ').replace(/  +/g, ' ')}${refsFor(patch.name)}${refs}\n`,
     );
     console.log(`built ${patch.name}`);
   }
