@@ -992,6 +992,43 @@
       return true;
     },
 
+  // A filter earns its cost by rejecting. On a page where the required tags
+  // are everywhere — a component tree where every anchor really is inside a
+  // ul inside a section — it rejects nothing and the summary is paid for on
+  // every candidate for no benefit, which measured 2x slower than not
+  // filtering at all. So it watches itself: after a sample of candidates, a
+  // filter that kept nearly all of them stops being consulted for the rest of
+  // the call. Turning it off can only add work back, never change an answer.
+  // Per compiled resolver, not per call: the decision is about the selector
+  // and the document it runs against, and re-learning it on every query means
+  // paying the sample every query — which measured 1.4x slower than not
+  // filtering, on a page where the filter rejects nothing.
+  filterSeen = [ ],
+  filterKept = [ ],
+  filterRest = [ ],
+  filterSlots = 0,
+
+  mayMatch =
+    function(node, mask, slot) {
+      // switched off for this selector, and counting down to another look:
+      // a document can change shape between one query and the next
+      if (filterRest[slot] > 0) {
+        --filterRest[slot];
+        return true;
+      }
+
+      var keep = (ancestorMask(node) & mask) === mask;
+
+      if (keep) { ++filterKept[slot]; }
+      if (++filterSeen[slot] === FILTER_SAMPLE) {
+        if (filterKept[slot] >= FILTER_KEEP) { filterRest[slot] = FILTER_RETRY; }
+        filterSeen[slot] = 0;
+        filterKept[slot] = 0;
+      }
+
+      return keep;
+    },
+
   // ':link', ':any-link' and ':visited' share this test. Hoisting it out of
   // the generated source is not only deduplication: a regular expression
   // literal inside a compiled resolver is evaluated once per element tested,
@@ -1023,6 +1060,7 @@
       }
       // clear lambda cache
       if (clear) {
+        descentDeclined.clear();
         matchLambdas.clear();
         selectLambdas.clear();
         matchResolvers.clear();
@@ -1287,7 +1325,10 @@
         for (i = 0, mask = 0; A_REQD.length > i; ++i) {
           mask |= tagBit(A_REQD[i]);
         }
-        source = 'if((s.ancestorMask(e)&' + mask + ')==' + mask + '){' + source + '}';
+        filterSeen[filterSlots] = 0;
+        filterKept[filterSlots] = 0;
+        filterRest[filterSlots] = 0;
+        source = 'if(s.mayMatch(e,' + mask + ',' + filterSlots++ + ')){' + source + '}';
       }
 
       loop += mode || mode === null ? '{' + source + '}' : source;
@@ -2230,6 +2271,15 @@
   DESCENT_ENTRIES = 100,
   DESCENT_BUDGET = 512,
 
+  // candidates sampled before the ancestor filter decides whether it is
+  // rejecting enough to be worth its own cost, and the number of those it may
+  // keep and still be considered worth it (a quarter rejected)
+  FILTER_SAMPLE = 64,
+  FILTER_KEEP = 48,
+
+  // candidates a switched-off filter waves through before sampling again
+  FILTER_RETRY = 4096,
+
   // A chain level is a tag, a class, or a tag with a class: 'li', '.row',
   // 'li.row'. Anything else — an id, an attribute, a pseudo-class, an escaped
   // class such as the 'md\\:flex' an atomic CSS framework emits — leaves the
@@ -2429,12 +2479,16 @@
       // shape of the document makes that the cheaper direction. No callback:
       // the ordinary path is what applies one, and this returns the answer
       // rather than a candidate list.
-      if (selectors && callback === undefined && reTagChain.test(selectors) &&
-        (descended = parseChain(selectors)) &&
-        (descended = descendChain(descended, context))) {
-        return !Config.NODE_LIST ?
-          descended : isInstanceOf(descended) ?
-          descended : toNodeList(descended);
+      if (selectors && callback === undefined &&
+        descentDeclined.get(selectors) === undefined &&
+        reTagChain.test(selectors) && (descended = parseChain(selectors))) {
+        descended = descendChain(descended, context);
+        if (descended) {
+          return !Config.NODE_LIST ?
+            descended : isInstanceOf(descended) ?
+            descended : toNodeList(descended);
+        }
+        descentDeclined.set(selectors, true);
       }
 
       if (selectors) {
@@ -2679,6 +2733,12 @@
   lastContext,
 
   // cached lambdas
+  // selectors whose descent declined once: the shape of a document rarely
+  // changes between two queries, and retrying costs the lookup that decided
+  // it. Bounded like the other caches, so a page with endless distinct
+  // selectors cannot grow it without limit.
+  descentDeclined = createCache(),
+
   matchLambdas = createCache(),
   selectLambdas = createCache(),
 
@@ -2715,6 +2775,7 @@
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
     matchForgiving: matchForgiving,
+    mayMatch: mayMatch,
     ancestorMask: ancestorMask,
     clearAncestorMasks: clearAncestorMasks,
     isLink: isLink,
