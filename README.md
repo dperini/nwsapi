@@ -92,7 +92,7 @@ The following is the list of currently available configuration options, their de
 
 * `IDS_DUPES`: true  - true to allow using multiple elements having the same id, false to disallow
 * `FORGIVING`: true  - true for `:is()`/`:where()` to drop an item they cannot read, false to throw on it
-* `LEGACY`: false    - true for a host that hands back something other than an element from a tag or class lookup, see below
+* `LEGACY`: false    - true for a host that answers none of the modern DOM, see below and `docs/legacy.md`
 * `NODE_LIST`: false - true to return a `NodeList`, false to return an `Array`; it reads `NodeList` off the global object, so it works only where that is the host's own global (a browser), and throws when the engine is loaded as a module
 * `LOGERRORS`: true  - true to print errors and warnings to the console, false to mute both of them
 * `VERBOSITY`: true  - true to throw on an invalid selector, false to answer it as no match
@@ -110,15 +110,20 @@ NW.Dom.configure( { LOGERRORS: false, IDS_DUPES: false } );
 NOTE: NW.Dom.configure() without parameters return the current configuration.
 
 `LEGACY` (off by default) is for a host that does not behave the way the DOM
-says. With it off, the generated tests read reflected properties and call the
-host directly, which assumes a tag or class lookup returns elements and that
-`id` reflects as a string. Turn it on for a host that breaks either
-assumption — IE up to 8 put comment nodes in a `getElementsByTagName('*')`
-collection, a browser from March 2009 that predates Node.js itself — and the
-tests then ask each candidate for the method before calling it, as they did up
-to 2.2.27, so such a collection is a non-match rather than a `TypeError`. It
-is not a language switch: a build tool can lower the syntax in this file, but
-it cannot change what the host hands back.
+says. With it off, the generated code reads the host directly: `e.localName`,
+`e.getAttribute("x")`, `e.nextElementSibling`. With it on, every one of those
+reads becomes a call to a helper that knows what the older hosts answered
+instead — `class` reachable only as `className`, a URL attribute resolved
+unless the second argument asked for the markup, no `hasAttribute`, no
+`getElementsByClassName`, no element-only traversal, and comment nodes inside
+a `getElementsByTagName('*')` collection.
+
+The engine turns the option on by itself when it attaches to a document that
+is missing `hasAttribute`, `getElementsByClassName`, `firstElementChild` or
+`localName`, so most callers never set it. It is not a language switch: a
+build tool can lower the syntax in this file, but it cannot change what the
+host hands back. `docs/legacy.md` lists every quirk it handles, what it
+cannot supply, and how it is tested.
 
 Changing `LEGACY` or `FORGIVING` clears the compiled resolvers, since both are
 read while a selector compiles.
@@ -192,7 +197,8 @@ The `upstream/` directory is git-ignored on purpose: the pin of record is the
 `ref` field in `.gitmodules` (see `docs/upstream.md`).
 
 What makes this engine fast, what was tried and rejected, and how to measure a
-change before claiming it: `docs/performance.md`. The benchmark harnesses and
+change before claiming it: `docs/performance.md`. Running on a host that
+answers none of the modern DOM: `docs/legacy.md`. The benchmark harnesses and
 how to read their charts: `bench/README.md`.
 
 ## 💖 Support & Sponsoring

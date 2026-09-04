@@ -29,15 +29,24 @@ optimized away:
 
 | read                       | cost     |
 | -------------------------- | -------- |
-| `e.localName`              | 0.244 ms |
-| `e.nodeName`               | 0.353 ms |
-| `e.className`              | 0.429 ms |
-| `e.id`                     | 0.447 ms |
-| `e.parentElement`          | 0.529 ms |
-| `e.getAttribute('id')`     | 0.663 ms |
-| `e.hasAttribute('href')`   | 0.668 ms |
-| `e.previousElementSibling` | 0.698 ms |
-| `e.getAttribute('class')`  | 0.738 ms |
+| `e.localName`              | 0.240 ms |
+| `e.nodeName`               | 0.346 ms |
+| `e.className`              | 0.400 ms |
+| `e.id`                     | 0.478 ms |
+| `e.parentElement`          | 0.520 ms |
+| `e.firstElementChild`      | 0.649 ms |
+| `e.hasAttribute('href')`   | 0.652 ms |
+| `e.getAttribute('id')`     | 0.669 ms |
+| `e.nextElementSibling`     | 0.700 ms |
+| `e.previousElementSibling` | 0.716 ms |
+| `e.getAttribute('href')`   | 0.814 ms |
+| `e.getAttribute('class')`  | 0.826 ms |
+| `e.classList.length`       | 2.028 ms |
+| `e.attributes.length`      | 2.481 ms |
+| `e.children.length`        | 2.605 ms |
+
+Run `pnpm run bench:accessors` for the current version of that table, and
+`-- --markdown` to print it ready to paste.
 
 So: **fewer host calls beats cleverer JavaScript**, and a property read beats
 a method call that answers the same question.
@@ -120,8 +129,11 @@ elements:
 
 - A class test called `getAttribute('class')`; the attribute is reflected as
   a property, so it reads `e.className` and falls back when the reflection is
-  not a string (in a browser, SVG gives an `SVGAnimatedString`). 0.477 ms
-  against 0.770 ms.
+  not a string (in a browser, SVG gives an `SVGAnimatedString`). 0.578 ms
+  against 0.851 ms. Once the value comes from a property, the regular
+  expression, a hand-rolled scan and the helper call are level with each other
+  — 0.601, 0.588 and 0.578 ms — so the spelling of the test stopped mattering
+  and only the source of the value did.
 - An id test ran `/^title$/.test(e.getAttribute('id'))`. An exact comparison
   is what the selector means: `e.id == "title"`, 0.383 ms against 0.717 ms.
 - An attribute value test built a regular expression for `[data-x="1"]`,
@@ -139,11 +151,13 @@ rather than in the middle of the hot expression.
 **`Config.LEGACY`, off by default**, is that flag, and it is the only option
 this work adds — `FORGIVING` is upstream's and is about whether `:is()` and
 `:where()` swallow an item they cannot read, which has nothing to do with the
-host. With `LEGACY` off, an attribute test calls `e.getAttribute("x")` and an
-id test compares `e.id`; with it on, both ask the candidate for the method
-first, the way every version up to 2.2.27 did. It exists because a host that
-puts a comment node in a `*` collection — IE up to 8 — has no `getAttribute`
-on every candidate.
+host. With it off, the generated code reads the host directly. With it on,
+every one of those reads becomes a call to a helper that knows what the older
+hosts did instead, and the helpers are declared as locals of the resolver so a
+candidate costs one call rather than a property load and a call.
+[`docs/legacy.md`](legacy.md) describes the whole layer, the quirks it
+handles and how it is tested; what follows is why it is an option and not a
+default.
 
 How old that is: IE 8 shipped in March 2009, over 17 years ago. Node.js was
 two months from its first release, npm was a year away, the first iPad was a
@@ -194,20 +208,25 @@ moved out of line instead of behind a flag:
 
 **How far back this code can run at all.** Not a syntax question, since a
 build tool lowers syntax and `Map` and `WeakSet` have polyfills. The floor is
-set by the DOM this engine calls, which no build step supplies:
+set by the DOM this engine calls, which no build step supplies, and
+`Config.LEGACY` is what stands in for most of it. Printed by
+`pnpm run browsers:share`:
 
-| what it calls               | first shipped in                        | how long ago     | used by                        |
-| --------------------------- | --------------------------------------- | ---------------- | ------------------------------ |
-| `getAttributeNames()`       | Chrome 61, Safari 10.1, Firefox 45 (2017) | 9 years        | namespaced attribute selectors |
-| `isConnected`               | Chrome 51, Safari 10, Firefox 49 (2016) | 10 years         | `:lang()`                      |
-| `Element.prototype.closest` | Chrome 41, Safari 9, Firefox 35 (2015)  | over a decade    | installing over the host       |
-| `classList`                 | IE 10 (2012)                            | 14 years         | building a selector for a node |
-| `firstElementChild`, `previousElementSibling`, `getElementsByClassName` | IE 9 (2011) | 15 years | the fetch and the walks |
+| what the engine needs | first shipped in | how long ago | usage without it | used by |
+| --- | --- | --- | --- | --- |
+| `getElementsByClassName` | chrome 4, firefox 3, safari 4 | 17 years ago | 0.00% | the class fetch |
+| `closest()` | chrome 41, firefox 35, safari 9 | 12 years ago | 0.33% | installing over the host |
+| `matches()` | chrome 34, firefox 34, safari 8 | 12 years ago | 0.28% | handing a state pseudo-class back |
+| `getAttributeNames()` | chrome 61, firefox 45, safari 10.1 | 9 years ago | 0.82% | namespaced attribute selectors |
+| `isConnected` | chrome 51, firefox 49, safari 10 | 10 years ago | 0.57% | `:lang()` |
 
-None of those exist in IE 8 or earlier. So most selectors want a DOM from
-about 15 years ago, and a few features want one from about 9. A host older or
-stranger than that is what `LEGACY` is for, and what it buys back is the
-host's behavior, not the language's.
+With the option on, the first three of those are shimmed and the last two are
+answered from `attributes` and from a walk to the root, so the floor is a host
+with `getElementsByTagName`, `getElementById` and node-level traversal —
+which is every browser that ever shipped. Without it the engine wants a DOM
+from about a decade ago. What the option cannot supply is the HTML5 properties
+behind pseudo-classes like `:checked` and `:valid`; see
+[`docs/legacy.md`](legacy.md).
 
 **And how much of the web that is.** `pnpm run browsers:share` prints it from
 the `caniuse-lite` in devDependencies. From 1.0.30001810, whose newest browser
@@ -256,9 +275,8 @@ it is off, because one flag turns it back on.
 - An attribute test asked the candidate for `getAttribute` before calling
   it. Selecting works through a list of elements this engine fetched itself,
   so the read only confirms what the fetch already guarantees; dropping it
-  measured 1.11x on the test alone and 2-3% end to end. Matching keeps the
-  guard, since that is where a caller's own node arrives, and `Config.LEGACY`
-  restores it for a selection too.
+  measures 0.586 ms against 0.614 ms on the test alone, and 2-3% end to end.
+  Matching keeps the guard, since that is where a caller's own node arrives.
 - A selector whose only part was used for the fetch still compiled a resolver
   that copied its input — `div`, `.example`, one item of `label, [aria-label]`.
   There is no resolver for that now, 1.03x on wide selections.
