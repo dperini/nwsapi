@@ -2150,14 +2150,14 @@
                   break
                 case 'required':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
+                    'if((/^(?:input|select|textarea)$/i.test(e.localName)&&e.required)' +
                     '){' +
                     source +
                     '}'
                   break
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!e.required)' +
                     '){' +
                     source +
                     '}'
