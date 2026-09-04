@@ -170,7 +170,8 @@ function main() {
     for (const row of results) {
       if (row.group !== group) {
         group = row.group;
-        console.log(`\n${group}  (${DOCUMENTS[row.doc].note}, ${row.elements} elements)`);
+        console.log('');
+        console.log(`${group}  (${DOCUMENTS[row.doc].note}, ${row.elements} elements)`);
       }
       const ratio = row.jsdom / row.nwsapi;
       console.log(
@@ -184,7 +185,8 @@ function main() {
 
     const memos = results.filter(isMemo);
     if (memos.length) {
-      console.log('\nthe same shapes with the document changed between queries');
+      console.log('');
+      console.log('the same shapes with the document changed between queries');
       const memoWidth = Math.max(...memos.map(row => row.selector.length));
       for (const row of memos) {
         const ratio = row.changedJsdom / row.changedNwsapi;
@@ -241,10 +243,13 @@ function main() {
     );
   }
 
-  console.log(`\nwrote ${path.relative(repoRoot, outDir)}/standing.svg` +
+  console.log('');
+
+  console.log(`wrote ${path.relative(repoRoot, outDir)}/standing.svg` +
     (values.baseline ? ` and gains.svg` : ''));
   if (disagreements.length) {
-    console.log(`\n${disagreements.length} selector(s) disagree with the reference engine:`);
+    console.log('');
+    console.log(`${disagreements.length} selector(s) disagree with the reference engine:`);
     for (const row of disagreements) { console.log(`  ${row.selector}`); }
     process.exitCode = 1;
   }

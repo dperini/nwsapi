@@ -204,7 +204,8 @@ for (const choice of CHOICES) {
   timed.sort((a, b) => a.ms - b.ms);
 
   if (values.markdown) {
-    console.log(`\n**${choice.title}** — ${choice.note}\n`);
+    console.log('');
+    console.log(`**${choice.title}** — ${choice.note}\n`);
     const width = Math.max(...timed.map(row => row.label.length + 2));
     console.log(`| ${'how'.padEnd(width)} | cost     |`);
     console.log(`| ${'-'.repeat(width)} | -------- |`);
@@ -212,7 +213,8 @@ for (const choice of CHOICES) {
       console.log(`| ${`\`${row.label}\``.padEnd(width)} | ${row.ms.toFixed(3)} ms |`);
     }
   } else {
-    console.log(`\n${choice.title}${agree ? '' : '   (VARIANTS DISAGREE)'}`);
+    console.log('');
+    console.log(`${choice.title}${agree ? '' : '   (VARIANTS DISAGREE)'}`);
     const width = Math.max(...timed.map(row => row.label.length));
     for (const row of timed) {
       console.log(`  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)} ms` +

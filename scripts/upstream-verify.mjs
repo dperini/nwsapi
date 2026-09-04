@@ -134,7 +134,9 @@ for (const [patch, expected] of Object.entries(EXPECTED)) {
     results[name] = probe(load(file));
   }
 
-  console.log(`\n${patch}:`);
+  console.log('');
+
+  console.log(`${patch}:`);
   for (const [name, value] of Object.entries(results)) {
     const want = expected[name];
     if (want !== undefined) {

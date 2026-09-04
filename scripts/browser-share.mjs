@@ -8,8 +8,31 @@
  * Everything here is computed from the caniuse usage data in devDependencies,
  * apart from the population figures, which are listed below with their source.
  *
+ * Where the data comes from
+ * --------------------------
+ * caniuse-lite, a devDependency pinned in the pnpm catalog: usage shares per
+ *   browser version (usage_global), release dates (release_date), per-place
+ *   shares (data/regions) and support tables for the features it tracks
+ *   (data/features). Everything computed below reads one of those four.
+ * MDN compatibility tables, for the two features caniuse does not track,
+ *   getAttributeNames() and isConnected. Their first versions are written into
+ *   NEEDS with the date they shipped, and nothing else about them is asserted.
+ * ITU Facts and Figures for the number of people online worldwide, and
+ *   national regulator or CNNIC-style figures of the same vintage per place.
+ *   POPULATION_YEAR says how old those are.
+ *
+ * Keeping it current
+ * ------------------
+ * The usage data ages, so this warns when it is stale, and --check turns the
+ * warning into a non-zero exit for CI. To refresh it:
+ *
+ *   1. npm view caniuse-lite version           # what is published
+ *   2. put that version in the catalog in pnpm-workspace.yaml
+ *   3. pnpm install
+ *   4. pnpm run browsers:share -- --markdown   # paste the tables into docs
+ *
  * Usage:
- *   node scripts/browser-share.mjs [--places 12] [--markdown]
+ *   node scripts/browser-share.mjs [--places 12] [--markdown] [--check]
  */
 
 import { readdirSync } from 'node:fs';
@@ -28,12 +51,13 @@ const { values } = parseArgs({
   options: {
     places: { type: 'string' },
     markdown: { type: 'boolean', default: false },
+    check: { type: 'boolean', default: false },
     help: { type: 'boolean', default: false },
   },
 });
 
 if (values.help) {
-  console.log('Usage: node scripts/browser-share.mjs [--places <n>] [--markdown]');
+  console.log('Usage: node scripts/browser-share.mjs [--places <n>] [--markdown] [--check]');
   process.exit(0);
 }
 
@@ -77,6 +101,8 @@ const NAMES = {
 // rest are national regulator and CNNIC-style figures of the same vintage.
 // They turn a percentage into people, so read them as an order of magnitude
 // rather than as a census.
+const POPULATION_YEAR = 2024;
+
 const ONLINE = {
   world: 5_500_000_000,
   CN: 1_090_000_000,
@@ -226,6 +252,12 @@ const peopleTotal = counted.reduce((sum, place) => sum + place.people, 0);
 // Output
 // ---------------------------------------------------------------------------
 
+// How old the data itself is. A quarter is about how long it takes for a
+// share this small to move, and for a browser release or two to land.
+const STALE_DAYS = 120;
+const dataAgeDays = Math.round((Date.now() / 1000 - newestRelease) / 86400);
+const stale = dataAgeDays > STALE_DAYS;
+
 const ie8 = ageOf('ie', 8);
 const ie9 = ageOf('ie', 9);
 const globalLegacy = share(row => isLegacyIE(row.browser, row.version));
@@ -245,7 +277,9 @@ if (values.markdown) {
   console.log(`| any browser released before September 2017 | ${releasedBefore(2017, 9).toFixed(4)}% |`);
   console.log(`| any browser released before 2020 | ${releasedBefore(2020).toFixed(4)}% |`);
 
-  console.log('\n| what the engine needs | first shipped in | how long ago | usage without it | used by |');
+  console.log('');
+
+  console.log('| what the engine needs | first shipped in | how long ago | usage without it | used by |');
   console.log('| --- | --- | --- | --- | --- |');
   for (const need of NEEDS) {
     const first = firstWith(need);
@@ -257,14 +291,17 @@ if (values.markdown) {
       `| ${usageLacking(need).toFixed(2)}% | ${need.usedBy} |`);
   }
 
-  console.log('\n| place | IE 8 and older | all IE | people online | that implies |');
+  console.log('');
+
+  console.log('| place | IE 8 and older | all IE | people online | that implies |');
   console.log('| --- | --- | --- | --- | --- |');
   for (const place of places.slice(0, placeLimit)) {
     console.log(`| ${place.name} | ${place.legacy.toFixed(3)}% (${place.versions.join(' ')}) ` +
       `| ${place.all.toFixed(3)}% | ${place.online === null ? 'not listed' : millions(place.online)} ` +
       `| ${place.people === null ? '-' : millions(place.people)} |`);
   }
-  console.log(`\nIE 8 shipped ${ie8?.released}, ${inYears(ie8?.years)}; IE 9 shipped ${ie9?.released} and ` +
+  console.log('');
+  console.log(`IE 8 shipped ${ie8?.released}, ${inYears(ie8?.years)}; IE 9 shipped ${ie9?.released} and ` +
     `stopped putting comment nodes in an element collection. Across the ${counted.length} places with a ` +
     `population figure the legacy share comes to about ${millions(peopleTotal)} people, of roughly ` +
     `${(ONLINE.world / 1e9).toFixed(1)} billion online.`);
@@ -279,11 +316,15 @@ if (values.markdown) {
   console.log(`  released before September 2017    ${releasedBefore(2017, 9).toFixed(4)}%`);
   console.log(`  released before 2020              ${releasedBefore(2020).toFixed(4)}%`);
 
-  console.log('\nhow old that is');
+  console.log('');
+
+  console.log('how old that is');
   console.log(`  IE 8 shipped ${ie8?.released}, ${inYears(ie8?.years)}`);
   console.log(`  IE 9 shipped ${ie9?.released}, ${inYears(ie9?.years)}, and stopped doing it`);
 
-  console.log('\nwhat the engine needs from a host');
+  console.log('');
+
+  console.log('what the engine needs from a host');
   for (const need of NEEDS) {
     const first = firstWith(need);
     const age = ageOf('chrome', first.chrome);
@@ -292,14 +333,31 @@ if (values.markdown) {
       `(${need.usedBy})`);
   }
 
-  console.log('\nwhere IE 8 and older still shows up, by people rather than by share');
+  console.log('');
+
+  console.log('where IE 8 and older still shows up, by people rather than by share');
   for (const place of places.slice(0, placeLimit)) {
     console.log(`  ${place.name.padEnd(14)} ${place.legacy.toFixed(3)}% of its page views ` +
       `${`(${place.versions.join(' ')})`.padEnd(14)} ` +
       `${place.people === null ? 'no population figure here' : `${millions(place.people)} people`}`);
   }
-  console.log(`\n  ${places.length} places record any of it, ${places.length - counted.length} ` +
+  console.log('');
+  console.log(`  ${places.length} places record any of it, ${places.length - counted.length} ` +
     'of them without a population figure here');
   console.log(`  the rest come to about ${millions(peopleTotal)} people, of roughly ` +
     `${(ONLINE.world / 1e9).toFixed(1)} billion online`);
+}
+
+console.log('');
+console.log(`sources: caniuse-lite ${dataVersion} for usage, releases, places and features; ` +
+  'MDN for getAttributeNames() and isConnected; ' +
+  `ITU and national figures from ${POPULATION_YEAR} for the population counts`);
+console.log(`the newest browser release in the data is ${dataAgeDays} days old` +
+  (stale ? ', which is stale' : ''));
+if (stale) {
+  console.log('refresh it: npm view caniuse-lite version, then set that version in the ' +
+    'pnpm-workspace.yaml catalog and run pnpm install');
+}
+if (values.check && stale) {
+  process.exitCode = 1;
 }

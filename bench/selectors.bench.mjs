@@ -145,10 +145,12 @@ function describeProbe(count, error) {
 
 function printIssueTable(issues) {
   if (issues.length === 0) {
-    console.log('\nresult check: no mismatches or engine errors.');
+    console.log('');
+    console.log('result check: no mismatches or engine errors.');
     return;
   }
-  console.log('\nresult mismatches / errors');
+  console.log('');
+  console.log('result mismatches / errors');
   const rows = issues.map((issue) => [
     issue.preset,
     issue.selector,

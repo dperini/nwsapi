@@ -1226,7 +1226,8 @@ function main() {
       console.log(`${patch.kind.padEnd(5)} ${patch.name.padEnd(22)} ${patch.title}${refs}`);
     }
     if (!target) {
-      console.log('\nUsage: node scripts/upstream-patches.mjs <upstream-checkout>');
+      console.log('');
+      console.log('Usage: node scripts/upstream-patches.mjs <upstream-checkout>');
     }
     return;
   }
