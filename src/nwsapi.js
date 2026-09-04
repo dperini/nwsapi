@@ -36,6 +36,19 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
+  // The host matcher is captured here, before anything can replace it, and
+  // node.matches is never consulted at match time. A host is free to wire
+  // Element.prototype.matches back to this engine, which is what jsdom does,
+  // and calling it while resolving a state pseudo-class re-enters the lambda
+  // that asked for the state: the recursion only ends when the stack does,
+  // and the RangeError is swallowed below. Passing a document alone, as jsdom
+  // does, leaves no matcher at all, which is the intended outcome: there is
+  // no native state to read.
+  NATIVE_MATCHES = (function(proto) {
+    return (proto && (proto.matches || proto.webkitMatchesSelector ||
+      proto.mozMatchesSelector || proto.msMatchesSelector)) || null;
+  })(global.Element && global.Element.prototype),
+
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
   WSP = '[' + HSP + VSP + ']',
@@ -706,15 +719,22 @@
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var matcher = _matches || node.matches || node.webkitMatchesSelector ||
-        node.mozMatchesSelector || node.msMatchesSelector;
-      if (!matcher) return false;
+      var matcher = _matches || NATIVE_MATCHES;
+      // the captured matcher can still be a host wrapper that delegates back
+      // to this engine, in which case the outer answer is the only one
+      if (!matcher || matchingNative) { return false; }
       try {
+        matchingNative = true;
         return matcher.call(node, selector);
       } catch (e) {
         return false;
+      } finally {
+        matchingNative = false;
       }
     },
+
+  // set while the captured host matcher runs, see NATIVE_MATCHES
+  matchingNative = false,
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
