@@ -38,6 +38,11 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test:legacy": "playwright test --config playwright.legacy.config.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "jsdom": "30.0.1"
   }
 }
