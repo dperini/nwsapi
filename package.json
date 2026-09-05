@@ -38,7 +38,8 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "devDependencies": {
-    "jsdom": "30.0.1"
+    "jsdom": "30.0.1",
+    "@playwright/test": "1.62.1"
   },
   "peerDependencies": {
     "css-tree": "^3.2.1"
@@ -49,6 +50,8 @@
     }
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test": "node --test test/display-state-native-matches.test.cjs test/legacy-matcher.test.cjs test/legacy-runtime.test.cjs test/jsdom-adapter.test.cjs",
+    "test:browser": "node --test test/display-state-browser.test.cjs"
   }
 }
