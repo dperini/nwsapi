@@ -991,13 +991,22 @@
       // deepest localName in selector strings and then
       // use it to retrieve all possible matching nodes
       // that will be filtered by compiled resolvers
+      // The parenthesized part has to tolerate nesting. Written as
+      // '\x28[^\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class matches nothing at all, and
+      // a selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)';
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)';
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)';
+
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
         '(' + identifier + ')' +
         '(?:' +
           ':[-\\w]+|' +
           '\\[[^\\]]+(?:\\]|$)|' +
-          '\\x28[^\\x29]+(?:\\x29|$)' +
+          parenthesized +
         ')*)$');
 
       // global
