@@ -529,6 +529,19 @@
         nodes : toNodeList(nodes);
     },
 
+  // The class of an element, for the one element kind whose reflection is
+  // not a string. SVG 1.1 defined SVGElement.className as an
+  // SVGAnimatedString, SVG 2 deprecated it, and the browsers still ship it,
+  // so the type is checked and the attribute asked for when it is not a
+  // string. baseVal carries the markup, which is cheaper than asking again.
+  classOf =
+    function(e) {
+      var value = e.className;
+      if (typeof value == 'string') { return value; }
+      if (value && typeof value.baseVal == 'string') { return value.baseVal; }
+      return e.getAttribute('class');
+    },
+
   // context agnostic getElementsByClassName
   byClass =
     function(cls, context) {
@@ -1061,13 +1074,17 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
-            source = 'if((/^' + match[1] + '$/.test(e.getAttribute("id")))){' + source + '}';
+            // an exact comparison, which is what the selector asks for.
+            // escapeIdentifier turns the CSS escapes into JavaScript ones, so
+            // only the quote is escaped after it.
+            expr = escapeIdentifier(match[1]).replace(/\x22/g, '\\"');
+            source = 'if((e.id=="' + expr + '")){' + source + '}';
             break;
 
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))';
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(s.classOf(e))';
             source = 'if((/(^|\\s)' + match[1] + '(\\s|$)/' + compat + ')){' + source + '}';
             break;
 
@@ -2103,6 +2120,7 @@
     isClosed: isClosed,
     isModal: isModal,
     isFullscreen: isFullscreen,
+    classOf: classOf,
     isPictureInPicture: isPictureInPicture,
     isPopoverOpen: isPopoverOpen,
     isFocusable: isFocusable,
