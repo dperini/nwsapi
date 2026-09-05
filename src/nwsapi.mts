@@ -1119,7 +1119,7 @@
     function(expression, source, mode, callback) {
 
       var a, b, n, f, k = 0, compat, name,
-      NS, expr, match, result, status, symbol,
+      NS, expr, value, match, result, status, symbol,
       test, type, selector = expression, vars;
 
       // isolate selector combinators
@@ -1196,12 +1196,19 @@
               // whitespace separated list but value contains space
               break;
             } else if (match[4]) {
-              match[4] = escapeIdentifier(match[4]).replace(REX.RegExpChar, '\\$&');
+              value = escapeIdentifier(match[4]);
+              match[4] = value.replace(REX.RegExpChar, '\\$&');
+              value = value.replace(/\\.|\x22/g, function(part) {
+                return part == '"' ? '\\"' : part;
+              });
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
             source = 'if((' +
               (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute&&e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute&&e.getAttribute("' + name + '")==""' :
+              // Exact case-sensitive values need no regular expression.
+              match[2] == '=' && type == '' && test.p3 == 'true' ?
+              'e.getAttribute&&e.getAttribute("' + name + '")=="' + value + '"' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute&&e.getAttribute("' + name + '"))==' + test.p3) +
               ')){' + source + '}';
             break;
