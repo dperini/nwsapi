@@ -1176,6 +1176,7 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
+            if (!match) { break; }
             NS = match[0].match(STD.namespaces);
             name = match[1];
             expr = name.split(':');
