@@ -39,5 +39,9 @@
   },
   "scripts": {
     "lint": "eslint ./src/nwsapi.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "jsdom": "30.0.1"
   }
 }
