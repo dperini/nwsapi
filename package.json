@@ -49,6 +49,7 @@
     }
   },
   "scripts": {
+    "test:extracted": "node --test test/not-extracted.test.cjs",
     "lint": "eslint ./src/nwsapi.js"
   }
 }
