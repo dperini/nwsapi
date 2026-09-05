@@ -63,7 +63,7 @@
     HexNumbers: RegExp('^[0-9a-fA-F]'),
     EscOrQuote: RegExp('^\\\\|[\\x22\\x27]'),
     RegExpChar: RegExp('(?!\\\\)[\\\\^$.,*+?()[\\]{}|\\/]', 'g'),
-    TrimSpaces: RegExp('^' + WSP + '+|' + WSP + '+$|' + VSP, 'g'),
+    TrimSpaces: RegExp('^' + WSP + '+|' + WSP + '+$', 'g'),
     SplitGroup: RegExp('(\\([^)]*\\)|\\[[^[]*\\]|\\\\.|[^,])+', 'g'),
     CommaGroup: RegExp('(\\s*,\\s*)' + NOT.square_enc + NOT.parens_enc, 'g'),
     FixEscapes: RegExp('\\\\([0-9a-fA-F]{1,6}' + WSP + '?|.)|([\\x22\\x27])', 'g'),
@@ -933,8 +933,8 @@
 
       pseudonames = '[-\\w]+',
       pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
-      doublequote = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*(?:"|$)',
-      singlequote = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*(?:'|$)",
+      doublequote = '"[^"\\\\' + VSP + ']*(?:\\\\.[^"\\\\' + VSP + ']*)*(?:"|$)',
+      singlequote = "'[^'\\\\" + VSP + "]*(?:\\\\.[^'\\\\" + VSP + "]*)*(?:'|$)",
 
       attrparser = identifier + '|' + doublequote + '|' + singlequote,
 
@@ -1179,6 +1179,7 @@
           // attributes resolver
           case '[':
             match = selector.match(Patterns.attribute);
+            if (!match) { break; }
             NS = match[0].match(STD.namespaces);
             name = match[1];
             expr = name.split(':');
@@ -1826,6 +1827,44 @@
       return { factory: f };
     },
 
+  // Consume string continuations before whitespace normalization. Preserve
+  // escape boundaries: removing a continuation must not extend a hex escape.
+  stringContinuations =
+    function(selectors) {
+      if (!/[\r\n\f]/.test(selectors)) { return selectors; }
+      var i = 0, j, c, next, quote = '', result = '', length = selectors.length;
+      while (i < length) {
+        c = selectors[i++];
+        if (c == '\\' && i == length && quote) { break; }
+        if (c == '\\' && i < length) {
+          next = selectors[i];
+          if (quote && /[\r\n\f]/.test(next)) {
+            ++i;
+            if (next == '\r' && selectors[i] == '\n') { ++i; }
+            continue;
+          }
+          if (quote && /[0-9a-f]/i.test(next)) {
+            j = i;
+            while (i < length && i - j < 6 && /[0-9a-f]/i.test(selectors[i])) { ++i; }
+            result += '\\' + ('000000' + selectors.slice(j, i)).slice(-6);
+            if (/[\x20\t\r\n\f]/.test(selectors[i] || '')) {
+              next = selectors[i++];
+              if (next == '\r' && selectors[i] == '\n') { ++i; }
+            }
+            continue;
+          }
+          result += c + selectors[i++];
+          continue;
+        }
+        if (c == quote) { quote = ''; }
+        else if (!quote && (c == '"' || c == "'")) { quote = c; }
+        result += c;
+      }
+      // EOF closes a string. Keep its trailing whitespace inside that string
+      // so selector trimming cannot erase a bad newline or a literal space.
+      return result + quote;
+    },
+
   // unique parser entry point for all
   // methods (type matching/selecting)
   parse =
@@ -1851,7 +1890,7 @@
       }
 
       // normalize input string
-      parsed = selectors.
+      parsed = stringContinuations(selectors).
         replace(/\x00|\\$/g, '\ufffd').
         replace(REX.CombineWSP, '\x20').
         replace(REX.PseudosWSP, '$1').
