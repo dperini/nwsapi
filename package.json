@@ -38,6 +38,12 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
+    "test:regressions": "playwright test -c test/regressions.config.mjs --project=node",
+    "test:regressions:browser": "playwright test -c test/regressions.config.mjs --project=chromium",
     "lint": "eslint ./src/nwsapi.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "jsdom": "30.0.1"
   }
 }
