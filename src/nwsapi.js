@@ -148,10 +148,22 @@
   Config = {
     IDS_DUPES: true,
     FORGIVING: true,
+    LEGACY: false,
     NODE_LIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
     VERBOSITY: true
+  },
+
+  // Select the allocator once, when the first cache is requested. Legacy
+  // hosts probe the constructor; modern hosts use it directly. Capture it
+  // so later allocations do not repeat feature detection.
+  createWeakMap = function() {
+    var Constructor = !Config.LEGACY || typeof WeakMap == 'function' ? WeakMap : undefined;
+    createWeakMap = Constructor ?
+      function() { return new Constructor(); } :
+      function() { return undefined; };
+    return createWeakMap();
   },
 
   NAMESPACE,
