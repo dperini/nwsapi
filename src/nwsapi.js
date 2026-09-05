@@ -1245,6 +1245,24 @@
                         a <= -1 ? (f ? 'n<' + (b + 1) + (Math.abs(a) != 1 ? '&&' + test : '') : 'n==' + a) :
                         a === 0 ? (n[0] ? 'n==' + b : 'n>' + (b - 1)) : 'false';
                     }
+                    // A constant index needs no index. nth(Element|OfType)
+                    // builds the sibling list of the parent to number the
+                    // element within it, which is the right trade for an an+b
+                    // form that has to know where the element sits, and pure
+                    // overhead for ':nth-child(3)', which only has to know
+                    // whether three steps back runs out of siblings.
+                    //
+                    // Only for the -child forms: of-type has to compare the
+                    // name of every sibling it steps over, and reading
+                    // localName through the host on each one costs more than
+                    // the list it avoids.
+                    if (test == 'n==' + a && a >= 1 && !expr) {
+                      test = type ? 'next' : 'previous';
+                      source = 'n=1,o=e;' +
+                        'while(n<=' + a + '&&(o=o.' + test + 'ElementSibling))++n;' +
+                        'if(n==' + a + '){' + source + '}';
+                      break;
+                    }
                     expr = expr ? 'OfType' : 'Element';
                     type = type ? 'true' : 'false';
                     source = 'n=s.nth' + expr + '(e,' + type + ');if((' + test + ')){' + source + '}';
