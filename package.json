@@ -49,6 +49,7 @@
     }
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test:resolver": "node --test test/resolver-execution.test.cjs"
   }
 }
