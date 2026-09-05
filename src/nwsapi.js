@@ -36,6 +36,11 @@
   root = doc.documentElement,
   slice = Array.prototype.slice,
 
+  // Detect optional runtime features once per factory and reuse the results.
+  Support = {
+    WeakMap: typeof WeakMap == 'function' ? WeakMap : null
+  },
+
   // A last-resort matcher, read from whatever global the factory was handed.
   // It is only reached when the node cannot produce one of its own, because
   // this global is not always the host's: the documented Node shape is
@@ -715,58 +720,50 @@
   // installed itself, _matches retains the native implementation
   matchesNative =
     function(node, selector) {
-      var result, matcher = _matches || ownerMatcher(node);
-      // Reached from inside a host matcher, so that matcher routes back into
-      // this engine, which is what jsdom does. Going on would re-enter the
-      // lambda that asked for the state and recurse until the stack ends.
-      // The outer answer is the only one available, and the trip is recorded
-      // so the host is asked at most once per document.
-      if (matchingNative) { reentered = true; return false; }
-      if (!matcher || (matcherDelegates && matcher === matcherFor)) { return false; }
+      var view, proto, matcher, ownerDoc = node.ownerDocument || doc;
+      // Record delegation before doing any lookup. Nested calls must not
+      // replace the document record belonging to the outer matcher.
+      if (matchingNative) { matchingNative.delegates = true; return false; }
+      if (ownerDoc !== matcherDoc) {
+        matcherDoc = ownerDoc;
+        matcherRecord = matcherCache && matcherCache.get(ownerDoc);
+        if (!matcherRecord) {
+          view = ownerDoc.defaultView;
+          proto = view && view.Element && view.Element.prototype;
+          matcherRecord = {
+            matcher: _matches || (proto && (proto.matches || proto.webkitMatchesSelector ||
+              proto.mozMatchesSelector || proto.msMatchesSelector)) || NATIVE_MATCHES,
+            delegates: false
+          };
+          if (matcherCache) { matcherCache.set(ownerDoc, matcherRecord); }
+        }
+      }
+      // install() may supply a saved matcher after this document was cached.
+      if (_matches && _matches !== matcherRecord.matcher) {
+        matcherRecord.matcher = _matches;
+        matcherRecord.delegates = false;
+      }
+      matcher = matcherRecord.matcher;
+      if (!matcher || matcherRecord.delegates) { return false; }
       try {
-        matchingNative = true;
-        reentered = false;
-        result = matcher.call(node, selector);
-        if (reentered && matcher === matcherFor) { matcherDelegates = true; }
-        return result;
+        matchingNative = matcherRecord;
+        return matcher.call(node, selector);
       } catch (e) {
         return false;
       } finally {
-        matchingNative = false;
+        matchingNative = null;
       }
     },
 
-  // set while a host matcher runs, see matchesNative
-  matchingNative = false,
+  // The active record is marked directly on re-entry, even if the host throws.
+  matchingNative = null,
 
-  // one-entry memo of the last document's matcher, since consecutive calls
-  // ask about the same document
+  // Consecutive queries avoid a WeakMap lookup. Retain other documents weakly
+  // so switching realms does not repeat delegation detection. Older hosts
+  // without WeakMap retain the guarded one-document cache.
   matcherDoc = null,
-  matcherFor = null,
-
-  // set when a host matcher turned out to delegate back to this engine, so
-  // it is asked once per document rather than on every call
-  matcherDelegates = false,
-
-  // set by a nested entry, which is how that delegation is noticed
-  reentered = false,
-
-  // The matcher comes from the node's own realm. A matcher belonging to some
-  // other realm answers a foreign node wrong, or throws a brand check that
-  // the catch above turns into a silent false, and the realm this module was
-  // loaded in is not reliably the node's.
-  ownerMatcher =
-    function(node) {
-      var view, proto, ownerDoc = node.ownerDocument;
-      if (ownerDoc === matcherDoc) { return matcherFor; }
-      view = ownerDoc && ownerDoc.defaultView;
-      proto = view && view.Element && view.Element.prototype;
-      matcherDoc = ownerDoc;
-      matcherDelegates = false;
-      matcherFor = (proto && (proto.matches || proto.webkitMatchesSelector ||
-        proto.mozMatchesSelector || proto.msMatchesSelector)) || NATIVE_MATCHES;
-      return matcherFor;
-    },
+  matcherRecord = null,
+  matcherCache = Support.WeakMap ? new Support.WeakMap() : null,
 
   // :open and :closed have a portable DOM state for details and dialog.
   // Native matching extends support to host-language states such as pickers.
