@@ -7,7 +7,7 @@ export default defineConfig({
   server: { watch: { usePolling: process.env.CHOKIDAR_USEPOLLING === '1' } },
   test: {
     watch: process.argv.includes('--watch'),
-    include: ['test/*.test.mts'],
+    include: ['test/*.test.mts', 'test/node/legacy.spec.mts'],
     globalSetup: ['.config/vitest.setup.mts'],
     forceRerunTriggers: ['../src/**/*.mts', '../scripts/build.mts', './**'].map(
       path => fileURLToPath(new URL(path, import.meta.url)),
