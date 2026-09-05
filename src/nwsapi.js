@@ -384,6 +384,7 @@
         NAMESPACE = root && root.namespaceURI;
         Snapshot.doc = doc;
         Snapshot.root = root;
+        hoverWanted && trackHover();
       }
       return (Snapshot.from = context);
     },
@@ -1453,6 +1454,7 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'hover':
+                  trackHover();
                   source = 'if(e===s.HOVER){' + source + '}';
                   break;
                 case 'active':
@@ -2065,11 +2067,43 @@
 
   // handlers needed for the :hover pseudo-class
   // track state change in browsers and headless
-  initEnv =
-    (function() {
-      doc.addEventListener('mouseover', function(e) { Snapshot.HOVER = e.target; }, true);
-      doc.addEventListener('mouseout', function(e) { Snapshot.HOVER = null; }, true);
-    })(),
+  hoverWanted = false,
+
+  hoverTracked = null,
+
+  hoverDoc,
+
+  hoverRecord,
+
+  hoverChanged =
+    function(event) {
+      var targetDoc = event.target.ownerDocument || event.target,
+      record = hoverTracked ? hoverTracked.get(targetDoc) :
+        targetDoc === hoverDoc ? hoverRecord : undefined;
+      if (record) {
+        record.target = event.type == 'mouseover' ? event.target : null;
+        if (targetDoc === doc) { Snapshot.HOVER = record.target; }
+      }
+    },
+
+  trackHover =
+    function() {
+      hoverWanted = true;
+      if (!doc) { return; }
+      if (hoverTracked === null) { hoverTracked = createWeakMap(); }
+      var record = hoverTracked ? hoverTracked.get(doc) :
+        hoverDoc === doc ? hoverRecord : undefined;
+      if (!record) {
+        record = { target: null };
+        if (hoverTracked) { hoverTracked.set(doc, record); }
+        // Stable callbacks avoid duplicate listeners even without WeakMap.
+        doc.addEventListener('mouseover', hoverChanged, true);
+        doc.addEventListener('mouseout', hoverChanged, true);
+      }
+      hoverDoc = doc;
+      hoverRecord = record;
+      Snapshot.HOVER = record.target;
+    },
 
   // QSA placeholders to native references
   _closest, _matches,
