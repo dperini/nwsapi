@@ -38,6 +38,10 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test:attributes": "node --test test/attribute-parse-error.test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
   }
 }
