@@ -2165,7 +2165,7 @@
         Element.prototype.querySelector =
         HTMLElement.prototype.querySelector = _querySelector;
         Element.prototype.querySelectorAll =
-        HTMLElement.prototype.querySelectorAll = _querySelector;
+        HTMLElement.prototype.querySelectorAll = _querySelectorAll;
       }
       if (_querySelectorAllDoc) {
         Document.prototype.querySelector =
