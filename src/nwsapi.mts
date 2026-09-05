@@ -102,6 +102,8 @@
     pseudo_dbl: ':(after|before|first\\-letter|first\\-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\\b'
   },
 
+  HAS_ANCHOR = ':-nwsapi-anchor',
+
   Patterns = {
     // pseudo-classes
     treestruct: RegExp('^:(?:' + GROUPS.treestruct + ')(.*)', 'i'),
@@ -115,6 +117,7 @@
     time_state: RegExp('^:(?:' + GROUPS.time_state + ')(.*)', 'i'),
     locationpc: RegExp('^:(?:' + GROUPS.locationpc + ')(.*)', 'i'),
     logicalsel: RegExp('^:(?:' + GROUPS.logicalsel + ')(.*)', 'i'),
+    has_anchor: RegExp('^:(?:' + HAS_ANCHOR.slice(1) + ')\\b(.*)', 'i'),
     pseudo_nop: RegExp('^:(?:' + GROUPS.pseudo_nop + ')(.*)', 'i'),
     pseudo_sng: RegExp('^:(?:' + GROUPS.pseudo_sng + ')(.*)', 'i'),
     pseudo_dbl: RegExp('^:(?:' + GROUPS.pseudo_dbl + ')(.*)', 'i'),
@@ -469,6 +472,28 @@
   // argument left unclosed is closed by EOF, as the CSS Syntax parser does
   // with any open construct. Returns a match-like array so that callers can
   // pop() the remainder the same way they do with a RegExp match.
+  splitList =
+    function(text) {
+      var chr, depth = 0, escaped, i = 0, l = text.length,
+      quote = '', start = 0, list = [ ];
+
+      for (; l > i; ++i) {
+        chr = text.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28' || chr == '\x5b') { ++depth; }
+        else if (chr == '\x29' || chr == '\x5d') { --depth; }
+        else if (chr == ',' && depth === 0) {
+          list[list.length] = text.slice(start, i).replace(REX.TrimSpaces, '');
+          start = i + 1;
+        }
+      }
+      list[list.length] = text.slice(start).replace(REX.TrimSpaces, '');
+      return list;
+    },
+
   matchLogical =
     function(selector) {
       var chr, close, escaped, depth = 1, i, l, quote = '',
@@ -1347,6 +1372,10 @@
             // :is( s1, [ s2, ... ]), :not( s1, [ s2, ... ]),
             // :has( s1, [ s2, ... ]) no nesting is allowed for
             // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
+            else if ((match = selector.match(Patterns.has_anchor))) {
+              source = 'if(e===s.anchor){' + source + '}';
+            }
+
             else if ((match = matchLogical(selector))) {
               match[1] = match[1].toLowerCase();
               expr = match[2].replace(/\x22/g, '\\"');
@@ -1369,26 +1398,7 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'has':
-                  if (expr == ':scope') {
-                    source = 'if(s.has("' + expr + '",e)){' + source + '}';
-                    break;
-                  }
-
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source = 'if(e.parentElement&&s.select("*' + expr + '",e.parentElement).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '~':
-                      source = 'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' + source + '}';
-                      break;
-                    case '>':
-                      source = 'if(s.first(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                     default:
-                      source = 'if(s.has(":scope ' + expr + '",e)){' + source + '}';
-                      break;
-                  }
+                  source = 'if(s.has(' + JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1907,8 +1917,23 @@
 
   // true if element matches the selector
   has =
-    function(selector, context, callback) {
-      return collect(parse(selector, true), context, callback).results.length > 0;
+    function(list, anchor) {
+      var context, found = false, i = 0, l = list.length, previous = Snapshot.anchor;
+      Snapshot.anchor = anchor;
+      try {
+        for (; l > i; ++i) {
+          context = /^[+~]/.test(list[i]) ? anchor.parentElement : anchor;
+          if (!list[i]) { emit(qsInvalid); return false; }
+          // Compile even a root sibling argument, whose candidate set is empty.
+          // Later invalid items must not be hidden by an earlier match.
+          if (collect(parse(HAS_ANCHOR + ' ' + list[i], true), context || anchor).results.length && context) {
+            found = true;
+          }
+        }
+        return found;
+      } finally {
+        Snapshot.anchor = previous;
+      }
     },
 
   // equivalent of w3c 'querySelector' method
@@ -2195,6 +2220,7 @@
     doc: doc,
     from: doc,
     root: root,
+    anchor: null,
 
     byTag: byTag,
 
