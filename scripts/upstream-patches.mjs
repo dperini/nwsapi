@@ -1634,8 +1634,8 @@ compares an id for equality rather than matching it.`,
     apply(source) {
       source = edit(
         source,
-        `  // check media resources is playing
-  isPlaying =`,
+        `  // context agnostic getElementsByClassName
+  byClass =`,
         `  // The class of an element, for the one element kind whose reflection is
   // not a string. SVG 1.1 defined SVGElement.className as an
   // SVGAnimatedString, SVG 2 deprecated it, and the browsers still ship it,
@@ -1649,8 +1649,8 @@ compares an id for equality rather than matching it.`,
       return e.getAttribute('class');
     },
 
-  // check media resources is playing
-  isPlaying =`,
+  // context agnostic getElementsByClassName
+  byClass =`,
         'property-reads: classOf',
       );
 
