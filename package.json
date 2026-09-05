@@ -98,6 +98,7 @@
     "test:package": "node test/jsdom-adapter-package.mts",
     "test:upstream": "node scripts/build.mts && playwright test --config playwright.config.mts",
     "upstream:clone": "node scripts/git-partial-submodule.mts clone",
-    "upstream:verify": "node scripts/git-partial-submodule.mts verify"
+    "upstream:verify": "node scripts/git-partial-submodule.mts verify",
+    "test:extracted": "vitest run --config .config/vitest.config.mts test/not-extracted.test.mts"
   }
 }
