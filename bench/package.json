@@ -1,0 +1,19 @@
+{
+  "name": "nwsapi-benchmarks",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "bench": "node --expose-gc selectors.bench.mts",
+    "bench:accessors": "node accessors.bench.mts",
+    "bench:cache": "node --expose-gc cache.bench.mts",
+    "bench:memory": "node --expose-gc memory.bench.mts",
+    "bench:report": "node --expose-gc report.mts"
+  },
+  "devDependencies": {
+    "jsdom": "30.0.1",
+    "mitata": "1.0.34"
+  }
+}
