@@ -1611,6 +1611,11 @@
 
             // placeholder for parse only no-op selectors
             else if ((match = selector.match(Patterns.pseudo_nop))) {
+              // Valid to write, and never a match: the state behind these is
+              // the host's to report, and a resolver that emits no test at
+              // all accepts every element instead of none.
+              source = 'if(false){' + source + '}';
+              selector = match[1];
               break;
             }
 
