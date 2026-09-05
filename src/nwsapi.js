@@ -846,7 +846,7 @@
   isPlaying =
     function(media) {
       // for <audio>, <video>, <source> and <track> elements
-      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
+      var parent = /^(?:audio|video)$/i.test(media.localName) ? null : media.parentElement;
       return (
         !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
         !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
@@ -1639,19 +1639,24 @@
                   source = 'if(s.isPlaying(e)){' + source + '}';
                   break;
                 case 'paused':
-                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'seeking':
-                  source = 'if(!s.isPlaying(e)){' + source + '}';
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.seeking===true)){' + source + '}';
                   break;
                 case 'buffering':
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.networkState===2&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'stalled':
+                  source = 'if((/^(?:audio|video)$/i.test(e.localName)&&e.networkState===2&&!s.isPlaying(e))){' + source + '}';
                   break;
                 case 'muted':
                   source = 'if(e.localName=="audio"&&e.getAttribute("muted")){' + source + '}';
                   break;
                 case 'volume-locked':
+                  // the user-agent/OS volume lock has no DOM reflection,
+                  // valid but never matching in this engine
+                  source = 'if(false){' + source + '}';
                   break;
                 default:
                   break;
@@ -1686,6 +1691,15 @@
                   emit('\'' + expression + '\'' + qsInvalid);
                   break;
               }
+            }
+
+            // *** time-dimensional pseudo-classes (Selectors Level 5)
+            // :current, :past, :future
+            else if ((match = selector.match(Patterns.time_state))) {
+              // no timeline is defined for elements of a static DOM, per
+              // https://drafts.csswg.org/selectors-5/#time-pseudos these
+              // pseudo-classes are valid but must not match any element
+              source = 'if(false){' + source + '}';
             }
 
             // placeholder for parse only no-op selectors
@@ -2214,7 +2228,8 @@
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     isLink: isLink,
-    hasAttributeNS: hasAttributeNS
+    hasAttributeNS: hasAttributeNS,
+    isPlaying: isPlaying
   },
 
   // public exported methods/objects
