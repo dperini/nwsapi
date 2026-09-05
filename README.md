@@ -31,6 +31,41 @@ $ npm install nwsapi
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
 
 
+## Using the jsdom adapter
+
+To use nwsapi ≥ 2.3.0 in jsdom ≥ 27, choose an override below. Replace `<version>`
+with the published nwsapi version you want to use.
+
+Add the adapter's `css-tree` peer dependency to `package.json`:
+
+```json
+{
+  "dependencies": {
+    "css-tree": "^3.2.1"
+  }
+}
+```
+
+- npm (`package.json`):
+
+  ```json
+  {
+    "overrides": {
+      "@asamuzakjp/dom-selector": "npm:nwsapi@<version>"
+    }
+  }
+  ```
+
+- pnpm (`pnpm-workspace.yaml`):
+
+  ```yaml
+  overrides:
+    '@asamuzakjp/dom-selector': 'npm:nwsapi@<version>'
+  ```
+
+Run `npm install` or `pnpm install`. jsdom will use nwsapi for queries and stylesheet
+matching. The existing nwsapi factory API and selector support are unchanged.
+
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).

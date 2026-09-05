@@ -37,6 +37,17 @@
     "type": "git",
     "url": "https://github.com/dperini/nwsapi.git"
   },
+  "devDependencies": {
+    "jsdom": "30.0.1"
+  },
+  "peerDependencies": {
+    "css-tree": "^3.2.1"
+  },
+  "peerDependenciesMeta": {
+    "css-tree": {
+      "optional": true
+    }
+  },
   "scripts": {
     "lint": "eslint ./src/nwsapi.js"
   }

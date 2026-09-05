@@ -1,6 +1,7 @@
 /*
 !dist/nwsapi.min.js
 !src/nwsapi.js
+!src/dom-selector.js
 !package.json
 !README.md
 !LICENSE
