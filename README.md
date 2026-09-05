@@ -31,6 +31,23 @@ $ npm install nwsapi
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
 
 
+## Development
+
+Run the development tools with Node.js ≥ 22. jsdom requires 22.22.2+,
+24.15.0+, or 26+. These requirements do not change the library's runtime support.
+CI runs lint, Node tests, the build and WPT in one Node.js 26 job.
+
+```sh
+npm ci
+npm test
+npm run lint
+npm run min
+```
+
+Node tests need no browser or WPT checkout. See [upstream testing](docs/upstream.md)
+for Chromium setup and known failures. `npm run clean` removes only the generated
+`dist/nwsapi.min.js` bundle.
+
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
