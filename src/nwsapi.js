@@ -936,7 +936,10 @@
             '(?:[.#]?' + identifier + ')|' +
             '(?:' + attributes + ')' +
           ')+|' +
-          '(?:' + WSP + '?[>+~][^>+~]' + WSP + '?)|' +
+          // the combinator is only recognized, not consumed: taking the
+          // character after it swallows the '[' of a following attribute
+          // selector, which then cannot be parsed
+          '(?:' + WSP + '?[>+~](?=[^>+~])' + WSP + '?)|' +
           '(?:' + WSP + '?,' + WSP + '?)|' +
           '(?:' + WSP + '?)|' +
           '(?:\\x29|$)' +
@@ -1833,7 +1836,9 @@
         if (Config.FORGIVING) {
           // forgiving pseudos allow to continue even after parse errors
           if (!(parsed.includes(':is(') || parsed.includes(':where('))) {
-            emit('\'' + selectors + '\'' + qsInvalid);
+            // 'selectors' holds the fragments the validator did match,
+            // which read as a mangled selector once joined by String()
+            emit('\'' + parsed + '\'' + qsInvalid);
             return Config.VERBOSITY ? undefined : (type ? none : false);
           }
           // The validator cannot read this selector, but it holds a
