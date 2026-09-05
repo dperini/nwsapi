@@ -38,6 +38,12 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "lint": "eslint ./src/nwsapi.js",
+    "test": "node --test test/display-state-native-matches.test.cjs test/legacy-matcher.test.cjs test/legacy-runtime.test.cjs",
+    "test:browser": "node --test test/display-state-browser.test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0",
+    "@playwright/test": "1.62.1"
   }
 }
