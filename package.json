@@ -38,7 +38,8 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "devDependencies": {
-    "jsdom": "30.0.1"
+    "jsdom": "30.0.1",
+    "@playwright/test": "1.62.1"
   },
   "peerDependencies": {
     "css-tree": "^3.2.1"
@@ -49,6 +50,7 @@
     }
   },
   "scripts": {
+    "test:attributes": "node --test test/attribute-equality.test.cjs",
     "lint": "eslint ./src/nwsapi.js"
   }
 }
