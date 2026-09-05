@@ -1,0 +1,10 @@
+{
+  "src/nwsapi.js": {
+    "no-undef": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  }
+}

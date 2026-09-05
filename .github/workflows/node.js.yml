@@ -2,27 +2,37 @@ name: nwsapi
 
 on:
   push:
-    branches:
-      - main
+    branches: [master]
   pull_request:
-    branches:
-      - main
+    branches: [master]
 
 jobs:
-  build:
+  node:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node: [22, 24, 26]
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '${{ matrix.node }}'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run min
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run tests
-      run: npm testIs the NodeJS yaml configuration needed in my "nwsapi" repository ?
+  upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run upstream:clone
+      - run: npm run upstream:verify
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:upstream
