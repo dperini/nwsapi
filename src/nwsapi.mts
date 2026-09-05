@@ -469,6 +469,28 @@
   // argument left unclosed is closed by EOF, as the CSS Syntax parser does
   // with any open construct. Returns a match-like array so that callers can
   // pop() the remainder the same way they do with a RegExp match.
+  splitList =
+    function(text) {
+      var chr, depth = 0, escaped, i = 0, l = text.length,
+      quote = '', start = 0, list = [ ];
+
+      for (; l > i; ++i) {
+        chr = text.charAt(i);
+        if (escaped) { escaped = false; continue; }
+        if (chr == '\\') { escaped = true; }
+        else if (quote) { if (chr == quote) { quote = ''; } }
+        else if (chr == '\x22' || chr == '\x27') { quote = chr; }
+        else if (chr == '\x28' || chr == '\x5b') { ++depth; }
+        else if (chr == '\x29' || chr == '\x5d') { --depth; }
+        else if (chr == ',' && depth === 0) {
+          list[list.length] = text.slice(start, i).replace(REX.TrimSpaces, '');
+          start = i + 1;
+        }
+      }
+      list[list.length] = text.slice(start).replace(REX.TrimSpaces, '');
+      return list;
+    },
+
   matchLogical =
     function(selector) {
       var chr, close, escaped, depth = 1, i, l, quote = '',
@@ -861,6 +883,8 @@
       if (typeof option == 'string') { return !!Config[option]; }
       if (typeof option != 'object') { return Config; }
       for (var i in option) {
+        // Compiled logical selectors capture the forgiving mode.
+        if (i == 'FORGIVING' && Config[i] !== !!option[i]) { clear = true; }
         Config[i] = !!option[i];
       }
       // clear lambda cache
@@ -1354,10 +1378,8 @@
                 case 'is':
                 case 'where':
                   if (Config.FORGIVING) {
-                    source =
-                      'try{' +
-                        'if(s.match("' + expr + '",e)){' + source + '}' +
-                      '}catch(E){}';
+                    source = 'if(s.matchForgiving(' +
+                      JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
                   } else {
                     source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   }
@@ -1861,7 +1883,7 @@
 
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
-        selectors = parsed.match(REX.SplitGroup);
+        selectors = splitList(parsed);
         if (parsed[parsed.length - 1] == ',') {
           emit(qsInvalid);
           return Config.VERBOSITY ? undefined : (type ? none : false);
@@ -1882,7 +1904,7 @@
           // the fragments compiled each of them as a selector of its own,
           // which made 'div:not(:is(svg|div))' match every element in the
           // document rather than the divs.
-          selectors = parsed.match(REX.SplitGroup) || [ parsed ];
+          selectors = splitList(parsed);
         }
       }
 
@@ -1903,6 +1925,17 @@
       matchResolvers.set(selectors, resolver);
 
       return match_assert(resolver.factory, element, callback);
+    },
+
+  // Invalid items do not discard the remaining forgiving selectors.
+  matchForgiving =
+    function(list, element) {
+      for (var i = 0, l = list.length; l > i; ++i) {
+        try {
+          if (match(list[i], element)) { return true; }
+        } catch (e) { }
+      }
+      return false;
     },
 
   // true if element matches the selector
@@ -2201,6 +2234,7 @@
     has: has,
     first: first,
     match: match,
+    matchForgiving: matchForgiving,
     select: select,
 
     ancestor: ancestor,
