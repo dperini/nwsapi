@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1010" height="298"
+  viewBox="0 0 1010 298" font-family="Inter,system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bar-0" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a98bff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#a98bff" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="bar-1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f05abe" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#f05abe" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="bar-2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#358ff3" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#358ff3" stop-opacity="0.55"/>
+    </linearGradient>
+    <filter id="halo" x="-50%" y="-50%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.5 0" result="halo"/>
+      <feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <style>
+    .bar rect { transform-box: fill-box; transform-origin: left center;
+      animation: grow 640ms cubic-bezier(0,0.7,0.5,1) both; animation-delay: var(--delay); }
+    @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    @media (prefers-reduced-motion: reduce) { .bar rect { animation: none; } }
+  </style>
+  <rect width="1010" height="298" fill="#0b0b12"/>
+  <text x="24" y="40" fill="#e7e5f2" font-size="17" font-weight="600">Where this branch changed the cost</text>
+  <text x="24" y="62" fill="rgba(231,229,242,0.62)" font-size="12">milliseconds per query, lower is better — baseline against this tree</text>
+    <rect x="286" y="72" width="10" height="10" rx="2" fill="#a98bff"/>
+    <text x="302" y="81" fill="rgba(231,229,242,0.62)" font-size="11.5">nwsapi (this tree)</text>
+    <rect x="454" y="72" width="10" height="10" rx="2" fill="#f05abe"/>
+    <text x="470" y="81" fill="rgba(231,229,242,0.62)" font-size="11.5">nwsapi (baseline)</text>
+    <line x1="300" y1="104" x2="300" y2="220" stroke="rgba(255,255,255,0.075)"/>
+    <text x="300" y="240" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">0.1ms</text>
+    <line x1="600" y1="104" x2="600" y2="220" stroke="rgba(255,255,255,0.075)"/>
+    <text x="600" y="240" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">1ms</text>
+    <line x1="900" y1="104" x2="900" y2="220" stroke="rgba(255,255,255,0.075)"/>
+    <text x="900" y="240" fill="rgba(231,229,242,0.62)" font-size="11" text-anchor="middle">10ms</text>
+    <text x="286" y="135" fill="#e7e5f2" font-size="12.5"
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">body a  1.2x</text>
+    <g class="bar" style="--delay:0.00s">
+      <rect x="300" y="118" width="197.8" height="9" rx="2"
+        fill="url(#bar-0)" filter="url(#halo)"/>
+      <text x="505.7662174448725" y="125" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.456</text>
+    </g>
+    <g class="bar" style="--delay:0.00s">
+      <rect x="300" y="128" width="224.3" height="9" rx="2"
+        fill="url(#bar-1)" filter="url(#halo)"/>
+      <text x="532.297718012069" y="135" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">0.559</text>
+    </g>
+    <text x="286" y="177" fill="#e7e5f2" font-size="12.5"
+      text-anchor="end" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">#title  1.1x</text>
+    <g class="bar" style="--delay:0.05s">
+      <rect x="300" y="160" width="386.9" height="9" rx="2"
+        fill="url(#bar-0)" filter="url(#halo)"/>
+      <text x="694.9035766955901" y="167" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">1.95</text>
+    </g>
+    <g class="bar" style="--delay:0.05s">
+      <rect x="300" y="170" width="393.6" height="9" rx="2"
+        fill="url(#bar-1)" filter="url(#halo)"/>
+      <text x="701.6299250168161" y="177" fill="rgba(231,229,242,0.62)"
+        font-size="10.5" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">2.05</text>
+    </g>
+  <text x="24" y="270" fill="rgba(231,229,242,0.62)" font-size="11">only shapes that moved by more than 5%; every result still agrees with the reference engine</text>
+</svg>

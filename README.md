@@ -2,7 +2,7 @@
 
 Fast CSS Selectors API Engine
 
-![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwshttps://ko-fi.com/dperiniapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
+![](https://img.shields.io/npm/v/nwsapi.svg?colorB=orange&style=flat) ![](https://img.shields.io/github/tag/dperini/nwsapi.svg?style=flat) ![](https://img.shields.io/npm/dw/nwsapi.svg?style=flat) ![](https://img.shields.io/github/issues/dperini/nwsapi.svg?style=flat)
 
 NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwmatcher) aiming at [Selectors Level 4](https://www.w3.org/TR/selectors-4/) conformance. It has been completely reworked to be easily extended and maintained. It is a right-to-left selector parser and compiler written in pure Javascript with no external dependencies. It was initially thought as a cross browser library to improve event delegation and web page scraping in various frameworks but it has become a popular replacement of the native CSS selection and matching functionality in newer browsers and headless environments.
 
@@ -30,10 +30,17 @@ $ npm install nwsapi
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
 
-
 ## Supported Selectors
 
 Here is a list of all the CSS2/CSS3/CSS4 [Supported selectors](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors).
+
+State pseudo-classes from [Selectors Level 4](https://www.w3.org/TR/selectors-4/):
+
+* `:open` and `:closed` — match `<details>`/`<dialog>` elements by their `open` DOM property; other host-language states (open `<select>` drop-downs, `<input>` pickers) are matched only when the host exposes the native pseudo-class.
+* `:modal` and `:fullscreen` — match the document's `fullscreenElement` (including the vendor-prefixed forms) and otherwise defer to the host's native `:modal`/`:fullscreen`, since the `<dialog>` "is modal" flag has no DOM reflection.
+* `:picture-in-picture` — matches the document's `pictureInPictureElement`, or the host's native pseudo-class.
+* `:popover-open` (and its `:popover` alias) — requires the `popover` attribute plus the host's native `:popover-open`, because the attribute declares capability rather than the showing state.
+* `:current`, `:past`, `:future` — parsed as valid but match nothing: these moved to Selectors Level 5, which mandates they must not match when no timeline is defined (a static DOM has none). Only the bare forms are supported; the functional `:current(<selector-list>)` form (which no browser ships) is a parse error.
 
 
 ## Features and Compliance
@@ -84,9 +91,11 @@ Returns an array of elements having the specified class name `class`, optionally
 The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
 
 * `IDS_DUPES`: true  - true to allow using multiple elements having the same id, false to disallow
-* `LIVECACHE`: true  - true for caching both results and resolvers, false for caching only resolvers
-* `MIXEDCASE`: true  - true to match tag names case insensitive, false to match using case sensitive
+* `FORGIVING`: true  - true for `:is()`/`:where()` to drop an item they cannot read, false to throw on it
+* `LEGACY`: false    - true for a host that answers none of the modern DOM, see below and `docs/legacy.md`
+* `NODE_LIST`: false - true to return a `NodeList`, false to return an `Array`; it reads `NodeList` off the global object, so it works only where that is the host's own global (a browser), and throws when the engine is loaded as a module
 * `LOGERRORS`: true  - true to print errors and warnings to the console, false to mute both of them
+* `VERBOSITY`: true  - true to throw on an invalid selector, false to answer it as no match
 
 
 ### Examples on extending the basic functionalities
@@ -99,6 +108,27 @@ Disable logging errors/warnings to console, disallow duplicate ids. Example:
 NW.Dom.configure( { LOGERRORS: false, IDS_DUPES: false } );
 ```
 NOTE: NW.Dom.configure() without parameters return the current configuration.
+
+`LEGACY` (off by default on modern runtimes) is for a host that does not behave the way the DOM
+says. With it off, the generated code reads the host directly: `e.localName`,
+`e.getAttribute("x")`, `e.nextElementSibling`. With it on, every one of those
+reads becomes a call to a helper that knows what the older hosts answered
+instead — `class` reachable only as `className`, a URL attribute resolved
+unless the second argument asked for the markup, no `hasAttribute`, no
+`getElementsByClassName`, no element-only traversal, and comment nodes inside
+a `getElementsByTagName('*')` collection.
+
+Legacy cache initialization checks optional runtime features once, when the
+first cache is requested. It uses native implementations when available and
+does not polyfill missing built-ins. The engine turns the option on when it attaches to a document that
+is missing `hasAttribute`, `getElementsByClassName`, `firstElementChild` or
+`localName`, so most callers never set it. It is not a language switch: a
+build tool can lower the syntax in this file, but it cannot change what the
+host hands back. `docs/legacy.md` lists every quirk it handles, what it
+cannot supply, and how it is tested.
+
+Changing `LEGACY` or `FORGIVING` clears the compiled resolvers, since both are
+read while a selector compiles.
 
 #### `registerCombinator( symbol, resolver )`
 
@@ -130,6 +160,50 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
     };
   })(this));
 ```
+
+## Development
+
+Requires Node.js >= 24 and [pnpm](https://pnpm.io) (the version pinned in `packageManager`).
+
+```sh
+pnpm install                  # install pinned dev dependencies
+pnpm run lint                 # eslint (flat config)
+pnpm run min                  # build dist/nwsapi.min.js (terser)
+pnpm test                     # both suites below
+
+# node-side regressions against jsdom, no browser needed
+pnpm run test:node
+
+# upstream web-platform-tests (sparse + shallow, pinned in .gitmodules)
+pnpm run upstream:clone       # materialize upstream/wpt at the pinned ref
+pnpm run upstream:verify      # verify ref, sparse patterns and manifest hash
+
+# run upstream WPT selector tests against src/nwsapi.js (Playwright)
+pnpm exec playwright install chromium
+pnpm run test:upstream                                   # full suite
+WPT_FILTER='Attribute presence' pnpm run test:upstream   # individual selectors
+WPT_SECTION='Combinators' pnpm run test:upstream         # a whole section
+
+# benchmarks (mitata + jsdom), ported from the legacy test/speed suite
+pnpm run bench                                  # all preset groups
+pnpm run bench -- --preset default              # one group
+pnpm run bench -- --selector 'div:not(.example)' # a single selector
+
+# serve the WPT checkout + repo for interactive debugging via portless
+pnpm run serve                # -> https://nwsapi.localhost (proxies $PORT)
+# first run on a new machine: `pnpm exec portless trust` once (sudo prompt)
+# to install the local CA and start the HTTPS proxy
+```
+
+The `upstream/` directory is git-ignored on purpose: the pin of record is the
+`ref` field in `.gitmodules` (see `docs/upstream.md`).
+
+What makes this engine fast, what was tried and rejected, and how to measure a
+change before claiming it: `docs/performance.md`. Running on a host that
+answers none of the modern DOM: `docs/legacy.md`. Where jsdom's engine and a
+browser disagree, and which of those are not this engine's bugs:
+`docs/dom-selector-differences.md`. The benchmark harnesses and how to read
+their charts: `bench/README.md`.
 
 ## 💖 Support & Sponsoring
 
