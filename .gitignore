@@ -1,3 +1,14 @@
 node_modules/
 package-lock.json
 yarn.lock
+
+# pristine upstream checkouts (pin of record lives in .gitmodules)
+# anchored to repo root so test/upstream/ stays tracked
+/upstream/
+
+# playwright artifacts
+test-results/
+playwright-report/
+
+# build output
+dist/nwsapi.min.js

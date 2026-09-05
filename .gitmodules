@@ -1,0 +1,11 @@
+# wpt-7aed663 sha256:9954c30501783f0c12ea5026a94cf988c8c5d2ac3ed51279cbfdd7476f92c393
+[submodule "upstream/wpt"]
+	ignore = dirty
+	ref = 7aed6630812b20e6eec2a2e40594f8dfda036e00
+	path = upstream/wpt
+	url = https://github.com/web-platform-tests/wpt.git
+	branch = master
+	shallow = true
+	sparse-checkout = resources common dom/nodes css/selectors
+	verify = pnpm run test:upstream
+# no-release-tag: web-platform-tests publishes no release tags; pinned by ref on master

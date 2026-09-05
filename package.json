@@ -11,12 +11,6 @@
     "matcher",
     "selector"
   ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
-    }
-  ],
   "license": "MIT",
   "author": {
     "name": "Diego Perini",
@@ -37,7 +31,39 @@
     "type": "git",
     "url": "https://github.com/dperini/nwsapi.git"
   },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.18.0",
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "bench": "node --expose-gc bench/selectors.bench.mjs",
+    "bench:accessors": "node bench/accessors.bench.mjs",
+    "bench:cache": "node --expose-gc bench/cache.bench.mjs",
+    "bench:memory": "node --expose-gc bench/memory.bench.mjs",
+    "bench:report": "node --expose-gc bench/report.mjs",
+    "browsers:share": "node scripts/browser-share.mjs",
+    "engines:diff": "node scripts/engine-differences.mjs",
+    "upstream:refs": "node scripts/check-references.mjs",
+    "clean": "node scripts/clean.mjs",
+    "lint": "eslint .",
+    "min": "node scripts/min.mjs",
+    "prepack": "pnpm run min",
+    "serve": "portless nwsapi node scripts/serve.mjs",
+    "test": "playwright test",
+    "test:node": "playwright test --project=node",
+    "test:upstream": "playwright test --project=upstream",
+    "upstream:clone": "node scripts/git-partial-submodule.mjs clone",
+    "upstream:verify": "node scripts/git-partial-submodule.mjs verify"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "caniuse-lite": "catalog:",
+    "eslint": "10.8.0",
+    "globals": "17.8.0",
+    "jsdom": "30.0.1",
+    "mitata": "1.0.34",
+    "portless": "0.15.5",
+    "terser": "5.49.0"
   }
 }
