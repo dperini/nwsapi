@@ -133,6 +133,9 @@
     '[\\ufb1d-\\ufdfd]|' +
     '[\\ufe70-\\ufefc])+$'),
 
+  // elements that can carry a hyperlink, see isLink()
+  reLinkName = RegExp('^(?:a|area)$', 'i'),
+
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
   qsInvalid = ' is not a valid selector',
@@ -811,6 +814,12 @@
       return node.hasAttribute('popover') && matchesNative(node, ':popover-open');
     },
 
+  // ':link', ':any-link' and ':visited' share this test
+  isLink =
+    function(node) {
+      return reLinkName.test(node.localName) && node.hasAttribute('href');
+    },
+
   // check media resources is playing
   isPlaying =
     function(media) {
@@ -1390,13 +1399,13 @@
               match[1] = match[1].toLowerCase();
               switch (match[1]) {
                 case 'any-link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")||e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)||e.visited)){' + source + '}';
                   break;
                 case 'link':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href"))){' + source + '}';
+                  source = 'if(s.isLink(e)){' + source + '}';
                   break;
                 case 'visited':
-                  source = 'if((/^a|area$/i.test(e.localName)&&e.hasAttribute("href")&&e.visited)){' + source + '}';
+                  source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
                   source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
@@ -1500,7 +1509,7 @@
                 case 'placeholder-shown':
                   source =
                     'if((' +
-                      '(/^input|textarea$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
+                      '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
                       '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
                       '(!s.match(":focus",e))' +
                     ')){' + source + '}';
@@ -2162,6 +2171,7 @@
     isPopoverOpen: isPopoverOpen,
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
+    isLink: isLink,
     hasAttributeNS: hasAttributeNS
   },
 
