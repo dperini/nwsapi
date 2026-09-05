@@ -35,6 +35,7 @@
   doc = global.document,
   root = doc.documentElement,
   slice = Array.prototype.slice,
+  sliceCall = slice.call.bind(slice),
 
   HSP = '\\x20\\t',
   VSP = '\\r\\n\\f',
@@ -508,6 +509,14 @@
     '.': (c, n) => (e, f) => byClass(n, c),
     },
 
+  // Fetch a cached plan's candidates without allocating lookup closures.
+  fetch = {
+    '#': (n, c) => byId(n, c),
+    '*': (n, c) => byTag(n, c),
+    '|': (n, c) => byTagNS(c, n),
+    '.': (n, c) => byClass(n, c)
+  },
+
   // find duplicate ids using iterative walk
   // Walk 'context' in tree order collecting elements carrying 'id'. The
   // walk can start at 'from', an element already known to be the first match.
@@ -581,13 +590,13 @@
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](tag));
+        return sliceCall(context[api](tag));
       } else {
         tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api](tag));
+            return sliceCall(e[api](tag));
           } else {
             nodes = [ ];
             do {
@@ -608,13 +617,13 @@
       var e, nodes, api = method['.'], reCls;
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](cls));
+        return sliceCall(context[api](cls));
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '');
           if (!(e.nextElementSibling || reCls.test(e.className))) {
-            return slice.call(e[api](cls));
+            return sliceCall(e[api](cls));
           } else {
             nodes = [ ];
             do {
@@ -1028,13 +1037,13 @@
 
   F_INIT = '"use strict";return function Resolver(c,f,x,r)',
 
-  S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
+  S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
   M_HEAD = 'var e,n,o',
-  N_HEAD = 'var e,n,o',
+  N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
 
-  S_LOOP = 'main:while((e=c[++k]))',
+  S_LOOP = 'main:while(++k<l&&(e=c[k])!==undefined)',
   M_LOOP = 'e=c;',
-  N_LOOP = 'main:while((e=c.item(++k)))',
+  N_LOOP = 'main:while(++k<l&&(e=c.item(k))!==undefined)',
 
   S_BODY = 'r[++j]=c[k];',
   M_BODY = '',
@@ -1042,7 +1051,7 @@
 
   S_TAIL = 'continue main;',
   M_TAIL = 'r=true;',
-  N_TAIL = 'r=true;',
+  N_TAIL = 'continue main;',
 
   S_TEST = 'if(f(c[k])){break main;}',
   M_TEST = 'f(c);',
@@ -1056,26 +1065,27 @@
   // executable functions for matching or selecting
   compile =
     function(selector, mode, callback) {
-      var factory, head = '', loop = '', macro = '', source = '', vars = '';
+      var factory, head = '', loop = '', macro = '', source = '', vars = '',
+      key = mode + ':' + !!callback + ':' + selector;
 
       // 'mode' can be boolean or null
       // true = select / false = match
       // null to use collection.item()
       switch (mode) {
         case true:
-          if ((factory = selectLambdas.get(selector))) { return factory; }
+          if ((factory = selectLambdas.get(key)) !== undefined) { return factory; }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL;
           head = S_HEAD;
           loop = S_LOOP;
           break;
         case false:
-          if ((factory = matchLambdas.get(selector))) { return factory; }
+          if ((factory = matchLambdas.get(key)) !== undefined) { return factory; }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL;
           head = M_HEAD;
           loop = M_LOOP;
           break;
         case null:
-          if ((factory = selectLambdas.get(selector))) { return factory; }
+          if ((factory = selectLambdas.get(key)) !== undefined) { return factory; }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL;
           head = N_HEAD;
           loop = N_LOOP;
@@ -1085,6 +1095,11 @@
       }
 
       source = compileSelector(selector, macro, mode, callback);
+
+      if ((mode || mode === null) && !callback && source === macro) {
+        selectLambdas.set(key, null);
+        return null;
+      }
 
       loop += mode || mode === null ? '{' + source + '}' : source;
 
@@ -1103,9 +1118,9 @@
       factory = Function('s', F_INIT + '{' + head + vars + ';' + loop + 'return r;}')(Snapshot);
 
       if (mode || mode === null) {
-        selectLambdas.set(selector, factory);
+        selectLambdas.set(key, factory);
       } else {
-        matchLambdas.set(selector, factory);
+        matchLambdas.set(key, factory);
       }
 
       return factory;
@@ -1116,7 +1131,7 @@
     function(expression, source, mode, callback) {
 
       var a, b, n, f, k = 0, compat, name,
-      NS, expr, match, result, status, symbol,
+      NS, expr, match, pendingTag = '', result, status, symbol,
       test, type, selector = expression, vars;
 
       // isolate selector combinators
@@ -1156,7 +1171,7 @@
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
+            pendingTag = 'if((e.localName=="' + match[1] + '")){';
             break;
 
           // namespace resolver
@@ -1207,6 +1222,7 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;while(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1214,6 +1230,7 @@
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;if(e&&(e=e.previousElementSibling)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1222,6 +1239,7 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;while(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1229,6 +1247,7 @@
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children);
+            if (pendingTag) { source = pendingTag + source + '}'; pendingTag = ''; }
             source = 'var N' + k + '=e;if(e&&(e=e.parentElement)){' + source + '}e=N' + k + ';';
             break;
 
@@ -1780,6 +1799,7 @@
       }
       // end of while selector
 
+      if (pendingTag) { source = pendingTag + source + '}'; }
       return source;
     },
 
@@ -1820,7 +1840,7 @@
     function(selectors, callback) {
       for (var i = 0, l = selectors.length, f = [ ]; l > i; ++i)
         f[i] = compile(selectors[i], false, callback);
-      return { factory: f };
+      return f;
     },
 
   // unique parser entry point for all
@@ -1893,13 +1913,13 @@
       var resolver;
 
       if (element && (resolver = matchResolvers.get(selectors))) {
-        return match_assert(resolver.factory, element, callback);
+        return match_assert(resolver, element, callback);
       }
 
       resolver = match_collect(parse(selectors, false), callback);
       matchResolvers.set(selectors, resolver);
 
-      return match_assert(resolver.factory, element, callback);
+      return match_assert(resolver, element, callback);
     },
 
   // true if element matches the selector
@@ -1959,11 +1979,10 @@
             resolver.callback === callback) {
             var i, l, list,
               f = resolver.factory,
-              h = resolver.htmlset,
               n = resolver.nodeset;
             if (n.length > 1) {
               for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))();
+                list = fetch[n[i][0]](n[i].slice(1), context);
                 if (f[i] !== null) {
                   f[i](list, callback, context, nodes);
                 } else {
@@ -1975,10 +1994,11 @@
                 hasDupes && (nodes = unique(nodes));
               }
             } else {
+              list = fetch[n[0][0]](n[0].slice(1), context);
               if (f[0]) {
-                nodes = f[0](h[0](), callback, context, nodes);
+                nodes = f[0](list, callback, context, nodes);
               } else {
-                nodes = h[0]();
+                nodes = list;
               }
             }
             if (typeof callback == 'function') {
@@ -2034,14 +2054,16 @@
           }
         }
 
-        nodeset[i] = token[1] + token[2];
         token[2] = unescapeIdentifier(token[2]);
+        nodeset[i] = token[1] + token[2];
         htmlset[i] = compat[token[1]](context, token[2]);
         factory[i] = compile(optimized[i], true, null);
 
-        factory[i] ?
-          factory[i](htmlset[i](), callback, context, results) :
-          results.concat(htmlset[i]());
+        if (factory[i]) {
+          factory[i](htmlset[i](), callback, context, results);
+        } else {
+          concatList(results, htmlset[i]());
+        }
       }
 
       if (l > 1) {
@@ -2100,37 +2122,37 @@
       Element.prototype.closest =
       HTMLElement.prototype.closest =
         function closest() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(ancestor));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(ancestor));
         };
 
       Element.prototype.matches =
       HTMLElement.prototype.matches =
         function matches() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(match));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(match));
         };
 
       Element.prototype.querySelector =
       HTMLElement.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first));
         };
 
       Element.prototype.querySelectorAll =
       HTMLElement.prototype.querySelectorAll =
         function querySelectorAll() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(select));
         };
 
       Document.prototype.querySelector =
       DocumentFragment.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first));
         };
 
       Document.prototype.querySelectorAll =
       DocumentFragment.prototype.querySelectorAll =
         function querySelectorAll() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(select));
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(select));
       };
 
       if (all) {
