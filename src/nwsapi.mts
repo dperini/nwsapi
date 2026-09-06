@@ -764,6 +764,14 @@
           doc.createElement('DiV').localName == 'div';
     },
 
+  // Required does not apply to button-like, hidden, range, or color inputs.
+  isRequired =
+    function(node) {
+      return !!node.required && (/^(select|textarea)$/.test(node.localName) ||
+        (node.localName == 'input' &&
+          !/^(hidden|range|color|button|submit|reset|image)$/.test(node.type)));
+    },
+
   // check if node content is editable
   isContentEditable =
     function(node) {
@@ -1668,12 +1676,12 @@
                   break;
                 case 'required':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
+                    'if(s.isRequired(e)' +
                     '){' + source + '}';
                   break;
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
                     '){' + source + '}';
                   break;
                 case 'invalid':
@@ -2329,6 +2337,7 @@
     select: typeof select; ancestor: typeof ancestor;
     nthOfType: typeof nthOfType; nthElement: typeof nthElement;
     matchesNative: typeof matchesNative;
+    isRequired: typeof isRequired;
     isOpen: typeof isOpen; isClosed: typeof isClosed; isModal: typeof isModal;
     isFullscreen: typeof isFullscreen; isPictureInPicture: typeof isPictureInPicture;
     isPopoverOpen: typeof isPopoverOpen; isFocusable: typeof isFocusable;
@@ -2354,6 +2363,7 @@
     nthElement: nthElement,
 
     matchesNative: matchesNative,
+    isRequired: isRequired,
     isOpen: isOpen,
     isClosed: isClosed,
     isModal: isModal,
