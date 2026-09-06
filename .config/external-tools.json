@@ -1,0 +1,8 @@
+{
+  "$schema": "./external-tools.schema.json",
+  "tools": {
+    "node": { "origin": "system", "version": "26" },
+    "npm": { "origin": "system", "version": "12.0.2" },
+    "pnpm": { "origin": "system", "version": "12.3.4" }
+  }
+}

@@ -4,6 +4,10 @@
   "description": "Fast CSS Selectors API Engine",
   "homepage": "https://javascript.nwbox.com/nwsapi/",
   "main": "./src/nwsapi",
+  "files": [
+    "dist/nwsapi.min.js",
+    "src/**/*.js"
+  ],
   "keywords": [
     "css",
     "css3",
@@ -38,7 +42,44 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "devDependencies": {
-    "jsdom": "30.0.1"
+    "@playwright/test": "catalog:",
+    "@types/css-tree": "catalog:",
+    "@types/jsdom": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "acorn": "catalog:",
+    "ast-v8-to-istanbul": "catalog:",
+    "istanbul-lib-coverage": "catalog:",
+    "istanbul-lib-report": "catalog:",
+    "istanbul-reports": "catalog:",
+    "jsdom": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "rolldown": "catalog:",
+    "taze": "catalog:",
+    "svgo": "catalog:",
+    "run-local-ci": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "yaml": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "^11.25.0 || >=12.3.4",
+        "onFail": "error"
+      }
+    ]
+  },
+  "allowScripts": {
+    "fsevents": false
+  },
+  "overrides": {
+    "vite": "$vite",
+    "rolldown": "$rolldown"
   },
   "peerDependencies": {
     "css-tree": "^3.2.1"
@@ -49,6 +90,36 @@
     }
   },
   "scripts": {
-    "lint": "eslint ./src/nwsapi.js"
+    "check:svg": "node scripts/run.mts scripts/check/svgs-are-optimized.mts",
+    "fix:svg": "node scripts/run.mts scripts/check/svgs-are-optimized.mts --fix",
+    "gen:api": "node scripts/run.mts scripts/gen/api-md.mts",
+    "check:api": "node scripts/run.mts scripts/gen/api-md.mts --check",
+    "check": "node scripts/run.mts scripts/check.mts",
+    "fix": "node scripts/run.mts scripts/fix.mts",
+    "update": "node scripts/run.mts scripts/update.mts",
+    "prepare": "node scripts/run.mts scripts/setup.mts",
+    "ci:local": "node scripts/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/node.js.yml --quiet --pause-on-failure --github-token",
+    "clean": "node scripts/run.mts scripts/clean.mts",
+    "lint": "node scripts/run.mts scripts/lint.mts",
+    "format": "node scripts/run.mts scripts/format.mts",
+    "format:check": "node scripts/run.mts scripts/format.mts --check",
+    "build": "node scripts/run.mts scripts/build.mts",
+    "min": "node scripts/run.mts scripts/build.mts",
+    "prepack": "node scripts/run.mts scripts/build.mts",
+    "serve": "node scripts/run.mts scripts/serve.mts",
+    "test": "node scripts/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts",
+    "type": "node scripts/run.mts node_modules/typescript/bin/tsc --noEmit -p .config/tsconfig.check.json",
+    "test:node": "node scripts/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts",
+    "test:watch": "node scripts/run.mts node_modules/vitest/vitest.mjs --watch --config .config/vitest.config.mts",
+    "test:coverage": "node scripts/run.mts scripts/coverage.mts",
+    "gen:coverage": "node scripts/run.mts scripts/gen/coverage-badge.mts",
+    "check:coverage": "node scripts/run.mts scripts/gen/coverage-badge.mts --check",
+    "test:package": "node scripts/run.mts test/jsdom-adapter-package.mts",
+    "test:upstream": "node scripts/run.mts scripts/build.mts && node scripts/run.mts node_modules/@playwright/test/cli.js test --config .config/playwright.config.mts",
+    "upstream:clone": "node scripts/run.mts scripts/git-partial-submodule.mts clone",
+    "upstream:verify": "node scripts/run.mts scripts/git-partial-submodule.mts verify",
+    "test:attributes": "node scripts/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/attribute-parse-error.test.mts",
+    "test:attributes:browser": "NWSAPI_BROWSER=1 node scripts/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/attribute-strings-browser.test.mts",
+    "test:browser": "NWSAPI_BROWSER=1 node scripts/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts"
   }
 }

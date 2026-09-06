@@ -1,3 +1,10 @@
-node_modules/
-package-lock.json
+**/node_modules/
+/.cache/
+/.env.local-ci
+/coverage/
+/dist/nwsapi.min.js
+/playwright-report/
+/src/**/*.js
+/test-results/
+/upstream/
 yarn.lock

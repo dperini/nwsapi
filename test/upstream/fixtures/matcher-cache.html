@@ -1,0 +1,61 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Host matcher cache regressions</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<div popover></div>
+<script>
+test(t => {
+  const engine = NW.Dom;
+  const node = document.querySelector('div');
+  let calls = 0;
+  node.matches = selector => {
+    calls++;
+    return engine.match(selector, node);
+  };
+  t.add_cleanup(() => { delete node.matches; });
+  assert_false(engine.match(':popover-open', node));
+  assert_false(engine.match(':popover-open', node));
+  assert_equals(calls, 1);
+  node.matches = () => { throw new Error('unsupported'); };
+  assert_false(engine.match(':popover-open', node));
+  node.matches = () => true;
+  assert_true(engine.match(':popover-open', node));
+  node.matches = () => false;
+  assert_false(engine.match(':popover-open', node));
+}, 'Matcher replacement invalidates delegation without losing live state');
+
+test(t => {
+  const engine = NW.Dom;
+  const proto = Element.prototype;
+  const saved = ['matches', 'webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector']
+    .map(name => [name, Object.getOwnPropertyDescriptor(proto, name)]);
+  t.add_cleanup(() => {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(proto, name, descriptor);
+      else delete proto[name];
+    }
+    engine.configure({ LEGACY: false });
+  });
+  Object.defineProperty(proto, 'matches', { configurable: true, value: undefined });
+  const other = document.implementation.createHTMLDocument('other');
+  const nodes = [document.createElement('div'), other.createElement('div')];
+  for (const node of nodes) node.setAttribute('popover', '');
+  for (const alias of ['webkitMatchesSelector', 'mozMatchesSelector', 'msMatchesSelector', null]) {
+    for (const [name] of saved.slice(1)) {
+      Object.defineProperty(proto, name, {
+        configurable: true,
+        value: name === alias ? () => true : undefined,
+      });
+    }
+    for (const legacy of [false, true, false]) {
+      engine.configure({ LEGACY: legacy });
+      for (let repeat = 0; repeat < 2; repeat++) {
+        for (const node of nodes) {
+          assert_equals(engine.match(':popover-open', node), legacy && alias !== null);
+        }
+      }
+    }
+  }
+}, 'Legacy aliases and absent matchers refresh across modes and documents');
+</script>
