@@ -1,0 +1,11 @@
+allowBuilds:
+  fsevents: false
+blockExoticSubdeps: true
+minimumReleaseAge: 1440
+overrides:
+  rolldown: '1.2.7'
+  vite: '8.2.2'
+pmOnFail: error
+saveExact: true
+strictDepBuilds: true
+trustPolicy: no-downgrade

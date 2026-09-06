@@ -1,6 +1,8 @@
 **/node_modules/
+/coverage/
 /dist/nwsapi.min.js
 /playwright-report/
+/src/**/*.js
 /test-results/
 /upstream/
 yarn.lock

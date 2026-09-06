@@ -4,6 +4,11 @@
   "description": "Fast CSS Selectors API Engine",
   "homepage": "https://javascript.nwbox.com/nwsapi/",
   "main": "./src/nwsapi",
+  "files": [
+    "dist/lint.log",
+    "dist/nwsapi.min.js",
+    "src/**/*.js"
+  ],
   "keywords": [
     "css",
     "css3",
@@ -38,12 +43,36 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "devDependencies": {
-    "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.1",
-    "eslint": "10.8.0",
-    "globals": "17.8.0",
+    "@vitest/coverage-v8": "5.0.0",
+    "acorn": "8.18.0",
     "jsdom": "30.0.1",
-    "terser": "5.49.0"
+    "oxfmt": "0.66.0",
+    "oxlint": "1.81.0",
+    "rolldown": "1.2.7",
+    "vite": "8.2.2",
+    "vitest": "5.0.0"
+  },
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "npm",
+        "version": "^11.19.0 || >=12.0.2",
+        "onFail": "error"
+      },
+      {
+        "name": "pnpm",
+        "version": "^11.25.0 || >=12.3.4",
+        "onFail": "error"
+      }
+    ]
+  },
+  "allowScripts": {
+    "fsevents": false
+  },
+  "overrides": {
+    "vite": "$vite",
+    "rolldown": "$rolldown"
   },
   "peerDependencies": {
     "css-tree": "^3.2.1"
@@ -54,15 +83,21 @@
     }
   },
   "scripts": {
-    "clean": "node scripts/clean.mjs",
-    "lint": "eslint src scripts test/*.test.cjs test/upstream/*.mjs playwright.config.mjs",
-    "min": "node scripts/min.mjs",
-    "prepack": "npm run min",
-    "serve": "node scripts/serve.mjs",
-    "test": "npm run test:node",
-    "test:node": "node --test test/*.test.cjs",
-    "test:upstream": "playwright test",
-    "upstream:clone": "node scripts/git-partial-submodule.mjs clone",
-    "upstream:verify": "node scripts/git-partial-submodule.mjs verify"
+    "clean": "node scripts/clean.mts",
+    "lint": "oxlint --deny-warnings src/**/*.mts src/*.mts scripts test/*.test.mts test/jsdom-adapter-package.mts test/upstream/*.mts .config/*.mts playwright.config.mts",
+    "format": "oxfmt --config .config/oxfmt.json scripts test/*.test.mts test/jsdom-adapter-package.mts test/upstream/*.mts .config/*.mts playwright.config.mts",
+    "format:check": "oxfmt --check --config .config/oxfmt.json scripts test/*.test.mts test/jsdom-adapter-package.mts test/upstream/*.mts .config/*.mts playwright.config.mts",
+    "build": "node scripts/build.mts",
+    "min": "node scripts/build.mts",
+    "prepack": "node scripts/build.mts",
+    "serve": "node scripts/serve.mts",
+    "test": "vitest run --config .config/vitest.config.mts",
+    "test:node": "vitest run --config .config/vitest.config.mts",
+    "test:watch": "vitest --watch --config .config/vitest.config.mts",
+    "test:coverage": "vitest run --config .config/vitest.config.mts --coverage",
+    "test:package": "node test/jsdom-adapter-package.mts",
+    "test:upstream": "node scripts/build.mts && playwright test --config playwright.config.mts",
+    "upstream:clone": "node scripts/git-partial-submodule.mts clone",
+    "upstream:verify": "node scripts/git-partial-submodule.mts verify"
   }
 }

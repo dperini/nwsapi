@@ -15,10 +15,12 @@ jobs:
         with:
           node-version: '26'
           cache: npm
+      - run: npm install --global npm@12.0.2
       - run: npm ci
       - run: npm run lint
+      - run: npm run format:check
       - run: npm test
-      - run: npm run min
+      - run: npm run test:package
       - run: npm run upstream:clone
       - run: npm run upstream:verify
       - run: npx playwright install --with-deps chromium

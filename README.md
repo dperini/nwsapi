@@ -25,7 +25,7 @@ To include NWSAPI in a standard web page and automatically replace the native QS
 To use NWSAPI with Node.js:
 
 ```
-$ npm install nwsapi
+$ pnpm add nwsapi
 ```
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
@@ -70,18 +70,35 @@ matching. The existing nwsapi factory API and selector support are unchanged.
 
 Run the development tools with Node.js ≥ 22. This does not change the library's
 runtime support.
-CI runs lint, Node tests, the build and WPT in one Node.js 26 job.
+Use npm ≥ 11.19.0 within v11 or ≥ 12.0.2, or pnpm ≥ 11.25.0 within v11
+or ≥ 12.3.4. New dependency resolutions use a one-day release-age delay. Dependency
+scripts need explicit approval. These requirements apply to contributors, not
+library consumers.
+CI runs lint, formatting checks, Node tests, the build and WPT in one Node.js 26 job.
 
 ```sh
-npm ci
-npm test
-npm run lint
-npm run min
+pnpm install --frozen-lockfile
+pnpm test
+pnpm run lint
+pnpm run format:check
+pnpm run build
 ```
 
+Alternatively, use `npm ci` and `npm run <script>`. Keep both lockfiles
+updated when changing dependencies.
+
+Vitest runs the Node tests. Use `pnpm run test:watch` while editing or
+`pnpm run test:coverage` for coverage. Oxlint checks code, Oxfmt formats tooling
+and tests, and Rolldown transforms the `.mts` sources and minifies the browser build.
+Runtime source is not reformatted.
+
 Node tests need no browser or WPT checkout. See [upstream testing](docs/upstream.md)
-for Chromium setup and known failures. `npm run clean` removes only the generated
-`dist/nwsapi.min.js` bundle.
+for Chromium setup and known failures. `pnpm run clean` removes generated JavaScript.
+
+`pnpm pack` and `pnpm publish` build the package first. Published `.js` paths, the
+CommonJS factory, browser/AMD wrapper, extension modules, and optional adapter peer
+stay unchanged. TypeScript sources and development tools are not shipped.
+Run `pnpm run test:package` to check the packed files and jsdom override.
 
 ## Supported Selectors
 

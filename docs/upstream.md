@@ -1,17 +1,17 @@
 # Upstream selector tests
 
 The WPT runner loads `src/nwsapi.js` before each test page and installs it
-as the selector engine. It checks 41 pages listed in `test/upstream/manifest.mjs`.
+as the selector engine. It checks 41 pages listed in `test/upstream/manifest.mts`.
 This is a selected suite, not the complete web-platform-tests project.
 
 Run with Node.js ≥ 22.
 
 ```sh
-npm ci
-npm run upstream:clone
-npm run upstream:verify
-npx playwright install chromium
-npm run test:upstream
+pnpm install --frozen-lockfile
+pnpm run upstream:clone
+pnpm run upstream:verify
+pnpm exec playwright install chromium
+pnpm run test:upstream
 ```
 
 `.gitmodules` pins WPT to `7aed6630812b20e6eec2a2e40594f8dfda036e00`.
@@ -20,7 +20,8 @@ The checkout is ignored, not a Git submodule. Do not edit its files.
 Clone and sparse-restoration commands reject paths that resolve outside the
 repository and refuse dirty existing checkouts before changing them.
 
-Node tests run separately with `npm test`; they need neither WPT nor Chromium.
+Node tests run separately with `pnpm test`; they need neither WPT nor Chromium.
+Set `NWSAPI_MINIFIED=1` to check the minified build with the same WPT baseline.
 The browser server binds localhost and refuses an occupied port.
 
 ## Baseline
@@ -38,7 +39,7 @@ Unexpected failures fail the run. Unexpected passes are reported for cleanup.
 To regenerate after reviewing an engine or upstream change:
 
 ```sh
-WPT_UPDATE_EXPECTATIONS=1 npm run test:upstream
+WPT_UPDATE_EXPECTATIONS=1 pnpm run test:upstream
 ```
 
 Review the diff before committing. Do not use baseline updates to hide regressions.
@@ -46,11 +47,10 @@ Filtered updates are rejected; baseline writes use one worker.
 
 Use `WPT_FILTER` for a subtest-name substring or `/regex/`, and `WPT_SECTION`
 for a selector-section substring. List sections with
-`node test/upstream/sections.mjs`.
+`node test/upstream/sections.mts`.
 
 ## Lint baseline
 
-The flat configuration checks source and new tooling. `eslint-suppressions.json`
-records two existing source findings: undefined `isInstanceof` in `byClass`
-and an unused assignment to `source`. They are not repaired by this tooling PR.
-Remove each suppression when its engine correction lands.
+Oxlint checks source and tooling. The source rules retain the existing exceptions
+for legacy code. Switching linters does not repair the existing undefined
+`isInstanceof` in `byClass` or the unused assignment to `source`.

@@ -1,0 +1,35 @@
+{
+  "plugins": ["oxc", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "node": true,
+    "browser": true,
+    "amd": true
+  },
+  "globals": {
+    "NW": "readonly"
+  },
+  "rules": {
+    "no-console": "off"
+  },
+  "overrides": [
+    {
+      "files": ["src/**/*.mts"],
+      "rules": {
+        "no-unused-vars": "off",
+        "no-unused-expressions": "off",
+        "no-cond-assign": "off",
+        "no-control-regex": "off",
+        "no-useless-escape": "off",
+        "no-redeclare": "off",
+        "no-empty": "off",
+        "default-case": "error",
+        "no-duplicate-case": "error",
+        "radix": "error",
+        "no-with": "error"
+      }
+    }
+  ]
+}

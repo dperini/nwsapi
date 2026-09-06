@@ -195,4 +195,4 @@ export const manifest = [
     path: '/css/selectors/dir-pseudo-on-bdi-element.html',
     note: ':dir() on <bdi> elements',
   },
-];
+]
