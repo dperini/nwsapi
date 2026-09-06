@@ -1567,6 +1567,10 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id)
+            match[1] = escapeIdentifier(match[1]).replace(
+              REX.RegExpChar,
+              '\\$&',
+            )
             source =
               'if((/^' +
               match[1] +
@@ -1578,6 +1582,9 @@
           // class name resolver
           case '.':
             match = selector.match(Patterns.className)
+            match[1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match[1]))
+              ? '(?!)'
+              : escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&')
             compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))'
             source =
               'if((/(^|\\s)' +
@@ -2746,7 +2753,11 @@
 
         nodeset[i] = token[1] + token[2]
         token[2] = unescapeIdentifier(token[2])
-        htmlset[i] = compat[token[1]](context, token[2])
+        // An escaped space cannot be part of a class token.
+        htmlset[i] =
+          token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
+            ? () => []
+            : compat[token[1]](context, token[2])
         factory[i] = compile(optimized[i], true, null)
 
         factory[i]

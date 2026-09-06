@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
-import { isAgent } from '../scripts/lib/is-agent.mts'
+import { isAgent } from '../scripts/repo/lib/is-agent.mts'
 
 process.env.TZ ??= 'UTC'
 
@@ -16,11 +16,13 @@ export default defineConfig({
         ]
       : undefined,
     watch: process.argv.includes('--watch'),
-    include: ['test/*.test.mts'],
+    include: ['test/repo/**/*.test.mts'],
     globalSetup: ['.config/vitest.setup.mts'],
-    forceRerunTriggers: ['../src/**/*.mts', '../scripts/build.mts', './**'].map(
-      path => fileURLToPath(new URL(path, import.meta.url)),
-    ),
+    forceRerunTriggers: [
+      '../src/**/*.mts',
+      '../scripts/repo/build.mts',
+      './**',
+    ].map(path => fileURLToPath(new URL(path, import.meta.url))),
     environment: 'node',
     pool: 'forks',
     isolate: true,
