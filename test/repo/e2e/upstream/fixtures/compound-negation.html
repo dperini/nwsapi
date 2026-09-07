@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Compound negation</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script type="module">
+import { legacyHost } from '/_repo/test/repo/fixtures/legacy-host.mts';
+test(t => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('negation');
+  doc.body.innerHTML = '<main><div id="d1" class="x"><p id="p1" class="a">1</p><p id="p2" class="b">2</p><p id="p3">3</p></div><div id="d2"><span id="s1"></span></div><div id="d3"><div id="d4"><p id="p4" class="a">4</p></div></div></main>';
+  const host = legacyHost(doc);
+  const selectors = [
+    'p:not(.a)', 'p:not(#p1)', 'p:not([class])', 'p:not([class="a"])',
+    'p:not(:first-child)', 'p:not(:nth-of-type(2n))', 'div:not(:nth-of-type(2n))',
+    'p:not(:is(.a, .b))', 'p:not(:not(.a))', 'div:not(:has(p))', 'p:not(.a):not(.b)',
+    'div p:not(.a)', 'div:not(.x) p', 'p:not(.a, .b)', 'div:not(p > span)', 'div:not(div p)',
+    'p:not([title="a,b > c"])', 'p:not(.a\\.b)', "p:not([title='x'])",
+  ];
+  t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+  for (const legacy of [false, true, false]) {
+    engine.configure({ LEGACY: legacy }, true);
+    const context = legacy ? host : doc;
+    for (const selector of selectors) {
+      const expected = Array.from(doc.querySelectorAll(selector), element => element.id);
+      assert_array_equals(engine.select(selector, context).map(element => element.id), expected, selector);
+      assert_array_equals(engine.select(selector, context).map(element => element.id), expected, selector);
+      const target = context.getElementById('p2');
+      assert_equals(engine.match(selector, target), expected.includes('p2'), selector);
+    }
+  }
+}, 'Inline negations agree with native selectors and preserve legacy helper reads');
+</script>
