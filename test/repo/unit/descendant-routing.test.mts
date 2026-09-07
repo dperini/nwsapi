@@ -16,6 +16,18 @@ function build(html) {
 }
 
 describe('a descendant chain of tags answered by descending', () => {
+  test('element scopes can match ancestors outside the scope', () => {
+    const { document, NW } = build(
+      '<main><section><a id="inside"></a></section></main>',
+    )
+    const scope = document.querySelector('section')!
+    for (const selector of ['main a', 'section a', 'main section a']) {
+      assert.deepEqual(
+        NW.select(selector, scope).map(element => element.id),
+        ['inside'],
+      )
+    }
+  })
   test('tag-class parts preserve HTML case rules', () => {
     const { document, NW } = build(
       '<!doctype html><DIV class=x><P id=p class=y></P></DIV>',
