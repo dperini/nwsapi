@@ -107,29 +107,7 @@ NW.Dom.uninstall()
 
 ## API
 
-Use `NW.Dom` in a browser or the engine returned by the Node.js factory.
 See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.
-
-| Method | Result |
-| --- | --- |
-| `closest()` | Returns the nearest match, starting with the element, or `null`. |
-| `first()` | Returns the first matching descendant, or `null`. |
-| `match()` | Returns whether an element matches. |
-| `select()` | Returns an array of matching descendants. |
-
-<details>
-<summary>More API options</summary>
-
-- [Find elements and add extensions](docs/api.md#engine-methods) with `byClass()`, `byId()`, `byTag()`, and the registration methods.
-- [Configure the engine](docs/api.md#configuration) with `configure()`.
-- [Use the jsdom adapter](docs/api.md#jsdom-adapter) for queries and stylesheet matching.
-
-<blockquote>
-<p><img src="assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>
-<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>
-</blockquote>
-
-</details>
 
 ## Contribute
 
