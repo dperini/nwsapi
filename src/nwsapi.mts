@@ -953,7 +953,37 @@
         ? doc.contentType.indexOf('/html') > 0
         : doc.createElement('DiV').localName == 'div'
     },
-    // check if node content is editable
+    // Native matching exposes custom element state that attributes cannot.
+    // https://dom.spec.whatwg.org/#concept-element-defined
+    isDefined = function (element) {
+      var native,
+        custom,
+        name = element.localName,
+        registry,
+        view
+
+      if (element.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
+        return true
+      }
+      native = matchesNative(element, ':defined', undefined)
+      if (native !== undefined) {
+        return native
+      }
+      if (name.indexOf('-') < 0) {
+        if (!element.hasAttribute('is')) {
+          return true
+        }
+        name = element.getAttribute('is') || name
+      }
+
+      view = element.ownerDocument.defaultView
+      registry = view && view.customElements
+      if (!registry || !registry.get) {
+        return false
+      }
+      custom = registry.get(name)
+      return !!custom && element instanceof custom
+    },
     isRequired = function (node) {
       return (
         !!node.required &&
@@ -1049,16 +1079,19 @@
     },
     // use the native selector state when it is available; when NWSAPI has
     // installed itself, _matches retains the native implementation
-    matchesNative = function (node, selector) {
+    matchesNative = function (node, selector, unavailable?) {
       var view,
         proto,
         matcher,
         ownerDoc = node.ownerDocument || doc
+      if (arguments.length < 3) {
+        unavailable = false
+      }
       // Record delegation before doing any lookup. Nested calls must not
       // replace the document record belonging to the outer matcher.
       if (matchingNative) {
         matchingNative.delegates = true
-        return false
+        return unavailable
       }
       if (ownerDoc !== matcherDoc) {
         if (matcherCache === null) {
@@ -1100,13 +1133,14 @@
         matcherRecord.delegates = false
       }
       if (!matcher || matcherRecord.delegates) {
-        return false
+        return unavailable
       }
       try {
         matchingNative = matcherRecord
-        return matcher.call(node, selector)
+        var result = matcher.call(node, selector)
+        return matchingNative.delegates ? unavailable : result
       } catch (e) {
-        return false
+        return unavailable
       } finally {
         matchingNative = null
       }
@@ -2047,10 +2081,7 @@
                     '}'
                   break
                 case 'defined':
-                  source =
-                    'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' +
-                    source +
-                    '}'
+                  source = 'if(s.isDefined(e)){' + source + '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -2935,6 +2966,7 @@
     selectResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
+      isDefined: typeof isDefined
       HOVER?: EventTarget
       doc: Document
       from: Node
@@ -2980,6 +3012,7 @@
       nthElement: nthElement,
 
       matchesNative: matchesNative,
+      isDefined: isDefined,
       isRequired: isRequired,
       isOpen: isOpen,
       isClosed: isClosed,
