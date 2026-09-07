@@ -16,6 +16,7 @@ catalog:
   "istanbul-lib-report": "3.0.1"
   "istanbul-reports": "3.2.0"
   "jsdom": "30.0.1"
+  "mitata": "1.0.34"
   "oxfmt": "0.66.0"
   "oxlint": "1.81.0"
   "oxlint-tsgolint": "7.0.2001"

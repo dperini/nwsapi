@@ -172,9 +172,11 @@ pnpm run test:upstream
 pnpm run test:coverage
 ```
 
-Coverage uses WPT in Chromium for the engine and Node tests for the adapter.
+Coverage combines Node tests and WPT in Chromium.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
+
+See the [selector benchmarks](docs/benchmarks.md) for comparison charts and commands.
 
 </details>
 
