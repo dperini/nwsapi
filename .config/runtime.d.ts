@@ -1,4 +1,5 @@
 export interface NwsapiEngine {
+  Config: Record<string, boolean>
   S_BODY: string
   M_BODY: string
   S_TEST: string

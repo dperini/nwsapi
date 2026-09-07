@@ -1,0 +1,49 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Legacy DOM reads</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script type="module">
+import { legacyHost } from '/_repo/test/repo/fixtures/legacy-host.mts';
+const markup = '<main lang="en"><div id="box" class="box wide" data-k="v" title="a b">' +
+  '<p id="p1" class="a">one</p><!-- comment --><p id="p2" class="b">two</p>' +
+  '<p id="p3" class="a">three</p><a id="link" href="./go" for="x" title="hello-world">link</a>' +
+  '<span></span></div><form><input id="required" required><input id="checked" type="checkbox" checked>' +
+  '<fieldset disabled><legend><input id="exempt"></legend><input id="disabled"></fieldset>' +
+  '<select><optgroup disabled><option>one</option></optgroup></select></form>' +
+  '<div style="color:red"><em></em></div></main>';
+const selectors = [
+  '*', 'div', '.box', '.a', 'p.a', '#box', '#p1', '[data-k]', '[data-k="v"]',
+  '[data-k^="v"]', '[data-k$="v"]', '[data-k*="v"]', '[title~="b"]', '[title|="hello"]',
+  '[title="A B" i]', '[for="x"]', 'a[href]', 'input[checked]', 'input[disabled]', '[style]',
+  'div p', 'div > p', 'p + p', 'p ~ p', 'p, em', ':not(.box)', ':is(p, a)', ':where(p, a)',
+  ':first-child', ':last-child', ':only-child', ':first-of-type', ':last-of-type',
+  ':only-of-type', ':nth-child(2)', ':nth-last-child(2)', ':nth-of-type(2)', ':nth-last-of-type(2)',
+  ':empty', ':root', ':lang(en)', ':link', ':any-link', ':checked', ':required', ':optional',
+  ':enabled', ':disabled', ':defined', ':read-only', ':read-write',
+];
+for (const urls of ['flag', 'node']) {
+  test(t => {
+    const engine = NW.Dom;
+    const doc = document.implementation.createHTMLDocument('legacy');
+    doc.body.innerHTML = markup;
+    const host = legacyHost(doc, { urls });
+    t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+    for (const legacy of [true, false, true]) {
+      engine.configure({ LEGACY: legacy }, true);
+      const context = legacy ? host : doc;
+      for (const selector of selectors) {
+        const expected = Array.from(doc.querySelectorAll(selector), node => node.outerHTML);
+        assert_array_equals(engine.select(selector, context).map(node => node.outerHTML), expected, selector);
+      }
+    }
+    const p = doc.getElementById('p1');
+    assert_equals(engine.select('.a', host).length, 2);
+    p.className = 'changed';
+    assert_equals(engine.select('.a', host).length, 1);
+    assert_equals(engine.select('.changed', host).length, 1);
+    p.remove();
+    assert_equals(engine.select('.changed', host).length, 0);
+  }, `Legacy DOM reads preserve native answers and live queries (${urls} URLs)`);
+}
+</script>
