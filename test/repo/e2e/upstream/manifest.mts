@@ -37,6 +37,11 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/legacy-dom.html',
+    note: 'local WPT regression: legacy host reads agree with native selectors and refresh after mutations',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/cache-generations.html',
     note: 'local WPT regression: cache promotion, eviction, updates, and capacity',
     install: false,
