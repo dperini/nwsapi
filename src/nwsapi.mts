@@ -953,11 +953,7 @@
         ? doc.contentType.indexOf('/html') > 0
         : doc.createElement('DiV').localName == 'div'
     },
-    // check if node content is editable
-    // Whether an element is defined, which every built-in element is. Only
-    // a custom element can be undefined: one whose name carries a hyphen, or a
-    // built-in carrying an 'is' attribute, and in both cases only until a
-    // definition exists and the element has been upgraded to it.
+    // Native matching exposes custom element state that attributes cannot.
     // https://dom.spec.whatwg.org/#concept-element-defined
     isDefined = function (element) {
       var native,
@@ -987,6 +983,16 @@
       }
       custom = registry.get(name)
       return !!custom && element instanceof custom
+    },
+    isRequired = function (node) {
+      return (
+        !!node.required &&
+        (/^(select|textarea)$/.test(node.localName) ||
+          (node.localName == 'input' &&
+            !/^(hidden|range|color|button|submit|reset|image)$/.test(
+              node.type,
+            )))
+      )
     },
     isContentEditable = function (node) {
       var attrValue = 'inherit'
@@ -2220,15 +2226,11 @@
                     '}'
                   break
                 case 'required':
-                  source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
-                    '){' +
-                    source +
-                    '}'
+                  source = 'if(s.isRequired(e)){' + source + '}'
                   break
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
                     '){' +
                     source +
                     '}'
@@ -2248,7 +2250,7 @@
                     'if(((' +
                     '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                     '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                    '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +
+                    '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
                     '){' +
                     source +
                     '}'
@@ -2979,6 +2981,7 @@
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
       matchesNative: typeof matchesNative
+      isRequired: typeof isRequired
       isDisabled: typeof isDisabled
       isOpen: typeof isOpen
       isClosed: typeof isClosed
@@ -3010,6 +3013,7 @@
 
       matchesNative: matchesNative,
       isDefined: isDefined,
+      isRequired: isRequired,
       isOpen: isOpen,
       isClosed: isClosed,
       isDisabled: isDisabled,

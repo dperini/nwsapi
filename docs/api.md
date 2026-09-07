@@ -11,21 +11,21 @@ Query contexts default to the factory document when omitted. `closest()`, `first
 
 | Method | Result |
 | --- | --- |
-| [`byClass(cls, context)`](../src/nwsapi.mts#L3051) | Returns elements with the class name. |
-| [`byId(id, context)`](../src/nwsapi.mts#L3049) | Returns elements with the ID. Duplicate IDs are allowed by default. |
-| [`byTag(tag, context)`](../src/nwsapi.mts#L3050) | Returns elements with the tag name. Use `*` for all elements. |
-| [`closest(selectors, element, callback)`](../src/nwsapi.mts#L3057) | Returns the nearest match, starting with the element, or `null`. |
-| [`compile(selector, mode, callback)`](../src/nwsapi.mts#L3059) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`configure(option, clear)`](../src/nwsapi.mts#L3060) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
-| [`emit(message, proto)`](../src/nwsapi.mts#L3062) | Reports an error using the configured error policy. |
-| [`first(selectors, context, callback)`](../src/nwsapi.mts#L3053) | Returns the first matching descendant, or `null`. |
-| [`install(all)`](../src/nwsapi.mts#L3068) | Replaces native selector methods. Pass `true` to also replace collection methods. |
-| [`match(selectors, element, callback)`](../src/nwsapi.mts#L3054) | Returns whether the element matches. |
-| [`registerCombinator(combinator, resolver)`](../src/nwsapi.mts#L3075) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../src/nwsapi.mts#L3100) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../src/nwsapi.mts#L3122) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
-| [`select(selectors, context, callback)`](../src/nwsapi.mts#L3055) | Returns an array of matching descendants, or an empty array. |
-| [`uninstall()`](../src/nwsapi.mts#L3069) | Restores the native methods saved by `install()`. |
+| [`byClass(cls, context)`](../src/nwsapi.mts#L3055) | Returns elements with the class name. |
+| [`byId(id, context)`](../src/nwsapi.mts#L3053) | Returns elements with the ID. Duplicate IDs are allowed by default. |
+| [`byTag(tag, context)`](../src/nwsapi.mts#L3054) | Returns elements with the tag name. Use `*` for all elements. |
+| [`closest(selectors, element, callback)`](../src/nwsapi.mts#L3061) | Returns the nearest match, starting with the element, or `null`. |
+| [`compile(selector, mode, callback)`](../src/nwsapi.mts#L3063) | Compiles a selector into a resolver function. This is an advanced API. |
+| [`configure(option, clear)`](../src/nwsapi.mts#L3064) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
+| [`emit(message, proto)`](../src/nwsapi.mts#L3066) | Reports an error using the configured error policy. |
+| [`first(selectors, context, callback)`](../src/nwsapi.mts#L3057) | Returns the first matching descendant, or `null`. |
+| [`install(all)`](../src/nwsapi.mts#L3072) | Replaces native selector methods. Pass `true` to also replace collection methods. |
+| [`match(selectors, element, callback)`](../src/nwsapi.mts#L3058) | Returns whether the element matches. |
+| [`registerCombinator(combinator, resolver)`](../src/nwsapi.mts#L3079) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../src/nwsapi.mts#L3104) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../src/nwsapi.mts#L3126) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`select(selectors, context, callback)`](../src/nwsapi.mts#L3059) | Returns an array of matching descendants, or an empty array. |
+| [`uninstall()`](../src/nwsapi.mts#L3073) | Restores the native methods saved by `install()`. |
 
 <details>
 <summary>Configuration</summary>
@@ -60,22 +60,22 @@ These exports support extensions and debugging. Prefer query methods and `config
 
 | Member | Purpose |
 | --- | --- |
-| [`CFG`](../src/nwsapi.mts#L3037) | Contains the compiler syntax settings. |
-| [`Config`](../src/nwsapi.mts#L3063) | Contains the active options. Use `configure()` to change them. |
-| [`M_BODY`](../src/nwsapi.mts#L3040) | Contains the matching resolver body template. |
-| [`M_TEST`](../src/nwsapi.mts#L3044) | Contains the matching resolver test template. |
-| [`matchLambdas`](../src/nwsapi.mts#L3029) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../src/nwsapi.mts#L3032) | Caches matching plans, not DOM results. |
-| [`N_BODY`](../src/nwsapi.mts#L3041) | Exposes the matching resolver body template. |
-| [`N_TEST`](../src/nwsapi.mts#L3045) | Contains the alternate resolver test template. |
-| [`Operators`](../src/nwsapi.mts#L3071) | Contains registered attribute operators. |
-| [`S_BODY`](../src/nwsapi.mts#L3039) | Contains the selection resolver body template. |
-| [`S_TEST`](../src/nwsapi.mts#L3043) | Contains the selection resolver test template. |
-| [`selectLambdas`](../src/nwsapi.mts#L3030) | Caches compiled selection functions, not DOM results. |
-| [`Selectors`](../src/nwsapi.mts#L3072) | Contains registered selector extensions. |
-| [`selectResolvers`](../src/nwsapi.mts#L3033) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../src/nwsapi.mts#L3064) | Contains the document state and helpers used by compiled selectors. |
-| [`Version`](../src/nwsapi.mts#L3066) | Contains the engine version string. |
+| [`CFG`](../src/nwsapi.mts#L3041) | Contains the compiler syntax settings. |
+| [`Config`](../src/nwsapi.mts#L3067) | Contains the active options. Use `configure()` to change them. |
+| [`M_BODY`](../src/nwsapi.mts#L3044) | Contains the matching resolver body template. |
+| [`M_TEST`](../src/nwsapi.mts#L3048) | Contains the matching resolver test template. |
+| [`matchLambdas`](../src/nwsapi.mts#L3033) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../src/nwsapi.mts#L3036) | Caches matching plans, not DOM results. |
+| [`N_BODY`](../src/nwsapi.mts#L3045) | Exposes the matching resolver body template. |
+| [`N_TEST`](../src/nwsapi.mts#L3049) | Contains the alternate resolver test template. |
+| [`Operators`](../src/nwsapi.mts#L3075) | Contains registered attribute operators. |
+| [`S_BODY`](../src/nwsapi.mts#L3043) | Contains the selection resolver body template. |
+| [`S_TEST`](../src/nwsapi.mts#L3047) | Contains the selection resolver test template. |
+| [`selectLambdas`](../src/nwsapi.mts#L3034) | Caches compiled selection functions, not DOM results. |
+| [`Selectors`](../src/nwsapi.mts#L3076) | Contains registered selector extensions. |
+| [`selectResolvers`](../src/nwsapi.mts#L3037) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../src/nwsapi.mts#L3068) | Contains the document state and helpers used by compiled selectors. |
+| [`Version`](../src/nwsapi.mts#L3070) | Contains the engine version string. |
 
 </details>
 

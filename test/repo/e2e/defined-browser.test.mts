@@ -18,8 +18,8 @@ test.skipIf(!process.env.NWSAPI_BROWSER)(
         ),
       })
       const results = await page.evaluate(() => {
-      // oxlint-disable-next-line typescript/unbound-method -- Called with the element receiver below.
-      const native = Element.prototype.matches
+        // oxlint-disable-next-line typescript/unbound-method -- Called with the element receiver below.
+        const native = Element.prototype.matches
         const rows: boolean[][] = []
         const check = () => {
           for (const element of document.querySelectorAll('*')) {
