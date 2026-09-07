@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (2026-07-20)
       - id: tools
-        run: node scripts/external-tools.mts --github-output
+        run: node scripts/repo/external-tools.mts --github-output
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 (2026-07-14)
         with:
           node-version: ${{ steps.tools.outputs.node }}

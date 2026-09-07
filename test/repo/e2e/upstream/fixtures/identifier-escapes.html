@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Identifier escape regressions</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+for (const [value, identifier] of [
+  ['a,b', 'a\\2c b'], ['a.b', 'a\\.b'], ['a/b', 'a\\2f b'],
+  ['a[b', 'a\\5b b'], ['a(b', 'a\\28 b'], ['a+b', 'a\\2b b'],
+  ['a\\b', 'a\\5c b'], ['a\ufffdb', 'a\\0 b'], ['a\u{1f4a9}b', 'a\\1f4a9 b'],
+  ['a b', 'a\\20 b'], ['a\tb', 'a\\9 b'], ['a\nb', 'a\\a b'],
+  ['a\fb', 'a\\c b'], ['a\rb', 'a\\d b'],
+]) {
+  for (const attribute of ['id', 'class']) {
+    test(t => {
+      const node = document.createElement('p');
+      document.body.append(node);
+      t.add_cleanup(() => node.remove());
+      for (const current of [value, 'different', value]) {
+        node.setAttribute(attribute, current);
+        const selector = (attribute === 'id' ? '#' : '.') + identifier;
+        for (const query of [selector, 'p' + selector, ':is(' + selector + ')']) {
+          assert_equals(NW.Dom.match(query, node), node.matches(query));
+          assert_array_equals(NW.Dom.select(query, document), Array.from(document.querySelectorAll(query)));
+          assert_equals(NW.Dom.first(query, document), document.querySelector(query));
+        }
+      }
+    }, attribute + ' escape ' + identifier + ' agrees with the browser after mutation');
+  }
+}
+</script>

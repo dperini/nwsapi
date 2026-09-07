@@ -1,6 +1,48 @@
 'use strict'
 
 const createNwsapi = require('./nwsapi.js')
+type Engine = ReturnType<typeof createNwsapi>
+type State = {
+  engine?: Engine
+  options: Record<string, boolean>
+  active: boolean
+}
+
+// A package override can load a second copy. Versioned, non-enumerable slots
+// share adapter state across those copies without a global window registry.
+const DOCUMENT_STATE = Symbol.for('nwsapi.DOMSelector.document.v1')
+const ENGINE_OWNER = Symbol.for('nwsapi.DOMSelector.owner.v1')
+
+function assertSetup(window, document) {
+  const state = document[DOCUMENT_STATE] as State | undefined
+  if (state && state.active) {
+    throw new window.TypeError('Configure the adapter before its first use')
+  }
+}
+
+function getState(document) {
+  let state = document[DOCUMENT_STATE] as State | undefined
+  if (!state) {
+    state = { options: { __proto__: null }, active: false }
+    Object.defineProperty(document, DOCUMENT_STATE, { value: state })
+  }
+  return state
+}
+
+function activate(adapter) {
+  const engine = adapter.engine
+  if (!adapter.state.active) {
+    assertThrowing(adapter.window, engine)
+    adapter.state.active = true
+  }
+  return engine
+}
+
+function assertThrowing(window, engine) {
+  if (engine.configure().VERBOSITY !== true) {
+    throw new window.TypeError('The jsdom adapter requires VERBOSITY: true')
+  }
+}
 
 // jsdom passes implementation nodes in and expects public wrappers back.
 // css-tree is needed only by this adapter, for stylesheet specificity.
@@ -8,7 +50,7 @@ class DOMSelector {
   declare window: Window & typeof globalThis
   declare idlUtils: { wrapperForImpl(node: unknown): Node } | undefined
   declare document: Document
-  declare engine: ReturnType<typeof createNwsapi>
+  declare state: State
   declare css: typeof import('css-tree') | undefined
   declare selectors:
     | Map<
@@ -23,6 +65,58 @@ class DOMSelector {
       >
     | undefined
 
+  static configure(window, options: Record<string, boolean>) {
+    const document = window.document
+    assertSetup(window, document)
+    if (
+      Object.keys(options).includes('VERBOSITY') &&
+      options.VERBOSITY !== true
+    ) {
+      throw new window.TypeError('The jsdom adapter requires VERBOSITY: true')
+    }
+    const state = getState(document)
+    // Copy own options only. Always clear resolvers compiled before setup.
+    state.options = {
+      __proto__: null,
+      ...state.options,
+      ...options,
+      VERBOSITY: true,
+    }
+    if (state.engine) {
+      state.engine.configure(state.options, true)
+    }
+  }
+
+  static use(window, engine: Engine) {
+    const document = window.document
+    assertSetup(window, document)
+    if (
+      !engine ||
+      typeof engine.configure !== 'function' ||
+      typeof engine.match !== 'function' ||
+      typeof engine.first !== 'function' ||
+      typeof engine.select !== 'function' ||
+      typeof engine.closest !== 'function' ||
+      !engine.Snapshot ||
+      engine.Snapshot.doc !== document
+    ) {
+      throw new window.TypeError('Expected an NWSAPI engine for this document')
+    }
+    const owner = engine[ENGINE_OWNER]
+    if (owner && owner !== document) {
+      throw new window.TypeError('The engine is bound to another document')
+    }
+    const state = getState(document)
+    if (state.engine && state.engine !== engine) {
+      throw new window.TypeError('The document already has an adapter engine')
+    }
+    assertThrowing(window, engine)
+    engine.configure(state.options, true)
+    state.engine = engine
+    Object.defineProperty(engine, ENGINE_OWNER, { value: document })
+    return engine
+  }
+
   constructor(
     window,
     document = window.document,
@@ -31,11 +125,24 @@ class DOMSelector {
     this.window = window
     this.idlUtils = options.idlUtils
     this.document = this.wrap(document)
-    this.engine = createNwsapi({
-      document: this.document,
-      DOMException: window.DOMException,
-    })
-    this.engine.configure({ LOGERRORS: false, VERBOSITY: true })
+    this.state = getState(this.document)
+  }
+
+  get engine() {
+    if (!this.state.engine) {
+      const engine = createNwsapi({
+        document: this.document,
+        DOMException: this.window.DOMException,
+      })
+      engine.configure({
+        LOGERRORS: false,
+        ...this.state.options,
+        VERBOSITY: true,
+      })
+      this.state.engine = engine
+      Object.defineProperty(engine, ENGINE_OWNER, { value: this.document })
+    }
+    return this.state.engine
   }
 
   wrap(node) {
@@ -59,7 +166,7 @@ class DOMSelector {
             ' node',
         )
       }
-      return this.engine[method](selector, node)
+      return activate(this)[method](selector, node)
     } catch (error) {
       if (options && options.noexcept) {
         return fallback
@@ -68,19 +175,19 @@ class DOMSelector {
     }
   }
 
-  matches(selector, node, options) {
+  matches(selector, node, options?) {
     return this.run('match', selector, node, options, false, true)
   }
 
-  closest(selector, node, options) {
+  closest(selector, node, options?) {
     return this.run('closest', selector, node, options, null, true)
   }
 
-  querySelector(selector, node, options) {
+  querySelector(selector, node, options?) {
     return this.run('first', selector, node, options, null)
   }
 
-  querySelectorAll(selector, node, options) {
+  querySelectorAll(selector, node, options?) {
     return this.run('select', selector, node, options, [])
   }
 
@@ -106,7 +213,7 @@ class DOMSelector {
       return false
     }
     try {
-      this.engine.match(selector, this.document.createElement('div'))
+      activate(this).match(selector, this.document.createElement('div'))
       return true
     } catch {
       return false
@@ -153,6 +260,7 @@ class DOMSelector {
     // must fail visibly rather than silently suppressing stylesheet matches.
     const css = this.css || (this.css = require('css-tree'))
     try {
+      const engine = activate(this)
       node = this.wrap(node)
       if (!node || node.nodeType !== 1) {
         return { ast: null, match: false, pseudoElement: null }
@@ -160,7 +268,7 @@ class DOMSelector {
       const entry = this.parse(selector)
       const matched = new css.List()
       for (const branch of entry.branches) {
-        if (this.engine.match(branch.selector, node)) {
+        if (engine.match(branch.selector, node)) {
           matched.appendData(branch.ast)
         }
       }

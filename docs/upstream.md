@@ -13,7 +13,7 @@ The first install needs Git and network access. Linux may also need browser syst
 pnpm exec playwright install --with-deps chromium
 ```
 
-The runner uses the pages in [the test manifest](../test/upstream/manifest.mts), including a local regression page.
+The runner uses the pages in [the test manifest](../test/repo/e2e/upstream/manifest.mts), including a local regression page.
 It does not run the complete WPT project. Known failures remain visible in the report.
 
 <details>
@@ -57,7 +57,7 @@ NWSAPI_MINIFIED=1 pnpm run test:upstream
 <details>
 <summary>Review known failures</summary>
 
-[expectations.json](../test/upstream/expectations.json) records known failures.
+[expectations.json](../test/repo/e2e/upstream/expectations.json) records known failures.
 Unexpected failures fail the run. Unexpected passes appear in the report for review.
 
 > [!IMPORTANT]
@@ -82,7 +82,7 @@ Set `WPT_SECTION` to a selector section name fragment.
 List the sections with:
 
 ```sh
-node test/upstream/sections.mts
+node test/repo/e2e/upstream/sections.mts
 ```
 
 </details>

@@ -4,7 +4,7 @@ Run with Node.js ≥ 22:
 
 ```sh
 pnpm install
-pnpm run test:node test/forgiving-list-items.test.mts
+pnpm run test:node test/repo/unit/forgiving-list-items.test.mts
 ```
 
 For native Chromium comparisons:
@@ -12,7 +12,7 @@ For native Chromium comparisons:
 ```sh
 pnpm install
 pnpm exec playwright install chromium
-NWSAPI_BROWSER=1 pnpm run test:node test/forgiving-list-items.test.mts
+NWSAPI_BROWSER=1 pnpm run test:node test/repo/unit/forgiving-list-items.test.mts
 ```
 
 The tests preserve the per-item regression from #167. They cover invalid

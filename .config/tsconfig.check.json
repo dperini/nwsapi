@@ -16,9 +16,8 @@
   },
   "include": [
     "../src/**/*.mts",
-    "../scripts/**/*.mts",
-    "../test/*.mts",
-    "../test/upstream/*.mts",
+    "../scripts/repo/**/*.mts",
+    "../test/repo/**/*.mts",
     "./*.mts",
     "./*.d.ts"
   ]
