@@ -37,6 +37,11 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/nth-constant.html',
+    note: 'local WPT regression: constant sibling indexes agree with native queries after mutation',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/legacy-dom.html',
     note: 'local WPT regression: legacy host reads agree with native selectors and refresh after mutations',
     install: false,
