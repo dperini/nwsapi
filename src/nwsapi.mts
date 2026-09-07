@@ -2919,6 +2919,7 @@
               match[1] = match[1].toLowerCase()
               switch (match[1]) {
                 case 'hover':
+                  initEnv()
                   source = 'if(e===s.HOVER){' + source + '}'
                   break
                 case 'active':
@@ -3681,7 +3682,11 @@
     },
     // handlers needed for the :hover pseudo-class
     // track state change in browsers and headless
-    initEnv = (function () {
+    hoverInitialized = false,
+    initEnv = function () {
+      if (hoverInitialized) {
+        return
+      }
       doc.addEventListener(
         'mouseover',
         function (e) {
@@ -3696,7 +3701,8 @@
         },
         true,
       )
-    })(),
+      hoverInitialized = true
+    },
     // QSA placeholders to native references
     _closest,
     _matches,
