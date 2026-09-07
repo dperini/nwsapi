@@ -42,6 +42,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/attribute-equality.html',
+    note: 'local WPT regression: exact attribute values, escapes, case rules, and custom operators',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/plan-cache.html',
     note: 'local WPT regression: context-free plans, escaped tokens, callbacks, and DOM mutation',
     install: false,
