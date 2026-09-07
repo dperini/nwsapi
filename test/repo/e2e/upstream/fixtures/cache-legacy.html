@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Legacy query cache</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<p class="item"></p>
+<script>
+test(() => {
+  const nw = NW.Dom;
+  nw.configure({ LEGACY: true });
+  const element = document.querySelector('p');
+  assert_array_equals(nw.select('.item'), [element]);
+  element.className = 'changed';
+  assert_array_equals(nw.select('.item'), []);
+  assert_true(nw.match('.changed', element));
+  nw.configure({}, true);
+  assert_array_equals(nw.select('.changed'), [element]);
+  const cache = nw.matchLambdas;
+  cache.clear();
+  assert_equals(cache.size(), 0);
+  assert_false(cache.has('__proto__'));
+  for (let i = 0; i < 1000; i++) cache.set(String(i), i);
+  assert_equals(cache.size(), 1000);
+  assert_equals(cache.get('0'), 0);
+  cache.set('1', 'updated');
+  cache.set('__proto__', 'safe');
+  assert_equals(cache.get('2'), undefined);
+  assert_equals(cache.get('0'), 0);
+  assert_equals(cache.get('1'), 'updated');
+  assert_equals(cache.get('__proto__'), 'safe');
+  assert_equals(cache.size(), 1000);
+  cache.clear();
+  assert_false(cache.has('0'));
+}, 'Legacy cache preserves live queries and bounded LRU eviction');
+test(t => {
+  const engine = NW.Dom;
+  const saved = window.WeakMap;
+  t.add_cleanup(() => { window.WeakMap = saved; });
+  window.WeakMap = undefined;
+  engine.configure({ LEGACY: true });
+  const node = document.createElement('div');
+  node.setAttribute('popover', '');
+  let calls = 0;
+  node.matches = () => { calls++; return false; };
+  for (let repeat = 0; repeat < 3; repeat++) {
+    assert_false(engine.match(':popover-open', node));
+  }
+  assert_equals(calls, 3);
+  const cache = engine.matchLambdas;
+  cache.clear();
+  assert_equals(cache.get('missing'), undefined);
+  cache.set('only', 1);
+  assert_equals(cache.get('only'), 1);
+  cache.set('only', 2);
+  assert_equals(cache.size(), 1);
+  assert_equals(cache.get('only'), 2);
+  cache.clear();
+  assert_equals(cache.size(), 0);
+}, 'Legacy caches handle missing WeakMap and single-entry updates');
+</script>
