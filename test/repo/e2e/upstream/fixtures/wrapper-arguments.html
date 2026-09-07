@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Installed wrapper arguments</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body><main><p></p><p></p></main>
+<script>
+test(t => {
+  const engine = NW.Dom;
+  const main = document.querySelector('main');
+  const child = main.firstElementChild;
+  const fragment = document.createDocumentFragment();
+  fragment.append(main.cloneNode(true));
+  engine.install();
+  t.add_cleanup(() => engine.uninstall());
+  for (const target of [document, main, fragment, child]) {
+    for (const method of ['querySelector', 'querySelectorAll', ...(target === child ? ['matches', 'closest'] : [])]) {
+      const invoke = (...args) => Reflect.apply(target[method], target, args);
+      const resolver = { querySelector: 'first', querySelectorAll: 'select', matches: 'match', closest: 'closest' }[method];
+      const capture = callback => {
+        try { return { value: callback() }; } catch (error) { return { error: error.name }; }
+      };
+      const actualEmpty = capture(() => invoke());
+      const expectedEmpty = capture(() => Reflect.apply(engine[resolver], engine, []));
+      assert_equals(actualEmpty.error, expectedEmpty.error, `${method} empty call error`);
+      assert_equals(actualEmpty.value, expectedEmpty.value, `${method} empty call value`);
+      const expected = method === 'matches' ? true : method === 'closest' ? child
+        : method === 'querySelectorAll' ? Array.from(target.querySelectorAll('p')) : target.querySelector('p');
+      const assert_result = result => Array.isArray(expected)
+        ? assert_array_equals(result, expected, method) : assert_equals(result, expected, method);
+      for (let arity = 1; arity <= 10; arity++) {
+        const seen = [];
+        const args = ['p'];
+        if (arity > 1) args.push(element => { seen.push(element); });
+        while (args.length < arity) args.push('ignored');
+        assert_result(invoke(...args));
+        if (arity > 1) assert_array_equals(seen, method === 'matches' || method === 'closest' ? [child]
+          : Array.isArray(expected) ? expected : expected ? [expected] : [], method);
+      }
+      assert_result(invoke('p', 'ignored'));
+    }
+  }
+}, 'Wrappers preserve argument order, callbacks, empty calls, and the long-argument fallback');
+</script>
