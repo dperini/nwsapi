@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Context-free query plans</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body><main><p class="a.b"></p><p></p></main>
+<script>
+test(() => {
+  const engine = NW.Dom;
+  const main = document.querySelector('main');
+  const other = document.createDocumentFragment();
+  other.append(main.cloneNode(true));
+  for (const selector of ['p', 'p.a\\.b', '.a\\.b', 'p, main', '.missing\\ class']) {
+    const expected = Array.from(main.querySelectorAll(selector));
+    const seen = [];
+    assert_array_equals(engine.select(selector, main, element => { seen.push(element); }), expected);
+    assert_array_equals(seen, expected);
+    const plan = engine.selectResolvers.get(selector);
+    assert_array_equals(Object.keys(plan).sort(), ['factory', 'nodeset']);
+    for (const context of [other, main, other]) {
+      assert_array_equals(engine.select(selector, context), Array.from(context.querySelectorAll(selector)));
+      assert_equals(engine.first(selector, context), context.querySelector(selector));
+      assert_equals(engine.selectResolvers.get(selector), plan);
+    }
+  }
+  main.firstElementChild.remove();
+  assert_array_equals(engine.select('p.a\\.b', main), []);
+  assert_equals(engine.first('p.a\\.b', main), null);
+  assert_equals(engine.select('p.a\\.b', other).length, 1);
+}, 'Cached plans exclude DOM and callback references, survive context changes, and see mutations');
+</script>

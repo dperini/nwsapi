@@ -3339,9 +3339,7 @@
       }
     },
     // equivalent of w3c 'querySelector' method
-    // A stable identity for the common no-callback case. A cached plan is
-    // only reused when the callback matches, and a closure allocated per call
-    // never does, so every querySelector() rebuilt the plan it had just cached.
+    // Reuse the stop callback when first() has no user callback.
     firstMatch = function firstMatch() {
       return false
     },
@@ -3395,38 +3393,36 @@
 
       if (selectors) {
         if ((resolver = selectResolvers.get(selectors))) {
-          if (resolver.callback === callback) {
-            var i,
-              l,
-              list,
-              f = resolver.factory,
-              n = resolver.nodeset
-            if (n.length > 1) {
-              for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))()
-                if (f[i] !== null) {
-                  f[i](list, callback, context, nodes)
-                } else {
-                  nodes = nodes.concat(list)
-                }
+          var i,
+            l,
+            list,
+            f = resolver.factory,
+            n = resolver.nodeset
+          if (n.length > 1) {
+            for (i = 0, l = n.length; l > i; ++i) {
+              list = compat[n[i][0]](context, n[i].slice(1))()
+              if (f[i] !== null) {
+                f[i](list, callback, context, nodes)
+              } else {
+                nodes = nodes.concat(list)
               }
-              if (l > 1 && nodes.length > 1) {
-                nodes.sort(documentOrder)
-                hasDupes && (nodes = unique(nodes))
-              }
-            } else {
-              list = compat[n[0][0]](context, n[0].slice(1))()
-              nodes = f[0] ? f[0](list, callback, context, nodes) : list
             }
-            if (typeof callback == 'function') {
-              nodes = concatCall(nodes, callback)
+            if (l > 1 && nodes.length > 1) {
+              nodes.sort(documentOrder)
+              hasDupes && (nodes = unique(nodes))
             }
-            return !Config.NODE_LIST
-              ? nodes
-              : isInstanceOf(nodes)
-                ? nodes
-                : toNodeList(nodes)
+          } else {
+            list = compat[n[0][0]](context, n[0].slice(1))()
+            nodes = f[0] ? f[0](list, callback, context, nodes) : list
           }
+          if (typeof callback == 'function') {
+            nodes = concatCall(nodes, callback)
+          }
+          return !Config.NODE_LIST
+            ? nodes
+            : isInstanceOf(nodes)
+              ? nodes
+              : toNodeList(nodes)
         }
       }
 
@@ -3440,7 +3436,6 @@
       // which also lets a plan be reused across contexts instead of only for
       // the one it was built against.
       selectResolvers.set(selectors, {
-        callback: callback,
         factory: resolver.factory,
         nodeset: resolver.nodeset,
       })
