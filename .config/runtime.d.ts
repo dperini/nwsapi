@@ -11,9 +11,35 @@ export interface NwsapiEngine {
   M_BODY: string
   S_TEST: string
   M_TEST: string
-  select(this: void, selector: string, context?: Node): Element[]
-  first(selector: string, context?: Node): Element | null
-  match(this: void, selector: string, context: Element): boolean
+  select(
+    this: void,
+    selector: string,
+    context?: Node,
+    callback?: (element: Element) => unknown,
+  ): Element[]
+  first(
+    selector: string,
+    context?: Node,
+    callback?: (element: Element) => unknown,
+  ): Element | null
+  match(
+    this: void,
+    selector: string,
+    context: Element,
+    callback?: (element: Element) => unknown,
+  ): boolean
+  compile(
+    selector: string,
+    mode: boolean | null,
+    callback?: boolean | ((element: Element) => unknown),
+  ):
+    | ((
+        candidates: unknown,
+        callback: ((element: Element) => unknown) | null | undefined,
+        context: Node | null | undefined,
+        results: Element[] | boolean,
+      ) => Element[] | boolean)
+    | null
   configure(options: Record<string, unknown>, clear?: boolean): unknown
   install(all?: boolean): void
   uninstall(): void

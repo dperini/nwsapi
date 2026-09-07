@@ -38,6 +38,7 @@
     slice = Array.prototype.slice,
     // Factory fallback for documents without a window.
     ELEMENT_PROTO = global.Element && global.Element.prototype,
+    sliceCall = slice.call.bind(slice),
     HSP = '\\x20\\t',
     VSP = '\\r\\n\\f',
     WSP = '[' + HSP + VSP + ']',
@@ -682,6 +683,13 @@
       '|': (c, n) => (e, f) => byTagNS(n, c),
       '.': (c, n) => (e, f) => byClass(n, c),
     },
+    // Fetch a cached plan's candidates without allocating lookup closures.
+    fetch = {
+      '#': (n, c) => byId(n, c),
+      '*': (n, c) => byTag(n, c),
+      '|': (n, c) => byTagNS(c, n),
+      '.': (n, c) => (/[\t\n\f\r ]/.test(n) ? [] : byClass(n, c)),
+    },
     // find duplicate ids using iterative walk
     // Walk 'context' in tree order collecting elements carrying 'id'. The
     // walk can start at 'from', an element already known to be the first match.
@@ -790,7 +798,7 @@
         api = method['*']
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        nodes = slice.call(context[api](tag))
+        nodes = sliceCall(context[api](tag))
         return Config.LEGACY ? elementsOf(nodes) : nodes
       } else if (Config.LEGACY) {
         // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
@@ -812,7 +820,7 @@
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api](tag))
+            return sliceCall(e[api](tag))
           } else {
             nodes = []
             do {
@@ -842,7 +850,7 @@
         reCls
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        nodes = slice.call(context[api](cls))
+        nodes = sliceCall(context[api](cls))
         return Config.LEGACY ? elementsOf(nodes) : nodes
       } else if (Config.LEGACY) {
         // A host from before this lookup existed. Every element under the
@@ -861,7 +869,7 @@
         if ((e = context.firstElementChild)) {
           reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '')
           if (!(e.nextElementSibling || reCls.test(e.className))) {
-            return slice.call(e[api](cls))
+            return sliceCall(e[api](cls))
           } else {
             nodes = []
             do {
@@ -2104,18 +2112,18 @@
   */
 
     F_INIT = '"use strict";return function Resolver(c,f,x,r)',
-    S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
+    S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
     M_HEAD = 'var e,n,o',
-    N_HEAD = 'var e,n,o',
-    S_LOOP = 'main:while((e=c[++k]))',
+    N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
+    S_LOOP = 'main:while(++k<l&&(e=c[k])!==undefined)',
     M_LOOP = 'e=c;',
-    N_LOOP = 'main:while((e=c.item(++k)))',
+    N_LOOP = 'main:while(++k<l&&(e=c.item(k))!==undefined)',
     S_BODY = 'r[++j]=c[k];',
     M_BODY = '',
     N_BODY = 'r[++j]=c.item(k);',
     S_TAIL = 'continue main;',
     M_TAIL = 'r=true;',
-    N_TAIL = 'r=true;',
+    N_TAIL = 'continue main;',
     S_TEST = 'if(f(c[k])){break main;}',
     M_TEST = 'f(c);',
     N_TEST = 'if(f(c.item(k))){break main;}',
@@ -2125,7 +2133,13 @@
     // compile groups or single selector strings into
     // executable functions for matching or selecting
     compile = function (selector, mode, callback, relative?) {
-      var cacheKey = (relative ? 'relative:' : 'selector:') + selector
+      var cacheKey =
+        (relative ? 'relative:' : 'selector:') +
+        mode +
+        ':' +
+        !!callback +
+        ':' +
+        selector
       var alias,
         factory,
         head = '',
@@ -2140,7 +2154,7 @@
       // null to use collection.item()
       switch (mode) {
         case true:
-          if ((factory = selectLambdas.get(cacheKey))) {
+          if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
@@ -2148,7 +2162,7 @@
           loop = S_LOOP
           break
         case false:
-          if ((factory = matchLambdas.get(cacheKey))) {
+          if ((factory = matchLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL
@@ -2156,7 +2170,7 @@
           loop = M_LOOP
           break
         case null:
-          if ((factory = selectLambdas.get(cacheKey))) {
+          if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL
@@ -2175,6 +2189,11 @@
       )
       if (Config.LEGACY) {
         source = helpReads(source)
+      }
+
+      if ((mode || mode === null) && !callback && source === macro) {
+        selectLambdas.set(cacheKey, null)
+        return null
       }
 
       loop += mode || mode === null ? '{' + source + '}' : source
@@ -2221,6 +2240,7 @@
         NS,
         expr,
         match,
+        pendingTag = '',
         result,
         status,
         symbol,
@@ -2290,8 +2310,7 @@
           // tag name resolver
           case /[_a-z]/i.test(symbol) ? symbol : undefined:
             match = selector.match(Patterns.tagName)
-            source =
-              'if((' + read.tag('e') + '=="' + match[1] + '")){' + source + '}'
+            pendingTag = 'if((' + read.tag('e') + '=="' + match[1] + '")){'
             break
 
           // namespace resolver
@@ -2371,6 +2390,10 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
@@ -2387,6 +2410,10 @@
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
@@ -2404,6 +2431,10 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
@@ -2420,6 +2451,10 @@
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
@@ -3104,6 +3139,9 @@
       }
       // end of while selector
 
+      if (pendingTag) {
+        source = pendingTag + source + '}'
+      }
       return source
     },
     // replace :scope context element as a
@@ -3152,7 +3190,7 @@
       for (var i = 0, l = selectors.length, f = []; l > i; ++i) {
         f[i] = compile(selectors[i], false, callback)
       }
-      return { factory: f }
+      return f
     },
     // Consume string continuations before whitespace normalization. Preserve
     // escape boundaries: removing a continuation must not extend a hex escape.
@@ -3280,16 +3318,17 @@
       element,
       callback?: (element: Element) => unknown,
     ) {
-      var resolver
+      var resolver,
+        cacheKey = !!callback + ':' + selectors
 
-      if (element && (resolver = matchResolvers.get(selectors))) {
-        return match_assert(resolver.factory, element, callback)
+      if (element && (resolver = matchResolvers.get(cacheKey))) {
+        return match_assert(resolver, element, callback)
       }
 
       resolver = match_collect(parse(selectors, false), callback)
-      matchResolvers.set(selectors, resolver)
+      matchResolvers.set(cacheKey, resolver)
 
-      return match_assert(resolver.factory, element, callback)
+      return match_assert(resolver, element, callback)
     },
     // Invalid items do not discard the remaining forgiving selectors.
     matchForgiving = function (list, element) {
@@ -3396,11 +3435,10 @@
               l,
               list,
               f = resolver.factory,
-              h = resolver.htmlset,
               n = resolver.nodeset
             if (n.length > 1) {
               for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))()
+                list = fetch[n[i][0]](n[i].slice(1), context)
                 if (f[i] !== null) {
                   f[i](list, callback, context, nodes)
                 } else {
@@ -3412,10 +3450,11 @@
                 hasDupes && (nodes = unique(nodes))
               }
             } else {
+              list = fetch[n[0][0]](n[0].slice(1), context)
               if (f[0]) {
-                nodes = f[0](h[0](), callback, context, nodes)
+                nodes = f[0](list, callback, context, nodes)
               } else {
-                nodes = h[0]()
+                nodes = list
               }
             }
             if (typeof callback == 'function') {
@@ -3485,8 +3524,8 @@
           }
         }
 
-        nodeset[i] = token[1] + token[2]
         token[2] = unescapeIdentifier(token[2])
+        nodeset[i] = token[1] + token[2]
         // An escaped space cannot be part of a class token.
         htmlset[i] =
           token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
@@ -3494,9 +3533,11 @@
             : compat[token[1]](context, token[2])
         factory[i] = compile(optimized[i], true, null, relative)
 
-        factory[i]
-          ? factory[i](htmlset[i](), callback, context, results)
-          : results.concat(htmlset[i]())
+        if (factory[i]) {
+          factory[i](htmlset[i](), callback, context, results)
+        } else {
+          concatList(results, htmlset[i]())
+        }
       }
 
       if (l > 1) {
@@ -3567,42 +3608,33 @@
 
       Element.prototype.closest = HTMLElement.prototype.closest =
         function closest() {
-          return parseQSArgs.apply(
-            this,
-            [].slice.call(arguments).concat(ancestor),
-          )
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(ancestor))
         }
 
       Element.prototype.matches = HTMLElement.prototype.matches =
         function matches() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(match))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(match))
         } as unknown as Element['matches']
 
       Element.prototype.querySelector = HTMLElement.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first))
         }
 
       Element.prototype.querySelectorAll =
         HTMLElement.prototype.querySelectorAll = function querySelectorAll() {
-          return parseQSArgs.apply(
-            this,
-            [].slice.call(arguments).concat(select),
-          )
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(select))
         }
 
       Document.prototype.querySelector =
         DocumentFragment.prototype.querySelector = function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first))
         }
 
       Document.prototype.querySelectorAll =
         DocumentFragment.prototype.querySelectorAll =
           function querySelectorAll() {
-            return parseQSArgs.apply(
-              this,
-              [].slice.call(arguments).concat(select),
-            )
+            return parseQSArgs.apply(this, sliceCall(arguments).concat(select))
           }
 
       if (all) {

@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Compiled resolver contracts</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body><main><p data-x="1"></p><p></p><span></span></main>
+<script>
+test(() => {
+  const engine = NW.Dom;
+  const candidates = Array.from(document.querySelectorAll('p'));
+  const target = candidates[0];
+  const seen = [];
+  for (const callback of [undefined, () => seen.push('first'), undefined, () => seen.push('second')]) {
+    assert_true(engine.match('p[data-x="1"]', target, callback));
+  }
+  assert_array_equals(seen, ['first', 'second']);
+  const array = new Proxy(candidates, {
+    get(object, key) {
+      assert_not_equals(key, String(object.length), 'No read beyond the candidate array');
+      return Reflect.get(object, key);
+    },
+  });
+  const items = { length: candidates.length, item(index) {
+    assert_less_than(index, candidates.length, 'No read beyond the item collection');
+    return candidates[index];
+  } };
+  for (const [mode, input] of [[true, array], [null, items]]) {
+    assert_array_equals(engine.compile('p', mode)(input, undefined, document, []), candidates);
+    const seen = [];
+    assert_array_equals(engine.compile('p', mode, true)(input, element => {
+      seen.push(element);
+      return true;
+    }, document, []), [target]);
+    assert_array_equals(seen, [target]);
+  }
+  assert_equals(engine.compile('', true), null);
+  assert_equals(engine.compile('', true), null);
+  assert_false(engine.compile('p[data-x="1"]', false)({
+    localName: 'span', getAttribute() { throw Error('Unnecessary attribute read'); },
+  }, undefined, undefined, false));
+  for (const selector of ['p', 'p, span', '[data-x], span', 'main > p + span', 'p[data-x="1"]', '.missing\\ class']) {
+    const expected = Array.from(document.querySelectorAll(selector));
+    assert_array_equals(engine.select(selector, document), expected);
+    assert_array_equals(engine.select(selector, document), expected);
+  }
+}, 'Resolver modes, callback caches, candidate bounds, and cold and cached queries');
+</script>
