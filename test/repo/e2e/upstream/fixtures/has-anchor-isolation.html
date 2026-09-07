@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Relative anchor isolation</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<div id="parent"><p data-value=":-nwsapi-anchor"></p></div><div></div>
+<script>
+test(() => {
+  const engine = NW.Dom;
+  const parent = document.getElementById('parent');
+  const quoted = 'div:has([data-value=":-nwsapi-anchor"])';
+  for (let repeat = 0; repeat < 3; repeat++) {
+    assert_array_equals(engine.select('div:has(p)'), [parent]);
+    assert_array_equals(engine.select(quoted), Array.from(document.querySelectorAll(quoted)));
+    assert_equals(engine.match(quoted, parent), parent.matches(quoted));
+    for (const selector of [
+      ':-nwsapi-anchor', ':-nwsapi-anchor p', 'div:has(:-nwsapi-anchor)',
+      'div:not(:-nwsapi-anchor)', 'div:has(:not(:-nwsapi-anchor))',
+      'div:not(:not(:-nwsapi-anchor))',
+    ]) {
+      assert_throws_dom('SyntaxError', () => document.querySelectorAll(selector), selector);
+      assert_throws_dom('SyntaxError', () => engine.select(selector), selector);
+      assert_throws_dom('SyntaxError', () => parent.matches(selector), selector);
+      assert_throws_dom('SyntaxError', () => engine.match(selector, parent), selector);
+    }
+    for (const selector of ['div:is(:-nwsapi-anchor, #parent)', 'div:where(:-nwsapi-anchor, #parent)']) {
+      assert_array_equals(engine.select(selector), Array.from(document.querySelectorAll(selector)));
+    }
+  }
+}, 'Public and nested selectors reject private anchors before and after cache reuse');
+</script>

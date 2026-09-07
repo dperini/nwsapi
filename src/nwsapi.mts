@@ -269,7 +269,7 @@
     // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
     // never DOM result sets. A prefixed dictionary avoids user-key collisions
     // and a doubly linked list keeps the least-recently-used entry at the head.
-    createCache = function (limit?) {
+    createLegacyCache = function (limit?) {
       var cache = {},
         head = null,
         tail = null,
@@ -339,6 +339,70 @@
         },
         size: function () {
           return size
+        },
+      }
+    },
+    // Bounded cache for query plans, in two generations.
+    //
+    // A strict LRU has to reorder on use and evict one entry per insertion, and
+    // both are done with Map.delete. V8 keeps a deleted entry in the backing
+    // store until the map rehashes, so keys().next() — the way the oldest entry
+    // is found — walks the tombstones left by every earlier eviction. Measured
+    // on 8000 selectors cycling through a 4096-entry cache, that put Map.set at
+    // 28% of total run time.
+    //
+    // Instead entries are written to a young generation. When it fills, it
+    // becomes the old generation and the previous old one is dropped whole: no
+    // deletes, no iteration, and eviction is a single pointer swap. A hit in
+    // the old generation carries the entry back into the young one, so anything
+    // still in use survives the next swap. Capacity is unchanged, half the
+    // limit per generation, and lookups that hit are one Map.get.
+    //
+    // A value is never undefined, so get() answers existence as well and the
+    // cache needs no has().
+    createCache = function (limit?) {
+      if (typeof Map != 'function') {
+        return createLegacyCache(limit)
+      }
+      var young = new Map(),
+        old = new Map(),
+        half
+
+      limit || (limit = CACHE_LIMIT)
+      half = limit > 1 ? limit >> 1 : 1
+
+      return {
+        clear: function () {
+          young = new Map()
+          old = new Map()
+        },
+        get: function (key) {
+          var value = young.get(key)
+          if (value !== undefined) {
+            return value
+          }
+          value = old.get(key)
+          if (value !== undefined) {
+            // second chance: carry it across before the old generation goes
+            old.delete(key)
+            if (young.size >= half) {
+              old = young
+              young = new Map()
+            }
+            young.set(key, value)
+          }
+          return value
+        },
+        set: function (key, value) {
+          if (young.size >= half) {
+            old = young
+            young = new Map()
+          }
+          young.set(key, value)
+          return value
+        },
+        size: function () {
+          return young.size + old.size
         },
       }
     },
@@ -953,7 +1017,47 @@
         ? doc.contentType.indexOf('/html') > 0
         : doc.createElement('DiV').localName == 'div'
     },
-    // check if node content is editable
+    // Native matching exposes custom element state that attributes cannot.
+    // https://dom.spec.whatwg.org/#concept-element-defined
+    isDefined = function (element) {
+      var native,
+        custom,
+        name = element.localName,
+        registry,
+        view
+
+      if (element.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
+        return true
+      }
+      native = matchesNative(element, ':defined', undefined)
+      if (native !== undefined) {
+        return native
+      }
+      if (name.indexOf('-') < 0) {
+        if (!element.hasAttribute('is')) {
+          return true
+        }
+        name = element.getAttribute('is') || name
+      }
+
+      view = element.ownerDocument.defaultView
+      registry = view && view.customElements
+      if (!registry || !registry.get) {
+        return false
+      }
+      custom = registry.get(name)
+      return !!custom && element instanceof custom
+    },
+    isRequired = function (node) {
+      return (
+        !!node.required &&
+        (/^(select|textarea)$/.test(node.localName) ||
+          (node.localName == 'input' &&
+            !/^(hidden|range|color|button|submit|reset|image)$/.test(
+              node.type,
+            )))
+      )
+    },
     isContentEditable = function (node) {
       var attrValue = 'inherit'
       if (node.hasAttribute('contenteditable')) {
@@ -975,6 +1079,47 @@
     },
     // return node if node is focusable
     // or false if node isn't focusable
+    // Whether a form control is disabled, which is not only its own
+    // property: a control inside a disabled fieldset is disabled too, unless it
+    // sits in that fieldset's first legend child.
+    // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+    isDisabled = function (element) {
+      var legend,
+        name = element.localName,
+        node
+
+      if (element.disabled === true) {
+        return true
+      }
+
+      // an optgroup is disabled by its own attribute and nothing else; an
+      // option is also disabled by the optgroup it is a child of
+      if (name == 'optgroup') {
+        return false
+      }
+      if (name == 'option') {
+        node = element.parentElement
+        return !!node && node.localName == 'optgroup' && node.disabled === true
+      }
+
+      // any disabled fieldset above it, unless it sits in that fieldset's
+      // first legend child, which excuses that fieldset and no other
+      node = element.parentElement
+      while (node) {
+        if (node.localName == 'fieldset' && node.disabled === true) {
+          legend = node.firstElementChild
+          while (legend && legend.localName != 'legend') {
+            legend = legend.nextElementSibling
+          }
+          if (!(legend && legend.contains(element))) {
+            return true
+          }
+        }
+        node = node.parentElement
+      }
+
+      return false
+    },
     isFocusable = function (node) {
       var doc = node.ownerDocument
       if (node.contentDocument && node.localName == 'iframe') {
@@ -998,16 +1143,19 @@
     },
     // use the native selector state when it is available; when NWSAPI has
     // installed itself, _matches retains the native implementation
-    matchesNative = function (node, selector) {
+    matchesNative = function (node, selector, unavailable?) {
       var view,
         proto,
         matcher,
         ownerDoc = node.ownerDocument || doc
+      if (arguments.length < 3) {
+        unavailable = false
+      }
       // Record delegation before doing any lookup. Nested calls must not
       // replace the document record belonging to the outer matcher.
       if (matchingNative) {
         matchingNative.delegates = true
-        return false
+        return unavailable
       }
       if (ownerDoc !== matcherDoc) {
         if (matcherCache === null) {
@@ -1049,13 +1197,14 @@
         matcherRecord.delegates = false
       }
       if (!matcher || matcherRecord.delegates) {
-        return false
+        return unavailable
       }
       try {
         matchingNative = matcherRecord
-        return matcher.call(node, selector)
+        var result = matcher.call(node, selector)
+        return matchingNative.delegates ? unavailable : result
       } catch (e) {
-        return false
+        return unavailable
       } finally {
         matchingNative = null
       }
@@ -1212,7 +1361,8 @@
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
-      var // non-ascii chars
+      var parenthesized,
+        // non-ascii chars
         noascii = '[^\\x00-\\x9f]',
         // unicode chars
         unicode = '\\\\[0-9a-fA-F]{1,6}',
@@ -1348,6 +1498,15 @@
       // deepest localName in selector strings and then
       // use it to retrieve all possible matching nodes
       // that will be filtered by compiled resolvers
+      // The parenthesized part has to tolerate nesting. Written as
+      // '\x28[^\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class matches nothing at all, and
+      // a selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
           '(' +
@@ -1356,7 +1515,7 @@
           '(?:' +
           ':[-\\w]+|' +
           '\\[[^\\]]+(?:\\]|$)|' +
-          '\\x28[^\\x29]+(?:\\x29|$)' +
+          parenthesized +
           ')*)$',
       )
 
@@ -1406,7 +1565,8 @@
     N_VARS = [],
     // compile groups or single selector strings into
     // executable functions for matching or selecting
-    compile = function (selector, mode, callback) {
+    compile = function (selector, mode, callback, relative?) {
+      var cacheKey = (relative ? 'relative:' : 'selector:') + selector
       var factory,
         head = '',
         loop = '',
@@ -1419,7 +1579,7 @@
       // null to use collection.item()
       switch (mode) {
         case true:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey))) {
             return factory
           }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
@@ -1427,7 +1587,7 @@
           loop = S_LOOP
           break
         case false:
-          if ((factory = matchLambdas.get(selector))) {
+          if ((factory = matchLambdas.get(cacheKey))) {
             return factory
           }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL
@@ -1435,7 +1595,7 @@
           loop = M_LOOP
           break
         case null:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey))) {
             return factory
           }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL
@@ -1446,7 +1606,12 @@
           break
       }
 
-      source = compileSelector(selector, macro, mode, callback)
+      source = compileSelector(
+        relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
+        relative ? 'if(e===s.anchor){' + macro + '}' : macro,
+        mode,
+        callback,
+      )
 
       loop += mode || mode === null ? '{' + source + '}' : source
 
@@ -1469,9 +1634,9 @@
       )(Snapshot)
 
       if (mode || mode === null) {
-        selectLambdas.set(selector, factory)
+        selectLambdas.set(cacheKey, factory)
       } else {
-        matchLambdas.set(selector, factory)
+        matchLambdas.set(cacheKey, factory)
       }
 
       return factory
@@ -1516,6 +1681,10 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id)
+            match[1] = escapeIdentifier(match[1]).replace(
+              REX.RegExpChar,
+              '\\$&',
+            )
             source =
               'if((/^' +
               match[1] +
@@ -1527,6 +1696,9 @@
           // class name resolver
           case '.':
             match = selector.match(Patterns.className)
+            match[1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match[1]))
+              ? '(?!)'
+              : escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&')
             compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))'
             source =
               'if((/(^|\\s)' +
@@ -1879,36 +2051,12 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'has':
-                  if (expr == ':scope') {
-                    source = 'if(s.has("' + expr + '",e)){' + source + '}'
-                    break
-                  }
-
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source =
-                        'if(e.parentElement&&s.select("*' +
-                        expr +
-                        '",e.parentElement).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '~':
-                      source =
-                        'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '>':
-                      source =
-                        'if(s.first(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                    default:
-                      source =
-                        'if(s.has(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                  }
+                  source =
+                    'if(s.has(' +
+                    JSON.stringify(splitList(match[2])) +
+                    ',e)){' +
+                    source +
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -1979,10 +2127,7 @@
                     '}'
                   break
                 case 'defined':
-                  source =
-                    'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' +
-                    source +
-                    '}'
+                  source = 'if(s.isDefined(e)){' + source + '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -2025,48 +2170,26 @@
               match[1] = match[1].toLowerCase()
               switch (match[1]) {
                 case 'enabled':
+                  // the complement of ':disabled' over the same elements
                   source =
-                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
-                    ')){' +
+                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&!s.isDisabled(e))){' +
                     source +
                     '}'
                   break
                 case 'disabled':
-                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
                   source =
-                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
-                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
-                    // L is true if the first legend element of the fieldset contains the element
-                    'var x=0,N=[],F=false,L=false;' +
-                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
-                    'n=e.parentElement;' +
-                    'while(n){' +
-                    'if(n.localName=="fieldset"){' +
-                    'N[x++]=n;' +
-                    'if(n.disabled===true){' +
-                    'F=true;' +
-                    'break;' +
-                    '}' +
-                    '}' +
-                    'n=n.parentElement;' +
-                    '}' +
-                    'for(var x=0;x<N.length;x++){' +
-                    'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
-                    'L=true;' +
-                    'break;' +
-                    '}' +
-                    '}' +
-                    '}' +
-                    'if(e.disabled===true||(F&&!L)){' +
+                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&s.isDisabled(e))){' +
                     source +
-                    '}}'
+                    '}'
                   break
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
-                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||e.disabled):true))||' +
+                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
+                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -2076,8 +2199,8 @@
                 case '-moz-read-write':
                   source =
                     'if(' +
-                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
+                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -2149,15 +2272,11 @@
                     '}'
                   break
                 case 'required':
-                  source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
-                    '){' +
-                    source +
-                    '}'
+                  source = 'if(s.isRequired(e)){' + source + '}'
                   break
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
                     '){' +
                     source +
                     '}'
@@ -2177,7 +2296,7 @@
                     'if(((' +
                     '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                     '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                    '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +
+                    '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
                     '){' +
                     source +
                     '}'
@@ -2563,10 +2682,40 @@
       return false
     },
     // true if element matches the selector
-    has = function (selector, context, callback) {
-      return (
-        collect(parse(selector, true), context, callback).results.length > 0
-      )
+    has = function (list, anchor) {
+      var context,
+        found = false,
+        i = 0,
+        l = list.length,
+        previous = Snapshot.anchor
+      Snapshot.anchor = anchor
+      try {
+        for (; l > i; ++i) {
+          context = /^[+~]/.test(list[i]) ? anchor.parentElement : anchor
+          if (!list[i]) {
+            emit(qsInvalid)
+            return false
+          }
+          // Compile even a root sibling argument, whose candidate set is empty.
+          // Later invalid items must not be hidden by an earlier match.
+          if (
+            collect(
+              parse('* ' + list[i], true).map(function (selector) {
+                return selector.slice(1).replace(/^\s+/, '')
+              }),
+              context || anchor,
+              undefined,
+              true,
+            ).results.length &&
+            context
+          ) {
+            found = true
+          }
+        }
+        return found
+      } finally {
+        Snapshot.anchor = previous
+      }
     },
     // equivalent of w3c 'querySelector' method
     first = function _querySelector(selectors, context, callback) {
@@ -2692,7 +2841,7 @@
       )
     },
     // prepare factory resolvers and closure collections
-    collect = function (selectors, context, callback) {
+    collect = function (selectors, context, callback, relative?) {
       var i,
         l,
         seen = {},
@@ -2717,8 +2866,12 @@
 
         nodeset[i] = token[1] + token[2]
         token[2] = unescapeIdentifier(token[2])
-        htmlset[i] = compat[token[1]](context, token[2])
-        factory[i] = compile(optimized[i], true, null)
+        // An escaped space cannot be part of a class token.
+        htmlset[i] =
+          token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
+            ? () => []
+            : compat[token[1]](context, token[2])
+        factory[i] = compile(optimized[i], true, null, relative)
 
         factory[i]
           ? factory[i](htmlset[i](), callback, context, results)
@@ -2889,6 +3042,8 @@
     selectResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
+      anchor: Element | null
+      isDefined: typeof isDefined
       HOVER?: EventTarget
       doc: Document
       from: Node
@@ -2903,6 +3058,8 @@
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
       matchesNative: typeof matchesNative
+      isRequired: typeof isRequired
+      isDisabled: typeof isDisabled
       isOpen: typeof isOpen
       isClosed: typeof isClosed
       isModal: typeof isModal
@@ -2917,6 +3074,7 @@
       doc: doc,
       from: doc,
       root: root,
+      anchor: null,
 
       byTag: byTag,
 
@@ -2932,8 +3090,11 @@
       nthElement: nthElement,
 
       matchesNative: matchesNative,
+      isDefined: isDefined,
+      isRequired: isRequired,
       isOpen: isOpen,
       isClosed: isClosed,
+      isDisabled: isDisabled,
       isModal: isModal,
       isFullscreen: isFullscreen,
       isPictureInPicture: isPictureInPicture,
