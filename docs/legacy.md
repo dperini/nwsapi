@@ -60,7 +60,8 @@ needed by `install()`.
 
 The `:disabled`, `:enabled`, `:required`, and `:defined` helpers use legacy
 accessors when needed. Their reference assertions pass without expected-failure
-markers. Other changes from #167 remain outside this extraction.
+markers. Relative `:has()` queries also use legacy parent traversal for sibling
+arguments. Other changes from #167 remain outside this extraction.
 
 ### Combining the extracted PRs
 
@@ -75,10 +76,6 @@ Keep these integration changes when their prerequisites land:
 - With #205, use the captured `sliceCall` in collection adapters. Keep legacy
   element filtering and fallback traversal around those calls. The wider-arity
   fallback in #187's `argsWith` should also use `sliceCall(args).concat(tail)`.
-- With #201, resolve sibling `:has()` search contexts through `upOf(anchor)`,
-  not `anchor.parentElement`. That read occurs inside the runtime helper,
-  outside the generated-code rewrite. Cover both `div:has(+ div)` and
-  `div:has(~ div)` on a legacy host with only node-level traversal.
 
 These are integration recipes, not claims that the prerequisites are included
 in this standalone branch. Validate the combined tree with both the original

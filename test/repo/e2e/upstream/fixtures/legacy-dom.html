@@ -21,6 +21,7 @@ const selectors = [
   ':only-of-type', ':nth-child(2)', ':nth-last-child(2)', ':nth-of-type(2)', ':nth-last-of-type(2)',
   ':empty', ':root', ':lang(en)', ':link', ':any-link', ':checked', ':required', ':optional',
   ':enabled', ':disabled', ':defined', ':read-only', ':read-write',
+  'div:has(+ form)', 'div:has(~ div)', 'div:has(+ form input)', 'div:has(~ div em)',
 ];
 for (const urls of ['flag', 'node']) {
   test(t => {

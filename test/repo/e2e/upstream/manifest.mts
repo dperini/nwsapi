@@ -41,6 +41,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/has-anchor-isolation.html',
+    note: 'local WPT regression: private anchor syntax is rejected without rejecting quoted values',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/identifier-escapes.html',
     note: 'local WPT regression: escaped identifiers agree with native matching and selection after mutation',
     install: false,

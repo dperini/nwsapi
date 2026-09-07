@@ -130,6 +130,22 @@ function buildModern(markup) {
 const ids = (nodes: ArrayLike<Element>) =>
   Array.from(nodes, node => node.id || node.nodeName.toLowerCase())
 
+test('relative has arguments use legacy sibling traversal', () => {
+  const { NW, host, window } = build(
+    '<div id="a"></div><div id="b"><p></p></div><div id="c"></div>',
+  )
+  try {
+    for (let repeat = 0; repeat < 2; repeat++) {
+      expect(ids(NW.select('div:has(+ div)', host))).toEqual(['a', 'b'])
+      expect(ids(NW.select('div:has(~ div)', host))).toEqual(['a', 'b'])
+      expect(ids(NW.select('div:has(+ div p)', host))).toEqual(['a'])
+      expect(ids(NW.select('div:has(~ div p)', host))).toEqual(['a'])
+    }
+  } finally {
+    window.close()
+  }
+})
+
 test('LEGACY restores the handling a pre-2015 host needed', () => {
   // The generated tests read reflected properties and call the host without
   // asking whether it has the method, because every host that can run this
