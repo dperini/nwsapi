@@ -629,7 +629,7 @@
       list[list.length] = text.slice(start).replace(REX.TrimSpaces, '')
       return list
     },
-    matchLogical = function (selector) {
+    matchLogical = function (selector, prefix?) {
       var chr,
         close,
         escaped,
@@ -637,7 +637,7 @@
         i,
         l,
         quote = '',
-        match = selector.match(REX.LogicalPfx)
+        match = selector.match(prefix || REX.LogicalPfx)
 
       if (!match) {
         return null
@@ -1936,27 +1936,37 @@
     isLink = function (node) {
       return reLinkName.test(tagOf(node)) && hasAttrOf(node, 'href')
     },
-    // check media resources is playing
-    isPlaying = function (media) {
-      // for <audio>, <video>, <source> and <track> elements
-      var parent =
-        media instanceof HTMLMediaElement ? null : media.parentElement
-      return (
-        !!(
-          media &&
-          media.currentTime > 0 &&
-          !media.paused &&
-          !media.ended &&
-          media.readyState > 2
-        ) ||
-        !!(
-          parent &&
-          parent.currentTime > 0 &&
-          !parent.paused &&
-          !parent.ended &&
-          parent.readyState > 2
-        )
-      )
+    // Native state covers host-only timing and volume policy. The fallback
+    // reads HTML media state without treating a loading pause as user intent.
+    isMediaState = function (media, state) {
+      var native = matchesNative(media, ':' + state, undefined)
+      if (native !== undefined) {
+        return native
+      }
+      if (
+        media.namespaceURI !== 'http://www.w3.org/1999/xhtml' ||
+        !/^(audio|video)$/i.test(tagOf(media))
+      ) {
+        return false
+      }
+      switch (state) {
+        case 'playing':
+          return media.paused === false && media.ended !== true
+        case 'paused':
+          return media.paused === true || media.ended === true
+        case 'seeking':
+          return media.seeking === true
+        case 'muted':
+          return media.muted === true
+        case 'buffering':
+          return (
+            isMediaState(media, 'playing') &&
+            media.networkState === 2 &&
+            media.readyState < 3
+          )
+        default:
+          return false
+      }
     },
     // configure the engine to use special handling
     configure = function (option, clear) {
@@ -3267,32 +3277,12 @@
             // resources state pseudo-classes (multimedia state)
             // :playing, :paused, :seeking, :buffering, :stalled, :muted, :volume-locked
             else if ((match = selector.match(Patterns.rsrc_state))) {
-              match[1] = match[1].toLowerCase()
-              switch (match[1]) {
-                case 'playing':
-                  source = 'if(s.isPlaying(e)){' + source + '}'
-                  break
-                case 'paused':
-                  source = 'if(!s.isPlaying(e)){' + source + '}'
-                  break
-                case 'seeking':
-                  source = 'if(!s.isPlaying(e)){' + source + '}'
-                  break
-                case 'buffering':
-                  break
-                case 'stalled':
-                  break
-                case 'muted':
-                  source =
-                    'if(e.localName=="audio"&&e.getAttribute("muted")){' +
-                    source +
-                    '}'
-                  break
-                case 'volume-locked':
-                  break
-                default:
-                  break
-              }
+              source =
+                'if(s.isMediaState(e,' +
+                JSON.stringify(match[1].toLowerCase()) +
+                ')){' +
+                source +
+                '}'
             }
 
             // display state pseudo-classes. Helpers use native matching when
@@ -3323,6 +3313,30 @@
                   emit("'" + expression + "'" + qsInvalid)
                   break
               }
+            }
+
+            // Timelines belong to the host; absent native state matches nothing.
+            else if ((match = selector.match(Patterns.time_state))) {
+              expr = ':' + match[1].toLowerCase()
+              if (expr === ':current' && match[2].charAt(0) === '(') {
+                match = matchLogical(selector, /^:(current)\(/i)
+                if (
+                  !match ||
+                  !match[2] ||
+                  !splitList(match[2]).every(isCompound) ||
+                  !validateLogical(match[2], false)
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  break
+                }
+                expr += '(' + match[2] + ')'
+              }
+              source =
+                'if(s.matchesNative(e,' +
+                JSON.stringify(expr) +
+                ')){' +
+                source +
+                '}'
             }
 
             // allow pseudo-elements starting with single colon (:)
@@ -4260,6 +4274,7 @@
       ancestor: typeof ancestor
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
+      isMediaState: typeof isMediaState
       matchesNative: typeof matchesNative
       isRequired: typeof isRequired
       isDisabled: typeof isDisabled
@@ -4321,6 +4336,7 @@
       isContentEditable: isContentEditable,
       isLink: isLink,
       hasAttributeNS: hasAttributeNS,
+      isMediaState: isMediaState,
     },
     // public exported methods/objects
     Dom = {
