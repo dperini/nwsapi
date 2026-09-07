@@ -25,4 +25,41 @@ test(() => {
   assert_less_than_equal(cache.size(), 1000);
   assert_equals(cache.get('next'), 'value');
 }, 'Generation promotion preserves hot entries without exceeding capacity');
+test(() => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('cache');
+  doc.body.innerHTML = '<section><p class="item" id="a"></p><p class="item" id="b"></p></section>';
+  const a = doc.getElementById('a');
+  const b = doc.getElementById('b');
+  const seen = [];
+  const callback = element => { seen.push(element.id); };
+  for (let round = 0; round < 2; round++) {
+    seen.length = 0;
+    assert_equals(engine.first('p.item', doc, callback), a);
+    assert_array_equals(seen, ['a']);
+    assert_array_equals(engine.select('p.item', doc), [a, b]);
+    assert_equals(engine.closest('section', b), b.parentElement);
+    assert_true(engine.match('p.item', a));
+    // Overflow each cache with actual query plans, not cached result sets.
+    for (let i = 0; i < 1100; i++) {
+      const selector = `[data-cache="${round}-${i}"]`;
+      assert_array_equals(engine.select(selector, doc), []);
+      assert_false(engine.match(selector, a));
+    }
+    for (const cache of [engine.matchLambdas, engine.selectLambdas, engine.matchResolvers, engine.selectResolvers]) {
+      assert_less_than_equal(cache.size(), 1000);
+    }
+  }
+  a.className = 'other';
+  assert_array_equals(engine.select('p.item', doc), [b]);
+  assert_false(engine.match('p.item', a));
+  seen.length = 0;
+  assert_equals(engine.first('p.item', doc, callback), b);
+  assert_array_equals(seen, ['b']);
+  engine.configure({}, true);
+  for (const cache of [engine.matchLambdas, engine.selectLambdas, engine.matchResolvers, engine.selectResolvers]) {
+    assert_equals(cache.size(), 0);
+  }
+  assert_array_equals(engine.select('p.item', doc), [b]);
+}, 'Query plans survive cache churn without retaining DOM results or callbacks');
 </script>
