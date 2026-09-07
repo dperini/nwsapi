@@ -1291,7 +1291,7 @@
         return v + '.id'
       },
       cls: function (v) {
-        return v + '.getAttribute("class")'
+        return 's.classOf(' + v + ')'
       },
       up: function (v) {
         return v + '.parentElement'
@@ -1317,7 +1317,7 @@
         return helper('hId', 'idOf') + '(' + v + ')'
       },
       cls: function (v) {
-        return helper('hCls', 'classOf') + '(' + v + ')'
+        return helper('hCls', 'legacyClassOf') + '(' + v + ')'
       },
       up: function (v) {
         return helper('hUp', 'upOf') + '(' + v + ')'
@@ -1338,7 +1338,7 @@
     helpReads = function (code) {
       var reads = {
         localName: ['hTag', 'tagOf'],
-        className: ['hCls', 'classOf'],
+        className: ['hCls', 'legacyClassOf'],
         id: ['hId', 'idOf'],
         parentElement: ['hUp', 'upOf'],
         nextElementSibling: ['hNext', 'nextOf'],
@@ -2280,18 +2280,17 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id)
-            match[1] = escapeIdentifier(match[1]).replace(
-              REX.RegExpChar,
-              '\\$&',
+            // an exact comparison, which is what the selector asks for.
+            // escapeIdentifier turns the CSS escapes into JavaScript ones, so
+            // only the quote is escaped after it.
+            expr = escapeIdentifier(match[1]).replace(
+              /\\.|\x22/g,
+              function (part) {
+                return part == '"' ? '\\"' : part
+              },
             )
             source =
-              'if((/^' +
-              match[1] +
-              '$/.test(' +
-              read.attr('e', 'id') +
-              '))){' +
-              source +
-              '}'
+              'if((' + read.id('e') + '=="' + expr + '")){' + source + '}'
             break
 
           // class name resolver
@@ -3930,11 +3929,12 @@
     selectResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
+      classOf: typeof classOf
       attrOf: typeof legacyAttrOf
       hasAttrOf: typeof legacyHasAttrOf
       tagOf: typeof legacyTagOf
       idOf: typeof legacyIdOf
-      classOf: typeof legacyClassOf
+      legacyClassOf: typeof legacyClassOf
       upOf: typeof legacyUpOf
       nextOf: typeof legacyNextOf
       prevOf: typeof legacyPrevOf
@@ -3979,7 +3979,7 @@
       hasAttrOf: legacyHasAttrOf,
       tagOf: legacyTagOf,
       idOf: legacyIdOf,
-      classOf: legacyClassOf,
+      legacyClassOf: legacyClassOf,
       upOf: legacyUpOf,
       nextOf: legacyNextOf,
       prevOf: legacyPrevOf,
@@ -4005,6 +4005,7 @@
       isDisabled: isDisabled,
       isModal: isModal,
       isFullscreen: isFullscreen,
+      classOf: classOf,
       isPictureInPicture: isPictureInPicture,
       isPopoverOpen: isPopoverOpen,
       isFocusable: isFocusable,
