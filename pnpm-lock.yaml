@@ -140,6 +140,9 @@ catalogs:
     jsdom:
       specifier: 30.0.1
       version: 30.0.1
+    mitata:
+      specifier: 1.0.34
+      version: 1.0.34
     oxfmt:
       specifier: 0.66.0
       version: 0.66.0
@@ -213,6 +216,9 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 30.0.1
+      mitata:
+        specifier: 'catalog:'
+        version: 1.0.34
       oxfmt:
         specifier: 'catalog:'
         version: 0.66.0
@@ -1430,6 +1436,9 @@ packages:
   minimatch@10.2.6:
     resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
     engines: {node: 18 || 20 || >=22}
+
+  mitata@1.0.34:
+    resolution: {integrity: sha512-Mc3zrtNBKIMeHSCQ0XqRLo1vbdIx1wvFV9c8NJAiyho6AjNfMY8bVhbS12bwciUdd1t4rj8099CH3N3NFahaUA==}
 
   mkdirp-classic@0.5.3:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
@@ -2799,6 +2808,8 @@ snapshots:
   minimatch@10.2.6:
     dependencies:
       brace-expansion: 5.0.9
+
+  mitata@1.0.34: {}
 
   mkdirp-classic@0.5.3: {}
 

@@ -1,3 +1,5 @@
+import { optimiseSvg } from '../gen/svg-optimize.mts'
+
 export interface Measurement {
   category: string
   selector: string
@@ -85,7 +87,11 @@ export function chart(
       )
     })
     .join('')
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="${height}" viewBox="0 0 1000 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><style>text{font:12px system-ui,sans-serif;fill:#24292f}.selector{font:14px monospace;font-weight:600}.background{fill:#fff}@media(prefers-color-scheme:dark){text{fill:#e6edf3}.background{fill:#0d1117}}</style><rect class="background" width="1000" height="${height}"/><text x="20" y="28" class="selector">${escapeText(title)}</text><text x="20" y="50">Warm queries on one jsdom document. Median ms/query; lower is better.</text>${body}<text x="20" y="${height - 20}">${escapeText(provenance)}</text></svg>\n`
+  return (
+    optimiseSvg(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="${height}" viewBox="0 0 1000 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><style>text{font:14px system-ui,sans-serif;fill:#24292f}.selector{font:16px monospace;font-weight:600}.background{fill:#fff}@media(prefers-color-scheme:dark){text{fill:#e6edf3}.background{fill:#0d1117}}</style><rect class="background" width="1000" height="${height}"/><text x="20" y="28" class="selector">${escapeText(title)}</text><text x="20" y="50">Warm queries on one jsdom document. Median ms/query; lower is better.</text>${body}<text x="20" y="${height - 20}">${escapeText(provenance)}</text></svg>`,
+    ) + '\n'
+  )
 }
 
 export function agrees(

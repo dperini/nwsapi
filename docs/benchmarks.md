@@ -15,10 +15,24 @@ from one category. `results.json` records every timing sample, package
 versions, source hashes, the fixture hash, and the test machine.
 
 <details>
+<summary>Comparison charts</summary>
+
+![Basic selectors](../assets/repo/bench/identifiers-1.svg)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg)
+![Relationships](../assets/repo/bench/relationships-1.svg)
+![Position selectors](../assets/repo/bench/positional-1.svg)
+![Logical selectors](../assets/repo/bench/logical-1.svg)
+![Form state selectors](../assets/repo/bench/forms-1.svg)
+
+</details>
+
+<details>
 <summary>How measurements work</summary>
 
-All engines query the same component document. Before timing, their results
-must contain the same nodes in the same order as jsdom's independent engine.
+All engines query the same component document. Before timing, Chromium checks
+the same fixture. Each engine must return the same elements in the same order,
+using their document positions to compare across hosts. Install Chromium with
+`pnpm exec playwright install chromium` before the first run.
 Unsupported selectors and incorrect results have no timing bar. A candidate
 mismatch also makes the command fail.
 
@@ -29,5 +43,24 @@ on the machine and fixture; compare engines from the same run.
 
 Use `--rounds 3 --iterations 10 --output /tmp/nwsapi-bench` for a quick check.
 Use the default nine rounds and 100 iterations for the recorded report.
+
+</details>
+
+<details>
+<summary>Other measurements</summary>
+
+The original selector presets, cache sweep, host-access checks, and memory
+measurements are also available. Run `pnpm run build` first.
+
+```sh
+pnpm run bench:selectors --list
+pnpm run bench:accessors --doc components
+pnpm run bench:cache --limits 1000,4096
+pnpm run bench:memory --count 200
+```
+
+The selector preset runner uses jsdom as a reference. Use `pnpm run bench`
+for the browser-checked comparison charts. Cache and memory commands enable
+garbage collection through the repository launcher.
 
 </details>

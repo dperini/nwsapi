@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
+import { chromium } from '@playwright/test'
 import factory from '../../../src/nwsapi.js'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { agrees, chart, splitCharts } from './charts.mts'
@@ -67,7 +68,7 @@ const engines = values.baseline.map(directory => {
   }
 })
 engines.push({
-  name: `candidate ${sha.slice(0, 8)}`,
+  name: `unreleased ${sha.slice(0, 8)}`,
   version: 'unreleased',
   sha256: crypto.createHash('sha256').update(source).digest('hex'),
   query: selector => candidate.select(selector, document),
@@ -118,11 +119,33 @@ const categories = {
   ],
 }
 const rows: Measurement[] = []
+const browser = await chromium.launch({ headless: true })
+let reference: Record<string, number[]>
+let browserVersion: string
+try {
+  browserVersion = browser.version()
+  const page = await browser.newPage()
+  await page.setContent(html)
+  reference = await page.evaluate(selectors => {
+    const nodes = Array.from(document.getElementsByTagName('*'))
+    return Object.fromEntries(
+      selectors.map(selector => [
+        selector,
+        Array.from(document.querySelectorAll(selector), node =>
+          nodes.indexOf(node),
+        ),
+      ]),
+    )
+  }, Object.values(categories).flat())
+} finally {
+  await browser.close()
+}
+const hostNodes = Array.from(document.getElementsByTagName('*'))
 let consumed = 0
 try {
   for (const [category, selectors] of Object.entries(categories)) {
     for (const selector of selectors) {
-      const expected = document.querySelectorAll(selector)
+      const expected = reference[selector].map(index => hostNodes[index])
       const errors = engines.map(engine => {
         try {
           return agrees(engine.query(selector), expected)
@@ -179,6 +202,7 @@ const metadata = {
   architecture: process.arch,
   cpu: os.cpus()[0]?.model,
   jsdom: jsdomPkg.version,
+  correctnessOracle: `Chromium ${browserVersion}`,
   rounds,
   iterations,
   fixtureSha256: crypto.createHash('sha256').update(html).digest('hex'),
@@ -186,6 +210,14 @@ const metadata = {
   consumed,
 }
 const output = path.resolve(REPO_ROOT, values.output)
+const titles = {
+  identifiers: 'Basic selectors',
+  attributes: 'Attribute selectors',
+  relationships: 'Relationships',
+  positional: 'Position selectors',
+  logical: 'Logical selectors',
+  forms: 'Form state selectors',
+}
 fs.mkdirSync(output, { recursive: true })
 fs.writeFileSync(
   path.join(output, 'results.json'),
@@ -195,7 +227,7 @@ for (const group of splitCharts(rows)) {
   fs.writeFileSync(
     path.join(output, `${group.name}.svg`),
     chart(
-      group.name,
+      titles[group.rows[0].category] ?? group.name,
       engines.map(engine => engine.name),
       group.rows,
       `${process.version}; jsdom ${jsdomPkg.version}; ${rounds} rounds; ${metadata.timestamp.slice(0, 10)}; candidate ${sha.slice(0, 8)}`,

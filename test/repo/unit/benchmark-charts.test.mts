@@ -5,6 +5,7 @@ import {
   splitCharts,
 } from '../../../scripts/repo/bench/charts.mts'
 import type { Measurement } from '../../../scripts/repo/bench/charts.mts'
+import { isSvgOptimized } from '../../../scripts/repo/gen/svg-optimize.mts'
 
 const row = (selector = 'a'): Measurement => ({
   category: 'basic',
@@ -32,6 +33,7 @@ describe('benchmark charts', () => {
     expect(svg).toContain('a &gt; b')
     expect(svg).toContain('x &amp; y')
     expect(svg).not.toMatch(/NaN|Infinity/)
+    expect(isSvgOptimized(svg)).toBe(true)
   })
   test('shows unsupported results without giving them a speed score', () => {
     const svg = chart(
