@@ -37,6 +37,11 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/plan-cache.html',
+    note: 'local WPT regression: context-free plans, escaped tokens, callbacks, and DOM mutation',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/wrapper-arguments.html',
     note: 'local WPT regression: installed wrapper arities and callbacks',
     install: false,

@@ -3378,6 +3378,10 @@
       }
     },
     // equivalent of w3c 'querySelector' method
+    // Reuse the stop callback when first() has no user callback.
+    firstMatch = function firstMatch() {
+      return false
+    },
     first = function _querySelector(selectors, context, callback) {
       var element, match
 
@@ -3408,13 +3412,11 @@
           selectors,
           context,
           typeof callback == 'function'
-            ? function firstMatch(element) {
+            ? function firstMatchCallback(element) {
                 callback(element)
                 return false
               }
-            : function firstMatch() {
-                return false
-              },
+            : firstMatch,
         )[0] || null
       )
     },
@@ -3430,52 +3432,52 @@
 
       if (selectors) {
         if ((resolver = selectResolvers.get(selectors))) {
-          if (resolver.context === context && resolver.callback === callback) {
-            var i,
-              l,
-              list,
-              f = resolver.factory,
-              n = resolver.nodeset
-            if (n.length > 1) {
-              for (i = 0, l = n.length; l > i; ++i) {
-                list = fetch[n[i][0]](n[i].slice(1), context)
-                if (f[i] !== null) {
-                  f[i](list, callback, context, nodes)
-                } else {
-                  nodes = nodes.concat(list)
-                }
-              }
-              if (l > 1 && nodes.length > 1) {
-                nodes.sort(documentOrder)
-                hasDupes && (nodes = unique(nodes))
-              }
-            } else {
-              list = fetch[n[0][0]](n[0].slice(1), context)
-              if (f[0]) {
-                nodes = f[0](list, callback, context, nodes)
+          var i,
+            l,
+            list,
+            f = resolver.factory,
+            n = resolver.nodeset
+          if (n.length > 1) {
+            for (i = 0, l = n.length; l > i; ++i) {
+              list = fetch[n[i][0]](n[i].slice(1), context)
+              if (f[i] !== null) {
+                f[i](list, callback, context, nodes)
               } else {
-                nodes = list
+                nodes = nodes.concat(list)
               }
             }
-            if (typeof callback == 'function') {
-              nodes = concatCall(nodes, callback)
+            if (l > 1 && nodes.length > 1) {
+              nodes.sort(documentOrder)
+              hasDupes && (nodes = unique(nodes))
             }
-            return !Config.NODE_LIST
-              ? nodes
-              : isInstanceOf(nodes)
-                ? nodes
-                : toNodeList(nodes)
+          } else if (n.length) {
+            list = fetch[n[0][0]](n[0].slice(1), context)
+            nodes = f[0] ? f[0](list, callback, context, nodes) : list
           }
+          if (typeof callback == 'function') {
+            nodes = concatCall(nodes, callback)
+          }
+          return !Config.NODE_LIST
+            ? nodes
+            : isInstanceOf(nodes)
+              ? nodes
+              : toNodeList(nodes)
         }
       }
 
-      // save/reuse factory and closure collection
-      selectResolvers.set(
-        selectors,
-        collect(parse(selectors, true), context, callback),
-      )
+      resolver = collect(parse(selectors, true), context, callback)
+      nodes = resolver.results
 
-      nodes = selectResolvers.get(selectors).results
+      // Cache the query plan, never the answer. 'results' is a live list of
+      // matched elements and 'htmlset' closes over the context, so caching
+      // the whole collection kept a removed subtree alive for as long as its
+      // selector stayed in the cache. What is kept here is context-free,
+      // which also lets a plan be reused across contexts instead of only for
+      // the one it was built against.
+      selectResolvers.set(selectors, {
+        factory: resolver.factory,
+        nodeset: resolver.nodeset,
+      })
 
       if (typeof callback == 'function') {
         nodes = concatCall(nodes, callback)
@@ -3524,6 +3526,8 @@
           }
         }
 
+        // unescape before recording the token: 'nodeset' is what a later
+        // run rebuilds its candidate list from, so the two must agree
         token[2] = unescapeIdentifier(token[2])
         nodeset[i] = token[1] + token[2]
         // An escaped space cannot be part of a class token.
