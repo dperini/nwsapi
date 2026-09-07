@@ -2,6 +2,27 @@ import { expect, test } from 'vitest'
 import { replaceCacheLimit } from '../../../scripts/repo/bench/cache-source.mts'
 import { median, measure } from '../../../scripts/repo/bench/timing.mts'
 import { world } from '../../../scripts/repo/bench/world.mts'
+import { cases } from '../../../scripts/repo/bench/cases.mts'
+import { DOCUMENTS } from '../../../scripts/repo/bench/documents.mts'
+
+test('practical query groups exercise nonempty results in their own fixtures', () => {
+  for (const fixture of ['components', 'documentation', 'atomic']) {
+    const subject = world(DOCUMENTS[fixture].html())
+    try {
+      expect(cases[fixture][fixture]).toHaveLength(4)
+      for (const selector of cases[fixture][fixture]) {
+        const expected = Array.from(subject.document.querySelectorAll(selector))
+        expect(expected.length, selector).toBeGreaterThan(0)
+        expect(
+          subject.engines.nwsapi.select(selector, subject.document),
+          selector,
+        ).toEqual(expected)
+      }
+    } finally {
+      subject.dom.window.close()
+    }
+  }
+})
 
 test('cache sweep replaces exactly one assignment and rejects stale anchors', () => {
   const source = '\nvar CACHE_LIMIT = 1000,\n  next = 1;'

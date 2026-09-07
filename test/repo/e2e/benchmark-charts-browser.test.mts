@@ -31,6 +31,11 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
     const page = await browser.newPage()
     try {
       await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
+      expect(
+        await page
+          .getByText('nwsapi 2.3.0-prerelease', { exact: true })
+          .evaluate(node => getComputedStyle(node).fontWeight),
+      ).toBe('700')
       const frames = await page.evaluate(() => {
         const bar = document.querySelector('.bar')!
         const animation = bar.getAnimations()[0]

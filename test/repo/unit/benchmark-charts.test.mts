@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import fs from 'node:fs'
+import { JSDOM } from 'jsdom'
 import {
   agrees,
   chart,
@@ -15,6 +16,35 @@ const row = (selector = 'a'): Measurement => ({
   errors: [null, null],
 })
 describe('benchmark charts', () => {
+  test('rounds labels to two decimals and bolds exact winners, including ties', () => {
+    const svg = chart(
+      'basic',
+      ['old', 'candidate', 'other'],
+      [
+        {
+          ...row(),
+          milliseconds: [1.234, 1.231, 1.231],
+          errors: [null, null, null],
+        },
+      ],
+      '',
+    )
+    const dom = new JSDOM(svg, { contentType: 'image/svg+xml' })
+    try {
+      const bold = Array.from(
+        dom.window.document.querySelectorAll('text'),
+      ).filter(node => node.getAttribute('style')?.includes('font-weight:700'))
+      expect(bold.map(node => node.textContent)).toEqual([
+        'candidate',
+        '1.23 ms',
+        'other',
+        '1.23 ms',
+      ])
+      expect(svg).not.toContain('1.234 ms')
+    } finally {
+      dom.window.close()
+    }
+  })
   test('animates bars from the left and respects reduced motion', () => {
     const svg = chart('basic', ['old', 'candidate'], [row()], '')
     expect(svg).toContain('@keyframes fill')
@@ -28,12 +58,12 @@ describe('benchmark charts', () => {
       new URL('../../../docs/benchmarks.md', import.meta.url),
       'utf8',
     )
-    const firstChart = document.indexOf('## Basic selectors')
+    const firstChart = document.indexOf('## Component queries')
     expect(document.lastIndexOf('</details>')).toBeLessThan(firstChart)
     expect(document.indexOf('How measurements work')).toBeLessThan(
       document.indexOf('Other measurements'),
     )
-    expect(document.match(/^## /gm)).toHaveLength(6)
+    expect(document.match(/^## /gm)).toHaveLength(9)
     expect(document).not.toContain('2.0.0')
     expect(document).toContain('2.3.0-prerelease')
     expect(document).toContain('@asamuzakjp/dom-selector')

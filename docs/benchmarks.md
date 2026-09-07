@@ -16,7 +16,7 @@ versions, source hashes, the fixture hash, and the test machine.
 <details>
 <summary>How measurements work</summary>
 
-All engines use their default settings and query the same component document.
+All engines use their default settings and query the same fixture in each group.
 Before timing, Chromium checks
 the same fixture. Each engine must return the same elements in the same order,
 using their document positions to compare across hosts. Install Chromium with
@@ -28,6 +28,8 @@ The runner warms each query, rotates engine order between rounds, and reports
 the median time per query. Lower is better. These measurements cover warm
 queries, not browser performance, cold starts, or memory use. Results depend
 on the machine and fixture; compare engines from the same run.
+Labels show two decimal places. Bold marks the lowest unrounded median,
+including exact ties. The raw samples keep their full precision.
 
 Use `--rounds 3 --iterations 10 --output /tmp/nwsapi-bench` for a quick check.
 Use the default nine rounds and 100 iterations for the recorded report.
@@ -52,6 +54,27 @@ for the browser-checked comparison charts. Cache and memory commands enable
 garbage collection through the repository launcher.
 
 </details>
+
+## Component queries
+
+Find controls inside repeated cards using classes, attributes, and relationships.
+This generated fixture models component tests; it is not a production trace.
+
+![Component queries](../assets/repo/bench/components-1.svg)
+
+## Documentation queries
+
+Find links, definition entries, and table cells in the existing specification-page fixture.
+These queries exercise descendant and ancestor filtering on a larger document.
+
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg)
+
+## Utility-class queries
+
+Find navigation links and card content in the existing utility-class fixture.
+It includes both narrow and broad containers to exercise traversal routing.
+
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg)
 
 ## Basic selectors
 

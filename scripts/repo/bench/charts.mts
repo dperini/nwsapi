@@ -71,6 +71,9 @@ export function chart(
   const body = rows
     .map((row, index) => {
       const top = 80 + index * groupHeight
+      const fastest = Math.min(
+        ...row.milliseconds.filter(value => value !== null),
+      )
       return (
         `<text x="20" y="${top}" class="selector">${escapeText(row.selector)}</text>` +
         names
@@ -79,9 +82,10 @@ export function chart(
             const y = top + 12 + series * 25
             const status =
               row.errors[series] ??
-              (value === null ? 'not measured' : `${value.toFixed(4)} ms`)
+              (value === null ? 'not measured' : `${value.toFixed(2)} ms`)
             const width = value === null ? 0 : (value / maximum) * 380
-            return `<text x="20" y="${y + 14}">${escapeText(name)}</text><rect class="bar" x="300" y="${y}" width="${width.toFixed(2)}" height="18" fill="${colors[series % colors.length]}"/><text x="${310 + width}" y="${y + 14}">${escapeText(status)}</text>`
+            const weight = value === fastest ? ' style="font-weight:700"' : ''
+            return `<text x="20" y="${y + 14}"${weight}>${escapeText(name)}</text><rect class="bar" x="300" y="${y}" width="${width.toFixed(2)}" height="18" fill="${colors[series % colors.length]}"/><text x="${310 + width}" y="${y + 14}"${weight}>${escapeText(status)}</text>`
           })
           .join('')
       )
