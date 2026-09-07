@@ -31,5 +31,5 @@ fallbacks to avoid retaining unused documents.
 Use Node.js 18 or newer:
 
 ```sh
-pnpm run test:node test/legacy-runtime.test.mts
+pnpm run test:node test/repo/unit/legacy-runtime.test.mts
 ```
