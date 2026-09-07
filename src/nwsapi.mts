@@ -954,6 +954,16 @@
         : doc.createElement('DiV').localName == 'div'
     },
     // check if node content is editable
+    isRequired = function (node) {
+      return (
+        !!node.required &&
+        (/^(select|textarea)$/.test(node.localName) ||
+          (node.localName == 'input' &&
+            !/^(hidden|range|color|button|submit|reset|image)$/.test(
+              node.type,
+            )))
+      )
+    },
     isContentEditable = function (node) {
       var attrValue = 'inherit'
       if (node.hasAttribute('contenteditable')) {
@@ -2185,15 +2195,11 @@
                     '}'
                   break
                 case 'required':
-                  source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
-                    '){' +
-                    source +
-                    '}'
+                  source = 'if(s.isRequired(e)){' + source + '}'
                   break
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
                     '){' +
                     source +
                     '}'
@@ -2943,6 +2949,7 @@
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
       matchesNative: typeof matchesNative
+      isRequired: typeof isRequired
       isDisabled: typeof isDisabled
       isOpen: typeof isOpen
       isClosed: typeof isClosed
@@ -2973,6 +2980,7 @@
       nthElement: nthElement,
 
       matchesNative: matchesNative,
+      isRequired: isRequired,
       isOpen: isOpen,
       isClosed: isClosed,
       isDisabled: isDisabled,
