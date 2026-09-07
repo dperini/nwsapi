@@ -11,21 +11,21 @@ Query contexts default to the factory document when omitted. `closest()`, `first
 
 | Method | Result |
 | --- | --- |
-| [`byClass(cls, context)`](../src/nwsapi.mts#L3148) | Returns elements with the class name. |
-| [`byId(id, context)`](../src/nwsapi.mts#L3146) | Returns elements with the ID. Duplicate IDs are allowed by default. |
-| [`byTag(tag, context)`](../src/nwsapi.mts#L3147) | Returns elements with the tag name. Use `*` for all elements. |
-| [`closest(selectors, element, callback)`](../src/nwsapi.mts#L3154) | Returns the nearest match, starting with the element, or `null`. |
-| [`compile(selector, mode, callback)`](../src/nwsapi.mts#L3156) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`configure(option, clear)`](../src/nwsapi.mts#L3157) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
-| [`emit(message, proto)`](../src/nwsapi.mts#L3159) | Reports an error using the configured error policy. |
-| [`first(selectors, context, callback)`](../src/nwsapi.mts#L3150) | Returns the first matching descendant, or `null`. |
-| [`install(all)`](../src/nwsapi.mts#L3165) | Replaces native selector methods. Pass `true` to also replace collection methods. |
-| [`match(selectors, element, callback)`](../src/nwsapi.mts#L3151) | Returns whether the element matches. |
-| [`registerCombinator(combinator, resolver)`](../src/nwsapi.mts#L3172) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../src/nwsapi.mts#L3197) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../src/nwsapi.mts#L3219) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
-| [`select(selectors, context, callback)`](../src/nwsapi.mts#L3152) | Returns an array of matching descendants, or an empty array. |
-| [`uninstall()`](../src/nwsapi.mts#L3166) | Restores the native methods saved by `install()`. |
+| [`byClass(cls, context)`](../src/nwsapi.mts#L4036) | Returns elements with the class name. |
+| [`byId(id, context)`](../src/nwsapi.mts#L4034) | Returns elements with the ID. Duplicate IDs are allowed by default. |
+| [`byTag(tag, context)`](../src/nwsapi.mts#L4035) | Returns elements with the tag name. Use `*` for all elements. |
+| [`closest(selectors, element, callback)`](../src/nwsapi.mts#L4042) | Returns the nearest match, starting with the element, or `null`. |
+| [`compile(selector, mode, callback, relative)`](../src/nwsapi.mts#L4044) | Compiles a selector into a resolver function. This is an advanced API. |
+| [`configure(option, clear)`](../src/nwsapi.mts#L4045) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
+| [`emit(message, proto)`](../src/nwsapi.mts#L4047) | Reports an error using the configured error policy. |
+| [`first(selectors, context, callback)`](../src/nwsapi.mts#L4038) | Returns the first matching descendant, or `null`. |
+| [`install(all)`](../src/nwsapi.mts#L4053) | Replaces native selector methods. Pass `true` to also replace collection methods. |
+| [`match(selectors, element, callback)`](../src/nwsapi.mts#L4039) | Returns whether the element matches. |
+| [`registerCombinator(combinator, resolver)`](../src/nwsapi.mts#L4060) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../src/nwsapi.mts#L4085) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../src/nwsapi.mts#L4107) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`select(selectors, context, callback)`](../src/nwsapi.mts#L4040) | Returns an array of matching descendants, or an empty array. |
+| [`uninstall()`](../src/nwsapi.mts#L4054) | Restores the native methods saved by `install()`. |
 
 <details>
 <summary>Configuration</summary>
@@ -44,8 +44,10 @@ Use `configure({ option: value })` to change options, `configure()` to read them
 | `USR_EVENT` | `true` | Reserved compatibility flag. The core does not currently read it. |
 | `VERBOSITY` | `true` | Throws exceptions for invalid selectors. |
 
-> [!IMPORTANT]
-> Set `LEGACY` before the first query when the environment needs compatibility fallbacks.
+<blockquote>
+<p><img src="../assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>
+<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>
+</blockquote>
 
 </details>
 
@@ -58,22 +60,22 @@ These exports support extensions and debugging. Prefer query methods and `config
 
 | Member | Purpose |
 | --- | --- |
-| [`CFG`](../src/nwsapi.mts#L3134) | Contains the compiler syntax settings. |
-| [`Config`](../src/nwsapi.mts#L3160) | Contains the active options. Use `configure()` to change them. |
-| [`M_BODY`](../src/nwsapi.mts#L3137) | Contains the matching resolver body template. |
-| [`M_TEST`](../src/nwsapi.mts#L3141) | Contains the matching resolver test template. |
-| [`matchLambdas`](../src/nwsapi.mts#L3126) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../src/nwsapi.mts#L3129) | Caches matching plans, not DOM results. |
-| [`N_BODY`](../src/nwsapi.mts#L3138) | Exposes the matching resolver body template. |
-| [`N_TEST`](../src/nwsapi.mts#L3142) | Contains the alternate resolver test template. |
-| [`Operators`](../src/nwsapi.mts#L3168) | Contains registered attribute operators. |
-| [`S_BODY`](../src/nwsapi.mts#L3136) | Contains the selection resolver body template. |
-| [`S_TEST`](../src/nwsapi.mts#L3140) | Contains the selection resolver test template. |
-| [`selectLambdas`](../src/nwsapi.mts#L3127) | Caches compiled selection functions, not DOM results. |
-| [`Selectors`](../src/nwsapi.mts#L3169) | Contains registered selector extensions. |
-| [`selectResolvers`](../src/nwsapi.mts#L3130) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../src/nwsapi.mts#L3161) | Contains the document state and helpers used by compiled selectors. |
-| [`Version`](../src/nwsapi.mts#L3163) | Contains the engine version string. |
+| [`CFG`](../src/nwsapi.mts#L4022) | Contains the compiler syntax settings. |
+| [`Config`](../src/nwsapi.mts#L4048) | Contains the active options. Use `configure()` to change them. |
+| [`M_BODY`](../src/nwsapi.mts#L4025) | Contains the matching resolver body template. |
+| [`M_TEST`](../src/nwsapi.mts#L4029) | Contains the matching resolver test template. |
+| [`matchLambdas`](../src/nwsapi.mts#L4014) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../src/nwsapi.mts#L4017) | Caches matching plans, not DOM results. |
+| [`N_BODY`](../src/nwsapi.mts#L4026) | Exposes the matching resolver body template. |
+| [`N_TEST`](../src/nwsapi.mts#L4030) | Contains the alternate resolver test template. |
+| [`Operators`](../src/nwsapi.mts#L4056) | Contains registered attribute operators. |
+| [`S_BODY`](../src/nwsapi.mts#L4024) | Contains the selection resolver body template. |
+| [`S_TEST`](../src/nwsapi.mts#L4028) | Contains the selection resolver test template. |
+| [`selectLambdas`](../src/nwsapi.mts#L4015) | Caches compiled selection functions, not DOM results. |
+| [`Selectors`](../src/nwsapi.mts#L4057) | Contains registered selector extensions. |
+| [`selectResolvers`](../src/nwsapi.mts#L4018) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../src/nwsapi.mts#L4049) | Contains the document state and helpers used by compiled selectors. |
+| [`Version`](../src/nwsapi.mts#L4051) | Contains the engine version string. |
 
 </details>
 
@@ -85,20 +87,39 @@ These exports support extensions and debugging. Prefer query methods and `config
 Access the adapter as `require("nwsapi").DOMSelector` or `require("nwsapi/src/dom-selector.js")`.
 jsdom calls these methods through the package override. Query options can set `noexcept: true` to suppress selector errors.
 
+Configure before parsing, because styles and scripts can use selectors during document creation:
+
+```js
+const { DOMSelector } = require("nwsapi")
+const { JSDOM } = require("jsdom")
+const dom = new JSDOM(html, {
+  beforeParse(window) {
+    DOMSelector.configure(window, { LEGACY: true })
+  }
+})
+```
+
+To reuse an engine, create a document without styles, then call `DOMSelector.use(window, engine)` before adding styles or running queries. The engine must belong to that document and have `VERBOSITY: true`. DOM queries throw for invalid selectors; stylesheet checks return no match.
+
+Setup locks on the first query, selector support check, or stylesheet match. Do not change the shared engine configuration directly after setup: jsdom can cache computed styles. Separate factory calls remain independent. Compatible adapter copies share setup even when the package override loads a second copy.
+
 | Method | Result |
 | --- | --- |
-| [`check(selector, node)`](../src/dom-selector.mts#L151) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
-| [`clear(clearAll = false)`](../src/dom-selector.mts#L87) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
-| [`closest(selector, node, options)`](../src/dom-selector.mts#L75) | Returns the nearest matching element, or `null`. |
-| [`constructor(window, document = window.document, options = {})`](../src/dom-selector.mts#L26) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
-| [`extractSubjects()`](../src/dom-selector.mts#L98) | Returns a wildcard candidate description for stylesheet matching. |
-| [`matches(selector, node, options)`](../src/dom-selector.mts#L71) | Returns whether an element matches. |
-| [`parse(selector)`](../src/dom-selector.mts#L116) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
-| [`querySelector(selector, node, options)`](../src/dom-selector.mts#L79) | Returns the first matching descendant, or `null`. |
-| [`querySelectorAll(selector, node, options)`](../src/dom-selector.mts#L83) | Returns matching descendants as an array. |
-| [`run(method, selector, node, options, fallback, elementOnly = false)`](../src/dom-selector.mts#L45) | Internal helper that checks nodes and applies the query error policy. |
-| [`supports(selector)`](../src/dom-selector.mts#L104) | Returns whether the engine accepts a selector. |
-| [`wrap(node)`](../src/dom-selector.mts#L41) | Internal helper that converts jsdom implementation nodes to public nodes. |
+| [`check(selector, node)`](../src/dom-selector.mts#L258) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
+| [`clear(clearAll = false)`](../src/dom-selector.mts#L194) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
+| [`closest(selector, node, options)`](../src/dom-selector.mts#L182) | Returns the nearest matching element, or `null`. |
+| [`DOMSelector.configure(window, options)`](../src/dom-selector.mts#L68) | Configures the shared engine before the first query or stylesheet match. |
+| [`constructor(window, document = window.document, options = {})`](../src/dom-selector.mts#L120) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
+| [`engine`](../src/dom-selector.mts#L131) | Returns the shared engine, creating it on first access. |
+| [`extractSubjects()`](../src/dom-selector.mts#L205) | Returns a wildcard candidate description for stylesheet matching. |
+| [`matches(selector, node, options)`](../src/dom-selector.mts#L178) | Returns whether an element matches. |
+| [`parse(selector)`](../src/dom-selector.mts#L223) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
+| [`querySelector(selector, node, options)`](../src/dom-selector.mts#L186) | Returns the first matching descendant, or `null`. |
+| [`querySelectorAll(selector, node, options)`](../src/dom-selector.mts#L190) | Returns matching descendants as an array. |
+| [`run(method, selector, node, options, fallback, elementOnly = false)`](../src/dom-selector.mts#L152) | Internal helper that checks nodes and applies the query error policy. |
+| [`supports(selector)`](../src/dom-selector.mts#L211) | Returns whether the engine accepts a selector. |
+| [`DOMSelector.use(window, engine)`](../src/dom-selector.mts#L90) | Binds an existing engine before jsdom first uses the adapter. Returns the engine. |
+| [`wrap(node)`](../src/dom-selector.mts#L148) | Internal helper that converts jsdom implementation nodes to public nodes. |
 
 </details>
 
