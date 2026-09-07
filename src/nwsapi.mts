@@ -1869,8 +1869,11 @@
         return Config
       }
       for (var i in option) {
-        // Compiled logical selectors capture the forgiving mode.
-        if (i == 'FORGIVING' && Config[i] !== !!option[i]) {
+        // Resolvers capture forgiving mode and quiet validation failures.
+        if (
+          (i == 'FORGIVING' || i == 'VERBOSITY') &&
+          Config[i] !== !!option[i]
+        ) {
           clear = true
         }
         if (i == 'LEGACY' && Config[i] !== !!option[i]) {
@@ -1891,8 +1894,10 @@
       return true
     },
     // centralized error and exceptions handling
+    errors = 0,
     emit = function (message, proto?) {
       var err
+      ++errors
       if (Config.VERBOSITY) {
         if (proto) {
           err = new proto(message)
@@ -2274,6 +2279,46 @@
 
       return l > 0
     },
+    // Compile deferred arguments before any candidate can short-circuit them.
+    // Keep validation's helper aliases and extension variables out of the
+    // surrounding resolver. Forgiving lists still validate each item inside
+    // matchForgiving(), where an invalid item can be discarded independently.
+    validateLogical = function (argument, relative) {
+      var previousErrors = errors,
+        aliases = H_USED,
+        selectVars = S_VARS,
+        matchVars = M_VARS,
+        nodeVars = N_VARS,
+        list = splitList(argument),
+        parsed,
+        i,
+        j
+      H_USED = {}
+      S_VARS = []
+      M_VARS = []
+      N_VARS = []
+      try {
+        for (i = 0; i < list.length; ++i) {
+          if (!list[i]) {
+            emit(qsInvalid)
+            return false
+          }
+          parsed = parse(relative ? '* ' + list[i] : list[i], false)
+          if (!parsed) {
+            return false
+          }
+          for (j = 0; j < parsed.length; ++j) {
+            compileSelector(parsed[j], '', relative, false)
+          }
+        }
+        return errors == previousErrors
+      } finally {
+        H_USED = aliases
+        S_VARS = selectVars
+        M_VARS = matchVars
+        N_VARS = nodeVars
+      }
+    },
     notFlag = 0,
     compileSelector = function (expression, source, mode, callback) {
       var a,
@@ -2281,6 +2326,7 @@
         n,
         f,
         k = 0,
+        previousErrors = errors,
         compat,
         name,
         NS,
@@ -2741,10 +2787,16 @@
                       source +
                       '}'
                   } else {
+                    if (!validateLogical(match[2], false)) {
+                      return ''
+                    }
                     source = 'if(s.match("' + expr + '",e)){' + source + '}'
                   }
                   break
                 case 'matches':
+                  if (!validateLogical(match[2], false)) {
+                    return ''
+                  }
                   source = 'if(s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'not':
@@ -2767,10 +2819,16 @@
                       source +
                       '}'
                   } else {
+                    if (!validateLogical(match[2], false)) {
+                      return ''
+                    }
                     source = 'if(!s.match("' + expr + '",e)){' + source + '}'
                   }
                   break
                 case 'has':
+                  if (!validateLogical(match[2], true)) {
+                    return ''
+                  }
                   source =
                     'if(s.has(' +
                     JSON.stringify(splitList(match[2])) +
@@ -3175,17 +3233,11 @@
               }
 
               if (!status) {
-                if (Config.FORGIVING && selector.match(/(:(?:is|where)\x28)/)) {
-                  return ''
-                }
                 emit("unknown pseudo-class selector '" + selector + "'")
                 return ''
               }
 
               if (!expr) {
-                if (Config.FORGIVING && selector.match(/(:(?:is|where)\x28)/)) {
-                  return ''
-                }
                 emit("unknown token in selector '" + selector + "'")
                 return ''
               }
@@ -3199,9 +3251,6 @@
         // end of switch symbol
 
         if (!match) {
-          if (Config.FORGIVING && selector.match(/(:(?:is|where)\x28)/)) {
-            return ''
-          }
           emit("'" + expression + "'" + qsInvalid)
           return ''
         }
@@ -3214,7 +3263,7 @@
       if (pendingTag) {
         source = pendingTag + source + '}'
       }
-      return source
+      return errors == previousErrors ? source : ''
     },
     // replace :scope context element as a
     // a reference in the selector string
