@@ -1,14 +1,14 @@
 # Code style
 
 Run `pnpm format`, `pnpm lint`, and `pnpm type` before submitting changes.
-Formatting and linting share their file list in `scripts/lib/tooling-scope.mts`.
+Formatting and linting share their file list in `scripts/repo/lib/tooling-scope.mts`.
 Generated JavaScript and upstream fixtures are excluded.
 
 Use two spaces, single quotes, no semicolons, and regex literals for static
 patterns. Lint checks correctness, suspicious code, imports, and TypeScript.
 Use default imports for `node:path`, `node:crypto`, and `node:os`.
 
-Package scripts use `scripts/run.mts` to share an OS-temporary Node compile cache
+Package scripts use `scripts/repo/run.mts` to share an OS-temporary Node compile cache
 with child processes. Existing cache settings and opt-outs are preserved.
 Coverage runs disable the cache for accurate measurements.
 The launcher permits pnpm, aube, and direct Node runs. Other package managers
