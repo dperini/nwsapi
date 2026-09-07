@@ -36,6 +36,7 @@ test('ID comparisons preserve escaped punctuation without attribute calls', t =>
     ['a.b', '#a\\.b'],
     ['a$b', '#a\\$b'],
     ['a"b', '#a\\22 b'],
+    ['a"b', '#a\\"b'],
     ['a\\b', '#a\\5c b'],
   ]) {
     const target = {

@@ -42,6 +42,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/wrapper-arguments.html',
+    note: 'local WPT regression: installed wrapper arities and callbacks',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/resolver-execution.html',
     note: 'local WPT regression: resolver loops, callback cache separation, and cached candidate lookup',
     install: false,
