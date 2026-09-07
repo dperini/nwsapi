@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Exact attribute comparisons</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script type="module">
+import { markup, cases } from '/_repo/test/repo/fixtures/attribute-equality.mts';
+test(() => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('attributes');
+  doc.body.innerHTML = markup;
+  for (const [selector, expected] of cases) {
+    assert_array_equals(Array.from(doc.querySelectorAll(selector), element => element.id), expected, selector);
+    for (let repeat = 0; repeat < 2; repeat++) {
+      assert_array_equals(engine.select(selector, doc).map(element => element.id), expected, selector);
+    }
+  }
+  const target = doc.getElementById('d');
+  for (const [value, selector] of [
+    ['é', '[data-k="\\e9"]'], ['😀', '[data-k="\\1f600"]'],
+    ['a"b', '[data-k="a\\"b"]'], ['a\\b', '[data-k="a\\\\b"]'], ['a.b', '[data-k="a\\.b"]'],
+  ]) {
+    target.setAttribute('data-k', value);
+    assert_array_equals(engine.select(selector, doc), [target], selector);
+    assert_true(engine.match(selector, target), selector);
+  }
+  engine.registerOperator('!=', { p1: '^', p2: '$', p3: 'false' });
+  assert_false(engine.match('[data-k!="a.b"]', target));
+  assert_true(engine.match('[data-k!="other"]', target));
+  const xml = new DOMParser().parseFromString('<root><input type="checkbox"/></root>', 'application/xml');
+  assert_equals(engine.select('[type="CHECKBOX"]', xml).length, 0);
+  assert_equals(engine.select('[type="checkbox"]', xml).length, 1);
+}, 'Exact comparisons preserve HTML, XML, SVG, escapes, empty values, and custom operators');
+</script>

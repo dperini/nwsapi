@@ -17,6 +17,8 @@ import type { AddressInfo } from 'node:net'
 import { createServer } from 'node:http'
 import path from 'node:path'
 import process from 'node:process'
+import { stripTypeScriptTypes } from 'node:module'
+import { readFile } from 'node:fs/promises'
 import { REPO_ROOT as repoRoot } from './lib/paths.mts'
 const docRoot = path.join(repoRoot, 'upstream', 'wpt')
 
@@ -124,6 +126,15 @@ async function serve(req: IncomingMessage, res: ServerResponse) {
         return
       }
       info = await stat(filePath)
+    }
+    // Shared browser fixtures use the same TypeScript source as Node tests.
+    if (path.extname(filePath) === '.mts') {
+      const code = stripTypeScriptTypes(await readFile(filePath, 'utf8'))
+      send(res, 200, req.method === 'HEAD' ? '' : code, {
+        'content-type': 'text/javascript; charset=utf-8',
+        'cache-control': 'no-cache',
+      })
+      return
     }
     const type =
       CONTENT_TYPES[path.extname(filePath).toLowerCase()] ||

@@ -173,11 +173,14 @@ for (const entry of manifest) {
     if (coverageDirectory) {
       await page.coverage.startJSCoverage({ resetOnNavigation: false })
     }
+    const content =
+      entry.install === false
+        ? initScript.replace('window.NW.Dom.install();', '')
+        : initScript
     await page.addInitScript({
-      content:
-        entry.install === false
-          ? initScript.replace('window.NW.Dom.install();', '')
-          : initScript,
+      content: entry.legacyMap
+        ? `const savedMap = window.Map; try { window.Map = undefined; ${content} } finally { window.Map = savedMap; }`
+        : content,
     })
     const response = await page.goto(entry.path)
     expect(response, `no HTTP response for ${entry.path}`).not.toBeNull()

@@ -51,10 +51,10 @@ test('incomplete coverage cannot silently replace the combined badge', () => {
 
 test('aggregate coverage thresholds reject regressions in each metric', () => {
   const summary = {
-    statements: { pct: 73 },
-    branches: { pct: 61 },
-    functions: { pct: 74 },
-    lines: { pct: 70 },
+    statements: { pct: coverageThresholds.statements },
+    branches: { pct: coverageThresholds.branches },
+    functions: { pct: coverageThresholds.functions },
+    lines: { pct: coverageThresholds.lines },
   }
   expect(() => checkCoverageThresholds(summary)).not.toThrow()
   for (const metric of Object.keys(coverageThresholds)) {

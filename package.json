@@ -110,6 +110,7 @@
     "test": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts",
     "type": "node scripts/repo/run.mts node_modules/typescript/bin/tsc --noEmit -p .config/tsconfig.check.json",
     "test:node": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts",
+    "test:legacy": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/legacy-dom.test.mts",
     "test:unit": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit",
     "test:integration": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/integration",
     "test:e2e": "pnpm run test:browser && pnpm run test:package && pnpm run test:upstream",

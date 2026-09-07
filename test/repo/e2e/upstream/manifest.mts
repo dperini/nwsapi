@@ -34,7 +34,74 @@ export const manifest: Array<{
   path: string
   note: string
   install?: boolean
+  legacyMap?: boolean
 }> = [
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/descendant-routing.html',
+    note: 'local WPT regression: descendant routes, external ancestors, wide levels, and live mutations',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/ancestor-filter.html',
+    note: 'local WPT regression: adaptive ancestor filters, mutations, exceptions, and legacy mode',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/compound-negation.html',
+    note: 'local WPT regression: compound and general negation paths with modern and legacy hosts',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/hover-tracking.html',
+    note: 'local WPT regression: lazy hover tracking and cross-document event isolation',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/property-reads.html',
+    note: 'local WPT regression: reflected classes, SVG base values, attribute fallbacks, and escaped IDs',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/attribute-equality.html',
+    note: 'local WPT regression: exact attribute values, escapes, case rules, and custom operators',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/plan-cache.html',
+    note: 'local WPT regression: context-free plans, escaped tokens, callbacks, and DOM mutation',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/wrapper-arguments.html',
+    note: 'local WPT regression: installed wrapper arities and callbacks',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/resolver-execution.html',
+    note: 'local WPT regression: resolver loops, callback cache separation, and cached candidate lookup',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/nth-constant.html',
+    note: 'local WPT regression: constant sibling indexes agree with native queries after mutation',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/legacy-dom.html',
+    note: 'local WPT regression: legacy host reads agree with native selectors and refresh after mutations',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/cache-generations.html',
+    note: 'local WPT regression: cache promotion, eviction, updates, and capacity',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/cache-legacy.html',
+    note: 'local WPT regression: cache fallback without Map',
+    install: false,
+    legacyMap: true,
+  },
   {
     path: '/_repo/test/repo/e2e/upstream/fixtures/has-anchor-isolation.html',
     note: 'local WPT regression: private anchor syntax is rejected without rejecting quoted values',

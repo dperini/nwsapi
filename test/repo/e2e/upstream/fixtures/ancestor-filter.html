@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ancestor filters</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body><div><ul><li><a id="a"></a></li></ul></div><section id="s"><a id="b"></a></section>
+<script>
+test(t => {
+  const engine = NW.Dom;
+  const target = document.getElementById('a');
+  const state = { seen: 0, kept: 0, rest: 0 };
+  for (let i = 0; i < 64; i++) assert_true(engine.Snapshot.mayMatch(target, 0, state));
+  assert_equals(state.rest, 4096);
+  for (let i = 0; i < 4096; i++) assert_true(engine.Snapshot.mayMatch(target, 0, state));
+  assert_equals(state.rest, 0);
+  engine.Snapshot.clearAncestorMasks();
+  for (const selector of ['div ul li a', 'div ul a:not(article)', 'div ul a:not(:not(a))', 'body div a', 'body section a', 'div > ul > li > a']) {
+    for (let repeat = 0; repeat < 2; repeat++) {
+      assert_array_equals(engine.select(selector, document), Array.from(document.querySelectorAll(selector)), selector);
+    }
+  }
+  const run = engine.compile('div ul a', true, true);
+  assert_throws_js(Error, () => run([document.getElementById('b'), target], () => { throw Error('stop'); }, document, []));
+  document.querySelector('ul').append(document.getElementById('s'));
+  assert_array_equals(engine.select('div ul a', document).map(element => element.id), ['a', 'b']);
+  const detached = document.createElement('a');
+  assert_equals(engine.Snapshot.ancestorMask(detached), 0);
+  engine.Snapshot.clearAncestorMasks();
+  engine.configure({ LEGACY: true }, true);
+  t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+  assert_array_equals(engine.select('div ul a', document).map(element => element.id), ['a', 'b']);
+}, 'Ancestor filters retry, preserve ordering and mutations, clear after errors, and bypass legacy mode');
+
+test(t => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('nested');
+  doc.body.innerHTML = '<div><ul><a id="nested"><span><em></em></span></a></ul></div>';
+  const forgiving = engine.Config.FORGIVING;
+  engine.configure({ FORGIVING: false });
+  t.add_cleanup(() => { engine.configure({ FORGIVING: forgiving }); });
+  for (const selector of ['div ul a:has(span em)', 'div ul a:not(article section p)', 'div ul a:is(a, section article a)', 'div ul a:not(:has(article section p))']) {
+    assert_array_equals(engine.select(selector, doc).map(e => e.id), ['nested'], selector);
+  }
+}, 'Nested logical compilation does not change ancestor filter requirements');
+
+test(() => {
+  const doc = document.implementation.createHTMLDocument('siblings');
+  doc.body.innerHTML = '<div><article></article><ul><li><a id="target"></a></li></ul></div>';
+  for (const selector of ['div article + ul a', 'div article ~ ul a', 'div article + ul > li a']) {
+    assert_array_equals(NW.Dom.select(selector, doc).map(e => e.id), ['target'], selector);
+  }
+}, 'Sibling tags are not required ancestor tags');
+
+test(() => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('callback');
+  doc.body.innerHTML = '<div><ul><a id="first"></a></ul></div><section><a id="rejected"></a><a id="later"></a></section>';
+  const run = engine.compile('div ul a', true, true);
+  const result = run([doc.getElementById('rejected'), doc.getElementById('first'), doc.getElementById('later')], e => {
+    if (e.id === 'first') doc.querySelector('ul').append(doc.querySelector('section'));
+    return false;
+  }, doc, []);
+  assert_array_equals(result.map(e => e.id), ['first', 'later']);
+}, 'Callbacks can move summarized subtrees before later candidates are matched');
+</script>

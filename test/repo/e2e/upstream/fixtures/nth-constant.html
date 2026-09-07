@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Constant sibling indexes</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+for (const pseudo of ['nth-child', 'nth-last-child', 'nth-of-type', 'nth-last-of-type']) {
+  test(t => {
+    const engine = NW.Dom;
+    const parent = document.createElement('main');
+    parent.innerHTML = '<i></i>text<!-- gap --><b></b><i></i><i></i>';
+    document.body.appendChild(parent);
+    t.add_cleanup(() => parent.remove());
+    for (let round = 0; round < 3; round++) {
+      for (const index of ['0', '-1', '1', '2', '3', '4', '5', '0n+3', '2n', 'n+3']) {
+        const selector = `:${pseudo}(${index})`;
+        // Zero is never a valid sibling index. Chromium currently returns
+        // every child for :nth-child(0), even without NWSAPI installed.
+        const expected = index === '0' ? [] : Array.from(parent.querySelectorAll(selector));
+        assert_array_equals(engine.select(selector, parent), expected, selector);
+        assert_equals(engine.first(selector, parent), expected[0] || null, selector);
+        for (const element of parent.children) {
+          assert_equals(engine.match(selector, element), expected.includes(element), selector);
+        }
+      }
+      parent.prepend(document.createElement('i'));
+      parent.lastElementChild.remove();
+    }
+    const orphan = document.createElement('i');
+    assert_true(engine.match(`:${pseudo}(1)`, orphan));
+    assert_false(engine.match(`:${pseudo}(2)`, orphan));
+  }, `${pseudo} handles constant indexes, formulas, detached nodes, and mutations`);
+}
+</script>
