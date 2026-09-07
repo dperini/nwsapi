@@ -486,12 +486,13 @@
         // force a new check for each document change
         // performed before the next select operation
         root = doc.documentElement
+        // Compiled case and namespace checks belong to this document.
+        matchLambdas.clear()
+        selectLambdas.clear()
+        matchResolvers.clear()
+        selectResolvers.clear()
         if (!Config.LEGACY && detectLegacy(doc)) {
           Config.LEGACY = true
-          matchLambdas.clear()
-          selectLambdas.clear()
-          matchResolvers.clear()
-          selectResolvers.clear()
         }
         useLegacy(Config.LEGACY)
         HTML_DOCUMENT = isHTML(doc)
@@ -2239,6 +2240,7 @@
         name,
         NS,
         expr,
+        value,
         match,
         pendingTag = '',
         result,
@@ -2353,10 +2355,11 @@
               // whitespace separated list but value contains space
               break
             } else if (match[4]) {
-              match[4] = escapeIdentifier(match[4]).replace(
-                REX.RegExpChar,
-                '\\$&',
-              )
+              value = escapeIdentifier(match[4])
+              match[4] = value.replace(REX.RegExpChar, '\\$&')
+              value = value.replace(/\\.|\x22/g, function (part) {
+                return part == '"' ? '\\"' : part
+              })
             }
             type =
               match[5] == 'i' ||
@@ -2371,16 +2374,18 @@
                   : read.has('e', name)
                 : !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~='
                   ? read.attr('e', name) + '==""'
-                  : '(/' +
-                    test.p1 +
-                    match[4] +
-                    test.p2 +
-                    '/' +
-                    type +
-                    ').test(' +
-                    read.attr('e', name) +
-                    ')== ' +
-                    test.p3) +
+                  : match[2] == '=' && type == '' && test.p3 == 'true'
+                    ? read.attr('e', name) + '=="' + value + '"'
+                    : '(/' +
+                      test.p1 +
+                      match[4] +
+                      test.p2 +
+                      '/' +
+                      type +
+                      ').test(' +
+                      read.attr('e', name) +
+                      ')==' +
+                      test.p3) +
               ')){' +
               source +
               '}'

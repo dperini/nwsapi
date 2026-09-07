@@ -43,6 +43,10 @@ export interface NwsapiEngine {
   configure(options: Record<string, unknown>, clear?: boolean): unknown
   install(all?: boolean): void
   uninstall(): void
+  registerOperator(
+    name: string,
+    resolver: { p1: string; p2: string; p3: string },
+  ): unknown
   registerSelector(
     name: string,
     expression: RegExp,
