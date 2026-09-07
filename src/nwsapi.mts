@@ -243,7 +243,11 @@
       '$=': { p1: '', p2: '$', p3: 'true' },
       '*=': { p1: '', p2: '', p3: 'true' },
       '|=': { p1: '^', p2: '(-|$)', p3: 'true' },
-      '~=': { p1: '(^|\\s)', p2: '(\\s|$)', p3: 'true' },
+      '~=': {
+        p1: '(^|[\\t\\n\\f\\r ])',
+        p2: '([\\t\\n\\f\\r ]|$)',
+        p3: 'true',
+      },
     },
     concatCall = function (nodes, callback) {
       var i = 0,
@@ -1772,7 +1776,7 @@
       // first legend child, which excuses that fieldset and no other
       node = upOf(element)
       while (node) {
-        if (tagOf(node) == 'fieldset' && node.disabled === true) {
+        if (node.disabled === true && tagOf(node) == 'fieldset') {
           legend = firstOf(node)
           while (legend && tagOf(legend) != 'legend') {
             legend = nextOf(legend)
@@ -2593,12 +2597,17 @@
             if (match[4] === '') {
               test =
                 match[2] == '~='
-                  ? { p1: '^\\s', p2: '+$', p3: 'true' }
+                  ? { p1: '(?!)', p2: '', p3: 'true' }
                   : match[2] in ATTR_STD_OPS && match[2] != '~='
                     ? { p1: '^', p2: '$', p3: 'true' }
                     : test
-            } else if (match[2] == '~=' && match[4].includes(' ')) {
-              // whitespace separated list but value contains space
+            } else if (
+              match[2] == '~=' &&
+              /[\t\n\f\r ]/.test(unescapeIdentifier(match[4]))
+            ) {
+              // A token cannot contain CSS whitespace. Decode first: the
+              // space terminating a hexadecimal escape is not part of it.
+              source = 'if(false){' + source + '}'
               break
             } else if (match[4]) {
               value = escapeIdentifier(match[4])
@@ -2629,7 +2638,9 @@
                       '/' +
                       type +
                       ').test(' +
-                      read.attr('e', name) +
+                      (match[2] == '~=' && test.p3 == 'true'
+                        ? '(' + read.attr('e', name) + '||"")'
+                        : read.attr('e', name)) +
                       ')==' +
                       test.p3) +
               ')){' +
@@ -2942,7 +2953,22 @@
               switch (match[1]) {
                 case 'is':
                 case 'where':
-                  if (Config.FORGIVING) {
+                  if (
+                    /^[a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)*$/.test(
+                      match[2],
+                    )
+                  ) {
+                    source =
+                      'if(' +
+                      splitList(match[2])
+                        .map(function (tag) {
+                          return read.tag('e') + '=="' + tag + '"'
+                        })
+                        .join('||') +
+                      '){' +
+                      source +
+                      '}'
+                  } else if (Config.FORGIVING) {
                     source =
                       'if(s.matchForgiving(' +
                       JSON.stringify(splitList(match[2])) +
@@ -2991,6 +3017,14 @@
                 case 'has':
                   if (!validateLogical(match[2], true)) {
                     return ''
+                  }
+                  argument = /^>[\t\n\f\r ]*([a-z][a-z0-9-]*|\*)$/.exec(
+                    match[2],
+                  )
+                  if (argument) {
+                    source =
+                      'if(s.hasChild(e,"' + argument[1] + '")){' + source + '}'
+                    break
                   }
                   source =
                     'if(s.has(' +
@@ -3633,6 +3667,17 @@
       }
       return false
     },
+    // A direct-child type test needs no candidate array or relative resolver.
+    hasChild = function (element, tag) {
+      var child = firstOf(element)
+      while (child) {
+        if (tag == '*' || tagOf(child) == tag) {
+          return true
+        }
+        child = nextOf(child)
+      }
+      return false
+    },
     // true if element matches the selector
     has = function (list, anchor) {
       var context,
@@ -3992,6 +4037,24 @@
           } else {
             token = ['', '*', '*']
           }
+          // Class lookup narrows candidates; the attribute resolver still
+          // checks case and values, including in quirks mode.
+          if (
+            HTML_DOCUMENT &&
+            !Config.LEGACY &&
+            (type = selectors[i].match(Patterns.attribute)) &&
+            type[0] == selectors[i] &&
+            type[1] == 'class' &&
+            type[2] == '~=' &&
+            type[4] &&
+            type[5] != 'i' &&
+            !/[\t\n\f\r ]/.test(unescapeIdentifier(type[4])) &&
+            Operators['~='].p1 == '(^|[\\t\\n\\f\\r ])' &&
+            Operators['~='].p2 == '([\\t\\n\\f\\r ]|$)' &&
+            Operators['~='].p3 == 'true'
+          ) {
+            token = ['', '.', type[4]]
+          }
         }
 
         // unescape before recording the token: 'nodeset' is what a later
@@ -4267,6 +4330,7 @@
       root: Element
       byTag: typeof byTag
       has: typeof has
+      hasChild: typeof hasChild
       first: typeof first
       match: typeof match
       matchForgiving: typeof matchForgiving
@@ -4307,6 +4371,7 @@
       connectedOf: legacyConnectedOf,
 
       has: has,
+      hasChild: hasChild,
       first: first,
       match: match,
       matchForgiving: matchForgiving,
