@@ -1,0 +1,105 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Legacy DOM reads</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script type="module">
+import { legacyHost } from '/_repo/test/repo/fixtures/legacy-host.mts';
+const markup = '<main lang="en"><div id="box" class="box wide" data-k="v" title="a b">' +
+  '<p id="p1" class="a">one</p><!-- comment --><p id="p2" class="b">two</p>' +
+  '<p id="p3" class="a">three</p><a id="link" href="./go" for="x" title="hello-world">link</a>' +
+  '<span></span></div><form><input id="required" required><input id="checked" type="checkbox" checked>' +
+  '<fieldset disabled><legend><input id="exempt"></legend><input id="disabled"></fieldset>' +
+  '<select><optgroup disabled><option>one</option></optgroup></select></form>' +
+  '<div style="color:red"><em></em></div></main>';
+const selectors = [
+  '*', 'div', '.box', '.a', 'p.a', '#box', '#p1', '[data-k]', '[data-k="v"]',
+  '[data-k^="v"]', '[data-k$="v"]', '[data-k*="v"]', '[title~="b"]', '[title|="hello"]',
+  '[title="A B" i]', '[for="x"]', 'a[href]', 'input[checked]', 'input[disabled]', '[style]',
+  'div p', 'div > p', 'p + p', 'p ~ p', 'p, em', ':not(.box)', ':is(p, a)', ':where(p, a)',
+  ':first-child', ':last-child', ':only-child', ':first-of-type', ':last-of-type',
+  ':only-of-type', ':nth-child(2)', ':nth-last-child(2)', ':nth-of-type(2)', ':nth-last-of-type(2)',
+  ':empty', ':root', ':lang(en)', ':link', ':any-link', ':checked', ':required', ':optional',
+  ':enabled', ':disabled', ':defined', ':read-only', ':read-write',
+  'div:has(+ form)', 'div:has(~ div)', 'div:has(+ form input)', 'div:has(~ div em)',
+];
+for (const urls of ['flag', 'node']) {
+  test(t => {
+    const engine = NW.Dom;
+    const doc = document.implementation.createHTMLDocument('legacy');
+    doc.body.innerHTML = markup;
+    const host = legacyHost(doc, { urls });
+    t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+    for (const legacy of [true, false, true]) {
+      engine.configure({ LEGACY: legacy }, true);
+      const context = legacy ? host : doc;
+      for (const selector of selectors) {
+        const expected = Array.from(doc.querySelectorAll(selector), node => node.outerHTML);
+        assert_array_equals(engine.select(selector, context).map(node => node.outerHTML), expected, selector);
+      }
+    }
+    const p = doc.getElementById('p1');
+    assert_equals(engine.select('.a', host).length, 2);
+    p.className = 'changed';
+    assert_equals(engine.select('.a', host).length, 1);
+    assert_equals(engine.select('.changed', host).length, 1);
+    p.remove();
+    assert_equals(engine.select('.changed', host).length, 0);
+  }, `Legacy DOM reads preserve native answers and live queries (${urls} URLs)`);
+}
+test(t => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('scoped');
+  doc.body.innerHTML = '<p id="duplicate"></p><section><!-- first --><p id="duplicate" class="item"></p>text<p class="item"></p><!-- last --></section>';
+  const host = legacyHost(doc);
+  const rawScope = doc.querySelector('section');
+  const scope = host.getElementsByTagName('section')[0];
+  t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+  engine.configure({ LEGACY: true }, true);
+  for (const selector of ['#duplicate', 'p', '.item', 'p + p', 'p ~ p', ':first-child', ':last-child', ':nth-child(2)', ':nth-last-child(2)']) {
+    const expected = Array.from(rawScope.querySelectorAll(selector), node => node.outerHTML);
+    assert_array_equals(engine.select(selector, scope).map(node => node.outerHTML), expected, selector);
+    for (const node of Array.from(scope.getElementsByTagName('p')).filter(node => node.nodeType === 1)) {
+      assert_equals(engine.match(selector, node), expected.includes(node.outerHTML), selector);
+    }
+  }
+  const wrapped = host.createDocumentFragment();
+  wrapped.appendChild(host.createComment('before'));
+  const child = host.createElement('div');
+  const first = host.createElement('p');
+  first.setAttribute('class', 'item');
+  child.appendChild(first);
+  child.appendChild(host.createComment('gap'));
+  child.appendChild(host.createElement('p'));
+  wrapped.appendChild(child);
+  assert_equals(engine.select('p', wrapped).length, 2);
+  assert_equals(engine.select('.item', wrapped).length, 1);
+  assert_equals(engine.select('div > p + p', wrapped).length, 1);
+  assert_array_equals(engine.select('missing', wrapped), []);
+  assert_equals(engine.first('p', wrapped).nodeName, 'P');
+}, 'Legacy scoped and fragment queries skip comments and respect context boundaries');
+
+test(t => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('attributes');
+  doc.body.innerHTML = '<form id="form"><input name="id"></form><a href="./go" style="color:red" data-count="5"></a>';
+  const host = legacyHost(doc, { urls: 'plain' });
+  t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+  engine.configure({ LEGACY: true }, true);
+  const link = host.getElementsByTagName('a')[0];
+  assert_equals(engine.select('a[href="./go"]', host).length, 1);
+  assert_true(engine.match('[href="./go"]', link));
+  assert_true(engine.match('[style]', link));
+  assert_false(engine.match('[enctype]', host.getElementById('form')));
+  assert_equals(engine.select('#form', host).length, 1);
+  const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#target');
+  doc.body.append(svg);
+  for (const legacy of [true, false]) {
+    engine.configure({ LEGACY: legacy }, true);
+    const context = legacy ? host : doc;
+    assert_equals(engine.select('[*|href]', context).length, 2);
+    assert_array_equals(engine.select('[*|missing]', context), []);
+  }
+}, 'Legacy attribute reads preserve URL markup, namespaced presence, and form IDs');
+</script>
