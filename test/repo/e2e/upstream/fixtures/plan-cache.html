@@ -28,4 +28,13 @@ test(() => {
   assert_equals(engine.first('p.a\\.b', main), null);
   assert_equals(engine.select('p.a\\.b', other).length, 1);
 }, 'Cached plans exclude DOM and callback references, survive context changes, and see mutations');
+test(t => {
+  const engine = NW.Dom;
+  engine.configure({ VERBOSITY: false, LOGERRORS: false }, true);
+  t.add_cleanup(() => { engine.configure({ VERBOSITY: true, LOGERRORS: true }, true); });
+  for (let repeat = 0; repeat < 2; repeat++) {
+    assert_array_equals(engine.select('div[class="x\n"]', document), []);
+    assert_equals(engine.first('div[class="x\n"]', document), null);
+  }
+}, 'Quiet parse failures remain empty when their zero-candidate plan is reused');
 </script>

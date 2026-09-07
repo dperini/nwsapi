@@ -42,6 +42,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/resolver-execution.html',
+    note: 'local WPT regression: resolver loops, callback cache separation, and cached candidate lookup',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/nth-constant.html',
     note: 'local WPT regression: constant sibling indexes agree with native queries after mutation',
     install: false,

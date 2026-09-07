@@ -19,7 +19,7 @@ test('cached plans retain no query results, context, or callback', t => {
   ).toEqual([main.firstElementChild])
   const cache = Reflect.get(engine, 'selectResolvers')
   const plan = cache.get(selector)
-  expect(Object.keys(plan).sort()).toEqual(['factory', 'nodeset'])
+  expect(Object.keys(plan).toSorted()).toEqual(['factory', 'nodeset'])
   expect(seen).toEqual([main.firstElementChild])
   const other = doc.createDocumentFragment()
   other.append(main.cloneNode(true))
