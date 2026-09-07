@@ -51,31 +51,21 @@ The attribute handling follows David Mark's historical survey,
 The distinction remains useful when implementing custom DOM hosts; see
 [attributes versus properties](https://jakearchibald.com/2024/attributes-vs-properties/).
 
-## Limits and pending integration
+## Limits
 
 This extraction does not add browser features such as constraint validation
 or media state. It does not claim compatibility with historical XML engines.
 Use `select`, `match`, `first`, and `closest` when the host lacks the prototypes
 needed by `install()`.
 
-The separate `:disabled`/`:enabled` correction in #190 and `:defined` correction
-in #193 are not included. Their independent-reference assertions are preserved
-as three expected failures. Remove those markers when integrating the fixes,
-and adapt their helper reads to the legacy accessors. Other engine changes
-from #167 are also outside this extraction.
+The `:disabled`, `:enabled`, `:required`, and `:defined` helpers use legacy
+accessors when needed. Their reference assertions pass without expected-failure
+markers. Other changes from #167 remain outside this extraction.
 
 ### Combining the extracted PRs
 
 Keep these integration changes when their prerequisites land:
 
-- In #190's `isDisabled`, use `tagOf`, `upOf`, `firstOf`, and `nextOf`
-  instead of `localName`, `parentElement`, `firstElementChild`, and
-  `nextElementSibling`. The disabled-fieldset and first-legend rules stay
-  unchanged. In #193's `isDefined`, use `tagOf(element)`,
-  `hasAttrOf(element, 'is')`, and `attrOf(element, 'is')`.
-- With #178, clear `matcherDoc` and `matcherRecord` at the start of
-  `switchContext`, alongside other context-local shortcuts. Do not discard
-  the document-keyed WeakMap; its records remain reusable.
 - With #194, retain one `classOf` implementation and route its fallback through
   `attrOf(e, 'class')`. The modern read table should call the `classOf` helper;
   the legacy table should call `legacyClassOf`. Expose those helpers under
@@ -92,24 +82,23 @@ Keep these integration changes when their prerequisites land:
 
 These are integration recipes, not claims that the prerequisites are included
 in this standalone branch. Validate the combined tree with both the original
-legacy assertions and each prerequisite's focused tests before removing the
-three expected-failure markers.
+legacy assertions and each prerequisite's focused tests.
 
 ## Validation
 
-Run with Node.js ≥ 22, using a patch supported by jsdom 30: 22.22.2 or later
-in the 22 series, 24.15.0 or later in the 24 series, or 26 or later.
+Use Node.js 26 and pnpm ≥ 12.3.4.
 
 ```sh
 pnpm install
 pnpm run test:legacy
-pnpm run test:node test/legacy-runtime.test.mts
+pnpm run test:node test/repo/unit/legacy-runtime.test.mts
+pnpm run test:coverage
 ```
 
-The Vitest suite needs no browser download, web server,
-or WPT checkout. The tests use jsdom 30.0.1 and a proxy host that hides modern
-APIs and simulates attribute and collection quirks. These are simulated-host
-tests, not executions in old browsers. Both raw-URL strategies are exercised.
+The Node tests use jsdom and a proxy host that hides modern APIs and simulates
+attribute and collection quirks. The WPT runner uses the same host fixture in
+Chromium to check native answers and DOM mutations. Coverage uses WPT for the
+engine and Node for the adapter. These tests do not run historical browsers.
 
 The suite retains the legacy tests from archived #167, including generated-code
 inspection, mode changes, scoped queries, missing `WeakMap`, and non-element
