@@ -1,4 +1,12 @@
 export interface NwsapiEngine {
+  Config: Record<string, boolean>
+  matchLambdas: {
+    clear(): void
+    get(key: string): unknown
+    has?(key: string): boolean
+    set(key: string, value: unknown): unknown
+    size(): number
+  }
   S_BODY: string
   M_BODY: string
   S_TEST: string
