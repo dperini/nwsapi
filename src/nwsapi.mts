@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.27
+ * Version: 2.3.0-prerelease
  * Created: 20070722
  * Release: 20260830
  *
@@ -32,7 +32,7 @@
     global.NW.Dom = factory(global, Export)
   }
 })(this, function Factory(global, Export) {
-  var version = 'nwsapi-2.2.27',
+  var version = 'nwsapi-2.3.0-prerelease',
     doc = global.document,
     root = doc.documentElement,
     slice = Array.prototype.slice,
