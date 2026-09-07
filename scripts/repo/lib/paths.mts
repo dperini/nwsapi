@@ -16,6 +16,19 @@ export const API_SCRIPT_PATH = path.join(
   'scripts/repo/gen/api-md.mts',
 )
 export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/nwsapi.mts')
+export const ENGINE_BUILD_PATH = path.join(REPO_ROOT, 'src/nwsapi.js')
+export const BENCHMARK_CACHE_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/bench/cache.bench.mts',
+)
+export const BENCHMARK_MEMORY_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/bench/memory.bench.mts',
+)
+export const BENCHMARK_SELECTORS_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/bench/selectors.bench.mts',
+)
 export const ADAPTER_SOURCE_PATH = path.join(REPO_ROOT, 'src/dom-selector.mts')
 export const TRAVERSAL_SOURCE_PATH = path.join(
   REPO_ROOT,
