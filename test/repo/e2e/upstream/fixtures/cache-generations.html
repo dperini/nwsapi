@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Query cache generations</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script>
+test(() => {
+  const cache = NW.Dom.matchLambdas;
+  for (let i = 0; i < 1000; i++) cache.set(String(i), i);
+  assert_equals(cache.get('0'), 0);
+  cache.set('1000', 1000);
+  assert_equals(cache.get('0'), 0);
+  assert_equals(cache.get('1'), undefined);
+  cache.set('0', 'updated');
+  assert_equals(cache.get('0'), 'updated');
+  cache.clear();
+  assert_equals(cache.size(), 0);
+  assert_equals(cache.get('0'), undefined);
+  for (let i = 0; i < 1000; i++) cache.set(String(i), i);
+  for (let i = 0; i < 500; i++) {
+    cache.get(String(i));
+    assert_less_than_equal(cache.size(), 1000);
+  }
+  cache.set('next', 'value');
+  assert_less_than_equal(cache.size(), 1000);
+  assert_equals(cache.get('next'), 'value');
+}, 'Generation promotion preserves hot entries without exceeding capacity');
+</script>

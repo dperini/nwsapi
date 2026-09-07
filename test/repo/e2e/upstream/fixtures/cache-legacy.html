@@ -1,0 +1,35 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Legacy query cache</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<p class="item"></p>
+<script>
+test(() => {
+  const nw = NW.Dom;
+  nw.configure({ LEGACY: true });
+  const element = document.querySelector('p');
+  assert_array_equals(nw.select('.item'), [element]);
+  element.className = 'changed';
+  assert_array_equals(nw.select('.item'), []);
+  assert_true(nw.match('.changed', element));
+  nw.configure({}, true);
+  assert_array_equals(nw.select('.changed'), [element]);
+  const cache = nw.matchLambdas;
+  cache.clear();
+  assert_equals(cache.size(), 0);
+  assert_false(cache.has('__proto__'));
+  for (let i = 0; i < 1000; i++) cache.set(String(i), i);
+  assert_equals(cache.size(), 1000);
+  assert_equals(cache.get('0'), 0);
+  cache.set('1', 'updated');
+  cache.set('__proto__', 'safe');
+  assert_equals(cache.get('2'), undefined);
+  assert_equals(cache.get('0'), 0);
+  assert_equals(cache.get('1'), 'updated');
+  assert_equals(cache.get('__proto__'), 'safe');
+  assert_equals(cache.size(), 1000);
+  cache.clear();
+  assert_false(cache.has('0'));
+}, 'Legacy cache preserves live queries and bounded LRU eviction');
+</script>
