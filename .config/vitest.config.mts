@@ -31,6 +31,7 @@ export default defineConfig({
     testTimeout: 10_000,
     coverage: {
       provider: 'v8',
+      reportOnFailure: true,
       include: ['src/*.js'],
       reportsDirectory: 'coverage/node',
       reporter: ['text', 'json', 'json-summary'],

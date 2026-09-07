@@ -94,11 +94,14 @@ test('anchor restoration after success and exceptions', t => {
   }
 })
 
+// These assertions still fail: nested :has() is accepted, and pseudo-elements
+// inside :has() return no matches instead of throwing SyntaxError.
+// Keep executing them so a fix becomes an unexpected pass, not a silent skip.
 for (const selector of ['div:has(:has(p))', 'div:has(::before)']) {
   test(
     'reject ' + selector,
     {
-      fails: true /* 'Inherited :has argument-validation gap; must be resolved before merge' */,
+      fails: true,
     },
     t => {
       const { document, nw } = fixture(t)

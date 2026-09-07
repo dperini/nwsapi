@@ -27,12 +27,11 @@ const run = (entry, args, env = process.env) =>
     env,
   })
 try {
-  run('node_modules/vitest/vitest.mjs', [
-    'run',
-    '--config',
-    '.config/vitest.config.mts',
-    '--coverage',
-  ])
+  run(
+    'node_modules/vitest/vitest.mjs',
+    ['run', '--config', '.config/vitest.config.mts', '--coverage'],
+    { ...process.env, NWSAPI_BROWSER: '1' },
+  )
   run(
     'node_modules/@playwright/test/cli.js',
     ['test', '--config', '.config/playwright.config.mts'],

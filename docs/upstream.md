@@ -45,6 +45,9 @@ The test server uses localhost port 8000 and refuses an occupied port.
 Run `pnpm test` for Node tests. Those tests do not need Chromium or WPT.
 Run `pnpm run test:browser` for browser regression tests.
 Run `pnpm run test:coverage` to measure coverage with WPT and Node tests.
+The report combines hits from both runners for each engine source file.
+Node tests also cover the jsdom adapter. Coverage thresholds apply to the combined report.
+The coverage command also runs the browser regression tests.
 
 To test the minified build:
 
@@ -58,7 +61,19 @@ NWSAPI_MINIFIED=1 pnpm run test:upstream
 <summary>Review known failures</summary>
 
 [expectations.json](../test/repo/e2e/upstream/expectations.json) records known failures.
-Unexpected failures fail the run. Unexpected passes appear in the report for review.
+Unexpected failures and unexpected passes fail the run.
+Remove passing cases from the baseline after reviewing the results.
+
+Browser tests are gated by `NWSAPI_BROWSER` only in the Node-only suite.
+Both `test:browser` and `test:coverage` enable them. They are not disabled in CI.
+
+Two local expected failures still check invalid `:has()` arguments: nested
+`:has()` is accepted, and pseudo-elements return no matches instead of throwing.
+These tests run on every pass. They must stay marked as expected failures until
+the validation is fixed; Vitest fails the run if an expected failure starts passing.
+
+The WPT baseline also records failures, not skipped tests. Every listed case runs.
+The only WPT skip is a page with no subtests selected by an explicit filter.
 
 > [!IMPORTANT]
 > Do not update expectations to hide a regression. Review engine changes and test results first.

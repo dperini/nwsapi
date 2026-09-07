@@ -344,5 +344,9 @@ for (const entry of manifest) {
       failures,
       'subtests failing outside the expectations.json baseline',
     ).toEqual([])
+    expect(
+      unexpectedPasses,
+      'remove passing subtests from expectations.json after review',
+    ).toEqual([])
   })
 }

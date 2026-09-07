@@ -28,5 +28,4 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run test:coverage
       - run: pnpm run check:coverage
-      - run: pnpm run test:browser
       - run: NWSAPI_MINIFIED=1 pnpm run test:upstream
