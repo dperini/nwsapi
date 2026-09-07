@@ -37,6 +37,11 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/descendant-routing.html',
+    note: 'local WPT regression: descendant routes, external ancestors, wide levels, and live mutations',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/compound-negation.html',
     note: 'local WPT regression: compound and general negation paths with modern and legacy hosts',
     install: false,

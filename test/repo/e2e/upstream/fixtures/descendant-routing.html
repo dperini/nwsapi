@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Descendant routing</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body><main><ul><li><a id="a"></a><ul><li><a id="b"></a></li></ul></li></ul></main>
+<script>
+test(t => {
+  const engine = NW.Dom;
+  const scope = document.querySelector('ul');
+  const fragment = document.createDocumentFragment();
+  fragment.append(scope.cloneNode(true));
+  t.add_cleanup(() => { engine.configure({ LEGACY: false }, true); });
+  for (const legacy of [false, true]) {
+    engine.configure({ LEGACY: legacy }, true);
+    for (const context of [document, scope, fragment]) {
+      for (const selector of ['main a', 'ul li a', 'ul ul li a', 'main ul li a', 'li a']) {
+        const expected = Array.from(context.querySelectorAll(selector));
+        assert_array_equals(engine.select(selector, context), expected, selector);
+        const seen = [];
+        assert_array_equals(engine.select(selector, context, element => { seen.push(element); }), expected);
+        assert_array_equals(seen, expected);
+      }
+    }
+  }
+}, 'Descendant routes preserve scope, order, nested chains, callbacks, fragments, and legacy hosts');
+test(() => {
+  const engine = NW.Dom;
+  const doc = document.implementation.createHTMLDocument('wide');
+  doc.body.innerHTML = '<main class="app">' + '<ul class="card"><li class="row"></li></ul>'.repeat(200) + '</main>';
+  const selectors = ['ul li a', '.app .card .row a', 'body ul li a', '.app .card li.row'];
+  for (let round = 0; round < 2; round++) {
+    for (const selector of selectors) {
+      assert_array_equals(engine.select(selector, doc), Array.from(doc.querySelectorAll(selector)), selector);
+    }
+    const link = doc.createElement('a');
+    doc.querySelector('li').append(link);
+  }
+}, 'Wide-chain estimates choose routes without caching answers across mutations');
+</script>
