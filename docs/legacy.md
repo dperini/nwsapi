@@ -73,9 +73,6 @@ Keep these integration changes when their prerequisites land:
   distinct Snapshot keys so one does not overwrite the other. The legacy
   pseudo-class rewrite must select `legacyClassOf` too. Use `read.id('e')`
   for the ID comparison so legacy forms retain their attribute fallback.
-- With #205, use the captured `sliceCall` in collection adapters. Keep legacy
-  element filtering and fallback traversal around those calls. The wider-arity
-  fallback in #187's `argsWith` should also use `sliceCall(args).concat(tail)`.
 
 These are integration recipes, not claims that the prerequisites are included
 in this standalone branch. Validate the combined tree with both the original
