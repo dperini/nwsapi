@@ -47,6 +47,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/hover-tracking.html',
+    note: 'local WPT regression: lazy hover tracking and cross-document event isolation',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/property-reads.html',
     note: 'local WPT regression: reflected classes, SVG base values, attribute fallbacks, and escaped IDs',
     install: false,

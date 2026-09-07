@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>On-demand hover tracking</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+test(() => {
+  const doc = document.implementation.createHTMLDocument('host state');
+  doc.body.innerHTML = '<p></p>';
+  const target = doc.querySelector('p');
+  let hovered = true;
+  target.matches = selector => selector === ':hover' && hovered;
+  assert_array_equals(NW.Dom.select('p:hover', doc), [target]);
+  hovered = false;
+  assert_array_equals(NW.Dom.select('p:hover', doc), []);
+}, 'The first hover query consults state already known by the host matcher');
+test(() => {
+  const engine = NW.Dom;
+  const a = document.implementation.createHTMLDocument('a');
+  const b = document.implementation.createHTMLDocument('b');
+  a.body.innerHTML = '<p id="a"></p>';
+  b.body.innerHTML = '<p id="b"></p>';
+  const first = a.getElementById('a');
+  const second = b.getElementById('b');
+  const hovered = node => engine.select('p:hover', node.ownerDocument).includes(node);
+  assert_false(hovered(first));
+  first.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+  assert_true(hovered(first));
+  assert_false(hovered(second));
+  second.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+  first.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+  assert_true(hovered(second));
+  assert_false(hovered(first));
+  assert_true(hovered(second));
+  second.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+  assert_false(hovered(second));
+}, 'Hover tracking keeps independent state across document switches and background events');
+</script>

@@ -501,6 +501,7 @@
         NAMESPACE = root && root.namespaceURI
         Snapshot.doc = doc
         Snapshot.root = root
+        hoverWanted && trackHover()
       }
       return (Snapshot.from = context)
     },
@@ -2921,8 +2922,11 @@
               match[1] = match[1].toLowerCase()
               switch (match[1]) {
                 case 'hover':
-                  initEnv()
-                  source = 'if(e===s.HOVER){' + source + '}'
+                  trackHover()
+                  source =
+                    'if(e===s.HOVER||s.matchesNative(e,":hover")){' +
+                    source +
+                    '}'
                   break
                 case 'active':
                   source = 'if(e===s.doc.activeElement){' + source + '}'
@@ -3860,26 +3864,50 @@
     },
     // handlers needed for the :hover pseudo-class
     // track state change in browsers and headless
-    hoverInitialized = false,
-    initEnv = function () {
-      if (hoverInitialized) {
+    hoverWanted = false,
+    // null is uninitialized; undefined means WeakMap is unavailable.
+    hoverTracked = null,
+    hoverDoc,
+    hoverRecord,
+    hoverChanged = function (event) {
+      var targetDoc = event.target.ownerDocument || event.target,
+        record = hoverTracked
+          ? hoverTracked.get(targetDoc)
+          : targetDoc === hoverDoc
+            ? hoverRecord
+            : undefined
+      if (record) {
+        record.target = event.type == 'mouseover' ? event.target : undefined
+        if (targetDoc === doc) {
+          Snapshot.HOVER = record.target
+        }
+      }
+    },
+    trackHover = function () {
+      hoverWanted = true
+      if (!doc) {
         return
       }
-      doc.addEventListener(
-        'mouseover',
-        function (e) {
-          Snapshot.HOVER = e.target
-        },
-        true,
-      )
-      doc.addEventListener(
-        'mouseout',
-        function (e) {
-          Snapshot.HOVER = null
-        },
-        true,
-      )
-      hoverInitialized = true
+      if (hoverTracked === null) {
+        hoverTracked = createWeakMap()
+      }
+      var record = hoverTracked
+        ? hoverTracked.get(doc)
+        : hoverDoc === doc
+          ? hoverRecord
+          : undefined
+      if (!record) {
+        record = { target: undefined }
+        if (hoverTracked) {
+          hoverTracked.set(doc, record)
+        }
+        // Stable callbacks avoid duplicate listeners even without WeakMap.
+        doc.addEventListener('mouseover', hoverChanged, true)
+        doc.addEventListener('mouseout', hoverChanged, true)
+      }
+      hoverDoc = doc
+      hoverRecord = record
+      Snapshot.HOVER = record.target
     },
     // QSA placeholders to native references
     _closest,
