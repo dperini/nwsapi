@@ -38,6 +38,7 @@
     slice = Array.prototype.slice,
     // Factory fallback for documents without a window.
     ELEMENT_PROTO = global.Element && global.Element.prototype,
+    sliceCall = slice.call.bind(slice),
     HSP = '\\x20\\t',
     VSP = '\\r\\n\\f',
     WSP = '[' + HSP + VSP + ']',
@@ -265,11 +266,11 @@
       return list
     },
     // caching limit for compiled resolver functions
-    CACHE_LIMIT = 1000,
+    CACHE_LIMIT = 4096,
     // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
     // never DOM result sets. A prefixed dictionary avoids user-key collisions
     // and a doubly linked list keeps the least-recently-used entry at the head.
-    createCache = function (limit?) {
+    createLegacyCache = function (limit?) {
       var cache = {},
         head = null,
         tail = null,
@@ -339,6 +340,70 @@
         },
         size: function () {
           return size
+        },
+      }
+    },
+    // Bounded cache for query plans, in two generations.
+    //
+    // A strict LRU has to reorder on use and evict one entry per insertion, and
+    // both are done with Map.delete. V8 keeps a deleted entry in the backing
+    // store until the map rehashes, so keys().next() — the way the oldest entry
+    // is found — walks the tombstones left by every earlier eviction. Measured
+    // on 8000 selectors cycling through a 4096-entry cache, that put Map.set at
+    // 28% of total run time.
+    //
+    // Instead entries are written to a young generation. When it fills, it
+    // becomes the old generation and the previous old one is dropped whole: no
+    // deletes, no iteration, and eviction is a single pointer swap. A hit in
+    // the old generation carries the entry back into the young one, so anything
+    // still in use survives the next swap. Capacity is unchanged, half the
+    // limit per generation, and lookups that hit are one Map.get.
+    //
+    // A value is never undefined, so get() answers existence as well and the
+    // cache needs no has().
+    createCache = function (limit?) {
+      if (typeof Map != 'function') {
+        return createLegacyCache(limit)
+      }
+      var young = new Map(),
+        old = new Map(),
+        half
+
+      limit || (limit = CACHE_LIMIT)
+      half = limit > 1 ? limit >> 1 : 1
+
+      return {
+        clear: function () {
+          young = new Map()
+          old = new Map()
+        },
+        get: function (key) {
+          var value = young.get(key)
+          if (value !== undefined) {
+            return value
+          }
+          value = old.get(key)
+          if (value !== undefined) {
+            // second chance: carry it across before the old generation goes
+            old.delete(key)
+            if (young.size >= half) {
+              old = young
+              young = new Map()
+            }
+            young.set(key, value)
+          }
+          return value
+        },
+        set: function (key, value) {
+          if (young.size >= half) {
+            old = young
+            young = new Map()
+          }
+          young.set(key, value)
+          return value
+        },
+        size: function () {
+          return young.size + old.size
         },
       }
     },
@@ -421,6 +486,14 @@
         // force a new check for each document change
         // performed before the next select operation
         root = doc.documentElement
+        if (!Config.LEGACY && detectLegacy(doc)) {
+          Config.LEGACY = true
+          matchLambdas.clear()
+          selectLambdas.clear()
+          matchResolvers.clear()
+          selectResolvers.clear()
+        }
+        useLegacy(Config.LEGACY)
         HTML_DOCUMENT = isHTML(doc)
         QUIRKS_MODE = HTML_DOCUMENT && doc.compatMode.indexOf('CSS') < 0
         NAMESPACE = root && root.namespaceURI
@@ -610,13 +683,36 @@
       '|': (c, n) => (e, f) => byTagNS(n, c),
       '.': (c, n) => (e, f) => byClass(n, c),
     },
+    // Fetch a cached plan's candidates without allocating lookup closures.
+    fetch = {
+      '#': (n, c) => byId(n, c),
+      '*': (n, c) => byTag(n, c),
+      '|': (n, c) => byTagNS(c, n),
+      '.': (n, c) => (/[\t\n\f\r ]/.test(n) ? [] : byClass(n, c)),
+    },
     // find duplicate ids using iterative walk
     // Walk 'context' in tree order collecting elements carrying 'id'. The
     // walk can start at 'from', an element already known to be the first match.
     byIdRaw = function (id, context, from?) {
       var node = context,
         nodes = [],
-        next = from || node.firstElementChild
+        next
+
+      if (Config.LEGACY) {
+        next = from || firstOf(node)
+        while ((node = next)) {
+          idOf(node) == id && (nodes[nodes.length] = node)
+          if ((next = firstOf(node) || nextOf(node))) {
+            continue
+          }
+          while (!next && (node = upOf(node)) && node !== context) {
+            next = nextOf(node)
+          }
+        }
+        return nodes
+      }
+
+      next = from || node.firstElementChild
       while ((node = next)) {
         node.id == id && (nodes[nodes.length] = node)
         if ((next = node.firstElementChild || node.nextElementSibling)) {
@@ -646,12 +742,12 @@
         if ('all' in context) {
           if ((e = context.all[id])) {
             if (e.nodeType == 1) {
-              return e.getAttribute('id') != id ? [] : [e]
+              return attrOf(e, 'id') != id ? [] : [e]
             } else if (id == 'length') {
               return (e = context[api](id)) ? [e] : none
             }
             for (i = 0, l = e.length, nodes = []; l > i; ++i) {
-              if (e[i].id == id) {
+              if (e[i] && e[i].nodeType == 1 && idOf(e[i]) == id) {
                 nodes[nodes.length] = e[i]
               }
             }
@@ -662,19 +758,20 @@
         }
       }
 
-      // Without document.all, every '#id' used to walk the whole subtree,
-      // which measures 2.4ms against 43ns for getElementById on a
-      // 6300-element document. getElementById cannot answer on its own,
-      // because a document may carry the same id more than once and all of
-      // them match, but it does settle two things in constant time: whether
-      // the id exists anywhere, and where the first one is, since it returns
-      // the first in tree order and any duplicate has to follow it.
+      // Without document.all — jsdom does not implement it — every '#id'
+      // used to walk the whole subtree, which measures 2.5ms against 43ns
+      // for getElementById on a 6300-element document. getElementById cannot
+      // answer on its own, because a document may carry the same id more
+      // than once and all of them match, but it does settle two things in
+      // constant time: whether the id exists anywhere, and where the first
+      // one is, since it returns the first in tree order and any duplicate
+      // has to follow it.
       ownerDoc = context.nodeType == 9 ? context : context.ownerDocument
 
       if (
         ownerDoc &&
         ownerDoc.getElementById &&
-        (context.nodeType == 9 || context.isConnected)
+        (context.nodeType == 9 || connectedOf(context))
       ) {
         e = ownerDoc.getElementById(id)
         // nothing in the document carries the id, so nothing under context does
@@ -701,13 +798,29 @@
         api = method['*']
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](tag))
+        nodes = sliceCall(context[api](tag))
+        return Config.LEGACY ? elementsOf(nodes) : nodes
+      } else if (Config.LEGACY) {
+        // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
+        // traversal, so the children are walked by hand
+        tag = tag.toLowerCase()
+        nodes = []
+        e = firstOf(context)
+        while (e) {
+          if (tag == '*' || tagOf(e) == tag) {
+            nodes[nodes.length] = e
+          }
+          if (e[api]) {
+            concatList(nodes, elementsOf(e[api](tag)))
+          }
+          e = nextOf(e)
+        }
       } else {
         tag = tag.toLowerCase()
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api](tag))
+            return sliceCall(e[api](tag))
           } else {
             nodes = []
             do {
@@ -727,36 +840,36 @@
           ? nodes
           : toNodeList(nodes)
     },
-    // The class of an element, for the one element kind whose reflection is
-    // not a string. SVG 1.1 defined SVGElement.className as an
-    // SVGAnimatedString, SVG 2 deprecated it, and the browsers still ship it,
-    // so the type is checked and the attribute asked for when it is not a
-    // string. baseVal carries the markup, which is cheaper than asking again.
-    classOf = function (e) {
-      var value = e.className
-      if (typeof value == 'string') {
-        return value
-      }
-      if (value && typeof value.baseVal == 'string') {
-        return value.baseVal
-      }
-      return e.getAttribute('class')
-    },
     // context agnostic getElementsByClassName
     byClass = function (cls, context) {
       var e,
+        i,
+        l,
         nodes,
         api = method['.'],
         reCls
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](cls))
+        nodes = sliceCall(context[api](cls))
+        return Config.LEGACY ? elementsOf(nodes) : nodes
+      } else if (Config.LEGACY) {
+        // A host from before this lookup existed. Every element under the
+        // context is asked for its class instead, which is what the engine
+        // would otherwise have the fetch avoid.
+        reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '')
+        nodes = []
+        e = byTag('*', context)
+        for (i = 0, l = e.length; l > i; ++i) {
+          if (reCls.test(classOf(e[i]))) {
+            nodes[nodes.length] = e[i]
+          }
+        }
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
           reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '')
           if (!(e.nextElementSibling || reCls.test(e.className))) {
-            return slice.call(e[api](cls))
+            return sliceCall(e[api](cls))
           } else {
             nodes = []
             do {
@@ -781,7 +894,7 @@
     hasAttributeNS = function (e, name) {
       var i,
         l,
-        attr = e.getAttributeNames()
+        attr = attrNamesOf(e)
       name = RegExp(':?' + name + '$', HTML_DOCUMENT ? 'i' : '')
       for (i = 0, l = attr.length; l > i; ++i) {
         if (name.test(attr[i])) {
@@ -789,6 +902,483 @@
         }
       }
       return false
+    },
+    elementsOf = function (nodes) {
+      var i,
+        l,
+        out = []
+      for (i = 0, l = nodes.length; l > i; ++i) {
+        if (nodes[i] && nodes[i].nodeType == 1) {
+          out[out.length] = nodes[i]
+        }
+      }
+      return out
+    },
+    LEGACY_NAMES = {
+      accesskey: 'accessKey',
+      cellpadding: 'cellPadding',
+      cellspacing: 'cellSpacing',
+      class: 'className',
+      colspan: 'colSpan',
+      contenteditable: 'contentEditable',
+      for: 'htmlFor',
+      frameborder: 'frameBorder',
+      maxlength: 'maxLength',
+      readonly: 'readOnly',
+      rowspan: 'rowSpan',
+      tabindex: 'tabIndex',
+      usemap: 'useMap',
+      valign: 'vAlign',
+    },
+    LEGACY_URLS = {
+      action: 1,
+      background: 1,
+      cite: 1,
+      classid: 1,
+      codebase: 1,
+      data: 1,
+      href: 1,
+      longdesc: 1,
+      profile: 1,
+      src: 1,
+      usemap: 1,
+    },
+    LEGACY_URL_READ = 'flag',
+    LEGACY_PROBE = './nwsapi-probe',
+    probeAttributes = function (document) {
+      var element, node
+
+      LEGACY_URL_READ = 'flag'
+      try {
+        element = document.createElement('a')
+        element.setAttribute('href', LEGACY_PROBE)
+        if (element.getAttribute('href', 2) === LEGACY_PROBE) {
+          return
+        }
+        node =
+          element.attributes &&
+          element.attributes.getNamedItem &&
+          element.attributes.getNamedItem('href')
+        if (
+          node &&
+          (node.value === LEGACY_PROBE || node.nodeValue === LEGACY_PROBE)
+        ) {
+          LEGACY_URL_READ = 'node'
+          return
+        }
+        if (element.getAttribute('href') === LEGACY_PROBE) {
+          LEGACY_URL_READ = 'plain'
+        }
+        // nothing answered the markup, so the second argument stays the best
+        // of the three: it is what the host most likely to resolve took
+      } catch (e) {
+        // a host that cannot create an element is not one to probe
+      }
+    },
+    legacyAttrNode = function (e, lower) {
+      var attrs = e.attributes,
+        node
+      if (!attrs) {
+        return null
+      }
+      node = attrs.getNamedItem ? attrs.getNamedItem(lower) : attrs[lower]
+      if (!node && LEGACY_NAMES[lower]) {
+        node = attrs.getNamedItem
+          ? attrs.getNamedItem(LEGACY_NAMES[lower])
+          : attrs[LEGACY_NAMES[lower]]
+      }
+      return node || null
+    },
+    legacyAttrOf = function (e, name) {
+      var lower, node, value
+
+      if (!e || e.nodeType != 1) {
+        return null
+      }
+      lower = name.toLowerCase()
+      node = legacyAttrNode(e, lower)
+
+      // Presence is the attribute node's to answer, not the property's. A
+      // property default is not an attribute, and IE 6 and 7 answered
+      // getAttribute('enctype') with the form default when the markup had set
+      // nothing at all (Mark, "Known Exceptions"). Where the host keeps an
+      // attributes collection, that collection decides.
+      if (e.attributes && (!node || node.specified === false)) {
+        return null
+      }
+
+      // A URL attribute, read the way this host answers the markup.
+      if (LEGACY_URLS[lower] && e.getAttribute) {
+        if (LEGACY_URL_READ == 'node' && node) {
+          value = node.value !== undefined ? node.value : node.nodeValue
+        } else {
+          value =
+            LEGACY_URL_READ == 'plain'
+              ? e.getAttribute(name)
+              : e.getAttribute(name, 2)
+        }
+        if (typeof value == 'string') {
+          return value
+        }
+      }
+
+      if (e.getAttribute) {
+        value = e.getAttribute(name)
+        if (value == null && LEGACY_NAMES[lower]) {
+          value = e.getAttribute(LEGACY_NAMES[lower])
+        }
+      }
+      if (value == null && node) {
+        value = node.value !== undefined ? node.value : node.nodeValue
+      }
+      if (value == null) {
+        return null
+      }
+
+      if (typeof value == 'string') {
+        return value
+      }
+      // a style attribute came back as an object and an event handler as a
+      // function
+      if (lower == 'style') {
+        return e.style ? e.style.cssText : null
+      }
+      // A boolean attribute came back as the property's true or false. Read
+      // as '' when it is present, which is the markup of '<input checked>'
+      // and the only answer available: this host cannot say whether the
+      // markup wrote 'checked' or 'checked="checked"', a loss Mark documents
+      // under "Booleans" and settles the same way.
+      if (value === true) {
+        return ''
+      }
+      if (value === false) {
+        return null
+      }
+      return String(value)
+    },
+    legacyHasAttrOf = function (e, name) {
+      if (!e || e.nodeType != 1) {
+        return false
+      }
+      if (e.hasAttribute) {
+        return e.hasAttribute(name)
+      }
+      return legacyAttrOf(e, name) !== null
+    },
+    legacyTagOf = function (e) {
+      if (!e) {
+        return ''
+      }
+      if (typeof e.localName == 'string') {
+        return e.localName
+      }
+      // nodeName is upper case for an HTML element and carries the prefix in
+      // XML, so the part after a colon is the local name
+      var name = e.nodeName
+      if (typeof name != 'string') {
+        return ''
+      }
+      name = name.slice(name.indexOf(':') + 1)
+      return HTML_DOCUMENT ? name.toLowerCase() : name
+    },
+    legacyIdOf = function (e) {
+      var value = e && e.id
+      if (typeof value == 'string' && legacyTagOf(e) != 'form') {
+        return value
+      }
+      return legacyAttrOf(e, 'id') || ''
+    },
+    legacyClassOf = function (e) {
+      var value = e && e.className
+      if (typeof value == 'string') {
+        return value
+      }
+      if (value && typeof value.baseVal == 'string') {
+        return value.baseVal
+      }
+      return legacyAttrOf(e, 'class') || ''
+    },
+    legacyUpOf = function (e) {
+      var node = e.parentElement
+      if (node !== undefined) {
+        return node
+      }
+      node = e.parentNode
+      return node && node.nodeType == 1 ? node : null
+    },
+    legacyNextOf = function (e) {
+      var node = e.nextElementSibling
+      if (node !== undefined) {
+        return node
+      }
+      node = e.nextSibling
+      while (node && node.nodeType != 1) {
+        node = node.nextSibling
+      }
+      return node || null
+    },
+    legacyPrevOf = function (e) {
+      var node = e.previousElementSibling
+      if (node !== undefined) {
+        return node
+      }
+      node = e.previousSibling
+      while (node && node.nodeType != 1) {
+        node = node.previousSibling
+      }
+      return node || null
+    },
+    legacyFirstOf = function (e) {
+      var node = e.firstElementChild
+      if (node !== undefined) {
+        return node
+      }
+      node = e.firstChild
+      while (node && node.nodeType != 1) {
+        node = node.nextSibling
+      }
+      return node || null
+    },
+    legacyAttrNamesOf = function (e) {
+      var i,
+        l,
+        names = [],
+        attrs
+      if (e.getAttributeNames) {
+        return e.getAttributeNames()
+      }
+      attrs = e.attributes
+      for (i = 0, l = attrs ? attrs.length : 0; l > i; ++i) {
+        if (
+          attrs[i] &&
+          (attrs[i].specified === undefined || attrs[i].specified)
+        ) {
+          names[names.length] =
+            attrs[i].name !== undefined ? attrs[i].name : attrs[i].nodeName
+        }
+      }
+      return names
+    },
+    legacyConnectedOf = function (e) {
+      var node = e
+      if (e.isConnected !== undefined) {
+        return e.isConnected
+      }
+      while (node.parentNode) {
+        node = node.parentNode
+      }
+      return node.nodeType == 9
+    },
+    attrOf = function (e, name) {
+      return e.getAttribute(name)
+    },
+    hasAttrOf = function (e, name) {
+      return e.hasAttribute(name)
+    },
+    tagOf = function (e) {
+      return e.localName
+    },
+    idOf = function (e) {
+      return e.id
+    },
+    upOf = function (e) {
+      return e.parentElement
+    },
+    nextOf = function (e) {
+      return e.nextElementSibling
+    },
+    prevOf = function (e) {
+      return e.previousElementSibling
+    },
+    firstOf = function (e) {
+      return e.firstElementChild
+    },
+    attrNamesOf = function (e) {
+      return e.getAttributeNames()
+    },
+    connectedOf = function (e) {
+      return e.isConnected
+    },
+    useLegacy = function (on) {
+      if (on) {
+        probeAttributes(doc)
+      }
+      attrOf = on
+        ? legacyAttrOf
+        : function (e, name) {
+            return e.getAttribute(name)
+          }
+      hasAttrOf = on
+        ? legacyHasAttrOf
+        : function (e, name) {
+            return e.hasAttribute(name)
+          }
+      tagOf = on
+        ? legacyTagOf
+        : function (e) {
+            return e.localName
+          }
+      idOf = on
+        ? legacyIdOf
+        : function (e) {
+            return e.id
+          }
+      upOf = on
+        ? legacyUpOf
+        : function (e) {
+            return e.parentElement
+          }
+      nextOf = on
+        ? legacyNextOf
+        : function (e) {
+            return e.nextElementSibling
+          }
+      prevOf = on
+        ? legacyPrevOf
+        : function (e) {
+            return e.previousElementSibling
+          }
+      firstOf = on
+        ? legacyFirstOf
+        : function (e) {
+            return e.firstElementChild
+          }
+      attrNamesOf = on
+        ? legacyAttrNamesOf
+        : function (e) {
+            return e.getAttributeNames()
+          }
+      connectedOf = on
+        ? legacyConnectedOf
+        : function (e) {
+            return e.isConnected
+          }
+    },
+    detectLegacy = function (document) {
+      var root = document && document.documentElement
+      return (
+        !!root &&
+        (!root.hasAttribute ||
+          !document.getElementsByClassName ||
+          root.firstElementChild === undefined ||
+          typeof root.localName != 'string')
+      )
+    },
+    classOf = function (e) {
+      var value = e.className
+      if (typeof value == 'string') {
+        return value
+      }
+      // an SVGAnimatedString carries the markup in baseVal, which is cheaper
+      // to read than asking for the attribute again
+      if (value && typeof value.baseVal == 'string') {
+        return value.baseVal
+      }
+      return attrOf(e, 'class')
+    },
+    H_USED = {},
+    helper = function (alias, name) {
+      H_USED[alias] = name
+      return alias
+    },
+    readDirect = {
+      tag: function (v) {
+        return v + '.localName'
+      },
+      id: function (v) {
+        return v + '.id'
+      },
+      cls: function (v) {
+        return 's.classOf(' + v + ')'
+      },
+      up: function (v) {
+        return v + '.parentElement'
+      },
+      next: function (v) {
+        return v + '.nextElementSibling'
+      },
+      prev: function (v) {
+        return v + '.previousElementSibling'
+      },
+      attr: function (v, name) {
+        return v + '.getAttribute("' + name + '")'
+      },
+      has: function (v, name) {
+        return v + '.hasAttribute("' + name + '")'
+      },
+    },
+    readHelped = {
+      tag: function (v) {
+        return helper('hTag', 'tagOf') + '(' + v + ')'
+      },
+      id: function (v) {
+        return helper('hId', 'idOf') + '(' + v + ')'
+      },
+      cls: function (v) {
+        return helper('hCls', 'legacyClassOf') + '(' + v + ')'
+      },
+      up: function (v) {
+        return helper('hUp', 'upOf') + '(' + v + ')'
+      },
+      next: function (v) {
+        return helper('hNext', 'nextOf') + '(' + v + ')'
+      },
+      prev: function (v) {
+        return helper('hPrev', 'prevOf') + '(' + v + ')'
+      },
+      attr: function (v, name) {
+        return helper('hAttr', 'attrOf') + '(' + v + ',"' + name + '")'
+      },
+      has: function (v, name) {
+        return helper('hHas', 'hasAttrOf') + '(' + v + ',"' + name + '")'
+      },
+    },
+    helpReads = function (code) {
+      var reads = {
+        localName: ['hTag', 'tagOf'],
+        className: ['hCls', 'legacyClassOf'],
+        id: ['hId', 'idOf'],
+        parentElement: ['hUp', 'upOf'],
+        nextElementSibling: ['hNext', 'nextOf'],
+        previousElementSibling: ['hPrev', 'prevOf'],
+        firstElementChild: ['hFirst', 'firstOf'],
+        isConnected: ['hConn', 'connectedOf'],
+        hasAttribute: ['hHas', 'hasAttrOf'],
+        getAttribute: ['hAttr', 'attrOf'],
+      }
+      // Match literals before looking inside them. A nested selector may
+      // contain text such as "e.localName", which is data, not a host read.
+      // This recognizes the string and regexp forms emitted by this compiler.
+      return code.replace(
+        /("(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\/(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\\])*\]|[^/\\\r\n])+\/[a-z]*)|\b([eno])\.(localName|className|id|parentElement|nextElementSibling|previousElementSibling|firstElementChild|isConnected)\b|\b([eno])\.(hasAttribute|getAttribute)\(("(?:\\[\s\S]|[^"\\])*")\)/g,
+        function (all, literal, node, prop, namedNode, method, attr) {
+          if (literal) {
+            return literal
+          }
+          var read = reads[prop || method]
+          return (
+            helper(read[0], read[1]) +
+            '(' +
+            (node || namedNode) +
+            (attr ? ',' + attr : '') +
+            ')'
+          )
+        },
+      )
+    },
+    readGuarded = {
+      tag: readDirect.tag,
+      id: readDirect.id,
+      cls: readDirect.cls,
+      up: readDirect.up,
+      next: readDirect.next,
+      prev: readDirect.prev,
+      attr: function (v, name) {
+        return v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'
+      },
+      has: function (v, name) {
+        return v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'
+      },
     },
     // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
     nthElement = (function () {
@@ -810,13 +1400,15 @@
           return -1
         }
         var e, i, j, k, l
-        if (parent === element.parentElement) {
+        if (
+          parent === (Config.LEGACY ? upOf(element) : element.parentElement)
+        ) {
           i = set
           j = idx
           l = len
         } else {
           l = parents.length
-          parent = element.parentElement
+          parent = Config.LEGACY ? upOf(element) : element.parentElement
           for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
             if (parents[j] === parent) {
               i = j
@@ -831,14 +1423,25 @@
             parents[(i = l)] = parent
             l = 0
             nodes[i] = Array()
-            e = (parent && parent.firstElementChild) || element
-            while (e) {
-              nodes[i][l] = e
-              if (e === element) {
-                j = l
+            e = parent ? firstOf(parent) || element : element
+            if (Config.LEGACY) {
+              while (e) {
+                nodes[i][l] = e
+                if (e === element) {
+                  j = l
+                }
+                e = nextOf(e)
+                ++l
               }
-              e = e.nextElementSibling
-              ++l
+            } else {
+              while (e) {
+                nodes[i][l] = e
+                if (e === element) {
+                  j = l
+                }
+                e = e.nextElementSibling
+                ++l
+              }
             }
             set = i
             idx = 0
@@ -891,18 +1494,18 @@
           j,
           k,
           l,
-          name = element.localName
+          name = Config.LEGACY ? tagOf(element) : element.localName
         if (
           nodes[set] &&
           nodes[set][name] &&
-          parent === element.parentElement
+          parent === (Config.LEGACY ? upOf(element) : element.parentElement)
         ) {
           i = set
           j = idx
           l = len
         } else {
           l = parents.length
-          parent = element.parentElement
+          parent = Config.LEGACY ? upOf(element) : element.parentElement
           for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
             if (parents[j] === parent) {
               i = j
@@ -918,16 +1521,29 @@
             nodes[i] || (nodes[i] = Object())
             l = 0
             nodes[i][name] = Array()
-            e = (parent && parent.firstElementChild) || element
-            while (e) {
-              if (e === element) {
-                j = l
+            e = parent ? firstOf(parent) || element : element
+            if (Config.LEGACY) {
+              while (e) {
+                if (e === element) {
+                  j = l
+                }
+                if (tagOf(e) == name) {
+                  nodes[i][name][l] = e
+                  ++l
+                }
+                e = nextOf(e)
               }
-              if (e.localName == name) {
-                nodes[i][name][l] = e
-                ++l
+            } else {
+              while (e) {
+                if (e === element) {
+                  j = l
+                }
+                if (e.localName == name) {
+                  nodes[i][name][l] = e
+                  ++l
+                }
+                e = e.nextElementSibling
               }
-              e = e.nextElementSibling
             }
             set = i
             idx = j
@@ -968,11 +1584,51 @@
         ? doc.contentType.indexOf('/html') > 0
         : doc.createElement('DiV').localName == 'div'
     },
-    // check if node content is editable
+    // Native matching exposes custom element state that attributes cannot.
+    // https://dom.spec.whatwg.org/#concept-element-defined
+    isDefined = function (element) {
+      var native,
+        custom,
+        name = tagOf(element),
+        registry,
+        view
+
+      if (element.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
+        return true
+      }
+      native = matchesNative(element, ':defined', undefined)
+      if (native !== undefined) {
+        return native
+      }
+      if (name.indexOf('-') < 0) {
+        if (!hasAttrOf(element, 'is')) {
+          return true
+        }
+        name = attrOf(element, 'is') || name
+      }
+
+      view = element.ownerDocument.defaultView
+      registry = view && view.customElements
+      if (!registry || !registry.get) {
+        return false
+      }
+      custom = registry.get(name)
+      return !!custom && element instanceof custom
+    },
+    isRequired = function (node) {
+      return (
+        !!node.required &&
+        (/^(select|textarea)$/.test(tagOf(node)) ||
+          (tagOf(node) == 'input' &&
+            !/^(hidden|range|color|button|submit|reset|image)$/.test(
+              node.type,
+            )))
+      )
+    },
     isContentEditable = function (node) {
       var attrValue = 'inherit'
-      if (node.hasAttribute('contenteditable')) {
-        attrValue = node.getAttribute('contenteditable')
+      if (hasAttrOf(node, 'contenteditable')) {
+        attrValue = attrOf(node, 'contenteditable')
       }
       switch (attrValue) {
         case '':
@@ -990,9 +1646,50 @@
     },
     // return node if node is focusable
     // or false if node isn't focusable
+    // Whether a form control is disabled, which is not only its own
+    // property: a control inside a disabled fieldset is disabled too, unless it
+    // sits in that fieldset's first legend child.
+    // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
+    isDisabled = function (element) {
+      var legend,
+        name = tagOf(element),
+        node
+
+      if (element.disabled === true) {
+        return true
+      }
+
+      // an optgroup is disabled by its own attribute and nothing else; an
+      // option is also disabled by the optgroup it is a child of
+      if (name == 'optgroup') {
+        return false
+      }
+      if (name == 'option') {
+        node = upOf(element)
+        return !!node && tagOf(node) == 'optgroup' && node.disabled === true
+      }
+
+      // any disabled fieldset above it, unless it sits in that fieldset's
+      // first legend child, which excuses that fieldset and no other
+      node = upOf(element)
+      while (node) {
+        if (tagOf(node) == 'fieldset' && node.disabled === true) {
+          legend = firstOf(node)
+          while (legend && tagOf(legend) != 'legend') {
+            legend = nextOf(legend)
+          }
+          if (!(legend && legend.contains(element))) {
+            return true
+          }
+        }
+        node = upOf(node)
+      }
+
+      return false
+    },
     isFocusable = function (node) {
       var doc = node.ownerDocument
-      if (node.contentDocument && node.localName == 'iframe') {
+      if (node.contentDocument && tagOf(node) == 'iframe') {
         return false
       }
       if (doc.hasFocus() && node === doc.activeElement) {
@@ -1013,16 +1710,19 @@
     },
     // use the native selector state when it is available; when NWSAPI has
     // installed itself, _matches retains the native implementation
-    matchesNative = function (node, selector) {
+    matchesNative = function (node, selector, unavailable?) {
       var view,
         proto,
         matcher,
         ownerDoc = node.ownerDocument || doc
+      if (arguments.length < 3) {
+        unavailable = false
+      }
       // Record delegation before doing any lookup. Nested calls must not
       // replace the document record belonging to the outer matcher.
       if (matchingNative) {
         matchingNative.delegates = true
-        return false
+        return unavailable
       }
       if (ownerDoc !== matcherDoc) {
         if (matcherCache === null) {
@@ -1064,13 +1764,14 @@
         matcherRecord.delegates = false
       }
       if (!matcher || matcherRecord.delegates) {
-        return false
+        return unavailable
       }
       try {
         matchingNative = matcherRecord
-        return matcher.call(node, selector)
+        var result = matcher.call(node, selector)
+        return matchingNative.delegates ? unavailable : result
       } catch (e) {
-        return false
+        return unavailable
       } finally {
         matchingNative = null
       }
@@ -1087,13 +1788,13 @@
     // Native matching extends support to host-language states such as pickers.
     isOpen = function (node) {
       return (
-        (/^(details|dialog)$/i.test(node.localName) && node.open === true) ||
+        (/^(details|dialog)$/i.test(tagOf(node)) && node.open === true) ||
         matchesNative(node, ':open')
       )
     },
     isClosed = function (node) {
       return (
-        (/^(details|dialog)$/i.test(node.localName) && node.open === false) ||
+        (/^(details|dialog)$/i.test(tagOf(node)) && node.open === false) ||
         matchesNative(node, ':closed')
       )
     },
@@ -1130,13 +1831,11 @@
     // native pseudo-class is therefore required until an explicit state API is
     // available. :popover is retained as an alias for existing callers.
     isPopoverOpen = function (node) {
-      return (
-        node.hasAttribute('popover') && matchesNative(node, ':popover-open')
-      )
+      return hasAttrOf(node, 'popover') && matchesNative(node, ':popover-open')
     },
     // ':link', ':any-link' and ':visited' share this test
     isLink = function (node) {
-      return reLinkName.test(node.localName) && node.hasAttribute('href')
+      return reLinkName.test(tagOf(node)) && hasAttrOf(node, 'href')
     },
     // check media resources is playing
     isPlaying = function (media) {
@@ -1175,6 +1874,7 @@
         }
         if (i == 'LEGACY' && Config[i] !== !!option[i]) {
           matcherDoc = matcherCache = null
+          clear = true
         }
         Config[i] = !!option[i]
       }
@@ -1185,6 +1885,7 @@
         matchResolvers.clear()
         selectResolvers.clear()
       }
+      useLegacy(Config.LEGACY)
       setIdentifierSyntax()
       return true
     },
@@ -1227,7 +1928,8 @@
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
-      var // non-ascii chars
+      var parenthesized,
+        // non-ascii chars
         noascii = '[^\\x00-\\x9f]',
         // unicode chars
         unicode = '\\\\[0-9a-fA-F]{1,6}',
@@ -1363,6 +2065,15 @@
       // deepest localName in selector strings and then
       // use it to retrieve all possible matching nodes
       // that will be filtered by compiled resolvers
+      // The parenthesized part has to tolerate nesting. Written as
+      // '\x28[^\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class matches nothing at all, and
+      // a selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+
       reOptimizer = RegExp(
         '(?:([.:#*]?)' +
           '(' +
@@ -1371,7 +2082,7 @@
           '(?:' +
           ':[-\\w]+|' +
           '\\[[^\\]]+(?:\\]|$)|' +
-          '\\x28[^\\x29]+(?:\\x29|$)' +
+          parenthesized +
           ')*)$',
       )
 
@@ -1401,18 +2112,18 @@
   */
 
     F_INIT = '"use strict";return function Resolver(c,f,x,r)',
-    S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
+    S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
     M_HEAD = 'var e,n,o',
-    N_HEAD = 'var e,n,o',
-    S_LOOP = 'main:while((e=c[++k]))',
+    N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
+    S_LOOP = 'main:while(++k<l&&(e=c[k])!==undefined)',
     M_LOOP = 'e=c;',
-    N_LOOP = 'main:while((e=c.item(++k)))',
+    N_LOOP = 'main:while(++k<l&&(e=c.item(k))!==undefined)',
     S_BODY = 'r[++j]=c[k];',
     M_BODY = '',
     N_BODY = 'r[++j]=c.item(k);',
     S_TAIL = 'continue main;',
     M_TAIL = 'r=true;',
-    N_TAIL = 'r=true;',
+    N_TAIL = 'continue main;',
     S_TEST = 'if(f(c[k])){break main;}',
     M_TEST = 'f(c);',
     N_TEST = 'if(f(c.item(k))){break main;}',
@@ -1421,20 +2132,29 @@
     N_VARS = [],
     // compile groups or single selector strings into
     // executable functions for matching or selecting
-    compile = function (selector, mode, callback) {
-      var factory,
+    compile = function (selector, mode, callback, relative?) {
+      var cacheKey =
+        (relative ? 'relative:' : 'selector:') +
+        mode +
+        ':' +
+        !!callback +
+        ':' +
+        selector
+      var alias,
+        factory,
         head = '',
         loop = '',
         macro = '',
         source = '',
         vars = ''
+      H_USED = {}
 
       // 'mode' can be boolean or null
       // true = select / false = match
       // null to use collection.item()
       switch (mode) {
         case true:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
@@ -1442,7 +2162,7 @@
           loop = S_LOOP
           break
         case false:
-          if ((factory = matchLambdas.get(selector))) {
+          if ((factory = matchLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL
@@ -1450,7 +2170,7 @@
           loop = M_LOOP
           break
         case null:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL
@@ -1461,11 +2181,24 @@
           break
       }
 
-      source = compileSelector(selector, macro, mode, callback)
+      source = compileSelector(
+        relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
+        relative ? 'if(e===s.anchor){' + macro + '}' : macro,
+        mode,
+        callback,
+      )
+      if (Config.LEGACY) {
+        source = helpReads(source)
+      }
+
+      if ((mode || mode === null) && !callback && source === macro) {
+        selectLambdas.set(cacheKey, null)
+        return null
+      }
 
       loop += mode || mode === null ? '{' + source + '}' : source
 
-      if (mode || (mode === null && selector.includes(':nth'))) {
+      if (mode || selector.includes(':nth')) {
         loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : ''
         loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : ''
       }
@@ -1477,6 +2210,10 @@
         N_VARS.length = 0
       }
 
+      for (alias in H_USED) {
+        vars += ',' + alias + '=s.' + H_USED[alias]
+      }
+
       // oxlint-disable-next-line typescript/no-implied-eval -- Selectors compile to resolver functions.
       factory = Function(
         's',
@@ -1484,9 +2221,9 @@
       )(Snapshot)
 
       if (mode || mode === null) {
-        selectLambdas.set(selector, factory)
+        selectLambdas.set(cacheKey, factory)
       } else {
-        matchLambdas.set(selector, factory)
+        matchLambdas.set(cacheKey, factory)
       }
 
       return factory
@@ -1503,13 +2240,21 @@
         NS,
         expr,
         match,
+        pendingTag = '',
         result,
         status,
         symbol,
         test,
         type,
         selector = expression,
-        vars
+        vars,
+        read
+
+      read = Config.LEGACY
+        ? readHelped
+        : mode === false
+          ? readGuarded
+          : readDirect
 
       // isolate selector combinators
       selector = selector.replace(STD.combinator, '$1')
@@ -1535,13 +2280,17 @@
             // escapeIdentifier turns the CSS escapes into JavaScript ones, so
             // only the quote is escaped after it.
             expr = escapeIdentifier(match[1]).replace(/\x22/g, '\\"')
-            source = 'if((e.id=="' + expr + '")){' + source + '}'
+            source =
+              'if((' + read.id('e') + '=="' + expr + '")){' + source + '}'
             break
 
           // class name resolver
           case '.':
             match = selector.match(Patterns.className)
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(s.classOf(e))'
+            match[1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match[1]))
+              ? '(?!)'
+              : escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&')
+            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' + read.cls('e') + ')'
             source =
               'if((/(^|\\s)' +
               match[1] +
@@ -1555,7 +2304,7 @@
           // tag name resolver
           case /[_a-z]/i.test(symbol) ? symbol : undefined:
             match = selector.match(Patterns.tagName)
-            source = 'if((e.localName=="' + match[1] + '")){' + source + '}'
+            pendingTag = 'if((' + read.tag('e') + '=="' + match[1] + '")){'
             break
 
           // namespace resolver
@@ -1613,18 +2362,18 @@
               (!match[2]
                 ? NS
                   ? 's.hasAttributeNS(e,"' + name + '")'
-                  : 'e.hasAttribute&&e.hasAttribute("' + name + '")'
+                  : read.has('e', name)
                 : !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~='
-                  ? 'e.getAttribute&&e.getAttribute("' + name + '")==""'
+                  ? read.attr('e', name) + '==""'
                   : '(/' +
                     test.p1 +
                     match[4] +
                     test.p2 +
                     '/' +
                     type +
-                    ').test(e.getAttribute&&e.getAttribute("' +
-                    name +
-                    '"))==' +
+                    ').test(' +
+                    read.attr('e', name) +
+                    ')== ' +
                     test.p3) +
               ')){' +
               source +
@@ -1635,10 +2384,16 @@
           // E ~ F (F relative sibling of E)
           case '~':
             match = selector.match(Patterns.relative)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
-              '=e;while(e&&(e=e.previousElementSibling)){' +
+              '=e;while(e&&(e=' +
+              read.prev('e') +
+              ')){' +
               source +
               '}e=N' +
               k +
@@ -1649,10 +2404,16 @@
           // E + F (F adiacent sibling of E)
           case '+':
             match = selector.match(Patterns.adjacent)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
-              '=e;if(e&&(e=e.previousElementSibling)){' +
+              '=e;if(e&&(e=' +
+              read.prev('e') +
+              ')){' +
               source +
               '}e=N' +
               k +
@@ -1664,10 +2425,16 @@
           case '\x09':
           case '\x20':
             match = selector.match(Patterns.ancestor)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
-              '=e;while(e&&(e=e.parentElement)){' +
+              '=e;while(e&&(e=' +
+              read.up('e') +
+              ')){' +
               source +
               '}e=N' +
               k +
@@ -1678,10 +2445,16 @@
           // E > F (F children of E)
           case '>':
             match = selector.match(Patterns.children)
+            if (pendingTag) {
+              source = pendingTag + source + '}'
+              pendingTag = ''
+            }
             source =
               'var N' +
               k +
-              '=e;if(e&&(e=e.parentElement)){' +
+              '=e;if(e&&(e=' +
+              read.up('e') +
+              ')){' +
               source +
               '}e=N' +
               k +
@@ -1843,6 +2616,33 @@
                                 : 'n>' + (b - 1)
                               : 'false'
                     }
+                    // A constant index needs no index. nth(Element|OfType)
+                    // builds the sibling list of the parent to number the
+                    // element within it, which is the right trade for an an+b
+                    // form that has to know where the element sits, and pure
+                    // overhead for ':nth-child(3)', which only has to know
+                    // whether three steps back runs out of siblings.
+                    //
+                    // Only for the -child forms: of-type has to compare the
+                    // name of every sibling it steps over, and reading
+                    // localName through the host on each one costs more than
+                    // the list it avoids.
+                    if (test == 'n==' + a && a >= 1 && !expr) {
+                      test = type ? 'next' : 'previous'
+                      source =
+                        'n=1,o=e;' +
+                        'while(n<=' +
+                        a +
+                        '&&(o=o.' +
+                        test +
+                        'ElementSibling))++n;' +
+                        'if(n==' +
+                        a +
+                        '){' +
+                        source +
+                        '}'
+                      break
+                    }
                     expr = expr ? 'OfType' : 'Element'
                     type = type ? 'true' : 'false'
                     source =
@@ -1893,36 +2693,12 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'has':
-                  if (expr == ':scope') {
-                    source = 'if(s.has("' + expr + '",e)){' + source + '}'
-                    break
-                  }
-
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source =
-                        'if(e.parentElement&&s.select("*' +
-                        expr +
-                        '",e.parentElement).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '~':
-                      source =
-                        'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '>':
-                      source =
-                        'if(s.first(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                    default:
-                      source =
-                        'if(s.has(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                  }
+                  source =
+                    'if(s.has(' +
+                    JSON.stringify(splitList(match[2])) +
+                    ',e)){' +
+                    source +
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -1993,10 +2769,7 @@
                     '}'
                   break
                 case 'defined':
-                  source =
-                    'n=s.doc.defaultView.customElements.get(e.localName);if(n&&e instanceof n){' +
-                    source +
-                    '}'
+                  source = 'if(s.isDefined(e)){' + source + '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -2039,48 +2812,26 @@
               match[1] = match[1].toLowerCase()
               switch (match[1]) {
                 case 'enabled':
+                  // the complement of ':disabled' over the same elements
                   source =
-                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e &&e.disabled===false' +
-                    ')){' +
+                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&!s.isDisabled(e))){' +
                     source +
                     '}'
                   break
                 case 'disabled':
-                  // https://html.spec.whatwg.org/#enabling-and-disabling-form-controls:-the-disabled-attribute
                   source =
-                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&"disabled" in e)){' +
-                    // F is true if any of the fieldset elements in the ancestry chain has the disabled attribute specified
-                    // L is true if the first legend element of the fieldset contains the element
-                    'var x=0,N=[],F=false,L=false;' +
-                    'if(!(/^(optgroup|option)$/i.test(e.localName))){' +
-                    'n=e.parentElement;' +
-                    'while(n){' +
-                    'if(n.localName=="fieldset"){' +
-                    'N[x++]=n;' +
-                    'if(n.disabled===true){' +
-                    'F=true;' +
-                    'break;' +
-                    '}' +
-                    '}' +
-                    'n=n.parentElement;' +
-                    '}' +
-                    'for(var x=0;x<N.length;x++){' +
-                    'if((n=s.first("legend",N[x]))&&n.contains(e)){' +
-                    'L=true;' +
-                    'break;' +
-                    '}' +
-                    '}' +
-                    '}' +
-                    'if(e.disabled===true||(F&&!L)){' +
+                    'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
+                    '"disabled" in e&&s.isDisabled(e))){' +
                     source +
-                    '}}'
+                    '}'
                   break
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
-                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||e.disabled))||' +
-                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||e.disabled):true))||' +
+                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
+                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -2090,8 +2841,8 @@
                 case '-moz-read-write':
                   source =
                     'if(' +
-                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!e.disabled)||' +
-                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!e.disabled)||' +
+                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
+                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -2163,15 +2914,11 @@
                     '}'
                   break
                 case 'required':
-                  source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&e.required)' +
-                    '){' +
-                    source +
-                    '}'
+                  source = 'if(s.isRequired(e)){' + source + '}'
                   break
                 case 'optional':
                   source =
-                    'if((/^input|select|textarea$/i.test(e.localName)&&!e.required)' +
+                    'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
                     '){' +
                     source +
                     '}'
@@ -2191,7 +2938,7 @@
                     'if(((' +
                     '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                     '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                    '(/^fieldset$/i.test(e.localName)&&s.first(":valid",e))' +
+                    '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
                     '){' +
                     source +
                     '}'
@@ -2386,22 +3133,33 @@
       }
       // end of while selector
 
+      if (pendingTag) {
+        source = pendingTag + source + '}'
+      }
       return source
     },
     // replace :scope context element as a
     // a reference in the selector string
     makeref = function (selectors, element) {
+      var id, name
+
       // replace DOCUMENT with first element (root)
       if (element.nodeType === 9) {
         element = element.documentElement
       }
+
+      id = idOf(element)
+      // The first token of the class attribute. Read from the text rather
+      // than through classList, which was the only place this engine needed
+      // that API and is one more thing an older host does not have.
+      name = classOf(element)
+      name = name ? String(name).split(/\s+/)[0] : ''
+
       return selectors.replace(
         /:scope/i,
-        element.localName +
-          (element.id ? '#' + escapeIdentifier(element.id) : '') +
-          (element.className
-            ? '.' + escapeIdentifier(element.classList[0])
-            : ''),
+        tagOf(element) +
+          (id ? '#' + escapeIdentifier(id) : '') +
+          (name ? '.' + escapeIdentifier(name) : ''),
       )
     },
     // equivalent of w3c 'closest' method
@@ -2412,7 +3170,7 @@
         if (match(selectors, element, callback)) {
           break
         }
-        element = element.parentElement
+        element = upOf(element)
       }
       return element
     },
@@ -2426,7 +3184,7 @@
       for (var i = 0, l = selectors.length, f = []; l > i; ++i) {
         f[i] = compile(selectors[i], false, callback)
       }
-      return { factory: f }
+      return f
     },
     // Consume string continuations before whitespace normalization. Preserve
     // escape boundaries: removing a continuation must not extend a hex escape.
@@ -2554,16 +3312,17 @@
       element,
       callback?: (element: Element) => unknown,
     ) {
-      var resolver
+      var resolver,
+        cacheKey = !!callback + ':' + selectors
 
-      if (element && (resolver = matchResolvers.get(selectors))) {
-        return match_assert(resolver.factory, element, callback)
+      if (element && (resolver = matchResolvers.get(cacheKey))) {
+        return match_assert(resolver, element, callback)
       }
 
       resolver = match_collect(parse(selectors, false), callback)
-      matchResolvers.set(selectors, resolver)
+      matchResolvers.set(cacheKey, resolver)
 
-      return match_assert(resolver.factory, element, callback)
+      return match_assert(resolver, element, callback)
     },
     // Invalid items do not discard the remaining forgiving selectors.
     matchForgiving = function (list, element) {
@@ -2577,10 +3336,40 @@
       return false
     },
     // true if element matches the selector
-    has = function (selector, context, callback) {
-      return (
-        collect(parse(selector, true), context, callback).results.length > 0
-      )
+    has = function (list, anchor) {
+      var context,
+        found = false,
+        i = 0,
+        l = list.length,
+        previous = Snapshot.anchor
+      Snapshot.anchor = anchor
+      try {
+        for (; l > i; ++i) {
+          context = /^[+~]/.test(list[i]) ? upOf(anchor) : anchor
+          if (!list[i]) {
+            emit(qsInvalid)
+            return false
+          }
+          // Compile even a root sibling argument, whose candidate set is empty.
+          // Later invalid items must not be hidden by an earlier match.
+          if (
+            collect(
+              parse('* ' + list[i], true).map(function (selector) {
+                return selector.slice(1).replace(/^\s+/, '')
+              }),
+              context || anchor,
+              undefined,
+              true,
+            ).results.length &&
+            context
+          ) {
+            found = true
+          }
+        }
+        return found
+      } finally {
+        Snapshot.anchor = previous
+      }
     },
     // equivalent of w3c 'querySelector' method
     first = function _querySelector(selectors, context, callback) {
@@ -2640,11 +3429,10 @@
               l,
               list,
               f = resolver.factory,
-              h = resolver.htmlset,
               n = resolver.nodeset
             if (n.length > 1) {
               for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))()
+                list = fetch[n[i][0]](n[i].slice(1), context)
                 if (f[i] !== null) {
                   f[i](list, callback, context, nodes)
                 } else {
@@ -2656,10 +3444,11 @@
                 hasDupes && (nodes = unique(nodes))
               }
             } else {
+              list = fetch[n[0][0]](n[0].slice(1), context)
               if (f[0]) {
-                nodes = f[0](h[0](), callback, context, nodes)
+                nodes = f[0](list, callback, context, nodes)
               } else {
-                nodes = h[0]()
+                nodes = list
               }
             }
             if (typeof callback == 'function') {
@@ -2706,7 +3495,7 @@
       )
     },
     // prepare factory resolvers and closure collections
-    collect = function (selectors, context, callback) {
+    collect = function (selectors, context, callback, relative?) {
       var i,
         l,
         seen = {},
@@ -2729,14 +3518,20 @@
           }
         }
 
-        nodeset[i] = token[1] + token[2]
         token[2] = unescapeIdentifier(token[2])
-        htmlset[i] = compat[token[1]](context, token[2])
-        factory[i] = compile(optimized[i], true, null)
+        nodeset[i] = token[1] + token[2]
+        // An escaped space cannot be part of a class token.
+        htmlset[i] =
+          token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
+            ? () => []
+            : compat[token[1]](context, token[2])
+        factory[i] = compile(optimized[i], true, null, relative)
 
-        factory[i]
-          ? factory[i](htmlset[i](), callback, context, results)
-          : results.concat(htmlset[i]())
+        if (factory[i]) {
+          factory[i](htmlset[i](), callback, context, results)
+        } else {
+          concatList(results, htmlset[i]())
+        }
       }
 
       if (l > 1) {
@@ -2807,42 +3602,33 @@
 
       Element.prototype.closest = HTMLElement.prototype.closest =
         function closest() {
-          return parseQSArgs.apply(
-            this,
-            [].slice.call(arguments).concat(ancestor),
-          )
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(ancestor))
         }
 
       Element.prototype.matches = HTMLElement.prototype.matches =
         function matches() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(match))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(match))
         } as unknown as Element['matches']
 
       Element.prototype.querySelector = HTMLElement.prototype.querySelector =
         function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first))
         }
 
       Element.prototype.querySelectorAll =
         HTMLElement.prototype.querySelectorAll = function querySelectorAll() {
-          return parseQSArgs.apply(
-            this,
-            [].slice.call(arguments).concat(select),
-          )
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(select))
         }
 
       Document.prototype.querySelector =
         DocumentFragment.prototype.querySelector = function querySelector() {
-          return parseQSArgs.apply(this, [].slice.call(arguments).concat(first))
+          return parseQSArgs.apply(this, sliceCall(arguments).concat(first))
         }
 
       Document.prototype.querySelectorAll =
         DocumentFragment.prototype.querySelectorAll =
           function querySelectorAll() {
-            return parseQSArgs.apply(
-              this,
-              [].slice.call(arguments).concat(select),
-            )
+            return parseQSArgs.apply(this, sliceCall(arguments).concat(select))
           }
 
       if (all) {
@@ -2904,6 +3690,18 @@
     // passed to resolvers
     Snapshot: {
       classOf: typeof classOf
+      attrOf: typeof legacyAttrOf
+      hasAttrOf: typeof legacyHasAttrOf
+      tagOf: typeof legacyTagOf
+      idOf: typeof legacyIdOf
+      legacyClassOf: typeof legacyClassOf
+      upOf: typeof legacyUpOf
+      nextOf: typeof legacyNextOf
+      prevOf: typeof legacyPrevOf
+      firstOf: typeof legacyFirstOf
+      connectedOf: typeof legacyConnectedOf
+      anchor: Element | null
+      isDefined: typeof isDefined
       HOVER?: EventTarget
       doc: Document
       from: Node
@@ -2918,6 +3716,8 @@
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
       matchesNative: typeof matchesNative
+      isRequired: typeof isRequired
+      isDisabled: typeof isDisabled
       isOpen: typeof isOpen
       isClosed: typeof isClosed
       isModal: typeof isModal
@@ -2932,8 +3732,19 @@
       doc: doc,
       from: doc,
       root: root,
+      anchor: null,
 
       byTag: byTag,
+      attrOf: legacyAttrOf,
+      hasAttrOf: legacyHasAttrOf,
+      tagOf: legacyTagOf,
+      idOf: legacyIdOf,
+      legacyClassOf: legacyClassOf,
+      upOf: legacyUpOf,
+      nextOf: legacyNextOf,
+      prevOf: legacyPrevOf,
+      firstOf: legacyFirstOf,
+      connectedOf: legacyConnectedOf,
 
       has: has,
       first: first,
@@ -2947,8 +3758,11 @@
       nthElement: nthElement,
 
       matchesNative: matchesNative,
+      isDefined: isDefined,
+      isRequired: isRequired,
       isOpen: isOpen,
       isClosed: isClosed,
+      isDisabled: isDisabled,
       isModal: isModal,
       isFullscreen: isFullscreen,
       classOf: classOf,
