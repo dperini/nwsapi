@@ -486,6 +486,7 @@
     switchContext = function (context, force?) {
       var oldDoc = doc
       partCounts.clear()
+      typeRoutes.clear()
       doc = context.ownerDocument || context
       if (force || oldDoc !== doc) {
         // force a new check for each document change
@@ -689,6 +690,7 @@
       '*': (c, n) => (e, f) => byTag(n, c),
       '|': (c, n) => (e, f) => byTagNS(n, c),
       '.': (c, n) => (e, f) => byClass(n, c),
+      '?': (c, n) => (e, f) => byTags(n, c),
     },
     // Fetch a cached plan's candidates without allocating lookup closures.
     fetch = {
@@ -696,6 +698,7 @@
       '*': (n, c) => byTag(n, c),
       '|': (n, c) => byTagNS(c, n),
       '.': (n, c) => (/[\t\n\f\r ]/.test(n) ? [] : byClass(n, c)),
+      '?': (n, c) => byTags(n, c),
     },
     // find duplicate ids using iterative walk
     // Walk 'context' in tree order collecting elements carrying 'id'. The
@@ -799,6 +802,76 @@
       return byTag(tag, context)
     },
     // context agnostic getElementsByTagName
+    // Narrow logical type lists only when they cover a minority of the tree.
+    typeRoutes = createCache(),
+    byTags = function (names, context) {
+      if (Config.LEGACY || !context.getElementsByTagName) {
+        return byTag('*', context)
+      }
+      var route = typeRoutes.get(names)
+      if (route && --route.remaining > 0 && route.broad) {
+        return byTag('*', context)
+      }
+      var probe = !route || route.remaining <= 0,
+        tags = names.split(','),
+        seen = Object.create(null),
+        collections = [],
+        count = 0,
+        nodes = [],
+        list,
+        merged,
+        left,
+        right,
+        i,
+        tag
+      for (i = 0; i < tags.length; ++i) {
+        tag = tags[i].trim()
+        if (!seen[tag]) {
+          seen[tag] = true
+          list = context.getElementsByTagName(tag)
+          count += list.length
+          collections[collections.length] = list
+        }
+      }
+      // Merge comparisons are host calls too. Dense unions are cheaper as
+      // one broad pass. Sample live counts periodically; a stale decision
+      // only chooses a slower correct route, never supplies cached results.
+      if (probe) {
+        route = {
+          broad:
+            count > 0 && count * 3 > context.getElementsByTagName('*').length,
+          remaining: 64,
+        }
+        typeRoutes.set(names, route)
+        if (route.broad) {
+          return byTag('*', context)
+        }
+      }
+      for (i = 0; i < collections.length; ++i) {
+        list = sliceCall(collections[i])
+        if (!nodes.length) {
+          nodes = list
+          continue
+        }
+        merged = []
+        left = right = 0
+        // Each lookup is already ordered. Distinct type names are disjoint.
+        while (left < nodes.length && right < list.length) {
+          merged[merged.length] =
+            nodes[left].compareDocumentPosition(list[right]) & 4
+              ? nodes[left++]
+              : list[right++]
+        }
+        while (left < nodes.length) {
+          merged[merged.length] = nodes[left++]
+        }
+        while (right < list.length) {
+          merged[merged.length] = list[right++]
+        }
+        nodes = merged
+      }
+      return nodes
+    },
     byTag = function (tag, context) {
       var e,
         nodes,
@@ -1996,6 +2069,8 @@
       }
       // clear lambda cache
       if (clear) {
+        childPlans.clear()
+        typeRoutes.clear()
         descentDeclined.clear()
         matchLambdas.clear()
         selectLambdas.clear()
@@ -2906,6 +2981,49 @@
                     // localName through the host on each one costs more than
                     // the list it avoids.
                     if (test == 'n==' + a && a >= 1 && !expr) {
+                      if (mode === true && !callback && !Config.LEGACY) {
+                        // Dense selections usually visit siblings together.
+                        // Find this parent's one qualifying child once, then
+                        // compare identities. Locals live for this invocation
+                        // only, so mutations and reentrant calls cannot reuse
+                        // an earlier query's position.
+                        flag = '_p' + notFlag++
+                        S_VARS.push(flag, flag + 'v')
+                        source =
+                          'o=e.parentNode;if(o&&(o===' +
+                          flag +
+                          '||(k+1<l&&c[k+1].parentNode===o))){if(o!==' +
+                          flag +
+                          '){' +
+                          flag +
+                          '=o;' +
+                          flag +
+                          'v=o?o.' +
+                          (type ? 'last' : 'first') +
+                          'ElementChild:null;' +
+                          'n=1;while(n<' +
+                          a +
+                          '&&' +
+                          flag +
+                          'v){' +
+                          flag +
+                          'v=' +
+                          flag +
+                          'v.' +
+                          (type ? 'previous' : 'next') +
+                          'ElementSibling;++n;}}n=e===' +
+                          flag +
+                          'v;}else{n=1,o=e;while(n<=' +
+                          a +
+                          '&&(o=o.' +
+                          (type ? 'next' : 'previous') +
+                          'ElementSibling))++n;n=n==' +
+                          a +
+                          ';}if(n){' +
+                          source +
+                          '}'
+                        break
+                      }
                       test = type ? 'next' : 'previous'
                       source =
                         'n=1,o=e;' +
@@ -2954,6 +3072,31 @@
                 case 'is':
                 case 'where':
                   if (
+                    /^(?:[a-z][a-z0-9-]*)?(?:[.#][_a-zA-Z][-\w]*)+$/.test(
+                      match[2],
+                    )
+                  ) {
+                    // A simple compound cannot move e or contain an invalid
+                    // forgiving-list item. Emit its predicate once instead
+                    // of re-entering match() for every candidate.
+                    flag = '_n' + notFlag++
+                    nested = compileSelector(
+                      match[2],
+                      flag + '=true;',
+                      mode,
+                      callback,
+                    )
+                    source =
+                      'var ' +
+                      flag +
+                      '=false;' +
+                      nested +
+                      'if(' +
+                      flag +
+                      '){' +
+                      source +
+                      '}'
+                  } else if (
                     /^[a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)*$/.test(
                       match[2],
                     )
@@ -3759,6 +3902,81 @@
     },
     // equivalent of w3c 'querySelectorAll' method
     DESCENT_PROBE = 128,
+    childPlans = createCache(),
+    selectChildren = function (selectors, context) {
+      var plan = childPlans.get(selectors),
+        found,
+        roots,
+        root,
+        candidates,
+        element,
+        parent,
+        previous,
+        results = [],
+        unordered = false,
+        i,
+        j,
+        k,
+        length
+
+      if (plan === undefined) {
+        // Selective class anchors followed by direct-child type selectors.
+        // The general compiler owns escapes, namespaces, and other syntax.
+        found =
+          /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][-\w]*)([\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*(?:[\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*)*)$/.exec(
+            selectors,
+          )
+        plan = found
+          ? {
+              tag: found[1],
+              cls: found[2],
+              tags: found[3].split(/\s*>\s*/).slice(1),
+            }
+          : null
+        childPlans.set(selectors, plan)
+      }
+      if (!plan) {
+        return null
+      }
+      roots = context.getElementsByClassName(plan.cls)
+      length = roots.length
+      // Decide from live counts before copying or walking a wide anchor set.
+      // A changed tree can choose a different route on the next call.
+      if (length > DESCENT_PROBE) {
+        return null
+      }
+      for (i = 0; i < length; ++i) {
+        root = roots[i]
+        if (plan.tag !== undefined && root.localName != plan.tag) {
+          continue
+        }
+        if (previous && previous.contains(root)) {
+          unordered = true
+        }
+        previous = root
+        // A scoped type lookup skips unrelated children and their subtrees.
+        // Validate the fixed parent chain against this exact anchor: nested
+        // anchors must neither duplicate nor borrow one another's matches.
+        candidates = root.getElementsByTagName(plan.tags[plan.tags.length - 1])
+        for (j = 0, k = candidates.length; j < k; ++j) {
+          element = candidates[j]
+          parent = element.parentElement
+          for (var depth = plan.tags.length - 2; depth >= 0; --depth) {
+            if (!parent || parent.localName != plan.tags[depth]) {
+              break
+            }
+            parent = parent.parentElement
+          }
+          if (depth < 0 && parent === root) {
+            results[results.length] = element
+          }
+        }
+      }
+      if (unordered && results.length > 1) {
+        results.sort(documentOrder)
+      }
+      return results
+    },
     partCounts = createCache(),
     reTagChain =
       /^[.A-Za-z][-\w]*(?:\.[-\w]+)?(?:\x20[.A-Za-z][-\w]*(?:\.[-\w]+)?)+$/,
@@ -3920,6 +4138,18 @@
       context || (context = doc)
       lastContext !== context && (lastContext = switchContext(context))
 
+      if (
+        typeof selectors == 'string' &&
+        selectors.includes('>') &&
+        callback === undefined &&
+        !Config.LEGACY &&
+        HTML_DOCUMENT &&
+        context.nodeType == 9 &&
+        (descended = selectChildren(selectors, context))
+      ) {
+        return Config.NODE_LIST ? toNodeList(descended) : descended
+      }
+
       // A plain descendant chain of tags is answered by descending, when the
       // shape of the document makes that the cheaper direction. No callback:
       // the ordinary path is what applies one, and this returns the answer
@@ -4036,6 +4266,19 @@
             optimized[i] = optimize(optimized[i], token)
           } else {
             token = ['', '*', '*']
+            // A terminal union of types can fetch its alternatives instead
+            // of every element. Keep the complete predicate in the resolver,
+            // including any compound or ancestor constraints around the list.
+            type =
+              /:(?:is|where)\(([a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)+)\)$/.exec(
+                selectors[i],
+              )
+            if (
+              type &&
+              /^[.#*\w\t\n\f\r >+~-]*$/.test(selectors[i].slice(0, type.index))
+            ) {
+              token = ['', '?', type[1]]
+            }
           }
           // Class lookup narrows candidates; the attribute resolver still
           // checks case and values, including in quirks mode.
