@@ -124,8 +124,10 @@ See the [full API reference](docs/api.md) for all methods, options, and adapter 
 - [Configure the engine](docs/api.md#configuration) with `configure()`.
 - [Use the jsdom adapter](docs/api.md#jsdom-adapter) for queries and stylesheet matching.
 
-> [!IMPORTANT]
-> Set `LEGACY` before the first query when the environment needs compatibility fallbacks.
+<blockquote>
+<p><img src="assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>
+<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>
+</blockquote>
 
 </details>
 
