@@ -37,6 +37,16 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/ancestor-filter.html',
+    note: 'local WPT regression: adaptive ancestor filters, mutations, exceptions, and legacy mode',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/property-reads.html',
+    note: 'local WPT regression: reflected classes, SVG base values, attribute fallbacks, and escaped IDs',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/attribute-equality.html',
     note: 'local WPT regression: exact attribute values, escapes, case rules, and custom operators',
     install: false,

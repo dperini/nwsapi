@@ -63,21 +63,6 @@ accessors when needed. Their reference assertions pass without expected-failure
 markers. Relative `:has()` queries also use legacy parent traversal for sibling
 arguments. Other changes from #167 remain outside this extraction.
 
-### Combining the extracted PRs
-
-Keep these integration changes when their prerequisites land:
-
-- With #194, retain one `classOf` implementation and route its fallback through
-  `attrOf(e, 'class')`. The modern read table should call the `classOf` helper;
-  the legacy table should call `legacyClassOf`. Expose those helpers under
-  distinct Snapshot keys so one does not overwrite the other. The legacy
-  pseudo-class rewrite must select `legacyClassOf` too. Use `read.id('e')`
-  for the ID comparison so legacy forms retain their attribute fallback.
-
-These are integration recipes, not claims that the prerequisites are included
-in this standalone branch. Validate the combined tree with both the original
-legacy assertions and each prerequisite's focused tests.
-
 ## Validation
 
 Use Node.js 26 and pnpm ≥ 12.3.4.
