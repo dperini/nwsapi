@@ -1501,7 +1501,8 @@
     N_VARS = [],
     // compile groups or single selector strings into
     // executable functions for matching or selecting
-    compile = function (selector, mode, callback) {
+    compile = function (selector, mode, callback, relative?) {
+      var cacheKey = (relative ? 'relative:' : 'selector:') + selector
       var factory,
         head = '',
         loop = '',
@@ -1514,7 +1515,7 @@
       // null to use collection.item()
       switch (mode) {
         case true:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey))) {
             return factory
           }
           macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
@@ -1522,7 +1523,7 @@
           loop = S_LOOP
           break
         case false:
-          if ((factory = matchLambdas.get(selector))) {
+          if ((factory = matchLambdas.get(cacheKey))) {
             return factory
           }
           macro = M_BODY + (callback ? M_TEST : '') + M_TAIL
@@ -1530,7 +1531,7 @@
           loop = M_LOOP
           break
         case null:
-          if ((factory = selectLambdas.get(selector))) {
+          if ((factory = selectLambdas.get(cacheKey))) {
             return factory
           }
           macro = N_BODY + (callback ? N_TEST : '') + N_TAIL
@@ -1541,7 +1542,12 @@
           break
       }
 
-      source = compileSelector(selector, macro, mode, callback)
+      source = compileSelector(
+        relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
+        relative ? 'if(e===s.anchor){' + macro + '}' : macro,
+        mode,
+        callback,
+      )
 
       loop += mode || mode === null ? '{' + source + '}' : source
 
@@ -1564,9 +1570,9 @@
       )(Snapshot)
 
       if (mode || mode === null) {
-        selectLambdas.set(selector, factory)
+        selectLambdas.set(cacheKey, factory)
       } else {
-        matchLambdas.set(selector, factory)
+        matchLambdas.set(cacheKey, factory)
       }
 
       return factory
@@ -1981,36 +1987,12 @@
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'has':
-                  if (expr == ':scope') {
-                    source = 'if(s.has("' + expr + '",e)){' + source + '}'
-                    break
-                  }
-
-                  // combinators having mangled context
-                  switch (expr.charAt(0)) {
-                    case '+':
-                      source =
-                        'if(e.parentElement&&s.select("*' +
-                        expr +
-                        '",e.parentElement).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '~':
-                      source =
-                        'if(e.parentElement&&Array.from(e.parentElement.children).includes(e.nextElementSibling)){' +
-                        source +
-                        '}'
-                      break
-                    case '>':
-                      source =
-                        'if(s.first(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                    default:
-                      source =
-                        'if(s.has(":scope ' + expr + '",e)){' + source + '}'
-                      break
-                  }
+                  source =
+                    'if(s.has(' +
+                    JSON.stringify(splitList(match[2])) +
+                    ',e)){' +
+                    source +
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -2636,10 +2618,40 @@
       return false
     },
     // true if element matches the selector
-    has = function (selector, context, callback) {
-      return (
-        collect(parse(selector, true), context, callback).results.length > 0
-      )
+    has = function (list, anchor) {
+      var context,
+        found = false,
+        i = 0,
+        l = list.length,
+        previous = Snapshot.anchor
+      Snapshot.anchor = anchor
+      try {
+        for (; l > i; ++i) {
+          context = /^[+~]/.test(list[i]) ? anchor.parentElement : anchor
+          if (!list[i]) {
+            emit(qsInvalid)
+            return false
+          }
+          // Compile even a root sibling argument, whose candidate set is empty.
+          // Later invalid items must not be hidden by an earlier match.
+          if (
+            collect(
+              parse('* ' + list[i], true).map(function (selector) {
+                return selector.slice(1).replace(/^\s+/, '')
+              }),
+              context || anchor,
+              undefined,
+              true,
+            ).results.length &&
+            context
+          ) {
+            found = true
+          }
+        }
+        return found
+      } finally {
+        Snapshot.anchor = previous
+      }
     },
     // equivalent of w3c 'querySelector' method
     first = function _querySelector(selectors, context, callback) {
@@ -2765,7 +2777,7 @@
       )
     },
     // prepare factory resolvers and closure collections
-    collect = function (selectors, context, callback) {
+    collect = function (selectors, context, callback, relative?) {
       var i,
         l,
         seen = {},
@@ -2795,7 +2807,7 @@
           token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
             ? () => []
             : compat[token[1]](context, token[2])
-        factory[i] = compile(optimized[i], true, null)
+        factory[i] = compile(optimized[i], true, null, relative)
 
         factory[i]
           ? factory[i](htmlset[i](), callback, context, results)
@@ -2966,6 +2978,7 @@
     selectResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
+      anchor: Element | null
       isDefined: typeof isDefined
       HOVER?: EventTarget
       doc: Document
@@ -2997,6 +3010,7 @@
       doc: doc,
       from: doc,
       root: root,
+      anchor: null,
 
       byTag: byTag,
 
