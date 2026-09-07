@@ -1,5 +1,8 @@
 # Selector benchmarks
 
+See the [performance review and next priorities](performance-review.md) for
+remaining gaps and the proposed acceptance bar for competitive performance.
+
 Compare NWSAPI 2.2.27, 2.3.0-prerelease, and `@asamuzakjp/dom-selector`
 in one run. The prerelease label identifies the current source, not a published release.
 
