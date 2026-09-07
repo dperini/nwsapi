@@ -265,7 +265,7 @@
       return list
     },
     // caching limit for compiled resolver functions
-    CACHE_LIMIT = 1000,
+    CACHE_LIMIT = 4096,
     // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
     // never DOM result sets. A prefixed dictionary avoids user-key collisions
     // and a doubly linked list keeps the least-recently-used entry at the head.

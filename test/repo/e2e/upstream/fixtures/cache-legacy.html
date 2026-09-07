@@ -19,8 +19,8 @@ test(() => {
   cache.clear();
   assert_equals(cache.size(), 0);
   assert_false(cache.has('__proto__'));
-  for (let i = 0; i < 1000; i++) cache.set(String(i), i);
-  assert_equals(cache.size(), 1000);
+  for (let i = 0; i < 4096; i++) cache.set(String(i), i);
+  assert_equals(cache.size(), 4096);
   assert_equals(cache.get('0'), 0);
   cache.set('1', 'updated');
   cache.set('__proto__', 'safe');
@@ -28,7 +28,7 @@ test(() => {
   assert_equals(cache.get('0'), 0);
   assert_equals(cache.get('1'), 'updated');
   assert_equals(cache.get('__proto__'), 'safe');
-  assert_equals(cache.size(), 1000);
+  assert_equals(cache.size(), 4096);
   cache.clear();
   assert_false(cache.has('0'));
 }, 'Legacy cache preserves live queries and bounded LRU eviction');
