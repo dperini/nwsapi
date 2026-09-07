@@ -39,9 +39,13 @@ test(t => {
   window.WeakMap = undefined;
   engine.configure({ LEGACY: true });
   const node = document.createElement('div');
+  node.setAttribute('popover', '');
+  let calls = 0;
+  node.matches = () => { calls++; return false; };
   for (let repeat = 0; repeat < 3; repeat++) {
     assert_false(engine.match(':popover-open', node));
   }
+  assert_equals(calls, 3);
   const cache = engine.matchLambdas;
   cache.clear();
   assert_equals(cache.get('missing'), undefined);
