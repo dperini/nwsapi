@@ -37,6 +37,11 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/media-time-state.html',
+    note: 'local WPT regression: native and reflected media states and host timelines',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/descendant-routing.html',
     note: 'local WPT regression: descendant routes, external ancestors, wide levels, and live mutations',
     install: false,

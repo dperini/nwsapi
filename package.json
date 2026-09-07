@@ -130,7 +130,8 @@
     "upstream:verify": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts verify",
     "test:attributes": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/attribute-parse-error.test.mts",
     "test:attributes:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e/attribute-strings-browser.test.mts",
-    "test:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e",
+    "test:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e && pnpm run test:media",
+    "test:media": "node scripts/repo/run.mts scripts/repo/build.mts && node scripts/repo/run.mts node_modules/@playwright/test/cli.js test --config .config/state-pseudos.config.mts",
     "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts"
   }
 }
