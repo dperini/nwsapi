@@ -42,6 +42,11 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/ancestor-filter.html',
+    note: 'local WPT regression: adaptive ancestor filters, mutations, exceptions, and legacy mode',
+    install: false,
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/compound-negation.html',
     note: 'local WPT regression: compound and general negation paths with modern and legacy hosts',
     install: false,
