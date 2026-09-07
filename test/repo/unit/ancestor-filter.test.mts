@@ -44,6 +44,16 @@ test('each compiled resolver owns its adaptive counters', t => {
   )
 })
 
+test('negated tags do not become required ancestor tags', t => {
+  const { document, nw } = fixture(t)
+  const resolver = nw.compile('div ul a:not(article)', true)!
+  assert.match(resolver.toString(), /s\.mayMatch\(/)
+  assert.deepEqual(
+    nw.select('div ul a:not(article)', document).map(element => element.id),
+    ['a'],
+  )
+})
+
 test('filtering preserves results across movement and document changes', t => {
   const { document, nw } = fixture(t)
   for (const selector of [

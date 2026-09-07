@@ -14,7 +14,7 @@ test(t => {
   for (let i = 0; i < 4096; i++) assert_true(engine.Snapshot.mayMatch(target, 0, state));
   assert_equals(state.rest, 0);
   engine.Snapshot.clearAncestorMasks();
-  for (const selector of ['div ul li a', 'body div a', 'body section a', 'div > ul > li > a']) {
+  for (const selector of ['div ul li a', 'div ul a:not(article)', 'div ul a:not(:not(a))', 'body div a', 'body section a', 'div > ul > li > a']) {
     for (let repeat = 0; repeat < 2; repeat++) {
       assert_array_equals(engine.select(selector, document), Array.from(document.querySelectorAll(selector)), selector);
     }

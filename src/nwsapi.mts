@@ -2364,6 +2364,51 @@
       return factory
     },
     // build conditional code to check components of selector strings
+    isCompound = function (text) {
+      var chr,
+        depth = 0,
+        escaped,
+        i = 0,
+        l = text.length,
+        quote = ''
+
+      for (; l > i; ++i) {
+        chr = text.charAt(i)
+        if (escaped) {
+          escaped = false
+          continue
+        }
+        if (chr == '\\') {
+          escaped = true
+        } else if (quote) {
+          if (chr == quote) {
+            quote = ''
+          }
+        } else if (chr == '\x22' || chr == '\x27') {
+          quote = chr
+        } else if (chr == '\x28' || chr == '\x5b') {
+          ++depth
+        } else if (chr == '\x29' || chr == '\x5d') {
+          --depth
+        } else if (
+          depth === 0 &&
+          (chr == ',' ||
+            chr == '>' ||
+            chr == '+' ||
+            chr == '~' ||
+            chr == ' ' ||
+            chr == '\t' ||
+            chr == '\n' ||
+            chr == '\f' ||
+            chr == '\r')
+        ) {
+          return false
+        }
+      }
+
+      return l > 0
+    },
+    notFlag = 0,
     compileSelector = function (expression, source, mode, callback) {
       var a,
         b,
@@ -2384,6 +2429,12 @@
         type,
         selector = expression,
         vars,
+        argument,
+        flag,
+        nested,
+        savedRequired,
+        savedPending,
+        savedWalk,
         read
 
       read = Config.LEGACY
@@ -2850,7 +2901,35 @@
                   source = 'if(s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'not':
-                  source = 'if(!s.match("' + expr + '",e)){' + source + '}'
+                  if (isCompound((argument = match[2]))) {
+                    flag = '_n' + notFlag++
+                    savedRequired = A_REQD.slice()
+                    savedPending = A_PEND.slice()
+                    savedWalk = A_WALK
+                    nested = compileSelector(
+                      argument,
+                      flag + '=true;',
+                      mode,
+                      callback,
+                    )
+                    A_REQD.length = 0
+                    A_REQD.push.apply(A_REQD, savedRequired)
+                    A_PEND.length = 0
+                    A_PEND.push.apply(A_PEND, savedPending)
+                    A_WALK = savedWalk
+                    source =
+                      'var ' +
+                      flag +
+                      '=false;' +
+                      nested +
+                      'if(!' +
+                      flag +
+                      '){' +
+                      source +
+                      '}'
+                  } else {
+                    source = 'if(!s.match("' + expr + '",e)){' + source + '}'
+                  }
                   break
                 case 'has':
                   source =
