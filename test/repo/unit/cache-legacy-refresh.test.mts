@@ -36,10 +36,10 @@ for (const map of [undefined, {}]) {
     cache.clear()
     expect(cache.size()).toBe(0)
     expect(cache.has('__proto__')).toBe(false)
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 4096; i++) {
       cache.set(String(i), i)
     }
-    expect(cache.size()).toBe(1000)
+    expect(cache.size()).toBe(4096)
     expect(cache.get('0')).toBe(0)
     cache.set('1', 'updated')
     cache.set('__proto__', 'safe')
@@ -47,7 +47,7 @@ for (const map of [undefined, {}]) {
     expect(cache.get('0')).toBe(0)
     expect(cache.get('1')).toBe('updated')
     expect(cache.get('__proto__')).toBe('safe')
-    expect(cache.size()).toBe(1000)
+    expect(cache.size()).toBe(4096)
     cache.clear()
     expect(cache.has('0')).toBe(false)
   })
