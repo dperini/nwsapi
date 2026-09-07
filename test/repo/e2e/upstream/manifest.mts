@@ -34,7 +34,19 @@ export const manifest: Array<{
   path: string
   note: string
   install?: boolean
+  legacyMap?: boolean
 }> = [
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/cache-generations.html',
+    note: 'local WPT regression: cache promotion, eviction, updates, and capacity',
+    install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/cache-legacy.html',
+    note: 'local WPT regression: cache fallback without Map',
+    install: false,
+    legacyMap: true,
+  },
   {
     path: '/_repo/test/repo/e2e/upstream/fixtures/has-anchor-isolation.html',
     note: 'local WPT regression: private anchor syntax is rejected without rejecting quoted values',
