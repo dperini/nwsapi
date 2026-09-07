@@ -18,6 +18,7 @@ import type { Measurement } from './charts.mts'
 import { components } from './documents.mts'
 
 const require = createRequire(import.meta.url)
+const candidatePkg = require('../../../package.json')
 const { values } = parseArgs({
   options: {
     baseline: { type: 'string', multiple: true },
@@ -28,7 +29,7 @@ const { values } = parseArgs({
 })
 if (!values.baseline?.length) {
   throw new Error(
-    'Pass --baseline for each extracted published nwsapi package directory (2.0.0 and 2.2.27).',
+    'Pass --baseline for the extracted nwsapi 2.2.27 package directory.',
   )
 }
 const rounds = Number(values.rounds)
@@ -76,8 +77,8 @@ const engines = values.baseline.map(directory => {
   }
 })
 engines.push({
-  name: `unreleased ${sha.slice(0, 8)}`,
-  version: 'unreleased',
+  name: `${candidatePkg.name} ${candidatePkg.version}`,
+  version: candidatePkg.version,
   sha256: crypto.createHash('sha256').update(source).digest('hex'),
   query: selector => candidate.select(selector, document),
 })
@@ -85,7 +86,7 @@ const jsdomPkg = require('jsdom/package.json')
 const jsdomRequire = createRequire(require.resolve('jsdom'))
 const competitorPkg = jsdomRequire('@asamuzakjp/dom-selector/package.json')
 engines.push({
-  name: `dom-selector ${competitorPkg.version}`,
+  name: `${competitorPkg.name} ${competitorPkg.version}`,
   version: competitorPkg.version,
   sha256: crypto
     .createHash('sha256')

@@ -1,30 +1,17 @@
 # Selector benchmarks
 
-Compare the first stable v2 release (2.0.0), the latest published release
-(2.2.27), the current source, and jsdom's selector engine in one run.
-The current source is labeled with its commit, not an unpublished version.
+Compare NWSAPI 2.2.27, 2.3.0-prerelease, and `@asamuzakjp/dom-selector`
+in one run. The prerelease label identifies the current source, not a published release.
 
-Extract the published baseline packages into separate directories, then run:
+Extract the published baseline package, then run:
 
 ```sh
-pnpm run bench --baseline /path/to/nwsapi-2.0.0/package --baseline /path/to/nwsapi-2.2.27/package
+pnpm run bench --baseline /path/to/nwsapi-2.2.27/package
 ```
 
 Results go to `assets/repo/bench/`. Each SVG contains at most four selectors
 from one category. `results.json` records every timing sample, package
 versions, source hashes, the fixture hash, and the test machine.
-
-<details>
-<summary>Comparison charts</summary>
-
-![Basic selectors](../assets/repo/bench/identifiers-1.svg)
-![Attribute selectors](../assets/repo/bench/attributes-1.svg)
-![Relationships](../assets/repo/bench/relationships-1.svg)
-![Position selectors](../assets/repo/bench/positional-1.svg)
-![Logical selectors](../assets/repo/bench/logical-1.svg)
-![Form state selectors](../assets/repo/bench/forms-1.svg)
-
-</details>
 
 <details>
 <summary>How measurements work</summary>
@@ -65,3 +52,27 @@ for the browser-checked comparison charts. Cache and memory commands enable
 garbage collection through the repository launcher.
 
 </details>
+
+## Basic selectors
+
+![Basic selectors](../assets/repo/bench/identifiers-1.svg)
+
+## Attribute selectors
+
+![Attribute selectors](../assets/repo/bench/attributes-1.svg)
+
+## Relationships
+
+![Relationships](../assets/repo/bench/relationships-1.svg)
+
+## Position selectors
+
+![Position selectors](../assets/repo/bench/positional-1.svg)
+
+## Logical selectors
+
+![Logical selectors](../assets/repo/bench/logical-1.svg)
+
+## Form state selectors
+
+![Form state selectors](../assets/repo/bench/forms-1.svg)

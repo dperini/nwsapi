@@ -81,7 +81,7 @@ export function chart(
               row.errors[series] ??
               (value === null ? 'not measured' : `${value.toFixed(4)} ms`)
             const width = value === null ? 0 : (value / maximum) * 380
-            return `<text x="20" y="${y + 14}">${escapeText(name)}</text><rect x="300" y="${y}" width="${width.toFixed(2)}" height="18" fill="${colors[series % colors.length]}"/><text x="${310 + width}" y="${y + 14}">${escapeText(status)}</text>`
+            return `<text x="20" y="${y + 14}">${escapeText(name)}</text><rect class="bar" x="300" y="${y}" width="${width.toFixed(2)}" height="18" fill="${colors[series % colors.length]}"/><text x="${310 + width}" y="${y + 14}">${escapeText(status)}</text>`
           })
           .join('')
       )
@@ -89,7 +89,7 @@ export function chart(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="${height}" viewBox="0 0 1000 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><style>text{font:14px system-ui,sans-serif;fill:#24292f}.selector{font:16px monospace;font-weight:600}.background{fill:#fff}@media(prefers-color-scheme:dark){text{fill:#e6edf3}.background{fill:#0d1117}}</style><rect class="background" width="1000" height="${height}"/><text x="20" y="28" class="selector">${escapeText(title)}</text><text x="20" y="50">Warm queries on one jsdom document. Median ms/query; lower is better.</text>${body}<text x="20" y="${height - 20}">${escapeText(provenance)}</text></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="${height}" viewBox="0 0 1000 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><style>text{font:14px system-ui,sans-serif;fill:#24292f}.selector{font:16px monospace;font-weight:600}.background{fill:#fff}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}@media(prefers-color-scheme:dark){text{fill:#e6edf3}.background{fill:#0d1117}}</style><rect class="background" width="1000" height="${height}"/><text x="20" y="28" class="selector">${escapeText(title)}</text><text x="20" y="50">Warm queries on one jsdom document. Median ms/query; lower is better.</text>${body}<text x="20" y="${height - 20}">${escapeText(provenance)}</text></svg>`,
     ) + '\n'
   )
 }

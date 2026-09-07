@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest'
+import fs from 'node:fs'
 import {
   agrees,
   chart,
@@ -14,6 +15,29 @@ const row = (selector = 'a'): Measurement => ({
   errors: [null, null],
 })
 describe('benchmark charts', () => {
+  test('animates bars from the left and respects reduced motion', () => {
+    const svg = chart('basic', ['old', 'candidate'], [row()], '')
+    expect(svg).toContain('@keyframes fill')
+    expect(svg).toContain('transform-box:fill-box')
+    expect(svg).toContain('prefers-reduced-motion:reduce')
+    expect(svg).toContain('animation:none')
+    expect(isSvgOptimized(svg)).toBe(true)
+  })
+  test('shows category charts outside the introductory details', () => {
+    const document = fs.readFileSync(
+      new URL('../../../docs/benchmarks.md', import.meta.url),
+      'utf8',
+    )
+    const firstChart = document.indexOf('## Basic selectors')
+    expect(document.lastIndexOf('</details>')).toBeLessThan(firstChart)
+    expect(document.indexOf('How measurements work')).toBeLessThan(
+      document.indexOf('Other measurements'),
+    )
+    expect(document.match(/^## /gm)).toHaveLength(6)
+    expect(document).not.toContain('2.0.0')
+    expect(document).toContain('2.3.0-prerelease')
+    expect(document).toContain('@asamuzakjp/dom-selector')
+  })
   test('keeps selector categories separate and at most four rows per chart', () => {
     const groups = splitCharts([
       ...Array.from({ length: 9 }, (_, index) => row(String(index))),
