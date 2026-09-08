@@ -1,3 +1,4 @@
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
@@ -6,7 +7,7 @@ import { JSDOM } from 'jsdom'
 import { expect, test, vi } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js')
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 const filename = fileURLToPath(
   new URL('../../../src/nwsapi.js', import.meta.url),
 )
@@ -18,17 +19,17 @@ test('AMD exports a factory without requiring a browser document', t => {
   expect(define).toHaveBeenCalledOnce()
   const { window } = new JSDOM('<p></p>')
   t.onTestFinished(() => window.close())
-  expect(define.mock.calls[0][0](window).first('p')).toBe(
+  expect(define.mock.calls[0]![0](window).first('p')).toBe(
     window.document.querySelector('p'),
   )
 })
 
 test('weak observer ownership disconnects collected snapshots and tolerates collected observers', () => {
-  const references = [],
-    finalizers = []
+  const references: Reference[] = [],
+    finalizers: Registry[] = []
   class Reference {
-    value
-    constructor(value) {
+    value: unknown
+    constructor(value: unknown) {
       this.value = value
       references.push(this)
     }
@@ -37,13 +38,13 @@ test('weak observer ownership disconnects collected snapshots and tolerates coll
     }
   }
   class Registry {
-    callback
-    held
-    constructor(callback) {
+    callback: (held: Reference) => void
+    held!: Reference
+    constructor(callback: (held: Reference) => void) {
       this.callback = callback
       finalizers.push(this)
     }
-    register(_target, held) {
+    register(_target: unknown, held: Reference) {
       this.held = held
     }
   }
@@ -58,13 +59,13 @@ test('weak observer ownership disconnects collected snapshots and tolerates coll
     },
     { filename },
   )
-  let callback
+  let callback: MutationCallback | undefined
   const disconnect = vi.fn(),
     observe = vi.fn()
   class Observer {
     disconnect = disconnect
     observe = observe
-    constructor(fn) {
+    constructor(fn: MutationCallback) {
       callback = fn
     }
   }
@@ -75,15 +76,15 @@ test('weak observer ownership disconnects collected snapshots and tolerates coll
     state,
   )
   const before = state.copies
-  callback([], observer)
+  callback!([], observer as unknown as MutationObserver)
   expect(state.copies).not.toBe(before)
-  references[0].value = undefined
-  callback([], observer)
+  references[0]!.value = undefined
+  callback!([], observer as unknown as MutationObserver)
   expect(disconnect).toHaveBeenCalledOnce()
-  finalizers[0].callback(finalizers[0].held)
+  finalizers[0]!.callback(finalizers[0]!.held)
   expect(disconnect).toHaveBeenCalledTimes(2)
-  finalizers[0].held.value = undefined
-  finalizers[0].callback(finalizers[0].held)
+  finalizers[0]!.held.value = undefined
+  finalizers[0]!.callback(finalizers[0]!.held)
   expect(disconnect).toHaveBeenCalledTimes(2)
   expect(observe).toHaveBeenCalledWith(
     {},
@@ -102,7 +103,7 @@ test('custom-element definition fallback follows upgrades and customized built-i
   )
   t.onTestFinished(() => window.close())
   // Simulate a host that exposes the registry but has no native selector matcher.
-  for (const name of ['matches', 'webkitMatchesSelector']) {
+  for (const name of ['matches', 'webkitMatchesSelector'] as const) {
     Object.defineProperty(window.Element.prototype, name, {
       value: undefined,
       configurable: true,
@@ -111,16 +112,16 @@ test('custom-element definition fallback follows upgrades and customized built-i
   const engine = factory(window)
   const custom = window.document.getElementsByTagName('x-widget')[0]
   const button = window.document.getElementsByTagName('button')[0]
-  expect(engine.match(':defined', custom)).toBe(false)
-  expect(engine.match(':defined', button)).toBe(false)
+  expect(engine.match(':defined', custom!)).toBe(false)
+  expect(engine.match(':defined', button!)).toBe(false)
   window.customElements.define('x-widget', class extends window.HTMLElement {})
   window.customElements.define(
     'x-button',
     class extends window.HTMLButtonElement {},
     { extends: 'button' },
   )
-  expect(engine.match(':defined', custom)).toBe(true)
-  expect(engine.match(':defined', button)).toBe(true)
+  expect(engine.match(':defined', custom!)).toBe(true)
+  expect(engine.match(':defined', button!)).toBe(true)
   const detachedDocument = window.document.implementation.createHTMLDocument()
   expect(
     engine.match(':defined', detachedDocument.createElement('x-widget')),
@@ -150,7 +151,7 @@ test('unique-ID lookup handles hits, misses, detached fragments and legacy mode'
   const engine = factory(window)
   const doc = window.document
   engine.configure({ IDS_DUPES: false })
-  for (const legacy of [false, true]) {
+  for (const legacy of [false, true] as const) {
     engine.configure({ LEGACY: legacy })
     expect(engine.byId('one', doc)).toEqual([doc.getElementById('one')])
     expect(engine.byId('missing', doc)).toEqual([])
@@ -176,7 +177,7 @@ test('legacy readers use available sibling and namespace APIs and return NodeLis
     '*|p',
     '[*|data-a]',
     '.missing',
-  ]) {
+  ] as const) {
     const expected =
       selector === '*|p'
         ? Array.from(doc.getElementsByTagName('p'))
@@ -184,7 +185,7 @@ test('legacy readers use available sibling and namespace APIs and return NodeLis
           ? [doc.querySelector('p')]
           : Array.from(doc.querySelectorAll(selector))
     expect(Array.from(engine.select(selector, doc)), selector).toEqual(expected)
-    const seen = []
+    const seen: Element[] = []
     expect(
       Array.from(
         engine.select(selector, doc, node => {
@@ -227,11 +228,11 @@ test('legacy namespace attributes use host names or attribute-node names', t => 
     [{ attributes: [{ nodeName: 'ns:role', specified: true }] }, true],
     [{ attributes: [{ nodeName: 'ns:role', specified: false }] }, false],
     [{}, false],
-  ]) {
-    expect(matches(node, undefined, undefined, false)).toBe(expected)
+  ] as const) {
+    expect(matches!(node, undefined, undefined, false)).toBe(expected)
   }
   window.document.designMode = 'on'
-  expect(engine.match(':read-write', window.document.querySelector('p'))).toBe(
+  expect(engine.match(':read-write', window.document.querySelector('p')!)).toBe(
     true,
   )
   expect(engine.match(':read-write', window.document.createElement('p'))).toBe(

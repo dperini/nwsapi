@@ -3,8 +3,8 @@ import manifest from '../../.config/external-tools.json' with { type: 'json' }
 import { isMainModule } from './lib/run-node.mts'
 
 export function toolVersions(data = manifest) {
-  const versions: Record<string, string> = { __proto__: null }
-  for (const name of ['node', 'npm', 'pnpm']) {
+  const versions: Record<string, string> = Object.create(null)
+  for (const name of ['node', 'npm', 'pnpm'] as const) {
     const tool = data.tools[name]
     if (
       tool?.origin !== 'system' ||
@@ -21,11 +21,11 @@ export function toolVersions(data = manifest) {
 if (isMainModule(import.meta.url)) {
   const versions = toolVersions()
   if (process.argv.includes('--github-output')) {
-    if (!process.env.GITHUB_OUTPUT) {
+    if (!process.env['GITHUB_OUTPUT']) {
       throw new Error('GITHUB_OUTPUT is required.')
     }
     appendFileSync(
-      process.env.GITHUB_OUTPUT,
+      process.env['GITHUB_OUTPUT'],
       Object.entries(versions)
         .map(([name, version]) => `${name}=${version}\n`)
         .join(''),

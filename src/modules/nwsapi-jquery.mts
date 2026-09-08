@@ -21,13 +21,14 @@ NW.Dom.registerSelector(
   'jquery:child',
   /^\:((?:(nth|eq|lt|gt)\(([^()]*)\))|(?:even|odd|first|last))(.*)/i,
   function (match, source, mode) {
-    var name = match[1].toLowerCase(),
+    // The registration pattern requires the name and each numeric argument.
+    var name = match[1]!.toLowerCase(),
       condition,
       index
     // Never interpolate unvalidated selector text into generated JavaScript.
     if (match[2]) {
       if (
-        !/^[+-]?\d+$/.test(match[3].trim()) ||
+        !/^[+-]?\d+$/.test(match[3]!.trim()) ||
         Math.abs(Number(match[3])) > 9007199254740991
       ) {
         return { 'source': source, 'status': false }
@@ -90,7 +91,7 @@ NW.Dom.registerSelector(
   /^\:(checkbox|file|image|password|radio|reset|submit|text|button|input|header|hidden|visible|parent)(.*)/i,
   function (match, source) {
     var condition
-    switch (match[1].toLowerCase()) {
+    switch (match[1]!.toLowerCase()) {
       case 'checkbox':
       case 'file':
       case 'image':

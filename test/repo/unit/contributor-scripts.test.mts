@@ -139,7 +139,11 @@ test('update refreshes the lockfile only after a successful write pass', () => {
 test('external tool versions reject shell or GitHub output injection', () => {
   const versions = toolVersions()
   expect(Object.getPrototypeOf(versions)).toBeNull()
-  for (const version of ['26\nOTHER=value', '26; echo unsafe', 'latest']) {
+  for (const version of [
+    '26\nOTHER=value',
+    '26; echo unsafe',
+    'latest',
+  ] as const) {
     expect(() =>
       toolVersions({
         tools: {

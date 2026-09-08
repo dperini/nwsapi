@@ -1,16 +1,17 @@
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { JSDOM } from 'jsdom'
-import { test } from 'vitest'
+import { test, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js')
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 // Pin the current major release as the compatibility reference.
 const { jQueryFactory: jquery } = require('jquery/factory-slim')
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const { window } = new JSDOM(
     '<p id="before"></p><main><p id="a" class="picked"></p><p id="b"></p><p id="c" class="picked"></p><p id="d"></p></main><p id="after"></p>',
   )
@@ -25,11 +26,12 @@ function fixture(t) {
   const $ = jquery(window)
   assert.equal($.fn.jquery, '4.0.0+slim')
   const main = window.document.getElementsByTagName('main')[0]
-  const ids = nodes => Array.from(nodes, (node: Element) => node.id)
+  const ids = (nodes: ArrayLike<Element> | Iterable<Element>) =>
+    Array.from(nodes, (node: Element) => node.id)
   return {
     main,
-    actual: selector => ids(engine.select(selector, main)),
-    reference: selector => ids($(main).find(selector)),
+    actual: (selector: string) => ids(engine.select(selector, main)),
+    reference: (selector: string) => ids($(main).find(selector)),
   }
 }
 
@@ -54,7 +56,7 @@ test('optional positional selectors agree with real jQuery for supported ordered
       )
     }
   }
-  main.insertBefore(main.lastElementChild, main.firstElementChild)
+  main!.insertBefore(main!.lastElementChild!, main!.firstElementChild)
   for (const [selector] of cases) {
     assert.deepEqual(
       actual(selector),

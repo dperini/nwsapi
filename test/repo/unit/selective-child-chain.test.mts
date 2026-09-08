@@ -26,7 +26,7 @@ test('selective child chains preserve nested anchor order and live results', t =
     }
   }
   check()
-  expect(nw.select(selectors[0]).map(e => e.id)).toEqual([
+  expect(Array.from(nw.select(selectors[0]!)).map(e => e.id)).toEqual([
     'first',
     'second',
     'third',
@@ -58,8 +58,8 @@ test('child chains keep scoped, callback, first, legacy, and list behavior', t =
     }),
   ).toEqual(expected)
   expect(seen).toEqual(expected)
-  expect(nw.select(selector, doc.querySelector('div'))).toEqual([expected[0]])
-  for (const legacy of [true, false]) {
+  expect(nw.select(selector, doc.querySelector('div')!)).toEqual([expected[0]])
+  for (const legacy of [true, false] as const) {
     nw.configure({ LEGACY: legacy })
     expect(nw.select(selector, doc)).toEqual(expected)
   }
@@ -71,7 +71,7 @@ test('child chains keep scoped, callback, first, legacy, and list behavior', t =
 })
 
 test('child chains handle wide anchors, tag case, SVG, quirks, and invalid syntax', t => {
-  for (const doctype of ['<!doctype html>', '']) {
+  for (const doctype of ['<!doctype html>', ''] as const) {
     const { window } = dom(
       doctype +
         '<main>' +
@@ -88,7 +88,7 @@ test('child chains handle wide anchors, tag case, SVG, quirks, and invalid synta
       '.anchor > div > span',
       '.anchor > g > path',
       '.missing > div',
-    ]) {
+    ] as const) {
       expect(nw.select(selector, doc), selector).toEqual(
         [...doc.querySelectorAll(selector)].toSorted((a, b) =>
           a.compareDocumentPosition(b) & 4 ? -1 : 1,
@@ -99,7 +99,7 @@ test('child chains handle wide anchors, tag case, SVG, quirks, and invalid synta
       '.anchor >> div',
       '.anchor >',
       '.anchor > div > :unknown',
-    ]) {
+    ] as const) {
       expect(() => nw.select(selector, doc), selector).toThrow()
     }
     doc.querySelector('main')!.innerHTML =
@@ -117,8 +117,8 @@ test('simple logical compounds preserve matching, forgiving lists, and mutations
   t.onTestFinished(() => window.close())
   const nw = factory(window)
   const doc = window.document
-  for (const legacy of [false, true]) {
-    for (const forgiving of [false, true]) {
+  for (const legacy of [false, true] as const) {
+    for (const forgiving of [false, true] as const) {
       nw.configure({ LEGACY: legacy, FORGIVING: forgiving })
       for (const selector of [
         ':where(.card) > button',
@@ -126,7 +126,7 @@ test('simple logical compounds preserve matching, forgiving lists, and mutations
         ':not(:is(.primary))',
         ':is(.card):has(> button)',
         ':where(.card) > :is(button.primary)',
-      ]) {
+      ] as const) {
         const expected = [...doc.querySelectorAll(selector)]
         expect(nw.select(selector, doc), selector).toEqual(expected)
         for (const element of doc.querySelectorAll('*')) {
@@ -152,15 +152,15 @@ test('logical type candidates retain order, uniqueness, scopes, and callbacks', 
   t.onTestFinished(() => window.close())
   const nw = factory(window)
   const doc = window.document
-  for (const legacy of [false, true]) {
+  for (const legacy of [false, true] as const) {
     nw.configure({ LEGACY: legacy })
     for (const selector of [
       ':is(button,input)',
       ':where(input,button,input)',
       '.card > :is(button,input)',
       ':is(button,input), input',
-    ]) {
-      for (const context of [doc, doc.querySelector('.card')!]) {
+    ] as const) {
+      for (const context of [doc, doc.querySelector('.card')!] as const) {
         const expected = [...context.querySelectorAll(selector)]
         expect(nw.select(selector, context), selector).toEqual(expected)
         const seen: Element[] = []
@@ -177,13 +177,16 @@ test('logical type candidates retain order, uniqueness, scopes, and callbacks', 
   const fragment = doc.createDocumentFragment()
   fragment.append(doc.getElementById('d')!, doc.getElementById('a')!)
   nw.configure({ LEGACY: false })
-  expect(nw.select(':is(button,input)', fragment).map(e => e.id)).toEqual([
-    'd',
-    'a',
-  ])
-  expect(nw.select(':is(button,input)', doc).map(e => e.id)).toEqual(['b', 'c'])
+  expect(
+    Array.from(nw.select(':is(button,input)', fragment)).map(e => e.id),
+  ).toEqual(['d', 'a'])
+  expect(
+    Array.from(nw.select(':is(button,input)', doc)).map(e => e.id),
+  ).toEqual(['b', 'c'])
   doc.querySelector('.card')!.prepend(doc.getElementById('c')!)
-  expect(nw.select(':is(button,input)', doc).map(e => e.id)).toEqual(['c', 'b'])
+  expect(
+    Array.from(nw.select(':is(button,input)', doc)).map(e => e.id),
+  ).toEqual(['c', 'b'])
 })
 
 test('logical routing samples density without caching answers', t => {
@@ -196,7 +199,7 @@ test('logical routing samples density without caching answers', t => {
     '<div></div><span></span>'.repeat(100),
     '<i></i>'.repeat(300) + '<div></div><span></span>',
     '<div></div><span></span>'.repeat(100),
-  ]) {
+  ] as const) {
     main.innerHTML = html
     const expected = [...main.querySelectorAll('div, span')]
     for (let i = 0; i < 70; ++i) {

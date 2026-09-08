@@ -1,11 +1,15 @@
-import { afterAll, beforeAll, test } from 'vitest'
+import type * as NodeChildProcess from 'node:child_process'
+import type * as NodeFs from 'node:fs'
+import type * as NodePath from 'node:path'
+import { afterAll, beforeAll, test, type TestContext } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const assert = require('node:assert/strict')
-const { execFileSync, spawnSync } = require('node:child_process')
+import assert from 'node:assert/strict'
+const { execFileSync, spawnSync } =
+  require('node:child_process') as typeof NodeChildProcess
 const {
   cpSync,
   existsSync,
@@ -15,9 +19,9 @@ const {
   rmSync,
   symlinkSync,
   writeFileSync,
-} = require('node:fs')
+} = require('node:fs') as typeof NodeFs
 import os from 'node:os'
-const path = require('node:path')
+const path = require('node:path') as typeof NodePath
 
 const helper = path.resolve(
   __dirname,
@@ -30,7 +34,7 @@ const fixtureEnv = {
   GIT_CONFIG_GLOBAL: os.devNull,
 }
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const base = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-checkout-'))
   t.onTestFinished(() => rmSync(base, { recursive: true, force: true }))
   const root = path.join(base, 'project')
@@ -46,7 +50,7 @@ function fixture(t) {
   sparse-checkout = selected
 `,
   )
-  const run = (command, env = {}) =>
+  const run = (command: string, env: NodeJS.ProcessEnv = {}) =>
     spawnSync(process.execPath, [helper, command], {
       cwd: root,
       encoding: 'utf8',
@@ -67,8 +71,8 @@ afterAll(() => {
   }
 })
 
-function gitFor(dir) {
-  return (...args) =>
+function gitFor(dir: string) {
+  return (...args: string[]) =>
     execFileSync('git', ['-C', dir, ...args], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -76,13 +80,13 @@ function gitFor(dir) {
     })
 }
 
-function repository(dir) {
+function repository(dir: string) {
   // Copy objects and metadata, not a shared working tree or mutable hardlinks.
   cpSync(seed, dir, { recursive: true })
   return gitFor(dir)
 }
 
-function initializeRepository(dir) {
+function initializeRepository(dir: string) {
   const git = gitFor(dir)
   git('init')
   writeFileSync(path.join(dir, 'tracked.txt'), 'original\n')
@@ -99,8 +103,8 @@ function initializeRepository(dir) {
   return git
 }
 
-for (const command of ['clone', 'restore-sparse']) {
-  for (const shape of ['target', 'ancestor']) {
+for (const command of ['clone', 'restore-sparse'] as const) {
+  for (const shape of ['target', 'ancestor'] as const) {
     test(`${command} refuses an external ${shape} symlink without changing its repository`, t => {
       const { root, outside, run } = fixture(t)
       const dir = shape === 'target' ? outside : path.join(outside, 'wpt')

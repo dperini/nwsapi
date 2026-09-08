@@ -20,14 +20,14 @@ test('installed wrappers preserve callbacks and ignore extra arguments at every 
   fragment.append(main.cloneNode(true))
   engine.install()
   try {
-    for (const target of [doc, main, fragment, child]) {
+    for (const target of [doc, main, fragment, child] as const) {
       for (const method of [
         'querySelector',
         'querySelectorAll',
         ...(target === child ? ['matches', 'closest'] : []),
-      ]) {
+      ] as const) {
         const invoke = (...args: unknown[]) =>
-          Reflect.apply(target[method], target, args)
+          Reflect.apply(Reflect.get(target, method), target, args)
         const resolver = {
           querySelector: 'first',
           querySelectorAll: 'select',
@@ -38,11 +38,15 @@ test('installed wrappers preserve callbacks and ignore extra arguments at every 
           try {
             return { value: callback() }
           } catch (error) {
-            return { error: error.name }
+            return {
+              error: error instanceof Error ? error.name : String(error),
+            }
           }
         }
         expect(capture(() => invoke())).toEqual(
-          capture(() => Reflect.apply(engine[resolver], engine, [])),
+          capture(() =>
+            Reflect.apply(Reflect.get(engine, resolver!), engine, []),
+          ),
         )
         const expected =
           method === 'matches'
@@ -115,7 +119,7 @@ test('installed query results are static NodeList-compatible snapshots', t => {
     [1, nodes[1]],
   ])
   const receiver = {}
-  list.forEach(function (node, index, owner) {
+  list.forEach(function (this: unknown, node, index, owner) {
     expect(this).toBe(receiver)
     expect(node).toBe(nodes[index])
     expect(owner).toBe(list)

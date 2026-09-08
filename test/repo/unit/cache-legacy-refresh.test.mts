@@ -5,7 +5,7 @@ import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import type factory from '../../../src/nwsapi.js'
 
-for (const map of [undefined, {}]) {
+for (const map of [undefined, {}] as const) {
   test(`the cache preserves hosts with ${map === undefined ? 'missing' : 'non-callable'} Map`, t => {
     const { window } = new JSDOM('<p class="item"></p>')
     t.onTestFinished(() => window.close())
@@ -27,15 +27,15 @@ for (const map of [undefined, {}]) {
     nw.configure({ LEGACY: true })
     const element = window.document.querySelector('p')
     expect(nw.select('.item')).toEqual([element])
-    element.className = 'changed'
+    element!.className = 'changed'
     expect(nw.select('.item')).toHaveLength(0)
-    expect(nw.match('.changed', element)).toBe(true)
+    expect(nw.match('.changed', element!)).toBe(true)
     nw.configure({}, true)
     expect(nw.select('.changed')).toEqual([element])
     const cache = nw.matchLambdas
     cache.clear()
     expect(cache.size()).toBe(0)
-    expect(cache.has('__proto__')).toBe(false)
+    expect(cache.has!('__proto__')).toBe(false)
     for (let i = 0; i < 4096; i++) {
       cache.set(String(i), i)
     }
@@ -49,6 +49,6 @@ for (const map of [undefined, {}]) {
     expect(cache.get('__proto__')).toBe('safe')
     expect(cache.size()).toBe(4096)
     cache.clear()
-    expect(cache.has('0')).toBe(false)
+    expect(cache.has!('0')).toBe(false)
   })
 }

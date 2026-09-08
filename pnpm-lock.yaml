@@ -113,6 +113,15 @@ catalogs:
     '@types/css-tree':
       specifier: 3.2.0
       version: 3.2.0
+    '@types/istanbul-lib-coverage':
+      specifier: 2.0.6
+      version: 2.0.6
+    '@types/istanbul-lib-report':
+      specifier: 3.0.3
+      version: 3.0.3
+    '@types/istanbul-reports':
+      specifier: 3.0.4
+      version: 3.0.4
     '@types/jsdom':
       specifier: 30.0.0
       version: 30.0.0
@@ -192,6 +201,15 @@ importers:
       '@types/css-tree':
         specifier: 'catalog:'
         version: 3.2.0
+      '@types/istanbul-lib-coverage':
+        specifier: 'catalog:'
+        version: 2.0.6
+      '@types/istanbul-lib-report':
+        specifier: 'catalog:'
+        version: 3.0.3
+      '@types/istanbul-reports':
+        specifier: 'catalog:'
+        version: 3.0.4
       '@types/jsdom':
         specifier: 'catalog:'
         version: 30.0.0
@@ -814,6 +832,15 @@ packages:
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
+
+  '@types/istanbul-lib-coverage@2.0.6':
+    resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
+
+  '@types/istanbul-lib-report@3.0.3':
+    resolution: {integrity: sha512-NQn7AHQnk/RSLOxrBbGyJM/aVQ+pjj5HCgasFxc0K/KhoATfQ/47AyUl15I2yBUpihjmas+a+VJBOqecrFH+uA==}
+
+  '@types/istanbul-reports@3.0.4':
+    resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
 
   '@types/jsdom@30.0.0':
     resolution: {integrity: sha512-uAHGxujGE0cDaKGdK28zgDotFtNA7MKq5DXl8LrfdxdCI8VHcg15oJz+amHTChPNI5JpgEPQWc2xFdrw3em/nQ==}
@@ -2267,6 +2294,16 @@ snapshots:
   '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.9': {}
+
+  '@types/istanbul-lib-coverage@2.0.6': {}
+
+  '@types/istanbul-lib-report@3.0.3':
+    dependencies:
+      '@types/istanbul-lib-coverage': 2.0.6
+
+  '@types/istanbul-reports@3.0.4':
+    dependencies:
+      '@types/istanbul-lib-report': 3.0.3
 
   '@types/jsdom@30.0.0':
     dependencies:

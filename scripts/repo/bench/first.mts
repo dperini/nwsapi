@@ -61,13 +61,13 @@ try {
       for (let offset = 0; offset < queries.length; ++offset) {
         const index = (round + offset) % queries.length
         const result = await sample(() => {
-          consumed += queries[index]() !== null ? 1 : 0
+          consumed += queries[index]!() !== null ? 1 : 0
         }, iterations)
-        samples[index].push(result.milliseconds)
+        samples[index]!.push(result.milliseconds)
       }
     }
     const milliseconds = samples.map(
-      values => values.toSorted((a, b) => a - b)[4],
+      values => values.toSorted((a, b) => a - b)[4]!,
     )
     rows.push({ selector, milliseconds, samples })
     console.log(selector, milliseconds.map(ms => ms.toFixed(6)).join(' / '))

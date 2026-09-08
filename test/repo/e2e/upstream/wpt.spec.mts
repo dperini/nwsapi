@@ -37,66 +37,67 @@ import { REPO_ROOT as repoRoot } from '../../../../scripts/repo/lib/paths.mts'
 const nwsapiSource = readFileSync(
   path.join(
     repoRoot,
-    process.env.NWSAPI_MINIFIED === '1'
+    process.env['NWSAPI_MINIFIED'] === '1'
       ? 'dist/nwsapi.min.js'
       : 'src/nwsapi.js',
   ),
   'utf8',
 )
 const expectationsPath = path.join(here, 'expectations.json')
-const coverageDirectory = process.env.WPT_COVERAGE_DIR
+const coverageDirectory = process.env['WPT_COVERAGE_DIR']
 const coverageURL = 'http://nwsapi.test/src/nwsapi.js'
 if (
   coverageDirectory &&
-  (process.env.NWSAPI_MINIFIED ||
-    process.env.WPT_FILTER ||
-    process.env.WPT_SECTION ||
-    process.env.WPT_UPDATE_EXPECTATIONS)
+  (process.env['NWSAPI_MINIFIED'] ||
+    process.env['WPT_FILTER'] ||
+    process.env['WPT_SECTION'] ||
+    process.env['WPT_UPDATE_EXPECTATIONS'])
 ) {
   throw new Error('WPT coverage requires the complete, unminified suite.')
 }
 const expectations = JSON.parse(readFileSync(expectationsPath, 'utf8'))
 
-const updateExpectations = !!process.env.WPT_UPDATE_EXPECTATIONS
+const updateExpectations = !!process.env['WPT_UPDATE_EXPECTATIONS']
 const BASELINE_REASON = 'master fe15bc3; WPT 7aed663; Chromium 151.0.7922.34'
 const HARNESS_KEY = '__harness__'
 
-const STATUS_NAMES = {
+const STATUS_NAMES: Record<number, string> = {
   0: 'PASS',
   1: 'FAIL',
   2: 'TIMEOUT',
   3: 'NOTRUN',
   4: 'PRECONDITION_FAILED',
 }
-const statusName = status => STATUS_NAMES[status] || `STATUS_${status}`
+const statusName = (status: number) =>
+  STATUS_NAMES[status] || `STATUS_${status}`
 
 // ---------------------------------------------------------------------------
 // Subtest filtering: WPT_FILTER (substring or /regex/) and WPT_SECTION.
 // ---------------------------------------------------------------------------
 function buildSubtestFilter() {
-  const rawFilter = process.env.WPT_FILTER
-  const rawSection = process.env.WPT_SECTION
-  const predicates = []
+  const rawFilter = process.env['WPT_FILTER']
+  const rawSection = process.env['WPT_SECTION']
+  const predicates: Array<(name: string) => boolean> = []
 
   if (rawFilter) {
     const asRegex = /^\/(.*)\/([a-z]*)$/.exec(rawFilter)
     if (asRegex) {
-      const re = new RegExp(asRegex[1], asRegex[2])
-      predicates.push(name => re.test(name))
+      const re = new RegExp(asRegex[1]!, asRegex[2])
+      predicates.push((name: string) => re.test(name))
     } else {
-      predicates.push(name => name.includes(rawFilter))
+      predicates.push((name: string) => name.includes(rawFilter))
     }
   }
   if (rawSection) {
     const wanted = rawSection.toLowerCase()
-    predicates.push(name => {
+    predicates.push((name: string) => {
       const section = getSection(name)
       return section !== null && section.toLowerCase().includes(wanted)
     })
   }
   return {
     active: predicates.length > 0,
-    matches: name => predicates.every(fn => fn(name)),
+    matches: (name: string) => predicates.every(fn => fn(name)),
   }
 }
 
@@ -161,9 +162,9 @@ const initScript = `${engineScript}
 // ---------------------------------------------------------------------------
 // Baseline maintenance (WPT_UPDATE_EXPECTATIONS=1, run with --workers=1).
 // ---------------------------------------------------------------------------
-function rewriteBaseline(filePath, failingKeys) {
+function rewriteBaseline(filePath: string, failingKeys: string[]) {
   const current = JSON.parse(readFileSync(expectationsPath, 'utf8'))
-  const next = {}
+  const next: Record<string, unknown> = {}
   for (const [key, reason] of Object.entries(current)) {
     if (!key.startsWith(`${filePath}::`)) {
       next[key] = reason
@@ -199,8 +200,8 @@ for (const entry of manifest) {
     const response = await page.goto(entry.path)
     expect(response, `no HTTP response for ${entry.path}`).not.toBeNull()
     expect(
-      response.ok(),
-      `HTTP ${response.status()} for ${entry.path} — is scripts/repo/serve.mts the server on port 8000?`,
+      response!.ok(),
+      `HTTP ${response!.status()} for ${entry.path} — is scripts/repo/serve.mts the server on port 8000?`,
     ).toBe(true)
 
     // Fail fast if the loaded page has no testharness at all (e.g. a stranger

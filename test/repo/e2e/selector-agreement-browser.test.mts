@@ -28,7 +28,7 @@ const nwsapiSource = fs.readFileSync(
 let browser: Browser
 let page: Page
 beforeAll(async () => {
-  if (process.env.NWSAPI_BROWSER) {
+  if (process.env['NWSAPI_BROWSER']) {
     browser = await chromium.launch({ headless: true })
   }
 })
@@ -104,7 +104,7 @@ const SELECTORS = [
   ':not(:enabled)',
 ]
 
-describe.skipIf(!process.env.NWSAPI_BROWSER)(
+describe.skipIf(!process.env['NWSAPI_BROWSER'])(
   'agreement with the browser',
   () => {
     test('every state pseudo-class answers what Chromium answers', async () => {
@@ -112,23 +112,23 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
       await page.addScriptTag({ content: nwsapiSource })
 
       const rows = await page.evaluate(selectors => {
-        const ids = nodes =>
+        const ids = (nodes: ArrayLike<Element> | Iterable<Element>) =>
           Array.from(
             nodes,
             (node: Element) => node.id || node.nodeName.toLowerCase(),
           ).join(',')
-        return selectors.map(selector => {
+        return selectors.map((selector: string) => {
           let mine
           let native
           try {
             mine = ids(window.NW.Dom.select(selector, document))
           } catch (error) {
-            mine = `THREW ${error && error.message}`
+            mine = `THREW ${error instanceof Error ? error.message : String(error)}`
           }
           try {
             native = ids(document.querySelectorAll(selector))
           } catch (error) {
-            native = `THREW ${error && error.message}`
+            native = `THREW ${error instanceof Error ? error.message : String(error)}`
           }
           return { selector, mine, native }
         })
@@ -144,7 +144,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
       await page.addScriptTag({ content: nwsapiSource })
 
       const before = await page.evaluate(() => ({
-        mine: window.NW.Dom.select(':defined', document).some(
+        mine: Array.from(window.NW.Dom.select(':defined', document)).some(
           node => node.id === 'mt',
         ),
         native: document.querySelector('my-thing:defined') !== null,
@@ -158,7 +158,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
           class extends window.HTMLElement {},
         )
         return {
-          mine: window.NW.Dom.select(':defined', document).some(
+          mine: Array.from(window.NW.Dom.select(':defined', document)).some(
             node => node.id === 'mt',
           ),
           native: document.querySelector('my-thing:defined') !== null,
@@ -175,8 +175,8 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
       const overlap = await page.evaluate(() => {
         const enabled = window.NW.Dom.select(':enabled', document)
         const disabled = window.NW.Dom.select(':disabled', document)
-        return enabled
-          .filter(node => disabled.includes(node))
+        return Array.from(enabled)
+          .filter(node => Array.from(disabled).includes(node))
           .map(node => node.id)
       })
       expect(overlap).toEqual([])
@@ -192,8 +192,8 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
       <div id="pop" popover>pop</div>
     </body></html>`)
       await page.evaluate(() => {
-        document.querySelector<HTMLDialogElement>('#dlg').showModal()
-        document.getElementById('pop').showPopover()
+        document.querySelector<HTMLDialogElement>('#dlg')!.showModal()
+        document.getElementById('pop')!.showPopover()
       })
 
       const rows = await page.evaluate(source => {
@@ -207,12 +207,12 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)(
         const popover = document.getElementById('pop')
         return {
           modal: {
-            mine: NW.match(':modal', dialog),
-            native: dialog.matches(':modal'),
+            mine: NW.match(':modal', dialog!),
+            native: dialog!.matches(':modal'),
           },
           popover: {
-            mine: NW.match(':popover-open', popover),
-            native: popover.matches(':popover-open'),
+            mine: NW.match(':popover-open', popover!),
+            native: popover!.matches(':popover-open'),
           },
         }
       }, nwsapiSource)

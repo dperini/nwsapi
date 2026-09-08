@@ -9,19 +9,19 @@ test('exact comparisons preserve attribute case rules', () => {
   try {
     const nw = factory(window)
     assert.match(
-      nw.compile('[data-k="TYPE"]', false).toString(),
+      nw.compile('[data-k="TYPE"]', false)!.toString(),
       /getAttribute\("data-k"\)=="TYPE"/,
     )
-    assert.match(nw.compile('[data-k="type" i]', false).toString(), /\.test\(/)
-    assert.match(nw.compile('[type="CHECKBOX"]', false).toString(), /\.test\(/)
+    assert.match(nw.compile('[data-k="type" i]', false)!.toString(), /\.test\(/)
+    assert.match(nw.compile('[type="CHECKBOX"]', false)!.toString(), /\.test\(/)
     for (const [selector, expected] of cases) {
       assert.deepEqual(
-        nw.select(selector).map(e => e.id),
+        Array.from(nw.select(selector)).map(e => e.id),
         expected,
         selector,
       )
       assert.deepEqual(
-        nw.select(selector).map(e => e.id),
+        Array.from(nw.select(selector)).map(e => e.id),
         expected,
         selector + ' cached',
       )
@@ -33,21 +33,21 @@ test('exact comparisons preserve attribute case rules', () => {
       ['a"b', '[data-k="a\\"b"]'],
       ['a\\b', '[data-k="a\\\\b"]'],
       ['a.b', '[data-k="a\\.b"]'],
-    ]) {
-      window.document.getElementById('d').setAttribute('data-k', value)
+    ] as const) {
+      window.document.getElementById('d')!.setAttribute('data-k', value!)
       assert.deepEqual(
-        nw.select(selector).map(e => e.id),
+        Array.from(nw.select(selector!)).map(e => e.id),
         ['d'],
         selector,
       )
     }
     nw.registerOperator('!=', { p1: '^', p2: '$', p3: 'false' })
     assert.equal(
-      nw.match('[data-k!="a.b"]', window.document.getElementById('d')),
+      nw.match('[data-k!="a.b"]', window.document.getElementById('d')!),
       false,
     )
     assert.equal(
-      nw.match('[data-k!="other"]', window.document.getElementById('d')),
+      nw.match('[data-k!="other"]', window.document.getElementById('d')!),
       true,
     )
   } finally {
@@ -64,12 +64,12 @@ test('XML attributes remain case-sensitive', () => {
     const nw = factory(window)
     assert.deepEqual(nw.select('[type="CHECKBOX"]'), [])
     assert.deepEqual(
-      nw.select('[type="checkbox"]').map(e => e.id),
+      Array.from(nw.select('[type="checkbox"]')).map(e => e.id),
       ['i'],
     )
     assert.deepEqual(nw.select('[data-k="type"]'), [])
     assert.deepEqual(
-      nw.select('[data-k="type" i]').map(e => e.id),
+      Array.from(nw.select('[data-k="type" i]')).map(e => e.id),
       ['s'],
     )
   } finally {
@@ -91,7 +91,7 @@ test('cached attribute case rules follow HTML and XML document changes', t => {
     html.window.document,
     xml.window.document,
     html.window.document,
-  ]) {
+  ] as const) {
     assert.equal(
       nw.select('[type="CHECKBOX"]', document).length,
       document.contentType === 'text/html' ? 1 : 0,

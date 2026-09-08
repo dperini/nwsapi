@@ -26,7 +26,10 @@ const measureComputed = mitataMeasure as unknown as <T>(
 
 export function median(values: number[]) {
   const sorted = values.toSorted((a, b) => a - b)
-  return sorted[(sorted.length - 1) >> 1]
+  if (!sorted.length) {
+    throw new RangeError('A median needs at least one sample.')
+  }
+  return sorted[(sorted.length - 1) >> 1]!
 }
 
 export async function sample(
@@ -95,7 +98,7 @@ export async function measure(
   for (let round = 0; round < rounds; ++round) {
     for (let offset = 0; offset < runners.length; ++offset) {
       const i = (round + offset) % runners.length
-      samples[i].push(await timeOnce(runners[i], iterations))
+      samples[i]!.push(await timeOnce(runners[i]!, iterations))
     }
   }
   return samples.map(median)
@@ -116,7 +119,10 @@ export async function compare(
   { rounds = 5, iterations }: { rounds?: number; iterations?: number } = {},
 ) {
   const runners = Object.values(variants)
-  const count = iterations ?? iterationsFor(await timeOnce(runners[0], 3))
+  if (!runners.length) {
+    throw new RangeError('Provide at least one benchmark variant.')
+  }
+  const count = iterations ?? iterationsFor(await timeOnce(runners[0]!, 3))
   const times = await measure(runners, rounds, count)
-  return Object.keys(variants).map((label, i) => ({ label, ms: times[i] }))
+  return Object.keys(variants).map((label, i) => ({ label, ms: times[i]! }))
 }

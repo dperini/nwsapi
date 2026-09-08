@@ -27,7 +27,8 @@ const descriptions: Record<string, string> = {
   closest: 'Returns the nearest match, starting with the element, or `null`.',
   first: 'Returns the first matching descendant, or `null`.',
   match: 'Returns whether the element matches.',
-  select: 'Returns an array of matching descendants, or an empty array.',
+  select:
+    'Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results.',
   compile:
     'Compiles a selector into a resolver function. This is an advanced API.',
   configure:
@@ -196,7 +197,7 @@ export function renderApiMarkdown(
       signature(name, value, source),
       descriptions[name],
       'src/nwsapi.mts',
-      prop.loc.start.line,
+      prop.loc!.start.line,
     )
     if (value?.type === 'FunctionExpression') {
       methods.set(name, text)
@@ -286,7 +287,7 @@ export function renderApiMarkdown(
               ),
           adapterDescriptions[name],
           'src/dom-selector.mts',
-          node.loc.start.line,
+          node.loc!.start.line,
         ),
       }
     })
@@ -342,7 +343,7 @@ export function renderApiMarkdown(
           signature(name, value, traversalSource),
           traversalDescriptions[name],
           'src/modules/nwsapi-traversal.mts',
-          node.loc.start.line,
+          node.loc!.start.line,
         ),
       }
     })
@@ -366,7 +367,7 @@ export function renderApiMarkdown(
     '',
     '## Engine methods',
     '',
-    'Query contexts default to the factory document when omitted. `closest()`, `first()`, `match()`, and `select()` accept a callback for matching elements.',
+    '`first()` and `select()` use the factory document when the context is omitted. `byClass()`, `byId()`, and `byTag()` require a context. `closest()`, `first()`, `match()`, and `select()` accept a callback for matching elements.',
     '',
     ...groupedMethods,
     '<details>',

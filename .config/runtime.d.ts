@@ -1,5 +1,41 @@
+export type NwsapiCollection = Element[] | NodeListOf<Element>
+export type NwsapiContext = Document | DocumentFragment | Element
+
 export interface NwsapiEngine {
   Config: Record<string, boolean>
+  Version: string
+  Snapshot: {
+    doc: Document
+    root: Element
+    from: Node
+    anchor: Element | null
+    match: NwsapiEngine['match']
+    has(selectors: string[], anchor: Element): boolean
+    matchesNative(
+      node: Element,
+      selector: string,
+      fallback?: boolean,
+    ): boolean | undefined
+    mayMatch(
+      this: void,
+      node: Element,
+      mask: number,
+      state: { seen: number; kept: number; rest: number },
+    ): boolean
+    clearAncestorMasks(): void
+  }
+  byId(id: string, context: NwsapiContext): Element[]
+  byTag(tag: string, context: NwsapiContext): NwsapiCollection
+  byClass(name: string, context: NwsapiContext): NwsapiCollection
+  closest(
+    selector: string,
+    context: Element,
+    callback?: (element: Element) => unknown,
+  ): Element | null
+  registerCombinator(
+    name: string,
+    resolver: (match: RegExpMatchArray) => string,
+  ): void
   matchLambdas: {
     clear(): void
     get(key: string): unknown
@@ -16,8 +52,9 @@ export interface NwsapiEngine {
     selector: string,
     context?: Node,
     callback?: (element: Element) => unknown,
-  ): Element[]
+  ): NwsapiCollection
   first(
+    this: void,
     selector: string,
     context?: Node,
     callback?: (element: Element) => unknown,
@@ -40,7 +77,9 @@ export interface NwsapiEngine {
         results: Element[] | boolean,
       ) => Element[] | boolean)
     | null
-  configure(options: Record<string, unknown>, clear?: boolean): unknown
+  configure(): Record<string, boolean>
+  configure(option: string): boolean
+  configure(options: Record<string, unknown>, clear?: boolean): boolean
   install(all?: boolean): void
   uninstall(): void
   registerOperator(
@@ -53,12 +92,12 @@ export interface NwsapiEngine {
     callback: (
       match: RegExpMatchArray,
       source: string,
-      mode: boolean,
+      mode: boolean | null,
       callback?: unknown,
     ) => unknown,
   ): void
   up?(element: Element, expression?: string | number): Element | null
-  down?(element: Element, expression?: string | number): Element | null
+  down?(element: Element, expression?: string | number | null): Element | null
   next?(element: Element, expression?: string | number): Element | null
   previous?(element: Element, expression?: string | number): Element | null
 }

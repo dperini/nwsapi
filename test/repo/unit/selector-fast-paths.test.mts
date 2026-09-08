@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../src/nwsapi.js'
 
-for (const legacy of [false, true]) {
+for (const legacy of [false, true] as const) {
   test(`logical type tests preserve context and mutations (legacy=${legacy})`, t => {
     const { window } = new JSDOM(
       '<!doctype html><div id="a"><!-- comment --><button></button></div><div id="b"><span><button></button></span></div><input>',
@@ -20,7 +20,7 @@ for (const legacy of [false, true]) {
       'div:has(> *)',
       'div:not(:has(> button))',
       'div:has(> button) + div',
-    ]) {
+    ] as const) {
       expect(nw.select(selector, document), selector).toEqual(
         Array.from(document.querySelectorAll(selector)),
       )
@@ -43,7 +43,7 @@ for (const legacy of [false, true]) {
   })
 }
 
-for (const doctype of ['<!doctype html>', '']) {
+for (const doctype of ['<!doctype html>', ''] as const) {
   test(`class token candidates retain exact attribute matching (${doctype || 'quirks'})`, t => {
     const { window } = new JSDOM(
       doctype +
@@ -62,7 +62,7 @@ for (const doctype of ['<!doctype html>', '']) {
       '[class~=""]',
       '[class~="two words"]',
       '[class~="two\\9 words"]',
-    ]) {
+    ] as const) {
       const expected = Array.from(document.querySelectorAll(selector))
       expect(nw.select(selector, document), selector).toEqual(expected)
       expect(nw.select(selector, document), selector).toEqual(expected)
@@ -74,9 +74,9 @@ for (const doctype of ['<!doctype html>', '']) {
     }
     const a = document.getElementById('a')!
     a.className = 'gone'
-    expect(nw.select('[class~="primary"]', document).map(e => e.id)).toEqual([
-      'd',
-    ])
+    expect(
+      Array.from(nw.select('[class~="primary"]', document)).map(e => e.id),
+    ).toEqual(['d'])
     const fragment = document.createDocumentFragment()
     a.className = 'primary'
     fragment.append(a)
@@ -95,7 +95,7 @@ test('logical type tests preserve XML case and empty contexts', t => {
     ':is(button,input)',
     'box:has(> button)',
     'box:has(> *)',
-  ]) {
+  ] as const) {
     expect(nw.select(selector, window.document)).toEqual(
       Array.from(window.document.querySelectorAll(selector)),
     )

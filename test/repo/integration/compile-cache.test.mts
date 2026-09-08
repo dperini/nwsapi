@@ -2,13 +2,13 @@ import { spawnSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { expect, test } from 'vitest'
+import { expect, test, type TestContext } from 'vitest'
 import {
   COMPILE_CACHE_DIR,
   REPO_ROOT,
 } from '../../../scripts/repo/lib/paths.mts'
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cache-test-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
   const entry = path.join(directory, 'entry.mjs')
@@ -25,26 +25,26 @@ function fixture(t) {
   `,
   )
   return (
-    env: NodeJS.ProcessEnv = { __proto__: null },
+    env: NodeJS.ProcessEnv = Object.create(null) as NodeJS.ProcessEnv,
     args: string[] = [],
   ) => {
-    const environment: NodeJS.ProcessEnv = {
-      __proto__: null,
-      ...process.env,
-      ...env,
-    }
+    const environment = Object.assign(
+      Object.create(null) as NodeJS.ProcessEnv,
+      process.env,
+      env,
+    )
     for (const key of [
       'NODE_COMPILE_CACHE',
       'NODE_DISABLE_COMPILE_CACHE',
       'NODE_V8_COVERAGE',
-    ]) {
+    ] as const) {
       if (!(key in env)) {
         delete environment[key]
       }
     }
     // Node propagates its coverage directory when the child omits this key.
     // An explicit empty value isolates the cache-only fixture.
-    environment.NODE_V8_COVERAGE ??= ''
+    environment['NODE_V8_COVERAGE'] ??= ''
     return spawnSync(
       process.execPath,
       ['scripts/repo/run.mts', entry, ...args],
@@ -87,7 +87,11 @@ test('the umbrella preserves explicit cache settings and its child exit status',
   expect(value.nested).toMatchObject({ cache, active: false, disabled: '1' })
 })
 
-for (const flag of ['--coverage', '--coverage=true', '--coverage.enabled']) {
+for (const flag of [
+  '--coverage',
+  '--coverage=true',
+  '--coverage.enabled',
+] as const) {
   test(`coverage disables inherited caches for ${flag}`, t => {
     const result = fixture(t)({ NODE_COMPILE_CACHE: COMPILE_CACHE_DIR }, [flag])
     expect(result.status).toBe(0)

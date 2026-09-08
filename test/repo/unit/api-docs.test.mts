@@ -23,17 +23,17 @@ test('API nests a readable callout inside its collapsed section', t => {
   const notes = dom.window.document.querySelectorAll('details blockquote')
   expect(notes).toHaveLength(1)
   const note = notes[0]
-  expect(note.querySelector('strong')?.textContent).toBe('Important')
-  expect(note.querySelector('code')?.textContent).toBe('LEGACY')
-  expect(note.querySelectorAll('p')[1]?.textContent).toBe(
+  expect(note!.querySelector('strong')?.textContent).toBe('Important')
+  expect(note!.querySelector('code')?.textContent).toBe('LEGACY')
+  expect(note!.querySelectorAll('p')[1]?.textContent).toBe(
     'Set LEGACY before the first query when the environment needs compatibility fallbacks.',
   )
-  const icon = note.querySelector('img')
+  const icon = note!.querySelector('img')
   expect(icon?.getAttribute('src')).toBe('../assets/repo/important.svg')
   expect(icon?.getAttribute('alt')).toBe('')
   expect(icon?.getAttribute('width')).toBe('16')
   expect(icon?.getAttribute('height')).toBe('16')
-  expect(note.querySelector('[style], [class], svg, script')).toBeNull()
+  expect(note!.querySelector('[style], [class], svg, script')).toBeNull()
   expect(markdown).not.toContain('[!IMPORTANT]')
 })
 
@@ -42,7 +42,7 @@ test('README links to the API without repeating its reference tables', () => {
     new URL('../../../README.md', import.meta.url),
     'utf8',
   )
-  const section = markdown.split('## API\n')[1].split('\n## ')[0].trim()
+  const section = markdown.split('## API\n')[1]!.split('\n## ')[0]!.trim()
   expect(section).toBe(
     'See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.',
   )

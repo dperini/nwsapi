@@ -24,11 +24,11 @@ const PNPM_COMPATIBLE: ReadonlySet<PackageManagerName> = new Set([
 export function invokingPackageManager(
   env: NodeJS.ProcessEnv = process.env,
 ): PackageManagerName | undefined {
-  const agent = env.npm_config_user_agent?.trim()
+  const agent = env['npm_config_user_agent']?.trim()
   if (!agent) {
     return undefined
   }
-  const name = agent.split(/[/\s]/, 1)[0].toLowerCase()
+  const name = agent.split(/[/\s]/, 1)[0]!.toLowerCase()
   return KNOWN_NAMES.has(name) ? (name as PackageManagerName) : 'other'
 }
 

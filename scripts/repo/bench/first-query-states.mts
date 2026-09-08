@@ -11,7 +11,7 @@ import { sample, sampleFresh, timingEngine } from './timing.mts'
 const require = createRequire(import.meta.url)
 const jsdomRequire = createRequire(require.resolve('jsdom'))
 const html = components()
-const previous = JSON.parse(
+const previous: { rows: Array<{ selector: string }> } = JSON.parse(
   readFileSync('assets/repo/bench/first-match-results.json', 'utf8'),
 )
 const selectors = previous.rows
@@ -44,7 +44,7 @@ const rows = selectors.map(selector => ({
 }))
 const oracle = new JSDOM(html)
 const paths = selectors.map(selector => {
-  let node = oracle.window.document.querySelector(selector)
+  let node: Node | null = oracle.window.document.querySelector(selector)
   if (!node) {
     throw new Error(`Expected a nonempty query: ${selector}`)
   }
@@ -62,15 +62,15 @@ let consumed = 0
 for (let round = 0; round < rounds; round++) {
   for (let offset = 0; offset < rows.length; offset++) {
     const index = (round + offset) % rows.length
-    const row = rows[index]
+    const row = rows[index]!
     for (let turn = 0; turn < 2; turn++) {
       const engine = (round + turn) % 2
       const createContext = () => {
         const { window } = new JSDOM(html)
         const document = window.document
         const nw = engine === 0 ? factory(window) : null
-        const expected = paths[index].reduce(
-          (node, child) => node.childNodes[child],
+        const expected = paths[index]!.reduce<Node>(
+          (node, child) => node.childNodes[child]!,
           document,
         )
         return {
@@ -79,7 +79,7 @@ for (let round = 0; round < rounds; round++) {
           result: undefined as unknown,
           query:
             engine === 0
-              ? () => nw.first(row.selector, document)
+              ? () => nw!.first(row.selector, document)
               : () => document.querySelector(row.selector),
         }
       }
@@ -100,8 +100,8 @@ for (let round = 0; round < rounds; round++) {
             throw new Error(`Incorrect cold result: ${row.selector}`)
           }
         }
-        row.cold[engine].push(cold)
-        const context = contexts[contexts.length - 1]
+        row.cold[engine]!.push(cold)
+        const context = contexts[contexts.length - 1]!
         const query = () => {
           if (context.query() !== context.expected) {
             throw new Error(`Incorrect warm result: ${row.selector}`)
@@ -109,7 +109,7 @@ for (let round = 0; round < rounds; round++) {
           consumed++
         }
         await sample(query, iterations, 20)
-        row.warm[engine].push((await sample(query, iterations)).milliseconds)
+        row.warm[engine]!.push((await sample(query, iterations)).milliseconds)
       } finally {
         for (const context of contexts) {
           context.window.close()
@@ -119,9 +119,12 @@ for (let round = 0; round < rounds; round++) {
   }
   console.log(`Completed round ${round + 1}/${rounds}`)
 }
-const median = samples =>
-  samples.toSorted((a, b) => a - b)[Math.floor(samples.length / 2)]
-const hash = data => createHash('sha256').update(data).digest('hex')
+const median = (samples: number[]) =>
+  samples.toSorted((a: number, b: number) => a - b)[
+    Math.floor(samples.length / 2)
+  ]
+const hash = (data: string | Buffer) =>
+  createHash('sha256').update(data).digest('hex')
 writeFileSync(
   values.output,
   JSON.stringify(

@@ -28,7 +28,9 @@ const output =
 const worlds = Object.entries(cases)
   .filter(([name]) => phase !== 'first-class' || name === 'components')
   .map(([name, groups]) => {
-    const { window } = new JSDOM(DOCUMENTS[name].html())
+    const { window } = new JSDOM(
+      DOCUMENTS[name as keyof typeof DOCUMENTS].html(),
+    )
     const engine = factory(window)
     const doc = window.document
     const nodes = [...doc.getElementsByTagName('*')]
@@ -54,7 +56,7 @@ function run(iterations: number) {
                 .length || 0
             break
           case 'match':
-            consumed += Number(engine.match(selector, nodes[i % nodes.length]))
+            consumed += Number(engine.match(selector, nodes[i % nodes.length]!))
             break
           case 'first-class':
           case 'first':

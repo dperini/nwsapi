@@ -58,7 +58,7 @@ export async function wrapQueryNotes(
                 lines.push([])
                 width = 0
               }
-              const line = lines[lines.length - 1]
+              const line = lines[lines.length - 1]!
               if (width) {
                 line.push(' ')
                 width += spaceWidth
@@ -133,7 +133,7 @@ export function queryChart({
     names
       .map(
         (name, series) =>
-          `<text x="${350 + series * 240}" y="65" class="code" style="fill:${colors[series][0]}">● ${escapeText(name)}</text>`,
+          `<text x="${350 + series * 240}" y="65" class="code" style="fill:${colors[series]![0]}">● ${escapeText(name)}</text>`,
       )
       .join('') +
     Array.from({ length: span + 1 }, (_, index) => {
@@ -160,15 +160,15 @@ export function queryChart({
           .map((name, series) => {
             const x = 350
             const top = y + series * 12
-            const warm = position(row.warm[series])
-            const cold = position(row.cold[series])
-            const summary = `Cold ${row.cold[series].toFixed(2)} ms · Warm ${(row.warm[series] * 1000).toFixed(2)} μs`
+            const warm = position(row.warm[series]!)
+            const cold = position(row.cold[series]!)
+            const summary = `Cold ${row.cold[series]!.toFixed(2)} ms · Warm ${(row.warm[series]! * 1000).toFixed(2)} μs`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
       <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
       <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>
       <rect class="bar" x="${x + Math.min(warm, cold)}" y="${top - 1}" width="${Math.abs(cold - warm)}" height="2" fill="url(#series${series})" style="animation-delay:${i * 35}ms"/>
-      <circle cx="${x + warm}" cy="${top}" r="3" fill="${colors[series][0]}"/>
-      <circle cx="${x + cold}" cy="${top}" r="3" fill="${colors[series][1]}"/>
+      <circle cx="${x + warm}" cy="${top}" r="3" fill="${colors[series]![0]}"/>
+      <circle cx="${x + cold}" cy="${top}" r="3" fill="${colors[series]![1]}"/>
       </g>`
           })
           .join('')

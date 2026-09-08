@@ -10,22 +10,22 @@ test('matcher replacement clears a cached delegation result', t => {
   let calls = 0
   Object.defineProperty(first, 'matches', {
     configurable: true,
-    value(selector) {
+    value(selector: string) {
       calls++
-      return engine.match(selector, first)
+      return engine.match(selector, first!)
     },
   })
-  expect(engine.match(':popover-open', first)).toBe(false)
-  expect(engine.match(':popover-open', first)).toBe(false)
+  expect(engine.match(':popover-open', first!)).toBe(false)
+  expect(engine.match(':popover-open', first!)).toBe(false)
   expect(calls).toBe(1)
   Object.defineProperty(first, 'matches', { value: () => true })
-  expect(engine.match(':popover-open', first)).toBe(true)
-  expect(engine.match(':popover-open', second)).toBe(false)
-  expect(engine.match(':popover-open', first)).toBe(true)
+  expect(engine.match(':popover-open', first!)).toBe(true)
+  expect(engine.match(':popover-open', second!)).toBe(false)
+  expect(engine.match(':popover-open', first!)).toBe(true)
   window.Element.prototype.matches = function (): this is Element {
     return true
-  }
-  expect(engine.match(':popover-open', second)).toBe(true)
+  } as Element['matches']
+  expect(engine.match(':popover-open', second!)).toBe(true)
 })
 
 test('LEGACY changes refresh cached aliases in every document', t => {
@@ -34,7 +34,7 @@ test('LEGACY changes refresh cached aliases in every document', t => {
     new JSDOM('<div popover></div>'),
   ]
   t.onTestFinished(() => windows.forEach(dom => dom.window.close()))
-  const engine = factory(windows[0].window)
+  const engine = factory(windows[0]!.window)
   const nodes = windows.map(({ window }) => {
     Object.defineProperty(window.Element.prototype, 'matches', {
       value: undefined,
@@ -44,11 +44,11 @@ test('LEGACY changes refresh cached aliases in every document', t => {
     })
     return window.document.body.firstElementChild
   })
-  for (const legacy of [false, true, false, true]) {
+  for (const legacy of [false, true, false, true] as const) {
     engine.configure({ LEGACY: legacy })
     for (let repeat = 0; repeat < 2; repeat++) {
       for (const node of nodes) {
-        expect(engine.match(':popover-open', node)).toBe(legacy)
+        expect(engine.match(':popover-open', node!)).toBe(legacy)
       }
     }
   }

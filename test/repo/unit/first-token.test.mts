@@ -9,9 +9,9 @@ test('first-token queries preserve scopes, mutations, callbacks, and fallback sy
   t.onTestFinished(() => window.close())
   const nw = factory(window)
   const doc = window.document
-  for (const legacy of [false, true]) {
+  for (const legacy of [false, true] as const) {
     nw.configure({ LEGACY: legacy })
-    for (const context of [doc, doc.querySelector('main')!]) {
+    for (const context of [doc, doc.querySelector('main')!] as const) {
       for (const selector of [
         '*',
         '.card',
@@ -23,7 +23,7 @@ test('first-token queries preserve scopes, mutations, callbacks, and fallback sy
         'g.primary',
         'button:not(.missing)',
         '.pr\\69 mary',
-      ]) {
+      ] as const) {
         expect(nw.first(selector, context), selector).toBe(
           context.querySelector(selector),
         )

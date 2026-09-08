@@ -4,7 +4,7 @@ import type { Config as SvgoConfig } from 'svgo'
 export const SVG_FLOAT_PRECISION = 2
 
 // Keep structure, IDs, gradients, and transforms intact.
-const SVGO_CONFIG: SvgoConfig = {
+const SVGO_CONFIG = {
   js2svg: { indent: 0, pretty: false },
   multipass: true,
   plugins: [
@@ -23,7 +23,7 @@ const SVGO_CONFIG: SvgoConfig = {
     },
     'removeEmptyContainers',
   ],
-}
+} satisfies SvgoConfig
 
 export function optimiseSvg(
   svg: string,

@@ -25,10 +25,10 @@ import crypto from 'node:crypto'
 import {
   existsSync,
   lstatSync,
-  mkdirSync,
   readFileSync,
   readdirSync,
   realpathSync,
+  type PathOrFileDescriptor,
 } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -53,7 +53,25 @@ function findRoot() {
   }
 }
 
-let ROOT = null
+let ROOT: string
+interface Entry {
+  name: string
+  label: string | null
+  sha256: string | null
+  path: string
+  url: string
+  ref: string
+  branch: string | null
+  shallow: boolean
+  sparsePatterns: string[]
+  verifyCommand: string | null
+}
+interface RawEntry {
+  name: string
+  label: string | null
+  sha256: string | null
+  keys: Record<string, string>
+}
 
 // 512 MiB; the ls-tree manifest of a large upstream can run to many MB.
 const MAX_BUFFER = 512 * 1024 * 1024
@@ -96,7 +114,7 @@ With no paths, every entry in .gitmodules is processed. Paths are relative to
 the repository root (e.g. "upstream/wpt").
 `
 
-function git(cwd, args, { capture = true } = {}) {
+function git(cwd: string, args: string[], { capture = true } = {}) {
   return execFileSync('git', args, {
     cwd,
     maxBuffer: MAX_BUFFER,
@@ -104,7 +122,7 @@ function git(cwd, args, { capture = true } = {}) {
   })
 }
 
-function tryGitText(cwd, args) {
+function tryGitText(cwd: string, args: string[]) {
   try {
     return execFileSync('git', args, {
       cwd,
@@ -127,10 +145,10 @@ function tryGitText(cwd, args) {
  * Supplies the entry's label and expected manifest hash. Other comments
  * (e.g. trailing "# no-release-tag: ..." notes) are ignored.
  */
-function parseGitmodules(filePath) {
-  const entries = []
-  let pendingHeader = null
-  let current = null
+function parseGitmodules(filePath: PathOrFileDescriptor) {
+  const entries: RawEntry[] = []
+  let pendingHeader: { label: string; sha256: string } | null = null
+  let current: RawEntry | null = null
   for (const rawLine of readFileSync(filePath, 'utf8').split(/\r?\n/)) {
     const line = rawLine.trim()
     if (line === '') {
@@ -139,14 +157,14 @@ function parseGitmodules(filePath) {
     if (line.startsWith('#') || line.startsWith(';')) {
       const match = line.match(/^[#;]\s*(\S+)\s+sha256:([0-9a-fA-F]{64})\b/)
       pendingHeader = match
-        ? { label: match[1], sha256: match[2].toLowerCase() }
+        ? { label: match[1]!, sha256: match[2]!.toLowerCase() }
         : null
       continue
     }
     const section = line.match(/^\[submodule\s+"(.+)"\]$/)
     if (section) {
       current = {
-        name: section[1],
+        name: section[1]!,
         label: pendingHeader ? pendingHeader.label : null,
         sha256: pendingHeader ? pendingHeader.sha256 : null,
         keys: {},
@@ -162,28 +180,28 @@ function parseGitmodules(filePath) {
       let value = kv[2] === undefined ? 'true' : kv[2].trim()
       const quoted = value.match(/^"(.*)"$/)
       if (quoted) {
-        value = quoted[1]
+        value = quoted[1]!
       }
-      current.keys[kv[1].toLowerCase()] = value
+      current.keys[kv[1]!.toLowerCase()] = value
     }
   }
   return entries.map(entry => {
     const { keys } = entry
-    const normalized = {
+    const normalized: Entry = {
       name: entry.name,
       label: entry.label,
       sha256: entry.sha256,
-      path: keys.path ?? entry.name,
-      url: keys.url ?? null,
-      ref: keys.ref ?? null,
-      branch: keys.branch ?? null,
-      shallow: keys.shallow === 'true',
+      path: keys['path'] ?? entry.name,
+      url: keys['url'] ?? '',
+      ref: keys['ref'] ?? '',
+      branch: keys['branch'] ?? null,
+      shallow: keys['shallow'] === 'true',
       sparsePatterns: (keys['sparse-checkout'] ?? '')
         .split(/\s+/)
         .filter(Boolean),
-      verifyCommand: keys.verify ?? null,
+      verifyCommand: keys['verify'] ?? null,
     }
-    for (const required of ['url', 'ref']) {
+    for (const required of ['url', 'ref'] as const) {
       if (!normalized[required]) {
         throw new Error(
           `.gitmodules entry "${entry.name}" is missing required key "${required}"`,
@@ -201,8 +219,8 @@ function parseGitmodules(filePath) {
  * escape the repository root. Called for every entry before any value is
  * used; a violation throws, which prints the message and exits 1.
  */
-function validateEntry(entry) {
-  const fail = message => {
+function validateEntry(entry: Entry) {
+  const fail = (message: string) => {
     throw new Error(`.gitmodules entry "${entry.name}": ${message}`)
   }
   if (!/^[0-9a-f]{40}$/.test(entry.ref)) {
@@ -234,11 +252,11 @@ function validateEntry(entry) {
   }
 }
 
-function selectEntries(entries, requestedPaths) {
+function selectEntries(entries: Entry[], requestedPaths: string[]) {
   if (requestedPaths.length === 0) {
     return entries
   }
-  const normalize = p => p.replace(/\/+$/, '')
+  const normalize = (p: string) => p.replace(/\/+$/, '')
   const selected = []
   for (const requested of requestedPaths) {
     const want = normalize(requested)
@@ -253,7 +271,7 @@ function selectEntries(entries, requestedPaths) {
   return selected
 }
 
-function checkoutDir(entry) {
+function checkoutDir(entry: { path: string }) {
   const dir = path.join(ROOT, entry.path)
   let ancestor = dir
   for (;;) {
@@ -261,7 +279,9 @@ function checkoutDir(entry) {
       lstatSync(ancestor)
       break
     } catch (error) {
-      if (error.code !== 'ENOENT') {
+      if (
+        !(error instanceof Error && 'code' in error && error.code === 'ENOENT')
+      ) {
         throw error
       }
       ancestor = path.dirname(ancestor)
@@ -288,7 +308,7 @@ function checkoutDir(entry) {
   return dir
 }
 
-function requireCleanCheckout(dir, entry) {
+function requireCleanCheckout(dir: string, entry: Entry) {
   if (
     tryGitText(dir, [
       '-C',
@@ -310,7 +330,7 @@ function requireCleanCheckout(dir, entry) {
  * git walks up and finds the surrounding repository, which must never be
  * mistaken for (or fetched into as) the upstream checkout.
  */
-function isGitRepo(dir) {
+function isGitRepo(dir: string) {
   const toplevel = tryGitText(dir, ['-C', dir, 'rev-parse', '--show-toplevel'])
   if (toplevel === null) {
     return false
@@ -322,11 +342,11 @@ function isGitRepo(dir) {
   }
 }
 
-function headOf(dir) {
+function headOf(dir: string) {
   return tryGitText(dir, ['-C', dir, 'rev-parse', 'HEAD'])
 }
 
-function applySparse(dir, entry) {
+function applySparse(dir: string, entry: Entry) {
   // Keep later fetches confined to the declared branch as well as the pin.
   if (entry.branch) {
     git(
@@ -355,7 +375,7 @@ function applySparse(dir, entry) {
   )
 }
 
-function fetchAndDetach(dir, entry) {
+function fetchAndDetach(dir: string, entry: Entry) {
   const fetchArgs = ['-C', dir, 'fetch']
   if (entry.shallow) {
     fetchArgs.push('--depth', '1')
@@ -367,7 +387,7 @@ function fetchAndDetach(dir, entry) {
   })
 }
 
-function cloneEntry(entry) {
+function cloneEntry(entry: Entry) {
   const dir = checkoutDir(entry)
   if (existsSync(dir)) {
     if (isGitRepo(dir)) {
@@ -413,7 +433,7 @@ function cloneEntry(entry) {
   console.log(`${entry.path}: checked out at ${entry.ref.slice(0, 12)}`)
 }
 
-function manifestSha256(dir, ref) {
+function manifestSha256(dir: string, ref: string) {
   const stdout = git(dir, [
     '-C',
     dir,
@@ -427,10 +447,10 @@ function manifestSha256(dir, ref) {
 }
 
 // oxlint-disable-next-line eslint/complexity -- Report each checkout invariant in one diagnostic result.
-function verifyEntry(entry) {
+function verifyEntry(entry: Entry) {
   const dir = checkoutDir(entry)
-  const checks = []
-  const record = (name, ok, detail) => {
+  const checks: Array<{ name: string; ok: boolean; detail: string }> = []
+  const record = (name: string, ok: boolean, detail: string) => {
     checks.push({ name, ok, detail })
     return ok
   }
@@ -575,7 +595,7 @@ function verifyEntry(entry) {
  * keep the `verify` key a simple "<command> <arg>..." like
  * "pnpm run test:wpt".
  */
-function deepVerifyEntry(entry) {
+function deepVerifyEntry(entry: Entry) {
   const label = 'deep verify'.padEnd(16)
   if (!entry.verifyCommand) {
     console.log(`  SKIP  ${label} no "verify" key in .gitmodules`)
@@ -584,7 +604,7 @@ function deepVerifyEntry(entry) {
   const [file, ...args] = entry.verifyCommand.split(/\s+/).filter(Boolean)
   console.log(`${entry.path}: deep verify: ${entry.verifyCommand}`)
   try {
-    execFileSync(file, args, {
+    execFileSync(file!, args, {
       cwd: ROOT,
       maxBuffer: MAX_BUFFER,
       stdio: ['ignore', 'inherit', 'inherit'],
@@ -597,7 +617,7 @@ function deepVerifyEntry(entry) {
   return true
 }
 
-function restoreSparseEntry(entry) {
+function restoreSparseEntry(entry: Entry) {
   const dir = checkoutDir(entry)
   if (!existsSync(dir) || !isGitRepo(dir)) {
     throw new Error(`${entry.path}: no checkout to restore; run clone first`)
@@ -671,6 +691,8 @@ function main() {
 try {
   main()
 } catch (error) {
-  console.error(`git-partial-submodule: ${error.message}`)
+  console.error(
+    `git-partial-submodule: ${error instanceof Error ? error.message : String(error)}`,
+  )
   process.exitCode = 1
 }

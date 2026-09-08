@@ -7,13 +7,16 @@ import {
 } from '../../../scripts/repo/lib/package-manager.mts'
 import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
 
-for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0']) {
+for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0'] as const) {
   test(`the launcher permits ${agent ?? 'direct Node invocation'}`, () => {
-    const env: NodeJS.ProcessEnv = { __proto__: null, ...process.env }
+    const env = Object.assign(
+      Object.create(null) as NodeJS.ProcessEnv,
+      process.env,
+    )
     if (agent) {
-      env.npm_config_user_agent = agent
+      env['npm_config_user_agent'] = agent
     } else {
-      delete env.npm_config_user_agent
+      delete env['npm_config_user_agent']
     }
     const result = spawnSync(
       process.execPath,
@@ -31,19 +34,18 @@ for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0']) {
 
 for (const name of ['npm', 'yarn', 'bun', 'vlt', 'aube', 'pnpm'] as const) {
   test(`recognizes ${name} from the leading user-agent token`, () => {
-    const env = {
-      __proto__: null,
+    const env = Object.assign(Object.create(null) as NodeJS.ProcessEnv, {
       npm_config_user_agent: `${name}/1.0.0 npm/? node/v26`,
-    }
-    expect(invokingPackageManager(env)).toBe(name)
-    expect(invokedByForeignPackageManager(env)).toBe(
+    })
+    expect(invokingPackageManager(env!)).toBe(name)
+    expect(invokedByForeignPackageManager(env!)).toBe(
       !['aube', 'pnpm'].includes(name),
     )
   })
 }
 
 test('handles direct Node invocation, whitespace, casing, and unknown managers', () => {
-  for (const agent of [undefined, '', '   ']) {
+  for (const agent of [undefined, '', '   '] as const) {
     expect(
       invokingPackageManager({ npm_config_user_agent: agent }),
     ).toBeUndefined()
@@ -65,7 +67,7 @@ test('handles direct Node invocation, whitespace, casing, and unknown managers',
   )
 })
 
-for (const name of ['npm', 'yarn', 'bun', 'vlt', 'cnpm']) {
+for (const name of ['npm', 'yarn', 'bun', 'vlt', 'cnpm'] as const) {
   test(`the launcher rejects ${name} before loading an entry`, () => {
     const result = spawnSync(
       process.execPath,
@@ -73,12 +75,14 @@ for (const name of ['npm', 'yarn', 'bun', 'vlt', 'cnpm']) {
       {
         cwd: REPO_ROOT,
         encoding: 'utf8',
-        env: {
-          __proto__: null,
-          ...process.env,
-          npm_config_user_agent: `${name}/1.0.0`,
-          npm_lifecycle_event: 'build',
-        },
+        env: Object.assign(
+          Object.create(null) as NodeJS.ProcessEnv,
+          process.env,
+          {
+            npm_config_user_agent: `${name}/1.0.0`,
+            npm_lifecycle_event: 'build',
+          },
+        ),
       },
     )
     expect(result.status).toBe(1)

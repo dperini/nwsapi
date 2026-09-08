@@ -15,8 +15,8 @@ const [entry, ...args] = process.argv.slice(2)
 if (invokedByForeignPackageManager()) {
   console.error(
     foreignPackageManagerMessage(
-      invokingPackageManager(),
-      process.env.npm_lifecycle_event,
+      invokingPackageManager()!,
+      process.env['npm_lifecycle_event'],
     ),
   )
   process.exit(1)
@@ -27,7 +27,7 @@ if (!entry) {
 
 // Node reads these at startup; descendants inherit the same cache and opt-out.
 const filename = path.resolve(REPO_ROOT, entry)
-process.env.NODE_COMPILE_CACHE ||= COMPILE_CACHE_DIR
+process.env['NODE_COMPILE_CACHE'] ||= COMPILE_CACHE_DIR
 const coverage =
   filename === COVERAGE_SCRIPT_PATH ||
   args.some(
@@ -36,9 +36,9 @@ const coverage =
       arg.startsWith('--coverage.') ||
       arg.startsWith('--coverage='),
   ) ||
-  Boolean(process.env.NODE_V8_COVERAGE)
+  Boolean(process.env['NODE_V8_COVERAGE'])
 if (coverage) {
-  process.env.NODE_DISABLE_COMPILE_CACHE = '1'
+  process.env['NODE_DISABLE_COMPILE_CACHE'] = '1'
 }
 const child = spawnSync(process.execPath, [filename, ...args], {
   cwd: REPO_ROOT,

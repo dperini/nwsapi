@@ -1,12 +1,13 @@
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js')
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 
-for (const quote of ["'", '"']) {
-  for (const combinator of ['+', '~', '>']) {
+for (const quote of ["'", '"'] as const) {
+  for (const combinator of ['+', '~', '>'] as const) {
     test(`quoted attributes after pseudos (${quote}, ${combinator})`, t => {
       const markup =
         combinator === '>'
@@ -20,9 +21,9 @@ for (const quote of ["'", '"']) {
       for (let repeat = 0; repeat < 2; repeat++) {
         expect(engine.select(selector, window.document)).toEqual([target])
         expect(engine.first(selector, window.document)).toBe(target)
-        expect(engine.match(selector, target)).toBe(true)
+        expect(engine.match(selector, target!)).toBe(true)
       }
-      target.className = 'c'
+      target!.className = 'c'
       expect(engine.select(selector, window.document)).toEqual([])
     })
   }

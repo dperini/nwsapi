@@ -1,9 +1,13 @@
 import path from 'node:path'
 import { normalizeCoverageLocations } from './coverage-normalize.mts'
 import libCoverage from 'istanbul-lib-coverage'
+import type { CoverageMap, CoverageMapData } from 'istanbul-lib-coverage'
+import type { ReportOptions } from 'istanbul-reports'
 import { coverageThresholds } from '../../../.config/coverage.config.mts'
 
-export function coverageReporters(ci = process.env.CI) {
+export function coverageReporters(
+  ci = process.env['CI'],
+): Array<keyof ReportOptions> {
   return ci
     ? ['text', 'json', 'json-summary', 'html']
     : ['text', 'json', 'json-summary']
@@ -32,7 +36,11 @@ export function checkCoverageThresholds(
 }
 
 // Merge engine execution from both hosts; retain the browser and adapter canaries.
-export function combineCoverage(wptData, nodeData, root) {
+export function combineCoverage(
+  wptData: CoverageMap | CoverageMapData,
+  nodeData: CoverageMap | CoverageMapData,
+  root: string,
+) {
   const wpt = libCoverage.createCoverageMap(normalizeCoverageLocations(wptData))
   const node = libCoverage.createCoverageMap(
     normalizeCoverageLocations(nodeData),

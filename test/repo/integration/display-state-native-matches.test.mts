@@ -1,16 +1,21 @@
+import type * as NodeFs from 'node:fs'
+import type * as NodeVm from 'node:vm'
+import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as Jsdom from 'jsdom'
 const __dirname = import.meta.dirname
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
-const assert = require('node:assert/strict')
-const { readFileSync } = require('node:fs')
+import assert from 'node:assert/strict'
+const { readFileSync } = require('node:fs') as typeof NodeFs
 import path from 'node:path'
-import { test } from 'vitest'
-const vm = require('node:vm')
+import { test, type TestContext } from 'vitest'
+const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(
   path.resolve(__dirname, '../../../src/nwsapi.js'),
   'utf8',
 )
-const createNwsapi = require('../../../src/nwsapi.js')
+const createNwsapi =
+  require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 // Route jsdom through the adapter from this checkout. Count actual adapter
 // instances so the reentry test cannot silently exercise jsdom's default engine.
 const { DOMSelector } = createNwsapi
@@ -22,13 +27,13 @@ let creations = 0,
   matchCalls = 0,
   depth = 0,
   peakDepth = 0
-require.cache[resolved].exports = {
+require.cache[resolved]!.exports = {
   DOMSelector: class extends DOMSelector {
-    constructor(...args) {
+    constructor(...args: ConstructorParameters<typeof DOMSelector>) {
       super(...args)
       creations++
       const match = this.engine.match
-      this.engine.match = function (...matchArgs) {
+      this.engine.match = function (...matchArgs: Parameters<typeof match>) {
         matchCalls++
         peakDepth = Math.max(peakDepth, ++depth)
         try {
@@ -45,9 +50,9 @@ require.cache[resolved].exports = {
 }
 const { JSDOM } = (() => {
   try {
-    return require('jsdom')
+    return require('jsdom') as typeof Jsdom
   } finally {
-    require.cache[resolved].exports = previous
+    require.cache[resolved]!.exports = previous
   }
 })()
 const pseudos = [
@@ -59,29 +64,29 @@ const pseudos = [
   ':popover-open',
 ]
 
-function host(t) {
+function host(t: TestContext) {
   const dom = new JSDOM('<!doctype html><div popover></div>')
   t.onTestFinished(() => dom.window.close())
   return dom.window
 }
 
-for (const legacy of [false, true]) {
+for (const legacy of [false, true] as const) {
   test(`delegating matchers are called once per document (LEGACY=${legacy})`, t => {
     const windows = [host(t), host(t)]
-    const nw = createNwsapi({ document: windows[0].document })
+    const nw = createNwsapi({ document: windows[0]!.document })
     nw.configure({ LEGACY: legacy })
     const calls = [0, 0]
     const nodes = windows.map(w => w.document.querySelector('div'))
     windows.forEach((w, i) => {
-      w.Element.prototype.matches = function (selector) {
-        assert.ok(++calls[i] < 10, 'unbounded recursion')
+      w.Element.prototype.matches = function (this: Element, selector: string) {
+        assert.ok(++calls[i]! < 10, 'unbounded recursion')
         return nw.match(selector, this)
-      }
+      } as unknown as Element['matches']
     })
     for (let i = 0; i < 50; i++) {
       for (const node of nodes) {
         for (const pseudo of pseudos) {
-          assert.equal(nw.match(pseudo, node), false)
+          assert.equal(nw.match(pseudo, node!), false)
         }
       }
     }
@@ -92,20 +97,27 @@ for (const legacy of [false, true]) {
 test('browser bootstrap safely captures an already-delegating prototype', t => {
   const window = host(t)
   let calls = 0
-  window.Element.prototype.matches = function (selector) {
+  window.Element.prototype.matches = function (
+    this: Element,
+    selector: string,
+  ) {
     assert.ok(++calls < 10, 'unbounded recursion')
     return nw.match(selector, this)
-  }
-  const context = {
+  } as unknown as Element['matches']
+  const context: {
+    Element: typeof window.Element
+    document: Document
+    NW: typeof NW | undefined
+  } = {
     document: window.document,
     Element: window.Element,
     NW: undefined,
   }
   vm.runInNewContext(source, context)
-  const nw = context.NW.Dom
+  const nw = context.NW!.Dom
   const node = window.document.querySelector('div')
   for (let i = 0; i < 50; i++) {
-    assert.equal(nw.match(':popover-open', node), false)
+    assert.equal(nw.match(':popover-open', node!), false)
   }
   assert.equal(calls, 1)
 })
@@ -118,7 +130,7 @@ test('the original jsdom Element.matches route uses this engine without recursio
   const node = window.document.body.firstElementChild
   for (let i = 0; i < 50; i++) {
     for (const pseudo of pseudos) {
-      assert.equal(node.matches(pseudo), false)
+      assert.equal(node!.matches(pseudo), false)
     }
   }
   assert.equal(
@@ -138,29 +150,32 @@ test('delegation remains cached when a re-entering matcher subsequently throws',
   const nw = createNwsapi({ document: window.document })
   const node = window.document.querySelector('div')
   let calls = 0
-  window.Element.prototype.matches = function (selector) {
+  window.Element.prototype.matches = function (
+    this: Element,
+    selector: string,
+  ) {
     calls++
     nw.match(selector, this)
     throw new Error('host failed after re-entry')
-  }
+  } as unknown as Element['matches']
   for (let i = 0; i < 10; i++) {
-    assert.equal(nw.match(':popover-open', node), false)
+    assert.equal(nw.match(':popover-open', node!), false)
   }
   assert.equal(calls, 1)
 })
 
 test('an unsupported selector does not disable other host state queries', t => {
   const window = host(t)
-  window.Element.prototype.matches = function (selector) {
+  window.Element.prototype.matches = function (selector: string) {
     if (selector === ':fullscreen') {
       throw new Error('unsupported')
     }
     return selector === ':popover-open'
-  }
+  } as unknown as Element['matches']
   const nw = createNwsapi({ document: window.document })
   const node = window.document.querySelector('div')
-  assert.equal(nw.match(':fullscreen', node), false)
-  assert.equal(nw.match(':popover-open', node), true)
+  assert.equal(nw.match(':fullscreen', node!), false)
+  assert.equal(nw.match(':popover-open', node!), true)
 })
 
 test('re-entry involving another document marks the outer record', t => {
@@ -170,14 +185,14 @@ test('re-entry involving another document marks the outer record', t => {
   const first = a.document.querySelector('div'),
     second = b.document.querySelector('div')
   let calls = 0
-  a.Element.prototype.matches = function (selector) {
+  a.Element.prototype.matches = function (this: Element, selector: string) {
     calls++
-    return nw.match(selector, second)
-  }
-  b.Element.prototype.matches = () => true
-  assert.equal(nw.match(':popover-open', first), false)
-  assert.equal(nw.match(':popover-open', second), true)
-  assert.equal(nw.match(':popover-open', first), false)
+    return nw.match(selector, second!)
+  } as unknown as Element['matches']
+  b.Element.prototype.matches = (() => true) as unknown as Element['matches']
+  assert.equal(nw.match(':popover-open', first!), false)
+  assert.equal(nw.match(':popover-open', second!), true)
+  assert.equal(nw.match(':popover-open', first!), false)
   assert.equal(calls, 1)
 })
 
@@ -192,13 +207,16 @@ test('hosts without WeakMap retain bounded recursion and the single-document fas
   const nw = context.module.exports({ document: window.document })
   nw.configure({ LEGACY: true })
   let calls = 0
-  window.Element.prototype.matches = function (selector) {
+  window.Element.prototype.matches = function (
+    this: Element,
+    selector: string,
+  ) {
     calls++
     return nw.match(selector, this)
-  }
+  } as unknown as Element['matches']
   const node = window.document.querySelector('div')
   for (let i = 0; i < 50; i++) {
-    assert.equal(nw.match(':popover-open', node), false)
+    assert.equal(nw.match(':popover-open', node!), false)
   }
   assert.equal(calls, 1)
 })

@@ -11,12 +11,12 @@ export function replaceCacheLimit(source: string, limit: number) {
     if (!node || typeof node !== 'object') {
       continue
     }
-    const id = node.id as { name?: string } | undefined
-    const init = node.init as
+    const id = node['id'] as { name?: string } | undefined
+    const init = node['init'] as
       | { type?: string; value?: unknown; start: number; end: number }
       | undefined
     if (
-      node.type === 'VariableDeclarator' &&
+      node['type'] === 'VariableDeclarator' &&
       id?.name === 'CACHE_LIMIT' &&
       init?.type === 'Literal' &&
       typeof init.value === 'number'
@@ -33,6 +33,6 @@ export function replaceCacheLimit(source: string, limit: number) {
     throw new Error('Expected exactly one CACHE_LIMIT assignment.')
   }
   return (
-    source.slice(0, anchors[0].start) + limit + source.slice(anchors[0].end)
+    source.slice(0, anchors[0]!.start) + limit + source.slice(anchors[0]!.end)
   )
 }

@@ -1,17 +1,20 @@
+import type * as Jsdom from 'jsdom'
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
-const assert = require('node:assert/strict')
+import assert from 'node:assert/strict'
 import { test } from 'vitest'
-const { JSDOM } = require('jsdom')
-const createNwsapi = require('../../../src/nwsapi.js')
+const { JSDOM } = require('jsdom') as typeof Jsdom
+const createNwsapi =
+  require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 const aliases = [
   'webkitMatchesSelector',
   'mozMatchesSelector',
   'msMatchesSelector',
 ]
 
-for (const fallback of [false, true]) {
-  for (const legacy of [false, true]) {
+for (const fallback of [false, true] as const) {
+  for (const legacy of [false, true] as const) {
     for (const alias of aliases) {
       test(`${fallback ? 'factory' : 'document'} ${alias}, LEGACY=${legacy}`, t => {
         const dom = new JSDOM('<!doctype html>')
@@ -29,7 +32,7 @@ for (const fallback of [false, true]) {
           Object.defineProperty(proto, name, {
             configurable: true,
             get() {
-              reads[name]++
+              reads[name]!++
               return name === alias ? () => true : undefined
             },
           })
@@ -37,7 +40,10 @@ for (const fallback of [false, true]) {
         const node = document.createElement('div')
         node.setAttribute('popover', '')
         document.body.appendChild(node)
-        const nw = createNwsapi({ document, Element: { prototype: proto } })
+        const nw = createNwsapi({
+          document,
+          Element: { prototype: proto } as unknown as typeof Element,
+        })
         assert.equal(
           Object.values(reads).reduce((a, b) => a + b, 0),
           0,
@@ -76,7 +82,7 @@ test('legacy mode caches an absent matcher without rereading the factory prototy
     Object.defineProperty(proto, alias, {
       configurable: true,
       get() {
-        reads[alias]++
+        reads[alias]!++
         return undefined
       },
     })
@@ -85,7 +91,7 @@ test('legacy mode caches an absent matcher without rereading the factory prototy
   nw.configure({ LEGACY: true })
   for (let i = 0; i < 50; i++) {
     assert.equal(
-      nw.match(':popover-open', dom.window.document.body.firstElementChild),
+      nw.match(':popover-open', dom.window.document.body.firstElementChild!),
       false,
     )
   }
@@ -94,12 +100,12 @@ test('legacy mode caches an absent matcher without rereading the factory prototy
   }
 })
 
-for (const legacy of [false, true]) {
+for (const legacy of [false, true] as const) {
   test(`standard matches takes precedence, LEGACY=${legacy}`, t => {
     const dom = new JSDOM('<!doctype html><div popover></div>')
     t.onTestFinished(() => dom.window.close())
     const proto = dom.window.Element.prototype
-    proto.matches = () => true
+    proto.matches = (() => true) as unknown as Element['matches']
     let reads = 0
     for (const alias of aliases) {
       Object.defineProperty(proto, alias, {
@@ -113,7 +119,7 @@ for (const legacy of [false, true]) {
     const nw = createNwsapi(dom.window)
     nw.configure({ LEGACY: legacy })
     assert.equal(
-      nw.match(':popover-open', dom.window.document.body.firstElementChild),
+      nw.match(':popover-open', dom.window.document.body.firstElementChild!),
       true,
     )
     assert.equal(reads, 0)

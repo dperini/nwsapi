@@ -6,7 +6,7 @@ import { chart } from '../../../scripts/repo/bench/charts.mts'
 
 let browser: Browser
 beforeAll(async () => {
-  if (process.env.NWSAPI_BROWSER) {
+  if (process.env['NWSAPI_BROWSER']) {
     browser = await chromium.launch()
   }
 })
@@ -14,7 +14,7 @@ afterAll(async () => {
   await browser?.close()
 })
 
-describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
+describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
   test('keeps the README notes inside the canvas with bottom padding', async () => {
     const svg = readFileSync(
       new URL('../../../assets/repo/bench/perf-hero.svg', import.meta.url),
@@ -42,12 +42,12 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
           notePadding: Math.min(
             ...notes.map(rect => canvas.right - rect.right),
           ),
-          firstNoteWidth: notes[0].width,
+          firstNoteWidth: notes[0]!.width,
           tickFont: getComputedStyle(document.querySelector('.tick')!).fontSize,
           comparisonFont: getComputedStyle(
             document.querySelector('.comparison')!,
           ).fontSize,
-          metadataGap: notes[3].top - notes[2].bottom,
+          metadataGap: notes[3]!.top - notes[2]!.bottom,
           metadataColors: Array.from(
             document.querySelectorAll('.metadata, .metadata .code'),
             node => getComputedStyle(node).fill,
@@ -114,19 +114,19 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       const frames = await page.evaluate(() => {
         const bar = document.querySelector('.bar')!
         const animation = bar.getAnimations()[0]
-        animation.pause()
+        animation!.pause()
         return [0, 400, 800].map(time => {
-          animation.currentTime = time
+          animation!.currentTime = time
           const { x, width } = bar.getBoundingClientRect()
           return { x, width }
         })
       })
-      expect(frames[0].width).toBe(0)
-      expect(frames[1].width).toBeGreaterThan(0)
-      expect(frames[1].width).toBeLessThan(frames[2].width)
-      expect(frames[2].width).toBeCloseTo(480)
+      expect(frames[0]!.width).toBe(0)
+      expect(frames[1]!.width).toBeGreaterThan(0)
+      expect(frames[1]!.width).toBeLessThan(frames[2]!.width)
+      expect(frames[2]!.width).toBeCloseTo(480)
       for (const frame of frames) {
-        expect(frame.x).toBeCloseTo(frames[0].x)
+        expect(frame.x).toBeCloseTo(frames[0]!.x)
       }
 
       await page.emulateMedia({ reducedMotion: 'reduce' })

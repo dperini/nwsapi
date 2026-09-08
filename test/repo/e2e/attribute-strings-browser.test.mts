@@ -1,16 +1,19 @@
+import type * as NodeFs from 'node:fs'
+import type * as NodePath from 'node:path'
+import type * as Playwright from '@playwright/test'
 const __dirname = import.meta.dirname
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
-const assert = require('node:assert/strict')
-const { readFileSync } = require('node:fs')
-const path = require('node:path')
+import assert from 'node:assert/strict'
+const { readFileSync } = require('node:fs') as typeof NodeFs
+const path = require('node:path') as typeof NodePath
 import { test } from 'vitest'
-const { chromium } = require('@playwright/test')
+const { chromium } = require('@playwright/test') as typeof Playwright
 import stringCases from '../unit/fixtures/attribute-string-cases.mts'
-const cases = stringCases.slice()
+const cases: Array<{ selector: string; value: string }> = stringCases.slice()
 
-for (const quote of ['"', "'"]) {
-  for (const newline of ['\n', '\r', '\r\n', '\f']) {
+for (const quote of ['"', "'"] as const) {
+  for (const newline of ['\n', '\r', '\r\n', '\f'] as const) {
     cases.push({
       selector: 'div[data-x=' + quote + 'x' + newline + quote + ']',
       value: 'x',
@@ -25,14 +28,14 @@ for (const selector of [
   'div:is([class="x"',
   'div\n[class="x"]',
   'div[class="\\78 "]',
-]) {
+] as const) {
   cases.push({ selector, value: 'x' })
 }
-for (const newline of ['\n', '\r', '\r\n', '\f']) {
+for (const newline of ['\n', '\r', '\r\n', '\f'] as const) {
   cases.push({ selector: 'div[class="x\\' + newline + '"]', value: 'x' })
 }
 
-test.skipIf(!process.env.NWSAPI_BROWSER)(
+test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'attribute strings agree with native Chromium on cold and cached calls',
   async t => {
     const browser = await chromium.launch({ headless: true })
@@ -52,27 +55,29 @@ test.skipIf(!process.env.NWSAPI_BROWSER)(
       const nw = window.NW.Dom
       const target = document.getElementById('a')
       const differences = []
-      const attempt = fn => {
+      const attempt = (fn: () => unknown) => {
         try {
           return { value: fn() }
         } catch (error) {
-          return { error: error.name }
+          return { error: error instanceof Error ? error.name : String(error) }
         }
       }
       for (const { selector, value } of browserCases) {
-        target.setAttribute('data-x', value)
+        target!.setAttribute('data-x', value)
         for (let pass = 0; pass < 2; ++pass) {
           const expected = [
             attempt(() =>
               Array.from(document.querySelectorAll(selector), e => e.id),
             ),
             attempt(() => document.querySelector(selector)?.id || null),
-            attempt(() => target.matches(selector)),
+            attempt(() => target!.matches(selector)),
           ]
           const actual = [
-            attempt(() => nw.select(selector, document).map(e => e.id)),
+            attempt(() =>
+              Array.from(nw.select(selector, document)).map(e => e.id),
+            ),
             attempt(() => nw.first(selector, document)?.id || null),
-            attempt(() => nw.match(selector, target)),
+            attempt(() => nw.match(selector, target!)),
           ]
           if (JSON.stringify(actual) !== JSON.stringify(expected)) {
             differences.push({ selector, pass, expected, actual })

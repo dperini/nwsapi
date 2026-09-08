@@ -6,7 +6,7 @@
  * The repo itself is mounted under "/_repo/" so that "/_repo/src/nwsapi.js"
  * and the legacy "/_repo/test/wpt" pages remain reachable from a browser.
  *
- * The port comes from process.env.PORT and falls
+ * The port comes from process.env['PORT'] and falls
  * back to 8000, which is what .config/playwright.config.mts expects. PORT=0 asks
  * the OS for an ephemeral port. The server binds 127.0.0.1 only.
  */
@@ -32,7 +32,7 @@ if (!existsSync(docRoot)) {
 const realRepoRoot = realpathSync(repoRoot)
 const realDocRoot = realpathSync(docRoot)
 
-function resolvePort(raw) {
+function resolvePort(raw: string | undefined) {
   // Env *presence* decides: PORT=0 is a valid request for an ephemeral port.
   if (raw === undefined || raw.trim() === '') {
     return 8000
@@ -47,9 +47,9 @@ function resolvePort(raw) {
   return parsed
 }
 
-const port = resolvePort(process.env.PORT)
+const port = resolvePort(process.env['PORT'])
 
-const CONTENT_TYPES = {
+const CONTENT_TYPES: Record<string, string> = {
   '.css': 'text/css; charset=utf-8',
   '.gif': 'image/gif',
   '.htm': 'text/html; charset=utf-8',
@@ -66,7 +66,7 @@ const CONTENT_TYPES = {
   '.xml': 'text/xml; charset=utf-8',
 }
 
-function send(res, status, body, headers = {}) {
+function send(res: ServerResponse, status: number, body: string, headers = {}) {
   res.writeHead(status, {
     'content-type': 'text/plain; charset=utf-8',
     ...headers,
@@ -87,7 +87,9 @@ async function serve(req: IncomingMessage, res: ServerResponse) {
 
   let pathname
   try {
-    pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname)
+    pathname = decodeURIComponent(
+      new URL(req.url ?? '', 'http://localhost').pathname,
+    )
   } catch {
     send(res, 400, 'bad request')
     return

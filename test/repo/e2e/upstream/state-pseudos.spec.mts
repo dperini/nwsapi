@@ -17,7 +17,7 @@
 // ^ the page.evaluate() callbacks below run inside Chromium, not in Node.
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { REPO_ROOT as repoRoot } from '../../../../scripts/repo/lib/paths.mts'
 
 const nwsapiSource = readFileSync(
@@ -39,13 +39,13 @@ const initScript = `${nwsapiSource}
 })();
 `
 
-async function openFixtureWithNW(page) {
+async function openFixtureWithNW(page: Page) {
   await page.addInitScript({ content: initScript })
   const response = await page.goto(FIXTURE)
   expect(response, `no HTTP response for ${FIXTURE}`).not.toBeNull()
   expect(
-    response.ok(),
-    `HTTP ${response.status()} for ${FIXTURE} — is scripts/serve.mts the server on port 8000?`,
+    response!.ok(),
+    `HTTP ${response!.status()} for ${FIXTURE} — is scripts/serve.mts the server on port 8000?`,
   ).toBe(true)
   expect(
     await page.evaluate('window.__nwInstallError || null'),
@@ -54,7 +54,8 @@ async function openFixtureWithNW(page) {
   expect(
     await page.evaluate(() => ({
       installed:
-        document.querySelectorAll !== window['__nwNativeQuerySelectorAll'],
+        document.querySelectorAll !==
+        Reflect.get(window, '__nwNativeQuerySelectorAll'),
       nodeList: document.querySelectorAll('html') instanceof NodeList,
       root:
         document.querySelectorAll('html').item(0) === document.documentElement,
@@ -67,13 +68,13 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
   test(':open matches open <details>/<dialog> only', async ({ page }) => {
     await openFixtureWithNW(page)
     const result = await page.evaluate(() => {
-      const ids = els => els.map(e => e.id)
+      const ids = (els: ArrayLike<Element>) => Array.from(els, e => e.id)
       return {
         open: ids(window.NW.Dom.select(':open')),
         detailsOpen: ids(window.NW.Dom.select('details:open')),
         matchClosedDetails: window.NW.Dom.match(
           ':open',
-          document.getElementById('d-closed'),
+          document.getElementById('d-closed')!,
         ),
       }
     })
@@ -87,19 +88,19 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
   }) => {
     await openFixtureWithNW(page)
     const result = await page.evaluate(() => {
-      const ids = els => els.map(e => e.id)
+      const ids = (els: ArrayLike<Element>) => Array.from(els, e => e.id)
       return {
         closed: ids(window.NW.Dom.select(':closed')),
         detailsClosed: ids(window.NW.Dom.select('details:closed')),
         matchOpenDetails: window.NW.Dom.match(
           ':closed',
-          document.getElementById('d-open'),
+          document.getElementById('d-open')!,
         ),
         // :closed only applies to elements that have an open/closed state, so
         // a plain <div> is neither :open nor :closed.
         matchPlainDiv: window.NW.Dom.match(
           ':closed',
-          document.getElementById('plain'),
+          document.getElementById('plain')!,
         ),
       }
     })
@@ -112,10 +113,17 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
   test(':current/:past/:future are valid but never match', async ({ page }) => {
     await openFixtureWithNW(page)
     const result = await page.evaluate(() => {
-      const out = {}
-      for (const selector of [':current', ':past', ':future', 'div:future']) {
+      const out: Record<string, string[] | string> = {}
+      for (const selector of [
+        ':current',
+        ':past',
+        ':future',
+        'div:future',
+      ] as const) {
         try {
-          out[selector] = window.NW.Dom.select(selector).map(e => e.id)
+          out[selector] = Array.from(window.NW.Dom.select(selector)).map(
+            e => e.id,
+          )
         } catch (e) {
           out[selector] = `threw: ${String(e)}`
         }
@@ -133,7 +141,7 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
   }) => {
     await openFixtureWithNW(page)
     const result = await page.evaluate(() => {
-      const ids = els => els.map(e => e.id)
+      const ids = (els: ArrayLike<Element>) => Array.from(els, e => e.id)
       const out: Record<string, string[]> = {
         fullscreenStatic: ids(window.NW.Dom.select(':fullscreen')),
         modalStatic: ids(window.NW.Dom.select(':modal')),
@@ -143,24 +151,24 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
         value: document.getElementById('g-open'),
         configurable: true,
       })
-      out.fullscreenAfter = ids(window.NW.Dom.select(':fullscreen'))
-      out.modalAfter = ids(window.NW.Dom.select(':modal'))
+      out['fullscreenAfter'] = ids(window.NW.Dom.select(':fullscreen'))
+      out['modalAfter'] = ids(window.NW.Dom.select(':modal'))
       Object.defineProperty(document, 'pictureInPictureElement', {
         value: document.getElementById('vid'),
         configurable: true,
       })
-      out.pipAfter = ids(window.NW.Dom.select(':picture-in-picture'))
+      out['pipAfter'] = ids(window.NW.Dom.select(':picture-in-picture'))
       return out
     })
     // Nothing is really fullscreen/PiP in a static fixture.
-    expect(result.fullscreenStatic).toEqual([])
-    expect(result.modalStatic).toEqual([])
-    expect(result.pipStatic).toEqual([])
+    expect(result['fullscreenStatic']).toEqual([])
+    expect(result['modalStatic']).toEqual([])
+    expect(result['pipStatic']).toEqual([])
     // With document.fullscreenElement stubbed, both :fullscreen and :modal
     // (whose detectable half is the fullscreen flag) match exactly that node.
-    expect(result.fullscreenAfter).toEqual(['g-open'])
-    expect(result.modalAfter).toEqual(['g-open'])
-    expect(result.pipAfter).toEqual(['vid'])
+    expect(result['fullscreenAfter']).toEqual(['g-open'])
+    expect(result['modalAfter']).toEqual(['g-open'])
+    expect(result['pipAfter']).toEqual(['vid'])
   })
 
   test(':open never matches in an XML document', async ({ page }) => {
@@ -176,7 +184,8 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
         qsaLength: qsaResult.length,
         qsaWentThroughNW:
           xdoc.querySelectorAll === document.querySelectorAll &&
-          xdoc.querySelectorAll !== window['__nwNativeQuerySelectorAll'],
+          xdoc.querySelectorAll !==
+            Reflect.get(window, '__nwNativeQuerySelectorAll'),
         qsaIsNodeList: qsaResult instanceof NodeList,
       }
     }, XML_SOURCE)
@@ -203,7 +212,7 @@ test('native Chromium parity (no nwsapi): :open in HTML and XML', async ({
   // No init script here: this page runs the native engine as ground truth.
   const response = await page.goto(FIXTURE)
   expect(response, `no HTTP response for ${FIXTURE}`).not.toBeNull()
-  expect(response.ok(), `HTTP ${response.status()} for ${FIXTURE}`).toBe(true)
+  expect(response!.ok(), `HTTP ${response!.status()} for ${FIXTURE}`).toBe(true)
   const result = await page.evaluate(xmlSource => {
     const xdoc = new DOMParser().parseFromString(xmlSource, 'application/xml')
     return {
@@ -240,7 +249,7 @@ test('real media playback, seeking, muting and completion remain live after inst
     const samples = 8000
     const bytes = new Uint8Array(44 + samples * 2)
     const view = new DataView(bytes.buffer)
-    function text(offset, value) {
+    function text(offset: number, value: string) {
       for (let i = 0; i < value.length; i++) {
         bytes[offset + i] = value.charCodeAt(i)
       }
@@ -259,12 +268,12 @@ test('real media playback, seeking, muting and completion remain live after inst
     view.setUint16(34, 16, true)
     view.setUint32(40, samples * 2, true)
     const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' }))
-    const event = name =>
+    const event = (name: string) =>
       new Promise(resolve =>
         audio.addEventListener(name, resolve, { once: true }),
       )
-    const parity = []
-    function state(selector) {
+    const parity: boolean[][] = []
+    function state(selector: string) {
       const actual = nw.match(selector, audio)
       try {
         parity.push([actual, native.call(audio, selector)])

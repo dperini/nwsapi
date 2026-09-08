@@ -17,7 +17,7 @@ test('heading levels validate integer lists and use HTML local names', t => {
     ':heading(1.5)',
     ':heading(1,)',
     ':heading(one)',
-  ]) {
+  ] as const) {
     expect(() => engine.select(selector, doc)).toThrow()
   }
 })
@@ -35,7 +35,7 @@ test('document roots and namespace errors remain correct after root replacement'
   doc.append(root)
   expect(engine.match(':root', root)).toBe(true)
   expect(engine.select(':scope', doc)).toEqual([root])
-  expect(() => engine.first.call(engine)).toThrow(TypeError)
+  expect(() => Reflect.apply(engine.first, engine, [])).toThrow(TypeError)
 })
 
 test('explicit attribute case flags override HTML defaults', t => {

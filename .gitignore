@@ -10,7 +10,7 @@
 !/.npmrc
 !/LICENSE
 !/README.md
-!/THANKS.MD
+!/THANKS.md
 !/package.json
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
@@ -26,6 +26,7 @@
 !/assets/**/*.json
 !/assets/**/*.svg
 !/bin/nwsapi
+!/bin/*.mts
 !/docs/**/*.md
 !/scripts/**/*.mts
 !/src/**/*.mts

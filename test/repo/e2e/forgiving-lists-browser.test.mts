@@ -4,7 +4,7 @@ import { chromium } from '@playwright/test'
 import { test } from 'vitest'
 import { cases, markup } from '../unit/fixtures/forgiving-cases.mts'
 
-test.skipIf(!process.env.NWSAPI_BROWSER)(
+test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'Chromium agrees on every forgiving selector',
   async t => {
     const browser = await chromium.launch({ headless: true })
@@ -24,7 +24,9 @@ test.skipIf(!process.env.NWSAPI_BROWSER)(
             document.querySelectorAll(browserSelector),
             e => e.id,
           ),
-          nwsapi: NW.Dom.select(browserSelector, document).map(e => e.id),
+          nwsapi: Array.from(NW.Dom.select(browserSelector, document)).map(
+            e => e.id,
+          ),
         }),
         selector,
       )

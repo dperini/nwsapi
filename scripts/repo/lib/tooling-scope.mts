@@ -4,6 +4,7 @@ import { REPO_ROOT } from './paths.mts'
 export function toolingFiles() {
   return globSync(
     [
+      'bin/**/*.mts',
       'src/**/*.mts',
       'scripts/repo/**/*.mts',
       'test/repo/**/*.mts',

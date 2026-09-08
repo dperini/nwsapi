@@ -29,6 +29,7 @@ import { bench, do_not_optimize, group, run, summary } from 'mitata'
 import nwsapiFactory from '../../../src/nwsapi.js'
 import presets from './presets.mts'
 import { agrees } from './charts.mts'
+import type { NwsapiEngine } from '../../../.config/runtime.js'
 
 const benchDir = path.dirname(fileURLToPath(import.meta.url))
 const FIXTURE_PATH = path.join(
@@ -65,16 +66,16 @@ Options:
   --help              Show this help.
 `
 
-function fail(message): never {
+function fail(message: string): never {
   console.error(message)
   process.exit(1)
 }
 
-function parseCli(argv) {
+function parseCli(argv: string[]) {
   // pnpm forwards a literal "--" separator (e.g. `pnpm run bench -- --list`);
   // strip it so the flags after it stay flags instead of positionals
   const args = argv.filter(
-    (arg, i) => !(arg === '--' && argv.indexOf('--') === i),
+    (arg: string, i) => !(arg === '--' && argv.indexOf('--') === i),
   )
   try {
     return parseArgs({
@@ -90,7 +91,9 @@ function parseCli(argv) {
       },
     }).values
   } catch (error) {
-    return fail(`${error.message}\n\n${USAGE}`)
+    return fail(
+      `${error instanceof Error ? error.message : JSON.stringify(error)}\n\n${USAGE}`,
+    )
   }
 }
 
@@ -114,7 +117,7 @@ function resolvePresetNames(rawValues: string[] | undefined): string[] {
   return [...new Set(requested)]
 }
 
-function buildSelectorMatcher(raw) {
+function buildSelectorMatcher(raw: string | undefined) {
   if (raw === undefined) {
     return () => true
   }
@@ -122,13 +125,15 @@ function buildSelectorMatcher(raw) {
   if (asRegExp) {
     let regexp
     try {
-      regexp = new RegExp(asRegExp[1], asRegExp[2])
+      regexp = new RegExp(asRegExp[1]!, asRegExp[2])
     } catch (error) {
-      fail(`Invalid --selector regular expression: ${error.message}`)
+      fail(
+        `Invalid --selector regular expression: ${error instanceof Error ? error.message : JSON.stringify(error)}`,
+      )
     }
-    return selector => regexp.test(selector)
+    return (selector: string) => regexp.test(selector)
   }
-  return selector => selector.includes(raw)
+  return (selector: string) => selector.includes(raw)
 }
 
 function printList() {
@@ -136,7 +141,7 @@ function printList() {
   const width = Math.max(...names.map(name => name.length))
   let total = 0
   for (const name of names) {
-    const count = presets[name].length
+    const count = presets[name as keyof typeof presets].length
     total += count
     console.log(`${name.padEnd(width)}  ${String(count).padStart(3)} selectors`)
   }
@@ -145,11 +150,21 @@ function printList() {
   )
 }
 
-function describeProbe(count, error) {
-  return error ? `ERROR: ${error.message}` : `${count} found`
+function describeProbe(count: number | null, error: unknown) {
+  return error
+    ? `ERROR: ${error instanceof Error ? error.message : JSON.stringify(error)}`
+    : `${count} found`
 }
 
-function printIssueTable(issues) {
+function printIssueTable(
+  issues: Array<{
+    preset: string
+    selector: string
+    nwsapi: string
+    jsdom: string
+    status: string
+  }>,
+) {
   if (issues.length === 0) {
     console.log('')
     console.log('result check: no mismatches or engine errors.')
@@ -166,10 +181,10 @@ function printIssueTable(issues) {
   ])
   const head = ['preset', 'selector', 'nwsapi', 'jsdom qsa', 'status']
   const widths = head.map((label, i) =>
-    Math.max(label.length, ...rows.map(row => row[i].length)),
+    Math.max(label.length, ...rows.map(row => row[i]!.length)),
   )
-  const line = cells =>
-    cells.map((cell, i) => cell.padEnd(widths[i])).join('  ')
+  const line = (cells: string[]) =>
+    cells.map((cell, i: number) => cell.padEnd(widths[i]!)).join('  ')
   console.log(line(head))
   console.log(line(widths.map(width => '-'.repeat(width))))
   for (const row of rows) {
@@ -177,12 +192,18 @@ function printIssueTable(issues) {
   }
 }
 
-function buildPlan(presetNames, matchesSelector, NW, document, comparison) {
+function buildPlan(
+  presetNames: string[],
+  matchesSelector: (selector: string) => boolean,
+  NW: NwsapiEngine,
+  document: Document,
+  comparison: NwsapiEngine | null,
+) {
   const plan = []
   const issues = []
 
   for (const presetName of presetNames) {
-    for (const selector of presets[presetName]) {
+    for (const selector of presets[presetName as keyof typeof presets]) {
       if (!matchesSelector(selector)) {
         continue
       }
@@ -193,8 +214,8 @@ function buildPlan(presetNames, matchesSelector, NW, document, comparison) {
       let nwError = null
       let qsaCount = null
       let qsaError = null
-      let nwNodes = []
-      let qsaNodes = []
+      let nwNodes: ReturnType<NwsapiEngine['select']> = []
+      let qsaNodes: Element[] = []
       try {
         nwNodes = NW.select(selector, document)
         nwCount = nwNodes.length
@@ -246,7 +267,12 @@ function buildPlan(presetNames, matchesSelector, NW, document, comparison) {
   return { plan, issues }
 }
 
-function comparisonAgrees(engine, selector, document, expected) {
+function comparisonAgrees(
+  engine: NwsapiEngine,
+  selector: string,
+  document: Document,
+  expected: Element[],
+) {
   try {
     return agrees(engine.select(selector, document), expected)
   } catch {
@@ -293,7 +319,7 @@ async function main() {
   // same process: absolute numbers drift by tens of percent between runs, so
   // a speedup is only meaningful as a ratio of two measurements taken
   // microseconds apart.
-  let NW2 = null
+  let NW2: NwsapiEngine | null = null
   if (values.compare !== undefined) {
     const comparePath = path.resolve(values.compare)
     const compareFactory = createRequire(import.meta.url)(comparePath)
@@ -321,22 +347,22 @@ async function main() {
     // the loop, and it does so far more readily for plain interpreted code
     // than for an opaque `new Function` closure, which flatters whichever
     // engine compiles less. The values need not differ; the load is enough.
-    const args = [[selector, document]]
+    const args: Array<[string, Document]> = [[selector, document]]
 
     group(`${presetName} ▸ ${selector}`, () => {
       summary(() => {
         bench('nwsapi', () => {
-          const [s, c] = args[0]
+          const [s, c] = args[0]!
           do_not_optimize(NW.select(s, c))
         })
         if (NW2) {
           bench('nwsapi (compare)', () => {
-            const [s, c] = args[0]
-            do_not_optimize(NW2.select(s, c))
+            const [s, c] = args[0]!
+            do_not_optimize(NW2!.select(s, c))
           })
         }
         bench('jsdom qsa', () => {
-          const [s, c] = args[0]
+          const [s, c] = args[0]!
           do_not_optimize(c.querySelectorAll(s))
         })
       })

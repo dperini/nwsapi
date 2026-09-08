@@ -26,9 +26,9 @@ test('fallback directionality respects an explicit inherited direction after mov
   t.onTestFinished(() => window.close())
   const engine = factory(window)
   Reflect.get(engine, 'Snapshot').matchesNative = (
-    _node,
-    _selector,
-    fallback,
+    _node: Element,
+    _selector: string,
+    fallback: boolean,
   ) => fallback
   const child = window.document.querySelector('i')!
   expect(engine.match(':dir(rtl)', child)).toBe(true)
@@ -46,9 +46,9 @@ test('focus-within fallback distinguishes default body state from actual focus',
   const engine = factory(window)
   const { body } = window.document
   Reflect.get(engine, 'Snapshot').matchesNative = (
-    _node,
-    _selector,
-    fallback,
+    _node: Element,
+    _selector: string,
+    fallback: boolean,
   ) => fallback
   expect(engine.match(':focus-within', body)).toBe(false)
   body.focus()

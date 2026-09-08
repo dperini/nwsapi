@@ -6,3 +6,4 @@ bin/* -crlf -diff -merge
 
 # The compiler launcher is source, not a binary artifact.
 bin/nwsapi text eol=lf diff merge
+bin/*.mts text eol=lf diff merge linguist-vendored=false

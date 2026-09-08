@@ -153,14 +153,16 @@ The rejected experiments record what was tested and why the implementation chang
 
 Install the development dependencies, then build the JavaScript files.
 Use Node.js v26 for these commands.
-The compiler CLI is a repository tool.
-The published package has no CLI executable or additional runtime dependency from this tool.
+The published package includes the `nwsapi` command.
+Install the optional `jsdom` peer dependency to use `nwsapi compile`.
+The selector engine itself needs no dependencies.
+In this checkout, build the CLI before you run it.
 
 ```sh
 pnpm run build
-bin/nwsapi compile '.card > button.primary'
-bin/nwsapi compile --mode match --json 'div:nth-child(2n)'
-bin/nwsapi compile --mode item --legacy '.card'
+bin/nwsapi.js compile '.card > button.primary'
+bin/nwsapi.js compile --mode match --json 'div:nth-child(2n)'
+bin/nwsapi.js compile --mode item --legacy '.card'
 ```
 
 The CLI prints the generated resolver, its size in bytes, and the helpers it uses.
@@ -257,7 +259,7 @@ To reproduce the profiles, run:
 ```sh
 node scripts/repo/bench/cold-first-profile.mts
 node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first
-node bin/nwsapi compile --mode match ".card > button.primary"
+node bin/nwsapi.js compile --mode match ".card > button.primary"
 ```
 
 Profile files use an operating-system temporary directory by default.

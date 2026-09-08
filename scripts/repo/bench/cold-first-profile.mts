@@ -18,7 +18,7 @@ const worlds = Array.from({ length: 40 }, (_, i) => {
   return {
     window,
     engine: factory(window),
-    selector: selectors[i % selectors.length],
+    selector: selectors[i % selectors.length]!,
   }
 })
 const session = new Session()

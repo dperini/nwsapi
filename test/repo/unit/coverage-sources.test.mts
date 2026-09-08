@@ -17,7 +17,7 @@ const moduleCoverage = Object.assign(
   {},
   ...modules.map(file => covered(file, 1)),
 )
-function covered(file, count) {
+function covered(file: string, count: number) {
   return {
     [file]: {
       path: file,
@@ -67,8 +67,15 @@ test('aggregate coverage thresholds reject regressions in each metric', () => {
     lines: { pct: coverageThresholds.lines },
   }
   expect(() => checkCoverageThresholds(summary)).not.toThrow()
-  for (const metric of Object.keys(coverageThresholds)) {
-    for (const pct of [summary[metric].pct - 0.01, NaN, Infinity, 'Unknown']) {
+  for (const metric of Object.keys(coverageThresholds) as Array<
+    keyof typeof coverageThresholds
+  >) {
+    for (const pct of [
+      summary[metric].pct - 0.01,
+      NaN,
+      Infinity,
+      'Unknown',
+    ] as const) {
       expect(() =>
         checkCoverageThresholds({ ...summary, [metric]: { pct } }),
       ).toThrow(metric)
@@ -88,7 +95,7 @@ test('HTML reports are generated only in CI', () => {
 
 test('in-memory browser endpoints merge with JSON-serialized Node endpoints exactly once', () => {
   const browser = covered(engine, 0)
-  browser[engine].statementMap[0].end.column = Infinity
+  browser[engine]!.statementMap[0].end.column = Infinity
   const node = JSON.parse(JSON.stringify(covered(engine, 1)))
   node[engine].statementMap[0].end.column = null
   const map = combineCoverage(
@@ -105,7 +112,7 @@ test('in-memory browser endpoints merge with JSON-serialized Node endpoints exac
 
 test('optional modules must contribute execution to the combined report', () => {
   for (const file of modules) {
-    for (const empty of [true, false]) {
+    for (const empty of [true, false] as const) {
       const node = { ...covered(adapter, 1), ...moduleCoverage }
       if (empty) {
         delete node[file]

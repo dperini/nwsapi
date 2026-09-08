@@ -31,7 +31,9 @@ export function runBudgeted(
           child.kill(signal)
         }
       } catch (error) {
-        if (error.code !== 'ESRCH') {
+        if (
+          !(error instanceof Error && 'code' in error && error.code === 'ESRCH')
+        ) {
           throw error
         }
       }

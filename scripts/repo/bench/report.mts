@@ -52,7 +52,7 @@ if (
   )
 }
 for (const [fixture, categories] of Object.entries(cases)) {
-  const html = DOCUMENTS[fixture].html()
+  const html = DOCUMENTS[fixture as keyof typeof DOCUMENTS].html()
   const dom = new JSDOM(html)
   const { document } = dom.window
   const options = { document, DOMException: dom.window.DOMException }
@@ -66,7 +66,12 @@ for (const [fixture, categories] of Object.entries(cases)) {
   ).trim()
   const source = fs.readFileSync(ENGINE_BUILD_PATH)
   const candidate = factory(options)
-  const engines = values.baseline.map(directory => {
+  const engines: Array<{
+    name: string
+    version: string
+    sha256: string
+    query: (selector: string) => ArrayLike<Element>
+  }> = values.baseline.map(directory => {
     const root = path.resolve(directory)
     const pkg = JSON.parse(
       fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
@@ -131,14 +136,14 @@ for (const [fixture, categories] of Object.entries(cases)) {
   try {
     for (const [category, selectors] of Object.entries(categories)) {
       for (const selector of selectors) {
-        const expected = reference[selector].map(index => hostNodes[index])
+        const expected = reference[selector]!.map(index => hostNodes[index]!)
         const errors = engines.map(engine => {
           try {
             return agrees(engine.query(selector), expected)
               ? null
               : 'result mismatch'
           } catch (error) {
-            return `${error.name}: unsupported`
+            return `${error instanceof Error ? error.name : String(error)}: unsupported`
           }
         })
         const samples = engines.map(() => [] as number[])
@@ -160,14 +165,14 @@ for (const [fixture, categories] of Object.entries(cases)) {
             }
             const result = await sample(
               () => {
-                consumed += engines[index].query(selector).length
+                consumed += engines[index]!.query(selector).length
               },
               iterations,
               minRoundMs,
             )
-            samples[index].push(result.milliseconds)
-            sampleIterations[index].push(result.calls)
-            mitataSamples[index].push(result.samples)
+            samples[index]!.push(result.milliseconds)
+            sampleIterations[index]!.push(result.calls)
+            mitataSamples[index]!.push(result.samples)
           }
         }
         // Verify warmed routing and snapshot paths as well as the cold path.
@@ -184,8 +189,10 @@ for (const [fixture, categories] of Object.entries(cases)) {
           sampleIterations,
           mitataSamples,
           milliseconds: samples.map(measurements => {
-            const sorted = measurements.toSorted((left, right) => left - right)
-            return sorted.length ? sorted[Math.floor(sorted.length / 2)] : null
+            const sorted = measurements.toSorted(
+              (left: number, right: number) => left - right,
+            )
+            return sorted.length ? sorted[Math.floor(sorted.length / 2)]! : null
           }),
         })
       }

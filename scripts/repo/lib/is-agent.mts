@@ -46,9 +46,9 @@ export function isAgent(): boolean {
     const env = process.env
     detected =
       agentKeys.some(key => Boolean(env[key])) ||
-      /\.pi[\\/]agent/.test(env.PATH || '') ||
-      /devin/.test(env.EDITOR || '') ||
-      (!process.stdout.isTTY && /kiro/.test(env.TERM_PROGRAM || ''))
+      /\.pi[\\/]agent/.test(env['PATH'] || '') ||
+      /devin/.test(env['EDITOR'] || '') ||
+      (!process.stdout.isTTY && /kiro/.test(env['TERM_PROGRAM'] || ''))
   }
   return detected
 }

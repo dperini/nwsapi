@@ -1,11 +1,14 @@
-import { readFileSync } from 'node:fs'
-import { JSDOM } from 'jsdom'
+import { createRequire } from 'node:module'
+import pkg from '../../package.json' with { type: 'json' }
 import factory from '../../src/nwsapi.js'
+
+const require = createRequire(import.meta.url)
 
 export function inspectSelector(
   selector: string,
   { mode: modeName = 'select', legacy = false, json = false } = {},
 ) {
+  const { JSDOM } = require('jsdom')
   const { window } = new JSDOM('<!doctype html><html><body></body></html>')
   try {
     const engine = factory(window)
@@ -13,9 +16,6 @@ export function inspectSelector(
     const mode = modeName === 'item' ? null : modeName === 'select'
     const resolver = engine.compile(selector, mode)
     const source = resolver ? resolver.toString() : null
-    const pkg = JSON.parse(
-      readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
-    )
     return json
       ? JSON.stringify(
           {

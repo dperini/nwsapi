@@ -71,7 +71,18 @@ test('the important icon retains the exact supplied Octicon path', t => {
 })
 
 test('every coverage badge is already optimized', () => {
-  for (const pct of [undefined, 0, 49, 50, 60, 70, 80, 90, 99.4, 100]) {
+  for (const pct of [
+    undefined,
+    0,
+    49,
+    50,
+    60,
+    70,
+    80,
+    90,
+    99.4,
+    100,
+  ] as const) {
     expect(isSvgOptimized(coverageBadgeSvg(pct))).toBe(true)
   }
 })

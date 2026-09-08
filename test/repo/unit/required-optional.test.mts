@@ -10,7 +10,7 @@ test('required and optional apply only to the complete control names', t => {
   const engine = factory(window)
   for (const node of window.document.body.children) {
     const control = ['button', 'select', 'textarea'].includes(node.localName)
-    for (const required of [false, true, false]) {
+    for (const required of [false, true, false] as const) {
       Object.defineProperty(node, 'required', {
         configurable: true,
         value: required,
@@ -37,7 +37,7 @@ for (const type of [
   'submit',
   'reset',
   'image',
-]) {
+] as const) {
   test(`input type=${type} respects whether required applies`, t => {
     const { window } = new JSDOM(`<input type="${type}">`)
     t.onTestFinished(() => window.close())
@@ -52,10 +52,10 @@ for (const type of [
       'reset',
       'image',
     ].includes(type)
-    for (const required of [false, true, false]) {
-      input.required = required
-      expect(engine.match(':required', input)).toBe(applicable && required)
-      expect(engine.match(':optional', input)).toBe(!(applicable && required))
+    for (const required of [false, true, false] as const) {
+      input!.required = required
+      expect(engine.match(':required', input!)).toBe(applicable && required)
+      expect(engine.match(':optional', input!)).toBe(!(applicable && required))
       expect(engine.select(':required', window.document)).toEqual(
         applicable && required ? [input] : [],
       )
