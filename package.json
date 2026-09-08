@@ -54,6 +54,7 @@
     "gen:bench": "node scripts/repo/run.mts scripts/repo/gen/benchmark-charts.mts && node scripts/repo/run.mts scripts/repo/gen/readme-performance.mts && node scripts/repo/run.mts scripts/repo/gen/footprint-charts.mts",
     "bench:selectors": "node scripts/repo/run.mts scripts/repo/bench/run.mts selectors",
     "check:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts",
+    "check:wpt-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/scope.mts",
     "fix:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts --fix",
     "gen:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts",
     "check:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts --check",

@@ -31,15 +31,22 @@
  * - Focus tests requiring testdriver remain excluded; programmatic focus
  *   and state-preserving move tests below run without testdriver.
  */
-export const manifest: Array<{
+export interface WptEntry {
   path: string
   note: string
   install?: boolean
   legacyMap?: boolean
   parsing?: boolean
   selectorInputs?: number
-}> = [
+  script?: boolean
+  domOnly?: 'form-validity' | 'input-direction' | 'namespace-matches'
+}
+
+export const manifest: WptEntry[] = [
   ...[
+    '/css/css-forms/parsing/checkmark-pseudo-element.html',
+    '/css/css-forms/parsing/picker-icon-pseudo-element.html',
+    '/css/css-forms/parsing/picker-select-pseudo-element.html',
     '/css/css-overflow/parsing/scroll-buttons-invalid.html',
     '/css/css-overflow/parsing/scroll-buttons-valid.html',
     '/css/css-pseudo/parsing/highlight-pseudos-search-text.tentative.html',
@@ -53,6 +60,7 @@ export const manifest: Array<{
     '/css/css-view-transitions/parsing/pseudo-elements-invalid.html',
     '/css/css-view-transitions/parsing/pseudo-elements-valid-with-classes.html',
     '/css/css-view-transitions/parsing/pseudo-elements-valid.html',
+    '/html/semantics/selectors/pseudo-classes/autofill.html',
   ].map(path => ({
     path,
     note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
@@ -92,6 +100,31 @@ export const manifest: Array<{
     note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
     parsing: true,
   })),
+  ...[
+    '/html/semantics/selectors/case-sensitivity/values.window.html',
+    '/html/semantics/selectors/pseudo-classes/checked-indeterminate.window.html',
+    '/html/semantics/selectors/pseudo-classes/input-checkbox-switch.tentative.window.html',
+  ].map(path => ({
+    path,
+    note: 'Upstream window script wrapped with testharness. Switch-control cases require draft host behavior.',
+    script: true,
+  })),
+  {
+    path: '/css/css-shadow/host-dom-001.html',
+    note: 'Shadow host scoping through matches() and querySelector().',
+  },
+  {
+    path: '/css/css-shadow/slotted-matches.html',
+    note: 'Slotted pseudo-elements do not match elements outside the shadow tree.',
+  },
+  {
+    path: '/css/css-shadow/has-slotted-manual-assignment.html',
+    note: 'Draft slot state through selector APIs. Manual means programmatic slot assignment.',
+  },
+  {
+    path: '/css/selectors/selectors-4/lang-singleton-subtag-matching.html',
+    note: 'Language-range matching and singleton subtags through querySelectorAll().',
+  },
   {
     path: '/html/semantics/selectors/pseudo-classes/checked.html',
     note: 'HTML selector semantics: checked through DOM APIs',
@@ -163,6 +196,7 @@ export const manifest: Array<{
   {
     path: '/html/semantics/selectors/pseudo-classes/valid-invalid.html',
     note: 'HTML selector semantics: valid-invalid through DOM APIs',
+    domOnly: 'form-validity',
   },
 
   {
@@ -172,6 +206,7 @@ export const manifest: Array<{
   {
     path: '/css/selectors/dir-pseudo-on-input-element.html',
     note: 'input directionality across types, values and live type changes',
+    domOnly: 'input-direction',
   },
   {
     path: '/_repo/test/repo/e2e/upstream/fixtures/media-time-state.html',
@@ -321,7 +356,8 @@ export const manifest: Array<{
   },
   {
     path: '/dom/nodes/Element-matches-namespaced-elements.html',
-    note: 'matches() on createElementNS elements (jsdom regressions); the webkitMatchesSelector half runs the native engine (alias not overridden by install())',
+    note: 'matches() on createElementNS elements. The native-only alias variants are excluded.',
+    domOnly: 'namespace-matches',
   },
   {
     path: '/dom/nodes/Element-closest.html',

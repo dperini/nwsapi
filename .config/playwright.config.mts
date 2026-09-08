@@ -8,6 +8,7 @@ export default defineConfig({
   testDir: '../test/repo/e2e/upstream',
   outputDir: '../test-results',
   testMatch: 'wpt.spec.mts',
+  globalSetup: '../scripts/repo/check/wpt/scope.mts',
   fullyParallel: true,
   workers: process.env['WPT_UPDATE_EXPECTATIONS'] ? 1 : 4,
   reporter: isAgent() ? 'dot' : 'list',

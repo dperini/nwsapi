@@ -32,7 +32,10 @@ import { fileURLToPath } from 'node:url'
 import { expect, test } from '@playwright/test'
 import { manifest } from './manifest.mts'
 import { getSection } from './sections.mts'
-import { adaptAnPlusB, adaptSelectorInputs } from './parsing.mts'
+import {
+  pageContentType,
+  pageSource,
+} from '../../../../scripts/repo/check/wpt/source.mts'
 import { isAgent } from '../../../../scripts/repo/lib/is-agent.mts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -203,20 +206,19 @@ for (const entry of manifest) {
       await page.route('**/css/support/parsing-testcommon.js', route =>
         route.fulfill({ contentType: 'text/javascript', body: parsingHelpers }),
       )
-      if (entry.path.endsWith('/parse-anplusb.html') || entry.selectorInputs) {
-        const source = readFileSync(
-          path.join(repoRoot, 'upstream/wpt', entry.path),
-          'utf8',
-        )
-        await page.route(`**${entry.path}`, route =>
-          route.fulfill({
-            contentType: 'text/html',
-            body: entry.selectorInputs
-              ? adaptSelectorInputs(source, entry.selectorInputs)
-              : adaptAnPlusB(source),
-          }),
-        )
-      }
+    }
+    if (
+      entry.path.endsWith('/parse-anplusb.html') ||
+      entry.selectorInputs ||
+      entry.domOnly ||
+      entry.script
+    ) {
+      await page.route(`**${entry.path}`, route =>
+        route.fulfill({
+          contentType: pageContentType(entry.path),
+          body: pageSource(entry),
+        }),
+      )
     }
     if (coverageDirectory) {
       await page.coverage.startJSCoverage({ resetOnNavigation: false })
@@ -352,7 +354,13 @@ for (const entry of manifest) {
       body: JSON.stringify({
         path: entry.path,
         origin: entry.path.startsWith('/_repo/') ? 'local' : 'upstream',
-        adaptation: entry.parsing ? 'selector-validity' : null,
+        adaptation: entry.parsing
+          ? 'selector-validity'
+          : entry.domOnly
+            ? 'selector-matching'
+            : entry.script
+              ? 'script-wrapper'
+              : null,
         engineSha256,
         wptRevision,
         browser: browser.version(),
