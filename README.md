@@ -181,7 +181,7 @@ CI reads Node.js and package manager versions from `.config/external-tools.json`
 
 </details>
 
-## Support the project
+## Donate or sponsor
 
 Sponsorship helps fund maintenance, testing, and selector support.
 
