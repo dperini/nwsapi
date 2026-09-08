@@ -1,57 +1,46 @@
 # Project history and name
 
-`nwsapi` continues the selector-engine work that Diego Perini began with `nwmatcher`. The surviving `nwmatcher` Git history starts on July 15, 2008. By September 2026, that history spans more than 18 years and approaches two decades.
+`nwmatcher` began as Diego Perini's CSS selector engine for browser libraries. Its work continued in `nwsapi`, connecting nearly two decades of development across browser frameworks, `jsdom`, and the npm ecosystem.
 
 ## The NWBOX connection
 
-The original [Javascript @ NWBOX site](http://javascript.nwbox.com/) lists NWMatcher, NWEvents, and NWFrames together. It describes NWMatcher as a CSS3 selector and matcher engine. These projects share the `NW` prefix. The [NWBOX company site](http://nwbox.com/) identifies NWBOX S.a.s. in Verona, Italy, and describes its computer security and web software services.
+The original [Javascript @ NWBOX site](http://javascript.nwbox.com/) lists NWMatcher alongside NWEvents and NWFrames. The [company site](http://nwbox.com/) identifies NWBOX in Verona, Italy. The [early `nwmatcher` source](https://github.com/dperini/nwmatcher/blob/5ba75cc29a2106bf6ad3b5d0a72d0121ba3340fa/src/nwmatcher.js) uses the `NW.Dom` namespace and links to NWBOX for its download and license. That namespace survives in `nwsapi`.
 
-The [early `nwmatcher` source](https://github.com/dperini/nwmatcher/blob/5ba75cc29a2106bf6ad3b5d0a72d0121ba3340fa/src/nwmatcher.js) uses the `NW.Dom` namespace and links to `javascript.nwbox.com/NWMatcher/` for its download and license. The namespace survives in `nwsapi` today.
+These sources suggest that the name combines the NWBOX project prefix with “Matcher,” describing its job of matching elements against CSS selectors. This is an inference from the shared branding and code. The sources do not explicitly expand “NW.”
 
-Together, these sources suggest that the name combines the NWBOX project prefix with “Matcher,” describing the engine's job of matching elements against CSS selectors. This is an inference from the shared branding and code. The reviewed sources do not explicitly expand the letters “NW” or explain how NWBOX itself was named.
+## Recorded milestones
 
-## From `nwmatcher` to `nwsapi`
+| Date              | Milestone                                                                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| July 22, 2007     | The [early source header](https://github.com/dperini/nwmatcher/blob/5ba75cc29a2106bf6ad3b5d0a72d0121ba3340fa/src/nwmatcher.js) records the creation of `nwmatcher`. |
+| July 15, 2008     | The surviving [`nwmatcher` Git history begins](https://github.com/dperini/nwmatcher/commit/3d1641030b0e62cd7aeab2ce6c0deb0169b3f5d4).                               |
+| September 7, 2008 | A [release preparation commit](https://github.com/dperini/nwmatcher/commit/b0200ba7e546a0428d59553ad22c6e676248dea8) updates the version strings to 1.0.            |
+| October 2012      | [`jsdom` adopts `nwmatcher`](https://github.com/jsdom/jsdom/commit/e4ae05534f30965304b2710638ca350ef5b320af) to replace `sizzle`.                                   |
+| June 2017         | `nwsapi` starts in a separate repository with an [import of `nwmatcher` 1.4.0](https://github.com/dperini/nwsapi/commit/5bcb545c4de781ad7f57dbc485c39c892ccbecb2).  |
+| May 2018          | [`jsdom` moves from `nwmatcher` to `nwsapi`](https://github.com/jsdom/jsdom/commit/38b868b0ca2a127a55c8a59a0e1320e032074118).                                       |
 
-| Date              | Recorded milestone                                                                                                                                                                                                                            |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| July 22, 2007     | The early `nwmatcher` source header records this creation date. It predates the surviving Git history.                                                                                                                                        |
-| July 15, 2008     | Diego Perini makes the [first `nwmatcher` Git commit](https://github.com/dperini/nwmatcher/commit/3d1641030b0e62cd7aeab2ce6c0deb0169b3f5d4), containing an empty README. Source code appears in the next commit. The date is recorded in UTC. |
-| September 7, 2008 | A [release preparation commit](https://github.com/dperini/nwmatcher/commit/b0200ba7e546a0428d59553ad22c6e676248dea8) updates the version strings to 1.0.                                                                                      |
-| June 4, 2017      | The separate `nwsapi` repository receives its [initial commit](https://github.com/dperini/nwsapi/commit/b3dcaf6a1b31c6f272caa4986f941a2c6c97011a).                                                                                            |
-| June 5, 2017      | The [first source import](https://github.com/dperini/nwsapi/commit/5bcb545c4de781ad7f57dbc485c39c892ccbecb2) brings in `nwmatcher` 1.4.0. Further commits that day add Selectors Level 4 features.                                            |
-
-The 2007 date comes from a source comment. The 2008 date comes from Git history. They describe different records, so the first Git commit should not be presented as the first day of development.
-
-The 2017 work established `nwsapi` as a successor in a separate repository. Its early additions included [`:matches()`](https://github.com/dperini/nwsapi/commit/8152d792aa63381348e1da9bb43519157facacdd), [form-state pseudo-classes](https://github.com/dperini/nwsapi/commit/9e598d4a62950bca314e8ad63a32c136c6faeb1a), and the [attribute case-insensitive flag](https://github.com/dperini/nwsapi/commit/a376f7a565be80867790c169bea64e588f52abdf). Those commits show how the project extended the earlier engine toward newer selector specifications.
+The source header records development before the surviving Git history begins.
 
 ## Why selector engines mattered
 
-Selector engines helped libraries offer predictable element queries while browser implementations differed. Engines such as `nwmatcher` and [`sizzle`](https://github.com/jquery/sizzle) handled the work behind selector-based library APIs. Their value depended on correct results, browser coverage, and execution cost.
+Engines such as `nwmatcher` and [`sizzle`](https://github.com/jquery/sizzle) helped libraries provide consistent element queries across browsers. Correct results, browser compatibility, and speed all mattered when applications relied on selectors to find and update page content.
 
-Perini's [original project page](http://javascript.nwbox.com/NWMatcher/) explains a specific need: testing whether one element matched a selector without first finding every matching element in the document. That made `nwmatcher` useful for event delegation. A listener could check whether an event's target matched a rule, including elements added after the listener was registered. The companion [NWEvents project](http://javascript.nwbox.com/NWEvents/) used the engine for this purpose.
+Perini's [original project page](http://javascript.nwbox.com/NWMatcher/) explains a specific need: checking whether one element matched a selector without first finding every matching element in the document. This supported event delegation, where a listener checks whether an event's target matches a rule. The companion [NWEvents project](http://javascript.nwbox.com/NWEvents/) used `nwmatcher` for this purpose, including for elements added after a listener was registered.
 
-## FuseJS and Prototype
+John-David Dalton championed `nwmatcher` in FuseJS and Prototype. [FuseJS made it the default selector engine](https://github.com/jgornick/fusejs/blob/aaae8cb4f370be3bb1bbc93cb5ce51a8e8f56d77/README.md), and [Prototype 1.7 supported it as a replacement for `sizzle`](https://github.com/prototypejs/prototype/blob/1.7/Rakefile). Dalton [improved the Prototype adapter](https://github.com/prototypejs/prototype/commit/2f9bde3ad5a2e3dd104c812b6c81f4077fe0aa1e) and discussed selector engines and performance at [JSConf.US 2010](https://2010.jsconf.us/speakers.html).
 
-John-David Dalton's work with FuseJS and Prototype helped make `nwmatcher` usable behind familiar framework APIs. FuseJS was his main framework effort. Its preserved [README](https://github.com/jgornick/fusejs/blob/aaae8cb4f370be3bb1bbc93cb5ce51a8e8f56d77/README.md) identifies `nwmatcher` as the default among eight supported selector engines, alongside alternatives such as `sizzle` and Slick. Its [adapter](https://github.com/jgornick/fusejs/blob/14a0ed50887007287188a71d51e70b609d540146/src/dom/selector/nwmatcher.js) calls `NW.Dom.match()` and `NW.Dom.select()`. A [January 2010 commit](https://github.com/jgornick/fusejs/commit/c0ff1d17de41a6f31896901331c4cfcd4d5b70bb) records his adapter update for `nwmatcher` 1.2.1.
+## Adoption in `jsdom` and continuation in `nwsapi`
 
-Prototype also allowed its selector engine to be swapped for `nwmatcher`. The [Prototype 1.7 build](https://github.com/prototypejs/prototype/blob/1.7/Rakefile) selected engines through `SELECTOR_ENGINE`, with `sizzle` as its default. Its [`nwmatcher` adapter](https://github.com/prototypejs/prototype/blob/1.7/vendor/nwmatcher/selector_engine.js) connected selection and matching to `Prototype.Selector`. Dalton's [April 6, 2010 commit](https://github.com/prototypejs/prototype/commit/2f9bde3ad5a2e3dd104c812b6c81f4077fe0aa1e) simplified that adapter and optimized it for browsers that did not need Prototype's element extensions.
+Adoption by `jsdom` brought `nwmatcher` into Node.js programs using browser-style DOM APIs. The [integration](https://github.com/jsdom/jsdom/commit/e4ae05534f30965304b2710638ca350ef5b320af) used its `first()` and `select()` methods to implement `querySelector()` and `querySelectorAll()` on documents and elements.
 
-The preserved repository also contains Prototype history. Its [`1.6.0.2` tag](https://github.com/jgornick/fusejs/releases/tag/1.6.0.2), created by Dalton on August 26, 2008, points to a January 25, 2008 commit preparing a Prototype release. The [README at that tag](https://github.com/jgornick/fusejs/blob/1.6.0.2/README) identifies Prototype. This records an earlier part of the repository's lineage, rather than a FuseJS release with that version.
+`nwsapi` continued that work with newer selector features. Its first additions included [`:matches()`](https://github.com/dperini/nwsapi/commit/8152d792aa63381348e1da9bb43519157facacdd) and the [attribute case-insensitive flag](https://github.com/dperini/nwsapi/commit/a376f7a565be80867790c169bea64e588f52abdf). The later [`jsdom` adoption commit](https://github.com/jsdom/jsdom/commit/38b868b0ca2a127a55c8a59a0e1320e032074118) cited fixes for known issues, support for more selectors, and faster execution.
 
-The [JSConf.US 2010 program](https://2010.jsconf.us/speakers.html) lists Dalton's talk, “All you can leet - Coding for performance, CSS engines, and sandboxed natives.” Its description emphasizes feature testing, avoiding repeated work, and choosing selector engines for consistent results, specification behavior, and the browsers a project needs. Dalton recalls promoting `nwmatcher` in that talk. The program confirms its subject, while the specific recommendation is his recollection recorded during this history review in September 2026.
+Today, `nwsapi` receives nearly 50 million npm downloads a week. [npm download statistics](https://api.npmjs.org/downloads/point/2026-08-25:2026-08-31/nwsapi)
 
-FuseJS combined its selector support with sandboxed natives.
+## Related work on DOM readiness
 
-## Making the DOM ready across browsers
+Perini also helped libraries detect when a document was ready to use, before images and other resources finished loading. His [DOMComplete experiments](http://javascript.nwbox.com/DOMComplete/) began in 2006. The [IEContentLoaded page](http://javascript.nwbox.com/IEContentLoaded/) documents his `doScroll()` technique for older Internet Explorer versions, which lacked the `DOMContentLoaded` event available in other browsers.
 
-Perini's contribution also reached the startup code of major libraries. Scripts needed to know when the document was ready to inspect and change. Waiting for the window's `load` event could delay that work until images and other resources had loaded. Older Internet Explorer versions needed an alternative to the `DOMContentLoaded` event available elsewhere.
+Both [`jquery` 1.4.2](https://github.com/jquery/jquery/blob/1.4.2/src/core.js#L741-L758) and [MooTools 1.2.5](https://github.com/mootools/mootools-core/blob/1.2.5/Source/Utilities/DomReady.js) credit Perini beside their readiness checks. This related NWBOX work helped libraries provide dependable startup behavior when differences between browsers required careful tests and fallbacks.
 
-The [DOMComplete test page](http://javascript.nwbox.com/DOMComplete/) says it was first published on July 31, 2006. It demonstrates attaching behavior before images finish loading, including a server response with deliberate delays. Its change notes record the move to `doScroll()` for Internet Explorer and identify earlier checks that were unreliable. This related NWBOX work reaches back 20 years as of 2026. It does not change the later dates recorded for `nwmatcher` itself.
-
-The [IEContentLoaded page](http://javascript.nwbox.com/IEContentLoaded/) documents his `doScroll()` technique. A small polling loop tried the method until it stopped throwing, using that change to detect document readiness. A readiness-state fallback and a guard ensured that the callback ran once. Its tests checked that images did not determine when DOM initialization could begin.
-
-This became practical infrastructure for other libraries. [`jquery` 1.4.2](https://github.com/jquery/jquery/blob/1.4.2/src/core.js#L741-L758) explicitly credits Diego Perini and links to IEContentLoaded. [MooTools 1.2.5](https://github.com/mootools/mootools-core/blob/1.2.5/Source/Utilities/DomReady.js) also credits him beside its `doScroll()` check. These are direct examples of libraries adapting the technique into their own readiness code.
-
-That work helped establish dependable JavaScript libraries when scripting across browsers required careful experiments and fallbacks. The historical NWBOX pages preserve both the techniques and the tests behind them.
-
-This page describes the project's origins. See the [compatibility review](selector/compatibility.md) for current selector behavior and the [performance journal](perf/journal.md) for measured implementation changes.
+See the [compatibility review](selector/compatibility.md) for current selector behavior and the [performance journal](perf/journal.md) for measured implementation changes.
