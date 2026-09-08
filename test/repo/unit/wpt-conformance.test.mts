@@ -35,7 +35,7 @@ test('document roots and namespace errors remain correct after root replacement'
   doc.append(root)
   expect(engine.match(':root', root)).toBe(true)
   expect(engine.select(':scope', doc)).toEqual([root])
-  expect(() => Reflect.apply(engine.first, engine, [])).toThrow(TypeError)
+  expect(() => engine.first.call(engine)).toThrow(TypeError)
 })
 
 test('explicit attribute case flags override HTML defaults', t => {
