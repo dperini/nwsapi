@@ -76,7 +76,7 @@ export function summaryChart(metrics: SummaryMetric[], notes: string[]) {
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720" role="img"><title>NWSAPI - Fast CSS Selectors API Engine</title><desc>Standalone library comparison. ${escapeText(notes.join(' '))} Each metric has its own zero-based linear scale; shorter bars are better.</desc><defs>${chartBackground}${chartGradients}</defs><style>${chartTextStyles}.metric-title{font-size:20px;font-weight:700}.engine{font-size:16px}.headline{font-size:30px;font-weight:700;fill:${chartColors[0]![0]}}</style>${chartFrame(720)}<text x="48" y="58" class="chart-title">NWSAPI - Fast CSS Selectors API Engine</text>${body}<path d="M48 582H1052" stroke="#304159"/>${footer}</svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720" role="img"><title>NWSAPI — Fast CSS Selectors API Engine</title><desc>Standalone library comparison. ${escapeText(notes.join(' '))} Each metric has its own zero-based linear scale; shorter bars are better.</desc><defs>${chartBackground}${chartGradients}</defs><style>${chartTextStyles}.metric-title{font-size:20px;font-weight:700}.engine{font-size:16px}.headline{font-size:30px;font-weight:700;fill:${chartColors[0]![0]}}</style>${chartFrame(720)}<text x="48" y="58" class="chart-title">NWSAPI — Fast CSS Selectors API Engine</text>${body}<path d="M48 582H1052" stroke="#304159"/>${footer}</svg>`,
     ) + '\n'
   )
 }

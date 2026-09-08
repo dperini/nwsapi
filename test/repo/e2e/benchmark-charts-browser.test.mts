@@ -67,7 +67,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
             uppercasePackage: texts.some(
               ({ text }) =>
                 text?.includes('NWSAPI') &&
-                text !== 'NWSAPI - Fast CSS Selectors API Engine',
+                text !== 'NWSAPI — Fast CSS Selectors API Engine',
             ),
             selectors: document.querySelectorAll('text.selector').length,
           }
