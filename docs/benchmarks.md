@@ -1,20 +1,20 @@
 # Selector benchmarks and footprint
 
-NWSAPI v2.3.0-prerelease and `@asamuzakjp/dom-selector` run as standalone libraries on native Chromium DOMs.
+`nwsapi` v2.3.0-prerelease and `@asamuzakjp/dom-selector` run as standalone libraries on native Chromium DOMs.
 **Every chart on this page compares library to library, without jsdom.**
 The browser's own selector methods are used only as the correctness oracle, outside measured calls.
 The saved reports identify the browser version, CPU, library versions, source hashes, fixture hashes and raw samples.
 
-The README summary uses the geometric mean of the comparison-to-NWSAPI time ratios across all 36 warm all-results queries.
+The [README summary](../README.md#performance) uses the geometric mean of the ratios of comparison-library time to `nwsapi` time across all 36 warm all-results queries.
 Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
 
 ## All-results comparison
 
-The category charts call NWSAPI's `select()` and the comparison library's `querySelectorAll()` directly.
+The category charts call `nwsapi`'s `select()` and the comparison library's `querySelectorAll()` directly.
 They measure warm queries and retain every timing sample.
 Queries must return the same nodes in the same order as native Chromium, before and after measurement.
 The timing charts use thin bars on a shared logarithmic scale so fast queries remain visible.
-Bars span from the lowest labeled time to each measured value. Each axis step multiplies time by ten; shorter bars are faster.
+Bars span from the lowest labeled time to each measured value. Each axis step multiplies time by ten. Shorter bars are faster.
 Unsupported or incorrect results receive no bar and fail the comparison run.
 
 <details>
@@ -52,7 +52,7 @@ Results describe these queries and fixtures, not every application's performance
 
 <a id="cold-and-warm-samples"></a>
 
-The first-match comparison calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
+The first-match comparison calls `nwsapi`'s `first()` and the comparison library's `querySelector()` directly.
 Each engine receives its own native document containing identical HTML and is initialized before timing starts.
 
 Cold means the first query on a freshly initialized engine and document.
@@ -60,11 +60,11 @@ The runner times a batch of eight cold calls, each on a separate engine/document
 Warm means repeated calls after at least 20ms of warmup.
 The chart shows medians across nine rounds.
 
-The first-match chart selects the four queries with the largest warm-query speedups for NWSAPI.
+The first-match chart selects the four queries with the largest warm-query speedups for `nwsapi`.
 The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries, covering tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
-The fixture contains component, utility-class and test-ID patterns; it does not execute application frameworks.
+The fixture contains component, utility-class and test-ID patterns. It does not execute application frameworks.
 
-Each line connects cold and warm times on a shared logarithmic scale; further left means less time.
+Each line connects cold and warm times on a shared logarithmic scale. Further left means less time.
 The SVG tooltips retain absolute timing values.
 See the [performance guide](performance.md) for compiler implementation details.
 
@@ -92,61 +92,91 @@ The memory diagnostics enable explicit garbage collection.
 
 ![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=e24a0a3cfcab)
 
-Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
+These queries find controls inside repeated cards by combining classes, attributes and parent-child relationships.
+The cases include primary buttons, cards containing inputs, alternatives grouped with `:is()`, and inputs filtered with `:not()`.
+They measure compound selectors against repeated component structures, where similar controls appear under many parents.
+Both engines return every matching control in document order.
 
 ## Documentation queries
 
 ![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=50991b2e7b35)
 
-Queries for links and definition entries in a large documentation fixture.
+These queries find content within a large documentation fixture, including list links, definition-description links and table cells.
+The example-content case follows a direct-child path from an example container through a paragraph to an anchor.
+The comparison covers both descendant searches and constrained child traversal across different document structures.
+It measures selector execution against the existing document, with parsing and document construction excluded.
 
 ## Utility-class queries
 
 ![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=39599a36d68a)
 
-Queries for navigation links and card content in nested utility-class HTML.
+These queries follow class-based paths through nested navigation and card content.
+The cases locate sidebar links, links within card rows, badges within content cards, and anchors reached through a chain of direct children.
+They exercise selectors whose matches depend on several ancestor or parent conditions.
+The fixture contains static HTML, so the timings exclude framework rendering and application code.
 
 ## Basic selectors
 
 ![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=475027d3348b)
 
-ID, class, tag and combined tag/class queries in the component fixture. These provide a baseline for the more complex selectors below.
+These cases query an ID, a class, a tag and a combined tag/class selector in the component fixture.
+The result sets range from one targeted input to collections of cards or buttons.
+They provide a baseline for simple selection before the relationship, attribute and pseudo-class cases below.
+Compare the engines within each query, since different queries return different numbers of elements.
 
 ## Attribute selectors
 
 ![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=b54135463158)
 
-Queries for attribute presence, exact values, value prefixes and whitespace-separated tokens. The fixture uses test IDs and class attributes.
+These cases test attribute presence, exact values, value prefixes and whitespace-separated tokens.
+The test-ID queries distinguish finding a specific control from matching a broader set of similarly named controls.
+The class-attribute case uses `~=` to match a complete token rather than a substring.
+Together, they compare attribute filtering across several matching rules on the same component fixture.
 
 ## Relationships
 
 ![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=7266322bab33)
 
-Descendant, direct-child, adjacent-sibling and general-sibling queries. These find controls and content through their positions relative to other elements.
+These queries find elements through descendant, direct-child, adjacent-sibling and general-sibling relationships.
+The descendant and child cases select buttons beneath `div` elements, with different restrictions on nesting depth.
+The sibling cases find inputs immediately after labels and spans after buttons under the same parent.
+The comparison measures these traversal patterns while requiring both engines to return the same ordered results.
 
 ## Position selectors
 
 ![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=bffe0cea19d2)
 
-Queries for first, last and numbered children. The cases count siblings from both ends and include an even-position pattern.
+These queries select `div` elements by their positions among element siblings.
+The cases cover the first child, last child, even-numbered children and the third child counted from the end.
+Position depends on the element's sibling group, including siblings with other tag names.
+The comparison measures positional filtering in the component fixture, with expected matches checked against native Chromium.
 
 ## Logical selectors
 
 ![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=7235d776b155)
 
-Queries using `:not()`, `:is()`, `:where()` and `:has()`. The cases cover exclusion, selector alternatives and parents with matching children.
+These queries combine exclusion, selector alternatives and relational conditions through `:not()`, `:is()`, `:where()` and `:has()`.
+The cases exclude buttons with a particular class, select buttons or inputs, and find buttons beneath matching cards.
+The relational case selects a parent based on whether it contains a matching direct child.
 
 ## Form state selectors
 
 ![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=e62e7d0a2b19)
 
-Queries for enabled, disabled, optional and read-write controls. Results reflect the control states in the component fixture.
+These queries select enabled, optional and read-write inputs, along with disabled buttons.
+They exercise form-state pseudo-classes using the native controls in the component fixture.
+Expected matches come from Chromium, so each engine must respect the applicable control types and state attributes.
+The comparison measures queries against those existing states, with no user interaction or state mutation inside the timed calls.
 
 ## First matches
 
 ![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=474e92c12e19)
 
-Direct `first()` and `querySelector()` calls with cold and warm engines. The chart highlights the four queries with the largest warm-query speedups for NWSAPI; the [raw report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
+This chart compares direct `first()` and `querySelector()` calls with cold and warm engines.
+Each library receives its own native document containing identical HTML, and initialization happens before timing starts.
+The lines connect the first-query and repeated-query times on the same logarithmic scale.
+The chart highlights the four queries with the largest warm-query speedups for `nwsapi`.
+The [raw report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
 
 ## Memory footprint
 
@@ -161,7 +191,7 @@ Each engine and round gets a fresh browser page, and engine order alternates acr
 
 The chart reports medians. The [raw memory report](../assets/repo/bench/memory-footprint.json) also includes minimums, maximums and every sample.
 DOM allocation, shared library code, native browser allocations and jsdom overhead are excluded.
-This is a retained-memory comparison; it does not measure peak allocation or total process memory.
+This is a retained-memory comparison. It does not measure peak allocation or total process memory.
 Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
@@ -169,10 +199,10 @@ Claims of lower memory apply to this workload and the listed library versions.
 ![Minified and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=6a93a1b3c0ec)
 
 This is a file size report, not a timing benchmark.
-NWSAPI uses its published `dist/nwsapi.min.js` core browser file.
+`nwsapi` uses its published `dist/nwsapi.min.js` core browser file.
 The comparison engine is bundled with all runtime dependencies and no tree shaking, then minified with the same Rolldown minifier.
 The report includes uncompressed bytes, gzip level 9 and Brotli quality 11.
 The [raw size report](../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
 
-The comparison excludes jsdom itself, the NWSAPI CLI, the jsdom adapter and its optional `css-tree` peer.
+The comparison excludes jsdom itself, the `nwsapi` CLI, the jsdom adapter and its optional `css-tree` peer.
 It measures these browser artifacts, not npm tarballs or total installation size.

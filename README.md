@@ -156,7 +156,7 @@ pnpm run test:wpt     # Web Platform Tests
 pnpm run cover        # Node + WPT coverage
 ```
 
-Coverage combines Node tests and WPT in Chromium; all four aggregate metrics exceed 95%.
+Coverage combines Node tests and WPT in Chromium. All four aggregate metrics exceed 95%.
 The CLI entry point has a separate 100% coverage assertion.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
@@ -178,12 +178,12 @@ The package does not include TypeScript source files or development tools.
 Pin development dependencies in the `pnpm-workspace.yaml` catalog. Update `pnpm-lock.yaml` when dependencies change.
 Run `pnpm run update --check` to preview dependency updates.
 Run `pnpm run update` to apply updates and refresh the lockfile.
-Run `pnpm run soak:check` to verify the release-delay policy; `pnpm run check` includes it.
+Run `pnpm run soak:check` to verify the release-delay policy. `pnpm run check` includes it.
 Use `pnpm run soak:bypass package@version` for an exact, dated exception.
 `pnpm run update` removes expired exceptions, synchronizes the npm and pnpm settings, and retries failed taze lookups once.
 Compiler tool versions need a separate compatibility review.
 New dependency versions have a one-day release delay. Dependency scripts need explicit approval.
-Use pnpm to install this repository; npm cannot install its catalog references.
+Use pnpm to install this repository. npm cannot install its catalog references.
 CI reads Node.js and package manager versions from `.config/external-tools.json`.
 
 </details>

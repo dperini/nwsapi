@@ -8,6 +8,7 @@
 !/.gitignore
 !/.gitmodules
 !/.npmrc
+!/AGENTS.md
 !/LICENSE
 !/README.md
 !/THANKS.md
