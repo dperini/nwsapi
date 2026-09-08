@@ -151,12 +151,19 @@ other CPU-intensive tasks.
 
 ## Remaining performance work
 
-The all-results report still contains losses and small margins; this change
-does not establish dominance on every query type. The next bounded targets
-are formula positions over many candidates, child relationships that do not
-benefit from a selective anchor, expensive missing-result queries, and
-matching dispatch/cache overhead. Further changes need the same dense/sparse,
-early/late/missing, mutation, context, and independent-oracle checks.
+The subsequent collection-snapshot update avoids repeated native collection
+index reads on warm tag/class queries and scoped traversals. Simple queries
+copy cached memberships; compound predicates and relationships still execute.
+Pending mutation records invalidate snapshots synchronously. Weak ownership and
+observer cleanup prevent discarded engines from retaining candidate arrays.
+See [the snapshot design and memory diagnostic](common-query-fast-paths.md#native-collection-snapshots)
+and the [current measured matrix](benchmarks.md). The profile tables above remain
+the historical `6d79033` experiment, not a new profile of this update.
+
+The benchmark matrix does not cover every possible selector or workload. Further
+work should measure cold queries, mutation-heavy applications, other DOM hosts,
+missing results, and matching dispatch. Preserve dense/sparse, early/late/missing,
+mutation, context, and independent-oracle checks when adding specializations.
 
 A full parser rewrite, an AST intermediate representation, node-result
 memoization, or global string-to-number conversion has not been justified by

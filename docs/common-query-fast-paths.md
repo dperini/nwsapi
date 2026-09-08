@@ -1,10 +1,9 @@
 # Common query fast paths
 
 Implemented in `0b3840b` and `b68e020`, following the
-[performance review](performance-review.md). These changes improve common
-query shapes; the goal of a decisive lead in every category remains open.
-These are historical measurements. See the [V8 analysis](v8-performance.md)
-and [current benchmarks](benchmarks.md) for the subsequent first-match work.
+[performance review](performance-review.md). These were the initial common-query specializations.
+The tables below are historical measurements. See the [V8 analysis](v8-performance.md)
+and [current benchmarks](benchmarks.md) for subsequent first-match and collection-snapshot work.
 
 ## What changed
 
@@ -46,8 +45,8 @@ The tradeoff is lazy mutation observation and retained candidate arrays while
 collections remain reachable and unchanged. Mutation-heavy workloads rebuild these
 snapshots. No sibling positions or state-selector answers survive a query. Regression
 tests cover synchronous insertion/removal, class changes, adoption, SVG, detached
-contexts, returned-array mutation, and reentrant callbacks. A forced-GC diagnostic
-collected all 20 discarded snapshot states on a still-live document and all 100 removed test subtrees after returning the engine to its document
+contexts, returned-array mutation, and reentrant callbacks. A forced-GC diagnostic reclaimed all tested removed nodes and observers while
+the factory document stayed alive, after returning the engine to its document
 context and delivering mutation records.
 
 Run `node --expose-gc scripts/repo/bench/collection-memory.mts` to check detached-node and observer ownership with a live factory document.

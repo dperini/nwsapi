@@ -10,20 +10,20 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-**1.7–8.2× faster first matches** across 12 nonempty component queries, compared with jsdom's default `@asamuzakjp/dom-selector` engine.
+**36 of 36 lower all-results medians**, with **32 queries at least 2× faster**, against `@asamuzakjp/dom-selector` 8.3.2 in the recorded warm-query comparison.
+
+**1.6–8.2× faster first matches** across 12 nonempty component queries, compared with jsdom's default `@asamuzakjp/dom-selector` engine.
 
 | Query                    | First-match speedup |
 | ------------------------ | ------------------: |
-| `.card`                  |                3.9× |
-| `button.primary`         |                5.2× |
-| `.card > button.primary` |                7.2× |
-| `[data-testid]`          |                6.4× |
-| `div > button`           |                4.4× |
+| `.card`                  |                3.8× |
+| `button.primary`         |                5.0× |
+| `.card > button.primary` |                5.0× |
+| `[data-testid]`          |                5.2× |
+| `div > button`           |                4.3× |
 | `div:nth-child(2n)`      |                3.4× |
 
-For all-results queries, NWSAPI records **30 of 36 lower medians**, with **17 queries at least 2× faster**, across component, documentation, and utility-class fixtures.
-
-These warm-query measurements compare current **2.3.0-prerelease** source with dom-selector **8.3.2** through jsdom **30.0.1**, on Node.js **26.5.0**. NWSAPI is called directly; jsdom's public methods include integration overhead. The latest all-results run had high shared-machine load and substantial sample variance; six query medians remain slower. Small differences do not establish a performance change.
+These warm-query measurements compare current **2.3.0-prerelease** source with dom-selector **8.3.2** through jsdom **30.0.1**, on Node.js **26.5.0**. NWSAPI is called directly; jsdom's public methods include integration overhead. The all-results suite covers component, documentation, and utility-class fixtures. Some margins are small and timing varies with machine load. Native tag/class membership snapshots use synchronous mutation checks; returned arrays are fresh.
 
 See the [benchmarks, charts, and methodology](docs/benchmarks.md) and [V8 analysis and compiler inspection](docs/v8-performance.md).
 
