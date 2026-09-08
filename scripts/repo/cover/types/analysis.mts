@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { createScanner } from 'typescript/unstable/ast/scanner'
 import {
   API,
   DiagnosticCategory,
@@ -8,6 +9,7 @@ import {
 import {
   isBindingElement,
   isIdentifier,
+  isModuleDeclaration,
   isNamedTupleMember,
   isPrivateIdentifier,
   isQualifiedName,
@@ -27,9 +29,9 @@ export interface NativeTypeCoverageResult {
 }
 
 function requireCoverageType(type: Type | undefined): Type {
-  if (!type || type.isErrorType()) {
+  if (!type) {
     throw new Error(
-      'Type coverage failed: the compiler returned a missing or error type.',
+      'Type coverage failed: the compiler returned a missing type.',
     )
   }
   return type
@@ -70,6 +72,9 @@ function resolveCoverageType(
       return resolved
     }
   }
+  if (type) {
+    return type
+  }
   throw new Error(
     `Type coverage failed at ${node.getSourceFile().fileName}:${node.getStart()} (${node.getText()}, parent ${SyntaxKind[node.parent.kind]}): missing or error type.`,
   )
@@ -78,7 +83,20 @@ function resolveCoverageType(
 function measureCoverageSource(project: Project, source: SourceFile) {
   const identifiers: Node[] = []
   function visit(node: Node): void {
+    let globalMarker = false
+    if (
+      node.parent &&
+      isModuleDeclaration(node.parent) &&
+      node.parent.name === node &&
+      node.getText() === 'global'
+    ) {
+      const scanner = createScanner(true, undefined, node.parent.getText())
+      globalMarker =
+        scanner.scan() === SyntaxKind.DeclareKeyword &&
+        scanner.scan() === SyntaxKind.GlobalKeyword
+    }
     const metadata =
+      globalMarker ||
       (node.parent &&
         isNamedTupleMember(node.parent) &&
         node.parent.name === node) ||
@@ -106,13 +124,21 @@ function measureCoverageSource(project: Project, source: SourceFile) {
       types[index],
       project.checker,
     )
+    if (type.isErrorType()) {
+      uncovered += 1
+      continue
+    }
     if (!(type.flags & TypeFlags.Any)) {
       continue
     }
     const contextual = project.checker.getContextualType(
       identifiers[index] as Expression,
     )
-    if (!contextual || requireCoverageType(contextual).flags & TypeFlags.Any) {
+    if (
+      !contextual ||
+      contextual.isErrorType() ||
+      requireCoverageType(contextual).flags & TypeFlags.Any
+    ) {
       uncovered += 1
     }
   }
