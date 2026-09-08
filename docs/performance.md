@@ -14,6 +14,7 @@ It used Node.js v26.5.0, V8 v14.6.202.34-node.24, `jsdom` v30.0.1, and an Apple 
 V8 is the JavaScript engine used by Node.js and Chromium.
 Later sections describe the changes that followed that study.
 See the [benchmark report](benchmarks.md) for the latest recorded comparisons.
+The [performance journal](repo/performance.md) records memory experiments, measured outcomes, and correctness constraints.
 
 ## How we measured performance
 

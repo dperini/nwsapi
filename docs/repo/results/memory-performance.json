@@ -1,0 +1,568 @@
+{
+  "measuredAt": "2026-09-08",
+  "platform": "macOS arm64",
+  "notes": [
+    "Historical measurements preserved during documentation consolidation. No new benchmarks were run.",
+    "Snapshot files are temporary and are not included. These are the recorded summaries.",
+    "Comparisons have distinct baselines. Do not add their percentages."
+  ],
+  "experiments": {
+    "query-plan-storage": {
+      "baselineRevision": "966a139",
+      "candidateRevision": "f357ec0",
+      "before": {
+        "count": 100,
+        "queries": 100,
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37010600,
+          "instances": 39934584,
+          "cached": 47502144,
+          "detached": 48193040,
+          "released": 39429744
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "719e723ee5ae0d07c731b0d9faf9acbe32c511627367300fd1a6dbc9c76cb336",
+        "bytesPerInstance": 29239.84,
+        "bytesPerCachedSelector": 756.756
+      },
+      "after": {
+        "count": 100,
+        "queries": 100,
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 36757408,
+          "instances": 39523416,
+          "cached": 44425224,
+          "detached": 45123584,
+          "released": 39050840
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+        "bytesPerInstance": 27660.08,
+        "bytesPerCachedSelector": 490.1808
+      }
+    },
+    "idle-cache-and-grammar": {
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "before": {
+        "count": 100,
+        "queries": 100,
+        "method": "select",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37173440,
+          "instances": 39940352,
+          "cached": 44862208,
+          "detached": 45566720,
+          "released": 38735544
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+        "bytesPerInstance": 27669.12,
+        "bytesPerCachedSelector": 492.1856
+      },
+      "after": {
+        "count": 100,
+        "queries": 100,
+        "method": "select",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37034896,
+          "instances": 39332448,
+          "cached": 44276816,
+          "detached": 44939968,
+          "released": 38527264
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+        "bytesPerInstance": 22975.52,
+        "bytesPerCachedSelector": 494.4368
+      }
+    },
+    "matching-plan-storage": {
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "before": {
+        "count": 100,
+        "queries": 100,
+        "method": "match",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37527544,
+          "instances": 40535960,
+          "cached": 45071592,
+          "detached": 45918624,
+          "released": 39037664
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+        "bytesPerInstance": 30084.16,
+        "bytesPerCachedSelector": 453.5632
+      },
+      "after": {
+        "count": 100,
+        "queries": 100,
+        "method": "match",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37037400,
+          "instances": 39334984,
+          "cached": 42806528,
+          "detached": 43649376,
+          "released": 38465816
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+        "bytesPerInstance": 22975.84,
+        "bytesPerCachedSelector": 347.1544
+      }
+    },
+    "browser-idle-cache-and-grammar": {
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "before": {
+        "count": 40,
+        "queries": 100,
+        "browser": "151.0.7922.34",
+        "engineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+        "measurements": {
+          "baseline": 14724132,
+          "instances": 15239032,
+          "cached": 18005548,
+          "detached": 18101432,
+          "released-engines": 15140064,
+          "released-documents": 1573884
+        },
+        "retainedDetachedNodes": 0,
+        "retainedEngines": 0,
+        "retainedDocuments": 0,
+        "bytesPerInstance": 12872.5,
+        "bytesPerCachedSelector": 691.629
+      },
+      "after": {
+        "count": 40,
+        "queries": 100,
+        "browser": "151.0.7922.34",
+        "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+        "measurements": {
+          "baseline": 14853012,
+          "instances": 15323924,
+          "cached": 18107548,
+          "detached": 18205132,
+          "released-engines": 15268808,
+          "released-documents": 1701892
+        },
+        "retainedDetachedNodes": 0,
+        "retainedEngines": 0,
+        "retainedDocuments": 0,
+        "bytesPerInstance": 11772.8,
+        "bytesPerCachedSelector": 695.906
+      }
+    },
+    "fixed-patterns": {
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "before": {
+        "count": 100,
+        "queries": 100,
+        "method": "select",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37305088,
+          "instances": 39611560,
+          "cached": 44540392,
+          "detached": 45260360,
+          "released": 38856744
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+        "bytesPerInstance": 23064.72,
+        "bytesPerCachedSelector": 492.8832
+      },
+      "after": {
+        "count": 100,
+        "queries": 100,
+        "method": "select",
+        "node": "v26.5.0",
+        "measurements": {
+          "baseline": 37030000,
+          "instances": 39142232,
+          "cached": 44094856,
+          "detached": 44828448,
+          "released": 38633080
+        },
+        "retainedDetachedNodes": 0,
+        "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+        "bytesPerInstance": 21122.32,
+        "bytesPerCachedSelector": 495.2624
+      }
+    },
+    "browser-fixed-patterns": {
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "before": {
+        "count": 40,
+        "queries": 100,
+        "browser": "151.0.7922.34",
+        "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+        "measurements": {
+          "baseline": 14853012,
+          "instances": 15323924,
+          "cached": 18107692,
+          "detached": 18205276,
+          "released-engines": 15268808,
+          "released-documents": 1701892
+        },
+        "retainedDetachedNodes": 0,
+        "retainedEngines": 0,
+        "retainedDocuments": 0,
+        "bytesPerInstance": 11772.8,
+        "bytesPerCachedSelector": 695.942
+      },
+      "after": {
+        "count": 40,
+        "queries": 100,
+        "browser": "151.0.7922.34",
+        "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+        "measurements": {
+          "baseline": 14852620,
+          "instances": 15317008,
+          "cached": 18101256,
+          "detached": 18198628,
+          "released-engines": 15292988,
+          "released-documents": 1726120
+        },
+        "retainedDetachedNodes": 0,
+        "retainedEngines": 0,
+        "retainedDocuments": 0,
+        "bytesPerInstance": 11609.7,
+        "bytesPerCachedSelector": 696.062
+      }
+    },
+    "compiler-cache-hit-allocation": {
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "before": [
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+          "sampledBytes": 39028464,
+          "compilerSampledBytes": 39010808,
+          "compilerBytesPerCall": 390.10808
+        },
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+          "sampledBytes": 39304592,
+          "compilerSampledBytes": 39286576,
+          "compilerBytesPerCall": 392.86576
+        },
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+          "sampledBytes": 39089328,
+          "compilerSampledBytes": 39072776,
+          "compilerBytesPerCall": 390.72776
+        }
+      ],
+      "after": [
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+          "sampledBytes": 9487208,
+          "compilerSampledBytes": 9470992,
+          "compilerBytesPerCall": 94.70992
+        },
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+          "sampledBytes": 9400976,
+          "compilerSampledBytes": 9385056,
+          "compilerBytesPerCall": 93.85056
+        },
+        {
+          "node": "v26.5.0",
+          "iterations": 100000,
+          "sampling": {
+            "samplingInterval": 512,
+            "includeObjectsCollectedByMajorGC": true,
+            "includeObjectsCollectedByMinorGC": true
+          },
+          "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+          "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+          "sampledBytes": 9524176,
+          "compilerSampledBytes": 9507152,
+          "compilerBytesPerCall": 95.07152
+        }
+      ],
+      "bookkeepingOnly": {
+        "node": "v26.5.0",
+        "iterations": 100000,
+        "sampling": {
+          "samplingInterval": 512,
+          "includeObjectsCollectedByMajorGC": true,
+          "includeObjectsCollectedByMinorGC": true
+        },
+        "workload": "Repeated compiler cache hits across 100 warmed matching selectors",
+        "engineSha256": "ae77fd68aef079b01a3fb2913be76ab0c85f34b9db19c53db290b60d75b52966",
+        "sampledBytes": 22339016,
+        "compilerSampledBytes": 22322432,
+        "compilerBytesPerCall": 223.22432
+      }
+    },
+    "cache-eviction": {
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "before": {
+        "queries": 32768,
+        "calls": 65536,
+        "samples": [
+          {
+            "phase": "baseline",
+            "heap": 36486888,
+            "sizes": {
+              "matchLambdas": 0,
+              "selectLambdas": 0,
+              "matchResolvers": 0,
+              "selectResolvers": 0
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "16384",
+            "heap": 49981576,
+            "sizes": {
+              "matchLambdas": 4096,
+              "selectLambdas": 4096,
+              "matchResolvers": 4096,
+              "selectResolvers": 4096
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "32768",
+            "heap": 49821976,
+            "sizes": {
+              "matchLambdas": 4096,
+              "selectLambdas": 4096,
+              "matchResolvers": 4096,
+              "selectResolvers": 4096
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "cleared",
+            "heap": 37496440,
+            "sizes": {
+              "matchLambdas": 0,
+              "selectLambdas": 0,
+              "matchResolvers": 0,
+              "selectResolvers": 0
+            },
+            "retainedEarlyResolvers": 0
+          }
+        ]
+      },
+      "after": {
+        "queries": 32768,
+        "calls": 65536,
+        "samples": [
+          {
+            "phase": "baseline",
+            "heap": 36477544,
+            "sizes": {
+              "matchLambdas": 0,
+              "selectLambdas": 0,
+              "matchResolvers": 0,
+              "selectResolvers": 0
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "16384",
+            "heap": 49632960,
+            "sizes": {
+              "matchLambdas": 4096,
+              "selectLambdas": 4096,
+              "matchResolvers": 4096,
+              "selectResolvers": 4096
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "32768",
+            "heap": 49686960,
+            "sizes": {
+              "matchLambdas": 4096,
+              "selectLambdas": 4096,
+              "matchResolvers": 4096,
+              "selectResolvers": 4096
+            },
+            "retainedEarlyResolvers": 0
+          },
+          {
+            "phase": "cleared",
+            "heap": 37488176,
+            "sizes": {
+              "matchLambdas": 0,
+              "selectLambdas": 0,
+              "matchResolvers": 0,
+              "selectResolvers": 0
+            },
+            "retainedEarlyResolvers": 0
+          }
+        ]
+      }
+    },
+    "compiler-and-query-timing": {
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "method": "15 measured alternating trials per build. hot and matching: 30000 calls, compiling: 100000 calls, construction: 500 engines. Array index 0 is baseline and 1 is candidate. Values in milliseconds.",
+      "samples": {
+        "hot": [
+          [
+            46.284374999999955, 45.838250000000016, 46.56899999999996,
+            46.60591600000009, 47.502750000000106, 45.25079200000005,
+            44.48558400000002, 45.07616600000006, 45.06979200000001,
+            44.96037500000011, 45.06574999999998, 45.26499999999987,
+            45.07104099999992, 44.94049999999993, 44.372916999999916
+          ],
+          [
+            45.77308300000004, 44.705791999999974, 46.16108299999996,
+            46.10954199999992, 45.36920800000007, 44.64949999999999,
+            43.72383300000001, 43.622707999999875, 44.76120900000001,
+            44.81145900000001, 45.034875000000056, 44.11999999999989,
+            44.562541999999894, 44.40408400000001, 44.12975000000006
+          ]
+        ],
+        "cold": [
+          [
+            49.06191600000011, 8.313666999999896, 46.16958300000033,
+            8.669875000000047, 49.148125000000164, 8.160041999999976, 47.847667,
+            8.216334000000188, 45.11558299999979, 9.923667000000023,
+            47.73616600000014, 8.278541000000132, 47.540750000000116,
+            9.199167000000216, 47.31079200000022
+          ],
+          [
+            8.681375000000116, 48.295042000000194, 8.189209000000119,
+            46.6974580000001, 9.951290999999856, 47.896999999999935,
+            8.355833000000075, 46.62358300000005, 8.280832999999802,
+            45.28345799999988, 8.02062500000011, 45.926416999999674,
+            8.397167000000081, 48.69470900000033, 9.885959000000184
+          ]
+        ],
+        "matching": [
+          [
+            7.583415999999943, 7.146499999999833, 6.503917000000001,
+            6.78295799999978, 6.550999999999931, 6.683165999999801,
+            6.681666999999834, 6.2638749999996435, 6.364332999999988,
+            6.644999999999982, 6.694625000000087, 6.597791000000143,
+            6.839167000000089, 6.619999999999891, 6.631457999999839
+          ],
+          [
+            7.273499999999785, 7.4871250000001055, 7.417207999999846,
+            6.917374999999993, 6.654417000000194, 6.836041999999907,
+            6.969958000000133, 6.8899169999999685, 6.702125000000251,
+            6.797083000000384, 6.578375000000051, 6.784709000000021,
+            6.677624999999807, 6.889458999999988, 6.776542000000063
+          ]
+        ],
+        "compiling": [
+          [
+            13.367999999999938, 13.365749999999935, 12.465333999999984,
+            12.426500000000033, 12.61566700000003, 12.604624999999942,
+            12.288624999999683, 12.568667000000005, 12.535750000000007,
+            12.416291999999885, 14.193333000000166, 12.655499999999847,
+            12.464458000000377, 13.096207999999933, 12.684749999999894
+          ],
+          [
+            8.751541999999972, 10.067915999999968, 8.773125000000164,
+            8.947625000000244, 8.585833000000093, 8.984290999999757,
+            8.742249999999785, 8.619208999999955, 8.962375000000065,
+            8.871833000000152, 9.387541000000056, 8.820832999999766,
+            9.024916999999732, 8.677250000000186, 8.659291999999823
+          ]
+        ],
+        "construction": [
+          [
+            5.279042000000118, 7.666291000000001, 3.9170420000000377,
+            4.002250000000004, 3.996042000000216, 4.133417000000009,
+            3.977374999999938, 4.361124999999902, 9.067250000000058,
+            7.024416000000201, 7.019542000000001, 3.7972500000000764,
+            3.732250000000022, 3.662917000000107, 3.7504170000001977
+          ],
+          [
+            2.8240829999999733, 5.784291999999823, 6.454959000000144,
+            7.666041999999834, 5.770708000000013, 7.576625000000149,
+            7.458166999999776, 8.283124999999927, 2.5783339999998134,
+            10.325583999999708, 5.395250000000033, 9.144874999999956,
+            2.448333000000275, 11.416583000000173, 5.532541999999921
+          ]
+        ],
+        "consumed": 10245000
+      },
+      "constructionControl": {
+        "count": 100,
+        "rounds": 21,
+        "gcBeforeEachRound": true,
+        "results": [
+          [
+            1.0854160000000093, 0.8952089999999089, 0.8397089999999707,
+            0.9142910000000484, 0.872792000000004, 0.8982089999999516,
+            0.8603329999999687, 0.918292000000065, 0.876041999999984,
+            0.9017920000000004, 0.8605830000000196, 0.9112910000000056,
+            0.9291249999999991, 0.879624999999919, 1.4121670000000677,
+            0.8832089999999653, 0.860834000000068, 0.967708000000016,
+            0.9744999999999209, 0.9121249999999463, 0.8554579999999987
+          ],
+          [
+            0.7176249999999982, 0.6842909999999165, 0.5963749999999663,
+            0.6585410000000138, 0.5762499999999591, 0.5881249999999909,
+            0.5688329999999269, 0.571042000000034, 0.5706669999999576,
+            0.5727500000000418, 0.5887910000000147, 0.5837080000000014,
+            0.5696669999999813, 0.55662499999994, 0.6321669999999813,
+            0.5771250000000236, 0.5629999999999882, 0.5718339999999671,
+            0.5735420000000886, 1.2583339999999907, 0.5729999999999791
+          ]
+        ]
+      }
+    }
+  }
+}
