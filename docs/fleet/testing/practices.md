@@ -10,6 +10,8 @@ Avoid assertions tied to incidental wording or source layout. When text is part 
 
 Use the [test layout](layout.md) to place suites and helpers. Follow the [isolation practices](isolation.md) for tests that change files, environment variables, or process state.
 
+Use the [fuzzing practices](../fuzzing/practices.md) for generated inputs, independent checks, saved corpora, and reproducible failures. Keep minimized findings as focused regression tests.
+
 ## Control external dependencies
 
 Use local fixtures or controlled local servers for network behavior. Block unexpected external connections so a missing mock fails the test. Dependency installation and pinned upstream checkout setup happen separately from test execution. The [network rules](../agents.md/no-live-network-in-tests.md) describe the required controls.

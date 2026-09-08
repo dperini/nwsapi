@@ -14,7 +14,7 @@ Use the following directories when the repository needs them. A small suite does
 | `e2e/` | These tests exercise a complete user flow through a CLI, browser, installed package, or release artifact. |
 | `isolated/` | These tests require a separate process or runner configuration. Use this directory when the repository defines that tier. |
 | `fixtures/` | This directory holds test inputs and expected outputs. |
-| `fuzz/` | These tests use generated inputs to find failures. Keep small inputs that reproduce a failure as regression fixtures. |
+| `fuzz/` | These tests use generated inputs to find failures. Follow the [fuzzing practices](../fuzzing/practices.md) and keep small regression inputs. |
 | `scripts/` | This directory holds test setup and execution helpers. |
 
 For TypeScript tests, use `test/repo/<suite>/<area?>/<name>.test.mts`. Add an area when it helps readers find related tests. Keep helpers used by only one suite beside that suite.

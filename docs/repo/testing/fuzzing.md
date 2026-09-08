@@ -1,5 +1,7 @@
 # Selector fuzzing
 
+Follow the [shared fuzzing practices](../../fleet/fuzzing/practices.md) for target design, corpus ownership, isolation, and failure reduction. This document describes the `nwsapi` runner and targets.
+
 `pnpm run test:fuzz` runs Vitiate's coverage-guided selector targets for 15 seconds each.
 Set `FUZZ_TIME_MS` to change the budget. Generated valid selectors are checked against an independent engine before and after DOM mutation. Arbitrary bytes exercise parser error handling.
 Agent sessions use minimal harness output and suppress routine progress, using the same Socket Lib-derived `isAgent` helper as unit tests. Interactive runs retain normal progress. Set `FUZZ_VERBOSE=1` for detailed output. Failures and saved input paths are always reported.
