@@ -43,6 +43,10 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
             ...notes.map(rect => canvas.right - rect.right),
           ),
           firstNoteWidth: notes[0].width,
+          tickFont: getComputedStyle(document.querySelector('.tick')!).fontSize,
+          comparisonFont: getComputedStyle(
+            document.querySelector('.comparison')!,
+          ).fontSize,
           metadataGap: notes[3].top - notes[2].bottom,
           metadataColors: Array.from(
             document.querySelectorAll('.metadata, .metadata .code'),
@@ -66,6 +70,8 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
       expect(bounds.firstNoteWidth).toBeGreaterThan(650)
       expect(bounds.metadataGap).toBeGreaterThanOrEqual(16)
+      expect(bounds.tickFont).toBe('16px')
+      expect(bounds.comparisonFont).toBe('16px')
       expect(new Set(bounds.metadataColors)).toEqual(
         new Set(['rgb(117, 128, 142)']),
       )

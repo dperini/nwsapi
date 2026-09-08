@@ -1,3 +1,4 @@
+import { refreshChartReferences } from './chart-references.mts'
 import { globSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,3 +13,5 @@ for (const file of globSync('**/results.json', { cwd: root })) {
   )
   writeBenchmarkCharts(path.dirname(path.join(root, file)), metadata, rows)
 }
+
+refreshChartReferences()

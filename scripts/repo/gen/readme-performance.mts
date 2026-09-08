@@ -1,3 +1,4 @@
+import { refreshChartReferences } from './chart-references.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { queryStateNote } from '../bench/chart-theme.mts'
 import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
@@ -59,3 +60,5 @@ writeFileSync(
     ),
   }),
 )
+
+refreshChartReferences()

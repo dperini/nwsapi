@@ -182,6 +182,7 @@ export function queryChart({
 <defs>${chartBackground}${gradients}</defs>
 <style>
 ${chartTextStyles}
+.tick,.comparison{font-size:16px}
 .bar{transform-box:fill-box;transform-origin:left center;animation:grow 750ms cubic-bezier(.22,1,.36,1) 1 both}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.bar{animation:none}}

@@ -12,7 +12,7 @@ They do not predict every application's performance or the time needed to start 
 
 ## First matches
 
-![Cold and warm first-match times](../assets/repo/bench/perf-hero.svg?v=7)
+![Cold and warm first-match times](../assets/repo/bench/perf-hero.svg?v=06285a5bdaad)
 
 See [how cold and warm queries are measured](#cold-and-warm-queries).
 
@@ -157,14 +157,14 @@ These queries find controls inside repeated cards.
 They use classes, attributes, and parent-child relationships.
 The generated HTML models component tests. It does not come from a running application.
 
-![Component queries](../assets/repo/bench/components-1.svg?v=9)
+![Component queries](../assets/repo/bench/components-1.svg?v=8701ba7b48d0)
 
 ## Documentation queries
 
 These queries find links, definition entries, and table cells in a large documentation page.
 They test how the engine searches through nested elements.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=9)
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=ed470628ab0b)
 
 ## Utility-class queries
 
@@ -172,31 +172,31 @@ These queries find navigation links and card content in HTML with many utility c
 A utility class represents one styling choice, such as spacing or color.
 The test page contains both small and large groups of elements.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=9)
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=997ffb3036af)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=9)
+![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=05072fd7e219)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=9)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=3ab03f89cafb)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg?v=9)
+![Relationships](../assets/repo/bench/relationships-1.svg?v=9088192ab37c)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg?v=9)
+![Position selectors](../assets/repo/bench/positional-1.svg?v=05bb0797cb9a)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg?v=9)
+![Logical selectors](../assets/repo/bench/logical-1.svg?v=28cb61a1eb29)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg?v=9)
+![Form state selectors](../assets/repo/bench/forms-1.svg?v=f89715ed79e5)
 
 ## Cold and warm queries
 
@@ -259,6 +259,7 @@ The `wrapQueryNotes()` helper measures text in Chromium and wraps it inside the 
 Its second argument lists the note indexes that must start a new line.
 The `metadataStart` option adds space before package and API details and gives those lines a muted color.
 Both chart generators can redraw saved measurements without running the benchmarks again.
+They also update the image URLs from the SVG contents so GitHub can request changed images.
 
 ## Further work
 
