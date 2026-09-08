@@ -174,7 +174,7 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 ${axes}
 ${lines}
 <path d="M48 ${notesTop - 38}H1052" stroke="#304159"/>
-${notes.map((note, index) => `<text x="48" y="${notesTop + index * 23}" class="muted">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
+${notes.map((note, index) => `<text x="48" y="${notesTop + index * 23}" class="muted note">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
 </svg>`) + '\n'
   )
 }

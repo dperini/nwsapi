@@ -31,15 +31,24 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
         const texts = Array.from(document.querySelectorAll('text'), node =>
           node.getBoundingClientRect(),
         )
+        const notes = Array.from(document.querySelectorAll('.note'), node =>
+          node.getBoundingClientRect(),
+        )
         return {
           padding: canvas.bottom - Math.max(...texts.map(rect => rect.bottom)),
           overflow: texts.some(
             rect => rect.left < canvas.left || rect.right > canvas.right,
           ),
+          notePadding: Math.min(
+            ...notes.map(rect => canvas.right - rect.right),
+          ),
+          firstNoteWidth: notes[0].width,
         }
       })
       expect(bounds.padding).toBeGreaterThanOrEqual(39)
       expect(bounds.overflow).toBe(false)
+      expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
+      expect(bounds.firstNoteWidth).toBeGreaterThan(950)
       expect(await page.locator('.bar').count()).toBe(24)
       expect(await page.locator('g > title').count()).toBe(24)
     } finally {
