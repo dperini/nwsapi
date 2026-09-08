@@ -1,7 +1,7 @@
 # [NWSAPI](http://dperini.github.io/nwsapi/)
 
 <a href="https://badge.socket.dev/npm/package/nwsapi"><img src="https://badge.socket.dev/npm/package/nwsapi" alt="Socket Badge" height="20"></a>
-<img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg" width="97" height="20" alt="Coverage" />
+<img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg?v=031992e77907" width="97" height="20" alt="Coverage" />
 
 Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
@@ -10,7 +10,7 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![nwsapi cold and warm query times; further left is faster](assets/repo/bench/perf-hero.svg?v=2)](docs/benchmarks.md)
+[![nwsapi cold and warm query times; further left is faster](assets/repo/bench/perf-hero.svg?v=3)](docs/benchmarks.md)
 
 [Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/performance.md)
 

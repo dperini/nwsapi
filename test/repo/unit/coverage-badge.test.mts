@@ -37,12 +37,12 @@ function fixture(t) {
 }
 
 test.each([
-  [49, '#dc2626'],
-  [50, '#ea580c'],
-  [60, '#facc15'],
-  [70, '#eab308'],
-  [80, '#22c55e'],
-  [90, '#16a34a'],
+  [49, '#f56565'],
+  [50, '#f56565'],
+  [60, '#ed8936'],
+  [70, '#ed8936'],
+  [80, '#48bb78'],
+  [90, '#48bb78'],
 ])('coverage %s uses %s', (pct, color) => {
   assert.equal(badgeColor(pct), color)
   assert.match(

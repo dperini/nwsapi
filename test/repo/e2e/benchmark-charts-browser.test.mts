@@ -43,12 +43,20 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
             ...notes.map(rect => canvas.right - rect.right),
           ),
           firstNoteWidth: notes[0].width,
+          matchingNoteFonts: Array.from(
+            document.querySelectorAll('.note .code'),
+          ).every(
+            node =>
+              getComputedStyle(node).fontSize ===
+              getComputedStyle(node.parentElement!).fontSize,
+          ),
         }
       })
       expect(bounds.padding).toBeGreaterThanOrEqual(39)
       expect(bounds.overflow).toBe(false)
       expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
       expect(bounds.firstNoteWidth).toBeGreaterThan(950)
+      expect(bounds.matchingNoteFonts).toBe(true)
       expect(await page.locator('.bar').count()).toBe(24)
       expect(await page.locator('g > title').count()).toBe(24)
     } finally {
@@ -91,7 +99,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(frames[0].width).toBe(0)
       expect(frames[1].width).toBeGreaterThan(0)
       expect(frames[1].width).toBeLessThan(frames[2].width)
-      expect(frames[2].width).toBeCloseTo(380)
+      expect(frames[2].width).toBeCloseTo(480)
       for (const frame of frames) {
         expect(frame.x).toBeCloseTo(frames[0].x)
       }
@@ -105,7 +113,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
           animations: bar.getAnimations().length,
         }
       })
-      expect(reduced.width).toBeCloseTo(380)
+      expect(reduced.width).toBeCloseTo(480)
       expect(reduced.animations).toBe(0)
     } finally {
       await page.close()

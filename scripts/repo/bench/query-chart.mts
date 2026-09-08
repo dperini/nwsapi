@@ -1,9 +1,14 @@
 import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
 import { escapeText } from './charts.mts'
-
-const noteFont = '16px Arial,Helvetica,sans-serif'
-const codeFont = '18px Consolas,Menlo,monospace'
+import {
+  chartBackground,
+  chartColors,
+  chartFrame,
+  chartTextStyles,
+  noteCodeFont,
+  noteFont,
+} from './chart-theme.mts'
 
 export interface QueryChartOptions {
   names: [string, string]
@@ -52,7 +57,7 @@ export async function wrapQueryNotes(notes: QueryChartOptions['notes']) {
         }
         return lines
       },
-      { notes, noteFont, codeFont },
+      { notes, noteFont, codeFont: noteCodeFont },
     )
   } finally {
     await browser.close()
@@ -95,10 +100,7 @@ export function queryChart({
   const span = Math.max(1, high - low)
   const position = (value: number) =>
     ((Math.log10(value * 1000) - low) / span) * 650
-  const colors = [
-    ['#baf471', '#2bc5ae'],
-    ['#a4aff7', '#ef9bc9'],
-  ]
+  const colors = chartColors.slice(0, names.length)
   const gradients = colors
     .map(
       ([warm, cold], index) =>
@@ -155,20 +157,14 @@ export function queryChart({
     optimiseSvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img" aria-labelledby="title desc">
 <title id="title">${escapeText(names[0])}</title>
 <desc id="desc">Cold and warm first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
-<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d30"/><stop offset="1" stop-color="#0b1220"/></linearGradient>${gradients}</defs>
+<defs>${chartBackground}${gradients}</defs>
 <style>
-text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
-.muted{fill:#aabbd0;font:${noteFont}}
-.code{font:${codeFont};fill:#dce6f1}
-.comparison{font-size:14px;font-variant-numeric:tabular-nums}
-.tick{fill:#aabbd0;font-size:12px}
-.time{fill:#aabbd0;font-size:13px;font-variant-numeric:tabular-nums}
+${chartTextStyles}
 .bar{transform-box:fill-box;transform-origin:left center;animation:grow 750ms cubic-bezier(.22,1,.36,1) 1 both}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.bar{animation:none}}
 </style>
-<rect width="1100" height="${height}" rx="24" fill="url(#bg)"/>
-<rect x=".5" y=".5" width="1099" height="${height - 1}" rx="24" fill="none" stroke="#2b3a50"/>
+${chartFrame(height)}
 <text x="48" y="65" class="muted">Logarithmic time scale</text>
 <text x="48" y="89" class="muted">Further left is faster</text>
 ${axes}

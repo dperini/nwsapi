@@ -13,7 +13,8 @@ import {
   ENGINE_SOURCE_PATH,
   REPO_ROOT,
 } from '../lib/paths.mts'
-import { agrees, chart, splitCharts } from './charts.mts'
+import { agrees, splitCharts } from './charts.mts'
+import { writeBenchmarkCharts } from './chart-report.mts'
 import type { Measurement } from './charts.mts'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
@@ -215,33 +216,12 @@ for (const [fixture, categories] of Object.entries(cases)) {
     values.output,
     fixture === 'components' ? '' : fixture,
   )
-  const titles = {
-    identifiers: 'Basic selectors',
-    attributes: 'Attribute selectors',
-    relationships: 'Relationships',
-    positional: 'Position selectors',
-    logical: 'Logical selectors',
-    forms: 'Form state selectors',
-    components: 'Component queries',
-    documentation: 'Documentation queries',
-    atomic: 'Utility-class queries',
-  }
   fs.mkdirSync(output, { recursive: true })
   fs.writeFileSync(
     path.join(output, 'results.json'),
     JSON.stringify({ metadata, rows }, null, 2) + '\n',
   )
-  for (const group of splitCharts(rows)) {
-    fs.writeFileSync(
-      path.join(output, `${group.name}.svg`),
-      chart(
-        titles[group.rows[0].category] ?? group.name,
-        engines.map(engine => engine.name),
-        group.rows,
-        `${fixture}; ${process.version}; jsdom ${jsdomPkg.version}; ${rounds} rounds; ${metadata.timestamp.slice(0, 10)}; ${sha.slice(0, 8)}`,
-      ),
-    )
-  }
+  writeBenchmarkCharts(output, metadata, rows)
   console.log(
     `Wrote ${rows.length} selector results and ${splitCharts(rows).length} charts to ${output}`,
   )

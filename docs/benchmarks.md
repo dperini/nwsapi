@@ -74,7 +74,8 @@ pnpm run bench --baseline /path/to/nwsapi-2.2.27/package
 ```
 
 Results go to `assets/repo/bench/`. Each SVG contains at most four selectors
-from one category. `results.json` records every timing sample, package
+from one category. The charts share the README chart’s colors, fonts, and spacing.
+Thin bars use a linear scale, and shorter bars show faster queries. `results.json` records every timing sample, package
 versions, source hashes, the fixture hash, and the test machine.
 
 <details>
@@ -128,45 +129,45 @@ garbage collection through the repository launcher.
 Find controls inside repeated cards using classes, attributes, and relationships.
 This generated fixture models component tests; it is not a production trace.
 
-![Component queries](../assets/repo/bench/components-1.svg)
+![Component queries](../assets/repo/bench/components-1.svg?v=2)
 
 ## Documentation queries
 
 Find links, definition entries, and table cells in the existing specification-page fixture.
 These queries exercise descendant and ancestor filtering on a larger document.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg)
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=2)
 
 ## Utility-class queries
 
 Find navigation links and card content in the existing utility-class fixture.
 It includes both narrow and broad containers to exercise traversal routing.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg)
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=2)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg)
+![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=2)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=2)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg)
+![Relationships](../assets/repo/bench/relationships-1.svg?v=2)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg)
+![Position selectors](../assets/repo/bench/positional-1.svg?v=2)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg)
+![Logical selectors](../assets/repo/bench/logical-1.svg?v=2)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg)
+![Form state selectors](../assets/repo/bench/forms-1.svg?v=2)
 
 ## Further work
 
@@ -174,17 +175,17 @@ See the [optimization notes](common-query-fast-paths.md) for before/after
 measurements and the [performance review](performance-review.md) for the
 remaining gaps and acceptance targets.
 
-## Warm and cold queries
+## Cold and warm queries
 
 The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. The engine lines are stacked. A summary below each pair compares the warm and cold times as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
 
-A warm query repeats a selector after a 20 ms warmup. A cold query is the first query on a fresh document. Cold measurements exclude document creation and explicit NWSAPI factory setup. They include any setup that jsdom performs inside its first public query. They do not measure a new Node.js process.
+A cold query is the first query on a fresh document. A warm query repeats a selector after a 20 ms warmup. Cold measurements exclude document creation and explicit NWSAPI factory setup. They include any setup that jsdom performs inside its first public query. They do not measure a new Node.js process.
 
 Both engine lines use the same logarithmic time scale. Each tick increases by a factor of ten. Further left means less time. Compare marker positions, rather than line lengths. Warm summaries use microseconds. Cold summaries use milliseconds. One millisecond equals 1,000 microseconds.
 
 Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture. These exercise common component lookups by tag, class, attribute, and parent-child relationship. The static component tree models HTML rendered by frameworks such as React and Next.js. The fixture also models [Tailwind-style utility classes](https://tailwindcss.com/docs/styling-with-utility-classes) and [Testing Library test IDs](https://testing-library.com/docs/queries/bytestid/); it does not execute either library. They also cover positional checks, selector lists, negation, `:is()`, and `:where()`. This is a focused sample, not a complete selector survey. Empty-result queries remain in the original first-match results.
 
-The recorded warm speedups range from 1.8× to 12.9×. All 12 cold medians are also lower in this run. The [cold-query study](performance.md#cold-first-match-class-queries) explains the previous losses, the profile evidence, and the candidate-prefix fix. The [warm-cache follow-up](performance.md#warm-candidate-cache-follow-up) makes repeated early class queries 24–45% faster than the original build. These results describe this fixture and API comparison.
+The recorded cold speedups range from 1.3× to 13.8×. The warm speedups range from 1.8× to 12.9×. The [cold-query study](performance.md#cold-first-match-class-queries) explains the previous losses, the profile evidence, and the candidate-prefix fix. The [warm-cache follow-up](performance.md#warm-candidate-cache-follow-up) makes repeated early class queries 24–45% faster than the original build. These results describe this fixture and API comparison.
 
 Run the measurement separately from tests and other CPU work. Then regenerate the chart:
 
@@ -192,6 +193,7 @@ Run the measurement separately from tests and other CPU work. Then regenerate th
 pnpm run build
 node scripts/repo/bench/first-query-states.mts
 node scripts/repo/gen/readme-performance.mts
+node scripts/repo/gen/benchmark-charts.mts
 ```
 
-The [query chart helper](../scripts/repo/bench/query-chart.mts) handles the layout, colors, animation, and notes. Pass engine names, rows, and notes to `queryChart()`. Times use milliseconds in both input columns. The helper converts warm times to microseconds for display. It sizes the canvas from the row and note counts. The `bottomPadding` option defaults to 40 pixels. Notes can contain plain text and `{ code: 'package-name' }` parts.
+The [query chart helper](../scripts/repo/bench/query-chart.mts) handles the layout, colors, animation, and notes. Pass engine names, rows, and notes to `queryChart()`. Times use milliseconds in both input columns. The helper converts warm times to microseconds for display. It sizes the canvas from the row and note counts. The `bottomPadding` option defaults to 40 pixels. Notes can contain plain text and `{ code: 'package-name' }` parts. `wrapQueryNotes()` measures the text in Chromium and wraps it within the chart’s side padding. The benchmark chart generator redraws the saved measurements without running new timings.

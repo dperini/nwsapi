@@ -15,9 +15,10 @@
  *   the URL went absolute.
  */
 
+import crypto from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { percentBadgeColor, percentBadgeTextColor } from './percent-badge.mts'
+import { percentBadgeColor } from './percent-badge.mts'
 
 import { rawAssetUrl } from './github-raw-url.mts'
 import { COVERAGE_SUMMARY_PATH, REPO_ROOT } from './paths.mts'
@@ -84,7 +85,13 @@ export function coverageBadgeRef(
   svg: string,
 ): string {
   const src = slug === undefined ? BADGE_ASSET_PATH : coverageBadgeUrl(slug)
-  return badgeImgTag(src, 'Coverage', svg)
+  // A content key refreshes image caches only when the badge changes.
+  const revision = crypto
+    .createHash('sha256')
+    .update(svg)
+    .digest('hex')
+    .slice(0, 12)
+  return badgeImgTag(`${src}?v=${revision}`, 'Coverage', svg)
 }
 
 // The legacy markdown reference, kept for migration matching.
@@ -99,12 +106,13 @@ export const BADGE_PLACEHOLDER = 'n/a'
 // carrying another repo's slug (a scaffolded copy) or an older ref still
 // matches, so the migrator rewrites it to this repo's HEAD url.
 const ABSOLUTE_IMG_BADGE_RE =
-  /<img src="https:\/\/raw\.githubusercontent\.com\/[^"]+\/assets\/repo\/coverage\.svg"[^>]*\/>/
+  /<img src="https:\/\/raw\.githubusercontent\.com\/[^"]+\/assets\/repo\/coverage\.svg(?:\?[^"<>]*)?"[^>]*\/>/
 
 // The relative-src <img> at the CURRENT path: what a never-published package
 // keeps, since a private repo's raw url does not resolve anonymously. A
 // published one migrates to the absolute form above.
-const RELATIVE_IMG_BADGE_RE = /<img src="assets\/repo\/coverage\.svg"[^>]*\/>/
+const RELATIVE_IMG_BADGE_RE =
+  /<img src="assets\/repo\/coverage\.svg(?:\?[^"<>]*)?"[^>]*\/>/
 
 // Both PRE-TIER img paths, relative or absolute, matched only to migrate: the
 // root-flat `assets/coverage.svg` that predates the repo/fleet tiers, and the
@@ -260,7 +268,6 @@ export function renderBadge(
   badgeLabel: string,
   text: string,
   color: string,
-  textColor = '#fff',
 ): string {
   const lw = textWidth(badgeLabel) + PAD
   const vw = textWidth(text) + PAD
@@ -270,7 +277,6 @@ export function renderBadge(
   const ltl = (lw - PAD) * 10
   const vtl = (vw - PAD) * 10
   const label = `${badgeLabel}: ${text}`
-  const valueFill = textColor === '#fff' ? '' : ` fill="${textColor}"`
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${label}">` +
     `<title>${label}</title>` +
@@ -281,14 +287,14 @@ export function renderBadge(
     `<text aria-hidden="true" x="${lcx}" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="${ltl}">${badgeLabel}</text>` +
     `<text x="${lcx}" y="140" transform="scale(.1)" textLength="${ltl}">${badgeLabel}</text>` +
     `<text aria-hidden="true" x="${vcx}" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
-    `<text${valueFill} x="${vcx}" y="140" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
+    `<text x="${vcx}" y="140" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
     `</g></svg>\n`
   )
 }
 
 // The coverage badge for a value text + fill color.
 export function renderCoverageBadge(text: string, color: string): string {
-  return renderBadge(LABEL, text, color, percentBadgeTextColor(color))
+  return renderBadge(LABEL, text, color)
 }
 
 // The badge SVG for a coverage percent — rounded integer + bucket color — or

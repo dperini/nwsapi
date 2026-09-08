@@ -1,4 +1,10 @@
 import { optimiseSvg } from '../gen/svg-optimize.mts'
+import {
+  chartBackground,
+  chartColors,
+  chartFrame,
+  chartTextStyles,
+} from './chart-theme.mts'
 
 export interface Measurement {
   category: string
@@ -62,31 +68,47 @@ export function chart(
       throw new TypeError('Invalid benchmark measurements.')
     }
   }
-  const colors = ['#7154d9', '#cb3989', '#217dcc', '#19826a', '#b16415']
+  const colors = names.map(
+    (name, index) =>
+      chartColors[
+        name.startsWith('@asamuzakjp/')
+          ? 1
+          : name.includes('prerelease')
+            ? 0
+            : (index + 2) % chartColors.length
+      ],
+  )
+  const gradients = colors
+    .map(
+      ([start, end], index) =>
+        `<linearGradient id="series${index}"><stop stop-color="${start}"/><stop offset="1" stop-color="${end}"/></linearGradient>`,
+    )
+    .join('')
   const maximum = Math.max(
     0.001,
     ...rows.flatMap(row => row.milliseconds.filter(value => value !== null)),
   )
-  const groupHeight = 40 + names.length * 25
-  const height = 120 + groupHeight * rows.length
+  const groupHeight = 58 + names.length * 26
+  const notesTop = 160 + groupHeight * rows.length + 20
+  const height = notesTop + 23 + 5 + 40
   const body = rows
     .map((row, index) => {
-      const top = 80 + index * groupHeight
+      const top = 150 + index * groupHeight
       const fastest = Math.min(
         ...row.milliseconds.filter(value => value !== null),
       )
       return (
-        `<text x="20" y="${top}" class="selector">${escapeText(row.selector)}</text>` +
+        `<text x="48" y="${top}" class="code selector">${escapeText(row.selector)}</text>` +
         names
           .map((name, series) => {
             const value = row.milliseconds[series]
-            const y = top + 12 + series * 25
+            const y = top + 28 + series * 26
             const status =
               row.errors[series] ??
               (value === null ? 'not measured' : `${value.toFixed(2)} ms`)
-            const width = value === null ? 0 : (value / maximum) * 380
+            const width = value === null ? 0 : (value / maximum) * 480
             const weight = value === fastest ? ' style="font-weight:700"' : ''
-            return `<text x="20" y="${y + 14}"${weight}>${escapeText(name)}</text><rect class="bar" x="300" y="${y}" width="${width.toFixed(2)}" height="18" fill="${colors[series % colors.length]}"/><text x="${310 + width}" y="${y + 14}"${weight}>${escapeText(status)}</text>`
+            return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<rect class="bar" x="440" y="${y - 1}" width="${width.toFixed(2)}" height="2" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${escapeText(status)}</text></g>`
           })
           .join('')
       )
@@ -94,7 +116,7 @@ export function chart(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="${height}" viewBox="0 0 1000 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><style>text{font:14px system-ui,sans-serif;fill:#24292f}.selector{font:16px monospace;font-weight:600}.background{fill:#fff}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}@media(prefers-color-scheme:dark){text{fill:#e6edf3}.background{fill:#0d1117}}</style><rect class="background" width="1000" height="${height}"/><text x="20" y="28" class="selector">${escapeText(title)}</text><text x="20" y="50">Warm queries on one jsdom document. Median ms/query; lower is better.</text>${body}<text x="20" y="${height - 20}">${escapeText(provenance)}</text></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out 1 both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}</style>${chartFrame(height)}<text x="48" y="65" class="muted">Linear time scale</text><text x="48" y="89" class="muted">Shorter bars are faster</text><text x="440" y="89" class="muted">Warm queries · All results</text>${body}<path d="M48 ${notesTop - 38}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">Warm queries repeat a selector on the same document. Times show medians in milliseconds.</text><text x="48" y="${notesTop + 23}" class="muted">${escapeText(provenance)}</text></svg>`,
     ) + '\n'
   )
 }
