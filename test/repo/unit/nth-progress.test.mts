@@ -54,3 +54,30 @@ test('positional plans handle dense, sparse, nested, and moved candidates', t =>
     ),
   )
 })
+
+test('typed positions preserve parent groups with reordered candidates and thrown callbacks', t => {
+  const { window } = new JSDOM(
+    '<main><p></p><p></p><p></p></main><aside><b></b></aside>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const nodes = [...window.document.querySelectorAll('p')]
+  const lone = window.document.querySelector('b')!
+  const resolve = engine.compile(':nth-last-of-type(3)', true)!
+  expect(
+    resolve([nodes[0], lone, nodes[0]], null, window.document, []),
+  ).toEqual([nodes[0], nodes[0]])
+  const callback = engine.compile(':nth-of-type(2n)', true, true)!
+  expect(() =>
+    callback(
+      nodes,
+      () => {
+        throw new Error('stop')
+      },
+      null,
+      [],
+    ),
+  ).toThrow('stop')
+  nodes[0]!.before(window.document.createElement('p'))
+  expect(engine.select('p:nth-of-type(2n)')).toEqual([nodes[0], nodes[2]])
+})

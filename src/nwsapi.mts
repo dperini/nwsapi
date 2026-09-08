@@ -62,11 +62,13 @@ interface PrefixSnapshot {
   classes: PlanCache<Element[]>
 }
 interface CompiledResolver {
+  filtered?: boolean
   (
     candidate: Element,
     callback: ElementCallback,
     context: EngineContext | null,
     result: false,
+    filtered?: Record<string, FilteredNthState>,
   ): boolean
   (
     candidates: ArrayLike<Element>,
@@ -78,6 +80,15 @@ interface CompiledResolver {
 interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
+}
+interface FilteredSiblings {
+  nodes: Element[]
+  positions: WeakMap<Element, number> | undefined
+}
+interface FilteredNthState {
+  parents?: WeakMap<Node, FilteredSiblings> | undefined
+  parent?: Node
+  siblings?: FilteredSiblings
 }
 interface SelectorExtension {
   Expression: RegExp
@@ -192,9 +203,9 @@ interface AttributeOperator {
         attributes =
           '\\[' +
           // attribute presence
-          '(?:\\*\\|)?' +
           WSP +
           '?' +
+          '(?:\\*\\||\\|)?' +
           '(' +
           identifier +
           '(?::' +
@@ -423,13 +434,10 @@ interface AttributeOperator {
         /[\n\r\f\x20]+(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
       TabCharWSP:
         /(\x20?\t+\x20?)(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
-      PseudosWSP: /\s+([-+])\s+(?![^\x5b]*\x5d)/g,
       LogicalPfx: /^:(is|where|matches|not|has)\x28/i,
     },
     STD = {
-      combinator: /\s?([>+~])\s?/g,
       apimethods: /^(?:\w+|\*)\|/,
-      namespaces: /(\*|\w+)\|[\w-]+/,
     },
     Patterns: Record<string, RegExp> & {
       id?: RegExp
@@ -437,8 +445,7 @@ interface AttributeOperator {
       className?: RegExp
       attribute?: RegExp
     } = {
-      treestruct:
-        /^:(?:(nth(?:-last)?(?:-child|-of\-type))(?:\x28\s?(even|odd|(?:[-+]?\d*)(?:n\s?[-+]?\s?\d*)?)\s?(?:\x29|$)))(.*)/i,
+      treestruct: /^:(nth(?:-last)?(?:-child|-of-type))\(/i,
       structural:
         /^:(?:(scope|root|empty|(?:(?:first|last|only)(?:-child|\-of\-type)))\b)(.*)/i,
       linguistic: /^:(?:(dir|lang)(?:\x28\s?([-\w]{2,})\s?(?:\x29|$)))(.*)/i,
@@ -1091,6 +1098,66 @@ interface AttributeOperator {
         selector.slice(close),
       ]
     },
+    matchNth = function (selector: string) {
+      var match = matchLogical(selector, Patterns['treestruct']),
+        parts
+      if (!match) {
+        return null
+      }
+      parts =
+        /^(even|odd|[+-]?(?:\d*n(?:[\t\n\f\r ]*[+-][\t\n\f\r ]*\d+)?|\d+))(?:[\t\n\f\r ]+of(?![-\w\u0080-\uFFFF\\])[\t\n\f\r ]*([\s\S]+))?$/i.exec(
+          match[2],
+        )
+      if (!parts) {
+        emit("'" + selector + "'" + qsInvalid)
+        return null
+      }
+      return [
+        match[0],
+        match[1],
+        parts[1]!.toLowerCase().replace(/[\t\n\f\r ]/g, ''),
+        parts[2]!,
+        match[3],
+      ] as RegExpMatchArray
+    },
+    normalizeCombinators = function (text: string) {
+      if (!/[>+~]/.test(text)) {
+        return text
+      }
+      var result = '',
+        depth = 0,
+        quote = '',
+        i = 0,
+        char
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          result += char + text.charAt(++i)
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+        } else if (char == '"' || char == "'") {
+          quote = char
+        } else if (char == '(' || char == '[') {
+          ++depth
+        } else if (char == ')' || char == ']') {
+          --depth
+        } else if (!depth && (char == '>' || char == '+' || char == '~')) {
+          result = result.replace(/[\t\n\f\r ]+$/, '')
+          while (
+            /[\t\n\f\r ]/.test(text.charAt(i + 1)) &&
+            i + 1 < text.length
+          ) {
+            ++i
+          }
+        }
+        result += char
+      }
+      return result
+    },
     method = {
       '#': 'getElementById',
       '*': 'getElementsByTagName',
@@ -1226,14 +1293,27 @@ interface AttributeOperator {
       return byIdRaw(id, context)
     },
     // wrapped up namespaced TagName api calls
-    byTagNS = function (context: EngineContext, tag: string) {
-      return byTag(tag, context)
+    byTagNS = function (context: EngineContext, tag: string): Element[] {
+      if (context.getElementsByTagNameNS) {
+        return collectionCopy(context.getElementsByTagNameNS('*', tag), context)
+      }
+      // Fragments and older hosts may have no namespace lookup. A qualified
+      // name lookup can omit prefixed elements, so filter the complete walk.
+      var candidates = byTag('*', context),
+        nodes = [],
+        i
+      for (i = 0; i < candidates.length; ++i) {
+        if (tag == '*' || tagOf(candidates[i]!) == tag) {
+          nodes[nodes.length] = candidates[i]!
+        }
+      }
+      return nodes
     },
     // context agnostic getElementsByTagName
     // Narrow logical type lists only when they cover a minority of the tree.
     typeRoutes = createCache<{ broad: boolean; remaining: number }>(),
     byTags = function (names: string, context: EngineContext) {
-      if (Config.LEGACY || !context.getElementsByTagName) {
+      if (Config.LEGACY || !HTML_DOCUMENT || !context.getElementsByTagName) {
         return byTag('*', context)
       }
       var route = typeRoutes.get(names)
@@ -1411,6 +1491,9 @@ interface AttributeOperator {
       return result
     },
     byTag = function (tag: string, context: EngineContext) {
+      if (!HTML_DOCUMENT && tag != '*') {
+        return byTagNS(context, tag)
+      }
       var e,
         nodes,
         api = method['*']
@@ -1512,15 +1595,42 @@ interface AttributeOperator {
           ? nodes
           : toNodeList(nodes)
     },
+    attributeValueNS = function (e: Element, name: string) {
+      if (e.getAttributeNS) {
+        return e.getAttributeNS(null, name)
+      }
+      var attribute = e.getAttributeNode && e.getAttributeNode(name)
+      return attribute && attribute.namespaceURI ? null : attrOf(e, name)
+    },
     // namespace aware hasAttribute
     // helper for XML/XHTML documents
-    hasAttributeNS = function (e: Element, name: string | RegExp) {
+    hasAttributeNS = function (
+      e: Element,
+      name: string,
+      pattern?: RegExp,
+      expected?: boolean,
+    ) {
       var i,
         l,
+        local,
+        attribute,
         attr = attrNamesOf(e)
-      name = RegExp(':?' + name + '$', HTML_DOCUMENT ? 'i' : '')
+      if (HTML_DOCUMENT) {
+        name = name.toLowerCase()
+      }
       for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i]!)) {
+        local = attr[i]!
+        if (local.indexOf(':') >= 0) {
+          attribute = e.getAttributeNode && e.getAttributeNode(local)
+          local =
+            attribute && attribute.localName
+              ? attribute.localName
+              : local.slice(local.indexOf(':') + 1)
+        }
+        if (
+          (HTML_DOCUMENT ? local.toLowerCase() : local) == name &&
+          (!pattern || pattern.test(attrOf(e, attr[i]!)!) === expected)
+        ) {
           return true
         }
       }
@@ -2096,15 +2206,67 @@ interface AttributeOperator {
         return dir ? l - j : idx
       }
     })(),
+    // A filtered position belongs to one resolver invocation. Index each
+    // parent's matching siblings once, and release the index on return or
+    // exception. Callbacks use fresh state because they can change the tree.
+    nthFiltered = function (
+      element: Element,
+      selector: string,
+      reverse: boolean,
+      state: FilteredNthState | null,
+    ) {
+      var parent = element.parentNode || element,
+        siblings =
+          state &&
+          (state.parent === parent
+            ? state.siblings
+            : state.parents && state.parents.get(parent)),
+        resolvers,
+        child,
+        index
+      if (!siblings) {
+        siblings = { nodes: [], positions: createWeakMap() }
+        resolvers = matchResolvers.get('false:' + selector)
+        if (!resolvers) {
+          resolvers = match_collect(
+            parse(selector, false) as string[],
+            undefined,
+          )
+          matchResolvers.set('false:' + selector, resolvers)
+        }
+        child = element.parentNode ? firstOf(parent) : element
+        while (child) {
+          if (match_assert(resolvers, child, undefined)) {
+            siblings.nodes[siblings.nodes.length] = child
+            siblings.positions &&
+              siblings.positions.set(child, siblings.nodes.length)
+          }
+          child = nextOf(child)
+        }
+        if (state) {
+          state.parents || (state.parents = createWeakMap())
+          state.parents && state.parents.set(parent, siblings)
+        }
+      }
+      if (state) {
+        state.parent = parent
+        state.siblings = siblings
+      }
+      index = siblings.positions
+        ? siblings.positions.get(element) || 0
+        : siblings.nodes.indexOf(element) + 1
+      return index && reverse ? siblings.nodes.length - index + 1 : index
+    },
     // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
     nthOfType = (function () {
       var idx = 0,
         len = 0,
         set = 0,
+        current: Element[] | undefined,
         parent: ParentNode | null | undefined = undefined,
         parents = Array<ParentNode | null>(),
         nodes = Array<Record<string, Element[]>>()
-      return function (element: Element | null, dir: number) {
+      return function (element: Element | null, dir: number, stable?: boolean) {
         // ensure caches are emptied after each run, invoking with dir = 2
         if (dir == 2) {
           idx = 0
@@ -2113,25 +2275,41 @@ interface AttributeOperator {
           nodes.length = 0
           parents.length = 0
           parent = undefined
+          current = undefined
           return -1
         }
+        // Adjacent candidates already identify their type and parent. Reuse
+        // that identity before paying for three more DOM property reads.
+        if (stable && current) {
+          if (current[idx] === element) {
+            ++idx
+            return dir ? len - idx + 1 : idx
+          }
+          if (current[idx - 1] === element) {
+            return dir ? len - idx + 1 : idx
+          }
+        }
+        current = undefined
         var e: Element | Element[] | null,
           i,
           j,
           k,
           l,
-          name = Config.LEGACY ? tagOf(element!) : element!.localName
+          local = Config.LEGACY ? tagOf(element!) : element!.localName,
+          namespace = element!.namespaceURI,
+          name =
+            namespace == NAMESPACE ? local : (namespace || '') + '\x00' + local
         if (
           nodes[set]! &&
           nodes[set]![name]! &&
-          parent === (Config.LEGACY ? upOf(element!) : element!.parentElement)
+          parent === element!.parentNode
         ) {
           i = set
           j = idx
           l = len
         } else {
           l = parents.length
-          parent = Config.LEGACY ? upOf(element!) : element!.parentElement
+          parent = element!.parentNode
           for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
             if (parents[j] === parent) {
               i = j
@@ -2144,7 +2322,7 @@ interface AttributeOperator {
           }
           if (i < 0 || !nodes[i]![name]!) {
             parents[(i = l)] = parent
-            nodes[i]! || (nodes[i] = Object())
+            nodes[i]! || (nodes[i] = Object.create(null))
             l = 0
             nodes[i]![name] = Array<Element>()
             e = parent ? firstOf(parent) || element : element
@@ -2153,7 +2331,10 @@ interface AttributeOperator {
                 if (e === element) {
                   j = l
                 }
-                if (tagOf(e as Element) == name) {
+                if (
+                  tagOf(e as Element) == local &&
+                  (e as Element).namespaceURI == namespace
+                ) {
                   nodes[i]![name]![l] = e as Element
                   ++l
                 }
@@ -2164,7 +2345,10 @@ interface AttributeOperator {
                 if (e === element) {
                   j = l
                 }
-                if ((e as Element).localName == name) {
+                if (
+                  (e as Element).localName == local &&
+                  (e as Element).namespaceURI == namespace
+                ) {
                   nodes[i]![name]![l] = e as Element
                   ++l
                 }
@@ -2196,6 +2380,7 @@ interface AttributeOperator {
             }
           }
         }
+        current = nodes[i]![name]
         idx = j + 1
         len = l
         return dir ? l - j : idx
@@ -2732,7 +2917,7 @@ interface AttributeOperator {
       'relative:null:false:',
       'relative:null:true:',
     ],
-    F_INIT = '"use strict";return function Resolver(c,f,x,r)',
+    F_INIT = '"use strict";return function Resolver(c,f,x,r,v)',
     S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
     M_HEAD = 'var e,n,o',
     N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
@@ -2774,6 +2959,7 @@ interface AttributeOperator {
       var i,
         mask,
         filter,
+        filtered,
         ancestry: CompilerAncestry,
         alias,
         factory,
@@ -2867,12 +3053,17 @@ interface AttributeOperator {
         loop = 'try{' + loop + '}finally{s.clearAncestorMasks();}'
       }
 
-      if (mode || selector.includes(':nth')) {
-        loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : ''
-        loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : ''
+      var clearPositions =
+        (reNthElem.test(selector) ? 's.nthElement(null, 2);' : '') +
+        (reNthType.test(selector) ? 's.nthOfType(null, 2);' : '')
+      if (clearPositions) {
+        loop = 'try{' + loop + '}finally{' + clearPositions + '}'
       }
 
       if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
+        filtered = S_VARS.some(function (name) {
+          return name.slice(0, 2) == '_f'
+        })
         vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0])
         S_VARS.length = 0
         M_VARS.length = 0
@@ -2889,6 +3080,10 @@ interface AttributeOperator {
         'a',
         F_INIT + '{' + head + vars + ';' + loop + 'return r;}',
       )(Snapshot, filter)
+
+      if (filtered) {
+        factory.filtered = true
+      }
 
       if (mode || mode === null) {
         selectLambdas.set(cacheKey, factory)
@@ -3074,6 +3269,8 @@ interface AttributeOperator {
         compat,
         name,
         NS,
+        attributeSource,
+        attributeGuard,
         expr,
         value,
         match: RegExpMatchArray | null | undefined,
@@ -3101,7 +3298,7 @@ interface AttributeOperator {
       ancestry = ancestry || { required: [], pending: [], walk: false }
 
       // isolate selector combinators
-      selector = selector.replace(STD.combinator, '$1')
+      selector = normalizeCombinators(selector)
 
       // javascript needs a label to break
       // out of the while loops processing
@@ -3183,14 +3380,9 @@ interface AttributeOperator {
               source = 'if(true){' + source + '}'
             } else if (!match![1]!) {
               source = 'if((!e.namespaceURI)){' + source + '}'
-            } else if (
-              typeof match![1] == 'string' &&
-              root &&
-              root.prefix == match![1]!
-            ) {
-              source =
-                'if((e.namespaceURI=="' + NAMESPACE + '")){' + source + '}'
             } else {
+              // DOM selector APIs have no namespace-prefix resolver. An XML
+              // xmlns declaration does not declare a CSS selector prefix.
               emit("'" + expression + "'" + qsInvalid)
             }
             break
@@ -3201,7 +3393,7 @@ interface AttributeOperator {
             if (!match) {
               break
             }
-            NS = match![0]!.match(STD.namespaces)
+            NS = /^\[[\t\n\f\r ]*\*\|/.test(match[0])
             name = match![1]!
             expr = unescapeIdentifier(name).split(':')
             expr = expr.length == 2 ? expr[1] : expr[0]
@@ -3213,6 +3405,12 @@ interface AttributeOperator {
                 return part == '"' ? '\\"' : part
               },
             )
+            attributeSource = read.attr('e', name)
+            attributeGuard = ''
+            if (!NS && (!HTML_DOCUMENT || /^\[[\t\n\f\r ]*\|/.test(match[0]))) {
+              attributeSource = 'n'
+              attributeGuard = 'n=s.attributeValueNS(e,"' + name + '");'
+            }
             if (match![2]! && !(test = Operators[match![2]!])) {
               emit("'" + expression + "'" + qsInvalid)
               return ''
@@ -3247,18 +3445,39 @@ interface AttributeOperator {
                 HTML_TABLE[expr!.toLowerCase()])
                 ? 'i'
                 : ''
+            if (NS && match[2]) {
+              source =
+                'if(s.hasAttributeNS(e,"' +
+                name +
+                '",/' +
+                (test as AttributeOperator).p1 +
+                match[4] +
+                (test as AttributeOperator).p2 +
+                '/' +
+                type +
+                ',' +
+                (test as AttributeOperator).p3 +
+                ')){' +
+                source +
+                '}'
+              break
+            }
             source =
+              attributeGuard +
               'if((' +
+              (attributeGuard && match[2] ? 'n!==null&&' : '') +
               (!match![2]!
                 ? NS
                   ? 's.hasAttributeNS(e,"' + name + '")'
-                  : read.has('e', name)
+                  : attributeGuard
+                    ? 'n!==null'
+                    : read.has('e', name)
                 : !match![4]! && ATTR_STD_OPS[match![2]!] && match![2]! != '~='
-                  ? read.attr('e', name) + '==""'
+                  ? attributeSource + '==""'
                   : match[2] == '=' &&
                       type == '' &&
                       (test as AttributeOperator).p3 == 'true'
-                    ? read.attr('e', name) + '=="' + value + '"'
+                    ? attributeSource + '=="' + value + '"'
                     : '(/' +
                       (test as AttributeOperator).p1 +
                       match![4]! +
@@ -3268,8 +3487,8 @@ interface AttributeOperator {
                       ').test(' +
                       (match[2] == '~=' &&
                       (test as AttributeOperator).p3 == 'true'
-                        ? '(' + read.attr('e', name) + '||"")'
-                        : read.attr('e', name)) +
+                        ? '(' + attributeSource + '||"")'
+                        : attributeSource) +
                       ')==' +
                       (test as AttributeOperator).p3) +
               ')){' +
@@ -3459,20 +3678,20 @@ interface AttributeOperator {
                 case 'only-of-type':
                   source =
                     'o=e.localName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.localName!=o);}if(!n){' +
+                    'n=e;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
+                    'n=e;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));}if(!n){' +
                     source +
                     '}'
                   break
                 case 'last-of-type':
                   source =
-                    'n=e;o=e.localName;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
+                    'n=e;o=e.localName;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                     source +
                     '}'
                   break
                 case 'first-of-type':
                   source =
-                    'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(!n){' +
+                    'n=e;o=e.localName;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                     source +
                     '}'
                   break
@@ -3484,7 +3703,7 @@ interface AttributeOperator {
 
             // *** child-indexed & typed child-indexed pseudo-classes
             // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
-            else if ((match = selector.match(Patterns['treestruct']!))) {
+            else if ((match = matchNth(selector))) {
               match![1] = match![1]!.toLowerCase()
               switch (match![1]!) {
                 case 'nth-child':
@@ -3492,18 +3711,26 @@ interface AttributeOperator {
                 case 'nth-last-child':
                 case 'nth-last-of-type':
                   expr = /-of-type/i.test(match![1]!)
+                  var nthFilter = match[3]
+                  if (
+                    nthFilter !== undefined &&
+                    (expr || !validateLogical(nthFilter, false))
+                  ) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
                   if (match![1]! && match![2]!) {
                     type = /last/i.test(match![1]!)
-                    if (match[2] == 'n') {
+                    if (match[2] == 'n' && nthFilter === undefined) {
                       source = 'if(true){' + source + '}'
                       break
-                    } else if (match[2] == '1') {
+                    } else if (match[2] == '1' && nthFilter === undefined) {
                       test = type ? 'next' : 'previous'
                       source = expr
                         ? 'n=e;o=e.localName;' +
                           'while((n=n.' +
                           test +
-                          'ElementSibling)&&n.localName!=o);if(!n){' +
+                          'ElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                           source +
                           '}'
                         : 'if(!e.' + test + 'ElementSibling){' + source + '}'
@@ -3557,6 +3784,29 @@ interface AttributeOperator {
                                 ? 'n==' + b
                                 : 'n>' + (b - 1)
                               : 'false'
+                    }
+                    if (nthFilter !== undefined) {
+                      flag = '_f' + notFlag++
+                      S_VARS.push(flag)
+                      source =
+                        'n=s.nthFiltered(e,' +
+                        JSON.stringify(nthFilter) +
+                        ',' +
+                        !!type +
+                        ',f?null:(' +
+                        flag +
+                        '||(' +
+                        flag +
+                        '=v?(v.' +
+                        flag +
+                        '||(v.' +
+                        flag +
+                        '={})):{})));if(n>0&&(' +
+                        test +
+                        ')){' +
+                        source +
+                        '}'
+                      break
                     }
                     // A constant index needs no index. nth(Element|OfType)
                     // builds the sibling list of the parent to number the
@@ -3629,7 +3879,30 @@ interface AttributeOperator {
                         '}'
                       break
                     }
-                    if (mode === false && !Config.LEGACY && !expr) {
+                    if (mode === false && !Config.LEGACY) {
+                      if (expr) {
+                        flag = '_t' + notFlag++
+                        S_VARS.push(flag, flag + 's')
+                        source =
+                          flag +
+                          '=e.localName;' +
+                          flag +
+                          's=e.namespaceURI;n=1;o=e;' +
+                          'while((o=o.' +
+                          (type ? 'next' : 'previous') +
+                          'ElementSibling)){' +
+                          'if(o.localName===' +
+                          flag +
+                          '&&o.namespaceURI===' +
+                          flag +
+                          's)++n;}' +
+                          'if((' +
+                          test +
+                          ')){' +
+                          source +
+                          '}'
+                        break
+                      }
                       source =
                         'n=1;o=e;while((o=o.' +
                         (type ? 'next' : 'previous') +
@@ -3697,6 +3970,7 @@ interface AttributeOperator {
                       expr +
                       '(e,' +
                       type +
+                      (expr == 'OfType' && !Config.LEGACY ? ',!f' : '') +
                       ');if((' +
                       test +
                       ')){' +
@@ -4421,7 +4695,6 @@ interface AttributeOperator {
       parsed = stringContinuations(selectors)
         .replace(/\x00|\\$/g, '\ufffd')
         .replace(REX.CombineWSP, '\x20')
-        .replace(REX.PseudosWSP, '$1')
         .replace(REX.TabCharWSP, '\t')
         .replace(REX.CommaGroup, ',')
         .replace(REX.TrimSpaces, '')
@@ -4554,6 +4827,7 @@ interface AttributeOperator {
       name: string,
       tag?: string | null | undefined,
       resolver?: CompiledResolver | null | undefined,
+      filtered?: Record<string, FilteredNthState>,
     ) {
       var element: Element | null | undefined,
         next: Element | null,
@@ -4671,7 +4945,7 @@ interface AttributeOperator {
             (HTML_DOCUMENT &&
               element.namespaceURI == NAMESPACE &&
               element.localName == tag.toLowerCase())) &&
-          (!resolver || resolver(element, null, context, false))
+          (!resolver || resolver(element, null, context, false, filtered))
         ) {
           return element
         }
@@ -4742,7 +5016,9 @@ interface AttributeOperator {
           }
           collection = match![2]!
             ? context.getElementsByClassName!(match![2]!)
-            : context.getElementsByTagName!(match![1]!)
+            : !HTML_DOCUMENT && match![1] != '*'
+              ? byTagNS(context, match![1]!)
+              : context.getElementsByTagName!(match![1]!)
           element = collection[0] || null
           if (match![2]! && match![1]! && match![1]! != '*') {
             i = 0
@@ -4795,6 +5071,8 @@ interface AttributeOperator {
       callback: ElementCallback,
     ) {
       var plan,
+        resolver,
+        filtered,
         i,
         token,
         name,
@@ -4822,6 +5100,8 @@ interface AttributeOperator {
         firstResolvers.set(selectors, plan)
       }
       for (i = 0; i < plan.nodeset.length; ++i) {
+        resolver = plan.factory[i]!
+        filtered = resolver.filtered ? {} : undefined
         token = plan.nodeset[i]!
         name = token.slice(1)
         api = method[token[0]! as keyof typeof method] as
@@ -4830,7 +5110,7 @@ interface AttributeOperator {
         result =
           token.charCodeAt(0) == 46 /* '.' */ &&
           !/[\t\n\f\r ]/.test(name) &&
-          firstClass(context, name, null, plan.factory[i]!)
+          firstClass(context, name, null, resolver, filtered)
         if (result) {
           if (!element || result.compareDocumentPosition(element) & 4) {
             element = result
@@ -4839,26 +5119,27 @@ interface AttributeOperator {
         }
         collection =
           !Config.LEGACY &&
+          (HTML_DOCUMENT || token[0] != '*') &&
           (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
           api in context
             ? context[api]!(name)
             : fetch[token[0]!]!(name, context)
         result = collection[0]
-        if (result && !plan.factory[i]!(result, null, context, false)) {
+        if (result && !resolver(result, null, context, false, filtered)) {
           var j = 1,
             length
           // Most first matches occur near the start. Defer a live collection's
           // length until a short bounded probe has failed.
           for (; j < 8; ++j) {
             result = collection[j]
-            if (!result || plan.factory[i]!(result, null, context, false)) {
+            if (!result || resolver(result, null, context, false, filtered)) {
               break
             }
           }
           if (j === 8) {
             result = null
             for (length = collection.length; j < length; ++j) {
-              if (plan.factory[i]!(collection[j]!, null, context, false)) {
+              if (resolver(collection[j]!, null, context, false, filtered)) {
                 result = collection[j]
                 break
               }
@@ -5058,6 +5339,7 @@ interface AttributeOperator {
       // levels through helpers, which is the ordinary path's job as well.
       if (
         Config.LEGACY ||
+        !HTML_DOCUMENT ||
         context.nodeType != 9 ||
         !context.getElementsByClassName ||
         !context.getElementsByTagName
@@ -5649,6 +5931,7 @@ interface AttributeOperator {
       ancestor: typeof ancestor
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
+      nthFiltered: typeof nthFiltered
       isMediaState: typeof isMediaState
       matchesNative: typeof matchesNative
       isRequired: typeof isRequired
@@ -5663,6 +5946,7 @@ interface AttributeOperator {
       isContentEditable: typeof isContentEditable
       isLink: typeof isLink
       hasAttributeNS: typeof hasAttributeNS
+      attributeValueNS: typeof attributeValueNS
     } = {
       doc: doc,
       from: doc,
@@ -5696,6 +5980,7 @@ interface AttributeOperator {
 
       nthOfType: nthOfType,
       nthElement: nthElement,
+      nthFiltered: nthFiltered,
 
       matchesNative: matchesNative,
       isDefined: isDefined,
@@ -5712,6 +5997,7 @@ interface AttributeOperator {
       isContentEditable: isContentEditable,
       isLink: isLink,
       hasAttributeNS: hasAttributeNS,
+      attributeValueNS: attributeValueNS,
       isMediaState: isMediaState,
     },
     // public exported methods/objects
