@@ -1,12 +1,12 @@
 # Coverage
 
-Coverage records which parts of the source ran during tests. Use it to find missing cases, then write assertions that check the expected behavior. Executing a line does not prove that it works correctly.
+Runtime coverage records which parts of the source ran during tests. TypeScript type coverage measures how much of the analyzed code has types other than `any`. Use both to find gaps. Executing a line or assigning it a type does not prove that its behavior is correct.
 
 ## Combine coverage across the complete run
 
-Cumulative coverage combines the evidence from the required fast, medium, and slow lanes, their shards, and supported child-process or browser runs. A function covered in one lane remains covered in the combined report. No single lane needs to repeat every case from the others.
+Cumulative runtime coverage combines the evidence from the required fast, medium, and slow lanes, their shards, and supported child-process or browser runs. A function covered in one lane remains covered in the combined report. No single lane needs to repeat every case from the others.
 
-Merge source locations and counters before calculating percentages. Do not average percentages from separate reports. If two suites cover different halves of the same file, the combined result can cover the whole file even though each suite reports 50%.
+Merge source locations and counters before calculating percentages. Do not average percentages from separate runtime reports. If two suites cover different halves of the same file, the combined result can cover the whole file even though each suite reports 50%.
 
 Use the fleet merge helpers to normalize paths and source locations. Count each source item once in the denominator. Different providers can describe the same source with different statement or branch boundaries, so their maps must be reconciled before merging. See the [report normalization practices](practices.md#check-coverage-data-before-trusting-the-percentage).
 
@@ -14,17 +14,41 @@ Combine only compatible reports from the intended revision, source inventory, an
 
 Include owned source files that no test imports so uncovered files remain visible. Keep third-party implementation code outside the owned-source inventory. Document generated-source mappings and exclusions with the repository. The [Vitest coverage guide](https://vitest.dev/guide/coverage#including-and-excluding-files-from-coverage-report) explains source inclusion settings.
 
+Exclude TypeScript declaration files from runtime coverage because they contain no executable implementation. Match declaration extensions such as `.d.ts`, `.d.mts`, and `.d.cts`. A directory named `types` can contain executable helpers, so its name alone does not justify an exclusion.
+
 ## Avoid counting installed copies twice
 
 Wheelhouse can measure both a canonical template file and its installed copy. The fleet merge helper combines these entries only after confirming that their source bytes are identical. Different implementations remain separate. Do not merge files merely because their names match.
 
 Use this normalized report when ranking uncovered functions or updating a coverage badge. Otherwise, an uncovered copy of already-tested source can look like missing coverage. Check the report's source revision before publishing results from a cache.
 
-## Enforce thresholds on the combined result
+## Include TypeScript type coverage
+
+Measure type coverage against the intended compiler project from the same revision as the runtime reports. The fleet type analyzer uses the installed TypeScript 7 native compiler. It counts identifier types, including inferred types, and checks contextual types before treating an `any` result as uncovered. It excludes declaration files and external libraries from its measurement.
+
+Type coverage measures the presence of types. Keep tests that compile valid API examples and reject invalid examples to check whether those types describe the contract correctly. A runtime coverage ignore comment does not address a missing type.
+
+Use the repository's coverage entrypoint for a complete result. In the fleet runner, `pnpm run cover:types` measures types alone. Its default project is `.config/fleet/tsconfig.check.json`, and `--project` selects another project. Record changes to that source inventory because percentages from different projects may not be comparable.
+
+The fleet shard aggregation step validates and merges the runtime reports before measuring types once for the project. Each runtime shard does not need to repeat that type analysis. Missing measurements, invalid output, compiler errors, and analyzer failures must fail a run that requires type coverage.
+
+The full coverage runner records the type measurement and command status in `type-coverage.json` under its coverage output directory. When a runtime aggregate is available, `coverage-aggregate.json` contains separate `execution` and `types` results. Retain the status with the percentage. A number printed before a command fails is not a passing result.
+
+## Read the combined code and type summary
+
+For a complete run, the fleet reporter calculates the cumulative score as `(statement coverage + type coverage) / 2`. The two percentages have equal weight, even though they measure different source items. This summary does not combine statement counts with identifier counts. Check that both measurements are present and valid before using the displayed score.
+
+For example, 80% statement coverage and 100% type coverage produce a 90% summary score. Statement coverage remains 80%, and its threshold still applies. Branch, function, line, and type requirements also remain independent. Do not use the summary score to replace any required metric.
+
+Focused `--code-only` and `--type-only` runs provide partial evidence. Report their scope and run the complete gate before claiming combined coverage. Do not fill a missing measurement with 100% or reuse a result from an older source revision.
+
+## Enforce each required threshold
 
 A threshold is the minimum accepted percentage for a metric. Track statements, branches, functions, and lines separately. A high line percentage can hide missing decision branches.
 
 Apply the repository's aggregate thresholds after the required reports have been merged. Retain any separate per-file or module requirements. A focused test run is useful during development, but it does not replace the complete coverage gate.
+
+Keep any configured type threshold as a separate requirement. The fleet type runner supports `--at-least` for a minimum percentage. Without that option, it measures and reports types without imposing a percentage floor. Compiler and analyzer failures still fail the command. Confirm which type threshold the repository's full gate actually enforces.
 
 Follow the [coverage ratchet](../agents.md/coverage-ratchet.md): retain measured gains by raising committed thresholds through the existing tooling. Do not lower thresholds to make a failing change pass. Keep exact targets and commands in the repository configuration and `docs/repo/testing/`.
 
