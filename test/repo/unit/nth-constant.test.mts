@@ -2,6 +2,53 @@ import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../src/nwsapi.js'
 
+test('constant positions share dense parents without penalizing sparse candidates', t => {
+  const { window } = new JSDOM('<!doctype html><main></main><aside></aside>')
+  t.onTestFinished(() => window.close())
+  const { document } = window
+  const engine = factory(window)
+  const main = document.querySelector('main')!
+  const aside = document.querySelector('aside')!
+  main.innerHTML = '<i></i>'.repeat(300)
+  aside.innerHTML = '<i></i>'.repeat(10)
+  const check = () => {
+    for (const selector of [
+      'i:nth-child(3)',
+      'i:nth-last-child(3)',
+      'i:not(:nth-child(3))',
+      'i:nth-child(3):nth-last-child(298)',
+    ]) {
+      expect(engine.select(selector), selector).toEqual([
+        ...document.querySelectorAll(selector),
+      ])
+    }
+  }
+  check()
+  aside.append(main.firstElementChild!)
+  main.prepend(document.createElement('b'))
+  check()
+  const fragment = document.createDocumentFragment()
+  fragment.append(...main.children)
+  expect(engine.select('i:nth-child(3)', fragment)).toEqual([
+    fragment.children[2],
+  ])
+  // A sparse candidate near the start should not walk from the far end.
+  const sparse = fragment.children[1]
+  let reads = 0
+  Object.defineProperty(fragment, 'lastElementChild', {
+    get() {
+      ++reads
+      return fragment.children[fragment.children.length - 1]
+    },
+  })
+  const resolve = engine.compile(':nth-last-child(200)', true)!
+  expect(resolve([sparse], null, fragment, [])).toEqual([])
+  expect(reads).toBe(0)
+  const repeated = 'i' + ':nth-child(3)'.repeat(20)
+  expect(engine.select(repeated, fragment)).toEqual([fragment.children[2]])
+  expect(engine.compile(repeated, true)!.toString().length).toBeLessThan(20_000)
+})
+
 for (const pseudo of [
   'nth-child',
   'nth-last-child',

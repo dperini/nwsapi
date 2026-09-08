@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Media and timeline selector states</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+test(() => {
+  const media = document.createElement('video');
+  document.body.appendChild(media);
+  media.matches = () => { throw new DOMException('Unavailable native state', 'SyntaxError'); };
+  Object.defineProperties(media, {
+    paused: { value: false, configurable: true },
+    readyState: { value: 1, configurable: true },
+    networkState: { value: 2 },
+    seeking: { value: true, configurable: true }
+  });
+  const nw = NW.Dom;
+  assert_true(nw.match(':playing', media));
+  assert_true(nw.match(':buffering', media));
+  assert_false(nw.match(':paused', media));
+  assert_false(nw.match(':stalled', media));
+  assert_true(nw.match(':seeking', media));
+  media.muted = true;
+  assert_true(nw.match(':muted', media));
+  media.muted = false;
+  media.volume = 0;
+  assert_false(nw.match(':muted', media));
+  assert_false(nw.match(':volume-locked', media));
+  Object.defineProperty(media, 'paused', { value: true });
+  assert_false(nw.match(':buffering', media));
+  assert_true(nw.match(':paused', media));
+  assert_false(nw.match(':paused', document.body));
+  media.remove();
+}, 'Unsupported hosts use reflected media state without inventing stall timing');
+test(() => {
+  const node = document.createElement('p');
+  document.body.appendChild(node);
+  for (const selector of [':current', ':past', ':future', ':current(p, .caption)']) {
+    assert_false(NW.Dom.match(selector, node));
+    node.matches = candidate => candidate === selector;
+    assert_true(NW.Dom.match(selector, node));
+    delete node.matches;
+  }
+  node.remove();
+}, 'Timeline selectors consult the host and remain empty without host state');
+</script>

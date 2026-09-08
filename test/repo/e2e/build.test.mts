@@ -6,6 +6,9 @@ import { JSDOM } from 'jsdom'
 import { beforeAll, test } from 'vitest'
 
 let source
+const pkg = JSON.parse(
+  readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),
+)
 
 beforeAll(() => {
   source = readFileSync(
@@ -13,6 +16,7 @@ beforeAll(() => {
     'utf8',
   )
   assert.match(source, /^\/\*!\n \* NWSAPI /)
+  assert.ok(source.includes(`NWSAPI ${pkg.version} -`))
 })
 
 for (const [file, ecmaVersion] of [
@@ -66,6 +70,7 @@ for (const format of ['browser', 'CommonJS', 'AMD']) {
         vm.runInContext(source, dom.getInternalVMContext())
       }
       const engine = factory ? factory(window) : window.NW.Dom
+      assert.equal(engine.Version, `nwsapi-${pkg.version}`)
       const ids = () =>
         Array.from(engine.select('div > p.x'), (node: Element) => node.id)
       assert.deepEqual(ids(), ['a'])

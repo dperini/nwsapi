@@ -16,37 +16,37 @@ import {
 const engine = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
 const adapter = readFileSync(ADAPTER_SOURCE_PATH, 'utf8')
 
-for (const [name, markdown] of [
-  ['API', renderApiMarkdown(engine, adapter)],
-  [
-    'README',
-    readFileSync(new URL('../../../README.md', import.meta.url), 'utf8'),
-  ],
-]) {
-  test(`${name} nests a readable callout inside its collapsed section`, t => {
-    const dom = new JSDOM(markdown)
-    t.onTestFinished(() => dom.window.close())
-    const notes = dom.window.document.querySelectorAll('details blockquote')
-    expect(notes).toHaveLength(1)
-    const note = notes[0]
-    expect(note.querySelector('strong')?.textContent).toBe('Important')
-    expect(note.querySelector('code')?.textContent).toBe('LEGACY')
-    expect(note.querySelectorAll('p')[1]?.textContent).toBe(
-      'Set LEGACY before the first query when the environment needs compatibility fallbacks.',
-    )
-    const icon = note.querySelector('img')
-    const src =
-      name === 'API'
-        ? '../assets/repo/important.svg'
-        : 'assets/repo/important.svg'
-    expect(icon?.getAttribute('src')).toBe(src)
-    expect(icon?.getAttribute('alt')).toBe('')
-    expect(icon?.getAttribute('width')).toBe('16')
-    expect(icon?.getAttribute('height')).toBe('16')
-    expect(note.querySelector('[style], [class], svg, script')).toBeNull()
-    expect(markdown).not.toContain('[!IMPORTANT]')
-  })
-}
+test('API nests a readable callout inside its collapsed section', t => {
+  const markdown = renderApiMarkdown(engine, adapter)
+  const dom = new JSDOM(markdown)
+  t.onTestFinished(() => dom.window.close())
+  const notes = dom.window.document.querySelectorAll('details blockquote')
+  expect(notes).toHaveLength(1)
+  const note = notes[0]
+  expect(note.querySelector('strong')?.textContent).toBe('Important')
+  expect(note.querySelector('code')?.textContent).toBe('LEGACY')
+  expect(note.querySelectorAll('p')[1]?.textContent).toBe(
+    'Set LEGACY before the first query when the environment needs compatibility fallbacks.',
+  )
+  const icon = note.querySelector('img')
+  expect(icon?.getAttribute('src')).toBe('../assets/repo/important.svg')
+  expect(icon?.getAttribute('alt')).toBe('')
+  expect(icon?.getAttribute('width')).toBe('16')
+  expect(icon?.getAttribute('height')).toBe('16')
+  expect(note.querySelector('[style], [class], svg, script')).toBeNull()
+  expect(markdown).not.toContain('[!IMPORTANT]')
+})
+
+test('README links to the API without repeating its reference tables', () => {
+  const markdown = readFileSync(
+    new URL('../../../README.md', import.meta.url),
+    'utf8',
+  )
+  const section = markdown.split('## API\n')[1].split('\n## ')[0].trim()
+  expect(section).toBe(
+    'See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.',
+  )
+})
 
 test('the API reference matches the source exports without running the factory', () => {
   const output = renderApiMarkdown(engine, adapter)

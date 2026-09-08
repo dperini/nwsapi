@@ -5,7 +5,7 @@
  * nwsapi.js - Fast CSS Selectors API Engine
  *
  * Author: Diego Perini <diego.perini at gmail com>
- * Version: 2.2.27
+ * Version: 2.3.0-prerelease
  * Created: 20070722
  * Release: 20260830
  *
@@ -32,7 +32,7 @@
     global.NW.Dom = factory(global, Export)
   }
 })(this, function Factory(global, Export) {
-  var version = 'nwsapi-2.2.27',
+  var version = 'nwsapi-2.3.0-prerelease',
     doc = global.document,
     root = doc.documentElement,
     slice = Array.prototype.slice,
@@ -243,7 +243,11 @@
       '$=': { p1: '', p2: '$', p3: 'true' },
       '*=': { p1: '', p2: '', p3: 'true' },
       '|=': { p1: '^', p2: '(-|$)', p3: 'true' },
-      '~=': { p1: '(^|\\s)', p2: '(\\s|$)', p3: 'true' },
+      '~=': {
+        p1: '(^|[\\t\\n\\f\\r ])',
+        p2: '([\\t\\n\\f\\r ]|$)',
+        p3: 'true',
+      },
     },
     concatCall = function (nodes, callback) {
       var i = 0,
@@ -482,6 +486,7 @@
     switchContext = function (context, force?) {
       var oldDoc = doc
       partCounts.clear()
+      typeRoutes.clear()
       doc = context.ownerDocument || context
       if (force || oldDoc !== doc) {
         // force a new check for each document change
@@ -492,6 +497,7 @@
         selectLambdas.clear()
         matchResolvers.clear()
         selectResolvers.clear()
+        firstResolvers.clear()
         if (!Config.LEGACY && detectLegacy(doc)) {
           Config.LEGACY = true
         }
@@ -629,7 +635,7 @@
       list[list.length] = text.slice(start).replace(REX.TrimSpaces, '')
       return list
     },
-    matchLogical = function (selector) {
+    matchLogical = function (selector, prefix?) {
       var chr,
         close,
         escaped,
@@ -637,7 +643,7 @@
         i,
         l,
         quote = '',
-        match = selector.match(REX.LogicalPfx)
+        match = selector.match(prefix || REX.LogicalPfx)
 
       if (!match) {
         return null
@@ -685,6 +691,7 @@
       '*': (c, n) => (e, f) => byTag(n, c),
       '|': (c, n) => (e, f) => byTagNS(n, c),
       '.': (c, n) => (e, f) => byClass(n, c),
+      '?': (c, n) => (e, f) => byTags(n, c),
     },
     // Fetch a cached plan's candidates without allocating lookup closures.
     fetch = {
@@ -692,6 +699,7 @@
       '*': (n, c) => byTag(n, c),
       '|': (n, c) => byTagNS(c, n),
       '.': (n, c) => (/[\t\n\f\r ]/.test(n) ? [] : byClass(n, c)),
+      '?': (n, c) => byTags(n, c),
     },
     // find duplicate ids using iterative walk
     // Walk 'context' in tree order collecting elements carrying 'id'. The
@@ -795,6 +803,76 @@
       return byTag(tag, context)
     },
     // context agnostic getElementsByTagName
+    // Narrow logical type lists only when they cover a minority of the tree.
+    typeRoutes = createCache(),
+    byTags = function (names, context) {
+      if (Config.LEGACY || !context.getElementsByTagName) {
+        return byTag('*', context)
+      }
+      var route = typeRoutes.get(names)
+      if (route && --route.remaining > 0 && route.broad) {
+        return byTag('*', context)
+      }
+      var probe = !route || route.remaining <= 0,
+        tags = names.split(','),
+        seen = Object.create(null),
+        collections = [],
+        count = 0,
+        nodes = [],
+        list,
+        merged,
+        left,
+        right,
+        i,
+        tag
+      for (i = 0; i < tags.length; ++i) {
+        tag = tags[i].trim()
+        if (!seen[tag]) {
+          seen[tag] = true
+          list = context.getElementsByTagName(tag)
+          count += list.length
+          collections[collections.length] = list
+        }
+      }
+      // Merge comparisons are host calls too. Dense unions are cheaper as
+      // one broad pass. Sample live counts periodically; a stale decision
+      // only chooses a slower correct route, never supplies cached results.
+      if (probe) {
+        route = {
+          broad:
+            count > 0 && count * 3 > context.getElementsByTagName('*').length,
+          remaining: 64,
+        }
+        typeRoutes.set(names, route)
+        if (route.broad) {
+          return byTag('*', context)
+        }
+      }
+      for (i = 0; i < collections.length; ++i) {
+        list = sliceCall(collections[i])
+        if (!nodes.length) {
+          nodes = list
+          continue
+        }
+        merged = []
+        left = right = 0
+        // Each lookup is already ordered. Distinct type names are disjoint.
+        while (left < nodes.length && right < list.length) {
+          merged[merged.length] =
+            nodes[left].compareDocumentPosition(list[right]) & 4
+              ? nodes[left++]
+              : list[right++]
+        }
+        while (left < nodes.length) {
+          merged[merged.length] = nodes[left++]
+        }
+        while (right < list.length) {
+          merged[merged.length] = list[right++]
+        }
+        nodes = merged
+      }
+      return nodes
+    },
     byTag = function (tag, context) {
       var e,
         nodes,
@@ -1772,7 +1850,7 @@
       // first legend child, which excuses that fieldset and no other
       node = upOf(element)
       while (node) {
-        if (tagOf(node) == 'fieldset' && node.disabled === true) {
+        if (node.disabled === true && tagOf(node) == 'fieldset') {
           legend = firstOf(node)
           while (legend && tagOf(legend) != 'legend') {
             legend = nextOf(legend)
@@ -1936,27 +2014,37 @@
     isLink = function (node) {
       return reLinkName.test(tagOf(node)) && hasAttrOf(node, 'href')
     },
-    // check media resources is playing
-    isPlaying = function (media) {
-      // for <audio>, <video>, <source> and <track> elements
-      var parent =
-        media instanceof HTMLMediaElement ? null : media.parentElement
-      return (
-        !!(
-          media &&
-          media.currentTime > 0 &&
-          !media.paused &&
-          !media.ended &&
-          media.readyState > 2
-        ) ||
-        !!(
-          parent &&
-          parent.currentTime > 0 &&
-          !parent.paused &&
-          !parent.ended &&
-          parent.readyState > 2
-        )
-      )
+    // Native state covers host-only timing and volume policy. The fallback
+    // reads HTML media state without treating a loading pause as user intent.
+    isMediaState = function (media, state) {
+      var native = matchesNative(media, ':' + state, undefined)
+      if (native !== undefined) {
+        return native
+      }
+      if (
+        media.namespaceURI !== 'http://www.w3.org/1999/xhtml' ||
+        !/^(audio|video)$/i.test(tagOf(media))
+      ) {
+        return false
+      }
+      switch (state) {
+        case 'playing':
+          return media.paused === false && media.ended !== true
+        case 'paused':
+          return media.paused === true || media.ended === true
+        case 'seeking':
+          return media.seeking === true
+        case 'muted':
+          return media.muted === true
+        case 'buffering':
+          return (
+            isMediaState(media, 'playing') &&
+            media.networkState === 2 &&
+            media.readyState < 3
+          )
+        default:
+          return false
+      }
     },
     // configure the engine to use special handling
     configure = function (option, clear) {
@@ -1982,11 +2070,14 @@
       }
       // clear lambda cache
       if (clear) {
+        childPlans.clear()
+        typeRoutes.clear()
         descentDeclined.clear()
         matchLambdas.clear()
         selectLambdas.clear()
         matchResolvers.clear()
         selectResolvers.clear()
+        firstResolvers.clear()
       }
       useLegacy(Config.LEGACY)
       setIdentifierSyntax()
@@ -2583,12 +2674,17 @@
             if (match[4] === '') {
               test =
                 match[2] == '~='
-                  ? { p1: '^\\s', p2: '+$', p3: 'true' }
+                  ? { p1: '(?!)', p2: '', p3: 'true' }
                   : match[2] in ATTR_STD_OPS && match[2] != '~='
                     ? { p1: '^', p2: '$', p3: 'true' }
                     : test
-            } else if (match[2] == '~=' && match[4].includes(' ')) {
-              // whitespace separated list but value contains space
+            } else if (
+              match[2] == '~=' &&
+              /[\t\n\f\r ]/.test(unescapeIdentifier(match[4]))
+            ) {
+              // A token cannot contain CSS whitespace. Decode first: the
+              // space terminating a hexadecimal escape is not part of it.
+              source = 'if(false){' + source + '}'
               break
             } else if (match[4]) {
               value = escapeIdentifier(match[4])
@@ -2619,7 +2715,9 @@
                       '/' +
                       type +
                       ').test(' +
-                      read.attr('e', name) +
+                      (match[2] == '~=' && test.p3 == 'true'
+                        ? '(' + read.attr('e', name) + '||"")'
+                        : read.attr('e', name)) +
                       ')==' +
                       test.p3) +
               ')){' +
@@ -2885,6 +2983,49 @@
                     // localName through the host on each one costs more than
                     // the list it avoids.
                     if (test == 'n==' + a && a >= 1 && !expr) {
+                      if (mode === true && !callback && !Config.LEGACY) {
+                        // Dense selections usually visit siblings together.
+                        // Find this parent's one qualifying child once, then
+                        // compare identities. Locals live for this invocation
+                        // only, so mutations and reentrant calls cannot reuse
+                        // an earlier query's position.
+                        flag = '_p' + notFlag++
+                        S_VARS.push(flag, flag + 'v')
+                        source =
+                          'o=e.parentNode;if(o&&(o===' +
+                          flag +
+                          '||(k+1<l&&c[k+1].parentNode===o))){if(o!==' +
+                          flag +
+                          '){' +
+                          flag +
+                          '=o;' +
+                          flag +
+                          'v=o?o.' +
+                          (type ? 'last' : 'first') +
+                          'ElementChild:null;' +
+                          'n=1;while(n<' +
+                          a +
+                          '&&' +
+                          flag +
+                          'v){' +
+                          flag +
+                          'v=' +
+                          flag +
+                          'v.' +
+                          (type ? 'previous' : 'next') +
+                          'ElementSibling;++n;}}n=e===' +
+                          flag +
+                          'v;}else{n=1,o=e;while(n<=' +
+                          a +
+                          '&&(o=o.' +
+                          (type ? 'next' : 'previous') +
+                          'ElementSibling))++n;n=n==' +
+                          a +
+                          ';}if(n){' +
+                          source +
+                          '}'
+                        break
+                      }
                       test = type ? 'next' : 'previous'
                       source =
                         'n=1,o=e;' +
@@ -2896,6 +3037,17 @@
                         'if(n==' +
                         a +
                         '){' +
+                        source +
+                        '}'
+                      break
+                    }
+                    if (mode === false && !Config.LEGACY && !expr) {
+                      source =
+                        'n=1;o=e;while((o=o.' +
+                        (type ? 'next' : 'previous') +
+                        'ElementSibling))++n;if((' +
+                        test +
+                        ')){' +
                         source +
                         '}'
                       break
@@ -2932,7 +3084,47 @@
               switch (match[1]) {
                 case 'is':
                 case 'where':
-                  if (Config.FORGIVING) {
+                  if (
+                    /^(?:[a-z][a-z0-9-]*)?(?:[.#][_a-zA-Z][-\w]*)+$/.test(
+                      match[2],
+                    )
+                  ) {
+                    // A simple compound cannot move e or contain an invalid
+                    // forgiving-list item. Emit its predicate once instead
+                    // of re-entering match() for every candidate.
+                    flag = '_n' + notFlag++
+                    nested = compileSelector(
+                      match[2],
+                      flag + '=true;',
+                      mode,
+                      callback,
+                    )
+                    source =
+                      'var ' +
+                      flag +
+                      '=false;' +
+                      nested +
+                      'if(' +
+                      flag +
+                      '){' +
+                      source +
+                      '}'
+                  } else if (
+                    /^[a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)*$/.test(
+                      match[2],
+                    )
+                  ) {
+                    source =
+                      'if(' +
+                      splitList(match[2])
+                        .map(function (tag) {
+                          return read.tag('e') + '=="' + tag + '"'
+                        })
+                        .join('||') +
+                      '){' +
+                      source +
+                      '}'
+                  } else if (Config.FORGIVING) {
                     source =
                       'if(s.matchForgiving(' +
                       JSON.stringify(splitList(match[2])) +
@@ -2981,6 +3173,14 @@
                 case 'has':
                   if (!validateLogical(match[2], true)) {
                     return ''
+                  }
+                  argument = /^>[\t\n\f\r ]*([a-z][a-z0-9-]*|\*)$/.exec(
+                    match[2],
+                  )
+                  if (argument) {
+                    source =
+                      'if(s.hasChild(e,"' + argument[1] + '")){' + source + '}'
+                    break
                   }
                   source =
                     'if(s.has(' +
@@ -3267,32 +3467,12 @@
             // resources state pseudo-classes (multimedia state)
             // :playing, :paused, :seeking, :buffering, :stalled, :muted, :volume-locked
             else if ((match = selector.match(Patterns.rsrc_state))) {
-              match[1] = match[1].toLowerCase()
-              switch (match[1]) {
-                case 'playing':
-                  source = 'if(s.isPlaying(e)){' + source + '}'
-                  break
-                case 'paused':
-                  source = 'if(!s.isPlaying(e)){' + source + '}'
-                  break
-                case 'seeking':
-                  source = 'if(!s.isPlaying(e)){' + source + '}'
-                  break
-                case 'buffering':
-                  break
-                case 'stalled':
-                  break
-                case 'muted':
-                  source =
-                    'if(e.localName=="audio"&&e.getAttribute("muted")){' +
-                    source +
-                    '}'
-                  break
-                case 'volume-locked':
-                  break
-                default:
-                  break
-              }
+              source =
+                'if(s.isMediaState(e,' +
+                JSON.stringify(match[1].toLowerCase()) +
+                ')){' +
+                source +
+                '}'
             }
 
             // display state pseudo-classes. Helpers use native matching when
@@ -3323,6 +3503,30 @@
                   emit("'" + expression + "'" + qsInvalid)
                   break
               }
+            }
+
+            // Timelines belong to the host; absent native state matches nothing.
+            else if ((match = selector.match(Patterns.time_state))) {
+              expr = ':' + match[1].toLowerCase()
+              if (expr === ':current' && match[2].charAt(0) === '(') {
+                match = matchLogical(selector, /^:(current)\(/i)
+                if (
+                  !match ||
+                  !match[2] ||
+                  !splitList(match[2]).every(isCompound) ||
+                  !validateLogical(match[2], false)
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  break
+                }
+                expr += '(' + match[2] + ')'
+              }
+              source =
+                'if(s.matchesNative(e,' +
+                JSON.stringify(expr) +
+                ')){' +
+                source +
+                '}'
             }
 
             // allow pseudo-elements starting with single colon (:)
@@ -3619,6 +3823,17 @@
       }
       return false
     },
+    // A direct-child type test needs no candidate array or relative resolver.
+    hasChild = function (element, tag) {
+      var child = firstOf(element)
+      while (child) {
+        if (tag == '*' || tagOf(child) == tag) {
+          return true
+        }
+        child = nextOf(child)
+      }
+      return false
+    },
     // true if element matches the selector
     has = function (list, anchor) {
       var context,
@@ -3661,7 +3876,7 @@
       return false
     },
     first = function _querySelector(selectors, context, callback) {
-      var element, match
+      var element, match, collection, i, length
 
       // A lone '#id' against a document is the id map's own question, and the
       // first match in tree order is exactly what getElementById returns.
@@ -3685,6 +3900,57 @@
         return element || null
       }
 
+      // The first class/type match needs neither a copied candidate array nor
+      // a resolver. Keep uncommon syntax on the fully validating path.
+      if (
+        !Config.LEGACY &&
+        typeof selectors == 'string' &&
+        selectors &&
+        (match = /^([a-zA-Z][-\w]*|\*)?(?:\.([_a-zA-Z][-\w]*))?$/.exec(
+          selectors,
+        ))
+      ) {
+        context || (context = doc)
+        if (
+          (context.nodeType == 9 || context.nodeType == 1) &&
+          context.getElementsByTagName &&
+          context.getElementsByClassName
+        ) {
+          lastContext !== context && (lastContext = switchContext(context))
+          collection = match[2]
+            ? context.getElementsByClassName(match[2])
+            : context.getElementsByTagName(match[1])
+          element = collection[0] || null
+          if (match[2] && match[1] && match[1] != '*') {
+            i = 0
+            while (
+              element &&
+              !(
+                element.localName == match[1] ||
+                (HTML_DOCUMENT &&
+                  element.namespaceURI == NAMESPACE &&
+                  element.localName == match[1].toLowerCase())
+              )
+            ) {
+              // Reading a live collection's length can itself scan the DOM.
+              // The common first-candidate hit needs no length at all.
+              if (i === 0) {
+                length = collection.length
+              }
+              element = ++i < length ? collection[i] : null
+            }
+          }
+          if (element && typeof callback == 'function') {
+            callback(element)
+          }
+          return element
+        }
+      }
+
+      if (!Config.LEGACY && typeof selectors == 'string' && selectors) {
+        return firstCompiled(selectors, context, callback)
+      }
+
       return (
         select(
           selectors,
@@ -3698,8 +3964,146 @@
         )[0] || null
       )
     },
+    // First-match plans validate every group before examining candidates.
+    // They retain compiled code and tokens, never live DOM collections.
+    firstCompiled = function (selectors, context, callback) {
+      var plan,
+        i,
+        token,
+        name,
+        api,
+        collection,
+        result,
+        element = null
+      context || (context = doc)
+      lastContext !== context && (lastContext = switchContext(context))
+      plan = firstResolvers.get(selectors)
+      if (!plan) {
+        result = collect(parse(selectors, true), context, null, false, true)
+        plan = { factory: result.factory, nodeset: result.nodeset }
+        firstResolvers.set(selectors, plan)
+      }
+      for (i = 0; i < plan.nodeset.length; ++i) {
+        token = plan.nodeset[i]
+        name = token.slice(1)
+        api = method[token[0]]
+        collection =
+          !Config.LEGACY &&
+          (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
+          api in context
+            ? context[api](name)
+            : fetch[token[0]](name, context)
+        result = collection[0]
+        if (result && !plan.factory[i](result, null, context, false)) {
+          var j = 1,
+            length
+          // Most first matches occur near the start. Defer a live collection's
+          // length until a short bounded probe has failed.
+          for (; j < 8; ++j) {
+            result = collection[j]
+            if (!result || plan.factory[i](result, null, context, false)) {
+              break
+            }
+          }
+          if (j === 8) {
+            result = null
+            for (length = collection.length; j < length; ++j) {
+              if (plan.factory[i](collection[j], null, context, false)) {
+                result = collection[j]
+                break
+              }
+            }
+          }
+        }
+        if (
+          result &&
+          (!element || result.compareDocumentPosition(element) & 4)
+        ) {
+          element = result
+        }
+      }
+      if (element && typeof callback == 'function') {
+        callback(element)
+      }
+      return element
+    },
     // equivalent of w3c 'querySelectorAll' method
     DESCENT_PROBE = 128,
+    childPlans = createCache(),
+    selectChildren = function (selectors, context) {
+      var plan = childPlans.get(selectors),
+        found,
+        roots,
+        root,
+        candidates,
+        element,
+        parent,
+        previous,
+        results = [],
+        unordered = false,
+        i,
+        j,
+        k,
+        length
+
+      if (plan === undefined) {
+        // Selective class anchors followed by direct-child type selectors.
+        // The general compiler owns escapes, namespaces, and other syntax.
+        found =
+          /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][-\w]*)([\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*(?:[\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*)*)$/.exec(
+            selectors,
+          )
+        plan = found
+          ? {
+              tag: found[1],
+              cls: found[2],
+              tags: found[3].split(/\s*>\s*/).slice(1),
+            }
+          : null
+        childPlans.set(selectors, plan)
+      }
+      if (!plan) {
+        return null
+      }
+      roots = context.getElementsByClassName(plan.cls)
+      length = roots.length
+      // Decide from live counts before copying or walking a wide anchor set.
+      // A changed tree can choose a different route on the next call.
+      if (length > DESCENT_PROBE) {
+        return null
+      }
+      for (i = 0; i < length; ++i) {
+        root = roots[i]
+        if (plan.tag !== undefined && root.localName != plan.tag) {
+          continue
+        }
+        if (previous && previous.contains(root)) {
+          unordered = true
+        }
+        previous = root
+        // A scoped type lookup skips unrelated children and their subtrees.
+        // Validate the fixed parent chain against this exact anchor: nested
+        // anchors must neither duplicate nor borrow one another's matches.
+        candidates = root.getElementsByTagName(plan.tags[plan.tags.length - 1])
+        for (j = 0, k = candidates.length; j < k; ++j) {
+          element = candidates[j]
+          parent = element.parentElement
+          for (var depth = plan.tags.length - 2; depth >= 0; --depth) {
+            if (!parent || parent.localName != plan.tags[depth]) {
+              break
+            }
+            parent = parent.parentElement
+          }
+          if (depth < 0 && parent === root) {
+            results[results.length] = element
+          }
+        }
+      }
+      if (unordered && results.length > 1) {
+        results.sort(documentOrder)
+      }
+      return results
+    },
     partCounts = createCache(),
     reTagChain =
       /^[.A-Za-z][-\w]*(?:\.[-\w]+)?(?:\x20[.A-Za-z][-\w]*(?:\.[-\w]+)?)+$/,
@@ -3861,6 +4265,18 @@
       context || (context = doc)
       lastContext !== context && (lastContext = switchContext(context))
 
+      if (
+        typeof selectors == 'string' &&
+        selectors.includes('>') &&
+        callback === undefined &&
+        !Config.LEGACY &&
+        HTML_DOCUMENT &&
+        context.nodeType == 9 &&
+        (descended = selectChildren(selectors, context))
+      ) {
+        return Config.NODE_LIST ? toNodeList(descended) : descended
+      }
+
       // A plain descendant chain of tags is answered by descending, when the
       // shape of the document makes that the cheaper direction. No callback:
       // the ordinary path is what applies one, and this returns the answer
@@ -3957,7 +4373,7 @@
       )
     },
     // prepare factory resolvers and closure collections
-    collect = function (selectors, context, callback, relative?) {
+    collect = function (selectors, context, callback, relative?, firstOnly?) {
       var i,
         l,
         seen = {},
@@ -3977,6 +4393,38 @@
             optimized[i] = optimize(optimized[i], token)
           } else {
             token = ['', '*', '*']
+            // A terminal union of types can fetch its alternatives instead
+            // of every element. Keep the complete predicate in the resolver,
+            // including any compound or ancestor constraints around the list.
+            type =
+              /:(?:is|where)\(([a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)+)\)$/.exec(
+                selectors[i],
+              )
+            if (
+              !firstOnly &&
+              type &&
+              /^[.#*\w\t\n\f\r >+~-]*$/.test(selectors[i].slice(0, type.index))
+            ) {
+              token = ['', '?', type[1]]
+            }
+          }
+          // Class lookup narrows candidates; the attribute resolver still
+          // checks case and values, including in quirks mode.
+          if (
+            HTML_DOCUMENT &&
+            !Config.LEGACY &&
+            (type = selectors[i].match(Patterns.attribute)) &&
+            type[0] == selectors[i] &&
+            type[1] == 'class' &&
+            type[2] == '~=' &&
+            type[4] &&
+            type[5] != 'i' &&
+            !/[\t\n\f\r ]/.test(unescapeIdentifier(type[4])) &&
+            Operators['~='].p1 == '(^|[\\t\\n\\f\\r ])' &&
+            Operators['~='].p2 == '([\\t\\n\\f\\r ]|$)' &&
+            Operators['~='].p3 == 'true'
+          ) {
+            token = ['', '.', type[4]]
           }
         }
 
@@ -3989,7 +4437,11 @@
           token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
             ? () => []
             : compat[token[1]](context, token[2])
-        factory[i] = compile(optimized[i], true, null, relative)
+        factory[i] = compile(optimized[i], !firstOnly, null, relative)
+
+        if (firstOnly) {
+          continue
+        }
 
         if (factory[i]) {
           factory[i](htmlset[i](), callback, context, results)
@@ -4229,6 +4681,7 @@
     // cached resolvers
     matchResolvers = createCache(),
     selectResolvers = createCache(),
+    firstResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
       mayMatch: typeof mayMatch
@@ -4253,6 +4706,7 @@
       root: Element
       byTag: typeof byTag
       has: typeof has
+      hasChild: typeof hasChild
       first: typeof first
       match: typeof match
       matchForgiving: typeof matchForgiving
@@ -4260,6 +4714,7 @@
       ancestor: typeof ancestor
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
+      isMediaState: typeof isMediaState
       matchesNative: typeof matchesNative
       isRequired: typeof isRequired
       isDisabled: typeof isDisabled
@@ -4292,6 +4747,7 @@
       connectedOf: legacyConnectedOf,
 
       has: has,
+      hasChild: hasChild,
       first: first,
       match: match,
       matchForgiving: matchForgiving,
@@ -4321,6 +4777,7 @@
       isContentEditable: isContentEditable,
       isLink: isLink,
       hasAttributeNS: hasAttributeNS,
+      isMediaState: isMediaState,
     },
     // public exported methods/objects
     Dom = {

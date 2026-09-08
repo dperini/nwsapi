@@ -1,0 +1,898 @@
+{
+  "engineCommit": "6d79033",
+  "node": "v26.5.0",
+  "v8": "14.6.202.34-node.24",
+  "cpu": "Apple M3 Max",
+  "profiles": [
+    {
+      "phase": "cold",
+      "sourceSha256": "7ec6d43773e5e46e9d88f7e62caee3217179b746a2c93811fcca27da8cc82e69",
+      "consumed": 13585676,
+      "node": "v26.5.0",
+      "v8": "14.6.202.34-node.24",
+      "samples": 471,
+      "top": [
+        {
+          "function": "compile",
+          "url": "src/nwsapi.js",
+          "samples": 375,
+          "percent": 79.62
+        },
+        {
+          "function": "compileSelector",
+          "url": "src/nwsapi.js",
+          "samples": 42,
+          "percent": 8.92
+        },
+        {
+          "function": "(garbage collector)",
+          "url": "",
+          "samples": 14,
+          "percent": 2.97
+        },
+        {
+          "function": "get",
+          "url": "src/nwsapi.js",
+          "samples": 12,
+          "percent": 2.55
+        },
+        {
+          "function": "run",
+          "url": "scripts/repo/bench/profile.mts",
+          "samples": 7,
+          "percent": 1.49
+        },
+        {
+          "function": "matchLogical",
+          "url": "src/nwsapi.js",
+          "samples": 5,
+          "percent": 1.06
+        },
+        {
+          "function": "isCompound",
+          "url": "src/nwsapi.js",
+          "samples": 3,
+          "percent": 0.64
+        },
+        {
+          "function": "(program)",
+          "url": "",
+          "samples": 3,
+          "percent": 0.64
+        },
+        {
+          "function": "unescapeIdentifier",
+          "url": "src/nwsapi.js",
+          "samples": 2,
+          "percent": 0.42
+        },
+        {
+          "function": "splitList",
+          "url": "src/nwsapi.js",
+          "samples": 2,
+          "percent": 0.42
+        },
+        {
+          "function": "set",
+          "url": "src/nwsapi.js",
+          "samples": 2,
+          "percent": 0.42
+        },
+        {
+          "function": "post",
+          "url": "node:inspector",
+          "samples": 1,
+          "percent": 0.21
+        },
+        {
+          "function": "dispatch",
+          "url": "",
+          "samples": 1,
+          "percent": 0.21
+        },
+        {
+          "function": "",
+          "url": "",
+          "samples": 1,
+          "percent": 0.21
+        },
+        {
+          "function": "tagBit",
+          "url": "src/nwsapi.js",
+          "samples": 1,
+          "percent": 0.21
+        },
+        {
+          "function": "(root)",
+          "url": "",
+          "samples": 0,
+          "percent": 0.0
+        },
+        {
+          "function": "",
+          "url": "scripts/repo/bench/profile.mts",
+          "samples": 0,
+          "percent": 0.0
+        },
+        {
+          "function": "fn",
+          "url": "node:internal/util",
+          "samples": 0,
+          "percent": 0.0
+        },
+        {
+          "function": "",
+          "url": "node:internal/util",
+          "samples": 0,
+          "percent": 0.0
+        },
+        {
+          "function": "validateLogical",
+          "url": "src/nwsapi.js",
+          "samples": 0,
+          "percent": 0.0
+        }
+      ],
+      "iterations": 1000
+    },
+    {
+      "phase": "select",
+      "sourceSha256": "7ec6d43773e5e46e9d88f7e62caee3217179b746a2c93811fcca27da8cc82e69",
+      "consumed": 10472010,
+      "node": "v26.5.0",
+      "v8": "14.6.202.34-node.24",
+      "samples": 6560,
+      "top": [
+        {
+          "function": "byTag",
+          "url": "src/nwsapi.js",
+          "samples": 721,
+          "percent": 10.99
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 512,
+          "percent": 7.8
+        },
+        {
+          "function": "_querySelectorAll",
+          "url": "src/nwsapi.js",
+          "samples": 452,
+          "percent": 6.89
+        },
+        {
+          "function": "Resolver",
+          "url": "",
+          "samples": 434,
+          "percent": 6.62
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 254,
+          "percent": 3.87
+        },
+        {
+          "function": "namedItem",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "samples": 242,
+          "percent": 3.69
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "samples": 235,
+          "percent": 3.58
+        },
+        {
+          "function": "wrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 223,
+          "percent": 3.4
+        },
+        {
+          "function": "has",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "samples": 223,
+          "percent": 3.4
+        },
+        {
+          "function": "fetchLevel",
+          "url": "src/nwsapi.js",
+          "samples": 219,
+          "percent": 3.34
+        },
+        {
+          "function": "get parentElement",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 216,
+          "percent": 3.29
+        },
+        {
+          "function": "_node",
+          "url": "node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "samples": 187,
+          "percent": 2.85
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 155,
+          "percent": 2.36
+        },
+        {
+          "function": "getAttribute",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 142,
+          "percent": 2.16
+        },
+        {
+          "function": "(program)",
+          "url": "",
+          "samples": 140,
+          "percent": 2.13
+        },
+        {
+          "function": "compareDocumentPosition",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js",
+          "samples": 128,
+          "percent": 1.95
+        },
+        {
+          "function": "isArrayIndexPropName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 115,
+          "percent": 1.75
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "samples": 111,
+          "percent": 1.69
+        },
+        {
+          "function": "byTags",
+          "url": "src/nwsapi.js",
+          "samples": 111,
+          "percent": 1.69
+        },
+        {
+          "function": "byClass",
+          "url": "src/nwsapi.js",
+          "samples": 108,
+          "percent": 1.65
+        }
+      ],
+      "iterations": 1000
+    },
+    {
+      "phase": "first",
+      "sourceSha256": "7ec6d43773e5e46e9d88f7e62caee3217179b746a2c93811fcca27da8cc82e69",
+      "consumed": 36050,
+      "node": "v26.5.0",
+      "v8": "14.6.202.34-node.24",
+      "samples": 1097,
+      "top": [
+        {
+          "function": "firstCompiled",
+          "url": "src/nwsapi.js",
+          "samples": 202,
+          "percent": 18.41
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 166,
+          "percent": 15.13
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "samples": 162,
+          "percent": 14.77
+        },
+        {
+          "function": "Resolver",
+          "url": "",
+          "samples": 92,
+          "percent": 8.39
+        },
+        {
+          "function": "namedItem",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "samples": 90,
+          "percent": 8.2
+        },
+        {
+          "function": "get parentElement",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 44,
+          "percent": 4.01
+        },
+        {
+          "function": "getAttribute",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 30,
+          "percent": 2.73
+        },
+        {
+          "function": "getAttributeNS",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "samples": 26,
+          "percent": 2.37
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 23,
+          "percent": 2.1
+        },
+        {
+          "function": "wrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 20,
+          "percent": 1.82
+        },
+        {
+          "function": "_node",
+          "url": "node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "samples": 20,
+          "percent": 1.82
+        },
+        {
+          "function": "",
+          "url": "src/nwsapi.js",
+          "samples": 20,
+          "percent": 1.82
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 19,
+          "percent": 1.73
+        },
+        {
+          "function": "_querySelector",
+          "url": "src/nwsapi.js",
+          "samples": 17,
+          "percent": 1.55
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 17,
+          "percent": 1.55
+        },
+        {
+          "function": "(program)",
+          "url": "",
+          "samples": 17,
+          "percent": 1.55
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "samples": 13,
+          "percent": 1.19
+        },
+        {
+          "function": "get localName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 12,
+          "percent": 1.09
+        },
+        {
+          "function": "tryWrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 11,
+          "percent": 1.0
+        },
+        {
+          "function": "classOf",
+          "url": "src/nwsapi.js",
+          "samples": 9,
+          "percent": 0.82
+        }
+      ],
+      "iterations": 1000
+    },
+    {
+      "phase": "match",
+      "iterations": 100000,
+      "sourceSha256": "7ec6d43773e5e46e9d88f7e62caee3217179b746a2c93811fcca27da8cc82e69",
+      "consumed": 493758,
+      "node": "v26.5.0",
+      "v8": "14.6.202.34-node.24",
+      "samples": 1216,
+      "top": [
+        {
+          "function": "Resolver",
+          "url": "",
+          "samples": 230,
+          "percent": 18.91
+        },
+        {
+          "function": "get",
+          "url": "src/nwsapi.js",
+          "samples": 224,
+          "percent": 18.42
+        },
+        {
+          "function": "match_assert",
+          "url": "src/nwsapi.js",
+          "samples": 81,
+          "percent": 6.66
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 76,
+          "percent": 6.25
+        },
+        {
+          "function": "_node",
+          "url": "node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "samples": 59,
+          "percent": 4.85
+        },
+        {
+          "function": "get previousElementSibling",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 55,
+          "percent": 4.52
+        },
+        {
+          "function": "get localName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 54,
+          "percent": 4.44
+        },
+        {
+          "function": "get parentElement",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 51,
+          "percent": 4.19
+        },
+        {
+          "function": "next",
+          "url": "node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js",
+          "samples": 42,
+          "percent": 3.45
+        },
+        {
+          "function": "",
+          "url": "scripts/repo/bench/profile.mts",
+          "samples": 39,
+          "percent": 3.21
+        },
+        {
+          "function": "run",
+          "url": "scripts/repo/bench/profile.mts",
+          "samples": 27,
+          "percent": 2.22
+        },
+        {
+          "function": "wrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 22,
+          "percent": 1.81
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 21,
+          "percent": 1.73
+        },
+        {
+          "function": "_matches",
+          "url": "src/nwsapi.js",
+          "samples": 18,
+          "percent": 1.48
+        },
+        {
+          "function": "isObject",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 18,
+          "percent": 1.48
+        },
+        {
+          "function": "get className",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 16,
+          "percent": 1.32
+        },
+        {
+          "function": "getAttribute",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 16,
+          "percent": 1.32
+        },
+        {
+          "function": "classOf",
+          "url": "src/nwsapi.js",
+          "samples": 15,
+          "percent": 1.23
+        },
+        {
+          "function": "(garbage collector)",
+          "url": "",
+          "samples": 15,
+          "percent": 1.23
+        },
+        {
+          "function": "(program)",
+          "url": "",
+          "samples": 13,
+          "percent": 1.07
+        }
+      ]
+    },
+    {
+      "phase": "resolver",
+      "sourceSha256": "7ec6d43773e5e46e9d88f7e62caee3217179b746a2c93811fcca27da8cc82e69",
+      "consumed": 10472010,
+      "node": "v26.5.0",
+      "v8": "14.6.202.34-node.24",
+      "samples": 9930,
+      "top": [
+        {
+          "function": "Resolver",
+          "url": "",
+          "samples": 1816,
+          "percent": 18.29
+        },
+        {
+          "function": "run",
+          "url": "scripts/repo/bench/profile.mts",
+          "samples": 1455,
+          "percent": 14.65
+        },
+        {
+          "function": "get localName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 947,
+          "percent": 9.54
+        },
+        {
+          "function": "ancestorMask",
+          "url": "src/nwsapi.js",
+          "samples": 930,
+          "percent": 9.37
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 908,
+          "percent": 9.14
+        },
+        {
+          "function": "get parentElement",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 836,
+          "percent": 8.42
+        },
+        {
+          "function": "exports.is",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "samples": 419,
+          "percent": 4.22
+        },
+        {
+          "function": "(program)",
+          "url": "",
+          "samples": 303,
+          "percent": 3.05
+        },
+        {
+          "function": "wrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 259,
+          "percent": 2.61
+        },
+        {
+          "function": "_node",
+          "url": "node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "samples": 247,
+          "percent": 2.49
+        },
+        {
+          "function": "classOf",
+          "url": "src/nwsapi.js",
+          "samples": 230,
+          "percent": 2.32
+        },
+        {
+          "function": "isObject",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 155,
+          "percent": 1.56
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 148,
+          "percent": 1.49
+        },
+        {
+          "function": "getAttribute",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 146,
+          "percent": 1.47
+        },
+        {
+          "function": "get className",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "samples": 143,
+          "percent": 1.44
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "samples": 125,
+          "percent": 1.26
+        },
+        {
+          "function": "get localName",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "samples": 101,
+          "percent": 1.02
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "samples": 90,
+          "percent": 0.91
+        },
+        {
+          "function": "tryWrapperForImpl",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "samples": 73,
+          "percent": 0.74
+        },
+        {
+          "function": "get parentElement",
+          "url": "node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js",
+          "samples": 62,
+          "percent": 0.62
+        }
+      ],
+      "iterations": 1000
+    }
+  ],
+  "trace": {
+    "phase": "first",
+    "optimizedResolverCompletions": 7,
+    "resolverDeoptimizations": 0,
+    "generatedBytecodeLengths": [
+      30,
+      37,
+      53,
+      57,
+      45,
+      39,
+      39,
+      45,
+      15,
+      15,
+      65,
+      68,
+      49,
+      35,
+      66,
+      28,
+      67,
+      47,
+      167,
+      67,
+      73,
+      77,
+      86,
+      95,
+      83,
+      83,
+      83,
+      103,
+      121,
+      178,
+      121,
+      160
+    ]
+  },
+  "scannerExperiment": {
+    "rows": [
+      {
+        "pattern": "button.primary",
+        "samples": [
+          [
+            0.01517925,
+            0.0114105,
+            0.012301415999999999,
+            0.011788834000000002,
+            0.01224775,
+            0.011236168,
+            0.011765584,
+            0.01089375,
+            0.0113135
+          ],
+          [
+            0.013596584,
+            0.011613834,
+            0.0117995,
+            0.0119285,
+            0.012334834000000001,
+            0.015398,
+            0.011627666,
+            0.01099875,
+            0.011858416
+          ]
+        ],
+        "ms": [
+          0.011765584,
+          0.011858416
+        ]
+      },
+      {
+        "pattern": ":is(.card,.panel):not(.hidden)",
+        "samples": [
+          [
+            0.013936166,
+            0.017673416,
+            0.011983166,
+            0.012514415999999999,
+            0.0124755,
+            0.012389084000000002,
+            0.012872668,
+            0.012612916,
+            0.015203668
+          ],
+          [
+            0.017532831999999998,
+            0.020165,
+            0.011922332,
+            0.012411166,
+            0.012963665999999999,
+            0.01256575,
+            0.015763084,
+            0.01234125,
+            0.01238675
+          ]
+        ],
+        "ms": [
+          0.012612916,
+          0.01256575
+        ]
+      },
+      {
+        "pattern": ":is(div:has(> span[data-x=\"a,b\"]), section):not(.hidden)",
+        "samples": [
+          [
+            0.014636334,
+            0.01512225,
+            0.016057918,
+            0.01633325,
+            0.012774166,
+            0.013375,
+            0.013088915999999999,
+            0.014597668,
+            0.026643666
+          ],
+          [
+            0.014569668,
+            0.013566334000000001,
+            0.013082834000000002,
+            0.013219584000000001,
+            0.014130084000000001,
+            0.013902084,
+            0.019162334,
+            0.0146665,
+            0.013732916
+          ]
+        ],
+        "ms": [
+          0.014636334,
+          0.013902084
+        ]
+      },
+      {
+        "pattern": ":where(.\u03b1,.\ud83d\ude00,.\\31 x):not([data-x=\"a)\\\"b\"])",
+        "samples": [
+          [
+            0.0197425,
+            0.01579625,
+            0.015565918,
+            0.017831084,
+            0.014436084,
+            0.015122,
+            0.014504668,
+            0.014710916,
+            0.015248668
+          ],
+          [
+            0.01717025,
+            0.014878166,
+            0.014280916,
+            0.014867416,
+            0.014593834,
+            0.014419668,
+            0.014691334,
+            0.019419666000000002,
+            0.014902416
+          ]
+        ],
+        "ms": [
+          0.015248668,
+          0.014867416
+        ]
+      },
+      {
+        "pattern": ":not(:is(.a,.b),:where(.c,.d))",
+        "samples": [
+          [
+            0.020955,
+            0.014589418,
+            0.01772325,
+            0.01369675,
+            0.013631418,
+            0.018282918000000002,
+            0.014586416,
+            0.020569582,
+            0.01413975
+          ],
+          [
+            0.015482584,
+            0.013800917999999999,
+            0.013581834000000001,
+            0.013506332000000001,
+            0.013913584000000001,
+            0.013733082,
+            0.01371775,
+            0.014962165999999999,
+            0.013613166
+          ]
+        ],
+        "ms": [
+          0.014589418,
+          0.013733082
+        ]
+      },
+      {
+        "pattern": ":is(.class0,.class1,.class2,.class3,.class4,.class5,.class6,.class7,.class8,.class9,.class10,.class11,.class12,.class13,.class14,.class15,.class16,.class17,.class18,.class19,.class20,.class21,.class22,.class23,.class24,.class25,.class26,.class27,.class28,.class29)",
+        "samples": [
+          [
+            0.017214332,
+            0.014176,
+            0.014044918,
+            0.014423418,
+            0.0141525,
+            0.018466666,
+            0.015019168,
+            0.014429,
+            0.01490425
+          ],
+          [
+            0.013941915999999999,
+            0.017088166000000002,
+            0.013888084,
+            0.013641082,
+            0.013612834,
+            0.014137666,
+            0.01426275,
+            0.013763834,
+            0.014503832
+          ]
+        ],
+        "ms": [
+          0.014429,
+          0.013941915999999999
+        ]
+      }
+    ],
+    "consumed": 21467460,
+    "sha256": [
+      "9672a09b10c72539c05cadde28a74d2c80e6177b55e4cf3a061115244b9dc5d7",
+      "a65b09a5008fce01251daacf90fd31a380899b076cded5da15422ec4fd17d1f7"
+    ],
+    "note": "Cold compile comparison with engine-specific selector names to prevent cross-engine reuse of generated Function source. Numeric variant changes splitList, matchLogical and isCompound only."
+  }
+}

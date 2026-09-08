@@ -3,11 +3,29 @@
 <a href="https://badge.socket.dev/npm/package/nwsapi"><img src="https://badge.socket.dev/npm/package/nwsapi" alt="Socket Badge" height="20"></a>
 <img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg" width="97" height="20" alt="Coverage" />
 
-NWSAPI finds DOM elements that match CSS selectors. It works in browsers and with DOM libraries in Node.js.
-The core engine has no external dependencies.
+Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
 NWSAPI builds on [NWMATCHER](https://github.com/dperini/nwmatcher) with [Selectors Level 4](https://drafts.csswg.org/selectors-4/) features such as `:is()`, `:where()`, and `:has()`, plus state selectors such as `:open` and `:modal`.
 See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors) and [compatibility notes](https://github.com/dperini/nwsapi/wiki/Features-and-compliance).
+
+## Performance
+
+**1.7–8.9× faster first matches** across 12 nonempty component queries, compared with jsdom's default `@asamuzakjp/dom-selector` engine.
+
+| Query | First-match speedup |
+| --- | ---: |
+| `.card` | 3.8× |
+| `button.primary` | 5.1× |
+| `.card > button.primary` | 5.1× |
+| `[data-testid]` | 8.9× |
+| `div > button` | 4.5× |
+| `div:nth-child(2n)` | 3.9× |
+
+For all-results queries, NWSAPI records **31 of 36 lower medians**, with **16 queries at least 2× faster**, across component, documentation, and utility-class fixtures.
+
+These warm-query measurements compare current **2.3.0-prerelease** source with dom-selector **8.3.2** through jsdom **30.0.1**, on Node.js **26.5.0**. NWSAPI is called directly; jsdom's public methods include integration overhead. Some all-results margins are near noise, and five queries remain slower.
+
+See the [benchmarks, charts, and methodology](docs/benchmarks.md) and [V8 analysis and compiler inspection](docs/v8-performance.md).
 
 ## Install
 
@@ -107,29 +125,7 @@ NW.Dom.uninstall()
 
 ## API
 
-Use `NW.Dom` in a browser or the engine returned by the Node.js factory.
 See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.
-
-| Method | Result |
-| --- | --- |
-| `closest()` | Returns the nearest match, starting with the element, or `null`. |
-| `first()` | Returns the first matching descendant, or `null`. |
-| `match()` | Returns whether an element matches. |
-| `select()` | Returns an array of matching descendants. |
-
-<details>
-<summary>More API options</summary>
-
-- [Find elements and add extensions](docs/api.md#engine-methods) with `byClass()`, `byId()`, `byTag()`, and the registration methods.
-- [Configure the engine](docs/api.md#configuration) with `configure()`.
-- [Use the jsdom adapter](docs/api.md#jsdom-adapter) for queries and stylesheet matching.
-
-<blockquote>
-<p><img src="assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>
-<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>
-</blockquote>
-
-</details>
 
 ## Contribute
 
@@ -172,9 +168,11 @@ pnpm run test:upstream
 pnpm run test:coverage
 ```
 
-Coverage uses WPT in Chromium for the engine and Node tests for the adapter.
+Coverage combines Node tests and WPT in Chromium.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
+
+See the [selector benchmarks](docs/benchmarks.md) for comparison charts and commands.
 
 </details>
 
