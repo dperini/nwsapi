@@ -16,14 +16,14 @@ test('uninstall restores querySelectorAll and its collection contract', t => {
   const original = window.Element.prototype.querySelectorAll
   for (let repeat = 0; repeat < 2; repeat++) {
     engine.install()
-    expect(main.querySelectorAll('p').length).toBe(2)
+    expect(main!.querySelectorAll('p').length).toBe(2)
     engine.uninstall()
     expect(window.Element.prototype.querySelectorAll).toBe(original)
     expect(window.HTMLElement.prototype.querySelectorAll).toBe(original)
-    const result = main.querySelectorAll('p')
+    const result = main!.querySelectorAll('p')
     expect(result).toBeInstanceOf(window.NodeList)
-    expect(Array.from(result)).toEqual(Array.from(main.children))
-    expect(main.querySelectorAll('.missing').length).toBe(0)
-    expect(main.querySelector('p')).toBe(main.firstElementChild)
+    expect(Array.from(result)).toEqual(Array.from(main!.children))
+    expect(main!.querySelectorAll('.missing').length).toBe(0)
+    expect(main!.querySelector('p')).toBe(main!.firstElementChild)
   }
 })

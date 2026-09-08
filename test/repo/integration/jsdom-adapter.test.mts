@@ -1,23 +1,27 @@
+import type * as NodeFs from 'node:fs'
+import type * as NodeVm from 'node:vm'
+import type * as NodeModule from 'node:module'
+import type ModuleInstance from 'node:module'
 import type { ConstructorOptions } from 'jsdom'
-import { test, vi } from 'vitest'
+import { test, vi, type TestContext } from 'vitest'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
-const assert = require('node:assert/strict')
+import assert from 'node:assert/strict'
 // The installed-package check runs this suite without substituting anything.
 const jsdomRequire = createRequire(
-  process.env.JSDOM_PACKAGE || require.resolve('jsdom'),
+  process.env['JSDOM_PACKAGE'] || require.resolve('jsdom'),
 )
-const factory = process.env.JSDOM_PACKAGE
+const factory = process.env['JSDOM_PACKAGE']
   ? jsdomRequire('@asamuzakjp/dom-selector')
   : require('../../../src/nwsapi.js')
 const { DOMSelector } = factory
-if (!process.env.JSDOM_PACKAGE) {
+if (!process.env['JSDOM_PACKAGE']) {
   const path = jsdomRequire.resolve('@asamuzakjp/dom-selector')
   jsdomRequire(path)
-  require.cache[path].exports = factory
+  require.cache[path]!.exports = factory
 }
-if (process.env.JSDOM_PACKAGE) {
+if (process.env['JSDOM_PACKAGE']) {
   assert.equal(
     jsdomRequire('@asamuzakjp/dom-selector/package.json').name,
     'nwsapi',
@@ -27,7 +31,7 @@ assert.equal(jsdomRequire('@asamuzakjp/dom-selector'), factory)
 const { JSDOM } = jsdomRequire('jsdom')
 
 function host(
-  t,
+  t: TestContext,
   html = '<!doctype html><section><div class="item" id="one"></div><div class="item" id="two"></div></section>',
   options?: ConstructorOptions,
 ) {
@@ -80,7 +84,7 @@ test('an injected engine handles DOM queries, nested selectors, and styles', t =
   assert.equal(document.querySelectorAll('section:has(input)')[0], target)
   assert.equal(target.matches('section:has(input)'), true)
   assert.equal(target.closest('section'), target)
-  for (const spy of [first, select, match, closest]) {
+  for (const spy of [first, select, match, closest] as const) {
     assert.ok(spy.mock.calls.length > 0)
   }
   match.mockClear()
@@ -225,13 +229,15 @@ test('beforeParse can configure before the document has a root element', t => {
 })
 
 test('separately loaded adapter copies share configuration, binding, and setup locks', t => {
-  const fs = require('node:fs')
-  const vm = require('node:vm')
-  const entry = process.env.JSDOM_PACKAGE
+  const fs = require('node:fs') as typeof NodeFs
+  const vm = require('node:vm') as typeof NodeVm
+  const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
     : require.resolve('../../../src/nwsapi.js')
   const adapterPath = createRequire(entry).resolve('./dom-selector.js')
-  const copy = { exports: undefined }
+  const copy: { exports: typeof DOMSelector | undefined } = {
+    exports: undefined,
+  }
   vm.runInNewContext(fs.readFileSync(adapterPath, 'utf8'), {
     module: copy,
     require: createRequire(adapterPath),
@@ -240,8 +246,8 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   assert.notEqual(OtherAdapter, DOMSelector)
   const window = host(t)
   const engine = factory(window)
-  OtherAdapter.configure(window, { LEGACY: true })
-  assert.equal(OtherAdapter.use(window, engine), engine)
+  OtherAdapter!.configure(window, { LEGACY: true })
+  assert.equal(OtherAdapter!.use(window, engine), engine)
   const adapter = new DOMSelector(window)
   assert.equal(adapter.engine, engine)
   assert.equal(engine.configure().LEGACY, true)
@@ -249,10 +255,10 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   assert.equal(window.document.querySelector('#one').id, 'one')
   assert.equal(first.mock.calls.length, 1)
   assert.throws(
-    () => OtherAdapter.configure(window, { LEGACY: false }),
+    () => OtherAdapter!.configure(window, { LEGACY: false }),
     /before its first use/,
   )
-  assert.throws(() => OtherAdapter.use(window, engine), /before its first use/)
+  assert.throws(() => OtherAdapter!.use(window, engine), /before its first use/)
   const other = host(t)
   engine.select('section', other.document)
   assert.throws(
@@ -260,12 +266,12 @@ test('separately loaded adapter copies share configuration, binding, and setup l
     /bound to another document/,
   )
   assert.throws(
-    () => OtherAdapter.use(other, engine),
+    () => OtherAdapter!.use(other, engine),
     /bound to another document/,
   )
 })
 
-for (const method of ['check', 'supports']) {
+for (const method of ['check', 'supports'] as const) {
   test(`${method} also locks shared setup`, t => {
     const window = host(t)
     const adapter = new DOMSelector(window)
@@ -358,11 +364,12 @@ test('DOM selector errors use the window SyntaxError and stylesheet errors do no
     () => document.querySelectorAll('['),
     () => node.matches('['),
     () => node.closest('['),
-  ]) {
+  ] as const) {
     assert.throws(
       call,
       error =>
-        error instanceof window.DOMException && error.name === 'SyntaxError',
+        error instanceof window.DOMException &&
+        (error instanceof Error ? error.name : String(error)) === 'SyntaxError',
     )
   }
   const adapter = new DOMSelector(window)
@@ -420,11 +427,11 @@ test('stylesheet checks reuse syntax but not match results or result lists', t =
     generations = 0
   adapter.css = {
     ...css,
-    parse(...args) {
+    parse(...args: Parameters<typeof css.parse>) {
       parses++
       return css.parse(...args)
     },
-    generate(...args) {
+    generate(...args: Parameters<typeof css.generate>) {
       generations++
       return css.generate(...args)
     },
@@ -461,18 +468,20 @@ test('stylesheet syntax cache stays bounded and evicted selectors still work', t
 
 test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const window = host(t)
-  const Module = require('node:module')
-  const entry = process.env.JSDOM_PACKAGE
+  const Module = require('node:module') as typeof NodeModule
+  const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
     : require.resolve('../../../src/nwsapi.js')
   const path = createRequire(entry).resolve('./dom-selector.js')
+  // Save the method before replacing it; the call below supplies its receiver.
+  // oxlint-disable-next-line typescript/unbound-method -- Preserve the original receiver.
   const original = Module.prototype.require
   let loads = 0,
     factoryLoads = 0
   const missing = new Error('Missing css-tree peer')
   const requireSpy = vi
     .spyOn(Module.prototype, 'require')
-    .mockImplementation(function (name) {
+    .mockImplementation(function (this: ModuleInstance, name) {
       if (this.filename === path && name === './nwsapi.js') {
         factoryLoads++
       }
@@ -480,7 +489,7 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
         loads++
         throw missing
       }
-      return original.apply(this, arguments)
+      return original.call(this, name)
     })
   try {
     const adapter = new DOMSelector(window)
@@ -518,7 +527,7 @@ test('stylesheet checks ignore non-elements and query APIs reject invalid contex
     null,
     window.document,
     window.document.createTextNode('text'),
-  ]) {
+  ] as const) {
     assert.deepEqual(adapter.check('section', node), {
       ast: null,
       match: false,
@@ -542,7 +551,10 @@ for (const [method, fallback] of [
     const window = host(t)
     const adapter = new DOMSelector(window)
     const node = window.document.getElementById('one')
-    for (const context of [null, window.document.createTextNode('text')]) {
+    for (const context of [
+      null,
+      window.document.createTextNode('text'),
+    ] as const) {
       assert.throws(() => adapter[method]('.item', context), window.TypeError)
       assert.deepEqual(
         adapter[method]('.item', context, { noexcept: true }),

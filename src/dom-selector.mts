@@ -1,10 +1,25 @@
 'use strict'
 
-const createNwsapi = require('./nwsapi.js')
-type Engine = ReturnType<typeof createNwsapi>
+type CssNode = import('css-tree').CssNode
+type Selector = import('css-tree').Selector
+type NwsapiEngine = import('../.config/runtime.d.ts').NwsapiEngine
+type NwsapiCollection = import('../.config/runtime.d.ts').NwsapiCollection
+
+type HostWindow = Window & typeof globalThis
+type Engine = NwsapiEngine & {
+  Snapshot: { doc: Document }
+  closest(selector: string, node: Element): Element | null
+  [ENGINE_OWNER]?: Document
+}
+const createNwsapi: (host: {
+  document: Document
+  DOMException: typeof DOMException
+}) => Engine = require('./nwsapi.js')
+type QueryOptions = { noexcept?: boolean | undefined }
+type AdapterDocument = Document & { [DOCUMENT_STATE]?: State }
 type State = {
   engine?: Engine
-  options: Record<string, boolean>
+  options: Record<string, boolean> | { __proto__: null }
   active: boolean
 }
 
@@ -13,14 +28,14 @@ type State = {
 const DOCUMENT_STATE = Symbol.for('nwsapi.DOMSelector.document.v1')
 const ENGINE_OWNER = Symbol.for('nwsapi.DOMSelector.owner.v1')
 
-function assertSetup(window, document) {
+function assertSetup(window: HostWindow, document: AdapterDocument) {
   const state = document[DOCUMENT_STATE] as State | undefined
   if (state && state.active) {
     throw new window.TypeError('Configure the adapter before its first use')
   }
 }
 
-function getState(document) {
+function getState(document: AdapterDocument): State {
   let state = document[DOCUMENT_STATE] as State | undefined
   if (!state) {
     state = { options: { __proto__: null }, active: false }
@@ -29,7 +44,7 @@ function getState(document) {
   return state
 }
 
-function activate(adapter) {
+function activate(adapter: DOMSelector) {
   const engine = adapter.engine
   if (!adapter.state.active) {
     assertThrowing(adapter.window, engine)
@@ -38,8 +53,8 @@ function activate(adapter) {
   return engine
 }
 
-function assertThrowing(window, engine) {
-  if (engine.configure().VERBOSITY !== true) {
+function assertThrowing(window: HostWindow, engine: Engine) {
+  if (engine.configure()['VERBOSITY'] !== true) {
     throw new window.TypeError('The jsdom adapter requires VERBOSITY: true')
   }
 }
@@ -65,12 +80,12 @@ class DOMSelector {
       >
     | undefined
 
-  static configure(window, options: Record<string, boolean>) {
+  static configure(window: HostWindow, options: Record<string, boolean>) {
     const document = window.document
     assertSetup(window, document)
     if (
       Object.keys(options).includes('VERBOSITY') &&
-      options.VERBOSITY !== true
+      options['VERBOSITY'] !== true
     ) {
       throw new window.TypeError('The jsdom adapter requires VERBOSITY: true')
     }
@@ -87,7 +102,7 @@ class DOMSelector {
     }
   }
 
-  static use(window, engine: Engine) {
+  static use(window: HostWindow, engine: Engine) {
     const document = window.document
     assertSetup(window, document)
     if (
@@ -118,13 +133,13 @@ class DOMSelector {
   }
 
   constructor(
-    window,
+    window: Window & typeof globalThis,
     document = window.document,
     options: { idlUtils?: { wrapperForImpl(node: unknown): Node } } = {},
   ) {
     this.window = window
     this.idlUtils = options.idlUtils
-    this.document = this.wrap(document)
+    this.document = this.wrap(document) as Document
     this.state = getState(this.document)
   }
 
@@ -145,13 +160,48 @@ class DOMSelector {
     return this.state.engine
   }
 
-  wrap(node) {
-    return this.idlUtils ? this.idlUtils.wrapperForImpl(node) : node
+  // The IDL adapter supplies wrappers; public calls already supply DOM nodes.
+  // Callers validate nodeType before they use a node for a query.
+  wrap(node: unknown): Node | null | undefined {
+    return (this.idlUtils ? this.idlUtils.wrapperForImpl(node) : node) as
+      | Node
+      | null
+      | undefined
   }
 
-  run(method, selector, node, options, fallback, elementOnly = false) {
+  run(
+    method: 'match',
+    selector: string,
+    node: unknown,
+    options: QueryOptions | undefined,
+    fallback: boolean,
+    elementOnly: boolean,
+  ): boolean
+  run(
+    method: 'closest' | 'first',
+    selector: string,
+    node: unknown,
+    options: QueryOptions | undefined,
+    fallback: null,
+    elementOnly?: boolean,
+  ): Element | null
+  run(
+    method: 'select',
+    selector: string,
+    node: unknown,
+    options: QueryOptions | undefined,
+    fallback: Element[],
+  ): NwsapiCollection
+  run(
+    method: 'match' | 'closest' | 'first' | 'select',
+    selector: string,
+    input: unknown,
+    options: QueryOptions | undefined,
+    fallback: boolean | Element | Element[] | null,
+    elementOnly = false,
+  ) {
     try {
-      node = this.wrap(node)
+      const node = this.wrap(input)
       if (
         !node ||
         (elementOnly
@@ -166,7 +216,7 @@ class DOMSelector {
             ' node',
         )
       }
-      return activate(this)[method](selector, node)
+      return activate(this)[method](selector, node as Element)
     } catch (error) {
       if (options && options.noexcept) {
         return fallback
@@ -175,19 +225,19 @@ class DOMSelector {
     }
   }
 
-  matches(selector, node, options?) {
+  matches(selector: string, node: unknown, options?: QueryOptions) {
     return this.run('match', selector, node, options, false, true)
   }
 
-  closest(selector, node, options?) {
+  closest(selector: string, node: unknown, options?: QueryOptions) {
     return this.run('closest', selector, node, options, null, true)
   }
 
-  querySelector(selector, node, options?) {
+  querySelector(selector: string, node: unknown, options?: QueryOptions) {
     return this.run('first', selector, node, options, null)
   }
 
-  querySelectorAll(selector, node, options?) {
+  querySelectorAll(selector: string, node: unknown, options?: QueryOptions) {
     return this.run('select', selector, node, options, [])
   }
 
@@ -208,7 +258,7 @@ class DOMSelector {
     return [{ id: null, className: null, tag: null }]
   }
 
-  supports(selector) {
+  supports(selector: unknown) {
     if (typeof selector !== 'string') {
       return false
     }
@@ -220,15 +270,18 @@ class DOMSelector {
     }
   }
 
-  parse(selector) {
+  parse(selector: string) {
     const selectors = this.selectors || (this.selectors = new Map())
     let entry = selectors.get(selector)
     if (!entry) {
-      const ast = this.css.parse(selector, {
+      const css = this.css!
+      const ast = css.parse(selector, {
         context: 'selectorList',
       }) as import('css-tree').SelectorList
-      const branches = []
-      ast.children.forEach((branch: import('css-tree').Selector) => {
+      const branches: Array<{ ast: Selector; selector: string }> = []
+      ast.children.forEach(node => {
+        // Parsing in selectorList context gives Selector children.
+        const branch = node as Selector
         // jsdom does not compute styles for pseudo-elements. Keep them out of
         // element specificity, even when another branch in the list matches.
         let pseudoElement = false
@@ -242,33 +295,34 @@ class DOMSelector {
           }
         })
         if (!pseudoElement) {
-          branches.push({ ast: branch, selector: this.css.generate(branch) })
+          branches.push({ ast: branch, selector: css.generate(branch) })
         }
       })
       entry = { ast, branches }
       // Bound syntax storage without caching DOM nodes or match results.
       if (selectors.size >= 256) {
-        selectors.delete(selectors.keys().next().value)
+        selectors.delete(selectors.keys().next().value!)
       }
       selectors.set(selector, entry)
     }
     return entry
   }
 
-  check(selector, node) {
+  check(selector: string, input: unknown) {
     // Keep this outside the selector-error handler: a missing peer dependency
     // must fail visibly rather than silently suppressing stylesheet matches.
-    const css = this.css || (this.css = require('css-tree'))
+    const css: typeof import('css-tree') =
+      this.css || (this.css = require('css-tree'))
     try {
       const engine = activate(this)
-      node = this.wrap(node)
+      const node = this.wrap(input)
       if (!node || node.nodeType !== 1) {
         return { ast: null, match: false, pseudoElement: null }
       }
       const entry = this.parse(selector)
-      const matched = new css.List()
+      const matched = new css.List<CssNode>()
       for (const branch of entry.branches) {
-        if (engine.match(branch.selector, node)) {
+        if (engine.match(branch.selector, node as Element)) {
           matched.appendData(branch.ast)
         }
       }

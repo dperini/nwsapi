@@ -8,7 +8,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { test } from 'vitest'
+import { test, type TestContext } from 'vitest'
 import { makeCoverageBadge } from '../../../scripts/repo/gen/coverage-badge.mts'
 import {
   badgeColor,
@@ -16,7 +16,7 @@ import {
   readCoveragePct,
 } from '../../../scripts/repo/lib/coverage-badge.mts'
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const repoRoot = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-coverage-'))
   t.onTestFinished(() => rmSync(repoRoot, { recursive: true, force: true }))
   mkdirSync(path.join(repoRoot, 'coverage'))
@@ -28,7 +28,7 @@ function fixture(t) {
     path.join(repoRoot, 'README.md'),
     '![Coverage](assets/repo/coverage.svg)\n',
   )
-  const summary = pct =>
+  const summary = (pct: unknown) =>
     writeFileSync(
       path.join(repoRoot, 'coverage/coverage-summary.json'),
       JSON.stringify({ total: { lines: { pct } } }),
@@ -92,8 +92,8 @@ test('replaces an unmeasured badge with coverage and an absolute README image', 
 test('does not invent a percentage when coverage is missing or invalid', t => {
   const { repoRoot, summary } = fixture(t)
   assert.equal(makeCoverageBadge({ repoRoot }), 1)
-  for (const pct of [undefined, null, '95', -1, 101]) {
-    summary(pct)
+  for (const pct of [undefined, null, '95', -1, 101] as const) {
+    summary(pct!)
     assert.equal(readCoveragePct(repoRoot), undefined)
     assert.equal(makeCoverageBadge({ repoRoot }), 1)
   }

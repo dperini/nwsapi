@@ -1,12 +1,13 @@
 import v8 from 'node:v8'
 import vm from 'node:vm'
 import { describe, expect, test } from 'vitest'
-import { JSDOM } from 'jsdom'
+import { JSDOM, type DOMWindow } from 'jsdom'
 
 import factory from '../../../src/nwsapi.js'
+import type { NwsapiEngine } from '../../../.config/runtime.js'
 
 // The factory is stateful per document, so each test builds its own.
-function build(html) {
+function build(html: ConstructorParameters<typeof JSDOM>[0]) {
   const dom = new JSDOM(html)
   const { window } = dom
   const host = {
@@ -18,12 +19,15 @@ function build(html) {
 }
 
 // A host whose Element.prototype.matches delegates to nwsapi, like jsdom's.
-function wireMatchesToNwsapi(window, NW) {
+function wireMatchesToNwsapi(window: DOMWindow, NW: NwsapiEngine) {
   let calls = 0
-  window.Element.prototype.matches = function (selector) {
+  window.Element.prototype.matches = function (
+    this: Element,
+    selector: string,
+  ) {
     ++calls
     return NW.match(selector, this)
-  }
+  } as Element['matches']
   return () => calls
 }
 
@@ -50,7 +54,7 @@ describe('state pseudo-classes under a host that delegates to nwsapi', () => {
       // (dperini/nwsapi#172), so what matters is that the recursion stops,
       // not that the host is never asked: a host whose matcher is real, as
       // in a browser, is where the answer has to come from.
-      expect(typeof NW.match(pseudo, element)).toBe('boolean')
+      expect(typeof NW.match(pseudo, element!)).toBe('boolean')
       expect(
         calls(),
         `${pseudo} re-entered Element.prototype.matches`,
@@ -60,7 +64,7 @@ describe('state pseudo-classes under a host that delegates to nwsapi', () => {
       // asked again for the same document.
       const asked = calls()
       for (let i = 0; i < 10; ++i) {
-        NW.match(pseudo, element)
+        NW.match(pseudo, element!)
       }
       expect(calls(), `${pseudo} kept asking a host that delegates`).toBe(asked)
     })
@@ -78,7 +82,7 @@ describe('state pseudo-classes under a host that delegates to nwsapi', () => {
     // of magnitude, so this stays meaningful without being timing-flaky.
     const started = Date.now()
     for (let i = 0; i < 50; ++i) {
-      expect(NW.match(':modal', element)).toBe(false)
+      expect(NW.match(':modal', element!)).toBe(false)
     }
     expect(Date.now() - started).toBeLessThan(1000)
   })
@@ -91,22 +95,22 @@ describe('state pseudo-classes under a host that delegates to nwsapi', () => {
 
     // Without a native matcher there is no "is modal" flag to read, so the
     // detectable half is the fullscreen element pointer.
-    expect(NW.match(':modal', dialog)).toBe(false)
+    expect(NW.match(':modal', dialog!)).toBe(false)
     Object.defineProperty(document, 'fullscreenElement', {
       value: dialog,
       configurable: true,
     })
-    expect(NW.match(':modal', dialog)).toBe(true)
+    expect(NW.match(':modal', dialog!)).toBe(true)
   })
 
   test(':open and :closed read the DOM state without a native matcher', () => {
     const { document, NW } = build(
       '<!doctype html><body><details id=o open></details><details id=c></details></body>',
     )
-    expect(NW.match(':open', document.getElementById('o'))).toBe(true)
-    expect(NW.match(':closed', document.getElementById('o'))).toBe(false)
-    expect(NW.match(':open', document.getElementById('c'))).toBe(false)
-    expect(NW.match(':closed', document.getElementById('c'))).toBe(true)
+    expect(NW.match(':open', document.getElementById('o')!)).toBe(true)
+    expect(NW.match(':closed', document.getElementById('o')!)).toBe(false)
+    expect(NW.match(':open', document.getElementById('c')!)).toBe(false)
+    expect(NW.match(':closed', document.getElementById('c')!)).toBe(true)
   })
 })
 
@@ -122,13 +126,13 @@ describe('logical selector arguments containing parentheses', () => {
     const expected = document.querySelector('div[role=button]')
 
     expect(
-      NW.first(':is(th[data-column-index="1"]) [role=button]', thead),
+      NW.first(':is(th[data-column-index="1"]) [role=button]', thead!),
     ).toBe(expected)
-    expect(NW.first(':is(tr > th) [role=button]', thead)).toBe(expected)
+    expect(NW.first(':is(tr > th) [role=button]', thead!)).toBe(expected)
     expect(
       NW.first(
         ':is(th[data-column-index="1"], tr:not([data-group-level]) > *:nth-child(1)) [role=button]',
-        thead,
+        thead!,
       ),
     ).toBe(expected)
   })
@@ -137,7 +141,8 @@ describe('logical selector arguments containing parentheses', () => {
     const { document, NW } = build(
       '<!doctype html><body><div id=a></div><span id=b></span></body>',
     )
-    const ids = selector => NW.select(selector, document.body).map(e => e.id)
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document.body)).map(e => e.id)
 
     expect(ids(':not(:is(div))')).toEqual(['b'])
     expect(ids(':not(:not(div))')).toEqual(['a'])
@@ -154,16 +159,18 @@ describe('logical selector arguments containing parentheses', () => {
     )
     const target = document.getElementById('t')
 
-    expect(NW.match("[class*='a' i]:not(:empty) + [class*='b']", target)).toBe(
+    expect(NW.match("[class*='a' i]:not(:empty) + [class*='b']", target!)).toBe(
       true,
     )
-    expect(NW.match('[class*="a" i]:not(:empty) + [class*="b"]', target)).toBe(
+    expect(NW.match('[class*="a" i]:not(:empty) + [class*="b"]', target!)).toBe(
       true,
     )
-    expect(NW.match("[class*='a' i]:not(.x) + [class*='b']", target)).toBe(true)
-    expect(NW.match("[class*='a' i]:not(:empty) + [class*='zz']", target)).toBe(
-      false,
+    expect(NW.match("[class*='a' i]:not(.x) + [class*='b']", target!)).toBe(
+      true,
     )
+    expect(
+      NW.match("[class*='a' i]:not(:empty) + [class*='zz']", target!),
+    ).toBe(false)
   })
 
   test('a parse error reports the selector, not the fragments that matched', () => {
@@ -177,7 +184,8 @@ describe('logical selector arguments containing parentheses', () => {
     const { document, NW } = build(
       '<!doctype html><body><div id=a class=x></div><div id=b></div></body>',
     )
-    const ids = selector => NW.select(selector, document.body).map(e => e.id)
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document.body)).map(e => e.id)
 
     // CSS Syntax closes any construct left open at EOF, so these are valid.
     expect(ids('div:not([class]')).toEqual(['b'])
@@ -205,14 +213,14 @@ describe('what the selector cache holds on to', () => {
     }
   }
 
-  async function collectGarbage(gc) {
+  async function collectGarbage(gc: () => void) {
     for (let i = 0; i < 5; ++i) {
       gc()
       await new Promise(resolve => setTimeout(resolve, 0))
     }
   }
 
-  async function subtreeSurvives({ query }) {
+  async function subtreeSurvives({ query }: { query: string | null }) {
     const gc = exposeGc()
     const { document, NW } = build('<!doctype html><body></body>')
 
@@ -257,9 +265,9 @@ describe('what the selector cache holds on to', () => {
     )
     // The plan is context-free, so the second context must not see the first
     // context's answer: caching the results is exactly how that would happen.
-    expect(NW.select('p.t', document.getElementById('one')).length).toBe(1)
-    expect(NW.select('p.t', document.getElementById('two')).length).toBe(2)
-    expect(NW.select('p.t', document.getElementById('one')).length).toBe(1)
+    expect(NW.select('p.t', document.getElementById('one')!).length).toBe(1)
+    expect(NW.select('p.t', document.getElementById('two')!).length).toBe(2)
+    expect(NW.select('p.t', document.getElementById('one')!).length).toBe(1)
     expect(NW.select('p.t', document).length).toBe(3)
   })
 })
@@ -278,10 +286,11 @@ describe('id lookups without document.all', () => {
 
   test('select() returns every element carrying the id', () => {
     const { document, NW } = build(MARKUP)
-    const text = list => list.map(node => node.textContent)
+    const text = (list: ArrayLike<Element>) =>
+      Array.from(list, node => node.textContent)
 
     expect(text(NW.select('#dup', document))).toEqual(['1', '2'])
-    expect(text(NW.select('#dup', document.getElementById('outer')))).toEqual([
+    expect(text(NW.select('#dup', document.getElementById('outer')!))).toEqual([
       '1',
     ])
     expect(text(NW.select('#uniq', document))).toEqual(['3'])
@@ -294,17 +303,17 @@ describe('id lookups without document.all', () => {
     const { document, NW } = build(MARKUP)
     const detached = document.createElement('div')
     detached.innerHTML = '<b id=det>d</b>'
-    expect(NW.select('#det', detached).map(node => node.textContent)).toEqual([
-      'd',
-    ])
+    expect(
+      Array.from(NW.select('#det', detached)).map(node => node.textContent),
+    ).toEqual(['d'])
   })
 
   test('first() returns the first in tree order', () => {
     const { document, NW } = build(MARKUP)
-    const text = node => (node ? node.textContent : null)
+    const text = (node: Element | null) => (node ? node.textContent : null)
 
     expect(text(NW.first('#dup', document))).toBe('1')
-    expect(text(NW.first('#dup', document.getElementById('outer')))).toBe('1')
+    expect(text(NW.first('#dup', document.getElementById('outer')!))).toBe('1')
     expect(text(NW.first('#uniq', document))).toBe('3')
     expect(text(NW.first('#a\\.b', document))).toBe('esc')
     expect(NW.first('#nope', document)).toBeNull()
@@ -312,11 +321,11 @@ describe('id lookups without document.all', () => {
 
   test('first() still invokes the callback', () => {
     const { document, NW } = build(MARKUP)
-    const seen = []
+    const seen: Array<string | null> = []
     const found = NW.first('#uniq', document, node =>
       seen.push(node.textContent),
     )
-    expect(found.textContent).toBe('3')
+    expect(found!.textContent).toBe('3')
     expect(seen).toEqual(['3'])
   })
 
@@ -333,7 +342,7 @@ describe('id lookups without document.all', () => {
 
     const started = Date.now()
     for (let i = 0; i < 200; ++i) {
-      expect(NW.first('#needle', document).textContent).toBe('found')
+      expect(NW.first('#needle', document)!.textContent).toBe('found')
       expect(NW.select('#missing', document)).toEqual([])
     }
     expect(Date.now() - started).toBeLessThan(500)
@@ -353,13 +362,14 @@ describe('generated code that only reads correctly by accident', () => {
         '<audio id=d href="#"></audio>' +
         '</body>',
     )
-    const ids = selector => NW.select(selector, document).map(node => node.id)
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document)).map(node => node.id)
 
     expect(ids(':link')).toEqual(['a', 'r'])
     expect(ids(':any-link')).toEqual(['a', 'r'])
     expect(ids(':visited')).toEqual([])
     // an <a> without href is not a link
-    document.getElementById('a').removeAttribute('href')
+    document.getElementById('a')!.removeAttribute('href')
     expect(ids(':link')).toEqual(['r'])
   })
 
@@ -374,7 +384,9 @@ describe('generated code that only reads correctly by accident', () => {
         '</body>',
     )
     expect(
-      NW.select(':placeholder-shown', document).map(node => node.id),
+      Array.from(NW.select(':placeholder-shown', document)).map(
+        node => node.id,
+      ),
     ).toEqual(['a', 'c'])
   })
 })
@@ -388,9 +400,13 @@ describe('what a cached plan replays', () => {
     const { document, NW } = build(
       '<!doctype html><body><i id=t class="a.b">x</i><i id=u class="c d">y</i></body>',
     )
-    for (const selector of ['.a\\.b', 'i.a\\.b', '.c.d']) {
-      const first = NW.select(selector, document).map(node => node.id)
-      const second = NW.select(selector, document).map(node => node.id)
+    for (const selector of ['.a\\.b', 'i.a\\.b', '.c.d'] as const) {
+      const first = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
+      const second = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       expect(second, `${selector} differs when served from the cache`).toEqual(
         first,
       )
@@ -406,7 +422,8 @@ describe('what a cached plan replays', () => {
     const { document, NW } = build(
       '<!doctype html><body><b id=hot class=hot>h</b></body>',
     )
-    const hot = () => NW.select('b.hot', document).map(node => node.id)
+    const hot = () =>
+      Array.from(NW.select('b.hot', document)).map(node => node.id)
 
     expect(hot()).toEqual(['hot'])
     for (let i = 0; i < 5000; ++i) {
@@ -458,7 +475,9 @@ describe('agreement with the reference engine', () => {
     const { document, NW } = build(markup)
 
     for (const selector of SELECTORS) {
-      const mine = NW.select(selector, document).map(node => node.id)
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -485,7 +504,8 @@ describe('agreement with the reference engine', () => {
         '<form id=f1><input id=fi3 required><button id=b1>go</button></form>' +
         '</div></body>',
     )
-    const ids = selector => NW.select(selector, document).map(node => node.id)
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document)).map(node => node.id)
 
     // a disabled control is barred from constraint validation, so it matches
     // neither ':valid' nor ':invalid'
@@ -516,7 +536,7 @@ describe('agreement with the reference engine', () => {
         '<button id=b1 is="fancy-btn">x</button></body>',
     )
     const ids = () =>
-      NW.select(':defined', document)
+      Array.from(NW.select(':defined', document))
         .map(node => node.id)
         .filter(Boolean)
 
@@ -562,8 +582,9 @@ describe('agreement with the reference engine', () => {
         '<optgroup id=og2><option id=op2 disabled>o</option><option id=op3>o</option></optgroup>' +
         '</select></div></body>',
     )
-    const ids = selector => NW.select(selector, document).map(node => node.id)
-    const reference = selector =>
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document)).map(node => node.id)
+    const reference = (selector: string) =>
       Array.from(document.querySelectorAll(selector), node => node.id)
 
     for (const selector of [
@@ -571,7 +592,7 @@ describe('agreement with the reference engine', () => {
       ':enabled',
       'input:disabled',
       'option:disabled',
-    ]) {
+    ] as const) {
       expect(ids(selector), selector).toEqual(reference(selector))
     }
     // and no element is both
@@ -590,7 +611,7 @@ describe('agreement with the reference engine', () => {
       '<!doctype html><body><div class="x big" id=d></div>' +
         '<svg id=s class="y wide"><rect id=r class=z></rect></svg></body>',
     )
-    expect(typeof document.getElementById('s').className).toBe('object')
+    expect(typeof document.getElementById('s')!.className).toBe('object')
 
     // the class has to be a part the fetch did not use, or the resolver never
     // tests it: candidates come back from getElementsByClassName already
@@ -604,15 +625,17 @@ describe('agreement with the reference engine', () => {
       '.x.big',
       'div.x.big',
       '[class~="y"]',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
       )
       expect(mine, selector).toEqual(reference)
     }
-    expect(NW.match('.y.wide', document.getElementById('s'))).toBe(true)
+    expect(NW.match('.y.wide', document.getElementById('s')!)).toBe(true)
   })
 
   test('LEGACY restores the handling a pre-2015 host needed', () => {
@@ -642,19 +665,33 @@ describe('agreement with the reference engine', () => {
     expect(() => NW.select('[href]', scope)).toThrow()
     expect(() => NW.select('.x.big', scope)).toThrow()
     // a tag test reads a property, so it rejects the comment either way
-    expect(NW.select('a.x', scope).map(node => node.id)).toEqual(['b'])
+    expect(Array.from(NW.select('a.x', scope)).map(node => node.id)).toEqual([
+      'b',
+    ])
 
     try {
       NW.configure({ LEGACY: true })
-      expect(NW.select('[href]', scope).map(node => node.id)).toEqual(['b'])
-      expect(NW.select('.x.big', scope).map(node => node.id)).toEqual(['b'])
+      expect(
+        Array.from(NW.select('[href]', scope)).map(node => node.id),
+      ).toEqual(['b'])
+      expect(
+        Array.from(NW.select('.x.big', scope)).map(node => node.id),
+      ).toEqual(['b'])
       expect(NW.match('.x', comment as unknown as Element)).toBe(false)
       expect(NW.match('[href]', comment as unknown as Element)).toBe(false)
       expect(NW.match('#a', comment as unknown as Element)).toBe(false)
 
       // and the ordinary answers do not change under it
-      for (const selector of ['a.x', 'a#a', '#a.big', 'a[href]', '.x.big']) {
-        const mine = NW.select(selector, document).map(node => node.id)
+      for (const selector of [
+        'a.x',
+        'a#a',
+        '#a.big',
+        'a[href]',
+        '.x.big',
+      ] as const) {
+        const mine = Array.from(NW.select(selector, document)).map(
+          node => node.id,
+        )
         const reference = Array.from(
           document.querySelectorAll(selector),
           node => node.id,
@@ -691,8 +728,10 @@ describe('agreement with the reference engine', () => {
       'p#x\\ y',
       '[id="a.b"]',
       'div:not(#plain)',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -705,8 +744,9 @@ describe('agreement with the reference engine', () => {
     const { document, NW } = build(
       '<!doctype html><body><div id=d><p id=p>x</p></div></body>',
     )
-    const ids = selector => NW.select(selector, document).map(node => node.id)
-    const reference = selector =>
+    const ids = (selector: string) =>
+      Array.from(NW.select(selector, document)).map(node => node.id)
+    const reference = (selector: string) =>
       Array.from(document.querySelectorAll(selector), node => node.id)
 
     // The unreadable item is the namespace-qualified one; the readable item
@@ -715,7 +755,7 @@ describe('agreement with the reference engine', () => {
       'p:is(svg|p, p)',
       'div:is(svg|div, #d)',
       ':where(svg|p, p)',
-    ]) {
+    ] as const) {
       expect(ids(selector), selector).toEqual(reference(selector))
     }
     // A list of nothing but unreadable items matches nothing, and does not
@@ -729,7 +769,9 @@ describe('agreement with the reference engine', () => {
       '<!doctype html><body><div id=d><p id=p>x</p></div></body>',
     )
 
-    expect(NW.select('*|div', document).map(node => node.id)).toEqual(['d'])
+    expect(
+      Array.from(NW.select('*|div', document)).map(node => node.id),
+    ).toEqual(['d'])
     expect(
       Array.from(document.querySelectorAll('*|div'), node => node.id),
     ).toEqual(['d'])
@@ -765,8 +807,10 @@ describe('a descendant chain of tags answered by descending', () => {
       'ul li',
       'body div div',
       'html body ul li a',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -779,47 +823,50 @@ describe('a descendant chain of tags answered by descending', () => {
     // u3 sits inside u2, so a3 is reachable through both; descending level by
     // level would collect it twice without the containment check.
     const { document, NW } = fixture()
-    expect(NW.select('ul li a', document).map(node => node.id)).toEqual([
-      'a1',
-      'a2',
-      'a3',
-      'a4',
-    ])
-    expect(NW.select('ul ul li a', document).map(node => node.id)).toEqual([
-      'a3',
-    ])
+    expect(
+      Array.from(NW.select('ul li a', document)).map(node => node.id),
+    ).toEqual(['a1', 'a2', 'a3', 'a4'])
+    expect(
+      Array.from(NW.select('ul ul li a', document)).map(node => node.id),
+    ).toEqual(['a3'])
   })
 
   test('scoped to an element, and to a detached subtree', () => {
     const { document, NW } = fixture()
     const scope = document.getElementById('d2')
-    expect(NW.select('ul li a', scope).map(node => node.id)).toEqual([
-      'a2',
-      'a3',
-    ])
     expect(
-      Array.from(scope.querySelectorAll('ul li a'), node => node.id),
+      Array.from(NW.select('ul li a', scope!)).map(node => node.id),
+    ).toEqual(['a2', 'a3'])
+    expect(
+      Array.from(scope!.querySelectorAll('ul li a'), node => node.id),
     ).toEqual(['a2', 'a3'])
 
     const detached = document.createElement('div')
     detached.innerHTML = '<ul><li><a id=x>x</a></li></ul>'
-    expect(NW.select('ul li a', detached).map(node => node.id)).toEqual(['x'])
+    expect(
+      Array.from(NW.select('ul li a', detached)).map(node => node.id),
+    ).toEqual(['x'])
   })
 
   test('a callback still sees every match', () => {
     // The descent returns the answer rather than a candidate list, so a query
     // carrying a callback has to stay on the ordinary path.
     const { document, NW } = fixture()
-    const seen = []
+    const seen: Array<string | null> = []
     const found = NW.select('ul li a', document, node => seen.push(node.id))
-    expect(found.map(node => node.id)).toEqual(['a1', 'a2', 'a3', 'a4'])
+    expect(Array.from(found).map(node => node.id)).toEqual([
+      'a1',
+      'a2',
+      'a3',
+      'a4',
+    ])
     expect(seen).toEqual(['a1', 'a2', 'a3', 'a4'])
   })
 
   test('first() returns the first in tree order', () => {
     const { document, NW } = fixture()
-    expect(NW.first('div ul li a', document).id).toBe('a1')
-    expect(NW.first('ul ul li a', document).id).toBe('a3')
+    expect(NW.first('div ul li a', document)!.id).toBe('a1')
+    expect(NW.first('ul ul li a', document)!.id).toBe('a3')
     expect(NW.first('div span a', document)).toBeNull()
   })
 
@@ -830,8 +877,10 @@ describe('a descendant chain of tags answered by descending', () => {
       'div ul li a.y',
       'div > ul li a',
       'div ul li a:first-child',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -844,7 +893,7 @@ describe('a descendant chain of tags answered by descending', () => {
   // the last part the context holds, so these cover the wide shapes and the
   // one hazard the counting brings: a count outliving the document it
   // describes.
-  function wide(inner, tail) {
+  function wide(inner: (index: number) => string, tail: string | undefined) {
     let html = '<!doctype html><body>'
     for (let i = 0; i < 200; ++i) {
       html += `<ul id=u${i}><li id=l${i}>${inner(i)}</li></ul>`
@@ -857,8 +906,15 @@ describe('a descendant chain of tags answered by descending', () => {
       i => `<a id=a${i}>${i}</a>`,
       '<a id=loose>x</a>',
     )
-    for (const selector of ['ul li a', 'ul li', 'body ul li a', 'body li a']) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    for (const selector of [
+      'ul li a',
+      'ul li',
+      'body ul li a',
+      'body li a',
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -877,10 +933,10 @@ describe('a descendant chain of tags answered by descending', () => {
 
     const link = document.createElement('a')
     link.id = 'late'
-    document.getElementById('l7').append(link)
-    expect(NW.select('ul li a', document).map(node => node.id)).toEqual([
-      'late',
-    ])
+    document.getElementById('l7')!.append(link)
+    expect(
+      Array.from(NW.select('ul li a', document)).map(node => node.id),
+    ).toEqual(['late'])
 
     link.remove()
     expect(NW.select('ul li a', document)).toEqual([])
@@ -922,8 +978,10 @@ describe(':not() with a compound argument', () => {
       'p:not(.a, .b)',
       'div:not(p > span)',
       'div:not(div p)',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -935,22 +993,25 @@ describe(':not() with a compound argument', () => {
   test('match() agrees with select() on the same element', () => {
     const { document, NW } = fixture()
     const p2 = document.getElementById('p2')
-    expect(NW.match('p:not(.a)', p2)).toBe(true)
-    expect(NW.match('p:not(.b)', p2)).toBe(false)
-    expect(NW.match('p:not(:nth-of-type(2n))', p2)).toBe(false)
-    expect(NW.match('div p:not(.a)', p2)).toBe(true)
+    expect(NW.match('p:not(.a)', p2!)).toBe(true)
+    expect(NW.match('p:not(.b)', p2!)).toBe(false)
+    expect(NW.match('p:not(:nth-of-type(2n))', p2!)).toBe(false)
+    expect(NW.match('div p:not(.a)', p2!)).toBe(true)
   })
 
   test('an argument the engine cannot read is a syntax error', () => {
     const { document, NW } = fixture()
-    for (const selector of ['p:not(@@)', 'p:not()', 'div:not(svg|div)']) {
+    for (const selector of [
+      'p:not(@@)',
+      'p:not()',
+      'div:not(svg|div)',
+    ] as const) {
       expect(() => NW.select(selector, document), selector).toThrow()
       expect(() => document.querySelectorAll(selector), selector).toThrow()
     }
     // an argument left unclosed is closed by EOF, as the syntax parser does
-    expect(NW.select('p:not(.a', document).map(node => node.id)).toEqual([
-      'p2',
-      'p3',
-    ])
+    expect(
+      Array.from(NW.select('p:not(.a', document)).map(node => node.id),
+    ).toEqual(['p2', 'p3'])
   })
 })

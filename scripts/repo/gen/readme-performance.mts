@@ -1,10 +1,14 @@
 import { refreshChartReferences } from './chart-references.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { queryStateNote } from '../bench/chart-theme.mts'
+import type { QueryChartOptions } from '../bench/query-chart.mts'
 import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)
-const data = JSON.parse(
+const data: {
+  rows: QueryChartOptions['rows']
+  metadata: { competitor: string; jsdom: string; node: string; cpu: string }
+} = JSON.parse(
   readFileSync(
     new URL('assets/repo/bench/first-query-states.json', root),
     'utf8',

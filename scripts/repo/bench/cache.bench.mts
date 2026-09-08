@@ -61,13 +61,13 @@ Options:
   --help             Show this help.
 `
 
-function fail(message) {
+function fail(message: string) {
   console.error(message)
   process.exit(1)
 }
 
 // Write a copy of the engine with a different CACHE_LIMIT.
-function materialize(dir, limit, source) {
+function materialize(dir: string, limit: number, source: string) {
   const file = path.join(dir, `nwsapi-${limit}.cjs`)
   writeFileSync(file, replaceCacheLimit(source, limit))
   return file
@@ -76,7 +76,7 @@ function materialize(dir, limit, source) {
 // Distinct selectors, each cheap to match, so the timing reflects cache
 // behavior rather than traversal. Half match, half do not, as in
 // domSelector's bench-cache.js.
-function selectorSet(count) {
+function selectorSet(count: number) {
   const list = []
   for (let i = 0; i < count; ++i) {
     list.push(
@@ -90,7 +90,7 @@ function selectorSet(count) {
 
 function settle() {
   for (let i = 0; i < 4; ++i) {
-    globalThis.gc()
+    globalThis.gc!()
   }
   return process.memoryUsage().heapUsed
 }
@@ -141,7 +141,7 @@ async function main() {
 
   const dom = new JSDOM('<!doctype html><html><body></body></html>')
   const { document } = dom.window
-  const nodes = []
+  const nodes: HTMLDivElement[] = []
   for (let i = 0; i < nodeCount; ++i) {
     const div = document.createElement('div')
     div.classList.add('benchmark-target')
@@ -198,9 +198,11 @@ async function main() {
           for (const { limit, NW } of instances) {
             // Every engine gets the same selector list, so the only
             // difference between them is how much of it their cache holds.
-            const queryArgs = [[sets[workload](), nodes]]
+            const queryArgs: Array<[string[], Element[]]> = [
+              [sets[workload as keyof typeof sets](), nodes],
+            ]
             bench(`limit ${limit}`, () => {
-              const [selectors, targets] = queryArgs[0]
+              const [selectors, targets] = queryArgs[0]!
               for (let n = 0; n < targets.length; ++n) {
                 for (let s = 0; s < selectors.length; ++s) {
                   do_not_optimize(NW.match(selectors[s], targets[n]))

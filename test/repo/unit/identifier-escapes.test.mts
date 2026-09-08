@@ -14,8 +14,8 @@ for (const [value, identifier] of [
   ['a\\b', 'a\\5c b'],
   ['a\ufffdb', 'a\\0 b'],
   ['a\u{1f4a9}b', 'a\\1f4a9 b'],
-]) {
-  for (const attribute of ['id', 'class']) {
+] as const) {
+  for (const attribute of ['id', 'class'] as const) {
     test(`${attribute} escape ${identifier} survives compilation and mutation`, t => {
       const dom = new JSDOM('<!doctype html><p></p><p></p>')
       t.onTestFinished(() => dom.window.close())
@@ -23,17 +23,17 @@ for (const [value, identifier] of [
       const [node, other] = document.getElementsByTagName('p')
       const engine = factory(dom.window)
       const selector = 'p' + (attribute === 'id' ? '#' : '.') + identifier
-      other.setAttribute(attribute, 'axb')
-      for (const current of [value, 'different', value]) {
-        node.setAttribute(attribute, current)
+      other!.setAttribute(attribute, 'axb')
+      for (const current of [value, 'different', value] as const) {
+        node!.setAttribute(attribute, current!)
         const expected = current === value
-        expect(engine.match(selector, node)).toBe(expected)
-        expect(engine.match(selector, other)).toBe(false)
+        expect(engine.match(selector, node!)).toBe(expected)
+        expect(engine.match(selector, other!)).toBe(false)
         expect(engine.select(selector, document)).toEqual(
           expected ? [node] : [],
         )
         expect(engine.first(selector, document)).toBe(expected ? node : null)
-        expect(engine.match(':is(' + selector + ')', node)).toBe(expected)
+        expect(engine.match(':is(' + selector + ')', node!)).toBe(expected)
       }
     })
   }
@@ -45,7 +45,7 @@ for (const [value, identifier] of [
   ['a\nb', 'a\\a b'],
   ['a\fb', 'a\\c b'],
   ['a\rb', 'a\\d b'],
-]) {
+] as const) {
   test(`escaped whitespace ${identifier} matches IDs, not class tokens`, t => {
     const dom = new JSDOM('<!doctype html><p></p>')
     t.onTestFinished(() => dom.window.close())
@@ -54,12 +54,12 @@ for (const [value, identifier] of [
     const engine = factory(dom.window)
     node.id = value
     node.className = value
-    for (const prefix of ['#', '.']) {
+    for (const prefix of ['#', '.'] as const) {
       for (const selector of [
         prefix + identifier,
         'p' + prefix + identifier,
         ':is(' + prefix + identifier + ')',
-      ]) {
+      ] as const) {
         const expected = prefix === '#'
         expect(engine.match(selector, node)).toBe(expected)
         expect(engine.select(selector, document)).toEqual(

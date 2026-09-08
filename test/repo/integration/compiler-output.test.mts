@@ -1,3 +1,5 @@
+import type * as CompileModule from '../../../scripts/repo/compile.mts'
+import type * as CliModule from '../../../scripts/repo/cli.mts'
 import { spawnSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 import { createRequire } from 'node:module'
@@ -8,6 +10,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -19,8 +22,9 @@ import libCoverage from 'istanbul-lib-coverage'
 // Load these as Node does in the executable; avoid transforming jsdom's
 // dependency graph through the test runner merely to inspect generated text.
 const require = createRequire(import.meta.url)
-const { inspectSelector } = require('../../../scripts/repo/compile.mts')
-const { runCli } = require('../../../scripts/repo/cli.mts')
+const { inspectSelector } =
+  require('../../../scripts/repo/compile.mts') as typeof CompileModule
+const { runCli } = require('../../../scripts/repo/cli.mts') as typeof CliModule
 
 test('compiler inspection reports source, modes, helper bindings and identity selection', () => {
   const inspect = (selector: string, options = {}) =>
@@ -52,7 +56,7 @@ test('CLI dispatches commands and parses flags and literal selectors', async () 
     ['div', 'span'],
     ['--mode', 'invalid', 'div'],
     [':unknown-pseudo'],
-  ]) {
+  ] as const) {
     await expect(runCli(['compile', ...args])).rejects.toThrow()
   }
   const compiled = await runCli([
@@ -106,6 +110,27 @@ test('the executable runs from another directory and covers every entry-point br
   expect(invalid.status).toBe(1)
   expect(invalid.stderr).toContain('nwsapi:')
   expect(invalid.stdout).toBe('')
+  // A dependency can reject with a plain value instead of an Error instance.
+  const preload = path.join(directory, 'reject-value.cjs')
+  const cli = fileURLToPath(new URL('../../../dist/cli.js', import.meta.url))
+  writeFileSync(
+    preload,
+    `require(${JSON.stringify(cli)});\n` +
+      `require.cache[require.resolve(${JSON.stringify(cli)})].exports = {\n` +
+      `  runCli: () => Promise.reject('dependency rejected')\n};\n`,
+  )
+  const rejected = spawnSync(process.execPath, ['--require', preload, bin], {
+    encoding: 'utf8',
+    cwd: directory,
+    env: {
+      ...process.env,
+      NODE_V8_COVERAGE: directory,
+      NODE_DISABLE_COMPILE_CACHE: '1',
+    },
+  })
+  expect(rejected.status).toBe(1)
+  expect(rejected.stdout).toBe('')
+  expect(rejected.stderr).toBe('nwsapi: dependency rejected\n')
   const coverage = libCoverage.createCoverageMap({})
   const code = readFileSync(bin, 'utf8')
   for (const file of readdirSync(directory).filter(name =>
@@ -115,7 +140,7 @@ test('the executable runs from another directory and covers every entry-point br
       readFileSync(path.join(directory, file), 'utf8'),
     ).result
     for (const entry of entries.filter(
-      script => script.url === pathToFileURL(bin).href,
+      (script: { url: string }) => script.url === pathToFileURL(bin).href,
     )) {
       coverage.merge(
         await convert({
@@ -129,7 +154,12 @@ test('the executable runs from another directory and covers every entry-point br
   }
   expect(coverage.files()).toEqual([bin])
   const summary = coverage.getCoverageSummary()
-  for (const metric of ['lines', 'statements', 'functions', 'branches']) {
+  for (const metric of [
+    'lines',
+    'statements',
+    'functions',
+    'branches',
+  ] as const) {
     expect(summary[metric].pct, `bin/nwsapi.js ${metric} coverage`).toBe(100)
   }
 })
@@ -137,7 +167,7 @@ test('the executable runs from another directory and covers every entry-point br
 test('the compiled help runs without repository sources or optional peers', t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-help-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  for (const file of ['bin/nwsapi.js', 'dist/cli.js']) {
+  for (const file of ['bin/nwsapi.js', 'dist/cli.js'] as const) {
     const target = path.join(directory, file)
     mkdirSync(path.dirname(target), { recursive: true })
     const source = new URL(`../../../${file}`, import.meta.url)

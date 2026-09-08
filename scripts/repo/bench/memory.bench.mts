@@ -58,14 +58,14 @@ function settle() {
   // with a turn of the event loop between them give finalizers a chance to
   // run, so the reading reflects what is genuinely retained.
   for (let i = 0; i < 4; ++i) {
-    globalThis.gc()
+    globalThis.gc!()
   }
   return process.memoryUsage().heapUsed
 }
 
 // Retained bytes per item, for a factory that produces one item per call. The
 // items stay in an array so nothing is collected before the reading is taken.
-function retainedPer(count, make) {
+function retainedPer(count: number, make: (index: number) => unknown) {
   const kept = Array.from({ length: count })
   const before = settle()
   for (let i = 0; i < count; ++i) {
@@ -79,7 +79,7 @@ function retainedPer(count, make) {
   return (after - before) / count
 }
 
-function bytes(value) {
+function bytes(value: number) {
   const abs = Math.abs(value)
   if (abs >= 1024 * 1024) {
     return `${(value / (1024 * 1024)).toFixed(2)} mb`
@@ -99,7 +99,7 @@ const HTML =
   '</body></html>'
 
 // Distinct selectors, so every one of them takes a fresh cache slot.
-function selectorList(n) {
+function selectorList(n: number) {
   const list = []
   for (let i = 0; i < n; ++i) {
     list.push(
@@ -109,7 +109,7 @@ function selectorList(n) {
   return list
 }
 
-function measure(label, factory, count) {
+function measure(label: string, factory: typeof nwsapiFactory, count: number) {
   const results = {
     engine: label,
     instance: 0,
@@ -162,7 +162,7 @@ function measure(label, factory, count) {
   // itself, and an earlier version of this benchmark reported retention that
   // was really its own local variable keeping the subtree alive.
   {
-    const measureRemoval = query => {
+    const measureRemoval = (query: boolean) => {
       const dom = new JSDOM(HTML)
       const { document } = dom.window
       const NW = factory({
@@ -250,25 +250,27 @@ function main() {
     process.exit(1)
   }
 
-  const samples = engines.map(() => [])
+  const samples = engines.map(() => [] as Array<ReturnType<typeof measure>>)
   for (let round = 0; round < rounds; ++round) {
     const order =
       round % 2 === 0
-        ? engines.map((engine, i) => i)
-        : engines.map((engine, i) => engines.length - 1 - i)
+        ? engines.map((_engine, i) => i)
+        : engines.map((_engine, i) => engines.length - 1 - i)
     for (const i of order) {
-      const [label, factory] = engines[i]
-      samples[i].push(measure(label, factory, count))
+      const [label, factory] = engines[i]!
+      samples[i]!.push(measure(label, factory, count))
     }
   }
 
-  const median = values_ => {
-    const sorted = values_.toSorted((a_, b_) => a_ - b_)
-    return sorted[(sorted.length - 1) >> 1]
+  const median = (values_: number[]) => {
+    const sorted = values_.toSorted((a_: number, b_: number) => a_ - b_)
+    return sorted[(sorted.length - 1) >> 1]!
   }
   const all = samples.map((rows, i) => {
-    const merged = { engine: engines[i][0] }
-    for (const key of Object.keys(rows[0])) {
+    const merged = { ...rows[0]!, engine: engines[i]![0] }
+    for (const key of Object.keys(rows[0]!) as Array<
+      keyof ReturnType<typeof measure>
+    >) {
       if (key !== 'engine') {
         merged[key] = median(rows.map(row => row[key]))
       }
@@ -281,7 +283,9 @@ function main() {
     return
   }
 
-  const rows = [
+  const rows: Array<
+    [string, Exclude<keyof ReturnType<typeof measure>, 'engine'>]
+  > = [
     ['jsdom document alone', 'document'],
     ['engine instance only', 'engineOnly'],
     ['document + engine', 'instance'],

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { chromium } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
-test.skipIf(!process.env.NWSAPI_BROWSER)(
+test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'defined state matches Chromium before and after install',
   async () => {
     const browser = await chromium.launch()

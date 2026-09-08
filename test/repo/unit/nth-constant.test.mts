@@ -17,7 +17,7 @@ test('constant positions share dense parents without penalizing sparse candidate
       'i:nth-last-child(3)',
       'i:not(:nth-child(3))',
       'i:nth-child(3):nth-last-child(298)',
-    ]) {
+    ] as const) {
       expect(engine.select(selector), selector).toEqual([
         ...document.querySelectorAll(selector),
       ])
@@ -54,7 +54,7 @@ for (const pseudo of [
   'nth-last-child',
   'nth-of-type',
   'nth-last-of-type',
-]) {
+] as const) {
   test(`${pseudo} preserves constant and formula results after mutations`, t => {
     const { window } = new JSDOM(
       '<main><i></i>text<!-- gap --><b></b><i></i><i></i></main>',
@@ -78,7 +78,7 @@ for (const pseudo of [
         '0n+3',
         '2n',
         'n+3',
-      ]) {
+      ] as const) {
         const selector = `:${pseudo}(${index})`
         const elements = [...parent.children]
         const expected = elements.filter(element => {

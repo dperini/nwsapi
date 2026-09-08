@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
-import { test } from 'vitest'
+import { test, type TestContext } from 'vitest'
 import { JSDOM } from 'jsdom'
 import factory from '../../../src/nwsapi.js'
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const { window } = new JSDOM(
     '<div><ul><li><a id=a></a></li></ul></div><section id=s><a id=b></a></section>',
   )
@@ -19,14 +19,14 @@ test('the filter stops unproductive sampling and retries later', t => {
   const state = { seen: 0, kept: 0, rest: 0 }
   const target = document.getElementById('a')
   for (let i = 0; i < 64; i++) {
-    assert.equal(Reflect.get(nw, 'Snapshot').mayMatch(target, 0, state), true)
+    assert.equal(Reflect.get(nw, 'Snapshot').mayMatch(target!, 0, state), true)
   }
   assert.equal(state.rest, 4096)
   for (let i = 0; i < 4096; i++) {
-    assert.equal(Reflect.get(nw, 'Snapshot').mayMatch(target, 0, state), true)
+    assert.equal(Reflect.get(nw, 'Snapshot').mayMatch(target!, 0, state), true)
   }
   assert.deepEqual(state, { seen: 0, kept: 0, rest: 0 })
-  Reflect.get(nw, 'Snapshot').mayMatch(target, 0, state)
+  Reflect.get(nw, 'Snapshot').mayMatch(target!, 0, state)
   assert.equal(state.seen, 1)
 })
 
@@ -34,11 +34,11 @@ test('each compiled resolver owns its adaptive counters', t => {
   const { document, nw } = fixture(t)
   const first = nw.compile('div ul li a', true)
   const second = nw.compile('body div ul a', true)
-  assert.match(first.toString(), /s\.mayMatch\(e,\d+,a\)/)
-  assert.match(second.toString(), /s\.mayMatch\(e,\d+,a\)/)
+  assert.match(first!.toString(), /s\.mayMatch\(e,\d+,a\)/)
+  assert.match(second!.toString(), /s\.mayMatch\(e,\d+,a\)/)
   assert.deepEqual(
     (
-      first([document.getElementById('a')], null, document, []) as Element[]
+      first!([document.getElementById('a')], null, document, []) as Element[]
     ).map(e => e.id),
     ['a'],
   )
@@ -49,21 +49,23 @@ test('negated tags do not become required ancestor tags', t => {
   const resolver = nw.compile('div ul a:not(article)', true)!
   assert.match(resolver.toString(), /s\.mayMatch\(/)
   assert.deepEqual(
-    nw.select('div ul a:not(article)', document).map(element => element.id),
+    Array.from(nw.select('div ul a:not(article)', document)).map(
+      element => element.id,
+    ),
     ['a'],
   )
 })
 
 test('sibling tags do not become required ancestor tags', t => {
   const { document, nw } = fixture(t)
-  document.querySelector('ul').before(document.createElement('article'))
+  document.querySelector('ul')!.before(document.createElement('article'))
   for (const selector of [
     'div article + ul a',
     'div article ~ ul a',
     'div article + ul > li a',
-  ]) {
+  ] as const) {
     assert.deepEqual(
-      nw.select(selector, document).map(e => e.id),
+      Array.from(nw.select(selector, document)).map(e => e.id),
       ['a'],
       selector,
     )
@@ -72,7 +74,7 @@ test('sibling tags do not become required ancestor tags', t => {
 
 test('nested logical validation cannot replace outer ancestor requirements', t => {
   const { document, nw } = fixture(t)
-  document.getElementById('a').innerHTML = '<span><em></em></span>'
+  document.getElementById('a')!.innerHTML = '<span><em></em></span>'
   nw.configure({ FORGIVING: false })
   for (const selector of [
     'div ul a:has(span em)',
@@ -81,9 +83,9 @@ test('nested logical validation cannot replace outer ancestor requirements', t =
     'div ul a:where(a, section article a)',
     'div ul a:matches(a, section article a)',
     'div ul a:not(:has(article section p))',
-  ]) {
+  ] as const) {
     assert.deepEqual(
-      nw.select(selector, document).map(e => e.id),
+      Array.from(nw.select(selector, document)).map(e => e.id),
       ['a'],
       selector,
     )
@@ -94,18 +96,18 @@ test('callbacks may move a previously summarized subtree before later candidates
   const { document, nw } = fixture(t)
   const section = document.getElementById('s')
   const rejected = document.createElement('a')
-  section.prepend(rejected)
+  section!.prepend(rejected)
   const candidates = [
     rejected,
     document.getElementById('a'),
     document.getElementById('b'),
   ]
   const run = nw.compile('div ul a', true, true)
-  const results = run(
+  const results = run!(
     candidates,
     element => {
       if (element.id === 'a') {
-        document.querySelector('ul').append(section)
+        document.querySelector('ul')!.append(section!)
       }
       return false
     },
@@ -125,23 +127,23 @@ test('filtering preserves results across movement and document changes', t => {
     'body div a',
     'body section a',
     'div > ul > li > a',
-  ]) {
+  ] as const) {
     for (let i = 0; i < 3; i++) {
       assert.deepEqual(
-        nw.select(selector, document).map(e => e.id),
+        Array.from(nw.select(selector, document)).map(e => e.id),
         Array.from(document.querySelectorAll(selector), (e: Element) => e.id),
       )
     }
   }
-  document.querySelector('li').append(document.getElementById('b'))
+  document.querySelector('li')!.append(document.getElementById('b')!)
   assert.deepEqual(
-    nw.select('div ul li a', document).map(e => e.id),
+    Array.from(nw.select('div ul li a', document)).map(e => e.id),
     ['a', 'b'],
   )
   const other = document.implementation.createHTMLDocument('other')
   other.body.innerHTML = '<div><ul><li><a id=c></a></li></ul></div>'
   assert.deepEqual(
-    nw.select('div ul li a', other).map(e => e.id),
+    Array.from(nw.select('div ul li a', other)).map(e => e.id),
     ['c'],
   )
 })
@@ -149,7 +151,7 @@ test('filtering preserves results across movement and document changes', t => {
 test('filtering preserves HTML and XML tag comparisons', t => {
   const { document, nw } = fixture(t)
   assert.deepEqual(
-    nw.select('div ul a', document).map(e => e.id),
+    Array.from(nw.select('div ul a', document)).map(e => e.id),
     ['a'],
   )
   const { window } = new JSDOM(
@@ -164,7 +166,7 @@ test('filtering preserves HTML and XML tag comparisons', t => {
     ['Root DIV ul A', []],
   ] as const) {
     assert.deepEqual(
-      xml.select(selector, window.document).map(e => e.id),
+      Array.from(xml.select(selector, window.document)).map(e => e.id),
       expected,
     )
   }
@@ -172,14 +174,14 @@ test('filtering preserves HTML and XML tag comparisons', t => {
 
 test('hash collisions only admit candidates for full matching', t => {
   const { document, nw } = fixture(t)
-  const bit = name => {
+  const bit = (name: string) => {
     let hash = 0
     for (const char of name) {
       hash = (hash * 31 + char.charCodeAt(0)) | 0
     }
     return 1 << (hash & 31)
   }
-  const collision = name => {
+  const collision = (name: string) => {
     for (let i = 0; ; i++) {
       const candidate = 'x-collision-' + i
       if (bit(candidate) === bit(name)) {
@@ -204,7 +206,7 @@ test('hash collisions only admit candidates for full matching', t => {
   )
   snapshot.clearAncestorMasks()
   assert.deepEqual(
-    nw.compile('div ul a', true)([candidate], null, document, []),
+    nw.compile('div ul a', true)!([candidate], null, document, []),
     [],
   )
 })
@@ -214,32 +216,40 @@ test('nested selection does not leak summaries across resolvers', t => {
   const snapshot = Reflect.get(nw, 'Snapshot')
   const original = snapshot.mayMatch
   let nested = false
-  snapshot.mayMatch = (node, mask, state) => {
+  snapshot.mayMatch = (
+    node: Element,
+    mask: number,
+    state: { seen: number; kept: number; rest: number },
+  ) => {
     if (!nested) {
       nested = true
       assert.deepEqual(
-        nw.select('body section a', document).map(e => e.id),
+        Array.from(nw.select('body section a', document)).map(e => e.id),
         ['b'],
       )
     }
     return original(node, mask, state)
   }
   assert.deepEqual(
-    nw.select('div ul li a', document).map(e => e.id),
+    Array.from(nw.select('div ul li a', document)).map(e => e.id),
     ['a'],
   )
 })
 
 test('adaptive counters are isolated and expire with evicted resolvers', t => {
   const { document, nw } = fixture(t)
-  const states = []
+  const states: Array<{ seen: number; kept: number; rest: number }> = []
   const original = Reflect.get(nw, 'Snapshot').mayMatch
-  Reflect.get(nw, 'Snapshot').mayMatch = (node, mask, state) => {
+  Reflect.get(nw, 'Snapshot').mayMatch = (
+    node: Element,
+    mask: number,
+    state: { seen: number; kept: number; rest: number },
+  ) => {
     states.push(state)
     return original(node, mask, state)
   }
-  const run = selector =>
-    nw.compile(selector, true)(
+  const run = (selector: string) =>
+    nw.compile(selector, true)!(
       [document.getElementById('a')],
       null,
       document,
@@ -264,7 +274,7 @@ test('legacy mode bypasses the ancestor filter', t => {
     throw Error('legacy filter')
   }
   assert.deepEqual(
-    nw.select('div ul li a', document).map(e => e.id),
+    Array.from(nw.select('div ul li a', document)).map(e => e.id),
     ['a'],
   )
 })
@@ -274,7 +284,7 @@ test('throwing callbacks do not retain stale ancestor summaries', t => {
   const run = nw.compile('div ul a', true, true)
   assert.throws(
     () =>
-      run(
+      run!(
         [document.getElementById('b'), document.getElementById('a')],
         () => {
           throw Error('stop')
@@ -284,9 +294,9 @@ test('throwing callbacks do not retain stale ancestor summaries', t => {
       ),
     /stop/,
   )
-  document.querySelector('ul').append(document.getElementById('s'))
+  document.querySelector('ul')!.append(document.getElementById('s')!)
   assert.deepEqual(
-    nw.select('div ul a', document).map(e => e.id),
+    Array.from(nw.select('div ul a', document)).map(e => e.id),
     ['a', 'b'],
   )
 })

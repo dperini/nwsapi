@@ -25,7 +25,7 @@ beforeEach(() => {
     'EDITOR',
     'TERM_PROGRAM',
     'GITHUB_ACTIONS',
-  ]) {
+  ] as const) {
     vi.stubEnv(key, undefined)
   }
   vi.stubEnv('PATH', '/usr/bin')
@@ -66,9 +66,9 @@ for (const [key, value] of [
   ['PATH', 'C:\\Users\\dev\\.pi\\agent\\bin'],
   ['EDITOR', '/opt/devin/editor'],
   ['TERM_PROGRAM', 'kiro'],
-]) {
+] as const) {
   test(`detects the ${key} signature ${value}`, async () => {
-    vi.stubEnv(key, value)
+    vi.stubEnv(key!, value)
     const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
     expect(isAgent()).toBe(true)
   })
@@ -84,7 +84,7 @@ test('an interactive Kiro terminal alone is not an agent', async () => {
   expect(isAgent()).toBe(false)
 })
 
-for (const initial of [false, true]) {
+for (const initial of [false, true] as const) {
   test(`memoizes the initial ${initial} result`, async () => {
     vi.stubEnv('AI_AGENT', initial ? 'codex' : undefined)
     const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
@@ -99,7 +99,7 @@ test('agent runs use minimal Node and dot WPT reporters', async () => {
   const { default: node } = await import('../../../.config/vitest.config.mts')
   const { default: wpt } =
     await import('../../../.config/playwright.config.mts')
-  expect(node.test.reporters).toEqual(['minimal'])
+  expect(node.test!.reporters).toEqual(['minimal'])
   expect(wpt.reporter).toBe('dot')
 })
 
@@ -107,13 +107,13 @@ test('agent CI runs keep GitHub annotations', async () => {
   vi.stubEnv('AI_AGENT', 'codex')
   vi.stubEnv('GITHUB_ACTIONS', 'true')
   const { default: node } = await import('../../../.config/vitest.config.mts')
-  expect(node.test.reporters).toEqual(['minimal', 'github-actions'])
+  expect(node.test!.reporters).toEqual(['minimal', 'github-actions'])
 })
 
 test('non-agent runs keep the existing reporter choices', async () => {
   const { default: node } = await import('../../../.config/vitest.config.mts')
   const { default: wpt } =
     await import('../../../.config/playwright.config.mts')
-  expect(node.test.reporters).toBeUndefined()
+  expect(node.test!.reporters).toBeUndefined()
   expect(wpt.reporter).toBe('list')
 })

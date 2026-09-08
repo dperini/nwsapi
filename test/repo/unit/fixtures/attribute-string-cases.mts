@@ -1,6 +1,11 @@
-const cases = []
-for (const quote of ['"', "'"]) {
-  for (const newline of ['\n', '\r', '\r\n', '\f']) {
+const cases: Array<{
+  name: string
+  valid?: boolean
+  selector: string
+  value: string
+}> = []
+for (const quote of ['"', "'"] as const) {
+  for (const newline of ['\n', '\r', '\r\n', '\f'] as const) {
     const suffix = JSON.stringify({ quote, newline })
     for (const [name, raw, value] of [
       ['middle continuation', 'x\\' + newline + 'y', 'xy'],
@@ -14,7 +19,7 @@ for (const quote of ['"', "'"]) {
       ],
       ['literal backslash', 'x' + '\\'.repeat(3) + newline + 'y', 'x\\y'],
       ['consecutive continuations', '\\' + newline + 'x\\' + newline, 'x'],
-    ]) {
+    ] as const) {
       cases.push({
         name: name + ': ' + suffix,
         value,
@@ -42,7 +47,7 @@ for (const quote of ['"', "'"]) {
       valid: false,
       selector: 'div[data-x=' + quote + 'x' + newline,
     })
-    for (const operator of ['~=', '|=', '^=', '$=', '*=']) {
+    for (const operator of ['~=', '|=', '^=', '$=', '*='] as const) {
       cases.push({
         name: 'hex continuation with ' + operator + ': ' + suffix,
         value: 'x',

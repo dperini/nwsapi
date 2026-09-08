@@ -53,7 +53,11 @@ const HIDDEN = new Set([
 ])
 
 // The names that host answered under a DOM property instead.
-const PROPS = { class: 'className', for: 'htmlFor', colspan: 'colSpan' }
+const PROPS: Record<string, string> = {
+  class: 'className',
+  for: 'htmlFor',
+  colspan: 'colSpan',
+}
 
 // The attributes it resolved to an absolute URL unless asked for the markup.
 const URLS = new Set([
@@ -77,35 +81,40 @@ const BOOLEANS = new Set([
 
 // Property defaults a missing attribute could answer with, which is why
 // presence has to come from the attribute node rather than from a value.
-const DEFAULTS = { enctype: 'application/x-www-form-urlencoded' }
+const DEFAULTS: Record<string, string> = {
+  enctype: 'application/x-www-form-urlencoded',
+}
 
-export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
-  const cache = new WeakMap()
+export function legacyHost(
+  document: Document,
+  { comments = true, urls = 'flag' } = {},
+) {
+  const cache = new WeakMap<object, object>()
   // proxy back to the node it stands for, so a method of the host is called
   // with the nodes it expects rather than with the wrappers
-  const raw = new WeakMap()
-  const unwrap = value =>
+  const raw = new WeakMap<object, object>()
+  const unwrap = (value: unknown): unknown =>
     value !== null && typeof value === 'object' && raw.has(value)
       ? raw.get(value)
       : value
 
-  const wrap = value => {
+  const wrap = (value: unknown): unknown => {
     if (value === null || typeof value !== 'object') {
       return value
     }
-    const nodeType = value.nodeType
+    const nodeType = Reflect.get(value, 'nodeType')
     const isNode = typeof nodeType === 'number'
     const isList =
       !isNode &&
-      typeof value.length === 'number' &&
-      typeof value.item === 'function'
+      typeof Reflect.get(value, 'length') === 'number' &&
+      typeof Reflect.get(value, 'item') === 'function'
     if (!isNode && !isList) {
       return value
     }
     // Chromium can return the same live collection after the DOM changes.
     // Refresh its snapshot instead of reusing a stale list of nodes.
     if (isList) {
-      return asCollection(value)
+      return asCollection(value as NodeList)
     }
     if (cache.has(value)) {
       return cache.get(value)
@@ -119,23 +128,35 @@ export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
   // A collection this host would have filled differently: it carried comment
   // nodes among the elements. Handed back as a plain array-like rather than a
   // live one, so its length and its indices always agree.
-  function asCollection(collection) {
-    const items = []
+  function asCollection(collection: NodeList): {
+    length: number
+    item(index: number): unknown
+    [index: number]: unknown
+  } {
+    const items: unknown[] = []
     for (let i = 0; i < collection.length; ++i) {
       const node = collection.item(i)
       items.push(wrap(node))
-      if (comments && node.ownerDocument) {
-        items.push(wrap(node.ownerDocument.createComment('legacy')))
+      if (comments && node!.ownerDocument) {
+        items.push(wrap(node!.ownerDocument.createComment('legacy')))
       }
     }
-    const out = { length: items.length, item: index => items[index] ?? null }
+    const out: {
+      length: number
+      item(index: number): unknown
+      [index: number]: unknown
+    } = { length: items.length, item: (index: number) => items[index] ?? null }
     for (let i = 0; i < items.length; ++i) {
       out[i] = items[i]
     }
     return out
   }
 
-  function attributeOf(element, name, mode) {
+  function attributeOf(
+    element: Element,
+    name: unknown,
+    mode: number | undefined,
+  ) {
     const lower = String(name).toLowerCase()
     const node = element.attributes.getNamedItem(lower)
     if (!node) {
@@ -144,7 +165,7 @@ export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
       return DEFAULTS[lower] ?? null
     }
     if (lower === 'style') {
-      return element.style
+      return Reflect.get(element, 'style') as CSSStyleDeclaration
     }
     if (BOOLEANS.has(lower)) {
       return true
@@ -161,28 +182,29 @@ export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
     return node.value
   }
 
-  const nodeHandler = {
+  const nodeHandler: ProxyHandler<object> = {
     get(target, key) {
       if (typeof key === 'string' && HIDDEN.has(key)) {
         return undefined
       }
 
       if (key === 'getAttribute') {
-        return (name, mode) => attributeOf(target, name, mode)
+        return (name: unknown, mode?: number) =>
+          attributeOf(target as Element, name, mode)
       }
 
       if (key === 'attributes') {
         // specified is what separates a set attribute from one the element
         // could merely have had
-        const attrs = target.attributes
+        const attrs = (target as Element).attributes
         return new Proxy(attrs, {
           get(list, prop) {
             if (prop === 'length') {
               return list.length
             }
             if (prop === 'getNamedItem') {
-              return name => {
-                const found = list.getNamedItem(String(name).toLowerCase())
+              return (name: string) => {
+                const found = list.getNamedItem(name.toLowerCase())
                 return found
                   ? { name: found.name, value: found.value, specified: true }
                   : null
@@ -202,24 +224,25 @@ export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
 
       // className and htmlFor were the way to reach those two attributes
       if (key === 'className') {
-        return target.getAttribute('class') ?? ''
+        return (target as Element).getAttribute('class') ?? ''
       }
       if (key === 'htmlFor') {
-        return target.getAttribute('for') ?? ''
+        return (target as Element).getAttribute('for') ?? ''
       }
 
       // nodeName was upper case for an HTML element, and the only name there
       if (key === 'nodeName') {
-        return target.nodeName
+        return (target as Node).nodeName
       }
 
       const value = Reflect.get(target, key)
       if (typeof value === 'function') {
-        return (...args) => wrap(value.apply(target, args.map(unwrap)))
+        return (...args: unknown[]) =>
+          wrap(value.apply(target, args.map(unwrap)))
       }
       return wrap(value)
     },
-    has(target, key) {
+    has(target: object, key: PropertyKey) {
       if (typeof key === 'string' && HIDDEN.has(key)) {
         return false
       }
@@ -227,5 +250,6 @@ export function legacyHost(document, { comments = true, urls = 'flag' } = {}) {
     },
   }
 
-  return wrap(document)
+  // The proxy intentionally hides newer APIs while retaining the document identity.
+  return wrap(document) as Document
 }

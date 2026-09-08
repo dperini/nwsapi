@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
-import { test, vi } from 'vitest'
+import { test, vi, type TestContext } from 'vitest'
 import factory from '../../../src/nwsapi.js'
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const { window } = new JSDOM('<!doctype html><div id="parent"></div>')
   t.onTestFinished(() => window.close())
   return { document: window.document, nw: factory(window) }
@@ -23,7 +23,7 @@ for (const selector of [
   'div:has(:unknown:is(span))',
   'div:not(span :unknown:where(div))',
   'div:unknown:is(div)',
-]) {
+] as const) {
   test(`validates ${selector} before visiting candidates`, t => {
     const { document, nw } = fixture(t)
     const empty = document.createElement('section')
@@ -44,8 +44,8 @@ for (const selector of [
           name: 'SyntaxError',
         })
       }
-      for (const element of [childless, detached]) {
-        assert.throws(() => nw.match(selector, element), {
+      for (const element of [childless, detached] as const) {
+        assert.throws(() => nw.match(selector, element!), {
           name: 'SyntaxError',
         })
       }
@@ -57,18 +57,18 @@ test('forgiving lists discard invalid nested items and retain valid alternatives
   const { document, nw } = fixture(t)
   const parent = document.getElementById('parent')
   const empty = document.createElement('section')
-  for (const pseudo of ['is', 'where']) {
+  for (const pseudo of ['is', 'where'] as const) {
     for (const invalid of [
       ':unknown',
       ':not(span :unknown)',
       ':has(:unknown)',
       ':has(:unknown:is(span))',
-    ]) {
+    ] as const) {
       const selector = `div:${pseudo}(${invalid}, #parent)`
       for (let repeat = 0; repeat < 2; repeat++) {
         assert.deepEqual(nw.select(selector, empty), [])
         assert.deepEqual(nw.select(selector, document), [parent])
-        assert.equal(nw.match(selector, parent), true)
+        assert.equal(nw.match(selector, parent!), true)
       }
     }
     nw.configure({ FORGIVING: false })
@@ -82,22 +82,22 @@ test('forgiving lists discard invalid nested items and retain valid alternatives
 test('quoted pseudo text and valid relative selectors retain context and cache behavior', t => {
   const { document, nw } = fixture(t)
   const parent = document.getElementById('parent')
-  parent.innerHTML = '<span data-value=":unknown, :-nwsapi-anchor"></span>'
+  parent!.innerHTML = '<span data-value=":unknown, :-nwsapi-anchor"></span>'
   const empty = document.createElement('section')
   for (const selector of [
     'div:has(> [data-value=":unknown, :-nwsapi-anchor"])',
     'div:not(span [data-value=":unknown"])',
     'div:has(:is(:unknown, span))',
     'div:has(:where(:unknown, span))',
-  ]) {
+  ] as const) {
     for (let repeat = 0; repeat < 2; repeat++) {
       assert.deepEqual(nw.select(selector, empty), [])
       assert.deepEqual(nw.select(selector, document), [parent])
-      assert.equal(nw.match(selector, parent), true)
+      assert.equal(nw.match(selector, parent!), true)
     }
   }
-  assert.deepEqual(nw.select(':scope:has(> span) > span', parent), [
-    parent.firstChild,
+  assert.deepEqual(nw.select(':scope:has(> span) > span', parent!), [
+    parent!.firstChild,
   ])
 })
 
@@ -105,15 +105,18 @@ test('quiet validation does not turn invalid negations into matches or poison ve
   const { document, nw } = fixture(t)
   const parent = document.getElementById('parent')
   const empty = document.createElement('section')
-  for (const selector of ['div:not(span :unknown)', 'div:has(:unknown)']) {
+  for (const selector of [
+    'div:not(span :unknown)',
+    'div:has(:unknown)',
+  ] as const) {
     for (let repeat = 0; repeat < 2; repeat++) {
       nw.configure({ VERBOSITY: false, LOGERRORS: false })
       assert.deepEqual(nw.select(selector, empty), [])
       assert.deepEqual(nw.select(selector, document), [])
-      assert.equal(nw.match(selector, parent), false)
+      assert.equal(nw.match(selector, parent!), false)
       nw.configure({ VERBOSITY: true })
       assert.throws(() => nw.select(selector, empty), { name: 'SyntaxError' })
-      assert.throws(() => nw.match(selector, parent), { name: 'SyntaxError' })
+      assert.throws(() => nw.match(selector, parent!), { name: 'SyntaxError' })
     }
   }
 })
@@ -127,16 +130,16 @@ test('quiet validation retains configured error logging', t => {
     [],
   )
   assert.equal(log.mock.calls.length, 1)
-  assert.match(log.mock.calls[0][0], /unknown pseudo-class/)
+  assert.match(log.mock.calls[0]![0], /unknown pseudo-class/)
 })
 
 test('validation isolates extension variables, preserves modes, and does not run DOM matchers', t => {
   const { document, nw } = fixture(t)
   const parent = document.getElementById('parent')
-  parent.innerHTML = '<span></span>'
-  const modes: Array<[string, boolean]> = []
+  parent!.innerHTML = '<span></span>'
+  const modes: Array<[string, boolean | null]> = []
   nw.registerSelector('probe', /^:(outer|inner)(.*)/, (match, source, mode) => {
-    const name = match[1]
+    const name = match[1]!
     modes.push([name, mode])
     return {
       source: `if((${name}=true)){${source}}`,
@@ -147,7 +150,7 @@ test('validation isolates extension variables, preserves modes, and does not run
   const snapshot = Reflect.get(nw, 'Snapshot')
   const has = vi.spyOn(snapshot, 'has')
   const match = vi.spyOn(snapshot, 'match')
-  for (const legacy of [false, true]) {
+  for (const legacy of [false, true] as const) {
     nw.configure({ LEGACY: legacy }, true)
     modes.length = 0
     has.mockClear()
@@ -162,7 +165,7 @@ test('validation isolates extension variables, preserves modes, and does not run
     assert.equal(match.mock.calls.length, 0)
     assert.match(String(resolver), /,outer/)
     assert.doesNotMatch(String(resolver), /,inner/)
-    assert.equal(nw.match(selector, parent), true)
+    assert.equal(nw.match(selector, parent!), true)
     assert.deepEqual(nw.select(selector, document), [parent])
   }
 })

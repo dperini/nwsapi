@@ -7,13 +7,13 @@ import factory from '../../../src/nwsapi.js'
 test(
   'selective and positional paths agree with Chromium in both hosts',
   {
-    skip: !process.env.NWSAPI_BROWSER,
+    skip: !process.env['NWSAPI_BROWSER'],
   },
   async () => {
     const browser = await chromium.launch()
     try {
       const page = await browser.newPage()
-      for (const doctype of ['<!doctype html>', '']) {
+      for (const doctype of ['<!doctype html>', ''] as const) {
         const html =
           doctype +
           `<section class="anchor" id="outer"><div>
@@ -52,11 +52,11 @@ test(
             'section:has(> div) > div > span',
             ':is(g,span)',
             '[id=second]',
-          ]) {
+          ] as const) {
             const result = await page.evaluate(
               query => ({
                 native: [...document.querySelectorAll(query)].map(e => e.id),
-                engine: NW.Dom.select(query).map(e => e.id),
+                engine: Array.from(NW.Dom.select(query)).map(e => e.id),
                 first: NW.Dom.first(query)?.id ?? null,
                 nativeFirst: document.querySelector(query)?.id ?? null,
               }),
@@ -68,7 +68,7 @@ test(
               result.nativeFirst,
             )
             expect(
-              nw.select(selector).map(e => e.id),
+              Array.from(nw.select(selector)).map(e => e.id),
               selector,
             ).toEqual(result.native)
           }

@@ -7,7 +7,7 @@ test('class matching uses HTML and SVG reflections before reading attributes', t
   t.onTestFinished(() => window.close())
   const engine = factory(window)
   const resolver = engine.compile('.item', false)!
-  for (const className of ['item', { baseVal: 'item' }]) {
+  for (const className of ['item', { baseVal: 'item' }] as const) {
     const target = {
       className,
       getAttribute() {
@@ -38,14 +38,14 @@ test('ID comparisons preserve escaped punctuation without attribute calls', t =>
     ['a"b', '#a\\22 b'],
     ['a"b', '#a\\"b'],
     ['a\\b', '#a\\5c b'],
-  ]) {
+  ] as const) {
     const target = {
       id,
       getAttribute() {
         throw Error('Unnecessary attribute read')
       },
     }
-    const resolver = engine.compile(selector, false)!
+    const resolver = engine.compile(selector!, false)!
     expect(resolver(target, undefined, undefined, false)).toBe(true)
     target.id += 'suffix'
     expect(resolver(target, undefined, undefined, false)).toBe(false)

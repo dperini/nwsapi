@@ -1,3 +1,5 @@
+import type * as NodeChildProcess from 'node:child_process'
+import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
 import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
 import assert from 'node:assert/strict'
@@ -5,28 +7,26 @@ import assert from 'node:assert/strict'
 const require = createRequire(import.meta.url)
 
 // Test the published file layout and an override, not a patched module cache.
-const { execFileSync } = require('node:child_process')
-const {
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  writeFileSync,
-} = require('node:fs')
+const { execFileSync } =
+  require('node:child_process') as typeof NodeChildProcess
+const { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } =
+  require('node:fs') as typeof NodeFs
 import os from 'node:os'
 import path from 'node:path'
 const directory = mkdtempSync(
   path.resolve(os.tmpdir(), 'nwsapi-jsdom-adapter-'),
 )
-const isPnpm = process.env.npm_config_user_agent?.startsWith('pnpm/')
-const cli = process.env.npm_execpath
+const isPnpm = process.env['npm_config_user_agent']?.startsWith('pnpm/')
+const cli = process.env['npm_execpath']
 const command =
   cli && /\.[cm]?js$/.test(cli)
     ? process.execPath
     : cli || (process.platform === 'win32' ? 'npm.cmd' : 'npm')
-const prefix = command === process.execPath ? [cli] : []
-const run = (args, options) =>
-  execFileSync(command, [...prefix, ...args], options)
+const prefix = command === process.execPath ? [cli!] : []
+const run = (
+  args: string[],
+  options: NodeChildProcess.ExecFileSyncOptionsWithStringEncoding,
+) => execFileSync(command, [...prefix, ...args], options)
 
 try {
   const packResult = JSON.parse(
@@ -50,7 +50,7 @@ try {
     ? packResult[0]
     : packResult.nwsapi || packResult
   assert.deepEqual(
-    packed.files.map(file => file.path).toSorted(),
+    packed.files.map((file: { path: string }) => file.path).toSorted(),
     [
       'LICENSE',
       'README.md',
@@ -101,6 +101,7 @@ try {
     {
       cwd: directory,
       stdio: 'inherit',
+      encoding: 'utf8',
     },
   )
   const jsdomPackage = realpathSync(
@@ -153,6 +154,7 @@ try {
     {
       cwd: REPO_ROOT,
       stdio: 'inherit',
+      encoding: 'utf8',
       env: {
         ...process.env,
         JSDOM_PACKAGE: jsdomPackage,

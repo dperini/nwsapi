@@ -1,13 +1,15 @@
+import type * as NodeFs from 'node:fs'
+import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const assert = require('node:assert/strict')
-const { readFileSync } = require('node:fs')
+import assert from 'node:assert/strict'
+const { readFileSync } = require('node:fs') as typeof NodeFs
 import path from 'node:path'
-const vm = require('node:vm')
+const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(
   path.join(__dirname, '../../../src/nwsapi.js'),
   'utf8',
@@ -46,7 +48,7 @@ function documentStub() {
     getElementsByClassName() {
       return []
     },
-    createElement(name) {
+    createElement(name: string) {
       return { localName: name.toLowerCase() }
     },
   }
@@ -95,8 +97,8 @@ for (const [name, value, legacy, available] of [
     assert.ok(initialReads > 0)
     if (available) {
       const key = {}
-      first.set(key, 42)
-      assert.equal(first.get(key), 42)
+      first!.set(key, 42)
+      assert.equal(first!.get(key), 42)
     } else {
       assert.equal(first, undefined)
     }

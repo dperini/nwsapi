@@ -74,13 +74,13 @@ test('first plans recompile across HTML, XML and quirks documents', () => {
   )
   try {
     const engine = factory(html.window)
-    for (const world of [html, xml, quirks, html]) {
+    for (const world of [html, xml, quirks, html] as const) {
       const doc = world.window.document
       for (const selector of [
         '.card > item[code]',
         'item:nth-child(2n)',
         'Item[code]',
-      ]) {
+      ] as const) {
         const expected =
           world === quirks && selector === '.card > item[code]'
             ? doc.getElementsByTagName('item')[0]

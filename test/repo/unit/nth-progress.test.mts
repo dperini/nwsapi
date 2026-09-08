@@ -32,16 +32,16 @@ test('positional plans handle dense, sparse, nested, and moved candidates', t =>
     const reference = context.cloneNode(true) as Document | DocumentFragment
     for (const selector of selectors) {
       expect(
-        engine.select(selector, context).map(e => e.id),
+        Array.from(engine.select(selector, context)).map(e => e.id),
         selector,
       ).toEqual([...reference.querySelectorAll(selector)].map(e => e.id))
     }
   }
   check(document)
   main.prepend(document.createElement('b'))
-  aside.append(main.children[30])
-  main.insertBefore(document.createTextNode(' '), main.children[4])
-  main.insertBefore(document.createComment('gap'), main.children[20])
+  aside.append(main.children[30]!)
+  main.insertBefore(document.createTextNode(' '), main.children[4]!)
+  main.insertBefore(document.createComment('gap'), main.children[20]!)
   check(document)
   const fragment = document.createDocumentFragment()
   fragment.append(main, aside)

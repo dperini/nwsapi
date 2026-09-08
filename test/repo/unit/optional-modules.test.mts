@@ -1,13 +1,19 @@
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { runInNewContext } from 'node:vm'
-import { JSDOM } from 'jsdom'
-import { test } from 'vitest'
+import { JSDOM, type BinaryData } from 'jsdom'
+import { test, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js')
-function fixture(t, module, html, legacy = false) {
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+function fixture(
+  t: TestContext,
+  module: string,
+  html: string | Buffer | BinaryData | undefined,
+  legacy = false,
+) {
   const { window } = new JSDOM(html)
   t.onTestFinished(() => window.close())
   const engine = factory(window)
@@ -24,7 +30,7 @@ function fixture(t, module, html, legacy = false) {
   return { engine, doc: window.document }
 }
 
-for (const legacy of [false, true]) {
+for (const legacy of [false, true] as const) {
   test(`traversal selects ancestors and siblings, skipping text and comments (legacy=${legacy})`, t => {
     const { engine: e, doc } = fixture(
       t,
@@ -35,24 +41,24 @@ for (const legacy of [false, true]) {
     const a = doc.getElementById('a'),
       b = doc.getElementById('b'),
       c = doc.getElementById('c')
-    assert.equal(e.next(a), b)
-    assert.equal(e.next(a, 0), b)
-    assert.equal(e.next(a, 1), c)
-    assert.equal(e.next(a, 'i'), c)
-    assert.equal(e.previous(c), b)
-    assert.equal(e.previous(c, 1), a)
-    assert.equal(e.previous(c, 'i'), a)
-    assert.equal(e.up(a), a.parentNode)
-    assert.equal(e.up(a, 1), a.parentNode.parentNode)
-    assert.equal(e.up(a, 'main'), a.parentNode.parentNode)
-    for (const expr of [99, -1, '.absent']) {
-      assert.equal(e.next(a, expr), null)
-      assert.equal(e.previous(c, expr), null)
-      assert.equal(e.up(a, expr), null)
+    assert.equal(e.next!(a!), b)
+    assert.equal(e.next!(a!, 0), b)
+    assert.equal(e.next!(a!, 1), c)
+    assert.equal(e.next!(a!, 'i'), c)
+    assert.equal(e.previous!(c!), b)
+    assert.equal(e.previous!(c!, 1), a)
+    assert.equal(e.previous!(c!, 'i'), a)
+    assert.equal(e.up!(a!), a!.parentNode)
+    assert.equal(e.up!(a!, 1), a!.parentNode!.parentNode)
+    assert.equal(e.up!(a!, 'main'), a!.parentNode!.parentNode)
+    for (const expr of [99, -1, '.absent'] as const) {
+      assert.equal(e.next!(a!, expr), null)
+      assert.equal(e.previous!(c!, expr), null)
+      assert.equal(e.up!(a!, expr), null)
     }
-    assert.equal(e.next(c), null)
-    assert.equal(e.previous(a), null)
-    assert.equal(e.up(doc.documentElement, 'article'), null)
+    assert.equal(e.next!(c!), null)
+    assert.equal(e.previous!(a!), null)
+    assert.equal(e.up!(doc.documentElement, 'article'), null)
   })
   test(`down handles defaults, indexes, selectors, and empty trees (legacy=${legacy})`, t => {
     const { engine: e, doc } = fixture(
@@ -62,21 +68,21 @@ for (const legacy of [false, true]) {
       legacy,
     )
     const main = doc.getElementsByTagName('main')[0],
-      section = main.firstElementChild,
-      b = section.firstElementChild
-    assert.equal(e.down(main), section)
-    assert.equal(e.down(main, null), section)
-    assert.equal(e.down(main, 0), main)
-    assert.equal(e.down(main, 1), section)
-    assert.equal(e.down(main, 2), b)
-    assert.equal(e.down(main, 'main'), main)
-    assert.equal(e.down(main, 'b'), b)
-    for (const expr of [99, -1, '.absent']) {
-      assert.equal(e.down(main, expr), null)
+      section = main!.firstElementChild,
+      b = section!.firstElementChild
+    assert.equal(e.down!(main!), section)
+    assert.equal(e.down!(main!, null), section)
+    assert.equal(e.down!(main!, 0), main)
+    assert.equal(e.down!(main!, 1), section)
+    assert.equal(e.down!(main!, 2), b)
+    assert.equal(e.down!(main!, 'main'), main)
+    assert.equal(e.down!(main!, 'b'), b)
+    for (const expr of [99, -1, '.absent'] as const) {
+      assert.equal(e.down!(main!, expr), null)
     }
-    assert.equal(e.down(b), null)
-    b.textContent = 'only text'
-    assert.equal(e.down(b, null), null)
+    assert.equal(e.down!(b!), null)
+    b!.textContent = 'only text'
+    assert.equal(e.down!(b!, null), null)
   })
   test(`jQuery element extensions compose and observe mutations (legacy=${legacy})`, t => {
     const { engine: e, doc } = fixture(
@@ -86,7 +92,7 @@ for (const legacy of [false, true]) {
       legacy,
     )
     const main = doc.getElementsByTagName('main')[0]
-    const cases = [
+    const cases: Array<[string, string[]]> = [
       ...[
         'checkbox',
         'file',
@@ -95,7 +101,7 @@ for (const legacy of [false, true]) {
         'radio',
         'reset',
         'text',
-      ].map(name => [name, [name]]),
+      ].map((name): [string, string[]] => [name, [name]]),
       ['submit', ['submit', 'button']],
       ['button', ['input-button', 'button']],
       ['header', ['h1', 'h6']],
@@ -120,27 +126,27 @@ for (const legacy of [false, true]) {
     ]
     for (const [pseudo, expected] of cases) {
       for (const selector of [
-        `:${String(pseudo)}`,
-        `:${String(pseudo).toUpperCase()}:not(.absent)`,
-      ]) {
+        `:${pseudo}`,
+        `:${pseudo.toUpperCase()}:not(.absent)`,
+      ] as const) {
         assert.deepEqual(
-          e.select(selector, main).map(node => node.id),
+          Array.from(e.select(selector, main)).map(node => node.id),
           expected,
           selector,
         )
-        for (const node of Array.from(main.children)) {
+        for (const node of Array.from(main!.children)) {
           assert.equal(
             e.match(selector, node),
-            expected.includes(node.id),
+            expected!.includes(node.id),
             selector + ' ' + node.id,
           )
         }
       }
     }
     const input = doc.getElementById('checkbox')
-    input.setAttribute('type', 'radio')
-    assert.equal(e.match(':checkbox', input), false)
-    assert.equal(e.match(':radio', input), true)
+    input!.setAttribute('type', 'radio')
+    assert.equal(e.match(':checkbox', input!), false)
+    assert.equal(e.match(':radio', input!), true)
     assert.deepEqual(e.select(':checkbox', main), [])
     assert.deepEqual(e.select('main:has(> :radio)', doc), [main])
   })
@@ -157,16 +163,16 @@ test('jQuery visibility uses either layout dimension and supports callbacks', t 
   Object.defineProperty(wide, 'offsetWidth', { value: 10 })
   Object.defineProperty(tall, 'offsetHeight', { value: 10 })
   assert.deepEqual(
-    e.select('i:hidden', doc).map(n => n.id),
+    Array.from(e.select('i:hidden', doc)).map(n => n.id),
     ['hidden'],
   )
   assert.deepEqual(
-    e.select('i:visible', doc).map(n => n.id),
+    Array.from(e.select('i:visible', doc)).map(n => n.id),
     ['wide', 'tall'],
   )
-  assert.equal(e.match(':visible', wide), true)
-  assert.equal(e.match(':hidden', wide), false)
-  const seen = []
+  assert.equal(e.match(':visible', wide!), true)
+  assert.equal(e.match(':hidden', wide!), false)
+  const seen: Element[] = []
   assert.deepEqual(
     e.select('i:visible', doc, n => {
       seen.push(n)
@@ -185,7 +191,7 @@ test('jQuery positional filters retain scoped candidate order on repeated querie
   )
   const main = doc.getElementsByTagName('main')[0]
   assert.deepEqual(
-    e.select(':scope > p:even', main).map(n => n.id),
+    Array.from(e.select(':scope > p:even', main)).map(n => n.id),
     ['a', 'c'],
   )
   for (const [pseudo, expected] of [
@@ -197,12 +203,12 @@ test('jQuery positional filters retain scoped candidate order on repeated querie
     ['first', ['a']],
     ['last', ['d']],
     ['nth(2)', ['c']],
-  ]) {
+  ] as const) {
     for (let run = 0; run < 2; run++) {
       assert.deepEqual(
-        e.select('p:' + pseudo, main).map(n => n.id),
+        Array.from(e.select('p:' + pseudo, main)).map(n => n.id),
         expected,
-        String(pseudo),
+        pseudo,
       )
     }
   }
@@ -226,15 +232,15 @@ test('positional match and compiled NodeList resolvers use independent counters'
     ['first', true],
     ['last', false],
     ['nth(0)', true],
-  ]) {
+  ] as const) {
     for (let run = 0; run < 2; run++) {
-      assert.equal(e.match('p:' + pseudo, a), expected, String(pseudo))
+      assert.equal(e.match('p:' + pseudo, a!), expected, pseudo)
     }
   }
-  assert.deepEqual(e.compile('p:odd', null)(nodes, null, doc, []), [nodes[1]])
-  const seen = []
+  assert.deepEqual(e.compile('p:odd', null)!(nodes, null, doc, []), [nodes[1]])
+  const seen: Element[] = []
   assert.deepEqual(
-    e.compile('p:odd', true, true)(
+    e.compile('p:odd', true, true)!(
       Array.from(nodes),
       n => {
         seen.push(n)
@@ -247,14 +253,14 @@ test('positional match and compiled NodeList resolvers use independent counters'
   )
   assert.deepEqual(seen, [nodes[1]])
   assert.deepEqual(
-    e.select('p:even:nth-child(n)', doc).map(n => n.id),
+    Array.from(e.select('p:even:nth-child(n)', doc)).map(n => n.id),
     ['a', 'c'],
   )
 })
 
 test('positional parameters reject executable text, unsafe integers, and malformed arguments', t => {
   const { engine: e, doc } = fixture(t, 'jquery', '<p></p>')
-  for (const name of ['eq', 'lt', 'gt', 'nth']) {
+  for (const name of ['eq', 'lt', 'gt', 'nth'] as const) {
     for (const value of [
       '',
       '1.5',
@@ -262,7 +268,7 @@ test('positional parameters reject executable text, unsafe integers, and malform
       '1;throw 1',
       'Infinity',
       '9007199254740992',
-    ]) {
+    ] as const) {
       assert.throws(() => e.select(`p:${name}(${value})`, doc), {
         name: 'SyntaxError',
       })
@@ -276,7 +282,7 @@ test('positional parameters reject executable text, unsafe integers, and malform
     ':checkbox(foo)',
     ':has()',
     ':unknown',
-  ]) {
+  ] as const) {
     assert.throws(() => e.select(selector, doc), { name: 'SyntaxError' })
   }
   e.configure({ VERBOSITY: false, LOGERRORS: false })

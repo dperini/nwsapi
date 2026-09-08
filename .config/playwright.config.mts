@@ -9,7 +9,7 @@ export default defineConfig({
   outputDir: '../test-results',
   testMatch: 'wpt.spec.mts',
   fullyParallel: true,
-  workers: process.env.WPT_UPDATE_EXPECTATIONS ? 1 : 4,
+  workers: process.env['WPT_UPDATE_EXPECTATIONS'] ? 1 : 4,
   reporter: isAgent() ? 'dot' : 'list',
   timeout: 90_000,
   use: { baseURL: 'http://127.0.0.1:8000', browserName: 'chromium' },

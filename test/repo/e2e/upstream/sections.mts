@@ -42,16 +42,16 @@ const ARRAY_RE =
 const ENTRY_RE = /^\s*\{\s*name:\s*"((?:[^"\\]|\\.)*)"/
 const COMMENT_RE = /^\s*\/\/(.*)$/
 
-function parseSelectorsJs(text) {
+function parseSelectorsJs(text: string) {
   // entries: [{ name, section }] in file order; sections: unique, in order.
-  const entries = []
-  const sections = []
+  const entries: Array<{ name: string; section: string | null }> = []
+  const sections: string[] = []
 
-  let arrayName = null
-  let topHeader = null
-  let currentSection = null
+  let arrayName: string | null = null
+  let topHeader: string | null = null
+  let currentSection: string | null = null
 
-  const noteSection = section => {
+  const noteSection = (section: string | null) => {
     if (section && !sections.includes(section)) {
       sections.push(section)
     }
@@ -62,7 +62,7 @@ function parseSelectorsJs(text) {
     if (arrayName === null) {
       const m = ARRAY_RE.exec(line)
       if (m) {
-        arrayName = m[1]
+        arrayName = m[1]!
         topHeader = null
         // Entries before any comment header (e.g. all of invalidSelectors)
         // fall back to the array name as their section.
@@ -77,7 +77,7 @@ function parseSelectorsJs(text) {
 
     const entry = ENTRY_RE.exec(line)
     if (entry) {
-      const name = entry[1].replace(/\\(.)/g, '$1')
+      const name = entry[1]!.replace(/\\(.)/g, '$1')
       entries.push({ name, section: noteSection(currentSection) })
       continue
     }
@@ -86,7 +86,7 @@ function parseSelectorsJs(text) {
     if (!comment) {
       continue
     }
-    const text_ = comment[1].trim().replace(/\s+/g, ' ')
+    const text_ = comment[1]!.trim().replace(/\s+/g, ' ')
     // Only group headers count: skip commented-out code, XXX notes and prose.
     if (
       text_ === '' ||
@@ -122,7 +122,7 @@ const { byLength, sections } = parseSelectorsJs(
  * Given a reported WPT subtest name, return the selectors.js section it
  * belongs to, or null when the subtest does not come from selectors.js.
  */
-export function getSection(subtestName) {
+export function getSection(subtestName: string) {
   for (const { name, section } of byLength) {
     if (subtestName.includes(`: ${name}:`)) {
       return section

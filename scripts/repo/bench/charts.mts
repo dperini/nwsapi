@@ -83,7 +83,7 @@ export function chart(
           : name.includes('prerelease')
             ? 0
             : (index + 2) % chartColors.length
-      ],
+      ]!,
   )
   const gradients = colors
     .map(
@@ -108,7 +108,7 @@ export function chart(
         `<text x="48" y="${top}" class="code selector">${escapeText(row.selector)}</text>` +
         names
           .map((name, series) => {
-            const value = row.milliseconds[series]
+            const value = row.milliseconds[series] as number | null
             const y = top + 28 + series * 26
             const status =
               row.errors[series] ??

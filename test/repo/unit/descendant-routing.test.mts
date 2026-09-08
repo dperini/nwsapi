@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict'
 import { test, describe, afterEach } from 'vitest'
-import { JSDOM } from 'jsdom'
+import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
 import factory from '../../../src/nwsapi.js'
-const windows = []
+const windows: DOMWindow[] = []
 afterEach(() => {
   for (const window of windows.splice(0)) {
     window.close()
   }
 })
-function build(html) {
+function build(html: string | Buffer | BinaryData | undefined) {
   const { window } = new JSDOM(html)
   windows.push(window)
   const NW = factory(window)
@@ -20,7 +20,7 @@ describe('a descendant chain of tags answered by descending', () => {
     const { document, NW } = build('<main><a id="inside"></a></main>')
     const selector = { toString: () => 'main a' }
     assert.deepEqual(
-      NW.select(selector as unknown as string, document).map(
+      Array.from(NW.select(selector as unknown as string, document)).map(
         element => element.id,
       ),
       ['inside'],
@@ -31,9 +31,9 @@ describe('a descendant chain of tags answered by descending', () => {
       '<main><section><a id="inside"></a></section></main>',
     )
     const scope = document.querySelector('section')!
-    for (const selector of ['main a', 'section a', 'main section a']) {
+    for (const selector of ['main a', 'section a', 'main section a'] as const) {
       assert.deepEqual(
-        NW.select(selector, scope).map(element => element.id),
+        Array.from(NW.select(selector, scope)).map(element => element.id),
         ['inside'],
       )
     }
@@ -42,9 +42,9 @@ describe('a descendant chain of tags answered by descending', () => {
     const { document, NW } = build(
       '<!doctype html><DIV class=x><P id=p class=y></P></DIV>',
     )
-    for (const selector of ['DIV.x P.y', 'div.x p.y', 'DIV.x p.y']) {
+    for (const selector of ['DIV.x P.y', 'div.x p.y', 'DIV.x p.y'] as const) {
       assert.deepEqual(
-        NW.select(selector, document).map(e => e.id),
+        Array.from(NW.select(selector, document)).map(e => e.id),
         ['p'],
       )
     }
@@ -54,14 +54,14 @@ describe('a descendant chain of tags answered by descending', () => {
     const { document, NW } = build(
       '<!doctype html><ul><li><a id=a></a></li></ul><a id=outside></a>',
     )
-    const reads = []
+    const reads: string[] = []
     const original = document.getElementsByTagName.bind(document)
-    document.getElementsByTagName = function (tag) {
+    document.getElementsByTagName = function (tag: string) {
       reads.push(tag)
       return original(tag)
     }
     assert.deepEqual(
-      NW.select('ul li a', document).map(e => e.id),
+      Array.from(NW.select('ul li a', document)).map(e => e.id),
       ['a'],
     )
     assert.deepEqual(
@@ -85,7 +85,7 @@ describe('a descendant chain of tags answered by descending', () => {
     windows.push(window)
     const nw = factory(window)
     assert.deepEqual(
-      nw.select('Parent Child.x').map(e => e.id),
+      Array.from(nw.select('Parent Child.x')).map(e => e.id),
       ['c'],
     )
     assert.deepEqual(nw.select('Parent child.x'), [])
@@ -96,9 +96,9 @@ describe('a descendant chain of tags answered by descending', () => {
       'svg foreignObject.x',
       'svg foreignobject.x',
       'svg FOREIGNOBJECT.x',
-    ]) {
+    ] as const) {
       assert.deepEqual(
-        html.NW.select(selector).map(e => e.id),
+        Array.from(html.NW.select(selector)).map(e => e.id),
         [...html.document.querySelectorAll(selector)].map(e => e.id),
       )
     }
@@ -109,20 +109,20 @@ describe('a descendant chain of tags answered by descending', () => {
       '<!doctype html><ul><li><a id=a></a></li></ul>',
     )
     const fragment = document.createDocumentFragment()
-    fragment.append(document.querySelector('ul').cloneNode(true))
+    fragment.append(document.querySelector('ul')!.cloneNode(true))
     assert.deepEqual(
-      NW.select('ul li a', fragment).map(e => e.id),
+      Array.from(NW.select('ul li a', fragment)).map(e => e.id),
       ['a'],
     )
     NW.configure({ LEGACY: true }, true)
-    const reads = []
+    const reads: string[] = []
     const original = document.getElementsByTagName.bind(document)
-    document.getElementsByTagName = function (tag) {
+    document.getElementsByTagName = function (tag: string) {
       reads.push(tag)
       return original(tag)
     }
     assert.deepEqual(
-      NW.select('ul li a', document).map(e => e.id),
+      Array.from(NW.select('ul li a', document)).map(e => e.id),
       ['a'],
     )
     assert.ok(reads.includes('a'))
@@ -156,8 +156,10 @@ describe('a descendant chain of tags answered by descending', () => {
       'ul li',
       'body div div',
       'html body ul li a',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         (node: Element) => node.id,
@@ -171,11 +173,11 @@ describe('a descendant chain of tags answered by descending', () => {
     // level would collect it twice without the containment check.
     const { document, NW } = fixture()
     assert.deepEqual(
-      NW.select('ul li a', document).map(node => node.id),
+      Array.from(NW.select('ul li a', document)).map(node => node.id),
       ['a1', 'a2', 'a3', 'a4'],
     )
     assert.deepEqual(
-      NW.select('ul ul li a', document).map(node => node.id),
+      Array.from(NW.select('ul ul li a', document)).map(node => node.id),
       ['a3'],
     )
   })
@@ -184,18 +186,21 @@ describe('a descendant chain of tags answered by descending', () => {
     const { document, NW } = fixture()
     const scope = document.getElementById('d2')
     assert.deepEqual(
-      NW.select('ul li a', scope).map(node => node.id),
+      Array.from(NW.select('ul li a', scope!)).map(node => node.id),
       ['a2', 'a3'],
     )
     assert.deepEqual(
-      Array.from(scope.querySelectorAll('ul li a'), (node: Element) => node.id),
+      Array.from(
+        scope!.querySelectorAll('ul li a'),
+        (node: Element) => node.id,
+      ),
       ['a2', 'a3'],
     )
 
     const detached = document.createElement('div')
     detached.innerHTML = '<ul><li><a id=x>x</a></li></ul>'
     assert.deepEqual(
-      NW.select('ul li a', detached).map(node => node.id),
+      Array.from(NW.select('ul li a', detached)).map(node => node.id),
       ['x'],
     )
   })
@@ -204,10 +209,10 @@ describe('a descendant chain of tags answered by descending', () => {
     // The descent returns the answer rather than a candidate list, so a query
     // carrying a callback has to stay on the ordinary path.
     const { document, NW } = fixture()
-    const seen = []
+    const seen: string[] = []
     const found = NW.select('ul li a', document, node => seen.push(node.id))
     assert.deepEqual(
-      found.map(node => node.id),
+      Array.from(found).map(node => node.id),
       ['a1', 'a2', 'a3', 'a4'],
     )
     assert.deepEqual(seen, ['a1', 'a2', 'a3', 'a4'])
@@ -215,8 +220,8 @@ describe('a descendant chain of tags answered by descending', () => {
 
   test('first() returns the first in tree order', () => {
     const { document, NW } = fixture()
-    assert.equal(NW.first('div ul li a', document).id, 'a1')
-    assert.equal(NW.first('ul ul li a', document).id, 'a3')
+    assert.equal(NW.first('div ul li a', document)!.id, 'a1')
+    assert.equal(NW.first('ul ul li a', document)!.id, 'a3')
     assert.equal(NW.first('div span a', document), null)
   })
 
@@ -227,8 +232,10 @@ describe('a descendant chain of tags answered by descending', () => {
       'div ul li a.y',
       'div > ul li a',
       'div ul li a:first-child',
-    ]) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         (node: Element) => node.id,
@@ -241,7 +248,7 @@ describe('a descendant chain of tags answered by descending', () => {
   // the last part the context holds, so these cover the wide shapes and the
   // one hazard the counting brings: a count outliving the document it
   // describes.
-  function wide(inner, tail = '') {
+  function wide(inner: (index: number) => string, tail = '') {
     let html = '<!doctype html><body>'
     for (let i = 0; i < 200; ++i) {
       html += `<ul id=u${i}><li id=l${i}>${inner(i)}</li></ul>`
@@ -254,8 +261,15 @@ describe('a descendant chain of tags answered by descending', () => {
       i => `<a id=a${i}>${i}</a>`,
       '<a id=loose>x</a>',
     )
-    for (const selector of ['ul li a', 'ul li', 'body ul li a', 'body li a']) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    for (const selector of [
+      'ul li a',
+      'ul li',
+      'body ul li a',
+      'body li a',
+    ] as const) {
+      const mine = Array.from(NW.select(selector, document)).map(
+        node => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         (node: Element) => node.id,
@@ -274,9 +288,9 @@ describe('a descendant chain of tags answered by descending', () => {
 
     const link = document.createElement('a')
     link.id = 'late'
-    document.getElementById('l7').append(link)
+    document.getElementById('l7')!.append(link)
     assert.deepEqual(
-      NW.select('ul li a', document).map(node => node.id),
+      Array.from(NW.select('ul li a', document)).map(node => node.id),
       ['late'],
     )
 

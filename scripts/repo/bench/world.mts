@@ -9,7 +9,7 @@
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
-import { JSDOM } from 'jsdom'
+import { JSDOM, type BinaryData } from 'jsdom'
 
 import {
   ENGINE_BUILD_PATH as enginePath,
@@ -18,14 +18,23 @@ import {
 
 const require = createRequire(import.meta.url)
 
-export function loadEngine(file, options) {
+export function loadEngine(
+  file: string,
+  options: {
+    document: Document
+    DOMException: typeof DOMException
+  },
+) {
   // a fresh module instance per document, the way jsdom loads it
   const resolved = path.isAbsolute(file) ? file : path.resolve(repoRoot, file)
   delete require.cache[require.resolve(resolved)]
   return require(resolved)(options)
 }
 
-export function world(html, { baseline }: { baseline?: string } = {}) {
+export function world(
+  html: string | Buffer | BinaryData | undefined,
+  { baseline }: { baseline?: string } = {},
+) {
   const dom = new JSDOM(html)
   const { document } = dom.window
   const options = { document, DOMException: dom.window.DOMException }

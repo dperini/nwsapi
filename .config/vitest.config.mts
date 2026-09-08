@@ -2,24 +2,26 @@ import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 import { isAgent } from '../scripts/repo/lib/is-agent.mts'
 
-process.env.TZ ??= 'UTC'
+process.env['TZ'] ??= 'UTC'
 
 export default defineConfig({
-  server: { watch: { usePolling: process.env.CHOKIDAR_USEPOLLING === '1' } },
+  server: { watch: { usePolling: process.env['CHOKIDAR_USEPOLLING'] === '1' } },
   test: {
-    reporters: isAgent()
-      ? [
-          'minimal',
-          ...(process.env.GITHUB_ACTIONS === 'true'
-            ? ['github-actions' as const]
-            : []),
-        ]
-      : undefined,
+    ...(isAgent()
+      ? {
+          reporters: [
+            'minimal' as const,
+            ...(process.env['GITHUB_ACTIONS'] === 'true'
+              ? ['github-actions' as const]
+              : []),
+          ],
+        }
+      : {}),
     watch: process.argv.includes('--watch'),
     include: [
-      process.env.NWSAPI_TEST_TIER === 'unit'
+      process.env['NWSAPI_TEST_TIER'] === 'unit'
         ? 'test/repo/unit/**/*.test.mts'
-        : process.env.NWSAPI_TEST_TIER === 'integration'
+        : process.env['NWSAPI_TEST_TIER'] === 'integration'
           ? 'test/repo/integration/**/*.test.mts'
           : 'test/repo/**/*.test.mts',
     ],
@@ -32,11 +34,11 @@ export default defineConfig({
     environment: 'node',
     // Execute the published CommonJS bytes consistently for import and require.
     server: { deps: { external: [/\/src\/(?:nwsapi|dom-selector)\.js$/] } },
-    pool: process.env.NWSAPI_TEST_TIER === 'unit' ? 'threads' : 'forks',
+    pool: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 'threads' : 'forks',
     // Unit fixtures own their DOM instances; subprocess suites stay isolated.
-    isolate: process.env.NWSAPI_TEST_TIER !== 'unit',
+    isolate: process.env['NWSAPI_TEST_TIER'] !== 'unit',
     // Shared unit workers amortize jsdom startup; more workers duplicate it.
-    maxWorkers: process.env.NWSAPI_TEST_TIER === 'unit' ? 2 : 4,
+    maxWorkers: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 2 : 4,
     restoreMocks: true,
     testTimeout: 10_000,
     coverage: {

@@ -41,7 +41,7 @@ export function writeBenchmarkCharts(
     writeFileSync(
       path.join(output, `${group.name}.svg`),
       chart(
-        titles[group.rows[0].category] ?? group.name,
+        titles[group.rows[0]!.category] ?? group.name,
         metadata.engines.map(engine =>
           engine.name.replace(/ (\d+\.\d+\.\d+)/, ' v$1'),
         ),

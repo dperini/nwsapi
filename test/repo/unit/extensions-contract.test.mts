@@ -1,11 +1,12 @@
+import type * as NwsapiModule from '../../../src/nwsapi.js'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
-import { expect, test, vi } from 'vitest'
+import { expect, test, vi, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js')
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const { window } = new JSDOM(
     '<main><p data-score="2"></p><p data-score="3"></p><i></i></main>',
   )
@@ -27,17 +28,17 @@ test('selector extensions declare local variables in both resolver modes and com
     throw Error('replaced')
   })
   const first = doc.querySelector('p')
-  for (const legacy of [false, true, false]) {
+  for (const legacy of [false, true, false] as const) {
     engine.configure({ LEGACY: legacy })
     for (const selector of [
       'p:score(2)',
       ':score(2)[data-score]',
       ':score(2):not(i)',
-    ]) {
+    ] as const) {
       expect(engine.select(selector, doc)).toEqual([first])
-      expect(engine.match(selector, first)).toBe(true)
-      expect(engine.match(selector, first.nextElementSibling)).toBe(false)
-      const seen = []
+      expect(engine.match(selector, first!)).toBe(true)
+      expect(engine.match(selector, first!.nextElementSibling!)).toBe(false)
+      const seen: Element[] = []
       expect(engine.first(selector, doc, node => seen.push(node))).toBe(first)
       expect(seen).toEqual([first])
     }
@@ -56,7 +57,7 @@ test('custom combinators and operators reject duplicate registrations without ch
     throw Error('duplicate')
   })
   engine.registerOperator('!=', { p1: 'n!="', p2: '"', p3: 'true' })
-  engine.registerOperator('!=', {})
+  Reflect.apply(Reflect.get(engine, 'registerOperator'), engine, ['!=', {}])
   expect(warning).toHaveBeenCalledTimes(2)
 })
 
@@ -76,7 +77,7 @@ test('configuration getters and quiet validation preserve public return contract
     ':has()',
     ':not()',
     ':nth-child()',
-  ]) {
+  ] as const) {
     expect(engine.select(selector, doc).length, selector).toBe(0)
     expect(engine.match(selector, doc.body), selector).toBe(false)
   }
@@ -93,7 +94,7 @@ test('quiet compiler validation drops invalid strict logical and slotted argumen
     '::slotted(:unknown)',
     ':not(p >)',
     ':has(p || p)',
-  ]) {
+  ] as const) {
     expect(engine.select(selector, doc).length, selector).toBe(0)
     expect(engine.match(selector, doc.body), selector).toBe(false)
   }
@@ -108,18 +109,21 @@ test('custom operators compose with logical selectors and observe mutations afte
   const { engine, doc } = fixture(t)
   engine.registerOperator('!=', { p1: '^', p2: '$', p3: 'false' })
   const nodes = Array.from(doc.getElementsByTagName('p'))
-  for (const legacy of [false, true]) {
+  for (const legacy of [false, true] as const) {
     engine.configure({ LEGACY: legacy })
-    nodes[0].setAttribute('data-score', '2')
-    for (const selector of ['p[data-score!="2"]', 'p:is([data-score!="2"])']) {
+    nodes[0]!.setAttribute('data-score', '2')
+    for (const selector of [
+      'p[data-score!="2"]',
+      'p:is([data-score!="2"])',
+    ] as const) {
       expect(engine.select(selector, doc)).toEqual([nodes[1]])
-      expect(engine.match(selector, nodes[0])).toBe(false)
-      expect(engine.match(selector, nodes[1])).toBe(true)
+      expect(engine.match(selector, nodes[0]!)).toBe(false)
+      expect(engine.match(selector, nodes[1]!)).toBe(true)
       expect(engine.first(selector, doc)).toBe(nodes[1])
     }
-    nodes[0].setAttribute('data-score', '4')
+    nodes[0]!.setAttribute('data-score', '4')
     expect(engine.select('p[data-score!="2"]', doc)).toEqual(nodes)
-    expect(engine.match('p[data-score!="2"]', nodes[0])).toBe(true)
+    expect(engine.match('p[data-score!="2"]', nodes[0]!)).toBe(true)
   }
 })
 
@@ -131,9 +135,9 @@ test('selector extensions preserve callback termination and cached resolver beha
     source: `if(e.hasAttribute("data-score")){${source}}`,
   }))
   const nodes = Array.from(doc.getElementsByTagName('p'))
-  for (const selector of ['p:scored', 'p', 'p[data-score]']) {
+  for (const selector of ['p:scored', 'p', 'p[data-score]'] as const) {
     for (let run = 0; run < 2; run++) {
-      const seen = []
+      const seen: Element[] = []
       const result = engine.select(selector, doc, node => {
         seen.push(node)
         return false
@@ -145,17 +149,17 @@ test('selector extensions preserve callback termination and cached resolver beha
     }
   }
   expect(engine.select('p:scored', doc)).toEqual(nodes)
-  nodes[0].removeAttribute('data-score')
+  nodes[0]!.removeAttribute('data-score')
   expect(engine.select('p:scored', doc)).toEqual([nodes[1]])
-  expect(engine.match('p:scored', nodes[0])).toBe(false)
+  expect(engine.match('p:scored', nodes[0]!)).toBe(false)
 })
 
 test('byId distinguishes the legacy document.all length property from an element ID', t => {
   const { engine, doc } = fixture(t)
   const node = doc.getElementsByTagName('p')[0]
-  node.id = 'length'
+  node!.id = 'length'
   Object.defineProperty(doc, 'all', { value: { length: 4 } })
   expect(engine.byId('length', doc)).toEqual([node])
-  node.removeAttribute('id')
+  node!.removeAttribute('id')
   expect(engine.byId('length', doc)).toEqual([])
 })

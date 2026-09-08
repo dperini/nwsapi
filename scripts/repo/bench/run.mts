@@ -11,8 +11,8 @@ const entries = {
   memory: BENCHMARK_MEMORY_PATH,
   selectors: BENCHMARK_SELECTORS_PATH,
 }
-if (!Object.hasOwn(entries, name)) {
+if (!name || !Object.hasOwn(entries, name)) {
   throw new Error('Choose cache, memory, or selectors.')
 }
 // The outer repository runner supplies the compile-cache environment.
-runNode('--expose-gc', [entries[name], ...args])
+runNode('--expose-gc', [entries[name as keyof typeof entries], ...args])

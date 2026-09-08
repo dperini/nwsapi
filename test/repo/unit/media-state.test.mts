@@ -7,12 +7,12 @@ function setMatcher(element: Element, matcher: (selector: string) => boolean) {
   Reflect.set(element, 'matches', matcher)
 }
 
-for (const state of ['buffering', 'stalled']) {
+for (const state of ['buffering', 'stalled'] as const) {
   test(':' + state + ' implies :playing', t => {
     const { window } = new JSDOM('<video id="v"></video>')
     t.onTestFinished(() => window.close())
     const video = window.document.getElementById('v')
-    setMatcher(video, () => {
+    setMatcher(video!, () => {
       throw new window.DOMException('Unavailable native state', 'SyntaxError')
     })
     const nw = factory(window)
@@ -23,7 +23,7 @@ for (const state of ['buffering', 'stalled']) {
       readyState: { value: 1 },
     })
     if (state === 'stalled') {
-      setMatcher(video, selector => {
+      setMatcher(video!, selector => {
         if (selector === ':stalled' || selector === ':playing') {
           return true
         }
@@ -33,9 +33,9 @@ for (const state of ['buffering', 'stalled']) {
         throw new window.DOMException('Unsupported selector', 'SyntaxError')
       })
     }
-    assert.equal(nw.match(':' + state, video), true)
-    assert.equal(nw.match(':playing', video), true)
-    assert.equal(nw.match(':paused', video), false)
+    assert.equal(nw.match(':' + state, video!), true)
+    assert.equal(nw.match(':playing', video!), true)
+    assert.equal(nw.match(':paused', video!), false)
   })
 }
 
@@ -49,8 +49,11 @@ test('non-media elements do not acquire paused or seeking state', t => {
     ':buffering',
     ':stalled',
     ':volume-locked',
-  ]) {
-    assert.equal(nw.match(selector, window.document.getElementById('d')), false)
+  ] as const) {
+    assert.equal(
+      nw.match(selector, window.document.getElementById('d')!),
+      false,
+    )
   }
 })
 
@@ -100,7 +103,7 @@ test('playback fallback includes startup and buffering, and distinguishes seekin
       'stalled',
       'muted',
       'volume-locked',
-    ]) {
+    ] as const) {
       assert.equal(nw.match(':' + state, element), false)
     }
   }
@@ -131,7 +134,7 @@ test('native state wins, including host-only stalls, volume locks and timelines'
   const nw = factory(window)
   const media = window.document.querySelector('video')
   let active = true
-  setMatcher(media, () => active)
+  setMatcher(media!, () => active)
   for (const state of [
     'playing',
     'paused',
@@ -140,22 +143,22 @@ test('native state wins, including host-only stalls, volume locks and timelines'
     'stalled',
     'muted',
     'volume-locked',
-  ]) {
-    assert.equal(nw.match(':' + state, media), true)
+  ] as const) {
+    assert.equal(nw.match(':' + state, media!), true)
   }
   active = false
-  assert.equal(nw.match(':paused', media), false)
+  assert.equal(nw.match(':paused', media!), false)
   const paragraph = window.document.querySelector('p')
   for (const selector of [
     ':current',
     ':past',
     ':future',
     ':current(p, .caption)',
-  ]) {
-    setMatcher(paragraph, candidate => candidate === selector)
-    assert.equal(nw.match(selector, paragraph), true)
-    setMatcher(paragraph, () => false)
-    assert.equal(nw.match(selector, paragraph), false)
+  ] as const) {
+    setMatcher(paragraph!, candidate => candidate === selector)
+    assert.equal(nw.match(selector, paragraph!), true)
+    setMatcher(paragraph!, () => false)
+    assert.equal(nw.match(selector, paragraph!), false)
   }
 })
 
@@ -168,7 +171,7 @@ test('time selectors remain valid without a timeline and validate current argume
     ':past',
     ':future',
     ':current(p, .caption)',
-  ]) {
+  ] as const) {
     assert.deepEqual(nw.select(selector), [])
   }
   for (const selector of [
@@ -179,7 +182,7 @@ test('time selectors remain valid without a timeline and validate current argume
     ':current(p > span)',
     ':current(p,)',
     ':current(:unknown)',
-  ]) {
+  ] as const) {
     assert.throws(() => nw.select(selector), { name: 'SyntaxError' })
     assert.throws(
       () => nw.select(selector, window.document.createDocumentFragment()),

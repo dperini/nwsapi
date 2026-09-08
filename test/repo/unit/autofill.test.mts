@@ -2,7 +2,7 @@ import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
 import factory from '../../../src/nwsapi.js'
 
-for (const pseudo of [':autofill', ':-webkit-autofill']) {
+for (const pseudo of [':autofill', ':-webkit-autofill'] as const) {
   test(`${pseudo} does not match ordinary elements or skip its suffix`, t => {
     const { window } = new JSDOM('<input id="a"><input id="b"><div></div>')
     t.onTestFinished(() => window.close())
@@ -19,7 +19,7 @@ for (const pseudo of [':autofill', ':-webkit-autofill']) {
         input,
       ])
       expect(engine.first(`input${pseudo}#a`, window.document)).toBe(input)
-      expect(engine.match(`${pseudo}#b`, input)).toBe(false)
+      expect(engine.match(`${pseudo}#b`, input!)).toBe(false)
       filled = false
       expect(engine.select(`input${pseudo}#a`, window.document)).toEqual([])
     }
@@ -33,24 +33,24 @@ test('autofill retains alias fallback without recursive host calls', t => {
   const input = window.document.querySelector('input')
   Object.defineProperty(input, 'matches', {
     configurable: true,
-    value(selector) {
+    value(selector: string) {
       if (selector === ':autofill') {
         throw new Error('unsupported')
       }
       return selector === ':-webkit-autofill'
     },
   })
-  expect(engine.match(':autofill', input)).toBe(true)
+  expect(engine.match(':autofill', input!)).toBe(true)
   let calls = 0
   Object.defineProperty(input, 'matches', {
-    value(selector) {
+    value(selector: string) {
       if (++calls > 4) {
         throw new Error('unbounded recursion')
       }
-      return engine.match(selector, input)
+      return engine.match(selector, input!)
     },
   })
-  expect(engine.match(':autofill', input)).toBe(false)
+  expect(engine.match(':autofill', input!)).toBe(false)
   expect(calls).toBeGreaterThan(0)
   expect(calls).toBeLessThanOrEqual(2)
 })

@@ -20,7 +20,7 @@ const { createCoverageMap } = libCoverage
 const { createContext } = libReport
 
 const raw = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-wpt-coverage-'))
-const run = (entry, args, env = process.env) =>
+const run = (entry: string, args: string[], env = process.env) =>
   execFileSync(process.execPath, [entry, ...args], {
     cwd: REPO_ROOT,
     stdio: 'inherit',
@@ -39,7 +39,7 @@ try {
       readFileSync(path.join(raw, `${i}.json`), 'utf8'),
     )
     if (!entries.length) {
-      throw new Error(`Missing WPT coverage: ${manifest[i].path}`)
+      throw new Error(`Missing WPT coverage: ${manifest[i]!.path}`)
     }
     for (const entry of entries) {
       coverage.merge(

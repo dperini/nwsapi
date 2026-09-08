@@ -15,11 +15,18 @@ Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the
 
 Unit tests use shared thread workers. Keep DOM state local to each fixture and restore spies and environment changes. Tests that replace CommonJS module exports run in isolated integration processes. Direct Vitest invocations are useful for debugging but do not install the external watchdog; use the package scripts for budget enforcement.
 
+`pnpm run type` checks the engine, adapters, CLI, repository scripts, and tests.
+The local TypeScript configuration uses the same strict checks as Wheelhouse.
+These checks require explicit handling of missing array entries, nullable DOM results, and optional properties.
+They also reject implicit `any` types and unused declarations.
+NWSAPI keeps its own configuration and scripts.
+Type checks run without an incremental cache so they recheck changes to shared declarations.
+
 The repository also ignores files by default. `.gitignore` opts in maintained file types within source directories and names root metadata explicitly. Add an opt-in when introducing a new maintained file type or directory; generated output, dependencies, and scratch directories stay ignored.
 
 Coverage reports measure all published JavaScript in `src`, including the engine, adapter, and optional jQuery and traversal modules. The report rejects missing or unexecuted optional modules. Optional module tests execute the generated browser scripts in isolated VM contexts with real DOM fixtures. Both `import` and `require` execute the published CommonJS bytes; Vite does not transform those files. Browser and Node engine coverage are merged, and the report requires evidence from WPT and the Node adapter suite.
 
-The recorded run measures 99.08% statements, 95.53% branches, 98.67% functions, and 99.05% lines. Both the engine and adapter exceed 95% on every metric; the adapter and both optional modules reach 100%. The enforced floors are 98% statements, functions, and lines, and 95.1% branches. The executable `bin/nwsapi.js` has a separate 100% statement, branch, function, and line assertion using raw V8 coverage from real processes. Those processes exercise the shebang, arguments, standard output, error output, and exit status from a foreign working directory. Compiler mode and flag permutations run in process to keep the integration tier short.
+The recorded run measures 99.06% statements, 95.70% branches, 98.67% functions, and 99.03% lines. Both the engine and adapter exceed 95% on every metric; the adapter and both optional modules reach 100%. The enforced floors are 98% statements, functions, and lines, and 95.1% branches. The executable `bin/nwsapi.js` has a separate 100% statement, branch, function, and line assertion using raw V8 coverage from real processes. Those processes exercise the shebang, arguments, standard output, error output, and exit status from a foreign working directory. Compiler mode and flag permutations run in process to keep the integration tier short.
 
 `normalizeCoverageLocations()` canonicalizes live and persisted reports before merging. JSON serializes infinite end columns as `null`; merging the two forms directly can count one statement twice. The dependency-free helper comes from [wheelhouse's fleet coverage utility](https://github.com/SocketDev/socket-wheelhouse/blob/main/template/base/universal/scripts/fleet/util/coverage-normalize.mts). Wheelhouse uses the same normalization for report merging and location alignment. Regression tests cover repeated merges and input immutability.
 

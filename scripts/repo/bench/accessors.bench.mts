@@ -36,7 +36,7 @@ if (values.help) {
 
 const docName = values.doc ?? 'documentation'
 const rounds = values.rounds ? Number.parseInt(values.rounds, 10) : 5
-const spec = DOCUMENTS[docName]
+const spec = DOCUMENTS[docName as keyof typeof DOCUMENTS]
 
 if (!spec) {
   console.error(
@@ -53,105 +53,105 @@ const links = place.all('a')
 // Each variant reads one thing per element and consumes the value, so nothing
 // is optimized away and the loop itself is the same in every row.
 const READS = {
-  'e.localName': set => {
+  'e.localName': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.localName.length
     }
     return n
   },
-  'e.nodeName': set => {
+  'e.nodeName': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.nodeName.length
     }
     return n
   },
-  'e.className': set => {
+  'e.className': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.className.length
     }
     return n
   },
-  'e.id': set => {
+  'e.id': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.id.length
     }
     return n
   },
-  'e.parentElement': set => {
+  'e.parentElement': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.parentElement ? 1 : 0
     }
     return n
   },
-  'e.firstElementChild': set => {
+  'e.firstElementChild': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.firstElementChild ? 1 : 0
     }
     return n
   },
-  'e.nextElementSibling': set => {
+  'e.nextElementSibling': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.nextElementSibling ? 1 : 0
     }
     return n
   },
-  'e.previousElementSibling': set => {
+  'e.previousElementSibling': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.previousElementSibling ? 1 : 0
     }
     return n
   },
-  'e.children.length': set => {
+  'e.children.length': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.children.length
     }
     return n
   },
-  "e.getAttribute('id')": set => {
+  "e.getAttribute('id')": (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.getAttribute('id') ? 1 : 0
     }
     return n
   },
-  "e.getAttribute('class')": set => {
+  "e.getAttribute('class')": (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.getAttribute('class') ? 1 : 0
     }
     return n
   },
-  "e.getAttribute('href')": set => {
+  "e.getAttribute('href')": (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.getAttribute('href') ? 1 : 0
     }
     return n
   },
-  "e.hasAttribute('href')": set => {
+  "e.hasAttribute('href')": (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.hasAttribute('href') ? 1 : 0
     }
     return n
   },
-  'e.attributes.length': set => {
+  'e.attributes.length': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.attributes.length
     }
     return n
   },
-  'e.classList.length': set => {
+  'e.classList.length': (set: Element[]) => {
     let n = 0
     for (const e of set) {
       n += e.classList.length
@@ -162,12 +162,12 @@ const READS = {
 
 const CLASS_RE = /(^|\s)example(\s|$)/
 
-function classOf(e) {
+function classOf(e: Element) {
   const value = e.className
   return typeof value == 'string' ? value : e.getAttribute('class')
 }
 
-function scanClass(value, name) {
+function scanClass(value: string, name: string) {
   if (!value) {
     return false
   }
@@ -191,16 +191,16 @@ const CHOICES = [
     note: 'the class attribute is reflected as a property, so the property read wins',
     set: all,
     variants: {
-      "regex on getAttribute('class')": set => {
+      "regex on getAttribute('class')": (set: Element[]) => {
         let n = 0
         for (const e of set) {
-          if (CLASS_RE.test(e.getAttribute('class'))) {
+          if (CLASS_RE.test(e.getAttribute('class')!)) {
             ++n
           }
         }
         return n
       },
-      'regex on e.className': set => {
+      'regex on e.className': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (CLASS_RE.test(e.className)) {
@@ -209,16 +209,16 @@ const CHOICES = [
         }
         return n
       },
-      'regex through a helper call': set => {
+      'regex through a helper call': (set: Element[]) => {
         let n = 0
         for (const e of set) {
-          if (CLASS_RE.test(classOf(e))) {
+          if (CLASS_RE.test(classOf(e)!)) {
             ++n
           }
         }
         return n
       },
-      'hand-rolled scan of e.className': set => {
+      'hand-rolled scan of e.className': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (scanClass(e.className, 'example')) {
@@ -227,7 +227,7 @@ const CHOICES = [
         }
         return n
       },
-      'classList.contains': set => {
+      'classList.contains': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.classList.contains('example')) {
@@ -243,16 +243,16 @@ const CHOICES = [
     note: 'a selector asks for an exact value, which is a comparison and not a pattern',
     set: all,
     variants: {
-      "regex on getAttribute('id')": set => {
+      "regex on getAttribute('id')": (set: Element[]) => {
         let n = 0
         for (const e of set) {
-          if (/^title$/.test(e.getAttribute('id'))) {
+          if (/^title$/.test(e.getAttribute('id')!)) {
             ++n
           }
         }
         return n
       },
-      "compare getAttribute('id')": set => {
+      "compare getAttribute('id')": (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.getAttribute('id') === 'title') {
@@ -261,7 +261,7 @@ const CHOICES = [
         }
         return n
       },
-      'compare e.id': set => {
+      'compare e.id': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.id === 'title') {
@@ -277,7 +277,7 @@ const CHOICES = [
     note: 'the guard is one property read per candidate to learn what the fetch already guarantees',
     set: all,
     variants: {
-      'guarded e.hasAttribute("href")': set => {
+      'guarded e.hasAttribute("href")': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.hasAttribute && e.hasAttribute('href')) {
@@ -286,7 +286,7 @@ const CHOICES = [
         }
         return n
       },
-      'bare e.hasAttribute("href")': set => {
+      'bare e.hasAttribute("href")': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.hasAttribute('href')) {
@@ -302,7 +302,7 @@ const CHOICES = [
     note: 'same read, and the same answer, on a test that also compares',
     set: all,
     variants: {
-      'guarded e.getAttribute("href")': set => {
+      'guarded e.getAttribute("href")': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.getAttribute && e.getAttribute('href') === '#') {
@@ -311,7 +311,7 @@ const CHOICES = [
         }
         return n
       },
-      'bare e.getAttribute("href")': set => {
+      'bare e.getAttribute("href")': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.getAttribute('href') === '#') {
@@ -357,16 +357,16 @@ const CHOICES = [
     variants: {
       getElementsByClassName: () =>
         document.getElementsByClassName('example').length,
-      'regex per element': set => {
+      'regex per element': (set: Element[]) => {
         let n = 0
         for (const e of set) {
-          if (CLASS_RE.test(classOf(e))) {
+          if (CLASS_RE.test(classOf(e)!)) {
             ++n
           }
         }
         return n
       },
-      'hand-rolled scan per element': set => {
+      'hand-rolled scan per element': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (scanClass(e.className, 'example')) {
@@ -375,7 +375,7 @@ const CHOICES = [
         }
         return n
       },
-      'classList.contains per element': set => {
+      'classList.contains per element': (set: Element[]) => {
         let n = 0
         for (const e of set) {
           if (e.classList.contains('example')) {
@@ -392,11 +392,11 @@ const CHOICES = [
 
 const rows = []
 for (const [label, read] of Object.entries(READS)) {
-  const [{ ms }] = await compare(
+  const results = await compare(
     { [label]: () => read(all) },
     { rounds, iterations: 40 },
   )
-  rows.push({ label, ms })
+  rows.push({ label, ms: results[0]!.ms })
 }
 rows.sort((a, b) => a.ms - b.ms)
 
@@ -428,7 +428,9 @@ for (const choice of CHOICES) {
   const agree = answers.every(
     answer =>
       answer === answers[0] ||
-      (typeof answer === 'object' && answer.length === answers[0].length),
+      (Array.isArray(answer) &&
+        Array.isArray(answers[0]) &&
+        answer.length === answers[0].length),
   )
   const timed = await compare(
     Object.fromEntries(
@@ -459,7 +461,7 @@ for (const choice of CHOICES) {
     for (const row of timed) {
       console.log(
         `  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)} ms` +
-          (row === timed[0] ? '' : `   ${(row.ms / timed[0].ms).toFixed(2)}x`),
+          (row === timed[0] ? '' : `   ${(row.ms / timed[0]!.ms).toFixed(2)}x`),
       )
     }
   }

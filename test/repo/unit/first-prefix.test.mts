@@ -23,7 +23,7 @@ test('first class candidates handle token boundaries, late hits, and synchronous
     'b.card',
     'i.card',
     '.absent',
-  ]) {
+  ] as const) {
     verify(selector)
     verify(selector)
   }
@@ -45,11 +45,11 @@ test('first class candidates handle token boundaries, late hits, and synchronous
   verify('.card, section')
   root.innerHTML = '<input class="card"><input class="card">'
   const inputs = root.getElementsByTagName('input')
-  inputs[1].checked = true
+  inputs[1]!.checked = true
   verify('.card:checked')
-  inputs[0].checked = true
+  inputs[0]!.checked = true
   verify('.card:checked')
-  inputs[0].checked = false
+  inputs[0]!.checked = false
   verify('.card:checked')
   root.remove()
   verify('.card')

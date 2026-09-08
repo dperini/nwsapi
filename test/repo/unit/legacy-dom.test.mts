@@ -13,7 +13,7 @@ import vm from 'node:vm'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, test } from 'vitest'
-import { JSDOM } from 'jsdom'
+import { JSDOM, type BinaryData } from 'jsdom'
 import type factory from '../../../src/nwsapi.js'
 
 import { legacyHost } from '../fixtures/legacy-host.mts'
@@ -105,7 +105,7 @@ const SELECTORS = [
   'div.box, .row',
 ]
 
-function build(markup, options = {}) {
+function build(markup: string | Buffer | BinaryData | undefined, options = {}) {
   const dom = new JSDOM(markup)
   const { window } = dom
   const host = legacyHost(window.document, options)
@@ -117,7 +117,7 @@ function build(markup, options = {}) {
   return { window, host, document: window.document, NW }
 }
 
-function buildModern(markup) {
+function buildModern(markup: string | Buffer | BinaryData | undefined) {
   const dom = new JSDOM(markup)
   delete require.cache[require.resolve(nwsapiPath)]
   const NW = require(nwsapiPath)({
@@ -129,6 +129,28 @@ function buildModern(markup) {
 
 const ids = (nodes: ArrayLike<Element>) =>
   Array.from(nodes, node => node.id || node.nodeName.toLowerCase())
+
+test('legacy named collections reject names that do not match an element ID', () => {
+  const { NW, document, window } = buildModern(
+    '<input name="target" id="one"><input name="target" id="two">',
+  )
+  try {
+    const candidates = document.querySelectorAll('input')
+    Object.defineProperty(document, 'all', {
+      value: { target: candidates },
+      configurable: true,
+    })
+    NW.configure({ LEGACY: true, IDS_DUPES: true })
+    expect(NW.byId('target', document)).toEqual([])
+    expect(NW.select('#target', document)).toEqual([])
+    expect(NW.first('#target', document)).toBeNull()
+    candidates[1]!.id = 'target'
+    expect(NW.byId('target', document)).toEqual([candidates[1]])
+    expect(NW.select('#target', document)).toEqual([candidates[1]])
+  } finally {
+    window.close()
+  }
+})
 
 test('relative has arguments use legacy sibling traversal', () => {
   const { NW, host, window } = build(
@@ -171,19 +193,29 @@ test('LEGACY restores the handling a pre-2015 host needed', () => {
   expect(() => NW.select('[href]', scope)).toThrow()
   expect(() => NW.select('.x.big', scope)).toThrow()
   // a tag test reads a property, so it rejects the comment either way
-  expect(NW.select('a.x', scope).map(node => node.id)).toEqual(['b'])
+  expect(NW.select('a.x', scope).map((node: Element) => node.id)).toEqual(['b'])
 
   try {
     NW.configure({ LEGACY: true })
-    expect(NW.select('[href]', scope).map(node => node.id)).toEqual(['b'])
-    expect(NW.select('.x.big', scope).map(node => node.id)).toEqual(['b'])
+    expect(NW.select('[href]', scope).map((node: Element) => node.id)).toEqual([
+      'b',
+    ])
+    expect(NW.select('.x.big', scope).map((node: Element) => node.id)).toEqual([
+      'b',
+    ])
     expect(NW.match('.x', comment)).toBe(false)
     expect(NW.match('[href]', comment)).toBe(false)
     expect(NW.match('#a', comment)).toBe(false)
 
     // and the ordinary answers do not change under it
-    for (const selector of ['a.x', 'a#a', '#a.big', 'a[href]', '.x.big']) {
-      const mine = NW.select(selector, document).map(node => node.id)
+    for (const selector of [
+      'a.x',
+      'a#a',
+      '#a.big',
+      'a[href]',
+      '.x.big',
+    ] as const) {
+      const mine = NW.select(selector, document).map((node: Element) => node.id)
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -203,17 +235,20 @@ describe('a host that needs the legacy handling', () => {
   test('the host is missing what those browsers were missing', () => {
     const { host } = build(MARKUP)
     const root = host.documentElement
-    expect(root.hasAttribute, 'hasAttribute').toBeUndefined()
+    expect(Reflect.get(root, 'hasAttribute'), 'hasAttribute').toBeUndefined()
     expect(root.localName, 'localName').toBeUndefined()
     expect(root.firstElementChild, 'firstElementChild').toBeUndefined()
     expect(root.nextElementSibling, 'nextElementSibling').toBeUndefined()
     expect(root.parentElement, 'parentElement').toBeUndefined()
     expect(root.classList, 'classList').toBeUndefined()
     expect(
-      host.getElementsByClassName,
+      Reflect.get(host, 'getElementsByClassName'),
       'getElementsByClassName',
     ).toBeUndefined()
-    expect(root.getAttributeNames, 'getAttributeNames').toBeUndefined()
+    expect(
+      Reflect.get(root, 'getAttributeNames'),
+      'getAttributeNames',
+    ).toBeUndefined()
     expect(root.isConnected, 'isConnected').toBeUndefined()
     // and its tag collection is not all elements
     const all = Array.prototype.slice.call(host.getElementsByTagName('*'))
@@ -251,7 +286,7 @@ describe('a host that needs the legacy handling', () => {
   test('URL reads are selected again for each document', () => {
     const flag = build(MARKUP)
     const node = build(MARKUP, { urls: 'plain' })
-    for (const host of [flag.host, node.host, flag.host]) {
+    for (const host of [flag.host, node.host, flag.host] as const) {
       expect(ids(flag.NW.select('a[href="./go"]', host))).toEqual(['a1'])
     }
   })
@@ -267,7 +302,7 @@ describe('a host that needs the legacy handling', () => {
 
   test('match, first and closest agree as well', () => {
     const { NW, host, document } = build(MARKUP)
-    const byId = id => {
+    const byId = (id: string) => {
       const node = host.getElementById(id)
       expect(node, id).toBeTruthy()
       return node
@@ -279,7 +314,7 @@ describe('a host that needs the legacy handling', () => {
     expect(NW.match('[for="x"]', byId('a1'))).toBe(true)
     expect(NW.match('input[checked]', byId('i1'))).toBe(true)
 
-    expect(NW.first('div p', host).id).toBe(document.querySelector('div p').id)
+    expect(NW.first('div p', host).id).toBe(document.querySelector('div p')!.id)
     expect(NW.first('li.row', host).id).toBe('l2')
     expect(NW.first('table', host)).toBeNull()
 
@@ -290,10 +325,16 @@ describe('a host that needs the legacy handling', () => {
   test('a query scoped to an element stays inside it', () => {
     const { NW, host, document } = build(MARKUP)
     const scope = host.getElementById('d2')
-    for (const selector of ['li', 'ul li', '.row', 'input[checked]', '*']) {
+    for (const selector of [
+      'li',
+      'ul li',
+      '.row',
+      'input[checked]',
+      '*',
+    ] as const) {
       const mine = ids(NW.select(selector, scope))
       const reference = ids(
-        document.getElementById('d2').querySelectorAll(selector),
+        document.getElementById('d2')!.querySelectorAll(selector),
       )
       expect(mine, selector).toEqual(reference)
     }
@@ -374,7 +415,7 @@ describe('pseudo-classes on a host that needs the handling', () => {
     ':root',
     ':defined',
     ':optional',
-  ]) {
+  ] as const) {
     test(selector + ' agrees with the independent reference', () => {
       const { NW, host, document } = build(FORM)
       expect(ids(NW.select(selector, host)), selector).toEqual(
@@ -470,7 +511,7 @@ describe('what a legacy resolver is allowed to contain', () => {
 
     const offenders = []
     for (const selector of SHAPES) {
-      for (const mode of [true, false]) {
+      for (const mode of [true, false] as const) {
         let code
         try {
           const factory = NW.compile(selector, mode, null)
@@ -502,14 +543,14 @@ describe('what a legacy resolver is allowed to contain', () => {
       'e.getAttribute(x)',
       'e/localName',
       'e[localName]',
-    ]) {
-      a.setAttribute('data-x', value)
+    ] as const) {
+      a!.setAttribute('data-x', value)
       const quoted = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
       for (const selector of [
         '[data-x="' + quoted + '"]',
         ':not([data-x="' + quoted + '"])',
         ':is([data-x="' + quoted + '"])',
-      ]) {
+      ] as const) {
         NW.configure({ LEGACY: false })
         const expected = ids(NW.select(selector, document))
         NW.configure({ LEGACY: true })
@@ -541,8 +582,10 @@ describe('the attribute quirks that host had', () => {
 
     // what this host answers without the flag, which is not what the
     // selector is asking about
-    expect(link.getAttribute('href')).toBe('http://legacy.example/go')
-    expect(link.getAttribute('href', 2)).toBe('./go')
+    expect(link!.getAttribute('href')).toBe('http://legacy.example/go')
+    expect(
+      Reflect.apply(Reflect.get(link!, 'getAttribute'), link, ['href', 2]),
+    ).toBe('./go')
 
     expect(ids(NW.select('a[href="./go"]', host))).toEqual(['a1'])
     expect(ids(NW.select('a[href^="./"]', host))).toEqual(['a1'])
@@ -556,10 +599,10 @@ describe('the attribute quirks that host had', () => {
     const link = host.getElementById('a1')
 
     // the markup name answered nothing at all
-    expect(link.getAttribute('for')).toBeNull()
-    expect(link.htmlFor).toBe('x')
-    expect(host.getElementById('d1').getAttribute('class')).toBeNull()
-    expect(host.getElementById('d1').className).toBe('box wide')
+    expect(link!.getAttribute('for')).toBeNull()
+    expect(Reflect.get(link!, 'htmlFor')).toBe('x')
+    expect(host.getElementById('d1')!.getAttribute('class')).toBeNull()
+    expect(host.getElementById('d1')!.className).toBe('box wide')
 
     expect(ids(NW.select('.box', host))).toEqual(['d1', 'd2'])
     expect(ids(NW.select('[class~="wide"]', host))).toEqual(['d1'])
@@ -573,7 +616,7 @@ describe('the attribute quirks that host had', () => {
     // and this engine does the same: the presence test works either way and
     // the value test agrees with the reference engine on the bare form.
     const { NW, host, document } = build(MARKUP)
-    expect(host.getElementById('i1').getAttribute('checked')).toBe(true)
+    expect(host.getElementById('i1')!.getAttribute('checked')).toBe(true)
 
     expect(ids(NW.select('input[checked]', host))).toEqual(['i1'])
     expect(ids(NW.select('input[disabled]', host))).toEqual(['i2'])
@@ -582,7 +625,7 @@ describe('the attribute quirks that host had', () => {
       'input[checked]',
       'input[checked=""]',
       'input[checked="checked"]',
-    ]) {
+    ] as const) {
       expect(ids(NW.select(selector, host)), selector).toEqual(
         ids(document.querySelectorAll(selector)),
       )
@@ -594,10 +637,10 @@ describe('the attribute quirks that host had', () => {
     // the markup had set nothing, so a value cannot decide presence.
     const { NW, host, document } = build(MARKUP)
     const form = host.getElementById('f1')
-    expect(form.getAttribute('enctype')).toBe(
+    expect(form!.getAttribute('enctype')).toBe(
       'application/x-www-form-urlencoded',
     )
-    expect(form.attributes.getNamedItem('enctype')).toBeNull()
+    expect(form!.attributes.getNamedItem('enctype')).toBeNull()
 
     expect(ids(NW.select('form[enctype]', host))).toEqual([])
     expect(ids(document.querySelectorAll('form[enctype]'))).toEqual([])
@@ -609,10 +652,16 @@ describe('the attribute quirks that host had', () => {
     // so the read that answers the markup is detected rather than assumed.
     const { NW, host, document } = build(MARKUP, { urls: 'plain' })
     const link = host.getElementById('a1')
-    expect(link.getAttribute('href')).toBe('http://legacy.example/go')
-    expect(link.getAttribute('href', 2)).toBe('http://legacy.example/go')
+    expect(link!.getAttribute('href')).toBe('http://legacy.example/go')
+    expect(
+      Reflect.apply(Reflect.get(link!, 'getAttribute'), link, ['href', 2]),
+    ).toBe('http://legacy.example/go')
 
-    for (const selector of ['a[href="./go"]', 'a[href^="./"]', 'a[href]']) {
+    for (const selector of [
+      'a[href="./go"]',
+      'a[href^="./"]',
+      'a[href]',
+    ] as const) {
       expect(ids(NW.select(selector, host)), selector).toEqual(
         ids(document.querySelectorAll(selector)),
       )
@@ -621,7 +670,7 @@ describe('the attribute quirks that host had', () => {
 
   test('a style attribute is a presence test, not an object stringified', () => {
     const { NW, host } = build(MARKUP)
-    expect(typeof host.getElementById('d3').getAttribute('style')).toBe(
+    expect(typeof host.getElementById('d3')!.getAttribute('style')).toBe(
       'object',
     )
     expect(ids(NW.select('div[style]', host))).toEqual(['d3'])
@@ -647,14 +696,14 @@ describe('what LEGACY does to a host that does not need it', () => {
       }
       vm.runInNewContext(readFileSync(nwsapiPath, 'utf8'), context)
       const NW = context.module.exports(first.window)
-      expect(NW.Config.LEGACY).toBe(false)
+      expect(NW.Config['LEGACY']).toBe(false)
       NW.configure({ LEGACY: true })
-      expect(NW.Config.LEGACY).toBe(true)
-      for (const dom of [first, second, first]) {
+      expect(NW.Config['LEGACY']).toBe(true)
+      for (const dom of [first, second, first] as const) {
         expect(ids(NW.select('div.box > p.a', dom.window.document))).toEqual(
           ids(dom.window.document.querySelectorAll('div.box > p.a')),
         )
-        expect(NW.Config.LEGACY).toBe(true)
+        expect(NW.Config['LEGACY']).toBe(true)
       }
     } finally {
       first.window.close()
@@ -681,7 +730,7 @@ describe('what LEGACY does to a host that does not need it', () => {
     for (let i = 0; i < SELECTORS.length; ++i) {
       expect(legacy[i], SELECTORS[i]).toEqual(modern[i])
       expect(modern[i], SELECTORS[i]).toEqual(
-        ids(document.querySelectorAll(SELECTORS[i])),
+        ids(document.querySelectorAll(SELECTORS[i]!)),
       )
     }
   })

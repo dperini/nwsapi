@@ -5,30 +5,33 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
-  "@playwright/test": "1.62.1"
-  "@types/css-tree": "3.2.0"
-  "@types/jsdom": "30.0.0"
-  "@types/node": "26.4.1"
-  "@vitest/coverage-v8": "5.0.0"
-  "acorn": "8.18.0"
-  "ast-v8-to-istanbul": "1.0.5"
-  "istanbul-lib-coverage": "3.2.2"
-  "istanbul-lib-report": "3.0.1"
-  "istanbul-reports": "3.2.0"
-  "jquery": "4.0.0"
-  "jsdom": "30.0.1"
-  "mitata": "1.0.34"
-  "oxfmt": "0.66.0"
-  "oxlint": "1.81.0"
-  "oxlint-tsgolint": "7.0.2001"
-  "rolldown": "1.2.7"
-  "taze": "21.1.0"
-  "svgo": "4.1.0"
-  "run-local-ci": "0.18.1"
-  "typescript": "7.0.2"
-  "vite": "8.2.2"
-  "vitest": "5.0.0"
-  "yaml": "2.9.0"
+  '@types/istanbul-lib-coverage': '2.0.6'
+  '@types/istanbul-lib-report': '3.0.3'
+  '@types/istanbul-reports': '3.0.4'
+  '@playwright/test': '1.62.1'
+  '@types/css-tree': '3.2.0'
+  '@types/jsdom': '30.0.0'
+  '@types/node': '26.4.1'
+  '@vitest/coverage-v8': '5.0.0'
+  'acorn': '8.18.0'
+  'ast-v8-to-istanbul': '1.0.5'
+  'istanbul-lib-coverage': '3.2.2'
+  'istanbul-lib-report': '3.0.1'
+  'istanbul-reports': '3.2.0'
+  'jquery': '4.0.0'
+  'jsdom': '30.0.1'
+  'mitata': '1.0.34'
+  'oxfmt': '0.66.0'
+  'oxlint': '1.81.0'
+  'oxlint-tsgolint': '7.0.2001'
+  'rolldown': '1.2.7'
+  'taze': '21.1.0'
+  'svgo': '4.1.0'
+  'run-local-ci': '0.18.1'
+  'typescript': '7.0.2'
+  'vite': '8.2.2'
+  'vitest': '5.0.0'
+  'yaml': '2.9.0'
 minimumReleaseAge: 1440
 overrides:
   rolldown: '1.2.7'

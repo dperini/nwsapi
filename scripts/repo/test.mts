@@ -30,7 +30,7 @@ for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
         ? [`--coverage.reportsDirectory=coverage/${lane}`]
         : []),
     ],
-    TEST_BUDGET_MS[lane],
+    TEST_BUDGET_MS[lane as keyof typeof TEST_BUDGET_MS],
     lane,
     { ...process.env, NWSAPI_TEST_TIER: lane },
   )

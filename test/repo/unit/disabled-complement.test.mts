@@ -19,7 +19,7 @@ test('fieldset absence follows insertions, detached trees, and document changes'
   expect(nw.match(':disabled', a)).toBe(true)
   expect(nw.match(':enabled', b)).toBe(true)
   document.body.append(a)
-  const seen = []
+  const seen: string[] = []
   nw.select('input:enabled', document, element => {
     seen.push(element.id)
     document.body.append(fieldset)
@@ -68,25 +68,25 @@ test('disabled fieldsets honor only their own first legend', t => {
     'text',
     'own',
     'enabled',
-  ]) {
+  ] as const) {
     const node = window.document.getElementById(id)
     const disabled = !['exempt', 'enabled'].includes(id)
-    expect(engine.match(':disabled', node), id).toBe(disabled)
-    expect(engine.match(':enabled', node), id).toBe(!disabled)
-    expect(engine.match(':read-only', node), id).toBe(disabled)
-    expect(engine.match(':read-write', node), id).toBe(!disabled)
+    expect(engine.match(':disabled', node!), id).toBe(disabled)
+    expect(engine.match(':enabled', node!), id).toBe(!disabled)
+    expect(engine.match(':read-only', node!), id).toBe(disabled)
+    expect(engine.match(':read-write', node!), id).toBe(!disabled)
   }
   const neither = window.document.getElementById('neither')
-  expect(engine.match(':disabled', neither)).toBe(false)
-  expect(engine.match(':enabled', neither)).toBe(false)
+  expect(engine.match(':disabled', neither!)).toBe(false)
+  expect(engine.match(':enabled', neither!)).toBe(false)
   const outer = window.document.querySelector('fieldset')
-  outer.disabled = false
+  outer!.disabled = false
   expect(
-    engine.select('input:disabled', window.document).map(e => e.id),
+    Array.from(engine.select('input:disabled', window.document)).map(e => e.id),
   ).toEqual(['own'])
-  outer.disabled = true
+  outer!.disabled = true
   expect(
-    engine.match(':enabled', window.document.getElementById('nested')),
+    engine.match(':enabled', window.document.getElementById('nested')!),
   ).toBe(false)
 })
 
@@ -96,13 +96,13 @@ test('options inherit an optgroup attribute without inheriting a select attribut
   )
   t.onTestFinished(() => window.close())
   const engine = factory(window)
-  for (const id of ['group', 'a', 'b', 'c']) {
+  for (const id of ['group', 'a', 'b', 'c'] as const) {
     const node = window.document.getElementById(id)
-    expect(engine.match(':disabled', node), id).toBe(id !== 'b')
-    expect(engine.match(':enabled', node), id).toBe(id === 'b')
+    expect(engine.match(':disabled', node!), id).toBe(id !== 'b')
+    expect(engine.match(':enabled', node!), id).toBe(id === 'b')
   }
-  window.document.querySelector('optgroup').disabled = false
-  expect(engine.match(':disabled', window.document.getElementById('a'))).toBe(
+  window.document.querySelector('optgroup')!.disabled = false
+  expect(engine.match(':disabled', window.document.getElementById('a')!)).toBe(
     false,
   )
 })

@@ -43,7 +43,7 @@ This is compiler inspection output, not a standalone querySelectorAll implementa
           'Expected one selector and a valid mode. Run nwsapi compile --help.',
         )
       }
-      return inspectSelector(positionals[0], values)
+      return inspectSelector(positionals[0]!, values)
     }
   } else {
     throw new Error(

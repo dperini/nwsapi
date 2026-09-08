@@ -27,7 +27,7 @@ const patterns = [
 const rows = []
 let consumed = 0
 for (const pattern of patterns) {
-  const samples = [[], []]
+  const samples: number[][] = [[], []]
   for (let r = 0; r < 9; r++) {
     for (let k = 0; k < 2; k++) {
       const e = (r + k) % 2
@@ -40,12 +40,12 @@ for (const pattern of patterns) {
           )
           .toString().length
       }, 500)
-      samples[e].push(result.milliseconds)
+      samples[e]!.push(result.milliseconds)
     }
   }
-  const ms = samples.map(s => s.toSorted((a, b) => a - b)[4])
+  const ms = samples.map(s => s.toSorted((a, b) => a - b)[4]!)
   rows.push({ pattern, samples, ms })
-  console.log(pattern, ms, ms[0] / ms[1])
+  console.log(pattern, ms, ms[0]! / ms[1]!)
 }
 writeFileSync(
   output,

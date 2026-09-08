@@ -89,6 +89,9 @@
   "devDependencies": {
     "@playwright/test": "catalog:",
     "@types/css-tree": "catalog:",
+    "@types/istanbul-lib-coverage": "catalog:",
+    "@types/istanbul-lib-report": "catalog:",
+    "@types/istanbul-reports": "catalog:",
     "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",

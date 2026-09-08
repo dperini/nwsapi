@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../src/nwsapi.js'
@@ -12,19 +13,19 @@ test('candidate snapshots follow synchronous mutations and protect returned arra
   const main = doc.querySelector('main')!
   const aside = doc.querySelector('aside')!
   const check = () => {
-    for (const context of [doc, main, aside]) {
+    for (const context of [doc, main, aside] as const) {
       for (const selector of [
         'i',
         '.item',
         'i:nth-child(2n)',
         'i:nth-last-child(3)',
         'main > i',
-      ]) {
+      ] as const) {
         // A fresh tree keeps the reference engine's own positional caches out
         // of the mutation oracle. Compare stable outerHTML in tree order.
         const reference = context.cloneNode(true) as Document | Element
         expect(
-          engine.select(selector, context).map(e => e.outerHTML),
+          Array.from(engine.select(selector, context)).map(e => e.outerHTML),
           selector,
         ).toEqual(
           Array.from(reference.querySelectorAll(selector), e => e.outerHTML),
@@ -34,8 +35,12 @@ test('candidate snapshots follow synchronous mutations and protect returned arra
   }
   check()
   check()
-  engine.select('i', doc).length = 0
-  Reflect.get(engine, 'byClass')('item', main).reverse()
+  const selected = engine.select('i', doc)
+  const classes = engine.byClass('item', main)
+  assert.ok(Array.isArray(selected), 'default select results are arrays')
+  assert.ok(Array.isArray(classes), 'default class results are arrays')
+  selected.length = 0
+  classes.reverse()
   check()
   main.firstElementChild!.className = 'other'
   main.prepend(doc.createElement('b'))
@@ -114,13 +119,20 @@ test('default input editability follows type, readonly, and namespace changes', 
   t.onTestFinished(() => window.close())
   const engine = factory(window)
   const input = window.document.querySelector('input')!
-  for (const type of [null, 'checkbox', 'text', 'unknown', '', 'HIDDEN']) {
+  for (const type of [
+    null,
+    'checkbox',
+    'text',
+    'unknown',
+    '',
+    'HIDDEN',
+  ] as const) {
     if (type === null) {
       input.removeAttribute('type')
     } else {
       input.setAttribute('type', type)
     }
-    for (const readOnly of [false, true]) {
+    for (const readOnly of [false, true] as const) {
       input.readOnly = readOnly
       const expected = !readOnly && !['checkbox', 'hidden'].includes(input.type)
       expect(engine.match(':read-write', input)).toBe(expected)

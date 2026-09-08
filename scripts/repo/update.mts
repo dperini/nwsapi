@@ -46,7 +46,11 @@ export function updateDependencies(
   run = runTaze,
   install = installDependencies,
 ) {
-  if (!check && install === installDependencies && !process.env.npm_execpath) {
+  if (
+    !check &&
+    install === installDependencies &&
+    !process.env['npm_execpath']
+  ) {
     throw new Error('Run this command with pnpm run update.')
   }
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
@@ -79,7 +83,7 @@ function runTaze(entry: string, args: string[]) {
 
 function installDependencies() {
   // Reuse the invoking manager instead of selecting another pnpm from PATH.
-  const cli = process.env.npm_execpath
+  const cli = process.env['npm_execpath']
   if (!cli) {
     throw new Error('Run this command with pnpm run update.')
   }

@@ -28,7 +28,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     'test/repo/e2e/upstream/wpt.spec.mts',
     '.config/vitest.config.mts',
     '.config/runtime.d.ts',
-  ]) {
+  ] as const) {
     expect(files).toContain(file)
   }
   expect(
@@ -70,6 +70,8 @@ test('lint requires literals for static regexes and allows dynamic patterns', t 
   expect(staticPattern.stdout + staticPattern.stderr).toContain(
     'prefer-regex-literals',
   )
-  const dynamicPattern = run("RegExp(process.env.PATTERN, 'i').test('fixed')")
+  const dynamicPattern = run(
+    "RegExp(process.env['PATTERN'], 'i').test('fixed')",
+  )
   expect(dynamicPattern.status).toBe(0)
 })

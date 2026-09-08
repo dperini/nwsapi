@@ -1,3 +1,4 @@
+import type * as RuntimeTypes from '../../../.config/runtime.js'
 import { expect, test, vi } from 'vitest'
 import DOMSelector from '../../../src/dom-selector.js'
 
@@ -28,7 +29,7 @@ test('pending configuration is copied and applied to an injected engine', () => 
   const options = { LEGACY: true }
   DOMSelector.configure(window, options)
   options.LEGACY = false
-  DOMSelector.use(window, engine)
+  DOMSelector.use(window, engine as unknown as RuntimeTypes.NwsapiEngine)
   expect(config.LEGACY).toBe(true)
   expect(engine.configure).toHaveBeenLastCalledWith(
     { LEGACY: true, VERBOSITY: true },
@@ -39,7 +40,7 @@ test('pending configuration is copied and applied to an injected engine', () => 
 
 test('query error policy never toggles shared configuration', () => {
   const { config, engine, node, window } = fixture()
-  DOMSelector.use(window, engine)
+  DOMSelector.use(window, engine as unknown as RuntimeTypes.NwsapiEngine)
   const adapter = new DOMSelector(window)
   adapter.matches('div', node)
   engine.configure.mockClear()
@@ -55,7 +56,7 @@ test('query error policy never toggles shared configuration', () => {
 
 test('each DOM query uses the bound engine and wraps its input once', () => {
   const { document, engine, node, window } = fixture()
-  DOMSelector.use(window, engine)
+  DOMSelector.use(window, engine as unknown as RuntimeTypes.NwsapiEngine)
   const wrapperForImpl = vi.fn(
     value => (value === 'document' ? document : node) as Node,
   )
@@ -76,7 +77,7 @@ test('each DOM query uses the bound engine and wraps its input once', () => {
 
 test('clearing caches preserves engine identity and setup locks', () => {
   const { engine, node, window } = fixture()
-  DOMSelector.use(window, engine)
+  DOMSelector.use(window, engine as unknown as RuntimeTypes.NwsapiEngine)
   const adapter = new DOMSelector(window)
   adapter.matches('div', node)
   adapter.selectors = new Map([['div', { ast: undefined, branches: [] }]])

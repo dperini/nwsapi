@@ -1,9 +1,13 @@
+import type * as Jsdom from 'jsdom'
+import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as Playwright from '@playwright/test'
+import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
-const assert = require('node:assert/strict')
-import { test } from 'vitest'
-const { JSDOM } = require('jsdom')
-const factory = require('../../../src/nwsapi.js')
+import assert from 'node:assert/strict'
+import { test, type TestContext } from 'vitest'
+const { JSDOM } = require('jsdom') as typeof Jsdom
+const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
 const markup =
   '<!doctype html><body><main id="scope"><div id="a"><i id="i" class="a"><b id="b" class="b"></b></i></div><div id="c"><p id="p"></p></div><div id="d"></div></main><aside id="outside"><p></p></aside>'
 const selectors = [
@@ -32,7 +36,7 @@ const selectors = [
   'div:has(+ div):not(:has(p))',
 ]
 
-function fixture(t) {
+function fixture(t: TestContext) {
   const { window } = new JSDOM(markup)
   t.onTestFinished(() => window.close())
   return { document: window.document, nw: factory(window) }
@@ -53,17 +57,17 @@ test('relative selectors retain the anchor', t => {
     ['html:has(~ div)', []],
     ['div:has(:scope)', []],
     ['div:has(:scope p)', []],
-  ]) {
+  ] as const) {
     for (let repeat = 0; repeat < 2; repeat++) {
       assert.deepEqual(
-        nw.select(selector, document).map(e => e.id),
+        Array.from(nw.select(selector!, document)).map(e => e.id),
         expected,
         selector,
       )
-      for (const id of ['a', 'c', 'd']) {
+      for (const id of ['a', 'c', 'd'] as const) {
         assert.equal(
-          nw.match(selector, document.getElementById(id)),
-          expected.includes(id),
+          nw.match(selector!, document.getElementById(id)!),
+          (expected as readonly string[]).includes(id),
           selector + ' ' + id,
         )
       }
@@ -76,7 +80,7 @@ test('anchor restoration after success and exceptions', t => {
   const previous = document.getElementById('d')
   nw.Snapshot.anchor = previous
   assert.deepEqual(
-    nw.select('div:has(p)', document).map(e => e.id),
+    Array.from(nw.select('div:has(p)', document)).map(e => e.id),
     ['c'],
   )
   assert.equal(nw.Snapshot.anchor, previous)
@@ -84,7 +88,7 @@ test('anchor restoration after success and exceptions', t => {
     'div:has(p, :unknown)',
     'html:has(+ :unknown)',
     'div:has(, p)',
-  ]) {
+  ] as const) {
     assert.throws(
       () => nw.select(selector, document),
       { name: 'SyntaxError' },
@@ -94,7 +98,7 @@ test('anchor restoration after success and exceptions', t => {
   }
 })
 
-for (const selector of ['div:has(:has(p))', 'div:has(::before)']) {
+for (const selector of ['div:has(:has(p))', 'div:has(::before)'] as const) {
   test('reject ' + selector, t => {
     const { document, nw } = fixture(t)
     assert.throws(() => nw.select(selector, document), {
@@ -105,10 +109,10 @@ for (const selector of ['div:has(:has(p))', 'div:has(::before)']) {
 
 test(
   'Chromium agreement for document, scoped, and detached queries',
-  { skip: !process.env.NWSAPI_BROWSER },
+  { skip: !process.env['NWSAPI_BROWSER'] },
   async () => {
-    const { chromium } = require('@playwright/test')
-    const { readFileSync } = require('node:fs')
+    const { chromium } = require('@playwright/test') as typeof Playwright
+    const { readFileSync } = require('node:fs') as typeof NodeFs
     const browser = await chromium.launch({ headless: true })
     try {
       const page = await browser.newPage()
@@ -129,13 +133,15 @@ test(
         'div:has([data-text=":has(p)"])',
         'div:has(:is(:has(p)))',
         'div:has(p):has(span)',
-      ]) {
-        const result = await page.evaluate(selector => {
+      ] as const) {
+        const result = await page.evaluate((selector: string) => {
           const capture = (resolve: () => ArrayLike<Element>) => {
             try {
               return { ids: Array.from(resolve(), e => e.id) }
             } catch (error) {
-              return { error: error.name }
+              return {
+                error: error instanceof Error ? error.name : String(error),
+              }
             }
           }
           return {
@@ -146,7 +152,7 @@ test(
         assert.deepEqual(result.nwsapi, result.native, query)
       }
       for (const selector of selectors) {
-        for (const shape of ['document', 'scoped', 'detached']) {
+        for (const shape of ['document', 'scoped', 'detached'] as const) {
           const result = await page.evaluate(
             ({ selector: query, shape: contextShape }) => {
               const context =
@@ -155,11 +161,13 @@ test(
                   : contextShape === 'scoped'
                     ? document.getElementById('scope')
                     : (document
-                        .getElementById('scope')
+                        .getElementById('scope')!
                         .cloneNode(true) as Element)
               return {
-                native: Array.from(context.querySelectorAll(query), e => e.id),
-                nwsapi: NW.Dom.select(query, context).map(e => e.id),
+                native: Array.from(context!.querySelectorAll(query), e => e.id),
+                nwsapi: Array.from(NW.Dom.select(query, context!)).map(
+                  e => e.id,
+                ),
               }
             },
             { selector, shape },
