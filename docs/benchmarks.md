@@ -175,12 +175,6 @@ It includes both narrow and broad containers to exercise traversal routing.
 
 ![Form state selectors](../assets/repo/bench/forms-1.svg?v=7)
 
-## Further work
-
-See the [optimization notes](common-query-fast-paths.md) for before/after
-measurements and the [performance review](performance-review.md) for the
-remaining gaps and acceptance targets.
-
 ## Cold and warm queries
 
 The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. The engine lines are stacked. A summary below each pair compares the warm and cold times as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
@@ -203,3 +197,9 @@ node scripts/repo/gen/benchmark-charts.mts
 ```
 
 The [query chart helper](../scripts/repo/bench/query-chart.mts) handles the layout, colors, animation, and notes. Pass engine names, rows, and notes to `queryChart()`. Times use milliseconds in both input columns. The helper converts warm times to microseconds for display. It sizes the canvas from the row and note counts. The `bottomPadding` option defaults to 40 pixels. Notes can contain plain text and `{ code: 'package-name' }` parts. `wrapQueryNotes()` measures the text in Chromium and wraps it within the chart’s side padding. The benchmark chart generator redraws the saved measurements without running new timings.
+
+## Further work
+
+See the [optimization notes](common-query-fast-paths.md) for before/after
+measurements and the [performance review](performance-review.md) for the
+remaining gaps and acceptance targets.
