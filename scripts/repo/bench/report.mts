@@ -15,6 +15,7 @@ import {
 } from '../lib/paths.mts'
 import { agrees, splitCharts } from './charts.mts'
 import { writeBenchmarkCharts } from './chart-report.mts'
+import { sample, timingEngine } from './timing.mts'
 import type { Measurement } from './charts.mts'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
@@ -142,6 +143,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
         })
         const samples = engines.map(() => [] as number[])
         const sampleIterations = engines.map(() => [] as number[])
+        const mitataSamples = engines.map(() => [] as number[][])
         for (let warmup = 0; warmup < 20; ++warmup) {
           engines.forEach((engine, index) => {
             if (!errors[index]) {
@@ -156,20 +158,16 @@ for (const [fixture, categories] of Object.entries(cases)) {
             if (errors[index]) {
               continue
             }
-            const start = process.hrtime.bigint()
-            let calls = 0
-            let elapsed: number
-            // Give sub-microsecond paths a measurable sample too. Keep every
-            // sample, including scheduling and GC pauses, for all engines.
-            do {
-              for (let count = 0; count < iterations; ++count) {
+            const result = await sample(
+              () => {
                 consumed += engines[index].query(selector).length
-              }
-              calls += iterations
-              elapsed = Number(process.hrtime.bigint() - start) / 1e6
-            } while (elapsed < minRoundMs)
-            samples[index].push(elapsed / calls)
-            sampleIterations[index].push(calls)
+              },
+              iterations,
+              minRoundMs,
+            )
+            samples[index].push(result.milliseconds)
+            sampleIterations[index].push(result.calls)
+            mitataSamples[index].push(result.samples)
           }
         }
         // Verify warmed routing and snapshot paths as well as the cold path.
@@ -184,8 +182,9 @@ for (const [fixture, categories] of Object.entries(cases)) {
           errors,
           samples,
           sampleIterations,
-          milliseconds: samples.map(sample => {
-            const sorted = sample.toSorted((left, right) => left - right)
+          mitataSamples,
+          milliseconds: samples.map(measurements => {
+            const sorted = measurements.toSorted((left, right) => left - right)
             return sorted.length ? sorted[Math.floor(sorted.length / 2)] : null
           }),
         })
@@ -206,6 +205,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
     rounds,
     iterations,
     minRoundMs,
+    timingEngine,
     fixtureSha256: crypto.createHash('sha256').update(html).digest('hex'),
     fixture,
     engines: engines.map(({ query: _query, ...engine }) => engine),

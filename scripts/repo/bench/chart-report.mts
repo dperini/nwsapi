@@ -38,7 +38,8 @@ export function writeBenchmarkCharts(
         titles[group.rows[0].category] ?? group.name,
         metadata.engines.map(engine => engine.name),
         group.rows,
-        `${metadata.fixture}; ${metadata.node}; jsdom ${metadata.jsdom}; ${metadata.rounds} rounds; ${metadata.timestamp.slice(0, 10)}; ${metadata.candidateCommit.slice(0, 8)}`,
+        `${metadata.fixture}; ${metadata.node}; jsdom ${metadata.jsdom}`,
+        `${metadata.timestamp.slice(0, 10)} · ${metadata.candidateCommit.slice(0, 8)}`,
       ),
     )
   }

@@ -89,6 +89,11 @@ using their document positions to compare across hosts. Install Chromium with
 Unsupported selectors and incorrect results have no timing bar. A candidate
 mismatch also makes the command fail.
 
+The runners use Mitata to collect timing samples. Cold samples receive fresh
+state before each invocation, with setup outside the timer. Warm samples reuse
+the document. New result files record the Mitata version; the saved reports
+below predate this migration.
+
 The runner warms each query, rotates engine order between rounds, and reports
 the median time per query. Lower is better. These measurements cover warm
 queries, not browser performance, cold starts, or memory use. Results depend
@@ -100,7 +105,8 @@ Use `--rounds 3 --iterations 10 --min-round-ms 0 --output /tmp/nwsapi-bench` for
 The recorded report uses nine rounds, at least 100 calls per engine per round,
 and a 50 ms minimum duration per sample. Faster paths repeat 100-call batches
 until that duration is reached; raw `sampleIterations` records every count.
-Use `--min-round-ms 0` for fixed-count measurements. No timing samples are
+The current Mitata runner records individual batch samples in `mitataSamples`.
+Use `--min-round-ms 0` to remove the minimum sample duration. No timing samples are
 discarded. Correctness is checked before timing and again after warm execution.
 
 </details>
@@ -129,45 +135,45 @@ garbage collection through the repository launcher.
 Find controls inside repeated cards using classes, attributes, and relationships.
 This generated fixture models component tests; it is not a production trace.
 
-![Component queries](../assets/repo/bench/components-1.svg?v=2)
+![Component queries](../assets/repo/bench/components-1.svg?v=3)
 
 ## Documentation queries
 
 Find links, definition entries, and table cells in the existing specification-page fixture.
 These queries exercise descendant and ancestor filtering on a larger document.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=2)
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=3)
 
 ## Utility-class queries
 
 Find navigation links and card content in the existing utility-class fixture.
 It includes both narrow and broad containers to exercise traversal routing.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=2)
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=3)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=2)
+![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=3)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=2)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=3)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg?v=2)
+![Relationships](../assets/repo/bench/relationships-1.svg?v=3)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg?v=2)
+![Position selectors](../assets/repo/bench/positional-1.svg?v=3)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg?v=2)
+![Logical selectors](../assets/repo/bench/logical-1.svg?v=3)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg?v=2)
+![Form state selectors](../assets/repo/bench/forms-1.svg?v=3)
 
 ## Further work
 

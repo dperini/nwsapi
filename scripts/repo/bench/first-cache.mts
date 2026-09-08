@@ -6,6 +6,7 @@ import path from 'node:path'
 import { JSDOM } from 'jsdom'
 import factory from '../../../src/nwsapi.js'
 import { components } from './documents.mts'
+import { sample, timingEngine } from './timing.mts'
 
 const [original, coldFix, outputArgument] = process.argv.slice(2)
 if (!original || !coldFix) {
@@ -52,24 +53,14 @@ try {
       }
     })
     const samples: number[][] = [[], [], []]
-    const until = performance.now() + 150
-    do {
-      for (const query of queries) {
-        for (let i = 0; i < 100; ++i) {
-          query()
-        }
-      }
-    } while (performance.now() < until)
+    for (const query of queries) {
+      await sample(query, iterations, 150)
+    }
     for (let round = 0; round < rounds; ++round) {
       for (let offset = 0; offset < queries.length; ++offset) {
         const index = (round + offset) % queries.length
-        const start = process.hrtime.bigint()
-        for (let i = 0; i < iterations; ++i) {
-          queries[index]()
-        }
-        samples[index].push(
-          Number(process.hrtime.bigint() - start) / iterations / 1e6,
-        )
+        const result = await sample(queries[index], iterations)
+        samples[index].push(result.milliseconds)
       }
     }
     const milliseconds = samples.map(
@@ -101,6 +92,7 @@ writeFileSync(
         jsdom: require('jsdom/package.json').version,
         iterations,
         rounds,
+        timingEngine,
         warmupMilliseconds: 150,
         consumed,
         method:

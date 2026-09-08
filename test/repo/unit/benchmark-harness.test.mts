@@ -1,6 +1,10 @@
 import { expect, test } from 'vitest'
 import { replaceCacheLimit } from '../../../scripts/repo/bench/cache-source.mts'
-import { median, measure } from '../../../scripts/repo/bench/timing.mts'
+import {
+  median,
+  measure,
+  sampleFresh,
+} from '../../../scripts/repo/bench/timing.mts'
 import { world } from '../../../scripts/repo/bench/world.mts'
 import { cases } from '../../../scripts/repo/bench/cases.mts'
 import { DOCUMENTS } from '../../../scripts/repo/bench/documents.mts'
@@ -40,12 +44,12 @@ test('cache sweep replaces exactly one assignment and rejects stale anchors', ()
   ).toBe('var note = "CACHE_LIMIT = 9,"; var CACHE_LIMIT=8;')
 })
 
-test('timing retains samples and invokes every runner in each round', () => {
+test('timing retains samples and invokes every runner in each round', async () => {
   const samples = [3, 1, 2]
   expect(median(samples)).toBe(2)
   expect(samples).toEqual([3, 1, 2])
   let calls = 0
-  const result = measure(
+  const result = await measure(
     [
       () => {
         calls++
@@ -57,7 +61,7 @@ test('timing retains samples and invokes every runner in each round', () => {
     3,
     2,
   )
-  expect(calls).toBe(18)
+  expect(calls).toBeGreaterThanOrEqual(12)
   expect(result).toHaveLength(2)
   expect(result.every(value => value >= 0)).toBe(true)
 })
@@ -75,4 +79,19 @@ test('benchmark worlds keep independent document state', () => {
     first.dom.window.close()
     second.dom.window.close()
   }
+})
+
+// A cold query must never receive a document used by a warmup invocation.
+test('Mitata prepares fresh state before every cold invocation', async () => {
+  const seen = new Set<object>()
+  const result = await sampleFresh(
+    () => ({}),
+    state => {
+      expect(seen.has(state)).toBe(false)
+      seen.add(state)
+    },
+  )
+  expect(seen.size).toBeGreaterThanOrEqual(2)
+  expect(Number.isFinite(result)).toBe(true)
+  expect(result).toBeGreaterThanOrEqual(0)
 })

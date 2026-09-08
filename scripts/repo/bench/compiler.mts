@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom'
 import { writeFileSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { createHash } from 'node:crypto'
+import { sample, timingEngine } from './timing.mts'
 const [baseline, candidate, output] = process.argv.slice(2)
 if (!baseline || !candidate || !output) {
   throw new Error(
@@ -29,14 +30,17 @@ for (const pattern of patterns) {
   const samples = [[], []]
   for (let r = 0; r < 9; r++) {
     for (let k = 0; k < 2; k++) {
-      const e = (r + k) % 2,
-        start = process.hrtime.bigint()
-      for (let i = 0; i < 500; i++) {
+      const e = (r + k) % 2
+      let sequence = 0
+      const result = await sample(() => {
         consumed += engines[e]
-          .compile(pattern + `:not(.engine${e}round${r}item${i})`, true)
+          .compile(
+            pattern + `:not(.engine${e}round${r}item${sequence++})`,
+            true,
+          )
           .toString().length
-      }
-      samples[e].push(Number(process.hrtime.bigint() - start) / 500 / 1e6)
+      }, 500)
+      samples[e].push(result.milliseconds)
     }
   }
   const ms = samples.map(s => s.toSorted((a, b) => a - b)[4])
@@ -52,6 +56,7 @@ writeFileSync(
       sha256: [baseline, candidate].map(file =>
         createHash('sha256').update(readFileSync(file)).digest('hex'),
       ),
+      timingEngine,
       rounds: 9,
       iterations: 500,
       rows,
