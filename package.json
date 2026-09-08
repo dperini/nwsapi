@@ -2,12 +2,6 @@
   "name": "nwsapi",
   "version": "2.3.0-prerelease",
   "description": "Fast CSS Selectors API Engine",
-  "homepage": "https://javascript.nwbox.com/nwsapi/",
-  "main": "./src/nwsapi",
-  "files": [
-    "dist/nwsapi.min.js",
-    "src/**/*.js"
-  ],
   "keywords": [
     "css",
     "css3",
@@ -15,12 +9,10 @@
     "matcher",
     "selector"
   ],
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
-    }
-  ],
+  "homepage": "https://javascript.nwbox.com/nwsapi/",
+  "bugs": {
+    "url": "https://github.com/dperini/nwsapi/issues"
+  },
   "license": "MIT",
   "author": {
     "name": "Diego Perini",
@@ -34,62 +26,15 @@
       "web": "https://www.iport.it/"
     }
   ],
-  "bugs": {
-    "url": "https://github.com/dperini/nwsapi/issues"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/dperini/nwsapi.git"
   },
-  "devDependencies": {
-    "@playwright/test": "catalog:",
-    "@types/css-tree": "catalog:",
-    "@types/jsdom": "catalog:",
-    "@types/node": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "acorn": "catalog:",
-    "ast-v8-to-istanbul": "catalog:",
-    "istanbul-lib-coverage": "catalog:",
-    "istanbul-lib-report": "catalog:",
-    "istanbul-reports": "catalog:",
-    "jsdom": "catalog:",
-    "mitata": "catalog:",
-    "oxfmt": "catalog:",
-    "oxlint": "catalog:",
-    "oxlint-tsgolint": "catalog:",
-    "rolldown": "catalog:",
-    "taze": "catalog:",
-    "svgo": "catalog:",
-    "run-local-ci": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:",
-    "yaml": "catalog:"
-  },
-  "devEngines": {
-    "packageManager": [
-      {
-        "name": "pnpm",
-        "version": "^11.25.0 || >=12.3.4",
-        "onFail": "error"
-      }
-    ]
-  },
-  "allowScripts": {
-    "fsevents": false
-  },
-  "overrides": {
-    "vite": "$vite",
-    "rolldown": "$rolldown"
-  },
-  "peerDependencies": {
-    "css-tree": "^3.2.1"
-  },
-  "peerDependenciesMeta": {
-    "css-tree": {
-      "optional": true
-    }
-  },
+  "files": [
+    "dist/nwsapi.min.js",
+    "src/**/*.js"
+  ],
+  "main": "./src/nwsapi",
   "scripts": {
     "bench": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/report.mts",
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
@@ -132,6 +77,63 @@
     "test:attributes:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e/attribute-strings-browser.test.mts",
     "test:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e && pnpm run test:media",
     "test:media": "node scripts/repo/run.mts scripts/repo/build.mts && node scripts/repo/run.mts node_modules/@playwright/test/cli.js test --config .config/state-pseudos.config.mts",
-    "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts"
-  }
+    "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts",
+    "compile": "node bin/nwsapi-compile.mjs",
+    "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts"
+  },
+  "devDependencies": {
+    "@playwright/test": "catalog:",
+    "@types/css-tree": "catalog:",
+    "@types/jsdom": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "acorn": "catalog:",
+    "ast-v8-to-istanbul": "catalog:",
+    "istanbul-lib-coverage": "catalog:",
+    "istanbul-lib-report": "catalog:",
+    "istanbul-reports": "catalog:",
+    "jsdom": "catalog:",
+    "mitata": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "rolldown": "catalog:",
+    "run-local-ci": "catalog:",
+    "svgo": "catalog:",
+    "taze": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "yaml": "catalog:"
+  },
+  "peerDependencies": {
+    "css-tree": "^3.2.1"
+  },
+  "peerDependenciesMeta": {
+    "css-tree": {
+      "optional": true
+    }
+  },
+  "overrides": {
+    "rolldown": "$rolldown",
+    "vite": "$vite"
+  },
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "^11.25.0 || >=12.3.4",
+        "onFail": "error"
+      }
+    ]
+  },
+  "allowScripts": {
+    "fsevents": false
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
+    }
+  ]
 }

@@ -45,6 +45,11 @@ test(
             'span.missing',
             'g',
             'section > :not(:nth-child(2))',
+            '[id], .missing',
+            '#third, #first',
+            'section:has(> div) > div > span',
+            ':is(g,span)',
+            '[id=second]',
           ]) {
             const result = await page.evaluate(
               query => ({

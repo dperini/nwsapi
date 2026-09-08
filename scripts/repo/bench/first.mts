@@ -31,6 +31,15 @@ try {
     'button.primary',
     'input.input',
     '.missing',
+    '.card > button.primary',
+    '[data-testid]',
+    'div > button',
+    ':where(.card) > button',
+    'div:nth-child(2n)',
+    'input, button',
+    ':is(button, input)',
+    'button:not(.missing)',
+    '.absent > button',
   ]) {
     const queries = [
       () => before.first(selector, doc),

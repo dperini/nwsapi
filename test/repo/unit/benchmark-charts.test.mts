@@ -63,7 +63,9 @@ describe('benchmark charts', () => {
     expect(document.indexOf('How measurements work')).toBeLessThan(
       document.indexOf('Other measurements'),
     )
-    expect(document.match(/^## /gm)).toHaveLength(9)
+    expect(document).toContain('## First matches')
+    expect(document).toContain('## All-results comparison')
+    expect(document).toContain('## Component queries')
     expect(document).not.toContain('2.0.0')
     expect(document).toContain('2.3.0-prerelease')
     expect(document).toContain('@asamuzakjp/dom-selector')

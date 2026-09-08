@@ -497,6 +497,7 @@
         selectLambdas.clear()
         matchResolvers.clear()
         selectResolvers.clear()
+        firstResolvers.clear()
         if (!Config.LEGACY && detectLegacy(doc)) {
           Config.LEGACY = true
         }
@@ -2076,6 +2077,7 @@
         selectLambdas.clear()
         matchResolvers.clear()
         selectResolvers.clear()
+        firstResolvers.clear()
       }
       useLegacy(Config.LEGACY)
       setIdentifierSyntax()
@@ -3039,6 +3041,17 @@
                         '}'
                       break
                     }
+                    if (mode === false && !Config.LEGACY && !expr) {
+                      source =
+                        'n=1;o=e;while((o=o.' +
+                        (type ? 'next' : 'previous') +
+                        'ElementSibling))++n;if((' +
+                        test +
+                        ')){' +
+                        source +
+                        '}'
+                      break
+                    }
                     expr = expr ? 'OfType' : 'Element'
                     type = type ? 'true' : 'false'
                     source =
@@ -3934,6 +3947,10 @@
         }
       }
 
+      if (!Config.LEGACY && typeof selectors == 'string' && selectors) {
+        return firstCompiled(selectors, context, callback)
+      }
+
       return (
         select(
           selectors,
@@ -3946,6 +3963,69 @@
             : firstMatch,
         )[0] || null
       )
+    },
+    // First-match plans validate every group before examining candidates.
+    // They retain compiled code and tokens, never live DOM collections.
+    firstCompiled = function (selectors, context, callback) {
+      var plan,
+        i,
+        token,
+        name,
+        api,
+        collection,
+        result,
+        element = null
+      context || (context = doc)
+      lastContext !== context && (lastContext = switchContext(context))
+      plan = firstResolvers.get(selectors)
+      if (!plan) {
+        result = collect(parse(selectors, true), context, null, false, true)
+        plan = { factory: result.factory, nodeset: result.nodeset }
+        firstResolvers.set(selectors, plan)
+      }
+      for (i = 0; i < plan.nodeset.length; ++i) {
+        token = plan.nodeset[i]
+        name = token.slice(1)
+        api = method[token[0]]
+        collection =
+          !Config.LEGACY &&
+          (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
+          api in context
+            ? context[api](name)
+            : fetch[token[0]](name, context)
+        result = collection[0]
+        if (result && !plan.factory[i](result, null, context, false)) {
+          var j = 1,
+            length
+          // Most first matches occur near the start. Defer a live collection's
+          // length until a short bounded probe has failed.
+          for (; j < 8; ++j) {
+            result = collection[j]
+            if (!result || plan.factory[i](result, null, context, false)) {
+              break
+            }
+          }
+          if (j === 8) {
+            result = null
+            for (length = collection.length; j < length; ++j) {
+              if (plan.factory[i](collection[j], null, context, false)) {
+                result = collection[j]
+                break
+              }
+            }
+          }
+        }
+        if (
+          result &&
+          (!element || result.compareDocumentPosition(element) & 4)
+        ) {
+          element = result
+        }
+      }
+      if (element && typeof callback == 'function') {
+        callback(element)
+      }
+      return element
     },
     // equivalent of w3c 'querySelectorAll' method
     DESCENT_PROBE = 128,
@@ -4293,7 +4373,7 @@
       )
     },
     // prepare factory resolvers and closure collections
-    collect = function (selectors, context, callback, relative?) {
+    collect = function (selectors, context, callback, relative?, firstOnly?) {
       var i,
         l,
         seen = {},
@@ -4321,6 +4401,7 @@
                 selectors[i],
               )
             if (
+              !firstOnly &&
               type &&
               /^[.#*\w\t\n\f\r >+~-]*$/.test(selectors[i].slice(0, type.index))
             ) {
@@ -4356,7 +4437,11 @@
           token[1] == '.' && /[\t\n\f\r ]/.test(token[2])
             ? () => []
             : compat[token[1]](context, token[2])
-        factory[i] = compile(optimized[i], true, null, relative)
+        factory[i] = compile(optimized[i], !firstOnly, null, relative)
+
+        if (firstOnly) {
+          continue
+        }
 
         if (factory[i]) {
           factory[i](htmlset[i](), callback, context, results)
@@ -4596,6 +4681,7 @@
     // cached resolvers
     matchResolvers = createCache(),
     selectResolvers = createCache(),
+    firstResolvers = createCache(),
     // passed to resolvers
     Snapshot: {
       mayMatch: typeof mayMatch
