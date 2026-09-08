@@ -14,7 +14,7 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 Direct library comparisons on native browser DOMs, without jsdom.
 
-[Performance →](docs/benchmarks.md) [Memory →](docs/benchmarks.md#memory-footprint) [File size →](docs/benchmarks.md#browser-file-size) [Inside the compiler →](docs/performance.md)
+[Performance](docs/benchmarks.md) · [Memory](docs/benchmarks.md#memory-footprint) · [File size](docs/benchmarks.md#browser-file-size) · [Inside the compiler](docs/performance.md)
 
 ## Install
 
