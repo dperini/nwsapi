@@ -4,7 +4,6 @@
  */
 
 ;(function (D) {
-  // TODO: all of this needs tests
   var match = D.match,
     select = D.select,
     root = document.documentElement,
@@ -36,11 +35,10 @@
         continue
       }
       if (isIndex) {
-        ++i
-        if (i == expr) {
+        if (i++ == expr) {
           return element
         }
-      } else if (match(element, expr)) {
+      } else if (match(expr, element)) {
         return element
       }
     }
@@ -93,22 +91,22 @@
       descendants,
       index,
       descendant
-    if (expr === null) {
+    if (expr == null) {
       element = element.firstChild
       while (element && element.nodeType != 1) {
-        element = element[nextElement]
+        element = element.nextSibling
       }
       return element
     }
-    if ((!isIndex && match(element, expr)) || (isIndex && expr === 0)) {
+    if ((!isIndex && match(expr, element)) || (isIndex && expr === 0)) {
       return element
     }
     descendants = select('*', element)
     if (isIndex) {
-      return descendants[expr] || null
+      return descendants[expr - 1] || null
     }
     index = 0
-    while ((descendant = descendants[index]) && !match(descendant, expr)) {
+    while ((descendant = descendants[index]) && !match(expr, descendant)) {
       ++index
     }
     return descendant || null

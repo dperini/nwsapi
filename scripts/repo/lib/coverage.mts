@@ -45,6 +45,15 @@ export function combineCoverage(wptData, nodeData, root) {
   if (!node.files().includes(adapter)) {
     throw new Error('Missing Node adapter coverage')
   }
+  for (const name of ['jquery', 'traversal']) {
+    const file = path.join(root, `src/modules/nwsapi-${name}.js`)
+    if (
+      !node.files().includes(file) ||
+      node.fileCoverageFor(file).toSummary().statements.covered === 0
+    ) {
+      throw new Error(`Missing Node ${name} module execution coverage`)
+    }
+  }
   const combined = libCoverage.createCoverageMap({})
   combined.addFileCoverage(wpt.fileCoverageFor(engine))
   combined.merge(node)

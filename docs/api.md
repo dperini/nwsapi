@@ -132,11 +132,15 @@ Load `src/modules/nwsapi-traversal.js` after the core to add these methods to `N
 
 | Method | Result |
 | --- | --- |
-| [`down(element, expr)`](../src/modules/nwsapi-traversal.mts#L117) | Finds a matching descendant or indexed element. The starting element can match. |
-| [`next(element, expr)`](../src/modules/nwsapi-traversal.mts#L118) | Finds a following sibling by selector or index. |
-| [`previous(element, expr)`](../src/modules/nwsapi-traversal.mts#L119) | Finds a preceding sibling by selector or index. |
-| [`up(element, expr)`](../src/modules/nwsapi-traversal.mts#L116) | Finds an ancestor by selector or index. |
+| [`down(element, expr)`](../src/modules/nwsapi-traversal.mts#L115) | Finds a matching descendant or indexed element. The starting element can match. |
+| [`next(element, expr)`](../src/modules/nwsapi-traversal.mts#L116) | Finds a following sibling by selector or index. |
+| [`previous(element, expr)`](../src/modules/nwsapi-traversal.mts#L117) | Finds a preceding sibling by selector or index. |
+| [`up(element, expr)`](../src/modules/nwsapi-traversal.mts#L114) | Finds an ancestor by selector or index. |
+
+Traversal sibling and ancestor indexes are zero-based: omitted or `0` returns the nearest element. `down()` without an argument (or with `null`) returns the first element child; `down(element, 0)` returns the starting element and positive indexes walk descendants in document order, starting at `1`. Selector arguments may match the starting element for `down()`. Missing matches return `null`.
 
 The [jQuery selector extension](../src/modules/nwsapi-jquery.mts) registers extra selector patterns. It does not add query methods.
+
+This is an extension example, not full jQuery compatibility. `:even`, `:odd`, `:eq(n)`, `:lt(n)`, and `:gt(n)` filter the matched candidates within each compiled selector branch; `match()` treats its element as a singleton set. The original `:first`, `:last`, and `:nth(n)` extensions use document-wide indexes among elements of the same tag, excluding the document root. Integer arguments are validated; negative indexes are not translated from the end. `:visible` and `:hidden` use offset dimensions. Core Selectors Level 4 semantics handle `:has()`. These extensions do not emulate jQuery set operations across selector lists or complex positional chains.
 
 </details>
