@@ -31,7 +31,7 @@ Optional module tests cover modern and legacy traversal, default and indexed nav
 
 ### Comparing the optional extension with jQuery
 
-Run the direct comparison with the pinned, development-only jQuery 4.0.0 reference:
+Run the direct comparison with the pinned, development-only jQuery 4.0.0 slim reference, loaded from the npm package through `jquery/factory-slim`:
 
 ```sh
 pnpm run test:integration test/repo/integration/jquery-reference.test.mts

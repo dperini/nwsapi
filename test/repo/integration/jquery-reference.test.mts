@@ -8,7 +8,7 @@ import { test } from 'vitest'
 const require = createRequire(import.meta.url)
 const factory = require('../../../src/nwsapi.js')
 // Pin the current major release as the compatibility reference.
-const { jQueryFactory: jquery } = require('jquery/factory')
+const { jQueryFactory: jquery } = require('jquery/factory-slim')
 
 function fixture(t) {
   const { window } = new JSDOM(
@@ -23,7 +23,7 @@ function fixture(t) {
     { filename: file },
   )
   const $ = jquery(window)
-  assert.equal($.fn.jquery, '4.0.0')
+  assert.equal($.fn.jquery, '4.0.0+slim')
   const main = window.document.getElementsByTagName('main')[0]
   const ids = nodes => Array.from(nodes, (node: Element) => node.id)
   return {
