@@ -1,5 +1,9 @@
+import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
 import { escapeText } from './charts.mts'
+
+const noteFont = '16px Arial,Helvetica,sans-serif'
+const codeFont = '18px Consolas,Menlo,monospace'
 
 export interface QueryChartOptions {
   names: [string, string]
@@ -10,6 +14,49 @@ export interface QueryChartOptions {
   }>
   notes: Array<string | Array<string | { code: string }>>
   bottomPadding?: number
+}
+
+// Measure words in the same fonts as the SVG. Keep package names in code style.
+export async function wrapQueryNotes(notes: QueryChartOptions['notes']) {
+  const browser = await chromium.launch()
+  try {
+    const page = await browser.newPage()
+    return await page.evaluate(
+      ({ notes: entries, noteFont: proseFont, codeFont: monoFont }) => {
+        const context = document.createElement('canvas').getContext('2d')!
+        const lines: Array<Array<string | { code: string }>> = [[]]
+        let width = 0
+        for (const note of entries) {
+          for (const part of typeof note === 'string' ? [note] : note) {
+            const code = typeof part !== 'string'
+            const words = (code ? part.code : part).match(/\S+/g) ?? []
+            for (const word of words) {
+              context.font = code ? monoFont : proseFont
+              const wordWidth = context.measureText(word).width
+              context.font = proseFont
+              const spaceWidth = context.measureText(' ').width
+              // The 1100px canvas has 48px padding on both sides.
+              if (width && width + spaceWidth + wordWidth > 1004) {
+                lines.push([])
+                width = 0
+              }
+              const line = lines[lines.length - 1]
+              if (width) {
+                line.push(' ')
+                width += spaceWidth
+              }
+              line.push(code ? { code: word } : word)
+              width += wordWidth
+            }
+          }
+        }
+        return lines
+      },
+      { notes, noteFont, codeFont },
+    )
+  } finally {
+    await browser.close()
+  }
 }
 
 // Each engine uses the same logarithmic scale. Endpoints show warm and cold times.
@@ -111,8 +158,8 @@ export function queryChart({
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d30"/><stop offset="1" stop-color="#0b1220"/></linearGradient>${gradients}</defs>
 <style>
 text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
-.muted{fill:#aabbd0;font-size:16px}
-.code{font-family:Consolas,Menlo,monospace;font-size:18px;fill:#dce6f1}
+.muted{fill:#aabbd0;font:${noteFont}}
+.code{font:${codeFont};fill:#dce6f1}
 .comparison{font-size:14px;font-variant-numeric:tabular-nums}
 .tick{fill:#aabbd0;font-size:12px}
 .time{fill:#aabbd0;font-size:13px;font-variant-numeric:tabular-nums}
@@ -122,9 +169,8 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 </style>
 <rect width="1100" height="${height}" rx="24" fill="url(#bg)"/>
 <rect x=".5" y=".5" width="1099" height="${height - 1}" rx="24" fill="none" stroke="#2b3a50"/>
-<text x="48" y="65" class="muted">Cold / warm</text>
-<text x="48" y="89" class="muted">Further left is faster.</text>
-<text x="48" y="132" class="muted">Logarithmic time scale</text>
+<text x="48" y="65" class="muted">Logarithmic time scale</text>
+<text x="48" y="89" class="muted">Further left is faster</text>
 ${axes}
 ${lines}
 <path d="M48 ${notesTop - 38}H1052" stroke="#304159"/>

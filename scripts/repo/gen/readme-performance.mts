@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { queryChart } from '../bench/query-chart.mts'
+import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)
 const data = JSON.parse(
@@ -28,7 +28,7 @@ writeFileSync(
   queryChart({
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,
-    notes: [
+    notes: await wrapQueryNotes([
       'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
       'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
       `Cold results vary. Warm speedups were ${range}. Both engines use the same logarithmic scale.`,
@@ -38,13 +38,13 @@ writeFileSync(
         { code: '@asamuzakjp/dom-selector' },
         ` ${data.metadata.competitor} · `,
         { code: 'jsdom' },
-        ` ${data.metadata.jsdom}`,
+        ` ${data.metadata.jsdom} ·`,
       ],
       [
         'Direct engine API vs ',
         { code: 'jsdom' },
         ` querySelector · Node.js ${data.metadata.node.replace(/^v/, '')} · ${data.metadata.cpu}`,
       ],
-    ],
+    ]),
   }),
 )
