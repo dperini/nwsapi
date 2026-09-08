@@ -1,3 +1,6 @@
+export const queryStateNote =
+  'Cold queries run a selector first on a fresh document. Warm queries repeat it.'
+
 export const noteFont = '16px Arial,Helvetica,sans-serif'
 export const codeFont = '18px Consolas,Menlo,monospace'
 export const noteCodeFont = '16px Consolas,Menlo,monospace'

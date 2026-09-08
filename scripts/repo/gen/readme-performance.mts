@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
+import { queryStateNote } from '../bench/chart-theme.mts'
 import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)
@@ -33,7 +34,7 @@ writeFileSync(
     notes: await wrapQueryNotes(
       [
         'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
-        'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
+        queryStateNote,
         `Cold speedups were ${coldRange}. Warm speedups were ${range}.`,
         [
           { code: 'nwsapi' },
