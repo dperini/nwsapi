@@ -18,6 +18,42 @@
 ;(function Export(global: { NW?: { Dom?: unknown } }, factory) {
   'use strict'
 
+  // Keep observer callbacks outside an engine's closure. Weak ownership lets
+  // an engine and its snapshots disappear while the document stays alive.
+  var collectionFinalizer
+  Object.defineProperty(factory, '_observeCollections', {
+    value: function (root, view, state) {
+      var reference = new WeakRef(state)
+      var observer = new view.MutationObserver(function (_records, current) {
+        var snapshot = reference.deref()
+        if (snapshot) {
+          snapshot.copies = new WeakMap()
+        } else {
+          current.disconnect()
+        }
+      })
+      if (typeof FinalizationRegistry == 'function') {
+        collectionFinalizer ||
+          (collectionFinalizer = new FinalizationRegistry<
+            WeakRef<MutationObserver>
+          >(function (reference) {
+            var observer = reference.deref()
+            if (observer) {
+              observer.disconnect()
+            }
+          }))
+        collectionFinalizer.register(state, new WeakRef(observer))
+      }
+      observer.observe(root, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      })
+      return observer
+    },
+  })
+
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory
     Object.defineProperty(module.exports, 'DOMSelector', {
@@ -908,11 +944,88 @@
       }
       return nodes
     },
+    collectionRoots = null,
+    collectionStates = null,
+    // Cache candidate collection snapshots, never selector answers. Native
+    // collections are expensive to copy through host index getters. A fresh
+    // array copy protects the cached candidates from callers and callbacks.
+    // takeRecords() invalidates synchronously, before the observer callback.
+    collectionSnapshot = function (nodes, context, length?) {
+      var state, root, view, cached, i, result
+      if (collectionStates && (state = collectionStates.get(nodes))) {
+        if (state.observer.takeRecords().length) {
+          state.copies = createWeakMap()
+        }
+        cached = state.copies.get(nodes)
+        if (cached && state.document === (context.ownerDocument || context)) {
+          return cached
+        }
+      }
+      length === undefined && (length = nodes.length)
+      if (
+        length < 16 ||
+        Config.LEGACY ||
+        typeof WeakRef != 'function' ||
+        !context.getRootNode
+      ) {
+        return nodes
+      }
+      view = (context.ownerDocument || context).defaultView
+      if (
+        !view ||
+        !view.MutationObserver ||
+        !view.HTMLCollection ||
+        !(nodes instanceof view.HTMLCollection)
+      ) {
+        return nodes
+      }
+      root = context.getRootNode()
+      collectionRoots || (collectionRoots = createWeakMap())
+      if (!collectionRoots) {
+        return nodes
+      }
+      state = collectionRoots.get(root)
+      if (!state) {
+        state = {
+          copies: createWeakMap(),
+          observer: null,
+          document: context.ownerDocument || context,
+        }
+        state.observer = Factory['_observeCollections'](root, view, state)
+        collectionRoots.set(root, state)
+      } else if (
+        state.observer.takeRecords().length ||
+        state.document !== (context.ownerDocument || context)
+      ) {
+        state.copies = createWeakMap()
+        state.document = context.ownerDocument || context
+      }
+      collectionStates || (collectionStates = createWeakMap())
+      collectionStates.set(nodes, state)
+      // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
+      result = new Array(length)
+      for (i = 0; i < length; ++i) {
+        result[i] = nodes[i]
+      }
+      state.copies.set(nodes, result)
+      return result
+    },
+    collectionCopy = function (nodes, context) {
+      var snapshot = Config.LEGACY ? nodes : collectionSnapshot(nodes, context)
+      if (snapshot !== nodes) {
+        return snapshot.slice()
+      }
+      var length = nodes.length,
+        i,
+        // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
+        result = new Array(length)
+      for (i = 0; i < length; ++i) {
+        result[i] = nodes[i]
+      }
+      return result
+    },
     byTag = function (tag, context) {
       var e,
-        i,
-        l,
-        result,
         nodes,
         api = method['*']
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
@@ -921,15 +1034,7 @@
         if (Config.LEGACY) {
           return elementsOf(sliceCall(nodes))
         }
-        // Native tag collections are dense. Copy each entry once, avoiding
-        // slice's separate presence check for every host-backed index.
-        l = nodes.length
-        // oxlint-disable-next-line unicorn/no-new-array -- dense host collection copy avoids Array.from callback/iterator overhead
-        result = new Array(l)
-        for (i = 0; i < l; ++i) {
-          result[i] = nodes[i]
-        }
-        return result
+        return collectionCopy(nodes, context)
       } else if (Config.LEGACY) {
         // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
         // traversal, so the children are walked by hand
@@ -980,8 +1085,10 @@
         reCls
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        nodes = sliceCall(context[api](cls))
-        return Config.LEGACY ? elementsOf(nodes) : nodes
+        nodes = context[api](cls)
+        return Config.LEGACY
+          ? elementsOf(sliceCall(nodes))
+          : collectionCopy(nodes, context)
       } else if (Config.LEGACY) {
         // A host from before this lookup existed. Every element under the
         // context is asked for its class instead, which is what the engine
@@ -2598,6 +2705,80 @@
         N_VARS = nodeVars
       }
     },
+    // Check :has() arguments once at compilation. Attribute text and escaped
+    // punctuation are data. Invalid items inside forgiving lists are removed
+    // individually, so :has(:is(:has(x), p)) still means :has(:is(p)).
+    prepareHas = function (text) {
+      var i = 0,
+        quote = 0,
+        bracket = 0,
+        code,
+        logical,
+        items,
+        kept,
+        item,
+        j,
+        output = '',
+        start = 0
+      for (; i < text.length; ++i) {
+        code = text.charCodeAt(i)
+        if (code == 92 /* '\\' */) {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (code == quote) {
+            quote = 0
+          }
+          continue
+        }
+        if (code == 34 /* '"' */ || code == 39 /* "'" */) {
+          quote = code
+          continue
+        }
+        if (code == 91 /* '[' */) {
+          ++bracket
+          continue
+        }
+        if (code == 93 /* ']' */) {
+          --bracket
+          continue
+        }
+        if (bracket || code != 58 /* ':' */) {
+          continue
+        }
+        if (
+          /^:(?:has\(|:|(?:before|after|first-line|first-letter)(?![-\w]))/i.test(
+            text.slice(i),
+          )
+        ) {
+          return null
+        }
+        if (
+          Config.FORGIVING &&
+          (logical = matchLogical(text.slice(i), /^:(is|where)\(/i))
+        ) {
+          items = splitList(logical[2])
+          kept = []
+          for (j = 0; j < items.length; ++j) {
+            item = prepareHas(items[j])
+            if (item !== null) {
+              kept.push(item)
+            }
+          }
+          output +=
+            text.slice(start, i) +
+            ':' +
+            logical[1] +
+            '(' +
+            (kept.join(',') || ':not(*)') +
+            ')'
+          i += logical[0].length - 1
+          start = i + 1
+        }
+      }
+      return output + text.slice(start)
+    },
     notFlag = 0,
     compileSelector = function (expression, source, mode, callback, ancestry?) {
       var a,
@@ -3315,6 +3496,12 @@
                   }
                   break
                 case 'has':
+                  argument = prepareHas(match[2])
+                  if (argument === null) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
+                  match[2] = argument
                   if (!validateLogical(match[2], true)) {
                     return ''
                   }
@@ -4238,6 +4425,9 @@
       if (length > DESCENT_PROBE) {
         return null
       }
+      if (length >= 16) {
+        roots = collectionSnapshot(roots, context, length)
+      }
       for (i = 0; i < length; ++i) {
         root = roots[i]
         if (plan.tag !== undefined && root.localName != plan.tag) {
@@ -4279,12 +4469,16 @@
 
       if (part.cls !== undefined) {
         found = root.getElementsByClassName(part.cls)
+        l = found.length
+        if (l >= 16) {
+          found = collectionSnapshot(found, root, l)
+        }
         if (part.tag === undefined) {
-          for (i = 0, l = found.length; l > i; ++i) {
+          for (i = 0; l > i; ++i) {
             out[out.length] = found[i]
           }
         } else {
-          for (i = 0, l = found.length; l > i; ++i) {
+          for (i = 0; l > i; ++i) {
             if (
               found[i].localName == part.tag ||
               (HTML_DOCUMENT &&
@@ -4297,7 +4491,11 @@
         }
       } else {
         found = root.getElementsByTagName(part.tag)
-        for (i = 0, l = found.length; l > i; ++i) {
+        l = found.length
+        if (l >= 16) {
+          found = collectionSnapshot(found, root, l)
+        }
+        for (i = 0; l > i; ++i) {
           out[out.length] = found[i]
         }
       }

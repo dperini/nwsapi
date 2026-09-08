@@ -6,6 +6,7 @@ export interface Measurement {
   milliseconds: Array<number | null>
   errors: Array<string | null>
   samples?: number[][]
+  sampleIterations?: number[][]
 }
 
 export function escapeText(value: string) {

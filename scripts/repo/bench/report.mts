@@ -26,6 +26,7 @@ const { values } = parseArgs({
     output: { type: 'string', default: 'assets/repo/bench' },
     rounds: { type: 'string', default: '9' },
     iterations: { type: 'string', default: '100' },
+    'min-round-ms': { type: 'string', default: '50' },
   },
 })
 if (!values.baseline?.length) {
@@ -35,13 +36,18 @@ if (!values.baseline?.length) {
 }
 const rounds = Number(values.rounds)
 const iterations = Number(values.iterations)
+const minRoundMs = Number(values['min-round-ms'])
 if (
   !Number.isInteger(rounds) ||
   rounds < 3 ||
   !Number.isInteger(iterations) ||
-  iterations < 1
+  iterations < 1 ||
+  !Number.isFinite(minRoundMs) ||
+  minRoundMs < 0
 ) {
-  throw new RangeError('Use at least three rounds and one iteration.')
+  throw new RangeError(
+    'Use at least three rounds, one iteration, and a nonnegative minimum round duration.',
+  )
 }
 for (const [fixture, categories] of Object.entries(cases)) {
   const html = DOCUMENTS[fixture].html()
@@ -134,6 +140,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
           }
         })
         const samples = engines.map(() => [] as number[])
+        const sampleIterations = engines.map(() => [] as number[])
         for (let warmup = 0; warmup < 20; ++warmup) {
           engines.forEach((engine, index) => {
             if (!errors[index]) {
@@ -149,12 +156,19 @@ for (const [fixture, categories] of Object.entries(cases)) {
               continue
             }
             const start = process.hrtime.bigint()
-            for (let count = 0; count < iterations; ++count) {
-              consumed += engines[index].query(selector).length
-            }
-            samples[index].push(
-              Number(process.hrtime.bigint() - start) / iterations / 1e6,
-            )
+            let calls = 0
+            let elapsed: number
+            // Give sub-microsecond paths a measurable sample too. Keep every
+            // sample, including scheduling and GC pauses, for all engines.
+            do {
+              for (let count = 0; count < iterations; ++count) {
+                consumed += engines[index].query(selector).length
+              }
+              calls += iterations
+              elapsed = Number(process.hrtime.bigint() - start) / 1e6
+            } while (elapsed < minRoundMs)
+            samples[index].push(elapsed / calls)
+            sampleIterations[index].push(calls)
           }
         }
         rows.push({
@@ -162,6 +176,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
           selector,
           errors,
           samples,
+          sampleIterations,
           milliseconds: samples.map(sample => {
             const sorted = sample.toSorted((left, right) => left - right)
             return sorted.length ? sorted[Math.floor(sorted.length / 2)] : null
@@ -183,6 +198,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
     correctnessOracle: `Chromium ${browserVersion}`,
     rounds,
     iterations,
+    minRoundMs,
     fixtureSha256: crypto.createHash('sha256').update(html).digest('hex'),
     fixture,
     engines: engines.map(({ query: _query, ...engine }) => engine),

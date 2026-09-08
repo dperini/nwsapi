@@ -24,6 +24,8 @@ Each page attaches a `wpt-subtests` JSON report with counts and failure names. T
 
 The expansion found and fixed disconnected language inheritance and focus-within behavior. Native directionality now supplies browser-computed state where available; the fallback honors explicit inherited directions after moves. Seven obsolete directionality expectations were removed after review. The remaining 313 expectations were resolved by fixes for heading selectors, namespace parsing, dynamic document roots and scope, placeholder state, attribute case flags, pseudo-elements, missing arguments, and static NodeList-compatible installed query results. [expectations.json](../test/repo/e2e/upstream/expectations.json) is now empty.
 
+The separate browser regression suite also rejects nested `:has()` and pseudo-elements within `:has()`. Invalid alternatives inside forgiving `:is()` and `:where()` lists are discarded individually, with Chromium agreement checks. Its two former expected failures now pass normally.
+
 <details>
 <summary>How setup works</summary>
 
