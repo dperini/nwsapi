@@ -13,8 +13,16 @@ The first install needs Git and network access. Linux may also need browser syst
 pnpm exec playwright install --with-deps chromium
 ```
 
-The runner uses the pages in [the test manifest](../test/repo/e2e/upstream/manifest.mts), including a local regression page.
-It does not run the complete WPT project. Known failures remain visible in the report.
+The runner uses the pages in [the test manifest](../test/repo/e2e/upstream/manifest.mts).
+The September 2026 audit expanded it from 41 to **54 upstream pages**, alongside **17 local regression pages**. It does not run the complete WPT project.
+
+The audited run contains **5,286 subtests**: all pass, with zero expected failures and no filtered subtests. This covers the selected manifest, not the complete selector specification.
+
+The added pages cover programmatic focus events, focus removal and hidden elements, top-layer focus behavior, disconnected language inheritance, and `moveBefore()` behavior for language, directionality, focus, modal dialogs, and popovers. The runner verifies replacement of all eight installed methods before each upstream page: `querySelector` and `querySelectorAll` on Document, Element, and DocumentFragment, plus Element `matches` and `closest`. Existing pages exercise these APIs, including scoped, XML, namespace, fragment, and ShadowRoot cases.
+
+Each page attaches a `wpt-subtests` JSON report with counts and failure names. The manifest documents exclusions: CSSOM-only assertions, screenshot reftests, manual/crash tests without harness results, testdriver-dependent interaction, and aliases NWSAPI does not replace. These would need different harness support or would only measure the browser's own engine.
+
+The expansion found and fixed disconnected language inheritance and focus-within behavior. Native directionality now supplies browser-computed state where available; the fallback honors explicit inherited directions after moves. Seven obsolete directionality expectations were removed after review. The remaining 313 expectations were resolved by fixes for heading selectors, namespace parsing, dynamic document roots and scope, placeholder state, attribute case flags, pseudo-elements, missing arguments, and static NodeList-compatible installed query results. [expectations.json](../test/repo/e2e/upstream/expectations.json) is now empty.
 
 <details>
 <summary>How setup works</summary>

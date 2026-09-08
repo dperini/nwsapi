@@ -2,9 +2,9 @@
  * Curated list of upstream WPT files to run against src/nwsapi.js.
  * Paths are root-absolute within the upstream/wpt checkout (pinned @ 7aed663).
  *
- * Hand-picked DOM-only tests: everything here drives querySelector /
- * querySelectorAll / matches purely through the DOM, with no dependency on
- * rendering, getComputedStyle, or testdriver automation.
+ * Hand-picked Selectors API tests. Programmatic focus/state tests may depend
+ * on browser rendering, but assert through DOM APIs; CSSOM-only tests,
+ * screenshot comparisons, and testdriver automation are excluded.
  *
  * Enumerated but deliberately excluded:
  * - /dom/nodes/Element-webkitMatchesSelector.html — exercises the
@@ -27,8 +27,8 @@
  *   (rendering-dependent).
  * - /css/selectors/*crash*.html, *-ref.html, *-manual.html — crashtests,
  *   reftest references and manual tests; no testharness.js results to read.
- * - /css/selectors/focus-… hover-… active-… and friends — need real user
- *   interaction (testdriver) or rendering state.
+ * - Focus tests requiring testdriver remain excluded; programmatic focus
+ *   and state-preserving move tests below run without testdriver.
  */
 export const manifest: Array<{
   path: string
@@ -285,5 +285,57 @@ export const manifest: Array<{
   {
     path: '/css/selectors/dir-pseudo-on-bdi-element.html',
     note: ':dir() on <bdi> elements',
+  },
+  {
+    path: '/css/selectors/focus-in-focus-event-001.html',
+    note: 'focus state during focus callbacks',
+  },
+  {
+    path: '/css/selectors/focus-in-focusin-event-001.html',
+    note: 'focus state during focusin callbacks',
+  },
+  {
+    path: '/css/selectors/focus-display-none-001.html',
+    note: 'focus state after hiding focused controls',
+  },
+  {
+    path: '/css/selectors/focus-within-display-none-001.html',
+    note: 'focus-within after display changes',
+  },
+  {
+    path: '/css/selectors/focus-within-focus-move.html',
+    note: 'reentrant focus moves update ancestor state',
+  },
+  {
+    path: '/css/selectors/focus-within-removal.html',
+    note: 'focus callbacks removing an ancestor',
+  },
+  {
+    path: '/css/selectors/focus-within-toplayer-001.html',
+    note: 'focus-within through top-layer elements',
+  },
+  {
+    path: '/css/selectors/i18n/lang-pseudo-class-disconnected.html',
+    note: 'language inheritance in disconnected subtrees',
+  },
+  {
+    path: '/dom/nodes/moveBefore/moveBefore-lang.html',
+    note: 'language inheritance after state-preserving moves',
+  },
+  {
+    path: '/dom/nodes/moveBefore/moveBefore-dir.html',
+    note: 'direction inheritance after state-preserving moves',
+  },
+  {
+    path: '/dom/nodes/moveBefore/focus-within.html',
+    note: 'focus-within after state-preserving moves',
+  },
+  {
+    path: '/dom/nodes/moveBefore/modal-dialog.html',
+    note: 'modal selector state after state-preserving moves',
+  },
+  {
+    path: '/dom/nodes/moveBefore/popover-preserve.html',
+    note: 'popover selector state after state-preserving moves',
   },
 ]

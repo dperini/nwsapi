@@ -36,13 +36,13 @@ record source hashes, sample counts, and environment details. These are
 sampled self-time shares, not exact elapsed-time accounting or percentages
 that can be added across phases:
 
-| Phase | Samples | Largest relevant observations |
-| --- | ---: | --- |
-| Cold compilation | 471 | `compile` 79.6%; `compileSelector` 8.9%; GC 3.0% |
-| All-results selection | 6,560 | `byTag` 11.0%; attribute lookup 7.8%; public selection 6.9%; resolvers 6.6% |
-| First match | 1,097 | plan execution 18.4%; attribute lookup 15.1%; collection property descriptors 14.8%; resolvers 8.4% |
-| Single-element match | 1,216 | resolvers 18.9%; cache `get` 18.4%; match dispatch 6.7% |
-| Raw resolver execution | 9,930 | resolvers 18.3%; `localName` reads 9.5%; ancestor masks 9.4% |
+| Phase                  | Samples | Largest relevant observations                                                                       |
+| ---------------------- | ------: | --------------------------------------------------------------------------------------------------- |
+| Cold compilation       |     471 | `compile` 79.6%; `compileSelector` 8.9%; GC 3.0%                                                    |
+| All-results selection  |   6,560 | `byTag` 11.0%; attribute lookup 7.8%; public selection 6.9%; resolvers 6.6%                         |
+| First match            |   1,097 | plan execution 18.4%; attribute lookup 15.1%; collection property descriptors 14.8%; resolvers 8.4% |
+| Single-element match   |   1,216 | resolvers 18.9%; cache `get` 18.4%; match dispatch 6.7%                                             |
+| Raw resolver execution |   9,930 | resolvers 18.3%; `localName` reads 9.5%; ancestor masks 9.4%                                        |
 
 The first-match aggregate includes queries that return no result and must
 examine many candidates. Its profile should not be read as the cost breakdown
@@ -91,15 +91,15 @@ than deferring invalid-selector handling until a match fails.
 
 ## Experiments retained and rejected
 
-| Experiment | Result and decision |
-| --- | --- |
-| Compiled first-match plans | Retained. Avoids collecting every result and repeats neither parsing nor candidate planning on warm calls. |
-| Directional positional matching | Retained for single-element matching. Avoids indexing siblings that cannot affect the requested position. |
-| `charCodeAt()` in three structural scans | Not retained. The controlled cold comparison ranged from roughly parity to 6% faster across six patterns; it does not substantiate a broad query-speed improvement. |
-| Indexed copying instead of `slice.call()` | Not retained. The 36-query comparison showed no consistent end-to-end gain. |
-| Live collections as all-results resolver inputs | Not retained. Many common filtered queries regressed by roughly 20–30% in the exploratory run. Packed arrays remain valuable to resolver execution. |
-| Adjacent-sibling arithmetic inside selecting resolvers | Not retained. Some dense cases improved, but other positional cases regressed. Extra host-property reads and fallback work offset the saved helper calls. |
-| Calling collection `item()` during first-match scanning | Not retained. Host method overhead overwhelmed the saved length read. Bounded indexed probing performed better. |
+| Experiment                                              | Result and decision                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compiled first-match plans                              | Retained. Avoids collecting every result and repeats neither parsing nor candidate planning on warm calls.                                                                                                                                                                                                                            |
+| Directional positional matching                         | Retained for single-element matching. Avoids indexing siblings that cannot affect the requested position.                                                                                                                                                                                                                             |
+| `charCodeAt()` in three structural scans                | Retained by project preference, with comments spelling out each character. The earlier controlled cold comparison ranged from roughly parity to 6% faster; this is not evidence of a broad query-speed improvement. Compiler token dispatch now also uses numeric ASCII classification, preserving the namespace and extension paths. |
+| Indexed copying instead of `slice.call()`               | Retained in the subsequent common-case update: dense tag collections use a preallocated indexed copy. The earlier 36-query experiment did not establish a consistent end-to-end gain.                                                                                                                                                 |
+| Live collections as all-results resolver inputs         | Not retained. Many common filtered queries regressed by roughly 20–30% in the exploratory run. Packed arrays remain valuable to resolver execution.                                                                                                                                                                                   |
+| Adjacent-sibling arithmetic inside selecting resolvers  | Revised and retained for forward selecting an+b queries: bounded sibling progress falls back to the existing helper for sparse candidates. Callback, reverse, and legacy paths retain their existing helpers. Earlier unrestricted experiments regressed other positional cases.                                                      |
+| Calling collection `item()` during first-match scanning | Not retained. Host method overhead overwhelmed the saved length read. Bounded indexed probing performed better.                                                                                                                                                                                                                       |
 
 The parser comparison examined numeric token dispatch, ASCII classification,
 fused whitespace scanning, and preparing reusable state. These ideas are

@@ -724,17 +724,12 @@ describe('agreement with the reference engine', () => {
     expect(() => NW.select('svg|p', document)).toThrow()
   })
 
-  test('the namespace gap is where it is known to be', () => {
-    // The one shape the engine still does not answer the way the reference
-    // does, and older than this branch: 2.2.24 and 2.2.27 throw on it too.
-    // Asserted rather than left out, so moving the boundary is deliberate.
+  test('wildcard namespace type selectors agree with the reference', () => {
     const { document, NW } = build(
       '<!doctype html><body><div id=d><p id=p>x</p></div></body>',
     )
 
-    // A namespace-qualified type selector is not supported on its own. The
-    // reference matches the div, since '*|div' is any namespace.
-    expect(() => NW.select('*|div', document)).toThrow()
+    expect(NW.select('*|div', document).map(node => node.id)).toEqual(['d'])
     expect(
       Array.from(document.querySelectorAll('*|div'), node => node.id),
     ).toEqual(['d'])

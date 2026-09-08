@@ -117,7 +117,21 @@ const engineScript = coverageDirectory
 const initScript = `${engineScript}
 ;(function () {
   try {
+    var targets = [
+      [Document.prototype, 'querySelector'],
+      [Document.prototype, 'querySelectorAll'],
+      [Element.prototype, 'querySelector'],
+      [Element.prototype, 'querySelectorAll'],
+      [DocumentFragment.prototype, 'querySelector'],
+      [DocumentFragment.prototype, 'querySelectorAll'],
+      [Element.prototype, 'matches'],
+      [Element.prototype, 'closest']
+    ];
+    var nativeMethods = targets.map(function (target) { return target[0][target[1]]; });
     window.NW.Dom.install();
+    window.__nwInstalledAPIs = targets.map(function (target, index) {
+      return target[0][target[1]] !== nativeMethods[index];
+    });
   } catch (e) {
     window.__nwInstallError = String((e && e.stack) || e);
   }
@@ -205,17 +219,24 @@ for (const entry of manifest) {
       )
     }
 
-    // NW-install canary: nwsapi's querySelectorAll returns an Array, the
-    // native engine a NodeList. Catches a silently-broken install().
+    // Installation is verified by method identity, independently of the
+    // collection shape that the DOM wrappers correctly expose.
     const nwInstalled = await page.evaluate(
       entry.install === false
         ? 'typeof window.NW.Dom.match === "function"'
-        : 'Array.isArray(document.querySelectorAll("html"))',
+        : 'typeof window.NW.Dom.match === "function" && Object.values(window.__nwInstalledAPIs).every(Boolean)',
     )
     expect(
       nwInstalled,
       'document.querySelectorAll must return an Array (nwsapi installed), got the native engine',
     ).toBe(true)
+
+    if (entry.install !== false) {
+      expect(
+        await page.evaluate('window.__nwInstalledAPIs'),
+        'Document, Element and Fragment query methods, matches and closest must all use NWSAPI',
+      ).toEqual(Array(8).fill(true))
+    }
 
     // String expressions: these evaluate in the page, where `window` exists.
     await page.waitForFunction('window.__wptResults', null, { timeout: 80_000 })
@@ -270,7 +291,9 @@ for (const entry of manifest) {
         }
       } else if (expectations[key]) {
         counts.expectedFail += 1
-        expectedFails.push(`${statusName(t.status)} ${t.name}`)
+        expectedFails.push(
+          `${statusName(t.status)} ${t.name}${t.message ? ` — ${t.message}` : ''}`,
+        )
       } else {
         counts.fail += 1
         failures.push(
@@ -290,6 +313,19 @@ for (const entry of manifest) {
         )
       }
     }
+
+    await test.info().attach('wpt-subtests', {
+      body: JSON.stringify({
+        path: entry.path,
+        origin: entry.path.startsWith('/_repo/') ? 'local' : 'upstream',
+        total: results.tests.length,
+        counts,
+        harness: results.harness,
+        expectedFailures: expectedFails,
+        unexpectedFailures: failures,
+      }),
+      contentType: 'application/json',
+    })
 
     const verbose =
       !isAgent() ||
