@@ -70,7 +70,7 @@ Use Node.js 26 and pnpm ≥ 12.3.4.
 ```sh
 pnpm install
 pnpm run test:legacy
-pnpm run test:node test/repo/unit/legacy-runtime.test.mts
+pnpm run test:unit test/repo/unit/legacy-runtime.test.mts
 pnpm run test:coverage
 ```
 

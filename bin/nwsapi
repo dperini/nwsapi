@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-import('../scripts/repo/cli.mts').catch(error => {
-  console.error(`nwsapi: ${error.message}`)
-  process.exitCode = 1
-})
+import('../scripts/repo/cli.mts')
+  .then(({ runCli }) => runCli(process.argv.slice(2)))
+  .then(output => console.log(output))
+  .catch(error => {
+    console.error(`nwsapi: ${error.message}`)
+    process.exitCode = 1
+  })
