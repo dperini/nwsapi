@@ -10,7 +10,7 @@
 !/.npmrc
 !/LICENSE
 !/README.md
-!/THANKS.MD
+!/THANKS.md
 !/package.json
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
