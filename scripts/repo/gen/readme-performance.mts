@@ -24,7 +24,7 @@ if (
 const ratios = rows.map(row => row.warm[1] / row.warm[0])
 const range = `${Math.min(...ratios).toFixed(1)}–${Math.max(...ratios).toFixed(1)}×`
 writeFileSync(
-  new URL('assets/repo/bench/readme-performance.svg', root),
+  new URL('assets/repo/bench/perf-hero.svg', root),
   queryChart({
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,

@@ -18,7 +18,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
   test('keeps the README notes inside the canvas with bottom padding', async () => {
     const svg = readFileSync(
       new URL(
-        '../../../assets/repo/bench/readme-performance.svg',
+        '../../../assets/repo/bench/perf-hero.svg',
         import.meta.url,
       ),
       'utf8',
