@@ -10,9 +10,9 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![NWSAPI first-match performance: 1.6× to 8.2× faster in recorded warm queries](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
+[![nwsapi warm and cold query times; shorter lines are faster](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
 
-[Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/v8-performance.md)
+[Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/performance.md)
 
 ## Install
 

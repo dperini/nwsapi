@@ -1,6 +1,7 @@
 import { chromium } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import type { Browser } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 import { chart } from '../../../scripts/repo/bench/charts.mts'
 
 let browser: Browser
@@ -14,6 +15,40 @@ afterAll(async () => {
 })
 
 describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
+  test('keeps the README notes inside the canvas with bottom padding', async () => {
+    const svg = readFileSync(
+      new URL(
+        '../../../assets/repo/bench/readme-performance.svg',
+        import.meta.url,
+      ),
+      'utf8',
+    )
+    const page = await browser.newPage({
+      viewport: { width: 1100, height: 900 },
+    })
+    try {
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
+      const bounds = await page.evaluate(() => {
+        const canvas = document.documentElement.getBoundingClientRect()
+        const texts = Array.from(document.querySelectorAll('text'), node =>
+          node.getBoundingClientRect(),
+        )
+        return {
+          padding: canvas.bottom - Math.max(...texts.map(rect => rect.bottom)),
+          overflow: texts.some(
+            rect => rect.left < canvas.left || rect.right > canvas.right,
+          ),
+        }
+      })
+      expect(bounds.padding).toBeGreaterThanOrEqual(39)
+      expect(bounds.overflow).toBe(false)
+      expect(await page.locator('.bar').count()).toBe(48)
+    } finally {
+      await page.close()
+    }
+  })
+
   test('fills from a fixed left edge and shows full bars with reduced motion', async () => {
     const svg = chart(
       'basic',
