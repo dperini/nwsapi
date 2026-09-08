@@ -31,7 +31,8 @@ and [current benchmarks](benchmarks.md) for the subsequent first-match work.
 Large tag and class candidate collections now reuse immutable internal snapshots.
 Public calls receive fresh arrays; compiled predicates still run on every query.
 This avoids repeated host-property access when copying native HTMLCollections.
-It does not memoize a selector's final result.
+Simple tag/class queries can return a fresh copy of this membership snapshot.
+Compound predicates and relationships are evaluated on every query.
 
 Snapshots are keyed weakly by native collections and their observed tree roots.
 Child-list changes and class-attribute changes discard a root's snapshots.
@@ -39,7 +40,7 @@ Before reuse, `MutationObserver.takeRecords()` checks pending changes synchronou
 correctness does not wait for the observer callback. The callback also discards
 snapshots when no further query runs. Detached scopes and adopted elements remain
 covered; hosts without the required APIs and legacy mode use ordinary copies.
-Collections below 16 elements stay on the direct path. Observer callbacks live outside engine closures and hold state weakly; where supported, finalization disconnects observers for discarded state.
+Standalone collections below 16 elements stay on the direct path. Descendant and selective-child plans also reuse small scoped collections, where repeated lookups dominate traversal. Observer callbacks live outside engine closures and hold state weakly; where supported, finalization disconnects observers for discarded state.
 
 The tradeoff is lazy mutation observation and retained candidate arrays while
 collections remain reachable and unchanged. Mutation-heavy workloads rebuild these
@@ -48,6 +49,8 @@ tests cover synchronous insertion/removal, class changes, adoption, SVG, detache
 contexts, returned-array mutation, and reentrant callbacks. A forced-GC diagnostic
 collected all 20 discarded snapshot states on a still-live document and all 100 removed test subtrees after returning the engine to its document
 context and delivering mutation records.
+
+Run `node --expose-gc scripts/repo/bench/collection-memory.mts` to check detached-node and observer ownership with a live factory document.
 
 ## Measurements
 

@@ -950,20 +950,23 @@
     // collections are expensive to copy through host index getters. A fresh
     // array copy protects the cached candidates from callers and callbacks.
     // takeRecords() invalidates synchronously, before the observer callback.
-    collectionSnapshot = function (nodes, context, length?) {
+    collectionSnapshot = function (nodes, context, length?, small?) {
       var state, root, view, cached, i, result
       if (collectionStates && (state = collectionStates.get(nodes))) {
         if (state.observer.takeRecords().length) {
           state.copies = createWeakMap()
         }
         cached = state.copies.get(nodes)
-        if (cached && state.document === (context.ownerDocument || context)) {
+        if (
+          cached &&
+          state.document.deref() === (context.ownerDocument || context)
+        ) {
           return cached
         }
       }
       length === undefined && (length = nodes.length)
       if (
-        length < 16 ||
+        (length < 16 && !small) ||
         Config.LEGACY ||
         typeof WeakRef != 'function' ||
         !context.getRootNode
@@ -989,16 +992,16 @@
         state = {
           copies: createWeakMap(),
           observer: null,
-          document: context.ownerDocument || context,
+          document: new WeakRef(context.ownerDocument || context),
         }
         state.observer = Factory['_observeCollections'](root, view, state)
         collectionRoots.set(root, state)
       } else if (
         state.observer.takeRecords().length ||
-        state.document !== (context.ownerDocument || context)
+        state.document.deref() !== (context.ownerDocument || context)
       ) {
         state.copies = createWeakMap()
-        state.document = context.ownerDocument || context
+        state.document = new WeakRef(context.ownerDocument || context)
       }
       collectionStates || (collectionStates = createWeakMap())
       collectionStates.set(nodes, state)
@@ -3655,12 +3658,14 @@
                     source +
                     '}'
                   break
+                // Missing HTML input type is text. Avoid the host's type
+                // normalization getter on this common path.
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
-                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
+                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -3671,7 +3676,7 @@
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
+                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -4440,7 +4445,12 @@
         // A scoped type lookup skips unrelated children and their subtrees.
         // Validate the fixed parent chain against this exact anchor: nested
         // anchors must neither duplicate nor borrow one another's matches.
-        candidates = root.getElementsByTagName(plan.tags[plan.tags.length - 1])
+        candidates = collectionSnapshot(
+          root.getElementsByTagName(plan.tags[plan.tags.length - 1]),
+          root,
+          undefined,
+          true,
+        )
         for (j = 0, k = candidates.length; j < k; ++j) {
           element = candidates[j]
           parent = element.parentElement
@@ -4468,11 +4478,13 @@
       var found, i, l
 
       if (part.cls !== undefined) {
-        found = root.getElementsByClassName(part.cls)
+        found = collectionSnapshot(
+          root.getElementsByClassName(part.cls),
+          root,
+          undefined,
+          true,
+        )
         l = found.length
-        if (l >= 16) {
-          found = collectionSnapshot(found, root, l)
-        }
         if (part.tag === undefined) {
           for (i = 0; l > i; ++i) {
             out[out.length] = found[i]
@@ -4490,11 +4502,13 @@
           }
         }
       } else {
-        found = root.getElementsByTagName(part.tag)
+        found = collectionSnapshot(
+          root.getElementsByTagName(part.tag),
+          root,
+          undefined,
+          true,
+        )
         l = found.length
-        if (l >= 16) {
-          found = collectionSnapshot(found, root, l)
-        }
         for (i = 0; l > i; ++i) {
           out[out.length] = found[i]
         }

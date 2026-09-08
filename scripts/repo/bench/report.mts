@@ -171,6 +171,12 @@ for (const [fixture, categories] of Object.entries(cases)) {
             sampleIterations[index].push(calls)
           }
         }
+        // Verify warmed routing and snapshot paths as well as the cold path.
+        engines.forEach((engine, index) => {
+          if (!errors[index] && !agrees(engine.query(selector), expected)) {
+            errors[index] = 'warm result mismatch'
+          }
+        })
         rows.push({
           category,
           selector,

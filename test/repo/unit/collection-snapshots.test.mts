@@ -108,3 +108,25 @@ test('detached snapshots follow adoption from quirks HTML into XML', t => {
   context.firstElementChild!.setAttribute('class', 'item')
   expect(engine.select('.item', context)).toHaveLength(1)
 })
+
+test('default input editability follows type, readonly, and namespace changes', t => {
+  const { window } = new JSDOM('<input>')
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const input = window.document.querySelector('input')!
+  for (const type of [null, 'checkbox', 'text', 'unknown', '', 'HIDDEN']) {
+    if (type === null) {
+      input.removeAttribute('type')
+    } else {
+      input.setAttribute('type', type)
+    }
+    for (const readOnly of [false, true]) {
+      input.readOnly = readOnly
+      const expected = !readOnly && !['checkbox', 'hidden'].includes(input.type)
+      expect(engine.match(':read-write', input)).toBe(expected)
+      expect(engine.match(':read-only', input)).toBe(!expected)
+    }
+  }
+  const foreign = window.document.createElementNS('urn:foreign', 'input')
+  expect(engine.match(':read-write', foreign)).toBe(false)
+})
