@@ -188,13 +188,14 @@ test('installed wrappers use the captured slice callable', t => {
 
 test('cached compiler modes preserve callbacks and relative anchors', t => {
   const { document, nw } = fixture(t)
+  const compileMethod = nw.compile.bind(nw)
   // The relative flag is internal to :has() compilation.
   const compile = (
     mode: boolean | null,
     callback: boolean,
     relative: boolean,
   ) =>
-    Reflect.apply(nw.compile, nw, [
+    Reflect.apply(compileMethod, nw, [
       'p',
       mode,
       callback,
