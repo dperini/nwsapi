@@ -85,7 +85,7 @@ writeFileSync(
     [
       'Retained JavaScript heap per engine after garbage collection. Native DOM allocation is excluded.',
       `${memory.metadata.runtime} · ${memory.metadata.count} engines per sample · Median of ${memory.metadata.rounds} rounds · No jsdom`,
-      'Both libraries are loaded before the baseline. Raw samples and methodology: docs/benchmarks.md.',
+      'Both libraries are loaded before the baseline. Raw samples and methodology: docs/repo/perf/benchmarks.md.',
     ],
   ),
 )

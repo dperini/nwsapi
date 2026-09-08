@@ -2,10 +2,10 @@
 
 A **fast path** handles a common query with fewer steps than the general query code.
 Commits `0b3840b` and `b68e020` added the first changes described here.
-They followed the [performance review](performance-review.md).
+They followed the [performance review](review.md).
 
 The measurements on this page describe those earlier changes.
-See the [performance guide](performance.md) and [benchmark report](benchmarks.md) for later results.
+See the [performance guide](guide.md) and [benchmark report](benchmarks.md) for later results.
 
 ## What changed
 
@@ -77,7 +77,7 @@ The runner changed engine order between passes.
 These measurements used repeated queries on generated component and documentation pages.
 They did not measure process startup or a running application.
 
-The [all-results comparison](../assets/repo/bench/source-comparison.json) recorded an **8.72×** improvement over the baseline for `div.example > p > a`.
+The [all-results comparison](../../../assets/repo/bench/source-comparison.json) recorded an **8.72×** improvement over the baseline for `div.example > p > a`.
 It recorded **1.83×** for `div:nth-last-child(3)` and **1.14×** for `:where(.card) > button`.
 The child-chain query became about as fast as the competitor.
 The position and `:where()` queries remained slower in that historical run.

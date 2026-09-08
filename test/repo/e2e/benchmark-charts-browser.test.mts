@@ -18,7 +18,7 @@ afterAll(async () => {
 describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
   test('all published comparison SVGs share a viewport and keep text inside it', async () => {
     const markdown = readFileSync(
-      new URL('../../../docs/benchmarks.md', import.meta.url),
+      new URL('../../../docs/repo/perf/benchmarks.md', import.meta.url),
       'utf8',
     )
     const paths = [

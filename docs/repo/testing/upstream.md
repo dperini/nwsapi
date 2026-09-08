@@ -1,5 +1,7 @@
 # Upstream selector tests
 
+See the [WPT runner layout](wpt-runner.md) for the local harness files.
+
 Contributor installs set up Web Platform Tests (WPT) and Chromium.
 
 ```sh
@@ -13,7 +15,7 @@ The first install needs Git and network access. Linux may also need browser syst
 pnpm exec playwright install --with-deps chromium
 ```
 
-The runner uses the pages in [the test manifest](../test/repo/e2e/upstream/manifest.mts).
+The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
 The September 2026 audit expanded it from 41 to **73 upstream pages**, alongside **18 local regression pages**. It does not run the complete WPT project.
 
 The audited run contains **5,418 subtests**: all pass, with zero expected failures and no filtered subtests. This covers the selected manifest, not the complete selector specification.
@@ -24,7 +26,7 @@ The added pages also cover programmatic focus events, focus removal and hidden e
 
 Each page attaches a `wpt-subtests` JSON report with counts and failure names. The manifest documents exclusions: CSSOM-only assertions, screenshot reftests, manual/crash tests without harness results, testdriver-dependent interaction, and aliases NWSAPI does not replace. These would need different harness support or would only measure the browser's own engine.
 
-The expansion found and fixed disconnected language inheritance and focus-within behavior. Native directionality now supplies browser-computed state where available; the fallback honors explicit inherited directions after moves. Seven obsolete directionality expectations were removed after review. The remaining 313 expectations were resolved by fixes for heading selectors, namespace parsing, dynamic document roots and scope, placeholder state, attribute case flags, pseudo-elements, missing arguments, and static NodeList-compatible installed query results. [expectations.json](../test/repo/e2e/upstream/expectations.json) is now empty.
+The expansion found and fixed disconnected language inheritance and focus-within behavior. Native directionality now supplies browser-computed state where available; the fallback honors explicit inherited directions after moves. Seven obsolete directionality expectations were removed after review. The remaining 313 expectations were resolved by fixes for heading selectors, namespace parsing, dynamic document roots and scope, placeholder state, attribute case flags, pseudo-elements, missing arguments, and static NodeList-compatible installed query results. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is now empty.
 
 The separate browser regression suite also rejects nested `:has()` and pseudo-elements within `:has()`. Invalid alternatives inside forgiving `:is()` and `:where()` lists are discarded individually, with Chromium agreement checks. Its two former expected failures now pass normally.
 
@@ -34,7 +36,7 @@ The separate browser regression suite also rejects nested `:has()` and pseudo-el
 The contributor `prepare` script fetches WPT, verifies the checkout, and installs Chromium.
 Published package installs do not run this setup.
 
-[.gitmodules](../.gitmodules) records the WPT revision, selected directories, and manifest hash.
+[.gitmodules](../../../.gitmodules) records the WPT revision, selected directories, and manifest hash.
 The checkout is ignored by Git and managed through this metadata, rather than a gitlink. The helper clones with `--depth=1 --single-branch --filter=blob:none --no-checkout`, applies cone-mode sparse checkout, and fetches the pinned revision at depth one. Verification checks the pin, shallow history, single-branch fetch refspec, sparse paths, and clean working tree. The sparse paths include `html/semantics/selectors`; the rest of WPT stays outside the checkout.
 
 > [!IMPORTANT]
@@ -70,7 +72,7 @@ NWSAPI_MINIFIED=1 pnpm run test:wpt
 <details>
 <summary>Review known failures</summary>
 
-[expectations.json](../test/repo/e2e/upstream/expectations.json) records known failures.
+[expectations.json](../../../test/repo/e2e/upstream/expectations.json) records known failures.
 Unexpected failures fail the run. Unexpected passes appear in the report for review.
 
 > [!IMPORTANT]

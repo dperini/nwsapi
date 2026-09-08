@@ -10,11 +10,11 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=dd9918eaebd6)](docs/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=e024b6de70d7)](docs/repo/perf/benchmarks.md)
 
 Direct library comparisons on native browser DOMs, without jsdom.
 
-[Performance](docs/benchmarks.md) · [Memory](docs/benchmarks.md#memory-footprint) · [File size](docs/benchmarks.md#file-size) · [Inside the compiler](docs/performance.md)
+[Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Inside the compiler](docs/repo/perf/guide.md)
 
 ## Install
 
@@ -114,7 +114,7 @@ NW.Dom.uninstall()
 
 ## API
 
-See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.
+See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.
 
 ## Contribute
 
@@ -161,7 +161,7 @@ The CLI entry point has a separate 100% coverage assertion.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
 
-[Test setup and troubleshooting →](docs/upstream.md) · [Benchmarks →](docs/benchmarks.md)
+[Test setup and troubleshooting →](docs/repo/testing/upstream.md) · [Benchmarks →](docs/repo/perf/benchmarks.md)
 
 </details>
 

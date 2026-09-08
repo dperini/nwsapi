@@ -1,6 +1,8 @@
 # Performance journal
 
-This journal records performance hypotheses, measurements, decisions, and correctness constraints for `nwsapi`. Entries are organized by the behavior being optimized. The [compiler guide](../performance.md) explains the implementation, the [benchmark report](../benchmarks.md) covers package comparisons, and the [memory results](results/memory-performance.json) preserve recorded samples, runtime versions, and engine hashes.
+This journal records performance hypotheses, measurements, decisions, and correctness constraints for `nwsapi`. Entries are organized by the behavior being optimized. The [compiler guide](guide.md) explains the implementation, the [benchmark report](benchmarks.md) covers package comparisons, and the [memory results](results/memory-performance.json) preserve recorded samples, runtime versions, and engine hashes.
+
+Follow the [shared measurement guidance](../../fleet/perf/measurement.md) when designing new experiments.
 
 Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Measurements below were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
 

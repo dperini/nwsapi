@@ -1,4 +1,6 @@
-# Repository tests
+# Test layout
+
+Directories below are relative to `test/repo/`. See [testing commands and budgets](testing.md) and [shared testing practices](../../fleet/testing/practices.md).
 
 - `unit/` tests focused selector behavior and helpers.
 - `integration/` tests jsdom integration and development commands.

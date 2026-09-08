@@ -168,7 +168,7 @@ export function renderApiMarkdown(
     if (!summary) {
       throw new Error(`Add an API description for ${name}`)
     }
-    return `| [\`${signature}\`](../${file}#L${line}) | ${summary} |`
+    return `| [\`${signature}\`](../../../${file}#L${line}) | ${summary} |`
   }
   const signature = (
     name: string,
@@ -382,7 +382,7 @@ export function renderApiMarkdown(
     ...options,
     '',
     '<blockquote>',
-    '<p><img src="../assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>',
+    '<p><img src="../../../assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>',
     '<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>',
     '</blockquote>',
     '',
@@ -456,7 +456,7 @@ export function renderApiMarkdown(
     '',
     'This is an extension example, not full jQuery compatibility. `:even`, `:odd`, `:eq(n)`, `:lt(n)`, and `:gt(n)` filter the matched candidates within each compiled selector branch; `match()` treats its element as a singleton set. The original `:first`, `:last`, and `:nth(n)` extensions use document-wide indexes among elements of the same tag, excluding the document root. Integer arguments are validated; negative indexes are not translated from the end. `:visible` and `:hidden` use offset dimensions. Core Selectors Level 4 semantics handle `:has()`. These extensions do not emulate jQuery set operations across selector lists or complex positional chains.',
     '',
-    'See the [jQuery comparison tests and known differences](testing.md#comparing-the-optional-extension-with-jquery) for runnable examples.',
+    'See the [jQuery comparison tests and known differences](../testing/testing.md#comparing-the-optional-extension-with-jquery) for runnable examples.',
     '',
     '</details>',
     '',

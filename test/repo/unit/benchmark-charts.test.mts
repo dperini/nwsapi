@@ -70,7 +70,7 @@ describe('benchmark charts', () => {
   })
   test('shows category charts outside the introductory details', () => {
     const document = fs.readFileSync(
-      new URL('../../../docs/benchmarks.md', import.meta.url),
+      new URL('../../../docs/repo/perf/benchmarks.md', import.meta.url),
       'utf8',
     )
     const firstChart = document.indexOf('## Component queries')

@@ -10,7 +10,7 @@ export const chartBaseUrl =
 // A changed SVG needs a new URL so GitHub requests the updated image.
 export function refreshChartReferences(root = REPO_ROOT) {
   const chartRoot = path.join(root, 'assets/repo/bench') + path.sep
-  for (const relative of ['README.md', 'docs/benchmarks.md']) {
+  for (const relative of ['README.md', 'docs/repo/perf/benchmarks.md']) {
     const document = path.join(root, relative)
     const before = fs.readFileSync(document, 'utf8')
     const after = before.replace(

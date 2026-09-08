@@ -1,5 +1,7 @@
 # Performance
 
+See [shared measurement guidance](../../fleet/perf/measurement.md) for experiment design and interpretation.
+
 NWSAPI reads CSS selectors and creates JavaScript functions that test elements.
 It saves these functions so later queries can reuse them.
 A matching function is called a **resolver**.
@@ -14,11 +16,11 @@ It used Node.js v26.5.0, V8 v14.6.202.34-node.24, `jsdom` v30.0.1, and an Apple 
 V8 is the JavaScript engine used by Node.js and Chromium.
 Later sections describe the changes that followed that study.
 See the [benchmark report](benchmarks.md) for the latest recorded comparisons.
-The [performance journal](repo/performance.md) records memory experiments, measured outcomes, and correctness constraints.
+The [performance journal](journal.md) records memory experiments, measured outcomes, and correctness constraints.
 
 ## How we measured performance
 
-The [first-match results](../assets/repo/bench/first-match-results.json) compare a saved NWSAPI build, an updated build, and `@asamuzakjp/dom-selector` v8.3.2 through `jsdom`.
+The [first-match results](../../../assets/repo/bench/first-match-results.json) compare a saved NWSAPI build, an updated build, and `@asamuzakjp/dom-selector` v8.3.2 through `jsdom`.
 The runner checks that queries return the expected elements before timing starts.
 Separate browser tests compare representative selectors with Chromium.
 
@@ -47,7 +49,7 @@ Use public-query benchmarks to measure the complete query cost.
 
 ## What the profiles showed
 
-The [profile data](../assets/repo/bench/v8-analysis.json) records source hashes, sample counts, and machine details.
+The [profile data](../../../assets/repo/bench/v8-analysis.json) records source hashes, sample counts, and machine details.
 A source hash identifies the contents of a measured file.
 
 Each percentage below counts samples taken while the function itself was running.
@@ -211,7 +213,7 @@ Before reusing a snapshot, the engine checks for document changes that could mak
 Weak references allow unused state to be collected.
 Observer cleanup prevents discarded engines from keeping candidate arrays alive.
 
-See the [snapshot design and memory checks](common-query-fast-paths.md#native-collection-snapshots).
+See the [snapshot design and memory checks](query-fast-paths.md#native-collection-snapshots).
 The profile table above describes commit `6d79033`; it was collected before the snapshot update.
 
 ## Cold first-match class queries
@@ -240,7 +242,7 @@ The [warm-cache follow-up](#warm-candidate-cache-follow-up) describes the later 
 
 The updated run recorded lower medians for all 12 cold queries and all 12 warm queries.
 It used the same test HTML, nine passes, and separate documents for each engine.
-See the [raw samples](../assets/repo/bench/first-query-states.json).
+See the [raw samples](../../../assets/repo/bench/first-query-states.json).
 The earlier and updated builds were measured in separate runs, so small differences can include timing variation.
 
 The focused V8 profile prepared 40 separate documents before sampling.
@@ -289,7 +291,7 @@ The focused comparison used separate documents and nine passes with a changing e
 Each sample contained 100,000 calls, and each call checked the returned element.
 The baseline files came from `af47516`, before the cold fix, and `4ecb066`, with the cold fix.
 Node.js removed TypeScript types from those source files before use.
-See the [complete samples](../assets/repo/bench/first-cache-results.json).
+See the [complete samples](../../../assets/repo/bench/first-cache-results.json).
 
 | Query                    | Before cold fix (μs) | Cold fix (μs) | Updated (μs) | Change from original |
 | ------------------------ | -------------------: | ------------: | -----------: | -------------------: |

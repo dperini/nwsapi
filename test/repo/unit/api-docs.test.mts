@@ -29,7 +29,7 @@ test('API nests a readable callout inside its collapsed section', t => {
     'Set LEGACY before the first query when the environment needs compatibility fallbacks.',
   )
   const icon = note!.querySelector('img')
-  expect(icon?.getAttribute('src')).toBe('../assets/repo/important.svg')
+  expect(icon?.getAttribute('src')).toBe('../../../assets/repo/important.svg')
   expect(icon?.getAttribute('alt')).toBe('')
   expect(icon?.getAttribute('width')).toBe('16')
   expect(icon?.getAttribute('height')).toBe('16')
@@ -44,7 +44,7 @@ test('README links to the API without repeating its reference tables', () => {
   )
   const section = markdown.split('## API\n')[1]!.split('\n## ')[0]!.trim()
   expect(section).toBe(
-    'See the [full API reference](docs/api.md) for all methods, options, and adapter APIs.',
+    'See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.',
   )
 })
 

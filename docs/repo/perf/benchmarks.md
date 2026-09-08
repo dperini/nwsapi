@@ -5,7 +5,7 @@
 The browser's own selector methods are used only as the correctness oracle, outside measured calls.
 The saved reports identify the browser version, CPU, library versions, source hashes, fixture hashes and raw samples.
 
-The [README summary](../README.md#performance) uses the geometric mean of the ratios of comparison-library time to `nwsapi` time across all 36 warm all-results queries.
+The [README summary](../../../README.md#performance) uses the geometric mean of the ratios of comparison-library time to `nwsapi` time across all 36 warm all-results queries.
 Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
 
 ## All-results comparison
@@ -40,8 +40,8 @@ For a smoke run:
 pnpm run bench --rounds 3 --iterations 100 --min-round-ms 5 --cold-count 2 --output /tmp/nwsapi-bench
 ```
 
-The raw all-results data lives in [components](../assets/repo/bench/results.json), [documentation](../assets/repo/bench/documentation/results.json) and [utility classes](../assets/repo/bench/atomic/results.json).
-The [first-match report](../assets/repo/bench/first-query-states.json) includes [cold and warm samples](#cold-and-warm-samples).
+The raw all-results data lives in [components](../../../assets/repo/bench/results.json), [documentation](../../../assets/repo/bench/documentation/results.json) and [utility classes](../../../assets/repo/bench/atomic/results.json).
+The [first-match report](../../../assets/repo/bench/first-query-states.json) includes [cold and warm samples](#cold-and-warm-samples).
 Run measurements separately from tests and other CPU work.
 Results describe these queries and fixtures, not every application's performance.
 
@@ -61,12 +61,12 @@ Warm means repeated calls after at least 20ms of warmup.
 The chart shows medians across nine rounds.
 
 The first-match chart selects the four queries with the largest warm-query speedups for `nwsapi`.
-The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries, covering tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
+The [raw first-match report](../../../assets/repo/bench/first-query-states.json) retains all 12 queries, covering tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
 The fixture contains component, utility-class and test-ID patterns. It does not execute application frameworks.
 
 Each line connects cold and warm times on a shared logarithmic scale. Further left means less time.
 The SVG tooltips retain absolute timing values.
-See the [performance guide](performance.md) for compiler implementation details.
+See the [performance guide](guide.md) for compiler implementation details.
 
 </details>
 
@@ -176,11 +176,11 @@ This chart compares direct `first()` and `querySelector()` calls with cold and w
 Each library receives its own native document containing identical HTML, and initialization happens before timing starts.
 The lines connect the first-query and repeated-query times on the same logarithmic scale.
 The chart highlights the four queries with the largest warm-query speedups for `nwsapi`.
-The [raw report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
+The [raw report](../../../assets/repo/bench/first-query-states.json) retains all 12 queries.
 
 ## Memory footprint
 
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=95739a93f27f)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -189,7 +189,7 @@ Chromium performs four garbage collections, separated by event-loop turns, befor
 Engines and documents remain reachable through the final reading.
 Each engine and round gets a fresh browser page, and engine order alternates across five rounds.
 
-The chart reports medians. The [raw memory report](../assets/repo/bench/memory-footprint.json) also includes minimums, maximums and every sample.
+The chart reports medians. The [raw memory report](../../../assets/repo/bench/memory-footprint.json) also includes minimums, maximums and every sample.
 DOM allocation, shared library code, native browser allocations and jsdom overhead are excluded.
 This is a retained-memory comparison. It does not measure peak allocation or total process memory.
 Claims of lower memory apply to this workload and the listed library versions.
@@ -202,7 +202,7 @@ This is a file size report, not a timing benchmark.
 `nwsapi` uses its published `dist/nwsapi.min.js` core browser file.
 The comparison engine is bundled with all runtime dependencies and no tree shaking, then minified with the same Rolldown minifier.
 The report includes uncompressed bytes, gzip level 9 and Brotli quality 11.
-The [raw size report](../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
+The [raw size report](../../../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
 
 The comparison excludes jsdom itself, the `nwsapi` CLI, the jsdom adapter and its optional `css-tree` peer.
 It measures these browser artifacts, not npm tarballs or total installation size.

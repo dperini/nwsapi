@@ -21,3 +21,5 @@ these compatibility requirements.
 
 Type assertions remain allowed while the runtime and host declarations are
 incrementally typed. Promise checks remain enabled.
+
+The repository also ignores files by default. `.gitignore` opts in maintained file types within source directories and names root metadata explicitly. Add an opt-in when introducing a new maintained file type or directory; generated output, dependencies, and scratch directories stay ignored.
