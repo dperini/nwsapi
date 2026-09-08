@@ -30,7 +30,6 @@
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md
-!/docs/repo/perf/results/*.json
 !/scripts/**/*.mts
 !/src/**/*.mts
 !/test/**/*.LICENSE

@@ -1,6 +1,6 @@
 # Performance journal
 
-This journal records performance hypotheses, measurements, decisions, and correctness constraints for `nwsapi`. Entries are organized by the behavior being optimized. The [compiler guide](guide.md) explains the implementation, the [benchmark report](benchmarks.md) covers package comparisons, and the [memory results](results/memory-performance.json) preserve recorded samples, runtime versions, and engine hashes.
+This journal records performance hypotheses, measurements, decisions, and correctness constraints for `nwsapi`. Entries are organized by the behavior being optimized. The [compiler guide](guide.md) explains the implementation, the [benchmark report](benchmarks.md) covers package comparisons, and the [generated memory report](../../../assets/repo/bench/memory-performance.json) summarizes comparisons. The [recorded observations](../../../assets/repo/bench/memory-observations.json) preserve raw samples, runtime versions, and engine hashes.
 
 Follow the [shared measurement guidance](../../fleet/perf/measurement.md) when designing new experiments.
 
@@ -17,17 +17,21 @@ The allocation workload warms 100 matching resolvers, then verifies resolver ide
 
 ```sh
 pnpm run build
+pnpm run gen:memory
+pnpm run check:memory
 pnpm run bench:memory-profile --count 100 --queries 100 --output /tmp/selection-heap
 pnpm run bench:memory-profile --method match --count 100 --queries 100 --output /tmp/matching-heap
 pnpm run bench:memory-browser-profile --count 40 --queries 100 --output /tmp/browser-heap
 pnpm run bench:allocation-profile --output /tmp/compiler-allocations
 ```
 
+`gen:memory` derives the tracked comparison report from `assets/repo/bench/memory-observations.json`. It does not rerun historical experiments. Add new measurements with their workload metadata and source hashes to those observations, regenerate the report, and commit both files. `check:memory` rejects a stale report.
+
 Each profiler accepts `--engine /path/to/baseline.cjs` for a saved generated build. The allocation profiler also accepts `--iterations` and `--interval`. The browser profiler uses the Chromium installation for `@playwright/test`.
 
 Load `.heapsnapshot` and `.heapprofile` files in Chrome DevTools' Memory panel. Compare baseline and instances snapshots for idle overhead, then instances and cached snapshots for plan retention. Inspect retaining paths before identifying a leak. Runtime compilation and bookkeeping can affect aggregate heap deltas, so corroborate them with object categories and repeated measurements. Timing runs must execute separately from profiling.
 
-The tracked results file preserves historical summaries and timing samples. Full snapshots and one-off timing and churn harnesses were temporary and are not part of that artifact. The committed profilers can generate fresh evidence, but the samples alone cannot reproduce the exact historical timing or churn runs.
+The tracked benchmark observations preserve historical summaries and timing samples. Full snapshots and one-off timing and churn harnesses were temporary and are not part of that artifact. The committed profilers can generate fresh evidence, but the samples alone cannot reproduce the exact historical timing or churn runs.
 
 </details>
 

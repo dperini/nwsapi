@@ -456,7 +456,7 @@ export function renderApiMarkdown(
     '',
     'This is an extension example, not full jQuery compatibility. `:even`, `:odd`, `:eq(n)`, `:lt(n)`, and `:gt(n)` filter the matched candidates within each compiled selector branch; `match()` treats its element as a singleton set. The original `:first`, `:last`, and `:nth(n)` extensions use document-wide indexes among elements of the same tag, excluding the document root. Integer arguments are validated; negative indexes are not translated from the end. `:visible` and `:hidden` use offset dimensions. Core Selectors Level 4 semantics handle `:has()`. These extensions do not emulate jQuery set operations across selector lists or complex positional chains.',
     '',
-    'See the [jQuery comparison tests and known differences](../testing/testing.md#comparing-the-optional-extension-with-jquery) for runnable examples.',
+    'See the [jQuery comparison tests and known differences](../testing/jquery.md) for runnable examples.',
     '',
     '</details>',
     '',

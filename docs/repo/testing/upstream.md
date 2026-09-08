@@ -57,7 +57,7 @@ The test server uses localhost port 8000 and refuses an occupied port.
 <summary>Run other test groups</summary>
 
 Run `pnpm test` for unit tests, or `pnpm run test:node` for unit and integration tests.
-Those tests do not need Chromium or WPT. See [test budgets](testing.md) for the enforced timing limits.
+Those tests do not need Chromium or WPT. See [test budgets](commands.md) for the enforced timing limits.
 Run `pnpm run test:browser` for browser regression tests.
 Run `pnpm run cover` to measure coverage with WPT and Node tests.
 

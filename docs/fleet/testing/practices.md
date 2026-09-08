@@ -6,7 +6,7 @@ These practices apply across fleet repositories. Each repository documents its c
 
 Exercise the actual implementation. Assert returned values, exit codes, state changes, and structured output. Avoid coupling a behavioral test to incidental wording or source layout. Reimplementing production logic inside a test can let both copies share the same defect.
 
-Keep tests owned by the repository under `test/repo/`. Shared runners, setup, and helpers may live under `test/fleet/`. Shared tooling does not imply a shared suite of product tests. This follows the [Wheelhouse test layout](https://github.com/SocketDev/socket-wheelhouse/blob/main/docs/fleet/agents.md/test-layout.md).
+Use the [shared test layout](layout.md) to separate suites, reusable helpers, and fixture data.
 
 ## Isolate fixtures and external effects
 
@@ -23,3 +23,7 @@ A suite's wall-clock budget includes startup, build, collection, execution, and 
 Improve startup and fixture costs when a fast tier exceeds its budget. Put tests that require subprocesses or shared-state mutation in a suitable isolated tier, and keep that tier in CI. Changing tiers must not silently remove coverage.
 
 Coverage measures execution, not semantic compatibility. Verify required modules participate in the report, retain regression cases for behavior changes, and distinguish measured coverage from claimed API compatibility.
+
+## Normalize coverage reports
+
+Canonicalize live and persisted coverage locations before merging. JSON serializes infinite end columns as `null`, so merging the two forms directly can count one statement twice. The [Wheelhouse coverage normalization helper](https://github.com/SocketDev/socket-wheelhouse/blob/main/template/base/universal/scripts/fleet/util/coverage-normalize.mts) handles this boundary. Verify repeated merges and input immutability. Repositories define their own coverage targets, required modules, and enforcement commands.
