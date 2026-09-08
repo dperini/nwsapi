@@ -531,3 +531,69 @@ test('stylesheet checks ignore non-elements and query APIs reject invalid contex
     /Document, DocumentFragment, or Element/,
   )
 })
+
+for (const [method, fallback] of [
+  ['matches', false],
+  ['closest', null],
+  ['querySelector', null],
+  ['querySelectorAll', []],
+] as const) {
+  test(`${method} preserves throwing and noexcept contracts without poisoning subsequent queries`, t => {
+    const window = host(t)
+    const adapter = new DOMSelector(window)
+    const node = window.document.getElementById('one')
+    for (const context of [null, window.document.createTextNode('text')]) {
+      assert.throws(() => adapter[method]('.item', context), window.TypeError)
+      assert.deepEqual(
+        adapter[method]('.item', context, { noexcept: true }),
+        fallback,
+      )
+    }
+    assert.throws(() => adapter[method]('[', node), { name: 'SyntaxError' })
+    assert.deepEqual(adapter[method]('[', node, { noexcept: true }), fallback)
+    assert.equal(adapter.matches('.item', node), true)
+    assert.equal(adapter.engine.configure().VERBOSITY, true)
+    assert.throws(() => adapter[method]('[', node), { name: 'SyntaxError' })
+  })
+}
+
+test('noexcept query results and subject hints are independently owned', t => {
+  const window = host(t)
+  const adapter = new DOMSelector(window)
+  const first = adapter.querySelectorAll('[', window.document, {
+    noexcept: true,
+  })
+  first.push(window.document.body)
+  assert.deepEqual(
+    adapter.querySelectorAll('[', window.document, { noexcept: true }),
+    [],
+  )
+  const subjects = adapter.extractSubjects('.item')
+  subjects[0].id = 'mutated'
+  subjects.push({ id: 'extra', className: null, tag: null })
+  assert.deepEqual(adapter.extractSubjects('#one'), [
+    { id: null, className: null, tag: null },
+  ])
+})
+
+test('shared adapter instances observe resolver clearing and synchronous DOM mutations', t => {
+  const window = host(t)
+  const a = new DOMSelector(window)
+  const b = new DOMSelector(window)
+  const document = window.document
+  const first = document.getElementById('one')
+  const second = document.getElementById('two')
+  assert.equal(a.querySelector('.item', document), first)
+  const snapshot = a.querySelectorAll('.item', document)
+  first.className = ''
+  second.remove()
+  const replacement = document.createElement('div')
+  replacement.className = 'item'
+  document.body.append(replacement)
+  b.clear(true)
+  assert.equal(a.querySelector('.item', document), replacement)
+  assert.deepEqual(Array.from(b.querySelectorAll('.item', document)), [
+    replacement,
+  ])
+  assert.deepEqual(Array.from(snapshot), [first, second])
+})

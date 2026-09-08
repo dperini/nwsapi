@@ -291,6 +291,7 @@
         list = Array(l)
       while (l > i) {
         if (false === callback((list[i] = nodes[i]))) {
+          list.length = i + 1
           break
         }
         ++i
