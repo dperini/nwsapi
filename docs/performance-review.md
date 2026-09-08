@@ -1,5 +1,10 @@
 # Performance review — 2026-09-07
 
+This is the historical review of `2ddfba2`. See
+[common query fast paths](common-query-fast-paths.md) for the first implementation
+and refreshed results. The original measurements remain available in that
+revision; the benchmark assets on master now contain the newer run.
+
 NWSAPI wins 30 of the 36 recorded warm-query comparisons against
 `@asamuzakjp/dom-selector` 8.3.2. That is a strong starting point, but not yet
 evidence of a general performance lead. The next work should eliminate the
