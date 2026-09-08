@@ -34,7 +34,7 @@ const descriptions: Record<string, string> = {
     'Reads or changes options. Pass `true` as the second argument to clear compiled selectors.',
   emit: 'Reports an error using the configured error policy.',
   install:
-    'Replaces native selector methods; `querySelectorAll()` returns static NodeList-compatible snapshots. Pass `true` to also replace collection methods.',
+    'Replaces native selector methods; `querySelectorAll()` returns static NodeList-compatible snapshots. The `all` flag enables legacy iframe-load handling.',
   uninstall: 'Restores the native methods saved by `install()`.',
   registerCombinator:
     'Adds a relationship between elements using trusted resolver code.',
@@ -183,23 +183,74 @@ export function renderApiMarkdown(
     const fn = value as FunctionExpression
     return `${name}(${fn.params.map(param => text.slice(param.start, param.end).replace(/\s+/g, ' ')).join(', ')})`
   }
-  const methods: string[] = [],
-    fields: string[] = []
+  const methods = new Map<string, string>()
+  const fields: string[] = []
   for (const prop of object('Dom')) {
     const name = prop.key.name
     const value =
       prop.value.type === 'Identifier'
         ? variables.get(prop.value.name)
         : prop.value
-    const target = value?.type === 'FunctionExpression' ? methods : fields
-    target.push(
-      row(
-        name,
-        signature(name, value, source),
-        descriptions[name],
-        'src/nwsapi.mts',
-        prop.loc.start.line,
-      ),
+    const text = row(
+      name,
+      signature(name, value, source),
+      descriptions[name],
+      'src/nwsapi.mts',
+      prop.loc.start.line,
+    )
+    if (value?.type === 'FunctionExpression') {
+      methods.set(name, text)
+    } else {
+      fields.push(text)
+    }
+  }
+  const methodGroups = [
+    [
+      'Query elements',
+      ['closest', 'first', 'match', 'select'],
+      'Select descendants, test a match, or find the nearest matching ancestor.',
+    ],
+    [
+      'Look up elements',
+      ['byClass', 'byId', 'byTag'],
+      'Find elements directly by class, ID, or tag name.',
+    ],
+    [
+      'Configure the engine',
+      ['configure', 'emit'],
+      'Change engine options and error handling.',
+    ],
+    [
+      'Compile and extend selectors',
+      ['compile', 'registerCombinator', 'registerOperator', 'registerSelector'],
+      'Advanced APIs for compiled resolvers and trusted selector extensions.',
+    ],
+    [
+      'Override browser DOM methods',
+      ['install', 'uninstall'],
+      'Calling `NW.Dom.install()` redirects native `querySelector()`, `querySelectorAll()`, `matches()`, and `closest()` calls to NWSAPI. `uninstall()` restores them. Direct engine calls work without installation.',
+    ],
+  ] as const
+  const groupedMethods = methodGroups.flatMap(([title, names, description]) => [
+    `### ${title}`,
+    '',
+    description,
+    '',
+    '| Method | Result |',
+    '| --- | --- |',
+    ...names.map(name => {
+      const text = methods.get(name)
+      if (!text) {
+        throw new Error(`Missing API method ${name}`)
+      }
+      methods.delete(name)
+      return text
+    }),
+    '',
+  ])
+  if (methods.size) {
+    throw new Error(
+      `Assign API methods to a category: ${[...methods.keys()].join(', ')}`,
     )
   }
   const adapterSource = stripTypeScriptTypes(adapter)
@@ -305,14 +356,19 @@ export function renderApiMarkdown(
     'Use `NW.Dom` in a browser or the engine returned by the Node.js factory.',
     'The tables list every exported engine member, configuration option, and adapter method. Links point to the source.',
     '',
+    '| API | Purpose |',
+    '| --- | --- |',
+    '| [Core engine](#engine-methods) | Query an existing DOM with `select()`, `first()`, `match()`, and `closest()`. |',
+    '| [Browser DOM overrides](#override-browser-dom-methods) | Route native selector methods through NWSAPI with `install()`. |',
+    '| [jsdom adapter](#jsdom-adapter) | Integrate the engine with jsdom queries and stylesheet matching. |',
+    '| [jQuery selector extension](#jquery-selector-extension) | Add optional jQuery-style selector syntax. jQuery itself is not required. |',
+    '| [DOM traversal extension](#dom-traversal-extension) | Navigate parents, children, and siblings with `up()`, `down()`, `next()`, and `previous()`. |',
+    '',
     '## Engine methods',
     '',
     'Query contexts default to the factory document when omitted. `closest()`, `first()`, `match()`, and `select()` accept a callback for matching elements.',
     '',
-    '| Method | Result |',
-    '| --- | --- |',
-    ...methods,
-    '',
+    ...groupedMethods,
     '<details>',
     '<summary>Configuration</summary>',
     '',
@@ -375,11 +431,12 @@ export function renderApiMarkdown(
     '</details>',
     '',
     '<details>',
-    '<summary>Optional browser extensions</summary>',
+    '<summary>DOM traversal extension</summary>',
     '',
-    '### Optional browser extensions',
+    '### DOM traversal extension',
     '',
     'Load `src/modules/nwsapi-traversal.js` after the core to add these methods to `NW.Dom`.',
+    'These helpers navigate an existing DOM; they do not create a DOM or replace native methods. For example, `NW.Dom.up(element, "article")` finds the nearest matching ancestor.',
     '',
     '| Method | Result |',
     '| --- | --- |',
@@ -387,9 +444,18 @@ export function renderApiMarkdown(
     '',
     'Traversal sibling and ancestor indexes are zero-based: omitted or `0` returns the nearest element. `down()` without an argument (or with `null`) returns the first element child; `down(element, 0)` returns the starting element and positive indexes walk descendants in document order, starting at `1`. Selector arguments may match the starting element for `down()`. Missing matches return `null`.',
     '',
-    'The [jQuery selector extension](../src/modules/nwsapi-jquery.mts) registers extra selector patterns. It does not add query methods.',
+    '</details>',
+    '',
+    '<details>',
+    '<summary>jQuery selector extension</summary>',
+    '',
+    '### jQuery selector extension',
+    '',
+    'Load `src/modules/nwsapi-jquery.js` after the core to add selectors such as `:eq(1)`, `:even`, `:input`, and `:visible`. Use them through the existing engine methods, for example `NW.Dom.select("p:even", document)`. The extension does not load or require jQuery.',
     '',
     'This is an extension example, not full jQuery compatibility. `:even`, `:odd`, `:eq(n)`, `:lt(n)`, and `:gt(n)` filter the matched candidates within each compiled selector branch; `match()` treats its element as a singleton set. The original `:first`, `:last`, and `:nth(n)` extensions use document-wide indexes among elements of the same tag, excluding the document root. Integer arguments are validated; negative indexes are not translated from the end. `:visible` and `:hidden` use offset dimensions. Core Selectors Level 4 semantics handle `:has()`. These extensions do not emulate jQuery set operations across selector lists or complex positional chains.',
+    '',
+    'See the [jQuery comparison tests and known differences](testing.md#comparing-the-optional-extension-with-jquery) for runnable examples.',
     '',
     '</details>',
     '',
