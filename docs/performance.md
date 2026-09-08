@@ -1,34 +1,58 @@
 # Performance
 
-NWSAPI compiles CSS selectors into JavaScript functions. It saves these functions so later queries can reuse them. A function that checks whether an element matches a selector is called a **resolver**.
+NWSAPI reads CSS selectors and creates JavaScript functions that test elements.
+It saves these functions so later queries can reuse them.
+A matching function is called a **resolver**.
+An element that the engine may need to test is called a **candidate**.
 
-For a first-match query, the engine stops when it finds the required element. It does not collect every match. For a query that returns all matches, the engine shares position information across elements to avoid repeated work.
+A first-match query stops after finding the required element.
+An all-results query collects each matching element.
+These operations can use different methods to avoid repeated work.
 
-This guide explains an earlier performance study of engine commit `6d79033`. That study used Node.js 26.5.0, V8 14.6.202.34-node.24, jsdom 30.0.1, and an Apple M3 Max. V8 is the JavaScript engine used by Node.js and Chromium. See the [benchmark report](benchmarks.md) for the latest recorded comparisons. These results do not predict performance for every selector or application.
+The first study on this page examined engine commit `6d79033`.
+It used Node.js v26.5.0, V8 v14.6.202.34-node.24, `jsdom` v30.0.1, and an Apple M3 Max.
+V8 is the JavaScript engine used by Node.js and Chromium.
+Later sections describe the changes that followed that study.
+See the [benchmark report](benchmarks.md) for the latest recorded comparisons.
 
 ## How we measured performance
 
-The [first-match results](../assets/repo/bench/first-match-results.json) compare a saved NWSAPI build, an updated build, and jsdom's default `@asamuzakjp/dom-selector` 8.3.2 engine. Each query checks that the results contain the correct elements before timing starts. Separate browser tests compare representative selectors with Chromium.
+The [first-match results](../assets/repo/bench/first-match-results.json) compare a saved NWSAPI build, an updated build, and `@asamuzakjp/dom-selector` v8.3.2 through `jsdom`.
+The runner checks that queries return the expected elements before timing starts.
+Separate browser tests compare representative selectors with Chromium.
 
-The measurements call NWSAPI directly. They call the other engine through jsdom's public methods. Those jsdom calls include integration work, so the comparison includes more than selector matching alone.
+The measurements call NWSAPI directly and call the other engine through `jsdom` methods.
+The `jsdom` methods perform additional work around selector matching.
+That work is included in their measured time.
 
-A **warm query** reuses work from earlier calls. A **cold query** uses a new selector and must compile it. A **candidate** is an element that the engine may need to test.
+Cold queries run a selector first on a fresh document. Warm queries repeat it.
+The separate **cold-compilation test** compiles distinct selector strings to prevent reuse of generated functions.
+A cold query can avoid compilation if it uses a simple tag or class path.
 
-A CPU profile records samples of where the program spends time. We start the profile after creating the test document and preparing candidates. We stop it before closing the document. Cold compilation skips the warmup step and uses different selector suffixes to prevent reuse.
+A CPU profile samples the functions that are running during a test.
+It helps locate work that may be expensive.
+The profile starts after document creation and candidate preparation, and stops before document cleanup.
+The cold-compilation profile skips warmup and uses distinct selector suffixes.
 
-Each phase runs separately:
+Each profile phase runs on its own:
 
-- The first-match, all-results, and raw-resolver phases run the selector matrix 1,000 times. The matrix contains 36 queries.
+- The first-match, all-results, and raw-resolver phases repeat a set of 36 queries 1,000 times.
 - The single-element matching phase runs 100,000 times and changes the element under test.
 - The cold-compilation phase makes 36,000 compile requests.
 
-The raw-resolver phase passes every element to the matching function. This measures the function separately from candidate selection. It does not represent the cost of a normal public query.
+The raw-resolver phase passes all elements to the matching function.
+It measures that function apart from candidate selection.
+Use public-query benchmarks to measure the complete query cost.
 
 ## What the profiles showed
 
-The [profile data](../assets/repo/bench/v8-analysis.json) records source hashes, sample counts, and environment details. A source hash identifies the exact file that was measured.
+The [profile data](../assets/repo/bench/v8-analysis.json) records source hashes, sample counts, and machine details.
+A source hash identifies the contents of a measured file.
 
-The percentages below describe samples taken while a function itself was running. They exclude samples from functions it called. They are estimates, not exact elapsed times. Do not add percentages from separate phases.
+Each percentage below counts samples taken while the function itself was running.
+It excludes functions that the function called.
+These percentages are estimates of where work occurred.
+They are not exact elapsed times, and percentages from separate phases must not be added together.
 
 | Phase                  | Samples | Main observations                                                                                                         |
 | ---------------------- | ------: | ------------------------------------------------------------------------------------------------------------------------- |
@@ -38,65 +62,99 @@ The percentages below describe samples taken while a function itself was running
 | Single-element match   |   1,216 | Resolvers used 18.9%. Cache lookups used 18.4%. The code that chose the matching function used 6.7%.                      |
 | Raw resolver execution |   9,930 | Resolvers used 18.3%. `localName` reads used 9.5%. Ancestor filters used 9.4%.                                            |
 
-Garbage collection releases memory that the program no longer needs. Ancestor filters help the engine skip elements whose parents cannot satisfy a selector.
+Garbage collection releases memory that the program no longer needs.
+Ancestor filters skip elements whose parents cannot satisfy a selector.
+A query plan stores the steps and functions needed to run a query.
 
-The first-match profile includes queries with no result. Those queries can inspect many candidates. The profile therefore does not describe only queries that match the first candidate.
-
-The `compile` samples include time spent creating JavaScript functions. They do not show that reading selector text caused all of that cost.
+The first-match profile includes queries with no result.
+Those queries can inspect many candidates, so this profile also includes long searches.
+The `compile` samples include the cost of creating JavaScript functions.
+Selector text scanning accounts for only part of that work.
 
 ## How the compiler reduces repeated work
 
-NWSAPI creates resolver functions with `Function()` and saves them in a cache. The first-match plan reuses the existing parser and compiler. A **query plan** contains the steps and functions needed to run a query.
+NWSAPI creates resolver functions with `Function()` and saves them in a cache.
+First-match plans reuse the parser and compiler.
+The plan cache stores selector information and functions.
+It has a size limit and clears when configuration or document rules change.
+Separate candidate caches, described below, can store lists of elements.
 
-The plan cache stores selector information and functions. It does not store matching elements or DOM collections. The cache has a size limit. The engine clears it when configuration or document rules change.
+The engine compiles all selector groups before testing candidates.
+This preserves errors in an invalid group even if an earlier group could match.
+It then finds the first match in each group and chooses the earliest result in document order.
+It calls the user's callback once, after choosing that result.
 
-The engine compiles every selector group before it tests candidates. This makes sure an invalid group still produces an error, even if an earlier group could match. The engine then finds the first match in each group and selects the earliest element in document order. It calls the user's callback once, after choosing the result.
-
-Tests cover XML documents, document fragments, legacy hosts, DOM changes, and callbacks that run another query.
+Tests cover XML, document fragments, older DOM implementations, and document changes.
+They also cover callbacks that start another query.
 
 ### Stop early when the first candidate matches
 
-The common path reads collection index zero without copying the collection or reading its length. If that element does not match, the engine checks the next seven entries. It then reads the length before a longer search.
+The common collection path reads index zero without copying the collection or reading its length.
+If that element does not match, the engine checks the next seven entries.
+It reads the collection length before a longer search.
 
-This helps in jsdom because collection access can run extra code to manage DOM objects. Reading the length before the longer search also prevents unlimited reads beyond the collection's end.
+In `jsdom`, collection access can run extra code to manage DOM objects.
+Avoiding unnecessary reads reduces that work.
+The length check also limits reads past the end of the collection.
 
 ### Count only the siblings that are needed
 
-When testing one element against an `:nth-child()` formula, the resolver counts preceding siblings. For `:nth-last-child()`, it counts following siblings.
+For a single-element `:nth-child()` check, the resolver counts preceding siblings.
+For `:nth-last-child()`, it counts following siblings.
 
-When selecting many elements, the engine keeps a shared sibling index. Building that index once can cost less than counting the same siblings for each candidate. Selectors with a fixed position keep their existing limited searches.
+An all-results query can share a sibling index between candidates.
+Building one index can cost less than counting the same siblings for each element.
+Fixed-position selectors keep their existing limited searches.
 
 ### Check the code that V8 produces
 
-The first-match trace recorded seven completed resolver optimizations and no resolver deoptimizations. An optimization lets V8 replace general code with faster code. A deoptimization occurs when V8 must stop using that optimized code.
+The recorded first-match trace showed seven completed resolver optimizations and no resolver deoptimizations.
+V8 can replace general code with faster code after observing how it runs.
+A **deoptimization** occurs when V8 must stop using that optimized code.
 
-We inspected V8 bytecode and optimized ARM64 machine code. We checked array bounds, helper calls, and property reads. These findings apply to that recorded run. Other DOM implementations, selectors, or V8 versions can produce different results.
+The study inspected V8 bytecode and optimized ARM64 machine code.
+It checked array bounds, helper calls, and property reads.
+Different DOM implementations, selectors, or V8 versions can produce different code.
 
 ## Which changes we kept
 
-| Experiment                                              | Decision                                                                                                                                                                                                                                              |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Compile first-match plans.                              | We kept this change. Warm calls reuse parsing and planning work, and the engine does not collect every result.                                                                                                                                        |
-| Count siblings in the required direction.               | We kept this change for single-element matching. It skips siblings that cannot affect the answer.                                                                                                                                                     |
-| Use `charCodeAt()` in three selector scans.             | We kept this change as a project preference. Comments show the character represented by each number. The corrected cold-query comparison ranged from about equal performance to a 6% improvement. This does not prove that all queries became faster. |
-| Copy collection entries by index.                       | We kept this change in a later update for dense tag collections. The engine allocates the result array at the required size. The earlier experiment did not show a consistent improvement across complete queries.                                    |
-| Pass live collections to all-results resolvers.         | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots remained useful for resolver execution.                                                                           |
-| Reuse progress through adjacent siblings.               | We revised and kept this change for forward `an+b` position formulas. It uses the existing helper when candidates are far apart. Callbacks, reverse searches, and legacy paths keep their existing helpers.                                           |
-| Call collection `item()` while finding the first match. | We rejected this change. The method call cost more than the length read it avoided. A limited search by index performed better.                                                                                                                       |
+| Experiment | Decision |
+| --- | --- |
+| Compile first-match plans. | We kept this change. Repeated calls reuse parsing and planning work. The engine stops after finding the required result. |
+| Count siblings in the required direction. | We kept this change for single-element matching. It skips siblings that cannot affect the answer. |
+| Use `charCodeAt()` in three selector scans. | We kept this project preference. Comments identify the character for each number. The corrected cold-compilation comparison ranged from about the same speed to a 6% improvement. |
+| Copy collection entries by index. | A later update kept this method for large tag collections. It creates a result array with the required size. The earlier experiment had mixed results across complete queries. |
+| Pass live collections to all-results resolvers. | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots performed better. |
+| Reuse progress through adjacent siblings. | We revised and kept this method for forward `an+b` position formulas. Candidates far apart, callbacks, reverse searches, and older DOM implementations use the existing helpers. |
+| Call `item()` while finding the first match. | We rejected this change. The call cost more than the collection-length read it avoided. A limited search by index performed better. |
 
-The compiler also uses numeric ASCII checks to choose how to process a token. A **token** is a part of a selector, such as a name or operator. Namespace and extension handling still use their existing paths.
+The compiler also uses numeric ASCII checks to choose how to process selector tokens.
+A **token** is a part of a selector, such as a name or operator.
+Namespace and extension handling use their existing code paths.
 
-The parser study examined numeric character checks, combined whitespace scans, and reusable state. These techniques help when they remove repeated work. NWSAPI already reads each UTF-16 code unit once per scan. We did not replace complete DOM string comparisons with manual character loops.
+The parser study examined numeric character checks, combined whitespace scans, and reusable state.
+Each technique needs to remove enough work to improve a complete query.
+NWSAPI already reads each UTF-16 code unit once per scan.
+A code unit is a 16-bit part of a JavaScript string.
+The changes kept complete DOM string comparisons instead of replacing them with manual character loops.
 
-[V8's scanner article](https://v8.dev/blog/scanner) explains how a compiler can handle common ASCII characters quickly and delay more complex Unicode work. It does not show that `charCodeAt()` is always faster than a JavaScript string comparison.
+[V8's scanner article](https://v8.dev/blog/scanner) describes fast handling for common ASCII characters and separate handling for more complex Unicode input.
+The effect of `charCodeAt()` in this engine still depends on the measured query.
 
-An early cold-query experiment allowed the second engine to reuse functions that V8 had compiled for the first engine. This overstated the improvement. The corrected runner uses different selector suffixes for each engine and changes the execution order between rounds.
+An early compilation experiment let the second engine reuse functions that V8 had compiled for the first engine.
+That made the improvement appear larger than it was.
+The corrected runner gives each engine distinct selector suffixes and changes execution order between passes.
 
-An early CPU profile also included document setup and cleanup. We excluded those samples from the phase analysis. The rejected experiments help explain decisions; they are not performance promises.
+An early CPU profile included document setup and cleanup.
+The phase analysis excluded those samples.
+The rejected experiments record what was tested and why the implementation changed.
 
 ## Run the tools
 
-Install the development dependencies, then build the JavaScript files. Use Node.js 26 for these commands. The compiler CLI is a repository tool. It does not add a runtime dependency or an executable to the published package.
+Install the development dependencies, then build the JavaScript files.
+Use Node.js v26 for these commands.
+The compiler CLI is a repository tool.
+The published package has no CLI executable or additional runtime dependency from this tool.
 
 ```sh
 pnpm run build
@@ -105,9 +163,14 @@ bin/nwsapi compile --mode match --json 'div:nth-child(2n)'
 bin/nwsapi compile --mode item --legacy '.card'
 ```
 
-The CLI prints the generated resolver, its size in bytes, and the helpers it uses. The resolver can refer to `s`, which holds engine state, and `a`, which holds ancestor-filter information. It still needs the engine's validation, document handling, and candidate selection. It is not a complete standalone `querySelectorAll()` implementation. `compile()` can return `null` when no matching function is needed.
+The CLI prints the generated resolver, its size in bytes, and the helpers it uses.
+The generated function can refer to `s` for engine state and `a` for ancestor-filter information.
+It still requires the engine's validation, document handling, and candidate selection.
+Use the public engine API to run complete queries.
+The `compile()` method can return `null` when a matching function is unnecessary.
 
-Run each profile separately. If you omit the output path, the tool creates a file in a unique temporary directory and prints its location.
+Run each profile on its own.
+If you omit the output path, the tool creates a file in an operating-system temporary directory and prints its location.
 
 ```sh
 node scripts/repo/bench/profile.mts select
@@ -123,37 +186,47 @@ To compare two saved engine files, pass their paths and the result path:
 node scripts/repo/bench/compiler.mts before.cjs after.cjs compiler.json
 ```
 
-To inspect V8's compiler output, run:
+To inspect V8 compiler output, run:
 
 ```sh
 node --trace-opt --trace-deopt --print-bytecode --print-bytecode-filter=Resolver --print-opt-code --print-opt-code-filter=Resolver scripts/repo/bench/profile.mts first > v8.log 2>&1
 ```
 
-Open `.cpuprofile` files in Chrome DevTools to see which functions called each other. The [V8 profiling guide](https://v8.dev/docs/profile) explains the profiling tools. Do not run timing experiments at the same time as tests or other work that uses much CPU time.
+Open `.cpuprofile` files in Chrome DevTools to inspect which functions called each other.
+The [V8 profiling guide](https://v8.dev/docs/profile) explains the tools.
+Run timing experiments separately from tests and other CPU work.
+The timing runners now use `mitata`; the historical measurements on this page predate that migration.
 
 ## What changed after this study
 
-A later update saved snapshots of native tag and class collections. A **snapshot** is a saved list of elements that belonged to a collection at a given time. Simple queries copy these lists. More complex queries still test attributes and relationships.
+A later update saved snapshots of native tag and class collections.
+A **snapshot** is a saved list of elements from a collection.
+Simple queries return a fresh copy of that list.
+More complex queries still test their attributes and relationships.
 
-Before using a snapshot, the engine checks for DOM changes that could make it stale. It uses weak references and cleans up mutation observers so discarded engines do not keep candidate arrays alive. A weak reference does not prevent garbage collection.
+Before reusing a snapshot, the engine checks for document changes that could make the list outdated.
+Weak references allow unused state to be collected.
+Observer cleanup prevents discarded engines from keeping candidate arrays alive.
 
-See the [snapshot design and memory checks](common-query-fast-paths.md#native-collection-snapshots) and the [benchmark report](benchmarks.md). The profile table in this guide still describes commit `6d79033`. It is not a new profile of the later snapshot update.
-
-## What to measure next
-
-The benchmark set does not cover every selector or application. Further work should measure cold queries, frequent DOM changes, other DOM implementations, missing results, and the cost of choosing a resolver.
-
-For each new optimization, check short and long searches. Check dense and sparse candidates. Check early matches, late matches, and no matches. Also check DOM changes and different query contexts. Compare results with an independent implementation.
-
-These profiles do not justify a complete parser rewrite, a new syntax-tree format, cached query results, or converting every string to a number. Add that complexity only when measurements show a useful improvement.
+See the [snapshot design and memory checks](common-query-fast-paths.md#native-collection-snapshots).
+The profile table above describes commit `6d79033`; it was collected before the snapshot update.
 
 ## Cold first-match class queries
 
-A fresh jsdom class collection walks the subtree and creates class-token objects. Reading its first item can therefore process thousands of elements. The first-match compiler was not the main cost for simple class queries.
+A fresh `jsdom` class collection can scan its whole subtree and create objects for class names.
+Reading only the first item can therefore process thousands of elements.
+That collection setup was the main cost for the affected simple class queries.
 
-The engine now checks a prefix of at most 16 elements before it requests the full collection. It caches class candidates from that prefix. A mutation observer checks pending changes synchronously before each reuse. Tag checks and compiled conditions still run on every call. Late and missing matches use the existing collection path. Quirks mode keeps the existing class lookup.
+The engine now checks at most 16 elements before requesting the full collection.
+It saves class candidates from that initial group, called a **prefix**.
+Before reuse, a mutation observer checks for pending document changes.
+Tag checks and compiled conditions still run on each call.
+Late matches and missing matches use the existing collection search.
+Quirks mode, which follows older HTML compatibility rules, keeps the existing class lookup.
 
-The final implementation combines a bounded candidate cache with a fast reuse path. It avoids the full cold class scan and repeated document setup checks. See the [warm-cache follow-up](#warm-candidate-cache-follow-up) for the current measurements.
+The implementation combines a limited candidate cache with a fast reuse path.
+It avoids the full cold class scan and repeated document setup checks.
+The [warm-cache follow-up](#warm-candidate-cache-follow-up) describes the later reuse improvement.
 
 | Query                    | Earlier cold NWSAPI (ms) | Updated cold NWSAPI (ms) | Competitor (ms) | Cold speedup |
 | ------------------------ | -----------------------: | -----------------------: | --------------: | -----------: |
@@ -162,13 +235,24 @@ The final implementation combines a bounded candidate cache with a fast reuse pa
 | `input.input`            |                    1.779 |                    0.093 |           1.152 |        12.4× |
 | `.card > button.primary` |                    2.090 |                    0.170 |           1.143 |         6.7× |
 
-The new run has lower medians for all 12 warm queries and all 12 cold queries. It uses the same fixture, nine rounds, and separate documents for each engine. See the [raw samples](../assets/repo/bench/first-query-states.json). Earlier and updated measurements came from separate runs, so small differences can include timing noise.
+The updated run recorded lower medians for all 12 cold queries and all 12 warm queries.
+It used the same test HTML, nine passes, and separate documents for each engine.
+See the [raw samples](../assets/repo/bench/first-query-states.json).
+The earlier and updated builds were measured in separate runs, so small differences can include timing variation.
 
-The focused V8 profile prepares 40 separate documents before sampling. Before the change it recorded 666 samples; after the change it recorded 119. The earlier profile had 78 samples in jsdom class-token parsing and 50 in DOMTokenList setup. The updated profile had 37 in selector parsing, 14 in collection planning, and 11 in the prefix helper. Sampling counts are diagnostic evidence, not benchmark timings.
+The focused V8 profile prepared 40 separate documents before sampling.
+It recorded 666 samples before the change and 119 after it.
+The earlier profile included 78 samples in class-name parsing and 50 in `DOMTokenList` setup.
+The updated profile included 37 in selector parsing, 14 in collection planning, and 11 in the prefix helper.
+These counts help locate work; use the timing results to compare speed.
 
-The optimization trace showed early map and call-target deoptimizations across document realms. The query entry point and compiled first-match dispatcher later reached TurboFan. The prefix helper reached Maglev. This does not establish that all deoptimizations are avoidable. The retained change reduces DOM work instead of depending on a particular V8 tier.
+The optimization trace showed that V8 assumptions about object layouts and called functions changed across documents.
+The query entry point and first-match dispatcher later reached TurboFan.
+The prefix helper reached Maglev.
+TurboFan and Maglev are V8 compilers that optimize running JavaScript.
+The change reduces DOM work across these compilation stages.
 
-Reproduce the profiles with these commands. Profile files use an operating-system temporary directory by default.
+To reproduce the profiles, run:
 
 ```sh
 node scripts/repo/bench/cold-first-profile.mts
@@ -176,17 +260,33 @@ node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first
 node bin/nwsapi compile --mode match ".card > button.primary"
 ```
 
-See [V8 profiling guidance](https://v8.dev/docs/profile) for the sampling approach.
+Profile files use an operating-system temporary directory by default.
+See [V8 profiling guidance](https://v8.dev/docs/profile) for the sampling method.
 
 ## Warm candidate-cache follow-up
 
-The follow-up makes the four early class queries 24–45% faster than the build before the cold fix. The first cold fix checked `ownerDocument`, `defaultView`, observer availability, and a document weak reference on every query. The warm profile showed substantial time in jsdom property wrappers.
+The follow-up reduced query time by 24–45% for four early class queries compared with the build before the cold fix.
+The first cold fix checked `ownerDocument`, `defaultView`, observer support, and a document weak reference on each query.
+The warm profile showed repeated work in the `jsdom` code behind those property reads.
 
-A cached prefix depends on descendant order and class text. It does not depend on the owner document. The engine now checks for that cache first. It reads document properties only when it must create the observer. Every reuse still checks `takeRecords()`. Tag checks and compiled selector conditions remain live. The observer still holds the cache weakly.
+The prefix cache depends on descendant order and class text.
+The engine checks that cache before reading document properties.
+It reads those properties when it needs to create the observer.
+Each reuse still calls `takeRecords()` to check pending changes.
+Tag checks and compiled conditions run on the current elements.
+The observer holds the cache through a weak reference.
 
-Moving the same element context to another document also needs a document-mode refresh. The simple and compiled first-match paths now detect that change. Queries against the current document use an identity comparison. Element contexts check their current owner document. Regression tests cover standards mode, quirks mode, XML adoption, SVG class changes, and mutations after adoption.
+Moving an element to another document can change the document's matching rules.
+Simple and compiled first-match paths check for that move and refresh the rules when needed.
+Queries against the current document use an identity comparison.
+Queries scoped to an element check its current owner document.
+Tests cover standards mode, quirks mode, XML adoption, SVG class changes, and changes after a move.
 
-The focused comparison uses separate documents, nine rotating rounds, and 100,000 calls per sample. Each call checks element identity. The baselines are source snapshots from `af47516` (before the cold fix) and `4ecb066` (the cold fix), with types stripped by Node.js. See the [complete samples](../assets/repo/bench/first-cache-results.json).
+The focused comparison used separate documents and nine passes with a changing engine order.
+Each sample contained 100,000 calls, and each call checked the returned element.
+The baseline files came from `af47516`, before the cold fix, and `4ecb066`, with the cold fix.
+Node.js removed TypeScript types from those source files before use.
+See the [complete samples](../assets/repo/bench/first-cache-results.json).
 
 | Query                    | Before cold fix (μs) | Cold fix (μs) | Updated (μs) | Change from original |
 | ------------------------ | -------------------: | ------------: | -----------: | -------------------: |
@@ -195,16 +295,34 @@ The focused comparison uses separate documents, nine rotating rounds, and 100,00
 | `input.input`            |                0.341 |         0.350 |        0.189 |        45% less time |
 | `.card > button.primary` |                0.417 |         0.455 |        0.316 |        24% less time |
 
-The four early class queries take 24–45% less time than the original build. The cold-query gains remain intact.
+The cold-query improvements remained in the updated build.
+The focused profile recorded 5,487 samples before the warm change and 3,376 after it for one million calls.
+Those samples locate work; they are separate from the timing measurements.
+The trace showed the helper reaching TurboFan, then deoptimizing and recompiling after object-layout changes.
+Fewer property reads produced the measured improvement.
 
-The focused profile recorded 5,487 samples before this change and 3,376 after it, for the same one million measured calls. These samples locate work; they are not timing measurements. The optimization trace showed the helper reaching TurboFan, with map-related deoptimization and recompilation. The measured gain comes from fewer property reads, not a promise of permanent optimization.
+The refreshed chart still recorded lower medians for all 12 cold queries and all 12 warm queries.
+These results describe first matches on the component test page.
 
-The refreshed chart comparison still has lower medians for all 12 warm queries and all 12 cold queries. These are first matches on the component fixture, not a claim about every selector or workload.
-
-Run the focused tools with saved CommonJS engine snapshots. The benchmark writes to an operating-system temporary directory if the output argument is omitted.
+Run the focused tools with saved CommonJS engine files:
 
 ```sh
 node scripts/repo/bench/profile.mts first-class
 node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first-class
 node scripts/repo/bench/first-cache.mts before-cold.cjs cold-fix.cjs
 ```
+
+The benchmark uses an operating-system temporary directory if you omit the output argument.
+
+## What to measure next
+
+Further comparisons should cover frequent document changes, other DOM implementations, missing results, and the cost of selecting a resolver.
+
+For each optimization, test short and long searches.
+Include many candidates under one parent and a few candidates spread across parents.
+Check early matches, late matches, and no matches.
+Also check document changes and different query scopes.
+Compare results with an independent implementation.
+
+Use complete-query measurements before adding a new parser, syntax-tree format, or cache design.
+The current profiles do not establish a benefit for those larger changes.

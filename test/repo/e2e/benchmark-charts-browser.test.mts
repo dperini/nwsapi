@@ -43,6 +43,11 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
             ...notes.map(rect => canvas.right - rect.right),
           ),
           firstNoteWidth: notes[0].width,
+          metadataGap: notes[3].top - notes[2].bottom,
+          metadataColors: Array.from(
+            document.querySelectorAll('.metadata, .metadata .code'),
+            node => getComputedStyle(node).fill,
+          ),
           noteText: Array.from(
             document.querySelectorAll('.note'),
             node => node.textContent,
@@ -60,6 +65,10 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(bounds.overflow).toBe(false)
       expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
       expect(bounds.firstNoteWidth).toBeGreaterThan(650)
+      expect(bounds.metadataGap).toBeGreaterThanOrEqual(16)
+      expect(new Set(bounds.metadataColors)).toEqual(
+        new Set(['rgb(117, 128, 142)']),
+      )
       expect(bounds.noteText[1]).toBe(
         'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
       )

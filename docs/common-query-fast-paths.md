@@ -1,114 +1,139 @@
 # Common query fast paths
 
-Implemented in `0b3840b` and `b68e020`, following the
-[performance review](performance-review.md). These were the initial common-query specializations.
-The tables below are historical measurements. See the [performance guide](performance.md)
-and [current benchmarks](benchmarks.md) for subsequent first-match and collection-snapshot work.
+A **fast path** handles a common query with fewer steps than the general query code.
+Commits `0b3840b` and `b68e020` added the first changes described here.
+They followed the [performance review](performance-review.md).
+
+The measurements on this page describe those earlier changes.
+See the [performance guide](performance.md) and [benchmark report](benchmarks.md) for later results.
 
 ## What changed
 
-- Simple `first()` queries for a type, class, or type/class compound read
-  the native collection's first qualifying item. They avoid copying all
-  candidates, compiling a resolver, and reading the live collection's length
-  when the first candidate already matches. Scope, document switching, and
-  callbacks are preserved; complex syntax and legacy hosts keep the general path.
-- Selective class anchors followed by child type chains, such as
-  `div.example > p > a`, use scoped type lookups and verify the exact parent
-  chain. Wide anchor sets use the ordinary resolver. Nested anchors preserve
-  order, and each query observes the current DOM.
-- Constant child positions share a parent's qualifying child across dense
-  sibling candidates. Sparse candidates retain the bounded sibling walk.
-  This state is local to the resolver invocation, including nested calls.
-- Simple class/ID compounds in `:is()` and `:where()` compile inline.
-  Terminal type unions can fetch and merge ordered type collections when
-  selective. Dense unions use a broad scan. Bounded, context-specific routing
-  hints are rechecked every 64 calls; they retain no DOM results and cannot
-  supply a stale answer.
+Simple `first()` queries can read the first suitable element from a native tag or class collection.
+They avoid copying every candidate into an array.
+A **candidate** is an element that the engine may need to test.
+If the first candidate matches, these queries also avoid compiling a matching function and reading the collection length.
+More complex selectors and older DOM implementations use the general query code.
+The changes preserve query scope, document switching, and callbacks.
+
+A query such as `div.example > p > a` can start from matching `div.example` elements.
+The engine then finds links within those elements and checks each link's parent chain.
+If there are too many starting elements, it uses the general matching function instead.
+Nested starting elements still produce unique results in document order.
+Every query observes the current document.
+
+Queries for a fixed child position can share work between candidates with the same parent.
+When there are few candidates, a short sibling search can cost less.
+The engine keeps this position information only for the current query.
+A callback that starts another query gets separate state.
+
+The compiler can place simple class and ID checks directly inside `:is()` and `:where()` matching functions.
+For some tag alternatives, it combines tag collections instead of scanning every element.
+It uses a broader scan when that costs less.
+Small, limited routing hints help it choose between these methods.
+The engine checks those hints again every 64 calls.
+The hints do not store matching elements.
 
 ## Native collection snapshots
 
-Large tag and class candidate collections now reuse immutable internal snapshots.
-Public calls receive fresh arrays; compiled predicates still run on every query.
-This avoids repeated host-property access when copying native HTMLCollections.
-Simple tag/class queries can return a fresh copy of this membership snapshot.
-Compound predicates and relationships are evaluated on every query.
+A **snapshot** is a saved copy of the elements in a native tag or class collection.
+Large collections can reuse these internal lists to avoid repeated DOM property reads.
+Simple tag and class queries return a fresh copy of the list.
+More complex queries still test their attributes and relationships on every call.
 
-Snapshots are keyed weakly by native collections and their observed tree roots.
-Child-list changes and class-attribute changes discard a root's snapshots.
-Before reuse, `MutationObserver.takeRecords()` checks pending changes synchronously;
-correctness does not wait for the observer callback. The callback also discards
-snapshots when no further query runs. Detached scopes and adopted elements remain
-covered; hosts without the required APIs and legacy mode use ordinary copies.
-Standalone collections below 16 elements stay on the direct path. Descendant and selective-child plans also reuse small scoped collections, where repeated lookups dominate traversal. Observer callbacks live outside engine closures and hold state weakly; where supported, finalization disconnects observers for discarded state.
+The engine discards affected snapshots when elements are added or removed, or when class attributes change.
+Before reuse, `MutationObserver.takeRecords()` checks for pending changes immediately.
+The engine does not wait for an observer callback to make results correct.
+The callback also discards old snapshots when no further query runs.
 
-The tradeoff is lazy mutation observation and retained candidate arrays while
-collections remain reachable and unchanged. Mutation-heavy workloads rebuild these
-snapshots. No sibling positions or state-selector answers survive a query. Regression
-tests cover synchronous insertion/removal, class changes, adoption, SVG, detached
-contexts, returned-array mutation, and reentrant callbacks. A forced-GC diagnostic reclaimed all tested removed nodes and observers while
-the factory document stayed alive, after returning the engine to its document
-context and delivering mutation records.
+Snapshot keys use weak references, which do not keep unused objects alive.
+The design covers detached elements and elements moved to another document.
+Older DOM implementations and hosts without the required APIs use ordinary collection copies.
+Standalone collections with fewer than 16 elements use the direct copy path.
+Descendant and child-chain queries can also reuse smaller collections.
+These queries can repeat lookups within the same part of a document.
 
-Run `node --expose-gc scripts/repo/bench/collection-memory.mts` to check detached-node and observer ownership with a live factory document.
+Observer callbacks hold their state weakly.
+Where supported, finalization disconnects observers after their state becomes unused.
+Candidate arrays remain in memory while their collections are reachable and unchanged.
+Frequent document changes cause the engine to rebuild these arrays.
+Sibling positions and state-selector results are not saved between queries.
+
+Tests cover element insertion and removal, class changes, SVG, detached elements, and moves between documents.
+They also cover changes to returned arrays and callbacks that start another query.
+A memory diagnostic forced garbage collection while the original document stayed alive.
+It reclaimed all tested removed nodes and observers after pending changes were delivered and the engine returned to its document context.
+
+Run the diagnostic with:
+
+```sh
+node --expose-gc scripts/repo/bench/collection-memory.mts
+```
 
 ## Measurements
 
-The saved-build comparison used previous master `c446b16`, Node 26.5.0,
-jsdom 30.0.1, and dom-selector 8.3.2. Engines rotate order between rounds.
-These are warm queries on generated component and documentation fixtures,
-not cold-start measurements or application traces.
+The saved-build comparison used baseline commit `c446b16`, Node.js v26.5.0, `jsdom` v30.0.1, and `@asamuzakjp/dom-selector` v8.3.2.
+The runner changed engine order between passes.
+These measurements used repeated queries on generated component and documentation pages.
+They did not measure process startup or a running application.
 
-In the [interleaved all-results comparison](../assets/repo/bench/source-comparison.json),
-the selective child chain improved **8.72×** over previous master,
-`div:nth-last-child(3)` improved **1.83×**, and
-`:where(.card) > button` improved **1.14×**. The child chain reached roughly
-parity with dom-selector; the positional and `:where()` cases still lost.
+The [all-results comparison](../assets/repo/bench/source-comparison.json) recorded an **8.72×** improvement over the baseline for `div.example > p > a`.
+It recorded **1.83×** for `div:nth-last-child(3)` and **1.14×** for `:where(.card) > button`.
+The child-chain query became about as fast as the competitor.
+The position and `:where()` queries remained slower in that historical run.
 
-The [first-match comparison](https://github.com/dperini/nwsapi/blob/e97a57e/assets/repo/bench/first-match-results.json)
-used nine rounds of 1,000 calls per engine, after warmup. Times are
-microseconds per query:
+The [earlier first-match comparison](https://github.com/dperini/nwsapi/blob/e97a57e/assets/repo/bench/first-match-results.json) used nine passes of 1,000 calls per engine after warmup.
+The table shows microseconds per query.
+“Updated build” identifies the changed engine from that run.
 
-| Query            | Previous master | Current | jsdom default |
+| Query            | Previous master | Updated build | jsdom default |
 | ---------------- | --------------: | ------: | ------------: |
 | `.card`          |          39.654 |   0.284 |         1.291 |
 | `button`         |          44.265 |   0.269 |         1.576 |
 | `button.primary` |          54.259 |   0.361 |         1.920 |
 | `input.input`    |          51.284 |   0.354 |         2.971 |
 
-That is roughly **140–165× over previous master** and **4.5–8.4× over
-jsdom's default querySelector path** for these four queries. NWSAPI is called
-directly; jsdom's public method includes its integration overhead. A comparison
-of both engines installed through equivalent jsdom adapters is still needed.
-The diagnostic checks exact node identity against jsdom before timing; browser
-regression tests independently verify the optimized forms against Chromium.
 
-The [report for those commits](https://github.com/dperini/nwsapi/blob/e97a57e/docs/benchmarks.md) records 32 lower medians
-and four higher medians than dom-selector, with 16 cases reaching 2×.
-Several margins are near noise, including the child-chain parity result.
-General positional formulas, reverse positions, `:where()` child predicates,
-and plain child relationships still need work. First-match results are a
-separate workload and are not included in that win count.
+For these four queries, the updated build was about **140–165× faster than the baseline**.
+It was **4.5–8.4× faster than the default `jsdom` query path**.
+The tests called NWSAPI directly and called the competitor through `document.querySelector()` in `jsdom`.
+The `jsdom` method includes additional integration work.
+A separate comparison through equivalent adapters is needed to measure that difference.
 
-To repeat the first-match comparison, save `src/nwsapi.js` after building
-the baseline revision, then build the candidate and run:
+The runner checked that each query returned the expected element before timing.
+Separate browser tests compared the optimized selectors with Chromium.
+
+The [report for those commits](https://github.com/dperini/nwsapi/blob/e97a57e/docs/benchmarks.md) recorded 32 lower medians and four higher medians than `@asamuzakjp/dom-selector`.
+Sixteen queries were at least 2× faster.
+Some differences were small enough that normal timing variation could change their order.
+At that stage, general position formulas, reverse positions, `:where()` child checks, and plain child relationships still needed work.
+The first-match results were measured separately and were not included in that count.
+
+To repeat the first-match comparison, build the baseline and save its `src/nwsapi.js` file.
+Then build the version that you want to test and run:
 
 ```sh
 node scripts/repo/run.mts scripts/repo/bench/first.mts /path/to/before.cjs /tmp/first-results.json
 ```
 
-The output records raw samples, source and fixture hashes, versions, and CPU.
-See [benchmarks](benchmarks.md) for the Chromium-checked all-results runner.
+The output records timing samples, package versions, CPU details, and hashes for the source files and test HTML.
+See [the benchmark guide](benchmarks.md) for the all-results runner and its Chromium checks.
+The current timing runners use `mitata`. The tables on this page predate that change.
 
 ## Experiments and validation
 
-Unconditional type-union merging was about 3× slower on a dense synthetic
-tree. Checking density on every call also cost too much. Periodic routing
-probes preserve the sparse-query benefit without paying that scan every time.
-Direct child-by-child traversal improved the selective chain, but scoped
-terminal-type lookup performed better and became the final implementation.
+Always combining tag collections was about 3× slower on a generated tree with many matching elements.
+Checking the number of matches on every call also cost too much.
+Periodic checks kept the benefit for queries with few matches without adding that check to every call.
 
-Validation: 617 Node/browser tests passed, two existing expected failures,
-58 WPT harness tests passed, and formatting, lint, type, generated API, and
-SVG checks passed. Regression coverage includes mutations, nested-anchor
-ordering, dense/sparse transitions, fragments, XML, quirks, legacy mode,
-callbacks, document switching, and repeated positional predicates.
+Walking through children directly improved the selective child-chain query.
+Searching for the final tag within each starting element performed better and became the chosen implementation.
+
+Validation at that revision passed 617 Node.js and browser tests and 58 WPT checks.
+WPT means Web Platform Tests.
+Two existing tests were marked as expected failures at that time.
+Formatting, lint, type, generated API, and SVG checks also passed.
+These are historical results, not a new test run.
+
+The regression tests covered document changes, nested starting elements, and changes between small and large candidate sets.
+They also covered fragments, XML, quirks mode, older DOM implementations, callbacks, document switching, and repeated position checks.

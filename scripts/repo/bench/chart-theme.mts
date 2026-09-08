@@ -15,6 +15,7 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 .muted{fill:#aabbd0;font:${noteFont}}
 .code{font:${codeFont};fill:#dce6f1}
 .note .code{font:${noteCodeFont}}
+.metadata,.metadata .code{fill:#75808e}
 .comparison{font-size:14px;font-variant-numeric:tabular-nums}
 .tick{fill:#aabbd0;font-size:12px}
 .time{fill:#aabbd0;font-size:13px;font-variant-numeric:tabular-nums}

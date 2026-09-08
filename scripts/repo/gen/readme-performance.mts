@@ -31,6 +31,7 @@ writeFileSync(
   queryChart({
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,
+    metadataStart: 3,
     notes: await wrapQueryNotes(
       [
         'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',

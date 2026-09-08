@@ -18,6 +18,7 @@ export interface QueryChartOptions {
     cold: [number, number]
   }>
   notes: Array<string | Array<string | { code: string }>>
+  metadataStart?: number
   bottomPadding?: number
 }
 
@@ -83,12 +84,17 @@ export function queryChart({
   rows,
   notes,
   bottomPadding = 40,
+  metadataStart,
 }: QueryChartOptions) {
   if (
     !rows.length ||
     !notes.length ||
     !Number.isFinite(bottomPadding) ||
     bottomPadding < 0 ||
+    (metadataStart !== undefined &&
+      (!Number.isInteger(metadataStart) ||
+        metadataStart < 0 ||
+        metadataStart >= notes.length)) ||
     rows.some(row =>
       [row.warm, row.cold].some(
         values =>
@@ -102,7 +108,11 @@ export function queryChart({
     )
   }
   const notesTop = 208 + rows.length * 64
-  const height = notesTop + (notes.length - 1) * 23 + 5 + bottomPadding
+  const isMetadata = (index: number) =>
+    metadataStart !== undefined && index >= metadataStart
+  const noteY = (index: number) =>
+    notesTop + index * 23 + (isMetadata(index) ? 12 : 0)
+  const height = noteY(notes.length - 1) + 5 + bottomPadding
 
   const times = rows
     .flatMap(row => [...row.warm, ...row.cold])
@@ -182,7 +192,7 @@ ${chartFrame(height)}
 ${axes}
 ${lines}
 <path d="M48 ${notesTop - 38}H1052" stroke="#304159"/>
-${notes.map((note, index) => `<text x="48" y="${notesTop + index * 23}" class="muted note">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
+${notes.map((note, index) => `<text x="48" y="${noteY(index)}" class="muted note${isMetadata(index) ? ' metadata' : ''}">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
 </svg>`) + '\n'
   )
 }
