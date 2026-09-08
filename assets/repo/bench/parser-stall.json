@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-09-08T22:44:29.140Z",
+  "node": "v26.5.0",
+  "v8": "14.6.202.34-node.24",
+  "input": {
+    "encoding": "base64 of UTF-8",
+    "data": "IkNbQVxB77+9du+/vUVcQVxB77+9du+/vXZcXO+/vWTvv71cXFxjXFxcXFxcXFzvv73vv73vv71lRVzvv73vv73vv73vv73vv73vv73vv73vv73vv73vv73vv73vv712du+/ve+/ve+/ve+/vVzvv71kXEHvv7ZoaVxhZUVcQVxB2r3vv71FRXY5Nu+/ve+/vVzvv712dnbvv73vv71B77+9dmVFXEHvv73vv73vv73vv73vv73vv73vv73vv73vv71FRXZc77+9XFxc77+9TVxFXEXvv73vv73vv70w77+9KioqKu+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/ve+/vSNpdu+/ve+/ve+/ve+/vTDvv70qKioq77+977+977+977+977+9XO+/ve+/ve+/vVxcXO+/ve+/vUHvv71cXFzvv73vv73vv73vv73vv73vv73vv73vv71BXEFBQUFBQUFBNu+/vRDQkO+/vUFcQUFBQXZ2dnZ277+977+977+977+977+977+977+977+977+977+9XEVFZ2dnZ2RpaQo=",
+    "utf16Length": 232,
+    "bytes": 434
+  },
+  "method": "Each select call ran in a separate Node process with jsdom. A 3000ms process timeout included startup. The live fuzz worker was also sampled in RegExpMatchFast and paused in parse().",
+  "before": {
+    "revision": "6b87731",
+    "typeScriptSha256": "45c4f6e3bf7a85a81da31fd4d7edaa605d13b3e2386d65015f06297c0adb9848",
+    "engineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+    "outcome": "process timeout",
+    "timeoutMs": 3000
+  },
+  "after": {
+    "revision": "fc5caf0ae013d52ed3d5719bccc4e30a119ffc52",
+    "typeScriptSha256": "e4f7c28f458476b17924c7fa7e93d1cca6c4dc0032ab17e55611867a21eec02c",
+    "engineSha256": "3950b36a6193f46345f43dc670fb6725c3784076022ad3705f00d0baf3ca1959",
+    "outcome": "process timeout",
+    "timeoutMs": 3000
+  },
+  "notes": [
+    "Found by the arbitrary-selector fuzz target. The generated-selector target passed.",
+    "This input also stalls before the current selector changes. It remains unresolved.",
+    "The original fuzz worker was terminated after preserving the input and stack evidence.",
+    "Do not add this input to an in-process replay suite before fixing it. Use a subprocess timeout."
+  ]
+}

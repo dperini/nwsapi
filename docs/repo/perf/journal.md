@@ -151,3 +151,55 @@ Both compared builds collected all tracked objects after observer delivery and g
 Query measurements alternate builds over 15 trials, using five matching elements and 100 selector strings. Query timing ranges overlap. The construction control warms both factories and runs GC outside the timer before each of 21 alternating trials. An earlier mixed run measured noisy construction medians of 4.00ms before and 6.46ms after for 500 engines. Cold-query timings were also bimodal.
 
 **Decision.** Retain the measured memory and compiler-allocation improvements. Do not claim a general hot-query speedup, a stable cold-query improvement, or reduced GC pauses. The controlled construction result supports the implementation change, but does not predict end-to-end application latency.
+
+## Index filtered siblings once per query
+
+**Hypothesis.** Filtered child positions should inspect each parent's children once during a query. Repeated DOM reads for every candidate would turn a simple sibling filter into repeated full scans. Ordinary typed positions should also reuse known candidate identity and stop early when a first-result query can do so.
+
+<details>
+<summary>Positional query measurement contract and command</summary>
+
+The [benchmark script](../../../scripts/repo/bench/filtered-positions.mts) compares `6b87731` with the current source. It transforms both TypeScript files with the same tool and loads them into separate contexts. The shared `jsdom` document contains 500 sibling paragraphs, of which 333 have the `item` class. Document creation happens outside the timers. Construction measurements exclude module loading. Shared query cases verify matching results before timing.
+
+Seven alternating trials measure warmed construction, `select()`, and `first()` calls. The report preserves per-trial samples and source hashes. This run used Node.js 26.5.0, V8 14.6.202.34, and an Apple M3 Max. These are engine calls over `jsdom`, not browser-native or end-to-end application timings.
+
+```sh
+node scripts/repo/bench/filtered-positions.mts --baseline 6b87731
+```
+
+The script writes [the tracked observations](../../../assets/repo/bench/filtered-positions.json). After timing finishes, it records a separate V8 CPU profile of 2,000 warmed filtered selections. The full profile goes into a directory created with `os.tmpdir()`. The tracked report retains the sample summary. Profiling does not run inside the timing measurements.
+
+</details>
+
+| Phase and selector            | Before median | After median |
+| ----------------------------- | ------------: | -----------: |
+| Construct an engine           |    0.006383ms |   0.006325ms |
+| `select('p')`                 |    0.000237ms |   0.000238ms |
+| `select('main > p')`          |     0.02352ms |    0.02323ms |
+| `select('p:nth-child(2n)')`   |     0.01921ms |    0.01973ms |
+| `select('p:nth-of-type(2n)')` |     0.06543ms |    0.04120ms |
+| `first('p:nth-of-type(2n)')`  |     0.06337ms |   0.000568ms |
+
+These cases use one parent with children of the same type. Typed selection took about 37% less time, and the early first-result case took about 99% less time. Ordinary cases stayed close, including a 2.7% increase for the shown `:nth-child()` selection. The large first-result improvement depends on finding a match near the start. It does not predict a similar improvement for late matches or mixed trees.
+
+| Newly supported selector            | `select()` | `first()` |
+| ----------------------------------- | ---------: | --------: |
+| `p:nth-child(2n of .item)`          |  0.09834ms | 0.06664ms |
+| `p:nth-last-child(1 of .item)`      |  0.09714ms | 0.18373ms |
+| `p:nth-child(2n of :not([hidden]))` |  0.09700ms | 0.07269ms |
+
+These filtered cases have no before measurement because the baseline did not support them. A reverse-position first-result search still visits candidates until it reaches the qualifying element. The measurements expose that cost instead of assuming that `first()` is always cheaper than `select()`.
+
+**Decision.** Retain one filtered sibling index per parent and filter during each query. Keep indexes out of cached compiled plans. Reuse the index across candidates in a first-result search. Calls with user callbacks use fresh state because a callback can change the tree. Typed sibling matching compares both local name and namespace, then uses candidate identity to avoid repeated property reads on the common ordered path.
+
+**Correctness protected.** Tests cover filtered lists, nesting, forward and reverse positions, detached elements, fragments, XML namespaces, repeated and reordered candidates, DOM changes, and callback exceptions. A read-count test verifies that selection and first-result search each inspect 200 sibling classes once. Positional helpers clear their state in `finally` blocks.
+
+**Profile and limits.** The separate CPU profile collected 146 samples, including 44 in `nthFiltered`, nine in `classOf`, and eight in `nextOf`. Resolver and DOM attribute work also remain visible. This is evidence about CPU work. The experiment does not measure retained heap or GC pauses, and it does not establish a memory reduction for the new indexes.
+
+## Bound malformed-selector validation
+
+**Finding.** The arbitrary-input fuzzer stalled inside regular-expression validation. A native stack sample showed `RegExpMatchFast`, and a debugger pause located the call in `parse()`. The captured input contains 232 UTF-16 code units. It is stored as base64 in [the recorded observations](../../../assets/repo/bench/parser-stall.json), together with build hashes and runtime versions.
+
+**Comparison.** The input exceeded a 3000ms process limit in both the `6b87731` baseline and the current build. Each attempt used a fresh Node process and `jsdom` document. The limit included startup. The live stack evidence identifies a matching stall, rather than treating startup time alone as the cause. This gap predates the current filtered-position and namespace changes.
+
+**Decision and follow-up.** Preserve the input and report the randomized run as incomplete. The generated-selector target and saved-corpus replay passed. The arbitrary-input target was stopped after capture. Its time budget could not interrupt the synchronous match. Address the validator with bounded parsing and use an external process limit for this regression. Adding it directly to ordinary in-process replay would stall that runner too.

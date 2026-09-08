@@ -5,8 +5,9 @@
 
 Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
-NWSAPI builds on [NWMATCHER](https://github.com/dperini/nwmatcher) with [Selectors Level 4](https://drafts.csswg.org/selectors-4/) features such as `:is()`, `:where()`, and `:has()`, plus state selectors such as `:open` and `:modal`.
+`nwsapi` builds on [`nwmatcher`](https://github.com/dperini/nwmatcher) with [Selectors Level 4](https://drafts.csswg.org/selectors-4/) features such as `:is()`, `:where()`, and `:has()`, plus state selectors such as `:open` and `:modal`.
 See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors) and [compatibility notes](https://github.com/dperini/nwsapi/wiki/Features-and-compliance).
+The [project history](docs/repo/history.md) traces the name and its NWBOX origins.
 
 ## Performance
 
