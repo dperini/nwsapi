@@ -75,7 +75,8 @@ test('replaces an unmeasured badge with coverage and an absolute README image', 
     readme,
     /https:\/\/raw.githubusercontent.com\/dperini\/nwsapi\/HEAD\/assets\/repo\/coverage.svg/,
   )
-  assert.match(readme, /width="\d+" height="20"/)
+  assert.match(readme, /height="20"/)
+  assert.doesNotMatch(readme, /width=/)
   assert.equal(makeCoverageBadge({ repoRoot, check: true }), 0)
   assert.equal(readFileSync(path.join(repoRoot, 'README.md'), 'utf8'), readme)
   summary(40)

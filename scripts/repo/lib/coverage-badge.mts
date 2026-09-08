@@ -51,21 +51,12 @@ export function svgWidth(svg: string): string | undefined {
 }
 
 /**
- * A README `<img>` for a badge SVG: standardized `height="20"` + the SVG's
- * exact `width`, so badges align on one row, precise, no reflow. Inline <img>
- * (not markdown `![]`) is what lets us pin the height, and the TAG itself
- * renders on GitHub + npm alike, unlike an inlined `<svg>`.
- *
- * `src` must be an ABSOLUTE url. The tag rendering everywhere does not mean a
- * relative src resolves everywhere: GitHub resolves `assets/…` against the repo
- * it is rendering, npm has no repo to resolve it against, so a relative src
- * ships a broken-image icon on the package page. Build the url with
- * [`rawAssetUrl`].
+ * Match Socket's height-only badge markup. GitHub adds a 6px CSS corner
+ * radius to images with explicit width and height, which clips the SVG's
+ * own 3px corners. Let the SVG supply its width instead.
  */
-export function badgeImgTag(src: string, alt: string, svg: string): string {
-  const w = svgWidth(svg)
-  const width = w === undefined ? '' : ` width="${w}"`
-  return `<img src="${src}"${width} height="${BADGE_HEIGHT}" alt="${alt}" />`
+export function badgeImgTag(src: string, alt: string, _svg?: string): string {
+  return `<img src="${src}" height="${BADGE_HEIGHT}" alt="${alt}" />`
 }
 
 // The absolute URL of a repo's coverage badge asset, the src the README <img>
