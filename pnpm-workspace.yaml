@@ -30,7 +30,7 @@ catalog:
   'taze': '21.1.0'
   'svgo': '4.1.0'
   'run-local-ci': '0.18.1'
-  'typescript': '7.0.2'
+  'typescript': '7.1.0-dev.20260901.1'
   'vite': '8.2.2'
   'vitest': '5.0.0'
   'yaml': '2.9.0'
