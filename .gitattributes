@@ -3,3 +3,6 @@
 bin/* -crlf -diff -merge
 * eol=cr
 
+
+# The compiler launcher is source, not a binary artifact.
+bin/nwsapi text eol=lf diff merge
