@@ -14,7 +14,7 @@
  * <script> in <head>, so it is always defined by then, and testharness only
  * completes after the window load event).
  *
- * Filtering (see README.md):
+ * Filtering (see docs/repo/testing/wpt-runner.md):
  *   WPT_FILTER  — substring or /regex/ applied to subtest names.
  *   WPT_SECTION — selectors.js section name substring (see sections.mts).
  *
@@ -24,12 +24,15 @@
  * the per-file expectations.json rewrites cannot race).
  */
 import { readFileSync, writeFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { expect, test } from '@playwright/test'
 import { manifest } from './manifest.mts'
 import { getSection } from './sections.mts'
+import { adaptAnPlusB, adaptSelectorInputs } from './parsing.mts'
 import { isAgent } from '../../../../scripts/repo/lib/is-agent.mts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -44,6 +47,11 @@ const nwsapiSource = readFileSync(
   'utf8',
 )
 const expectationsPath = path.join(here, 'expectations.json')
+const engineSha256 = createHash('sha256').update(nwsapiSource).digest('hex')
+const wptRevision = execFileSync('git', ['rev-parse', 'HEAD'], {
+  cwd: path.join(repoRoot, 'upstream/wpt'),
+  encoding: 'utf8',
+}).trim()
 const coverageDirectory = process.env['WPT_COVERAGE_DIR']
 const coverageURL = 'http://nwsapi.test/src/nwsapi.js'
 if (
@@ -55,7 +63,13 @@ if (
 ) {
   throw new Error('WPT coverage requires the complete, unminified suite.')
 }
-const expectations = JSON.parse(readFileSync(expectationsPath, 'utf8'))
+const expectations: Record<string, string> = JSON.parse(
+  readFileSync(expectationsPath, 'utf8'),
+)
+const parsingHelpers = readFileSync(
+  path.join(here, 'fixtures/parsing-helpers.js'),
+  'utf8',
+)
 
 const updateExpectations = !!process.env['WPT_UPDATE_EXPECTATIONS']
 const BASELINE_REASON = 'master fe15bc3; WPT 7aed663; Chromium 151.0.7922.34'
@@ -184,7 +198,26 @@ function rewriteBaseline(filePath: string, failingKeys: string[]) {
 // ---------------------------------------------------------------------------
 for (const entry of manifest) {
   // oxlint-disable-next-line eslint/complexity -- Keep each page and its coverage lifecycle in one test.
-  test(entry.path, async ({ page }) => {
+  test(entry.path, async ({ page, browser }) => {
+    if (entry.parsing) {
+      await page.route('**/css/support/parsing-testcommon.js', route =>
+        route.fulfill({ contentType: 'text/javascript', body: parsingHelpers }),
+      )
+      if (entry.path.endsWith('/parse-anplusb.html') || entry.selectorInputs) {
+        const source = readFileSync(
+          path.join(repoRoot, 'upstream/wpt', entry.path),
+          'utf8',
+        )
+        await page.route(`**${entry.path}`, route =>
+          route.fulfill({
+            contentType: 'text/html',
+            body: entry.selectorInputs
+              ? adaptSelectorInputs(source, entry.selectorInputs)
+              : adaptAnPlusB(source),
+          }),
+        )
+      }
+    }
     if (coverageDirectory) {
       await page.coverage.startJSCoverage({ resetOnNavigation: false })
     }
@@ -319,10 +352,23 @@ for (const entry of manifest) {
       body: JSON.stringify({
         path: entry.path,
         origin: entry.path.startsWith('/_repo/') ? 'local' : 'upstream',
+        adaptation: entry.parsing ? 'selector-validity' : null,
+        engineSha256,
+        wptRevision,
+        browser: browser.version(),
         total: results.tests.length,
         counts,
         harness: results.harness,
         expectedFailures: expectedFails,
+        knownFailures: results.tests
+          .filter(
+            t => t.status !== 0 && expectations[`${entry.path}::${t.name}`],
+          )
+          .map(t => ({
+            name: t.name,
+            status: statusName(t.status),
+            reason: expectations[`${entry.path}::${t.name}`],
+          })),
         unexpectedFailures: failures,
       }),
       contentType: 'application/json',

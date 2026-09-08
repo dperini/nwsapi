@@ -2,9 +2,10 @@
  * Curated list of upstream WPT files to run against src/nwsapi.js.
  * Paths are root-absolute within the upstream/wpt checkout (pinned @ 7aed663).
  *
- * Hand-picked Selectors API tests. Programmatic focus/state tests may depend
- * on browser rendering, but assert through DOM APIs; CSSOM-only tests,
- * screenshot comparisons, and testdriver automation are excluded.
+ * Hand-picked Selectors API tests and adapted selector-validity inputs.
+ * Programmatic focus/state tests may depend on browser rendering, but assert
+ * through DOM APIs. Parsing adapters exclude CSSOM serialization and rendering
+ * assertions. Screenshot comparisons and testdriver automation are excluded.
  *
  * Enumerated but deliberately excluded:
  * - /dom/nodes/Element-webkitMatchesSelector.html — exercises the
@@ -35,7 +36,62 @@ export const manifest: Array<{
   note: string
   install?: boolean
   legacyMap?: boolean
+  parsing?: boolean
+  selectorInputs?: number
 }> = [
+  ...[
+    '/css/css-overflow/parsing/scroll-buttons-invalid.html',
+    '/css/css-overflow/parsing/scroll-buttons-valid.html',
+    '/css/css-pseudo/parsing/highlight-pseudos-search-text.tentative.html',
+    '/css/css-pseudo/parsing/highlight-pseudos.html',
+    '/css/css-pseudo/parsing/tree-abiding-pseudo-elements.html',
+    '/css/css-shadow/host-context-parsing.html',
+    '/css/css-shadow/host-parsing.html',
+    '/css/css-shadow/part/pseudo-classes-after-part.html',
+    '/css/css-shadow/slotted-parsing.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-invalid-with-classes.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-invalid.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-valid-with-classes.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-valid.html',
+  ].map(path => ({
+    path,
+    note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
+    parsing: true,
+  })),
+  {
+    path: '/css/css-shadow/part/pseudo-elements-after-part.html',
+    note: 'Only the 23 top-level selector validity inputs run. Rendering assertions are excluded.',
+    parsing: true,
+    selectorInputs: 23,
+  },
+  ...[
+    'invalid-pseudos',
+    'parse-anplusb',
+    'parse-attribute',
+    'parse-child',
+    'parse-class',
+    'parse-descendant',
+    'parse-focus-visible',
+    'parse-has-disallow-nesting-has-inside-has',
+    'parse-has-forgiving-selector',
+    'parse-has-slotted.tentative',
+    'parse-has',
+    'parse-heading',
+    'parse-id',
+    'parse-is-where',
+    'parse-is',
+    'parse-not',
+    'parse-part',
+    'parse-sibling',
+    'parse-slotted',
+    'parse-state',
+    'parse-universal',
+    'parse-where',
+  ].map(name => ({
+    path: `/css/selectors/parsing/${name}.html`,
+    note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
+    parsing: true,
+  })),
   {
     path: '/html/semantics/selectors/pseudo-classes/checked.html',
     note: 'HTML selector semantics: checked through DOM APIs',
@@ -173,6 +229,10 @@ export const manifest: Array<{
     install: false,
   },
   {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/structural-selectors.html',
+    note: 'DOM API adaptations of upstream filtered-position and namespace rendering fixtures',
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/legacy-dom.html',
     note: 'local WPT regression: legacy host reads agree with native selectors and refresh after mutations',
     install: false,
@@ -306,6 +366,14 @@ export const manifest: Array<{
   {
     path: '/css/selectors/is-where-basic.html',
     note: 'basic :is()/:where() matching via querySelectorAll',
+  },
+  {
+    path: '/css/selectors/query/query-is.html',
+    note: 'upstream query assertions for simple, compound, complex, and nested :is() arguments',
+  },
+  {
+    path: '/css/selectors/query/query-where.html',
+    note: 'upstream query assertions for simple, compound, complex, and nested :where() arguments',
   },
   {
     path: '/css/selectors/is-where-not.html',

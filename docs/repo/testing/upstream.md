@@ -16,19 +16,36 @@ pnpm exec playwright install --with-deps chromium
 ```
 
 The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
-The September 2026 audit expanded it from 41 to **73 upstream pages**, alongside **18 local regression pages**. It does not run the complete WPT project.
+The September 2026 review selects **130 pages**. It does not run the complete WPT project.
 
-The audited run contains **5,418 subtests**: all pass, with zero expected failures and no filtered subtests. This covers the selected manifest, not the complete selector specification.
+| Test group                         | Pages | Subtests | Passed | Known failures |
+| ---------------------------------- | ----: | -------: | -----: | -------------: |
+| Upstream DOM matching              |    75 |    5,366 |  5,366 |              0 |
+| Adapted upstream selector validity |    36 |    1,668 |  1,143 |            525 |
+| Local regressions                  |    19 |       77 |     77 |              0 |
+| Total                              |   130 |    7,111 |  6,586 |            525 |
 
-The latest expansion adds HTML form-state and directionality tests, plus a local static NodeList contract across document, element, fragment, and shadow contexts. It found and fixed document `designMode` editability and disabled-fieldset inheritance for options and optgroups.
+These counts describe the selected manifest in Chromium 151.0.7922.34. A known failure remains a failed subtest. No subtests were filtered. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
-The added pages also cover programmatic focus events, focus removal and hidden elements, top-layer focus behavior, disconnected language inheritance, and `moveBefore()` behavior for language, directionality, focus, modal dialogs, and popovers. The runner verifies replacement of all eight installed methods before each upstream page: `querySelector` and `querySelectorAll` on Document, Element, and DocumentFragment, plus Element `matches` and `closest`. Existing pages exercise these APIs, including scoped, XML, namespace, fragment, and ShadowRoot cases.
+The matching pages cover query results, form states, directionality, focus, dialogs, popovers, and tree changes. Local regressions cover API contracts and compiler behavior, including filtered child positions and sibling types across XML namespaces. Some fixtures reuse the DOM from upstream rendering tests, but assert query results instead of pixels or computed styles.
 
-Each page attaches a `wpt-subtests` JSON report with counts and failure names. The manifest documents exclusions: CSSOM-only assertions, screenshot reftests, manual/crash tests without harness results, testdriver-dependent interaction, and aliases NWSAPI does not replace. These would need different harness support or would only measure the browser's own engine.
+The parsing pages cover selector grammar across attributes, combinators, logical selectors, child positions, custom states, shadow selectors, highlights, scroll buttons, and view-transition pseudo-elements. The harness replaces the upstream selector helpers with validity checks through eight installed methods: `querySelector` and `querySelectorAll` on Document, Element, and DocumentFragment, plus Element `matches` and `closest`. Empty element and fragment contexts help catch validation that incorrectly depends on finding candidates.
 
-The expansion found and fixed disconnected language inheritance and focus-within behavior. Native directionality now supplies browser-computed state where available; the fallback honors explicit inherited directions after moves. Seven obsolete directionality expectations were removed after review. The remaining 313 expectations were resolved by fixes for heading selectors, namespace parsing, dynamic document roots and scope, placeholder state, attribute case flags, pseudo-elements, missing arguments, and static NodeList-compatible installed query results. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is now empty.
+These adaptations retain upstream selector inputs and acceptance expectations. They exclude CSSOM serialization and rendering assertions. The `An+B` page has embedded helpers, so an AST-based adapter redirects those helpers. A mixed part page contributes only its 23 direct selector helper calls. Both adapters reject unexpected upstream changes for review. Tentative WPT cases remain useful grammar probes and do not establish stable browser support.
 
-The separate browser regression suite also rejects nested `:has()` and pseudo-elements within `:has()`. Invalid alternatives inside forgiving `:is()` and `:where()` lists are discarded individually, with Chromium agreement checks. Its two former expected failures now pass normally.
+Each page attaches a `wpt-subtests` JSON report with its origin, adaptation, counts, and failures. The runner verifies that `nwsapi` replaced all eight methods before upstream tests run. The manifest excludes screenshots, computed-style assertions, manual and crash tests without harness results, testdriver-dependent interaction, and aliases the engine does not replace.
+
+The 525 known failures all come from newly surfaced parsing inputs. Their reasons are recorded in [expectations.json](../../../test/repo/e2e/upstream/expectations.json). They include missing valid syntax and invalid pseudo-element continuations that are accepted. See the [compatibility review](../selector/compatibility.md) for the implementation priorities.
+
+To regenerate the tracked summary after a complete run:
+
+```sh
+PLAYWRIGHT_JSON_OUTPUT_NAME=/tmp/nwsapi-wpt.json pnpm run test:wpt --reporter=dot,json
+node scripts/repo/gen/wpt-summary.mts --input /tmp/nwsapi-wpt.json
+pnpm exec oxfmt --config .config/oxfmt.json --write assets/repo/bench/wpt-summary.json
+```
+
+The generator rejects missing pages, inconsistent builds, filtered results, unexpected failures, and stale expectations that now pass. Full Playwright reports stay in a temporary directory. Commit the generated summary with the relevant test changes.
 
 <details>
 <summary>How setup works</summary>
@@ -37,7 +54,7 @@ The contributor `prepare` script fetches WPT, verifies the checkout, and install
 Published package installs do not run this setup.
 
 [.gitmodules](../../../.gitmodules) records the WPT revision, selected directories, and manifest hash.
-The checkout is ignored by Git and managed through this metadata, rather than a gitlink. The helper clones with `--depth=1 --single-branch --filter=blob:none --no-checkout`, applies cone-mode sparse checkout, and fetches the pinned revision at depth one. Verification checks the pin, shallow history, single-branch fetch refspec, sparse paths, and clean working tree. The sparse paths include `html/semantics/selectors`; the rest of WPT stays outside the checkout.
+The checkout is ignored by Git and managed through this metadata, rather than a gitlink. The helper clones with `--depth=1 --single-branch --filter=blob:none --no-checkout`, applies cone-mode sparse checkout, and fetches the pinned revision at depth one. Verification checks the pin, shallow history, single-branch fetch refspec, sparse paths, and clean working tree. The sparse paths include the selected selector, shadow, pseudo-element, overflow, view-transition, HTML, and DOM tests, plus their support files.
 
 > [!IMPORTANT]
 > Do not edit the upstream checkout. Setup refuses dirty checkouts and paths outside this repository.
