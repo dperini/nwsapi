@@ -92,6 +92,7 @@
     "istanbul-lib-coverage": "catalog:",
     "istanbul-lib-report": "catalog:",
     "istanbul-reports": "catalog:",
+    "jquery": "catalog:",
     "jsdom": "catalog:",
     "mitata": "catalog:",
     "oxfmt": "catalog:",
