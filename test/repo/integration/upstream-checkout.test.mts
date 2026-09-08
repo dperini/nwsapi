@@ -1,4 +1,4 @@
-import { test } from 'vitest'
+import { afterAll, beforeAll, test } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
@@ -7,6 +7,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const assert = require('node:assert/strict')
 const { execFileSync, spawnSync } = require('node:child_process')
 const {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -55,14 +56,34 @@ function fixture(t) {
   return { root, outside, run }
 }
 
-function repository(dir) {
-  mkdirSync(dir, { recursive: true })
-  const git = (...args) =>
+let seed: string
+beforeAll(() => {
+  seed = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-checkout-seed-'))
+  initializeRepository(seed)
+})
+afterAll(() => {
+  if (seed) {
+    rmSync(seed, { recursive: true, force: true })
+  }
+})
+
+function gitFor(dir) {
+  return (...args) =>
     execFileSync('git', ['-C', dir, ...args], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       env: fixtureEnv,
     })
+}
+
+function repository(dir) {
+  // Copy objects and metadata, not a shared working tree or mutable hardlinks.
+  cpSync(seed, dir, { recursive: true })
+  return gitFor(dir)
+}
+
+function initializeRepository(dir) {
+  const git = gitFor(dir)
   git('init')
   writeFileSync(path.join(dir, 'tracked.txt'), 'original\n')
   git('add', 'tracked.txt')

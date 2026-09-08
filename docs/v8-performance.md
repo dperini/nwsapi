@@ -125,9 +125,9 @@ dependency or an installed npm executable to the selector engine.
 
 ```sh
 pnpm run build
-node bin/nwsapi-compile.mjs '.card > button.primary'
-node bin/nwsapi-compile.mjs --mode match --json 'div:nth-child(2n)'
-node bin/nwsapi-compile.mjs --mode item --legacy '.card'
+bin/nwsapi compile '.card > button.primary'
+bin/nwsapi compile --mode match --json 'div:nth-child(2n)'
+bin/nwsapi compile --mode item --legacy '.card'
 node scripts/repo/bench/profile.mts select /tmp/select.cpuprofile
 node scripts/repo/bench/profile.mts cold /tmp/cold.cpuprofile
 node scripts/repo/bench/profile.mts first /tmp/first.cpuprofile

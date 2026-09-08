@@ -27,17 +27,11 @@ const run = (entry, args, env = process.env) =>
     env,
   })
 try {
-  run('node_modules/vitest/vitest.mjs', [
-    'run',
-    '--config',
-    '.config/vitest.config.mts',
-    '--coverage',
-  ])
-  run(
-    'node_modules/@playwright/test/cli.js',
-    ['test', '--config', '.config/playwright.config.mts'],
-    { ...process.env, WPT_COVERAGE_DIR: raw },
-  )
+  run('scripts/repo/test.mts', ['all', '--coverage'])
+  run('scripts/repo/test.mts', ['upstream'], {
+    ...process.env,
+    WPT_COVERAGE_DIR: raw,
+  })
   const coverage = createCoverageMap({})
   const engine = path.join(REPO_ROOT, 'src/nwsapi.js')
   for (let i = 0; i < manifest.length; i++) {
@@ -58,14 +52,17 @@ try {
       )
     }
   }
-  const node = createCoverageMap(
-    JSON.parse(
-      readFileSync(
-        path.join(REPO_ROOT, 'coverage/node/coverage-final.json'),
-        'utf8',
+  const node = createCoverageMap({})
+  for (const tier of ['unit', 'integration']) {
+    node.merge(
+      JSON.parse(
+        readFileSync(
+          path.join(REPO_ROOT, `coverage/${tier}/coverage-final.json`),
+          'utf8',
+        ),
       ),
-    ),
-  )
+    )
+  }
   const combined = combineCoverage(coverage, node, REPO_ROOT)
   const context = createContext({
     dir: path.join(REPO_ROOT, 'coverage'),

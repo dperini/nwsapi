@@ -16,7 +16,13 @@ export default defineConfig({
         ]
       : undefined,
     watch: process.argv.includes('--watch'),
-    include: ['test/repo/**/*.test.mts'],
+    include: [
+      process.env.NWSAPI_TEST_TIER === 'unit'
+        ? 'test/repo/unit/**/*.test.mts'
+        : process.env.NWSAPI_TEST_TIER === 'integration'
+          ? 'test/repo/integration/**/*.test.mts'
+          : 'test/repo/**/*.test.mts',
+    ],
     globalSetup: ['.config/vitest.setup.mts'],
     forceRerunTriggers: [
       '../src/**/*.mts',
@@ -24,8 +30,9 @@ export default defineConfig({
       './**',
     ].map(path => fileURLToPath(new URL(path, import.meta.url))),
     environment: 'node',
-    pool: 'forks',
-    isolate: true,
+    pool: process.env.NWSAPI_TEST_TIER === 'unit' ? 'threads' : 'forks',
+    // Unit fixtures own their DOM instances; subprocess suites stay isolated.
+    isolate: process.env.NWSAPI_TEST_TIER !== 'unit',
     maxWorkers: 4,
     restoreMocks: true,
     testTimeout: 10_000,
