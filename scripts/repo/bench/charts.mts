@@ -70,6 +70,10 @@ export function chart(
       throw new TypeError('Invalid benchmark measurements.')
     }
   }
+  const note = escapeText(provenance).replace(
+    /`([^`]+)`/g,
+    '<tspan class="code">$1</tspan>',
+  )
   const colors = names.map(
     (name, index) =>
       chartColors[
@@ -118,7 +122,7 @@ export function chart(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out 1 both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}</style>${chartFrame(height)}<text x="48" y="65" class="muted">Linear time scale</text><text x="48" y="89" class="muted">Shorter bars are faster</text><text x="440" y="89" class="muted">Warm queries · All results</text>${body}<path d="M48 ${notesTop - 38}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">Warm queries repeat a selector on the same document. Times show medians in milliseconds.</text><text x="48" y="${notesTop + 23}" class="muted">${escapeText(provenance)}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out 1 both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}</style>${chartFrame(height)}<text x="48" y="65" class="muted">Linear time scale</text><text x="48" y="89" class="muted">Shorter bars are faster</text><text x="440" y="89" class="muted">Warm queries · All results</text>${body}<path d="M48 ${notesTop - 38}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">Warm queries repeat a selector on the same document. Times show medians in milliseconds.</text><text x="48" y="${notesTop + 23}" class="muted note">${note}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
     ) + '\n'
   )
 }
