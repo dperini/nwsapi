@@ -17,6 +17,7 @@ export interface NwsapiEngine {
       fallback?: boolean,
     ): boolean | undefined
     mayMatch(
+      this: void,
       node: Element,
       mask: number,
       state: { seen: number; kept: number; rest: number },
@@ -53,6 +54,7 @@ export interface NwsapiEngine {
     callback?: (element: Element) => unknown,
   ): NwsapiCollection
   first(
+    this: void,
     selector: string,
     context?: Node,
     callback?: (element: Element) => unknown,
