@@ -71,7 +71,7 @@ export function summaryChart(metrics: SummaryMetric[], notes: string[]) {
   const footer = notes
     .map(
       (note, index) =>
-        `<text x="${index ? 1052 : 48}" y="${616 + index * 28}"${index ? ' text-anchor="end"' : ''} class="muted note${index ? ' metadata' : ''}">${packageText(note)}</text>`,
+        `<text x="${index ? 1052 : 48}" y="${index ? 628 + index * 24 : 616}"${index ? ' text-anchor="end"' : ''} class="muted note${index ? ' metadata' : ''}">${packageText(note)}</text>`,
     )
     .join('')
   return (

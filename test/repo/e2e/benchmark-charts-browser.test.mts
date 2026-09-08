@@ -104,7 +104,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
     }
   })
 
-  test('logarithmic markers stay visible across orders of magnitude and respect reduced motion', async () => {
+  test('logarithmic bars stay visible across orders of magnitude and respect reduced motion', async () => {
     const svg = chart(
       'Basic selectors',
       ['nwsapi 2.3.0-prerelease', '@asamuzakjp/dom-selector'],
@@ -121,21 +121,21 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
     const page = await browser.newPage()
     try {
       await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
-      const markers = await page.locator('.marker').evaluateAll(nodes =>
+      const bars = await page.locator('.bar').evaluateAll(nodes =>
         nodes.map(node => ({
-          x: node.getAttribute('cx'),
-          radius: node.getAttribute('r'),
+          x: node.getAttribute('x'),
+          width: node.getAttribute('width'),
           animations: node.getAnimations().length,
         })),
       )
-      expect(markers.map(marker => Number(marker.x))).toEqual([440, 920])
-      expect(markers.every(marker => Number(marker.radius) >= 4)).toBe(true)
-      expect(markers.every(marker => marker.animations === 1)).toBe(true)
+      expect(bars.map(bar => Number(bar.x))).toEqual([440, 440])
+      expect(bars.map(bar => Number(bar.width))).toEqual([120, 480])
+      expect(bars.every(bar => bar.animations === 1)).toBe(true)
       await page.emulateMedia({ reducedMotion: 'reduce' })
       await page.reload()
       expect(
         await page
-          .locator('.marker')
+          .locator('.bar')
           .evaluateAll(nodes =>
             nodes.every(
               node =>

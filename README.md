@@ -10,7 +10,7 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![NWSAPI performance, retained memory and browser file size](assets/repo/bench/perf-hero.svg?v=eaca2596ba8d)](docs/benchmarks.md)
+[![NWSAPI performance, retained memory and browser file size](assets/repo/bench/perf-hero.svg?v=f92dbda999fb)](docs/benchmarks.md)
 
 Direct library comparisons on native browser DOMs, without jsdom.
 

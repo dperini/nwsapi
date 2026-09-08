@@ -58,7 +58,7 @@ export function splitCharts(rows: Measurement[]) {
   }).flat()
 }
 
-// Logarithmic positions keep fast queries visible. Incorrect results have no marker.
+// Bars span the labeled logarithmic axis. Incorrect results have no bar.
 export function chart(
   title: string,
   names: string[],
@@ -108,9 +108,8 @@ export function chart(
   const values = rows.flatMap(row =>
     row.milliseconds.filter(value => value !== null),
   )
-  const low = Math.floor(
-    Math.log10(Math.min(...(values.length ? values : [0.001]))),
-  )
+  const low =
+    Math.floor(Math.log10(Math.min(...(values.length ? values : [0.001])))) - 1
   const high = Math.max(
     low + 1,
     Math.ceil(Math.log10(Math.max(...(values.length ? values : [1])))),
@@ -146,7 +145,7 @@ export function chart(
                   ? `${(value * 1000).toFixed(2)}μs`
                   : `${value.toFixed(2)}ms`)
             const weight = value === fastest ? ' style="font-weight:700"' : ''
-            return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<circle class="marker" cx="${position(value).toFixed(2)}" cy="${y}" r="4" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${unitText(status)}</text></g>`
+            return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<rect class="bar" x="440" y="${y - 1}" width="${(position(value) - 440).toFixed(2)}" height="2" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${unitText(status)}</text></g>`
           })
           .join('')
       )
@@ -154,7 +153,7 @@ export function chart(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median query time on a shared logarithmic scale; further left is faster. Failed correctness checks have no marker.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.tick{font-size:14px}.marker{animation:fade 800ms ease-out both}@keyframes fade{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.marker{animation:none}}</style>${chartFrame(height)}<text x="48" y="58" class="chart-title">${escapeText(title)}</text><text x="48" y="90" class="muted">Logarithmic time scale · Further left is faster</text><text x="1052" y="90" text-anchor="end" class="muted">Warm queries · All results</text>${axis}${body}<path d="M48 ${notesTop - 34}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">${queryStateNote}</text><text x="1052" y="${notesTop + 28}" text-anchor="end" class="muted note metadata">${note}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median query time on a shared logarithmic scale; further left is faster. Bars span from the lowest labeled time to each value. Failed correctness checks have no bar.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.tick{font-size:14px}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}</style>${chartFrame(height)}<text x="48" y="58" class="chart-title">${escapeText(title)}</text><text x="48" y="90" class="muted">Logarithmic time scale · Shorter bars are faster</text><text x="1052" y="90" text-anchor="end" class="muted">Warm queries · All results</text>${axis}${body}<path d="M48 ${notesTop - 34}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">${queryStateNote}</text><text x="1052" y="${notesTop + 60}" text-anchor="end" class="muted note metadata">${note}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
     ) + '\n'
   )
 }

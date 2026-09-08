@@ -60,10 +60,10 @@ describe('benchmark charts', () => {
       dom.window.close()
     }
   })
-  test('animates timing markers and respects reduced motion', () => {
+  test('animates timing bars and respects reduced motion', () => {
     const svg = chart('basic', ['old', 'candidate'], [row()], '')
-    expect(svg).toContain('@keyframes fade')
-    expect(svg).toContain('class="marker"')
+    expect(svg).toContain('@keyframes fill')
+    expect(svg).toContain('class="bar"')
     expect(svg).toContain('prefers-reduced-motion:reduce')
     expect(svg).toContain('animation:none')
     expect(isSvgOptimized(svg)).toBe(true)
