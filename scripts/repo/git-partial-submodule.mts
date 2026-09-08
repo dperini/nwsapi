@@ -573,7 +573,7 @@ function verifyEntry(entry) {
  * whitespace and executed directly with no shell, so quoting, environment
  * assignments, and shell operators (&&, |, >, ...) are not supported —
  * keep the `verify` key a simple "<command> <arg>..." like
- * "pnpm run test:upstream".
+ * "pnpm run test:wpt".
  */
 function deepVerifyEntry(entry) {
   const label = 'deep verify'.padEnd(16)

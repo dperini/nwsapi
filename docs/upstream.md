@@ -4,7 +4,7 @@ Contributor installs set up Web Platform Tests (WPT) and Chromium.
 
 ```sh
 pnpm install
-pnpm run test:upstream
+pnpm run test:wpt
 ```
 
 The first install needs Git and network access. Linux may also need browser system libraries:
@@ -57,12 +57,12 @@ The test server uses localhost port 8000 and refuses an occupied port.
 Run `pnpm test` for unit tests, or `pnpm run test:node` for unit and integration tests.
 Those tests do not need Chromium or WPT. See [test budgets](testing.md) for the enforced timing limits.
 Run `pnpm run test:browser` for browser regression tests.
-Run `pnpm run test:coverage` to measure coverage with WPT and Node tests.
+Run `pnpm run cover` to measure coverage with WPT and Node tests.
 
 To test the minified build:
 
 ```sh
-NWSAPI_MINIFIED=1 pnpm run test:upstream
+NWSAPI_MINIFIED=1 pnpm run test:wpt
 ```
 
 </details>
@@ -79,7 +79,7 @@ Unexpected failures fail the run. Unexpected passes appear in the report for rev
 To update expectations after review:
 
 ```sh
-WPT_UPDATE_EXPECTATIONS=1 pnpm run test:upstream
+WPT_UPDATE_EXPECTATIONS=1 pnpm run test:wpt
 ```
 
 Review the diff before you commit it. Updates use one worker and cannot use test filters.

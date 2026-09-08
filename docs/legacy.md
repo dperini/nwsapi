@@ -71,7 +71,7 @@ Use Node.js 26 and pnpm ≥ 12.3.4.
 pnpm install
 pnpm run test:legacy
 pnpm run test:unit test/repo/unit/legacy-runtime.test.mts
-pnpm run test:coverage
+pnpm run cover
 ```
 
 The Node tests use jsdom and a proxy host that hides modern APIs and simulates

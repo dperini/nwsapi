@@ -7,9 +7,9 @@ The unit suite has a **10,000 ms wall-clock budget**, following socket-wheelhous
 | `pnpm test` / `pnpm run test:unit` | Unit suite                                |          10,000 ms |
 | `pnpm run test:integration`        | Subprocess and isolated integration suite |          60,000 ms |
 | `pnpm run test:node`               | Both tiers, each enforced separately      | 10,000 + 60,000 ms |
-| `pnpm run test:upstream`           | WPT browser run                           |         600,000 ms |
+| `pnpm run test:wpt`                | WPT browser run                           |         600,000 ms |
 
-`pnpm run test:coverage`, used by CI, runs both Node tiers under their usual budgets, merges their coverage, then runs WPT under its separate budget. Coverage does not increase the unit allowance. WPT also retains its 90,000 ms per-page timeout.
+`pnpm run cover`, used by CI, runs both Node tiers under their usual budgets, merges their coverage, then runs WPT under its separate budget. Coverage does not increase the unit allowance. WPT also retains its 90,000 ms per-page timeout.
 
 Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the command and terminates its workers on POSIX systems. The runner prints elapsed milliseconds and the limit for each tier. Improve fixtures and startup overhead when the unit tier exceeds its ceiling; tests requiring subprocesses or shared module mutations belong in integration. No tests are omitted from CI by changing tiers.
 

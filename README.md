@@ -10,22 +10,9 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-**36 of 36 lower all-results medians**, with **32 queries at least 2× faster**, against `@asamuzakjp/dom-selector` 8.3.2 in the recorded warm-query comparison.
+[![NWSAPI performance: faster on 36 of 36 all-results queries, with first-match speedups from 1.6× to 8.2×](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
 
-**1.6–8.2× faster first matches** across 12 nonempty component queries, compared with jsdom's default `@asamuzakjp/dom-selector` engine.
-
-| Query                    | First-match speedup |
-| ------------------------ | ------------------: |
-| `.card`                  |                3.8× |
-| `button.primary`         |                5.0× |
-| `.card > button.primary` |                5.0× |
-| `[data-testid]`          |                5.2× |
-| `div > button`           |                4.3× |
-| `div:nth-child(2n)`      |                3.4× |
-
-These warm-query measurements compare current **2.3.0-prerelease** source with dom-selector **8.3.2** through jsdom **30.0.1**, on Node.js **26.5.0**. NWSAPI is called directly; jsdom's public methods include integration overhead. The all-results suite covers component, documentation, and utility-class fixtures. Some margins are small and timing varies with machine load. Native tag/class membership snapshots use synchronous mutation checks; returned arrays are fresh.
-
-See the [benchmarks, charts, and methodology](docs/benchmarks.md) and [V8 analysis and compiler inspection](docs/v8-performance.md).
+[Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/v8-performance.md)
 
 ## Install
 
@@ -33,9 +20,9 @@ See the [benchmarks, charts, and methodology](docs/benchmarks.md) and [V8 analys
 pnpm add nwsapi
 ```
 
-## Use the jsdom adapter
+## In jsdom
 
-Use nwsapi ≥ 2.3.0 with jsdom ≥ 27. The adapter replaces jsdom's selector engine for queries and stylesheet matching.
+Plug NWSAPI into jsdom for queries and stylesheet matching. Requires nwsapi ≥ 2.3.0 and jsdom ≥ 27.
 
 <details>
 <summary>Set up the dependency and override</summary>
@@ -97,9 +84,9 @@ This example calls NWSAPI directly. It does not replace jsdom's selector engine.
 
 </details>
 
-## Use in a browser
+## In browser
 
-Copy `src/nwsapi.js` from the package into your project. Set the script path to that file.
+Load `src/nwsapi.js` from the package:
 
 ```html
 <script src="nwsapi.js"></script>
@@ -159,13 +146,10 @@ CI uses one Node.js 26 job.
 <details>
 <summary>Run browser tests and measure coverage</summary>
 
-See [upstream testing](docs/upstream.md) for system requirements and setup recovery.
-WPT means Web Platform Tests.
-
 ```sh
-pnpm run test:browser
-pnpm run test:upstream
-pnpm run test:coverage
+pnpm run test:browser # Browser regressions and media states
+pnpm run test:wpt     # Web Platform Tests
+pnpm run cover        # Node + WPT coverage
 ```
 
 Coverage combines Node tests and WPT in Chromium; all four aggregate metrics exceed 95%.
@@ -173,7 +157,7 @@ The CLI entry point has a separate 100% coverage assertion.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
 
-See the [selector benchmarks](docs/benchmarks.md) for comparison charts and commands.
+[Test setup and troubleshooting →](docs/upstream.md) · [Benchmarks →](docs/benchmarks.md)
 
 </details>
 

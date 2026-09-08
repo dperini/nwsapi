@@ -19,7 +19,7 @@
  *   WPT_SECTION — selectors.js section name substring (see sections.mts).
  *
  * Known failures live in expectations.json; regenerate the baseline with:
- *   WPT_UPDATE_EXPECTATIONS=1 pnpm run test:upstream
+ *   WPT_UPDATE_EXPECTATIONS=1 pnpm run test:wpt
  * (.config/playwright.config.mts forces --workers=1 while that env var is set, so
  * the per-file expectations.json rewrites cannot race).
  */

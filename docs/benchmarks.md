@@ -173,3 +173,5 @@ It includes both narrow and broad containers to exercise traversal routing.
 See the [optimization notes](common-query-fast-paths.md) for before/after
 measurements and the [performance review](performance-review.md) for the
 remaining gaps and acceptance targets.
+
+The README overview is generated from these recorded results, including all 12 nonempty first-match queries. Regenerate it after updating the result files with `node scripts/repo/gen/readme-performance.mts`. Empty-result queries remain available in the full first-match report.
