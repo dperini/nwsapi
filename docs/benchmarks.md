@@ -10,7 +10,7 @@ Each query has equal weight. Its memory and file size figures use the retained h
 
 ## First matches
 
-![Direct library cold and warm first-match times](../assets/repo/bench/first-matches.svg?v=1004469f771f)
+![Direct library cold and warm first-match times](../assets/repo/bench/first-matches.svg?v=89f2bb7ddfb2)
 
 The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
 Both engines receive their own native document containing identical HTML.
@@ -78,7 +78,7 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Memory footprint
 
-![Standalone engine retained memory](../assets/repo/bench/memory-footprint.svg?v=7106faef8a9d)
+![Standalone engine retained memory](../assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -94,7 +94,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## Browser file size
 
-![Minified and compressed browser file sizes](../assets/repo/bench/file-size.svg?v=cdf17b11ff7b)
+![Minified and compressed browser file sizes](../assets/repo/bench/file-size.svg?v=3319980d640c)
 
 This is a file size report, not a timing benchmark.
 NWSAPI uses its published `dist/nwsapi.min.js` core browser file.

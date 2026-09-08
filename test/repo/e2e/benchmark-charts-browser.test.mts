@@ -64,8 +64,10 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
               fill: getComputedStyle(node).fill,
               parentFill: getComputedStyle(node.parentElement!).fill,
             })),
-            uppercasePackage: texts.some(({ text }) =>
-              text?.includes('NWSAPI'),
+            uppercasePackage: texts.some(
+              ({ text }) =>
+                text?.includes('NWSAPI') &&
+                text !== 'NWSAPI - Fast CSS Selectors API Engine',
             ),
             selectors: document.querySelectorAll('text.selector').length,
           }

@@ -65,7 +65,7 @@ export function compactQueryChart(options: QueryChartOptions) {
   const footer = notes
     .map(
       (note, index) =>
-        `<text x="${index ? 1052 : 48}" y="${index ? 628 + index * 24 : 616}"${index ? ' text-anchor="end"' : ''} class="muted note${index ? ' metadata' : ''}">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? packageText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`,
+        `<text x="${index ? 1052 : 48}" y="${index ? 644 + index * 24 : 616}"${index ? ' text-anchor="end"' : ''} class="muted note${index ? ' metadata' : ''}">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? packageText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`,
     )
     .join('')
   return (

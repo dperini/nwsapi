@@ -58,7 +58,7 @@ function render(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720" role="img"><title>${escapeText(title)}</title><desc>${escapeText(notes.join(' '))} Lower is better. Each group has its own zero-based linear scale.</desc><defs>${chartBackground}${chartGradients}</defs><style>${chartTextStyles}.engine{font-size:16px}</style>${chartFrame(720)}<text x="48" y="58" class="chart-title">${escapeText(title)}</text><text x="48" y="90" class="muted">Standalone libraries · Lower is better · Each group starts at zero</text>${body}<path d="M48 582H1052" stroke="#304159"/>${notes.map((note, i) => `<text x="${i ? 1052 : 48}" y="${i ? 628 + i * 24 : 616}"${i ? ' text-anchor="end"' : ''} class="muted note${i ? ' metadata' : ''}">${packageText(note)}</text>`).join('')}</svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720" role="img"><title>${escapeText(title)}</title><desc>${escapeText(notes.join(' '))} Lower is better. Each group has its own zero-based linear scale.</desc><defs>${chartBackground}${chartGradients}</defs><style>${chartTextStyles}.engine{font-size:16px}</style>${chartFrame(720)}<text x="48" y="58" class="chart-title">${escapeText(title)}</text><text x="48" y="90" class="muted">Standalone libraries · Lower is better · Each group starts at zero</text>${body}<path d="M48 582H1052" stroke="#304159"/>${notes.map((note, i) => `<text x="${i ? 1052 : 48}" y="${i ? 644 + i * 24 : 616}"${i ? ' text-anchor="end"' : ''} class="muted note${i ? ' metadata' : ''}">${packageText(note)}</text>`).join('')}</svg>`,
     ) + '\n'
   )
 }
