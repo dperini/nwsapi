@@ -543,7 +543,7 @@ interface AttributeOperator {
         return createLegacyCache<Value>(limit)
       }
       var young = new Map<string, Value>(),
-        old = new Map<string, Value>(),
+        old: Map<string, Value> | undefined,
         half: number
 
       limit || (limit = CACHE_LIMIT)
@@ -552,12 +552,15 @@ interface AttributeOperator {
       return {
         clear: function () {
           young = new Map<string, Value>()
-          old = new Map<string, Value>()
+          old = undefined
         },
         get: function (key: string) {
           var value = young.get(key)
           if (value !== undefined) {
             return value
+          }
+          if (!old) {
+            return undefined
           }
           value = old.get(key)
           if (value !== undefined) {
@@ -580,7 +583,7 @@ interface AttributeOperator {
           return value
         },
         size: function () {
-          return young.size + old.size
+          return young.size + (old ? old.size : 0)
         },
       }
     },
@@ -5265,9 +5268,9 @@ interface AttributeOperator {
         seen: Record<string, boolean> = {},
         token: string[] = ['', '*', '*'],
         optimized = selectors,
-        factory = [],
+        factory = Array<CompiledResolver | null>(selectors.length),
         htmlset = [],
-        nodeset = [],
+        nodeset = Array<string>(selectors.length),
         results: Element[] = [],
         type
 

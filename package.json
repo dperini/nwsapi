@@ -45,6 +45,7 @@
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
     "bench:cache": "node scripts/repo/run.mts scripts/repo/bench/run.mts cache",
     "bench:memory": "node scripts/repo/run.mts scripts/repo/bench/run.mts memory",
+    "bench:memory-profile": "node scripts/repo/run.mts scripts/repo/bench/heap-snapshot.mts",
     "compare:memory": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/native-memory.mts",
     "compare:memory:jsdom": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/footprint.mts",
     "report:size": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/filesize.mts",

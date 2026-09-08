@@ -32,3 +32,26 @@ test('cached plans retain no query results, context, or callback', t => {
   expect(engine.select(selector, other)).toEqual([other.firstChild!.firstChild])
   expect(cache.get(selector)).toBe(plan)
 })
+
+test('cached selector lists preserve order, duplicates, and context changes', t => {
+  const { window } = new JSDOM(
+    '<main><p class="item"></p><i></i><p></p></main>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const main = window.document.querySelector('main')!
+  const selectors = ['p.item', 'i, p.item', 'p, p, i', 'p.item, .missing, i']
+  for (const selector of selectors) {
+    const expected = [...main.querySelectorAll(selector)]
+    expect(engine.select(selector, main)).toEqual(expected)
+    expect(engine.select(selector, main)).toEqual(expected)
+    expect(engine.first(selector, main)).toBe(expected[0] ?? null)
+    expect(engine.first(selector, main)).toBe(expected[0] ?? null)
+  }
+  main.firstElementChild!.remove()
+  for (const selector of selectors) {
+    expect(engine.select(selector, main)).toEqual([
+      ...main.querySelectorAll(selector),
+    ])
+  }
+})
