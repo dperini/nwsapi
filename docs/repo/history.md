@@ -40,7 +40,7 @@ The preserved repository also contains Prototype history. Its [`1.6.0.2` tag](ht
 
 The [JSConf.US 2010 program](https://2010.jsconf.us/speakers.html) lists Dalton's talk, “All you can leet - Coding for performance, CSS engines, and sandboxed natives.” Its description emphasizes feature testing, avoiding repeated work, and choosing selector engines for consistent results, specification behavior, and the browsers a project needs. Dalton recalls promoting `nwmatcher` in that talk. The program confirms its subject, while the specific recommendation is his recollection recorded during this history review in September 2026.
 
-FuseJS combined its selector support with sandboxed natives. Dalton later applied sandboxed arrays to a proposed collection API in his [`nodelist` experiment](https://github.com/jdalton/nodelist/blob/07635c6d750ba6b405117e1ac91bb176770c19c8/README.md).
+FuseJS combined its selector support with sandboxed natives.
 
 ## Making the DOM ready across browsers
 
