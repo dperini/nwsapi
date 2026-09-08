@@ -31,15 +31,57 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
         const texts = Array.from(document.querySelectorAll('text'), node =>
           node.getBoundingClientRect(),
         )
+        const notes = Array.from(document.querySelectorAll('.note'), node =>
+          node.getBoundingClientRect(),
+        )
         return {
           padding: canvas.bottom - Math.max(...texts.map(rect => rect.bottom)),
           overflow: texts.some(
             rect => rect.left < canvas.left || rect.right > canvas.right,
           ),
+          notePadding: Math.min(
+            ...notes.map(rect => canvas.right - rect.right),
+          ),
+          firstNoteWidth: notes[0].width,
+          tickFont: getComputedStyle(document.querySelector('.tick')!).fontSize,
+          comparisonFont: getComputedStyle(
+            document.querySelector('.comparison')!,
+          ).fontSize,
+          metadataGap: notes[3].top - notes[2].bottom,
+          metadataColors: Array.from(
+            document.querySelectorAll('.metadata, .metadata .code'),
+            node => getComputedStyle(node).fill,
+          ),
+          noteText: Array.from(
+            document.querySelectorAll('.note'),
+            node => node.textContent,
+          ),
+          matchingNoteFonts: Array.from(
+            document.querySelectorAll('.note .code'),
+          ).every(
+            node =>
+              getComputedStyle(node).fontSize ===
+              getComputedStyle(node.parentElement!).fontSize,
+          ),
         }
       })
       expect(bounds.padding).toBeGreaterThanOrEqual(39)
       expect(bounds.overflow).toBe(false)
+      expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
+      expect(bounds.firstNoteWidth).toBeGreaterThan(650)
+      expect(bounds.metadataGap).toBeGreaterThanOrEqual(16)
+      expect(bounds.tickFont).toBe('16px')
+      expect(bounds.comparisonFont).toBe('16px')
+      expect(new Set(bounds.metadataColors)).toEqual(
+        new Set(['rgb(117, 128, 142)']),
+      )
+      expect(bounds.noteText[1]).toBe(
+        'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
+      )
+      expect(bounds.noteText.slice(-3)[0]).toMatch(/^Cold speedups/)
+      expect(bounds.noteText.slice(-3)[1]).toMatch(/^nwsapi v/)
+      expect(bounds.noteText.slice(-3)[2]).toMatch(/^Direct engine API/)
+      expect(bounds.matchingNoteFonts).toBe(true)
       expect(await page.locator('.bar').count()).toBe(24)
       expect(await page.locator('g > title').count()).toBe(24)
     } finally {
@@ -82,7 +124,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(frames[0].width).toBe(0)
       expect(frames[1].width).toBeGreaterThan(0)
       expect(frames[1].width).toBeLessThan(frames[2].width)
-      expect(frames[2].width).toBeCloseTo(380)
+      expect(frames[2].width).toBeCloseTo(480)
       for (const frame of frames) {
         expect(frame.x).toBeCloseTo(frames[0].x)
       }
@@ -96,7 +138,7 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
           animations: bar.getAnimations().length,
         }
       })
-      expect(reduced.width).toBeCloseTo(380)
+      expect(reduced.width).toBeCloseTo(480)
       expect(reduced.animations).toBe(0)
     } finally {
       await page.close()

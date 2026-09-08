@@ -1,63 +1,68 @@
-# Performance review — 2026-09-07
+# Performance review - 2026-09-07
 
-This is the historical review of `2ddfba2`. See
-[common query fast paths](common-query-fast-paths.md) for the first implementation
-and refreshed results. The original measurements remain available in that
-revision; the benchmark assets on master now contain the newer run.
+This review describes commit `2ddfba2` and the measurements available on 2026-09-07.
+See [common query fast paths](common-query-fast-paths.md) for the first changes that followed this review.
+See [the benchmark guide](benchmarks.md) for later results.
+The original measurements remain in the reviewed revision.
 
-NWSAPI wins 30 of the 36 recorded warm-query comparisons against
-`@asamuzakjp/dom-selector` 8.3.2. That is a strong starting point, but not yet
-evidence of a general performance lead. The next work should eliminate the
-largest traversal loss, improve positional and logical queries, and measure
-the actual jsdom integration under changing documents. The acceptance bar is
-decisive wins across every query category and API, not an aggregate majority.
+At that time, NWSAPI had lower times in 30 of 36 warm-query comparisons with `@asamuzakjp/dom-selector` v8.3.2.
+Fifteen queries were at least 2× faster.
+The largest losses involved searching through nested elements, checking positions, and evaluating logical selectors.
+The plan was to improve those queries and measure the public APIs on changing documents.
 
 ## Acceptance bar
 
-Use **at least 2× faster** as the proposed meaning of a decisive win. This
-threshold is a planning target, not an achieved result or a measured forecast.
-Apply it to every representative case in each category, not just a category
-average. Only 15 of the current 36 cases clear that threshold.
+The review proposed **at least 2× faster** as the target for a clear performance advantage.
+The target was proposed for future comparisons.
+Apply it to each representative query, rather than only to the average for a category.
 
-The matrix must cover identifiers, attributes, relationships, positional,
-logical/relational, and state selectors through all four APIs: all matches,
-first match, element matching, and closest ancestor. Cross those with cold,
-warm, and post-mutation execution; document and scoped contexts; and small,
-wide, and deep fixtures. Add empty and high-cardinality results explicitly.
+The test set should include IDs, classes, tags, attributes, relationships, positions, logical selectors, and state selectors.
+Measure all-results queries, first-match queries, single-element matching, and closest-ancestor searches.
+Test cold queries, repeated warm queries, and queries after document changes.
 
-Require equivalent correct results, no hidden unsupported cases, and repeated
-runs that distinguish the advantage from measurement noise. Also compare
-startup, allocations, and retained memory so query speed is not bought with
-unbounded lifecycle costs. Report any case below the target as outstanding.
-Finite benchmarks cannot prove superiority for every possible selector and
-DOM, but they can prevent a broad claim from hiding a losing query type.
+Use whole documents and smaller query scopes.
+Include small documents, many siblings, and deeply nested elements.
+Include queries that return no elements and queries that return many elements.
+
+Every engine must return equivalent, correct results.
+Report unsupported cases separately.
+Repeat measurements to distinguish useful improvements from normal timing variation.
+Also compare setup time, memory allocation, and memory retained after garbage collection.
+A faster query should not require unlimited memory growth.
+
+Record every case that remains below the target.
+A finite test set cannot prove that an engine is faster for every possible selector and document.
+It can show where further work is needed.
 
 ## Evidence and scope
 
-This is a review of committed measurements and source, not a new timing run.
-The three `assets/repo/bench/**/results.json` files record engine source commit
-`d051a7e`, which is still the engine source at reviewed master `2ddfba2`.
-They used Node 26.5.0, jsdom 30.0.1, an Apple M3 Max, nine rounds of 100
-iterations, and Chromium 151 as the correctness oracle. All 36 rows report
-agreement for all three engines. See [the benchmark contract](benchmarks.md).
+This review inspected committed source code and measurements. It did not run new timing tests.
+The three saved `assets/repo/bench/**/results.json` files identified engine source commit `d051a7e`.
+That source was still present at reviewed commit `2ddfba2`.
 
-Upstream had no open PRs at review time. The earlier performance PRs
-#182–189, #194, #200, and #204–208 have landed; their surviving local branches
-are not an unmerged performance backlog. The only open issue was
-[the 3.0 transition](https://github.com/dperini/nwsapi/issues/162).
+The run used Node.js v26.5.0, `jsdom` v30.0.1, and an Apple M3 Max.
+It measured nine passes of 100 calls per engine.
+Chromium v151 supplied independent expected results.
+All 36 queries returned equivalent results in all three engines.
+See [the measurement method](benchmarks.md).
 
-The existing report compares direct NWSAPI `select()` with jsdom's public
-`querySelectorAll()`. This is a useful comparison of those call paths, but
-includes different wrapper and integration costs. It does not measure cold
-compilation, mutation, first-match queries, matching, closest, scoped contexts,
-browser execution, or comparative memory use. Its 30 wins include margins near
-1%, which should be treated as ties until repeated runs establish separation.
+No pull requests were open at review time.
+Performance pull requests #182–189, #194, #200, and #204–208 had already merged.
+Their remaining local branches did not represent unfinished pull requests.
+The only open issue at that time was [the 3.0 transition](https://github.com/dperini/nwsapi/issues/162).
+
+The report compared direct NWSAPI `select()` calls with `document.querySelectorAll()` in `jsdom` calls.
+The `jsdom` method adds integration work, so the call paths have different costs.
+That report did not measure cold compilation, document changes, first matches, `match()`, or `closest()`.
+It also did not compare smaller query scopes, browser execution, or memory use.
+Some of its lower times differed by only about 1%.
+Repeated runs were needed to determine whether those small differences were meaningful.
 
 ## Measured gaps, in priority order
 
-Times below are milliseconds per query from the committed report.
+These historical measurements use milliseconds per query.
 
-| Priority | Query                    |  NWSAPI | dom-selector | Assessment                 |
+| Priority | Query                    |  NWSAPI | `@asamuzakjp/dom-selector` | Assessment                 |
 | -------- | ------------------------ | ------: | -----------: | -------------------------- |
 | 1        | `div.example > p > a`    | 1.11820 |      0.14155 | NWSAPI takes 7.90× as long |
 | 2        | `div:nth-last-child(3)`  | 0.16390 |      0.08035 | 2.04× as long              |
@@ -66,114 +71,100 @@ Times below are milliseconds per query from the committed report.
 | 4        | `div > button`           | 0.12548 |      0.11819 | 1.06× as long              |
 | 4        | `div button`             | 0.12666 |      0.11999 | 1.06× as long              |
 
-These are all six losing rows. Use the raw comparisons rather than chart
-rounding. Addressing these losses is only the first milestone: the near-ties
-and modest wins also need improvement to meet the 2× target.
+
+These were all six queries where NWSAPI was slower.
+Use the recorded values to compare small differences, because chart labels round the values.
+Fixing these losses was the first step toward the proposed 2× target.
+Queries with small improvements also needed further work.
 
 ### 1. Plan selective child and mixed chains
 
-`reTagChain`, `parseChain()`, and `descendChain()` in `src/nwsapi.mts` only
-route space-separated simple descendant chains. Child combinators in
-`div.example > p > a` cannot use that route. This is a concrete missing
-optimization; profiling must establish how much of the measured loss it explains.
+At the reviewed revision, `reTagChain`, `parseChain()`, and `descendChain()` handled simple descendant chains separated by spaces.
+They did not handle the `>` child relationships in `div.example > p > a`.
+Profiling was needed to find how much this missing path contributed to the loss.
 
-Prototype a plan that seeds from the selective `div.example` portion and
-checks the child relationships, with a cost budget and the existing resolver
-as fallback. Compare against rightmost-candidate execution on deep, wide,
-sparse, overlapping, and empty trees. Preserve document order, uniqueness,
-context boundaries, callbacks, XML behavior, and immediate mutation visibility.
-Do not simply replace all right-to-left matching with descending traversal.
+A proposed query plan would start from matching `div.example` elements and check their child relationships.
+A query plan is a saved set of steps for running a selector.
+Limit the work in this special path and use the general matching function when the limit is reached.
+Compare it with searching from the final element in the selector.
 
-Also address routing adaptation: `descentDeclined` remembers a rejected route
-by selector until cache eviction or an explicit clear. `switchContext()` clears
-`partCounts` but not that rejection cache. A query first used in an ineligible
-context or an unfavorable tree can therefore miss later opportunities. This
-affects performance rather than result correctness. Test alternating contexts
-and changing tree shapes before choosing retry or context-scoped heuristics.
+Test deep trees, many siblings, few matches, nested starting elements, and empty results.
+Keep results unique and in document order.
+Preserve scope boundaries, callbacks, XML behavior, and immediate visibility of document changes.
+
+The engine also needed to reconsider earlier routing decisions.
+The `descentDeclined` cache remembered that a selector could not use a route.
+At that revision, `switchContext()` cleared `partCounts` but did not clear that rejection.
+A selector could therefore miss a faster route after moving to a different document or scope.
+This affected speed rather than the returned result.
+Test changing scopes and document shapes before choosing when to retry a route.
 
 ### 2. Make positional execution fit candidate density
 
-`nthElement()` builds sibling arrays, searches a parent array, and sometimes
-searches the sibling array again. Constant child positions already have a
-bounded sibling-walk specialization; proposing that same optimization again
-would not address the remaining `nth-last-child(3)` loss.
+A candidate is an element that the engine may need to test.
+Queries can have many candidates under one parent or only a few scattered candidates.
+Those cases can benefit from different position-checking methods.
 
-Profile dense and sparse candidate sets separately. Evaluate a query-local
-parent/index structure for general formulas and parent-driven selection for
-dense constant-position queries. Keep the existing bounded walk for sparse
-candidates when it wins. Cover reverse positions, multiple parents, detached
-trees, of-type forms, reentrancy, and sibling mutations. Avoid persistent DOM
-indexes without a proven invalidation contract.
+At the reviewed revision, `nthElement()` built sibling arrays and searched parent and sibling arrays.
+A limited sibling search already handled fixed child positions.
+Adding that same method again would not explain the remaining `:nth-last-child(3)` loss.
+
+Measure the cases with many and few candidates separately.
+Consider sharing parent and position information within one query.
+Keep short sibling searches when they are faster.
+
+Tests should cover reverse positions, multiple parents, detached trees, and `:nth-of-type()` forms.
+They should also cover sibling changes and callbacks that start another query.
+Do not retain document position indexes between queries until their update rules are correct and tested.
 
 ### 3. Compile simple logical predicates and improve candidate selection
 
-The compiler already inlines tag-only `:is()`/`:where()` lists and compound
-`:not()`. A class predicate such as `:where(.card)` still takes the general
-matching path. Compile eligible simple compounds in place while preserving
-forgiving-list parsing and compiler state. Measure both `select()` and `match()`.
+A predicate is a condition that tests an element.
+The compiler already placed tag-only `:is()` and `:where()` checks directly in generated code.
+It also handled compound `:not()` checks that way.
+A class check such as `:where(.card)` still used the general matching path at that revision.
 
-For `.card > :is(button, input)` and `:is(button, input)`, explore choosing
-candidates from the alternatives instead of scanning all elements. Include
-deduplication, ordering, and collection-copy costs in the decision. These rows
-already beat dom-selector, but remain relatively expensive in absolute time.
+Compile eligible simple checks directly while preserving parser and compiler behavior.
+In particular, preserve the rules for forgiving selector lists, which can ignore invalid entries where the selector syntax allows it.
+Measure both `select()` and `match()`.
 
-The direct-child tag form of `:has()` is also already specialized. General
-`has()` still parses and collects relative selectors per anchor. Precompile
-validated relative plans and investigate existence-only execution for classes,
-attributes, and sibling forms. This is an unmeasured opportunity, not a current
-claim of a competitor gap. Preserve anchor isolation and validation of the whole
-argument list even when an earlier branch matches.
+For `.card > :is(button, input)` and `:is(button, input)`, test collecting the listed tags instead of scanning every element.
+Include the cost of copying collections, removing duplicates, and ordering results.
+Those queries already beat the competitor in this run, but still took substantial time.
+
+The engine already had a special path for `:has()` with a direct-child tag selector.
+More general `:has()` queries still parsed and collected relative selectors for each starting element.
+Consider saving validated plans and stopping as soon as a matching relative element is found.
+This was an unmeasured opportunity, not a measured competitor loss.
+Keep each starting element's search separate and validate the complete argument list.
 
 ### 4. Protect form-state correctness while reducing repeated ancestry work
 
-`input:enabled` and `input:read-write` beat or approximately tie dom-selector,
-but take about 2.77× and 1.96× the 2.2.27 baseline time. The old baseline is not
-a correctness target: disabled-fieldset handling and other behavior changed.
-`isDisabled()` currently walks ancestors per control. Investigate query-local
-sharing of fieldset ancestry information, with first-legend exceptions and
-mutation/reentrancy coverage. Measure realistic disabled and nested fieldsets;
-the recorded component fixture does not exercise those cases.
+The `input:enabled` and `input:read-write` queries were faster than, or close to, the competitor.
+However, they took about 2.77× and 1.96× the time of NWSAPI v2.2.27.
+The older engine was not a correctness reference because form-state behavior had changed.
+
+At that revision, `isDisabled()` walked ancestors for each control.
+Test whether controls can share fieldset information during one query.
+Preserve the first-legend exception in disabled fieldsets.
+Test nested and disabled fieldsets, document changes, and callbacks that start another query.
+The recorded component page did not cover those fieldset cases.
 
 ## How to establish a durable advantage
 
-1. **Measure equivalent public integrations.** Run jsdom with its default
-   engine and with the NWSAPI adapter in separate instances using identical
-   fixtures and operations. Keep direct-engine measurements as a separate
-   diagnostic. dom-selector advertises both standards compliance and adoption
-   as jsdom's default engine in its [upstream README](https://github.com/asamuzaK/domSelector).
-   Faster internals must translate into faster application calls.
-2. **Add changing-document workloads.** Separate unchanged warm queries,
-   first queries after DOM and property changes, and realistic mixed workloads.
-   Include insert/remove/reparent, attributes, checked/selected/disabled state,
-   and focus. Measure mutation plus query as well as query alone. Do not disable
-   competitor caches for headline results; measure normal application behavior.
-3. **Cover the operations users actually perform.** Add `querySelector`,
-   `matches`, and `closest`, plus Element, DocumentFragment, and ShadowRoot
-   contexts, absent matches, duplicate IDs, and early versus late matches.
-   Import real selector traces from component-test workloads where available;
-   label generated fixtures as synthetic.
-4. **Measure lifecycle and bounded memory.** Compare construction, first query,
-   many short-lived documents, high-cardinality selectors around cache limits,
-   allocation, and retained memory after collection. Source size and minified
-   size alone do not establish startup or memory advantages. Keep cached plans
-   independent of DOM results and verify removed documents can be collected.
-5. **Make regression evidence reproducible.** Retain version/source/fixture
-   hashes and all samples. Add independent process repetitions, uncertainty
-   estimates, and per-category summaries. Establish noise on a stable runner
-   before enforcing performance thresholds. Gate each optimization on browser
-   agreement and relevant mutation tests; report unsupported cases separately.
+1. **Measure the same public APIs.** Use separate `jsdom` instances with the default engine and the NWSAPI adapter. Run the same HTML and operations in both. Keep direct-engine measurements as a separate diagnostic.
+2. **Measure changing documents.** Test queries after adding, removing, or moving elements. Also change attributes, selected and checked states, disabled states, and focus. Measure the change plus the query, as well as the query alone. Use the engines' normal cache settings.
+3. **Measure common operations and scopes.** Include `querySelector()`, `matches()`, and `closest()`. Test `Element`, `DocumentFragment`, and `ShadowRoot` scopes. Include missing matches, duplicate IDs, and matches near the beginning or end. Use queries recorded from component tests where available, and clearly identify generated test pages.
+4. **Measure setup and memory.** Include engine construction, first queries, and many short-lived documents. Test many distinct selectors around cache limits. Check how much memory remains after garbage collection. Verify that caches do not keep unused documents alive.
+5. **Make results repeatable.** Save every sample and the package versions, source hashes, and test HTML hashes. Repeat tests in separate processes. Measure normal timing variation on a stable machine before enforcing speed thresholds. Require browser agreement and relevant document-change tests for each optimization.
 
-The recommended sequence is: extend the measurement contract, address the
-selective child-chain loss, improve positional and logical execution, then
-optimize adapter lifecycle and memory based on the new measurements. Run a
-real jsdom/component-test workload before making a broad competitive claim.
-The product promise to prove is fast, correct queries on changing documents,
-with low startup cost and bounded memory.
+The proposed order was to improve the measurements, fix the child-chain loss, and then improve position and logical queries.
+Later work would address adapter setup and memory use based on those measurements.
+A realistic `jsdom` component-test workload would help show whether the improvements benefit applications.
 
 ## Validation of this review
 
-Branch and remote state, merged PRs, open issues, benchmark arithmetic, and
-the referenced source paths were inspected. No runtime implementation changed.
-A dependency setup attempt stopped because the active pnpm is 12.0.0 and the
-repository requires `^11.25.0 || >=12.3.4`; no fresh benchmark or test result is
-claimed here.
+The review checked branch state, merged pull requests, open issues, benchmark arithmetic, and the referenced source code.
+It did not change the engine.
+Dependency setup stopped because the installed `pnpm` v12.0.0 did not meet the required version range.
+The review therefore claimed no new benchmark or test result.

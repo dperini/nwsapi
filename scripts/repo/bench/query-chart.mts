@@ -1,5 +1,14 @@
+import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
 import { escapeText } from './charts.mts'
+import {
+  chartBackground,
+  chartColors,
+  chartFrame,
+  chartTextStyles,
+  noteCodeFont,
+  noteFont,
+} from './chart-theme.mts'
 
 export interface QueryChartOptions {
   names: [string, string]
@@ -9,7 +18,63 @@ export interface QueryChartOptions {
     cold: [number, number]
   }>
   notes: Array<string | Array<string | { code: string }>>
+  metadataStart?: number
   bottomPadding?: number
+}
+
+// Measure words in the same fonts as the SVG. Keep package names in code style.
+export async function wrapQueryNotes(
+  notes: QueryChartOptions['notes'],
+  breakBefore: number[] = [],
+) {
+  const browser = await chromium.launch()
+  try {
+    const page = await browser.newPage()
+    return await page.evaluate(
+      ({
+        notes: entries,
+        noteFont: proseFont,
+        codeFont: monoFont,
+        breakBefore: boundaries,
+      }) => {
+        const context = document.createElement('canvas').getContext('2d')!
+        const lines: Array<Array<string | { code: string }>> = [[]]
+        let width = 0
+        for (const [index, note] of entries.entries()) {
+          if (width && boundaries.includes(index)) {
+            lines.push([])
+            width = 0
+          }
+          for (const part of typeof note === 'string' ? [note] : note) {
+            const code = typeof part !== 'string'
+            const words = (code ? part.code : part).match(/\S+/g) ?? []
+            for (const word of words) {
+              context.font = code ? monoFont : proseFont
+              const wordWidth = context.measureText(word).width
+              context.font = proseFont
+              const spaceWidth = context.measureText(' ').width
+              // The 1100px canvas has 48px padding on both sides.
+              if (width && width + spaceWidth + wordWidth > 1004) {
+                lines.push([])
+                width = 0
+              }
+              const line = lines[lines.length - 1]
+              if (width) {
+                line.push(' ')
+                width += spaceWidth
+              }
+              line.push(code ? { code: word } : word)
+              width += wordWidth
+            }
+          }
+        }
+        return lines
+      },
+      { notes, noteFont, codeFont: noteCodeFont, breakBefore },
+    )
+  } finally {
+    await browser.close()
+  }
 }
 
 // Each engine uses the same logarithmic scale. Endpoints show warm and cold times.
@@ -19,12 +84,17 @@ export function queryChart({
   rows,
   notes,
   bottomPadding = 40,
+  metadataStart,
 }: QueryChartOptions) {
   if (
     !rows.length ||
     !notes.length ||
     !Number.isFinite(bottomPadding) ||
     bottomPadding < 0 ||
+    (metadataStart !== undefined &&
+      (!Number.isInteger(metadataStart) ||
+        metadataStart < 0 ||
+        metadataStart >= notes.length)) ||
     rows.some(row =>
       [row.warm, row.cold].some(
         values =>
@@ -38,7 +108,11 @@ export function queryChart({
     )
   }
   const notesTop = 208 + rows.length * 64
-  const height = notesTop + (notes.length - 1) * 23 + 5 + bottomPadding
+  const isMetadata = (index: number) =>
+    metadataStart !== undefined && index >= metadataStart
+  const noteY = (index: number) =>
+    notesTop + index * 23 + (isMetadata(index) ? 12 : 0)
+  const height = noteY(notes.length - 1) + 5 + bottomPadding
 
   const times = rows
     .flatMap(row => [...row.warm, ...row.cold])
@@ -48,10 +122,7 @@ export function queryChart({
   const span = Math.max(1, high - low)
   const position = (value: number) =>
     ((Math.log10(value * 1000) - low) / span) * 650
-  const colors = [
-    ['#baf471', '#2bc5ae'],
-    ['#a4aff7', '#ef9bc9'],
-  ]
+  const colors = chartColors.slice(0, names.length)
   const gradients = colors
     .map(
       ([warm, cold], index) =>
@@ -73,13 +144,13 @@ export function queryChart({
   const lines = rows
     .map((row, i) => {
       const y = 163 + i * 64
-      const comparisons = (['warm', 'cold'] as const)
+      const comparisons = (['cold', 'warm'] as const)
         .map((state, index) => {
           const ratio = row[state][1] / row[state][0]
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${faster ? colors[0][index] : '#ef9bc9'}">${label}</tspan>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
         })
         .join('')
       return (
@@ -91,7 +162,7 @@ export function queryChart({
             const top = y + series * 12
             const warm = position(row.warm[series])
             const cold = position(row.cold[series])
-            const summary = `Warm ${(row.warm[series] * 1000).toFixed(2)} μs · Cold ${row.cold[series].toFixed(2)} ms`
+            const summary = `Cold ${row.cold[series].toFixed(2)} ms · Warm ${(row.warm[series] * 1000).toFixed(2)} μs`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
       <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
       <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>
@@ -107,28 +178,22 @@ export function queryChart({
   return (
     optimiseSvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img" aria-labelledby="title desc">
 <title id="title">${escapeText(names[0])}</title>
-<desc id="desc">Warm and cold first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
-<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d30"/><stop offset="1" stop-color="#0b1220"/></linearGradient>${gradients}</defs>
+<desc id="desc">Cold and warm first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
+<defs>${chartBackground}${gradients}</defs>
 <style>
-text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
-.muted{fill:#aabbd0;font-size:16px}
-.code{font-family:Consolas,Menlo,monospace;font-size:18px;fill:#dce6f1}
-.comparison{font-size:14px;font-variant-numeric:tabular-nums}
-.tick{fill:#aabbd0;font-size:12px}
-.time{fill:#aabbd0;font-size:13px;font-variant-numeric:tabular-nums}
+${chartTextStyles}
+.tick,.comparison{font-size:16px}
 .bar{transform-box:fill-box;transform-origin:left center;animation:grow 750ms cubic-bezier(.22,1,.36,1) 1 both}
 @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.bar{animation:none}}
 </style>
-<rect width="1100" height="${height}" rx="24" fill="url(#bg)"/>
-<rect x=".5" y=".5" width="1099" height="${height - 1}" rx="24" fill="none" stroke="#2b3a50"/>
-<text x="48" y="65" class="muted">Warm → cold</text>
-<text x="48" y="89" class="muted">Further left is faster.</text>
-<text x="48" y="132" class="muted">Logarithmic time scale</text>
+${chartFrame(height)}
+<text x="48" y="65" class="muted">Logarithmic time scale</text>
+<text x="48" y="89" class="muted">Further left is faster</text>
 ${axes}
 ${lines}
 <path d="M48 ${notesTop - 38}H1052" stroke="#304159"/>
-${notes.map((note, index) => `<text x="48" y="${notesTop + index * 23}" class="muted">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
+${notes.map((note, index) => `<text x="48" y="${noteY(index)}" class="muted note${isMetadata(index) ? ' metadata' : ''}">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
 </svg>`) + '\n'
   )
 }

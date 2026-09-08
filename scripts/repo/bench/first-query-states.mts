@@ -5,6 +5,8 @@ import os from 'node:os'
 import { JSDOM } from 'jsdom'
 import factory from '../../../src/nwsapi.js'
 import { components } from './documents.mts'
+import { parseArgs } from 'node:util'
+import { sample, sampleFresh, timingEngine } from './timing.mts'
 
 const require = createRequire(import.meta.url)
 const jsdomRequire = createRequire(require.resolve('jsdom'))
@@ -15,8 +17,26 @@ const previous = JSON.parse(
 const selectors = previous.rows
   .map(row => row.selector)
   .filter(selector => !['.missing', '.absent > button'].includes(selector))
-const rounds = 9
-const iterations = 1000
+const { values } = parseArgs({
+  options: {
+    rounds: { type: 'string', default: '9' },
+    iterations: { type: 'string', default: '1000' },
+    output: {
+      type: 'string',
+      default: 'assets/repo/bench/first-query-states.json',
+    },
+  },
+})
+const rounds = Number(values.rounds)
+const iterations = Number(values.iterations)
+if (
+  !Number.isInteger(rounds) ||
+  rounds < 1 ||
+  !Number.isInteger(iterations) ||
+  iterations < 1
+) {
+  throw new RangeError('Use positive rounds and iterations.')
+}
 const rows = selectors.map(selector => ({
   selector,
   cold: [[], []] as number[][],
@@ -45,53 +65,65 @@ for (let round = 0; round < rounds; round++) {
     const row = rows[index]
     for (let turn = 0; turn < 2; turn++) {
       const engine = (round + turn) % 2
-      // Each engine gets a separate fresh document. Neither query runs before
-      // the cold timer. Fixture and explicit factory setup are outside timing.
-      const { window } = new JSDOM(html)
-      try {
+      const createContext = () => {
+        const { window } = new JSDOM(html)
         const document = window.document
         const nw = engine === 0 ? factory(window) : null
         const expected = paths[index].reduce(
           (node, child) => node.childNodes[child],
           document,
         )
-        const query =
-          engine === 0
-            ? () => nw.first(row.selector, document)
-            : () => document.querySelector(row.selector)
-        const start = process.hrtime.bigint()
-        const result = query()
-        const cold = Number(process.hrtime.bigint() - start) / 1e6
-        if (result !== expected) {
-          throw new Error(`Incorrect cold result: ${row.selector}`)
+        return {
+          window,
+          expected,
+          result: undefined as unknown,
+          query:
+            engine === 0
+              ? () => nw.first(row.selector, document)
+              : () => document.querySelector(row.selector),
+        }
+      }
+      const contexts: Array<ReturnType<typeof createContext>> = []
+      try {
+        const cold = await sampleFresh(
+          () => {
+            const context = createContext()
+            contexts.push(context)
+            return context
+          },
+          context => {
+            context.result = context.query()
+          },
+        )
+        for (const context of contexts) {
+          if (context.result !== context.expected) {
+            throw new Error(`Incorrect cold result: ${row.selector}`)
+          }
         }
         row.cold[engine].push(cold)
-        const warmUntil = performance.now() + 20
-        do {
-          query()
-        } while (performance.now() < warmUntil)
-        const warmStart = process.hrtime.bigint()
-        for (let i = 0; i < iterations; i++) {
-          if (query() !== expected) {
+        const context = contexts[contexts.length - 1]
+        const query = () => {
+          if (context.query() !== context.expected) {
             throw new Error(`Incorrect warm result: ${row.selector}`)
           }
           consumed++
         }
-        row.warm[engine].push(
-          Number(process.hrtime.bigint() - warmStart) / iterations / 1e6,
-        )
+        await sample(query, iterations, 20)
+        row.warm[engine].push((await sample(query, iterations)).milliseconds)
       } finally {
-        window.close()
+        for (const context of contexts) {
+          context.window.close()
+        }
       }
     }
   }
   console.log(`Completed round ${round + 1}/${rounds}`)
 }
-const median = values =>
-  values.toSorted((a, b) => a - b)[Math.floor(values.length / 2)]
+const median = samples =>
+  samples.toSorted((a, b) => a - b)[Math.floor(samples.length / 2)]
 const hash = data => createHash('sha256').update(data).digest('hex')
 writeFileSync(
-  'assets/repo/bench/first-query-states.json',
+  values.output,
   JSON.stringify(
     {
       metadata: {
@@ -110,6 +142,7 @@ writeFileSync(
           .version,
         rounds,
         iterations,
+        timingEngine,
         warmupMilliseconds: 20,
         consumed,
         cold: 'First query on a fresh document; fixture creation and explicit NWSAPI factory setup are excluded. This is not fresh-process startup.',

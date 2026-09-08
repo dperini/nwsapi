@@ -10,9 +10,13 @@ import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
 
 const [phase = 'select', outputArgument] = process.argv.slice(2)
-if (!['select', 'first', 'match', 'cold', 'resolver'].includes(phase)) {
+if (
+  !['select', 'first', 'first-class', 'match', 'cold', 'resolver'].includes(
+    phase,
+  )
+) {
   throw new Error(
-    'Usage: profile.mts <select|first|match|cold|resolver> <output.cpuprofile>',
+    'Usage: profile.mts <select|first|first-class|match|cold|resolver> <output.cpuprofile>',
   )
 }
 const output =
@@ -21,19 +25,23 @@ const output =
     mkdtempSync(path.join(os.tmpdir(), 'nwsapi-profile-')),
     'nwsapi.cpuprofile',
   )
-const worlds = Object.entries(cases).map(([name, groups]) => {
-  const { window } = new JSDOM(DOCUMENTS[name].html())
-  const engine = factory(window)
-  const doc = window.document
-  const nodes = [...doc.getElementsByTagName('*')]
-  const queries = Object.values(groups)
-    .flat()
-    .map(selector => ({
+const worlds = Object.entries(cases)
+  .filter(([name]) => phase !== 'first-class' || name === 'components')
+  .map(([name, groups]) => {
+    const { window } = new JSDOM(DOCUMENTS[name].html())
+    const engine = factory(window)
+    const doc = window.document
+    const nodes = [...doc.getElementsByTagName('*')]
+    const queries = (
+      phase === 'first-class'
+        ? ['.card', 'button.primary', 'input.input', '.card > button.primary']
+        : Object.values(groups).flat()
+    ).map(selector => ({
       selector,
       resolve: engine.compile(selector, true),
     }))
-  return { window, engine, doc, nodes, queries }
-})
+    return { window, engine, doc, nodes, queries }
+  })
 let consumed = 0
 function run(iterations: number) {
   for (const { engine, doc, nodes, queries } of worlds) {
@@ -48,6 +56,7 @@ function run(iterations: number) {
           case 'match':
             consumed += Number(engine.match(selector, nodes[i % nodes.length]))
             break
+          case 'first-class':
           case 'first':
             consumed += Number(!!engine.first(selector, doc))
             break
@@ -70,8 +79,12 @@ try {
     run(30)
   }
   await session.post('Profiler.enable')
+  if (phase === 'first-class') {
+    await session.post('Profiler.setSamplingInterval', { interval: 50 })
+  }
   await session.post('Profiler.start')
-  const iterations = phase === 'match' ? 100_000 : 1000
+  const iterations =
+    phase === 'first-class' ? 250_000 : phase === 'match' ? 100_000 : 1000
   run(iterations)
   const { profile } = await session.post('Profiler.stop')
   writeFileSync(output, JSON.stringify(profile))

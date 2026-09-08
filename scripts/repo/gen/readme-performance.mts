@@ -1,5 +1,7 @@
+import { refreshChartReferences } from './chart-references.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { queryChart } from '../bench/query-chart.mts'
+import { queryStateNote } from '../bench/chart-theme.mts'
+import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)
 const data = JSON.parse(
@@ -23,28 +25,40 @@ if (
 }
 const ratios = rows.map(row => row.warm[1] / row.warm[0])
 const range = `${Math.min(...ratios).toFixed(1)}–${Math.max(...ratios).toFixed(1)}×`
+const coldRatios = rows.map(row => row.cold[1] / row.cold[0])
+const coldRange = `${Math.min(...coldRatios).toFixed(1)}–${Math.max(...coldRatios).toFixed(1)}×`
 writeFileSync(
   new URL('assets/repo/bench/perf-hero.svg', root),
   queryChart({
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,
-    notes: [
-      'Queries cover common component lookups and Selectors Level 4 features. All return a match.',
-      'Warm queries repeat a selector. Cold queries run it first on a fresh document.',
-      `Warm speedups were ${range}. Cold results vary. Both engines use the same logarithmic scale.`,
+    metadataStart: 3,
+    notes: await wrapQueryNotes(
       [
-        { code: 'nwsapi' },
-        ' 2.3.0-prerelease · ',
-        { code: '@asamuzakjp/dom-selector' },
-        ` ${data.metadata.competitor} · `,
-        { code: 'jsdom' },
-        ` ${data.metadata.jsdom}`,
+        'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
+        queryStateNote,
+        `Cold speedups were ${coldRange}. Warm speedups were ${range}.`,
+        [
+          { code: 'nwsapi' },
+          ' v2.3.0-prerelease · ',
+          { code: '@asamuzakjp/dom-selector' },
+          ` v${data.metadata.competitor} · `,
+          { code: 'jsdom' },
+          ` v${data.metadata.jsdom}`,
+        ],
+        [
+          'Direct engine API ',
+          { code: 'first()' },
+          ' vs ',
+          { code: 'jsdom' },
+          ' ',
+          { code: 'querySelector()' },
+          ` · Node.js ${data.metadata.node} · ${data.metadata.cpu}`,
+        ],
       ],
-      [
-        'Direct engine API vs ',
-        { code: 'jsdom' },
-        ` querySelector · Node.js ${data.metadata.node.replace(/^v/, '')} · ${data.metadata.cpu}`,
-      ],
-    ],
+      [1, 2, 3, 4],
+    ),
   }),
 )
+
+refreshChartReferences()

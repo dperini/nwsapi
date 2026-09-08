@@ -15,8 +15,10 @@
  *   the URL went absolute.
  */
 
+import crypto from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { percentBadgeColor } from './percent-badge.mts'
 
 import { rawAssetUrl } from './github-raw-url.mts'
 import { COVERAGE_SUMMARY_PATH, REPO_ROOT } from './paths.mts'
@@ -49,21 +51,12 @@ export function svgWidth(svg: string): string | undefined {
 }
 
 /**
- * A README `<img>` for a badge SVG: standardized `height="20"` + the SVG's
- * exact `width`, so badges align on one row, precise, no reflow. Inline <img>
- * (not markdown `![]`) is what lets us pin the height, and the TAG itself
- * renders on GitHub + npm alike, unlike an inlined `<svg>`.
- *
- * `src` must be an ABSOLUTE url. The tag rendering everywhere does not mean a
- * relative src resolves everywhere: GitHub resolves `assets/…` against the repo
- * it is rendering, npm has no repo to resolve it against, so a relative src
- * ships a broken-image icon on the package page. Build the url with
- * [`rawAssetUrl`].
+ * Match Socket's height-only badge markup. GitHub adds a 6px CSS corner
+ * radius to images with explicit width and height, which clips the SVG's
+ * own 3px corners. Let the SVG supply its width instead.
  */
-export function badgeImgTag(src: string, alt: string, svg: string): string {
-  const w = svgWidth(svg)
-  const width = w === undefined ? '' : ` width="${w}"`
-  return `<img src="${src}"${width} height="${BADGE_HEIGHT}" alt="${alt}" />`
+export function badgeImgTag(src: string, alt: string, _svg?: string): string {
+  return `<img src="${src}" height="${BADGE_HEIGHT}" alt="${alt}" />`
 }
 
 // The absolute URL of a repo's coverage badge asset, the src the README <img>
@@ -83,7 +76,13 @@ export function coverageBadgeRef(
   svg: string,
 ): string {
   const src = slug === undefined ? BADGE_ASSET_PATH : coverageBadgeUrl(slug)
-  return badgeImgTag(src, 'Coverage', svg)
+  // A content key refreshes image caches only when the badge changes.
+  const revision = crypto
+    .createHash('sha256')
+    .update(svg)
+    .digest('hex')
+    .slice(0, 12)
+  return badgeImgTag(`${src}?v=${revision}`, 'Coverage', svg)
 }
 
 // The legacy markdown reference, kept for migration matching.
@@ -98,12 +97,13 @@ export const BADGE_PLACEHOLDER = 'n/a'
 // carrying another repo's slug (a scaffolded copy) or an older ref still
 // matches, so the migrator rewrites it to this repo's HEAD url.
 const ABSOLUTE_IMG_BADGE_RE =
-  /<img src="https:\/\/raw\.githubusercontent\.com\/[^"]+\/assets\/repo\/coverage\.svg"[^>]*\/>/
+  /<img src="https:\/\/raw\.githubusercontent\.com\/[^"]+\/assets\/repo\/coverage\.svg(?:\?[^"<>]*)?"[^>]*\/>/
 
 // The relative-src <img> at the CURRENT path: what a never-published package
 // keeps, since a private repo's raw url does not resolve anonymously. A
 // published one migrates to the absolute form above.
-const RELATIVE_IMG_BADGE_RE = /<img src="assets\/repo\/coverage\.svg"[^>]*\/>/
+const RELATIVE_IMG_BADGE_RE =
+  /<img src="assets\/repo\/coverage\.svg(?:\?[^"<>]*)?"[^>]*\/>/
 
 // Both PRE-TIER img paths, relative or absolute, matched only to migrate: the
 // root-flat `assets/coverage.svg` that predates the repo/fleet tiers, and the
@@ -141,7 +141,7 @@ const SHIELDS_IMG_BADGE_RE = new RegExp(
 
 // The `aria-label="coverage: <value>"` the renderer stamps on the SVG — the
 // machine-readable percent the check reads back.
-const SVG_LABEL_RE = /aria-label="coverage: (\d+%|n\/a)"/
+const SVG_LABEL_RE = /aria-label="[Cc]overage: (\d+%|n\/a)"/
 
 export type BadgeForm =
   | 'img'
@@ -218,27 +218,8 @@ export function migrateReadmeBadge(
     .replace(ABSOLUTE_IMG_BADGE_RE, () => ref)
 }
 
-// Fill color for a coverage percent — the conventional coverage gradient so
-// the badge reads at a glance (brightgreen ≥90, green ≥80, yellowgreen ≥70,
-// yellow ≥60, orange ≥50, red below).
-export function badgeColor(pct: number): string {
-  if (pct >= 90) {
-    return '#4c1'
-  }
-  if (pct >= 80) {
-    return '#97ca00'
-  }
-  if (pct >= 70) {
-    return '#a4a61d'
-  }
-  if (pct >= 60) {
-    return '#dfb317'
-  }
-  if (pct >= 50) {
-    return '#fe7d37'
-  }
-  return '#e05d44'
-}
+// Compatibility name for callers of the coverage helper.
+export const badgeColor = percentBadgeColor
 
 // Approximate rendered width of a badge string in Verdana 11px. Exactness is
 // not required: every <text> carries textLength, which forces the glyph run to
@@ -257,10 +238,12 @@ function textWidth(text: string): number {
       w += 6.5
     }
   }
-  return Math.round(w)
+  // Socket badges use odd text widths to align letters to the pixel grid.
+  const width = Math.round(w)
+  return width % 2 === 0 ? width + 1 : width
 }
 
-const LABEL = 'coverage'
+const LABEL = 'Coverage'
 // 10px of horizontal padding per segment (5px each side).
 const PAD = 10
 
@@ -282,8 +265,8 @@ export function renderBadge(
   const lw = textWidth(badgeLabel) + PAD
   const vw = textWidth(text) + PAD
   const w = lw + vw
-  const lcx = lw * 5
-  const vcx = (lw + vw / 2) * 10
+  const lcx = lw * 5 + 10
+  const vcx = (lw + vw / 2) * 10 - 10
   const ltl = (lw - PAD) * 10
   const vtl = (vw - PAD) * 10
   const label = `${badgeLabel}: ${text}`

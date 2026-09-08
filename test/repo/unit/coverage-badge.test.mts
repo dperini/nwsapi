@@ -37,22 +37,22 @@ function fixture(t) {
 }
 
 test.each([
-  [49, '#e05d44'],
-  [50, '#fe7d37'],
-  [60, '#dfb317'],
-  [70, '#a4a61d'],
-  [80, '#97ca00'],
-  [90, '#4c1'],
+  [49, '#f56565'],
+  [50, '#f56565'],
+  [60, '#ed8936'],
+  [70, '#ed8936'],
+  [80, '#48bb78'],
+  [90, '#48bb78'],
 ])('coverage %s uses %s', (pct, color) => {
   assert.equal(badgeColor(pct), color)
   assert.match(
     coverageBadgeSvg(pct),
-    new RegExp(`aria-label="coverage: ${pct}%"`),
+    new RegExp(`aria-label="Coverage: ${pct}%"`),
   )
 })
 
 test('an unmeasured badge uses the grey n/a placeholder', () => {
-  assert.match(coverageBadgeSvg(undefined), /aria-label="coverage: n\/a"/)
+  assert.match(coverageBadgeSvg(undefined), /aria-label="Coverage: n\/a"/)
   assert.match(coverageBadgeSvg(undefined), /fill="#9f9f9f"/)
 })
 
@@ -75,7 +75,8 @@ test('replaces an unmeasured badge with coverage and an absolute README image', 
     readme,
     /https:\/\/raw.githubusercontent.com\/dperini\/nwsapi\/HEAD\/assets\/repo\/coverage.svg/,
   )
-  assert.match(readme, /width="\d+" height="20"/)
+  assert.match(readme, /height="20"/)
+  assert.doesNotMatch(readme, /width=/)
   assert.equal(makeCoverageBadge({ repoRoot, check: true }), 0)
   assert.equal(readFileSync(path.join(repoRoot, 'README.md'), 'utf8'), readme)
   summary(40)

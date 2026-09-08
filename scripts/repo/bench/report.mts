@@ -13,7 +13,9 @@ import {
   ENGINE_SOURCE_PATH,
   REPO_ROOT,
 } from '../lib/paths.mts'
-import { agrees, chart, splitCharts } from './charts.mts'
+import { agrees, splitCharts } from './charts.mts'
+import { writeBenchmarkCharts } from './chart-report.mts'
+import { sample, timingEngine } from './timing.mts'
 import type { Measurement } from './charts.mts'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
@@ -141,6 +143,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
         })
         const samples = engines.map(() => [] as number[])
         const sampleIterations = engines.map(() => [] as number[])
+        const mitataSamples = engines.map(() => [] as number[][])
         for (let warmup = 0; warmup < 20; ++warmup) {
           engines.forEach((engine, index) => {
             if (!errors[index]) {
@@ -155,20 +158,16 @@ for (const [fixture, categories] of Object.entries(cases)) {
             if (errors[index]) {
               continue
             }
-            const start = process.hrtime.bigint()
-            let calls = 0
-            let elapsed: number
-            // Give sub-microsecond paths a measurable sample too. Keep every
-            // sample, including scheduling and GC pauses, for all engines.
-            do {
-              for (let count = 0; count < iterations; ++count) {
+            const result = await sample(
+              () => {
                 consumed += engines[index].query(selector).length
-              }
-              calls += iterations
-              elapsed = Number(process.hrtime.bigint() - start) / 1e6
-            } while (elapsed < minRoundMs)
-            samples[index].push(elapsed / calls)
-            sampleIterations[index].push(calls)
+              },
+              iterations,
+              minRoundMs,
+            )
+            samples[index].push(result.milliseconds)
+            sampleIterations[index].push(result.calls)
+            mitataSamples[index].push(result.samples)
           }
         }
         // Verify warmed routing and snapshot paths as well as the cold path.
@@ -183,8 +182,9 @@ for (const [fixture, categories] of Object.entries(cases)) {
           errors,
           samples,
           sampleIterations,
-          milliseconds: samples.map(sample => {
-            const sorted = sample.toSorted((left, right) => left - right)
+          mitataSamples,
+          milliseconds: samples.map(measurements => {
+            const sorted = measurements.toSorted((left, right) => left - right)
             return sorted.length ? sorted[Math.floor(sorted.length / 2)] : null
           }),
         })
@@ -205,6 +205,7 @@ for (const [fixture, categories] of Object.entries(cases)) {
     rounds,
     iterations,
     minRoundMs,
+    timingEngine,
     fixtureSha256: crypto.createHash('sha256').update(html).digest('hex'),
     fixture,
     engines: engines.map(({ query: _query, ...engine }) => engine),
@@ -215,33 +216,12 @@ for (const [fixture, categories] of Object.entries(cases)) {
     values.output,
     fixture === 'components' ? '' : fixture,
   )
-  const titles = {
-    identifiers: 'Basic selectors',
-    attributes: 'Attribute selectors',
-    relationships: 'Relationships',
-    positional: 'Position selectors',
-    logical: 'Logical selectors',
-    forms: 'Form state selectors',
-    components: 'Component queries',
-    documentation: 'Documentation queries',
-    atomic: 'Utility-class queries',
-  }
   fs.mkdirSync(output, { recursive: true })
   fs.writeFileSync(
     path.join(output, 'results.json'),
     JSON.stringify({ metadata, rows }, null, 2) + '\n',
   )
-  for (const group of splitCharts(rows)) {
-    fs.writeFileSync(
-      path.join(output, `${group.name}.svg`),
-      chart(
-        titles[group.rows[0].category] ?? group.name,
-        engines.map(engine => engine.name),
-        group.rows,
-        `${fixture}; ${process.version}; jsdom ${jsdomPkg.version}; ${rounds} rounds; ${metadata.timestamp.slice(0, 10)}; ${sha.slice(0, 8)}`,
-      ),
-    )
-  }
+  writeBenchmarkCharts(output, metadata, rows)
   console.log(
     `Wrote ${rows.length} selector results and ${splitCharts(rows).length} charts to ${output}`,
   )

@@ -392,7 +392,7 @@ const CHOICES = [
 
 const rows = []
 for (const [label, read] of Object.entries(READS)) {
-  const [{ ms }] = compare(
+  const [{ ms }] = await compare(
     { [label]: () => read(all) },
     { rounds, iterations: 40 },
   )
@@ -430,7 +430,7 @@ for (const choice of CHOICES) {
       answer === answers[0] ||
       (typeof answer === 'object' && answer.length === answers[0].length),
   )
-  const timed = compare(
+  const timed = await compare(
     Object.fromEntries(
       Object.entries(choice.variants).map(([label, fn]) => [
         label,
