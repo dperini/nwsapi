@@ -22,16 +22,28 @@ export interface QueryChartOptions {
 }
 
 // Measure words in the same fonts as the SVG. Keep package names in code style.
-export async function wrapQueryNotes(notes: QueryChartOptions['notes']) {
+export async function wrapQueryNotes(
+  notes: QueryChartOptions['notes'],
+  breakBefore: number[] = [],
+) {
   const browser = await chromium.launch()
   try {
     const page = await browser.newPage()
     return await page.evaluate(
-      ({ notes: entries, noteFont: proseFont, codeFont: monoFont }) => {
+      ({
+        notes: entries,
+        noteFont: proseFont,
+        codeFont: monoFont,
+        breakBefore,
+      }) => {
         const context = document.createElement('canvas').getContext('2d')!
         const lines: Array<Array<string | { code: string }>> = [[]]
         let width = 0
-        for (const note of entries) {
+        for (const [index, note] of entries.entries()) {
+          if (width && breakBefore.includes(index)) {
+            lines.push([])
+            width = 0
+          }
           for (const part of typeof note === 'string' ? [note] : note) {
             const code = typeof part !== 'string'
             const words = (code ? part.code : part).match(/\S+/g) ?? []
@@ -57,7 +69,7 @@ export async function wrapQueryNotes(notes: QueryChartOptions['notes']) {
         }
         return lines
       },
-      { notes, noteFont, codeFont: noteCodeFont },
+      { notes, noteFont, codeFont: noteCodeFont, breakBefore },
     )
   } finally {
     await browser.close()

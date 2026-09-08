@@ -43,6 +43,10 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
             ...notes.map(rect => canvas.right - rect.right),
           ),
           firstNoteWidth: notes[0].width,
+          noteText: Array.from(
+            document.querySelectorAll('.note'),
+            node => node.textContent,
+          ),
           matchingNoteFonts: Array.from(
             document.querySelectorAll('.note .code'),
           ).every(
@@ -56,6 +60,9 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(bounds.overflow).toBe(false)
       expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
       expect(bounds.firstNoteWidth).toBeGreaterThan(950)
+      expect(bounds.noteText.slice(-3)[0]).toMatch(/^Cold speedups/)
+      expect(bounds.noteText.slice(-3)[1]).toMatch(/^nwsapi v/)
+      expect(bounds.noteText.slice(-3)[2]).toMatch(/^Direct engine API/)
       expect(bounds.matchingNoteFonts).toBe(true)
       expect(await page.locator('.bar').count()).toBe(24)
       expect(await page.locator('g > title').count()).toBe(24)
