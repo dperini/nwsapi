@@ -15,6 +15,7 @@ catalog:
   "istanbul-lib-coverage": "3.2.2"
   "istanbul-lib-report": "3.0.1"
   "istanbul-reports": "3.2.0"
+  "jquery": "4.0.0"
   "jsdom": "30.0.1"
   "mitata": "1.0.34"
   "oxfmt": "0.66.0"

@@ -2,7 +2,7 @@
 
 Implemented in `0b3840b` and `b68e020`, following the
 [performance review](performance-review.md). These were the initial common-query specializations.
-The tables below are historical measurements. See the [V8 analysis](v8-performance.md)
+The tables below are historical measurements. See the [performance guide](performance.md)
 and [current benchmarks](benchmarks.md) for subsequent first-match and collection-snapshot work.
 
 ## What changed

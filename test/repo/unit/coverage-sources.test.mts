@@ -10,6 +10,13 @@ import { coverageThresholds } from '../../../.config/coverage.config.mts'
 const root = path.resolve('coverage-fixture')
 const engine = path.join(root, 'src/nwsapi.js')
 const adapter = path.join(root, 'src/dom-selector.js')
+const modules = ['jquery', 'traversal'].map(name =>
+  path.join(root, `src/modules/nwsapi-${name}.js`),
+)
+const moduleCoverage = Object.assign(
+  {},
+  ...modules.map(file => covered(file, 1)),
+)
 function covered(file, count) {
   return {
     [file]: {
@@ -26,17 +33,20 @@ function covered(file, count) {
   }
 }
 
-test('coverage uses WPT for the engine and Node for the adapter', () => {
+test('coverage merges browser and Node engine execution and includes the adapter', () => {
   const map = combineCoverage(
     covered(engine, 0),
     {
       ...covered(engine, 100),
       ...covered(adapter, 1),
+      ...moduleCoverage,
     },
     root,
   )
-  expect(map.files().toSorted()).toEqual([adapter, engine])
-  expect(map.fileCoverageFor(engine).toSummary().lines.pct).toBe(0)
+  expect(map.files().toSorted()).toEqual(
+    [adapter, engine, ...modules].toSorted(),
+  )
+  expect(map.fileCoverageFor(engine).toSummary().lines.pct).toBe(100)
   expect(map.fileCoverageFor(adapter).toSummary().lines.pct).toBe(100)
 })
 
@@ -74,4 +84,37 @@ test('HTML reports are generated only in CI', () => {
     'json-summary',
     'html',
   ])
+})
+
+test('in-memory browser endpoints merge with JSON-serialized Node endpoints exactly once', () => {
+  const browser = covered(engine, 0)
+  browser[engine].statementMap[0].end.column = Infinity
+  const node = JSON.parse(JSON.stringify(covered(engine, 1)))
+  node[engine].statementMap[0].end.column = null
+  const map = combineCoverage(
+    browser,
+    { ...node, ...covered(adapter, 1), ...moduleCoverage },
+    root,
+  )
+  expect(map.fileCoverageFor(engine).toSummary().statements).toMatchObject({
+    total: 1,
+    covered: 1,
+    pct: 100,
+  })
+})
+
+test('optional modules must contribute execution to the combined report', () => {
+  for (const file of modules) {
+    for (const empty of [true, false]) {
+      const node = { ...covered(adapter, 1), ...moduleCoverage }
+      if (empty) {
+        delete node[file]
+      } else {
+        Object.assign(node, covered(file, 0))
+      }
+      expect(() => combineCoverage(covered(engine, 1), node, root)).toThrow(
+        'module execution coverage',
+      )
+    }
+  }
 })

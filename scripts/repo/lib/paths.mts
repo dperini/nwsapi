@@ -62,7 +62,7 @@ export const TSC_CONFIG_PATH = path.join(
 )
 export const COVERAGE_SCRIPT_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/coverage.mts',
+  'scripts/repo/cover.mts',
 )
 export const COMPILE_CACHE_DIR = path.join(
   os.tmpdir(),

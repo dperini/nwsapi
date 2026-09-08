@@ -90,9 +90,9 @@ test('disabled fieldsets honor only their own first legend', t => {
   ).toBe(false)
 })
 
-test('options inherit disabled only from their immediate optgroup', t => {
+test('options inherit an optgroup attribute without inheriting a select attribute', t => {
   const { window } = new JSDOM(
-    '<fieldset disabled><select disabled><optgroup id="group" disabled><option id="a"></option></optgroup><option id="b"></option><option disabled id="c"></option></select></fieldset>',
+    '<fieldset><select disabled><optgroup id="group" disabled><option id="a"></option></optgroup><option id="b"></option><option disabled id="c"></option></select></fieldset>',
   )
   t.onTestFinished(() => window.close())
   const engine = factory(window)

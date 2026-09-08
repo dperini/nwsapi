@@ -38,7 +38,7 @@ Usage:
 
 Options:
   --compare <path>  Measure a second nwsapi build from <path> as well, e.g.
-                    git show 2e9498f:src/nwsapi.js > /tmp/upstream.js
+                    git show 2e9498f:src/nwsapi.js > baseline.js
   --count <n>       Instances per measurement (default 200).
   --rounds <n>      Measurement rounds, medianed, order alternating between
                     engines each round (default 3).

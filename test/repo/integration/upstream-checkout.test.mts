@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, test } from 'vitest'
 import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -46,12 +46,12 @@ function fixture(t) {
   sparse-checkout = selected
 `,
   )
-  const run = command =>
+  const run = (command, env = {}) =>
     spawnSync(process.execPath, [helper, command], {
       cwd: root,
       encoding: 'utf8',
       timeout: 5000,
-      env: fixtureEnv,
+      env: { ...fixtureEnv, ...env },
     })
   return { root, outside, run }
 }
@@ -159,4 +159,48 @@ test('a clean checkout inside the repository can restore sparse patterns', t => 
   const result = run('restore-sparse')
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /sparse-checkout set to: selected/)
+})
+
+test('clone pins a depth-one single-branch sparse checkout and verifies its fetch scope', t => {
+  const { root, outside, run } = fixture(t)
+  const git = repository(outside)
+  const ref = git('rev-parse', 'HEAD').trim()
+  const branch = git('branch', '--show-current').trim()
+  writeFileSync(
+    path.join(root, '.gitmodules'),
+    `[submodule "upstream/wpt"]
+  path = upstream/wpt
+  url = https://fixture.invalid/wpt.git
+  ref = ${ref}
+  branch = ${branch}
+  shallow = true
+  sparse-checkout = selected
+`,
+  )
+  const cloned = run('clone', {
+    GIT_CONFIG_COUNT: '1',
+    GIT_CONFIG_KEY_0: `url.${pathToFileURL(outside).href}.insteadOf`,
+    GIT_CONFIG_VALUE_0: 'https://fixture.invalid/wpt.git',
+  })
+  assert.equal(cloned.status, 0, cloned.stderr)
+  const checkout = gitFor(path.join(root, 'upstream/wpt'))
+  assert.equal(checkout('rev-parse', 'HEAD').trim(), ref)
+  assert.equal(checkout('rev-parse', '--is-shallow-repository').trim(), 'true')
+  assert.equal(checkout('rev-list', '--count', 'HEAD').trim(), '1')
+  assert.equal(
+    checkout('config', '--get-all', 'remote.origin.fetch').trim(),
+    `+refs/heads/${branch}:refs/remotes/origin/${branch}`,
+  )
+  assert.equal(checkout('sparse-checkout', 'list').trim(), 'selected')
+  checkout(
+    'config',
+    '--replace-all',
+    'remote.origin.fetch',
+    '+refs/heads/*:refs/remotes/origin/*',
+  )
+  assert.equal(run('restore-sparse').status, 0)
+  assert.equal(
+    checkout('config', '--get-all', 'remote.origin.fetch').trim(),
+    `+refs/heads/${branch}:refs/remotes/origin/${branch}`,
+  )
 })

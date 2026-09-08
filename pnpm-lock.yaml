@@ -137,6 +137,9 @@ catalogs:
     istanbul-reports:
       specifier: 3.2.0
       version: 3.2.0
+    jquery:
+      specifier: 4.0.0
+      version: 4.0.0
     jsdom:
       specifier: 30.0.1
       version: 30.0.1
@@ -213,6 +216,9 @@ importers:
       istanbul-reports:
         specifier: 'catalog:'
         version: 3.2.0
+      jquery:
+        specifier: 'catalog:'
+        version: 4.0.0
       jsdom:
         specifier: 'catalog:'
         version: 30.0.1
@@ -1296,6 +1302,9 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
+
+  jquery@4.0.0:
+    resolution: {integrity: sha512-TXCHVR3Lb6TZdtw1l3RTLf8RBWVGexdxL6AC8/e0xZKEpBflBsjh9/8LXw+dkNFuOyW9B7iB3O1sP7hS0Kiacg==}
 
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
@@ -2687,6 +2696,8 @@ snapshots:
       istanbul-lib-report: 3.0.1
 
   jiti@2.7.0: {}
+
+  jquery@4.0.0: {}
 
   js-tokens@10.0.0: {}
 

@@ -30,6 +30,8 @@ export default defineConfig({
       './**',
     ].map(path => fileURLToPath(new URL(path, import.meta.url))),
     environment: 'node',
+    // Execute the published CommonJS bytes consistently for import and require.
+    server: { deps: { external: [/\/src\/(?:nwsapi|dom-selector)\.js$/] } },
     pool: process.env.NWSAPI_TEST_TIER === 'unit' ? 'threads' : 'forks',
     // Unit fixtures own their DOM instances; subprocess suites stay isolated.
     isolate: process.env.NWSAPI_TEST_TIER !== 'unit',
@@ -39,7 +41,7 @@ export default defineConfig({
     testTimeout: 10_000,
     coverage: {
       provider: 'v8',
-      include: ['src/*.js'],
+      include: ['src/**/*.js'],
       reportsDirectory: 'coverage/node',
       reporter: ['text', 'json', 'json-summary'],
     },

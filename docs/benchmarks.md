@@ -21,7 +21,7 @@ all samples, call counts, versions, and source hashes.
 First-match plans reuse parsed candidates and compiled predicates, and stop
 once each selector group has a result. The simple class/tag paths avoid
 compilation entirely. Single-element positional checks avoid building full
-sibling indexes. See the [V8 analysis](v8-performance.md).
+sibling indexes. See the [performance guide](performance.md).
 
 | Query                    | NWSAPI (µs) | jsdom default (µs) | Speedup |
 | ------------------------ | ----------: | -----------------: | ------: |
@@ -173,3 +173,25 @@ It includes both narrow and broad containers to exercise traversal routing.
 See the [optimization notes](common-query-fast-paths.md) for before/after
 measurements and the [performance review](performance-review.md) for the
 remaining gaps and acceptance targets.
+
+## Warm and cold queries
+
+The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. The engine lines are stacked. A summary below each pair compares the warm and cold times as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
+
+A warm query repeats a selector after a 20 ms warmup. A cold query is the first query on a fresh document. Cold measurements exclude document creation and explicit NWSAPI factory setup. They include any setup that jsdom performs inside its first public query. They do not measure a new Node.js process.
+
+Both engine lines use the same logarithmic time scale. Each tick increases by a factor of ten. Further left means less time. Compare marker positions, rather than line lengths. Warm summaries use microseconds. Cold summaries use milliseconds. One millisecond equals 1,000 microseconds.
+
+Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture. These exercise common component lookups by tag, class, attribute, and parent-child relationship. They also cover positional checks, selector lists, negation, `:is()`, and `:where()`. This is a focused sample, not a complete selector survey. Empty-result queries remain in the original first-match results.
+
+The recorded warm speedups range from 1.9× to 8.2×. The cold results are mixed. NWSAPI takes longer for `.card`, `button.primary`, `input.input`, and `.card > button.primary`. The chart shows these differences. Warm speedups do not describe cold queries.
+
+Run the measurement separately from tests and other CPU work. Then regenerate the chart:
+
+```sh
+pnpm run build
+node scripts/repo/bench/first-query-states.mts
+node scripts/repo/gen/readme-performance.mts
+```
+
+The [query chart helper](../scripts/repo/bench/query-chart.mts) handles the layout, colors, animation, and notes. Pass engine names, rows, and notes to `queryChart()`. Times use milliseconds in both input columns. The helper converts warm times to microseconds for display. It sizes the canvas from the row and note counts. The `bottomPadding` option defaults to 40 pixels. Notes can contain plain text and `{ code: 'package-name' }` parts.

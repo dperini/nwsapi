@@ -37,6 +37,87 @@ export const manifest: Array<{
   legacyMap?: boolean
 }> = [
   {
+    path: '/html/semantics/selectors/pseudo-classes/checked.html',
+    note: 'HTML selector semantics: checked through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/default.html',
+    note: 'HTML selector semantics: default through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/dir-dynamic.html',
+    note: 'HTML selector semantics: dir-dynamic through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/dir-html-input-dynamic-text.html',
+    note: 'HTML selector semantics: dir-html-input-dynamic-text through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/dir.html',
+    note: 'HTML selector semantics: dir through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/dir01.html',
+    note: 'HTML selector semantics: dir01 through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/disabled.html',
+    note: 'HTML selector semantics: disabled through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/enabled.html',
+    note: 'HTML selector semantics: enabled through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/focus-autofocus.html',
+    note: 'HTML selector semantics: focus-autofocus through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/focus.html',
+    note: 'HTML selector semantics: focus through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/indeterminate.html',
+    note: 'HTML selector semantics: indeterminate through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/inrange-outofrange-time-reversed.html',
+    note: 'HTML selector semantics: inrange-outofrange-time-reversed through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/inrange-outofrange.html',
+    note: 'HTML selector semantics: inrange-outofrange through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/link.html',
+    note: 'HTML selector semantics: link through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/readwrite-readonly.html',
+    note: 'HTML selector semantics: readwrite-readonly through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/required-optional.html',
+    note: 'HTML selector semantics: required-optional through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/valid-invalid-fieldset-disconnected.html',
+    note: 'HTML selector semantics: valid-invalid-fieldset-disconnected through DOM APIs',
+  },
+  {
+    path: '/html/semantics/selectors/pseudo-classes/valid-invalid.html',
+    note: 'HTML selector semantics: valid-invalid through DOM APIs',
+  },
+
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/nodelist-contract.html',
+    note: 'local WPT regression: static NodeList indexing, iteration and mutation across four contexts',
+  },
+  {
+    path: '/css/selectors/dir-pseudo-on-input-element.html',
+    note: 'input directionality across types, values and live type changes',
+  },
+  {
     path: '/_repo/test/repo/e2e/upstream/fixtures/media-time-state.html',
     note: 'local WPT regression: native and reflected media states and host timelines',
     install: false,
@@ -260,11 +341,11 @@ export const manifest: Array<{
   },
   {
     path: '/css/selectors/heading.html',
-    note: ':heading and :heading() pseudo-classes (Selectors 5; unsupported by nwsapi, kept as expected-fail canary)',
+    note: ':heading and :heading() pseudo-classes (Selectors 5)',
   },
   {
     path: '/css/selectors/heading-prefixed.html',
-    note: ':heading with prefixed selector lists (Selectors 5; unsupported by nwsapi, kept as expected-fail canary)',
+    note: ':heading with prefixed selector lists (Selectors 5)',
   },
   {
     path: '/css/selectors/pseudo-enabled-disabled.html',

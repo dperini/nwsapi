@@ -56,7 +56,7 @@ export function makeCoverageBadge(config: MakeCoverageBadgeConfig): number {
   const pct = readCoveragePct(cfg.repoRoot)
   if (pct === undefined) {
     logger.error(
-      'gen/coverage-badge: no coverage data at coverage/coverage-summary.json. Run `pnpm run test:coverage` first (the json-summary reporter emits it), then re-run.',
+      'gen/coverage-badge: no coverage data at coverage/coverage-summary.json. Run `pnpm run cover` first (the json-summary reporter emits it), then re-run.',
     )
     return 1
   }

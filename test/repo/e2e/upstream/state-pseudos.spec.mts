@@ -31,6 +31,7 @@ const XML_SOURCE = '<root><details open="open"/><dialog open=""/></root>'
 const initScript = `${nwsapiSource}
 ;(function () {
   try {
+    window.__nwNativeQuerySelectorAll = Document.prototype.querySelectorAll;
     window.NW.Dom.install();
   } catch (e) {
     window.__nwInstallError = String((e && e.stack) || e);
@@ -50,11 +51,16 @@ async function openFixtureWithNW(page) {
     await page.evaluate('window.__nwInstallError || null'),
     'NW.Dom.install() must not throw',
   ).toBeNull()
-  // NW-install canary (same as wpt.spec.mts): nwsapi returns Arrays.
   expect(
-    await page.evaluate('Array.isArray(document.querySelectorAll("html"))'),
-    'document.querySelectorAll must return an Array (nwsapi installed)',
-  ).toBe(true)
+    await page.evaluate(() => ({
+      installed:
+        document.querySelectorAll !== window['__nwNativeQuerySelectorAll'],
+      nodeList: document.querySelectorAll('html') instanceof NodeList,
+      root:
+        document.querySelectorAll('html').item(0) === document.documentElement,
+    })),
+    'installed queries must use the override and return NodeList-compatible results',
+  ).toEqual({ installed: true, nodeList: true, root: true })
 }
 
 test.describe('state pseudo-classes (nwsapi installed)', () => {
@@ -168,10 +174,14 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
         // install() patches Document.prototype, so this goes through NW too
         // (native ground truth lives in the uninstrumented test below).
         qsaLength: qsaResult.length,
-        qsaWentThroughNW: Array.isArray(qsaResult),
+        qsaWentThroughNW:
+          xdoc.querySelectorAll === document.querySelectorAll &&
+          xdoc.querySelectorAll !== window['__nwNativeQuerySelectorAll'],
+        qsaIsNodeList: qsaResult instanceof NodeList,
       }
     }, XML_SOURCE)
     expect(result.parserError).toBe(false)
+    expect(result.qsaIsNodeList).toBe(true)
     expect(
       result.nwSelect,
       'NW.Dom.select(":open", xmlDoc) must match nothing',
@@ -197,7 +207,9 @@ test('native Chromium parity (no nwsapi): :open in HTML and XML', async ({
   const result = await page.evaluate(xmlSource => {
     const xdoc = new DOMParser().parseFromString(xmlSource, 'application/xml')
     return {
-      qsaIsNative: !Array.isArray(document.querySelectorAll('html')),
+      qsaIsNative:
+        typeof window.NW === 'undefined' &&
+        document.querySelectorAll('html') instanceof NodeList,
       htmlOpen: Array.from(document.querySelectorAll(':open'), e => e.id),
       xmlOpen: xdoc.querySelectorAll(':open').length,
     }

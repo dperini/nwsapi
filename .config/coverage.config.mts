@@ -1,6 +1,6 @@
 export const coverageThresholds = {
-  statements: 79,
-  branches: 70,
-  functions: 81,
-  lines: 78,
+  statements: 98,
+  branches: 95.1,
+  functions: 98,
+  lines: 98,
 } as const
