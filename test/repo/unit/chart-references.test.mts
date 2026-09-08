@@ -20,6 +20,9 @@ test('changes both chart URLs when the SVG changes and preserves other images', 
     fs.writeFileSync(guide, '![Chart](../assets/repo/bench/perf-hero.svg)\n')
     refreshChartReferences(root)
     const first = fs.readFileSync(readme, 'utf8')
+    expect(first).toContain(
+      'https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=',
+    )
     expect(first).toMatch(/perf-hero\.svg\?v=[a-f\d]{12}\)/)
     expect(fs.readFileSync(guide, 'utf8')).toContain(
       first.match(/perf-hero\.svg\?v=[a-f\d]{12}/)![0],

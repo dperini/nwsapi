@@ -10,11 +10,11 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](assets/repo/bench/perf-hero.svg?v=e84d074ee5c1)](docs/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=e84d074ee5c1)](docs/benchmarks.md)
 
 Direct library comparisons on native browser DOMs, without jsdom.
 
-[Performance →](docs/benchmarks.md) · [Memory footprint →](docs/benchmarks.md#memory-footprint) · [Browser file size →](docs/benchmarks.md#browser-file-size) · [Inside the compiler →](docs/performance.md)
+[Performance](docs/benchmarks.md) · [Memory](docs/benchmarks.md#memory-footprint) · [File size](docs/benchmarks.md#browser-file-size) · [Inside the compiler](docs/performance.md)
 
 ## Install
 

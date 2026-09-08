@@ -10,7 +10,7 @@ Each query has equal weight. Its memory and file size figures use the retained h
 
 ## First matches
 
-![Direct library cold and warm first-match times](../assets/repo/bench/first-matches.svg?v=89f2bb7ddfb2)
+![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=89f2bb7ddfb2)
 
 The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
 Both engines receive their own native document containing identical HTML.
@@ -78,7 +78,7 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Memory footprint
 
-![Standalone engine retained memory](../assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -94,7 +94,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## Browser file size
 
-![Minified and compressed browser file sizes](../assets/repo/bench/file-size.svg?v=3319980d640c)
+![Minified and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=3319980d640c)
 
 This is a file size report, not a timing benchmark.
 NWSAPI uses its published `dist/nwsapi.min.js` core browser file.
@@ -109,43 +109,43 @@ It measures these browser artifacts, not npm tarballs or total installation size
 
 Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
 
-![Component queries](../assets/repo/bench/components-1.svg?v=861835b0206d)
+![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=861835b0206d)
 
 ## Documentation queries
 
 Queries for links and definition entries in a large documentation fixture.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=28f3b573bbbb)
+![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=28f3b573bbbb)
 
 ## Utility-class queries
 
 Queries for navigation links and card content in nested utility-class HTML.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=c2b0c16a6a6c)
+![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=c2b0c16a6a6c)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=c088d40681ce)
+![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=c088d40681ce)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=a0235990a99f)
+![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=a0235990a99f)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg?v=7ea2389ca21a)
+![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=7ea2389ca21a)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg?v=765b0a0bbea5)
+![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=765b0a0bbea5)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg?v=c790e83c8e58)
+![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=c790e83c8e58)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg?v=430542d38b7c)
+![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=430542d38b7c)
 
 ## Cold and warm queries
 

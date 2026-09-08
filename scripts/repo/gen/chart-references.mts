@@ -3,6 +3,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 
+// GitHub's /raw redirect drops query parameters; use the raw host directly.
+export const chartBaseUrl =
+  'https://raw.githubusercontent.com/dperini/nwsapi/master/'
+
 // A changed SVG needs a new URL so GitHub requests the updated image.
 export function refreshChartReferences(root = REPO_ROOT) {
   const chartRoot = path.join(root, 'assets/repo/bench') + path.sep
@@ -12,7 +16,9 @@ export function refreshChartReferences(root = REPO_ROOT) {
     const after = before.replace(
       /\]\(([^\s)?]+\.svg)(?:\?[^\s)]*)?\)/g,
       (reference, href: string) => {
-        const asset = path.resolve(path.dirname(document), href)
+        const asset = href.startsWith(chartBaseUrl)
+          ? path.resolve(root, href.slice(chartBaseUrl.length))
+          : path.resolve(path.dirname(document), href)
         if (!asset.startsWith(chartRoot) || !fs.existsSync(asset)) {
           return reference
         }
@@ -21,7 +27,8 @@ export function refreshChartReferences(root = REPO_ROOT) {
           .update(fs.readFileSync(asset))
           .digest('hex')
           .slice(0, 12)
-        return `](${href}?v=${revision})`
+        const assetPath = path.relative(root, asset).split(path.sep).join('/')
+        return `](${chartBaseUrl}${assetPath}?v=${revision})`
       },
     )
     if (after !== before) {

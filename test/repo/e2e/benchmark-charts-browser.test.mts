@@ -2,6 +2,7 @@ import { chromium } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import type { Browser } from '@playwright/test'
 import { readFileSync } from 'node:fs'
+import { chartBaseUrl } from '../../../scripts/repo/gen/chart-references.mts'
 import { chart } from '../../../scripts/repo/bench/charts.mts'
 
 let browser: Browser
@@ -22,7 +23,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
     )
     const paths = [
       ...markdown.matchAll(/!\[[^\]]*\]\(([^)?]+\.svg)(?:\?[^)]*)?\)/g),
-    ].map(match => match[1]!)
+    ].map(match => match[1]!.replace(chartBaseUrl, '../'))
     expect(paths).toHaveLength(12)
     paths.push('../assets/repo/bench/perf-hero.svg')
     const page = await browser.newPage({
