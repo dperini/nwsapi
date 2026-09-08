@@ -37,7 +37,7 @@ export function queryChart({
       'Provide positive query times, notes, and nonnegative bottom padding.',
     )
   }
-  const notesTop = 191 + rows.length * 39
+  const notesTop = 208 + rows.length * 64
   const height = notesTop + (notes.length - 1) * 23 + 5 + bottomPadding
 
   const times = rows
@@ -47,7 +47,7 @@ export function queryChart({
   const high = Math.ceil(Math.log10(Math.max(...times)))
   const span = Math.max(1, high - low)
   const position = (value: number) =>
-    ((Math.log10(value * 1000) - low) / span) * 230
+    ((Math.log10(value * 1000) - low) / span) * 650
   const colors = [
     ['#baf471', '#2bc5ae'],
     ['#a4aff7', '#ef9bc9'],
@@ -58,49 +58,47 @@ export function queryChart({
         `<linearGradient id="series${index}"><stop stop-color="${warm}"/><stop offset="1" stop-color="${cold}"/></linearGradient>`,
     )
     .join('')
-  const axes = names
-    .map((name, series) => {
-      const x = 350 + series * 290
-      return (
-        `<text x="${x}" y="65" class="code">${escapeText(name)}</text>
-    <text x="${x}" y="89" class="muted"><tspan fill="${colors[series][0]}">● Warm</tspan><tspan dx="18" fill="${colors[series][1]}">● Cold</tspan></text>` +
-        Array.from({ length: span + 1 }, (_, index) => {
-          const power = low + index
-          const value = 10 ** power
-          const label = value >= 1000 ? `${value / 1000} ms` : `${value} μs`
-          return `<text x="${x + (index / span) * 230}" y="132" text-anchor="middle" class="tick">${label}</text>`
-        }).join('')
+  const axes =
+    names
+      .map(
+        (name, series) =>
+          `<text x="${350 + series * 240}" y="65" class="code" style="fill:${colors[series][0]}">● ${escapeText(name)}</text>`,
       )
-    })
-    .join('')
+      .join('') +
+    Array.from({ length: span + 1 }, (_, index) => {
+      const value = 10 ** (low + index)
+      const label = value >= 1000 ? `${value / 1000} ms` : `${value} μs`
+      return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${label}</text>`
+    }).join('')
   const lines = rows
     .map((row, i) => {
-      const y = 163 + i * 39
+      const y = 163 + i * 64
       const comparisons = (['warm', 'cold'] as const)
         .map((state, index) => {
           const ratio = row[state][1] / row[state][0]
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<text x="1052" y="${y + index * 19}" text-anchor="end" class="comparison" style="fill:${faster ? colors[0][index] : '#ef9bc9'}">${label}</text>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${faster ? colors[0][index] : '#ef9bc9'}">${label}</tspan>`
         })
         .join('')
       return (
         `<text x="48" y="${y + 10}" class="code">${escapeText(row.selector)}</text>` +
-        comparisons +
+        `<text x="350" y="${y + 39}">${comparisons}</text>` +
         names
           .map((name, series) => {
-            const x = 350 + series * 290
+            const x = 350
+            const top = y + series * 12
             const warm = position(row.warm[series])
             const cold = position(row.cold[series])
             const summary = `Warm ${(row.warm[series] * 1000).toFixed(2)} μs · Cold ${row.cold[series].toFixed(2)} ms`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
-      <path d="M${x} ${y}h230" stroke="#223048" stroke-width="2"/>
-      <rect x="${x}" y="${y - 8}" width="230" height="30" fill="transparent"/>
-      <rect class="bar" x="${x + Math.min(warm, cold)}" y="${y - 1}" width="${Math.abs(cold - warm)}" height="2" fill="url(#series${series})" style="animation-delay:${i * 35}ms"/>
-      <circle cx="${x + warm}" cy="${y}" r="3" fill="${colors[series][0]}"/>
-      <circle cx="${x + cold}" cy="${y}" r="3" fill="${colors[series][1]}"/>
-      <text x="${x}" y="${y + 19}" class="time">${escapeText(summary)}</text></g>`
+      <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
+      <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>
+      <rect class="bar" x="${x + Math.min(warm, cold)}" y="${top - 1}" width="${Math.abs(cold - warm)}" height="2" fill="url(#series${series})" style="animation-delay:${i * 35}ms"/>
+      <circle cx="${x + warm}" cy="${top}" r="3" fill="${colors[series][0]}"/>
+      <circle cx="${x + cold}" cy="${top}" r="3" fill="${colors[series][1]}"/>
+      </g>`
           })
           .join('')
       )
@@ -109,7 +107,7 @@ export function queryChart({
   return (
     optimiseSvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img" aria-labelledby="title desc">
 <title id="title">${escapeText(names[0])}</title>
-<desc id="desc">Warm and cold first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both engine columns use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Exact timings appear below each line. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
+<desc id="desc">Warm and cold first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d30"/><stop offset="1" stop-color="#0b1220"/></linearGradient>${gradients}</defs>
 <style>
 text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
@@ -128,9 +126,8 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 <text x="48" y="89" class="muted">Further left is faster.</text>
 <text x="48" y="132" class="muted">Logarithmic time scale</text>
 ${axes}
-<text x="1052" y="65" text-anchor="end" class="muted">${escapeText(names[0])} comparison</text>
 ${lines}
-<path d="M48 ${notesTop - 26}H1052" stroke="#304159"/>
+<path d="M48 ${notesTop - 38}H1052" stroke="#304159"/>
 ${notes.map((note, index) => `<text x="48" y="${notesTop + index * 23}" class="muted">${(typeof note === 'string' ? [note] : note).map(part => (typeof part === 'string' ? escapeText(part) : `<tspan class="code">${escapeText(part.code)}</tspan>`)).join('')}</text>`).join('')}
 </svg>`) + '\n'
   )

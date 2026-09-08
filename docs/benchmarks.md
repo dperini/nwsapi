@@ -176,11 +176,11 @@ remaining gaps and acceptance targets.
 
 ## Warm and cold queries
 
-The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. Timings appear below each line. The right column compares each NWSAPI time with the competitor. It labels warm and cold results as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
+The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. The engine lines are stacked. A summary below each pair compares the warm and cold times as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
 
 A warm query repeats a selector after a 20 ms warmup. A cold query is the first query on a fresh document. Cold measurements exclude document creation and explicit NWSAPI factory setup. They include any setup that jsdom performs inside its first public query. They do not measure a new Node.js process.
 
-Both engine columns use the same logarithmic time scale. Each tick increases by a factor of ten. Further left means less time. Compare marker positions, rather than line lengths. Warm summaries use microseconds. Cold summaries use milliseconds. One millisecond equals 1,000 microseconds.
+Both engine lines use the same logarithmic time scale. Each tick increases by a factor of ten. Further left means less time. Compare marker positions, rather than line lengths. Warm summaries use microseconds. Cold summaries use milliseconds. One millisecond equals 1,000 microseconds.
 
 Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture.
 

@@ -30,7 +30,7 @@ writeFileSync(
     rows,
     notes: [
       'Warm queries repeat a selector. Cold queries run it first on a fresh document.',
-      `Warm speedups were ${range}. Cold results vary. Both columns use the same logarithmic scale.`,
+      `Warm speedups were ${range}. Cold results vary. Both engines use the same logarithmic scale.`,
       [
         { code: 'nwsapi' },
         ' 2.3.0-prerelease · ',
