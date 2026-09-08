@@ -43,7 +43,8 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       })
       expect(bounds.padding).toBeGreaterThanOrEqual(39)
       expect(bounds.overflow).toBe(false)
-      expect(await page.locator('.bar').count()).toBe(48)
+      expect(await page.locator('.bar').count()).toBe(24)
+      expect(await page.locator('g > title').count()).toBe(24)
     } finally {
       await page.close()
     }

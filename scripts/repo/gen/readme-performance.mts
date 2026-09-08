@@ -31,7 +31,7 @@ writeFileSync(
     speedup: `${Math.max(...ratios).toFixed(1)}×`,
     notes: [
       'Warm queries repeat a selector. Cold queries run it first on a fresh document.',
-      `Warm speedups were ${range}. Cold results vary. The columns use separate scales.`,
+      `Warm speedups were ${range}. Cold results vary. Both columns use the same logarithmic scale.`,
       [
         { code: 'nwsapi' },
         ' 2.3.0-prerelease · ',

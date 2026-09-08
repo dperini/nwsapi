@@ -10,7 +10,7 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![nwsapi warm and cold query times; shorter lines are faster](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
+[![nwsapi warm and cold query times; further left is faster](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
 
 [Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/performance.md)
 
