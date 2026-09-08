@@ -25,6 +25,12 @@ const titles: Record<string, string> = {
   atomic: 'Utility-class queries',
 }
 
+const fixtureLabels: Record<string, string> = {
+  components: 'Component fixture',
+  documentation: 'Documentation fixture',
+  atomic: 'Utility-class fixture',
+}
+
 // Render recorded measurements without running the benchmarks again.
 export function writeBenchmarkCharts(
   output: string,
@@ -40,7 +46,7 @@ export function writeBenchmarkCharts(
           engine.name.replace(/ (\d+\.\d+\.\d+)/, ' v$1'),
         ),
         group.rows,
-        `${metadata.fixture} · Node.js ${metadata.node} · \`jsdom\` v${metadata.jsdom}`,
+        `${fixtureLabels[metadata.fixture] ?? 'Query fixture'} · Node.js ${metadata.node} · \`jsdom\` v${metadata.jsdom}`,
         `${metadata.timestamp.slice(0, 10)} · ${metadata.candidateCommit.slice(0, 8)}`,
       ),
     )

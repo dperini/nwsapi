@@ -135,45 +135,45 @@ garbage collection through the repository launcher.
 Find controls inside repeated cards using classes, attributes, and relationships.
 This generated fixture models component tests; it is not a production trace.
 
-![Component queries](../assets/repo/bench/components-1.svg?v=6)
+![Component queries](../assets/repo/bench/components-1.svg?v=7)
 
 ## Documentation queries
 
 Find links, definition entries, and table cells in the existing specification-page fixture.
 These queries exercise descendant and ancestor filtering on a larger document.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=6)
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=7)
 
 ## Utility-class queries
 
 Find navigation links and card content in the existing utility-class fixture.
 It includes both narrow and broad containers to exercise traversal routing.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=6)
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=7)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=6)
+![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=7)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=6)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=7)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg?v=6)
+![Relationships](../assets/repo/bench/relationships-1.svg?v=7)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg?v=6)
+![Position selectors](../assets/repo/bench/positional-1.svg?v=7)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg?v=6)
+![Logical selectors](../assets/repo/bench/logical-1.svg?v=7)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg?v=6)
+![Form state selectors](../assets/repo/bench/forms-1.svg?v=7)
 
 ## Further work
 
