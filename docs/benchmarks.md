@@ -1,9 +1,52 @@
 # Selector benchmarks
 
-See the [performance review and next priorities](performance-review.md) for
-remaining gaps and the proposed acceptance bar for competitive performance.
-The [common-query implementation notes](common-query-fast-paths.md) include
-before/after measurements and a separate first-match benchmark.
+**4.5–8.4× faster first matches** on four common component queries, and
+**32 of 36 lower all-results medians**, with 16 at least 2× faster, in the
+recorded comparison against `@asamuzakjp/dom-selector` 8.3.2.
+
+These results describe the current 2.3.0-prerelease source on Node.js 26.5.0,
+jsdom 30.0.1, and an Apple M3 Max. They measure warm queries on the listed
+fixtures. NWSAPI is called directly; jsdom's public selector methods include
+integration overhead. Some all-results margins are near noise and four
+queries remain slower. These are not cold-start, browser-speed, or whole-app
+measurements.
+
+## First matches
+
+The simple class, tag, and tag/class paths return the first qualifying element
+without collecting the remaining matches.
+
+| Query            | NWSAPI (µs) | jsdom default (µs) | Speedup |
+| ---------------- | ----------: | -----------------: | ------: |
+| `.card`          |       0.284 |              1.291 |    4.5× |
+| `button`         |       0.269 |              1.576 |    5.9× |
+| `button.primary` |       0.361 |              1.920 |    5.3× |
+| `input.input`    |       0.354 |              2.971 |    8.4× |
+
+Medians from nine rounds of 1,000 calls per engine, after warmup, with engine
+order rotated between rounds. The generated component fixture contains 300
+cards. [Raw samples and source hashes](../assets/repo/bench/first-match-results.json)
+also include the saved pre-optimization build and an absent-match case.
+The table uses microseconds; the all-results charts below use milliseconds.
+
+<details>
+<summary>Repeat the first-match comparison</summary>
+
+Save `src/nwsapi.js` after building the baseline revision, then build the
+candidate and run:
+
+```sh
+node scripts/repo/run.mts scripts/repo/bench/first.mts /path/to/before.cjs /tmp/first-results.json
+```
+
+The diagnostic verifies exact node identity against jsdom before timing.
+Browser regression tests independently check the optimized selector forms
+against Chromium. The output includes raw samples, versions, CPU, and source
+and fixture hashes.
+
+</details>
+
+## All-results comparison
 
 Compare NWSAPI 2.2.27, 2.3.0-prerelease, and `@asamuzakjp/dom-selector`
 in one run. The prerelease label identifies the current source, not a published release.
@@ -104,3 +147,9 @@ It includes both narrow and broad containers to exercise traversal routing.
 ## Form state selectors
 
 ![Form state selectors](../assets/repo/bench/forms-1.svg)
+
+## Further work
+
+See the [optimization notes](common-query-fast-paths.md) for before/after
+measurements and the [performance review](performance-review.md) for the
+remaining gaps and acceptance targets.

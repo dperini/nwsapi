@@ -3,11 +3,27 @@
 <a href="https://badge.socket.dev/npm/package/nwsapi"><img src="https://badge.socket.dev/npm/package/nwsapi" alt="Socket Badge" height="20"></a>
 <img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg" width="97" height="20" alt="Coverage" />
 
-NWSAPI finds DOM elements that match CSS selectors. It works in browsers and with DOM libraries in Node.js.
-The core engine has no external dependencies.
+Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
 NWSAPI builds on [NWMATCHER](https://github.com/dperini/nwmatcher) with [Selectors Level 4](https://drafts.csswg.org/selectors-4/) features such as `:is()`, `:where()`, and `:has()`, plus state selectors such as `:open` and `:modal`.
 See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors) and [compatibility notes](https://github.com/dperini/nwsapi/wiki/Features-and-compliance).
+
+## Performance
+
+**4.5–8.4× faster first matches** for common class and tag queries in our component benchmark, compared with jsdom's default `@asamuzakjp/dom-selector` engine.
+
+| Query            | First-match speedup |
+| ---------------- | ------------------: |
+| `.card`          |                4.5× |
+| `button`         |                5.9× |
+| `button.primary` |                5.3× |
+| `input.input`    |                8.4× |
+
+For all-results queries, NWSAPI records **32 of 36 lower medians**, with **16 queries at least 2× faster**, across component, documentation, and utility-class fixtures.
+
+These warm-query measurements compare current **2.3.0-prerelease** source with dom-selector **8.3.2** through jsdom **30.0.1**, on Node.js **26.5.0**. NWSAPI is called directly; jsdom's public methods include integration overhead. Some all-results margins are near noise, and four queries remain slower.
+
+See the [benchmarks, charts, and methodology](docs/benchmarks.md) and [optimization notes](docs/common-query-fast-paths.md).
 
 ## Install
 
