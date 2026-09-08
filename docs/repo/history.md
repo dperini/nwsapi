@@ -41,6 +41,6 @@ Today, `nwsapi` receives nearly 50 million npm downloads a week. [npm download s
 
 Perini also helped libraries detect when a document was ready to use, before images and other resources finished loading. His [DOMComplete experiments](http://javascript.nwbox.com/DOMComplete/) began in 2006. The [IEContentLoaded page](http://javascript.nwbox.com/IEContentLoaded/) documents his `doScroll()` technique for older Internet Explorer versions, which lacked the `DOMContentLoaded` event available in other browsers.
 
-Both [`jquery` 1.4.2](https://github.com/jquery/jquery/blob/1.4.2/src/core.js#L741-L758) and [MooTools 1.2.5](https://github.com/mootools/mootools-core/blob/1.2.5/Source/Utilities/DomReady.js) credit Perini beside their readiness checks. This related NWBOX work helped libraries provide dependable startup behavior when differences between browsers required careful tests and fallbacks.
+Libraries including `jquery` and MooTools adopted the technique. The [MooTools 1.6.0 source](https://github.com/mootools/mootools-core/blob/1.6.0/Source/Utilities/DOMReady.js#L54) still credits Perini beside its readiness check. This related NWBOX work helped libraries provide dependable startup behavior when differences between browsers required careful tests and fallbacks.
 
 See the [compatibility review](selector/compatibility.md) for current selector behavior and the [performance journal](perf/journal.md) for measured implementation changes.
