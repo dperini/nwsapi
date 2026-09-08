@@ -185,3 +185,53 @@ test('installed wrappers use the captured slice callable', t => {
   assert.equal(document.body.querySelector('p'), p)
   assert.deepEqual(Array.from(document.body.querySelectorAll('p')), [p])
 })
+
+test('cached compiler modes preserve callbacks and relative anchors', t => {
+  const { document, nw } = fixture(t)
+  // The relative flag is internal to :has() compilation.
+  const compile = (
+    mode: boolean | null,
+    callback: boolean,
+    relative: boolean,
+  ) =>
+    Reflect.apply(nw.compile, nw, [
+      'p',
+      mode,
+      callback,
+      relative,
+    ]) as ReturnType<typeof nw.compile>
+  const nodes = Array.from(document.querySelectorAll('p'))
+  const items = { length: nodes.length, item: (i: number) => nodes[i] }
+  for (const relative of [false, true]) {
+    for (const mode of [false, true, null] as const) {
+      for (const callback of [false, true]) {
+        const resolver = compile(mode, callback, relative)!
+        assert.equal(compile(mode, callback, relative), resolver)
+        nw.Snapshot.anchor = document.getElementById('d')
+        let calls = 0
+        const visit = () => {
+          calls++
+          return true
+        }
+        const result =
+          mode === false
+            ? resolver(nodes[0]!, visit, document, false)
+            : resolver(mode === null ? items : nodes, visit, document, [])
+        assert.deepEqual(
+          result,
+          mode === false ? true : callback ? [nodes[0]] : nodes,
+        )
+        assert.equal(calls, callback ? 1 : 0)
+        if (relative) {
+          nw.Snapshot.anchor = document.getElementById('c')
+          const missing =
+            mode === false
+              ? resolver(nodes[0]!, visit, document, false)
+              : resolver(mode === null ? items : nodes, visit, document, [])
+          assert.deepEqual(missing, mode === false ? false : [])
+        }
+      }
+    }
+  }
+  nw.Snapshot.anchor = null
+})
