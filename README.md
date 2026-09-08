@@ -10,7 +10,7 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![NWSAPI performance: faster on 36 of 36 all-results queries, with first-match speedups from 1.6× to 8.2×](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
+[![NWSAPI first-match performance: 1.6× to 8.2× faster in recorded warm queries](assets/repo/bench/readme-performance.svg)](docs/benchmarks.md)
 
 [Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/v8-performance.md)
 
