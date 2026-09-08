@@ -179,3 +179,35 @@ node bin/nwsapi compile --mode match ".card > button.primary"
 ```
 
 See [V8 profiling guidance](https://v8.dev/docs/profile) for the sampling approach.
+
+## Warm candidate-cache follow-up
+
+The follow-up removes the warm cost for the four early class queries. The first cold fix checked `ownerDocument`, `defaultView`, observer availability, and a document weak reference on every query. The warm profile showed substantial time in jsdom property wrappers.
+
+A cached prefix depends on descendant order and class text. It does not depend on the owner document. The engine now checks for that cache first. It reads document properties only when it must create the observer. Every reuse still checks `takeRecords()`. Tag checks and compiled selector conditions remain live. The observer still holds the cache weakly.
+
+Moving the same element context to another document also needs a document-mode refresh. The simple and compiled first-match paths now detect that change. Queries against the current document use an identity comparison. Element contexts check their current owner document. Regression tests cover standards mode, quirks mode, XML adoption, SVG class changes, and mutations after adoption.
+
+The focused comparison uses separate documents, nine rotating rounds, and 100,000 calls per sample. Each call checks element identity. The baselines are source snapshots from `af47516` (before the cold fix) and `4ecb066` (the cold fix), with types stripped by Node.js. See the [complete samples](../assets/repo/bench/first-cache-results.json).
+
+| Query                    | Before cold fix (μs) | Cold fix (μs) | Updated (μs) | Change from original |
+| ------------------------ | -------------------: | ------------: | -----------: | -------------------: |
+| `.card`                  |                0.269 |         0.300 |        0.148 |        45% less time |
+| `button.primary`         |                0.340 |         0.359 |        0.199 |        42% less time |
+| `input.input`            |                0.341 |         0.350 |        0.189 |        45% less time |
+| `.card > button.primary` |                0.417 |         0.455 |        0.316 |        24% less time |
+| `.missing`               |                0.339 |         0.537 |        0.370 |         9% more time |
+
+The four early class queries take 24–45% less time than the original build. The missing-class control still takes about 31 ns more than the original build. It takes about 167 ns less than the first cold fix. The change therefore removes the early-match penalty without claiming that every fallback is faster than the original.
+
+The focused profile recorded 5,487 samples before this change and 3,376 after it, for the same one million measured calls. These samples locate work; they are not timing measurements. The optimization trace showed the helper reaching TurboFan, with map-related deoptimization and recompilation. The measured gain comes from fewer property reads, not a promise of permanent optimization.
+
+The refreshed chart comparison still has lower medians for all 12 warm queries and all 12 cold queries. These are first matches on the component fixture, not a claim about every selector or workload.
+
+Run the focused tools with saved CommonJS engine snapshots. The benchmark writes to an operating-system temporary directory if the output argument is omitted.
+
+```sh
+node scripts/repo/bench/profile.mts first-class
+node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first-class
+node scripts/repo/bench/first-cache.mts before-cold.cjs cold-fix.cjs
+```

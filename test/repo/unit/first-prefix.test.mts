@@ -75,4 +75,36 @@ test('first class candidates remain correct after adoption and SVG class changes
     xml.window.document.adoptNode(root),
   )
   expect(nw.first('g.card', root)?.id).toBe('svg')
+  root.querySelector('g')!.setAttribute('class', 'other')
+  expect(nw.first('g.card', root)).toBeNull()
+  root.querySelector('g')!.setAttribute('class', 'card')
+  expect(nw.first('g.card', root)?.id).toBe('svg')
+})
+
+test('cached class candidates use the current document case rules after adoption', t => {
+  const standards = new JSDOM(
+    '<!doctype html><main><p class="card" id="lower"></p><p class="Card" id="upper"></p></main>',
+  )
+  const quirks = new JSDOM('<body></body>')
+  const xml = new JSDOM('<root/>', { contentType: 'application/xml' })
+  t.onTestFinished(() => {
+    standards.window.close()
+    quirks.window.close()
+    xml.window.close()
+  })
+  const nw = factory(standards.window)
+  const root = standards.window.document.querySelector('main')!
+  expect(nw.first('.Card', root)?.id).toBe('upper')
+  expect(nw.first('.Card:not(.absent)', root)?.id).toBe('upper')
+  quirks.window.document.body.append(quirks.window.document.adoptNode(root))
+  expect(nw.first('.Card', root)?.id).toBe('lower')
+  expect(nw.first('.Card:not(.absent)', root)?.id).toBe('lower')
+  xml.window.document.documentElement.append(
+    xml.window.document.adoptNode(root),
+  )
+  expect(nw.first('.Card:not(.absent)', root)?.id).toBe('upper')
+  expect(nw.first('.Card', root)?.id).toBe('upper')
+  root.lastElementChild!.setAttribute('class', 'other')
+  expect(nw.first('.Card', root)).toBeNull()
+  expect(nw.first('.card', root)?.id).toBe('lower')
 })

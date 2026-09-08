@@ -4235,36 +4235,28 @@
         nodes,
         candidates,
         i,
-        view,
-        owner = context.ownerDocument || context
+        view
       if (QUIRKS_MODE) {
         return null
       }
-      if (
+      // A cached prefix depends on subtree order and class text, not the
+      // owner document. Adoption preserves it; tag/resolver checks stay live.
+      state = firstRoots && firstRoots.get(context)
+      if (state) {
+        if (state.observer.takeRecords().length) {
+          state.copies = createWeakMap()
+        }
+        cached = state.copies.get(context)
+      } else if (
         typeof WeakRef == 'function' &&
-        (view = owner.defaultView) &&
+        (view = (context.ownerDocument || context).defaultView) &&
         view.MutationObserver
       ) {
         firstRoots || (firstRoots = createWeakMap())
-        state = firstRoots && firstRoots.get(context)
-        if (!state && firstRoots) {
-          state = {
-            copies: createWeakMap(),
-            observer: null,
-            document: new WeakRef(owner),
-          }
+        if (firstRoots) {
+          state = { copies: createWeakMap(), observer: null }
           state.observer = Factory['_observeCollections'](context, view, state)
           firstRoots.set(context, state)
-        }
-        if (state) {
-          if (
-            state.observer.takeRecords().length ||
-            state.document.deref() !== owner
-          ) {
-            state.copies = createWeakMap()
-            state.document = new WeakRef(owner)
-          }
-          cached = state.copies.get(context)
         }
       }
       if (!cached) {
@@ -4385,7 +4377,12 @@
           context.getElementsByTagName &&
           context.getElementsByClassName
         ) {
-          lastContext !== context && (lastContext = switchContext(context))
+          if (
+            lastContext !== context ||
+            (context !== doc && context.ownerDocument !== doc)
+          ) {
+            lastContext = switchContext(context)
+          }
           element = match[2] && firstClass(context, match[2], match[1])
           if (element) {
             if (typeof callback == 'function') {
@@ -4452,7 +4449,12 @@
         result,
         element = null
       context || (context = doc)
-      lastContext !== context && (lastContext = switchContext(context))
+      if (
+        lastContext !== context ||
+        (context !== doc && context.ownerDocument !== doc)
+      ) {
+        lastContext = switchContext(context)
+      }
       plan = firstResolvers.get(selectors)
       if (!plan) {
         result = collect(parse(selectors, true), context, null, false, true)
