@@ -41,14 +41,16 @@ pnpm run bench --rounds 3 --iterations 100 --min-round-ms 5 --cold-count 2 --out
 ```
 
 The raw all-results data lives in [components](../assets/repo/bench/results.json), [documentation](../assets/repo/bench/documentation/results.json) and [utility classes](../assets/repo/bench/atomic/results.json).
-The [first-match report](../assets/repo/bench/first-query-states.json) includes cold and warm samples.
+The [first-match report](../assets/repo/bench/first-query-states.json) includes [cold and warm samples](#cold-and-warm-samples).
 Run measurements separately from tests and other CPU work.
 Results describe these queries and fixtures, not every application's performance.
 
 </details>
 
 <details>
-<summary>Cold and warm queries</summary>
+<summary>Cold and warm samples</summary>
+
+<a id="cold-and-warm-samples"></a>
 
 The first-match comparison calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
 Each engine receives its own native document containing identical HTML and is initialized before timing starts.
