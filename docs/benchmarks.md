@@ -8,17 +8,6 @@ The saved reports identify the browser version, CPU, library versions, source ha
 The README summary uses the geometric mean of the comparison-to-NWSAPI time ratios across all 36 warm all-results queries.
 Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
 
-## First matches
-
-![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=89f2bb7ddfb2)
-
-The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
-Both engines receive their own native document containing identical HTML.
-Both are initialized before timing starts.
-The chart shows the four queries with the largest warm-query speedups for NWSAPI.
-The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
-See [cold and warm queries](#cold-and-warm-queries) for the method.
-
 ## All-results comparison
 
 The category charts call NWSAPI's `select()` and the comparison library's `querySelectorAll()` directly.
@@ -76,76 +65,58 @@ The memory diagnostics enable explicit garbage collection.
 
 </details>
 
-## Memory footprint
-
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
-
-This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
-It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
-It then measures engine initialization and 100 distinct, correctness-checked queries per engine.
-Chromium performs four garbage collections, separated by event-loop turns, before each reading.
-Engines and documents remain reachable through the final reading.
-Each engine and round gets a fresh browser page, and engine order alternates across five rounds.
-
-The chart reports medians. The [raw memory report](../assets/repo/bench/memory-footprint.json) also includes minimums, maximums and every sample.
-DOM allocation, shared library code, native browser allocations and jsdom overhead are excluded.
-This is a retained-memory comparison; it does not measure peak allocation or total process memory.
-Claims of lower memory apply to this workload and the listed library versions.
-
-## Browser file size
-
-![Minified and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=3319980d640c)
-
-This is a file size report, not a timing benchmark.
-NWSAPI uses its published `dist/nwsapi.min.js` core browser file.
-The comparison engine is bundled with all runtime dependencies and no tree shaking, then minified with the same Rolldown minifier.
-The report includes uncompressed bytes, gzip level 9 and Brotli quality 11.
-The [raw size report](../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
-
-The comparison excludes jsdom itself, the NWSAPI CLI, the jsdom adapter and its optional `css-tree` peer.
-It measures these browser artifacts, not npm tarballs or total installation size.
-
 ## Component queries
 
 Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
 
-![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=861835b0206d)
+![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=e24a0a3cfcab)
 
 ## Documentation queries
 
 Queries for links and definition entries in a large documentation fixture.
 
-![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=28f3b573bbbb)
+![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=50991b2e7b35)
 
 ## Utility-class queries
 
 Queries for navigation links and card content in nested utility-class HTML.
 
-![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=c2b0c16a6a6c)
+![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=39599a36d68a)
 
 ## Basic selectors
 
-![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=c088d40681ce)
+![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=475027d3348b)
 
 ## Attribute selectors
 
-![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=a0235990a99f)
+![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=b54135463158)
 
 ## Relationships
 
-![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=7ea2389ca21a)
+![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=7266322bab33)
 
 ## Position selectors
 
-![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=765b0a0bbea5)
+![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=bffe0cea19d2)
 
 ## Logical selectors
 
-![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=c790e83c8e58)
+![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=7235d776b155)
 
 ## Form state selectors
 
-![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=430542d38b7c)
+![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=e62e7d0a2b19)
+
+## First matches
+
+![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=474e92c12e19)
+
+The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
+Both engines receive their own native document containing identical HTML.
+Both are initialized before timing starts.
+The chart shows the four queries with the largest warm-query speedups for NWSAPI.
+The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
+See [cold and warm queries](#cold-and-warm-queries) for the method.
 
 ## Cold and warm queries
 
@@ -163,3 +134,32 @@ The SVG tooltips retain absolute timing values.
 The fixture contains component, utility-class and test-ID patterns. It does not execute application frameworks.
 The complete first-match report covers tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
 See the [performance guide](performance.md) for compiler implementation details.
+
+## Memory footprint
+
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=3f968c4fa6f7)
+
+This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
+It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
+It then measures engine initialization and 100 distinct, correctness-checked queries per engine.
+Chromium performs four garbage collections, separated by event-loop turns, before each reading.
+Engines and documents remain reachable through the final reading.
+Each engine and round gets a fresh browser page, and engine order alternates across five rounds.
+
+The chart reports medians. The [raw memory report](../assets/repo/bench/memory-footprint.json) also includes minimums, maximums and every sample.
+DOM allocation, shared library code, native browser allocations and jsdom overhead are excluded.
+This is a retained-memory comparison; it does not measure peak allocation or total process memory.
+Claims of lower memory apply to this workload and the listed library versions.
+
+## File size
+
+![Minified and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=6a93a1b3c0ec)
+
+This is a file size report, not a timing benchmark.
+NWSAPI uses its published `dist/nwsapi.min.js` core browser file.
+The comparison engine is bundled with all runtime dependencies and no tree shaking, then minified with the same Rolldown minifier.
+The report includes uncompressed bytes, gzip level 9 and Brotli quality 11.
+The [raw size report](../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
+
+The comparison excludes jsdom itself, the NWSAPI CLI, the jsdom adapter and its optional `css-tree` peer.
+It measures these browser artifacts, not npm tarballs or total installation size.

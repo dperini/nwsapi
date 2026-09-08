@@ -87,7 +87,7 @@ writeFileSync(
         labels: [kib(heap[0]), kib(heap[1])],
       },
       {
-        title: 'Browser file size',
+        title: 'File size',
         detail: 'Brotli-compressed browser JavaScript',
         headline: reduction(bytes, ['smaller', 'larger']),
         values: bytes,

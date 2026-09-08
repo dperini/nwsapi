@@ -98,7 +98,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
         }
         if (path.includes('perf-hero.svg')) {
           expect(svg).toContain('Memory footprint')
-          expect(svg).toContain('Browser file size')
+          expect(svg).toContain('File size')
           expect(bounds.selectors).toBe(0)
         }
       }

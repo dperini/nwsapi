@@ -37,14 +37,14 @@ export function compactQueryChart(options: QueryChartOptions) {
     .map(x =>
       Array.from({ length: high - low + 1 }, (_, i) => {
         const value = 10 ** (low + i)
-        return `<text x="${x + (i / (high - low)) * width}" y="122" class="tick" text-anchor="${i === 0 ? 'start' : i === high - low ? 'end' : 'middle'}">${unitText(value >= 1000 ? value / 1000 + 'ms' : value + 'μs')}</text>`
+        return `<text x="${x + (i / (high - low)) * width}" y="146" class="tick" text-anchor="${i === 0 ? 'start' : i === high - low ? 'end' : 'middle'}">${unitText(value >= 1000 ? value / 1000 + 'ms' : value + 'μs')}</text>`
       }).join(''),
     )
     .join('')
   const body = rows
     .map((row, i) => {
       const x = 48
-      const y = 162 + i * 100
+      const y = 186 + i * 100
       const lines = names
         .map((name, series) => {
           const warm = position(row.warm[series]!)

@@ -120,14 +120,15 @@ export function chart(
     const value = 10 ** (low + index)
     const label =
       value < 1 ? `${Number((value * 1000).toPrecision(3))}μs` : `${value}ms`
-    return `<text x="${440 + (index / (high - low)) * 480}" y="122" text-anchor="${index === 0 ? 'start' : index === high - low ? 'end' : 'middle'}" class="tick">${unitText(label)}</text>`
+    return `<text x="${440 + (index / (high - low)) * 480}" y="146" text-anchor="${index === 0 ? 'start' : index === high - low ? 'end' : 'middle'}" class="tick">${unitText(label)}</text>`
   }).join('')
   const groupHeight = 58 + names.length * 26
-  const notesTop = Math.max(616, 150 + groupHeight * rows.length + 20)
+  const firstRowTop = 174
+  const notesTop = Math.max(616, firstRowTop + groupHeight * rows.length + 2)
   const height = Math.max(720, notesTop + 80)
   const body = rows
     .map((row, index) => {
-      const top = 150 + index * groupHeight
+      const top = firstRowTop + index * groupHeight
       const fastest = Math.min(
         ...row.milliseconds.filter(value => value !== null),
       )

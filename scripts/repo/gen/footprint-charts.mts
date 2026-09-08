@@ -92,7 +92,7 @@ writeFileSync(
 writeFileSync(
   new URL('file-size.svg', root),
   render(
-    'Browser file size',
+    'File size',
     sizes.rows.map(row => row.engine.toLowerCase()),
     [
       {
