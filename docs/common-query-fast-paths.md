@@ -1,10 +1,9 @@
 # Common query fast paths
 
 Implemented in `0b3840b` and `b68e020`, following the
-[performance review](performance-review.md). These changes improve common
-query shapes; the goal of a decisive lead in every category remains open.
-These are historical measurements. See the [V8 analysis](v8-performance.md)
-and [current benchmarks](benchmarks.md) for the subsequent first-match work.
+[performance review](performance-review.md). These were the initial common-query specializations.
+The tables below are historical measurements. See the [V8 analysis](v8-performance.md)
+and [current benchmarks](benchmarks.md) for subsequent first-match and collection-snapshot work.
 
 ## What changed
 
@@ -25,6 +24,32 @@ and [current benchmarks](benchmarks.md) for the subsequent first-match work.
   selective. Dense unions use a broad scan. Bounded, context-specific routing
   hints are rechecked every 64 calls; they retain no DOM results and cannot
   supply a stale answer.
+
+## Native collection snapshots
+
+Large tag and class candidate collections now reuse immutable internal snapshots.
+Public calls receive fresh arrays; compiled predicates still run on every query.
+This avoids repeated host-property access when copying native HTMLCollections.
+Simple tag/class queries can return a fresh copy of this membership snapshot.
+Compound predicates and relationships are evaluated on every query.
+
+Snapshots are keyed weakly by native collections and their observed tree roots.
+Child-list changes and class-attribute changes discard a root's snapshots.
+Before reuse, `MutationObserver.takeRecords()` checks pending changes synchronously;
+correctness does not wait for the observer callback. The callback also discards
+snapshots when no further query runs. Detached scopes and adopted elements remain
+covered; hosts without the required APIs and legacy mode use ordinary copies.
+Standalone collections below 16 elements stay on the direct path. Descendant and selective-child plans also reuse small scoped collections, where repeated lookups dominate traversal. Observer callbacks live outside engine closures and hold state weakly; where supported, finalization disconnects observers for discarded state.
+
+The tradeoff is lazy mutation observation and retained candidate arrays while
+collections remain reachable and unchanged. Mutation-heavy workloads rebuild these
+snapshots. No sibling positions or state-selector answers survive a query. Regression
+tests cover synchronous insertion/removal, class changes, adoption, SVG, detached
+contexts, returned-array mutation, and reentrant callbacks. A forced-GC diagnostic reclaimed all tested removed nodes and observers while
+the factory document stayed alive, after returning the engine to its document
+context and delivering mutation records.
+
+Run `node --expose-gc scripts/repo/bench/collection-memory.mts` to check detached-node and observer ownership with a live factory document.
 
 ## Measurements
 

@@ -34,7 +34,7 @@ const descriptions: Record<string, string> = {
     'Reads or changes options. Pass `true` as the second argument to clear compiled selectors.',
   emit: 'Reports an error using the configured error policy.',
   install:
-    'Replaces native selector methods. Pass `true` to also replace collection methods.',
+    'Replaces native selector methods; `querySelectorAll()` returns static NodeList-compatible snapshots. Pass `true` to also replace collection methods.',
   uninstall: 'Restores the native methods saved by `install()`.',
   registerCombinator:
     'Adds a relationship between elements using trusted resolver code.',

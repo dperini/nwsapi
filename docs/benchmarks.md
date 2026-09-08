@@ -1,15 +1,20 @@
 # Selector benchmarks
 
-**1.7–8.9× faster first matches** across 12 nonempty component queries, and
-**31 of 36 lower all-results medians**, with 16 at least 2× faster, in the
-recorded comparison against `@asamuzakjp/dom-selector` 8.3.2.
+**36 of 36 lower all-results medians**, with **32 at least 2× faster**, against
+`@asamuzakjp/dom-selector` 8.3.2. The first-match comparison records
+**1.6–8.2× faster first matches** across 12 nonempty component queries.
 
 These results describe the current 2.3.0-prerelease source on Node.js 26.5.0,
 jsdom 30.0.1, and an Apple M3 Max. They measure warm queries on the listed
 fixtures. NWSAPI is called directly; jsdom's public selector methods include
-integration overhead. Some all-results margins are near noise and five
-queries remain slower. These are not cold-start, browser-speed, or whole-app
-measurements.
+integration overhead. Some margins are small and samples vary with machine
+load. These measurements do not establish a win for every possible selector,
+a cold-start improvement, browser speed, or whole-application performance.
+
+Native tag/class memberships use [mutation-aware snapshots](common-query-fast-paths.md#native-collection-snapshots).
+Simple queries return fresh array copies; compound predicates and relationships
+still execute. Mutation-heavy workloads rebuild snapshots. The raw data records
+all samples, call counts, versions, and source hashes.
 
 ## First matches
 
@@ -18,28 +23,26 @@ once each selector group has a result. The simple class/tag paths avoid
 compilation entirely. Single-element positional checks avoid building full
 sibling indexes. See the [V8 analysis](v8-performance.md).
 
-| Query | NWSAPI (µs) | jsdom default (µs) | Speedup |
-| --- | ---: | ---: | ---: |
-| `.card` | 0.253 | 0.968 | 3.8× |
-| `button` | 0.246 | 1.281 | 5.2× |
-| `button.primary` | 0.338 | 1.731 | 5.1× |
-| `input.input` | 0.323 | 2.722 | 8.4× |
-| `.card > button.primary` | 0.415 | 2.129 | 5.1× |
-| `[data-testid]` | 1.112 | 9.950 | 8.9× |
-| `div > button` | 0.381 | 1.700 | 4.5× |
-| `:where(.card) > button` | 0.380 | 1.728 | 4.5× |
-| `div:nth-child(2n)` | 0.776 | 3.057 | 3.9× |
-| `input, button` | 0.951 | 5.019 | 5.3× |
-| `:is(button, input)` | 1.210 | 2.028 | 1.7× |
-| `button:not(.missing)` | 0.357 | 2.453 | 6.9× |
+| Query                    | NWSAPI (µs) | jsdom default (µs) | Speedup |
+| ------------------------ | ----------: | -----------------: | ------: |
+| `.card`                  |       0.255 |              0.978 |    3.8× |
+| `button`                 |       0.250 |              1.294 |    5.2× |
+| `button.primary`         |       0.340 |              1.714 |    5.0× |
+| `input.input`            |       0.344 |              2.830 |    8.2× |
+| `.card > button.primary` |       0.391 |              1.959 |    5.0× |
+| `[data-testid]`          |       1.008 |              5.196 |    5.2× |
+| `div > button`           |       0.376 |              1.614 |    4.3× |
+| `:where(.card) > button` |       0.387 |              1.610 |    4.2× |
+| `div:nth-child(2n)`      |       0.806 |              2.778 |    3.4× |
+| `input, button`          |       0.979 |              4.821 |    4.9× |
+| `:is(button, input)`     |       1.200 |              1.889 |    1.6× |
+| `button:not(.missing)`   |       0.371 |              2.325 |    6.3× |
 
 Medians from nine rounds of 1,000 calls per engine, after at least 100 ms of
 warmup per selector across the engines. Engine order rotates between rounds.
 The generated component fixture contains 300 cards.
 [Raw samples and source hashes](../assets/repo/bench/first-match-results.json)
-also include the saved pre-change build and two absent-match cases. The
-absent `.absent > button` case remains slightly slower than our saved build,
-although it is faster than jsdom's default engine in this run.
+also include the saved pre-change build and two absent-match cases. Both absent-match cases are faster than jsdom's default engine in this run.
 The table uses microseconds; the all-results charts below use milliseconds.
 
 <details>
@@ -92,8 +95,12 @@ on the machine and fixture; compare engines from the same run.
 Labels show two decimal places. Bold marks the lowest unrounded median,
 including exact ties. The raw samples keep their full precision.
 
-Use `--rounds 3 --iterations 10 --output /tmp/nwsapi-bench` for a quick check.
-Use the default nine rounds and 100 iterations for the recorded report.
+Use `--rounds 3 --iterations 10 --min-round-ms 0 --output /tmp/nwsapi-bench` for a quick check.
+The recorded report uses nine rounds, at least 100 calls per engine per round,
+and a 50 ms minimum duration per sample. Faster paths repeat 100-call batches
+until that duration is reached; raw `sampleIterations` records every count.
+Use `--min-round-ms 0` for fixed-count measurements. No timing samples are
+discarded. Correctness is checked before timing and again after warm execution.
 
 </details>
 

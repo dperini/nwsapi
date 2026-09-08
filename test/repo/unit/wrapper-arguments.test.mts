@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 
+// oxlint-disable-next-line complexity -- exercise the full method/arity matrix together
 test('installed wrappers preserve callbacks and ignore extra arguments at every arity', t => {
   const { window } = new JSDOM('<main><p></p><p></p></main>', {
     runScripts: 'outside-only',
@@ -62,7 +63,11 @@ test('installed wrappers preserve callbacks and ignore extra arguments at every 
           while (args.length < arity) {
             args.push('ignored')
           }
-          expect(invoke(...args)).toEqual(expected)
+          expect(
+            method === 'querySelectorAll'
+              ? Array.from(invoke(...args) as ArrayLike<Element>)
+              : invoke(...args),
+          ).toEqual(expected)
           if (arity > 1) {
             expect(seen).toEqual(
               method === 'matches' || method === 'closest'
@@ -75,10 +80,50 @@ test('installed wrappers preserve callbacks and ignore extra arguments at every 
             )
           }
         }
-        expect(invoke('p', 'ignored')).toEqual(expected)
+        const result = invoke('p', 'ignored')
+        expect(
+          method === 'querySelectorAll'
+            ? Array.from(result as ArrayLike<Element>)
+            : result,
+        ).toEqual(expected)
       }
     }
   } finally {
     engine.uninstall()
   }
+})
+
+test('installed query results are static NodeList-compatible snapshots', t => {
+  const { window } = new JSDOM('<p></p><p></p>', { runScripts: 'outside-only' })
+  t.onTestFinished(() => window.close())
+  window.eval(
+    fs.readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+  )
+  const engine = window.NW.Dom
+  engine.install()
+  const doc = window.document
+  const list = doc.querySelectorAll('p')
+  const nodes = Array.from(list)
+  expect(list).toBeInstanceOf(window.NodeList)
+  expect(Array.isArray(engine.select('p', doc))).toBe(true)
+  expect(list.item(0)).toBe(nodes[0])
+  expect(list.item(2)).toBeNull()
+  expect(() => Reflect.apply(Reflect.get(list, 'item'), list, [])).toThrow()
+  expect(Array.from(list.keys())).toEqual([0, 1])
+  expect(Array.from(list.entries())).toEqual([
+    [0, nodes[0]],
+    [1, nodes[1]],
+  ])
+  const receiver = {}
+  list.forEach(function (node, index, owner) {
+    expect(this).toBe(receiver)
+    expect(node).toBe(nodes[index])
+    expect(owner).toBe(list)
+  }, receiver)
+  nodes[0]!.remove()
+  doc.body.append(doc.createElement('p'))
+  expect(Array.from(list)).toEqual(nodes)
+  expect(Reflect.set(list, 'length', 0)).toBe(false)
+  expect(list.length).toBe(2)
+  engine.uninstall()
 })

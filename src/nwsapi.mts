@@ -18,6 +18,42 @@
 ;(function Export(global: { NW?: { Dom?: unknown } }, factory) {
   'use strict'
 
+  // Keep observer callbacks outside an engine's closure. Weak ownership lets
+  // an engine and its snapshots disappear while the document stays alive.
+  var collectionFinalizer
+  Object.defineProperty(factory, '_observeCollections', {
+    value: function (root, view, state) {
+      var reference = new WeakRef(state)
+      var observer = new view.MutationObserver(function (_records, current) {
+        var snapshot = reference.deref()
+        if (snapshot) {
+          snapshot.copies = new WeakMap()
+        } else {
+          current.disconnect()
+        }
+      })
+      if (typeof FinalizationRegistry == 'function') {
+        collectionFinalizer ||
+          (collectionFinalizer = new FinalizationRegistry<
+            WeakRef<MutationObserver>
+          >(function (reference) {
+            var observer = reference.deref()
+            if (observer) {
+              observer.disconnect()
+            }
+          }))
+        collectionFinalizer.register(state, new WeakRef(observer))
+      }
+      observer.observe(root, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class'],
+      })
+      return observer
+    },
+  })
+
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory
     Object.defineProperty(module.exports, 'DOMSelector', {
@@ -411,53 +447,88 @@
         },
       }
     },
-    // only define the toNodeList helper if explicitly enabled in Config,
-    // a safety measure for headless hosts missing feature/implementation
-    toNodeList =
-      Config.NODE_LIST == false
-        ? function (x) {
-            return x
-          }
-        : (function () {
-            // create a DocumentFragment
-            var emptyNL = doc.createDocumentFragment().childNodes
-
-            // this is returned from a self-executing function so that
-            // the DocumentFragment isn't repeatedly created
-            return function (nodeArray) {
-              // check if it is already a nodelist
-              if (isInstanceOf(nodeArray)) {
-                return nodeArray
-              }
-
-              // if it's a single element, wrap it in a classic array
-              if (!Array.isArray(nodeArray)) {
-                nodeArray = [nodeArray]
-              }
-
-              // base an object on emptyNL
-              var fakeNL = Object.create(emptyNL, {
-                length: {
-                  value: nodeArray.length,
-                  enumerable: false,
-                },
-                item: {
-                  value: function (i) {
-                    return this[+i || 0]
-                  },
-                  enumerable: false,
-                },
-              })
-
-              // copy the array elemnts
-              nodeArray.forEach(function (v, i) {
-                fakeNL[i] = v
-              })
-
-              // return an object pretending to be a NodeList.
-              return fakeNL
+    // Static NodeList-compatible snapshots for installed DOM methods and the
+    // opt-in NODE_LIST API. Define methods on the snapshot because native
+    // prototype methods require a browser-owned internal NodeList object.
+    toNodeList = function (nodeArray) {
+      if (!global.NodeList || isInstanceOf(nodeArray)) {
+        return nodeArray
+      }
+      var list = Object.create(global.NodeList.prototype),
+        i
+      Object.defineProperties(list, {
+        length: { value: nodeArray.length },
+        item: {
+          value: function (index) {
+            if (!arguments.length) {
+              throw new TypeError(qsNotArgs)
             }
-          })(),
+            return nodeArray[index >>> 0] || null
+          },
+        },
+        forEach: {
+          value: function (callback, receiver) {
+            if (typeof callback != 'function') {
+              throw new TypeError('callback must be a function')
+            }
+            for (var j = 0; j < nodeArray.length; ++j) {
+              callback.call(receiver, nodeArray[j], j, list)
+            }
+          },
+        },
+      })
+      for (i = 0; i < nodeArray.length; ++i) {
+        Object.defineProperty(list, i, {
+          value: nodeArray[i],
+          enumerable: true,
+        })
+      }
+      if (typeof Symbol == 'function' && Symbol.iterator) {
+        var iterator = function (kind) {
+          var index = 0,
+            result = {
+              next: function () {
+                if (index >= nodeArray.length) {
+                  return { value: undefined, done: true }
+                }
+                var current = index++
+                return {
+                  value:
+                    kind == 1
+                      ? current
+                      : kind == 2
+                        ? [current, nodeArray[current]]
+                        : nodeArray[current],
+                  done: false,
+                }
+              },
+            }
+          result[Symbol.iterator] = function () {
+            return this
+          }
+          return result
+        }
+        Object.defineProperties(list, {
+          values: {
+            value: function () {
+              return iterator(0)
+            },
+          },
+          keys: {
+            value: function () {
+              return iterator(1)
+            },
+          },
+          entries: {
+            value: function () {
+              return iterator(2)
+            },
+          },
+        })
+        Object.defineProperty(list, Symbol.iterator, { value: list.values })
+      }
+      return list
+    },
     isInstanceOf = function (nodes) {
       return nodes instanceof global.NodeList
     },
@@ -605,29 +676,29 @@
         escaped,
         i = 0,
         l = text.length,
-        quote = '',
+        quote = 0,
         start = 0,
         list = []
 
       for (; l > i; ++i) {
-        chr = text.charAt(i)
+        chr = text.charCodeAt(i)
         if (escaped) {
           escaped = false
           continue
         }
-        if (chr == '\\') {
+        if (chr == 92 /* '\\' */) {
           escaped = true
         } else if (quote) {
           if (chr == quote) {
-            quote = ''
+            quote = 0
           }
-        } else if (chr == '\x22' || chr == '\x27') {
+        } else if (chr == 34 /* '"' */ || chr == 39 /* "'" */) {
           quote = chr
-        } else if (chr == '\x28' || chr == '\x5b') {
+        } else if (chr == 40 /* '(' */ || chr == 91 /* '[' */) {
           ++depth
-        } else if (chr == '\x29' || chr == '\x5d') {
+        } else if (chr == 41 /* ')' */ || chr == 93 /* ']' */) {
           --depth
-        } else if (chr == ',' && depth === 0) {
+        } else if (chr == 44 /* ',' */ && depth === 0) {
           list[list.length] = text.slice(start, i).replace(REX.TrimSpaces, '')
           start = i + 1
         }
@@ -642,7 +713,7 @@
         depth = 1,
         i,
         l,
-        quote = '',
+        quote = 0,
         match = selector.match(prefix || REX.LogicalPfx)
 
       if (!match) {
@@ -650,22 +721,22 @@
       }
 
       for (i = match[0].length, l = selector.length; l > i; ++i) {
-        chr = selector.charAt(i)
+        chr = selector.charCodeAt(i)
         if (escaped) {
           escaped = false
           continue
         }
-        if (chr == '\\') {
+        if (chr == 92 /* '\\' */) {
           escaped = true
         } else if (quote) {
           if (chr == quote) {
-            quote = ''
+            quote = 0
           }
-        } else if (chr == '\x22' || chr == '\x27') {
+        } else if (chr == 34 /* '"' */ || chr == 39 /* "'" */) {
           quote = chr
-        } else if (chr == '\x28') {
+        } else if (chr == 40 /* '(' */) {
           ++depth
-        } else if (chr == '\x29' && --depth === 0) {
+        } else if (chr == 41 /* ')' */ && --depth === 0) {
           break
         }
       }
@@ -873,14 +944,100 @@
       }
       return nodes
     },
+    collectionRoots = null,
+    collectionStates = null,
+    // Cache candidate collection snapshots, never selector answers. Native
+    // collections are expensive to copy through host index getters. A fresh
+    // array copy protects the cached candidates from callers and callbacks.
+    // takeRecords() invalidates synchronously, before the observer callback.
+    collectionSnapshot = function (nodes, context, length?, small?) {
+      var state, root, view, cached, i, result
+      if (collectionStates && (state = collectionStates.get(nodes))) {
+        if (state.observer.takeRecords().length) {
+          state.copies = createWeakMap()
+        }
+        cached = state.copies.get(nodes)
+        if (
+          cached &&
+          state.document.deref() === (context.ownerDocument || context)
+        ) {
+          return cached
+        }
+      }
+      length === undefined && (length = nodes.length)
+      if (
+        (length < 16 && !small) ||
+        Config.LEGACY ||
+        typeof WeakRef != 'function' ||
+        !context.getRootNode
+      ) {
+        return nodes
+      }
+      view = (context.ownerDocument || context).defaultView
+      if (
+        !view ||
+        !view.MutationObserver ||
+        !view.HTMLCollection ||
+        !(nodes instanceof view.HTMLCollection)
+      ) {
+        return nodes
+      }
+      root = context.getRootNode()
+      collectionRoots || (collectionRoots = createWeakMap())
+      if (!collectionRoots) {
+        return nodes
+      }
+      state = collectionRoots.get(root)
+      if (!state) {
+        state = {
+          copies: createWeakMap(),
+          observer: null,
+          document: new WeakRef(context.ownerDocument || context),
+        }
+        state.observer = Factory['_observeCollections'](root, view, state)
+        collectionRoots.set(root, state)
+      } else if (
+        state.observer.takeRecords().length ||
+        state.document.deref() !== (context.ownerDocument || context)
+      ) {
+        state.copies = createWeakMap()
+        state.document = new WeakRef(context.ownerDocument || context)
+      }
+      collectionStates || (collectionStates = createWeakMap())
+      collectionStates.set(nodes, state)
+      // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
+      result = new Array(length)
+      for (i = 0; i < length; ++i) {
+        result[i] = nodes[i]
+      }
+      state.copies.set(nodes, result)
+      return result
+    },
+    collectionCopy = function (nodes, context) {
+      var snapshot = Config.LEGACY ? nodes : collectionSnapshot(nodes, context)
+      if (snapshot !== nodes) {
+        return snapshot.slice()
+      }
+      var length = nodes.length,
+        i,
+        // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
+        result = new Array(length)
+      for (i = 0; i < length; ++i) {
+        result[i] = nodes[i]
+      }
+      return result
+    },
     byTag = function (tag, context) {
       var e,
         nodes,
         api = method['*']
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        nodes = sliceCall(context[api](tag))
-        return Config.LEGACY ? elementsOf(nodes) : nodes
+        nodes = context[api](tag)
+        if (Config.LEGACY) {
+          return elementsOf(sliceCall(nodes))
+        }
+        return collectionCopy(nodes, context)
       } else if (Config.LEGACY) {
         // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
         // traversal, so the children are walked by hand
@@ -931,8 +1088,10 @@
         reCls
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        nodes = sliceCall(context[api](cls))
-        return Config.LEGACY ? elementsOf(nodes) : nodes
+        nodes = context[api](cls)
+        return Config.LEGACY
+          ? elementsOf(sliceCall(nodes))
+          : collectionCopy(nodes, context)
       } else if (Config.LEGACY) {
         // A host from before this lookup existed. Every element under the
         // context is asked for its class instead, which is what the engine
@@ -1480,16 +1639,19 @@
           parent = undefined
           return -1
         }
-        var e, i, j, k, l
-        if (
-          parent === (Config.LEGACY ? upOf(element) : element.parentElement)
-        ) {
+        var e,
+          i,
+          j,
+          k,
+          l,
+          p = Config.LEGACY ? upOf(element) : element.parentNode
+        if (parent === p) {
           i = set
           j = idx
           l = len
         } else {
           l = parents.length
-          parent = Config.LEGACY ? upOf(element) : element.parentElement
+          parent = p
           for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
             if (parents[j] === parent) {
               i = j
@@ -2176,7 +2338,7 @@
           // attribute case sensitivity
           '(?:' +
           WSP +
-          '?\\b(i))?' +
+          '?\\b([iIsS]))?' +
           WSP +
           '?' +
           '(?:\\]|$)',
@@ -2190,7 +2352,7 @@
           '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\*\\|)|' +
+          '(?:\\*\\||\\||\\*)|' +
           '(?:' +
           '(?::' +
           pseudonames +
@@ -2230,7 +2392,7 @@
           '(?:' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\*\\|)|' +
+          '(?:\\*\\||\\||\\*)|' +
           '(?:[.#]?' +
           identifier +
           ')+|' +
@@ -2468,37 +2630,37 @@
         escaped,
         i = 0,
         l = text.length,
-        quote = ''
+        quote = 0
 
       for (; l > i; ++i) {
-        chr = text.charAt(i)
+        chr = text.charCodeAt(i)
         if (escaped) {
           escaped = false
           continue
         }
-        if (chr == '\\') {
+        if (chr == 92 /* '\\' */) {
           escaped = true
         } else if (quote) {
           if (chr == quote) {
-            quote = ''
+            quote = 0
           }
-        } else if (chr == '\x22' || chr == '\x27') {
+        } else if (chr == 34 /* '"' */ || chr == 39 /* "'" */) {
           quote = chr
-        } else if (chr == '\x28' || chr == '\x5b') {
+        } else if (chr == 40 /* '(' */ || chr == 91 /* '[' */) {
           ++depth
-        } else if (chr == '\x29' || chr == '\x5d') {
+        } else if (chr == 41 /* ')' */ || chr == 93 /* ']' */) {
           --depth
         } else if (
           depth === 0 &&
-          (chr == ',' ||
-            chr == '>' ||
-            chr == '+' ||
-            chr == '~' ||
-            chr == ' ' ||
-            chr == '\t' ||
-            chr == '\n' ||
-            chr == '\f' ||
-            chr == '\r')
+          (chr == 44 /* ',' */ ||
+            chr == 62 /* '>' */ ||
+            chr == 43 /* '+' */ ||
+            chr == 126 /* '~' */ ||
+            chr == 32 /* ' ' */ ||
+            chr == 9 /* '\t' */ ||
+            chr == 10 /* '\n' */ ||
+            chr == 12 /* '\f' */ ||
+            chr == 13) /* '\r' */
         ) {
           return false
         }
@@ -2546,6 +2708,80 @@
         N_VARS = nodeVars
       }
     },
+    // Check :has() arguments once at compilation. Attribute text and escaped
+    // punctuation are data. Invalid items inside forgiving lists are removed
+    // individually, so :has(:is(:has(x), p)) still means :has(:is(p)).
+    prepareHas = function (text) {
+      var i = 0,
+        quote = 0,
+        bracket = 0,
+        code,
+        logical,
+        items,
+        kept,
+        item,
+        j,
+        output = '',
+        start = 0
+      for (; i < text.length; ++i) {
+        code = text.charCodeAt(i)
+        if (code == 92 /* '\\' */) {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (code == quote) {
+            quote = 0
+          }
+          continue
+        }
+        if (code == 34 /* '"' */ || code == 39 /* "'" */) {
+          quote = code
+          continue
+        }
+        if (code == 91 /* '[' */) {
+          ++bracket
+          continue
+        }
+        if (code == 93 /* ']' */) {
+          --bracket
+          continue
+        }
+        if (bracket || code != 58 /* ':' */) {
+          continue
+        }
+        if (
+          /^:(?:has\(|:|(?:before|after|first-line|first-letter)(?![-\w]))/i.test(
+            text.slice(i),
+          )
+        ) {
+          return null
+        }
+        if (
+          Config.FORGIVING &&
+          (logical = matchLogical(text.slice(i), /^:(is|where)\(/i))
+        ) {
+          items = splitList(logical[2])
+          kept = []
+          for (j = 0; j < items.length; ++j) {
+            item = prepareHas(items[j])
+            if (item !== null) {
+              kept.push(item)
+            }
+          }
+          output +=
+            text.slice(start, i) +
+            ':' +
+            logical[1] +
+            '(' +
+            (kept.join(',') || ':not(*)') +
+            ')'
+          i += logical[0].length - 1
+          start = i + 1
+        }
+      }
+      return output + text.slice(start)
+    },
     notFlag = 0,
     compileSelector = function (expression, source, mode, callback, ancestry?) {
       var a,
@@ -2592,16 +2828,27 @@
         ++k
 
         // get namespace prefix if present or get first char of selector
-        symbol = STD.apimethods.test(selector) ? '|' : selector[0]
+        symbol = selector.charCodeAt(0)
+        // Only ASCII word or universal prefixes can enter the namespace rule.
+        if (
+          (symbol == 42 /* '*' */ ||
+            symbol == 95 /* '_' */ ||
+            (symbol >= 48 /* '0' */ && symbol <= 57) /* '9' */ ||
+            (symbol >= 65 /* 'A' */ && symbol <= 90) /* 'Z' */ ||
+            (symbol >= 97 /* 'a' */ && symbol <= 122)) /* 'z' */ &&
+          STD.apimethods.test(selector)
+        ) {
+          symbol = 124 /* '|' */
+        }
 
         switch (symbol) {
           // universal resolver
-          case '*':
+          case 42 /* '*' */:
             match = selector.match(Patterns.universal)
             break
 
           // id resolver
-          case '#':
+          case 35 /* '#' */:
             match = selector.match(Patterns.id)
             // an exact comparison, which is what the selector asks for.
             // escapeIdentifier turns the CSS escapes into JavaScript ones, so
@@ -2617,7 +2864,7 @@
             break
 
           // class name resolver
-          case '.':
+          case 46 /* '.' */:
             match = selector.match(Patterns.className)
             match[1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match[1]))
               ? '(?!)'
@@ -2634,7 +2881,11 @@
             break
 
           // tag name resolver
-          case /[_a-z]/i.test(symbol) ? symbol : undefined:
+          case symbol == 95 /* '_' */ ||
+          (symbol >= 65 /* 'A' */ && symbol <= 90) /* 'Z' */ ||
+          (symbol >= 97 /* 'a' */ && symbol <= 122) /* 'z' */
+            ? symbol
+            : undefined:
             match = selector.match(Patterns.tagName)
             // the same string the comparison uses, so a filter built from it
             // cannot reject anything this test would have accepted
@@ -2643,13 +2894,17 @@
             break
 
           // namespace resolver
-          case '|':
+          case 124 /* '|' */:
             match = selector.match(Patterns.namespace)
             if (match[1] == '*') {
               source = 'if(true){' + source + '}'
             } else if (!match[1]) {
               source = 'if((!e.namespaceURI)){' + source + '}'
-            } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
+            } else if (
+              typeof match[1] == 'string' &&
+              root &&
+              root.prefix == match[1]
+            ) {
               source =
                 'if((e.namespaceURI=="' + NAMESPACE + '")){' + source + '}'
             } else {
@@ -2658,7 +2913,7 @@
             break
 
           // attributes resolver
-          case '[':
+          case 91 /* '[' */:
             match = selector.match(Patterns.attribute)
             if (!match) {
               break
@@ -2693,9 +2948,12 @@
                 return part == '"' ? '\\"' : part
               })
             }
+            match[5] = (match[5] || '').toLowerCase()
             type =
               match[5] == 'i' ||
-              (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()])
+              (match[5] != 's' &&
+                HTML_DOCUMENT &&
+                HTML_TABLE[expr.toLowerCase()])
                 ? 'i'
                 : ''
             source =
@@ -2727,7 +2985,7 @@
 
           // *** General sibling combinator
           // E ~ F (F relative sibling of E)
-          case '~':
+          case 126 /* '~' */:
             match = selector.match(Patterns.relative)
             ancestry.pending.length = 0
             if (pendingTag) {
@@ -2748,7 +3006,7 @@
 
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
-          case '+':
+          case 43 /* '+' */:
             match = selector.match(Patterns.adjacent)
             ancestry.pending.length = 0
             if (pendingTag) {
@@ -2769,8 +3027,8 @@
 
           // *** Descendant combinator
           // E F (E ancestor of F)
-          case '\x09':
-          case '\x20':
+          case 9 /* '\x09' */:
+          case 32 /* '\x20' */:
             match = selector.match(Patterns.ancestor)
             // Pending tags now have to appear above the candidate. Sibling
             // combinators discard their own pending tags but retain earlier
@@ -2796,7 +3054,7 @@
 
           // *** Child combinator
           // E > F (F children of E)
-          case '>':
+          case 62 /* '>' */:
             match = selector.match(Patterns.children)
             ancestry.required.push.apply(ancestry.required, ancestry.pending)
             ancestry.pending.length = 0
@@ -2817,29 +3075,64 @@
             break
 
           // *** user supplied combinators extensions
-          case symbol in Combinators ? symbol : undefined:
+          case selector[0] in Combinators ? symbol : undefined:
             // for other registered combinators extensions
             match[match.length - 1] = '*'
-            source = Combinators[symbol](match) + source
+            source = Combinators[selector[0]](match) + source
             break
 
           // *** tree-structural pseudo-classes
           // :root, :empty, :first-child, :last-child, :only-child, :first-of-type, :last-of-type, :only-of-type
-          case ':':
-            if ((match = selector.match(Patterns.structural))) {
+          case 58 /* ':' */:
+            if (
+              (match = /^:heading(?:\(([^)]*)(?:\)|$))?(?![-\w])(.*)/i.exec(
+                selector,
+              ))
+            ) {
+              if (
+                match[1] !== undefined &&
+                !/^[\t\n\f\r ]*[-+]?\d+[\t\n\f\r ]*(?:,[\t\n\f\r ]*[-+]?\d+[\t\n\f\r ]*)*$/.test(
+                  match[1],
+                )
+              ) {
+                emit("'" + expression + "'" + qsInvalid)
+                return ''
+              }
+              // HTML heading semantics use the local name, including prefixed
+              // HTML elements, and ignore ARIA role/level overrides.
+              test =
+                match[1] === undefined
+                  ? '123456'
+                  : match[1]
+                      .split(',')
+                      .map(function (level) {
+                        var n = +level
+                        return n >= 1 && n <= 6 ? n : ''
+                      })
+                      .join('')
+              source = !test
+                ? 'if(false){' + source + '}'
+                : 'if(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&/^h[' +
+                  (test || '1-6') +
+                  ']$/.test(' +
+                  read.tag('e') +
+                  ')){' +
+                  source +
+                  '}'
+            } else if ((match = selector.match(Patterns.structural))) {
               match[1] = match[1].toLowerCase()
               switch (match[1]) {
                 case 'scope':
                   // use the root (documentElement) when comparing against a document
                   source =
-                    'if(e===(s.from.nodeType===9?s.root:s.from)){' +
+                    'if(e===(s.from.nodeType===9?s.from.documentElement:s.from)){' +
                     source +
                     '}'
                   break
                 case 'root':
                   // there can only be one :root element, so exit the loop once found
                   source =
-                    'if((e===s.root)){' +
+                    'if((e===s.doc.documentElement)){' +
                     source +
                     (mode ? 'break main;' : '') +
                     '}'
@@ -2992,17 +3285,18 @@
                         flag = '_p' + notFlag++
                         S_VARS.push(flag, flag + 'v')
                         source =
-                          'o=e.parentNode;if(o&&(o===' +
+                          'o=e.parentNode;if(o===' +
                           flag +
-                          '||(k+1<l&&c[k+1].parentNode===o))){if(o!==' +
+                          '){n=e===' +
                           flag +
-                          '){' +
+                          'v;}' +
+                          'else if(o&&k+1<l&&c[k+1].parentNode===o){' +
                           flag +
                           '=o;' +
                           flag +
-                          'v=o?o.' +
+                          'v=o.' +
                           (type ? 'last' : 'first') +
-                          'ElementChild:null;' +
+                          'ElementChild;' +
                           'n=1;while(n<' +
                           a +
                           '&&' +
@@ -3013,7 +3307,7 @@
                           flag +
                           'v.' +
                           (type ? 'previous' : 'next') +
-                          'ElementSibling;++n;}}n=e===' +
+                          'ElementSibling;++n;}n=e===' +
                           flag +
                           'v;}else{n=1,o=e;while(n<=' +
                           a +
@@ -3046,6 +3340,56 @@
                         'n=1;o=e;while((o=o.' +
                         (type ? 'next' : 'previous') +
                         'ElementSibling))++n;if((' +
+                        test +
+                        ')){' +
+                        source +
+                        '}'
+                      break
+                    }
+                    if (
+                      mode === true &&
+                      !callback &&
+                      !Config.LEGACY &&
+                      !expr &&
+                      !type
+                    ) {
+                      // Ordered, nearby candidates can carry their sibling
+                      // position forward. Sparse runs switch to the shared index.
+                      flag = '_i' + notFlag++
+                      S_VARS.push(flag, flag + 'n', flag + 's', flag + 't')
+                      source =
+                        'if(' +
+                        flag +
+                        's){n=s.nthElement(e,false);}else{' +
+                        'n=1;o=' +
+                        flag +
+                        't?e.previousElementSibling:e.previousSibling;' +
+                        'if((!' +
+                        flag +
+                        '||o!==' +
+                        flag +
+                        ')&&!' +
+                        flag +
+                        't&&o!==(o=e.previousElementSibling))' +
+                        flag +
+                        't=true;' +
+                        'while(o&&o!==' +
+                        flag +
+                        '&&n<8){++n;o=o.previousElementSibling;}' +
+                        'if(o===' +
+                        flag +
+                        '&&' +
+                        flag +
+                        '){n+=' +
+                        flag +
+                        'n;}' +
+                        'else if(o){n=s.nthElement(e,false);' +
+                        flag +
+                        's=true;}' +
+                        flag +
+                        '=e;' +
+                        flag +
+                        'n=n;}if((' +
                         test +
                         ')){' +
                         source +
@@ -3090,25 +3434,9 @@
                     )
                   ) {
                     // A simple compound cannot move e or contain an invalid
-                    // forgiving-list item. Emit its predicate once instead
-                    // of re-entering match() for every candidate.
-                    flag = '_n' + notFlag++
-                    nested = compileSelector(
-                      match[2],
-                      flag + '=true;',
-                      mode,
-                      callback,
-                    )
-                    source =
-                      'var ' +
-                      flag +
-                      '=false;' +
-                      nested +
-                      'if(' +
-                      flag +
-                      '){' +
-                      source +
-                      '}'
+                    // forgiving-list item, so its predicate can guard the
+                    // continuation directly without a temporary boolean.
+                    source = compileSelector(match[2], source, mode, callback)
                   } else if (
                     /^[a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)*$/.test(
                       match[2],
@@ -3171,6 +3499,12 @@
                   }
                   break
                 case 'has':
+                  argument = prepareHas(match[2])
+                  if (argument === null) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
+                  match[2] = argument
                   if (!validateLogical(match[2], true)) {
                     return ''
                   }
@@ -3202,18 +3536,20 @@
               switch (match[1]) {
                 case 'dir':
                   source =
-                    'var p;if((' +
+                    'var p;if(s.matchesNative(e,":dir(' +
+                    match[2] +
+                    ')",(' +
                     '(/' +
                     match[2] +
                     '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
                     '(/' +
                     match[2] +
-                    '/i.test(p.dir))||(e.dir==""||e.dir=="auto")&&' +
+                    '/i.test(p.dir))||(!p||!/^(?:ltr|rtl)$/i.test(p.dir))&&(e.dir==""||e.dir=="auto")&&' +
                     '(' +
                     (match[2] == 'ltr' ? '!' : '') +
                     RTL +
                     '.test(e.textContent)))' +
-                    '){' +
+                    ')){' +
                     source +
                     '};'
                   break
@@ -3221,7 +3557,7 @@
                   expr = '(?:^|-)' + match[2] + '(?:-|$)'
                   source =
                     'var p;if((' +
-                    '(e.isConnected&&(e.lang==""&&(p=s.ancestor("[lang]",e)))&&' +
+                    '(e.lang==""&&(p=s.ancestor("[lang]",e))&&' +
                     '(p.lang=="' +
                     match[2] +
                     '")||/' +
@@ -3291,7 +3627,10 @@
                   source = 'if(s.isFocusable(e)){' + source + '}'
                   break
                 case 'focus-within':
-                  source = 'if(e.contains(s.doc.activeElement)){' + source + '}'
+                  source =
+                    'if(s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus()&&e.contains(s.doc.activeElement))){' +
+                    source +
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -3319,12 +3658,14 @@
                     source +
                     '}'
                   break
+                // Missing HTML input type is text. Avoid the host's type
+                // normalization getter on this common path.
                 case 'read-only':
                 case '-moz-read-only':
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
-                    '(/^input$/i.test(e.localName)&&("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")?(e.readOnly||s.isDisabled(e)):true))||' +
+                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -3335,7 +3676,7 @@
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(/^input$/i.test(e.localName)&&"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|")&&!e.readOnly&&!s.isDisabled(e))||' +
+                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -3353,7 +3694,7 @@
                     'if((' +
                     '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
                     '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
-                    '(!s.match(":focus",e))' +
+                    'e.value==""' +
                     ')){' +
                     source +
                     '}'
@@ -3508,7 +3849,10 @@
             // Timelines belong to the host; absent native state matches nothing.
             else if ((match = selector.match(Patterns.time_state))) {
               expr = ':' + match[1].toLowerCase()
-              if (expr === ':current' && match[2].charAt(0) === '(') {
+              if (
+                expr === ':current' &&
+                match[2].charCodeAt(0) === 40 /* '(' */
+              ) {
                 match = matchLogical(selector, /^:(current)\(/i)
                 if (
                   !match ||
@@ -3527,6 +3871,16 @@
                 ')){' +
                 source +
                 '}'
+            } else if ((match = matchLogical(selector, /^:(:slotted)\(/i))) {
+              if (
+                !match[2] ||
+                !isCompound(match[2]) ||
+                !validateLogical(match[2], false)
+              ) {
+                emit("'" + expression + "'" + qsInvalid)
+                return ''
+              }
+              source = 'if(false){' + source + '}'
             }
 
             // allow pseudo-elements starting with single colon (:)
@@ -3877,6 +4231,10 @@
     },
     first = function _querySelector(selectors, context, callback) {
       var element, match, collection, i, length
+      if (arguments.length === 0) {
+        emit(qsNotArgs, TypeError)
+        return null
+      }
 
       // A lone '#id' against a document is the id map's own question, and the
       // first match in tree order is exactly what getElementById returns.
@@ -4072,6 +4430,9 @@
       if (length > DESCENT_PROBE) {
         return null
       }
+      if (length >= 16) {
+        roots = collectionSnapshot(roots, context, length)
+      }
       for (i = 0; i < length; ++i) {
         root = roots[i]
         if (plan.tag !== undefined && root.localName != plan.tag) {
@@ -4084,7 +4445,12 @@
         // A scoped type lookup skips unrelated children and their subtrees.
         // Validate the fixed parent chain against this exact anchor: nested
         // anchors must neither duplicate nor borrow one another's matches.
-        candidates = root.getElementsByTagName(plan.tags[plan.tags.length - 1])
+        candidates = collectionSnapshot(
+          root.getElementsByTagName(plan.tags[plan.tags.length - 1]),
+          root,
+          undefined,
+          true,
+        )
         for (j = 0, k = candidates.length; j < k; ++j) {
           element = candidates[j]
           parent = element.parentElement
@@ -4112,13 +4478,19 @@
       var found, i, l
 
       if (part.cls !== undefined) {
-        found = root.getElementsByClassName(part.cls)
+        found = collectionSnapshot(
+          root.getElementsByClassName(part.cls),
+          root,
+          undefined,
+          true,
+        )
+        l = found.length
         if (part.tag === undefined) {
-          for (i = 0, l = found.length; l > i; ++i) {
+          for (i = 0; l > i; ++i) {
             out[out.length] = found[i]
           }
         } else {
-          for (i = 0, l = found.length; l > i; ++i) {
+          for (i = 0; l > i; ++i) {
             if (
               found[i].localName == part.tag ||
               (HTML_DOCUMENT &&
@@ -4130,8 +4502,14 @@
           }
         }
       } else {
-        found = root.getElementsByTagName(part.tag)
-        for (i = 0, l = found.length; l > i; ++i) {
+        found = collectionSnapshot(
+          root.getElementsByTagName(part.tag),
+          root,
+          undefined,
+          true,
+        )
+        l = found.length
+        for (i = 0; l > i; ++i) {
           out[out.length] = found[i]
         }
       }
@@ -4313,7 +4691,9 @@
               if (f[i] !== null) {
                 f[i](list, callback, context, nodes)
               } else {
-                nodes = nodes.concat(list)
+                nodes = nodes.concat(
+                  isInstanceOf(list) ? sliceCall(list) : list,
+                )
               }
             }
             if (l > 1 && nodes.length > 1) {
@@ -4611,7 +4991,9 @@
 
       Element.prototype.querySelectorAll =
         HTMLElement.prototype.querySelectorAll = function querySelectorAll() {
-          return parseQSArgs.apply(this, argsWith(arguments, select))
+          return toNodeList(
+            parseQSArgs.apply(this, argsWith(arguments, select)),
+          )
         }
 
       Document.prototype.querySelector =
@@ -4622,7 +5004,9 @@
       Document.prototype.querySelectorAll =
         DocumentFragment.prototype.querySelectorAll =
           function querySelectorAll() {
-            return parseQSArgs.apply(this, argsWith(arguments, select))
+            return toNodeList(
+              parseQSArgs.apply(this, argsWith(arguments, select)),
+            )
           }
 
       if (all) {

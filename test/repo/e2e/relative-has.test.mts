@@ -95,18 +95,12 @@ test('anchor restoration after success and exceptions', t => {
 })
 
 for (const selector of ['div:has(:has(p))', 'div:has(::before)']) {
-  test(
-    'reject ' + selector,
-    {
-      fails: true /* 'Inherited :has argument-validation gap; must be resolved before merge' */,
-    },
-    t => {
-      const { document, nw } = fixture(t)
-      assert.throws(() => nw.select(selector, document), {
-        name: 'SyntaxError',
-      })
-    },
-  )
+  test('reject ' + selector, t => {
+    const { document, nw } = fixture(t)
+    assert.throws(() => nw.select(selector, document), {
+      name: 'SyntaxError',
+    })
+  })
 }
 
 test(
@@ -125,6 +119,32 @@ test(
           'utf8',
         ),
       })
+      for (const query of [
+        'div:has(:has(p))',
+        'div:has(::before)',
+        'div:has(:before)',
+        'div:has(:not(:has(p)))',
+        'div:has(:is(:has(p), p))',
+        'div:has(:where(::before, p))',
+        'div:has([data-text=":has(p)"])',
+        'div:has(:is(:has(p)))',
+        'div:has(p):has(span)',
+      ]) {
+        const result = await page.evaluate(selector => {
+          const capture = (resolve: () => ArrayLike<Element>) => {
+            try {
+              return { ids: Array.from(resolve(), e => e.id) }
+            } catch (error) {
+              return { error: error.name }
+            }
+          }
+          return {
+            native: capture(() => document.querySelectorAll(selector)),
+            nwsapi: capture(() => NW.Dom.select(selector, document)),
+          }
+        }, query)
+        assert.deepEqual(result.nwsapi, result.native, query)
+      }
       for (const selector of selectors) {
         for (const shape of ['document', 'scoped', 'detached']) {
           const result = await page.evaluate(

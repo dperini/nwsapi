@@ -33,7 +33,8 @@ export default defineConfig({
     pool: process.env.NWSAPI_TEST_TIER === 'unit' ? 'threads' : 'forks',
     // Unit fixtures own their DOM instances; subprocess suites stay isolated.
     isolate: process.env.NWSAPI_TEST_TIER !== 'unit',
-    maxWorkers: 4,
+    // Shared unit workers amortize jsdom startup; more workers duplicate it.
+    maxWorkers: process.env.NWSAPI_TEST_TIER === 'unit' ? 2 : 4,
     restoreMocks: true,
     testTimeout: 10_000,
     coverage: {
