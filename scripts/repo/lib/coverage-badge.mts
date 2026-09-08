@@ -150,7 +150,7 @@ const SHIELDS_IMG_BADGE_RE = new RegExp(
 
 // The `aria-label="coverage: <value>"` the renderer stamps on the SVG — the
 // machine-readable percent the check reads back.
-const SVG_LABEL_RE = /aria-label="coverage: (\d+%|n\/a)"/
+const SVG_LABEL_RE = /aria-label="[Cc]overage: (\d+%|n\/a)"/
 
 export type BadgeForm =
   | 'img'
@@ -247,10 +247,12 @@ function textWidth(text: string): number {
       w += 6.5
     }
   }
-  return Math.round(w)
+  // Socket badges use odd text widths to align letters to the pixel grid.
+  const width = Math.round(w)
+  return width % 2 === 0 ? width + 1 : width
 }
 
-const LABEL = 'coverage'
+const LABEL = 'Coverage'
 // 10px of horizontal padding per segment (5px each side).
 const PAD = 10
 
@@ -272,8 +274,8 @@ export function renderBadge(
   const lw = textWidth(badgeLabel) + PAD
   const vw = textWidth(text) + PAD
   const w = lw + vw
-  const lcx = lw * 5
-  const vcx = (lw + vw / 2) * 10
+  const lcx = lw * 5 + 10
+  const vcx = (lw + vw / 2) * 10 - 10
   const ltl = (lw - PAD) * 10
   const vtl = (vw - PAD) * 10
   const label = `${badgeLabel}: ${text}`

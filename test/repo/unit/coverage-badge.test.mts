@@ -47,12 +47,12 @@ test.each([
   assert.equal(badgeColor(pct), color)
   assert.match(
     coverageBadgeSvg(pct),
-    new RegExp(`aria-label="coverage: ${pct}%"`),
+    new RegExp(`aria-label="Coverage: ${pct}%"`),
   )
 })
 
 test('an unmeasured badge uses the grey n/a placeholder', () => {
-  assert.match(coverageBadgeSvg(undefined), /aria-label="coverage: n\/a"/)
+  assert.match(coverageBadgeSvg(undefined), /aria-label="Coverage: n\/a"/)
   assert.match(coverageBadgeSvg(undefined), /fill="#9f9f9f"/)
 })
 
