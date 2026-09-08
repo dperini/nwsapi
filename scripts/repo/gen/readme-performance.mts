@@ -29,8 +29,8 @@ writeFileSync(
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,
     notes: [
-      'Queries model component trees, Tailwind-style classes, and Testing Library test IDs.',
-      'Warm queries repeat a selector. Cold queries run it first on a fresh document.',
+      'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
+      'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
       `Warm speedups were ${range}. Cold results vary. Both engines use the same logarithmic scale.`,
       [
         { code: 'nwsapi' },

@@ -73,13 +73,13 @@ export function queryChart({
   const lines = rows
     .map((row, i) => {
       const y = 163 + i * 64
-      const comparisons = (['warm', 'cold'] as const)
+      const comparisons = (['cold', 'warm'] as const)
         .map((state, index) => {
           const ratio = row[state][1] / row[state][0]
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${index === 0 ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
         })
         .join('')
       return (
@@ -91,7 +91,7 @@ export function queryChart({
             const top = y + series * 12
             const warm = position(row.warm[series])
             const cold = position(row.cold[series])
-            const summary = `Warm ${(row.warm[series] * 1000).toFixed(2)} μs · Cold ${row.cold[series].toFixed(2)} ms`
+            const summary = `Cold ${row.cold[series].toFixed(2)} ms · Warm ${(row.warm[series] * 1000).toFixed(2)} μs`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
       <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
       <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>
@@ -107,7 +107,7 @@ export function queryChart({
   return (
     optimiseSvg(`<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img" aria-labelledby="title desc">
 <title id="title">${escapeText(names[0])}</title>
-<desc id="desc">Warm and cold first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
+<desc id="desc">Cold and warm first-query times for ${escapeText(names[0])} and ${escapeText(names[1])} through jsdom. Both stacked engine lines use the same logarithmic time scale. Each gradient connects warm and cold markers. Further left means faster. Comparison factors appear below each pair. Exact timings are in SVG tooltips. Cold measurements exclude document creation and explicit NWSAPI factory setup.</desc>
 <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101d30"/><stop offset="1" stop-color="#0b1220"/></linearGradient>${gradients}</defs>
 <style>
 text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
@@ -122,7 +122,7 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 </style>
 <rect width="1100" height="${height}" rx="24" fill="url(#bg)"/>
 <rect x=".5" y=".5" width="1099" height="${height - 1}" rx="24" fill="none" stroke="#2b3a50"/>
-<text x="48" y="65" class="muted">Warm → cold</text>
+<text x="48" y="65" class="muted">Cold / warm</text>
 <text x="48" y="89" class="muted">Further left is faster.</text>
 <text x="48" y="132" class="muted">Logarithmic time scale</text>
 ${axes}

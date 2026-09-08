@@ -17,6 +17,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { percentBadgeColor, percentBadgeTextColor } from './percent-badge.mts'
 
 import { rawAssetUrl } from './github-raw-url.mts'
 import { COVERAGE_SUMMARY_PATH, REPO_ROOT } from './paths.mts'
@@ -218,27 +219,8 @@ export function migrateReadmeBadge(
     .replace(ABSOLUTE_IMG_BADGE_RE, () => ref)
 }
 
-// Fill color for a coverage percent — the conventional coverage gradient so
-// the badge reads at a glance (brightgreen ≥90, green ≥80, yellowgreen ≥70,
-// yellow ≥60, orange ≥50, red below).
-export function badgeColor(pct: number): string {
-  if (pct >= 90) {
-    return '#4c1'
-  }
-  if (pct >= 80) {
-    return '#97ca00'
-  }
-  if (pct >= 70) {
-    return '#a4a61d'
-  }
-  if (pct >= 60) {
-    return '#dfb317'
-  }
-  if (pct >= 50) {
-    return '#fe7d37'
-  }
-  return '#e05d44'
-}
+// Compatibility name for callers of the coverage helper.
+export const badgeColor = percentBadgeColor
 
 // Approximate rendered width of a badge string in Verdana 11px. Exactness is
 // not required: every <text> carries textLength, which forces the glyph run to
@@ -278,6 +260,7 @@ export function renderBadge(
   badgeLabel: string,
   text: string,
   color: string,
+  textColor = '#fff',
 ): string {
   const lw = textWidth(badgeLabel) + PAD
   const vw = textWidth(text) + PAD
@@ -287,6 +270,7 @@ export function renderBadge(
   const ltl = (lw - PAD) * 10
   const vtl = (vw - PAD) * 10
   const label = `${badgeLabel}: ${text}`
+  const valueFill = textColor === '#fff' ? '' : ` fill="${textColor}"`
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${label}">` +
     `<title>${label}</title>` +
@@ -297,14 +281,14 @@ export function renderBadge(
     `<text aria-hidden="true" x="${lcx}" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="${ltl}">${badgeLabel}</text>` +
     `<text x="${lcx}" y="140" transform="scale(.1)" textLength="${ltl}">${badgeLabel}</text>` +
     `<text aria-hidden="true" x="${vcx}" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
-    `<text x="${vcx}" y="140" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
+    `<text${valueFill} x="${vcx}" y="140" transform="scale(.1)" textLength="${vtl}">${text}</text>` +
     `</g></svg>\n`
   )
 }
 
 // The coverage badge for a value text + fill color.
 export function renderCoverageBadge(text: string, color: string): string {
-  return renderBadge(LABEL, text, color)
+  return renderBadge(LABEL, text, color, percentBadgeTextColor(color))
 }
 
 // The badge SVG for a coverage percent — rounded integer + bucket color — or
