@@ -36,9 +36,11 @@ export function writeBenchmarkCharts(
       path.join(output, `${group.name}.svg`),
       chart(
         titles[group.rows[0].category] ?? group.name,
-        metadata.engines.map(engine => engine.name),
+        metadata.engines.map(engine =>
+          engine.name.replace(/ (\d+\.\d+\.\d+)/, ' v$1'),
+        ),
         group.rows,
-        `${metadata.fixture}; ${metadata.node}; jsdom ${metadata.jsdom}`,
+        `${metadata.fixture}; ${metadata.node}; jsdom v${metadata.jsdom}`,
         `${metadata.timestamp.slice(0, 10)} · ${metadata.candidateCommit.slice(0, 8)}`,
       ),
     )
