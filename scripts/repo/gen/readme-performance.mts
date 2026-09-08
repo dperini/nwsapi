@@ -53,7 +53,7 @@ writeFileSync(
           ` · Node.js ${data.metadata.node} · ${data.metadata.cpu}`,
         ],
       ],
-      [2, 3, 4],
+      [1, 2, 3, 4],
     ),
   }),
 )

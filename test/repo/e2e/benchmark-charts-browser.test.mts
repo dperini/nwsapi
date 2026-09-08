@@ -59,7 +59,10 @@ describe.skipIf(!process.env.NWSAPI_BROWSER)('chart animation', () => {
       expect(bounds.padding).toBeGreaterThanOrEqual(39)
       expect(bounds.overflow).toBe(false)
       expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
-      expect(bounds.firstNoteWidth).toBeGreaterThan(950)
+      expect(bounds.firstNoteWidth).toBeGreaterThan(650)
+      expect(bounds.noteText[1]).toBe(
+        'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
+      )
       expect(bounds.noteText.slice(-3)[0]).toMatch(/^Cold speedups/)
       expect(bounds.noteText.slice(-3)[1]).toMatch(/^nwsapi v/)
       expect(bounds.noteText.slice(-3)[2]).toMatch(/^Direct engine API/)
