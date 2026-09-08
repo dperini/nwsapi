@@ -2,11 +2,12 @@
 
 **36 of 36 lower all-results medians**, with **32 at least 2× faster**, against
 `@asamuzakjp/dom-selector` 8.3.2. The first-match comparison records
-**1.6–8.2× faster first matches** across 12 nonempty component queries.
+**1.3–13.8× faster cold queries** and **1.8–12.9× faster warm queries** across
+12 nonempty component queries.
 
 These results describe the current 2.3.0-prerelease source on Node.js 26.5.0,
-jsdom 30.0.1, and an Apple M3 Max. They measure warm queries on the listed
-fixtures. NWSAPI is called directly; jsdom's public selector methods include
+jsdom 30.0.1, and an Apple M3 Max. The all-results suite measures warm queries. The first-match chart compares
+cold and warm queries on the listed test pages. NWSAPI is called directly; jsdom's public selector methods include
 integration overhead. Some margins are small and samples vary with machine
 load. These measurements do not establish a win for every possible selector,
 a cold-start improvement, browser speed, or whole-application performance.
@@ -18,10 +19,17 @@ all samples, call counts, versions, and source hashes.
 
 ## First matches
 
+![Cold and warm first-match times](../assets/repo/bench/perf-hero.svg?v=6)
+
+See [how cold and warm queries are measured](#cold-and-warm-queries).
+
 First-match plans reuse parsed candidates and compiled predicates, and stop
 once each selector group has a result. The simple class/tag paths avoid
 compilation entirely. Single-element positional checks avoid building full
 sibling indexes. See the [performance guide](performance.md).
+
+<details>
+<summary>Earlier warm-only results</summary>
 
 | Query                    | NWSAPI (µs) | jsdom default (µs) | Speedup |
 | ------------------------ | ----------: | -----------------: | ------: |
@@ -44,6 +52,8 @@ The generated component fixture contains 300 cards.
 [Raw samples and source hashes](../assets/repo/bench/first-match-results.json)
 also include the saved pre-change build and two absent-match cases. Both absent-match cases are faster than jsdom's default engine in this run.
 The table uses microseconds; the all-results charts below use milliseconds.
+
+</details>
 
 <details>
 <summary>Repeat the first-match comparison</summary>
