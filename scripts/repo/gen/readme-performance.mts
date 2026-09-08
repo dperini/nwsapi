@@ -1,68 +1,104 @@
-import { refreshChartReferences } from './chart-references.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { queryStateNote } from '../bench/chart-theme.mts'
+import { refreshChartReferences } from './chart-references.mts'
+import { compactQueryChart } from '../bench/compact-query-chart.mts'
+import { geometricSpeedup, summaryChart } from '../bench/summary-chart.mts'
+import type { Measurement } from '../bench/charts.mts'
+import { kib } from '../bench/footprint-shared.mts'
 import type { QueryChartOptions } from '../bench/query-chart.mts'
-import { queryChart, wrapQueryNotes } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)
 const data: {
   rows: QueryChartOptions['rows']
-  metadata: { competitor: string; jsdom: string; node: string; cpu: string }
+  metadata: {
+    runtime: string
+    competitor: string
+    candidateVersion: string
+    cpu: string
+  }
 } = JSON.parse(
   readFileSync(
     new URL('assets/repo/bench/first-query-states.json', root),
     'utf8',
   ),
 )
-const rows = data.rows
-if (
-  rows.length !== 12 ||
-  rows.some(row =>
-    [...row.warm, ...row.cold].some(
-      value => !Number.isFinite(value) || value <= 0,
-    ),
-  )
-) {
+if (!data.metadata.runtime?.startsWith('Chromium')) {
   throw new Error(
-    'Review the chart layout and measurements when query fixtures change',
+    'Regenerate standalone browser measurements before publishing the hero.',
   )
 }
-const ratios = rows.map(row => row.warm[1] / row.warm[0])
-const range = `${Math.min(...ratios).toFixed(1)}–${Math.max(...ratios).toFixed(1)}×`
-const coldRatios = rows.map(row => row.cold[1] / row.cold[0])
-const coldRange = `${Math.min(...coldRatios).toFixed(1)}–${Math.max(...coldRatios).toFixed(1)}×`
 writeFileSync(
-  new URL('assets/repo/bench/perf-hero.svg', root),
-  queryChart({
+  new URL('assets/repo/bench/first-matches.svg', root),
+  compactQueryChart({
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
-    rows,
-    metadataStart: 3,
-    notes: await wrapQueryNotes(
-      [
-        'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
-        queryStateNote,
-        `Cold speedups were ${coldRange}. Warm speedups were ${range}.`,
-        [
-          { code: 'nwsapi' },
-          ' v2.3.0-prerelease · ',
-          { code: '@asamuzakjp/dom-selector' },
-          ` v${data.metadata.competitor} · `,
-          { code: 'jsdom' },
-          ` v${data.metadata.jsdom}`,
-        ],
-        [
-          'Direct engine API ',
-          { code: 'first()' },
-          ' vs ',
-          { code: 'jsdom' },
-          ' ',
-          { code: 'querySelector()' },
-          ` · Node.js ${data.metadata.node} · ${data.metadata.cpu}`,
-        ],
-      ],
-      [1, 2, 3, 4],
-    ),
+    rows: data.rows
+      .toSorted((a, b) => b.warm[1] / b.warm[0] - a.warm[1] / a.warm[0])
+      .slice(0, 4),
+    notes: [
+      'Cold: first query on a fresh engine/document. Warm: repeated query. Setup excluded.',
+      `Direct first() / querySelector() · ${data.metadata.runtime} · ${data.metadata.cpu}`,
+      `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · No jsdom`,
+    ],
   }),
 )
-
+const reports: Array<{ rows: Measurement[] }> = [
+  'results.json',
+  'documentation/results.json',
+  'atomic/results.json',
+].map(file =>
+  JSON.parse(readFileSync(new URL('assets/repo/bench/' + file, root), 'utf8')),
+)
+const rows = reports.flatMap(report => report.rows)
+const speedup = geometricSpeedup(rows)
+const memory: {
+  metadata: { queries: number }
+  rows: Array<{ queried: { median: number } }>
+} = JSON.parse(
+  readFileSync(
+    new URL('assets/repo/bench/memory-footprint.json', root),
+    'utf8',
+  ),
+)
+const sizes: { rows: Array<{ brotli: number }> } = JSON.parse(
+  readFileSync(new URL('assets/repo/bench/file-size.json', root), 'utf8'),
+)
+const heap: [number, number] = [
+  memory.rows[0]!.queried.median,
+  memory.rows[1]!.queried.median,
+]
+const bytes: [number, number] = [sizes.rows[0]!.brotli, sizes.rows[1]!.brotli]
+const reduction = (values: [number, number], labels: [string, string]) =>
+  `${(Math.abs(1 - values[0] / values[1]) * 100).toFixed(1)}% ${labels[values[0] <= values[1] ? 0 : 1]}`
+writeFileSync(
+  new URL('assets/repo/bench/perf-hero.svg', root),
+  summaryChart(
+    [
+      {
+        title: 'Performance',
+        detail: 'Warm all-results queries · Relative query time',
+        headline: `${Math.max(speedup, 1 / speedup).toFixed(2)}× ${speedup >= 1 ? 'faster' : 'slower'}`,
+        values: [1 / speedup, 1],
+        labels: [(1 / speedup).toFixed(2) + '×', '1.00×'],
+      },
+      {
+        title: 'Memory footprint',
+        detail: `Retained heap per engine after ${memory.metadata.queries} distinct queries`,
+        headline: reduction(heap, ['less memory', 'more memory']),
+        values: heap,
+        labels: [kib(heap[0]), kib(heap[1])],
+      },
+      {
+        title: 'File size',
+        detail: 'Brotli-compressed browser JavaScript',
+        headline: reduction(bytes, ['smaller', 'larger']),
+        values: bytes,
+        labels: [kib(bytes[0]), kib(bytes[1])],
+      },
+    ],
+    [
+      'Standalone libraries, no jsdom. Performance: geometric mean of query speedups. Memory: native DOM excluded.',
+      `Browser core / full comparison bundle · Brotli quality 11 · ${data.metadata.runtime} · ${data.metadata.cpu}`,
+      `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · Methodology: docs/benchmarks.md`,
+    ],
+  ),
+)
 refreshChartReferences()

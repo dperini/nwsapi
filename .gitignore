@@ -8,12 +8,14 @@
 !/.gitignore
 !/.gitmodules
 !/.npmrc
+!/AGENTS.md
 !/LICENSE
 !/README.md
 !/THANKS.md
 !/package.json
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
+!/vitest.config.mts
 
 # Maintained file types, scoped to their source trees.
 !/.config/**/*.json
@@ -63,6 +65,7 @@
 # Generated output and vendored dependencies override file-type opt-ins.
 **/node_modules/
 /.cache/
+/.vitiate/
 /.tmp/
 /.pnpm-store/
 /coverage/

@@ -6,10 +6,12 @@ import type { Measurement } from './charts.mts'
 interface ChartMetadata {
   fixture: string
   node: string
-  jsdom: string
+  jsdom?: string
+  runtime?: string
   rounds: number
   timestamp: string
-  candidateCommit: string
+  candidateCommit?: string
+  candidateSha256?: string
   engines: Array<{ name: string }>
 }
 
@@ -46,8 +48,8 @@ export function writeBenchmarkCharts(
           engine.name.replace(/ (\d+\.\d+\.\d+)/, ' v$1'),
         ),
         group.rows,
-        `${fixtureLabels[metadata.fixture] ?? 'Query fixture'} · Node.js ${metadata.node} · \`jsdom\` v${metadata.jsdom}`,
-        `${metadata.timestamp.slice(0, 10)} · ${metadata.candidateCommit.slice(0, 8)}`,
+        `${fixtureLabels[metadata.fixture] ?? 'Query fixture'} · ${metadata.runtime ?? `Node.js ${metadata.node} · jsdom v${metadata.jsdom}`} · direct library APIs`,
+        `${metadata.timestamp.slice(0, 10)} · ${(metadata.candidateSha256 ?? metadata.candidateCommit ?? '').slice(0, 8)}`,
       ),
     )
   }

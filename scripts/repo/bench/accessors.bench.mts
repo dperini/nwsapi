@@ -410,7 +410,7 @@ if (values.markdown) {
   console.log(`| ${'-'.repeat(width)} | -------- |`)
   for (const row of rows) {
     console.log(
-      `| ${`\`${row.label}\``.padEnd(width)} | ${row.ms.toFixed(3)} ms |`,
+      `| ${`\`${row.label}\``.padEnd(width)} | ${row.ms.toFixed(3)}ms |`,
     )
   }
 } else {
@@ -419,7 +419,7 @@ if (values.markdown) {
   )
   const width = Math.max(...rows.map(row => row.label.length))
   for (const row of rows) {
-    console.log(`  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)} ms`)
+    console.log(`  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)}ms`)
   }
 }
 
@@ -451,7 +451,7 @@ for (const choice of CHOICES) {
     console.log(`| ${'-'.repeat(width)} | -------- |`)
     for (const row of timed) {
       console.log(
-        `| ${`\`${row.label}\``.padEnd(width)} | ${row.ms.toFixed(3)} ms |`,
+        `| ${`\`${row.label}\``.padEnd(width)} | ${row.ms.toFixed(3)}ms |`,
       )
     }
   } else {
@@ -460,7 +460,7 @@ for (const choice of CHOICES) {
     const width = Math.max(...timed.map(row => row.label.length))
     for (const row of timed) {
       console.log(
-        `  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)} ms` +
+        `  ${row.label.padEnd(width)}  ${row.ms.toFixed(3)}ms` +
           (row === timed[0] ? '' : `   ${(row.ms / timed[0]!.ms).toFixed(2)}x`),
       )
     }

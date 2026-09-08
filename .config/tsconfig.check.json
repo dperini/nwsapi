@@ -33,6 +33,7 @@
     "noEmit": true
   },
   "include": [
+    "../vitest.config.mts",
     "../bin/**/*.mts",
     "../src/**/*.mts",
     "../scripts/repo/**/*.mts",

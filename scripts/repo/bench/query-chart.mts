@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
-import { escapeText } from './charts.mts'
+import { escapeText, unitText } from './charts.mts'
 import {
   chartBackground,
   chartColors,
@@ -138,8 +138,8 @@ export function queryChart({
       .join('') +
     Array.from({ length: span + 1 }, (_, index) => {
       const value = 10 ** (low + index)
-      const label = value >= 1000 ? `${value / 1000} ms` : `${value} μs`
-      return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${label}</text>`
+      const label = value >= 1000 ? `${value / 1000}ms` : `${value}μs`
+      return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${unitText(label)}</text>`
     }).join('')
   const lines = rows
     .map((row, i) => {
@@ -150,7 +150,7 @@ export function queryChart({
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${unitText(label)}</tspan>`
         })
         .join('')
       return (
@@ -162,7 +162,7 @@ export function queryChart({
             const top = y + series * 12
             const warm = position(row.warm[series]!)
             const cold = position(row.cold[series]!)
-            const summary = `Cold ${row.cold[series]!.toFixed(2)} ms · Warm ${(row.warm[series]! * 1000).toFixed(2)} μs`
+            const summary = `Cold ${row.cold[series]!.toFixed(2)}ms · Warm ${(row.warm[series]! * 1000).toFixed(2)}μs`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
       <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
       <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>
