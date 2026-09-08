@@ -29,7 +29,7 @@ writeFileSync(
     names: ['nwsapi', '@asamuzakjp/dom-selector'],
     rows,
     notes: [
-      'Queries cover common component lookups and Selectors Level 4 features. All return a match.',
+      'Queries model component trees, Tailwind-style classes, and Testing Library test IDs.',
       'Warm queries repeat a selector. Cold queries run it first on a fresh document.',
       `Warm speedups were ${range}. Cold results vary. Both engines use the same logarithmic scale.`,
       [

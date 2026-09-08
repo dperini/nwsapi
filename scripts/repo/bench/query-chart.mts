@@ -79,7 +79,7 @@ export function queryChart({
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${faster ? colors[0][index] : '#ef9bc9'}">${label}</tspan>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${index === 0 ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
         })
         .join('')
       return (

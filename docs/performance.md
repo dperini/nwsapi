@@ -30,13 +30,13 @@ The [profile data](../assets/repo/bench/v8-analysis.json) records source hashes,
 
 The percentages below describe samples taken while a function itself was running. They exclude samples from functions it called. They are estimates, not exact elapsed times. Do not add percentages from separate phases.
 
-| Phase | Samples | Main observations |
-| --- | ---: | --- |
-| Cold compilation | 471 | `compile` used 79.6% of samples. `compileSelector` used 8.9%. Garbage collection used 3.0%. |
-| All-results selection | 6,560 | `byTag` used 11.0%. Attribute lookup used 7.8%. The public selection function used 6.9%. Resolvers used 6.6%. |
-| First match | 1,097 | Query-plan execution used 18.4%. Attribute lookup used 15.1%. Collection property checks used 14.8%. Resolvers used 8.4%. |
-| Single-element match | 1,216 | Resolvers used 18.9%. Cache lookups used 18.4%. The code that chose the matching function used 6.7%. |
-| Raw resolver execution | 9,930 | Resolvers used 18.3%. `localName` reads used 9.5%. Ancestor filters used 9.4%. |
+| Phase                  | Samples | Main observations                                                                                                         |
+| ---------------------- | ------: | ------------------------------------------------------------------------------------------------------------------------- |
+| Cold compilation       |     471 | `compile` used 79.6% of samples. `compileSelector` used 8.9%. Garbage collection used 3.0%.                               |
+| All-results selection  |   6,560 | `byTag` used 11.0%. Attribute lookup used 7.8%. The public selection function used 6.9%. Resolvers used 6.6%.             |
+| First match            |   1,097 | Query-plan execution used 18.4%. Attribute lookup used 15.1%. Collection property checks used 14.8%. Resolvers used 8.4%. |
+| Single-element match   |   1,216 | Resolvers used 18.9%. Cache lookups used 18.4%. The code that chose the matching function used 6.7%.                      |
+| Raw resolver execution |   9,930 | Resolvers used 18.3%. `localName` reads used 9.5%. Ancestor filters used 9.4%.                                            |
 
 Garbage collection releases memory that the program no longer needs. Ancestor filters help the engine skip elements whose parents cannot satisfy a selector.
 
@@ -74,15 +74,15 @@ We inspected V8 bytecode and optimized ARM64 machine code. We checked array boun
 
 ## Which changes we kept
 
-| Experiment | Decision |
-| --- | --- |
-| Compile first-match plans. | We kept this change. Warm calls reuse parsing and planning work, and the engine does not collect every result. |
-| Count siblings in the required direction. | We kept this change for single-element matching. It skips siblings that cannot affect the answer. |
-| Use `charCodeAt()` in three selector scans. | We kept this change as a project preference. Comments show the character represented by each number. The corrected cold-query comparison ranged from about equal performance to a 6% improvement. This does not prove that all queries became faster. |
-| Copy collection entries by index. | We kept this change in a later update for dense tag collections. The engine allocates the result array at the required size. The earlier experiment did not show a consistent improvement across complete queries. |
-| Pass live collections to all-results resolvers. | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots remained useful for resolver execution. |
-| Reuse progress through adjacent siblings. | We revised and kept this change for forward `an+b` position formulas. It uses the existing helper when candidates are far apart. Callbacks, reverse searches, and legacy paths keep their existing helpers. |
-| Call collection `item()` while finding the first match. | We rejected this change. The method call cost more than the length read it avoided. A limited search by index performed better. |
+| Experiment                                              | Decision                                                                                                                                                                                                                                              |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compile first-match plans.                              | We kept this change. Warm calls reuse parsing and planning work, and the engine does not collect every result.                                                                                                                                        |
+| Count siblings in the required direction.               | We kept this change for single-element matching. It skips siblings that cannot affect the answer.                                                                                                                                                     |
+| Use `charCodeAt()` in three selector scans.             | We kept this change as a project preference. Comments show the character represented by each number. The corrected cold-query comparison ranged from about equal performance to a 6% improvement. This does not prove that all queries became faster. |
+| Copy collection entries by index.                       | We kept this change in a later update for dense tag collections. The engine allocates the result array at the required size. The earlier experiment did not show a consistent improvement across complete queries.                                    |
+| Pass live collections to all-results resolvers.         | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots remained useful for resolver execution.                                                                           |
+| Reuse progress through adjacent siblings.               | We revised and kept this change for forward `an+b` position formulas. It uses the existing helper when candidates are far apart. Callbacks, reverse searches, and legacy paths keep their existing helpers.                                           |
+| Call collection `item()` while finding the first match. | We rejected this change. The method call cost more than the length read it avoided. A limited search by index performed better.                                                                                                                       |
 
 The compiler also uses numeric ASCII checks to choose how to process a token. A **token** is a part of a selector, such as a name or operator. Namespace and extension handling still use their existing paths.
 
@@ -146,3 +146,36 @@ The benchmark set does not cover every selector or application. Further work sho
 For each new optimization, check short and long searches. Check dense and sparse candidates. Check early matches, late matches, and no matches. Also check DOM changes and different query contexts. Compare results with an independent implementation.
 
 These profiles do not justify a complete parser rewrite, a new syntax-tree format, cached query results, or converting every string to a number. Add that complexity only when measurements show a useful improvement.
+
+## Cold first-match class queries
+
+A fresh jsdom class collection walks the subtree and creates class-token objects. Reading its first item can therefore process thousands of elements. The first-match compiler was not the main cost for simple class queries.
+
+The engine now checks a prefix of at most 16 elements before it requests the full collection. It caches class candidates from that prefix. A mutation observer checks pending changes synchronously before each reuse. Tag checks and compiled conditions still run on every call. Late and missing matches use the existing collection path. Quirks mode keeps the existing class lookup.
+
+The initial experiment walked this prefix on every query. It removed the cold losses but slowed warm class queries to 0.87–1.96 μs. The candidate cache reduced those times to 0.40–0.54 μs, with a modest warm cost compared with the earlier 0.35–0.50 μs results. The gain is lower cold cost, not a claim that every warm operation improved.
+
+| Query                    | Earlier cold NWSAPI (ms) | Updated cold NWSAPI (ms) | Competitor (ms) | Cold speedup |
+| ------------------------ | -----------------------: | -----------------------: | --------------: | -----------: |
+| `.card`                  |                    1.897 |                    0.096 |           1.151 |        12.0× |
+| `button.primary`         |                    1.809 |                    0.093 |           1.154 |        12.4× |
+| `input.input`            |                    1.779 |                    0.093 |           1.152 |        12.4× |
+| `.card > button.primary` |                    2.090 |                    0.170 |           1.143 |         6.7× |
+
+The new run has lower medians for all 12 warm queries and all 12 cold queries. It uses the same fixture, nine rounds, and separate documents for each engine. See the [raw samples](../assets/repo/bench/first-query-states.json). Earlier and updated measurements came from separate runs, so small differences can include timing noise.
+
+A separate interleaved comparison with the previous build checked warm queries, including empty results. The new early class path added about 0.04–0.08 μs per query in that run. The missing-class query increased from 0.38 to 0.58 μs. The absent ancestor query changed from 86.8 to 89.8 μs. Both empty-result queries remained faster than the competitor. This is the measured cost of checking the prefix before the fallback.
+
+The focused V8 profile prepares 40 separate documents before sampling. Before the change it recorded 666 samples; after the change it recorded 119. The earlier profile had 78 samples in jsdom class-token parsing and 50 in DOMTokenList setup. The updated profile had 37 in selector parsing, 14 in collection planning, and 11 in the prefix helper. Sampling counts are diagnostic evidence, not benchmark timings.
+
+The optimization trace showed early map and call-target deoptimizations across document realms. The query entry point and compiled first-match dispatcher later reached TurboFan. The prefix helper reached Maglev. This does not establish that all deoptimizations are avoidable. The retained change reduces DOM work instead of depending on a particular V8 tier.
+
+Reproduce the profiles with these commands. Profile files use an operating-system temporary directory by default.
+
+```sh
+node scripts/repo/bench/cold-first-profile.mts
+node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first
+node bin/nwsapi compile --mode match ".card > button.primary"
+```
+
+See [V8 profiling guidance](https://v8.dev/docs/profile) for the sampling approach.

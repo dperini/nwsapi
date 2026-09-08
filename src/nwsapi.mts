@@ -4220,6 +4220,126 @@
     firstMatch = function firstMatch() {
       return false
     },
+    firstRoots = null,
+    // Cache only a bounded candidate prefix. Recheck tag and resolver state
+    // on every call; synchronous mutation records invalidate class membership.
+    firstClass = function (context, name, tag?, resolver?) {
+      var element,
+        next,
+        value,
+        offset,
+        before,
+        after,
+        state,
+        cached,
+        nodes,
+        candidates,
+        i,
+        view,
+        owner = context.ownerDocument || context
+      if (QUIRKS_MODE) {
+        return null
+      }
+      if (
+        typeof WeakRef == 'function' &&
+        (view = owner.defaultView) &&
+        view.MutationObserver
+      ) {
+        firstRoots || (firstRoots = createWeakMap())
+        state = firstRoots && firstRoots.get(context)
+        if (!state && firstRoots) {
+          state = {
+            copies: createWeakMap(),
+            observer: null,
+            document: new WeakRef(owner),
+          }
+          state.observer = Factory['_observeCollections'](context, view, state)
+          firstRoots.set(context, state)
+        }
+        if (state) {
+          if (
+            state.observer.takeRecords().length ||
+            state.document.deref() !== owner
+          ) {
+            state.copies = createWeakMap()
+            state.document = new WeakRef(owner)
+          }
+          cached = state.copies.get(context)
+        }
+      }
+      if (!cached) {
+        nodes = []
+        element = context.firstElementChild
+        while (element && nodes.length < 16) {
+          nodes[nodes.length] = element
+          next = element.firstElementChild
+          if (!next) {
+            while (
+              element !== context &&
+              !(next = element.nextElementSibling)
+            ) {
+              element = element.parentNode
+              if (!element) {
+                break
+              }
+            }
+            if (!element || element === context) {
+              break
+            }
+          }
+          element = next
+        }
+        cached = { nodes: nodes, classes: createCache(64) }
+        state && state.copies.set(context, cached)
+      }
+      candidates = cached.classes.get(name)
+      if (!candidates) {
+        candidates = []
+        for (i = 0; i < cached.nodes.length; ++i) {
+          element = cached.nodes[i]
+          value = classOf(element)
+          offset = -1
+          while (value && (offset = value.indexOf(name, offset + 1)) >= 0) {
+            before = offset ? value.charCodeAt(offset - 1) : 32 /* space */
+            after =
+              offset + name.length < value.length
+                ? value.charCodeAt(offset + name.length)
+                : 32 /* space */
+            if (
+              (before == 32 /* space */ ||
+                before == 9 /* tab */ ||
+                before == 10 /* LF */ ||
+                before == 12 /* FF */ ||
+                before == 13) /* CR */ &&
+              (after == 32 /* space */ ||
+                after == 9 /* tab */ ||
+                after == 10 /* LF */ ||
+                after == 12 /* FF */ ||
+                after == 13) /* CR */
+            ) {
+              candidates[candidates.length] = element
+              break
+            }
+          }
+        }
+        cached.classes.set(name, candidates)
+      }
+      for (i = 0; i < candidates.length; ++i) {
+        element = candidates[i]
+        if (
+          (!tag ||
+            tag == '*' ||
+            element.localName == tag ||
+            (HTML_DOCUMENT &&
+              element.namespaceURI == NAMESPACE &&
+              element.localName == tag.toLowerCase())) &&
+          (!resolver || resolver(element, null, context, false))
+        ) {
+          return element
+        }
+      }
+      return null
+    },
     first = function _querySelector(selectors, context, callback) {
       var element, match, collection, i, length
       if (arguments.length === 0) {
@@ -4266,6 +4386,13 @@
           context.getElementsByClassName
         ) {
           lastContext !== context && (lastContext = switchContext(context))
+          element = match[2] && firstClass(context, match[2], match[1])
+          if (element) {
+            if (typeof callback == 'function') {
+              callback(element)
+            }
+            return element
+          }
           collection = match[2]
             ? context.getElementsByClassName(match[2])
             : context.getElementsByTagName(match[1])
@@ -4336,6 +4463,16 @@
         token = plan.nodeset[i]
         name = token.slice(1)
         api = method[token[0]]
+        result =
+          token.charCodeAt(0) == 46 /* '.' */ &&
+          !/[\t\n\f\r ]/.test(name) &&
+          firstClass(context, name, null, plan.factory[i])
+        if (result) {
+          if (!element || result.compareDocumentPosition(element) & 4) {
+            element = result
+          }
+          continue
+        }
         collection =
           !Config.LEGACY &&
           (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
