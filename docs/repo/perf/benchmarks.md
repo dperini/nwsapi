@@ -66,7 +66,7 @@ The fixture contains component, utility-class and test-ID patterns. It does not 
 
 Each line connects cold and warm times on a shared logarithmic scale. Further left means less time.
 The SVG tooltips retain absolute timing values.
-See the [performance guide](guide.md) for compiler implementation details.
+See the [performance design](design.md) for compiler implementation details.
 
 </details>
 

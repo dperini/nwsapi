@@ -5,7 +5,7 @@ Commits `0b3840b` and `b68e020` added the first changes described here.
 They followed the [performance review](review.md).
 
 The measurements on this page describe those earlier changes.
-See the [performance guide](guide.md) and [benchmark report](benchmarks.md) for later results.
+See the [performance design](design.md) and [benchmark report](benchmarks.md) for later results.
 
 ## What changed
 

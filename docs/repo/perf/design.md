@@ -1,6 +1,6 @@
-# Performance
+# Performance design
 
-See [shared measurement guidance](../../fleet/perf/measurement.md) for experiment design and interpretation.
+See [shared performance practices](../../fleet/perf/practices.md) for experiment design and interpretation.
 
 NWSAPI reads CSS selectors and creates JavaScript functions that test elements.
 It saves these functions so later queries can reuse them.

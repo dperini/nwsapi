@@ -2,7 +2,7 @@
 
 See [shared testing layout](../../fleet/testing/layout.md) and [practices](../../fleet/testing/practices.md). Repository details are in [coverage](coverage.md), [fuzzing](fuzzing.md), and [upstream testing](upstream.md).
 
-The unit suite has a **10,000ms wall-clock budget**, following socket-wheelhouse's fast tier. The package runner enforces the [shared wall-clock budget principles](../../fleet/testing/practices.md#enforce-budgets-without-losing-coverage).
+The unit suite has a **10,000ms wall-clock budget**, following the fleet's fast tier. The package runner enforces the [shared time-budget practices](../../fleet/testing/performance.md#keep-the-lanes-within-their-budgets).
 
 | Command                            | Scope                                     |            Budget |
 | ---------------------------------- | ----------------------------------------- | ----------------: |

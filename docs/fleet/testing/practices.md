@@ -1,29 +1,33 @@
 # Testing practices
 
-These practices apply across fleet repositories. Each repository documents its commands, execution budgets, coverage requirements, and fixtures under `docs/repo/testing/`.
+Test the behavior that callers depend on. Check returned values, exit codes, structured output, and state changes. A test that copies the production algorithm can repeat the same defect and still pass.
 
-## Test behavior and stable contracts
+## Test stable behavior
 
-Exercise the actual implementation. Assert returned values, exit codes, state changes, and structured output. Avoid coupling a behavioral test to incidental wording or source layout. Reimplementing production logic inside a test can let both copies share the same defect.
+Use the [test quality guidance](quality.md) when reviewing assertions, checking code structure with parsers, or consolidating cases.
 
-Use the [shared test layout](layout.md) to separate suites, reusable helpers, and fixture data.
+Avoid assertions tied to incidental wording or source layout. When text is part of a public contract, test that contract explicitly. Keep regression cases for behavior changes, even when the coverage percentage stays the same.
 
-## Isolate fixtures and external effects
+Use the [test layout](layout.md) to place suites and helpers. Follow the [isolation practices](isolation.md) for tests that change files, environment variables, or process state.
 
-Keep mutable state local to each fixture. Restore mocks, environment changes, and shared module state. Use isolated processes when a test cannot safely share a worker.
+## Control external dependencies
 
-Create temporary fixtures with a unique directory under the operating system's temporary directory and register cleanup. Redirect child-process caches and configuration into the fixture while preserving access to the intended toolchain. Availability probes need the same isolation as the commands they precede.
+Use local fixtures or controlled local servers for network behavior. Block unexpected external connections so a missing mock fails the test. Dependency installation and pinned upstream checkout setup happen separately from test execution. The [network rules](../agents.md/no-live-network-in-tests.md) describe the required controls.
 
-Keep tests independent of live external services. Use local fixtures or controlled servers for network behavior. Dependency installation and pinned upstream checkout setup are separate from test execution. See [Wheelhouse's network isolation guidance](https://github.com/SocketDev/socket-wheelhouse/blob/main/docs/fleet/agents.md/no-live-network-in-tests.md).
+## Keep the full command within its budget
 
-## Enforce budgets without losing coverage
+Follow the [test performance guidance](performance.md) when profiling the runner or changing its configuration.
 
-A suite's wall-clock budget includes startup, build, collection, execution, and reporting. Per-test timeouts do not bound the whole command or reliably stop synchronous hangs. Run the repository's budgeted entry points for verification.
+A suite's elapsed time includes startup, builds, test discovery, execution, and reporting. A timeout on one test does not limit the whole command. It may also fail to interrupt code that blocks the current process.
 
-Improve startup and fixture costs when a fast tier exceeds its budget. Put tests that require subprocesses or shared-state mutation in a suitable isolated tier, and keep that tier in CI. Changing tiers must not silently remove coverage.
+Use the repository's test entry points. If a fast suite exceeds its budget, inspect startup and fixture costs. Move a test to another tier only when that tier fits its resource needs and remains part of CI.
 
-Coverage measures execution, not semantic compatibility. Verify required modules participate in the report, retain regression cases for behavior changes, and distinguish measured coverage from claimed API compatibility.
+## Check coverage data before trusting the percentage
 
-## Normalize coverage reports
+Follow the [coverage guidance](coverage.md) for cumulative reports, thresholds, testable methods, mocks, environment helpers, and justified exceptions.
 
-Canonicalize live and persisted coverage locations before merging. JSON serializes infinite end columns as `null`, so merging the two forms directly can count one statement twice. The [Wheelhouse coverage normalization helper](https://github.com/SocketDev/socket-wheelhouse/blob/main/template/base/universal/scripts/fleet/util/coverage-normalize.mts) handles this boundary. Verify repeated merges and input immutability. Repositories define their own coverage targets, required modules, and enforcement commands.
+Coverage shows which code ran. It does not prove that the behavior is correct. Verify that required modules appear in the report and follow the [coverage rules](../agents.md/coverage-ratchet.md).
+
+Normalize recorded source locations before merging coverage reports. For example, JSON turns an infinite end-column value into `null`. Merging the original and serialized forms without normalization can count one statement twice. The shared `scripts/fleet/util/coverage-normalize.mts` helper handles this conversion. Check that repeated merges produce the same result and leave their inputs unchanged.
+
+A cached successful type check also needs validation. A declaration-only change must invalidate any earlier result that depended on it. Test a successful check, a declaration change that should fail, and a restored declaration that should pass. Keep compiler versions and reproductions in the repository's testing documents.

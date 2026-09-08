@@ -4,7 +4,7 @@ Coverage reports measure all published JavaScript in `src`, including the engine
 
 The recorded run measures 99.06% statements, 95.70% branches, 98.67% functions, and 99.03% lines. Both the engine and adapter exceed 95% on every metric; the adapter and both optional modules reach 100%. The enforced floors are 98% statements, functions, and lines, and 95.1% branches. The executable `bin/nwsapi.js` has a separate 100% statement, branch, function, and line assertion using raw V8 coverage from real processes. Those processes exercise the shebang, arguments, standard output, error output, and exit status from a foreign working directory. Compiler mode and flag permutations run in process to keep the integration tier short.
 
-Coverage merging uses the shared [report normalization practices](../../fleet/testing/practices.md#normalize-coverage-reports). Regression tests protect repeated merges and input immutability.
+Coverage merging uses the shared [report normalization practices](../../fleet/testing/practices.md#check-coverage-data-before-trusting-the-percentage). Regression tests protect repeated merges and input immutability.
 
 Custom API regressions exercise registered selectors and operators across legacy and modern modes, cold and cached queries, DOM mutations, and callback termination. Adapter contract tests check throwing and `noexcept` behavior for all four query methods, independent fallback arrays and subject hints, and shared instances after cache clearing and synchronous mutations.
 
