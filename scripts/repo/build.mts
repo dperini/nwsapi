@@ -1,4 +1,5 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { build } from 'rolldown'
 import { minify, transform } from 'rolldown/utils'
 import { entries } from '../../.config/build.config.mts'
 
@@ -43,5 +44,14 @@ if (!result.code) {
 
 await mkdir('./dist', { recursive: true })
 await writeFile('./dist/nwsapi.min.js', `${banner}\n${result.code}\n`, 'utf8')
+
+// Keep Node and optional DOM dependencies outside the CommonJS CLI bundle.
+await build({
+  input: './scripts/repo/cli.mts',
+  platform: 'node',
+  external: ['jsdom', 'css-tree'],
+  output: { file: './dist/cli.js', format: 'cjs' },
+})
+await chmod('./bin/nwsapi.js', 0o755)
 
 console.error('Built published JavaScript files')

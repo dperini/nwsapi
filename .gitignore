@@ -26,6 +26,7 @@
 !/assets/**/*.json
 !/assets/**/*.svg
 !/bin/nwsapi
+!/bin/*.mts
 !/docs/**/*.md
 !/scripts/**/*.mts
 !/src/**/*.mts

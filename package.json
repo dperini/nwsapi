@@ -30,7 +30,12 @@
     "type": "git",
     "url": "https://github.com/dperini/nwsapi.git"
   },
+  "bin": {
+    "nwsapi": "./bin/nwsapi.js"
+  },
   "files": [
+    "bin/nwsapi.js",
+    "dist/cli.js",
     "dist/nwsapi.min.js",
     "src/**/*.js"
   ],
@@ -78,7 +83,7 @@
     "test:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e && pnpm run test:media",
     "test:media": "node scripts/repo/run.mts scripts/repo/build.mts && node scripts/repo/run.mts node_modules/@playwright/test/cli.js test --config .config/state-pseudos.config.mts",
     "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts",
-    "compile": "node bin/nwsapi compile",
+    "compile": "node bin/nwsapi.js compile",
     "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts"
   },
   "devDependencies": {
@@ -108,16 +113,16 @@
     "yaml": "catalog:"
   },
   "peerDependencies": {
-    "css-tree": "^3.2.1"
+    "css-tree": "^3.2.1",
+    "jsdom": "^30.0.1"
   },
   "peerDependenciesMeta": {
     "css-tree": {
       "optional": true
+    },
+    "jsdom": {
+      "optional": true
     }
-  },
-  "overrides": {
-    "rolldown": "$rolldown",
-    "vite": "$vite"
   },
   "devEngines": {
     "packageManager": [

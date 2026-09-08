@@ -1,7 +1,14 @@
 import { spawnSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 import { createRequire } from 'node:module'
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import {
+  copyFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -66,7 +73,7 @@ test('CLI dispatches commands and parses flags and literal selectors', async () 
 test('the executable runs from another directory and covers every entry-point branch', async t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-test-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  const bin = fileURLToPath(new URL('../../../bin/nwsapi', import.meta.url))
+  const bin = fileURLToPath(new URL('../../../bin/nwsapi.js', import.meta.url))
   // Real process boundaries remain covered; mode/parser permutations run above.
   const run = (...args: string[]) =>
     spawnSync(bin, args, {
@@ -123,6 +130,26 @@ test('the executable runs from another directory and covers every entry-point br
   expect(coverage.files()).toEqual([bin])
   const summary = coverage.getCoverageSummary()
   for (const metric of ['lines', 'statements', 'functions', 'branches']) {
-    expect(summary[metric].pct, `bin/nwsapi ${metric} coverage`).toBe(100)
+    expect(summary[metric].pct, `bin/nwsapi.js ${metric} coverage`).toBe(100)
   }
+})
+
+test('the compiled help runs without repository sources or optional peers', t => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-help-'))
+  t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
+  for (const file of ['bin/nwsapi.js', 'dist/cli.js']) {
+    const target = path.join(directory, file)
+    mkdirSync(path.dirname(target), { recursive: true })
+    const source = new URL(`../../../${file}`, import.meta.url)
+    const code = readFileSync(source, 'utf8')
+    expect(code).not.toMatch(/\bimport\s*\(/)
+    expect(code).not.toMatch(/require\(['"][^'"]+\.mts['"]\)/)
+    copyFileSync(source, target)
+  }
+  const result = spawnSync(process.execPath, ['bin/nwsapi.js', '--help'], {
+    cwd: directory,
+    encoding: 'utf8',
+  })
+  expect(result.status, result.stderr).toBe(0)
+  expect(result.stdout).toContain('Usage: nwsapi <command>')
 })

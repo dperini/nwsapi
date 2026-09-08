@@ -12,7 +12,8 @@
     "tsBuildInfoFile": "../.cache/tsconfig.check.tsbuildinfo",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": false
+    "strict": false,
+    "resolveJsonModule": true
   },
   "include": [
     "../src/**/*.mts",

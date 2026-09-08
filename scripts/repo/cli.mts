@@ -1,4 +1,5 @@
 import { parseArgs } from 'node:util'
+import { inspectSelector } from './compile.mts'
 
 export async function runCli(argv: string[]) {
   const [command, ...args] = argv
@@ -30,7 +31,7 @@ Options:
   -h, --help                    Show this help
 
 Use -- before a selector that starts with a dash.
-Requires repository development dependencies and a build.
+Requires the optional jsdom peer dependency (pnpm add jsdom).
 The resolver closes over engine Snapshot (s) and optional ancestor-filter state (a).
 This is compiler inspection output, not a standalone querySelectorAll implementation.`
     } else {
@@ -42,7 +43,6 @@ This is compiler inspection output, not a standalone querySelectorAll implementa
           'Expected one selector and a valid mode. Run nwsapi compile --help.',
         )
       }
-      const { inspectSelector } = await import('./compile.mts')
       return inspectSelector(positionals[0], values)
     }
   } else {
