@@ -14,11 +14,13 @@ pnpm exec playwright install --with-deps chromium
 ```
 
 The runner uses the pages in [the test manifest](../test/repo/e2e/upstream/manifest.mts).
-The September 2026 audit expanded it from 41 to **54 upstream pages**, alongside **17 local regression pages**. It does not run the complete WPT project.
+The September 2026 audit expanded it from 41 to **73 upstream pages**, alongside **18 local regression pages**. It does not run the complete WPT project.
 
-The audited run contains **5,286 subtests**: all pass, with zero expected failures and no filtered subtests. This covers the selected manifest, not the complete selector specification.
+The audited run contains **5,418 subtests**: all pass, with zero expected failures and no filtered subtests. This covers the selected manifest, not the complete selector specification.
 
-The added pages cover programmatic focus events, focus removal and hidden elements, top-layer focus behavior, disconnected language inheritance, and `moveBefore()` behavior for language, directionality, focus, modal dialogs, and popovers. The runner verifies replacement of all eight installed methods before each upstream page: `querySelector` and `querySelectorAll` on Document, Element, and DocumentFragment, plus Element `matches` and `closest`. Existing pages exercise these APIs, including scoped, XML, namespace, fragment, and ShadowRoot cases.
+The latest expansion adds HTML form-state and directionality tests, plus a local static NodeList contract across document, element, fragment, and shadow contexts. It found and fixed document `designMode` editability and disabled-fieldset inheritance for options and optgroups.
+
+The added pages also cover programmatic focus events, focus removal and hidden elements, top-layer focus behavior, disconnected language inheritance, and `moveBefore()` behavior for language, directionality, focus, modal dialogs, and popovers. The runner verifies replacement of all eight installed methods before each upstream page: `querySelector` and `querySelectorAll` on Document, Element, and DocumentFragment, plus Element `matches` and `closest`. Existing pages exercise these APIs, including scoped, XML, namespace, fragment, and ShadowRoot cases.
 
 Each page attaches a `wpt-subtests` JSON report with counts and failure names. The manifest documents exclusions: CSSOM-only assertions, screenshot reftests, manual/crash tests without harness results, testdriver-dependent interaction, and aliases NWSAPI does not replace. These would need different harness support or would only measure the browser's own engine.
 
@@ -33,7 +35,7 @@ The contributor `prepare` script fetches WPT, verifies the checkout, and install
 Published package installs do not run this setup.
 
 [.gitmodules](../.gitmodules) records the WPT revision, selected directories, and manifest hash.
-The checkout is ignored by Git. It is not a Git submodule.
+The checkout is ignored by Git and managed through this metadata, rather than a gitlink. The helper clones with `--depth=1 --single-branch --filter=blob:none --no-checkout`, applies cone-mode sparse checkout, and fetches the pinned revision at depth one. Verification checks the pin, shallow history, single-branch fetch refspec, sparse paths, and clean working tree. The sparse paths include `html/semantics/selectors`; the rest of WPT stays outside the checkout.
 
 > [!IMPORTANT]
 > Do not edit the upstream checkout. Setup refuses dirty checkouts and paths outside this repository.

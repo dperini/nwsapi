@@ -1,5 +1,7 @@
 import { Session } from 'node:inspector/promises'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { JSDOM } from 'jsdom'
@@ -7,13 +9,18 @@ import factory from '../../../src/nwsapi.js'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
 
-const [phase = 'select', output = '.tmp/nwsapi.cpuprofile'] =
-  process.argv.slice(2)
+const [phase = 'select', outputArgument] = process.argv.slice(2)
 if (!['select', 'first', 'match', 'cold', 'resolver'].includes(phase)) {
   throw new Error(
     'Usage: profile.mts <select|first|match|cold|resolver> <output.cpuprofile>',
   )
 }
+const output =
+  outputArgument ||
+  path.join(
+    mkdtempSync(path.join(os.tmpdir(), 'nwsapi-profile-')),
+    'nwsapi.cpuprofile',
+  )
 const worlds = Object.entries(cases).map(([name, groups]) => {
   const { window } = new JSDOM(DOCUMENTS[name].html())
   const engine = factory(window)
@@ -85,6 +92,7 @@ try {
     JSON.stringify(
       {
         phase,
+        output,
         iterations,
         sourceSha256: createHash('sha256')
           .update(

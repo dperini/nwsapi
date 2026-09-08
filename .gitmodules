@@ -6,6 +6,6 @@
 	url = https://github.com/web-platform-tests/wpt.git
 	branch = master
 	shallow = true
-	sparse-checkout = resources common dom/nodes css/selectors
+	sparse-checkout = resources common dom/nodes css/selectors html/semantics/selectors
 	verify = pnpm run test:upstream
 # no-release-tag: web-platform-tests publishes no release tags; pinned by ref on master

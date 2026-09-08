@@ -1,6 +1,13 @@
 import { spawnSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 import { createRequire } from 'node:module'
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { convert } from 'ast-v8-to-istanbul'
+import { parse } from 'acorn'
+import libCoverage from 'istanbul-lib-coverage'
 
 // Load these as Node does in the executable; avoid transforming jsdom's
 // dependency graph through the test runner merely to inspect generated text.
@@ -19,10 +26,15 @@ test('compiler inspection reports source, modes, helper bindings and identity se
   expect(inspect('.card', { mode: 'item' }).source).toContain('c.item(')
   expect(inspect('.card', { legacy: true }).legacy).toBe(true)
   expect(inspect('*').source).toBeNull()
+  expect(inspect('*').sourceBytes).toBe(0)
+  expect(inspect('*').helpers).toEqual([])
+  expect(inspectSelector('*')).toContain('Identity selection')
+  expect(inspectSelector('p')).toContain('function Resolver(')
 })
 
 test('CLI dispatches commands and parses flags and literal selectors', async () => {
   expect(await runCli([])).toContain('Usage: nwsapi <command>')
+  expect(await runCli(['-h'])).toContain('Usage: nwsapi <command>')
   expect(await runCli(['--help'])).toContain('Usage: nwsapi <command>')
   expect(await runCli(['compile', '-h'])).toContain('--mode')
   await expect(runCli(['unknown'])).rejects.toThrow('Unknown command "unknown"')
@@ -51,10 +63,21 @@ test('CLI dispatches commands and parses flags and literal selectors', async () 
   })
 })
 
-test('the executable forwards arguments, prints output, and fails on errors', () => {
+test('the executable runs from another directory and covers every entry-point branch', async t => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-test-'))
+  t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
+  const bin = fileURLToPath(new URL('../../../bin/nwsapi', import.meta.url))
   // Real process boundaries remain covered; mode/parser permutations run above.
   const run = (...args: string[]) =>
-    spawnSync(process.execPath, ['bin/nwsapi', ...args], { encoding: 'utf8' })
+    spawnSync(bin, args, {
+      encoding: 'utf8',
+      cwd: directory,
+      env: {
+        ...process.env,
+        NODE_V8_COVERAGE: directory,
+        NODE_DISABLE_COMPILE_CACHE: '1',
+      },
+    })
   const help = run('--help')
   expect(help.status, help.stderr).toBe(0)
   expect(help.stdout).toContain('Usage: nwsapi <command>')
@@ -76,4 +99,30 @@ test('the executable forwards arguments, prints output, and fails on errors', ()
   expect(invalid.status).toBe(1)
   expect(invalid.stderr).toContain('nwsapi:')
   expect(invalid.stdout).toBe('')
+  const coverage = libCoverage.createCoverageMap({})
+  const code = readFileSync(bin, 'utf8')
+  for (const file of readdirSync(directory).filter(name =>
+    name.endsWith('.json'),
+  )) {
+    const entries = JSON.parse(
+      readFileSync(path.join(directory, file), 'utf8'),
+    ).result
+    for (const entry of entries.filter(
+      script => script.url === pathToFileURL(bin).href,
+    )) {
+      coverage.merge(
+        await convert({
+          code,
+          ast: parse(code, { ecmaVersion: 'latest', locations: true }),
+          coverage: entry,
+          wrapperLength: 0,
+        }),
+      )
+    }
+  }
+  expect(coverage.files()).toEqual([bin])
+  const summary = coverage.getCoverageSummary()
+  for (const metric of ['lines', 'statements', 'functions', 'branches']) {
+    expect(summary[metric].pct, `bin/nwsapi ${metric} coverage`).toBe(100)
+  }
 })

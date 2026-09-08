@@ -168,7 +168,8 @@ pnpm run test:upstream
 pnpm run test:coverage
 ```
 
-Coverage combines Node tests and WPT in Chromium.
+Coverage combines Node tests and WPT in Chromium; all four aggregate metrics exceed 95%.
+The CLI entry point has a separate 100% coverage assertion.
 The coverage command checks the minimums in `.config/coverage.config.mts` and updates the badge.
 CI also creates HTML reports. Known WPT failures remain visible in test results.
 

@@ -42,6 +42,9 @@ function fixture(t) {
         delete environment[key]
       }
     }
+    // Node propagates its coverage directory when the child omits this key.
+    // An explicit empty value isolates the cache-only fixture.
+    environment.NODE_V8_COVERAGE ??= ''
     return spawnSync(
       process.execPath,
       ['scripts/repo/run.mts', entry, ...args],
@@ -64,7 +67,10 @@ test('the umbrella shares its default compile cache with children and grandchild
 })
 
 test('the umbrella preserves explicit cache settings and its child exit status', t => {
-  const cache = path.join(os.tmpdir(), 'nwsapi-custom-compile-cache')
+  const cache = mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-custom-compile-cache-'),
+  )
+  t.onTestFinished(() => rmSync(cache, { recursive: true, force: true }))
   const result = fixture(t)(
     {
       NODE_COMPILE_CACHE: cache,

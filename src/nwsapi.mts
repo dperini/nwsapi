@@ -530,7 +530,7 @@
       return list
     },
     isInstanceOf = function (nodes) {
-      return nodes instanceof global.NodeList
+      return !!global.NodeList && nodes instanceof global.NodeList
     },
     documentOrder = function (a, b) {
       if (!hasDupes && a === b) {
@@ -1409,36 +1409,18 @@
       }
       return node.nodeType == 9
     },
-    attrOf = function (e, name) {
-      return e.getAttribute(name)
-    },
-    hasAttrOf = function (e, name) {
-      return e.hasAttribute(name)
-    },
-    tagOf = function (e) {
-      return e.localName
-    },
-    idOf = function (e) {
-      return e.id
-    },
-    upOf = function (e) {
-      return e.parentElement
-    },
-    nextOf = function (e) {
-      return e.nextElementSibling
-    },
-    prevOf = function (e) {
-      return e.previousElementSibling
-    },
-    firstOf = function (e) {
-      return e.firstElementChild
-    },
-    attrNamesOf = function (e) {
-      return e.getAttributeNames()
-    },
-    connectedOf = function (e) {
-      return e.isConnected
-    },
+    // initialize() selects the host readers before any query can run.
+    // Avoid allocating a second, immediately discarded set of functions.
+    attrOf,
+    hasAttrOf,
+    tagOf,
+    idOf,
+    upOf,
+    nextOf,
+    prevOf,
+    firstOf,
+    attrNamesOf,
+    connectedOf,
     useLegacy = function (on) {
       if (on) {
         probeAttributes(doc)
@@ -1965,6 +1947,15 @@
       )
     },
     isContentEditable = function (node) {
+      // designMode makes every connected element in this document editable,
+      // including descendants with contenteditable=false.
+      if (
+        node.ownerDocument &&
+        node.ownerDocument.designMode === 'on' &&
+        connectedOf(node)
+      ) {
+        return true
+      }
       var attrValue = 'inherit'
       if (hasAttrOf(node, 'contenteditable')) {
         attrValue = attrOf(node, 'contenteditable')
@@ -1998,14 +1989,13 @@
         return true
       }
 
-      // an optgroup is disabled by its own attribute and nothing else; an
-      // option is also disabled by the optgroup it is a child of
-      if (name == 'optgroup') {
-        return false
-      }
+      // Options inherit an immediate optgroup's disabled attribute. Both
+      // options and optgroups also participate in fieldset disabledness.
       if (name == 'option') {
         node = upOf(element)
-        return !!node && tagOf(node) == 'optgroup' && node.disabled === true
+        if (node && tagOf(node) == 'optgroup' && node.disabled === true) {
+          return true
+        }
       }
 
       // any disabled fieldset above it, unless it sits in that fieldset's

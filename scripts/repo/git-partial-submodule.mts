@@ -327,6 +327,21 @@ function headOf(dir) {
 }
 
 function applySparse(dir, entry) {
+  // Keep later fetches confined to the declared branch as well as the pin.
+  if (entry.branch) {
+    git(
+      dir,
+      [
+        '-C',
+        dir,
+        'config',
+        '--replace-all',
+        'remote.origin.fetch',
+        `+refs/heads/${entry.branch}:refs/remotes/origin/${entry.branch}`,
+      ],
+      { capture: false },
+    )
+  }
   if (entry.sparsePatterns.length === 0) {
     return
   }
@@ -379,21 +394,20 @@ function cloneEntry(entry) {
     }
   }
   console.log(`${entry.path}: cloning ${entry.url} @ ${entry.ref.slice(0, 12)}`)
-  mkdirSync(dir, { recursive: true })
-  git(dir, ['-C', dir, 'init'], { capture: false })
-  git(dir, ['-C', dir, 'remote', 'add', 'origin', entry.url], {
-    capture: false,
-  })
-  git(dir, ['-C', dir, 'config', 'remote.origin.promisor', 'true'], {
-    capture: false,
-  })
-  git(
-    dir,
-    ['-C', dir, 'config', 'remote.origin.partialclonefilter', 'blob:none'],
-    {
-      capture: false,
-    },
-  )
+  const cloneArgs = [
+    'clone',
+    '--no-checkout',
+    '--filter=blob:none',
+    '--single-branch',
+  ]
+  if (entry.shallow) {
+    cloneArgs.push('--depth=1')
+  }
+  if (entry.branch) {
+    cloneArgs.push('--branch', entry.branch)
+  }
+  cloneArgs.push('--', entry.url, dir)
+  git(ROOT, cloneArgs, { capture: false })
   applySparse(dir, entry)
   fetchAndDetach(dir, entry)
   console.log(`${entry.path}: checked out at ${entry.ref.slice(0, 12)}`)
@@ -437,6 +451,28 @@ function verifyEntry(entry) {
         : `HEAD is ${head ?? '(unborn)'}, want ${entry.ref}`,
     )
 
+    if (entry.shallow) {
+      record(
+        'shallow checkout',
+        tryGitText(dir, ['-C', dir, 'rev-parse', '--is-shallow-repository']) ===
+          'true',
+        'depth-one fetches',
+      )
+    }
+    if (entry.branch) {
+      const expected = `+refs/heads/${entry.branch}:refs/remotes/origin/${entry.branch}`
+      record(
+        'single branch',
+        tryGitText(dir, [
+          '-C',
+          dir,
+          'config',
+          '--get-all',
+          'remote.origin.fetch',
+        ]) === expected,
+        expected,
+      )
+    }
     const listed = (
       tryGitText(dir, ['-C', dir, 'sparse-checkout', 'list']) ?? ''
     )

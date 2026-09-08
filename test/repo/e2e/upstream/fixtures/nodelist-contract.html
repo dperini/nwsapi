@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Static NodeList contract across installed query APIs</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<body>
+<script>
+for (const kind of ['document', 'element', 'fragment', 'shadow']) {
+  test(() => {
+    const doc = document.implementation.createHTMLDocument();
+    const root = kind === 'document' ? doc : kind === 'element' ? doc.body :
+      kind === 'fragment' ? doc.createDocumentFragment() : doc.body.attachShadow({mode: 'open'});
+    const parent = kind === 'document' ? doc.body : root;
+    const a = doc.createElement('i'), b = doc.createElement('b');
+    parent.append(a, b);
+    const list = root.querySelectorAll('i, b');
+    assert_true(list instanceof NodeList);
+    assert_equals(list.length, 2);
+    assert_array_equals(Array.from(list), [a, b]);
+    assert_equals(list.item(0), a);
+    assert_equals(list.item('1'), b);
+    assert_equals(list.item(2), null);
+    assert_equals(list.item(-1), null);
+    assert_throws_js(TypeError, () => list.item());
+    assert_throws_js(TypeError, () => list.forEach(null));
+    const receiver = {}, seen = [];
+    list.forEach(function(value, index, collection) {
+      assert_equals(this, receiver);
+      assert_equals(collection, list);
+      seen.push([index, value]);
+    }, receiver);
+    assert_array_equals(seen.map(row => row[1]), [a, b]);
+    assert_array_equals(Array.from(list.keys()), [0, 1]);
+    const entries = Array.from(list.entries());
+    assert_array_equals(entries[0], [0, a]);
+    assert_array_equals(entries[1], [1, b]);
+    const iterator = list.values();
+    assert_equals(iterator[Symbol.iterator](), iterator);
+    assert_equals(iterator.next().value, a);
+    assert_equals(iterator.next().value, b);
+    assert_true(iterator.next().done);
+    assert_true(iterator.next().done);
+    a.remove(); parent.append(doc.createElement('i'));
+    assert_array_equals(Array.from(list), [a, b], 'The old result remains static');
+    assert_array_equals(Array.from(root.querySelectorAll('i, b')), Array.from(parent.children));
+    const empty = root.querySelectorAll('.absent');
+    assert_equals(empty.item(0), null);
+    assert_array_equals(Array.from(empty.entries()), []);
+  }, `NodeList iteration, conversions and mutation isolation for ${kind}`);
+}
+</script>

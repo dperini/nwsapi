@@ -26,7 +26,7 @@ function covered(file, count) {
   }
 }
 
-test('coverage uses WPT for the engine and Node for the adapter', () => {
+test('coverage merges browser and Node engine execution and includes the adapter', () => {
   const map = combineCoverage(
     covered(engine, 0),
     {
@@ -36,7 +36,7 @@ test('coverage uses WPT for the engine and Node for the adapter', () => {
     root,
   )
   expect(map.files().toSorted()).toEqual([adapter, engine])
-  expect(map.fileCoverageFor(engine).toSummary().lines.pct).toBe(0)
+  expect(map.fileCoverageFor(engine).toSummary().lines.pct).toBe(100)
   expect(map.fileCoverageFor(adapter).toSummary().lines.pct).toBe(100)
 })
 
@@ -74,4 +74,21 @@ test('HTML reports are generated only in CI', () => {
     'json-summary',
     'html',
   ])
+})
+
+test('in-memory browser endpoints merge with JSON-serialized Node endpoints exactly once', () => {
+  const browser = covered(engine, 0)
+  browser[engine].statementMap[0].end.column = Infinity
+  const node = JSON.parse(JSON.stringify(covered(engine, 1)))
+  node[engine].statementMap[0].end.column = null
+  const map = combineCoverage(
+    browser,
+    { ...node, ...covered(adapter, 1) },
+    root,
+  )
+  expect(map.fileCoverageFor(engine).toSummary().statements).toMatchObject({
+    total: 1,
+    covered: 1,
+    pct: 100,
+  })
 })

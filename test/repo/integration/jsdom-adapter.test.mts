@@ -510,3 +510,24 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
     requireSpy.mockRestore()
   }
 })
+
+test('stylesheet checks ignore non-elements and query APIs reject invalid contexts', t => {
+  const window = host(t)
+  const adapter = new DOMSelector(window)
+  for (const node of [
+    null,
+    window.document,
+    window.document.createTextNode('text'),
+  ]) {
+    assert.deepEqual(adapter.check('section', node), {
+      ast: null,
+      match: false,
+      pseudoElement: null,
+    })
+  }
+  assert.throws(
+    () =>
+      adapter.querySelector('section', window.document.createTextNode('text')),
+    /Document, DocumentFragment, or Element/,
+  )
+})

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { normalizeCoverageLocations } from './coverage-normalize.mts'
 import libCoverage from 'istanbul-lib-coverage'
 import { coverageThresholds } from '../../../.config/coverage.config.mts'
 
@@ -30,10 +31,12 @@ export function checkCoverageThresholds(
   }
 }
 
-// Browser engine coverage and Node adapter coverage have separate owners.
+// Merge engine execution from both hosts; retain the browser and adapter canaries.
 export function combineCoverage(wptData, nodeData, root) {
-  const wpt = libCoverage.createCoverageMap(wptData)
-  const node = libCoverage.createCoverageMap(nodeData)
+  const wpt = libCoverage.createCoverageMap(normalizeCoverageLocations(wptData))
+  const node = libCoverage.createCoverageMap(
+    normalizeCoverageLocations(nodeData),
+  )
   const engine = path.join(root, 'src/nwsapi.js')
   const adapter = path.join(root, 'src/dom-selector.js')
   if (!wpt.files().includes(engine)) {
@@ -44,6 +47,6 @@ export function combineCoverage(wptData, nodeData, root) {
   }
   const combined = libCoverage.createCoverageMap({})
   combined.addFileCoverage(wpt.fileCoverageFor(engine))
-  combined.addFileCoverage(node.fileCoverageFor(adapter))
+  combined.merge(node)
   return combined
 }
