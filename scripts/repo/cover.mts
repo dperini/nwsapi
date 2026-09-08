@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -16,6 +16,12 @@ import {
   checkCoverageThresholds,
 } from './lib/coverage.mts'
 
+import {
+  runTypeCoverage,
+  writeTypeCoverage,
+  accumulatedCoverage,
+} from './lib/type-coverage.mts'
+
 const { createCoverageMap } = libCoverage
 const { createContext } = libReport
 
@@ -27,6 +33,8 @@ const run = (entry: string, args: string[], env = process.env) =>
     env,
   })
 try {
+  const types = runTypeCoverage(REPO_ROOT)
+  writeTypeCoverage(REPO_ROOT, types)
   run('scripts/repo/test.mts', ['all', '--coverage'])
   run('scripts/repo/test.mts', ['upstream'], {
     ...process.env,
@@ -71,7 +79,16 @@ try {
   for (const name of coverageReporters()) {
     reports.create(name).execute(context)
   }
-  checkCoverageThresholds(combined.getCoverageSummary())
+  const execution = combined.getCoverageSummary()
+  writeFileSync(
+    path.join(REPO_ROOT, 'coverage/coverage-aggregate.json'),
+    JSON.stringify(accumulatedCoverage(execution.toJSON(), types), null, 2) +
+      '\n',
+  )
+  console.log(
+    `Accumulated coverage: execution ${execution.lines.pct}% lines; types ${types.pct}% identifiers`,
+  )
+  checkCoverageThresholds(execution)
   run('scripts/repo/gen/coverage-badge.mts', [])
 } finally {
   rmSync(raw, { recursive: true, force: true })
