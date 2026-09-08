@@ -5274,7 +5274,14 @@ interface AttributeOperator {
       for (i = 0, l = selectors.length; l > i; ++i) {
         if (!seen[selectors[i]!] && (seen[selectors[i]!] = true)) {
           type = selectors[i]!.match(reOptimizer)
-          if (type && type[1] != ':' && (token = type)) {
+          // Escaped delimiters can resemble a terminal tag inside an attribute.
+          // Compile escaped selectors intact instead of narrowing that token.
+          if (
+            type &&
+            type[1] != ':' &&
+            selectors[i]!.indexOf('\\') < 0 &&
+            (token = type)
+          ) {
             token[1]! || (token[1] = '*')
             optimized[i] = optimize(optimized[i]!, token as RegExpMatchArray)
           } else {

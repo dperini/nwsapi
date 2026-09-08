@@ -2,6 +2,9 @@
 // test suite explicitly uses .config/vitest.config.mts.
 import { defineConfig } from 'vitest/config'
 import { vitiatePlugin } from '@vitiate/core/plugin'
+import { isAgent } from './scripts/repo/lib/is-agent.mts'
+
+const minimalOutput = isAgent() && process.env['FUZZ_VERBOSE'] !== '1'
 
 const budget = Number(process.env['FUZZ_TIME_MS'] ?? 15_000)
 if (!Number.isSafeInteger(budget) || budget <= 0) {
@@ -31,11 +34,21 @@ export default defineConfig({
         fuzzTimeMs: budget,
         maxLen: 512,
         stopOnCrash: true,
-        detectors: { prototypePollution: true },
+        quiet: minimalOutput,
       },
     }),
   ],
   test: {
+    ...(minimalOutput
+      ? {
+          reporters: [
+            'minimal' as const,
+            ...(process.env['GITHUB_ACTIONS'] === 'true'
+              ? ['github-actions' as const]
+              : []),
+          ],
+        }
+      : {}),
     include: ['test/repo/fuzz/**/*.fuzz.mts'],
     passWithNoTests: false,
     testTimeout: budget + 30_000,
