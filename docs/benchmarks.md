@@ -182,7 +182,7 @@ A warm query repeats a selector after a 20 ms warmup. A cold query is the first 
 
 Both engine lines use the same logarithmic time scale. Each tick increases by a factor of ten. Further left means less time. Compare marker positions, rather than line lengths. Warm summaries use microseconds. Cold summaries use milliseconds. One millisecond equals 1,000 microseconds.
 
-Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture.
+Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture. These exercise common component lookups by tag, class, attribute, and parent-child relationship. They also cover positional checks, selector lists, negation, `:is()`, and `:where()`. This is a focused sample, not a complete selector survey. Empty-result queries remain in the original first-match results.
 
 The recorded warm speedups range from 1.9× to 8.2×. The cold results are mixed. NWSAPI takes longer for `.card`, `button.primary`, `input.input`, and `.card > button.primary`. The chart shows these differences. Warm speedups do not describe cold queries.
 
