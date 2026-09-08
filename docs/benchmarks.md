@@ -176,7 +176,7 @@ remaining gaps and acceptance targets.
 
 ## Warm and cold queries
 
-The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. Timings appear below each line. SVG titles also provide timing descriptions when the viewer supports tooltips.
+The README chart uses the [warm and cold results](../assets/repo/bench/first-query-states.json). Each query has one line per engine. Green-to-teal lines show NWSAPI. Purple-to-pink lines show `@asamuzakjp/dom-selector` through jsdom. Each gradient connects a warm marker to a cold marker. Timings appear below each line. The right column compares each NWSAPI time with the competitor. It labels warm and cold results as faster or slower. SVG titles also provide timing descriptions when the viewer supports tooltips.
 
 A warm query repeats a selector after a 20 ms warmup. A cold query is the first query on a fresh document. Cold measurements exclude document creation and explicit NWSAPI factory setup. They include any setup that jsdom performs inside its first public query. They do not measure a new Node.js process.
 
