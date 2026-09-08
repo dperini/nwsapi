@@ -15,6 +15,7 @@ These sources suggest that the name combines the NWBOX project prefix with “Ma
 | July 22, 2007     | The [early source header](https://github.com/dperini/nwmatcher/blob/5ba75cc29a2106bf6ad3b5d0a72d0121ba3340fa/src/nwmatcher.js) records the creation of `nwmatcher`. |
 | July 15, 2008     | The surviving [`nwmatcher` Git history begins](https://github.com/dperini/nwmatcher/commit/3d1641030b0e62cd7aeab2ce6c0deb0169b3f5d4).                               |
 | September 7, 2008 | A [release preparation commit](https://github.com/dperini/nwmatcher/commit/b0200ba7e546a0428d59553ad22c6e676248dea8) updates the version strings to 1.0.            |
+| October 2009      | Prototype [adds `nwmatcher` as a selectable engine](https://github.com/prototypejs/prototype/commit/7762e002cb0dd757b347494c896b6aa520b21c16).                      |
 | October 2012      | [`jsdom` adopts `nwmatcher`](https://github.com/jsdom/jsdom/commit/e4ae05534f30965304b2710638ca350ef5b320af) to replace `sizzle`.                                   |
 | June 2017         | `nwsapi` starts in a separate repository with an [import of `nwmatcher` 1.4.0](https://github.com/dperini/nwsapi/commit/5bcb545c4de781ad7f57dbc485c39c892ccbecb2).  |
 | May 2018          | [`jsdom` moves from `nwmatcher` to `nwsapi`](https://github.com/jsdom/jsdom/commit/38b868b0ca2a127a55c8a59a0e1320e032074118).                                       |
@@ -27,7 +28,7 @@ Engines such as `nwmatcher` and [`sizzle`](https://github.com/jquery/sizzle) hel
 
 Perini's [original project page](http://javascript.nwbox.com/NWMatcher/) explains a specific need: checking whether one element matched a selector without first finding every matching element in the document. This supported event delegation, where a listener checks whether an event's target matches a rule. The companion [NWEvents project](http://javascript.nwbox.com/NWEvents/) used `nwmatcher` for this purpose, including for elements added after a listener was registered.
 
-John-David Dalton championed `nwmatcher` in FuseJS and Prototype. [FuseJS made it the default selector engine](https://github.com/jgornick/fusejs/blob/aaae8cb4f370be3bb1bbc93cb5ce51a8e8f56d77/README.md), and [Prototype 1.7 supported it as a replacement for `sizzle`](https://github.com/prototypejs/prototype/blob/1.7/Rakefile). Dalton [improved the Prototype adapter](https://github.com/prototypejs/prototype/commit/2f9bde3ad5a2e3dd104c812b6c81f4077fe0aa1e) and discussed selector engines and performance at [JSConf.US 2010](https://2010.jsconf.us/speakers.html).
+John-David Dalton championed `nwmatcher` in FuseJS and Prototype. [FuseJS made it the default selector engine](https://github.com/jgornick/fusejs/blob/aaae8cb4f370be3bb1bbc93cb5ce51a8e8f56d77/README.md), and [Prototype added a build option for choosing it](https://github.com/prototypejs/prototype/commit/7762e002cb0dd757b347494c896b6aa520b21c16). Dalton [improved the Prototype adapter](https://github.com/prototypejs/prototype/commit/2f9bde3ad5a2e3dd104c812b6c81f4077fe0aa1e) and discussed selector engines and performance at [JSConf.US 2010](https://2010.jsconf.us/speakers.html).
 
 ## Adoption in `jsdom` and continuation in `nwsapi`
 
