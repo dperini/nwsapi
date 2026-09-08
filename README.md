@@ -11,9 +11,19 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=e024b6de70d7)](docs/repo/perf/benchmarks.md)
+<details>
+<summary>How the benchmarks work</summary>
 
-Direct library comparisons on native browser DOMs, without jsdom.
+Both libraries run directly on native Chromium DOMs. Query timings measure repeated calls and exclude document creation, library loading, and engine construction.
+Memory measurements record retained JavaScript heap after garbage collection. Documents and shared library code exist before the baseline reading.
+File sizes compare the browser libraries after Brotli compression. The [benchmark report](docs/repo/perf/benchmarks.md) explains each workload and links to its recorded samples.
+
+</details>
+
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=8a31b4d345f3)](docs/repo/perf/benchmarks.md)
+
+This summary covers 36 repeated all-results queries, retained heap after 100 distinct queries per engine, and compressed browser file sizes.
+The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native browser DOMs and exclude `jsdom`.
 
 [Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Inside the compiler](docs/repo/perf/design.md)
 
