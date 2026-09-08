@@ -7,6 +7,7 @@ import {
   splitCharts,
 } from '../../../scripts/repo/bench/charts.mts'
 import type { Measurement } from '../../../scripts/repo/bench/charts.mts'
+import { geometricSpeedup } from '../../../scripts/repo/bench/summary-chart.mts'
 import { isSvgOptimized } from '../../../scripts/repo/gen/svg-optimize.mts'
 
 const row = (selector = 'a'): Measurement => ({
@@ -16,6 +17,20 @@ const row = (selector = 'a'): Measurement => ({
   errors: [null, null],
 })
 describe('benchmark charts', () => {
+  test('summary weights every query equally and rejects incomplete results', () => {
+    const measurements = [
+      { ...row(), milliseconds: [1, 4] },
+      { ...row(), milliseconds: [100, 25] },
+    ]
+    expect(geometricSpeedup(measurements)).toBeCloseTo(1)
+    expect(() => geometricSpeedup([])).toThrow()
+    expect(() =>
+      geometricSpeedup([{ ...row(), milliseconds: [null, 1] }]),
+    ).toThrow()
+    expect(() =>
+      geometricSpeedup([{ ...row(), errors: ['mismatch', null] }]),
+    ).toThrow()
+  })
   test('rounds labels to two decimals and bolds exact winners, including ties', () => {
     const svg = chart(
       'basic',
@@ -45,10 +60,10 @@ describe('benchmark charts', () => {
       dom.window.close()
     }
   })
-  test('animates bars from the left and respects reduced motion', () => {
+  test('animates timing markers and respects reduced motion', () => {
     const svg = chart('basic', ['old', 'candidate'], [row()], '')
-    expect(svg).toContain('@keyframes fill')
-    expect(svg).toContain('transform-box:fill-box')
+    expect(svg).toContain('@keyframes fade')
+    expect(svg).toContain('class="marker"')
     expect(svg).toContain('prefers-reduced-motion:reduce')
     expect(svg).toContain('animation:none')
     expect(isSvgOptimized(svg)).toBe(true)

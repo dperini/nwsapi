@@ -10,12 +10,22 @@ export const chartColors = [
   ['#80d7ff', '#739be8'],
 ]
 
+export const chartGradients = chartColors
+  .map(
+    ([start, end], index) =>
+      `<linearGradient id="series${index}"><stop stop-color="${start}"/><stop offset="1" stop-color="${end}"/></linearGradient>`,
+  )
+  .join('')
+
 export const chartTextStyles = `
 text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 .muted{fill:#aabbd0;font:${noteFont}}
 .code{font:${codeFont};fill:#dce6f1}
 .note .code{font:${noteCodeFont}}
-.metadata,.metadata .code{fill:#75808e}
+.metadata,.metadata .code{fill:#75808e;font-size:14px}
+.chart-title{font-size:24px;font-weight:700}
+.unit{fill:#75808e}
+.package{font-family:Consolas,Menlo,monospace}
 .comparison{font-size:14px;font-variant-numeric:tabular-nums}
 .tick{fill:#aabbd0;font-size:12px}
 .time{fill:#aabbd0;font-size:13px;font-variant-numeric:tabular-nums}

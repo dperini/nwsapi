@@ -24,6 +24,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
       ...markdown.matchAll(/!\[[^\]]*\]\(([^)?]+\.svg)(?:\?[^)]*)?\)/g),
     ].map(match => match[1]!)
     expect(paths).toHaveLength(12)
+    paths.push('../assets/repo/bench/perf-hero.svg')
     const page = await browser.newPage({
       viewport: { width: 1100, height: 720 },
     })
@@ -51,34 +52,68 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
                   rect.bottom > canvas.bottom - 24,
               )
               .map(({ text }) => text),
-            noteFonts: Array.from(
-              document.querySelectorAll('.note'),
-              node => getComputedStyle(node).fontSize,
+            title: document.querySelector('text.chart-title')?.textContent,
+            metadata: Array.from(
+              document.querySelectorAll('text.metadata'),
+              node => ({
+                font: getComputedStyle(node).fontSize,
+                anchor: getComputedStyle(node).textAnchor,
+              }),
             ),
+            units: Array.from(document.querySelectorAll('.unit'), node => ({
+              fill: getComputedStyle(node).fill,
+              parentFill: getComputedStyle(node.parentElement!).fill,
+            })),
+            uppercasePackage: texts.some(({ text }) =>
+              text?.includes('NWSAPI'),
+            ),
+            selectors: document.querySelectorAll('text.selector').length,
           }
         })
         expect(bounds.viewBox, path).toBe('0 0 1100 720')
         expect(bounds.overflow, path).toEqual([])
+        expect(bounds.title, path).toBeTruthy()
+        expect(bounds.metadata.length, path).toBeGreaterThan(0)
         expect(
-          bounds.noteFonts.every(font => font === '16px'),
+          bounds.metadata.every(
+            note => note.font === '14px' && note.anchor === 'end',
+          ),
           path,
         ).toBe(true)
+        expect(bounds.units.length, path).toBeGreaterThan(0)
+        expect(
+          bounds.units.every(
+            unit =>
+              unit.fill === 'rgb(117, 128, 142)' &&
+              unit.fill !== unit.parentFill,
+          ),
+          path,
+        ).toBe(true)
+        expect(bounds.uppercasePackage, path).toBe(false)
+        if (path.includes('first-matches.svg')) {
+          expect(bounds.selectors).toBe(4)
+        }
+        if (path.includes('perf-hero.svg')) {
+          expect(svg).toContain('Memory footprint')
+          expect(svg).toContain('Browser file size')
+          expect(bounds.selectors).toBe(0)
+        }
       }
     } finally {
       await page.close()
     }
   })
 
-  test('fills from a fixed left edge and shows full bars with reduced motion', async () => {
+  test('logarithmic markers stay visible across orders of magnitude and respect reduced motion', async () => {
     const svg = chart(
-      'basic',
-      ['nwsapi 2.3.0-prerelease'],
+      'Basic selectors',
+      ['nwsapi 2.3.0-prerelease', '@asamuzakjp/dom-selector'],
       [
         {
           category: 'basic',
           selector: 'p',
-          milliseconds: [1],
-          errors: [null],
+          milliseconds: [0.001, 1],
+          errors: [null, null],
         },
       ],
       '',
@@ -86,40 +121,29 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
     const page = await browser.newPage()
     try {
       await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
-      expect(
-        await page
-          .getByText('nwsapi 2.3.0-prerelease', { exact: true })
-          .evaluate(node => getComputedStyle(node).fontWeight),
-      ).toBe('700')
-      const frames = await page.evaluate(() => {
-        const bar = document.querySelector('.bar')!
-        const animation = bar.getAnimations()[0]
-        animation!.pause()
-        return [0, 400, 800].map(time => {
-          animation!.currentTime = time
-          const { x, width } = bar.getBoundingClientRect()
-          return { x, width }
-        })
-      })
-      expect(frames[0]!.width).toBe(0)
-      expect(frames[1]!.width).toBeGreaterThan(0)
-      expect(frames[1]!.width).toBeLessThan(frames[2]!.width)
-      expect(frames[2]!.width).toBeCloseTo(480)
-      for (const frame of frames) {
-        expect(frame.x).toBeCloseTo(frames[0]!.x)
-      }
-
+      const markers = await page.locator('.marker').evaluateAll(nodes =>
+        nodes.map(node => ({
+          x: node.getAttribute('cx'),
+          radius: node.getAttribute('r'),
+          animations: node.getAnimations().length,
+        })),
+      )
+      expect(markers.map(marker => Number(marker.x))).toEqual([440, 920])
+      expect(markers.every(marker => Number(marker.radius) >= 4)).toBe(true)
+      expect(markers.every(marker => marker.animations === 1)).toBe(true)
       await page.emulateMedia({ reducedMotion: 'reduce' })
       await page.reload()
-      const reduced = await page.evaluate(() => {
-        const bar = document.querySelector('.bar')!
-        return {
-          width: bar.getBoundingClientRect().width,
-          animations: bar.getAnimations().length,
-        }
-      })
-      expect(reduced.width).toBeCloseTo(480)
-      expect(reduced.animations).toBe(0)
+      expect(
+        await page
+          .locator('.marker')
+          .evaluateAll(nodes =>
+            nodes.every(
+              node =>
+                getComputedStyle(node).opacity === '1' &&
+                node.getAnimations().length === 0,
+            ),
+          ),
+      ).toBe(true)
     } finally {
       await page.close()
     }

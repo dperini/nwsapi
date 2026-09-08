@@ -5,13 +5,18 @@ NWSAPI v2.3.0-prerelease and `@asamuzakjp/dom-selector` run as standalone librar
 The browser's own selector methods are used only as the correctness oracle, outside measured calls.
 The saved reports identify the browser version, CPU, library versions, source hashes, fixture hashes and raw samples.
 
+The README summary uses the geometric mean of the comparison-to-NWSAPI time ratios across all 36 warm all-results queries.
+Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
+
 ## First matches
 
-![Direct library cold and warm first-match times](../assets/repo/bench/perf-hero.svg?v=2f150ef1f947)
+![Direct library cold and warm first-match times](../assets/repo/bench/first-matches.svg?v=8723174710b3)
 
-The hero calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
+The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
 Both engines receive their own native document containing identical HTML.
 Both are initialized before timing starts.
+The chart shows the four queries with the largest warm-query speedups for NWSAPI.
+The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
 See [cold and warm queries](#cold-and-warm-queries) for the method.
 
 ## All-results comparison
@@ -19,7 +24,9 @@ See [cold and warm queries](#cold-and-warm-queries) for the method.
 The category charts call NWSAPI's `select()` and the comparison library's `querySelectorAll()` directly.
 They measure warm queries and retain every timing sample.
 Queries must return the same nodes in the same order as native Chromium, before and after measurement.
-Unsupported or incorrect results receive no timing bar and fail the comparison run.
+The timing charts use dots on a shared logarithmic scale so fast queries remain visible.
+Each axis step multiplies time by ten; further left is faster.
+Unsupported or incorrect results receive no marker and fail the comparison run.
 
 <details>
 <summary>How measurements work</summary>
@@ -71,7 +78,7 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Memory footprint
 
-![Standalone engine retained memory](../assets/repo/bench/memory-footprint.svg?v=535e36f2bd8e)
+![Standalone engine retained memory](../assets/repo/bench/memory-footprint.svg?v=75cb15cd4249)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -87,7 +94,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## Browser file size
 
-![Minified and compressed browser file sizes](../assets/repo/bench/file-size.svg?v=01974565e154)
+![Minified and compressed browser file sizes](../assets/repo/bench/file-size.svg?v=9c28bff96740)
 
 This is a file size report, not a timing benchmark.
 NWSAPI uses its published `dist/nwsapi.min.js` core browser file.
@@ -102,43 +109,43 @@ It measures these browser artifacts, not npm tarballs or total installation size
 
 Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
 
-![Component queries](../assets/repo/bench/components-1.svg?v=252587749de5)
+![Component queries](../assets/repo/bench/components-1.svg?v=c3d0692ef127)
 
 ## Documentation queries
 
 Queries for links and definition entries in a large documentation fixture.
 
-![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=568a19a6eaad)
+![Documentation queries](../assets/repo/bench/documentation/documentation-1.svg?v=12ea912aa821)
 
 ## Utility-class queries
 
 Queries for navigation links and card content in nested utility-class HTML.
 
-![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=be00d65cd37f)
+![Utility-class queries](../assets/repo/bench/atomic/atomic-1.svg?v=14f339fbaa02)
 
 ## Basic selectors
 
-![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=7db94f83a5e6)
+![Basic selectors](../assets/repo/bench/identifiers-1.svg?v=0884c5493d69)
 
 ## Attribute selectors
 
-![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=f6e289d7ae16)
+![Attribute selectors](../assets/repo/bench/attributes-1.svg?v=3ec3ced9d3d0)
 
 ## Relationships
 
-![Relationships](../assets/repo/bench/relationships-1.svg?v=5d84fa29740c)
+![Relationships](../assets/repo/bench/relationships-1.svg?v=05e71056a91a)
 
 ## Position selectors
 
-![Position selectors](../assets/repo/bench/positional-1.svg?v=9c454a8ffe7c)
+![Position selectors](../assets/repo/bench/positional-1.svg?v=02da49a56279)
 
 ## Logical selectors
 
-![Logical selectors](../assets/repo/bench/logical-1.svg?v=f993392f97f9)
+![Logical selectors](../assets/repo/bench/logical-1.svg?v=e505a3772232)
 
 ## Form state selectors
 
-![Form state selectors](../assets/repo/bench/forms-1.svg?v=489e971f1653)
+![Form state selectors](../assets/repo/bench/forms-1.svg?v=1fcb05a2d514)
 
 ## Cold and warm queries
 
@@ -154,5 +161,5 @@ The text below each pair states whether NWSAPI was faster or slower, including t
 The SVG tooltips retain absolute timing values.
 
 The fixture contains component, utility-class and test-ID patterns. It does not execute application frameworks.
-The chart covers tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
+The complete first-match report covers tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
 See the [performance guide](performance.md) for compiler implementation details.

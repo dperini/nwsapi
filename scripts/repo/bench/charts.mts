@@ -25,6 +25,20 @@ export function escapeText(value: string) {
     .replaceAll('"', '&quot;')
 }
 
+export function unitText(value: string) {
+  return escapeText(value).replace(
+    /(\d[\d,.]*)(KiB|MiB|GiB|ms|μs|µs|ns|px|%|×)(?![a-zA-Z])/g,
+    '$1<tspan class="unit">$2</tspan>',
+  )
+}
+
+export function packageText(value: string) {
+  return unitText(value).replace(
+    /(?<![\w-])(?:NWSAPI|nwsapi|@asamuzakjp\/dom-selector)(?![\w-])/g,
+    name => `<tspan class="package">${name.toLowerCase()}</tspan>`,
+  )
+}
+
 export function splitCharts(rows: Measurement[]) {
   const groups = new Map<string, Measurement[]>()
   for (const row of rows) {
@@ -44,7 +58,7 @@ export function splitCharts(rows: Measurement[]) {
   }).flat()
 }
 
-// Linear bars start at zero. Incorrect or unsupported results never earn a bar.
+// Logarithmic positions keep fast queries visible. Incorrect results have no marker.
 export function chart(
   title: string,
   names: string[],
@@ -71,7 +85,7 @@ export function chart(
       throw new TypeError('Invalid benchmark measurements.')
     }
   }
-  const note = escapeText(provenance).replace(
+  const note = packageText(provenance).replace(
     /`([^`]+)`/g,
     '<tspan class="code">$1</tspan>',
   )
@@ -91,12 +105,26 @@ export function chart(
         `<linearGradient id="series${index}"><stop stop-color="${start}"/><stop offset="1" stop-color="${end}"/></linearGradient>`,
     )
     .join('')
-  const maximum = Math.max(
-    0.001,
-    ...rows.flatMap(row => row.milliseconds.filter(value => value !== null)),
+  const values = rows.flatMap(row =>
+    row.milliseconds.filter(value => value !== null),
   )
+  const low = Math.floor(
+    Math.log10(Math.min(...(values.length ? values : [0.001]))),
+  )
+  const high = Math.max(
+    low + 1,
+    Math.ceil(Math.log10(Math.max(...(values.length ? values : [1])))),
+  )
+  const position = (value: number) =>
+    440 + ((Math.log10(value) - low) / (high - low)) * 480
+  const axis = Array.from({ length: high - low + 1 }, (_, index) => {
+    const value = 10 ** (low + index)
+    const label =
+      value < 1 ? `${Number((value * 1000).toPrecision(3))}μs` : `${value}ms`
+    return `<text x="${440 + (index / (high - low)) * 480}" y="122" text-anchor="${index === 0 ? 'start' : index === high - low ? 'end' : 'middle'}" class="tick">${unitText(label)}</text>`
+  }).join('')
   const groupHeight = 58 + names.length * 26
-  const notesTop = Math.max(640, 160 + groupHeight * rows.length + 20)
+  const notesTop = Math.max(616, 150 + groupHeight * rows.length + 20)
   const height = Math.max(720, notesTop + 80)
   const body = rows
     .map((row, index) => {
@@ -117,9 +145,8 @@ export function chart(
                 : value < 0.1
                   ? `${(value * 1000).toFixed(2)}μs`
                   : `${value.toFixed(2)}ms`)
-            const width = value === null ? 0 : (value / maximum) * 480
             const weight = value === fastest ? ' style="font-weight:700"' : ''
-            return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<rect class="bar" x="440" y="${y - 1}" width="${width.toFixed(2)}" height="2" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${escapeText(status)}</text></g>`
+            return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<circle class="marker" cx="${position(value).toFixed(2)}" cy="${y}" r="4" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${unitText(status)}</text></g>`
           })
           .join('')
       )
@@ -127,7 +154,7 @@ export function chart(
     .join('')
   return (
     optimiseSvg(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median milliseconds per query; lower is better. Failed correctness checks have no timing.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.bar{transform-box:fill-box;transform-origin:left center;animation:fill 800ms ease-out 1 both}@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}@media(prefers-reduced-motion:reduce){.bar{animation:none}}</style>${chartFrame(height)}<text x="48" y="65" class="muted">Linear time scale</text><text x="48" y="89" class="muted">Shorter bars are faster</text><text x="440" y="89" class="muted">Warm queries · All results</text>${body}<path d="M48 ${notesTop - 38}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">${queryStateNote}</text><text x="48" y="${notesTop + 35}" class="muted note metadata">${note}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="${height}" viewBox="0 0 1100 ${height}" role="img"><title>${escapeText(title)}</title><desc>${escapeText(provenance)}. Median query time on a shared logarithmic scale; further left is faster. Failed correctness checks have no marker.</desc><defs>${chartBackground}${gradients}</defs><style>${chartTextStyles}.engine{font-size:16px}.selector{font-weight:600}.tick{font-size:14px}.marker{animation:fade 800ms ease-out both}@keyframes fade{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.marker{animation:none}}</style>${chartFrame(height)}<text x="48" y="58" class="chart-title">${escapeText(title)}</text><text x="48" y="90" class="muted">Logarithmic time scale · Further left is faster</text><text x="1052" y="90" text-anchor="end" class="muted">Warm queries · All results</text>${axis}${body}<path d="M48 ${notesTop - 34}H1052" stroke="#304159"/><text x="48" y="${notesTop}" class="muted">${queryStateNote}</text><text x="1052" y="${notesTop + 28}" text-anchor="end" class="muted note metadata">${note}${revision ? `<tspan fill="#75808e"> · ${escapeText(revision)}</tspan>` : ''}</text></svg>`,
     ) + '\n'
   )
 }

@@ -1,6 +1,6 @@
 import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
-import { escapeText } from './charts.mts'
+import { escapeText, unitText } from './charts.mts'
 import {
   chartBackground,
   chartColors,
@@ -139,7 +139,7 @@ export function queryChart({
     Array.from({ length: span + 1 }, (_, index) => {
       const value = 10 ** (low + index)
       const label = value >= 1000 ? `${value / 1000}ms` : `${value}μs`
-      return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${label}</text>`
+      return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${unitText(label)}</text>`
     }).join('')
   const lines = rows
     .map((row, i) => {
@@ -150,7 +150,7 @@ export function queryChart({
           const faster = ratio >= 1
           const factor = faster ? ratio : 1 / ratio
           const label = `${state === 'warm' ? 'Warm' : 'Cold'} ${factor.toFixed(2)}× ${faster ? 'faster' : 'slower'}`
-          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${label}</tspan>`
+          return `<tspan dx="${index ? 24 : 0}" class="comparison" style="fill:${state === 'warm' ? '#ffc979' : '#80d7ff'}">${unitText(label)}</tspan>`
         })
         .join('')
       return (
