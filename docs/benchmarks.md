@@ -48,6 +48,27 @@ Results describe these queries and fixtures, not every application's performance
 </details>
 
 <details>
+<summary>Cold and warm queries</summary>
+
+The first-match comparison calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
+Each engine receives its own native document containing identical HTML and is initialized before timing starts.
+
+Cold means the first query on a freshly initialized engine and document.
+The runner times a batch of eight cold calls, each on a separate engine/document, and divides by eight to reduce timer noise.
+Warm means repeated calls after at least 20ms of warmup.
+The chart shows medians across nine rounds.
+
+The first-match chart selects the four queries with the largest warm-query speedups for NWSAPI.
+The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries, covering tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
+The fixture contains component, utility-class and test-ID patterns; it does not execute application frameworks.
+
+Each line connects cold and warm times on a shared logarithmic scale; further left means less time.
+The SVG tooltips retain absolute timing values.
+See the [performance guide](performance.md) for compiler implementation details.
+
+</details>
+
+<details>
 <summary>Other measurements</summary>
 
 The existing Node-based diagnostics remain available, separately from the browser comparisons above:
@@ -67,73 +88,63 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Component queries
 
-Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
-
 ![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=e24a0a3cfcab)
+
+Queries for controls inside repeated cards, using classes, attributes and parent-child relationships.
 
 ## Documentation queries
 
-Queries for links and definition entries in a large documentation fixture.
-
 ![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=50991b2e7b35)
+
+Queries for links and definition entries in a large documentation fixture.
 
 ## Utility-class queries
 
-Queries for navigation links and card content in nested utility-class HTML.
-
 ![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=39599a36d68a)
+
+Queries for navigation links and card content in nested utility-class HTML.
 
 ## Basic selectors
 
 ![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=475027d3348b)
 
+ID, class, tag and combined tag/class queries in the component fixture. These provide a baseline for the more complex selectors below.
+
 ## Attribute selectors
 
 ![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=b54135463158)
+
+Queries for attribute presence, exact values, value prefixes and whitespace-separated tokens. The fixture uses test IDs and class attributes.
 
 ## Relationships
 
 ![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=7266322bab33)
 
+Descendant, direct-child, adjacent-sibling and general-sibling queries. These find controls and content through their positions relative to other elements.
+
 ## Position selectors
 
 ![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=bffe0cea19d2)
+
+Queries for first, last and numbered children. The cases count siblings from both ends and include an even-position pattern.
 
 ## Logical selectors
 
 ![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=7235d776b155)
 
+Queries using `:not()`, `:is()`, `:where()` and `:has()`. The cases cover exclusion, selector alternatives and parents with matching children.
+
 ## Form state selectors
 
 ![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=e62e7d0a2b19)
+
+Queries for enabled, disabled, optional and read-write controls. Results reflect the control states in the component fixture.
 
 ## First matches
 
 ![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=474e92c12e19)
 
-The chart calls NWSAPI's `first()` and the comparison library's `querySelector()` directly.
-Both engines receive their own native document containing identical HTML.
-Both are initialized before timing starts.
-The chart shows the four queries with the largest warm-query speedups for NWSAPI.
-The [raw first-match report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
-See [cold and warm queries](#cold-and-warm-queries) for the method.
-
-## Cold and warm queries
-
-Cold means the first query on a freshly initialized engine and native document.
-The runner times a batch of eight cold calls, each on a separate engine/document, and divides by eight to reduce timer noise.
-Warm means repeated calls after at least 20ms of warmup.
-The first-match chart shows medians across nine rounds, using identical fixture HTML for both libraries.
-
-Each query has one line per engine. Green and teal identify NWSAPI; purple and pink identify `@asamuzakjp/dom-selector`.
-Each line connects the cold and warm markers on a shared logarithmic time scale.
-Further left means less time. Each labeled step multiplies time by ten.
-The text below each pair states whether NWSAPI was faster or slower, including the comparison factor.
-The SVG tooltips retain absolute timing values.
-
-The fixture contains component, utility-class and test-ID patterns. It does not execute application frameworks.
-The complete first-match report covers tags, classes, attributes, relationships, positions, lists, negation, `:is()` and `:where()`.
-See the [performance guide](performance.md) for compiler implementation details.
+Direct `first()` and `querySelector()` calls with cold and warm engines. The chart highlights the four queries with the largest warm-query speedups for NWSAPI; the [raw report](../assets/repo/bench/first-query-states.json) retains all 12 queries.
 
 ## Memory footprint
 
