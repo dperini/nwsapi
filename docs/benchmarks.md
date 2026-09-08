@@ -1,14 +1,16 @@
 # Selector benchmarks
 
-**1.7–8.9× faster first matches** across 12 nonempty component queries, and
-**31 of 36 lower all-results medians**, with 16 at least 2× faster, in the
+**1.7–8.2× faster first matches** across 12 nonempty component queries, and
+**30 of 36 lower all-results medians**, with 17 at least 2× faster, in the
 recorded comparison against `@asamuzakjp/dom-selector` 8.3.2.
 
 These results describe the current 2.3.0-prerelease source on Node.js 26.5.0,
 jsdom 30.0.1, and an Apple M3 Max. They measure warm queries on the listed
 fixtures. NWSAPI is called directly; jsdom's public selector methods include
-integration overhead. Some all-results margins are near noise and five
-queries remain slower. These are not cold-start, browser-speed, or whole-app
+integration overhead. The latest all-results run had high shared-machine
+load (about 34 runnable/waiting tasks averaged over one minute) and substantial
+sample variance; six query medians remain slower. This run does not establish
+a performance improvement or regression relative to the previous run. These are not cold-start, browser-speed, or whole-app
 measurements.
 
 ## First matches
@@ -18,28 +20,26 @@ once each selector group has a result. The simple class/tag paths avoid
 compilation entirely. Single-element positional checks avoid building full
 sibling indexes. See the [V8 analysis](v8-performance.md).
 
-| Query | NWSAPI (µs) | jsdom default (µs) | Speedup |
-| --- | ---: | ---: | ---: |
-| `.card` | 0.253 | 0.968 | 3.8× |
-| `button` | 0.246 | 1.281 | 5.2× |
-| `button.primary` | 0.338 | 1.731 | 5.1× |
-| `input.input` | 0.323 | 2.722 | 8.4× |
-| `.card > button.primary` | 0.415 | 2.129 | 5.1× |
-| `[data-testid]` | 1.112 | 9.950 | 8.9× |
-| `div > button` | 0.381 | 1.700 | 4.5× |
-| `:where(.card) > button` | 0.380 | 1.728 | 4.5× |
-| `div:nth-child(2n)` | 0.776 | 3.057 | 3.9× |
-| `input, button` | 0.951 | 5.019 | 5.3× |
-| `:is(button, input)` | 1.210 | 2.028 | 1.7× |
-| `button:not(.missing)` | 0.357 | 2.453 | 6.9× |
+| Query                    | NWSAPI (µs) | jsdom default (µs) | Speedup |
+| ------------------------ | ----------: | -----------------: | ------: |
+| `.card`                  |       0.257 |              1.005 |    3.9× |
+| `button`                 |       0.257 |              1.367 |    5.3× |
+| `button.primary`         |       0.355 |              1.846 |    5.2× |
+| `input.input`            |       0.333 |              2.728 |    8.2× |
+| `.card > button.primary` |       0.423 |              3.033 |    7.2× |
+| `[data-testid]`          |       1.158 |              7.435 |    6.4× |
+| `div > button`           |       0.399 |              1.751 |    4.4× |
+| `:where(.card) > button` |       0.393 |              1.724 |    4.4× |
+| `div:nth-child(2n)`      |       0.833 |              2.836 |    3.4× |
+| `input, button`          |       1.000 |              4.969 |    5.0× |
+| `:is(button, input)`     |       1.242 |              2.091 |    1.7× |
+| `button:not(.missing)`   |       0.375 |              2.481 |    6.6× |
 
 Medians from nine rounds of 1,000 calls per engine, after at least 100 ms of
 warmup per selector across the engines. Engine order rotates between rounds.
 The generated component fixture contains 300 cards.
 [Raw samples and source hashes](../assets/repo/bench/first-match-results.json)
-also include the saved pre-change build and two absent-match cases. The
-absent `.absent > button` case remains slightly slower than our saved build,
-although it is faster than jsdom's default engine in this run.
+also include the saved pre-change build and two absent-match cases. Both absent-match cases are faster than jsdom's default engine in this run.
 The table uses microseconds; the all-results charts below use milliseconds.
 
 <details>
