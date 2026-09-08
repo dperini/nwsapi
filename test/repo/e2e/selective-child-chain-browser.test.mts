@@ -39,16 +39,27 @@ test(
             ':is(div,span)',
             'section > :is(div,span)',
             ':where(span,div,span)',
+            'div',
+            '.anchor',
+            'section.anchor',
+            'span.missing',
+            'g',
             'section > :not(:nth-child(2))',
           ]) {
             const result = await page.evaluate(
               query => ({
                 native: [...document.querySelectorAll(query)].map(e => e.id),
                 engine: NW.Dom.select(query).map(e => e.id),
+                first: NW.Dom.first(query)?.id ?? null,
+                nativeFirst: document.querySelector(query)?.id ?? null,
               }),
               selector,
             )
             expect(result.engine, selector).toEqual(result.native)
+            expect(result.first, selector).toBe(result.nativeFirst)
+            expect(nw.first(selector)?.id ?? null, selector).toBe(
+              result.nativeFirst,
+            )
             expect(
               nw.select(selector).map(e => e.id),
               selector,

@@ -3863,7 +3863,7 @@
       return false
     },
     first = function _querySelector(selectors, context, callback) {
-      var element, match
+      var element, match, collection, i, length
 
       // A lone '#id' against a document is the id map's own question, and the
       // first match in tree order is exactly what getElementById returns.
@@ -3885,6 +3885,53 @@
           callback(element)
         }
         return element || null
+      }
+
+      // The first class/type match needs neither a copied candidate array nor
+      // a resolver. Keep uncommon syntax on the fully validating path.
+      if (
+        !Config.LEGACY &&
+        typeof selectors == 'string' &&
+        selectors &&
+        (match = /^([a-zA-Z][-\w]*|\*)?(?:\.([_a-zA-Z][-\w]*))?$/.exec(
+          selectors,
+        ))
+      ) {
+        context || (context = doc)
+        if (
+          (context.nodeType == 9 || context.nodeType == 1) &&
+          context.getElementsByTagName &&
+          context.getElementsByClassName
+        ) {
+          lastContext !== context && (lastContext = switchContext(context))
+          collection = match[2]
+            ? context.getElementsByClassName(match[2])
+            : context.getElementsByTagName(match[1])
+          element = collection[0] || null
+          if (match[2] && match[1] && match[1] != '*') {
+            i = 0
+            while (
+              element &&
+              !(
+                element.localName == match[1] ||
+                (HTML_DOCUMENT &&
+                  element.namespaceURI == NAMESPACE &&
+                  element.localName == match[1].toLowerCase())
+              )
+            ) {
+              // Reading a live collection's length can itself scan the DOM.
+              // The common first-candidate hit needs no length at all.
+              if (i === 0) {
+                length = collection.length
+              }
+              element = ++i < length ? collection[i] : null
+            }
+          }
+          if (element && typeof callback == 'function') {
+            callback(element)
+          }
+          return element
+        }
       }
 
       return (
