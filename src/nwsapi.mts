@@ -3157,8 +3157,10 @@ interface AttributeOperator {
             match = selector.match(Patterns['tagName']!)
             // the same string the comparison uses, so a filter built from it
             // cannot reject anything this test would have accepted
-            ancestry.pending[ancestry.pending.length] = match![1]!
-            pendingTag = 'if((' + read.tag('e') + '=="' + match![1]! + '")){'
+            expr = unescapeIdentifier(match![1]!)
+            ancestry.pending[ancestry.pending.length] = expr
+            pendingTag =
+              'if((' + read.tag('e') + '==' + JSON.stringify(expr) + ')){'
             break
 
           // namespace resolver
@@ -3188,8 +3190,16 @@ interface AttributeOperator {
             }
             NS = match![0]!.match(STD.namespaces)
             name = match![1]!
-            expr = name.split(':')
+            expr = unescapeIdentifier(name).split(':')
             expr = expr.length == 2 ? expr[1] : expr[0]
+            // Attribute identifiers are CSS text, not JavaScript literals.
+            // Encode escapes before inserting a name into a resolver string.
+            name = escapeIdentifier(name).replace(
+              /\\.|\x22/g,
+              function (part: string) {
+                return part == '"' ? '\\"' : part
+              },
+            )
             if (match![2]! && !(test = Operators[match![2]!])) {
               emit("'" + expression + "'" + qsInvalid)
               return ''

@@ -138,7 +138,7 @@ export function queryChart({
       .join('') +
     Array.from({ length: span + 1 }, (_, index) => {
       const value = 10 ** (low + index)
-      const label = value >= 1000 ? `${value / 1000} ms` : `${value} μs`
+      const label = value >= 1000 ? `${value / 1000}ms` : `${value}μs`
       return `<text x="${350 + (index / span) * 650}" y="132" text-anchor="middle" class="tick">${label}</text>`
     }).join('')
   const lines = rows
@@ -162,7 +162,7 @@ export function queryChart({
             const top = y + series * 12
             const warm = position(row.warm[series]!)
             const cold = position(row.cold[series]!)
-            const summary = `Cold ${row.cold[series]!.toFixed(2)} ms · Warm ${(row.warm[series]! * 1000).toFixed(2)} μs`
+            const summary = `Cold ${row.cold[series]!.toFixed(2)}ms · Warm ${(row.warm[series]! * 1000).toFixed(2)}μs`
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${summary}`)}</title>
       <path d="M${x} ${top}h650" stroke="#223048" stroke-width="2"/>
       <rect x="${x}" y="${top - 5}" width="650" height="10" fill="transparent"/>

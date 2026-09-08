@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-08T14:22:25.670Z",
+    "node": "v26.5.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M3 Max",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "4bd6955d1fac1c5ac40675cfa11dce6eeba749d6f964094892bb053e659e6cc7",
+    "competitorVersion": "8.3.2",
+    "lockfileSha256": "6ebabccc769cf46fb4c2980c649c1c458e315600e303474ba46a624a76a263ff",
+    "runtime": "Chromium 151.0.7922.34",
+    "host": "native browser DOM; no jsdom",
+    "count": 40,
+    "queries": 100,
+    "rounds": 5,
+    "fixtureSha256": "a2b1e6100a31fc02d3c3bf7011230fb7cd723b3b72752e64fb637f69e5fb0c55",
+    "competitorBundleSha256": "34e4e27a3e9db7d2f51a94672b836c7b3c8b0f434f6f0a75bbd61859a1459ee3",
+    "method": "Incremental retained JS heap per engine after forced GC. DOMs and both loaded libraries exist before baseline. Fresh browser page per engine and round; rotating order. Excludes DOM allocation, shared code, native browser memory and jsdom entirely."
+  },
+  "rows": [
+    {
+      "engine": "NWSAPI",
+      "initialized": {
+        "median": 12003.3,
+        "min": 12003.3,
+        "max": 12003.3,
+        "samples": [
+          12003.3,
+          12003.3,
+          12003.3,
+          12003.3,
+          12003.3
+        ]
+      },
+      "queried": {
+        "median": 88872.9,
+        "min": 88548.5,
+        "max": 88917.6,
+        "samples": [
+          88872.9,
+          88548.5,
+          88872.9,
+          88917.6,
+          88606.1
+        ]
+      },
+      "cacheGrowth": {
+        "median": 76869.6,
+        "min": 76545.2,
+        "max": 76914.3,
+        "samples": [
+          76869.6,
+          76545.2,
+          76869.6,
+          76914.3,
+          76602.8
+        ]
+      }
+    },
+    {
+      "engine": "@asamuzakjp/dom-selector",
+      "initialized": {
+        "median": 338013.9,
+        "min": 338013.9,
+        "max": 338013.9,
+        "samples": [
+          338013.9,
+          338013.9,
+          338013.9,
+          338013.9,
+          338013.9
+        ]
+      },
+      "queried": {
+        "median": 563531.5,
+        "min": 563473.2,
+        "max": 563923.5,
+        "samples": [
+          563923.5,
+          563551.3,
+          563473.2,
+          563531.5,
+          563523.6
+        ]
+      },
+      "cacheGrowth": {
+        "median": 225517.6,
+        "min": 225459.3,
+        "max": 225909.6,
+        "samples": [
+          225909.6,
+          225537.4,
+          225459.3,
+          225517.6,
+          225509.7
+        ]
+      }
+    }
+  ]
+}

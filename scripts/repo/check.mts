@@ -8,9 +8,11 @@ import {
 } from './lib/paths.mts'
 import { isMainModule, runNode } from './lib/run-node.mts'
 import { toolVersions } from './external-tools.mts'
+import { checkSoak } from './soak.mts'
 
 export function checkCode(run = runNode) {
   toolVersions()
+  checkSoak()
   run(API_SCRIPT_PATH, ['--check'])
   run(SVG_CHECK_SCRIPT_PATH, [])
   run(FORMAT_SCRIPT_PATH, ['--check'])

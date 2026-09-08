@@ -24,6 +24,20 @@ jobs:
       # Use real Git for upstream setup, not the local runner's checkout shim.
       - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
       - run: pnpm run check
+      - run: pnpm run test:fuzz:replay
+        id: fuzz-replay
+      - run: pnpm run test:fuzz
+        id: fuzz
+        env:
+          FUZZ_TIME_MS: '15000'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
+        with:
+          name: fuzz-corpus-${{ github.run_id }}
+          path: .vitiate/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
       - run: pnpm run test:package
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run cover

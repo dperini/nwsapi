@@ -96,8 +96,8 @@ export function chart(
     ...rows.flatMap(row => row.milliseconds.filter(value => value !== null)),
   )
   const groupHeight = 58 + names.length * 26
-  const notesTop = 160 + groupHeight * rows.length + 20
-  const height = notesTop + 35 + 5 + 40
+  const notesTop = Math.max(640, 160 + groupHeight * rows.length + 20)
+  const height = Math.max(720, notesTop + 80)
   const body = rows
     .map((row, index) => {
       const top = 150 + index * groupHeight
@@ -112,7 +112,11 @@ export function chart(
             const y = top + 28 + series * 26
             const status =
               row.errors[series] ??
-              (value === null ? 'not measured' : `${value.toFixed(2)} ms`)
+              (value === null
+                ? 'not measured'
+                : value < 0.1
+                  ? `${(value * 1000).toFixed(2)}μs`
+                  : `${value.toFixed(2)}ms`)
             const width = value === null ? 0 : (value / maximum) * 480
             const weight = value === fastest ? ' style="font-weight:700"' : ''
             return `<g><title>${escapeText(`${name}: ${row.selector}. ${status}`)}</title><text x="48" y="${y + 5}" class="code engine"${weight}>${escapeText(name)}</text><path d="M440 ${y}h480" stroke="#223048" stroke-width="2"/>${value === null ? '' : `<rect class="bar" x="440" y="${y - 1}" width="${width.toFixed(2)}" height="2" fill="url(#series${series})"/>`}<text x="940" y="${y + 5}" class="time"${weight}>${escapeText(status)}</text></g>`

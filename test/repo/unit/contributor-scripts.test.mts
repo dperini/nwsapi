@@ -36,6 +36,11 @@ test('registry lookup failures cannot appear as a successful update', () => {
       'Failed to fetch package "z"\nTimeout requesting "a"\nFailed to fetch package "z"\nAlready up to date',
     ),
   ).toEqual(['a', 'z'])
+  expect(
+    collectPackumentFailures(
+      ' ERROR \n\n> @types/node unknown error\nTypeError: fetch failed\n> taze unknown error\nTypeError: fetch failed',
+    ),
+  ).toEqual(['@types/node', 'taze'])
   expect(collectPackumentFailures('Already up to date')).toEqual([])
 })
 
@@ -119,9 +124,9 @@ test('update refreshes the lockfile only after a successful write pass', () => {
   const install = () => {
     installs++
   }
-  updateDependencies(true, run, install)
+  updateDependencies(true, run, install, () => {})
   expect(installs).toBe(0)
-  updateDependencies(false, run, install)
+  updateDependencies(false, run, install, () => {})
   expect(installs).toBe(1)
   expect(calls.every(([entry]) => entry === TAZE_CLI_PATH)).toBe(true)
   expect(() =>
@@ -131,6 +136,7 @@ test('update refreshes the lockfile only after a successful write pass', () => {
         throw new Error('registry failed')
       },
       install,
+      () => {},
     ),
   ).toThrow()
   expect(installs).toBe(1)

@@ -10,9 +10,11 @@ See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-
 
 ## Performance
 
-[![nwsapi cold and warm query times; further left is faster](assets/repo/bench/perf-hero.svg?v=06285a5bdaad)](docs/benchmarks.md)
+[![nwsapi cold and warm query times; further left is faster](assets/repo/bench/perf-hero.svg?v=2f150ef1f947)](docs/benchmarks.md)
 
-[Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/performance.md)
+Direct library comparisons on native browser DOMs, without jsdom.
+
+[Memory footprint →](docs/benchmarks.md#memory-footprint) · [Browser file size →](docs/benchmarks.md#browser-file-size) · [Explore the benchmarks →](docs/benchmarks.md) · [Inside the compiler →](docs/performance.md)
 
 ## Install
 
@@ -132,6 +134,8 @@ Node tests do not use the browser or WPT checkout.
 ```sh
 pnpm run check
 pnpm run test:package
+pnpm run test:fuzz        # Bounded coverage-guided pass
+pnpm run test:fuzz:replay # Replay saved inputs and crashes
 ```
 
 Run `pnpm run fix` to apply lint fixes, format files, and check the result.
@@ -174,6 +178,9 @@ The package does not include TypeScript source files or development tools.
 Pin development dependencies in the `pnpm-workspace.yaml` catalog. Update `pnpm-lock.yaml` when dependencies change.
 Run `pnpm run update --check` to preview dependency updates.
 Run `pnpm run update` to apply updates and refresh the lockfile.
+Run `pnpm run soak:check` to verify the release-delay policy; `pnpm run check` includes it.
+Use `pnpm run soak:bypass package@version` for an exact, dated exception.
+`pnpm run update` removes expired exceptions, synchronizes the npm and pnpm settings, and retries failed taze lookups once.
 Compiler tool versions need a separate compatibility review.
 New dependency versions have a one-day release delay. Dependency scripts need explicit approval.
 Use pnpm to install this repository; npm cannot install its catalog references.

@@ -1,0 +1,607 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-08T14:25:44.427Z",
+    "node": "v26.5.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M3 Max",
+    "jsdom": "30.0.1",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "4bd6955d1fac1c5ac40675cfa11dce6eeba749d6f964094892bb053e659e6cc7",
+    "competitorVersion": "8.3.2",
+    "lockfileSha256": "6ebabccc769cf46fb4c2980c649c1c458e315600e303474ba46a624a76a263ff",
+    "rolldown": "1.2.7",
+    "method": "NWSAPI published core browser file versus a full dom-selector ESM bundle, including runtime dependencies; no tree shaking; same Rolldown minifier; gzip level 9; Brotli quality 11. Excludes jsdom, NWSAPI CLI, adapter and optional css-tree peer."
+  },
+  "rows": [
+    {
+      "engine": "NWSAPI",
+      "artifact": "dist/nwsapi.min.js (published core browser file)",
+      "bytes": 55386,
+      "gzip": 19102,
+      "brotli": 17235,
+      "sha256": "2d386c4a3744de1494a604d1bd7eb87848343db7a59e457105c8e0a5d979dd52"
+    },
+    {
+      "engine": "@asamuzakjp/dom-selector",
+      "artifact": "Full runtime bundle, minified for this report",
+      "bytes": 309744,
+      "gzip": 90082,
+      "brotli": 79317,
+      "sha256": "06e5d201023cb6f4c63a6159b73b81eff6f42d9c55e5642a1a39ec03b7b41505"
+    }
+  ],
+  "competitorModules": [
+    {
+      "file": "@asamuzakjp/dom-selector/src/index.js",
+      "sha256": "cfa411c3efdc6885b7d88d4df800fa1c749db901d146dc2601c481486954d466"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/constant.js",
+      "sha256": "c3bf549b549315a73100e03e31bf21cc7a94acd8c021040de9908b85e3eb6433"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/evaluator.js",
+      "sha256": "38942bf1485c75dcad5610f66a4dc0825589074beb41ffb030b4af69493eb2ed"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/event.js",
+      "sha256": "2f39c4eae3d1f93d71aa2405218993992f22b801ec2aaae960c506ba6c0603d8"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/finder.js",
+      "sha256": "ebc4f5dca4d8f3a7e20b80ba3422a924a9f1e7f2784905ed20241ea5d7a1871a"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/mapper.js",
+      "sha256": "d713d87bf6eb85d5977344eecf2048148120bceffe991ec5325fb8f0b7c88d96"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/matcher.js",
+      "sha256": "db2f4c60ca0d20864da1f725c72250476a5097c86dcd5fc76e4011a453d87f00"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/nwsapi.js",
+      "sha256": "c232f330b9e48ef420c4d97ea25a0f459f7e16eab4d69edca5461feb68b4f054"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/parser.js",
+      "sha256": "0e13caebb235f2e14b9e320d79f164ee4b4ebf38f88e75b4f0ba1006d925d76a"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/processor.js",
+      "sha256": "e259bf496ecfdc5bc0f29a4251ab892f87097b0db4bc740d9531459ea5a996fe"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/selector.js",
+      "sha256": "db1e68283f2cc1dba2c67c98a91be9904c50b4a0a2f61b997410319d4950d034"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/utility.js",
+      "sha256": "328ca8a8b4f9f81b6aec36079342aa2365b52998a072edafb743ccd80181e3d2"
+    },
+    {
+      "file": "bidi-js/dist/bidi.mjs",
+      "sha256": "faa1dadce0131fc131d3c6e905af3de38ef5f0000ce0991a490318cdf0dec65d"
+    },
+    {
+      "file": "css-tree/dist/data.js",
+      "sha256": "b0fd864760415cd6b8cf5cf1d87b4b7e326b3e5e7ce3e07a8cb9792b4181acdb"
+    },
+    {
+      "file": "css-tree/dist/version.js",
+      "sha256": "84162fb3f322ba881ce5997d0c9b8184ae137efd059b6588be5804c86585868c"
+    },
+    {
+      "file": "css-tree/lib/convertor/create.js",
+      "sha256": "5362ff474f863e16995f1f920a78a86252316bba425def986d01fd521b821a21"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/SyntaxError.js",
+      "sha256": "a8b72a0d0a092d87e2d71b35d9bdb074800dfa4973daf378f5d791ff996c31a9"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/generate.js",
+      "sha256": "8219bdc7bbdcd9a35dd022d0f0b6aebb8b6927574a0a66f6f9ff2dc98c6548d7"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/index.js",
+      "sha256": "7d8f396bc462f16e1a941d452c08c211edd43576f8520019da4271f16ba44e7f"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/parse.js",
+      "sha256": "1314a5458f65204a04c20dafeb0a6e8e24d7fe37bb9e0da5133c6d59ab72ae63"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/scanner.js",
+      "sha256": "4ae252555ea0f5e79cdd09163991e4f8310b31cf1eb9cc77357b2f6e5bb1f383"
+    },
+    {
+      "file": "css-tree/lib/definition-syntax/walk.js",
+      "sha256": "342d693c25a42c74ac3f66090043fcf5646b1a90438207c389dab6e8028879fc"
+    },
+    {
+      "file": "css-tree/lib/generator/create.js",
+      "sha256": "2e4112898f61442bfa9aebc808e6e5e1dd28b267955fffdef5a87f32ca248ec0"
+    },
+    {
+      "file": "css-tree/lib/generator/sourceMap.js",
+      "sha256": "6bbce641ceb01ea9413f1eb435dbc95f5ca4c602eb864b05af47bf03488503c7"
+    },
+    {
+      "file": "css-tree/lib/generator/token-before.js",
+      "sha256": "1896ece52083a5209f887474a50826f8ce60af68135dd1c547bb1c2bc33c72f3"
+    },
+    {
+      "file": "css-tree/lib/index.js",
+      "sha256": "8e8e4179971e7edc1e3fd04c14ec7efe84ecf51deb12d5d052ecc59cdc89b5dc"
+    },
+    {
+      "file": "css-tree/lib/lexer/Lexer.js",
+      "sha256": "818e6d0d35dbfa8d1f4c9a34634c7f1d73dbcef9fc97ec25e599b55ee68e71af"
+    },
+    {
+      "file": "css-tree/lib/lexer/error.js",
+      "sha256": "cbb0e395106f5c3d4da276bdc27d8199da3eb95cbc8e65d1583ba2c9bacafd5b"
+    },
+    {
+      "file": "css-tree/lib/lexer/generic-an-plus-b.js",
+      "sha256": "e73105323a180175b51dfdf81f5833a5a5d4e36ba235d17ff0589ee8929a36fd"
+    },
+    {
+      "file": "css-tree/lib/lexer/generic-const.js",
+      "sha256": "72896ada1af386326bbc053bc1302c51739c928e90f7e57d2024b9cee72c5e2b"
+    },
+    {
+      "file": "css-tree/lib/lexer/generic-urange.js",
+      "sha256": "01256dbcdb627bb4bd9966863b414eb9372ceef67e984d9a89bd521020636393"
+    },
+    {
+      "file": "css-tree/lib/lexer/generic.js",
+      "sha256": "d3e66172510a6057879885aaf4ffd77944e598f9262aab369216de7bfd222daf"
+    },
+    {
+      "file": "css-tree/lib/lexer/match-graph.js",
+      "sha256": "862b1e04494b93d337cde872c680731a242b8b8a715655ba65887049edbea6c6"
+    },
+    {
+      "file": "css-tree/lib/lexer/match.js",
+      "sha256": "d1aa43eee2383b47e63ce180ea285d197d452e6402e609637bb3846378f0cea1"
+    },
+    {
+      "file": "css-tree/lib/lexer/prepare-tokens.js",
+      "sha256": "e25ecabc4a78c35903e603a25f094fa074b763060c6842aae55d049a2f999675"
+    },
+    {
+      "file": "css-tree/lib/lexer/search.js",
+      "sha256": "7805cd906f66272b98321307c6fe5d1efd0a8f177a5e89b25463b405eeb4783e"
+    },
+    {
+      "file": "css-tree/lib/lexer/structure.js",
+      "sha256": "11fe95b505a401e752636ddf6eaae75ac51963feefe44100e1c769ab575ca4df"
+    },
+    {
+      "file": "css-tree/lib/lexer/trace.js",
+      "sha256": "616c3897a9fe65f595ccbbebe130e3d71525edf98a1441ecc9042d012c27fa3b"
+    },
+    {
+      "file": "css-tree/lib/lexer/units.js",
+      "sha256": "25f99b405f14194f8e1a4d3432a8d1d3f59e814dd93bc703db2d6332d397b1f1"
+    },
+    {
+      "file": "css-tree/lib/parser/SyntaxError.js",
+      "sha256": "db9c79b67c9766cd6f0376aadc85ae25b1694a613b34fcf7407b9351487821e0"
+    },
+    {
+      "file": "css-tree/lib/parser/create.js",
+      "sha256": "b884e64b00eb8b63d398fe395a29f6b40a43a29220364864717cbba9dd670334"
+    },
+    {
+      "file": "css-tree/lib/parser/sequence.js",
+      "sha256": "c3930235086e8342b1c0d0808cf4bf3790114ecd7af96c851fa7c05a55517b86"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/container.js",
+      "sha256": "8a5e4a0553fd30c76c34a25da3faf43400130b986e75f016f1f259659a3feeb9"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/font-face.js",
+      "sha256": "e8577c256cb18011d3cc005722e4af5f6df289cc7e3820b9bd52e0e617f4bbe3"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/import.js",
+      "sha256": "d1a544786ac26f55d8856c3fc9e2b408be46eba1d21ff5daf4b5aeadd396da3c"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/index.js",
+      "sha256": "69ccce383380e212bf1e8ed1f693c65702ed6ca92076a399f4ea4d4f082b8aa8"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/layer.js",
+      "sha256": "b5ab72fd51afc067c458618977f4e7c5bb0a770937b81f5b55b309b346deea35"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/media.js",
+      "sha256": "e04fa163e347946fbcafd54c1500a396041931cad8a1923fded62805e51c6a06"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/nest.js",
+      "sha256": "ee141ed45c843703242e32b9988bb7620f72caeae06c15fd14293bd8279973a8"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/page.js",
+      "sha256": "ee141ed45c843703242e32b9988bb7620f72caeae06c15fd14293bd8279973a8"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/scope.js",
+      "sha256": "67e42f8220965cdd89497465f0eaae540177db75e18cfaa8e47ef1a63af36893"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/starting-style.js",
+      "sha256": "477a913ceff8ad5516e580b2c7d3b92a757bb1f2aac194c218c74e83f8a76d25"
+    },
+    {
+      "file": "css-tree/lib/syntax/atrule/supports.js",
+      "sha256": "771ec140c95baaf05e49f07d8db828d06aea771ab1ad84d9611bd494d8e284a9"
+    },
+    {
+      "file": "css-tree/lib/syntax/config/lexer.js",
+      "sha256": "9070d8711d1c8fd2540299f272b8c307b48d060b55a77746be8c1ce99779bb7a"
+    },
+    {
+      "file": "css-tree/lib/syntax/config/mix.js",
+      "sha256": "60e42b08af1a9fc72864f4fb04dbc49b53a122c715a089e0f1dacba2da3c2a5d"
+    },
+    {
+      "file": "css-tree/lib/syntax/config/parser.js",
+      "sha256": "81f0e01cffe0f898df7d0732cb181bdecc4d89ac8ff85b3519e57b8ae39d5c0f"
+    },
+    {
+      "file": "css-tree/lib/syntax/config/walker.js",
+      "sha256": "130ec32c1207d4578698afa275666729fde45b49cb9a99de22de70a7c6bac619"
+    },
+    {
+      "file": "css-tree/lib/syntax/create.js",
+      "sha256": "6b17b6b6f894e565124a378788928db01661067059c1a34a0daf929d53019dae"
+    },
+    {
+      "file": "css-tree/lib/syntax/function/expression.js",
+      "sha256": "e1c4196e41ccc87ca37d658dcc04eb0c393bd6722ae4edc264d8e5cda6f2ef22"
+    },
+    {
+      "file": "css-tree/lib/syntax/function/var.js",
+      "sha256": "e56be12d3341d1d4538119c0963fcb7d6dfb1692f63133983800d09026c0f48b"
+    },
+    {
+      "file": "css-tree/lib/syntax/index.js",
+      "sha256": "a419605b5daf916d5afc872603d1d63e843baa42317d5d7378fc97358dc45712"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/AnPlusB.js",
+      "sha256": "174df1187617e79ef0186dbd009e76f6c7e5206f0ff2c242b44800fe4167b869"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Atrule.js",
+      "sha256": "09dfb8efc2b6cc26a221b3157d251be4c6ef11aa00f799a7cd095c132ccab339"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/AtrulePrelude.js",
+      "sha256": "b4506828af3a5a4d98e3495d49e1ed2f3263a3a46f378d7596d3702d841bd2d4"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/AttributeSelector.js",
+      "sha256": "233e66919c3507150e603a0d56d3098d5682717afe392feb6f4487bb434c4119"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Block.js",
+      "sha256": "81923650a615fcd8cc3086b853f536e6a325489f4bc0c6bd369a66d6c1e0c734"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Brackets.js",
+      "sha256": "d1a39842542877540e6dfe6bca99b50490e8a2bbc79ffbf67fe29eb76f51d7fe"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/CDC.js",
+      "sha256": "4c24e5a51a454fcdf4be577c57bac647fae9fc292c73fd5757735b740650094e"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/CDO.js",
+      "sha256": "e2f5820901326cec91a473bc1ae002d49e07048a356d187d0f29ad1585a9e1e3"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/ClassSelector.js",
+      "sha256": "a06bc9dd02ea4812cfd4471ff25a057767616fa28a71408c8aabe1fddb4c2f4c"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Combinator.js",
+      "sha256": "eb4b00e70635c7383c035d6d5992f75ac9f39152d509222b7f312ef4d4d6b5ec"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Comment.js",
+      "sha256": "c0ef6a16f29de78890b47857c93a31a25e21a46d5b675243ab4726d764e0f38b"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Condition.js",
+      "sha256": "c87b0e76b8f72bb43bba26b827522654a22ac720ddaacc7f1b1a111ba768bcca"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Declaration.js",
+      "sha256": "e374b4da8b379775addbbb94d84267b099b3dd174ad27e6ae045c1a5c569db69"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/DeclarationList.js",
+      "sha256": "07bfa453f9e72e605b000f94c6477dd4ce3e0621a2649f74aa2b6f8599bfa932"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Dimension.js",
+      "sha256": "74762aaefbed62f292d1750e441694c7c6d85d576fdb746b7882adb705f4d26c"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Feature.js",
+      "sha256": "2962fc95aa8b884ed5638b761865a318dc4eace4bb210665bbe9b6c87ebd6e51"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/FeatureFunction.js",
+      "sha256": "668cc9678dcb8a684efea81a029f359b0eeadac3ad959d347b209f3593550a15"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/FeatureRange.js",
+      "sha256": "948cdbcd4d42bc94acb526a2c991a219a4778d6abd66a198a0099dab2635860e"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Function.js",
+      "sha256": "83b4204cff6071c9788ac04b5c5e6b8a911f57b83e756d5972a12055ae263d29"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/GeneralEnclosed.js",
+      "sha256": "4486d2374636933a911593afb034888fbe3539644cd198cf6e39f714ffbca4a8"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Hash.js",
+      "sha256": "056aa0c9b6c65c09284f036b78e5134294f4055679c56b3f98402657d23d7cf2"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/IdSelector.js",
+      "sha256": "86d4d75c9ed074da8060b1e31a5e5118fca068c25828cd69e9a6f4dab1bb9ab8"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Identifier.js",
+      "sha256": "d14b969e25957bfc72fb02cff0f643e290eed04f658a54f7f64cbbdd261a58f2"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Layer.js",
+      "sha256": "125a2511cde6ccec92cac679b280cb198e9848671e9a7a5d2bfd0b3d8252a1fa"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/LayerList.js",
+      "sha256": "15bffd602747af6ee56a92ecedb8e6677615212a2f798941b26c89c81708953a"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/MediaQuery.js",
+      "sha256": "c6784fe7c64e7cbb5d21ff74a9d8904d5c849cddf134a6c67cd78205597e1165"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/MediaQueryList.js",
+      "sha256": "2bcb4702cafa34221a1b03d3fddb9376ca9f79a68d508b0ce1be0feabbe125e7"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/NestingSelector.js",
+      "sha256": "2d7576f97341fc196fcc7c7950f10f8d812ce542725eb65fdc8d20c6307d39d2"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Nth.js",
+      "sha256": "a4b0a04f8f6de7349fc4e393f667c62b1cf55a5c27c9df2a3c44d83993631a74"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Number.js",
+      "sha256": "182dd5f9e3db12f5ca71c30def5f788e23751d20787a1c74ec36e0096689227b"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Operator.js",
+      "sha256": "20ede258409eaef827a6d9accd769a1fbfe3a1e2391d09e9ea57243e015d56b6"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Parentheses.js",
+      "sha256": "4a1a93aa8f161d62cf6f287714ab7a7c0be9c7db0da058f4352ba21e50099af7"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Percentage.js",
+      "sha256": "f286f1708b7cf35ca02de184b0ebd96508ac1a4dcdffeb3b472e11183eb7f7d4"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/PseudoClassSelector.js",
+      "sha256": "6c10d2b009dd8b97bcd52631682b3baedf212a54f23e487a0946b28b8c7aebe0"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/PseudoElementSelector.js",
+      "sha256": "cebd838d4e6f0d516382fed5d0b4c6e4e55490a465e293002e5d471ca4c781f3"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Ratio.js",
+      "sha256": "b6af081d1a0c6ac1775cf21825d998dfd8b59867ceca57dff338774fb299e81b"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Raw.js",
+      "sha256": "8ae4e8cb9dd860d8684899f34f923d2ca309de2cf75d4d4f62a4bb45e2d99346"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Rule.js",
+      "sha256": "32072072fd78b3016e0a54f242feb350125366ae5f9f2d2a2640d5c4ae1c8cd8"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Scope.js",
+      "sha256": "060220580f8c52e3cd9d397d24ca1d7aba72d7a9ea986072a12975bc5783913f"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Selector.js",
+      "sha256": "8e648d3363b3137f7f27e92b9fccc753729ce0a8bad7c3b7417f6f5fce247fc1"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/SelectorList.js",
+      "sha256": "674f3f2bfda443a44a673d4092cc83fe6b4cde36f4351f2b7c76cd2bd64c526e"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/String.js",
+      "sha256": "d9505e97bee2866f96fef0af2ad2aa6bbf1c8b72c03f5f2e52a881a6e533055f"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/StyleSheet.js",
+      "sha256": "086ee5ab40beaed694c257b18f951a08478865060a08d67e93f607662456f71f"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/SupportsDeclaration.js",
+      "sha256": "55abee1f999074c97da8fceb4146d16677005e8de4cd5f3947858b4d792eb49b"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/TypeSelector.js",
+      "sha256": "ff416f7a83c6dd06e4d6c4436475075a0d903be049a9e9c6c096614bab7ef5ed"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/UnicodeRange.js",
+      "sha256": "5082f5ef86771478388ed14d2e187e2bf1d3e277876b10199e34c3249bb6bffd"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Url.js",
+      "sha256": "b3e6edc61f39556bbfc9576a8368f42f6c88baa0b79cc1b0e8d2c3a67d820113"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/Value.js",
+      "sha256": "bb1d1a21555903d949fabeaebdbc76e822dce3b1cdf7251a2c5c9977ba21b644"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/WhiteSpace.js",
+      "sha256": "b1648391876a49698683a96141c1b3c6f37cf175fee7b7315cf64a7958d8b16c"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/index-parse.js",
+      "sha256": "9942360e65b1944f39d69279e7b67e6786258864c98eba1c7e508dade7c54fc7"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/index.js",
+      "sha256": "52198aa0f3528be20118093694f0687d285d45306725de92964e5e26aec5a57c"
+    },
+    {
+      "file": "css-tree/lib/syntax/pseudo/index.js",
+      "sha256": "5c4e58d049c1c13930494f4d5ffc8c05d8464b6f5c3dba88bd8dfb701936d566"
+    },
+    {
+      "file": "css-tree/lib/syntax/pseudo/lang.js",
+      "sha256": "ce5ce349afe26732f00aacf01aef046c5d561ab79988258c276652d2afc3a0c2"
+    },
+    {
+      "file": "css-tree/lib/syntax/scope/atrulePrelude.js",
+      "sha256": "a770bb485cdd853f875909466657f5fd11ec45ed65fe75983a3195f3e6e47d9c"
+    },
+    {
+      "file": "css-tree/lib/syntax/scope/default.js",
+      "sha256": "96dc78a97b49b02a9c4e768ad658b04cde0ccca92d46ec5a016d2b94b8df3aa7"
+    },
+    {
+      "file": "css-tree/lib/syntax/scope/index.js",
+      "sha256": "d86ac0998693af6e7535e7314144032da29124b7c5686b5d19b2330967f1a0a9"
+    },
+    {
+      "file": "css-tree/lib/syntax/scope/selector.js",
+      "sha256": "372306c1f32910ffbdbfa8dbe3abe550483061534b289cebca0248bfe103c15a"
+    },
+    {
+      "file": "css-tree/lib/syntax/scope/value.js",
+      "sha256": "92c03516e7d6b36403c08421663b97e7c7a704590dd3f52589b9e32a3c4ca1c9"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/OffsetToLocation.js",
+      "sha256": "1246bdff87c6a08ac9f9505e2758898fee39e3bf1480ef6bfbf05eb65c6f59b6"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/TokenStream.js",
+      "sha256": "9d1b0b5e157a984b2700b75a2a44b63dae4ab426186f4d94d3aff2436967d0ec"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/adopt-buffer.js",
+      "sha256": "a5fdeaf3d9fb293c8f57cca9ec3aad1e66057ce646eac6d4e294032d12dcd087"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/char-code-definitions.js",
+      "sha256": "f184aa02202424f4b33110f3fb5f6228626eeb0cbbb9e15bcc0e33522ad28790"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/index.js",
+      "sha256": "51d063532994e1e1f7c0c24ac1a8ef0f213e5b97fdc5b17c1aaedfdcde4016df"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/names.js",
+      "sha256": "e033bb7b9a6fc4a6c4541f0e69cce456841bfbf689be4520710fa9018941f98f"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/types.js",
+      "sha256": "44e51dcd9d13abf655a7bcd5d9655bdaf386ec751a910d4aca9452544e8bfb81"
+    },
+    {
+      "file": "css-tree/lib/tokenizer/utils.js",
+      "sha256": "2c0087a12707b22eae4bc44dd338a8682838663872b2240387c5979ae76d44bb"
+    },
+    {
+      "file": "css-tree/lib/utils/List.js",
+      "sha256": "877cc7541338d107e5b9cebe265107fbe02f60d2c6b68944b2fa4a334e9158c8"
+    },
+    {
+      "file": "css-tree/lib/utils/clone.js",
+      "sha256": "ebee335a4abd5dd5d591b7c960b5782ced9bfad372c0b42efb9e9104ea899f6c"
+    },
+    {
+      "file": "css-tree/lib/utils/create-custom-error.js",
+      "sha256": "0433bd9e75230232aab25b5d37d14351c3dfe005933841bf176d01f0e0dfd238"
+    },
+    {
+      "file": "css-tree/lib/utils/ident.js",
+      "sha256": "6e0e3d9ad14c2491d6f5f6d5caed0aca99becdb72f6eb3e80245c2dc1f4a9bf4"
+    },
+    {
+      "file": "css-tree/lib/utils/names.js",
+      "sha256": "53e7d8b7a84f5d437be9b18b33b4d28412d83dab3de53659cdc624c54a4b56b9"
+    },
+    {
+      "file": "css-tree/lib/utils/string.js",
+      "sha256": "249c99944c31160a71df74c76c71fe3327939e84243f24d1b9f46d9abf6ea5c4"
+    },
+    {
+      "file": "css-tree/lib/utils/url.js",
+      "sha256": "c08cb33b48ba773ca988f8dab00c6ce0c7ae17621d8624e204a16b4510531df2"
+    },
+    {
+      "file": "css-tree/lib/walker/create.js",
+      "sha256": "aa632d55bec88636a4a2f964e7dfb075993c1e0589eeebffa0b0327351af0f84"
+    },
+    {
+      "file": "is-potential-custom-element-name/index.js",
+      "sha256": "8718b971d49c04a5127aeaffee16cd9a920deb400d8c269c390d521800f1fbf5"
+    },
+    {
+      "file": "lru-cache/dist/esm/browser/index.min.js",
+      "sha256": "de8cbf33aaab6c3baac77250443d991faeb82a87f772b8f2e1df39b75004dc88"
+    },
+    {
+      "file": "source-map-js/lib/array-set.js",
+      "sha256": "163bb3055aaea7140167740036a83161fd912c344b14f992754b80f21477d754"
+    },
+    {
+      "file": "source-map-js/lib/base64-vlq.js",
+      "sha256": "f3407e528f54ec0787bd0a71eeac0c99fffd98445916fcbe116dc69ca3be928b"
+    },
+    {
+      "file": "source-map-js/lib/base64.js",
+      "sha256": "651bf433cf05e9ec8cee0b94639483236a605d48279e83d3d5c5de81c21d6599"
+    },
+    {
+      "file": "source-map-js/lib/mapping-list.js",
+      "sha256": "35ddb82861f11a70ab84cb47d620fcb28d7f884bb444644e06bde815b836ef9e"
+    },
+    {
+      "file": "source-map-js/lib/source-map-generator.js",
+      "sha256": "645482e8d23fd49cd025a0ad07c2e2beb173995138370d6a73e596e18e889bd8"
+    },
+    {
+      "file": "source-map-js/lib/util.js",
+      "sha256": "0629f3ae2f3049cda3a2e87ea651dcf0cc71108f4681795ab989a8ac1573fc03"
+    }
+  ]
+}

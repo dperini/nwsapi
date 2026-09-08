@@ -15,75 +15,55 @@ afterAll(async () => {
 })
 
 describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
-  test('keeps the README notes inside the canvas with bottom padding', async () => {
-    const svg = readFileSync(
-      new URL('../../../assets/repo/bench/perf-hero.svg', import.meta.url),
+  test('all published comparison SVGs share a viewport and keep text inside it', async () => {
+    const markdown = readFileSync(
+      new URL('../../../docs/benchmarks.md', import.meta.url),
       'utf8',
     )
+    const paths = [
+      ...markdown.matchAll(/!\[[^\]]*\]\(([^)?]+\.svg)(?:\?[^)]*)?\)/g),
+    ].map(match => match[1]!)
+    expect(paths).toHaveLength(12)
     const page = await browser.newPage({
-      viewport: { width: 1100, height: 900 },
+      viewport: { width: 1100, height: 720 },
     })
     try {
       await page.emulateMedia({ reducedMotion: 'reduce' })
-      await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
-      const bounds = await page.evaluate(() => {
-        const canvas = document.documentElement.getBoundingClientRect()
-        const texts = Array.from(document.querySelectorAll('text'), node =>
-          node.getBoundingClientRect(),
+      for (const path of paths) {
+        const svg = readFileSync(
+          new URL('../../../docs/' + path, import.meta.url),
+          'utf8',
         )
-        const notes = Array.from(document.querySelectorAll('.note'), node =>
-          node.getBoundingClientRect(),
-        )
-        return {
-          padding: canvas.bottom - Math.max(...texts.map(rect => rect.bottom)),
-          overflow: texts.some(
-            rect => rect.left < canvas.left || rect.right > canvas.right,
-          ),
-          notePadding: Math.min(
-            ...notes.map(rect => canvas.right - rect.right),
-          ),
-          firstNoteWidth: notes[0]!.width,
-          tickFont: getComputedStyle(document.querySelector('.tick')!).fontSize,
-          comparisonFont: getComputedStyle(
-            document.querySelector('.comparison')!,
-          ).fontSize,
-          metadataGap: notes[3]!.top - notes[2]!.bottom,
-          metadataColors: Array.from(
-            document.querySelectorAll('.metadata, .metadata .code'),
-            node => getComputedStyle(node).fill,
-          ),
-          noteText: Array.from(
-            document.querySelectorAll('.note'),
-            node => node.textContent,
-          ),
-          matchingNoteFonts: Array.from(
-            document.querySelectorAll('.note .code'),
-          ).every(
-            node =>
-              getComputedStyle(node).fontSize ===
-              getComputedStyle(node.parentElement!).fontSize,
-          ),
-        }
-      })
-      expect(bounds.padding).toBeGreaterThanOrEqual(39)
-      expect(bounds.overflow).toBe(false)
-      expect(bounds.notePadding).toBeGreaterThanOrEqual(48)
-      expect(bounds.firstNoteWidth).toBeGreaterThan(650)
-      expect(bounds.metadataGap).toBeGreaterThanOrEqual(16)
-      expect(bounds.tickFont).toBe('16px')
-      expect(bounds.comparisonFont).toBe('16px')
-      expect(new Set(bounds.metadataColors)).toEqual(
-        new Set(['rgb(117, 128, 142)']),
-      )
-      expect(bounds.noteText[1]).toBe(
-        'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
-      )
-      expect(bounds.noteText.slice(-3)[0]).toMatch(/^Cold speedups/)
-      expect(bounds.noteText.slice(-3)[1]).toMatch(/^nwsapi v/)
-      expect(bounds.noteText.slice(-3)[2]).toMatch(/^Direct engine API/)
-      expect(bounds.matchingNoteFonts).toBe(true)
-      expect(await page.locator('.bar').count()).toBe(24)
-      expect(await page.locator('g > title').count()).toBe(24)
+        await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))
+        const bounds = await page.evaluate(() => {
+          const canvas = document.documentElement.getBoundingClientRect()
+          const texts = Array.from(document.querySelectorAll('text'), node => ({
+            text: node.textContent,
+            rect: node.getBoundingClientRect(),
+          }))
+          return {
+            viewBox: document.documentElement.getAttribute('viewBox'),
+            overflow: texts
+              .filter(
+                ({ rect }) =>
+                  rect.left < canvas.left + 24 ||
+                  rect.right > canvas.right - 24 ||
+                  rect.bottom > canvas.bottom - 24,
+              )
+              .map(({ text }) => text),
+            noteFonts: Array.from(
+              document.querySelectorAll('.note'),
+              node => getComputedStyle(node).fontSize,
+            ),
+          }
+        })
+        expect(bounds.viewBox, path).toBe('0 0 1100 720')
+        expect(bounds.overflow, path).toEqual([])
+        expect(
+          bounds.noteFonts.every(font => font === '16px'),
+          path,
+        ).toBe(true)
+      }
     } finally {
       await page.close()
     }

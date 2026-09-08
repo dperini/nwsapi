@@ -36,11 +36,11 @@ describe('benchmark charts', () => {
       ).filter(node => node.getAttribute('style')?.includes('font-weight:700'))
       expect(bold.map(node => node.textContent)).toEqual([
         'candidate',
-        '1.23 ms',
+        '1.23ms',
         'other',
-        '1.23 ms',
+        '1.23ms',
       ])
-      expect(svg).not.toContain('1.234 ms')
+      expect(svg).not.toContain('1.234ms')
     } finally {
       dom.window.close()
     }
