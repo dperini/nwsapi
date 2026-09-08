@@ -74,7 +74,7 @@ writeFileSync(
     [
       {
         title: 'Performance',
-        detail: `${rows.length} warm all-results queries · Relative query time`,
+        detail: 'Warm all-results queries · Relative query time',
         headline: `${Math.max(speedup, 1 / speedup).toFixed(2)}× ${speedup >= 1 ? 'faster' : 'slower'}`,
         values: [1 / speedup, 1],
         labels: [(1 / speedup).toFixed(2) + '×', '1.00×'],
@@ -95,7 +95,7 @@ writeFileSync(
       },
     ],
     [
-      `Performance: geometric mean of all ${rows.length} query speedups. Memory: native DOM allocation excluded.`,
+      'Standalone libraries, no jsdom. Performance: geometric mean of query speedups. Memory: native DOM excluded.',
       `Browser core / full comparison bundle · Brotli quality 11 · ${data.metadata.runtime} · ${data.metadata.cpu}`,
       `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · Methodology: docs/benchmarks.md`,
     ],
