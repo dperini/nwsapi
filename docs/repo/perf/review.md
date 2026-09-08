@@ -1,7 +1,7 @@
 # Performance review - 2026-09-07
 
 This review describes commit `2ddfba2` and the measurements available on 2026-09-07.
-See [common query fast paths](common-query-fast-paths.md) for the first changes that followed this review.
+See [common query fast paths](query-fast-paths.md) for the first changes that followed this review.
 See [the benchmark guide](benchmarks.md) for later results.
 The original measurements remain in the reviewed revision.
 

@@ -97,7 +97,7 @@ writeFileSync(
     [
       'Standalone libraries, no jsdom. Performance: geometric mean of query speedups. Memory: native DOM excluded.',
       `Browser core / full comparison bundle · Brotli quality 11 · ${data.metadata.runtime} · ${data.metadata.cpu}`,
-      `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · Methodology: docs/benchmarks.md`,
+      `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · Methodology: docs/repo/perf/benchmarks.md`,
     ],
   ),
 )

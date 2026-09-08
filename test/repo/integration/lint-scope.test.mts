@@ -13,6 +13,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     {
       cwd: REPO_ROOT,
       encoding: 'utf8',
+      env: { ...process.env, AI_AGENT: '1' },
     },
   )
     .trim()

@@ -1,0 +1,227 @@
+import path from 'node:path'
+import { createScanner } from 'typescript/unstable/ast/scanner'
+import {
+  API,
+  DiagnosticCategory,
+  SymbolFlags,
+  TypeFlags,
+} from 'typescript/unstable/sync'
+import {
+  isBindingElement,
+  isIdentifier,
+  isModuleDeclaration,
+  isNamedTupleMember,
+  isPrivateIdentifier,
+  isQualifiedName,
+  isTypeReferenceNode,
+  SyntaxKind,
+} from 'typescript/unstable/ast'
+import type { Checker, Project, Type } from 'typescript/unstable/sync'
+import type { Expression, Node, SourceFile } from 'typescript/unstable/ast'
+
+export interface NativeTypeCoverageResult {
+  covered: number
+  total: number
+  pct: number
+  files: number
+  strict: boolean
+  engine: 'typescript-7-native'
+}
+
+function requireCoverageType(type: Type | undefined): Type {
+  if (!type) {
+    throw new Error(
+      'Type coverage failed: the compiler returned a missing type.',
+    )
+  }
+  return type
+}
+
+function resolveCoverageType(
+  node: Node,
+  type: Type | undefined,
+  checker: Checker,
+): Type {
+  if (type && !type.isErrorType()) {
+    return type
+  }
+  let typeName = node
+  while (isQualifiedName(typeName.parent)) {
+    typeName = typeName.parent
+  }
+  if (isTypeReferenceNode(typeName.parent)) {
+    return requireCoverageType(checker.getTypeFromTypeNode(typeName.parent))
+  }
+  if (
+    isBindingElement(node.parent) &&
+    node.parent.propertyName === node &&
+    node.parent.name
+  ) {
+    return requireCoverageType(checker.getTypeAtLocation(node.parent.name))
+  }
+  let symbol = checker.getSymbolAtLocation(node)
+  if (symbol && symbol.flags & SymbolFlags.Alias) {
+    symbol = checker.getAliasedSymbol(symbol)
+  }
+  if (symbol && symbol.flags & SymbolFlags.Type) {
+    return requireCoverageType(checker.getDeclaredTypeOfSymbol(symbol))
+  }
+  if (symbol) {
+    const resolved = checker.getTypeOfSymbolAtLocation(symbol, node)
+    if (!resolved.isErrorType()) {
+      return resolved
+    }
+  }
+  if (type) {
+    return type
+  }
+  throw new Error(
+    `Type coverage failed at ${node.getSourceFile().fileName}:${node.getStart()} (${node.getText()}, parent ${SyntaxKind[node.parent.kind]}): missing or error type.`,
+  )
+}
+
+function measureCoverageSource(project: Project, source: SourceFile) {
+  const identifiers: Node[] = []
+  function visit(node: Node): void {
+    let globalMarker = false
+    if (
+      node.parent &&
+      isModuleDeclaration(node.parent) &&
+      node.parent.name === node &&
+      node.getText() === 'global'
+    ) {
+      const scanner = createScanner(true, undefined, node.parent.getText())
+      globalMarker =
+        scanner.scan() === SyntaxKind.DeclareKeyword &&
+        scanner.scan() === SyntaxKind.GlobalKeyword
+    }
+    const metadata =
+      globalMarker ||
+      (node.parent &&
+        isNamedTupleMember(node.parent) &&
+        node.parent.name === node) ||
+      [
+        SyntaxKind.ImportAttribute,
+        SyntaxKind.LabeledStatement,
+        SyntaxKind.BreakStatement,
+        SyntaxKind.ContinueStatement,
+      ].includes(node.parent?.kind)
+    if (
+      (isIdentifier(node) && !metadata) ||
+      isPrivateIdentifier(node) ||
+      node.kind === SyntaxKind.ThisKeyword
+    ) {
+      identifiers.push(node)
+    }
+    node.forEachChild(visit)
+  }
+  visit(source)
+  const types = project.checker.getTypeAtLocation(identifiers)
+  let uncovered = 0
+  for (let index = 0; index < identifiers.length; index += 1) {
+    const type = resolveCoverageType(
+      identifiers[index]!,
+      types[index],
+      project.checker,
+    )
+    if (type.isErrorType()) {
+      uncovered += 1
+      continue
+    }
+    if (!(type.flags & TypeFlags.Any)) {
+      continue
+    }
+    const contextual = project.checker.getContextualType(
+      identifiers[index] as Expression,
+    )
+    if (
+      !contextual ||
+      contextual.isErrorType() ||
+      requireCoverageType(contextual).flags & TypeFlags.Any
+    ) {
+      uncovered += 1
+    }
+  }
+  return { __proto__: null, total: identifiers.length, uncovered }
+}
+
+export function measureNativeTypeCoverage(
+  projectFile: string,
+): NativeTypeCoverageResult {
+  const config = path.resolve(projectFile)
+  const api = new API({ cwd: path.dirname(config) })
+  try {
+    const snapshot = api.updateSnapshot({ openProjects: [config] })
+    try {
+      const project = snapshot.getProject(config)
+      if (!project) {
+        throw new Error(
+          `Type coverage failed: no project loaded from ${config}.`,
+        )
+      }
+      const errorCategory: number = DiagnosticCategory.Error
+      const diagnostics = [
+        ...project.program.getConfigFileParsingDiagnostics(),
+        ...project.program.getProgramDiagnostics(),
+        ...project.program.getGlobalDiagnostics(),
+        ...project.program.getSyntacticDiagnostics(),
+        ...project.program.getSemanticDiagnostics(),
+      ].filter(diagnostic => diagnostic.category === errorCategory)
+      if (diagnostics.length) {
+        throw new Error(
+          `Type coverage failed in ${config}:\n${diagnostics.map(diagnostic => `${diagnostic.fileName ?? config}:${diagnostic.pos} TS${diagnostic.code}: ${diagnostic.text}`).join('\n')}`,
+        )
+      }
+      let total = 0
+      let uncovered = 0
+      let files = 0
+      for (const file of project.program.getSourceFileNames()) {
+        const source = project.program.getSourceFile(file)
+        if (!source) {
+          throw new Error(`Type coverage failed: missing source ${file}.`)
+        }
+        if (
+          source.isDeclarationFile ||
+          // Match a generated marker on a leading comment line, with optional @file.
+          /(?:^|\n)\s*(?:\*|\/\*\*?|\/\/)\s*(?:@file\s+)?(?:@generated\b|GENERATED by\b)/.test(
+            source
+              .getFullText()
+              .slice(0, source.statements[0]?.getStart() ?? 0),
+          ) ||
+          project.program.isSourceFileFromExternalLibrary(source)
+        ) {
+          continue
+        }
+        files += 1
+        let measured: { total: number; uncovered: number }
+        try {
+          measured = measureCoverageSource(project, source)
+        } catch (cause) {
+          throw new Error(`Type coverage failed while analyzing ${file}.`, {
+            cause,
+          })
+        }
+        total += measured.total
+        uncovered += measured.uncovered
+      }
+      if (total === 0) {
+        throw new Error(
+          `Type coverage failed: no identifiers measured in ${config}.`,
+        )
+      }
+      const covered = total - uncovered
+      return {
+        covered,
+        total,
+        pct: Math.floor((10_000 * covered) / total) / 100,
+        files,
+        strict: false,
+        engine: 'typescript-7-native',
+      }
+    } finally {
+      snapshot.dispose()
+    }
+  } finally {
+    api.close()
+  }
+}

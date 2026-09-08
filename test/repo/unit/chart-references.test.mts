@@ -9,7 +9,7 @@ test('changes both chart URLs when the SVG changes and preserves other images', 
   try {
     const asset = path.join(root, 'assets/repo/bench/perf-hero.svg')
     const readme = path.join(root, 'README.md')
-    const guide = path.join(root, 'docs/benchmarks.md')
+    const guide = path.join(root, 'docs/repo/perf/benchmarks.md')
     fs.mkdirSync(path.dirname(asset), { recursive: true })
     fs.mkdirSync(path.dirname(guide), { recursive: true })
     fs.writeFileSync(asset, '<svg>first</svg>')
@@ -17,7 +17,10 @@ test('changes both chart URLs when the SVG changes and preserves other images', 
       readme,
       '![Chart](assets/repo/bench/perf-hero.svg?v=1)\n![Coverage](assets/repo/coverage.svg?v=keep)\n',
     )
-    fs.writeFileSync(guide, '![Chart](../assets/repo/bench/perf-hero.svg)\n')
+    fs.writeFileSync(
+      guide,
+      '![Chart](../../../assets/repo/bench/perf-hero.svg)\n',
+    )
     refreshChartReferences(root)
     const first = fs.readFileSync(readme, 'utf8')
     expect(first).toContain(

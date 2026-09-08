@@ -1,16 +1,6 @@
-# Repository tests
+# Selector fuzzing
 
-- `unit/` tests focused selector behavior and helpers.
-- `integration/` tests jsdom integration and development commands.
-- `e2e/` tests browser behavior, published packages, and WPT.
-
-Run `pnpm run test:unit`, `pnpm run test:integration`, or `pnpm run test:e2e`.
-Run `pnpm run cover` for Node and WPT coverage.
-
-Development commands live in `scripts/repo/`. The older HTML suites remain
-under `test/`. The pristine WPT checkout remains under `upstream/wpt/`.
-
-## Fuzzing
+Follow the [shared fuzzing practices](../../fleet/fuzzing/practices.md) for target design, corpus ownership, isolation, and failure reduction. This document describes the `nwsapi` runner and targets.
 
 `pnpm run test:fuzz` runs Vitiate's coverage-guided selector targets for 15 seconds each.
 Set `FUZZ_TIME_MS` to change the budget. Generated valid selectors are checked against an independent engine before and after DOM mutation. Arbitrary bytes exercise parser error handling.

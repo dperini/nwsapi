@@ -4,7 +4,7 @@ import { isAgent } from './is-agent.mts'
 
 // Human sessions keep progress; agents receive diagnostics only on failure.
 export function runTool(args: string[]) {
-  const minimal = isAgent()
+  const minimal = isAgent() && !args.includes('--debug')
   const result = spawnSync(process.execPath, args, {
     cwd: REPO_ROOT,
     stdio: minimal ? ['inherit', 'pipe', 'pipe'] : 'inherit',

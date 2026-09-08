@@ -1,0 +1,220 @@
+{
+  "generatedBy": "pnpm run gen:memory",
+  "source": "memory-observations.json",
+  "sourceSha256": "da79ea4220afda4753aa913e8e92f591014883d1ec0e97cde8bcb18a4e48da14",
+  "measuredAt": "2026-09-08",
+  "platform": "macOS arm64",
+  "notes": [
+    "Historical measurements preserved during documentation consolidation. No new benchmarks were run.",
+    "Snapshot files are temporary and are not included. These are the recorded summaries.",
+    "Comparisons have distinct baselines. Do not add their percentages.",
+    "Derived comparisons are generated from recorded observations, not fresh benchmark runs.",
+    "Allocation metrics are sampled estimates. Positive reductionPercent means fewer bytes.",
+    "Timing and eviction evidence remains in the source observations under additionalEvidence keys."
+  ],
+  "comparisons": [
+    {
+      "name": "query-plan-storage",
+      "baselineRevision": "966a139",
+      "candidateRevision": "f357ec0",
+      "baselineEngineSha256": "719e723ee5ae0d07c731b0d9faf9acbe32c511627367300fd1a6dbc9c76cb336",
+      "candidateEngineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+      "baselineRuntime": "v26.5.0",
+      "candidateRuntime": "v26.5.0",
+      "count": 100,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 29239.84,
+          "after": 27660.08,
+          "reductionPercent": 5.402765541808707
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 756.756,
+          "after": 490.1808,
+          "reductionPercent": 35.22604379747237
+        },
+        "engineAndCacheBytes": {
+          "before": 10491544,
+          "after": 7667816,
+          "reductionPercent": 26.91432262019775
+        }
+      }
+    },
+    {
+      "name": "idle-cache-and-grammar",
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "baselineEngineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+      "candidateEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "baselineRuntime": "v26.5.0",
+      "candidateRuntime": "v26.5.0",
+      "count": 100,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 27669.12,
+          "after": 22975.52,
+          "reductionPercent": 16.963315060254892
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 492.1856,
+          "after": 494.4368,
+          "reductionPercent": -0.4573884323312072
+        },
+        "engineAndCacheBytes": {
+          "before": 7688768,
+          "after": 7241920,
+          "reductionPercent": 5.811698311094837
+        }
+      }
+    },
+    {
+      "name": "matching-plan-storage",
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "baselineEngineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+      "candidateEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "baselineRuntime": "v26.5.0",
+      "candidateRuntime": "v26.5.0",
+      "count": 100,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 30084.16,
+          "after": 22975.84,
+          "reductionPercent": 23.628115260655434
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 453.5632,
+          "after": 347.1544,
+          "reductionPercent": 23.460633490547732
+        },
+        "engineAndCacheBytes": {
+          "before": 7544048,
+          "after": 5769128,
+          "reductionPercent": 23.527421882787593
+        }
+      }
+    },
+    {
+      "name": "browser-idle-cache-and-grammar",
+      "baselineRevision": "f357ec0",
+      "candidateRevision": "c032788",
+      "baselineEngineSha256": "39c5f1cf3e5c7fc6f2c1c796dbe3554b45cbfa4b926b43d0c3f9c9a7b448c88b",
+      "candidateEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "baselineRuntime": "151.0.7922.34",
+      "candidateRuntime": "151.0.7922.34",
+      "count": 40,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 12872.5,
+          "after": 11772.8,
+          "reductionPercent": 8.543018061759566
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 691.629,
+          "after": 695.906,
+          "reductionPercent": -0.6183951222403783
+        },
+        "engineAndCacheBytes": {
+          "before": 3281416,
+          "after": 3254536,
+          "reductionPercent": 0.8191585583784522
+        }
+      }
+    },
+    {
+      "name": "fixed-patterns",
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "baselineEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "candidateEngineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+      "baselineRuntime": "v26.5.0",
+      "candidateRuntime": "v26.5.0",
+      "count": 100,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 23064.72,
+          "after": 21122.32,
+          "reductionPercent": 8.421519966424917
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 492.8832,
+          "after": 495.2624,
+          "reductionPercent": -0.4827107111786466
+        },
+        "engineAndCacheBytes": {
+          "before": 7235304,
+          "after": 7064856,
+          "reductionPercent": 2.355782148199992
+        }
+      }
+    },
+    {
+      "name": "browser-fixed-patterns",
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "baselineEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "candidateEngineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+      "baselineRuntime": "151.0.7922.34",
+      "candidateRuntime": "151.0.7922.34",
+      "count": 40,
+      "queries": 100,
+      "baselineSamples": 1,
+      "candidateSamples": 1,
+      "metrics": {
+        "idleBytesPerEngine": {
+          "before": 11772.8,
+          "after": 11609.7,
+          "reductionPercent": 1.385396846969278
+        },
+        "addedBytesPerCachedSelector": {
+          "before": 695.942,
+          "after": 696.062,
+          "reductionPercent": -0.017242816211693324
+        },
+        "engineAndCacheBytes": {
+          "before": 3254680,
+          "after": 3248636,
+          "reductionPercent": 0.1857018201482208
+        }
+      }
+    },
+    {
+      "name": "compiler-cache-hit-allocation",
+      "baselineRevision": "c032788",
+      "candidateRevision": "13d8821",
+      "baselineEngineSha256": "2baf7e70f272a3b85bee9f97b7903e92d851082258ad326a0db6c3b55b82d281",
+      "candidateEngineSha256": "713cc9c0ff618594d41f2c7224ec74530d478735620465dcbc64a28da74c34fb",
+      "baselineRuntime": "v26.5.0",
+      "candidateRuntime": "v26.5.0",
+      "iterations": 100000,
+      "baselineSamples": 3,
+      "candidateSamples": 3,
+      "metrics": {
+        "sampledCompilerBytesPerCall": {
+          "before": 390.72776,
+          "after": 94.70992,
+          "reductionPercent": 75.76063702256528
+        }
+      }
+    }
+  ],
+  "additionalEvidence": [
+    "cache-eviction",
+    "compiler-and-query-timing"
+  ]
+}
