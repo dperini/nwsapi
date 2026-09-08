@@ -8,7 +8,6 @@ export interface QueryChartOptions {
     warm: [number, number]
     cold: [number, number]
   }>
-  speedup: string
   notes: Array<string | Array<string | { code: string }>>
   bottomPadding?: number
 }
@@ -18,7 +17,6 @@ export interface QueryChartOptions {
 export function queryChart({
   names,
   rows,
-  speedup,
   notes,
   bottomPadding = 40,
 }: QueryChartOptions) {
@@ -116,7 +114,6 @@ text{font-family:Arial,Helvetica,sans-serif;fill:#f0f5fa}
 <rect width="1100" height="${height}" rx="24" fill="url(#bg)"/>
 <rect x=".5" y=".5" width="1099" height="${height - 1}" rx="24" fill="none" stroke="#2b3a50"/>
 <text x="48" y="68" class="code" style="font-size:42px;font-weight:700">${escapeText(names[0])}</text>
-<text x="1052" y="68" text-anchor="end" font-size="42" font-weight="700" style="fill:#baf471">Up to ${escapeText(speedup)}</text>
 <text x="48" y="125" class="muted">Warm → cold</text>
 <text x="48" y="149" class="muted">Further left is faster.</text>
 <text x="48" y="192" class="muted">Logarithmic time scale</text>

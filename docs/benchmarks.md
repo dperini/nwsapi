@@ -184,7 +184,7 @@ Both engine columns use the same logarithmic time scale. Each tick increases by 
 
 Each engine gets its own document. The runner changes selector order and alternates engines across nine rounds. It records one cold call and 1,000 timed warm calls per document. It checks the result against an element identified before timing, without warming a selector cache on that document. The chart includes the nonempty queries from the existing first-match fixture.
 
-The recorded warm speedups range from 1.9× to 8.2×. The cold results are mixed. NWSAPI takes longer for `.card`, `button.primary`, `input.input`, and `.card > button.primary`. The chart shows these differences. Do not treat the warm headline as a claim about cold queries.
+The recorded warm speedups range from 1.9× to 8.2×. The cold results are mixed. NWSAPI takes longer for `.card`, `button.primary`, `input.input`, and `.card > button.primary`. The chart shows these differences. Warm speedups do not describe cold queries.
 
 Run the measurement separately from tests and other CPU work. Then regenerate the chart:
 
