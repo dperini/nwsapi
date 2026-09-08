@@ -31,7 +31,7 @@ writeFileSync(
     notes: [
       'Queries model React/Next.js components, Tailwind-style classes, and Testing Library test IDs.',
       'Cold queries run a selector first on a fresh document. Warm queries repeat it.',
-      `Warm speedups were ${range}. Cold results vary. Both engines use the same logarithmic scale.`,
+      `Cold results vary. Warm speedups were ${range}. Both engines use the same logarithmic scale.`,
       [
         { code: 'nwsapi' },
         ' 2.3.0-prerelease · ',
