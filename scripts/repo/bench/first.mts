@@ -52,10 +52,15 @@ try {
       if (query() !== expected) {
         throw new Error(`Incorrect first match: ${selector}`)
       }
-      for (let i = 0; i < 100; ++i) {
-        query()
-      }
     }
+    const warmUntil = performance.now() + 100
+    do {
+      for (const query of queries) {
+        for (let i = 0; i < 100; ++i) {
+          query()
+        }
+      }
+    } while (performance.now() < warmUntil)
     for (let round = 0; round < rounds; ++round) {
       for (let offset = 0; offset < queries.length; ++offset) {
         const index = (round + offset) % queries.length
@@ -98,6 +103,7 @@ const data = {
     competitor: jsdomRequire('@asamuzakjp/dom-selector/package.json').version,
     rounds,
     iterations,
+    warmupMilliseconds: 100,
     consumed,
   },
   rows,

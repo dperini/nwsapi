@@ -60,3 +60,38 @@ test('compiled first queries preserve group order, validation, scopes, mutations
   engine.configure({ LEGACY: true })
   check(fragment)
 })
+
+test('first plans recompile across HTML, XML and quirks documents', () => {
+  const html = new JSDOM(
+    '<!doctype html><main class="card"><item code="a"></item><item code="b"></item></main>',
+  )
+  const xml = new JSDOM(
+    '<root class="card"><item code="a"/><Item code="b"/><item code="c"/></root>',
+    { contentType: 'application/xml' },
+  )
+  const quirks = new JSDOM(
+    '<main class="CARD"><item code="a"></item><item code="b"></item></main>',
+  )
+  try {
+    const engine = factory(html.window)
+    for (const world of [html, xml, quirks, html]) {
+      const doc = world.window.document
+      for (const selector of [
+        '.card > item[code]',
+        'item:nth-child(2n)',
+        'Item[code]',
+      ]) {
+        const expected =
+          world === quirks && selector === '.card > item[code]'
+            ? doc.getElementsByTagName('item')[0]
+            : doc.querySelector(selector)
+        expect(engine.first(selector, doc), selector).toBe(expected)
+        expect(engine.first(selector, doc), selector).toBe(expected)
+      }
+    }
+  } finally {
+    html.window.close()
+    xml.window.close()
+    quirks.window.close()
+  }
+})

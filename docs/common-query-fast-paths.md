@@ -3,6 +3,8 @@
 Implemented in `0b3840b` and `b68e020`, following the
 [performance review](performance-review.md). These changes improve common
 query shapes; the goal of a decisive lead in every category remains open.
+These are historical measurements. See the [V8 analysis](v8-performance.md)
+and [current benchmarks](benchmarks.md) for the subsequent first-match work.
 
 ## What changed
 
@@ -37,7 +39,7 @@ the selective child chain improved **8.72×** over previous master,
 `:where(.card) > button` improved **1.14×**. The child chain reached roughly
 parity with dom-selector; the positional and `:where()` cases still lost.
 
-The [first-match comparison](../assets/repo/bench/first-match-results.json)
+The [first-match comparison](https://github.com/dperini/nwsapi/blob/e97a57e/assets/repo/bench/first-match-results.json)
 used nine rounds of 1,000 calls per engine, after warmup. Times are
 microseconds per query:
 
@@ -55,7 +57,7 @@ of both engines installed through equivalent jsdom adapters is still needed.
 The diagnostic checks exact node identity against jsdom before timing; browser
 regression tests independently verify the optimized forms against Chromium.
 
-The refreshed [36-selector report](benchmarks.md) records 32 lower medians
+The [report for those commits](https://github.com/dperini/nwsapi/blob/e97a57e/docs/benchmarks.md) records 32 lower medians
 and four higher medians than dom-selector, with 16 cases reaching 2×.
 Several margins are near noise, including the child-chain parity result.
 General positional formulas, reverse positions, `:where()` child predicates,

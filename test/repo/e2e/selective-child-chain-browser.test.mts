@@ -21,6 +21,7 @@ test(
         <span id="second"></span></div><div><span id="third"></span></div></section>
         <section class="ANCHOR"><div><span id="upper"></span></div></section>
         <svg class="anchor"><g><path id="path"></path></g></svg>`
+        await page.goto('about:blank')
         await page.setContent(html)
         await page.addScriptTag({
           content: fs.readFileSync('src/nwsapi.js', 'utf8'),
@@ -30,6 +31,7 @@ test(
           const nw = factory(window)
           for (const selector of [
             '.anchor > div > span',
+            '.ANCHOR > div > span',
             'section.anchor>div>span',
             '.anchor > g > path',
             ':where(.anchor) > div',
