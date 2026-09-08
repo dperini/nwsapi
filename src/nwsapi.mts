@@ -112,6 +112,15 @@ interface CompilerAncestry {
   pending: string[]
   walk: boolean
 }
+interface IdentifierSyntax {
+  optimizer: RegExp
+  validator: RegExp
+  simpleId: RegExp
+  id: RegExp
+  tagName: RegExp
+  className: RegExp
+  attribute: RegExp
+}
 interface AttributeOperator {
   p1: string
   p2: string
@@ -123,6 +132,210 @@ interface AttributeOperator {
   factory: (global: EngineGlobal, exporter: unknown) => unknown,
 ) {
   'use strict'
+
+  // Share immutable grammar templates, never the mutable lastIndex of a
+  // validation regexp. Custom grammars stay local and are not retained here.
+  var defaultSyntax: IdentifierSyntax | undefined
+  Object.defineProperty(factory, '_identifierSyntax', {
+    value: function (operators: string, combinators: string): IdentifierSyntax {
+      var standard =
+        operators == '[~*^$|]=|=' && combinators == '[\\x20\\t>+~](?=[^>+~])'
+      if (standard && defaultSyntax) {
+        return defaultSyntax
+      }
+      var HSP = '\\x20\\t',
+        VSP = '\\r\\n\\f',
+        WSP = '[' + HSP + VSP + ']'
+      //
+      // NOTE: SPECIAL CASES IN CSS SYNTAX PARSING RULES
+      //
+      // The <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
+      // allow mangled|unclosed selector syntax at the end of selectors strings
+      //
+      // Literal equivalent hex representations of the characters: " ' ` ] )
+      //
+      //     \\x22 = " - double quotes    \\x5b = [ - open square bracket
+      //     \\x27 = ' - single quote     \\x5d = ] - closed square bracket
+      //     \\x60 = ` - back tick        \\x28 = ( - open round parens
+      //     \\x5c = \ - back slash       \\x29 = ) - closed round parens
+      //
+      // using hex format prevents false matches of opened/closed instances
+      // pairs, coloring breakage and other editors highlightning problems.
+      //
+
+      var parenthesized,
+        // non-ascii chars
+        noascii = '[^\\x00-\\x9f]',
+        // unicode chars
+        unicode = '\\\\[0-9a-fA-F]{1,6}',
+        // can start with single/double dash
+        // but it can not start with a digit
+        identifier =
+          '(?:-|--|' +
+          unicode +
+          '[' +
+          HSP +
+          ']' +
+          '?|\\\\[^' +
+          VSP +
+          ']|' +
+          noascii +
+          '|[\\w-])+',
+        pseudonames = '[-\\w]+',
+        pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
+        doublequote =
+          '"[^"\\\\' + VSP + ']*(?:\\\\.[^"\\\\' + VSP + ']*)*(?:"|$)',
+        singlequote =
+          "'[^'\\\\" + VSP + "]*(?:\\\\.[^'\\\\" + VSP + "]*)*(?:'|$)",
+        attrparser = identifier + '|' + doublequote + '|' + singlequote,
+        attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)(?:\\3|$)',
+        attributes =
+          '\\[' +
+          // attribute presence
+          '(?:\\*\\|)?' +
+          WSP +
+          '?' +
+          '(' +
+          identifier +
+          '(?::' +
+          identifier +
+          ')?)' +
+          WSP +
+          '?' +
+          '(?:' +
+          '(' +
+          operators +
+          ')' +
+          WSP +
+          '?' +
+          '(?:' +
+          attrparser +
+          ')' +
+          ')?' +
+          // attribute case sensitivity
+          '(?:' +
+          WSP +
+          '?\\b([iIsS]))?' +
+          WSP +
+          '?' +
+          '(?:\\]|$)',
+        attrmatcher = attributes.replace(attrparser, attrvalues),
+        pseudoclass =
+          '(?:\\x28' +
+          WSP +
+          '*' +
+          '(?:' +
+          pseudoparms +
+          '?)?|' +
+          // universal * &
+          // namespace *|*
+          '(?:\\*\\||\\||\\*)|' +
+          '(?:' +
+          '(?::' +
+          pseudonames +
+          '(?:\\x28' +
+          pseudoparms +
+          '?(?:\\x29|$))?|' +
+          ')|' +
+          '(?:[.#]?' +
+          identifier +
+          ')|' +
+          '(?:' +
+          attributes +
+          ')' +
+          ')+|' +
+          // the combinator is only recognized, not consumed: taking the
+          // character after it swallows the '[' of a following attribute
+          // selector, which then cannot be parsed
+          '(?:' +
+          WSP +
+          '?[>+~](?=[^>+~])' +
+          WSP +
+          '?)|' +
+          '(?:' +
+          WSP +
+          '?,' +
+          WSP +
+          '?)|' +
+          '(?:' +
+          WSP +
+          '?)|' +
+          '(?:\\x29|$)' +
+          ')*',
+        standardValidator =
+          '(?=' +
+          WSP +
+          '?[^>+~(){}<>])' +
+          '(?:' +
+          // universal * &
+          // namespace *|*
+          '(?:\\*\\||\\||\\*)|' +
+          '(?:[.#]?' +
+          identifier +
+          ')+|' +
+          '(?:' +
+          attributes +
+          ')+|' +
+          '(?:::?' +
+          pseudonames +
+          pseudoclass +
+          ')|' +
+          '(?:' +
+          WSP +
+          '?' +
+          combinators +
+          WSP +
+          '?)|' +
+          '(?:' +
+          WSP +
+          '?,' +
+          WSP +
+          '?)|' +
+          '(?:' +
+          WSP +
+          '?)' +
+          ')+'
+
+      // the following global RE is used to return the
+      // deepest localName in selector strings and then
+      // use it to retrieve all possible matching nodes
+      // that will be filtered by compiled resolvers
+      // The parenthesized part has to tolerate nesting. Written as
+      // '\x28[^\x29]+' it stops at the first ')', so a final compound
+      // holding a nested functional pseudo-class matches nothing at all, and
+      // a selector the optimizer cannot read is answered by testing every
+      // element in the context instead of the elements of one tag or class.
+      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
+
+      var optimizer = RegExp(
+        '(?:([.:#*]?)' +
+          '(' +
+          identifier +
+          ')' +
+          '(?:' +
+          ':[-\\w]+|' +
+          '\\[[^\\]]+(?:\\]|$)|' +
+          parenthesized +
+          ')*)$',
+      )
+
+      var syntax = {
+        optimizer: optimizer,
+        validator: RegExp(standardValidator, 'g'),
+        simpleId: RegExp('^#(' + identifier + ')$'),
+        id: RegExp('^#(' + identifier + ')(.*)'),
+        tagName: RegExp('^(' + identifier + ')(.*)'),
+        className: RegExp('^\\.(' + identifier + ')(.*)'),
+        attribute: RegExp('^(?:' + attrmatcher + ')(.*)'),
+      }
+      if (standard) {
+        defaultSyntax = syntax
+      }
+      return syntax
+    },
+  })
 
   // Keep observer callbacks outside an engine's closure. Weak ownership lets
   // an engine and its snapshots disappear while the document stays alive.
@@ -542,7 +755,7 @@ interface AttributeOperator {
       if (typeof Map != 'function') {
         return createLegacyCache<Value>(limit)
       }
-      var young = new Map<string, Value>(),
+      var young: Map<string, Value> | undefined,
         old: Map<string, Value> | undefined,
         half: number
 
@@ -551,10 +764,13 @@ interface AttributeOperator {
 
       return {
         clear: function () {
-          young = new Map<string, Value>()
+          young = undefined
           old = undefined
         },
         get: function (key: string) {
+          if (!young) {
+            return undefined
+          }
           var value = young.get(key)
           if (value !== undefined) {
             return value
@@ -575,7 +791,7 @@ interface AttributeOperator {
           return value
         },
         set: function (key: string, value: Value) {
-          if (young.size >= half) {
+          if (!young || young.size >= half) {
             old = young
             young = new Map<string, Value>()
           }
@@ -583,7 +799,7 @@ interface AttributeOperator {
           return value
         },
         size: function () {
-          return young.size + (old ? old.size : 0)
+          return (young ? young.size : 0) + (old ? old.size : 0)
         },
       }
     },
@@ -919,23 +1135,7 @@ interface AttributeOperator {
       '|': 'getElementsByTagNameNS',
       '.': 'getElementsByClassName',
     } as const,
-    compat: Record<
-      string,
-      (
-        context: EngineContext,
-        name: string,
-      ) => (
-        _element?: Element,
-        _callback?: ElementCallback,
-      ) => ArrayLike<Element>
-    > = {
-      '#': (c, n) => (_e, _f) => byId(n, c),
-      '*': (c, n) => (_e, _f) => byTag(n, c),
-      '|': (c, n) => (_e, _f) => byTagNS(c, n),
-      '.': (c, n) => (_e, _f) => byClass(n, c),
-      '?': (c, n) => (_e, _f) => byTags(n, c),
-    },
-    // Fetch a cached plan's candidates without allocating lookup closures.
+    // Fetch candidates directly for both new and cached query plans.
     fetch: Record<
       string,
       (name: string, context: EngineContext) => Element[] | NodeListOf<Element>
@@ -2525,191 +2725,21 @@ interface AttributeOperator {
     },
     // build validation regexps used by the engine
     setIdentifierSyntax = function () {
-      //
-      // NOTE: SPECIAL CASES IN CSS SYNTAX PARSING RULES
-      //
-      // The <EOF-token> https://drafts.csswg.org/css-syntax/#typedef-eof-token
-      // allow mangled|unclosed selector syntax at the end of selectors strings
-      //
-      // Literal equivalent hex representations of the characters: " ' ` ] )
-      //
-      //     \\x22 = " - double quotes    \\x5b = [ - open square bracket
-      //     \\x27 = ' - single quote     \\x5d = ] - closed square bracket
-      //     \\x60 = ` - back tick        \\x28 = ( - open round parens
-      //     \\x5c = \ - back slash       \\x29 = ) - closed round parens
-      //
-      // using hex format prevents false matches of opened/closed instances
-      // pairs, coloring breakage and other editors highlightning problems.
-      //
-
-      var parenthesized,
-        // non-ascii chars
-        noascii = '[^\\x00-\\x9f]',
-        // unicode chars
-        unicode = '\\\\[0-9a-fA-F]{1,6}',
-        // can start with single/double dash
-        // but it can not start with a digit
-        identifier =
-          '(?:-|--|' +
-          unicode +
-          '[' +
-          HSP +
-          ']' +
-          '?|\\\\[^' +
-          VSP +
-          ']|' +
-          noascii +
-          '|[\\w-])+',
-        pseudonames = '[-\\w]+',
-        pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
-        doublequote =
-          '"[^"\\\\' + VSP + ']*(?:\\\\.[^"\\\\' + VSP + ']*)*(?:"|$)',
-        singlequote =
-          "'[^'\\\\" + VSP + "]*(?:\\\\.[^'\\\\" + VSP + "]*)*(?:'|$)",
-        attrparser = identifier + '|' + doublequote + '|' + singlequote,
-        attrvalues = '([\\x22\\x27]?)((?!\\3)*|(?:\\\\?.)*?)(?:\\3|$)',
-        attributes =
-          '\\[' +
-          // attribute presence
-          '(?:\\*\\|)?' +
-          WSP +
-          '?' +
-          '(' +
-          identifier +
-          '(?::' +
-          identifier +
-          ')?)' +
-          WSP +
-          '?' +
-          '(?:' +
-          '(' +
-          CFG.operators +
-          ')' +
-          WSP +
-          '?' +
-          '(?:' +
-          attrparser +
-          ')' +
-          ')?' +
-          // attribute case sensitivity
-          '(?:' +
-          WSP +
-          '?\\b([iIsS]))?' +
-          WSP +
-          '?' +
-          '(?:\\]|$)',
-        attrmatcher = attributes.replace(attrparser, attrvalues),
-        pseudoclass =
-          '(?:\\x28' +
-          WSP +
-          '*' +
-          '(?:' +
-          pseudoparms +
-          '?)?|' +
-          // universal * &
-          // namespace *|*
-          '(?:\\*\\||\\||\\*)|' +
-          '(?:' +
-          '(?::' +
-          pseudonames +
-          '(?:\\x28' +
-          pseudoparms +
-          '?(?:\\x29|$))?|' +
-          ')|' +
-          '(?:[.#]?' +
-          identifier +
-          ')|' +
-          '(?:' +
-          attributes +
-          ')' +
-          ')+|' +
-          // the combinator is only recognized, not consumed: taking the
-          // character after it swallows the '[' of a following attribute
-          // selector, which then cannot be parsed
-          '(?:' +
-          WSP +
-          '?[>+~](?=[^>+~])' +
-          WSP +
-          '?)|' +
-          '(?:' +
-          WSP +
-          '?,' +
-          WSP +
-          '?)|' +
-          '(?:' +
-          WSP +
-          '?)|' +
-          '(?:\\x29|$)' +
-          ')*',
-        standardValidator =
-          '(?=' +
-          WSP +
-          '?[^>+~(){}<>])' +
-          '(?:' +
-          // universal * &
-          // namespace *|*
-          '(?:\\*\\||\\||\\*)|' +
-          '(?:[.#]?' +
-          identifier +
-          ')+|' +
-          '(?:' +
-          attributes +
-          ')+|' +
-          '(?:::?' +
-          pseudonames +
-          pseudoclass +
-          ')|' +
-          '(?:' +
-          WSP +
-          '?' +
-          CFG.combinators +
-          WSP +
-          '?)|' +
-          '(?:' +
-          WSP +
-          '?,' +
-          WSP +
-          '?)|' +
-          '(?:' +
-          WSP +
-          '?)' +
-          ')+'
-
-      // the following global RE is used to return the
-      // deepest localName in selector strings and then
-      // use it to retrieve all possible matching nodes
-      // that will be filtered by compiled resolvers
-      // The parenthesized part has to tolerate nesting. Written as
-      // '\x28[^\x29]+' it stops at the first ')', so a final compound
-      // holding a nested functional pseudo-class matches nothing at all, and
-      // a selector the optimizer cannot read is answered by testing every
-      // element in the context instead of the elements of one tag or class.
-      parenthesized = '\\x28[^\\x28\\x29]*(?:\\x29|$)'
-      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
-      parenthesized = '\\x28(?:[^\\x28\\x29]|' + parenthesized + ')*(?:\\x29|$)'
-
-      reOptimizer = RegExp(
-        '(?:([.:#*]?)' +
-          '(' +
-          identifier +
-          ')' +
-          '(?:' +
-          ':[-\\w]+|' +
-          '\\[[^\\]]+(?:\\]|$)|' +
-          parenthesized +
-          ')*)$',
-      )
-
-      // global
-      reValidator = RegExp(standardValidator, 'g')
-
-      // a lone '#id', the shape querySelector is asked for most often
-      reSimpleId = RegExp('^#(' + identifier + ')$')
-
-      Patterns.id = RegExp('^#(' + identifier + ')(.*)')
-      Patterns.tagName = RegExp('^(' + identifier + ')(.*)')
-      Patterns.className = RegExp('^\\.(' + identifier + ')(.*)')
-      Patterns.attribute = RegExp('^(?:' + attrmatcher + ')(.*)')
+      var syntax = (
+        Factory as unknown as {
+          _identifierSyntax(
+            operators: string,
+            combinators: string,
+          ): IdentifierSyntax
+        }
+      )._identifierSyntax(CFG.operators, CFG.combinators)
+      reOptimizer = new RegExp(syntax.optimizer)
+      reValidator = new RegExp(syntax.validator)
+      reSimpleId = new RegExp(syntax.simpleId)
+      Patterns.id = new RegExp(syntax.id)
+      Patterns.tagName = new RegExp(syntax.tagName)
+      Patterns.className = new RegExp(syntax.className)
+      Patterns.attribute = new RegExp(syntax.attribute)
     },
     /*
   //
@@ -4318,7 +4348,11 @@ interface AttributeOperator {
       selectors: string[],
       callback: ((element: Element) => unknown) | undefined,
     ) {
-      for (var i = 0, l = selectors.length, f = []; l > i; ++i) {
+      for (
+        var i = 0, l = selectors.length || 0, f = Array<CompiledResolver>(l);
+        l > i;
+        ++i
+      ) {
         f[i] = compile(selectors[i]!, false, callback)!
       }
       return f
@@ -5222,8 +5256,8 @@ interface AttributeOperator {
       nodes = resolver.results
 
       // Cache the query plan, never the answer. 'results' is a live list of
-      // matched elements and 'htmlset' closes over the context, so caching
-      // the whole collection kept a removed subtree alive for as long as its
+      // matched elements, so caching the whole collection would keep a
+      // removed subtree alive for as long as its
       // selector stayed in the cache. What is kept here is context-free,
       // which also lets a plan be reused across contexts instead of only for
       // the one it was built against.
@@ -5255,7 +5289,7 @@ interface AttributeOperator {
         selector.slice(index + length - (token[1] == '*' ? 1 : 0))
       )
     },
-    // prepare factory resolvers and closure collections
+    // Compile query plans and execute candidate lookups only when needed.
     collect = function (
       selectors: string[],
       context: EngineContext,
@@ -5269,7 +5303,7 @@ interface AttributeOperator {
         token: string[] = ['', '*', '*'],
         optimized = selectors,
         factory = Array<CompiledResolver | null>(selectors.length),
-        htmlset = [],
+        candidates: ArrayLike<Element>,
         nodeset = Array<string>(selectors.length),
         results: Element[] = [],
         type
@@ -5328,21 +5362,17 @@ interface AttributeOperator {
         // run rebuilds its candidate list from, so the two must agree
         token[2] = unescapeIdentifier(token[2]!)
         nodeset[i] = token[1]! + token[2]!
-        // An escaped space cannot be part of a class token.
-        htmlset[i] =
-          token[1] == '.' && /[\t\n\f\r ]/.test(token[2]!)
-            ? () => []
-            : compat[token[1]!]!(context, token[2]!)
         factory[i] = compile(optimized[i]!, !firstOnly, null, relative)
 
         if (firstOnly) {
           continue
         }
 
+        candidates = fetch[token[1]!]!(token[2]!, context)
         if (factory[i]!) {
-          factory[i]!(htmlset[i]!(), callback, context, results)
+          factory[i]!(candidates, callback, context, results)
         } else {
-          concatList(results, htmlset[i]!())
+          concatList(results, candidates)
         }
       }
 
@@ -5352,10 +5382,7 @@ interface AttributeOperator {
       }
 
       return {
-        callback: callback,
-        context: context,
         factory: factory,
-        htmlset: htmlset,
         nodeset: nodeset,
         results: results,
       }

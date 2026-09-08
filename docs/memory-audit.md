@@ -1,5 +1,7 @@
 # Memory audit
 
+See the [second memory audit](memory-audit-round2.md) for the subsequent grammar, matching-cache, and native-browser lifecycle work.
+
 Measured on September 8, 2026, using Node.js v26.5.0 on macOS arm64. The baseline is the generated `nwsapi` build from revision `966a139`. Measurements concern retained V8 JavaScript heap, not process RSS or native DOM memory.
 
 ## Findings and changes

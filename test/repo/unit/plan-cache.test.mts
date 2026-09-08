@@ -47,11 +47,18 @@ test('cached selector lists preserve order, duplicates, and context changes', t 
     expect(engine.select(selector, main)).toEqual(expected)
     expect(engine.first(selector, main)).toBe(expected[0] ?? null)
     expect(engine.first(selector, main)).toBe(expected[0] ?? null)
+    for (const node of main.children) {
+      expect(engine.match(selector, node)).toBe(expected.includes(node))
+      expect(engine.match(selector, node)).toBe(expected.includes(node))
+    }
   }
   main.firstElementChild!.remove()
   for (const selector of selectors) {
     expect(engine.select(selector, main)).toEqual([
       ...main.querySelectorAll(selector),
     ])
+    for (const node of main.children) {
+      expect(engine.match(selector, node)).toBe(node.matches(selector))
+    }
   }
 })

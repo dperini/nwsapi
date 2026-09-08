@@ -163,3 +163,34 @@ test('byId distinguishes the legacy document.all length property from an element
   node!.removeAttribute('id')
   expect(engine.byId('length', doc)).toEqual([])
 })
+
+test('grammar templates isolate extensions and validation across engines', t => {
+  const { engine, doc, window } = fixture(t)
+  const plain = factory(window)
+  engine.registerCombinator('!', () => '')
+  engine.registerOperator('!=', { p1: '^', p2: '$', p3: 'false' })
+  // Also construct an engine after the extended grammar has been compiled.
+  const later = factory(window)
+  const nodes = Array.from(doc.getElementsByTagName('p'))
+  for (const legacy of [false, true, false] as const) {
+    for (const instance of [engine, plain, later]) {
+      instance.configure({ LEGACY: legacy })
+    }
+    expect(engine.select('p!p', doc)).toEqual(nodes)
+    expect(engine.select('p[data-score!="2"]', doc)).toEqual([nodes[1]])
+    for (const instance of [plain, later]) {
+      expect(() => instance.select('p!p', doc)).toThrow()
+      expect(() => instance.select('p[data-score!="2"]', doc)).toThrow()
+      expect(
+        instance.select('p:is([data-score="2"], [data-score="3"])', doc),
+      ).toEqual(nodes)
+      expect(instance.first('p:not([data-score="2"])', doc)).toBe(nodes[1])
+    }
+    expect(
+      engine.select('p', doc, () => {
+        expect(plain.select('p[data-score="2"]', doc)).toEqual([nodes[0]])
+        return false
+      }),
+    ).toEqual([nodes[0]])
+  }
+})

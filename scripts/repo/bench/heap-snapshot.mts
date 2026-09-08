@@ -15,8 +15,12 @@ const { values } = parseArgs({
     engine: { type: 'string' },
     count: { type: 'string', default: '100' },
     queries: { type: 'string', default: '200' },
+    method: { type: 'string', default: 'select' },
   },
 })
+if (values.method !== 'select' && values.method !== 'match') {
+  throw new Error('method must be select or match')
+}
 const count = Number(values.count)
 const queries = Number(values.queries)
 if (
@@ -45,6 +49,7 @@ const session = new Session()
 session.connect()
 await session.post('HeapProfiler.enable')
 const dom = new JSDOM('<main><i class="item"></i></main>')
+const target = dom.window.document.querySelector('.item')!
 const engines: Array<ReturnType<typeof factory>> = []
 const measurements: Record<string, number> = {}
 async function capture(name: string) {
@@ -66,7 +71,14 @@ try {
   await session.post('HeapProfiler.startSampling', { samplingInterval: 1024 })
   for (const engine of engines) {
     for (let index = 0; index < queries; index++) {
-      engine.select(`.item:not(.absent${index})`, dom.window.document)
+      const selector = `.item:not(.absent${index})`
+      if (values.method === 'match') {
+        if (!engine.match(selector, target)) {
+          throw new Error('Incorrect profiling match result')
+        }
+      } else if (engine.select(selector, dom.window.document).length !== 1) {
+        throw new Error('Incorrect profiling select result')
+      }
     }
   }
   const { profile } = await session.post('HeapProfiler.stopSampling')
@@ -97,6 +109,7 @@ try {
     output,
     count,
     queries,
+    method: values.method,
     node: process.version,
     measurements,
     retainedDetachedNodes,
