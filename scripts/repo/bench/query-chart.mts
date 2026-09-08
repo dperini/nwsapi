@@ -34,13 +34,13 @@ export async function wrapQueryNotes(
         notes: entries,
         noteFont: proseFont,
         codeFont: monoFont,
-        breakBefore,
+        breakBefore: boundaries,
       }) => {
         const context = document.createElement('canvas').getContext('2d')!
         const lines: Array<Array<string | { code: string }>> = [[]]
         let width = 0
         for (const [index, note] of entries.entries()) {
-          if (width && breakBefore.includes(index)) {
+          if (width && boundaries.includes(index)) {
             lines.push([])
             width = 0
           }
