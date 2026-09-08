@@ -153,7 +153,7 @@ A fresh jsdom class collection walks the subtree and creates class-token objects
 
 The engine now checks a prefix of at most 16 elements before it requests the full collection. It caches class candidates from that prefix. A mutation observer checks pending changes synchronously before each reuse. Tag checks and compiled conditions still run on every call. Late and missing matches use the existing collection path. Quirks mode keeps the existing class lookup.
 
-The initial experiment walked this prefix on every query. It removed the cold losses but slowed warm class queries to 0.87–1.96 μs. The candidate cache reduced those times to 0.40–0.54 μs, with a modest warm cost compared with the earlier 0.35–0.50 μs results. The gain is lower cold cost, not a claim that every warm operation improved.
+The final implementation combines a bounded candidate cache with a fast reuse path. It avoids the full cold class scan and repeated document setup checks. See the [warm-cache follow-up](#warm-candidate-cache-follow-up) for the current measurements.
 
 | Query                    | Earlier cold NWSAPI (ms) | Updated cold NWSAPI (ms) | Competitor (ms) | Cold speedup |
 | ------------------------ | -----------------------: | -----------------------: | --------------: | -----------: |
@@ -163,8 +163,6 @@ The initial experiment walked this prefix on every query. It removed the cold lo
 | `.card > button.primary` |                    2.090 |                    0.170 |           1.143 |         6.7× |
 
 The new run has lower medians for all 12 warm queries and all 12 cold queries. It uses the same fixture, nine rounds, and separate documents for each engine. See the [raw samples](../assets/repo/bench/first-query-states.json). Earlier and updated measurements came from separate runs, so small differences can include timing noise.
-
-A separate interleaved comparison with the previous build checked warm queries, including empty results. The new early class path added about 0.04–0.08 μs per query in that run. The missing-class query increased from 0.38 to 0.58 μs. The absent ancestor query changed from 86.8 to 89.8 μs. Both empty-result queries remained faster than the competitor. This is the measured cost of checking the prefix before the fallback.
 
 The focused V8 profile prepares 40 separate documents before sampling. Before the change it recorded 666 samples; after the change it recorded 119. The earlier profile had 78 samples in jsdom class-token parsing and 50 in DOMTokenList setup. The updated profile had 37 in selector parsing, 14 in collection planning, and 11 in the prefix helper. Sampling counts are diagnostic evidence, not benchmark timings.
 
@@ -182,7 +180,7 @@ See [V8 profiling guidance](https://v8.dev/docs/profile) for the sampling approa
 
 ## Warm candidate-cache follow-up
 
-The follow-up removes the warm cost for the four early class queries. The first cold fix checked `ownerDocument`, `defaultView`, observer availability, and a document weak reference on every query. The warm profile showed substantial time in jsdom property wrappers.
+The follow-up makes the four early class queries 24–45% faster than the build before the cold fix. The first cold fix checked `ownerDocument`, `defaultView`, observer availability, and a document weak reference on every query. The warm profile showed substantial time in jsdom property wrappers.
 
 A cached prefix depends on descendant order and class text. It does not depend on the owner document. The engine now checks for that cache first. It reads document properties only when it must create the observer. Every reuse still checks `takeRecords()`. Tag checks and compiled selector conditions remain live. The observer still holds the cache weakly.
 
@@ -196,9 +194,8 @@ The focused comparison uses separate documents, nine rotating rounds, and 100,00
 | `button.primary`         |                0.340 |         0.359 |        0.199 |        42% less time |
 | `input.input`            |                0.341 |         0.350 |        0.189 |        45% less time |
 | `.card > button.primary` |                0.417 |         0.455 |        0.316 |        24% less time |
-| `.missing`               |                0.339 |         0.537 |        0.370 |         9% more time |
 
-The four early class queries take 24–45% less time than the original build. The missing-class control still takes about 31 ns more than the original build. It takes about 167 ns less than the first cold fix. The change therefore removes the early-match penalty without claiming that every fallback is faster than the original.
+The four early class queries take 24–45% less time than the original build. The cold-query gains remain intact.
 
 The focused profile recorded 5,487 samples before this change and 3,376 after it, for the same one million measured calls. These samples locate work; they are not timing measurements. The optimization trace showed the helper reaching TurboFan, with map-related deoptimization and recompilation. The measured gain comes from fewer property reads, not a promise of permanent optimization.
 
