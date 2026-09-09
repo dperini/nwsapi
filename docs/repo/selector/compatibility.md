@@ -8,7 +8,7 @@ The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 141 pages 
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
-The comparison includes 171 selector and context cases and five adapter comparisons. There are 16 native-versus-core differences among the selector cases. Inputs deliberately exercise possible gaps, repeated state changes, and library extensions. Their disagreement count is not a compatibility percentage or a count of separate missing features. `CSS.supports()` results are recorded separately from query results because accepted syntax alone does not establish matching behavior.
+The comparison includes 171 selector and context cases and five adapter comparisons. There are 18 native-versus-core differences among the selector cases. Inputs deliberately exercise possible gaps, repeated state changes, and library extensions. Their disagreement count is not a compatibility percentage or a count of separate missing features. `CSS.supports()` results are recorded separately from query results because accepted syntax alone does not establish matching behavior.
 
 ## Matching behavior
 
@@ -20,10 +20,12 @@ The comparison includes 171 selector and context cases and five adapter comparis
 | Namespaced attributes    | Wildcard namespaces inspect every attribute with the requested local name. Empty namespaces exclude namespaced attributes. Attribute suffixes do not count as exact local names.                                                |
 | Attribute casing         | Default HTML value folding applies only in HTML documents and to elements in the HTML namespace. Explicit `i` and `s` flags override that default. Cross-document matching refreshes the document rules before reusing a query. |
 | Namespace prefixes       | DOM selector APIs reject named CSS namespace prefixes. An XML `xmlns` declaration is not a CSS namespace resolver.                                                                                                              |
-| Language                 | Language matching follows inherited HTML `lang` and XML `xml:lang`. Range matching compares subtags, rejects subtags longer than eight characters, and does not cross a singleton extension boundary.                           |
+| Language                 | Language matching follows inherited HTML `lang` and XML `xml:lang`. It accepts identifiers, quoted ranges, and lists. Extended ranges compare subtags without crossing singleton extension boundaries.                           |
 | Shadow hosts             | The tested `:host > slot`, `:host(#id) > slot`, and `:host-context(body) > slot` queries traverse the relevant shadow host. Hosts outside that shadow scope do not qualify.                                                     |
 | Slots                    | `:has-slotted` reads flattened assigned nodes, including text. Manual reassignment and removal change the next result. The functional form has separate argument validation.                                                    |
 | Compiler state           | Positional indexes belong to the current query. Resolver completion and exceptions clear temporary positional state. Callbacks that can change the tree use fresh filtered state.                                               |
+
+Public `match()` scopes `:scope` to the subject element. `closest()` preserves the original subject as its scope while walking ancestors. Selection and internal predicates retain their query context. Nested calls restore the surrounding scope.
 
 The 276 attribute-casing WPT cases repeat the rules across 46 attributes and six document or namespace contexts. They provide breadth across inputs rather than 276 independent features. Filtered-position tests also check read counts: a selection and a first-result search each read a 200-sibling group once.
 
@@ -31,15 +33,17 @@ The 276 attribute-casing WPT cases repeat the rules across 46 attributes and six
 
 Comments are consumed between CSS tokens. Quoted comment text stays literal, and removing a comment cannot join two identifiers or manufacture a function token. Tests cover filtered child positions, attribute flags, escaped identifiers, adjacent comments, and comments ending at EOF. A browser comparison inserts comments at every position in representative selectors and checks selection, first-result lookup, and matching on cold and cached calls.
 
-HTML type queries include prefixed and foreign-namespace elements. Candidate lookup and compiled predicates use the browser's ASCII case rules. XML matching remains case-sensitive. Ordinary HTML trees retain native tag lookup. A weak cache records whether a tree needs broader candidates, and child-list mutations invalidate it before the next query. Tests cover detached fragments, document switching, namespace-sensitive sibling positions, and legacy mode.
+HTML type queries include prefixed and foreign-namespace elements. Candidate lookup and compiled predicates use the browser's ASCII case rules. XML matching remains case-sensitive. Ordinary HTML trees retain native tag lookup. A weak cache records whether a tree needs broader candidates, and child-list mutations invalidate it before the next query. Minimal adapter hosts use the document window for observation. Weak observer callbacks avoid retaining the engine closure. Tests cover detached fragments, document switching, namespace-sensitive sibling positions, and legacy mode.
 
 ## jsdom regression coverage
 
 The [engine-switch PR](https://github.com/jsdom/jsdom/pull/3854) lists 19 issues. The [selector regression suite](../../../test/repo/unit/jsdom-selector-regressions.test.mts) covers their selector-layer reproductions. These include XML namespaces, scope with numeric IDs and colon-containing classes, nested logical selectors, uppercase names and attribute flags, disabled fieldsets, inactive elements, invalid identifiers, shadow hosts, and custom-element definition state.
 
-The stylesheet case checks the selector used by `getComputedStyle()`. It does not test style computation. The React-generated ID case checks a scope query and a properly escaped ID. The unescaped colon-containing selector remains invalid. The XML move case checks the selected destination and the resulting move.
+The unit stylesheet case checks the selector used by `getComputedStyle()`. The separate integration case also checks the computed color. The React-generated ID case checks a scope query and a properly escaped ID. The unescaped colon-containing selector remains invalid. The XML move case checks the selected destination and the resulting move.
 
-These tests do not measure jsdom's Range mutation or node-cloning workloads. The [performance discussion](https://github.com/jsdom/jsdom/pull/3854#issuecomment-2785151102) requests profiling of `Range-mutations-dataChange.html`, and application feedback is separate from selector correctness. The selected WPT results do not establish complete jsdom integration coverage.
+The public DOM integration suite also runs the linked selector cases through `jsdom`. The stylesheet reproduction checks `getComputedStyle()` before and after a matching-state mutation. Isolated package tests exercise Testing Library role, label, and test-ID lookups against the installed adapter.
+
+The [host workload report](../../../assets/repo/bench/jsdom-workload.json) records 2,808 passing subtests from `Range-mutations-dataChange.html` in each trial, along with construction, query, disposal, and profile measurements. These checks do not establish complete jsdom integration coverage or downstream maintainer acceptance.
 
 ## Pseudo-elements and browser states
 
@@ -69,15 +73,17 @@ The current CSS Syntax draft narrows unescaped non-ASCII identifiers beyond the 
 
 | Area                     | Recorded limitation                                                                                                                                                                                                                              |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Element scope            | The tested `element.matches(':scope')` case differs from the browser. Matching and selection still share context state in routes that require distinct scope semantics.                                                                          |
-| Language syntax          | The current language parser does not implement every quoted or extended language-range form.                                                                                                                                                     |
 | Browser syntax           | Chrome accepts `::column`, `:state(initial)`, and a comma-separated `:active-view-transition-type()` case that the core rejects. WPT custom-state validation rejects CSS-wide keywords, so the pinned WPT expectations differ from this browser. |
 | Stylesheet analysis      | The adapter's `extractSubjects()` and `check()` results differ from the comparison library. These methods are separate from DOM query correctness.                                                                                               |
 | Execution policy         | Compiled selectors use `Function()`. In the recorded enforced-CSP probe, complex core queries throw `EvalError` when dynamic code generation is blocked. Simple direct lookup can still work.                                                    |
 
+Quoted and list forms of `:lang()` follow the [Selectors language grammar](https://drafts.csswg.org/selectors/#lang-pseudo). The tested Chrome 153 build rejects the two recorded forms, while both libraries accept them. These additions raise the selector-case disagreement count by two. An empty quoted range matches untagged language, and a quoted wildcard matches tagged language.
+
+The adapter deliberately returns a wildcard subject hint so no stylesheet rule is excluded before `check()` evaluates it. It excludes pseudo-element branches from element style results because the host does not compute pseudo-element styles. These contract choices explain the recorded adapter differences.
+
 The reviewed `@asamuzakjp/dom-selector` source combines a faster matcher with a `css-tree` AST evaluator in the same package. Its entry class selects a route based on the selector and document context. Its AST route supports the recorded enforced-CSP queries. The comparison also exposes differences in private custom states, user validity, attribute namespaces, modal dialogs, and popovers. Each observation applies to its fixture and executed version.
 
-The [API reference](api.md) documents the additional compiler, configuration, lookup, installation, and extension methods exposed by `nwsapi`. A larger public API does not imply broader CSS conformance. Retained-heap measurements in the [performance journal](../perf/journal.md) measure incremental engine allocation after documents exist. They do not measure complete document construction or replace an application workload.
+The [API reference](api.md) documents the additional compiler, configuration, lookup, installation, and extension methods exposed by `nwsapi`. A larger public API does not imply broader CSS conformance. The native-browser retained-heap chart measures incremental engine allocation after documents exist. The [host workload section](../perf/journal.md#host-workload-and-adapter-classification) separately measures document construction and integrated queries. Neither measurement establishes performance for every application.
 
 ## Reproduce the evidence
 

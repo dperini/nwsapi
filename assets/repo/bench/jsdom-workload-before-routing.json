@@ -1,0 +1,331 @@
+{
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "hostRevision": "5e8910c98d7d447c31ecf4d1a9819dc3fbf37218",
+  "hostLockHash": "d3e6271e485ccceb65f90f8c51c27407a302a769d20b043717605a16376ff9c7",
+  "baselinePackage": "9.0.1",
+  "candidateHash": "49355e69924500bca500918e0fb9a8dae4f1608786a6ab564c97e7a0cb989815",
+  "inputHashes": {
+    "dom/ranges/Range-mutations-dataChange.html": "4b9aeaa61a4c3b3e3886db1d1895465352f3772c462b7c8af7dd0b6209c5c253",
+    "dom/ranges/Range-mutations.js": "939e8187cbad43fdc63aa83c8105545b2eabc53e10719be3b5575fabc0fc3d4f",
+    "dom/common.js": "732f485014a4c6a6633439b24dfc442ab89391199504a1163b421a02374dfad3",
+    "resources/testharness.js": "d2399236c2a09c429804ff2299ad6629e17e2b53f17a74dd341e936adb11ae3e"
+  },
+  "methods": "Fresh processes in alternating order. Range includes harness execution and assertions. Lifecycle includes host documents and public DOM queries. Heap figures are full JavaScript heap deltas, not isolated engine allocation. CPU-profile runs are separate.",
+  "trials": 5,
+  "engines": {
+    "baseline": {
+      "rangeMs": {
+        "median": 2023.7925420000001,
+        "min": 1933.16725,
+        "max": 2474.7496250000004,
+        "mean": 2169.3769668,
+        "standardDeviation": 266.18447095456185
+      },
+      "lifecycle": {
+        "constructionMs": {
+          "median": 3.7588718749999996,
+          "min": 3.335745850000001,
+          "max": 3.853797899999995,
+          "mean": 3.662862084999999,
+          "standardDeviation": 0.22367058823369956
+        },
+        "firstQueryMs": {
+          "median": 1.2685354249999932,
+          "min": 1.2582385499999986,
+          "max": 1.3490458250000075,
+          "mean": 1.2928899950000003,
+          "standardDeviation": 0.040633582349186875
+        },
+        "warmQueryMs": {
+          "median": 0.030250270750000027,
+          "min": 0.029565739750000035,
+          "max": 0.03198351050000008,
+          "mean": 0.030671299999999995,
+          "standardDeviation": 0.0010635055976515304
+        },
+        "closeMs": {
+          "median": 0.3256885500000067,
+          "min": 0.30083230000000183,
+          "max": 0.3513416750000033,
+          "mean": 0.33040000499999905,
+          "standardDeviation": 0.021119129672215537
+        },
+        "constructedHeapBytes": {
+          "median": 1611110.6,
+          "min": 1610783.4,
+          "max": 1611262.8,
+          "mean": 1611060.3199999998,
+          "standardDeviation": 175.7005179275785
+        },
+        "queriedHeapBytes": {
+          "median": 2054964.8,
+          "min": 2054865.4,
+          "max": 2055036.2,
+          "mean": 2054969.36,
+          "standardDeviation": 66.66669333336772
+        },
+        "afterCloseHeapBytes": {
+          "median": 36440.4,
+          "min": 36238.2,
+          "max": 36495.8,
+          "mean": 36407.96,
+          "standardDeviation": 99.1259199200715
+        }
+      }
+    },
+    "candidate": {
+      "rangeMs": {
+        "median": 2059.274583,
+        "min": 1921.3547919999999,
+        "max": 2186.5945420000003,
+        "mean": 2035.5111332000001,
+        "standardDeviation": 109.71584777872883
+      },
+      "lifecycle": {
+        "constructionMs": {
+          "median": 3.553370849999999,
+          "min": 3.3252583500000013,
+          "max": 4.191966675000003,
+          "mean": 3.6467806299999985,
+          "standardDeviation": 0.33030219307774283
+        },
+        "firstQueryMs": {
+          "median": 0.8628166749999991,
+          "min": 0.8013374999999996,
+          "max": 1.6432249999999953,
+          "mean": 1.0165124999999988,
+          "standardDeviation": 0.35374426101203194
+        },
+        "warmQueryMs": {
+          "median": 0.20907159374999992,
+          "min": 0.19024637499999994,
+          "max": 0.23521095824999996,
+          "mean": 0.20877956874999998,
+          "standardDeviation": 0.018866344095229862
+        },
+        "closeMs": {
+          "median": 0.33269272500000396,
+          "min": 0.32158542500000065,
+          "max": 0.6976802249999992,
+          "mean": 0.4031785500000001,
+          "standardDeviation": 0.16484052463742932
+        },
+        "constructedHeapBytes": {
+          "median": 1610615.2,
+          "min": 1610393.2,
+          "max": 1610727.6,
+          "mean": 1610613.0399999998,
+          "standardDeviation": 134.93067849831337
+        },
+        "queriedHeapBytes": {
+          "median": 1896248.8,
+          "min": 1896019.4,
+          "max": 1896467.8,
+          "mean": 1896246.1200000003,
+          "standardDeviation": 158.60243377708798
+        },
+        "afterCloseHeapBytes": {
+          "median": 135533.2,
+          "min": 134518.4,
+          "max": 135709.8,
+          "mean": 135241.24,
+          "standardDeviation": 557.3174032811102
+        }
+      }
+    }
+  },
+  "samples": [
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2023.7925420000001,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.853797899999995,
+        "firstQueryMs": 1.2582385499999986,
+        "warmQueryMs": 0.030250270750000027,
+        "closeMs": 0.32364999999999783,
+        "constructedHeapBytes": 1611110.6,
+        "queriedHeapBytes": 2055018.6,
+        "afterCloseHeapBytes": 36495.8
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1934.859291,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.3252583500000013,
+        "firstQueryMs": 0.8013374999999996,
+        "warmQueryMs": 0.19024637499999994,
+        "closeMs": 0.32158542500000065,
+        "constructedHeapBytes": 1610727.6,
+        "queriedHeapBytes": 1896467.8,
+        "afterCloseHeapBytes": 134767.2
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1921.3547919999999,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.485255199999995,
+        "firstQueryMs": 0.8395937499999946,
+        "warmQueryMs": 0.191492927,
+        "closeMs": 0.33269272500000396,
+        "constructedHeapBytes": 1610615.2,
+        "queriedHeapBytes": 1896241.6,
+        "afterCloseHeapBytes": 135709.8
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1972.796042,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.530258349999997,
+        "firstQueryMs": 1.2685354249999932,
+        "warmQueryMs": 0.029565739750000035,
+        "closeMs": 0.3256885500000067,
+        "constructedHeapBytes": 1611033.8,
+        "queriedHeapBytes": 2054964.8,
+        "afterCloseHeapBytes": 36448.4
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1933.16725,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.335745850000001,
+        "firstQueryMs": 1.2655666500000051,
+        "warmQueryMs": 0.02994789574999993,
+        "closeMs": 0.30083230000000183,
+        "constructedHeapBytes": 1611111,
+        "queriedHeapBytes": 2055036.2,
+        "afterCloseHeapBytes": 36440.4
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2059.274583,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.678052074999994,
+        "firstQueryMs": 0.8628166749999991,
+        "warmQueryMs": 0.23521095824999996,
+        "closeMs": 0.6976802249999992,
+        "constructedHeapBytes": 1610393.2,
+        "queriedHeapBytes": 1896019.4,
+        "afterCloseHeapBytes": 135677.6
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2186.5945420000003,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 4.191966675000003,
+        "firstQueryMs": 1.6432249999999953,
+        "warmQueryMs": 0.20907159374999992,
+        "closeMs": 0.32220624999999925,
+        "constructedHeapBytes": 1610609.6,
+        "queriedHeapBytes": 1896248.8,
+        "afterCloseHeapBytes": 134518.4
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2442.379375,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.835636450000004,
+        "firstQueryMs": 1.3490458250000075,
+        "warmQueryMs": 0.03198351050000008,
+        "closeMs": 0.3513416750000033,
+        "constructedHeapBytes": 1611262.8,
+        "queriedHeapBytes": 2054961.8,
+        "afterCloseHeapBytes": 36417
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2474.7496250000004,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.7588718749999996,
+        "firstQueryMs": 1.3230635249999978,
+        "warmQueryMs": 0.03160908324999991,
+        "closeMs": 0.35048749999998563,
+        "constructedHeapBytes": 1610783.4,
+        "queriedHeapBytes": 2054865.4,
+        "afterCloseHeapBytes": 36238.2
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2075.472458,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.553370849999999,
+        "firstQueryMs": 0.9355895750000058,
+        "warmQueryMs": 0.21787598975000003,
+        "closeMs": 0.3417281249999974,
+        "constructedHeapBytes": 1610719.6,
+        "queriedHeapBytes": 1896253,
+        "afterCloseHeapBytes": 135533.2
+      }
+    }
+  ]
+}

@@ -20,7 +20,7 @@ File sizes compare the browser libraries after Brotli compression. The [benchmar
 
 </details>
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=401449b8b79d)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=605c065fef54)](docs/repo/perf/benchmarks.md)
 
 This summary covers 36 repeated all-results queries, retained heap after 100 distinct queries per engine, and compressed browser file sizes.
 The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native browser DOMs and exclude `jsdom`.

@@ -55,7 +55,7 @@ try {
       {
         name: 'nwsapi-jsdom-adapter-test',
         private: true,
-        dependencies: { jsdom: '30.0.1' },
+        dependencies: { jsdom: '30.0.1', '@testing-library/dom': '10.4.1' },
         overrides: isPnpm
           ? undefined
           : {

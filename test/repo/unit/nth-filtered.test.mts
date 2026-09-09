@@ -45,7 +45,9 @@ for (const legacy of [false, true]) {
         expect(engine.first(selector, main)?.id, selector).toBe(ids[0])
         for (const node of main.children) {
           expect(engine.match(selector, node), `${selector}: ${node.id}`).toBe(
-            ids.includes(node.id),
+            selector === 'p:nth-child(2 of :scope > .item)'
+              ? false
+              : ids.includes(node.id),
           )
         }
       }

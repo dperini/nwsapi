@@ -312,3 +312,46 @@ The core is 20.3% smaller before compression, 1.6% smaller with gzip, and 0.9% s
 **Lookup strategy.** Ordinary HTML trees retain native tag lookup. A weak cache records whether broader candidates are needed. Mutation records and observer delivery invalidate that classification. XML queries continue to use namespace-aware lookup. Compiled tag predicates keep direct property comparisons for ordinary lowercase HTML names.
 
 **Validation.** Selector regression tests cover the selector-layer examples from all 19 issues listed in jsdom's engine-switch PR. Rendering, event-library selector generation, Range mutation performance, and application feedback are separate concerns. Unit, integration, selected WPT, package-install, and browser comparison checks protect this change. Cumulative coverage retains the existing thresholds.
+
+
+## Host workload and adapter classification
+
+**Problem.** The adapter supplies a small host object to the engine. Foreign-type classification looked for `MutationObserver` on that object instead of the document window. This disabled classification caching and rescanned the tree during repeated queries. A separate child-chain route performed one scoped lookup per class anchor even when one terminal lookup was equally selective.
+
+**Implementation.** Classification now uses the document window and the shared weak observer helper. The observer marks its state dirty without retaining an engine closure. Child-chain routing compares live terminal and anchor counts before choosing scoped lookups. Both changes preserve synchronous mutation visibility. Public matching and closest queries also use exact scope identity, and language parsing accepts quoted ranges and lists.
+
+<details>
+<summary>Host workload methods and reproduction</summary>
+
+The [generated report](../../../assets/repo/bench/jsdom-workload.json) runs a prepared `jsdom` checkout in fresh processes. Five trials alternate engine order. The candidate replaces only the host's selector module. The report records host revision, dependency-lock hash, candidate build hash, runtime, input hashes, samples, and variation. The host lock selects `@asamuzakjp/dom-selector` 9.0.1. The separate source comparison uses version 9.1.1, so those results describe different builds. Shared modules are loaded before timing, and the Range workload runs before the lifecycle cases.
+
+The pinned WPT page runs its unmodified test logic and local resources. The reporter registers completion without creating a visual results page. Every trial asserts 2,808 passing subtests, successful harness completion, and no host errors. Resource interception rejects unlisted resources and external origins. Separate CPU-profile runs keep sampling overhead outside the timing comparison.
+
+Lifecycle measurements use 40 new documents with 100 section/span/input groups each. Construction precedes queries on those documents. The first query and 100 repeated `.row > span` queries have separate timers. Results are checked through the public DOM API. Heap deltas include the complete JavaScript document and host state, unlike the incremental engine-memory chart. Closing documents, releasing the array, yielding to queued cleanup, and collecting garbage precede the final heap reading. Residual process heap is not a direct leak measurement.
+
+Prepare the checkout with its documented dependency installation and generation commands. Supply the pinned WPT files listed in the script, including `dom/common.js` and `resources/testharness.js`. The reviewed WPT revision is `e94af787e39d4161f01f0ef78d933f1103ee32b4`.
+
+```sh
+pnpm run build
+node scripts/repo/bench/jsdom-workload.mts \
+  --host /path/to/prepared/jsdom \
+  --wpt /path/to/pinned/wpt \
+  --profile /path/in/os-temp/selector-workload
+```
+
+</details>
+
+| Median measurement | `@asamuzakjp/dom-selector` 9.0.1 | `nwsapi` candidate |
+| --- | ---: | ---: |
+| Range page | 2087.67ms | 2135.10ms |
+| Construct one document | 3.57ms | 3.90ms |
+| First query per document | 1.32ms | 0.74ms |
+| Repeated query | 0.0310ms | 0.0315ms |
+| Retained heap after queries, per document | 2055.02kB | 1799.71kB |
+| Residual heap after close, per document | 36.23kB | 29.83kB |
+
+These values cover the host workloads described above. The Range timing ranges overlap, and their sample standard deviations are about 235ms and 295ms. This run does not establish a Range speedup or a clear regression. Construction samples also overlap. Repeated-query times are close, while first-query medians and queried heap favor the candidate. Separate profiles place selector-related stacks below 2% of sampled Range time for both engines. DOM insertion, live-range bookkeeping, stack creation, and garbage collection account for prominent costs.
+
+The [earlier host measurement](../../../assets/repo/bench/jsdom-workload-before-routing.json) recorded a candidate repeated-query median of 0.2091ms before the routing and observer fixes. The final median is 0.0315ms. These are separate alternating comparisons against the same host baseline, rather than a paired experiment isolating each change. The direct-engine routing experiment did not predict the full host result. Profiling the adapter was necessary to find the disabled classification cache.
+
+**Validation.** The selector-layer reproductions now also run through public DOM APIs. The upstream host API suite passed 579 tests with the adapter substituted. The isolated package suite passed Testing Library consumer lookups and computed-style mutation checks. These results establish the tested integration boundary. They do not imply complete CSS conformance or an upstream adoption decision.

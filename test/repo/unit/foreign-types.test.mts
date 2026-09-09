@@ -122,3 +122,38 @@ test('direct-child has predicates include foreign mixed-case local names', t => 
   expect(engine.first('main:has(> p)', window.document)).toBe(main)
   expect(engine.match(':has(> p)', main)).toBe(true)
 })
+
+test('minimal adapter hosts reuse the document window for foreign-type invalidation', t => {
+  const { window } = new JSDOM(
+    '<main>' +
+      '<section class="row"><span></span></section>'.repeat(40) +
+      '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const engine = factory({
+    document: doc,
+    DOMException: window.DOMException,
+  } as unknown as Window)
+  const descriptor = Object.getOwnPropertyDescriptor(
+    window.Element.prototype,
+    'namespaceURI',
+  )!
+  let reads = 0
+  Object.defineProperty(window.Element.prototype, 'namespaceURI', {
+    ...descriptor,
+    get() {
+      reads++
+      return descriptor.get!.call(this)
+    },
+  })
+  expect(engine.select('.row > span', doc).length).toBe(40)
+  reads = 0
+  expect(engine.select('.row > span', doc).length).toBe(40)
+  expect(reads).toBeLessThan(10)
+  const foreign = doc.createElementNS('urn:foreign', 'x:span')
+  doc.querySelector('section')!.append(foreign)
+  expect(engine.select('.row > span', doc).length).toBe(41)
+  foreign.remove()
+  expect(engine.select('.row > span', doc).length).toBe(40)
+})

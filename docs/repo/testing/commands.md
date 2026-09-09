@@ -29,3 +29,10 @@ Type checks run without an incremental cache so they recheck changes to shared d
 `test/repo/unit/` covers selector behavior and helpers. `test/repo/integration/` covers the `jsdom` adapter and development commands. `test/repo/e2e/` covers browsers, published packages, and WPT. Reusable DOM fixtures live in `test/repo/fixtures/`, and fuzz targets live in `test/repo/fuzz/`.
 
 Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Development commands live in `scripts/repo/`. Older HTML suites remain under `test/`, and the pristine WPT checkout remains under `upstream/wpt/`.
+
+
+## Integrated host workload
+
+`node scripts/repo/bench/jsdom-workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
+
+The isolated package test also installs `@testing-library/dom` 10.4.1 and exercises role, label, and test-ID lookups against the packed adapter. Its temporary installation stays outside the repository.
