@@ -5,9 +5,11 @@ import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
 import { median } from './timing.mts'
+import { profileAncestorMemory } from './ancestor-memory.mts'
 
 const { values } = parseArgs({
   options: {
+    memory: { type: 'boolean', default: false },
     output: {
       type: 'string',
       default: 'assets/repo/bench/ancestor-reads.json',
@@ -162,6 +164,9 @@ for (const shape of shapes) {
           check(result)
         }
       }
+      const memory = values.memory
+        ? await profileAncestorMemory(query)
+        : undefined
       const counts: Array<{ parentReads: number; classReads: number }> = []
       const parentDescriptor = Object.getOwnPropertyDescriptor(
         window.Node.prototype,
@@ -228,6 +233,7 @@ for (const shape of shapes) {
           }),
         ),
         mutationCorrect: true,
+        memory,
       })
     }
   } finally {
@@ -245,7 +251,10 @@ writeFileSync(
         .update(readFileSync('dist/nwsapi.js'))
         .digest('hex'),
       methodology:
-        'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, rendering, or memory measurement. The depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+        'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. The depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+      memoryMethodology: values.memory
+        ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
+        : undefined,
       shapes,
       rows,
     },

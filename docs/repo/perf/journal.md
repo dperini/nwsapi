@@ -571,3 +571,35 @@ The complex selector combines sibling positions with descendant classes. The pla
 Across 2000 deep queries, sampled allocation rises from 46.99MB to 76.17MB for the complex selector and from 41.01MB to 70.27MB for the plain selector. Those increases are about 62% and 71%. The weak map and per-element records add work even when they reduce DOM reads. All result, mutation, and reversed-order checks pass. Both removed nodes become collectible in every fixture. This rules out retention of those two sampled nodes in this workload, not every possible retention problem.
 
 No engine change is retained. Public-host integration and callback compatibility were not tested because the browser timing and allocation regressions already reject this candidate as a general optimization. Reducing repeated prefix matching remains a separate avenue to investigate without a per-element read cache.
+
+## Profile ancestor-read caching in Node
+
+The Node memory experiment compares the existing compiled resolver, always-on caching, and the depth gate using `jsdom`. It measures temporary allocation separately from memory remaining after garbage collection.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --memory --output assets/repo/bench/ancestor-node-memory.json`. The [report](../../../assets/repo/bench/ancestor-node-memory.json) records runtime details, engine hash, raw measurements, and the ten largest sampled allocation sites per sample. The [profiling helper](../../../scripts/repo/bench/ancestor-memory.mts) uses the Node inspector rather than inferring allocation from heap growth.
+
+Three rounds rotate variant order. Each retained-memory measurement brackets two separate batches of 2000 warm queries. Four garbage collections across event-loop turns precede each whole-process heap reading. A separate batch of 2000 queries uses allocation sampling at a 1024byte interval and includes collected objects. Candidate lookup, compilation, result checks, and getter instrumentation are outside allocation sampling. Fixtures and engine instances remain alive during these measurements.
+
+Whole-process heap readings include the profiler and accumulated report data. Small changes are not evidence of a leak or a precise per-query retained cost. This experiment does not measure peak memory, detached-node collection, or queries through the public `jsdom` APIs. Allocation estimates describe total allocation over a batch, not memory needed at one instant.
+
+</details>
+
+| Node allocation across 2000 queries | Existing | Depth gate | Change |
+| --- | ---: | ---: | ---: |
+| Deep complex | 187.27MB | 207.32MB | +10.7% |
+| Deep plain | 145.39MB | 173.04MB | +19.0% |
+| Mixed shallow first complex | 142.46MB | 142.34MB | -0.1% |
+| Mixed shallow first plain | 99.44MB | 99.60MB | +0.2% |
+| Mixed deep first complex | 142.16MB | 169.65MB | +19.3% |
+| Mixed deep first plain | 99.71MB | 135.15MB | +35.5% |
+
+These are median sampled allocations across three rounds on Node 26.5.0 with `jsdom` 30.0.1. Deep and mixed fixtures contain 64 candidates. The complex selector combines sibling positions with descendant classes. The plain selector uses descendant classes and a child relationship. The depth gate increases allocation by about 11% and 19% in the deep cases. It skips the cache when the mixed tree starts shallow. With a deep first candidate, mixed-case allocation rises by about 19% and 36%.
+
+The allocation sites help explain the tradeoff. In the first deep plain sample, allocation attributed to the `className` getter falls from 49.17MB to 19.11MB. Allocation attributed to the generated resolver rises from 96.16MB to 119.16MB, and map insertion adds another 33.04MB. V8 can attribute inlined helper allocations to their caller, so these sites do not identify every object type separately.
+
+The deep plain gate has zero measured post-GC growth in both retained batches in all three rounds. For the deep complex gate, the first batch changes the heap by 0bytes to 1392bytes, and the repeated batch changes it by -1240bytes to 5776bytes. This workload does not show retention proportional to total allocated bytes. These short batches do not establish a general absence of leaks, and the fixtures remain attached throughout.
+
+Node therefore presents a tradeoff: the earlier unprofiled deep queries were about 27% and 21% faster, while this allocation experiment shows more temporary allocation. Neither the Node timing gain nor these heap readings justify adopting the gate without public-host and longer-running garbage-collection measurements. The browser regressions remain a separate reason not to enable it generally. Production `nwsapi` is unchanged.
