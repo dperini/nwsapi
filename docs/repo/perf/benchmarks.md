@@ -196,7 +196,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
 
-![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=df5c70397f9b)
+![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=bda39d77d1ec)
 
 This is a file size report, not a timing benchmark.
 `nwsapi` uses its readable `dist/nwsapi.js` core browser file.

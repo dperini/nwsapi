@@ -101,3 +101,9 @@ The candidate allocation profiler accepts an optional saved engine path after it
 For a longer Node timing check, add `--warmups 1000 --iterations 3000` to `ancestor-reads.mts`. The report records both counts. Keep the default run and the longer run so changes in warmup and batch size remain visible. A longer batch can reduce scheduling noise, but it does not justify discarding slower samples or treating a timing difference as a guaranteed improvement.
 
 To isolate class-reader cost, pass `--attribute-classes --baseline dist/nwsapi.js` to either ancestor benchmark. Both engines use the same build, but the candidate reads the class attribute through its snapshot helper. The report records this override explicitly. This is a benchmark experiment, not a production configuration option. Missing class attributes return an empty string, and no class values are cached.
+
+## Profile result arrays
+
+Run `node scripts/repo/bench/result-arrays.mts --output assets/repo/bench/result-arrays-profile.json --memory` for a single-build profile. Add `--baseline /absolute/path/to/before.cjs` to compare builds. Use a separate process without `--memory` for timing conclusions. The fixtures return 0, 1, 16, or 256 nodes through either one class selector or four disjoint groups.
+
+Run `node scripts/repo/bench/result-arrays-browser.mts /absolute/path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing. Both timing scripts use nine rotating rounds with batches lasting at least 50ms. This makes timer resolution a smaller part of tiny-query measurements. The memory script records allocation traffic and retained heap separately. Keep those measures distinct from timing and from the number of nodes returned.

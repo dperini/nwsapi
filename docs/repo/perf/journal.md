@@ -929,3 +929,33 @@ These estimates cover 2000 calls. Wide fixtures have 256 candidates, and deep fi
 Node queries take 19–42% more time with the attribute reader. Native Chromium queries take 13–21% more time, while browser allocation remains near the existing reader's level. Ordered results, prefix and suffix mutations, sibling moves, reversed candidates, and browser detached-node checks pass. These fixtures do not establish compatibility with custom class getters, synthetic candidates, or every SVG case.
 
 The attribute-reader change is rejected. The production class getter and the landed per-query regex optimization remain in place. No new build-size or runtime charts are needed for this benchmark-only experiment. The next allocation experiment should target temporary result arrays or repeated helper work rather than replace reflected class getters with generic attribute access.
+
+## Append grouped results without intermediate copies
+
+The result-array audit covers empty, single-match, sparse-match, and all-match queries over 256 elements. A single-class control returns the same nodes as four disjoint selector groups. The baseline profile shows that document-order sorting dominates allocation for interleaved grouped results. Result copying is a smaller cost.
+
+The cached grouped-query path previously concatenated each fetched list into a new result array. It now uses the existing `concatList` helper to append into the current result array, matching the approach already used during initial collection. NodeList inputs no longer need a separate array conversion before appending. Public result arrays remain independent, and sorting, duplicate removal, and callback handling keep their existing behavior.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Save the built CommonJS engine from `7592472` outside the repository before building the candidate. Run `node scripts/repo/bench/result-arrays.mts --baseline /path/to/before.cjs --output assets/repo/bench/result-arrays-timing.json`. Run it separately with `--memory` and another output path for allocation. Run `node scripts/repo/bench/result-arrays-browser.mts /path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing.
+
+The [baseline profile](../../../assets/repo/bench/result-arrays-profile.json), [Node timing](../../../assets/repo/bench/result-arrays-timing.json), [Node allocation comparison](../../../assets/repo/bench/result-arrays-memory.json), and [browser timing](../../../assets/repo/bench/result-arrays-browser.json) retain ordered-result checks and engine hashes. Timing includes warm public selection and candidate lookup, but excludes setup and compilation. The final timing runs rotate engines across nine rounds of at least 50ms after 1000 warmups. The longer batches avoid interpreting timer quantization as a speed change in tiny queries. Allocation uses three rotating samples of 2000 calls and includes collected objects. Timing within the allocation report is not used for conclusions.
+
+</details>
+
+| Grouped query matches | Node time change | Chromium time change | Node allocation before | Node allocation after |
+| --- | ---: | ---: | ---: | ---: |
+| 0 | -0.4% | -10.3% | 4.83MB | 4.60MB |
+| 1 | -9.5% | -28.8% | 5.22MB | 5.10MB |
+| 16 | -1.3% | -13.6% | 59.30MB | 58.36MB |
+| 256 | +3.1% | +0.5% | 872.89MB | 876.89MB |
+
+These grouped queries combine four disjoint class lists whose nodes interleave in document order. Allocation figures cover 2000 calls and are medians from three samples. Negative timing changes mean faster queries. Single-class controls vary too, so small differences should not be treated as universal gains. The strongest timing improvements occur with one match and with sparse browser results. Dense queries are slightly slower and show no aggregate allocation saving. Appending still grows the result array, and removing intermediate arrays does not remove sorting costs.
+
+In the dense baseline profile, `compareDocumentPosition` and `documentOrder` account for most sampled allocation. This is the stronger remaining target for grouped queries. The append change is retained as a small simplification with fewer intermediate copies and improved small-result timing, not as a broad memory breakthrough.
+
+The readable core shrinks by 42bytes. Gzip at level 9 shrinks by 12bytes, and Brotli at quality 11 shrinks by 6bytes. Size charts are refreshed. The broader runtime and retained-memory charts keep their previous measurements because this pass measures grouped-result behavior separately.
+
+Validation passes 670 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.46%. The regression test covers cached grouped queries, overlapping compiled and lookup-only groups, document order, duplicate removal, independent arrays, reentrant callbacks, synchronous mutation, and document fragments in array and NodeList modes. Formatting, lint, and type checks pass.

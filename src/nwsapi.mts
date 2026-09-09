@@ -6310,9 +6310,7 @@ interface Primordials {
               if (f[i] !== null) {
                 f[i]!(list, callback, context, nodes)
               } else {
-                nodes = nodes.concat(
-                  isInstanceOf(list) ? sliceCall(list) : (list as Element[]),
-                )
+                concatList(nodes, list)
               }
             }
             if (l > 1 && nodes.length > 1) {
