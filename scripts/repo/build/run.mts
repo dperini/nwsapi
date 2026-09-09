@@ -12,6 +12,9 @@ import { externalLoaderPlugin } from '../../../.config/repo/rolldown/external-lo
 import { postBuild } from './post.mts'
 import { bundleEngine } from '../rolldown/engine.mts'
 import { lowerToEs5 } from './post/es5.mts'
+import { checkUnicodeEs5 } from '../check/unicode-es5.mts'
+
+checkUnicodeEs5()
 
 // Preserve the external module paths and declarations in the distribution.
 for (const name of externalEntries) {

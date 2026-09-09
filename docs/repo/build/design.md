@@ -10,6 +10,8 @@ The build keeps the CommonJS, AMD, and browser wrapper intact. It bundles the en
 
 Unicode directionality includes the three required Unicode 17 bidirectional classes. Their regular expressions are inlined without a custom encoding or decoder. External CommonJS bundles also receive an unreachable export annotation so Node.js can recognize their named exports during ESM imports.
 
+`pnpm run check:unicode-es5` validates the three expressions selected by `src/external/unicode.js`. It rejects flags, modern escapes, and regex syntax that ES5 cannot parse. Both `pnpm run check` and the build run this check, so dependency updates cannot silently introduce incompatible table syntax.
+
 After bundling, `@swc/core` lowers the browser core and modules to ES5 syntax. The target comes from the IE11 Browserslist entry in `package.json`. An `acorn` parse rejects newer syntax in these outputs. The transform preserves native `typeof` and `instanceof` operations and does not add symbol polyfills or callback names. The Node.js adapter and command-line tools keep their separate syntax targets.
 
 After the transforms, `scripts/repo/build/post/format.mts` formats generated JavaScript with `oxfmt`. The settings in `.config/build.config.mts` use tabs and a 160-character wrap target to reduce indentation overhead while keeping the code readable. Trailing commas are disabled, and browser files are parsed as ES5 again after formatting. The formatter also runs after export annotations and the license banner are added.

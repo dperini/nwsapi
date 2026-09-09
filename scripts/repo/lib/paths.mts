@@ -10,6 +10,10 @@ export const SVG_CHECK_SCRIPT_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/check/svgs-are-optimized.mts',
 )
+export const UNICODE_ES5_CHECK_SCRIPT_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/check/unicode-es5.mts',
+)
 export const API_DOC_PATH = path.join(REPO_ROOT, 'docs/repo/selector/api.md')
 export const API_SCRIPT_PATH = path.join(
   REPO_ROOT,
