@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
+import { createRequire } from 'node:module'
+import { resolve } from 'node:path'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
 import {
@@ -13,6 +15,7 @@ import { profileAncestorMemory } from './ancestor-memory.mts'
 
 const { values } = parseArgs({
   options: {
+    baseline: { type: 'string' },
     inline: { type: 'boolean', default: false },
     single: { type: 'boolean', default: false },
     shared: { type: 'boolean', default: false },
@@ -25,13 +28,18 @@ const { values } = parseArgs({
     },
   },
 })
-const names = values.inline
-  ? ['baseline', 'shared-prefix', 'inline-prefix']
-  : values.shared
-    ? ['baseline', 'shared-prefix', 'last-prefix']
-    : values.prefix
-      ? ['baseline', 'split-prefix', 'cached-prefix']
-      : ['baseline', 'always-cache', 'depth-gated']
+const baselineFactory = values.baseline
+  ? (createRequire(import.meta.url)(resolve(values.baseline)) as typeof factory)
+  : undefined
+const names = values.baseline
+  ? ['baseline', 'candidate']
+  : values.inline
+    ? ['baseline', 'shared-prefix', 'inline-prefix']
+    : values.shared
+      ? ['baseline', 'shared-prefix', 'last-prefix']
+      : values.prefix
+        ? ['baseline', 'split-prefix', 'cached-prefix']
+        : ['baseline', 'always-cache', 'depth-gated']
 const shapes = [
   { name: 'original', boxes: 5, outer: 5, inner: 5, depths: [0] },
   { name: 'wide', boxes: 64, outer: 2, inner: 2, depths: [0] },
@@ -83,6 +91,7 @@ for (const shape of shapes) {
       }
     }
     const engine = factory(window)
+    const previous = baselineFactory?.(window)
     const snapshot = engine.Snapshot as typeof engine.Snapshot & {
       classOf(element: Element): string | null
     }
@@ -140,84 +149,86 @@ for (const shape of shapes) {
           context: Document,
           results: Element[],
         ) => unknown
-      > = [baseline]
-      if (values.prefix || values.shared || values.inline) {
-        const suffixText = ' .block.inner > .content'
-        assert(selector.endsWith(suffixText))
-        type Match = (
-          element: Element,
-          callback: null,
-          context: Document,
-          result: boolean,
-        ) => boolean
-        const prefixMatch = engine.compile(
-          selector.slice(0, -suffixText.length),
-          false,
-        ) as unknown as Match
-        const suffixMatch = engine.compile(
-          suffixText.trim(),
-          false,
-        ) as unknown as Match
-        if (values.shared || values.inline) {
-          const shared = engine.Snapshot as unknown as {
-            nthOfType(node: null, mode: number): void
+      > = previous ? [previous.compile(selector, true)!, baseline] : [baseline]
+      if (!previous) {
+        if (values.prefix || values.shared || values.inline) {
+          const suffixText = ' .block.inner > .content'
+          assert(selector.endsWith(suffixText))
+          type Match = (
+            element: Element,
+            callback: null,
+            context: Document,
+            result: boolean,
+          ) => boolean
+          const prefixMatch = engine.compile(
+            selector.slice(0, -suffixText.length),
+            false,
+          ) as unknown as Match
+          const suffixMatch = engine.compile(
+            suffixText.trim(),
+            false,
+          ) as unknown as Match
+          if (values.shared || values.inline) {
+            const shared = engine.Snapshot as unknown as {
+              nthOfType(node: null, mode: number): void
+            }
+            variants.push(
+              ...createSharedPrefixVariants(
+                engine
+                  .compile(selector.slice(0, -suffixText.length), true)!
+                  .toString(),
+                engine.Snapshot,
+                element => suffixMatch(element, null, doc, false),
+                () => shared.nthOfType(null, 2),
+                values.inline ? baseline.toString() : undefined,
+              ),
+            )
+          } else {
+            variants.push(
+              ...createPrefixVariants(
+                element => prefixMatch(element, null, doc, false),
+                element => suffixMatch(element, null, doc, false),
+              ),
+            )
           }
-          variants.push(
-            ...createSharedPrefixVariants(
-              engine
-                .compile(selector.slice(0, -suffixText.length), true)!
-                .toString(),
-              engine.Snapshot,
-              element => suffixMatch(element, null, doc, false),
-              () => shared.nthOfType(null, 2),
-              values.inline ? baseline.toString() : undefined,
-            ),
-          )
         } else {
-          variants.push(
-            ...createPrefixVariants(
-              element => prefixMatch(element, null, doc, false),
-              element => suffixMatch(element, null, doc, false),
-            ),
-          )
-        }
-      } else {
-        for (const gated of [false, true]) {
-          const changed = source
-            .replace(
-              'var e,',
-              () =>
-                `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
+          for (const gated of [false, true]) {
+            const changed = source
+              .replace(
+                'var e,',
+                () =>
+                  `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
+              )
+              .replaceAll(
+                'e.parentElement',
+                values.classes
+                  ? 'e.parentElement'
+                  : gated
+                    ? '(_cache?record(e,_cache).parent:e.parentElement)'
+                    : 'record(e,_cache).parent',
+              )
+              .replaceAll(
+                's.classOf(e)',
+                values.classes
+                  ? gated
+                    ? '(_cache?classRead(e,_cache):s.classOf(e))'
+                    : 'classRead(e,_cache)'
+                  : gated
+                    ? '(_cache?record(e,_cache).cls:s.classOf(e))'
+                    : 'record(e,_cache).cls',
+              )
+            variants.push(
+              // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, checked against the unchanged engine.
+              Function(
+                's',
+                'a',
+                'record',
+                'depthCache',
+                'classRead',
+                'return ' + changed,
+              )(engine.Snapshot, undefined, record, depthCache, classRead),
             )
-            .replaceAll(
-              'e.parentElement',
-              values.classes
-                ? 'e.parentElement'
-                : gated
-                  ? '(_cache?record(e,_cache).parent:e.parentElement)'
-                  : 'record(e,_cache).parent',
-            )
-            .replaceAll(
-              's.classOf(e)',
-              values.classes
-                ? gated
-                  ? '(_cache?classRead(e,_cache):s.classOf(e))'
-                  : 'classRead(e,_cache)'
-                : gated
-                  ? '(_cache?record(e,_cache).cls:s.classOf(e))'
-                  : 'record(e,_cache).cls',
-            )
-          variants.push(
-            // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, checked against the unchanged engine.
-            Function(
-              's',
-              'a',
-              'record',
-              'depthCache',
-              'classRead',
-              'return ' + changed,
-            )(engine.Snapshot, undefined, record, depthCache, classRead),
-          )
+          }
         }
       }
       const query = (index: number) =>
@@ -235,7 +246,7 @@ for (const shape of shapes) {
           query(index)
         }
       }
-      const timings: number[][] = [[], [], []]
+      const timings: number[][] = variants.map(() => [])
       for (let round = 0; round < 7; ++round) {
         for (let offset = 0; offset < variants.length; ++offset) {
           const index = (round + offset) % variants.length
@@ -360,16 +371,23 @@ writeFileSync(
         .update(readFileSync('dist/nwsapi.js'))
         .digest('hex'),
       methodology:
-        'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
-      cachePayload: values.inline
-        ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
-        : values.shared
-          ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
-          : values.prefix
-            ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-            : values.classes
-              ? 'Class value only. Parent reads remain direct.'
-              : 'Parent and class record.',
+        'Experimental compiled-resolver comparison only. Variants rotate across seven rounds, with 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. Integrated host timing and rendering are outside this benchmark. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+      baselineSha256: values.baseline
+        ? createHash('sha256')
+            .update(readFileSync(values.baseline))
+            .digest('hex')
+        : undefined,
+      cachePayload: values.baseline
+        ? 'Unmodified baseline and candidate compiled resolvers.'
+        : values.inline
+          ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+          : values.shared
+            ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+            : values.prefix
+              ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+              : values.classes
+                ? 'Class value only. Parent reads remain direct.'
+                : 'Parent and class record.',
       memoryMethodology: values.memory
         ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
         : undefined,

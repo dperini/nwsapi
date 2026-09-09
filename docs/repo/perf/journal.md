@@ -724,3 +724,48 @@ In the no-reuse browser control, inline timing ranges from 1.4% slower to 4.9% f
 The inline deep plain Node case has zero measured retained growth after both batches in all three rounds. Deep complex changes from before the first batch to after the second range from -3248bytes to 408bytes. These short whole-process heap readings do not measure peak memory or prove the absence of leaks. Browser detached-node collection passes, as do ordered identity, suffix mutation, prefix mutation, sibling reordering, and reversed candidate-order checks. Lint and type checks pass.
 
 This resolves the measured positional-sharing and shallow-overhead problems in the fixed-selector prototype. It does not yet change the production compiler. Integration still requires emitting the reuse check through the compiler, preserving callback and legacy behavior, and measuring public-host queries before adoption. The benchmark's checked string rewrite is evidence for that implementation, not production parsing logic.
+
+## Integrate ancestor reuse into the compiler
+
+The production compiler now emits the previous-ancestor result check directly. It does not rewrite generated JavaScript. A successful prefix leaves a true result before continuing the candidate loop. A failed search records false after the ancestor walk ends. The next candidate can reuse that result only when its starting ancestor is the same element.
+
+The eligibility pass consumes existing selector tokens and permits one static descendant walk. It excludes callbacks, legacy mode, relative selectors, registered extensions, attributes, namespaces, logical pseudos, filtered positional selectors, and other unsupported forms. Those paths retain their existing matcher. The check is silent for malformed input, so it does not add validation errors. The [resolver design](resolver-execution.md#query-local-ancestor-results) records these boundaries.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The baseline build comes from `05824bf`, before compiler integration. The production comparison scripts accept `--baseline /absolute/path/to/before/nwsapi.js` and record the hashes of both builds. [Node timing](../../../assets/repo/bench/ancestor-production-timing.json), [Node memory](../../../assets/repo/bench/ancestor-production-memory.json), and [browser measurements](../../../assets/repo/bench/ancestor-production-browser.json) use the actual compiled resolvers without experimental rewrites. Node timing runs in a separate process from allocation profiling. Allocation samples cover 2000 calls. Node sampling rotates the two builds over three rounds.
+
+The public-query reports are [before](../../../assets/repo/bench/prefix-host-before.json) and [after](../../../assets/repo/bench/prefix-host-after.json). Run `node scripts/repo/bench/complex-selectors.mts --host /absolute/path/to/prepared/jsdom --output /path/to/report.json` once with each build. The reports also include `@asamuzakjp/dom-selector` controls. The table below compares only the `nwsapi` candidate measurements across those two builds. It uses the prepared `jsdom` host's public query route and includes candidate lookup. Cold-query and mutation samples remain available in the reports.
+
+The public-query runs are separate measurements rather than a guarantee of a fixed improvement on every machine. The fixtures cover original, wide, deep, and mixed trees, using document and element query scopes. Deep trees add eight wrapper ancestors. The complex selector combines sibling positions and descendant classes. The plain selector uses descendant classes and a child relationship.
+
+</details>
+
+| Public document query | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Original complex | 120.91µs | 56.61µs | -53.2% |
+| Original plain | 57.10µs | 39.27µs | -31.2% |
+| Wide complex | 242.98µs | 166.84µs | -31.3% |
+| Wide plain | 114.65µs | 95.02µs | -17.1% |
+| Deep complex | 126.38µs | 81.38µs | -35.6% |
+| Deep plain | 98.79µs | 61.11µs | -38.1% |
+| Mixed complex | 68.05µs | 47.17µs | -30.7% |
+| Mixed plain | 32.43µs | 26.17µs | -19.3% |
+
+These are warm public document queries through `jsdom`, including candidate lookup. The original fixture has 125 candidates, the wide fixture has 256, and the deep fixture has 64. Negative changes mean faster queries. The reports retain element-scope results and cold samples separately. All candidate-build mutation checks pass, including changes made without an explicit cache-clear notification.
+
+| Node sampled allocation | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Wide complex | 391.42MB | 264.68MB | -32.4% |
+| Wide plain | 223.15MB | 178.03MB | -20.2% |
+| Deep complex | 187.99MB | 111.09MB | -40.9% |
+| Deep plain | 145.12MB | 88.43MB | -39.1% |
+
+These allocation estimates cover 2000 warm compiled-resolver calls over preselected candidates. They are medians from three rotating Node sampling rounds. They measure allocation traffic, rather than retained or peak memory. Reusing the ancestor result avoids repeated DOM getter and resolver work while preserving positional caches shared across the candidate collection.
+
+The deep complex candidate's retained heap changes by 8088bytes, 0bytes, and 1312bytes across the three rounds. The deep plain changes are -112bytes, 0bytes, and 0bytes. These short whole-process measurements do not establish an absence of leaks. All browser detached-node checks collect the observed nodes. In Chromium 151, the shallow complex and plain queries take about 27% and 17% less time. Deep complex and plain queries take about 39% less time. Browser allocation also falls in each of these cases.
+
+The readable core grows from 162450bytes to 164627bytes, an increase of 2177bytes. Gzip at level 9 grows by 481bytes, from 39373bytes to 39854bytes. Brotli at quality 11 grows by 405bytes, from 31849bytes to 32254bytes. This is a runtime optimization with a small download-size cost. The standalone memory benchmark measures 9.35KiB after initialization and 76.33KiB after 100 queries for the new build. Its scope differs from the allocation experiment above.
+
+The final build passes 668 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. Unit tests include callback mutation, arbitrary collection order, null entries, between-query DOM changes, and silent eligibility checks for invalid selectors. The production integration preserves shared positional caching and removes the measured shallow-query overhead of the split-prefix prototype for the recorded cases.

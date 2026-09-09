@@ -120,6 +120,7 @@ interface PlanCache<Value> {
   size(): number
 }
 interface CompilerAncestry {
+  reuse?: string
   required: string[]
   pending: string[]
   walk: boolean
@@ -2683,6 +2684,80 @@ interface Primordials {
     S_VARS: string[] = [],
     M_VARS: string[] = [],
     N_VARS: string[] = [],
+    // Reuse only one static ancestor search. Read the existing selector tokens
+    // so escaped identifiers and whitespace keep the parser's meaning. Other
+    // pseudos, namespaces, attributes, and extensions retain their full matcher.
+    canReuseAncestor = function (selector: string) {
+      for (var extension in Selectors) {
+        if (Selectors[extension]) {
+          return false
+        }
+      }
+      for (extension in Combinators) {
+        if (Combinators[extension]) {
+          return false
+        }
+      }
+      selector = normalizeCombinators(selectorComments(selector))
+      var walks = 0,
+        token,
+        pattern,
+        match: RegExpMatchArray | null
+      while (selector) {
+        token = selector.charAt(0)
+        pattern =
+          token == '.'
+            ? 'className'
+            : token == '#'
+              ? 'id'
+              : token == '*'
+                ? 'universal'
+                : token == '>'
+                  ? 'children'
+                  : token == '+'
+                    ? 'adjacent'
+                    : token == '~'
+                      ? 'relative'
+                      : token == ' ' || token == '\t'
+                        ? 'ancestor'
+                        : 'tagName'
+        if (token == ':') {
+          match = selector.match(Patterns['structural']!)
+          if (match) {
+            if (
+              match[1]!.toLowerCase() == 'root' ||
+              match[1]!.toLowerCase() == 'scope'
+            ) {
+              return false
+            }
+          } else {
+            // Inspect the token without validating it again. Validation can
+            // emit errors, while this eligibility pass must remain silent.
+            var nth = readPseudo(selector)
+            if (
+              !nth ||
+              !Patterns['treestruct']!.test(selector) ||
+              nth.argument === null ||
+              nth.argument.toLowerCase().indexOf('of') >= 0
+            ) {
+              return false
+            }
+            selector = nth.rest
+            continue
+          }
+        } else {
+          if (pattern == 'ancestor' && ++walks > 1) {
+            return false
+          }
+          match = selector.match(Patterns[pattern]!)
+        }
+        if (!match || match[match.length - 1] === selector) {
+          return false
+        }
+        selector = match[match.length - 1]!
+      }
+      return walks == 1
+    },
     // compile groups or single selector strings into
     // executable functions for matching or selecting
     compile = function (
@@ -2754,6 +2829,15 @@ interface Primordials {
 
       // Cache hits need no parser state or helper-alias bookkeeping.
       ancestry = { required: [], pending: [], walk: false }
+      if (
+        (mode || mode === null) &&
+        !callback &&
+        !relative &&
+        !Config.LEGACY &&
+        canReuseAncestor(selector)
+      ) {
+        ancestry.reuse = macro
+      }
 
       source = compileSelector(
         relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
@@ -2818,6 +2902,9 @@ interface Primordials {
         N_VARS.length = 0
       }
 
+      if (ancestry.reuse) {
+        vars += ',_pStart=null,_pResult=false'
+      }
       if (Config.LEGACY) {
         var rewritten = legacyHooks!.compile(loop)
         loop = rewritten.source
@@ -3973,6 +4060,26 @@ interface Primordials {
             if (pendingTag) {
               source = pendingTag + source + '}'
               pendingTag = ''
+            }
+            if (ancestry.reuse) {
+              // A successful prefix continues the candidate loop before the
+              // final false assignment. Keep positional state in the original
+              // query wrapper, and reuse the parent read this walk already needs.
+              source =
+                'var N' +
+                k +
+                '=e;if((e=e&&' +
+                read.up('e') +
+                ')===_pStart){if(_pResult){' +
+                ancestry.reuse +
+                '}}else{_pStart=e;_pResult=true;while(e){' +
+                source +
+                'e=' +
+                read.up('e') +
+                ';}_pResult=false;}e=N' +
+                k +
+                ';'
+              break
             }
             source =
               'var N' +

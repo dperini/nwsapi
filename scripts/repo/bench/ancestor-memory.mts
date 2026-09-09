@@ -19,8 +19,8 @@ export async function profileAncestorMemory(
   const rows = []
   try {
     for (let round = 0; round < 3; ++round) {
-      for (let offset = 0; offset < 3; ++offset) {
-        const index = (round + offset) % 3
+      for (let offset = 0; offset < names.length; ++offset) {
+        const index = (round + offset) % names.length
         const before = await heap()
         for (let i = 0; i < 2000; ++i) {
           query(index)

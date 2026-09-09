@@ -35,3 +35,11 @@ Tests cover cold and cached results, escaped classes, mutations, callbacks,
 matching, cache turnover, tag-read ordering, installed wrappers, and both
 collection modes. This change makes no new benchmark claim; performance still
 needs measurement on the combined branch and representative hosts.
+
+## Query-local ancestor results
+
+The compiler can reuse the previous ancestor-search result when consecutive candidates start that search at the same element. It emits two local variables into the resolver. The variables reset on every call, and the existing positional caches keep their query-level cleanup. No map, per-element record, or extra parent read is needed.
+
+Eligibility uses the existing selector tokens and requires one descendant walk. Classes, IDs, ordinary type selectors, the universal selector, standard combinators, and supported static structural pseudos can qualify. Attributes, namespaces, filtered positional selectors, logical and dynamic pseudos, relative selectors, callbacks, and legacy mode use the existing matcher. Registered selector or combinator extensions also disable this optimization when compiling a new resolver.
+
+The eligibility pass does not report syntax errors. The normal parser remains responsible for validation. Both array and `item()` collection modes retain candidate order. Tests check cache hits and misses, mutations between calls, sibling moves, callback mutations, and legacy behavior. See the [integration measurements](journal.md#integrate-ancestor-reuse-into-the-compiler).

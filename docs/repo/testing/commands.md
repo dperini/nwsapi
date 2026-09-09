@@ -75,25 +75,17 @@ node scripts/repo/bench/has-memory.mts --baseline /absolute/path/to/baseline/nws
 
 The script writes `assets/repo/bench/has-memory.json`. It uses three alternating rounds in native Chromium pages. Each engine receives 512 distinct relative plans, enough additional plans to pass the cache capacity, and another batch to check continued churn. It measures retained JavaScript heap after forced garbage collection, checks removed nodes through weak references, and measures explicit cache clearing. A separate warm-query allocation sample includes collected objects. Whole-page heap includes code and DOM, so compare stage differences and retain the measurement limits in the [journal](../perf/journal.md#sibling-has-scope-and-cache-allocation).
 
-## Compare experimental ancestor reads
+## Compare ancestor reuse
+
+Save a built CommonJS baseline before building the candidate. The production comparison uses the baseline build from `05824bf`. Keep saved builds in an operating-system temporary directory.
 
 ```sh
 pnpm run build
-node scripts/repo/bench/ancestor-reads.mts --output assets/repo/bench/ancestor-reads-mixed.json
-node scripts/repo/bench/ancestor-browser.mts
-node scripts/repo/bench/ancestor-reads.mts --memory --output assets/repo/bench/ancestor-node-memory.json
-node scripts/repo/bench/ancestor-browser.mts --classes --output assets/repo/bench/ancestor-browser-classes.json
-node scripts/repo/bench/ancestor-reads.mts --classes --memory --output assets/repo/bench/ancestor-node-classes.json
-node scripts/repo/bench/ancestor-reads.mts --classes --output assets/repo/bench/ancestor-node-classes-timing.json
-node scripts/repo/bench/ancestor-reads.mts --prefix --output assets/repo/bench/ancestor-prefix-timing.json
-node scripts/repo/bench/ancestor-reads.mts --prefix --memory --output assets/repo/bench/ancestor-prefix-memory.json
-node scripts/repo/bench/ancestor-browser.mts --prefix --output assets/repo/bench/ancestor-prefix-browser.json
-node scripts/repo/bench/ancestor-reads.mts --shared --output assets/repo/bench/ancestor-shared-timing.json
-node scripts/repo/bench/ancestor-reads.mts --shared --memory --output assets/repo/bench/ancestor-shared-memory.json
-node scripts/repo/bench/ancestor-browser.mts --shared --output assets/repo/bench/ancestor-shared-browser.json
-node scripts/repo/bench/ancestor-reads.mts --inline --output assets/repo/bench/ancestor-inline-timing.json
-node scripts/repo/bench/ancestor-reads.mts --inline --memory --output assets/repo/bench/ancestor-inline-memory.json
-node scripts/repo/bench/ancestor-browser.mts --inline --output assets/repo/bench/ancestor-inline-browser.json
+node scripts/repo/bench/ancestor-reads.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-timing.json
+node scripts/repo/bench/ancestor-reads.mts --baseline /absolute/path/to/before/nwsapi.js --memory --output assets/repo/bench/ancestor-production-memory.json
+node scripts/repo/bench/ancestor-browser.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-browser.json
 ```
 
-The scripts write `assets/repo/bench/ancestor-reads-mixed.json`, `assets/repo/bench/ancestor-browser.json`, and `assets/repo/bench/ancestor-node-memory.json`. They compare the existing compiled resolver with always-on and depth-gated read caches for fixed shallow, wide, deep, and mixed-depth fixtures. The browser script also measures sampled allocation and retained heap, then checks detached-node collection. The `--memory` option samples Node allocations and measures retained heap separately. Its report includes allocation sites and three rounds with rotating variant order. Add `--classes` to cache class values directly while leaving parent reads unchanged. Use a separate output path to preserve the record-cache comparison. Measure Node timing in a fresh process without `--memory` so earlier profiling does not affect later fixtures. Use `--prefix` instead of `--classes` to compare the baseline with split-prefix matching and cached ancestor-prefix results. Use `--shared` for collection-level positional reuse and a single previous-ancestor result. Use `--inline` to place previous-result reuse in the existing compiled loop. Add `--single` to give each starting ancestor just one candidate and remove consecutive reuse opportunities. Timing excludes candidate lookup and compilation. Operation counts and mutation checks run outside the timers. The [journal](../perf/journal.md#experiment-with-query-local-ancestor-reads) explains why these experiments have not changed the production engine.
+These commands compare unmodified compiled resolvers from both builds. They record both build hashes and verify node identity, suffix and prefix mutations, sibling reordering, and reversed candidate order. The browser also checks detached-node collection. Timing excludes compilation and candidate lookup. Run Node timing separately from `--memory`, which samples allocation and records post-GC heap across three rotating rounds. Add `--single` to remove consecutive ancestor reuse opportunities. Use separate output files for those controls.
+
+The earlier `--classes`, `--prefix`, `--shared`, and `--inline` flags are historical prototype comparisons. Their checked rewrites require the original compiler shape, so reproduce them with the pre-integration build instead of applying them to the optimized engine. The [journal](../perf/journal.md#integrate-ancestor-reuse-into-the-compiler) records the adopted change and the public-host measurements.

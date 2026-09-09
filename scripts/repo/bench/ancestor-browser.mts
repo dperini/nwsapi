@@ -15,6 +15,7 @@ type Probe = {
 }
 const { values } = parseArgs({
   options: {
+    baseline: { type: 'string' },
     inline: { type: 'boolean', default: false },
     single: { type: 'boolean', default: false },
     shared: { type: 'boolean', default: false },
@@ -26,14 +27,19 @@ const { values } = parseArgs({
     },
   },
 })
-const names = values.inline
-  ? ['baseline', 'shared-prefix', 'inline-prefix']
-  : values.shared
-    ? ['baseline', 'shared-prefix', 'last-prefix']
-    : values.prefix
-      ? ['baseline', 'split-prefix', 'cached-prefix']
-      : ['baseline', 'always-cache', 'depth-gated']
+const names = values.baseline
+  ? ['baseline', 'candidate']
+  : values.inline
+    ? ['baseline', 'shared-prefix', 'inline-prefix']
+    : values.shared
+      ? ['baseline', 'shared-prefix', 'last-prefix']
+      : values.prefix
+        ? ['baseline', 'split-prefix', 'cached-prefix']
+        : ['baseline', 'always-cache', 'depth-gated']
 const code = readFileSync('dist/nwsapi.js', 'utf8')
+const beforeCode = values.baseline
+  ? readFileSync(values.baseline, 'utf8')
+  : undefined
 const browser = await chromium.launch()
 const rows = []
 try {
@@ -45,6 +51,16 @@ try {
       const page = await browser.newPage()
       try {
         await page.setContent('<!doctype html><body></body>')
+        if (beforeCode) {
+          await page.addScriptTag({ content: beforeCode })
+          await page.evaluate(() => {
+            const host = window as unknown as {
+              NW: { Dom: unknown }
+              BeforeDom: unknown
+            }
+            host.BeforeDom = host.NW.Dom
+          })
+        }
         await page.addScriptTag({ content: code })
         const timing = await page.evaluate(
           ({
@@ -56,6 +72,7 @@ try {
             sharedMode,
             single,
             inlineMode,
+            productionComparison,
           }) => {
             const host = window as unknown as {
               NW: {
@@ -241,7 +258,11 @@ try {
               }
               return variants
             }
-            const variants = buildVariants()
+            const before = (window as unknown as { BeforeDom: typeof engine })
+              .BeforeDom
+            const variants = productionComparison
+              ? [before.compile(selector, true), engine.compile(selector, true)]
+              : buildVariants()
             const query = (index: number) =>
               variants[index]!(nodes, null, document, [])
             const verify = (result: Element[], wanted: Element[]) => {
@@ -258,10 +279,10 @@ try {
                 query(index)
               }
             }
-            const samples: number[][] = [[], [], []]
+            const samples: number[][] = variants.map(() => [])
             for (let round = 0; round < 7; ++round) {
-              for (let offset = 0; offset < 3; ++offset) {
-                const index = (round + offset) % 3
+              for (let offset = 0; offset < variants.length; ++offset) {
+                const index = (round + offset) % variants.length
                 const start = performance.now()
                 for (let i = 0; i < 1000; ++i) {
                   query(index)
@@ -336,6 +357,7 @@ try {
                 : createPrefixVariants.toString(),
             sharedMode: values.shared || values.inline,
             inlineMode: values.inline,
+            productionComparison: !!values.baseline,
             single: values.single,
           },
         )
@@ -350,7 +372,7 @@ try {
           return (await session.send('Runtime.getHeapUsage')).usedSize
         }
         const variants = []
-        for (let index = 0; index < 3; ++index) {
+        for (let index = 0; index < names.length; ++index) {
           const before = await heap()
           await session.send('HeapProfiler.startSampling', {
             samplingInterval: 1024,
@@ -421,17 +443,22 @@ try {
         platform: process.platform,
         architecture: process.arch,
         engineSha256: createHash('sha256').update(code).digest('hex'),
-        cachePayload: values.inline
-          ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
-          : values.shared
-            ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
-            : values.prefix
-              ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-              : values.classes
-                ? 'Class value only. Parent reads remain direct.'
-                : 'Parent and class record.',
+        baselineSha256: beforeCode
+          ? createHash('sha256').update(beforeCode).digest('hex')
+          : undefined,
+        cachePayload: values.baseline
+          ? 'Unmodified baseline and candidate compiled resolvers.'
+          : values.inline
+            ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+            : values.shared
+              ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+              : values.prefix
+                ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+                : values.classes
+                  ? 'Class value only. Parent reads remain direct.'
+                  : 'Parent and class record.',
         methodology:
-          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.',
+          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. Public-host timing and rendering are outside this benchmark.',
         rows,
       },
       null,
