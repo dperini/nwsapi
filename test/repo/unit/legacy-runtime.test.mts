@@ -4,7 +4,7 @@ import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import { simple } from '@ultrathink/acorn.rs.wasm'
+import { aqs_match } from '@ultrathink/acorn.rs.wasm'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -15,23 +15,16 @@ const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(path.join(__dirname, '../../../dist/nwsapi.js'))
 // A test-only hook exercises the internal allocator without adding public API.
 // Locate the return by syntax so indentation and semicolons do not affect it.
-const returns: number[] = []
-simple(
-  source.toString('utf8'),
-  {
-    ReturnStatement(statement) {
-      if (
-        statement.argument?.type === 'Identifier' &&
-        statement.argument.name === 'Dom'
-      ) {
-        returns.push(statement.start)
-      }
-    },
-  },
-  { sourceType: 'script' },
-)
-assert.equal(returns.length, 1)
-const start = returns[0]!
+// Query inside WASM so only the matching span crosses into JavaScript.
+const result = JSON.parse(
+  aqs_match(
+    source.toString('utf8'),
+    'ReturnStatement[argument.type="Identifier"][argument.name="Dom"]',
+  ),
+) as { ok: boolean; matches: Array<{ start: number }> }
+assert.equal(result.ok, true)
+assert.equal(result.matches.length, 1)
+const start = result.matches[0]!.start
 // The WASM parser returns byte offsets, so splice the original UTF-8 buffer.
 const instrumented = Buffer.concat([
   source.subarray(0, start),

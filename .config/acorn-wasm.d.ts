@@ -1,16 +1,4 @@
-// Version 0.1.1 has no declarations. Describe the visitor API used by our tests.
+// Version 0.1.1 has no declarations. Describe the AST query used by our tests.
 declare module '@ultrathink/acorn.rs.wasm' {
-  interface Node {
-    type: string
-    start: number
-    end: number
-    argument?: Node | null
-    name?: string
-  }
-
-  export function simple(
-    source: string,
-    visitors: Record<string, (node: Node) => void>,
-    options: { sourceType: 'script' | 'module' },
-  ): void
+  export function aqs_match(source: string, selector: string): string
 }
