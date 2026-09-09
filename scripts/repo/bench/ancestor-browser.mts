@@ -3,7 +3,10 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
-import { createPrefixVariants } from './ancestor-prefix.mts'
+import {
+  createPrefixVariants,
+  createSharedPrefixVariants,
+} from './ancestor-prefix.mts'
 
 type Probe = {
   run(index: number, count: number): void
@@ -12,6 +15,9 @@ type Probe = {
 }
 const { values } = parseArgs({
   options: {
+    inline: { type: 'boolean', default: false },
+    single: { type: 'boolean', default: false },
+    shared: { type: 'boolean', default: false },
     prefix: { type: 'boolean', default: false },
     classes: { type: 'boolean', default: false },
     output: {
@@ -20,9 +26,13 @@ const { values } = parseArgs({
     },
   },
 })
-const names = values.prefix
-  ? ['baseline', 'split-prefix', 'cached-prefix']
-  : ['baseline', 'always-cache', 'depth-gated']
+const names = values.inline
+  ? ['baseline', 'shared-prefix', 'inline-prefix']
+  : values.shared
+    ? ['baseline', 'shared-prefix', 'last-prefix']
+    : values.prefix
+      ? ['baseline', 'split-prefix', 'cached-prefix']
+      : ['baseline', 'always-cache', 'depth-gated']
 const code = readFileSync('dist/nwsapi.js', 'utf8')
 const browser = await chromium.launch()
 const rows = []
@@ -37,7 +47,16 @@ try {
         await page.setContent('<!doctype html><body></body>')
         await page.addScriptTag({ content: code })
         const timing = await page.evaluate(
-          ({ depths, selector, classes, prefixMode, prefixFactory }) => {
+          ({
+            depths,
+            selector,
+            classes,
+            prefixMode,
+            prefixFactory,
+            sharedMode,
+            single,
+            inlineMode,
+          }) => {
             const host = window as unknown as {
               NW: {
                 Dom: {
@@ -72,7 +91,7 @@ try {
                   parent.append(outer)
                   outer.innerHTML =
                     '<div class="block inner"><p class="content"></p></div>'.repeat(
-                      2,
+                      single ? 1 : 2,
                     )
                 }
               }
@@ -131,7 +150,7 @@ try {
               ) {
                 throw new Error('Generated resolver shape changed')
               }
-              if (prefixMode) {
+              if (prefixMode || sharedMode) {
                 const suffixText = ' .block.inner > .content'
                 if (!selector.endsWith(suffixText)) {
                   throw new Error('Unexpected experimental suffix')
@@ -150,6 +169,27 @@ try {
                   suffixText.trim(),
                   false,
                 ) as unknown as Match
+                if (sharedMode) {
+                  // oxlint-disable-next-line typescript/no-implied-eval -- Serialize the local fixed-selector benchmark helper into the browser.
+                  const buildShared = Function(
+                    'return ' + prefixFactory,
+                  )() as typeof createSharedPrefixVariants
+                  const shared = engine.Snapshot as unknown as {
+                    nthOfType(node: null, mode: number): void
+                  }
+                  return [
+                    baseline,
+                    ...buildShared(
+                      engine
+                        .compile(selector.slice(0, -suffixText.length), true)
+                        .toString(),
+                      engine.Snapshot,
+                      element => suffixMatch(element, null, document, false),
+                      () => shared.nthOfType(null, 2),
+                      inlineMode ? baseline.toString() : undefined,
+                    ),
+                  ]
+                }
                 // oxlint-disable-next-line typescript/no-implied-eval -- Serialize the local fixed-selector benchmark helper into the browser.
                 const build = Function(
                   'return ' + prefixFactory,
@@ -246,6 +286,14 @@ try {
               verify(query(index), prefixMutated)
             }
             box.className = boxClass
+            const nextBox = box.nextSibling
+            document.body.append(box)
+            const moved = new Set(document.querySelectorAll(selector))
+            const movedExpected = nodes.filter(element => moved.has(element))
+            for (let index = 0; index < variants.length; ++index) {
+              verify(query(index), movedExpected)
+            }
+            document.body.insertBefore(box, nextBox)
             // Candidate order is part of the first-candidate gate's input.
             nodes.reverse()
             const reversed = expected.toReversed()
@@ -266,6 +314,8 @@ try {
               detach() {
                 nodes.length = 0
                 expected.length = 0
+                moved.clear()
+                movedExpected.length = 0
                 document.body.replaceChildren()
               },
             }
@@ -280,7 +330,13 @@ try {
             selector: fixtureSelector,
             classes: values.classes,
             prefixMode: values.prefix,
-            prefixFactory: createPrefixVariants.toString(),
+            prefixFactory:
+              values.shared || values.inline
+                ? createSharedPrefixVariants.toString()
+                : createPrefixVariants.toString(),
+            sharedMode: values.shared || values.inline,
+            inlineMode: values.inline,
+            single: values.single,
           },
         )
         const session = await page.context().newCDPSession(page)
@@ -347,6 +403,7 @@ try {
           survivingNodes,
           mutationCorrect: true,
           prefixMutationCorrect: true,
+          positionalMutationCorrect: true,
           reversedOrderCorrect: true,
         })
       } finally {
@@ -360,16 +417,21 @@ try {
       {
         browser: browser.version(),
         node: process.version,
+        candidatesPerOuter: values.single ? 1 : 2,
         platform: process.platform,
         architecture: process.arch,
         engineSha256: createHash('sha256').update(code).digest('hex'),
-        cachePayload: values.prefix
-          ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-          : values.classes
-            ? 'Class value only. Parent reads remain direct.'
-            : 'Parent and class record.',
+        cachePayload: values.inline
+          ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+          : values.shared
+            ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+            : values.prefix
+              ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+              : values.classes
+                ? 'Class value only. Parent reads remain direct.'
+                : 'Parent and class record.',
         methodology:
-          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain four candidates each. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.',
+          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.',
         rows,
       },
       null,

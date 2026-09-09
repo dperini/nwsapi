@@ -4,12 +4,18 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
-import { createPrefixVariants } from './ancestor-prefix.mts'
+import {
+  createPrefixVariants,
+  createSharedPrefixVariants,
+} from './ancestor-prefix.mts'
 import { median } from './timing.mts'
 import { profileAncestorMemory } from './ancestor-memory.mts'
 
 const { values } = parseArgs({
   options: {
+    inline: { type: 'boolean', default: false },
+    single: { type: 'boolean', default: false },
+    shared: { type: 'boolean', default: false },
     prefix: { type: 'boolean', default: false },
     memory: { type: 'boolean', default: false },
     classes: { type: 'boolean', default: false },
@@ -19,9 +25,13 @@ const { values } = parseArgs({
     },
   },
 })
-const names = values.prefix
-  ? ['baseline', 'split-prefix', 'cached-prefix']
-  : ['baseline', 'always-cache', 'depth-gated']
+const names = values.inline
+  ? ['baseline', 'shared-prefix', 'inline-prefix']
+  : values.shared
+    ? ['baseline', 'shared-prefix', 'last-prefix']
+    : values.prefix
+      ? ['baseline', 'split-prefix', 'cached-prefix']
+      : ['baseline', 'always-cache', 'depth-gated']
 const shapes = [
   { name: 'original', boxes: 5, outer: 5, inner: 5, depths: [0] },
   { name: 'wide', boxes: 64, outer: 2, inner: 2, depths: [0] },
@@ -34,7 +44,7 @@ const shapes = [
     depths: [0, 8],
   },
   { name: 'mixed-deep-first', boxes: 16, outer: 2, inner: 2, depths: [8, 0] },
-]
+].map(shape => ({ ...shape, inner: values.single ? 1 : shape.inner }))
 const selectors = [
   '.box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content',
   '.box .block.inner > .content',
@@ -131,7 +141,7 @@ for (const shape of shapes) {
           results: Element[],
         ) => unknown
       > = [baseline]
-      if (values.prefix) {
+      if (values.prefix || values.shared || values.inline) {
         const suffixText = ' .block.inner > .content'
         assert(selector.endsWith(suffixText))
         type Match = (
@@ -148,12 +158,29 @@ for (const shape of shapes) {
           suffixText.trim(),
           false,
         ) as unknown as Match
-        variants.push(
-          ...createPrefixVariants(
-            element => prefixMatch(element, null, doc, false),
-            element => suffixMatch(element, null, doc, false),
-          ),
-        )
+        if (values.shared || values.inline) {
+          const shared = engine.Snapshot as unknown as {
+            nthOfType(node: null, mode: number): void
+          }
+          variants.push(
+            ...createSharedPrefixVariants(
+              engine
+                .compile(selector.slice(0, -suffixText.length), true)!
+                .toString(),
+              engine.Snapshot,
+              element => suffixMatch(element, null, doc, false),
+              () => shared.nthOfType(null, 2),
+              values.inline ? baseline.toString() : undefined,
+            ),
+          )
+        } else {
+          variants.push(
+            ...createPrefixVariants(
+              element => prefixMatch(element, null, doc, false),
+              element => suffixMatch(element, null, doc, false),
+            ),
+          )
+        }
       } else {
         for (const gated of [false, true]) {
           const changed = source
@@ -284,6 +311,17 @@ for (const shape of shapes) {
         check(query(index), prefixMutated)
       }
       box.className = boxClass
+      const nextBox = box.nextSibling
+      doc.body.append(box)
+      const moved = Array.from(doc.querySelectorAll(selector))
+      const candidateOrder = new Set(moved)
+      for (let index = 0; index < variants.length; ++index) {
+        check(
+          query(index),
+          candidates.filter(element => candidateOrder.has(element)),
+        )
+      }
+      doc.body.insertBefore(box, nextBox)
       candidates.reverse()
       for (let index = 0; index < variants.length; ++index) {
         check(query(index), expected.toReversed())
@@ -302,6 +340,7 @@ for (const shape of shapes) {
         })),
         mutationCorrect: true,
         prefixMutationCorrect: true,
+        positionalMutationCorrect: true,
         reversedOrderCorrect: true,
         memory,
       })
@@ -321,12 +360,16 @@ writeFileSync(
         .update(readFileSync('dist/nwsapi.js'))
         .digest('hex'),
       methodology:
-        'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. The depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
-      cachePayload: values.prefix
-        ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-        : values.classes
-          ? 'Class value only. Parent reads remain direct.'
-          : 'Parent and class record.',
+        'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+      cachePayload: values.inline
+        ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+        : values.shared
+          ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+          : values.prefix
+            ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+            : values.classes
+              ? 'Class value only. Parent reads remain direct.'
+              : 'Parent and class record.',
       memoryMethodology: values.memory
         ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
         : undefined,

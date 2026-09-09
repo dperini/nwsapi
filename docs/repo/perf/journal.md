@@ -682,3 +682,45 @@ These are sampled allocations, including objects collected during the batch. Nod
 Both retained batches show zero measured heap growth for the cached deep Node cases in all three rounds. This is a short whole-process measurement with attached fixtures, not proof that every use is leak-free. The browser's detached-node checks pass. Result identity, suffix mutation, prefix mutation, and reversed candidate-order checks also pass. Lint and type checks pass.
 
 The records are [Node timing](../../../assets/repo/bench/ancestor-prefix-timing.json), [Node memory](../../../assets/repo/bench/ancestor-prefix-memory.json), and [browser timing and memory](../../../assets/repo/bench/ancestor-prefix-browser.json). The result supports further work on prefix caching for shared deep paths. It does not support enabling this prototype generally. Before an engine change, preserve collection-level positional reuse, address shallow-path overhead, and validate callback mutation and public-host queries. Production `nwsapi` is unchanged.
+
+## Share positional state and remove prefix-cache allocations
+
+The previous prefix prototype lost positional reuse by invoking the single-element matcher. The revised experiment takes its prefix from the collection compiler instead. Checked, fixed compiler markers isolate the prefix body, and the outer query clears positional state in a `finally` block. This preserves positional reuse across candidates without retaining it across queries.
+
+The cached variant also removes the weak map and path array. It keeps only the previous starting ancestor and the boolean result of searching that ancestor's chain. Consecutive candidates with that same starting ancestor reuse the result. Other candidates run the full prefix search. There is no depth threshold, and different candidate order changes reuse opportunities rather than selector results.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --shared --output assets/repo/bench/ancestor-shared-timing.json` for unprofiled Node timing. Run it with `--shared --memory --output assets/repo/bench/ancestor-shared-memory.json` for Node allocation and retained heap. Run `node scripts/repo/bench/ancestor-browser.mts --shared --output assets/repo/bench/ancestor-shared-browser.json` for browser timing and memory.
+
+The controls are the unchanged collection resolver and the split prefix with shared positional state but no previous-result reuse. The third variant adds previous-result reuse. All variants use the same candidates within each fixture. Timing excludes compilation and candidate lookup. The earlier sampling methods apply. The helper is still a fixed-selector experiment, not a general compiler transform or a callback-capable implementation.
+
+Mutation checks now move the first box to the end and restore it, in addition to changing suffix and prefix classes between queries. Expected results follow the supplied candidate order, which can differ from document order after the move. The browser fixture clears its new expected-results set before checking detached-node collection.
+
+</details>
+
+The split version fixes the original wide positional regression and reduces allocation, but a no-reuse control exposes remaining overhead. With one candidate per starting ancestor, shallow browser queries are about 4–7% slower. The additional matcher calls and parent reads still cost time when there is no previous result to reuse.
+
+The final experimental variant puts the previous-result check directly into the original compiled ancestor loop. It preserves that resolver's positional state, result handling, and cleanup wrapper. It uses the parent read already needed by the loop rather than adding another read. A hit skips the remaining prefix search. A miss runs the existing prefix code. Two local variables replace the map and path array.
+
+Use `--inline` instead of `--shared` to reproduce this version. The tracked reports are [Node timing](../../../assets/repo/bench/ancestor-inline-timing.json), [Node memory](../../../assets/repo/bench/ancestor-inline-memory.json), and [browser timing and memory](../../../assets/repo/bench/ancestor-inline-browser.json). Add `--single` for the no-reuse controls, recorded in [Node](../../../assets/repo/bench/ancestor-inline-single-timing.json) and [browser](../../../assets/repo/bench/ancestor-inline-single-browser.json) reports. The inline rewrite checks fixed compiler markers and remains confined to these benchmark selectors.
+
+| Inline previous-result reuse | Existing time | Inline time | Time change | Allocation change |
+| --- | ---: | ---: | ---: | ---: |
+| Node wide complex | 195.10µs | 139.75µs | -28.4% | -32.4% |
+| Node wide plain | 107.48µs | 88.35µs | -17.8% | -20.1% |
+| Node deep complex | 128.65µs | 77.60µs | -39.7% | -40.7% |
+| Node deep plain | 97.78µs | 61.44µs | -37.2% | -39.0% |
+| Browser shallow complex | 14.40µs | 10.20µs | -29.2% | -28.0% |
+| Browser shallow plain | 9.20µs | 7.90µs | -14.1% | -19.1% |
+| Browser deep complex | 34.10µs | 20.50µs | -39.9% | -38.8% |
+| Browser deep plain | 23.20µs | 14.70µs | -36.6% | -37.7% |
+
+These are warm compiled-resolver measurements over preselected candidates. The wide Node fixture has 256 candidates, and the deep fixtures have 64 candidates beneath eight extra wrappers. Shallow browser fixtures have 64 candidates. Timing uses seven rotating rounds. Node allocation uses median estimates from three rotating rounds, while browser allocation uses one sample per variant. Each allocation sample covers 2000 calls. Negative changes mean less time or allocation. Both mixed-depth orders also improve in the recorded runs.
+
+In the no-reuse browser control, inline timing ranges from 1.4% slower to 4.9% faster than baseline. The first Node control run had large timing spikes in its final fixtures. The deep-first complex samples ranged from about 51µs to 467µs for the inline variant. A [fresh-process confirmation](../../../assets/repo/bench/ancestor-inline-single-confirmation.json) ranges from 0.7% to 4.1% faster across the controls. Both runs are retained. These small differences do not establish a general speedup without reuse, but the repeat does not reproduce the large regressions of the split matcher.
+
+The inline deep plain Node case has zero measured retained growth after both batches in all three rounds. Deep complex changes from before the first batch to after the second range from -3248bytes to 408bytes. These short whole-process heap readings do not measure peak memory or prove the absence of leaks. Browser detached-node collection passes, as do ordered identity, suffix mutation, prefix mutation, sibling reordering, and reversed candidate-order checks. Lint and type checks pass.
+
+This resolves the measured positional-sharing and shallow-overhead problems in the fixed-selector prototype. It does not yet change the production compiler. Integration still requires emitting the reuse check through the compiler, preserving callback and legacy behavior, and measuring public-host queries before adoption. The benchmark's checked string rewrite is evidence for that implementation, not production parsing logic.
