@@ -39,3 +39,9 @@ The attribute cases also pass with shuffled execution using seed 9173:
 pnpm run test:unit test/repo/unit/attribute-parse-error.test.mts \
   --sequence.shuffle --sequence.seed=9173
 ```
+
+## Keep full benchmark fixtures in the integration lane
+
+The practical benchmark validation constructs three full documents and compares native queries with the built engine. It runs in `test/repo/integration/benchmark-fixtures.test.mts`. The small timing, cache-source, and independent-world checks remain in the unit lane.
+
+On Linux CI, the full-fixture test took 1340ms when the unit process exceeded its unchanged 10s budget by 73ms. Moving that test preserves every selector assertion and the production benchmark fixture sizes. It changes which lane owns the work. It does not establish a reduction in total test execution time. Cumulative coverage still includes both lanes.
