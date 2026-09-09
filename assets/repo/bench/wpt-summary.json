@@ -1,6 +1,6 @@
 {
-  "measuredAt": "2026-09-09T00:08:06.573Z",
-  "engineSha256": "b798a01462c57b351a045648bf59c24b02cfa822ef764595875b9e95a4f5633e",
+  "measuredAt": "2026-09-09T00:36:41.755Z",
+  "engineSha256": "7ad43ced74d9ac0147ebf61d4369d3f8f9922faadc532a2820204288ab843d90",
   "wptRevision": "7aed6630812b20e6eec2a2e40594f8dfda036e00",
   "browser": "151.0.7922.34",
   "scope": "Selected DOM matching tests and adapted selector-validity inputs. No rendering or CSSOM serialization assertions. Known failures are not passes.",

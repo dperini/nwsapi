@@ -29,17 +29,17 @@
     "This regression is also checked by the unit suite. One input does not establish a bound for every selector."
   ],
   "verification": {
-    "timestamp": "2026-09-09T00:10:45.392Z",
+    "timestamp": "2026-09-09T00:37:21.053Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "b798a01462c57b351a045648bf59c24b02cfa822ef764595875b9e95a4f5633e",
+    "candidateSha256": "7ad43ced74d9ac0147ebf61d4369d3f8f9922faadc532a2820204288ab843d90",
     "competitorVersion": "8.3.2",
     "lockfileSha256": "ed5bf22fbe0343d84e30955e7a750c4777dd3c93b431c09c9e35f1b558b8f52c",
     "outcome": "SyntaxError",
-    "selectMs": 0.4660000000000082,
+    "selectMs": 0.42012499999998454,
     "timeoutMs": 3000,
     "method": "One select call after engine creation in a fresh Node process. The process limit includes startup. selectMs measures only the selector call.",
     "command": "node scripts/repo/bench/parser-stall.mts"

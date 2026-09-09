@@ -3331,7 +3331,7 @@ interface AttributeOperator {
           continue
         }
         if (
-          pseudo.double ||
+          (pseudo.double && !isPseudoExtension(text.slice(i))) ||
           /^(?:before|after|first-line|first-letter)$/.test(pseudo.name)
         ) {
           return true
@@ -3427,6 +3427,20 @@ interface AttributeOperator {
             name,
           ))
       )
+    },
+    // Registered double-colon extensions retain their compiler dispatch.
+    isPseudoExtension = function (text: string): boolean {
+      for (var name in Selectors) {
+        if (text.search(Selectors[name]!.Expression) == 0) {
+          var token = readPseudo(text)
+          return (
+            !!token &&
+            token.double &&
+            !validPseudoElement(token.name, token.argument)
+          )
+        }
+      }
+      return false
     },
     validPseudoStates = function (text: string, context: string): boolean {
       var token, name, argument, valid
@@ -3565,8 +3579,9 @@ interface AttributeOperator {
           continue
         }
         if (
-          token.double ||
-          /^(?:before|after|first-line|first-letter)$/.test(token.name)
+          (token.double ||
+            /^(?:before|after|first-line|first-letter)$/.test(token.name)) &&
+          !isPseudoExtension(text.slice(i))
         ) {
           return validPseudoTail(text.slice(i))
         }
@@ -4213,8 +4228,9 @@ interface AttributeOperator {
           // :root, :empty, :first-child, :last-child, :only-child, :first-of-type, :last-of-type, :only-of-type
           case 58 /* ':' */:
             if (
-              selector.charAt(1) == ':' ||
-              Patterns['pseudo_sng']!.test(selector)
+              (selector.charAt(1) == ':' ||
+                Patterns['pseudo_sng']!.test(selector)) &&
+              !isPseudoExtension(selector)
             ) {
               if (!validPseudoTail(selector)) {
                 emit("'" + expression + "'" + qsInvalid)

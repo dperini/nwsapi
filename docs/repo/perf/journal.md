@@ -202,7 +202,7 @@ These filtered cases have no before measurement because the baseline did not sup
 
 **Comparison.** The input exceeded a 3000ms process limit in both the `6b87731` baseline and the initial audit build. Each attempt used a fresh Node process and `jsdom` document. The limit included startup. The live stack evidence identifies a matching stall, rather than treating startup time alone as the cause. This gap predates the current filtered-position and namespace changes.
 
-**Resolution.** A linear scan now rejects mismatched closing tokens and invalid string newlines before regular-expression validation. The captured input returns `SyntaxError` in 0.466ms after engine creation. The process also completes within the same 3000ms limit that the earlier attempts exceeded. The [verification script](../../../scripts/repo/bench/parser-stall.mts) updates the recorded observations, and a unit test runs the input in a separate process with that limit.
+**Resolution.** A linear scan now rejects mismatched closing tokens and invalid string newlines before regular-expression validation. The captured input returns `SyntaxError` in 0.420ms after engine creation. The process also completes within the same 3000ms limit that the earlier attempts exceeded. The [verification script](../../../scripts/repo/bench/parser-stall.mts) updates the recorded observations, and a unit test runs the input in a separate process with that limit.
 
 Fresh fuzzing passed both targets. The generated-selector target passed in the combined run. The arbitrary-input target passed separately after a detached shared-memory segment from this run was removed. Saved-corpus replay also passed. This verifies the captured case and those runs. It does not establish a runtime bound for every possible selector.
 
@@ -214,11 +214,11 @@ Fresh fuzzing passed both targets. The generated-selector target passed in the c
 
 | Measurement                     | Previous record | Current record |
 | ------------------------------- | --------------: | -------------: |
-| Idle retained heap per engine   |         9.74KiB |       10.33KiB |
-| Retained heap after 100 queries |        73.14KiB |       74.89KiB |
-| Minified browser file           |        54.11KiB |       76.06KiB |
-| Brotli browser file             |        16.82KiB |       22.89KiB |
+| Idle retained heap per engine   |         9.74KiB |       10.37KiB |
+| Retained heap after 100 queries |        73.14KiB |       74.96KiB |
+| Minified browser file           |        54.11KiB |       76.23KiB |
+| Brotli browser file             |        16.82KiB |       22.95KiB |
 
-Retained heap after the queries is about 2.4% above the previous record. The comparison library, `@asamuzakjp/dom-selector` 8.3.2, retains 550.33KiB in this run. The current core uses about 86.4% less retained heap for this workload. These records describe the combined feature changes, rather than isolate the cost of each helper. The file-size report includes shared Unicode data that the incremental per-engine heap measurement excludes.
+Retained heap after the queries is about 2.5% above the previous record. The comparison library, `@asamuzakjp/dom-selector` 8.3.2, retains 550.69KiB in this run. The current core uses about 86.4% less retained heap for this workload. These records describe the combined feature changes, rather than isolate the cost of each helper. The file-size report includes shared Unicode data that the incremental per-engine heap measurement excludes.
 
 **Decision.** Retain the correctness changes and the shared data layout. All 7,445 selected WPT subtests pass in generated source and the minified build. Forced-fallback tests verify Unicode range boundaries, control values, shadow assignments, and DOM changes. The timing charts keep their separately recorded inputs and hashes. This refresh does not claim a new query-speed improvement.
