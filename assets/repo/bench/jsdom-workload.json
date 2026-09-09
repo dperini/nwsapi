@@ -1,0 +1,465 @@
+{
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "hostRevision": "5e8910c98d7d447c31ecf4d1a9819dc3fbf37218",
+  "hostLockHash": "d3e6271e485ccceb65f90f8c51c27407a302a769d20b043717605a16376ff9c7",
+  "baselinePackage": "9.0.1",
+  "candidateHash": "0ef3f46cb36bfc849cc81a3dfa5138af60def1ad1f3e7c951184c7bb9b9f24d3",
+  "inputHashes": {
+    "dom/ranges/Range-mutations-dataChange.html": "4b9aeaa61a4c3b3e3886db1d1895465352f3772c462b7c8af7dd0b6209c5c253",
+    "dom/ranges/Range-mutations.js": "939e8187cbad43fdc63aa83c8105545b2eabc53e10719be3b5575fabc0fc3d4f",
+    "dom/common.js": "732f485014a4c6a6633439b24dfc442ab89391199504a1163b421a02374dfad3",
+    "resources/testharness.js": "d2399236c2a09c429804ff2299ad6629e17e2b53f17a74dd341e936adb11ae3e"
+  },
+  "methods": "Fresh processes in alternating order. Range includes harness execution and assertions. Lifecycle includes host documents and public DOM queries. Heap figures are full JavaScript heap deltas, not isolated engine allocation. CPU-profile runs are separate.",
+  "profiles": {
+    "baseline": {
+      "totalSampleMs": 2472.563,
+      "selectorInclusivePercent": 1.96322601284578,
+      "topSelfSamples": [
+        {
+          "name": "_insert (Node-impl.js)",
+          "percent": 7.470385992187055
+        },
+        {
+          "name": "(garbage collector) ()",
+          "percent": 7.243172368105484
+        },
+        {
+          "name": "get_stack (testharness.js)",
+          "percent": 6.017601978190243
+        },
+        {
+          "name": "_liveRanges (Node-impl.js)",
+          "percent": 5.131638708498024
+        },
+        {
+          "name": "_node (SymbolTree.js)",
+          "percent": 5.108504818684094
+        },
+        {
+          "name": "defaultPrepareStackTrace (errors)",
+          "percent": 3.837354194817281
+        },
+        {
+          "name": "WrapperData (utils.js)",
+          "percent": 3.2367223807846353
+        },
+        {
+          "name": "implForWrapperWithInterface (utils.js)",
+          "percent": 2.8083005367305103
+        },
+        {
+          "name": "make_dom_single (testharness.js)",
+          "percent": 2.13163425967306
+        },
+        {
+          "name": "_preInsert (Node-impl.js)",
+          "percent": 2.095073007239856
+        },
+        {
+          "name": "post (node:inspector)",
+          "percent": 1.9543688067806562
+        },
+        {
+          "name": "setupRangeTests (common.js)",
+          "percent": 1.7536863570311454
+        },
+        {
+          "name": "following (SymbolTree.js)",
+          "percent": 1.6159345585936538
+        },
+        {
+          "name": "ElementImpl (Element-impl.js)",
+          "percent": 1.507019234696952
+        },
+        {
+          "name": "shadowIncludingInclusiveDescendantsIterator (shadow-dom.js)",
+          "percent": 1.4798814024152265
+        }
+      ]
+    },
+    "candidate": {
+      "totalSampleMs": 2591.389,
+      "selectorInclusivePercent": 1.3845084624500605,
+      "topSelfSamples": [
+        {
+          "name": "(garbage collector) ()",
+          "percent": 8.789919228645331
+        },
+        {
+          "name": "_insert (Node-impl.js)",
+          "percent": 6.709259011286997
+        },
+        {
+          "name": "get_stack (testharness.js)",
+          "percent": 5.5812925037499195
+        },
+        {
+          "name": "_liveRanges (Node-impl.js)",
+          "percent": 5.334050580595966
+        },
+        {
+          "name": "defaultPrepareStackTrace (errors)",
+          "percent": 4.816258770875388
+        },
+        {
+          "name": "_node (SymbolTree.js)",
+          "percent": 4.410646182414141
+        },
+        {
+          "name": "WrapperData (utils.js)",
+          "percent": 2.7695957650510983
+        },
+        {
+          "name": "_preInsert (Node-impl.js)",
+          "percent": 2.3521748375099225
+        },
+        {
+          "name": "implForWrapperWithInterface (utils.js)",
+          "percent": 2.1444484019959953
+        },
+        {
+          "name": "post (node:inspector)",
+          "percent": 2.0070703394974663
+        },
+        {
+          "name": "make_dom_single (testharness.js)",
+          "percent": 1.5608231724376387
+        },
+        {
+          "name": "exports.DOMString (index.js)",
+          "percent": 1.4950283419432588
+        },
+        {
+          "name": "exports.installInterfaces (interfaces.js)",
+          "percent": 1.3565697778295733
+        },
+        {
+          "name": "setupRangeTests (common.js)",
+          "percent": 1.3428705609231189
+        },
+        {
+          "name": "_modified (Node-impl.js)",
+          "percent": 1.309297832166456
+        }
+      ]
+    }
+  },
+  "trials": 5,
+  "engines": {
+    "baseline": {
+      "rangeMs": {
+        "median": 2087.67025,
+        "min": 1956.6390840000001,
+        "max": 2526.323375,
+        "mean": 2152.1519002,
+        "standardDeviation": 235.30894600740405
+      },
+      "lifecycle": {
+        "constructionMs": {
+          "median": 3.5735135499999955,
+          "min": 3.4779854250000084,
+          "max": 4.079101025,
+          "mean": 3.6858939600000005,
+          "standardDeviation": 0.24124595685074995
+        },
+        "firstQueryMs": {
+          "median": 1.3201760499999977,
+          "min": 1.2568468749999966,
+          "max": 2.160139575000005,
+          "mean": 1.4777216649999967,
+          "standardDeviation": 0.38275713624087304
+        },
+        "warmQueryMs": {
+          "median": 0.03102977075000001,
+          "min": 0.030447802249999996,
+          "max": 0.04275683349999997,
+          "mean": 0.033559935499999985,
+          "standardDeviation": 0.005204646649966311
+        },
+        "closeMs": {
+          "median": 0.31740105000000085,
+          "min": 0.3017708250000055,
+          "max": 0.6631968749999941,
+          "mean": 0.3831383299999993,
+          "standardDeviation": 0.15670365969774505
+        },
+        "constructedHeapBytes": {
+          "median": 1611276,
+          "min": 1610846.2,
+          "max": 1611351.8,
+          "mean": 1611170.8,
+          "standardDeviation": 208.43449810433657
+        },
+        "queriedHeapBytes": {
+          "median": 2055021.4,
+          "min": 2054986.6,
+          "max": 2055280.2,
+          "mean": 2055107,
+          "standardDeviation": 145.01006861591654
+        },
+        "afterCloseHeapBytes": {
+          "median": 36226.2,
+          "min": 36218.8,
+          "max": 36448.2,
+          "mean": 36300.4,
+          "standardDeviation": 108.06636849639978
+        }
+      }
+    },
+    "candidate": {
+      "rangeMs": {
+        "median": 2135.097708,
+        "min": 1927.5795000000003,
+        "max": 2679.8402920000003,
+        "mean": 2211.5966,
+        "standardDeviation": 295.1581781185388
+      },
+      "lifecycle": {
+        "constructionMs": {
+          "median": 3.8955416499999957,
+          "min": 3.541352099999995,
+          "max": 4.7858791750000025,
+          "mean": 3.978086459999999,
+          "standardDeviation": 0.4758780941479908
+        },
+        "firstQueryMs": {
+          "median": 0.7432781249999948,
+          "min": 0.7133906249999995,
+          "max": 0.9160104250000017,
+          "mean": 0.769219169999999,
+          "standardDeviation": 0.08417375876499676
+        },
+        "warmQueryMs": {
+          "median": 0.03154357274999995,
+          "min": 0.02974837500000001,
+          "max": 0.03645978124999999,
+          "mean": 0.032249099949999985,
+          "standardDeviation": 0.0025117535653636698
+        },
+        "closeMs": {
+          "median": 0.34088124999999536,
+          "min": 0.3224353999999948,
+          "max": 0.43082707500000195,
+          "mean": 0.3560131249999995,
+          "standardDeviation": 0.04366057421433214
+        },
+        "constructedHeapBytes": {
+          "median": 1610583.2,
+          "min": 1609596.6,
+          "max": 1610661.2,
+          "mean": 1610366.4000000001,
+          "standardDeviation": 446.99080527451434
+        },
+        "queriedHeapBytes": {
+          "median": 1799711.2,
+          "min": 1798746.4,
+          "max": 1799733.8,
+          "mean": 1799466.7600000002,
+          "standardDeviation": 423.036745448956
+        },
+        "afterCloseHeapBytes": {
+          "median": 29828.6,
+          "min": 24604.2,
+          "max": 29845.4,
+          "mean": 28722.76,
+          "standardDeviation": 2306.7244759615305
+        }
+      }
+    }
+  },
+  "samples": [
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1967.439792,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.5502562500000066,
+        "firstQueryMs": 1.3098426999999901,
+        "warmQueryMs": 0.030447802249999996,
+        "closeMs": 0.31900102500000005,
+        "constructedHeapBytes": 1611276,
+        "queriedHeapBytes": 2055249.4,
+        "afterCloseHeapBytes": 36224.8
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2021.900458,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.8955416499999957,
+        "firstQueryMs": 0.7133906249999995,
+        "warmQueryMs": 0.03139336449999996,
+        "closeMs": 0.34088124999999536,
+        "constructedHeapBytes": 1610635.8,
+        "queriedHeapBytes": 1799733.8,
+        "afterCloseHeapBytes": 29829
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1927.5795000000003,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.541352099999995,
+        "firstQueryMs": 0.7156187499999987,
+        "warmQueryMs": 0.02974837500000001,
+        "closeMs": 0.3224353999999948,
+        "constructedHeapBytes": 1610583.2,
+        "queriedHeapBytes": 1799711.2,
+        "afterCloseHeapBytes": 29845.4
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 1956.6390840000001,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.4779854250000084,
+        "firstQueryMs": 1.2568468749999966,
+        "warmQueryMs": 0.03102977075000001,
+        "closeMs": 0.3017708250000055,
+        "constructedHeapBytes": 1610846.2,
+        "queriedHeapBytes": 2054986.6,
+        "afterCloseHeapBytes": 36384
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2222.687,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.7486135499999933,
+        "firstQueryMs": 1.3416031249999947,
+        "warmQueryMs": 0.03260899999999992,
+        "closeMs": 0.31740105000000085,
+        "constructedHeapBytes": 1611351.8,
+        "queriedHeapBytes": 2055280.2,
+        "afterCloseHeapBytes": 36226.2
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2293.565042,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.7497458250000024,
+        "firstQueryMs": 0.7577979249999999,
+        "warmQueryMs": 0.03154357274999995,
+        "closeMs": 0.3558198000000061,
+        "constructedHeapBytes": 1610661.2,
+        "queriedHeapBytes": 1799719.6,
+        "afterCloseHeapBytes": 29828.6
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2679.8402920000003,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 4.7858791750000025,
+        "firstQueryMs": 0.9160104250000017,
+        "warmQueryMs": 0.03645978124999999,
+        "closeMs": 0.43082707500000195,
+        "constructedHeapBytes": 1609596.6,
+        "queriedHeapBytes": 1798746.4,
+        "afterCloseHeapBytes": 24604.2
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2087.67025,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.5735135499999955,
+        "firstQueryMs": 1.3201760499999977,
+        "warmQueryMs": 0.030956271000000014,
+        "closeMs": 0.314321874999996,
+        "constructedHeapBytes": 1611080.8,
+        "queriedHeapBytes": 2054997.4,
+        "afterCloseHeapBytes": 36448.2
+      }
+    },
+    {
+      "engine": "baseline",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2526.323375,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 4.079101025,
+        "firstQueryMs": 2.160139575000005,
+        "warmQueryMs": 0.04275683349999997,
+        "closeMs": 0.6631968749999941,
+        "constructedHeapBytes": 1611299.2,
+        "queriedHeapBytes": 2055021.4,
+        "afterCloseHeapBytes": 36218.8
+      }
+    },
+    {
+      "engine": "candidate",
+      "range": {
+        "tests": 2808,
+        "failures": [],
+        "status": 0,
+        "durationMs": 2135.097708,
+        "errors": []
+      },
+      "lifecycle": {
+        "constructionMs": 3.917913550000003,
+        "firstQueryMs": 0.7432781249999948,
+        "warmQueryMs": 0.03210040624999999,
+        "closeMs": 0.3301020999999992,
+        "constructedHeapBytes": 1610355.2,
+        "queriedHeapBytes": 1799422.8,
+        "afterCloseHeapBytes": 29506.6
+      }
+    }
+  ]
+}

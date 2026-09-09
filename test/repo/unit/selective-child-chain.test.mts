@@ -209,3 +209,29 @@ test('logical routing samples density without caching answers', t => {
     expect(nw.select(':is(div,span)', main)).toEqual(expected)
   }
 })
+
+test('wide child anchors use one terminal lookup when it is equally selective', t => {
+  const { window } = dom(
+    '<!doctype html><main>' +
+      '<section class="row"><span></span><input></section>'.repeat(100) +
+      '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const doc = window.document
+  let scopedLookups = 0
+  // oxlint-disable-next-line typescript/unbound-method -- Call the saved method with the original element receiver.
+  const original = window.Element.prototype.getElementsByTagName
+  window.Element.prototype.getElementsByTagName = function (name: string) {
+    scopedLookups++
+    return original.call(this, name)
+  }
+  for (let pass = 0; pass < 2; pass++) {
+    expect(engine.select('.row > span', doc).length).toBe(100)
+  }
+  expect(scopedLookups).toBe(0)
+  doc.querySelector('section')!.className = 'removed'
+  expect(engine.select('.row > span', doc).length).toBe(99)
+  doc.querySelector('main')!.append(doc.createElement('span'))
+  expect(engine.select('.row > span', doc).length).toBe(99)
+})

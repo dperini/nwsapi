@@ -117,16 +117,27 @@ function* walk(value: unknown): Generator<Node> {
   }
 }
 
+export function findNode<T extends Node>(
+  root: Node,
+  matches: (node: Node) => node is T,
+): T | undefined {
+  for (const node of walk(root)) {
+    if (matches(node)) {
+      return node
+    }
+  }
+  return undefined
+}
+
 export function renderApiMarkdown(
   engine: string,
   adapter: string,
   traversal = readFileSync(TRAVERSAL_SOURCE_PATH, 'utf8'),
 ): string {
   const source = stripTypeScriptTypes(engine)
-  const nodes = [
-    ...walk(parse(source, { ecmaVersion: 'latest', locations: true })),
-  ]
-  const factory = nodes.find(
+  // Stop at the factory instead of materializing its entire implementation.
+  const factory = findNode(
+    parse(source, { ecmaVersion: 'latest', locations: true }),
     (node): node is FunctionExpression =>
       node.type === 'FunctionExpression' &&
       (node as FunctionExpression).id?.name === 'Factory',
@@ -258,9 +269,8 @@ export function renderApiMarkdown(
     )
   }
   const adapterSource = stripTypeScriptTypes(adapter)
-  const adapterNode = [
-    ...walk(parse(adapterSource, { ecmaVersion: 'latest', locations: true })),
-  ].find(
+  const adapterNode = findNode(
+    parse(adapterSource, { ecmaVersion: 'latest', locations: true }),
     (node): node is ClassDeclaration =>
       node.type === 'ClassDeclaration' &&
       (node as ClassDeclaration).id?.name === 'DOMSelector',
