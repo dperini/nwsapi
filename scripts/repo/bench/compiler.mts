@@ -18,6 +18,9 @@ const engines = [
 ]
 const patterns = [
   'button.primary',
+  '.box .block.inner > .content',
+  '.box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content',
+  '.box .outer .inner > .content',
   ':is(.card,.panel):not(.hidden)',
   ':is(div:has(> span[data-x="a,b"]), section):not(.hidden)',
   ':where(.α,.😀,.\\31 x):not([data-x="a)\\\"b"])',
@@ -34,10 +37,7 @@ for (const pattern of patterns) {
       let sequence = 0
       const result = await sample(() => {
         consumed += engines[e]
-          .compile(
-            pattern + `:not(.engine${e}round${r}item${sequence++})`,
-            true,
-          )
+          .compile(pattern + `.engine${e}round${r}item${sequence++}`, true)
           .toString().length
       }, 500)
       samples[e]!.push(result.milliseconds)
@@ -59,6 +59,8 @@ writeFileSync(
       timingEngine,
       rounds: 9,
       iterations: 500,
+      methodology:
+        'Nine rotating rounds compile unique selector strings on warm engines. A unique class suffix prevents resolver cache hits without excluding static ancestor reuse. Timing includes compilation and resolver source consumption, but excludes DOM setup and engine initialization. This measures uncached compilation, not cold process startup.',
       rows,
       consumed,
     },

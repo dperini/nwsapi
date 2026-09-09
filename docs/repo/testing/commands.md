@@ -89,3 +89,9 @@ node scripts/repo/bench/ancestor-browser.mts --baseline /absolute/path/to/before
 These commands compare unmodified compiled resolvers from both builds. They record both build hashes and verify node identity, suffix and prefix mutations, sibling reordering, and reversed candidate order. The browser also checks detached-node collection. Timing excludes compilation and candidate lookup. Run Node timing separately from `--memory`, which samples allocation and records post-GC heap across three rotating rounds. Add `--single` to remove consecutive ancestor reuse opportunities. Use separate output files for those controls.
 
 The earlier `--classes`, `--prefix`, `--shared`, and `--inline` flags are historical prototype comparisons. Their checked rewrites require the original compiler shape, so reproduce them with the pre-integration build instead of applying them to the optimized engine. The [journal](../perf/journal.md#integrate-ancestor-reuse-into-the-compiler) records the adopted change and the public-host measurements.
+
+## Inspect compilation and candidate allocation
+
+Run `node scripts/repo/bench/compiler.mts /absolute/path/to/before/nwsapi.js dist/nwsapi.js assets/repo/bench/ancestor-production-compiler.json` to compare uncached compilation. Unique class suffixes avoid resolver cache hits while preserving ancestor eligibility. Run it again in a fresh process with a separate output path to check repeatability.
+
+Run `node scripts/repo/bench/candidate-memory.mts assets/repo/bench/candidate-memory.json` to compare compiled execution, public selection, and class lookup allocation. The lookup route is a diagnostic control. It does not execute the ancestor selector. Public selection can optimize terminal tests differently from the complete compiled selector, so the allocation totals cannot be subtracted to isolate candidate copying. Keep allocation profiling separate from timing runs.

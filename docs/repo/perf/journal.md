@@ -769,3 +769,37 @@ The deep complex candidate's retained heap changes by 8088bytes, 0bytes, and 131
 The readable core grows from 162450bytes to 164627bytes, an increase of 2177bytes. Gzip at level 9 grows by 481bytes, from 39373bytes to 39854bytes. Brotli at quality 11 grows by 405bytes, from 31849bytes to 32254bytes. This is a runtime optimization with a small download-size cost. The standalone memory benchmark measures 9.35KiB after initialization and 76.33KiB after 100 queries for the new build. Its scope differs from the allocation experiment above.
 
 The final build passes 668 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. Unit tests include callback mutation, arbitrary collection order, null entries, between-query DOM changes, and silent eligibility checks for invalid selectors. The production integration preserves shared positional caching and removes the measured shallow-query overhead of the split-prefix prototype for the recorded cases.
+
+## Check the limits of ancestor reuse
+
+CI passed for `cdf1561`. The follow-up measures the production build against the saved `05824bf` build when each starting ancestor has only one candidate. This removes consecutive result reuse. It also measures uncached compilation and separates public candidate lookup from compiled execution in a Node allocation profile.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --baseline /path/to/before/nwsapi.js --single --output assets/repo/bench/ancestor-production-single-timing.json`. Run the browser script with the same options and a separate output path. The [Node record](../../../assets/repo/bench/ancestor-production-single-timing.json), [browser record](../../../assets/repo/bench/ancestor-production-single-browser.json), and [fresh browser confirmation](../../../assets/repo/bench/ancestor-production-single-browser-confirmation.json) retain seven rotating timing rounds. Compilation and candidate lookup are outside the timers. Mutation, candidate order, and browser detached-node checks pass.
+
+Run `node scripts/repo/bench/compiler.mts /path/to/before/nwsapi.js dist/nwsapi.js assets/repo/bench/ancestor-production-compiler.json`. The [first record](../../../assets/repo/bench/ancestor-production-compiler.json) and [fresh confirmation](../../../assets/repo/bench/ancestor-production-compiler-confirmation.json) use nine rotating rounds. Each compilation receives a unique class suffix to prevent cache hits. The old benchmark used a `:not()` suffix, which excluded every case from ancestor reuse. The revised suffix preserves eligibility. Timing includes resolver source consumption and measures uncached compilation on warm engines, rather than fresh process startup. The suffix classes do not exist in the fixture, and these compiled functions are not executed.
+
+Run `node scripts/repo/bench/candidate-memory.mts assets/repo/bench/candidate-memory.json` for the [allocation record](../../../assets/repo/bench/candidate-memory.json). Three rotating Node sampling rounds cover 2000 calls per route on a static 256-candidate fixture. Compiled execution uses preselected candidates. Public selection includes lookup and query dispatch. Class lookup alone is a diagnostic control. Setup and compilation are outside allocation sampling. Samples include collected objects. These routes can take different optimized paths, so subtracting their totals does not isolate copying cost.
+
+</details>
+
+Without reuse opportunities, Node timing changes range from 3.2% faster to 1.1% slower. Shallow browser cases are 2.3–2.7% slower in the first run and equal to baseline in the fresh confirmation. Deep and mixed browser cases are equal or faster in both runs. This does not establish a consistent shallow regression or a general speedup without reuse. It supports retaining the current narrow eligibility rather than adding another runtime depth gate.
+
+| Uncached compilation, confirmation | Before | After | Added time |
+| --- | ---: | ---: | ---: |
+| Plain ancestor | 13.88µs | 16.08µs | 2.20µs |
+| Positional ancestor | 20.97µs | 25.45µs | 4.48µs |
+| Two descendant walks, excluded | 15.28µs | 16.07µs | 0.80µs |
+
+These medians measure unique selectors on warm Node engines. Eligible plain and positional cases add about 16% and 21% to compilation time. The first run also shows about 2µs and 4µs of additional work. The eligibility scan and larger generated function both contribute to the measured path, so this benchmark cannot attribute all of the increase to the scan. Cached queries avoid this compilation cost. Other excluded selectors have smaller, less consistent changes.
+
+| Node sampled allocation, 2000 calls | Compiled | Public selection | Class lookup only |
+| --- | ---: | ---: | ---: |
+| Simple class | 59.20MB | 5.55MB | 4.73MB |
+| Ancestor class query | 127.11MB | 88.10MB | 4.71MB |
+
+These are median allocation estimates, not retained heap. Public selection can remove a terminal class check after fetching candidates by that class, so it allocates less than compiling the complete selector against a supplied array. In the ancestor query's public path, sampled resolver work and class-name getters dominate. Class lookup accounts for about 5% of its total allocation. The `byClass` allocation site contributes about 4.2MB in the middle round, consistent with copying a 256-element array on each call. Sampling and inlining prevent exact source-level attribution.
+
+The production engine remains unchanged in this follow-up. Public lookup results must remain independent arrays, and cached candidate snapshots must be protected from callers and callbacks. Removing those copies broadly would trade away those guarantees for a small share of this workload's allocation. The next focused experiment should reduce uncached eligibility work without adding warm-query branches or broadening supported selectors. Any later internal snapshot borrowing needs its own callback, reentrancy, mutation, and result-array isolation checks.
