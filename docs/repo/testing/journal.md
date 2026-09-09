@@ -1,6 +1,6 @@
-# Test performance
+# Test performance journal
 
-Follow the shared [budget recovery steps](../../fleet/testing/performance.md) and the `writing-fast-tests` skill when a test lane exceeds its limit. This document records the commands and measurements specific to `nwsapi`.
+Reusable guidance lives in [shared test performance](../../fleet/testing/performance.md). This journal records `nwsapi` configurations, experiments, and measured results.
 
 ## Reproduce the unit measurement
 

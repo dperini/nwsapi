@@ -1,6 +1,6 @@
 # Test commands and budgets
 
-See [shared testing layout](../../fleet/testing/layout.md) and [practices](../../fleet/testing/practices.md). Repository details are in [coverage](coverage.md), [fuzzing](fuzzing.md), [test performance](performance.md), and [upstream testing](upstream.md).
+See [shared testing layout](../../fleet/testing/layout.md) and [practices](../../fleet/testing/practices.md). Repository details are in [coverage](coverage.md), [fuzzing](fuzzing.md), [test performance journal](journal.md), and [upstream testing](upstream.md).
 
 The unit suite has a **10,000ms wall-clock budget**, following the fleet's fast tier. The package runner enforces the [shared time-budget practices](../../fleet/testing/performance.md#keep-the-lanes-within-their-budgets).
 
