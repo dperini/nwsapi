@@ -79,3 +79,71 @@ test('has plans are discarded when document or selector configuration changes', 
     nw.select('main:has(:is(:unknown, .hit))', html.window.document),
   ).toThrow()
 })
+
+test('sibling descendant plans narrow lookup roots without changing scope or sibling chains', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><main>' +
+      '<section><p data-hit></p><p></p></section>'.repeat(8) +
+      '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const nw = registerLegacy(factory(window))
+  const parent = doc.querySelector('main')!
+  const sections = Array.from(doc.getElementsByTagName('section'))
+  for (const legacy of [false, true]) {
+    nw.configure({ LEGACY: legacy })
+    for (const selector of [
+      'section:has(+ section [data-hit])',
+      'section:has(+ section > p:nth-child(2))',
+      'section:has(+ section + section [data-hit])',
+      'section:has(+ section ~ section [data-hit])',
+      'section:has(+ section :is([data-hit], .missing))',
+      'section:has(~ section [data-hit])',
+      'section:has(~ section :not([data-hit]))',
+    ]) {
+      expect(nw.select(selector, doc), selector).toEqual(
+        Array.from(doc.querySelectorAll(selector)),
+      )
+    }
+  }
+  nw.configure({ LEGACY: false })
+  const reads = vi.spyOn(parent, 'getElementsByTagName')
+  expect(nw.select('section:has(+ section [data-hit])', doc)).toEqual(
+    sections.slice(0, -1),
+  )
+  expect(reads).not.toHaveBeenCalled()
+  sections[1]!.replaceChildren()
+  expect(nw.match('section:has(+ section [data-hit])', sections[0]!)).toBe(
+    false,
+  )
+  expect(nw.match('section:has(~ section [data-hit])', sections[0]!)).toBe(true)
+  sections[1]!.remove()
+  expect(nw.match('section:has(+ section [data-hit])', sections[0]!)).toBe(true)
+})
+
+test('internal has snapshots remain private and refresh after mutation', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><section>' +
+      '<p class="hit"></p>'.repeat(24) +
+      '</section>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const nw = factory(window)
+  const anchor = doc.querySelector('section')!
+  const selector = 'section:has(p.hit[data-hit])'
+  expect(nw.match(selector, anchor)).toBe(false)
+  const last = anchor.lastElementChild!
+  last.setAttribute('data-hit', '')
+  expect(nw.match(selector, anchor)).toBe(true)
+  const exposed = nw.byClass('hit', anchor)
+  Array.prototype.splice.call(exposed, 0, exposed.length)
+  expect(nw.match(selector, anchor)).toBe(true)
+  last.className = ''
+  expect(nw.match(selector, anchor)).toBe(false)
+  last.className = 'hit'
+  expect(nw.match(selector, anchor)).toBe(true)
+  last.remove()
+  expect(nw.match(selector, anchor)).toBe(false)
+})

@@ -464,3 +464,48 @@ These public-host measurements show no reliable improvement in the original or d
 The refreshed [native-memory report](../../../assets/repo/bench/memory-footprint.json) records 9.28KiB after initialization and 75.92KiB after 100 distinct queries per engine. It uses Chromium 151.0.7922.34, 40 retained documents, five alternating rounds, and forced garbage collection. DOM allocation and shared library code are outside the measured increment. Its comparison package is `@asamuzakjp/dom-selector` 8.3.2, separate from the host timing baseline. This existing workload does not use general `:has()` and therefore does not measure the populated new plan cache.
 
 The readable core grows by 1839bytes, including 431bytes after gzip and 363bytes after Brotli. The size and memory charts have been regenerated. Validation passed 662 unit tests, 147 integration tests, and all 141 selected WPT pages in both modern and legacy runs. Accumulated coverage is 98.51% of executable lines and 96.28% of type identifiers. Operation-count tests require one class read for `.a.b.c` and one successful attribute check per anchor in the many-hit fixture.
+
+## Sibling `:has()` scope and cache allocation
+
+Relative branches such as `+ section [data-hit]` now fetch candidates only inside the adjacent sibling. The equivalent `~ section [data-hit]` visits following sibling subtrees and stops at the first match. The full compiled predicate still checks the relationship to the anchor. The original query scope is preserved while only the candidate lookup root changes.
+
+This specialization requires a plain type or universal sibling followed by descendants. Branches with additional sibling syntax, custom combinators, or legacy traversal keep the existing broader lookup. This conservative boundary avoids treating a later sibling as a descendant of the first one.
+
+Internal existence checks can also reuse an observed candidate snapshot. Public lookup APIs still return independent copies. Small collections, unsupported hosts, and legacy paths retain their existing copying behavior. Mutation records invalidate the shared internal snapshot before it is reused.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The baseline is `886765c`. The [timing report](../../../assets/repo/bench/has-sibling.json) records both build hashes, raw samples, and separate profiles. Run [has.mts](../../../scripts/repo/bench/has.mts) with `--baseline` pointing to the separately built baseline and `--profile`. The comparison uses the preceding entry's 20-section, 20-child fixtures, five alternating rounds, 100 warm queries, and 10 first queries on fresh engines per round. Added general-sibling cases place matches in every subtree or only in the last section's last child. Identity and order are checked outside the timers. Measurements used Node 26.5.0 and `jsdom` 30.0.1 on an Apple M3 Max without concurrent test jobs.
+
+The [cache-memory report](../../../assets/repo/bench/has-memory.json) comes from [has-memory.mts](../../../scripts/repo/bench/has-memory.mts). It uses three rotating rounds in fresh Chromium 151.0.7922.34 pages, one retained engine per page, and a 24-child anchor. Four forced garbage collections precede each retained-heap measurement. The stages populate 512 plans, add 8192 distinct plans, add another 8192, remove the anchor, and clear the caches. Weak references check both the removed anchor and one child after crossing task boundaries. Whole-page heap includes library code and DOM, so stage differences are more useful than absolute totals.
+
+Allocation sampling runs separately before cache churn. It covers 10000 warmed existence queries and includes collected objects. Its byte totals are sampling estimates, not exact allocation counts. Neither comparison measures rendering or a whole application.
+
+</details>
+
+| Warm selection | Before | After |
+| --- | ---: | ---: |
+| Adjacent sibling with matching descendants | 3196.03µs | 14.19µs |
+| General sibling with matching descendants | 4640.88µs | 13.53µs |
+| General sibling with only a final late match | 597.23µs | 341.53µs |
+| Descendant with a late match | 35.51µs | 35.73µs |
+| Descendant miss | 34.78µs | 33.66µs |
+| Twentieth-child positional control | 58.97µs | 58.58µs |
+| Direct-child type control | 5.55µs | 5.26µs |
+
+The early sibling matches avoid looking through unrelated subtrees. The late general-sibling case still visits many following subtrees, so its gain is smaller. Descendant and positional controls stay close to their earlier times. These results apply to the eligible shapes and fixtures. They do not establish the same gain for every relative selector.
+
+| Median memory measurement | Before | After |
+| --- | ---: | ---: |
+| Estimated allocation across 10000 warm checks | 2.58MB | 1.55MB |
+| Retained growth after 512 distinct plans | 1.69MB | 1.70MB |
+| Retained growth after saturation | 7.12MB | 7.13MB |
+| Further retained growth after 8192 more plans | -0.002MB | -0.003MB |
+| Removed anchor or child still reachable | 0 | 0 |
+
+The warm allocation estimate falls by about 40%. The before profile attributes sampled allocation to candidate copying, while the after profile records none under that helper. The retained measurements show a plateau after cache saturation rather than growth with every new selector. The cache is bounded, but thousands of distinct compiled selectors still retain several megabytes. Explicit clearing releases about 6.78MB from the candidate page. Some warmed runtime state remains, so clearing does not return the whole page to its initial byte count. Both removed nodes were collected before clearing in every round.
+
+The ordinary native-memory chart is refreshed separately. It records 9.32KiB after initialization and 75.95KiB after 100 queries. That workload does not populate the general `:has()` cache, so it must not replace the saturated-cache measurement above. The readable core grows by 1099bytes, including 294bytes after gzip and 213bytes after Brotli.
+
+Regression tests cover adjacent and general siblings, chained sibling fallbacks, positional and logical predicates, mutation, and public candidate-array isolation. The full local gate passed 663 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy runs. Accumulated coverage is 98.52% of executable lines and 96.29% of type identifiers. The [test-performance record](../testing/performance.md#reuse-the-legacy-module-and-close-its-fixtures) explains the fixture cleanup and process-test placement.

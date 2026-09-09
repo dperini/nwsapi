@@ -8,20 +8,21 @@ import { registerLegacy, registerLegacyInContext } from '../common/legacy.mts'
  * querySelectorAll says about the same markup, so the expectations come from
  * a second implementation rather than from this one.
  */
-import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, test } from 'vitest'
-import { JSDOM, type BinaryData } from 'jsdom'
+import { afterEach, describe, expect, test } from 'vitest'
+import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
 import type factory from '../../../dist/nwsapi.js'
+import { createRequire } from 'node:module'
 
 import { legacyHost } from '../fixtures/legacy-host.mts'
 
 const require = createRequire(import.meta.url)
 const here = path.dirname(fileURLToPath(import.meta.url))
 const nwsapiPath = path.resolve(here, '..', '..', '..', 'dist', 'nwsapi.js')
+const engineFactory = require(nwsapiPath)
 
 const MARKUP =
   '<!doctype html><html><body>' +
@@ -106,13 +107,20 @@ const SELECTORS = [
   'div.box, .row',
 ]
 
+const windows: DOMWindow[] = []
+afterEach(() => {
+  for (const window of windows.splice(0)) {
+    window.close()
+  }
+})
+
 function build(markup: string | Buffer | BinaryData | undefined, options = {}) {
   const dom = new JSDOM(markup)
+  windows.push(dom.window)
   const { window } = dom
   const host = legacyHost(window.document, options)
-  delete require.cache[require.resolve(nwsapiPath)]
   const NW = registerLegacy(
-    require(nwsapiPath)({
+    engineFactory({
       document: host,
       DOMException: window.DOMException,
     }),
@@ -122,9 +130,9 @@ function build(markup: string | Buffer | BinaryData | undefined, options = {}) {
 
 function buildModern(markup: string | Buffer | BinaryData | undefined) {
   const dom = new JSDOM(markup)
-  delete require.cache[require.resolve(nwsapiPath)]
+  windows.push(dom.window)
   const NW = registerLegacy(
-    require(nwsapiPath)({
+    engineFactory({
       document: dom.window.document,
       DOMException: dom.window.DOMException,
     }),
@@ -721,10 +729,10 @@ describe('what LEGACY does to a host that does not need it', () => {
 
   test('the same answers, with the handling forced on', () => {
     const dom = new JSDOM(MARKUP)
+    windows.push(dom.window)
     const { document } = dom.window
-    delete require.cache[require.resolve(nwsapiPath)]
     const NW = registerLegacy(
-      require(nwsapiPath)({
+      engineFactory({
         document,
         DOMException: dom.window.DOMException,
       }),

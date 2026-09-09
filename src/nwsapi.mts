@@ -86,6 +86,7 @@ interface QueryPlan {
 }
 interface RelativePlan extends QueryPlan {
   sibling: boolean
+  subtree: number
 }
 interface FilteredSiblings {
   nodes: Element[]
@@ -5368,6 +5369,31 @@ interface Primordials {
       }
       return false
     },
+    // Internal existence queries never expose or mutate their candidate arrays.
+    // Reuse an observed snapshot instead of copying it for every anchor.
+    hasCandidates = function (token: string, context: EngineContext) {
+      var kind = token[0]!,
+        name = token.slice(1),
+        api = kind == '.' ? method['.'] : method['*'],
+        nodes,
+        snapshot
+      if (
+        !Config.LEGACY &&
+        (kind == '.' ||
+          (kind == '*' &&
+            (name == '*' || (HTML_DOCUMENT && !hasForeignTypes(context))))) &&
+        !/[\t\n\f\r ]/.test(name) &&
+        api in context
+      ) {
+        nodes = context[api]!(name)
+        snapshot = collectionSnapshot(nodes, context)
+        if (snapshot !== nodes) {
+          return snapshot
+        }
+        return collectionCopy(nodes, context)
+      }
+      return fetch[kind]!(name, context)
+    },
     // true if element matches the selector
     has = function (argument: string | string[], anchor: Element) {
       var key =
@@ -5379,8 +5405,11 @@ interface Primordials {
         ),
         list,
         parsed,
+        normalized,
+        range,
         result,
         context,
+        root,
         candidates,
         resolver,
         token,
@@ -5404,18 +5433,25 @@ interface Primordials {
             if (!parsed) {
               return false
             }
-            result = collect(
-              parsed.map(function (selector: string) {
-                return selector.slice(1).replace(/^\s+/, '')
-              }),
-              anchor,
-              undefined,
-              true,
-              true,
-              true,
+            normalized = parsed.map(function (selector: string) {
+              return selector.slice(1).replace(/^\s+/, '')
+            })
+            // A simple sibling type followed by descendants cannot leave that
+            // sibling subtree without another sibling or custom combinator.
+            range = normalized[0]!.match(
+              /^[+~][\t\n\f\r ]*(?:[a-zA-Z][\w-]*|\*)(?:[\t\n\f\r ]+|>)([\s\S]+)$/,
             )
+            result = collect(normalized, anchor, undefined, true, true, true)
             plans.push({
               sibling: /^[+~]/.test(list[i]!),
+              subtree:
+                !Config.LEGACY &&
+                normalized.length == 1 &&
+                range &&
+                !/[+~]/.test(range[1]!) &&
+                Object.keys(Combinators).length == 0
+                  ? normalized[0]!.charCodeAt(0)
+                  : 0,
               factory: result.factory,
               nodeset: result.nodeset,
             })
@@ -5430,19 +5466,22 @@ interface Primordials {
           if (!context) {
             continue
           }
-          for (j = 0; j < plans[i]!.nodeset.length; ++j) {
-            token = plans[i]!.nodeset[j]!
-            resolver = plans[i]!.factory[j]
-            candidates = fetch[token[0]!]!(token.slice(1), context)
-            // One compiled loop shares positional indexes across candidates.
-            // It stops after the first result without a mutating callback.
-            if (
-              resolver
-                ? resolver(candidates, null, context, []).length
-                : candidates.length
-            ) {
-              return true
+          root = plans[i]!.subtree ? nextOf(anchor) : context
+          while (root) {
+            for (j = 0; j < plans[i]!.nodeset.length; ++j) {
+              token = plans[i]!.nodeset[j]!
+              resolver = plans[i]!.factory[j]
+              candidates = hasCandidates(token, root)
+              // Keep the original scope while narrowing only the lookup root.
+              if (
+                resolver
+                  ? resolver(candidates, null, context, []).length
+                  : candidates.length
+              ) {
+                return true
+              }
             }
+            root = plans[i]!.subtree == 126 ? nextOf(root as Element) : null
           }
         }
         return false

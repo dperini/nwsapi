@@ -38,6 +38,16 @@ const specs = [
     hit: 'all',
   },
   {
+    name: 'general sibling',
+    selector: 'section:has(~ section [data-hit])',
+    hit: 'all',
+  },
+  {
+    name: 'general sibling late hit',
+    selector: 'section:has(~ section [data-hit])',
+    hit: 'last-section',
+  },
+  {
     name: 'late position',
     selector: 'section:has(p:nth-child(20))',
     hit: 'all',
@@ -51,7 +61,7 @@ for (const spec of specs) {
   for (let group = 0; group < 20; ++group) {
     html += '<section>'
     for (let child = 0; child < 20; ++child) {
-      html += `<p${spec.hit === 'all' || (spec.hit === 'last' && child === 19) ? ' data-hit' : ''}></p>`
+      html += `<p${spec.hit === 'all' || (spec.hit === 'last' && child === 19) || (spec.hit === 'last-section' && group === 19 && child === 19) ? ' data-hit' : ''}></p>`
     }
     html += '</section>'
   }
