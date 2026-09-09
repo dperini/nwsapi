@@ -6365,24 +6365,31 @@ interface Primordials {
         if ((resolver = selectResolvers.get(selectors))) {
           var i,
             l,
-            ends,
+            start,
+            ends: number[] | undefined,
             list,
             f = resolver.factory,
             n = resolver.nodeset
           if (n.length > 1) {
-            ends = [0]
             for (i = 0, l = n.length; l > i; ++i) {
+              start = nodes.length
               list = fetch[n[i]![0]!]!(n[i]!.slice(1), context)
               if (f[i] !== null) {
                 f[i]!(list, callback, context, nodes)
               } else {
                 concatList(nodes, list)
               }
-              if (nodes.length > ends[ends.length - 1]!) {
-                ends[ends.length] = nodes.length
+              if (start && nodes.length > start) {
+                if (ends) {
+                  ends[ends.length] = nodes.length
+                } else {
+                  ends = [0, start, nodes.length]
+                }
               }
             }
-            nodes = mergeResults(nodes, ends)
+            if (ends) {
+              nodes = mergeResults(nodes, ends)
+            }
           } else if (n.length) {
             list = fetch[n[0]![0]!]!(n[0]!.slice(1), context)
             nodes = f[0]

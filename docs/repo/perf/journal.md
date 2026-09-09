@@ -1104,3 +1104,60 @@ The [Chromium comparison with the old sorter](../../../assets/repo/bench/group-o
 The readable core grows by 227bytes, from 166396bytes to 166623bytes. Gzip at level 9 grows by 44bytes, from 40252bytes to 40296bytes. Brotli at quality 11 grows by 25bytes, from 32623bytes to 32648bytes. Size charts are refreshed. Broader runtime and retained-memory charts keep their previous measurements because this experiment targets grouped queries.
 
 Validation passes 672 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage is 98.55% of execution lines and 96.44% of type identifiers. Added cases cover already ordered groups, an inversion at the last boundary, duplicate boundary nodes, empty groups, independent results, and synchronous node reordering. They run with modern and legacy hooks in array and NodeList modes. Formatting, lint, types, and build compatibility checks pass. Every candidate report hash matches the final build.
+
+## Allocate group boundaries only when merging is possible
+
+Cached grouped queries record the current result length before each selector group. It creates a boundary array only when a second group adds matches. Empty results and queries with a single populated group can return without allocating merge metadata or calling the merge helper. Later groups still record their boundaries, and overlapping groups still use the existing merge and duplicate-removal path.
+
+<details>
+<summary>Methodology and reproduction</summary>
+
+The baseline is the readable build from `a2e2a80`. Save that build outside the repository and compare it with the candidate build. Reports record both hashes. The complete timing matrix uses 4 and 64 groups, adjacent elements, text and comment separators, and separate parent elements. Every run measures 0, 1, 16, and 256 matches, with a single-class control for each count. Run commands serially:
+
+```sh
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 4 --layout adjacent --output /tmp/boundaries-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/boundaries-browser.json adjacent 4
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 4 --memory --output /tmp/boundaries-memory.json
+```
+
+Repeat with 64 groups. For timing, repeat with `separated` and `nested` layouts. After 1000 warmups, variants rotate through nine rounds lasting at least 50ms. Setup, compilation, and rendering are excluded. Every run checks ordered node identities outside timing. Memory profiling runs in separate processes and includes collected objects across three rotating samples of 2000 calls. Its timing values are excluded from timing conclusions. Retained heap is measured after forced collection and reported separately from allocation traffic.
+
+The generated reports are tracked under `assets/repo/bench/group-boundaries-*.json`.
+
+</details>
+
+| Groups | Matches | Node timing range | Chromium timing range |
+| --- | ---: | ---: | ---: |
+| 4 | 0 | -2.8% to +9.9% | -3.4% to -0.2% |
+| 4 | 1 | -6.2% to +0.0% | -2.7% to -1.0% |
+| 4 | 16 | -1.1% to +0.4% | -0.5% to +0.7% |
+| 4 | 256 | +0.1% to +0.6% | -0.4% to +0.3% |
+| 64 | 0 | +0.5% to +1.3% | +0.4% to +6.4% |
+| 64 | 1 | -1.3% to +3.1% | -2.6% to +2.0% |
+| 64 | 16 | -1.1% to +2.1% | -3.0% to +0.9% |
+| 64 | 256 | -1.5% to -0.2% | -0.1% to +1.0% |
+
+Each range covers the adjacent, separated, and nested layouts for warm grouped queries. Negative changes mean faster queries. Dense results stay within 1.5% of the baseline across the full matrix. Four-group single-match queries improve or remain near parity, while long selector lists show small mixed changes. The initial empty four-group Node case is 9.9% slower, and the empty 64-group Chromium case is 6.4% slower. These results remain in the report. This experiment does not establish a general timing improvement.
+
+The [empty Node confirmation](../../../assets/repo/bench/group-boundaries-empty-node-confirmation.json) is 0.4% faster, so it does not reproduce the initial 9.9% regression. The [64-group browser confirmation](../../../assets/repo/bench/group-boundaries-many-browser-confirmation.json) is 0.8% slower for empty results, compared with the initial 6.4%. Other grouped cases in that browser confirmation range from a 0.3% improvement to a 2.7% regression. Its unchanged single-class controls vary by up to 6.0%. Both initial and confirmation records remain available.
+
+| Groups | Matches | Node allocation before | Node allocation after | Change |
+| --- | ---: | ---: | ---: | ---: |
+| 4 | 0 | 4.64MB | 4.62MB | -0.4% |
+| 4 | 1 | 5.48MB | 5.10MB | -6.9% |
+| 4 | 16 | 39.66MB | 40.08MB | +1.0% |
+| 4 | 256 | 588.87MB | 588.13MB | -0.1% |
+| 64 | 0 | 66.74MB | 66.70MB | -0.1% |
+| 64 | 1 | 67.91MB | 67.24MB | -1.0% |
+| 64 | 16 | 86.37MB | 86.61MB | +0.3% |
+| 64 | 256 | 1607.96MB | 1607.72MB | -0.0% |
+
+These medians cover 2000 warm public calls in the adjacent layout. The [four-group profile](../../../assets/repo/bench/group-boundaries-4-memory.json) shows 6.9% less sampled allocation for one match, where exactly one group contributes a result. The [64-group profile](../../../assets/repo/bench/group-boundaries-64-memory.json) shows a smaller 1.0% decrease for one match. Empty-query allocation is effectively unchanged. Sparse and dense cases with multiple populated groups remain within 1.1% of the baseline. These measurements support a narrow allocation benefit rather than a general reduction in query cost.
+
+Retained heap is measured separately after two query batches and forced collection. For the four-group one-match case, baseline changes are -352bytes, 0bytes, and 0bytes, while candidate changes are -496bytes, 18720bytes, and 0bytes. Dense four-group changes are 27992bytes, 0bytes, and 1296bytes for the baseline and 27024bytes, 0bytes, and 0bytes for the candidate. Dense 64-group changes are 32bytes, 0bytes, and 0bytes for the baseline and -112bytes, 0bytes, and 0bytes for the candidate. These process-wide samples do not show a retained-memory improvement. The change adds no persistent references to matched nodes.
+
+The change is retained for lower allocation when only one group contributes matches. It preserves measured dense-query behavior, and the slower empty-result timing cases did not repeat at the same size. Timing remains mixed, so this result should not be described as making every grouped query faster.
+
+The readable core grows by 113bytes, from 166623bytes to 166736bytes. Gzip at level 9 grows by 28bytes, from 40296bytes to 40324bytes. Brotli at quality 11 grows by 36bytes, from 32648bytes to 32684bytes. Size charts are refreshed. Broader runtime and retained-memory charts retain their previous measurements because these reports target grouped queries.
+
+Validation passes 673 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage is 98.55% of execution lines and 96.45% of type identifiers. Added cases cover empty groups, one populated group with one or multiple matches, compiled groups, independent returned arrays, callbacks, and transitions between one and multiple populated groups after DOM mutation. Existing duplicate-removal and reentrant callback tests also pass. Formatting, lint, types, and build compatibility checks pass. All candidate report hashes match the final build.

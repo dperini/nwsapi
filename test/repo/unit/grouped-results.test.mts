@@ -126,3 +126,56 @@ test('ordered groups still sort late inversions and remove boundary duplicates',
     }
   }
 })
+
+test('empty and single populated groups keep results independent across mutations', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><p class="a"></p><p class="b"></p><p class="b"></p>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const engine = registerLegacy(factory(window))
+  for (const legacy of [false, true]) {
+    for (const nodeList of [false, true]) {
+      engine.configure({ LEGACY: legacy, NODE_LIST: nodeList })
+      for (const selector of [
+        '.missing,.absent',
+        '.missing,.a,.absent',
+        '.missing,p.b,.absent',
+      ]) {
+        const expected = Array.from(doc.querySelectorAll(selector))
+        assert.deepEqual(Array.from(engine.select(selector, doc)), expected)
+        const first = engine.select(selector, doc)
+        const second = engine.select(selector, doc)
+        assert.deepEqual(Array.from(second), expected)
+        assert.notEqual(first, second)
+        if (Array.isArray(first)) {
+          first.length = 0
+          assert.deepEqual(Array.from(engine.select(selector, doc)), expected)
+        }
+        const visited: Element[] = []
+        engine.select(selector, doc, element => {
+          visited.push(element)
+          return true
+        })
+        assert.deepEqual(visited, expected)
+      }
+      const first = doc.body.firstElementChild!
+      const selector = '.missing,.a,.b,.absent'
+      assert.deepEqual(
+        Array.from(engine.select(selector, doc)),
+        Array.from(doc.querySelectorAll('p')),
+      )
+      first.className = ''
+      assert.deepEqual(
+        Array.from(engine.select(selector, doc)),
+        Array.from(doc.querySelectorAll('.b')),
+      )
+      first.className = 'a b'
+      assert.deepEqual(
+        Array.from(engine.select(selector, doc)),
+        Array.from(doc.querySelectorAll('p')),
+      )
+      first.className = 'a'
+    }
+  }
+})

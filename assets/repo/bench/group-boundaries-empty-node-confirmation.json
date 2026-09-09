@@ -1,0 +1,84 @@
+{
+  "node": "v26.5.0",
+  "layout": "adjacent",
+  "groups": 4,
+  "hashes": [
+    "1e31d64805883a2989fe0554078254827e54ba7d58a85418f2035f2d981343f0",
+    "93bcc250bae8a6a3dc8fd33b25e4d0bb1e51e4d7311009c8581d250200271277"
+  ],
+  "methodology": "Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Each row records its match count. The default counts are 0, 1, 16, and 256. Single-class control and the requested disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.",
+  "rows": [
+    {
+      "matches": 0,
+      "selector": ".hit",
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.0006408322784810131,
+          "samplesMs": [
+            0.000747269283582089,
+            0.0006607631578947363,
+            0.0006486543846153836,
+            0.000636676164556962,
+            0.0006362584430379745,
+            0.0006408322784810131,
+            0.0006355833417721522,
+            0.0006462686923076922,
+            0.000639744202531646
+          ]
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.000642525641025642,
+          "samplesMs": [
+            0.000682853040540541,
+            0.0006552343116883122,
+            0.0006360785822784816,
+            0.0006389034810126587,
+            0.000640959379746836,
+            0.0006574118051948056,
+            0.000642525641025642,
+            0.0006378364936708864,
+            0.0006488920897435876
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 0,
+      "selector": ".g0,.g1,.g2,.g3",
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.002655048210526322,
+          "samplesMs": [
+            0.0027643223684210507,
+            0.0026720833157894744,
+            0.002709050473684209,
+            0.002655048210526322,
+            0.0026649342105263137,
+            0.002620062500000006,
+            0.0026357763157894673,
+            0.002625008350000007,
+            0.002606443750000017
+          ]
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.0026436973684210562,
+          "samplesMs": [
+            0.0027463421052631547,
+            0.0027024056842105296,
+            0.0026646403157894716,
+            0.0026551623157894675,
+            0.0026322017368421067,
+            0.0026382565789473647,
+            0.0026396315789473696,
+            0.0026436973684210562,
+            0.002625154150000003
+          ]
+        }
+      ]
+    }
+  ]
+}
