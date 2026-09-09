@@ -180,7 +180,7 @@ The [raw report](../../../assets/repo/bench/first-query-states.json) retains all
 
 ## Memory footprint
 
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=5d39ab5932f9)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=7f9876ca966c)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -196,7 +196,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
 
-![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=b2d7be58872d)
+![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=84187b1838c7)
 
 This is a file size report, not a timing benchmark.
 `nwsapi` uses its readable `dist/nwsapi.js` core browser file.

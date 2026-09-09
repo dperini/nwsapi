@@ -302,3 +302,13 @@ The core is 20.3% smaller before compression, 1.6% smaller with gzip, and 0.9% s
 **Correctness protected.** The coverage provider reads generated CommonJS files as Node executes them. Passing those files through `vite` again inserts semicolons and shifts coverage positions. The shared fleet helper preserves the original source, and focused selector tests cover gaps exposed by the corrected report. Existing coverage thresholds pass. All 7,445 selected WPT subtests pass in each mode, and browser and isolated package-install tests pass.
 
 **Decision.** Keep the formatter settings and the final ES5 check. The query and per-engine memory charts retain their independently recorded inputs. This change updates the file-size measurements and does not claim a new runtime performance improvement.
+
+## Comment tokens and foreign HTML types
+
+**Correctness.** Comment handling preserves token boundaries, quoted text, and CSS escapes. HTML queries include prefixed and mixed-case foreign elements across selection, first-result lookup, matching, and direct-child `:has()` predicates. XML keeps case-sensitive local names. The Chrome 153 comparison drops from 25 to 16 native-versus-core differences. All nine removed differences concern comments or foreign HTML types.
+
+**Cost.** The refreshed [memory report](../../../assets/repo/bench/memory-footprint.json) measures 9.28KiB per initialized engine and 75.67KiB after 100 queries. The earlier record measured 9.11KiB and 73.62KiB. These are separate runs with the same recorded workload, not an alternating comparison. They exclude documents, shared code, and native browser memory. This is a correctness change with a modest retained-heap cost.
+
+**Lookup strategy.** Ordinary HTML trees retain native tag lookup. A weak cache records whether broader candidates are needed. Mutation records and observer delivery invalidate that classification. XML queries continue to use namespace-aware lookup. Compiled tag predicates keep direct property comparisons for ordinary lowercase HTML names.
+
+**Validation.** Selector regression tests cover the selector-layer examples from all 19 issues listed in jsdom's engine-switch PR. Rendering, event-library selector generation, Range mutation performance, and application feedback are separate concerns. Unit, integration, selected WPT, package-install, and browser comparison checks protect this change. Cumulative coverage retains the existing thresholds.

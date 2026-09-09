@@ -78,7 +78,7 @@ describe('a descendant chain of tags answered by descending', () => {
     )
   })
 
-  test('XML and SVG tag-class parts retain case sensitivity', () => {
+  test('XML preserves case while HTML foreign types follow browser folding', () => {
     const { window } = new JSDOM(
       '<root><Parent><Child id="c" class="x"/></Parent></root>',
       { contentType: 'application/xml' },
@@ -100,7 +100,7 @@ describe('a descendant chain of tags answered by descending', () => {
     ] as const) {
       assert.deepEqual(
         Array.from(html.NW.select(selector)).map(e => e.id),
-        [...html.document.querySelectorAll(selector)].map(e => e.id),
+        ['f'],
       )
     }
   })

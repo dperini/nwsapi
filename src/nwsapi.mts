@@ -542,7 +542,7 @@ interface Primordials {
       CommaGroup: /(\s*,\s*)(?![^\x5b]*\x5d)(?![^\x28]*\x29)/g,
       FixEscapes: /\\([0-9a-fA-F]{1,6}[\x20\t\r\n\f]?|.)|([\x22\x27])/g,
       CombineWSP:
-        /[\n\r\f\x20]+(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
+        /\\[0-9a-fA-F]{1,6}(?:\r\n|[\t\n\r\f\x20])?|[\n\r\f\x20]+(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
       TabCharWSP:
         /(\x20?\t+\x20?)(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
       LogicalPfx: /^:(is|where|matches|not|has)\x28/i,
@@ -1325,7 +1325,12 @@ interface Primordials {
     // Narrow logical type lists only when they cover a minority of the tree.
     typeRoutes = createCache<{ broad: boolean; remaining: number }>(),
     byTags = function (names: string, context: EngineContext) {
-      if (Config.LEGACY || !HTML_DOCUMENT || !context.getElementsByTagName) {
+      if (
+        Config.LEGACY ||
+        !HTML_DOCUMENT ||
+        !context.getElementsByTagName ||
+        hasForeignTypes(context)
+      ) {
         return byTag('*', context)
       }
       var route = typeRoutes.get(names)
@@ -1504,7 +1509,101 @@ interface Primordials {
       }
       return result
     },
-    byTag = function (tag: string, context: EngineContext) {
+    asciiLower = function (name: string) {
+      return name.replace(/[A-Z]/g, function (letter: string) {
+        return letter.toLowerCase()
+      })
+    },
+    matchesTag = function (element: Element, name: string) {
+      var local = tagOf(element)
+      if (!local || !HTML_DOCUMENT) {
+        return local == name
+      }
+      name = asciiLower(name)
+      return (
+        (element.namespaceURI == NAMESPACE ? local : asciiLower(local)) == name
+      )
+    },
+    foreignTypeRoots:
+      | WeakMap<
+          Node,
+          { observer: MutationObserver; foreign: boolean; dirty: boolean }
+        >
+      | null
+      | undefined = null,
+    // Cache only whether native qualified-name lookup is safe. Mutation records
+    // invalidate before the next query, including queries in detached trees.
+    hasForeignTypes = function (context: EngineContext) {
+      if (!HTML_DOCUMENT) {
+        return false
+      }
+      var root = context.getRootNode ? context.getRootNode() : context,
+        state,
+        node: Element | null,
+        foreign = false
+      foreignTypeRoots || (foreignTypeRoots = createWeakMap())
+      state = foreignTypeRoots && foreignTypeRoots.get(root)
+      if (state && !state.dirty && !state.observer.takeRecords().length) {
+        return state.foreign
+      }
+      node =
+        root.nodeType == 1
+          ? (root as Element)
+          : (root as Document).firstElementChild
+      while (node) {
+        if (
+          node.namespaceURI != NAMESPACE ||
+          node.prefix ||
+          /[A-Z]/.test(node.localName)
+        ) {
+          foreign = true
+          break
+        }
+        if (node.firstElementChild) {
+          node = node.firstElementChild
+        } else {
+          while (node && node !== root && !node.nextElementSibling) {
+            node = node.parentElement
+          }
+          node = node && node !== root ? node.nextElementSibling : null
+        }
+      }
+      if (
+        !state &&
+        foreignTypeRoots &&
+        global.MutationObserver &&
+        !Config.LEGACY
+      ) {
+        state = {
+          observer: new global.MutationObserver(function () {
+            state!.dirty = true
+          }),
+          foreign: foreign,
+          dirty: false,
+        }
+        state.observer.observe(root, { childList: true, subtree: true })
+        foreignTypeRoots.set(root, state)
+      } else if (state) {
+        state.foreign = foreign
+        state.dirty = false
+        state.observer.takeRecords()
+      }
+      return foreign
+    },
+    byTag = function (
+      tag: string,
+      context: EngineContext,
+    ): Element[] | NodeListOf<Element> {
+      if (tag != '*' && hasForeignTypes(context)) {
+        var all = byTag('*', context),
+          matched = []
+        for (var index = 0; index < all.length; ++index) {
+          if (matchesTag(all[index]!, tag)) {
+            matched[matched.length] = all[index]!
+          }
+        }
+        return Config.NODE_LIST ? toNodeList(matched) : matched
+      }
       if (!HTML_DOCUMENT && tag != '*') {
         return byTagNS(context, tag)
       }
@@ -2022,6 +2121,9 @@ interface Primordials {
     lastMaskValue = 0,
     tagBits = primordials.ObjectCreate(null),
     tagBit = function (name: string) {
+      if (HTML_DOCUMENT) {
+        name = asciiLower(name)
+      }
       var i = 0,
         l = name.length,
         h = 0,
@@ -3522,6 +3624,7 @@ interface Primordials {
           ? readGuarded
           : readDirect
 
+      selector = selectorComments(selector)
       // Each compilation owns its requirements. Validation and nested :not()
       // compilation must not contribute tags to the surrounding resolver.
       ancestry = ancestry || { required: [], pending: [], walk: false }
@@ -3598,8 +3701,15 @@ interface Primordials {
             // cannot reject anything this test would have accepted
             expr = unescapeIdentifier(match![1]!)
             ancestry.pending[ancestry.pending.length] = expr
-            pendingTag =
-              'if((' + read.tag('e') + '==' + JSON.stringify(expr) + ')){'
+            pendingTag = HTML_DOCUMENT
+              ? 'if(' +
+                read.tag('e') +
+                '==' +
+                JSON.stringify(asciiLower(expr)) +
+                '||s.matchesTag(e,' +
+                JSON.stringify(expr) +
+                ')){'
+              : 'if((' + read.tag('e') + '==' + JSON.stringify(expr) + ')){'
             break
 
           // namespace resolver
@@ -4348,7 +4458,15 @@ interface Primordials {
                       'if(' +
                       splitList(match![2]!)
                         .map(function (tag) {
-                          return read.tag('e') + '=="' + tag + '"'
+                          return HTML_DOCUMENT
+                            ? '(' +
+                                read.tag('e') +
+                                '==' +
+                                JSON.stringify(asciiLower(tag)) +
+                                '||s.matchesTag(e,' +
+                                JSON.stringify(tag) +
+                                '))'
+                            : read.tag('e') + '=="' + tag + '"'
                         })
                         .join('||') +
                       '){' +
@@ -4897,6 +5015,82 @@ interface Primordials {
       }
       return f
     },
+    // Comments disappear between tokens, never inside strings or escapes.
+    // Keep a boundary when removing one would manufacture a different token.
+    selectorComments = function (text: string) {
+      if (!includes(text, '/*')) {
+        return text
+      }
+      var result = '',
+        quote = '',
+        i = 0,
+        end,
+        c,
+        before,
+        after,
+        escapedEnd = -1,
+        hex
+      while (i < text.length) {
+        c = text[i++]!
+        if (c == '\\') {
+          hex = /^[0-9a-fA-F]{1,6}/.exec(text.slice(i))
+          if (!quote && hex) {
+            result += '\\' + ('000000' + hex[0]).slice(-6) + ' '
+            i += hex[0].length
+            if (/[\t\n\r\f ]/.test(text[i] || '')) {
+              if (text[i++] == '\r' && text[i] == '\n') {
+                ++i
+              }
+            }
+            escapedEnd = result.length
+          } else {
+            result += c
+            if (i < text.length) {
+              result += text[i++]!
+            }
+          }
+        } else if (quote) {
+          result += c
+          if (c == quote) {
+            quote = ''
+          }
+        } else if (c == '"' || c == "'") {
+          quote = c
+          result += c
+        } else if (c == '/' && text[i] == '*') {
+          end = text.indexOf('*/', i + 1)
+          i = end < 0 ? text.length : end + 2
+          // Adjacent comments represent the same token boundary.
+          while (text.slice(i, i + 2) == '/*') {
+            end = text.indexOf('*/', i + 2)
+            i = end < 0 ? text.length : end + 2
+          }
+          before =
+            result.length == escapedEnd ? 'a' : result[result.length - 1] || ''
+          after = text[i] || ''
+          if (/:nth-(?:last-)?child\([^()]*[\t\n\f\r ]of$/i.test(result)) {
+            result += ' '
+          } else if (
+            (/[\w\u0080-\uffff-]/.test(before) &&
+              /[\w\u0080-\uffff(\\-]/.test(after)) ||
+            (before == '#' && /[\w\u0080-\uffff\\-]/.test(after)) ||
+            (/[~|^$*]/.test(before) && after == '=')
+          ) {
+            // An+B's `of` clause and attribute flags accept separate tokens.
+            result +=
+              (/^of(?:[\t\n\f\r ]|\/\*)/i.test(text.slice(i)) &&
+                /:nth-(?:last-)?child\([^()]*$/i.test(result)) ||
+              (/^[is](?:[\t\n\f\r ]|\])/i.test(text.slice(i)) &&
+                /\[[^\]]*=[^\]]+$/i.test(result))
+                ? ' '
+                : '\x01'
+          }
+        } else {
+          result += c
+        }
+      }
+      return result
+    },
     // Consume string continuations before whitespace normalization. Preserve
     // escape boundaries: removing a continuation must not extend a hex escape.
     stringContinuations = function (selectors: string) {
@@ -4977,7 +5171,7 @@ interface Primordials {
         selectors = '' + selectors
       }
 
-      selectors = stringContinuations(selectors)
+      selectors = stringContinuations(selectorComments(selectors))
       if (!validBlocks(selectors)) {
         emit("'" + selectors + "'" + qsInvalid)
         return type ? none : false
@@ -4985,7 +5179,9 @@ interface Primordials {
       // normalize input string
       parsed = selectors
         .replace(/\x00|\\$/g, '\ufffd')
-        .replace(REX.CombineWSP, '\x20')
+        .replace(REX.CombineWSP, function (part: string) {
+          return part[0] == '\\' ? part.replace(/\r\n/g, '\x20') : '\x20'
+        })
         .replace(REX.TabCharWSP, '\t')
         .replace(REX.CommaGroup, ',')
         .replace(REX.TrimSpaces, '')
@@ -5069,7 +5265,7 @@ interface Primordials {
     hasChild = function (element: Element, tag: string) {
       var child = firstOf(element)
       while (child) {
-        if (tag == '*' || tagOf(child) == tag) {
+        if (tag == '*' || matchesTag(child, tag)) {
           return true
         }
         child = nextOf(child)
@@ -5242,12 +5438,7 @@ interface Primordials {
       for (i = 0; i < candidates.length; ++i) {
         element = candidates[i]!
         if (
-          (!tag ||
-            tag == '*' ||
-            element.localName == tag ||
-            (HTML_DOCUMENT &&
-              element.namespaceURI == NAMESPACE &&
-              element.localName == tag.toLowerCase())) &&
+          (!tag || tag == '*' || matchesTag(element, tag)) &&
           (!resolver || resolver(element, null, context, false, filtered))
         ) {
           return element
@@ -5319,21 +5510,15 @@ interface Primordials {
           }
           collection = match![2]!
             ? context.getElementsByClassName!(match![2]!)
-            : !HTML_DOCUMENT && match![1] != '*'
-              ? byTagNS(context, match![1]!)
-              : context.getElementsByTagName!(match![1]!)
+            : hasForeignTypes(context)
+              ? byTag(match![1]!, context)
+              : !HTML_DOCUMENT && match![1] != '*'
+                ? byTagNS(context, match![1]!)
+                : context.getElementsByTagName!(match![1]!)
           element = collection[0] || null
           if (match![2]! && match![1]! && match![1]! != '*') {
             i = 0
-            while (
-              element &&
-              !(
-                element.localName == match![1]! ||
-                (HTML_DOCUMENT &&
-                  element.namespaceURI == NAMESPACE &&
-                  element.localName == match![1]!.toLowerCase())
-              )
-            ) {
+            while (element && !matchesTag(element, match![1]!)) {
               // Reading a live collection's length can itself scan the DOM.
               // The common first-candidate hit needs no length at all.
               if (i === 0) {
@@ -5423,6 +5608,7 @@ interface Primordials {
         collection =
           !Config.LEGACY &&
           (HTML_DOCUMENT || token[0] != '*') &&
+          (token[0] != '*' || !hasForeignTypes(context)) &&
           (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
           api in context
             ? context[api]!(name)
@@ -5749,6 +5935,7 @@ interface Primordials {
         callback === undefined &&
         !Config.LEGACY &&
         HTML_DOCUMENT &&
+        !hasForeignTypes(context) &&
         context.nodeType == 9 &&
         (descended = selectChildren(selectors, context))
       ) {
@@ -5765,6 +5952,7 @@ interface Primordials {
         callback === undefined &&
         descentDeclined.get(selectors) === undefined &&
         reTagChain.test(selectors) &&
+        !hasForeignTypes(context) &&
         (descended = parseChain(selectors))
       ) {
         descended = descendChain(descended, context)
@@ -6199,6 +6387,7 @@ interface Primordials {
     firstResolvers = createCache<QueryPlan>(),
     // passed to resolvers
     Snapshot: {
+      matchesTag: typeof matchesTag
       mayMatch: typeof mayMatch
       ancestorMask: typeof ancestorMask
       clearAncestorMasks: typeof clearAncestorMasks
@@ -6279,6 +6468,7 @@ interface Primordials {
 
       ancestor: ancestor,
 
+      matchesTag: matchesTag,
       mayMatch: mayMatch,
       ancestorMask: ancestorMask,
       clearAncestorMasks: clearAncestorMasks,
