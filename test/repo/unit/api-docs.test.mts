@@ -11,14 +11,16 @@ import {
   ADAPTER_SOURCE_PATH,
   API_DOC_PATH,
   ENGINE_SOURCE_PATH,
+  TRAVERSAL_SOURCE_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
 
 const engine = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
 const adapter = readFileSync(ADAPTER_SOURCE_PATH, 'utf8')
+const traversal = readFileSync(TRAVERSAL_SOURCE_PATH, 'utf8')
+const apiMarkdown = renderApiMarkdown(engine, adapter, traversal)
 
 test('API nests a readable callout inside its collapsed section', t => {
-  const markdown = renderApiMarkdown(engine, adapter)
-  const dom = new JSDOM(markdown)
+  const dom = new JSDOM(apiMarkdown)
   t.onTestFinished(() => dom.window.close())
   const notes = dom.window.document.querySelectorAll('details blockquote')
   expect(notes).toHaveLength(1)
@@ -36,7 +38,7 @@ test('API nests a readable callout inside its collapsed section', t => {
   expect(icon?.getAttribute('width')).toBe('16')
   expect(icon?.getAttribute('height')).toBe('16')
   expect(note!.querySelector('[style], [class], svg, script')).toBeNull()
-  expect(markdown).not.toContain('[!IMPORTANT]')
+  expect(apiMarkdown).not.toContain('[!IMPORTANT]')
 })
 
 test('README links to the API without repeating its reference tables', () => {
@@ -51,7 +53,7 @@ test('README links to the API without repeating its reference tables', () => {
 })
 
 test('the API reference matches the source exports without running the factory', () => {
-  const output = renderApiMarkdown(engine, adapter)
+  const output = apiMarkdown
   expect(output).toBe(readFileSync(API_DOC_PATH, 'utf8'))
   expect(output).toContain('`closest(selectors, element, callback)`')
   expect(output).toContain('`match(selectors, element, callback)`')
@@ -64,7 +66,11 @@ test('the API reference matches the source exports without running the factory',
   expect(output).toContain('`DOMSelector.use(window, engine)`')
   expect(output.indexOf('`byClass(')).toBeLessThan(output.indexOf('`byId('))
   expect(
-    renderApiMarkdown('throw new Error("do not execute");\n' + engine, adapter),
+    renderApiMarkdown(
+      'throw new Error("do not execute");\n' + engine,
+      adapter,
+      traversal,
+    ),
   ).toContain('# API')
 })
 
@@ -73,6 +79,7 @@ test('new exports need a description instead of silently disappearing', () => {
     renderApiMarkdown(
       engine.replace('Dom = {', 'Dom = { undocumented: select,'),
       adapter,
+      traversal,
     ),
   ).toThrow('undocumented')
   expect(() =>
@@ -82,6 +89,7 @@ test('new exports need a description instead of silently disappearing', () => {
         'class DOMSelector {',
         'class DOMSelector { undocumented() {}',
       ),
+      traversal,
     ),
   ).toThrow('undocumented')
 })
