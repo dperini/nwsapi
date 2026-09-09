@@ -355,3 +355,35 @@ These values cover the host workloads described above. The Range timing ranges o
 The [earlier host measurement](../../../assets/repo/bench/jsdom-workload-before-routing.json) recorded a candidate repeated-query median of 0.2091ms before the routing and observer fixes. The final median is 0.0315ms. These are separate alternating comparisons against the same host baseline, rather than a paired experiment isolating each change. The direct-engine routing experiment did not predict the full host result. Profiling the adapter was necessary to find the disabled classification cache.
 
 **Validation.** The selector-layer reproductions now also run through public DOM APIs. The upstream host API suite passed 579 tests with the adapter substituted. The isolated package suite passed Testing Library consumer lookups and computed-style mutation checks. These results establish the tested integration boundary. They do not imply complete CSS conformance or an upstream adoption decision.
+
+## First-result ID lookups and shadow scopes
+
+Exact ID attributes now use the root ID lookup for first-result queries in modern HTML documents and fragments that provide it. A shadow-root `#id` query uses that root's lookup too. Element-scoped queries preserve subtree filtering, and all-result queries preserve duplicate IDs. Attribute escapes, flags, namespace syntax, and empty values retain the full parser path.
+
+The comparison also exposed a correctness problem. A connected shadow tree is absent from the outer document's ID map. The old fallback could therefore reject an existing shadow ID. The fallback now checks the actual tree root before using a document map to prove absence. Hosts without a root lookup retain the subtree walk.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The baseline is `7960cdd`. The candidate and baseline build hashes, raw samples, and correctness results are in [first-id.json](../../../assets/repo/bench/first-id.json). The script is [first-id.mts](../../../scripts/repo/bench/first-id.mts), with its invocation in the [testing commands](../testing/commands.md#compare-first-result-id-lookups).
+
+Measurements used Node 26.5.0 and `jsdom` 30.0.1 on macOS with an Apple M3 Max. Each root contains 2,000 preceding elements and one target. Seven rounds alternate engine order. Warm batches contain 1,000 queries. Cold batches average 30 fresh engines, with construction outside the timer. The final run had no concurrent test jobs. These are direct-engine timings, not browser or integrated application timings. A baseline that returns the wrong node receives no timing result.
+
+</details>
+
+| Warm query | Baseline | Candidate |
+| --- | ---: | ---: |
+| Document `[id="target"]` | 385.135µs | 0.309µs |
+| Shadow root `[id="target"]` | 1009.643µs | 62.235µs |
+| Document `[id="target"]:not(p)` | 294.203µs | 286.047µs |
+| Document `.target` | 0.345µs | 0.365µs |
+| Element `#missing` | 0.391µs | 0.353µs |
+| Shadow root `#missing` | 0.388µs | 61.929µs |
+
+The exact-attribute cases benefit from avoiding a full candidate scan and compiled matcher. The shadow lookup itself still walks the host tree, so it is not a constant-time lookup in this host. Compound and class controls remain close to the baseline. The shadow miss is slower because the old result came from the incorrect outer-document rejection. An existing shadow ID returned no result in the baseline. It now returns the expected node in 63.111µs. Light-DOM misses retain their cheap document-map rejection.
+
+Cold document attribute lookup fell from 1034.713µs to 0.400µs. Cold shadow attribute lookup fell from 1679.122µs to 62.267µs. These measurements exclude engine construction. They do not predict the same gain for every selector or document size.
+
+An initial eligibility check added about 0.11µs to warm document class queries by reading document type before rejecting non-attribute syntax. Rejecting that syntax first removed most of the overhead. The final report includes all controls rather than only the improved selectors.
+
+The readable core grew by 580bytes, including 114bytes after gzip and 98bytes after Brotli. The [size report](../../../assets/repo/bench/file-size.json) and charts use the final build. Regression tests cover duplicate IDs, connected and detached scopes, default contexts, XML, escapes, invalid syntax, mutation callbacks, missing APIs, and forced-legacy execution.

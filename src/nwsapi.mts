@@ -1253,7 +1253,7 @@ interface Primordials {
         i,
         l,
         nodes,
-        ownerDoc,
+        lookupRoot,
         api = method['#']
 
       // duplicates id allowed
@@ -1302,20 +1302,19 @@ interface Primordials {
       // constant time: whether the id exists anywhere, and where the first
       // one is, since it returns the first in tree order and any duplicate
       // has to follow it.
-      ownerDoc = context.nodeType == 9 ? context : context.ownerDocument
-
-      if (
-        ownerDoc &&
-        ownerDoc.getElementById &&
-        (context.nodeType == 9 || connectedOf(context))
-      ) {
-        e = ownerDoc.getElementById(id)
-        // nothing in the document carries the id, so nothing under context does
+      // A connected element may belong to a shadow tree. Only its actual
+      // document root can prove absence through the document's ID map.
+      lookupRoot =
+        context.nodeType == 9
+          ? context
+          : context.getRootNode
+            ? context.getRootNode()
+            : null
+      if (lookupRoot && lookupRoot.nodeType == 9) {
+        e = (lookupRoot as Document).getElementById(id)
         if (!e) {
           return none
         }
-        // scoped to an element, the first document-order match may sit
-        // outside it, and a match inside it would then be missed
         if (context.nodeType == 9) {
           return byIdRaw(id, context, e)
         }
@@ -5500,28 +5499,41 @@ interface Primordials {
       context?: EngineContext | null,
       callback?: ElementCallback,
     ) {
-      var element, match, collection, i, length
+      var element, match, collection, i, length, lookupContext
       if (arguments.length === 0) {
         emit(qsNotArgs, TypeError)
         return null
       }
 
-      // A lone '#id' against a document is the id map's own question, and the
-      // first match in tree order is exactly what getElementById returns.
-      // Going through select() means building the whole candidate list first,
-      // and without document.all that list is built by walking the document:
-      // 2.4ms against 43ns here. Duplicate ids do not change the answer, only
-      // which of them comes first, and they cannot precede this one. Scoped
-      // to an element the first document-order match may sit outside it, so
-      // that case takes the ordinary path.
+      // Root ID maps return the first duplicate in tree order. Element scopes
+      // cannot use an owner-document lookup because its first hit may be outside.
+      // Keep attribute escapes, flags, namespaces, and empty values on the full
+      // parser path. Empty IDs are attributes but are absent from the ID map.
+      lookupContext = context || doc
       if (
+        typeof selectors == 'string' &&
         selectors &&
-        context &&
-        context.nodeType == 9 &&
-        context.getElementById &&
-        (match = reSimpleId.exec(selectors))
+        lookupContext.getElementById &&
+        (lookupContext.nodeType == 9 ||
+          (!Config.LEGACY && lookupContext.nodeType == 11)) &&
+        ((match = reSimpleId.exec(selectors)) ||
+          (!Config.LEGACY &&
+            selectors.charCodeAt(0) == 91 /* '[' */ &&
+            (match =
+              /^\[id=(?:"([-\w]+)"|'([-\w]+)'|([_a-zA-Z][-\w]*))\]$/.exec(
+                selectors,
+              )) &&
+            isHTML(lookupContext.ownerDocument || lookupContext)))
       ) {
-        element = context.getElementById(unescapeIdentifier(match![1]!))
+        if (
+          lastContext !== lookupContext ||
+          (lookupContext !== doc && lookupContext.ownerDocument !== doc)
+        ) {
+          lastContext = switchContext(lookupContext)
+        }
+        element = lookupContext.getElementById(
+          unescapeIdentifier(match![1] || match![2] || match![3]!),
+        )
         if (element && typeof callback == 'function') {
           callback(element)
         }
