@@ -1,0 +1,3305 @@
+{
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "engineSha256": "9011f9af62559099d34fd7972655982f1d2ac7dc18d37da5593fc3e8cc17a228",
+  "methodology": "Experimental compiled-resolver comparison only. Variants rotate across seven rounds, with 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. Integrated host timing and rendering are outside this benchmark. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.",
+  "baselineSha256": "708dee1a45959c8b120203456f1a9f6c0a037b0e8b596ee06557ea31d4a00cce",
+  "cachePayload": "Unmodified baseline and candidate compiled resolvers.",
+  "memoryMethodology": "Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.",
+  "shapes": [
+    {
+      "name": "original",
+      "boxes": 5,
+      "outer": 5,
+      "inner": 5,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "wide",
+      "boxes": 64,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "deep",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        8
+      ]
+    },
+    {
+      "name": "mixed-shallow-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        0,
+        8
+      ]
+    },
+    {
+      "name": "mixed-deep-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        8,
+        0
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "shape": "original",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 125,
+      "matches": 25,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.04439236000000013,
+          "samplesMs": [
+            0.050473609999999856,
+            0.04381472333333401,
+            0.04360513999999967,
+            0.042655969999999946,
+            0.046929719999999786,
+            0.04439236000000013,
+            0.04524721999999959
+          ],
+          "parentReads": 335,
+          "classReads": 350
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.04389180666666637,
+          "samplesMs": [
+            0.06351930333333333,
+            0.04389180666666637,
+            0.04330041666666602,
+            0.041784446666666406,
+            0.04482291666666621,
+            0.04398639000000003,
+            0.04333375000000009
+          ],
+          "parentReads": 335,
+          "classReads": 350
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 86351840,
+          "heapBefore": 40181488,
+          "heapAfter": 40203720,
+          "heapAfterRepeat": 40230656,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 54220208
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22609224
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2236832
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1811992
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1605888
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1572184
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 978336
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 677656
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 553504
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 70720
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 33536832,
+          "heapBefore": 44950760,
+          "heapAfter": 44951792,
+          "heapAfterRepeat": 44954240,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22405360
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2113712
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1948800
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1578048
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1547448
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 1464424
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 969792
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 586096
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 394576
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3516",
+              "bytes": 290688
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 33493936,
+          "heapBefore": 42176320,
+          "heapAfter": 42181424,
+          "heapAfterRepeat": 42180344,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22409752
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2214760
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1866704
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1672416
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1572728
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 1511744
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 938688
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 652400
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 584024
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 70720
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 86026952,
+          "heapBefore": 41211360,
+          "heapAfter": 41211344,
+          "heapAfterRepeat": 41211968,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 54247336
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22385728
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2187808
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1869896
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1612320
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1479368
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 939648
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 661864
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 571368
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 62400
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 86499624,
+          "heapBefore": 42637640,
+          "heapAfter": 42637656,
+          "heapAfterRepeat": 42637656,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 54321056
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22432192
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2262928
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1906688
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1622016
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1593552
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 1001856
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 607152
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 584024
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3540",
+              "bytes": 90144
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 33407872,
+          "heapBefore": 42661432,
+          "heapAfter": 42661400,
+          "heapAfterRepeat": 42663848,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 22547384
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2058400
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1856176
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 1565184
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1532608
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 1483104
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 960096
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 678720
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 385112
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3516",
+              "bytes": 286464
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "original",
+      "selector": ".box .block.inner > .content",
+      "candidates": 125,
+      "matches": 125,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.034059723333333146,
+          "samplesMs": [
+            0.036730276666667123,
+            0.033391526666664506,
+            0.03342083333333297,
+            0.03440666666666706,
+            0.034059723333333146,
+            0.0340633333333335,
+            0.03376652666666511
+          ],
+          "parentReads": 275,
+          "classReads": 300
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.03322778000000047,
+          "samplesMs": [
+            0.034294443333334736,
+            0.03163486000000072,
+            0.03286944333333243,
+            0.03322778000000047,
+            0.032802083333332725,
+            0.03323819666666774,
+            0.033235276666667535
+          ],
+          "parentReads": 275,
+          "classReads": 300
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 71559824,
+          "heapBefore": 38347432,
+          "heapAfter": 38347448,
+          "heapAfterRepeat": 38347464,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 52247568
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19239456
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 72800
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 24263272,
+          "heapBefore": 42103952,
+          "heapAfter": 42103840,
+          "heapAfterRepeat": 42103840,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19191616
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 5005000
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 65536
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 24348864,
+          "heapBefore": 39587312,
+          "heapAfter": 39587312,
+          "heapAfterRepeat": 39587312,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19264416
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 5024096
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 59296
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 71664016,
+          "heapBefore": 39593392,
+          "heapAfter": 39593392,
+          "heapAfterRepeat": 39593392,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 52200776
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19380928
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 78016
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 1056
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 71112840,
+          "heapBefore": 42114240,
+          "heapAfter": 42114240,
+          "heapAfterRepeat": 42114240,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 51987784
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19050176
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 74880
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 24435096,
+          "heapBefore": 42082480,
+          "heapAfter": 42082480,
+          "heapAfterRepeat": 42082480,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 19246752
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 5121784
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 66560
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 256,
+      "matches": 60,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.1731595833333328,
+          "samplesMs": [
+            0.1749377800000002,
+            0.1481223600000006,
+            0.15972235999999915,
+            0.17383958333333188,
+            0.1880740266666665,
+            0.1731595833333328,
+            0.1632354166666664
+          ],
+          "parentReads": 934,
+          "classReads": 1024
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.14702986333333382,
+          "samplesMs": [
+            0.14702986333333382,
+            0.14131930333333306,
+            0.14622333333333395,
+            0.19486791666666553,
+            0.22007583333333364,
+            0.1829813899999984,
+            0.14223374999999577
+          ],
+          "parentReads": 934,
+          "classReads": 1024
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 264543784,
+          "heapBefore": 44163696,
+          "heapAfter": 44169640,
+          "heapAfterRepeat": 44171360,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 145968416
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 65591320
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 26954976
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9111936
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 4439040
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 3973936
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 3682384
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1940344
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1827784
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 989128
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 121410248,
+          "heapBefore": 58206160,
+          "heapAfter": 58206048,
+          "heapAfterRepeat": 58207776,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 65530464
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 27276768
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9146304
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 4308024
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 3946104
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2854848
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 2788128
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1896160
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1841448
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 1779344
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 121488712,
+          "heapBefore": 50592256,
+          "heapAfter": 50592256,
+          "heapAfterRepeat": 50592256,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 65730440
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 27053664
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9103392
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 4295328
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 3950424
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 3578624
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2858832
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 2020312
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1846712
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 975464
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 264631864,
+          "heapBefore": 49344176,
+          "heapAfter": 49347632,
+          "heapAfterRepeat": 49347632,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 145918216
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 65721040
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 26973216
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9081888
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 4307136
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 4029112
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 3712336
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1929816
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1858304
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 1022784
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 264244256,
+          "heapBefore": 56966560,
+          "heapAfter": 56967848,
+          "heapAfterRepeat": 56967848,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 145654608
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 65626144
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 27017184
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9098016
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 4301664
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 3981576
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 3702312
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1959272
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1855112
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 978600
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 122070896,
+          "heapBefore": 56949064,
+          "heapAfter": 56950376,
+          "heapAfterRepeat": 56954264,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 66215824
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 27048288
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 9151584
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 4250328
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 3988824
+            },
+            {
+              "site": "get firstElementChild /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/ParentNode-impl.js:24",
+              "bytes": 2834208
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2804632
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1991920
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 1877232
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1843576
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "selector": ".box .block.inner > .content",
+      "candidates": 256,
+      "matches": 256,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.11996805666666963,
+          "samplesMs": [
+            0.1370138900000044,
+            0.11226875000000291,
+            0.09336013666666985,
+            0.11996805666666963,
+            0.12428277666667176,
+            0.18481680333333012,
+            0.09867166666665678
+          ],
+          "parentReads": 640,
+          "classReads": 768
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.09402013666667093,
+          "samplesMs": [
+            0.08760777999999846,
+            0.08855680666666255,
+            0.09402013666667093,
+            0.09110055333333245,
+            0.12714778000000176,
+            0.11222069333334124,
+            0.09952235999999781
+          ],
+          "parentReads": 640,
+          "classReads": 768
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 178194512,
+          "heapBefore": 40625072,
+          "heapAfter": 40625088,
+          "heapAfterRepeat": 40625104,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 129043264
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49096096
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 53056
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1064
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1032
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 63660632,
+          "heapBefore": 49773552,
+          "heapAfter": 49773440,
+          "heapAfterRepeat": 49773440,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49077376
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14527064
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 55136
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 64014704,
+          "heapBefore": 43676992,
+          "heapAfter": 43676992,
+          "heapAfterRepeat": 43676992,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49356128
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14596136
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 60320
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 178003008,
+          "heapBefore": 43696136,
+          "heapAfter": 43696136,
+          "heapAfterRepeat": 43696136,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 128573960
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49361312
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 66560
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 178034144,
+          "heapBefore": 49700048,
+          "heapAfter": 49700048,
+          "heapAfterRepeat": 49700048,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 128705088
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49256256
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 72800
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 63876736,
+          "heapBefore": 49699744,
+          "heapAfter": 49699744,
+          "heapAfterRepeat": 49699744,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 49252096
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14570560
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 54080
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.08232888999998977,
+          "samplesMs": [
+            0.09934014000000994,
+            0.08999138999999559,
+            0.08232888999998977,
+            0.08872958333333372,
+            0.08021541666667568,
+            0.07773041666666056,
+            0.07897138999999394
+          ],
+          "parentReads": 494,
+          "classReads": 512
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.08539625000000038,
+          "samplesMs": [
+            0.09158680333333905,
+            0.08642249999999572,
+            0.07939319666666658,
+            0.08533833333333557,
+            0.08564888999999919,
+            0.07953305666667196,
+            0.08539625000000038
+          ],
+          "parentReads": 494,
+          "classReads": 512
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 111353536,
+          "heapBefore": 44245368,
+          "heapAfter": 44248168,
+          "heapAfterRepeat": 44248184,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 64954208
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32766088
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4082880
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2861200
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1957200
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1519152
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1378464
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 949144
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 812336
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 65536
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 47119576,
+          "heapBefore": 50208368,
+          "heapAfter": 50210576,
+          "heapAfterRepeat": 50210576,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32948880
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 3920928
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2630576
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1900360
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1636768
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1444992
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 988064
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 786016
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 780808
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 81120
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 47332832,
+          "heapBefore": 46790432,
+          "heapAfter": 46790432,
+          "heapAfterRepeat": 46790432,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32787976
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4188000
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2915160
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1908816
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1493192
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1461120
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 971208
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 806008
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 754536
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 46816
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 111244568,
+          "heapBefore": 46802504,
+          "heapAfter": 46802504,
+          "heapAfterRepeat": 46802504,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 64732568
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32861440
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4115040
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2894080
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1875104
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1475768
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1383840
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1008056
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 822864
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 57216
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 111152896,
+          "heapBefore": 48958424,
+          "heapAfter": 48959784,
+          "heapAfterRepeat": 48959784,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 64969760
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32823000
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4089312
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2618040
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1877232
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1511952
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1440672
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 934416
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 805000
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 65536
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 46514968,
+          "heapBefore": 48955696,
+          "heapAfter": 48957080,
+          "heapAfterRepeat": 48957080,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 32313696
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4256640
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2534400
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1937208
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1515472
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1422432
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 929152
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 788144
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 746608
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 66560
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.061056666666675787,
+          "samplesMs": [
+            0.0653933333333407,
+            0.061071529999996224,
+            0.05987444333333163,
+            0.06149347333333329,
+            0.060612500000000485,
+            0.061056666666675787,
+            0.060921943333341916
+          ],
+          "parentReads": 416,
+          "classReads": 448
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.05980083333333217,
+          "samplesMs": [
+            0.062202776666672434,
+            0.05851514000000558,
+            0.06014069333334191,
+            0.05959055333334012,
+            0.059365693333335606,
+            0.06051249999999224,
+            0.05980083333333217
+          ],
+          "parentReads": 416,
+          "classReads": 448
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88066120,
+          "heapBefore": 38719488,
+          "heapAfter": 38719504,
+          "heapAfterRepeat": 38719520,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59407656
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28588768
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 68640
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 31212848,
+          "heapBefore": 43406544,
+          "heapAfter": 43406432,
+          "heapAfterRepeat": 43406432,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28306912
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2832072
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 72800
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 31416576,
+          "heapBefore": 40380400,
+          "heapAfter": 40380400,
+          "heapAfterRepeat": 40380400,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28512832
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2837184
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 66560
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88354128,
+          "heapBefore": 40390736,
+          "heapAfter": 40390736,
+          "heapAfterRepeat": 40390736,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59796488
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28492032
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 63456
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1032
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88719496,
+          "heapBefore": 43360880,
+          "heapAfter": 43360880,
+          "heapAfterRepeat": 43360880,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59869632
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28790560
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 58240
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 31652336,
+          "heapBefore": 43383216,
+          "heapAfter": 43383216,
+          "heapAfterRepeat": 43383216,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 28818624
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2770248
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 62400
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.06247888666667374,
+          "samplesMs": [
+            0.0666351399999985,
+            0.06350750000000213,
+            0.06164916666666007,
+            0.061207776666681944,
+            0.06247888666667374,
+            0.06130333333331994,
+            0.06273250000000795
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.061311109999999946,
+          "samplesMs": [
+            0.06278333333333043,
+            0.06294277666665342,
+            0.061311109999999946,
+            0.06096986000001683,
+            0.06266222333334251,
+            0.06049041666667714,
+            0.06074597333332349
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88428200,
+          "heapBefore": 42130936,
+          "heapAfter": 42132304,
+          "heapAfterRepeat": 42132320,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50299456
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24682952
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 3535776
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 3086216
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 2170784
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1495536
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1348416
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 990192
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 741832
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 64480
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 38882880,
+          "heapBefore": 46858448,
+          "heapAfter": 46856168,
+          "heapAfterRepeat": 46857320,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24433296
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 6412576
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2334712
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1551664
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1438560
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1012256
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 782880
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 762848
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 56840
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 56160
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 38529752,
+          "heapBefore": 44251608,
+          "heapAfter": 44251608,
+          "heapAfterRepeat": 44251608,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24496912
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4126848
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2569328
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1848840
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1501744
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1381728
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 941752
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 812392
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 765888
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 81120
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88818672,
+          "heapBefore": 44232560,
+          "heapAfter": 44232560,
+          "heapAfterRepeat": 44232560,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50853072
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24254576
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4096800
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2936976
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1913016
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1545896
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1427808
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 925960
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 799736
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 60320
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88989136,
+          "heapBefore": 45661968,
+          "heapAfter": 45663376,
+          "heapAfterRepeat": 45663376,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50900968
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24541032
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 4151520
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 2586664
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1935080
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1610368
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1403136
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1023848
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 776552
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 54080
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 39258864,
+          "heapBefore": 45673256,
+          "heapAfter": 45674496,
+          "heapAfterRepeat": 45674496,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24881296
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:16",
+              "bytes": 5796096
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 2309824
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1984160
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1542088
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1038576
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 820792
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 775752
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 78016
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 24192
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.06479013666665802,
+          "samplesMs": [
+            0.06738305333332391,
+            0.06479013666665802,
+            0.1013841666666849,
+            0.04210180666666323,
+            0.0469986099999854,
+            0.09012958333335215,
+            0.059031389999994036
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.050589443333349964,
+          "samplesMs": [
+            0.13058111333334332,
+            0.06908346999999292,
+            0.050589443333349964,
+            0.041283750000002326,
+            0.04103708333333392,
+            0.04099680666666245,
+            0.057298886666661324
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 65979720,
+          "heapBefore": 38574488,
+          "heapAfter": 38574504,
+          "heapAfterRepeat": 38574520,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45359048
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20556192
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 64480
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23461232,
+          "heapBefore": 42081488,
+          "heapAfter": 42081376,
+          "heapAfterRepeat": 42081376,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20537472
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2845744
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 76960
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23466224,
+          "heapBefore": 39816824,
+          "heapAfter": 39816824,
+          "heapAfterRepeat": 39816824,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20548928
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2824712
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 91520
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 66042520,
+          "heapBefore": 39819120,
+          "heapAfter": 39819120,
+          "heapAfterRepeat": 39819120,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45269816
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20707008
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 63456
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 66022880,
+          "heapBefore": 42087376,
+          "heapAfter": 42087376,
+          "heapAfterRepeat": 42087376,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45596688
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20368992
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 56160
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23167904,
+          "heapBefore": 42023552,
+          "heapAfter": 42023552,
+          "heapAfterRepeat": 42023552,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20356512
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2742752
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 68640
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.07496111000000383,
+          "samplesMs": [
+            0.08164166666666764,
+            0.07496111000000383,
+            0.0840836099999918,
+            0.0656888899999952,
+            0.08330430666666265,
+            0.06070653000000069,
+            0.06050208333331587
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.07132096999999096,
+          "samplesMs": [
+            0.08978111333332588,
+            0.06034902666668737,
+            0.08247166666667909,
+            0.06321958333333896,
+            0.08672222000001056,
+            0.07132096999999096,
+            0.06001874999999321
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88992952,
+          "heapBefore": 41979336,
+          "heapAfter": 41981992,
+          "heapAfterRepeat": 41987008,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50730064
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24781704
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 7012608
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1602456
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1496856
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1345248
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 949144
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 823928
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 178864
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 58240
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 39193448,
+          "heapBefore": 46734792,
+          "heapAfter": 46735800,
+          "heapAfterRepeat": 46739816,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24588576
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 6779808
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1750912
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1628824
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1442880
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 1021720
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 762832
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 749832
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 367248
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 53056
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 38472744,
+          "heapBefore": 44086232,
+          "heapAfter": 44087096,
+          "heapAfterRepeat": 44090464,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24516536
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 6666048
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1518288
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1469360
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1389216
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 958608
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 761648
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 745024
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 374584
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 56160
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 89210024,
+          "heapBefore": 44049968,
+          "heapAfter": 44049968,
+          "heapAfterRepeat": 44053336,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50954384
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24768912
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 6687552
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1595512
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1532888
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1419264
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 961744
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 790272
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 405104
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 76960
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 88918920,
+          "heapBefore": 45503832,
+          "heapAfter": 45505168,
+          "heapAfterRepeat": 45508536,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 50691904
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24846488
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 6610272
+            },
+            {
+              "site": "(anonymous) /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-class-regex-ntigijaw/before.cjs:1412",
+              "bytes": 1574288
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1526848
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1441728
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 979664
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 761824
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 407232
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 68640
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 38711328,
+          "heapBefore": 45491160,
+          "heapAfter": 45492568,
+          "heapAfterRepeat": 45495936,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24617720
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 6707904
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1412",
+              "bytes": 1565208
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1513160
+            },
+            {
+              "site": "get nextElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/NonDocumentTypeChildNode-impl.js:7",
+              "bytes": 1413888
+            },
+            {
+              "site": "nextSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:408",
+              "bytes": 990192
+            },
+            {
+              "site": "childrenIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:367",
+              "bytes": 762888
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 707168
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 353584
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 48896
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.03978680333333614,
+          "samplesMs": [
+            0.042921526666662733,
+            0.03999360999999529,
+            0.04008208333332732,
+            0.03965958333334129,
+            0.039640276666662734,
+            0.03965874999999263,
+            0.03978680333333614
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.03934708333331704,
+          "samplesMs": [
+            0.04071986000000227,
+            0.03958944666665047,
+            0.039496666666673265,
+            0.03894513666666171,
+            0.0391322199999801,
+            0.03922055666667196,
+            0.03934708333331704
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true,
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 66120272,
+          "heapBefore": 38589744,
+          "heapAfter": 38589760,
+          "heapAfterRepeat": 38589776,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45607544
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20445952
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 64480
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23387408,
+          "heapBefore": 42104760,
+          "heapAfter": 42104648,
+          "heapAfterRepeat": 42104648,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20474048
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2858064
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 53056
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23432544,
+          "heapBefore": 39828672,
+          "heapAfter": 39828672,
+          "heapAfterRepeat": 39828672,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20443872
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2920992
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 66560
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 65740408,
+          "heapBefore": 39830520,
+          "heapAfter": 39830520,
+          "heapAfterRepeat": 39830520,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45271544
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20399168
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 68640
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 65844240,
+          "heapBefore": 42024128,
+          "heapAfter": 42024128,
+          "heapAfterRepeat": 42024128,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 45382656
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20397088
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 63456
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 23165968,
+          "heapBefore": 42029664,
+          "heapAfter": 42029664,
+          "heapAfterRepeat": 42029664,
+          "allocationSites": [
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 20194272
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 2905120
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-reads.mts:234",
+              "bytes": 65536
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

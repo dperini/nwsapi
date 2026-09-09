@@ -120,6 +120,7 @@ interface PlanCache<Value> {
   size(): number
 }
 interface CompilerAncestry {
+  classes?: string[]
   reuse?: string
   required: string[]
   pending: string[]
@@ -2833,6 +2834,9 @@ interface Primordials {
 
       // Cache hits need no parser state or helper-alias bookkeeping.
       ancestry = { required: [], pending: [], walk: false }
+      if ((mode || mode === null) && !Config.LEGACY) {
+        ancestry.classes = []
+      }
       if ((mode || mode === null) && !callback && !relative && !Config.LEGACY) {
         ancestry.reuse = macro
       }
@@ -2902,6 +2906,11 @@ interface Primordials {
 
       if (ancestry.reuse) {
         vars += ',_pStart=null,_pResult=false'
+      }
+      if (ancestry.classes) {
+        for (i = 0; i < ancestry.classes.length; ++i) {
+          vars += ',_c' + i + '=' + ancestry.classes[i]
+        }
       }
       if (Config.LEGACY) {
         var rewritten = legacyHooks!.compile(loop)
@@ -3817,6 +3826,18 @@ interface Primordials {
               classTests.push(
                 '/(^|\\s)' + expr + '(\\s|$)/' + (QUIRKS_MODE ? 'i' : ''),
               )
+              if (ancestry.classes) {
+                // These expressions have no stateful flags. Create them once
+                // per query instead of once for every candidate or ancestor.
+                classIndex = ancestry.classes.indexOf(
+                  classTests[classTests.length - 1]!,
+                )
+                if (classIndex < 0) {
+                  classIndex = ancestry.classes.length
+                  ancestry.classes.push(classTests[classTests.length - 1]!)
+                }
+                classTests[classTests.length - 1] = '_c' + classIndex
+              }
               argument = match![match!.length - 1]!
               nested =
                 argument.charAt(0) == '.' &&

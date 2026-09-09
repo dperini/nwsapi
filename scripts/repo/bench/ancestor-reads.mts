@@ -12,9 +12,12 @@ import {
 } from './ancestor-prefix.mts'
 import { median } from './timing.mts'
 import { profileAncestorMemory } from './ancestor-memory.mts'
+import { positiveInteger } from './footprint-shared.mts'
 
 const { values } = parseArgs({
   options: {
+    iterations: { type: 'string', default: '300' },
+    warmups: { type: 'string', default: '30' },
     baseline: { type: 'string' },
     inline: { type: 'boolean', default: false },
     single: { type: 'boolean', default: false },
@@ -28,6 +31,8 @@ const { values } = parseArgs({
     },
   },
 })
+const iterations = positiveInteger(values.iterations, 'iterations', 100_000)
+const warmups = positiveInteger(values.warmups, 'warmups', 100_000)
 const baselineFactory = values.baseline
   ? (createRequire(import.meta.url)(resolve(values.baseline)) as typeof factory)
   : undefined
@@ -242,7 +247,7 @@ for (const shape of shapes) {
       }
       for (let index = 0; index < variants.length; ++index) {
         check(query(index))
-        for (let i = 0; i < 30; ++i) {
+        for (let i = 0; i < warmups; ++i) {
           query(index)
         }
       }
@@ -252,10 +257,10 @@ for (const shape of shapes) {
           const index = (round + offset) % variants.length
           const start = performance.now()
           let result: Element[] = []
-          for (let i = 0; i < 300; ++i) {
+          for (let i = 0; i < iterations; ++i) {
             result = query(index)
           }
-          timings[index]!.push((performance.now() - start) / 300)
+          timings[index]!.push((performance.now() - start) / iterations)
           check(result)
         }
       }
@@ -367,11 +372,13 @@ writeFileSync(
       node: process.version,
       platform: process.platform,
       architecture: process.arch,
+      iterations,
+      warmups,
       engineSha256: createHash('sha256')
         .update(readFileSync('dist/nwsapi.js'))
         .digest('hex'),
       methodology:
-        'Experimental compiled-resolver comparison only. Variants rotate across seven rounds, with 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. Integrated host timing and rendering are outside this benchmark. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+        'Experimental compiled-resolver comparison only. Variants rotate across seven rounds. The warmups and iterations fields record warmup calls and calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. Integrated host timing and rendering are outside this benchmark. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
       baselineSha256: values.baseline
         ? createHash('sha256')
             .update(readFileSync(values.baseline))

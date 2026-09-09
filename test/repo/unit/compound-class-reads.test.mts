@@ -37,3 +37,31 @@ test('adjacent class tests share one read without crossing compound boundaries',
   target.className = 'a b'
   expect(nw.match('.a.b.c', target)).toBe(false)
 })
+
+test('collection class tests preserve live mutations during reentrant callbacks', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><main><p class="a b"></p><p class="a b"></p></main>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const nw = registerLegacy(factory(window))
+  const nodes = Array.from(doc.querySelectorAll('p'))
+  for (const legacy of [false, true]) {
+    nw.configure({ LEGACY: legacy })
+    nodes[1]!.className = 'a b'
+    const run = nw.compile('.a.b', true, true)!
+    const found = run(
+      nodes,
+      () => {
+        nodes[1]!.className = 'a'
+        expect(run(nodes, () => false, doc, [])).toEqual([nodes[0]])
+        return false
+      },
+      doc,
+      [],
+    )
+    expect(found).toEqual([nodes[0]])
+    nodes[1]!.className = 'a b'
+    expect(run(nodes, () => false, doc, [])).toEqual(nodes)
+  }
+})

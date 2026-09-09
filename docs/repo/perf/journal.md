@@ -851,3 +851,52 @@ These medians come from two fresh processes. Plain compilation improves by 1.7% 
 The candidate passes 668 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. All 378 compared generated resolvers are identical to baseline. These comparisons cover allowed and excluded prefixes and suffixes across matching, array collection, item collection, and callback modes. Additional behavioral cases for logical, attribute, and filtered positional suffixes remain in the unit suite after reverting the engine experiment.
 
 The existing normalization optimization stays in place. Avoid a larger parser rewrite solely to remove this remaining scan. The next stronger target is allocation inside generated resolvers and class-name access, which dominates the Node profile. Candidate-array copying remains a smaller share and protects public result isolation.
+
+## Reuse class-test expressions within each query
+
+The resolver allocation profile pointed to regular-expression literals inside class-test loops. JavaScript creates a new expression object each time that literal is evaluated, even though the pattern stays the same. Modern collection resolvers now create each distinct class-test expression once per query and refer to it from the loop. The compiler deduplicates identical patterns within that resolver.
+
+Class-name values are still read from the element. This change does not cache DOM values or change SVG class handling. The expressions have no global or sticky flag, so repeated tests do not advance `lastIndex`. Each query owns its expression objects, including nested callback queries. Single-element matching and legacy collection compilation retain their existing paths. Nested compiler calls with separate compiler state retain their existing expressions as well.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Save the built CommonJS engine from `19d1630` outside the repository. Its engine code is unchanged from `f20e7f9`. Run `node scripts/repo/bench/ancestor-reads.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-node.json` for Node timing. Add `--memory` and a separate output path for allocation sampling. Run `node scripts/repo/bench/ancestor-browser.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-browser.json` for native Chromium measurements. All these comparisons use actual compiled functions from both builds.
+
+The [Node timing](../../../assets/repo/bench/class-regex-node.json), [Node memory](../../../assets/repo/bench/class-regex-memory.json), and [browser record](../../../assets/repo/bench/class-regex-browser.json) include engine hashes and mutation checks. Timing excludes compilation and candidate lookup. Node allocation estimates are medians from three rotating rounds of 2000 calls. Browser allocation uses one sample per variant per fixture, covering 2000 calls. Samples include collected objects. Retained heap and detached-node checks are reported separately from allocation traffic.
+
+</details>
+
+| Node sampled allocation | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Wide complex | 264.54MB | 121.49MB | -54.1% |
+| Wide plain | 178.03MB | 63.88MB | -64.1% |
+| Deep complex | 111.24MB | 47.12MB | -57.6% |
+| Deep plain | 88.35MB | 31.42MB | -64.4% |
+
+These estimates cover 2000 warm compiled queries over preselected candidates. Wide fixtures have 256 candidates. Deep fixtures have 64 candidates beneath eight extra wrappers. The savings measure allocation traffic rather than retained heap or peak memory. Across all Node fixtures, sampled allocation falls by 54–66%. The remaining class-name getter allocations are consistent with `jsdom` performing custom-element reaction bookkeeping for those reads.
+
+The [public-query before record](../../../assets/repo/bench/class-regex-public-before.json) and [after record](../../../assets/repo/bench/class-regex-public-after.json) use the candidate allocation profiler against each saved build. The ancestor query falls from 87.95MB to 45.40MB over 2000 calls, about 48% less allocation including candidate lookup and public dispatch. The simple class query stays near 5.5MB because its public path already uses class lookup without running a class-test resolver. Lookup-only allocation also stays near its earlier level.
+
+The browser confirmation records 89–96% less allocation across the fixtures. Native browser class-name getters do not have the same sampled JavaScript allocation cost as the `jsdom` getters in this experiment. Removing repeated expression objects therefore accounts for a larger share of browser allocation. This does not imply that the same percentage of the page's retained memory disappears.
+
+Deep complex Node retained-heap changes after two batches are 2208bytes, 0bytes, and 1384bytes across the three rounds. Deep plain changes are -112bytes, 0bytes, and 0bytes. All observed browser fixture nodes are collected after detachment. These short measurements are useful checks, not proof that every workload is leak-free.
+
+| Browser timing, confirmation | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Shallow complex | 10.40µs | 9.60µs | -7.7% |
+| Shallow plain | 7.30µs | 7.00µs | -4.1% |
+| Deep complex | 20.00µs | 19.20µs | -4.0% |
+| Deep plain | 13.90µs | 13.00µs | -6.5% |
+
+These native Chromium timings use 64 preselected candidates and seven rotating rounds. Deep fixtures add eight wrapper ancestors. The [browser confirmation](../../../assets/repo/bench/class-regex-browser-confirmation.json) improves all recorded cases by 2–8%. The initial browser run has one mixed-depth plain case that is 3.7% slower. Both records remain available. Compilation and candidate lookup are excluded from these timings.
+
+The [initial Node run](../../../assets/repo/bench/class-regex-node.json) mostly improves, but one mixed-depth complex case is 8.4% slower. The [Node confirmation](../../../assets/repo/bench/class-regex-node-confirmation.json) has large timing variation, including baseline samples that nearly double in the same fixture. Its deep plain and shallow-first complex medians regress by 11.8% and 16.2%. These results are retained rather than removed as outliers.
+
+The [longer Node run](../../../assets/repo/bench/class-regex-node-long.json) uses 1000 warmup calls and 3000 calls per batch. Reproduce it with `--warmups 1000 --iterations 3000`. Nine of ten cases improve by 0.8–10.2%. Wide plain queries are 0.9% slower. Deep complex and plain cases improve by 3.7% and 1.9%. This run does not reproduce the earlier large regressions, but the shorter runs remain part of the evidence. The strongest result is reduced allocation, not a guaranteed latency improvement for every query.
+
+The [uncached compilation record](../../../assets/repo/bench/class-regex-compiler.json) measures the additional pattern collection and local declarations. In this single comparison, positional ancestor compilation rises from 25.87µs to 28.85µs, while plain ancestor compilation falls from 19.12µs to 18.32µs. A nested logical case rises from 19.16µs to 22.93µs. These measurements include resolver source consumption and runtime variation, so they do not isolate the bookkeeping cost. They also show why the allocation improvement should not be described as making every operation faster.
+
+The standalone memory benchmark measures 9.35KiB after initialization and 75.05KiB after 100 queries, compared with the previous 76.33KiB record after queries. That small retained-memory difference is distinct from the much larger allocation-traffic reduction. The readable core adds 554bytes. Gzip at level 9 adds 90bytes, and Brotli at quality 11 adds 81bytes. Performance, memory, and file-size charts are refreshed from the new measurements.
+
+The production change passes 669 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. The new callback test recursively invokes the same compiled resolver while changing a later candidate's classes. It confirms live reads and independent query state in modern and legacy modes. Existing tests cover escaped classes, SVG, compound reads, and invalid selectors. All 36 broader browser document cases and 12 first-match cases return correct results. Formatting, lint, and type checks pass.
