@@ -28,12 +28,12 @@ export default defineConfig({
     globalSetup: ['.config/vitest.setup.mts'],
     forceRerunTriggers: [
       '../src/**/*.mts',
-      '../scripts/repo/build.mts',
+      '../scripts/repo/build/run.mts',
       './**',
     ].map(path => fileURLToPath(new URL(path, import.meta.url))),
     environment: 'node',
     // Execute the published CommonJS bytes consistently for import and require.
-    server: { deps: { external: [/\/src\/(?:nwsapi|dom-selector)\.js$/] } },
+    server: { deps: { external: [/\/dist\/.*\.js$/] } },
     pool: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 'threads' : 'forks',
     // Unit fixtures own their DOM instances; subprocess suites stay isolated.
     isolate: process.env['NWSAPI_TEST_TIER'] !== 'unit',
@@ -43,9 +43,9 @@ export default defineConfig({
     testTimeout: 10_000,
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.js'],
+      include: ['dist/nwsapi.js', 'dist/dom-selector.js', 'dist/modules/*.js'],
       // External data is exercised in the embedded engine, not its build wrapper.
-      exclude: ['src/external/**'],
+      exclude: ['dist/external/**'],
       reportsDirectory: 'coverage/node',
       reporter: ['text', 'json', 'json-summary'],
     },

@@ -1,17 +1,25 @@
 # Legacy DOM hosts
 
-`LEGACY` enables DOM compatibility handling. It is not a JavaScript syntax
-fallback, does not transpile this package, and does not supply missing built-ins.
-An older browser must first be able to run the source and its dependencies.
-See [runtime initialization](legacy-runtime.md) for optional built-in handling.
+The optional `nwsapi-legacy.js` module supplies legacy hooks for older DOM hosts.
+Load it after the core and before querying or loading other optional modules.
+Both scripts use ES5 syntax and target IE11 facilities.
+See [runtime initialization](legacy-runtime.md) for cache support when built-ins are missing.
+
+```html
+<script src="nwsapi.js"></script>
+<script src="modules/nwsapi-legacy.js"></script>
+```
+
+Registration detects older DOM hosts. To enable legacy handling on a modern host, set the flag explicitly:
 
 ```js
 NW.Dom.configure({ LEGACY: true });
 ```
 
-Modern documents leave the flag off. Document setup enables it when the host
-lacks `hasAttribute`, `getElementsByClassName`, `firstElementChild`, or a string
-`localName`. This is a small capability check, not exhaustive detection of
+Modern documents leave the flag off. After registration, document setup enables it when the host
+lacks string `includes`, `hasAttribute`, `getAttributeNames`, `isConnected`,
+`getElementsByClassName`, `firstElementChild`, or a string `localName`.
+This is a small capability check, not exhaustive detection of
 every historical DOM quirk. Set the flag explicitly for subtler differences.
 
 Document changes retain the flag. Changing it clears compiled resolvers and
@@ -20,11 +28,11 @@ before using an optional runtime feature that the environment lacks.
 
 ## Host reads
 
-Compilation chooses a read table. Modern selections retain direct DOM reads;
-single-node attribute matches guard the method. Legacy resolvers call helpers
+Compilation chooses a read table. Modern selections retain direct DOM reads.
+Single-node attribute matches guard the method. Legacy resolvers call helpers
 through local aliases such as `hTag=s.tagOf`. Only used aliases are declared.
 The pseudo-class rewrite preserves selector text inside generated string and
-regexp literals; text such as `e.localName` is not itself a property read.
+regexp literals. Text such as `e.localName` is not itself a property read.
 
 Legacy collection lookups filter non-elements. Fragment, ID, sibling, and
 ancestor walks use node-level traversal when element-level APIs are absent.

@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('cache generations retain promoted entries and discard cold entries', t => {
   const { window } = new JSDOM('')

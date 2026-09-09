@@ -13,7 +13,7 @@ export function probeParser(selector: string, timeoutMs = 3000) {
       `
     import { readFileSync } from 'node:fs'
     import { JSDOM } from 'jsdom'
-    import factory from './src/nwsapi.js'
+    import factory from './dist/nwsapi.js'
     const { window } = new JSDOM('<p></p>')
     const engine = factory(window)
     const selector = readFileSync(0, 'utf8')

@@ -34,10 +34,11 @@ test('type and lint checks pass without build outputs or an incremental cache', 
       'bin/**/*.mts',
       'src/**/*.mts',
       'src/external/*.js',
-      'src/external/*.d.ts',
+      'src/**/*.d.ts',
       'scripts/repo/**/*.mts',
       'test/repo/**/*.mts',
       '.config/*.mts',
+      '.config/repo/**/*.mts',
       '.config/*.d.ts',
       '.config/*.json',
       'package.json',
@@ -54,7 +55,7 @@ test('type and lint checks pass without build outputs or an incremental cache', 
     path.join(root, 'node_modules'),
     'junction',
   )
-  expect(existsSync(path.join(root, 'src/nwsapi.js'))).toBe(false)
+  expect(existsSync(path.join(root, 'dist/nwsapi.js'))).toBe(false)
   expect(existsSync(path.join(root, '.cache'))).toBe(false)
   execFileSync(
     process.execPath,

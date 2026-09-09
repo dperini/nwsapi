@@ -1,7 +1,7 @@
 import { afterAll } from 'vitest'
 import { fuzz } from '@vitiate/core'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 // Vitiate replay reads per-target detector options, not plugin defaults.
 // The unsafe-eval substring detector also flags correctly escaped literals.

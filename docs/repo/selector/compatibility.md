@@ -4,7 +4,7 @@
 
 ## Evidence and scope
 
-The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 141 pages in Chromium 151.0.7922.34. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against generated source and the minified distribution. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
+The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 141 pages in Chromium 151.0.7922.34. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
@@ -45,7 +45,7 @@ The portable `:dir()` fallback uses Unicode 17 data from [`@unicode/unicode-17.0
 
 The three expressions are shared outside engine instances. The fallback follows the [HTML directionality rules](https://html.spec.whatwg.org/multipage/dom.html#the-dir-attribute), including the first strong character, explicit and inherited direction, automatic direction, excluded descendants, control values, and shadow slots. It reads the live DOM without caching text or results. A supported native `:dir()` check avoids computing the fallback.
 
-Tests force the fallback for both generated source and the minified build. They cover neutral prefixes, mixed Hebrew and Latin text, Arabic, Adlam, Unicode 17 scripts, direction marks, input and textarea values, shadow inheritance, assignments, and mutations. Bundle tests compare all range boundaries and their neighbors with the Unicode package's range data.
+Tests force the fallback with the modern core and with legacy hooks enabled. They cover neutral prefixes, mixed Hebrew and Latin text, Arabic, Adlam, Unicode 17 scripts, direction marks, input and textarea values, shadow inheritance, assignments, and mutations. Bundle tests compare all range boundaries and their neighbors with the Unicode package's range data.
 
 Selector identifiers follow CSS grammar. They are not JavaScript variable names, so JavaScript's `ID_Start` and `ID_Continue` tables do not define their accepted characters. The [ECMAScript grammar](https://tc39.es/ecma262/#sec-names-and-keywords) and [CSS Syntax grammar](https://drafts.csswg.org/css-syntax/#ident-start-code-point) describe different rules. The code separates identifier starts from continuations, rejects unescaped digit starts, and accepts the non-ASCII range used by the tested browser. Tests include `ƪ`, `Ɂ`, `ʔ`, `ʡ`, `ใ`, `ໃ`, `ǃ`, supplementary characters, Unicode 17 scripts, and emoji.
 
@@ -76,7 +76,7 @@ node scripts/repo/bench/selector-compatibility.mts \
   --expect-major 153 \
   --competitor ../domSelector
 pnpm run test:wpt
-NWSAPI_MINIFIED=1 pnpm run test:wpt
+NWSAPI_DISTRIBUTION=1 pnpm run test:wpt
 ```
 
 The comparison uses [tracked fixtures](../../../test/repo/fixtures/selectors/compatibility.json), intercepted requests, and no live site. Its report records input hashes and dependency versions. The WPT [scope check](../testing/wpt-runner.md#scope-check) parses executed pages and helpers before the browser runs. Explicit adapters remove rendering assertions while retaining the selected upstream inputs and acceptance expectations.

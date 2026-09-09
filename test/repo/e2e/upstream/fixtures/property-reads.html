@@ -9,9 +9,9 @@ test(() => {
   const engine = NW.Dom;
   const resolver = engine.compile('.item', false);
   for (const className of ['item', { baseVal: 'item' }]) {
-    assert_true(resolver({ className, getAttribute() { throw Error('Unnecessary attribute read'); } }, undefined, undefined, false));
+    assert_true(resolver({ nodeType: 1, className, getAttribute() { throw Error('Unnecessary attribute read'); } }, undefined, undefined, false));
   }
-  assert_true(resolver({ getAttribute(name) { assert_equals(name, 'class'); return 'item'; } }, undefined, undefined, false));
+  assert_true(resolver({ nodeType: 1, getAttribute(name) { assert_equals(name, 'class'); return 'item'; } }, undefined, undefined, false));
   for (const namespace of ['http://www.w3.org/1999/xhtml', 'http://www.w3.org/2000/svg']) {
     const target = document.createElementNS(namespace, namespace.endsWith('svg') ? 'g' : 'p');
     target.setAttribute('class', 'item');

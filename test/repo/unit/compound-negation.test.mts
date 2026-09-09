@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test, describe, afterEach } from 'vitest'
 import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 const windows: DOMWindow[] = []
 afterEach(() => {
   for (const window of windows.splice(0)) {

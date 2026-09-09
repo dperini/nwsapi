@@ -1,3 +1,4 @@
+import { registerLegacyInContext } from '../common/legacy.mts'
 import type * as NodeFs from 'node:fs'
 import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
@@ -11,7 +12,7 @@ const { readFileSync } = require('node:fs') as typeof NodeFs
 import path from 'node:path'
 const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(
-  path.join(__dirname, '../../../src/nwsapi.js'),
+  path.join(__dirname, '../../../dist/nwsapi.js'),
   'utf8',
 )
 // A test-only hook exercises the internal allocator without adding public API.
@@ -38,6 +39,8 @@ function documentStub() {
           localName: string
           firstElementChild: null
           hasAttribute(): boolean
+          getAttributeNames(): string[]
+          isConnected: boolean
           namespaceURI: string
           ownerDocument: unknown
         }
@@ -59,6 +62,10 @@ function documentStub() {
     hasAttribute() {
       return false
     },
+    getAttributeNames() {
+      return []
+    },
+    isConnected: true,
     namespaceURI: 'http://www.w3.org/1999/xhtml',
     ownerDocument: document,
   }
@@ -82,14 +89,17 @@ for (const [name, value, legacy, available] of [
     })
     vm.runInNewContext(instrumented, context)
     const document = documentStub()
-    const nw = (context.module.exports as TestFactory)({
-      document,
-      DOMException: Error,
-    })
+    const nw = registerLegacyInContext(
+      (context.module.exports as TestFactory)({
+        document,
+        DOMException: Error,
+      }),
+      context,
+    )
     assert.equal(
       nw.configure('LEGACY'),
       false,
-      'capability does not determine the flag',
+      'WeakMap availability does not determine the flag',
     )
     nw.configure({ LEGACY: legacy })
     const first = nw.testCreateWeakMap()

@@ -10,7 +10,10 @@ test('installed wrappers preserve callbacks and ignore extra arguments at every 
   })
   t.onTestFinished(() => window.close())
   window.eval(
-    fs.readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+    fs.readFileSync(
+      new URL('../../../dist/nwsapi.js', import.meta.url),
+      'utf8',
+    ),
   )
   const engine = window.NW.Dom
   const doc = window.document
@@ -101,7 +104,10 @@ test('installed query results are static NodeList-compatible snapshots', t => {
   const { window } = new JSDOM('<p></p><p></p>', { runScripts: 'outside-only' })
   t.onTestFinished(() => window.close())
   window.eval(
-    fs.readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+    fs.readFileSync(
+      new URL('../../../dist/nwsapi.js', import.meta.url),
+      'utf8',
+    ),
   )
   const engine = window.NW.Dom
   engine.install()

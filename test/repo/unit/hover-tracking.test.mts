@@ -1,10 +1,11 @@
+import { registerLegacy, registerLegacyInContext } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import vm from 'node:vm'
 import { test, describe, afterEach } from 'vitest'
 import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
-const nwsapiPath = new URL('../../../src/nwsapi.js', import.meta.url)
+import factory from '../../../dist/nwsapi.js'
+const nwsapiPath = new URL('../../../dist/nwsapi.js', import.meta.url)
 const windows: DOMWindow[] = []
 afterEach(() => {
   for (const window of windows.splice(0)) {
@@ -23,7 +24,7 @@ describe(':hover tracking is installed on demand', () => {
       'matches',
       (selector: string) => selector === ':hover' && hovered,
     )
-    const engine = factory(window)
+    const engine = registerLegacy(factory(window))
     assert.deepEqual(engine.select('p:hover'), [target])
     hovered = false
     assert.deepEqual(engine.select('p:hover'), [])
@@ -40,7 +41,7 @@ describe(':hover tracking is installed on demand', () => {
       seen.push(args[0])
       return original(...args)
     }
-    const NW = factory(window)
+    const NW = registerLegacy(factory(window))
     return {
       window,
       document: window.document,
@@ -141,10 +142,13 @@ describe(':hover tracking is installed on demand', () => {
       WeakSet: undefined,
     }
     vm.runInNewContext(fs.readFileSync(nwsapiPath, 'utf8'), context)
-    const nw = context.module.exports({
-      document: a.document,
-      DOMException: a.window.DOMException,
-    })
+    const nw = registerLegacyInContext(
+      context.module.exports({
+        document: a.document,
+        DOMException: a.window.DOMException,
+      }),
+      context,
+    )
     nw.configure({ LEGACY: true })
     for (let i = 0; i < 20; i++) {
       const item = i % 2 ? a : b

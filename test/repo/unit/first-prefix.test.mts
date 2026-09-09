@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('first class candidates handle token boundaries, late hits, and synchronous mutations', async t => {
   const { window } = new JSDOM(

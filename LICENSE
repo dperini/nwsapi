@@ -4,6 +4,10 @@ Bundled Unicode bidi data from @unicode/unicode-17.0.0:
 Copyright Mathias Bynens
 https://github.com/node-unicode/unicode-17.0.0
 
+Native-function detection adapted from Lodash:
+Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+https://github.com/lodash/lodash
+
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without

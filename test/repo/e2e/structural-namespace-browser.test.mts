@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
 
-for (const filename of ['src/nwsapi.js', 'dist/nwsapi.min.js']) {
+for (const legacy of [false, true]) {
   test.skipIf(!process.env['NWSAPI_BROWSER'])(
-    `${filename} agrees with Chromium on filtered positions and XML namespaces`,
+    `filtered positions and XML namespaces agree with Chromium (legacy=${legacy})`,
     async () => {
       const browser = await chromium.launch({ headless: true })
       try {
@@ -12,7 +12,15 @@ for (const filename of ['src/nwsapi.js', 'dist/nwsapi.min.js']) {
         await page.setContent(
           '<main><p id="a" class="item"></p><b id="b"></b><p id="c" class="item"></p><p id="d" class="item"><i></i></p></main>',
         )
-        await page.addScriptTag({ content: readFileSync(filename, 'utf8') })
+        await page.addScriptTag({
+          content: readFileSync('dist/nwsapi.js', 'utf8'),
+        })
+        if (legacy) {
+          await page.addScriptTag({
+            content: readFileSync('dist/modules/nwsapi-legacy.js', 'utf8'),
+          })
+          await page.evaluate(() => NW.Dom.configure({ LEGACY: true }))
+        }
         const comparisons = await page.evaluate(() => {
           const engine = window.NW.Dom
           const main = document.querySelector('main')!

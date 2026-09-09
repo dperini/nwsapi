@@ -45,16 +45,16 @@ export function combineCoverage(
   const node = libCoverage.createCoverageMap(
     normalizeCoverageLocations(nodeData),
   )
-  const engine = path.join(root, 'src/nwsapi.js')
-  const adapter = path.join(root, 'src/dom-selector.js')
+  const engine = path.join(root, 'dist/nwsapi.js')
+  const adapter = path.join(root, 'dist/dom-selector.js')
   if (!wpt.files().includes(engine)) {
     throw new Error('Missing WPT engine coverage')
   }
   if (!node.files().includes(adapter)) {
     throw new Error('Missing Node adapter coverage')
   }
-  for (const name of ['jquery', 'traversal']) {
-    const file = path.join(root, `src/modules/nwsapi-${name}.js`)
+  for (const name of ['jquery', 'legacy', 'traversal']) {
+    const file = path.join(root, `dist/modules/nwsapi-${name}.js`)
     if (
       !node.files().includes(file) ||
       node.fileCoverageFor(file).toSummary().statements.covered === 0

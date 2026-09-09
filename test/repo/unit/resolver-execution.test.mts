@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { test, type TestContext } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 function fixture(t: TestContext) {
   const { window } = new JSDOM(
@@ -173,7 +173,10 @@ test('installed wrappers use the captured slice callable', t => {
   })
   t.onTestFinished(() => window.close())
   window.eval(
-    fs.readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+    fs.readFileSync(
+      new URL('../../../dist/nwsapi.js', import.meta.url),
+      'utf8',
+    ),
   )
   window.NW.Dom.install()
   const { document } = window

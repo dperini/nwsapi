@@ -27,7 +27,7 @@ import { fileURLToPath } from 'node:url'
 
 import { JSDOM } from 'jsdom'
 
-import nwsapiFactory from '../../../src/nwsapi.js'
+import nwsapiFactory from '../../../dist/nwsapi.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 
@@ -38,7 +38,7 @@ Usage:
 
 Options:
   --compare <path>  Measure a second nwsapi build from <path> as well, e.g.
-                    git show 2e9498f:src/nwsapi.js > baseline.js
+                    git show 2e9498f:dist/nwsapi.js > baseline.js
   --count <n>       Instances per measurement (default 200).
   --rounds <n>      Measurement rounds, medianed, order alternating between
                     engines each round (default 3).
@@ -230,7 +230,7 @@ function main() {
   }
 
   const engines: Array<[string, typeof nwsapiFactory]> = [
-    ['src/nwsapi.js', nwsapiFactory],
+    ['dist/nwsapi.js', nwsapiFactory],
   ]
   if (values.compare !== undefined) {
     const comparePath = path.resolve(values.compare)

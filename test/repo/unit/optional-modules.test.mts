@@ -1,4 +1,5 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import { registerLegacy } from '../common/legacy.mts'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -7,7 +8,8 @@ import { JSDOM, type BinaryData } from 'jsdom'
 import { test, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 function fixture(
   t: TestContext,
   module: string,
@@ -16,9 +18,9 @@ function fixture(
 ) {
   const { window } = new JSDOM(html)
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   engine.configure({ LEGACY: legacy })
-  const file = require.resolve(`../../../src/modules/nwsapi-${module}.js`)
+  const file = require.resolve(`../../../dist/modules/nwsapi-${module}.js`)
   runInNewContext(
     readFileSync(file, 'utf8'),
     {

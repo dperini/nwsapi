@@ -1,24 +1,31 @@
 import { createRequire } from 'node:module'
+import { createLegacyEngine } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test, vi, type TestContext } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import type * as Direction from '../../../src/internal/direction.mts'
 
 const require = createRequire(import.meta.url)
-const minified: typeof factory = require('../../../dist/nwsapi.min.js')
 
 function fixture(
   t: TestContext,
-  make: typeof factory,
+  make: (host: Parameters<typeof factory>[0]) => ReturnType<typeof factory>,
   markup = '<main dir="auto"></main>',
 ) {
   const { window } = new JSDOM(markup)
   t.onTestFinished(() => window.close())
   // Force the shipped fallback, including hosts whose native matcher delegates.
-  Object.defineProperty(window.Element.prototype, 'matches', {
-    value: undefined,
-    configurable: true,
-  })
+  for (const name of [
+    'matches',
+    'webkitMatchesSelector',
+    'mozMatchesSelector',
+    'msMatchesSelector',
+  ]) {
+    Object.defineProperty(window.Element.prototype, name, {
+      value: undefined,
+      configurable: true,
+    })
+  }
   const engine = make(window)
   const doc = window.document
   const main = doc.querySelector('main')!
@@ -26,8 +33,8 @@ function fixture(
 }
 
 for (const [label, make] of [
-  ['source', factory],
-  ['minified', minified],
+  ['modern', factory],
+  ['legacy hooks', createLegacyEngine],
 ] as const) {
   test(`${label}: Unicode first-strong matching observes scripts and text mutations`, t => {
     const { engine, main, doc } = fixture(t, make)
@@ -142,33 +149,49 @@ for (const [label, make] of [
     expect(attribute).not.toHaveBeenCalled()
   })
 
-  test(`${label}: bundled bidi data agrees with Unicode 17 range boundaries`, () => {
-    const { firstStrong } = Reflect.get(make, '_direction') as typeof Direction
-    const classes = ['Left_To_Right', 'Right_To_Left', 'Arabic_Letter'].map(
-      name =>
-        (
-          require(`@unicode/unicode-17.0.0/Bidi_Class/${name}/ranges.mjs`) as {
-            default: Array<{ begin: number; end: number }>
-          }
-        ).default,
-    )
-    const boundaries = new Set<number>()
-    for (const ranges of classes) {
-      for (const { begin, end } of ranges) {
-        for (const point of [begin - 1, begin, end - 1, end]) {
-          if (point >= 0 && point <= 0x10_ff_ff) {
-            boundaries.add(point)
-          }
+  test(`${label}: ordinary slot text works without shadow DOM APIs`, t => {
+    const { engine, main, window } = fixture(t, make)
+    main.innerHTML = '<slot>אב</slot>'
+    expect(engine.match(':dir(rtl)', main)).toBe(true)
+    main.firstElementChild!.setAttribute('dir', 'auto')
+    expect(engine.match(':dir(rtl)', main.firstElementChild!)).toBe(true)
+    Object.defineProperty(window.Node.prototype, 'getRootNode', {
+      value: undefined,
+      configurable: true,
+    })
+    main.innerHTML = '<slot>אב</slot>'
+    expect(engine.match(':dir(rtl)', main)).toBe(true)
+    main.firstElementChild!.setAttribute('dir', 'auto')
+    expect(engine.match(':dir(rtl)', main.firstElementChild!)).toBe(true)
+  })
+}
+
+test('bundled bidi data agrees with Unicode 17 range boundaries', () => {
+  const { firstStrong } = Reflect.get(factory, '_direction') as typeof Direction
+  const classes = ['Left_To_Right', 'Right_To_Left', 'Arabic_Letter'].map(
+    name =>
+      (
+        require(`@unicode/unicode-17.0.0/Bidi_Class/${name}/ranges.mjs`) as {
+          default: Array<{ begin: number; end: number }>
+        }
+      ).default,
+  )
+  const boundaries = new Set<number>()
+  for (const ranges of classes) {
+    for (const { begin, end } of ranges) {
+      for (const point of [begin - 1, begin, end - 1, end]) {
+        if (point >= 0 && point <= 0x10_ff_ff) {
+          boundaries.add(point)
         }
       }
     }
-    for (const point of boundaries) {
-      const index = classes.findIndex(ranges =>
-        ranges.some(({ begin, end }) => point >= begin && point < end),
-      )
-      expect(firstStrong(String.fromCodePoint(point)), point.toString(16)).toBe(
-        index < 0 ? null : index === 0 ? 'ltr' : 'rtl',
-      )
-    }
-  })
-}
+  }
+  for (const point of boundaries) {
+    const index = classes.findIndex(ranges =>
+      ranges.some(({ begin, end }) => point >= begin && point < end),
+    )
+    expect(firstStrong(String.fromCodePoint(point)), point.toString(16)).toBe(
+      index < 0 ? null : index === 0 ? 'ltr' : 'rtl',
+    )
+  }
+})

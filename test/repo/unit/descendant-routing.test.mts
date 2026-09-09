@@ -1,7 +1,8 @@
+import { registerLegacy } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import { test, describe, afterEach } from 'vitest'
 import { JSDOM, type BinaryData, type DOMWindow } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 const windows: DOMWindow[] = []
 afterEach(() => {
   for (const window of windows.splice(0)) {
@@ -11,7 +12,7 @@ afterEach(() => {
 function build(html: string | Buffer | BinaryData | undefined) {
   const { window } = new JSDOM(html)
   windows.push(window)
-  const NW = factory(window)
+  const NW = registerLegacy(factory(window))
   return { window, document: window.document, NW }
 }
 
@@ -83,7 +84,7 @@ describe('a descendant chain of tags answered by descending', () => {
       { contentType: 'application/xml' },
     )
     windows.push(window)
-    const nw = factory(window)
+    const nw = registerLegacy(factory(window))
     assert.deepEqual(
       Array.from(nw.select('Parent Child.x')).map(e => e.id),
       ['c'],

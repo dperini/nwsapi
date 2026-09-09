@@ -1,33 +1,33 @@
 {
   "metadata": {
-    "timestamp": "2026-09-09T00:37:20.246Z",
+    "timestamp": "2026-09-09T02:29:04.440Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "7ad43ced74d9ac0147ebf61d4369d3f8f9922faadc532a2820204288ab843d90",
+    "candidateSha256": "bd0d7778e1fdab13dd42a1366d6db02c8cfceed30f8c8388dfd11696f09c9219",
     "competitorVersion": "8.3.2",
-    "lockfileSha256": "ed5bf22fbe0343d84e30955e7a750c4777dd3c93b431c09c9e35f1b558b8f52c",
+    "lockfileSha256": "a47c0d668d734062113d09f0deb722623dd517fa99249c6892c249414d4a9d86",
     "rolldown": "1.2.7",
-    "method": "NWSAPI published core browser file versus a full dom-selector ESM bundle, including runtime dependencies; no tree shaking; same Rolldown minifier; gzip level 9; Brotli quality 11. Excludes jsdom, NWSAPI CLI, adapter and optional css-tree peer."
+    "method": "Readable nwsapi core browser file versus a full readable dom-selector ESM bundle, including runtime dependencies; no minification; full competitor exports; gzip level 9; Brotli quality 11. Excludes jsdom, nwsapi CLI, adapter, optional legacy module and css-tree peer."
   },
   "rows": [
     {
       "engine": "NWSAPI",
-      "artifact": "dist/nwsapi.min.js (published core browser file)",
-      "bytes": 78058,
-      "gzip": 27901,
-      "brotli": 23496,
-      "sha256": "3e2ff4ca1f98022133ebd7d0171c0864267f7618021638c5d3b43746306a5f88"
+      "artifact": "dist/nwsapi.js (readable core browser file)",
+      "bytes": 191617,
+      "gzip": 37702,
+      "brotli": 30321,
+      "sha256": "bd0d7778e1fdab13dd42a1366d6db02c8cfceed30f8c8388dfd11696f09c9219"
     },
     {
       "engine": "@asamuzakjp/dom-selector",
-      "artifact": "Full runtime bundle, minified for this report",
-      "bytes": 309744,
-      "gzip": 90082,
-      "brotli": 79317,
-      "sha256": "06e5d201023cb6f4c63a6159b73b81eff6f42d9c55e5642a1a39ec03b7b41505"
+      "artifact": "Full readable runtime bundle",
+      "bytes": 586019,
+      "gzip": 131818,
+      "brotli": 110593,
+      "sha256": "638e58603834f7926ebaf4b3c75e59251e8f8a48c5e32005c4bdb2842f16d356"
     }
   ],
   "competitorModules": [

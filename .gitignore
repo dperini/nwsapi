@@ -32,6 +32,7 @@
 !/docs/**/*.md
 !/scripts/**/*.mts
 !/src/**/*.mts
+!/src/**/*.d.ts
 !/test/**/*.LICENSE
 !/test/**/*.bat
 !/test/slick/Configuration.js.complete

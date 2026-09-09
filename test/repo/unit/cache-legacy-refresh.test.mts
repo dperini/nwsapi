@@ -1,9 +1,10 @@
+import { registerLegacyInContext } from '../common/legacy.mts'
 import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import type factory from '../../../src/nwsapi.js'
+import type factory from '../../../dist/nwsapi.js'
 
 for (const map of [undefined, {}] as const) {
   test(`the cache preserves hosts with ${map === undefined ? 'missing' : 'non-callable'} Map`, t => {
@@ -15,15 +16,18 @@ for (const map of [undefined, {}] as const) {
       Map: map,
     }
     vm.runInNewContext(
-      readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+      readFileSync(new URL('../../../dist/nwsapi.js', import.meta.url), 'utf8'),
       context,
       {
         filename: fileURLToPath(
-          new URL('../../../src/nwsapi.js', import.meta.url),
+          new URL('../../../dist/nwsapi.js', import.meta.url),
         ),
       },
     )
-    const nw = context.module.exports({ document: window.document })
+    const nw = registerLegacyInContext(
+      context.module.exports({ document: window.document }),
+      context,
+    )
     nw.configure({ LEGACY: true })
     const element = window.document.querySelector('p')
     expect(nw.select('.item')).toEqual([element])

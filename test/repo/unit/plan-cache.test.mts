@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('cached plans retain no query results, context, or callback', t => {
   const { window } = new JSDOM('<main><p class="a.b"></p><p></p></main>', {

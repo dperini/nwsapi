@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import { JSDOM } from 'jsdom'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test(
   'selective and positional paths agree with Chromium in both hosts',
@@ -24,7 +24,7 @@ test(
         await page.goto('about:blank')
         await page.setContent(html)
         await page.addScriptTag({
-          content: fs.readFileSync('src/nwsapi.js', 'utf8'),
+          content: fs.readFileSync('dist/nwsapi.js', 'utf8'),
         })
         const { window } = new JSDOM(html)
         try {

@@ -1,3 +1,4 @@
+import { registerLegacy, registerLegacyInContext } from '../common/legacy.mts'
 /*
  * Config.LEGACY against a host shaped like the ones it exists for.
  *
@@ -14,13 +15,13 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, test } from 'vitest'
 import { JSDOM, type BinaryData } from 'jsdom'
-import type factory from '../../../src/nwsapi.js'
+import type factory from '../../../dist/nwsapi.js'
 
 import { legacyHost } from '../fixtures/legacy-host.mts'
 
 const require = createRequire(import.meta.url)
 const here = path.dirname(fileURLToPath(import.meta.url))
-const nwsapiPath = path.resolve(here, '..', '..', '..', 'src', 'nwsapi.js')
+const nwsapiPath = path.resolve(here, '..', '..', '..', 'dist', 'nwsapi.js')
 
 const MARKUP =
   '<!doctype html><html><body>' +
@@ -110,20 +111,24 @@ function build(markup: string | Buffer | BinaryData | undefined, options = {}) {
   const { window } = dom
   const host = legacyHost(window.document, options)
   delete require.cache[require.resolve(nwsapiPath)]
-  const NW = require(nwsapiPath)({
-    document: host,
-    DOMException: window.DOMException,
-  })
+  const NW = registerLegacy(
+    require(nwsapiPath)({
+      document: host,
+      DOMException: window.DOMException,
+    }),
+  )
   return { window, host, document: window.document, NW }
 }
 
 function buildModern(markup: string | Buffer | BinaryData | undefined) {
   const dom = new JSDOM(markup)
   delete require.cache[require.resolve(nwsapiPath)]
-  const NW = require(nwsapiPath)({
-    document: dom.window.document,
-    DOMException: dom.window.DOMException,
-  })
+  const NW = registerLegacy(
+    require(nwsapiPath)({
+      document: dom.window.document,
+      DOMException: dom.window.DOMException,
+    }),
+  )
   return { window: dom.window, document: dom.window.document, NW }
 }
 
@@ -695,7 +700,10 @@ describe('what LEGACY does to a host that does not need it', () => {
         WeakMap: undefined,
       }
       vm.runInNewContext(readFileSync(nwsapiPath, 'utf8'), context)
-      const NW = context.module.exports(first.window)
+      const NW = registerLegacyInContext(
+        context.module.exports(first.window),
+        context,
+      )
       expect(NW.Config['LEGACY']).toBe(false)
       NW.configure({ LEGACY: true })
       expect(NW.Config['LEGACY']).toBe(true)
@@ -715,10 +723,12 @@ describe('what LEGACY does to a host that does not need it', () => {
     const dom = new JSDOM(MARKUP)
     const { document } = dom.window
     delete require.cache[require.resolve(nwsapiPath)]
-    const NW = require(nwsapiPath)({
-      document,
-      DOMException: dom.window.DOMException,
-    })
+    const NW = registerLegacy(
+      require(nwsapiPath)({
+        document,
+        DOMException: dom.window.DOMException,
+      }),
+    )
     expect(NW.configure().LEGACY, 'not detected on a modern host').toBe(false)
 
     const modern = SELECTORS.map(selector => ids(NW.select(selector, document)))

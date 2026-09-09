@@ -1,7 +1,7 @@
 // Check observer and detached-node ownership while the factory document lives.
 // Run with: node --expose-gc scripts/repo/bench/collection-memory.mts
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 if (!globalThis.gc) {
   throw new Error('Run with --expose-gc')

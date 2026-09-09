@@ -1,80 +1,76 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import { registerLegacy } from '../common/legacy.mts'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
 import { expect, test, vi, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
-const minified: typeof factory = require('../../../dist/nwsapi.min.js')
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 
 function fixture(t: TestContext, make = factory) {
   const { window } = new JSDOM(
     '<main><p data-score="2"></p><p data-score="3"></p><i></i></main>',
   )
   t.onTestFinished(() => window.close())
-  return { window, engine: make(window), doc: window.document }
+  return { window, engine: registerLegacy(make(window)), doc: window.document }
 }
 
-for (const [label, make] of [
-  ['source', factory],
-  ['minified', minified],
-] as const) {
-  test(`${label}: double-colon extensions compose without replacing built-in pseudo-elements`, t => {
-    const { engine, doc, window } = fixture(t, make)
-    const nodes = Array.from(doc.getElementsByTagName('p'))
-    const other = doc.querySelector('i')!
-    nodes[0]!.className = 'item'
-    engine.registerSelector('custom', /^::custom(.*)/, (match, source) => ({
-      match,
-      status: true,
-      source: `if(e.localName==="p"){${source}}`,
-    }))
-    engine.registerSelector('declined', /^::declined(.*)/, (match, source) => ({
-      match,
-      source,
-      status: false,
-    }))
-    engine.registerSelector('before', /^::before(.*)/, () => {
-      throw Error('replaced built-in pseudo-element')
-    })
-    for (const legacy of [false, true] as const) {
-      engine.configure({ LEGACY: legacy })
-      for (const selector of [
-        '::custom',
-        'p::custom',
-        'main > ::custom',
-        ':is(::custom)',
-        ':where(::custom)',
-      ] as const) {
-        expect(engine.select(selector, doc), selector).toEqual(nodes)
-        expect(engine.first(selector, doc), selector).toBe(nodes[0])
-        expect(engine.match(selector, nodes[0]!), selector).toBe(true)
-        expect(engine.match(selector, other), selector).toBe(false)
-      }
-      for (const selector of [
-        '::custom.item',
-        '::custom[data-score="2"]',
-        '::custom:not([data-score="3"])',
-      ] as const) {
-        expect(engine.select(selector, doc), selector).toEqual([nodes[0]])
-        expect(engine.match(selector, nodes[1]!), selector).toBe(false)
-      }
-      expect(engine.match(':not(::custom)', nodes[0]!)).toBe(false)
-      expect(engine.match(':not(::custom)', other)).toBe(true)
-      expect(engine.select('::before', doc)).toEqual([])
-      for (const selector of [
-        '::unknown',
-        '::declined',
-        '::before.item',
-        '::custom::before.item',
-      ] as const) {
-        expect(() => engine.select(selector, doc), selector).toThrow()
-      }
-    }
-    // Registration remains local to its engine instance.
-    expect(() => make(window).select('::custom', doc)).toThrow()
+test(`double-colon extensions compose without replacing built-in pseudo-elements`, t => {
+  const { engine, doc, window } = fixture(t)
+  const nodes = Array.from(doc.getElementsByTagName('p'))
+  const other = doc.querySelector('i')!
+  nodes[0]!.className = 'item'
+  engine.registerSelector('custom', /^::custom(.*)/, (match, source) => ({
+    match,
+    status: true,
+    source: `if(e.localName==="p"){${source}}`,
+  }))
+  engine.registerSelector('declined', /^::declined(.*)/, (match, source) => ({
+    match,
+    source,
+    status: false,
+  }))
+  engine.registerSelector('before', /^::before(.*)/, () => {
+    throw Error('replaced built-in pseudo-element')
   })
-}
+  for (const legacy of [false, true] as const) {
+    engine.configure({ LEGACY: legacy })
+    for (const selector of [
+      '::custom',
+      'p::custom',
+      'main > ::custom',
+      ':is(::custom)',
+      ':where(::custom)',
+    ] as const) {
+      expect(engine.select(selector, doc), selector).toEqual(nodes)
+      expect(engine.first(selector, doc), selector).toBe(nodes[0])
+      expect(engine.match(selector, nodes[0]!), selector).toBe(true)
+      expect(engine.match(selector, other), selector).toBe(false)
+    }
+    for (const selector of [
+      '::custom.item',
+      '::custom[data-score="2"]',
+      '::custom:not([data-score="3"])',
+    ] as const) {
+      expect(engine.select(selector, doc), selector).toEqual([nodes[0]])
+      expect(engine.match(selector, nodes[1]!), selector).toBe(false)
+    }
+    expect(engine.match(':not(::custom)', nodes[0]!)).toBe(false)
+    expect(engine.match(':not(::custom)', other)).toBe(true)
+    expect(engine.select('::before', doc)).toEqual([])
+    for (const selector of [
+      '::unknown',
+      '::declined',
+      '::before.item',
+      '::custom::before.item',
+    ] as const) {
+      expect(() => engine.select(selector, doc), selector).toThrow()
+    }
+  }
+  // Registration remains local to its engine instance.
+  expect(() => factory(window).select('::custom', doc)).toThrow()
+})
 
 test('selector extensions declare local variables in both resolver modes and compose with built-ins', t => {
   const { engine, doc } = fixture(t)
@@ -143,7 +139,7 @@ test('configuration getters and quiet validation preserve public return contract
     expect(engine.select(selector, doc).length, selector).toBe(0)
     expect(engine.match(selector, doc.body), selector).toBe(false)
   }
-  expect(factory.DOMSelector).toBe(require('../../../src/dom-selector.js'))
+  expect(factory.DOMSelector).toBe(require('../../../dist/dom-selector.js'))
 })
 
 test('quiet compiler validation drops invalid strict logical and slotted arguments', t => {
@@ -228,11 +224,11 @@ test('byId distinguishes the legacy document.all length property from an element
 
 test('grammar templates isolate extensions and validation across engines', t => {
   const { engine, doc, window } = fixture(t)
-  const plain = factory(window)
+  const plain = registerLegacy(factory(window))
   engine.registerCombinator('!', () => '')
   engine.registerOperator('!=', { p1: '^', p2: '$', p3: 'false' })
   // Also construct an engine after the extended grammar has been compiled.
-  const later = factory(window)
+  const later = registerLegacy(factory(window))
   const nodes = Array.from(doc.getElementsByTagName('p'))
   for (const legacy of [false, true, false] as const) {
     for (const instance of [engine, plain, later]) {

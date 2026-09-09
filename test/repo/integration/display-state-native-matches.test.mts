@@ -1,6 +1,7 @@
+import { registerLegacy, registerLegacyInContext } from '../common/legacy.mts'
 import type * as NodeFs from 'node:fs'
 import type * as NodeVm from 'node:vm'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import type * as Jsdom from 'jsdom'
 const __dirname = import.meta.dirname
 import { createRequire } from 'node:module'
@@ -11,11 +12,11 @@ import path from 'node:path'
 import { test, type TestContext } from 'vitest'
 const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(
-  path.resolve(__dirname, '../../../src/nwsapi.js'),
+  path.resolve(__dirname, '../../../dist/nwsapi.js'),
   'utf8',
 )
 const createNwsapi =
-  require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 // Route jsdom through the adapter from this checkout. Count actual adapter
 // instances so the reentry test cannot silently exercise jsdom's default engine.
 const { DOMSelector } = createNwsapi
@@ -73,7 +74,7 @@ function host(t: TestContext) {
 for (const legacy of [false, true] as const) {
   test(`delegating matchers are called once per document (LEGACY=${legacy})`, t => {
     const windows = [host(t), host(t)]
-    const nw = createNwsapi({ document: windows[0]!.document })
+    const nw = registerLegacy(createNwsapi({ document: windows[0]!.document }))
     nw.configure({ LEGACY: legacy })
     const calls = [0, 0]
     const nodes = windows.map(w => w.document.querySelector('div'))
@@ -147,7 +148,7 @@ test('the original jsdom Element.matches route uses this engine without recursio
 
 test('delegation remains cached when a re-entering matcher subsequently throws', t => {
   const window = host(t)
-  const nw = createNwsapi({ document: window.document })
+  const nw = registerLegacy(createNwsapi({ document: window.document }))
   const node = window.document.querySelector('div')
   let calls = 0
   window.Element.prototype.matches = function (
@@ -172,7 +173,7 @@ test('an unsupported selector does not disable other host state queries', t => {
     }
     return selector === ':popover-open'
   } as unknown as Element['matches']
-  const nw = createNwsapi({ document: window.document })
+  const nw = registerLegacy(createNwsapi({ document: window.document }))
   const node = window.document.querySelector('div')
   assert.equal(nw.match(':fullscreen', node!), false)
   assert.equal(nw.match(':popover-open', node!), true)
@@ -181,7 +182,7 @@ test('an unsupported selector does not disable other host state queries', t => {
 test('re-entry involving another document marks the outer record', t => {
   const a = host(t),
     b = host(t)
-  const nw = createNwsapi({ document: a.document })
+  const nw = registerLegacy(createNwsapi({ document: a.document }))
   const first = a.document.querySelector('div'),
     second = b.document.querySelector('div')
   let calls = 0
@@ -204,7 +205,10 @@ test('hosts without WeakMap retain bounded recursion and the single-document fas
     WeakMap: undefined,
   }
   vm.runInNewContext(source, context)
-  const nw = context.module.exports({ document: window.document })
+  const nw = registerLegacyInContext(
+    context.module.exports({ document: window.document }),
+    context,
+  )
   nw.configure({ LEGACY: true })
   let calls = 0
   window.Element.prototype.matches = function (

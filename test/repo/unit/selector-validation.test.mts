@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('pseudo-element validation survives empty contexts and candidate optimizations', t => {
   const { window } = new JSDOM('<p class="a" id="b"></p>')

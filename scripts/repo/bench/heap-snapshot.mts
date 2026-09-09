@@ -7,7 +7,7 @@ import { parseArgs } from 'node:util'
 import { createHash } from 'node:crypto'
 import { writeHeapSnapshot } from 'node:v8'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 const { values } = parseArgs({
   options: {
@@ -37,7 +37,7 @@ if (
 }
 const enginePath = values.engine
   ? path.resolve(values.engine)
-  : new URL('../../../src/nwsapi.js', import.meta.url)
+  : new URL('../../../dist/nwsapi.js', import.meta.url)
 const make: typeof factory = values.engine
   ? createRequire(import.meta.url)(path.resolve(values.engine))
   : factory

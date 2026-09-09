@@ -1,4 +1,4 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
@@ -7,7 +7,8 @@ import { JSDOM } from 'jsdom'
 import { test, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 // Pin the current major release as the compatibility reference.
 const { jQueryFactory: jquery } = require('jquery/factory-slim')
 
@@ -17,7 +18,7 @@ function fixture(t: TestContext) {
   )
   t.onTestFinished(() => window.close())
   const engine = factory(window)
-  const file = require.resolve('../../../src/modules/nwsapi-jquery.js')
+  const file = require.resolve('../../../dist/modules/nwsapi-jquery.js')
   runInNewContext(
     readFileSync(file, 'utf8'),
     { NW: { Dom: engine } },

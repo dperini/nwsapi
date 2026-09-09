@@ -1,7 +1,8 @@
+import { registerLegacy } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 function setMatcher(element: Element, matcher: (selector: string) => boolean) {
   Reflect.set(element, 'matches', matcher)
@@ -15,7 +16,7 @@ for (const state of ['buffering', 'stalled'] as const) {
     setMatcher(video!, () => {
       throw new window.DOMException('Unavailable native state', 'SyntaxError')
     })
-    const nw = factory(window)
+    const nw = registerLegacy(factory(window))
     Object.defineProperties(video, {
       networkState: { value: 2 },
       currentTime: { value: 1 },
@@ -42,7 +43,7 @@ for (const state of ['buffering', 'stalled'] as const) {
 test('non-media elements do not acquire paused or seeking state', t => {
   const { window } = new JSDOM('<div id="d"></div>')
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   for (const selector of [
     ':paused',
     ':seeking',
@@ -66,7 +67,7 @@ test('playback fallback includes startup and buffering, and distinguishes seekin
     document: window.document,
     DOMException: window.DOMException,
   }
-  const nw = factory(host)
+  const nw = registerLegacy(factory(host))
   nw.configure({ LEGACY: true })
   for (const media of window.document.querySelectorAll<HTMLMediaElement>(
     'audio,video',
@@ -112,7 +113,7 @@ test('playback fallback includes startup and buffering, and distinguishes seekin
 test('muting follows the live audio and video property, not volume or the attribute', t => {
   const { window } = new JSDOM('<audio muted></audio><video muted></video>')
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   for (const media of window.document.querySelectorAll<HTMLMediaElement>(
     'audio,video',
   )) {
@@ -131,7 +132,7 @@ test('muting follows the live audio and video property, not volume or the attrib
 test('native state wins, including host-only stalls, volume locks and timelines', t => {
   const { window } = new JSDOM('<video></video><p></p>')
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const media = window.document.querySelector('video')
   let active = true
   setMatcher(media!, () => active)
@@ -165,7 +166,7 @@ test('native state wins, including host-only stalls, volume locks and timelines'
 test('time selectors remain valid without a timeline and validate current arguments', t => {
   const { window } = new JSDOM('<p></p>')
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   for (const selector of [
     ':current',
     ':past',

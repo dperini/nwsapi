@@ -20,7 +20,7 @@ File sizes compare the browser libraries after Brotli compression. The [benchmar
 
 </details>
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=60fa9031351e)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=4f6be14bf99b)](docs/repo/perf/benchmarks.md)
 
 This summary covers 36 repeated all-results queries, retained heap after 100 distinct queries per engine, and compressed browser file sizes.
 The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native browser DOMs and exclude `jsdom`.
@@ -179,12 +179,13 @@ CI also creates HTML reports. Known WPT failures remain visible in test results.
 <details>
 <summary>Build the package and update dependencies</summary>
 
-Rolldown builds JavaScript from the `.mts` source files and creates the minified browser file.
+Rolldown builds readable JavaScript from the `.mts` source files. The browser distribution is `dist/nwsapi.js`. The build does not minify JavaScript.
 Run `pnpm run build` to build the files. Run `pnpm run clean` to remove generated JavaScript.
 
-`pnpm pack` and `pnpm publish` build the package first.
-Published files keep their existing paths, CommonJS API, browser and AMD support, and extension modules.
+Run `pnpm run package` to build and create a tarball in `dist/`.
+Packaging uses an operating-system temporary directory to preserve the published `src/` paths, CommonJS API, browser and AMD support, and extension modules.
 The package does not include TypeScript source files or development tools.
+See the [build design](docs/repo/build/design.md) for the output layout and optional legacy hooks.
 
 Pin development dependencies in the `pnpm-workspace.yaml` catalog. Update `pnpm-lock.yaml` when dependencies change.
 Run `pnpm run update --check` to preview dependency updates.

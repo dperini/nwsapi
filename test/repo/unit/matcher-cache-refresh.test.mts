@@ -1,11 +1,12 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('matcher replacement clears a cached delegation result', t => {
   const { window } = new JSDOM('<div popover></div><div popover></div>')
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const [first, second] = window.document.querySelectorAll('div')
   let calls = 0
   Object.defineProperty(first, 'matches', {
@@ -34,7 +35,7 @@ test('LEGACY changes refresh cached aliases in every document', t => {
     new JSDOM('<div popover></div>'),
   ]
   t.onTestFinished(() => windows.forEach(dom => dom.window.close()))
-  const engine = factory(windows[0]!.window)
+  const engine = registerLegacy(factory(windows[0]!.window))
   const nodes = windows.map(({ window }) => {
     Object.defineProperty(window.Element.prototype, 'matches', {
       value: undefined,

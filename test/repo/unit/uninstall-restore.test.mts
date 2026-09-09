@@ -9,7 +9,7 @@ test('uninstall restores querySelectorAll and its collection contract', t => {
   })
   t.onTestFinished(() => window.close())
   window.eval(
-    readFileSync(new URL('../../../src/nwsapi.js', import.meta.url), 'utf8'),
+    readFileSync(new URL('../../../dist/nwsapi.js', import.meta.url), 'utf8'),
   )
   const engine = window.NW.Dom
   const main = window.document.querySelector('main')

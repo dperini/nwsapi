@@ -6,7 +6,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { positiveInteger } from './footprint-shared.mts'
 
 const { values } = parseArgs({
@@ -21,7 +21,7 @@ const iterations = positiveInteger(values.iterations, 'iterations', 1_000_000)
 const samplingInterval = positiveInteger(values.interval, 'interval', 32_768)
 const enginePath = values.engine
   ? path.resolve(values.engine)
-  : new URL('../../../src/nwsapi.js', import.meta.url)
+  : new URL('../../../dist/nwsapi.js', import.meta.url)
 const make: typeof factory = values.engine
   ? createRequire(import.meta.url)(path.resolve(values.engine))
   : factory

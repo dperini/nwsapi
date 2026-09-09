@@ -1,9 +1,10 @@
+import { registerLegacy } from '../common/legacy.mts'
 import v8 from 'node:v8'
 import vm from 'node:vm'
 import { describe, expect, test } from 'vitest'
 import { JSDOM, type DOMWindow } from 'jsdom'
 
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import type { NwsapiEngine } from '../../../.config/runtime.js'
 
 // The factory is stateful per document, so each test builds its own.
@@ -14,7 +15,7 @@ function build(html: ConstructorParameters<typeof JSDOM>[0]) {
     document: window.document,
     DOMException: window.DOMException,
   }
-  const NW = factory(host)
+  const NW = registerLegacy(factory(host))
   return { window, document: window.document, NW }
 }
 

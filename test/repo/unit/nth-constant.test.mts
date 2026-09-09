@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('constant positions share dense parents without penalizing sparse candidates', t => {
   const { window } = new JSDOM('<!doctype html><main></main><aside></aside>')

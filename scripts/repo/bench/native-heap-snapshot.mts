@@ -12,7 +12,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
-import type factory from '../../../src/nwsapi.js'
+import type factory from '../../../dist/nwsapi.js'
 import { ENGINE_BUILD_PATH } from '../lib/paths.mts'
 import { positiveInteger } from './footprint-shared.mts'
 

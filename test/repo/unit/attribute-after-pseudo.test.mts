@@ -1,10 +1,11 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 
 for (const quote of ["'", '"'] as const) {
   for (const combinator of ['+', '~', '>'] as const) {

@@ -1,17 +1,22 @@
 import { createRequire } from 'node:module'
 import pkg from '../../package.json' with { type: 'json' }
-import factory from '../../src/nwsapi.js'
 
 const require = createRequire(import.meta.url)
 
-export function inspectSelector(
+export async function inspectSelector(
   selector: string,
   { mode: modeName = 'select', legacy = false, json = false } = {},
 ) {
+  const { default: factory } = await import('../../dist/nwsapi.js')
   const { JSDOM } = require('jsdom')
   const { window } = new JSDOM('<!doctype html><html><body></body></html>')
   try {
     const engine = factory(window)
+    if (legacy) {
+      const { default: registerLegacy } =
+        await import('../../dist/modules/nwsapi-legacy.js')
+      registerLegacy(engine)
+    }
     engine.configure({ LEGACY: legacy })
     const mode = modeName === 'item' ? null : modeName === 'select'
     const resolver = engine.compile(selector, mode)

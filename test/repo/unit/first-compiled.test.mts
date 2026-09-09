@@ -1,13 +1,14 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('compiled first queries preserve group order, validation, scopes, mutations and callbacks', t => {
   const { window } = new JSDOM(
     '<main><section class="card"><button class="primary">first</button><input><button>last</button></section><section><button class="primary">other</button></section></main>',
   )
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const doc = window.document
   const main = doc.querySelector('main')!
   const selectors = [
@@ -73,7 +74,7 @@ test('first plans recompile across HTML, XML and quirks documents', () => {
     '<main class="CARD"><item code="a"></item><item code="b"></item></main>',
   )
   try {
-    const engine = factory(html.window)
+    const engine = registerLegacy(factory(html.window))
     for (const world of [html, xml, quirks, html] as const) {
       const doc = world.window.document
       for (const selector of [

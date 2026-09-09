@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('built-in and foreign-namespace elements are defined', () => {
   const { window } = new JSDOM(

@@ -17,7 +17,7 @@ export default defineConfig({
       name: 'instrument-nwsapi-umd',
       enforce: 'pre',
       transform(code, id) {
-        if (!id.replaceAll('\\', '/').endsWith('/src/nwsapi.js')) {
+        if (!id.replaceAll('\\', '/').endsWith('/dist/nwsapi.js')) {
           return null
         }
         // Keep the shipped factory bytes unchanged inside an ESM wrapper, so
@@ -29,7 +29,7 @@ export default defineConfig({
       },
     },
     vitiatePlugin({
-      instrument: { include: ['src/nwsapi.js'] },
+      instrument: { include: ['dist/nwsapi.js'] },
       fuzz: {
         fuzzTimeMs: budget,
         maxLen: 512,

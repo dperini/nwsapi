@@ -96,7 +96,7 @@ writeFileSync(
     sizes.rows.map(row => row.engine.toLowerCase()),
     [
       {
-        label: 'Minified JavaScript',
+        label: 'Readable JavaScript',
         values: sizes.rows.map(row => row.bytes),
       },
       { label: 'Gzip', values: sizes.rows.map(row => row.gzip) },
@@ -104,8 +104,8 @@ writeFileSync(
     ],
     [
       'NWSAPI core browser file versus the full comparison library bundle, including its runtime dependencies.',
-      'Same Rolldown minifier · Gzip level 9 · Brotli quality 11 · No jsdom or tree shaking',
-      'Excludes the NWSAPI CLI, jsdom adapter and optional css-tree peer. This is a file size report, not timing.',
+      'Readable browser builds · Gzip level 9 · Brotli quality 11 · No minification',
+      'Excludes the NWSAPI CLI, adapter, legacy module and optional css-tree peer. This is a file size report, not timing.',
     ],
   ),
 )

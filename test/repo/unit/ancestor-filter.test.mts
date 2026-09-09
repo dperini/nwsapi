@@ -1,7 +1,8 @@
+import { registerLegacy } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import { test, type TestContext } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 function fixture(t: TestContext) {
   const { window } = new JSDOM(
@@ -10,7 +11,7 @@ function fixture(t: TestContext) {
   t.onTestFinished(() => window.close())
   return {
     document: window.document,
-    nw: factory(window),
+    nw: registerLegacy(factory(window)),
   }
 }
 
@@ -159,7 +160,7 @@ test('filtering preserves HTML and XML tag comparisons', t => {
     { contentType: 'application/xml' },
   )
   t.onTestFinished(() => window.close())
-  const xml = factory(window)
+  const xml = registerLegacy(factory(window))
   for (const [selector, expected] of [
     ['Root DIV UL A', ['upper']],
     ['Root div ul A', ['lower']],

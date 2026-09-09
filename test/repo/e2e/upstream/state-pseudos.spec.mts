@@ -1,9 +1,9 @@
 /*
  * Committed coverage for the Selectors 4 state pseudo-classes wired into
- * src/nwsapi.js (:open, :closed, :modal, :fullscreen, :picture-in-picture
+ * dist/nwsapi.js (:open, :closed, :modal, :fullscreen, :picture-in-picture
  * and the time-dimensional :current/:past/:future).
  *
- * Uses the same init-script mechanism as wpt.spec.mts: src/nwsapi.js is
+ * Uses the same init-script mechanism as wpt.spec.mts: dist/nwsapi.js is
  * evaluated and NW.Dom.install() called before any page script runs, then
  * assertions run in-page against NW.Dom on the fixture page
  * test/repo/e2e/upstream/fixtures/state-pseudos.html via a local file URL.
@@ -21,7 +21,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { REPO_ROOT as repoRoot } from '../../../../scripts/repo/lib/paths.mts'
 
 const nwsapiSource = readFileSync(
-  path.join(repoRoot, 'src', 'nwsapi.js'),
+  path.join(repoRoot, 'dist', 'nwsapi.js'),
   'utf8',
 )
 

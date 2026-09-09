@@ -59,6 +59,20 @@ function assertThrowing(window: HostWindow, engine: Engine) {
   }
 }
 
+function configureEngine(
+  engine: Engine,
+  options: Record<string, unknown>,
+  clear?: boolean,
+) {
+  if (options['LEGACY'] && typeof engine.registerLegacyHooks === 'function') {
+    const install = require('./modules/nwsapi-legacy.js') as (
+      engine: Engine,
+    ) => Engine
+    install(engine)
+  }
+  engine.configure(options, clear)
+}
+
 // jsdom passes implementation nodes in and expects public wrappers back.
 // css-tree is needed only by this adapter, for stylesheet specificity.
 class DOMSelector {
@@ -98,7 +112,7 @@ class DOMSelector {
       VERBOSITY: true,
     }
     if (state.engine) {
-      state.engine.configure(state.options, true)
+      configureEngine(state.engine, state.options, true)
     }
   }
 
@@ -126,7 +140,7 @@ class DOMSelector {
       throw new window.TypeError('The document already has an adapter engine')
     }
     assertThrowing(window, engine)
-    engine.configure(state.options, true)
+    configureEngine(engine, state.options, true)
     state.engine = engine
     Object.defineProperty(engine, ENGINE_OWNER, { value: document })
     return engine
@@ -149,7 +163,7 @@ class DOMSelector {
         document: this.document,
         DOMException: this.window.DOMException,
       })
-      engine.configure({
+      configureEngine(engine, {
         LOGERRORS: false,
         ...this.state.options,
         VERBOSITY: true,
@@ -321,7 +335,8 @@ class DOMSelector {
       }
       const entry = this.parse(selector)
       const matched = new css.List<CssNode>()
-      for (const branch of entry.branches) {
+      for (let index = 0; index < entry.branches.length; index++) {
+        const branch = entry.branches[index]!
         if (engine.match(branch.selector, node as Element)) {
           matched.appendData(branch.ast)
         }

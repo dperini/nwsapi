@@ -5,7 +5,7 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
 
@@ -111,7 +111,7 @@ try {
         iterations,
         sourceSha256: createHash('sha256')
           .update(
-            readFileSync(new URL('../../../src/nwsapi.js', import.meta.url)),
+            readFileSync(new URL('../../../dist/nwsapi.js', import.meta.url)),
           )
           .digest('hex'),
         consumed,

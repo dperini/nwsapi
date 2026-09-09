@@ -180,7 +180,7 @@ The [raw report](../../../assets/repo/bench/first-query-states.json) retains all
 
 ## Memory footprint
 
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=5a1f849c077e)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=5d39ab5932f9)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -196,12 +196,12 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
 
-![Minified and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=0d41cf94f04e)
+![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=0aaeef721d62)
 
 This is a file size report, not a timing benchmark.
-`nwsapi` uses its published `dist/nwsapi.min.js` core browser file.
-The comparison engine is bundled with all runtime dependencies and no tree shaking, then minified with the same Rolldown minifier.
-The report includes uncompressed bytes, gzip level 9 and Brotli quality 11.
+`nwsapi` uses its readable `dist/nwsapi.js` core browser file.
+The comparison engine is bundled with all runtime dependencies and no tree shaking. Neither build is minified.
+The report includes uncompressed bytes, gzip level 9 and Brotli quality 11. The optional legacy module is measured separately in the [build comparison](../../../assets/repo/bench/build-compression.json).
 The [raw size report](../../../assets/repo/bench/file-size.json) records exact artifact hashes and every bundled comparison module.
 
 The comparison excludes jsdom itself, the `nwsapi` CLI, the jsdom adapter and its optional `css-tree` peer.

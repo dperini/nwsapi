@@ -4,6 +4,10 @@
     "denyWarnings": true
   },
   "plugins": ["oxc", "typescript", "unicorn", "import"],
+  "jsPlugins": ["eslint-plugin-compat", "./repo/oxlint-plugin/index.mts"],
+  "settings": {
+    "lintAllEsApis": true
+  },
   "categories": {
     "correctness": "error",
     "suspicious": "error"
@@ -116,8 +120,24 @@
   },
   "overrides": [
     {
-      "files": ["**/src/dom-selector.mts"],
-      "rules": { "typescript/consistent-type-imports": "off" }
+      "files": [
+        "**/src/nwsapi.mts",
+        "**/src/internal/direction.mts",
+        "**/src/modules/*.mts"
+      ],
+      "rules": {
+        "compat/compat": "error"
+      }
+    },
+    {
+      "files": [
+        "**/src/dom-selector.mts",
+        "**/src/nwsapi.mts",
+        "**/src/modules/nwsapi-legacy.mts"
+      ],
+      "rules": {
+        "typescript/consistent-type-imports": "off"
+      }
     },
     {
       "files": ["**/*.mts", "**/*.ts"],
@@ -128,6 +148,7 @@
     {
       "files": ["**/src/**/*.mts"],
       "rules": {
+        "nwsapi/no-for-of": "error",
         "no-unused-vars": "off",
         "no-unused-expressions": "off",
         "no-cond-assign": "off",

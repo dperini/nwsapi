@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { components } from './documents.mts'
 import { parseArgs } from 'node:util'
 import { sample, sampleFresh, timingEngine } from './timing.mts'
@@ -136,7 +136,7 @@ writeFileSync(
           'nwsapi',
           '@asamuzakjp/dom-selector through jsdom.querySelector',
         ],
-        candidateSha256: hash(readFileSync('src/nwsapi.js')),
+        candidateSha256: hash(readFileSync('dist/nwsapi.js')),
         fixtureSha256: hash(html),
         node: process.version,
         cpu: os.cpus()[0]?.model,

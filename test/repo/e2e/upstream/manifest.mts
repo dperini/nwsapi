@@ -1,5 +1,5 @@
 /*
- * Curated list of upstream WPT files to run against src/nwsapi.js.
+ * Curated list of upstream WPT files to run against dist/nwsapi.js.
  * Paths are root-absolute within the upstream/wpt checkout (pinned @ 7aed663).
  *
  * Hand-picked Selectors API tests and adapted selector-validity inputs.

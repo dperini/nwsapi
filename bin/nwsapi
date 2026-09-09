@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require('./nwsapi.js')
+require('../dist/bin/nwsapi.js')

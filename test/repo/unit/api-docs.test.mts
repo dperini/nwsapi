@@ -24,9 +24,11 @@ test('API nests a readable callout inside its collapsed section', t => {
   expect(notes).toHaveLength(1)
   const note = notes[0]
   expect(note!.querySelector('strong')?.textContent).toBe('Important')
-  expect(note!.querySelector('code')?.textContent).toBe('LEGACY')
+  expect(note!.querySelector('code')?.textContent).toBe(
+    'src/modules/nwsapi-legacy.js',
+  )
   expect(note!.querySelectorAll('p')[1]?.textContent).toBe(
-    'Set LEGACY before the first query when the environment needs compatibility fallbacks.',
+    'Load src/modules/nwsapi-legacy.js after the core and before the first query when the environment needs compatibility fallbacks.',
   )
   const icon = note!.querySelector('img')
   expect(icon?.getAttribute('src')).toBe('../../../assets/repo/important.svg')

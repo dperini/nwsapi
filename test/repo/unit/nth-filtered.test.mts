@@ -1,6 +1,7 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 for (const legacy of [false, true]) {
   test(`filtered child positions handle lists, nesting and mutations (legacy=${legacy})`, t => {
@@ -9,7 +10,7 @@ for (const legacy of [false, true]) {
     )
     t.onTestFinished(() => window.close())
     const { document } = window
-    const engine = factory(window)
+    const engine = registerLegacy(factory(window))
     engine.configure({ LEGACY: legacy })
     const main = document.querySelector('main')!
     const cases = new Map([
@@ -81,7 +82,7 @@ for (const legacy of [false, true]) {
 test('filtered lists reject invalid syntax even without candidates', t => {
   const { window } = new JSDOM('')
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   for (const selector of [
     'missing:nth-child(1 of)',
     'missing:nth-child(of .item)',
@@ -108,7 +109,7 @@ test('filtered selection and first-result search read each sibling once', t => {
     '<main>' + '<p class="item"></p>'.repeat(200) + '</main>',
   )
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const main = window.document.querySelector('main')!
   const nodes = [...main.children]
   let reads = 0
@@ -139,7 +140,7 @@ test('direct filtered resolvers observe callback mutations and release state on 
     '<main><p id="a" class="item"></p><p id="b" class="item"></p><p id="c" class="item"></p><p id="d" class="item"></p><p id="e" class="item"></p></main>',
   )
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const main = window.document.querySelector('main')!
   const nodes = [...main.children]
   const resolve = engine.compile(':nth-child(even of .item)', true, true)!
