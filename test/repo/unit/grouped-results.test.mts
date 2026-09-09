@@ -91,3 +91,38 @@ test('group merging handles empty runs, nested nodes and reordered fragments', t
     }
   }
 })
+
+test('ordered groups still sort late inversions and remove boundary duplicates', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><p class="a"></p><p class="b shared"></p><p class="c"></p><p class="d"></p>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const engine = registerLegacy(factory(window))
+  for (const legacy of [false, true]) {
+    for (const nodeList of [false, true]) {
+      engine.configure({ LEGACY: legacy, NODE_LIST: nodeList })
+      for (const selector of [
+        '.a,.b,.c,.d',
+        '.a,.b,.d,.c',
+        '.a,.b,.shared,.c,.d',
+        '.a,.missing,.b,.c,.d',
+      ]) {
+        const expected = Array.from(doc.querySelectorAll(selector))
+        assert.deepEqual(Array.from(engine.select(selector, doc)), expected)
+        const first = engine.select(selector, doc)
+        const second = engine.select(selector, doc)
+        assert.deepEqual(Array.from(first), expected)
+        assert.deepEqual(Array.from(second), expected)
+        assert.notEqual(first, second)
+      }
+      const first = doc.body.firstElementChild!
+      doc.body.append(first)
+      assert.deepEqual(
+        Array.from(engine.select('.a,.b,.c,.d', doc)),
+        Array.from(doc.querySelectorAll('p')),
+      )
+      doc.body.prepend(first)
+    }
+  }
+})

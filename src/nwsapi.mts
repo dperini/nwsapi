@@ -940,6 +940,17 @@ interface Primordials {
       if (length < 2 || count < 2) {
         return nodes
       }
+      for (group = 1; group < count; ++group) {
+        i = ends[group]!
+        a = nodes[i - 1]!
+        b = nodes[i]!
+        if (a === b || !(a.compareDocumentPosition(b) & 4)) {
+          break
+        }
+      }
+      if (group == count) {
+        return nodes
+      }
       output = Array<Element>(length)
       for (width = 1; width < count; width *= 2) {
         for (group = 0; group < count; group += width * 2) {

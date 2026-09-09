@@ -1055,3 +1055,52 @@ The readable core grows from 165174bytes to 166396bytes, an increase of 1222byte
 Validation passes 671 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage reaches 98.55% of execution lines and 96.44% of type identifiers. Added cases cover empty runs, overlapping groups, odd group counts, text separators, nested XML nodes, document fragments, synchronous reordering, callback stopping, and array and NodeList output. Existing reentrant callback and independent-result checks continue to pass. Formatting, lint, types, and build compatibility checks pass. All final comparison reports match the shipped build hash.
 
 The remaining narrow case is a long selector list with few matches, where lookup and group bookkeeping outweigh merge savings. That case remains in the benchmark matrix for the next optimization.
+
+## Skip merging groups that are already ordered
+
+Before allocating a merge buffer, cached grouped queries now compare the last node of each populated group with the first node of the next group. Each group is already internally ordered. If every boundary is strictly increasing in document order, the combined array is ready to return. Equal boundary nodes still enter the merge path so duplicate removal is preserved. The check stops at the first boundary that needs merging.
+
+<details>
+<summary>Methodology and reproduction</summary>
+
+The primary baseline is the readable build from `f1811c7`. Save that build outside the repository and compare it with the current build. Every report records the hashes. Run timing and allocation measurements in separate processes:
+
+```sh
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/order-many-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/order-many-browser.json adjacent 64
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --output /tmp/order-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/order-browser.json adjacent
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --matches 16 --memory --output /tmp/order-sparse-memory.json
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/order-dense-memory.json
+```
+
+The fixtures and timing protocol match the balanced-merge measurements above. Each timing run includes empty, single-match, sparse, and dense results. Four-group cases also run with text and comment separators and with separate parent elements, using `--layout separated` or `--layout nested` in Node and the corresponding positional argument in the browser script. No rendering work is measured. The sparse 64-group fixture has one match in each of its first 16 groups, so those runs are already ordered. Dense four-group results interleave and still require merging.
+
+Reports are tracked under `assets/repo/bench/group-order-*.json`. Memory runs sample three rotating rounds of 2000 calls, including collected objects. Their timing values are excluded from timing conclusions. Ordered identities are checked outside timing in every benchmark run.
+
+</details>
+
+| Layout | Groups | Matches | Node time change | Chromium time change |
+| --- | ---: | ---: | ---: | ---: |
+| Adjacent | 64 | 16 | -10.1% | -10.2% |
+| Adjacent | 64 | 256 | +1.2% | +0.2% |
+| Adjacent | 4 | 16 | +2.0% | +3.0% |
+| Adjacent | 4 | 256 | +0.5% | +0.2% |
+| Separated | 4 | 16 | +0.6% | +2.7% |
+| Separated | 4 | 256 | +1.0% | +0.2% |
+| Nested | 4 | 16 | -0.6% | +3.0% |
+| Nested | 4 | 256 | -0.4% | +0.5% |
+
+These are warm public-query comparisons against the balanced-merge implementation in `f1811c7`. Negative changes mean faster queries. The ordered sparse case improves by about 10% in both runtimes. Dense four-group cases remain within about 1% across layouts. The boundary check adds a comparison before interleaved results are merged, and four-group cases with 16 matches are up to 3.0% slower. Empty and single-result timings range from a 7.2% improvement to a 4.6% regression even though those cases return before the new check. Single-class controls also vary by up to 5.4%. These control results limit claims about small timing changes.
+
+The [sparse allocation report](../../../assets/repo/bench/group-order-sparse-memory.json) records a median decrease from 105.73MB to 86.63MB over 2000 Node calls, about 18.1%. The [dense allocation report](../../../assets/repo/bench/group-order-dense-memory.json) changes from 586.93MB to 589.02MB, an increase of 0.4%. The check avoids merge comparisons and the merge buffer when runs are ordered. It preserves the earlier dense allocation saving within the variation observed here.
+
+Retained heap is a separate measurement. After two query batches and forced collection, the sparse baseline changes are 39856bytes, 0bytes, and 0bytes. The candidate changes are 18304bytes, 0bytes, and 0bytes. Dense baseline changes are 18792bytes, 0bytes, and 5440bytes, compared with 19320bytes, 0bytes, and 6336bytes for the candidate. These process-wide samples do not establish a retained-memory improvement or prove that every workload is leak-free. No persistent node references are added.
+
+A separate comparison uses the pre-merge engine from `5c37eb6`, rather than the immediate baseline. The [Node record](../../../assets/repo/bench/group-order-sort-baseline-node.json) initially shows the sparse case 8.3% slower. Its baseline samples range from 50.4µs to 166.6µs, and candidate samples range from 51.9µs to 132.9µs. The [Node confirmation](../../../assets/repo/bench/group-order-sort-baseline-node-confirmation.json) is steadier and shows a 1.5% improvement, with baseline samples from 52.7µs to 62.9µs and candidate samples from 50.5µs to 55.6µs. Both records remain available. The evidence supports roughly restored sparse Node performance, not a guaranteed improvement over the old sorter. Dense 64-group Node results are 0.5% and 4.2% slower in those two comparisons.
+
+The [Chromium comparison with the old sorter](../../../assets/repo/bench/group-order-sort-baseline-browser.json) improves the sparse case by 7.2% and the dense 64-group case by 44.4%. Reproduce these comparisons with the same commands above, using a saved `5c37eb6` build as the baseline. The ordered check is retained for its improvement over the immediate implementation, lower sparse allocation, and preservation of the measured dense browser gains. The timing variability and small interleaved-query costs remain part of the result.
+
+The readable core grows by 227bytes, from 166396bytes to 166623bytes. Gzip at level 9 grows by 44bytes, from 40252bytes to 40296bytes. Brotli at quality 11 grows by 25bytes, from 32623bytes to 32648bytes. Size charts are refreshed. Broader runtime and retained-memory charts keep their previous measurements because this experiment targets grouped queries.
+
+Validation passes 672 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage is 98.55% of execution lines and 96.44% of type identifiers. Added cases cover already ordered groups, an inversion at the last boundary, duplicate boundary nodes, empty groups, independent results, and synchronous node reordering. They run with modern and legacy hooks in array and NodeList modes. Formatting, lint, types, and build compatibility checks pass. Every candidate report hash matches the final build.
