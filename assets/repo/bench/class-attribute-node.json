@@ -1,0 +1,483 @@
+{
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "iterations": 3000,
+  "warmups": 1000,
+  "attributeClasses": true,
+  "engineSha256": "9011f9af62559099d34fd7972655982f1d2ac7dc18d37da5593fc3e8cc17a228",
+  "methodology": "Experimental compiled-resolver comparison only. Variants rotate across seven rounds. The warmups and iterations fields record warmup calls and calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. Integrated host timing and rendering are outside this benchmark. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.",
+  "baselineSha256": "9011f9af62559099d34fd7972655982f1d2ac7dc18d37da5593fc3e8cc17a228",
+  "cachePayload": "Candidate Snapshot.classOf reads getAttribute(\"class\") or an empty string. No DOM-value cache. Baseline uses the unmodified reader.",
+  "shapes": [
+    {
+      "name": "original",
+      "boxes": 5,
+      "outer": 5,
+      "inner": 5,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "wide",
+      "boxes": 64,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "deep",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        8
+      ]
+    },
+    {
+      "name": "mixed-shallow-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        0,
+        8
+      ]
+    },
+    {
+      "name": "mixed-deep-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depths": [
+        8,
+        0
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "shape": "original",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 125,
+      "matches": 25,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.043753416666666683,
+          "samplesMs": [
+            0.04074656933333336,
+            0.043081194333333316,
+            0.04325211100000002,
+            0.043753416666666683,
+            0.04377120833333341,
+            0.04385284700000011,
+            0.0437775696666666
+          ],
+          "parentReads": 335,
+          "classReads": 350
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.06198288866666674,
+          "samplesMs": [
+            0.05760433333333333,
+            0.05795243066666664,
+            0.09666216666666666,
+            0.12768840266666667,
+            0.06102477799999997,
+            0.06198288866666674,
+            0.06239022233333329
+          ],
+          "parentReads": 335,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "original",
+      "selector": ".box .block.inner > .content",
+      "candidates": 125,
+      "matches": 125,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.03968522233333336,
+          "samplesMs": [
+            0.039865652666666695,
+            0.03968522233333336,
+            0.0396370276666668,
+            0.039825624999999795,
+            0.039874472333333265,
+            0.03951440300000013,
+            0.039365666666666584
+          ],
+          "parentReads": 275,
+          "classReads": 300
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.0471976946666667,
+          "samplesMs": [
+            0.0471976946666667,
+            0.04757416666666677,
+            0.04665197233333341,
+            0.04701591666666673,
+            0.04701237499999995,
+            0.04746405566666666,
+            0.04757222233333353
+          ],
+          "parentReads": 275,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "wide",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 256,
+      "matches": 60,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.1523339583333333,
+          "samplesMs": [
+            0.15066277766666644,
+            0.1520964863333332,
+            0.1524727499999999,
+            0.16621659733333338,
+            0.1625249306666671,
+            0.1517974720000002,
+            0.1523339583333333
+          ],
+          "parentReads": 934,
+          "classReads": 1024
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.20542712499999985,
+          "samplesMs": [
+            0.20358008333333327,
+            0.2048895553333335,
+            0.20542712499999985,
+            0.203639402666667,
+            0.21329327766666636,
+            0.22335265299999993,
+            0.21128154166666657
+          ],
+          "parentReads": 934,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "wide",
+      "selector": ".box .block.inner > .content",
+      "candidates": 256,
+      "matches": 256,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.08895237500000015,
+          "samplesMs": [
+            0.10087959733333325,
+            0.08736884733333318,
+            0.08833847200000006,
+            0.08680931966666686,
+            0.08895237500000015,
+            0.08970827766666602,
+            0.08922766666666697
+          ],
+          "parentReads": 640,
+          "classReads": 768
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.12206309733333304,
+          "samplesMs": [
+            0.1231735556666663,
+            0.12206309733333304,
+            0.1213861946666669,
+            0.1214616389999998,
+            0.12207055533333308,
+            0.12133218033333348,
+            0.12255924999999965
+          ],
+          "parentReads": 640,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "deep",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.07602852766666668,
+          "samplesMs": [
+            0.07794806966666754,
+            0.07758144466666636,
+            0.07810773599999933,
+            0.07585697200000019,
+            0.07541161133333299,
+            0.07602852766666668,
+            0.07569983333333342
+          ],
+          "parentReads": 494,
+          "classReads": 512
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.09900187500000053,
+          "samplesMs": [
+            0.10195998600000045,
+            0.10209987499999988,
+            0.10136293066666743,
+            0.09900187500000053,
+            0.0978096666666667,
+            0.09838176399999914,
+            0.0984781113333338
+          ],
+          "parentReads": 494,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "deep",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.059263513666666164,
+          "samplesMs": [
+            0.0592127360000001,
+            0.059477902666666825,
+            0.05907234733333341,
+            0.05954693066666611,
+            0.05920087499999985,
+            0.059263513666666164,
+            0.0611403886666667
+          ],
+          "parentReads": 416,
+          "classReads": 448
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.07875629166666598,
+          "samplesMs": [
+            0.07932280566666668,
+            0.0785987499999998,
+            0.0779953889999997,
+            0.07923650000000028,
+            0.07875629166666598,
+            0.07849709733333293,
+            0.0792830693333332
+          ],
+          "parentReads": 416,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.05918184733333328,
+          "samplesMs": [
+            0.05918184733333328,
+            0.059902402666666604,
+            0.059120333333333594,
+            0.05933956966666665,
+            0.05872362499999993,
+            0.059679722333333,
+            0.059104847333333356
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.07856073633333412,
+          "samplesMs": [
+            0.07856073633333412,
+            0.07872916666666667,
+            0.07764130566666669,
+            0.07822444433333293,
+            0.07863776400000036,
+            0.07762195833333317,
+            0.07868529166666728
+          ],
+          "parentReads": 366,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.04221274999999999,
+          "samplesMs": [
+            0.04257538900000024,
+            0.04247954166666629,
+            0.04212955566666642,
+            0.041758194333332846,
+            0.04250511099999979,
+            0.04221274999999999,
+            0.041883694333333554
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.05679451399999986,
+          "samplesMs": [
+            0.05679451399999986,
+            0.05714015266666684,
+            0.05677544433333242,
+            0.05633186133333341,
+            0.05682088866666648,
+            0.05642218066666707,
+            0.05722823633333246
+          ],
+          "parentReads": 288,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 64,
+      "matches": 12,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.0589170276666664,
+          "samplesMs": [
+            0.05930744466666632,
+            0.05877652766666627,
+            0.05879231966666703,
+            0.058974972333333424,
+            0.0589170276666664,
+            0.06018570833333312,
+            0.058694333333332904
+          ],
+          "parentReads": 366,
+          "classReads": 384
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.07870395833333411,
+          "samplesMs": [
+            0.07870395833333411,
+            0.0780691806666667,
+            0.07891259699999985,
+            0.07848144433333315,
+            0.08506234700000034,
+            0.08245815266666613,
+            0.07808452766666718
+          ],
+          "parentReads": 366,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 64,
+      "matches": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.045842083333331785,
+          "samplesMs": [
+            0.042658291666666626,
+            0.05010438900000008,
+            0.04565384733333243,
+            0.045842083333331785,
+            0.046002361333334796,
+            0.04585312499999903,
+            0.0456630276666668
+          ],
+          "parentReads": 288,
+          "classReads": 320
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.06242468066666818,
+          "samplesMs": [
+            0.05870547199999904,
+            0.0718464166666672,
+            0.06242468066666818,
+            0.06152518033333278,
+            0.06589208333333227,
+            0.06331381933333372,
+            0.062412444333334864
+          ],
+          "parentReads": 288,
+          "classReads": 0
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    }
+  ]
+}

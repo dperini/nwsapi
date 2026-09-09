@@ -16,6 +16,7 @@ import { positiveInteger } from './footprint-shared.mts'
 
 const { values } = parseArgs({
   options: {
+    'attribute-classes': { type: 'boolean', default: false },
     iterations: { type: 'string', default: '300' },
     warmups: { type: 'string', default: '30' },
     baseline: { type: 'string' },
@@ -33,6 +34,11 @@ const { values } = parseArgs({
 })
 const iterations = positiveInteger(values.iterations, 'iterations', 100_000)
 const warmups = positiveInteger(values.warmups, 'warmups', 100_000)
+if (values['attribute-classes'] && !values.baseline) {
+  throw new Error(
+    '--attribute-classes requires --baseline for the control engine',
+  )
+}
 const baselineFactory = values.baseline
   ? (createRequire(import.meta.url)(resolve(values.baseline)) as typeof factory)
   : undefined
@@ -99,6 +105,9 @@ for (const shape of shapes) {
     const previous = baselineFactory?.(window)
     const snapshot = engine.Snapshot as typeof engine.Snapshot & {
       classOf(element: Element): string | null
+    }
+    if (values['attribute-classes']) {
+      snapshot.classOf = element => element.getAttribute('class') || ''
     }
     const candidates = Array.from(doc.getElementsByClassName('content'))
     type Record = { parent: Element | null; cls: string | null }
@@ -374,6 +383,7 @@ writeFileSync(
       architecture: process.arch,
       iterations,
       warmups,
+      attributeClasses: values['attribute-classes'],
       engineSha256: createHash('sha256')
         .update(readFileSync('dist/nwsapi.js'))
         .digest('hex'),
@@ -384,17 +394,19 @@ writeFileSync(
             .update(readFileSync(values.baseline))
             .digest('hex')
         : undefined,
-      cachePayload: values.baseline
-        ? 'Unmodified baseline and candidate compiled resolvers.'
-        : values.inline
-          ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
-          : values.shared
-            ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
-            : values.prefix
-              ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-              : values.classes
-                ? 'Class value only. Parent reads remain direct.'
-                : 'Parent and class record.',
+      cachePayload: values['attribute-classes']
+        ? 'Candidate Snapshot.classOf reads getAttribute("class") or an empty string. No DOM-value cache. Baseline uses the unmodified reader.'
+        : values.baseline
+          ? 'Unmodified baseline and candidate compiled resolvers.'
+          : values.inline
+            ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+            : values.shared
+              ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+              : values.prefix
+                ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+                : values.classes
+                  ? 'Class value only. Parent reads remain direct.'
+                  : 'Parent and class record.',
       memoryMethodology: values.memory
         ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
         : undefined,

@@ -15,6 +15,7 @@ type Probe = {
 }
 const { values } = parseArgs({
   options: {
+    'attribute-classes': { type: 'boolean', default: false },
     baseline: { type: 'string' },
     inline: { type: 'boolean', default: false },
     single: { type: 'boolean', default: false },
@@ -27,6 +28,11 @@ const { values } = parseArgs({
     },
   },
 })
+if (values['attribute-classes'] && !values.baseline) {
+  throw new Error(
+    '--attribute-classes requires --baseline for the control engine',
+  )
+}
 const names = values.baseline
   ? ['baseline', 'candidate']
   : values.inline
@@ -73,6 +79,7 @@ try {
             single,
             inlineMode,
             productionComparison,
+            attributeClasses,
           }) => {
             const host = window as unknown as {
               NW: {
@@ -117,6 +124,10 @@ try {
             const engine = host.NW.Dom
             const nodes = Array.from(document.getElementsByClassName('content'))
             const expected = Array.from(document.querySelectorAll(selector))
+            if (attributeClasses) {
+              engine.Snapshot.classOf = element =>
+                element.getAttribute('class') || ''
+            }
             type Read = { parent: Element | null; cls: string | null }
             const record = (
               element: Element,
@@ -358,6 +369,7 @@ try {
             sharedMode: values.shared || values.inline,
             inlineMode: values.inline,
             productionComparison: !!values.baseline,
+            attributeClasses: values['attribute-classes'],
             single: values.single,
           },
         )
@@ -442,21 +454,24 @@ try {
         candidatesPerOuter: values.single ? 1 : 2,
         platform: process.platform,
         architecture: process.arch,
+        attributeClasses: values['attribute-classes'],
         engineSha256: createHash('sha256').update(code).digest('hex'),
         baselineSha256: beforeCode
           ? createHash('sha256').update(beforeCode).digest('hex')
           : undefined,
-        cachePayload: values.baseline
-          ? 'Unmodified baseline and candidate compiled resolvers.'
-          : values.inline
-            ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
-            : values.shared
-              ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
-              : values.prefix
-                ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
-                : values.classes
-                  ? 'Class value only. Parent reads remain direct.'
-                  : 'Parent and class record.',
+        cachePayload: values['attribute-classes']
+          ? 'Candidate Snapshot.classOf reads getAttribute("class") or an empty string. No DOM-value cache. Baseline uses the unmodified reader.'
+          : values.baseline
+            ? 'Unmodified baseline and candidate compiled resolvers.'
+            : values.inline
+              ? 'Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.'
+              : values.shared
+                ? 'Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.'
+                : values.prefix
+                  ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+                  : values.classes
+                    ? 'Class value only. Parent reads remain direct.'
+                    : 'Parent and class record.',
         methodology:
           'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. Public-host timing and rendering are outside this benchmark.',
         rows,

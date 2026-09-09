@@ -900,3 +900,32 @@ The [uncached compilation record](../../../assets/repo/bench/class-regex-compile
 The standalone memory benchmark measures 9.35KiB after initialization and 75.05KiB after 100 queries, compared with the previous 76.33KiB record after queries. That small retained-memory difference is distinct from the much larger allocation-traffic reduction. The readable core adds 554bytes. Gzip at level 9 adds 90bytes, and Brotli at quality 11 adds 81bytes. Performance, memory, and file-size charts are refreshed from the new measurements.
 
 The production change passes 669 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. The new callback test recursively invokes the same compiled resolver while changing a later candidate's classes. It confirms live reads and independent query state in modern and legacy modes. Existing tests cover escaped classes, SVG, compound reads, and invalid selectors. All 36 broader browser document cases and 12 first-match cases return correct results. Formatting, lint, and type checks pass.
+
+The per-query class-expression optimization landed in `1236413`. The next experiment targets the remaining class-name getter allocations. It compares the existing reader with `getAttribute('class') || ''` through a benchmark-only snapshot override, leaving production behavior unchanged until Node and browser results support a decision.
+
+
+## Compare class getters with attribute reads
+
+The next experiment replaces only the benchmark candidate's `Snapshot.classOf` reader with `element.getAttribute('class') || ''`. Both engines use the same production build. The empty-string fallback preserves the class getter's result when the attribute is absent. There is no DOM-value cache, and the production reader remains unchanged.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --baseline dist/nwsapi.js --attribute-classes --warmups 1000 --iterations 3000 --output assets/repo/bench/class-attribute-node.json`. Run it separately with `--memory` and another output path for allocation profiling. Run `node scripts/repo/bench/ancestor-browser.mts --baseline dist/nwsapi.js --attribute-classes --output assets/repo/bench/class-attribute-browser.json` for native Chromium. The override requires a baseline so an unmodified engine provides the control.
+
+The [Node timing](../../../assets/repo/bench/class-attribute-node.json), [Node memory](../../../assets/repo/bench/class-attribute-memory.json), and [browser record](../../../assets/repo/bench/class-attribute-browser.json) identify the reader override as well as the shared build hash. Timing measures warm compiled queries over preselected candidates. Node uses seven rotating rounds, 1000 warmups, and 3000 calls per batch. Browser timing uses seven rotating rounds. Node allocation is the median of three rotating samples of 2000 calls, including collected objects. Browser allocation uses one sample per variant and fixture. Setup, compilation, and candidate lookup are outside these measurements.
+
+</details>
+
+| Node sampled allocation | Class getter | Attribute reader | Increase |
+| --- | ---: | ---: | ---: |
+| Wide complex | 121.18MB | 595.80MB | 391.7% |
+| Wide plain | 63.84MB | 420.05MB | 557.9% |
+| Deep complex | 46.75MB | 284.99MB | 509.6% |
+| Deep plain | 31.57MB | 239.51MB | 658.7% |
+
+These estimates cover 2000 calls. Wide fixtures have 256 candidates, and deep fixtures have 64 candidates beneath eight extra wrappers. Across all Node cases, the attribute reader allocates about 5–8 times as much. Most sampled allocation is attributed to the override and `getAttribute` implementation. The installed `jsdom` wrapper constructs an argument array and performs Web IDL string conversion for this method. Avoiding class-getter reaction bookkeeping therefore does not avoid allocation overall. Sampling and inlining limit exact attribution to individual statements.
+
+Node queries take 19–42% more time with the attribute reader. Native Chromium queries take 13–21% more time, while browser allocation remains near the existing reader's level. Ordered results, prefix and suffix mutations, sibling moves, reversed candidates, and browser detached-node checks pass. These fixtures do not establish compatibility with custom class getters, synthetic candidates, or every SVG case.
+
+The attribute-reader change is rejected. The production class getter and the landed per-query regex optimization remain in place. No new build-size or runtime charts are needed for this benchmark-only experiment. The next allocation experiment should target temporary result arrays or repeated helper work rather than replace reflected class getters with generic attribute access.
