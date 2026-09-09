@@ -1005,3 +1005,53 @@ These are warm public grouped-query medians in Node and native Chromium. Negativ
 The allocation profiling process terminated with exit code 143 before writing a report. There is no completed allocation or retained-memory result for this candidate, and no memory saving is claimed. Further profiling of the rejected shortcut is deferred. The existing dense-result profile still identifies document-order comparisons as a major source of allocation. Merging already ordered group results is a separate hypothesis worth measuring across all three layouts.
 
 The production source is restored and rebuilt. Runtime and size charts retain their previous measurements because no engine change is being shipped. All six benchmark runs verified ordered result identities for both builds. Repository checks validate the expanded benchmark scripts.
+
+## Merge ordered selector groups in balanced stages
+
+Cached grouped queries already produce each group's matches in document order. The new merge path preserves those runs and combines pairs in balanced stages. It skips empty runs, uses one temporary array, and removes duplicates after merging. First-use queries retain the existing collection and sort path. No node cache is added.
+
+A sequential prototype improved four-group queries but repeatedly revisited the growing result. With 64 groups and 256 matches, it was 436.8% slower in Node. Balanced merging avoids that growth by combining similarly sized sets of groups. Omitting empty runs also avoids unnecessary stages for sparse results.
+
+<details>
+<summary>Methodology and reproduction</summary>
+
+The baseline is the readable build from `5c37eb6`, whose engine is unchanged from `7d81ef0`. Save that build outside the repository and compare it with the current build. Every report records both hashes. Run timing and memory commands separately:
+
+```sh
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/merge-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/merge-browser.json adjacent
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/merge-many-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/merge-many-browser.json adjacent 64
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/merge-memory.json
+```
+
+Repeat the first two commands with `separated` and `nested`. Each fixture has 256 `p` elements. The separated layout inserts text and comments. The nested layout places each element under a separate parent. Four disjoint class groups interleave in document order. The many-group comparison uses 64 groups. Default timing runs cover 0, 1, 16, and 256 matches, with a single-class control for each case. After 1000 warmup calls, variants rotate through nine timing rounds lasting at least 50ms. Result identities and order are checked outside timing. Setup, compilation, and rendering are excluded.
+
+The [sequential prototype patch](../../../assets/repo/bench/group-merge-sequential.patch) and [initial balanced patch](../../../assets/repo/bench/group-merge-balanced.patch) apply to the baseline source. Their timing records remain under `assets/repo/bench/group-merge-*.json`. Records named `group-merge-final-*` measure the retained variant, which omits empty runs.
+
+</details>
+
+| Layout | Groups | Matches | Node time change | Chromium time change |
+| --- | ---: | ---: | ---: | ---: |
+| Adjacent | 4 | 16 | -26.4% | -34.3% |
+| Adjacent | 4 | 256 | -34.4% | -48.2% |
+| Separated | 4 | 16 | -27.8% | -44.0% |
+| Separated | 4 | 256 | -33.6% | -50.1% |
+| Nested | 4 | 16 | -28.7% | -34.5% |
+| Nested | 4 | 256 | -34.3% | -47.8% |
+| Adjacent | 64 | 16 | +10.0% | +7.1% |
+| Adjacent | 64 | 256 | +1.6% | -43.9% |
+
+These warm public-query results compare the final merge path with native array sorting. Negative changes mean faster queries. Four-group queries with 16 or 256 matches improve in all three layouts. With 64 groups and only 16 matches, Node is 10.0% slower and Chromium is 7.1% slower. Dense 64-group Node timing is 1.6% slower, while Chromium improves by 43.9%. Balanced merging avoids the sequential prototype's severe regression, but it does not improve every workload.
+
+Empty and single-result queries do not need sorting. Their grouped timings range from a 10.0% improvement to a 13.4% regression in these runs. The single-class controls also vary, including an 11.1% improvement in one Node control whose path is unchanged. Tracking group boundaries adds work, and these controls also show runtime variation. The measured gains should therefore be described as improvements to merging populated groups, not to every grouped selector.
+
+The [dense Node memory report](../../../assets/repo/bench/group-merge-final-memory.json) samples three rotating rounds of 2000 calls per variant, including collected objects. Median sampled allocation falls from 877.02MB to 587.60MB, a 33.0% reduction. The single-class control changes from 4.91MB to 4.86MB. This is allocation traffic, not retained heap. The profiler's timing values are excluded from timing conclusions.
+
+After two batches of grouped queries and forced collection, baseline heap changes are 18680bytes, 0bytes, and 0bytes. Candidate changes are 19152bytes, 0bytes, and 5720bytes. Those small process-wide samples do not establish a retained-memory reduction. The implementation keeps only query-local arrays and adds no persistent references to matched nodes.
+
+The readable core grows from 165174bytes to 166396bytes, an increase of 1222bytes. Gzip at level 9 grows by 317bytes, from 39935bytes to 40252bytes. Brotli at quality 11 grows by 265bytes, from 32358bytes to 32623bytes. This size cost buys the measured reduction in comparisons and allocation. Size charts are refreshed. Broader runtime and retained-memory charts retain their previous measurements because these reports focus on grouped results.
+
+Validation passes 671 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage reaches 98.55% of execution lines and 96.44% of type identifiers. Added cases cover empty runs, overlapping groups, odd group counts, text separators, nested XML nodes, document fragments, synchronous reordering, callback stopping, and array and NodeList output. Existing reentrant callback and independent-result checks continue to pass. Formatting, lint, types, and build compatibility checks pass. All final comparison reports match the shipped build hash.
+
+The remaining narrow case is a long selector list with few matches, where lookup and group bookkeeping outweigh merge savings. That case remains in the benchmark matrix for the next optimization.

@@ -50,3 +50,44 @@ test('cached groups preserve order, deduplication, callbacks and independent res
     }
   }
 })
+
+test('group merging handles empty runs, nested nodes and reordered fragments', t => {
+  const { window } = new JSDOM('<!doctype html><body></body>')
+  t.onTestFinished(() => window.close())
+  const engine = registerLegacy(factory(window))
+  const roots = [
+    window.document.createDocumentFragment(),
+    new window.DOMParser().parseFromString('<root/>', 'application/xml')
+      .documentElement,
+  ]
+  for (const root of roots) {
+    const doc = root.ownerDocument!
+    const expected: Element[] = []
+    for (let i = 0; i < 32; ++i) {
+      const parent = doc.createElement('section')
+      const item = doc.createElement('p')
+      item.setAttribute('class', 'hit g' + (i % 7))
+      parent.append(item)
+      root.append(parent, doc.createTextNode(' gap '), doc.createComment('gap'))
+      expected.push(item)
+    }
+    const selector = '.missing,.g6,.g5,.g4,.hit,.g3,.g2,.g1,.g0'
+    for (const legacy of [false, true]) {
+      for (const nodeList of [false, true]) {
+        engine.configure({ LEGACY: legacy, NODE_LIST: nodeList })
+        assert.deepEqual(Array.from(engine.select(selector, root)), expected)
+        assert.deepEqual(Array.from(engine.select(selector, root)), expected)
+        const first = expected.shift()!
+        root.append(first.parentNode!)
+        expected.push(first)
+        assert.deepEqual(Array.from(engine.select(selector, root)), expected)
+        const visited: Element[] = []
+        engine.select(selector, root, element => {
+          visited.push(element)
+          return false
+        })
+        assert.deepEqual(visited, [expected[0]])
+      }
+    }
+  }
+})

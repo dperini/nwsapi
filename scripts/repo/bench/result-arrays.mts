@@ -13,14 +13,20 @@ const { values } = parseArgs({
   options: {
     baseline: { type: 'string' },
     layout: { type: 'string', default: 'adjacent' },
+    groups: { type: 'string', default: '4' },
     memory: { type: 'boolean', default: false },
+    matches: { type: 'string' },
     output: { type: 'string' },
   },
 })
 if (!values.output) {
   throw new Error(
-    'Use --output <report.json> [--baseline engine.cjs] [--memory] [--layout adjacent|separated|nested]',
+    'Use --output <report.json> [--baseline engine.cjs] [--memory] [--layout adjacent|separated|nested] [--groups 4] [--matches 256]',
   )
+}
+const groups = Number(values.groups)
+if (!Number.isInteger(groups) || groups < 2 || groups > 256) {
+  throw new Error('Use --groups with an integer from 2 to 256')
 }
 const layout = values.layout
 if (!['adjacent', 'separated', 'nested'].includes(layout)) {
@@ -33,13 +39,20 @@ const names = values.baseline ? ['baseline', 'candidate'] : ['current']
 const make = paths.map(
   p => createRequire(import.meta.url)(resolve(p)) as typeof factory,
 )
+const counts =
+  values.matches === undefined ? [0, 1, 16, 256] : [Number(values.matches)]
+if (
+  counts.some(count => !Number.isInteger(count) || count < 0 || count > 256)
+) {
+  throw new Error('Use --matches with an integer from 0 to 256')
+}
 const rows = []
-for (const matches of [0, 1, 16, 256]) {
+for (const matches of counts) {
   const { window } = new JSDOM(
     '<!doctype html><body>' +
       Array.from({ length: 256 }, (_, i) => {
         const element =
-          '<p class="' + (i < matches ? 'hit g' + (i % 4) : '') + '"></p>'
+          '<p class="' + (i < matches ? 'hit g' + (i % groups) : '') + '"></p>'
         return layout === 'nested'
           ? '<section>' + element + '</section>'
           : element + (layout === 'separated' ? ' gap <!-- gap -->' : '')
@@ -48,7 +61,10 @@ for (const matches of [0, 1, 16, 256]) {
   try {
     const doc = window.document
     const engines = make.map(create => create(window))
-    for (const selector of ['.hit', '.g0,.g1,.g2,.g3']) {
+    for (const selector of [
+      '.hit',
+      Array.from({ length: groups }, (_, i) => '.g' + i).join(','),
+    ]) {
       const expected = Array.from(doc.querySelectorAll(selector))
       assert.equal(expected.length, matches)
       const query = (index: number) => engines[index]!.select(selector, doc)
@@ -104,11 +120,12 @@ writeFileSync(
     {
       node: process.version,
       layout,
+      groups,
       hashes: paths.map(p =>
         createHash('sha256').update(readFileSync(p)).digest('hex'),
       ),
       methodology:
-        'Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Queries run with 0, 1, 16, or 256 matches. Single-class control and four disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
+        'Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Each row records its match count. The default counts are 0, 1, 16, and 256. Single-class control and the requested disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
       rows,
     },
     null,

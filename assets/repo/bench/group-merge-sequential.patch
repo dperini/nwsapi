@@ -1,0 +1,69 @@
+diff --git a/src/nwsapi.mts b/src/nwsapi.mts
+index ff8c98f..782b2a7 100644
+--- a/src/nwsapi.mts
++++ b/src/nwsapi.mts
+@@ -923,6 +923,39 @@ interface Primordials {
+       }
+       return a.compareDocumentPosition(b) & 4 ? -1 : 1
+     },
++    mergeResults = function (nodes: Element[], start: number) {
++      var i = 0,
++        j = start,
++        length = nodes.length,
++        result: Element[] = [],
++        a,
++        b
++      if (!start || start == length) {
++        return nodes
++      }
++      while (i < start && j < length) {
++        a = nodes[i]!
++        b = nodes[j]!
++        if (a === b) {
++          result[result.length] = a
++          ++i
++          ++j
++        } else if (a.compareDocumentPosition(b) & 4) {
++          result[result.length] = a
++          ++i
++        } else {
++          result[result.length] = b
++          ++j
++        }
++      }
++      while (i < start) {
++        result[result.length] = nodes[i++]!
++      }
++      while (j < length) {
++        result[result.length] = nodes[j++]!
++      }
++      return result
++    },
+     hasDupes = false,
+     unique = function (nodes: Element[]) {
+       var i = 0,
+@@ -6301,21 +6334,20 @@ interface Primordials {
+         if ((resolver = selectResolvers.get(selectors))) {
+           var i,
+             l,
++            start,
+             list,
+             f = resolver.factory,
+             n = resolver.nodeset
+           if (n.length > 1) {
+             for (i = 0, l = n.length; l > i; ++i) {
++              start = nodes.length
+               list = fetch[n[i]![0]!]!(n[i]!.slice(1), context)
+               if (f[i] !== null) {
+                 f[i]!(list, callback, context, nodes)
+               } else {
+                 concatList(nodes, list)
+               }
+-            }
+-            if (l > 1 && nodes.length > 1) {
+-              nodes.sort(documentOrder)
+-              hasDupes && (nodes = unique(nodes))
++              nodes = mergeResults(nodes, start)
+             }
+           } else if (n.length) {
+             list = fetch[n[0]![0]!]!(n[0]!.slice(1), context)

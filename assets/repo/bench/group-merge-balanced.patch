@@ -1,0 +1,91 @@
+diff --git a/src/nwsapi.mts b/src/nwsapi.mts
+index ff8c98f..7b5939f 100644
+--- a/src/nwsapi.mts
++++ b/src/nwsapi.mts
+@@ -923,6 +923,59 @@ interface Primordials {
+       }
+       return a.compareDocumentPosition(b) & 4 ? -1 : 1
+     },
++    mergeResults = function (nodes: Element[], ends: number[]) {
++      var length = nodes.length,
++        count = ends.length - 1,
++        output: Element[],
++        swap,
++        width,
++        group,
++        i,
++        j,
++        end,
++        middle,
++        out,
++        a,
++        b
++      if (length < 2) {
++        return nodes
++      }
++      output = Array<Element>(length)
++      for (width = 1; width < count; width *= 2) {
++        for (group = 0; group < count; group += width * 2) {
++          i = ends[group]!
++          middle = ends[Math.min(group + width, count)]!
++          j = middle
++          end = ends[Math.min(group + width * 2, count)]!
++          out = i
++          while (i < middle && j < end) {
++            a = nodes[i]!
++            b = nodes[j]!
++            if (a === b) {
++              hasDupes = true
++              output[out++] = a
++              ++i
++            } else if (a.compareDocumentPosition(b) & 4) {
++              output[out++] = a
++              ++i
++            } else {
++              output[out++] = b
++              ++j
++            }
++          }
++          while (i < middle) {
++            output[out++] = nodes[i++]!
++          }
++          while (j < end) {
++            output[out++] = nodes[j++]!
++          }
++        }
++        swap = nodes
++        nodes = output
++        output = swap
++      }
++      return hasDupes ? unique(nodes) : nodes
++    },
+     hasDupes = false,
+     unique = function (nodes: Element[]) {
+       var i = 0,
+@@ -6301,10 +6354,12 @@ interface Primordials {
+         if ((resolver = selectResolvers.get(selectors))) {
+           var i,
+             l,
++            ends,
+             list,
+             f = resolver.factory,
+             n = resolver.nodeset
+           if (n.length > 1) {
++            ends = [0]
+             for (i = 0, l = n.length; l > i; ++i) {
+               list = fetch[n[i]![0]!]!(n[i]!.slice(1), context)
+               if (f[i] !== null) {
+@@ -6312,11 +6367,9 @@ interface Primordials {
+               } else {
+                 concatList(nodes, list)
+               }
++              ends[ends.length] = nodes.length
+             }
+-            if (l > 1 && nodes.length > 1) {
+-              nodes.sort(documentOrder)
+-              hasDupes && (nodes = unique(nodes))
+-            }
++            nodes = mergeResults(nodes, ends)
+           } else if (n.length) {
+             list = fetch[n[0]![0]!]!(n[0]!.slice(1), context)
+             nodes = f[0]
