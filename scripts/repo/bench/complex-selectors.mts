@@ -181,12 +181,7 @@ if (values.engine) {
           }
           check(result!)
           let profile
-          if (
-            values.profile &&
-            shape.name === 'wide' &&
-            scope === 'document' &&
-            index === 0
-          ) {
+          if (values.profile && scope === 'document' && index === 0) {
             const session = new Session()
             session.connect()
             await session.post('Profiler.enable')
@@ -323,7 +318,7 @@ if (values.engine) {
         candidateSha256: hash(candidate),
         fixtureScriptSha256: hash(entry),
         methodology:
-          'Five fresh worker processes per engine and route, rotating order. Each worker checks ordered identity against fixture-derived expected nodes. First calls are timed separately, followed by 30 warmups and batches of 200 queries. Element-scope first calls occur after document-scope calls and are not cold compilation measurements. Host means public jsdom querySelectorAll with its selector dependency replaced only for the candidate. The direct baseline receives its public clear() notification after mutations, matching the host integration contract. Unnotified mutation checks are retained separately. Mutation batches toggle one matching class and include the mutation, cache notification, query, and length check. Invalid mutation results receive no timing result. Separate host CPU profiles sample 1000 wide complex queries. No rendering is measured.',
+          'Five fresh worker processes per engine and route, rotating order. Each worker checks ordered identity against fixture-derived expected nodes. First calls are timed separately, followed by 30 warmups and batches of 200 queries. Element-scope first calls occur after document-scope calls and are not cold compilation measurements. Host means public jsdom querySelectorAll with its selector dependency replaced only for the candidate. The direct baseline receives its public clear() notification after mutations, matching the host integration contract. Unnotified mutation checks are retained separately. Mutation batches toggle one matching class and include the mutation, cache notification, query, and length check. Invalid mutation results receive no timing result. Separate CPU profiles sample 1000 complex document queries for each tree shape and API route. No rendering is measured.',
         shapes,
         summaries,
         runs,

@@ -84,6 +84,9 @@ interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
 }
+interface RelativePlan extends QueryPlan {
+  sibling: boolean
+}
 interface FilteredSiblings {
   nodes: Element[]
   positions: WeakMap<Element, number> | undefined
@@ -950,6 +953,7 @@ interface Primordials {
         matchResolvers.clear()
         selectResolvers.clear()
         firstResolvers.clear()
+        hasPlans = undefined
         if (legacyHooks && !Config.LEGACY && legacyHooks.detect(doc)) {
           Config.LEGACY = true
         }
@@ -2581,6 +2585,7 @@ interface Primordials {
         matchResolvers.clear()
         selectResolvers.clear()
         firstResolvers.clear()
+        hasPlans = undefined
       }
       useLegacy(Config.LEGACY)
       setIdentifierSyntax()
@@ -2684,6 +2689,7 @@ interface Primordials {
       mode: boolean | null,
       callback: boolean | ElementCallback,
       relative?: boolean,
+      existenceOnly?: boolean,
     ): CompiledResolver | null {
       var cacheKey =
         (mode === true || mode === false || mode === null
@@ -2697,6 +2703,9 @@ interface Primordials {
             ':' +
             !!callback +
             ':') + selector
+      if (existenceOnly) {
+        cacheKey = 'exists:' + cacheKey
+      }
       var i,
         mask,
         filter,
@@ -2716,7 +2725,9 @@ interface Primordials {
           if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
-          macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
+          macro =
+            S_BODY +
+            (existenceOnly ? 'break main;' : (callback ? S_TEST : '') + S_TAIL)
           head = S_HEAD
           loop = S_LOOP
           break
@@ -3633,6 +3644,8 @@ interface Primordials {
         match: RegExpMatchArray | null | undefined,
         pendingTag = '',
         firstChildOnly = false,
+        classTests: string[],
+        classIndex,
         result,
         status,
         symbol,
@@ -3705,18 +3718,40 @@ interface Primordials {
           // class name resolver
           case 46 /* '.' */:
             match = selector.match(Patterns['className']!)
-            match![1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match![1]!))
-              ? '(?!)'
-              : escapeIdentifier(match![1]!).replace(REX.RegExpChar, '\\$&')
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' + read.cls('e') + ')'
-            source =
-              'if((/(^|\\s)' +
-              match![1]! +
-              '(\\s|$)/' +
-              compat +
-              ')){' +
-              source +
-              '}'
+            classTests = []
+            do {
+              expr = /[\t\n\f\r ]/.test(unescapeIdentifier(match![1]!))
+                ? '(?!)'
+                : escapeIdentifier(match![1]!).replace(REX.RegExpChar, '\\$&')
+              classTests.push(
+                '/(^|\\s)' + expr + '(\\s|$)/' + (QUIRKS_MODE ? 'i' : ''),
+              )
+              argument = match![match!.length - 1]!
+              nested =
+                argument.charAt(0) == '.' &&
+                argument.match(Patterns['className']!)
+              if (nested) {
+                match = nested
+              }
+            } while (nested)
+            compat = ''
+            // Preserve right-to-left test order, but read one class value for
+            // adjacent class tests before their continuation can change n.
+            for (
+              classIndex = classTests.length - 1;
+              classIndex >= 0;
+              --classIndex
+            ) {
+              compat +=
+                (compat ? '&&' : '') +
+                classTests[classIndex] +
+                '.test(' +
+                (classIndex == classTests.length - 1
+                  ? (classTests.length > 1 ? 'n=' : '') + read.cls('e')
+                  : 'n') +
+                ')'
+            }
+            source = 'if(' + compat + '){' + source + '}'
             break
 
           // tag name resolver
@@ -4614,7 +4649,7 @@ interface Primordials {
                   }
                   source =
                     'if(s.has(' +
-                    JSON.stringify(splitList(match![2]!)) +
+                    JSON.stringify(match![2]!) +
                     ',e)){' +
                     source +
                     '}'
@@ -5334,39 +5369,83 @@ interface Primordials {
       return false
     },
     // true if element matches the selector
-    has = function (list: string[], anchor: Element) {
-      var context,
-        found = false,
-        i = 0,
-        l = list.length,
+    has = function (argument: string | string[], anchor: Element) {
+      var key =
+          typeof argument == 'string'
+            ? 's:' + argument
+            : 'a:' + JSON.stringify(argument),
+        plans = (hasPlans || (hasPlans = createCache<RelativePlan[]>())).get(
+          key,
+        ),
+        list,
+        parsed,
+        result,
+        context,
+        candidates,
+        resolver,
+        token,
+        i,
+        j,
+        previousErrors = errors,
         previous = Snapshot.anchor
       Snapshot.anchor = anchor
       try {
-        for (; l > i; ++i) {
-          context = /^[+~]/.test(list[i]!) ? upOf(anchor) : anchor
-          if (!list[i]) {
-            emit(qsInvalid)
-            return false
-          }
-          // Compile even a root sibling argument, whose candidate set is empty.
-          // Later invalid items must not be hidden by an earlier match.
-          if (
-            collect(
-              (parse('* ' + list[i], true) as string[]).map(function (
-                selector: string,
-              ) {
+        if (!plans) {
+          list = typeof argument == 'string' ? splitList(argument) : argument
+          plans = []
+          // Compile every branch before accepting any match. Plans contain
+          // code and lookup tokens, never anchors or DOM result collections.
+          for (i = 0; i < list.length; ++i) {
+            if (!list[i]) {
+              emit(qsInvalid)
+              return false
+            }
+            parsed = parse('* ' + list[i], true)
+            if (!parsed) {
+              return false
+            }
+            result = collect(
+              parsed.map(function (selector: string) {
                 return selector.slice(1).replace(/^\s+/, '')
               }),
-              context || anchor,
+              anchor,
               undefined,
               true,
-            ).results.length &&
-            context
-          ) {
-            found = true
+              true,
+              true,
+            )
+            plans.push({
+              sibling: /^[+~]/.test(list[i]!),
+              factory: result.factory,
+              nodeset: result.nodeset,
+            })
+          }
+          if (errors != previousErrors) {
+            return false
+          }
+          hasPlans!.set(key, plans)
+        }
+        for (i = 0; i < plans.length; ++i) {
+          context = plans[i]!.sibling ? upOf(anchor) : anchor
+          if (!context) {
+            continue
+          }
+          for (j = 0; j < plans[i]!.nodeset.length; ++j) {
+            token = plans[i]!.nodeset[j]!
+            resolver = plans[i]!.factory[j]
+            candidates = fetch[token[0]!]!(token.slice(1), context)
+            // One compiled loop shares positional indexes across candidates.
+            // It stops after the first result without a mutating callback.
+            if (
+              resolver
+                ? resolver(candidates, null, context, []).length
+                : candidates.length
+            ) {
+              return true
+            }
           }
         }
-        return found
+        return false
       } finally {
         Snapshot.anchor = previous
       }
@@ -6131,6 +6210,7 @@ interface Primordials {
       callback: ElementCallback,
       relative?: boolean | undefined,
       firstOnly?: boolean | undefined,
+      existenceOnly?: boolean | undefined,
     ) {
       var i,
         l,
@@ -6197,7 +6277,13 @@ interface Primordials {
         // run rebuilds its candidate list from, so the two must agree
         token[2] = unescapeIdentifier(token[2]!)
         nodeset[i] = token[1]! + token[2]!
-        factory[i] = compile(optimized[i]!, !firstOnly, null, relative)
+        factory[i] = compile(
+          optimized[i]!,
+          existenceOnly || !firstOnly,
+          null,
+          relative,
+          existenceOnly,
+        )
 
         if (firstOnly) {
           continue
@@ -6467,6 +6553,7 @@ interface Primordials {
     matchResolvers = createCache<CompiledResolver[]>(),
     selectResolvers = createCache<QueryPlan>(),
     firstResolvers = createCache<QueryPlan>(),
+    hasPlans: PlanCache<RelativePlan[]> | undefined,
     // passed to resolvers
     Snapshot: {
       matchesTag: typeof matchesTag
@@ -6651,6 +6738,7 @@ interface Primordials {
           childPlans = createCache()
           partCounts = createCache()
           descentDeclined = createCache()
+          hasPlans = undefined
           Dom.matchLambdas = matchLambdas = createCache()
           Dom.selectLambdas = selectLambdas = createCache()
           Dom.matchResolvers = matchResolvers = createCache()

@@ -1,0 +1,5025 @@
+{
+  "runtime": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "hostRevision": "5e8910c98d7d447c31ecf4d1a9819dc3fbf37218",
+  "hostLockSha256": "d3e6271e485ccceb65f90f8c51c27407a302a769d20b043717605a16376ff9c7",
+  "baselinePackage": "9.0.1",
+  "candidateSha256": "4363295c355d80f327a32cf3f88da7d1130ffe4bd74af0c7432305029b64515e",
+  "fixtureScriptSha256": "e76f7cf519ddb6608e68cc3791167920e6504348df0f61262d6325f47618f78a",
+  "methodology": "Five fresh worker processes per engine and route, rotating order. Each worker checks ordered identity against fixture-derived expected nodes. First calls are timed separately, followed by 30 warmups and batches of 200 queries. Element-scope first calls occur after document-scope calls and are not cold compilation measurements. Host means public jsdom querySelectorAll with its selector dependency replaced only for the candidate. The direct baseline receives its public clear() notification after mutations, matching the host integration contract. Unnotified mutation checks are retained separately. Mutation batches toggle one matching class and include the mutation, cache notification, query, and length check. Invalid mutation results receive no timing result. Separate CPU profiles sample 1000 complex document queries for each tree shape and API route. No rendering is measured.",
+  "shapes": [
+    {
+      "name": "original",
+      "boxes": 5,
+      "outer": 5,
+      "inner": 5,
+      "depth": 0,
+      "mixed": false
+    },
+    {
+      "name": "wide",
+      "boxes": 64,
+      "outer": 2,
+      "inner": 2,
+      "depth": 0,
+      "mixed": false
+    },
+    {
+      "name": "deep",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depth": 8,
+      "mixed": false
+    },
+    {
+      "name": "mixed",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 2,
+      "depth": 0,
+      "mixed": true
+    }
+  ],
+  "summaries": [
+    {
+      "shape": "original",
+      "scope": "document",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 25,
+      "firstMs": 3.168292000000008,
+      "warmMs": 0.05789604000000025,
+      "mutationMs": 0.0896410400000002,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 3.5065419999999676,
+          "warmMs": 0.059034164999999916,
+          "mutationMs": 0.09551103999999981,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 7.120416999999975,
+          "warmMs": 0.11429312500000009,
+          "mutationMs": 0.15430770999999993,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 6.990750000000048,
+          "warmMs": 0.061492705,
+          "mutationMs": 0.09690562499999998,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 9.69629100000003,
+          "warmMs": 0.12231396000000018,
+          "mutationMs": 0.15574375000000004,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "original",
+      "scope": "document",
+      "selector": ".box .block.inner > .content",
+      "matches": 125,
+      "firstMs": 0.4560840000000326,
+      "warmMs": 0.06647354000000007,
+      "mutationMs": 0.18867229000000008,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.4560840000000326,
+          "warmMs": 0.06680000000000007,
+          "mutationMs": 0.18867229000000008,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.5859169999999949,
+          "warmMs": 0.054137920000000006,
+          "mutationMs": 0.09621062499999994,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.4966670000000022,
+          "warmMs": 0.0689239550000002,
+          "mutationMs": 0.18708312500000004,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.6154170000000363,
+          "warmMs": 0.058937500000000115,
+          "mutationMs": 0.09809083499999986,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "original",
+      "scope": "element",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 25,
+      "firstMs": 0.9067079999999805,
+      "warmMs": 0.1859385450000002,
+      "mutationMs": 0.18774895500000013,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.946790999999962,
+          "warmMs": 0.1859385450000002,
+          "mutationMs": 0.18774895500000013,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.3512080000000424,
+          "warmMs": 0.09507582999999982,
+          "mutationMs": 0.13979979000000015,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 1.02962500000001,
+          "warmMs": 0.18504208000000005,
+          "mutationMs": 0.18689791500000014,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.3755829999998923,
+          "warmMs": 0.100018125,
+          "mutationMs": 0.14569812499999985,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "original",
+      "scope": "element",
+      "selector": ".box .block.inner > .content",
+      "matches": 125,
+      "firstMs": 0.3026669999999285,
+      "warmMs": 0.08749750000000006,
+      "mutationMs": 0.30760249999999983,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.30287500000002865,
+          "warmMs": 0.08749750000000006,
+          "mutationMs": 0.30760249999999983,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.052416999999991276,
+          "warmMs": 0.05024937499999993,
+          "mutationMs": 0.09181562500000012,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.30970800000000054,
+          "warmMs": 0.08940708000000001,
+          "mutationMs": 0.30561020499999986,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.058250000000043656,
+          "warmMs": 0.052937294999999836,
+          "mutationMs": 0.10107812499999966,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "scope": "document",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 60,
+      "firstMs": 1.4383329999999432,
+      "warmMs": 0.2371281250000004,
+      "mutationMs": 0.2694250000000005,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 1.4383329999999432,
+          "warmMs": 0.2399768750000004,
+          "mutationMs": 0.276665835,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 2.0677499999999895,
+          "warmMs": 0.23787604500000015,
+          "mutationMs": 0.3570493750000003,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 2.6402919999999312,
+          "warmMs": 0.23379708499999993,
+          "mutationMs": 0.2714727049999999,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 2.3327500000000327,
+          "warmMs": 0.24797395499999994,
+          "mutationMs": 0.36784958500000015,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "scope": "document",
+      "selector": ".box .block.inner > .content",
+      "matches": 256,
+      "firstMs": 0.7340830000000551,
+      "warmMs": 0.1637975,
+      "mutationMs": 0.5015389599999998,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.7342079999999669,
+          "warmMs": 0.16751208500000017,
+          "mutationMs": 0.5015389599999998,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.2769159999999147,
+          "warmMs": 0.11251896000000045,
+          "mutationMs": 0.21091770999999995,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.7352090000000544,
+          "warmMs": 0.16537729000000012,
+          "mutationMs": 0.4934352100000001,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.27512500000000273,
+          "warmMs": 0.11622521000000006,
+          "mutationMs": 0.21215395999999997,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "scope": "element",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 60,
+      "firstMs": 0.8472079999999096,
+      "warmMs": 0.5727995799999996,
+      "mutationMs": 0.5631677100000002,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.8572499999999081,
+          "warmMs": 0.5727995799999996,
+          "mutationMs": 0.5632766699999996,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.3802500000000464,
+          "warmMs": 0.22705395500000009,
+          "mutationMs": 0.32080229499999974,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.8552500000000691,
+          "warmMs": 0.5605147900000003,
+          "mutationMs": 0.567765,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.4153329999999187,
+          "warmMs": 0.2309812500000004,
+          "mutationMs": 0.3262066699999997,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "wide",
+      "scope": "element",
+      "selector": ".box .block.inner > .content",
+      "matches": 256,
+      "firstMs": 0.8154170000000249,
+      "warmMs": 0.25059999999999943,
+      "mutationMs": 0.7910020850000001,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.8154170000000249,
+          "warmMs": 0.25059999999999943,
+          "mutationMs": 0.7910020850000001,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.11045799999999417,
+          "warmMs": 0.1109643749999998,
+          "mutationMs": 0.20427916499999982,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.8244159999999283,
+          "warmMs": 0.24516874999999913,
+          "mutationMs": 0.8099629149999998,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.1140419999999267,
+          "warmMs": 0.11138562500000035,
+          "mutationMs": 0.2117697949999996,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "scope": "document",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "firstMs": 0.44070799999985866,
+      "warmMs": 0.04830041499999993,
+      "mutationMs": 0.07700666499999897,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.44070799999985866,
+          "warmMs": 0.04982479499999954,
+          "mutationMs": 0.07940333499999952,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.7136250000000928,
+          "warmMs": 0.12055229000000053,
+          "mutationMs": 0.15790124999999988,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 1.4176669999999376,
+          "warmMs": 0.05180312500000014,
+          "mutationMs": 0.07777812500000096,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.8992919999999458,
+          "warmMs": 0.12710812499999974,
+          "mutationMs": 0.16682208000000004,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "scope": "document",
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "firstMs": 0.2207499999999527,
+      "warmMs": 0.04451833499999907,
+      "mutationMs": 0.1358341699999994,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.2420830000000933,
+          "warmMs": 0.047471249999999826,
+          "mutationMs": 0.14394187500000044,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.2543749999999818,
+          "warmMs": 0.09197604000000012,
+          "mutationMs": 0.13331353999999976,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.24595900000008442,
+          "warmMs": 0.04587396000000012,
+          "mutationMs": 0.14263583500000096,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.2730830000000424,
+          "warmMs": 0.09836083499999973,
+          "mutationMs": 0.1368275,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "scope": "element",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "firstMs": 0.43775000000005093,
+      "warmMs": 0.20719958500000074,
+      "mutationMs": 0.21004208500000005,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.44316699999990306,
+          "warmMs": 0.22352917000000047,
+          "mutationMs": 0.22123624999999947,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.19412499999998545,
+          "warmMs": 0.1213904150000002,
+          "mutationMs": 0.15995728999999984,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.4131250000000364,
+          "warmMs": 0.2155762500000003,
+          "mutationMs": 0.21351208499999985,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.19295899999997346,
+          "warmMs": 0.12732624999999984,
+          "mutationMs": 0.16344978999999968,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "deep",
+      "scope": "element",
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "firstMs": 0.2771669999999631,
+      "warmMs": 0.07784229499999924,
+      "mutationMs": 0.2738199999999995,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.2908340000001317,
+          "warmMs": 0.08038979499999982,
+          "mutationMs": 0.27518895499999985,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.09550000000012915,
+          "warmMs": 0.09278166499999997,
+          "mutationMs": 0.13062625000000025,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.27641600000015387,
+          "warmMs": 0.07930499999999938,
+          "mutationMs": 0.2751135399999998,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.09554199999979573,
+          "warmMs": 0.09565770499999986,
+          "mutationMs": 0.13453271000000086,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "mixed",
+      "scope": "document",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "firstMs": 0.3445000000001528,
+      "warmMs": 0.04944833499999959,
+      "mutationMs": 0.07082979000000023,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.36287499999980355,
+          "warmMs": 0.04944833499999959,
+          "mutationMs": 0.07082979000000023,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.4834169999999176,
+          "warmMs": 0.06347667000000001,
+          "mutationMs": 0.09043499999999995,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 1.2779579999998987,
+          "warmMs": 0.051301045000000156,
+          "mutationMs": 0.0724341650000008,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.7024169999999685,
+          "warmMs": 0.0677304150000009,
+          "mutationMs": 0.09236416500000018,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "mixed",
+      "scope": "document",
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "firstMs": 0.23416599999995924,
+      "warmMs": 0.040942079999999804,
+      "mutationMs": 0.13054729000000065,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.25654199999985394,
+          "warmMs": 0.042191249999999625,
+          "mutationMs": 0.13147395499999903,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.11999999999989086,
+          "warmMs": 0.02985645999999974,
+          "mutationMs": 0.057632705000000894,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.24629200000003948,
+          "warmMs": 0.044008750000000416,
+          "mutationMs": 0.13745208000000048,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.1267089999998916,
+          "warmMs": 0.03166645499999959,
+          "mutationMs": 0.06009791500000006,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "mixed",
+      "scope": "element",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "firstMs": 0.2577919999998812,
+      "warmMs": 0.13908458499999937,
+      "mutationMs": 0.14177520999999957,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": true,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.2642920000000686,
+          "warmMs": 0.14452333500000009,
+          "mutationMs": 0.1438635450000004,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.10625000000004547,
+          "warmMs": 0.060521249999999326,
+          "mutationMs": 0.09231249999999931,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.28737500000011096,
+          "warmMs": 0.15122104499999978,
+          "mutationMs": 0.15158229000000006,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.12008400000013353,
+          "warmMs": 0.06461875000000078,
+          "mutationMs": 0.09226625000000013,
+          "mutationCorrect": true
+        }
+      ]
+    },
+    {
+      "shape": "mixed",
+      "scope": "element",
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "firstMs": 0.2062909999999647,
+      "warmMs": 0.06283125000000041,
+      "mutationMs": 0.20196562500000026,
+      "mutationCorrect": true,
+      "unnotifiedMutationCorrect": false,
+      "measurements": [
+        {
+          "engine": "baseline",
+          "route": "direct",
+          "firstMs": 0.22866700000008677,
+          "warmMs": 0.062988335,
+          "mutationMs": 0.20455250000000091,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "direct",
+          "firstMs": 0.033167000000048574,
+          "warmMs": 0.03044583500000044,
+          "mutationMs": 0.0582333349999999,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "baseline",
+          "route": "host",
+          "firstMs": 0.21070800000006784,
+          "warmMs": 0.06618458499999974,
+          "mutationMs": 0.2155518749999999,
+          "mutationCorrect": true
+        },
+        {
+          "engine": "candidate",
+          "route": "host",
+          "firstMs": 0.03287499999987631,
+          "warmMs": 0.030731250000000047,
+          "mutationMs": 0.059898749999999834,
+          "mutationCorrect": true
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "trial": 0,
+      "engine": "baseline",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 3.168292000000008,
+          "warmMs": 0.05789604000000025,
+          "mutationMs": 0.0896410400000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.4560840000000326,
+          "warmMs": 0.06647354000000007,
+          "mutationMs": 0.18867229000000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.9067079999999805,
+          "warmMs": 0.1859385450000002,
+          "mutationMs": 0.18774895500000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3026669999999285,
+          "warmMs": 0.08749750000000006,
+          "mutationMs": 0.30760249999999983,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.4383329999999432,
+          "warmMs": 0.2371281250000004,
+          "mutationMs": 0.2694250000000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7340830000000551,
+          "warmMs": 0.1637975,
+          "mutationMs": 0.5015389599999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8472079999999096,
+          "warmMs": 0.5727995799999996,
+          "mutationMs": 0.5631677100000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8154170000000249,
+          "warmMs": 0.25059999999999943,
+          "mutationMs": 0.7910020850000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.44070799999985866,
+          "warmMs": 0.04830041499999993,
+          "mutationMs": 0.07700666499999897,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2207499999999527,
+          "warmMs": 0.04451833499999907,
+          "mutationMs": 0.1358341699999994,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.43775000000005093,
+          "warmMs": 0.20719958500000074,
+          "mutationMs": 0.21004208500000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2771669999999631,
+          "warmMs": 0.07784229499999924,
+          "mutationMs": 0.2738199999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.3445000000001528,
+          "warmMs": 0.04944833499999959,
+          "mutationMs": 0.07082979000000023,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.23416599999995924,
+          "warmMs": 0.040942079999999804,
+          "mutationMs": 0.13054729000000065,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.2577919999998812,
+          "warmMs": 0.13908458499999937,
+          "mutationMs": 0.14177520999999957,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2062909999999647,
+          "warmMs": 0.06283125000000041,
+          "mutationMs": 0.20196562500000026,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "engine": "candidate",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 7.120416999999975,
+          "warmMs": 0.1155166650000001,
+          "mutationMs": 0.15430770999999993,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.6082080000000474,
+          "warmMs": 0.05273000000000025,
+          "mutationMs": 0.0930054149999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.32620800000000827,
+          "warmMs": 0.09507582999999982,
+          "mutationMs": 0.13902000000000014,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05066700000003266,
+          "warmMs": 0.04906541500000003,
+          "mutationMs": 0.08900708500000007,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.2242500000000405,
+          "warmMs": 0.2370656249999999,
+          "mutationMs": 0.3462783350000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.2769159999999147,
+          "warmMs": 0.10813041999999996,
+          "mutationMs": 0.20272083500000007,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.3730829999999514,
+          "warmMs": 0.2240789600000005,
+          "mutationMs": 0.32080229499999974,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.10791599999993196,
+          "warmMs": 0.10844770500000038,
+          "mutationMs": 0.19855541999999957,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.7136250000000928,
+          "warmMs": 0.117505625,
+          "mutationMs": 0.1514693749999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2543749999999818,
+          "warmMs": 0.09048457999999983,
+          "mutationMs": 0.12835041499999988,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.1932920000000422,
+          "warmMs": 0.12127854500000013,
+          "mutationMs": 0.15477937499999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.0913749999999709,
+          "warmMs": 0.0910258349999998,
+          "mutationMs": 0.1261631250000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4812920000001668,
+          "warmMs": 0.06294104500000003,
+          "mutationMs": 0.08768187500000067,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.11637499999983447,
+          "warmMs": 0.02902249999999981,
+          "mutationMs": 0.05737208499999952,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.1115420000000995,
+          "warmMs": 0.05956271000000015,
+          "mutationMs": 0.08825395999999955,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.032500000000027285,
+          "warmMs": 0.030075415000000022,
+          "mutationMs": 0.05745771000000104,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "engine": "baseline",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.904917000000012,
+          "warmMs": 0.058618749999999976,
+          "mutationMs": 0.09340479500000015,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.4464590000000044,
+          "warmMs": 0.06711083500000001,
+          "mutationMs": 0.18102458500000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.0230420000000322,
+          "warmMs": 0.17913708499999983,
+          "mutationMs": 0.17993854499999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3048339999999712,
+          "warmMs": 0.08756916999999988,
+          "mutationMs": 0.301968335,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.612374999999929,
+          "warmMs": 0.23062187499999992,
+          "mutationMs": 0.26814583000000025,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7169169999999667,
+          "warmMs": 0.16393083500000047,
+          "mutationMs": 0.48342291500000045,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8538330000000087,
+          "warmMs": 0.5472047950000001,
+          "mutationMs": 0.5501239600000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.796875,
+          "warmMs": 0.24341416500000038,
+          "mutationMs": 0.7851166650000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.3540830000001733,
+          "warmMs": 0.04982853999999975,
+          "mutationMs": 0.07536896000000069,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2167500000000473,
+          "warmMs": 0.04312916500000028,
+          "mutationMs": 0.13594958499999962,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.40304200000014134,
+          "warmMs": 0.20407417000000008,
+          "mutationMs": 0.20406957999999917,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.26816699999994853,
+          "warmMs": 0.07809937500000047,
+          "mutationMs": 0.26565875000000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.2779579999998987,
+          "warmMs": 0.04980082999999922,
+          "mutationMs": 0.06749021000000084,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.24012500000003456,
+          "warmMs": 0.04269979499999977,
+          "mutationMs": 0.1320645849999994,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.25908400000002985,
+          "warmMs": 0.14686624999999937,
+          "mutationMs": 0.14885250000000042,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.21070800000006784,
+          "warmMs": 0.06370750000000043,
+          "mutationMs": 0.20461124999999925,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "engine": "candidate",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 9.69629100000003,
+          "warmMs": 0.12231396000000018,
+          "mutationMs": 0.1543787499999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.6170419999999694,
+          "warmMs": 0.056107499999999956,
+          "mutationMs": 0.09543145999999979,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.4646250000000123,
+          "warmMs": 0.09933708499999995,
+          "mutationMs": 0.14569812499999985,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.0831670000000031,
+          "warmMs": 0.052937294999999836,
+          "mutationMs": 0.09521104499999979,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.3327500000000327,
+          "warmMs": 0.24797395499999994,
+          "mutationMs": 0.3679683350000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.27512500000000273,
+          "warmMs": 0.11657458000000019,
+          "mutationMs": 0.21215395999999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.4217079999999669,
+          "warmMs": 0.22819354000000033,
+          "mutationMs": 0.3262066699999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.1140419999999267,
+          "warmMs": 0.11138562500000035,
+          "mutationMs": 0.20747896000000027,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.8560410000000047,
+          "warmMs": 0.12710812499999974,
+          "mutationMs": 0.16682208000000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.24416699999994762,
+          "warmMs": 0.09836083499999973,
+          "mutationMs": 0.135435205,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.19295899999997346,
+          "warmMs": 0.12732624999999984,
+          "mutationMs": 0.16334020500000065,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.0941250000000764,
+          "warmMs": 0.09423729500000036,
+          "mutationMs": 0.1326977099999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.5742499999998927,
+          "warmMs": 0.06839708500000029,
+          "mutationMs": 0.09226749999999924,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.09008300000004965,
+          "warmMs": 0.03173604000000069,
+          "mutationMs": 0.059127919999999674,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.10279200000013589,
+          "warmMs": 0.06461875000000078,
+          "mutationMs": 0.09046145499999966,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03287499999987631,
+          "warmMs": 0.030370209999999814,
+          "mutationMs": 0.05877312500000016,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "engine": "candidate",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 8.365665999999976,
+          "warmMs": 0.10902458499999995,
+          "mutationMs": 0.14926500000000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5859169999999949,
+          "warmMs": 0.052143335000000096,
+          "mutationMs": 0.09339166499999976,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.2906669999999849,
+          "warmMs": 0.09463687499999991,
+          "mutationMs": 0.1389322899999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.052416999999991276,
+          "warmMs": 0.05024937499999993,
+          "mutationMs": 0.08969353999999981,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.8563749999999573,
+          "warmMs": 0.23787604500000015,
+          "mutationMs": 0.35816624999999985,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.238666999999964,
+          "warmMs": 0.11254957999999987,
+          "mutationMs": 0.21091770999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.3898749999999609,
+          "warmMs": 0.2299275,
+          "mutationMs": 0.3176664550000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11000000000001364,
+          "warmMs": 0.10783187499999997,
+          "mutationMs": 0.20427916499999982,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.9010000000000673,
+          "warmMs": 0.12055229000000053,
+          "mutationMs": 0.15884083499999974,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2668750000000273,
+          "warmMs": 0.09320333500000004,
+          "mutationMs": 0.1326097900000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.19412499999998545,
+          "warmMs": 0.12216707999999983,
+          "mutationMs": 0.16840416499999947,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.09550000000012915,
+          "warmMs": 0.09807583499999964,
+          "mutationMs": 0.13247270999999955,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.5367090000002008,
+          "warmMs": 0.06228729500000099,
+          "mutationMs": 0.09043499999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.11404100000004291,
+          "warmMs": 0.02969271000000049,
+          "mutationMs": 0.057632705000000894,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.10058400000002621,
+          "warmMs": 0.060199375000000825,
+          "mutationMs": 0.09015728999999965,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03262500000005275,
+          "warmMs": 0.030065000000000737,
+          "mutationMs": 0.0581077049999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "engine": "baseline",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 7.828040999999985,
+          "warmMs": 0.06390250000000008,
+          "mutationMs": 0.09690562499999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5056670000000167,
+          "warmMs": 0.0689239550000002,
+          "mutationMs": 0.18708312500000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.9848749999999882,
+          "warmMs": 0.18504208000000005,
+          "mutationMs": 0.1866843750000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3047080000000051,
+          "warmMs": 0.09032271000000008,
+          "mutationMs": 0.30910083500000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.6419169999999212,
+          "warmMs": 0.23871229000000027,
+          "mutationMs": 0.27543499999999993,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7642920000000686,
+          "warmMs": 0.16437103999999977,
+          "mutationMs": 0.5029389599999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8924579999999196,
+          "warmMs": 0.5675093749999996,
+          "mutationMs": 0.567765,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8244159999999283,
+          "warmMs": 0.24516874999999913,
+          "mutationMs": 0.8099629149999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.3896659999998064,
+          "warmMs": 0.052195624999999385,
+          "mutationMs": 0.07777812500000096,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.24595900000008442,
+          "warmMs": 0.0467208299999993,
+          "mutationMs": 0.14263583500000096,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4015830000000733,
+          "warmMs": 0.2155762500000003,
+          "mutationMs": 0.2099664599999994,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.27641600000015387,
+          "warmMs": 0.07930499999999938,
+          "mutationMs": 0.2751135399999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.2678339999999935,
+          "warmMs": 0.051301045000000156,
+          "mutationMs": 0.0724341650000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.23662500000000364,
+          "warmMs": 0.045362290000000485,
+          "mutationMs": 0.13745208000000048,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.29858299999978044,
+          "warmMs": 0.15362437500000056,
+          "mutationMs": 0.1583993750000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.19904200000019046,
+          "warmMs": 0.06867541500000016,
+          "mutationMs": 0.21715853999999923,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "engine": "candidate",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 10.980916999999977,
+          "warmMs": 0.11593791500000009,
+          "mutationMs": 0.15574375000000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.6154170000000363,
+          "warmMs": 0.058937500000000115,
+          "mutationMs": 0.09809083499999986,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.3567920000000413,
+          "warmMs": 0.100018125,
+          "mutationMs": 0.1419758299999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05358400000000074,
+          "warmMs": 0.05206062500000001,
+          "mutationMs": 0.10344146000000023,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.835208000000023,
+          "warmMs": 0.24200833500000016,
+          "mutationMs": 0.3397116699999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.3594590000000153,
+          "warmMs": 0.11198333500000046,
+          "mutationMs": 0.1995074999999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.40283399999998437,
+          "warmMs": 0.2309812500000004,
+          "mutationMs": 0.3183920849999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11350000000004457,
+          "warmMs": 0.10755958000000021,
+          "mutationMs": 0.19708687499999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.8992919999999458,
+          "warmMs": 0.12180062500000019,
+          "mutationMs": 0.16230958499999987,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2730830000000424,
+          "warmMs": 0.09891687500000046,
+          "mutationMs": 0.1368275,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.17574999999999363,
+          "warmMs": 0.12732146,
+          "mutationMs": 0.16627478999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.10220800000001873,
+          "warmMs": 0.09762395499999911,
+          "mutationMs": 0.1380185400000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.7024169999999685,
+          "warmMs": 0.0677304150000009,
+          "mutationMs": 0.09236416500000018,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.12904200000002675,
+          "warmMs": 0.03155895500000042,
+          "mutationMs": 0.06252187499999991,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.12008400000013353,
+          "warmMs": 0.06064603999999917,
+          "mutationMs": 0.0888931249999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.030957999999827734,
+          "warmMs": 0.03202374999999961,
+          "mutationMs": 0.059898749999999834,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "engine": "baseline",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 3.5600000000000023,
+          "warmMs": 0.06411812499999997,
+          "mutationMs": 0.09916854000000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5003330000000119,
+          "warmMs": 0.07021999999999991,
+          "mutationMs": 0.19740833500000007,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.001874999999984,
+          "warmMs": 0.19751270500000004,
+          "mutationMs": 0.19779396000000019,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.32608399999992344,
+          "warmMs": 0.09357249999999966,
+          "mutationMs": 0.32845062499999983,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.639417000000094,
+          "warmMs": 0.2556227100000001,
+          "mutationMs": 0.293518545,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8000409999999647,
+          "warmMs": 0.17765937500000006,
+          "mutationMs": 0.5381200000000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.9865839999999935,
+          "warmMs": 0.6144604199999998,
+          "mutationMs": 0.6060804150000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8842079999999441,
+          "warmMs": 0.2594089599999995,
+          "mutationMs": 0.8589549999999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.46908300000018244,
+          "warmMs": 0.05304895999999985,
+          "mutationMs": 0.08129312499999969,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2803750000000491,
+          "warmMs": 0.04897229500000094,
+          "mutationMs": 0.15013187500000072,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.44316699999990306,
+          "warmMs": 0.22734729000000015,
+          "mutationMs": 0.22514187499999935,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2908340000001317,
+          "warmMs": 0.08173437499999978,
+          "mutationMs": 0.2942539600000009,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.38133300000004056,
+          "warmMs": 0.053176039999999605,
+          "mutationMs": 0.07606521000000044,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2609580000000733,
+          "warmMs": 0.04415292000000022,
+          "mutationMs": 0.13996812500000033,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.3011670000000777,
+          "warmMs": 0.15510375000000068,
+          "mutationMs": 0.1550702100000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.22866700000008677,
+          "warmMs": 0.06644999999999981,
+          "mutationMs": 0.22308167000000026,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "engine": "baseline",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 8.337083000000007,
+          "warmMs": 0.06607666999999992,
+          "mutationMs": 0.10264875000000018,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5381660000000466,
+          "warmMs": 0.07273375000000044,
+          "mutationMs": 0.2004245800000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.0540000000000873,
+          "warmMs": 0.19572208499999988,
+          "mutationMs": 0.19937270500000012,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3277499999999236,
+          "warmMs": 0.09378312499999993,
+          "mutationMs": 0.32774021000000064,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 3.4745829999999387,
+          "warmMs": 0.23130604500000004,
+          "mutationMs": 0.27504770500000064,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7727499999998599,
+          "warmMs": 0.17648291500000027,
+          "mutationMs": 0.5060706249999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.9244589999998425,
+          "warmMs": 0.5928716650000001,
+          "mutationMs": 0.6035027100000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8570420000000922,
+          "warmMs": 0.26203521000000024,
+          "mutationMs": 0.8521364599999992,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.4664999999999964,
+          "warmMs": 0.052631250000000594,
+          "mutationMs": 0.08316708000000063,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.33866699999998673,
+          "warmMs": 0.045738335000000914,
+          "mutationMs": 0.147410625,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4513750000000982,
+          "warmMs": 0.22714479000000096,
+          "mutationMs": 0.22397625000000063,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.26637499999969805,
+          "warmMs": 0.08392146000000139,
+          "mutationMs": 0.29172542000000024,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.5106670000000122,
+          "warmMs": 0.053869790000001104,
+          "mutationMs": 0.0771349999999984,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2665830000000824,
+          "warmMs": 0.044008750000000416,
+          "mutationMs": 0.14334520999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.2923329999998714,
+          "warmMs": 0.15705916500000058,
+          "mutationMs": 0.1611433299999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.32804099999975733,
+          "warmMs": 0.07098729499999991,
+          "mutationMs": 0.22900916499999993,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "engine": "candidate",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 11.587834000000043,
+          "warmMs": 0.12446957999999995,
+          "mutationMs": 0.16870312500000012,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.6012910000000602,
+          "warmMs": 0.060335830000000215,
+          "mutationMs": 0.10141374999999982,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.3755829999998923,
+          "warmMs": 0.18183979000000022,
+          "mutationMs": 0.16169771000000024,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.058250000000043656,
+          "warmMs": 0.05649104000000023,
+          "mutationMs": 0.10107812499999966,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.3220000000001164,
+          "warmMs": 0.2672864549999997,
+          "mutationMs": 0.38232479499999955,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.27858400000013717,
+          "warmMs": 0.11865645500000027,
+          "mutationMs": 0.23475520500000016,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.4486249999999927,
+          "warmMs": 0.25186750000000074,
+          "mutationMs": 0.3640979149999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.1196669999999358,
+          "warmMs": 0.1218162499999994,
+          "mutationMs": 0.23063687499999902,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.0932080000000042,
+          "warmMs": 0.1365070849999995,
+          "mutationMs": 0.1853470850000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.29979100000014114,
+          "warmMs": 0.1067045799999994,
+          "mutationMs": 0.15935083000000078,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.22783299999991868,
+          "warmMs": 0.15160708500000056,
+          "mutationMs": 0.18716999999999984,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.1066249999998945,
+          "warmMs": 0.10140728999999965,
+          "mutationMs": 0.14205625000000055,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.0321670000000722,
+          "warmMs": 0.07577666500000077,
+          "mutationMs": 0.12298604000000068,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.1267089999998916,
+          "warmMs": 0.03328833499999973,
+          "mutationMs": 0.06302542000000017,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.12112499999989268,
+          "warmMs": 0.06640916500000003,
+          "mutationMs": 0.09545208500000057,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03470900000002075,
+          "warmMs": 0.03248458000000028,
+          "mutationMs": 0.07710104499999942,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "engine": "baseline",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.126083999999992,
+          "warmMs": 0.08785562499999969,
+          "mutationMs": 0.15230604000000028,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.4863749999999527,
+          "warmMs": 0.11665395499999988,
+          "mutationMs": 0.2892777100000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.1575410000000375,
+          "warmMs": 0.32492854500000024,
+          "mutationMs": 0.20230208500000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3251659999999674,
+          "warmMs": 0.09274,
+          "mutationMs": 0.35242416499999935,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 3.436916999999994,
+          "warmMs": 0.31293499999999996,
+          "mutationMs": 0.286917085,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7788330000000769,
+          "warmMs": 0.17554791499999964,
+          "mutationMs": 0.55401479,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.9215419999998176,
+          "warmMs": 0.7205297949999999,
+          "mutationMs": 0.7513595850000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 12.34108399999991,
+          "warmMs": 0.3769012500000008,
+          "mutationMs": 1.480126459999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4774999999999636,
+          "warmMs": 0.051485414999999646,
+          "mutationMs": 0.08360083000000032,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.26616599999988466,
+          "warmMs": 0.17039582999999994,
+          "mutationMs": 0.5011554150000006,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4735000000000582,
+          "warmMs": 0.6070118750000006,
+          "mutationMs": 0.46423312500000063,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.30004200000030323,
+          "warmMs": 0.08262937500000135,
+          "mutationMs": 0.5852279150000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.40687500000012733,
+          "warmMs": 0.06670124999999871,
+          "mutationMs": 0.29151542000000064,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2957079999996495,
+          "warmMs": 0.17055833500000062,
+          "mutationMs": 0.3074206249999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.3265830000000278,
+          "warmMs": 0.15545937500000037,
+          "mutationMs": 0.6396839599999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2317920000000413,
+          "warmMs": 0.0694662500000004,
+          "mutationMs": 0.5431104200000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "engine": "candidate",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 7.376708000000008,
+          "warmMs": 0.13348958000000039,
+          "mutationMs": 0.446266665,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.66112499999997,
+          "warmMs": 0.05559249999999963,
+          "mutationMs": 0.10200833499999988,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.3512080000000424,
+          "warmMs": 0.10326750000000004,
+          "mutationMs": 0.5427741649999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05608299999994415,
+          "warmMs": 0.19235291500000018,
+          "mutationMs": 0.13037979500000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.089583000000175,
+          "warmMs": 0.9502018750000002,
+          "mutationMs": 0.9203785449999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8332499999999072,
+          "warmMs": 0.20214207999999986,
+          "mutationMs": 0.22283083499999976,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.38512500000001637,
+          "warmMs": 0.4213589550000006,
+          "mutationMs": 0.5381766649999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.12108299999999872,
+          "warmMs": 0.5754370849999998,
+          "mutationMs": 0.21853771000000052,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.837624999999889,
+          "warmMs": 0.3866933300000005,
+          "mutationMs": 0.1656010450000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2857909999997901,
+          "warmMs": 0.27747020999999905,
+          "mutationMs": 0.1484806249999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.22508299999981318,
+          "warmMs": 0.19527853999999933,
+          "mutationMs": 0.18713062499999977,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.10245800000029703,
+          "warmMs": 0.11718000000000074,
+          "mutationMs": 0.14899854000000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.5202500000000327,
+          "warmMs": 0.25692354000000023,
+          "mutationMs": 0.37564020499999967,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.12079199999971024,
+          "warmMs": 0.03194645499999979,
+          "mutationMs": 0.061404374999999616,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.11583400000017718,
+          "warmMs": 0.1622291650000011,
+          "mutationMs": 0.11533937499999865,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.037040999999589985,
+          "warmMs": 0.035665415000000845,
+          "mutationMs": 0.075090624999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "engine": "candidate",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 8.54383299999995,
+          "warmMs": 0.16878145500000016,
+          "mutationMs": 0.18017499999999984,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.63412500000004,
+          "warmMs": 0.05933749999999975,
+          "mutationMs": 0.10466833000000009,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.4152080000000069,
+          "warmMs": 0.10564625000000034,
+          "mutationMs": 0.1579766649999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.061916999999994005,
+          "warmMs": 0.053727084999999876,
+          "mutationMs": 0.10369499999999959,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.376457999999957,
+          "warmMs": 0.250100415,
+          "mutationMs": 0.36784958500000015,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.2692500000000564,
+          "warmMs": 0.11622521000000006,
+          "mutationMs": 0.2230710399999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.4153329999999187,
+          "warmMs": 0.23708562500000085,
+          "mutationMs": 0.34748604,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11479199999985212,
+          "warmMs": 0.11386916499999984,
+          "mutationMs": 0.21598124999999982,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.8672090000000026,
+          "warmMs": 0.12746645999999942,
+          "mutationMs": 0.16395687500000009,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.30720800000017334,
+          "warmMs": 0.09734416499999952,
+          "mutationMs": 0.13939333499999976,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.2322919999999158,
+          "warmMs": 0.12914791500000092,
+          "mutationMs": 0.16344978999999968,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.09554199999979573,
+          "warmMs": 0.09565770499999986,
+          "mutationMs": 0.13453271000000086,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.7314169999999649,
+          "warmMs": 0.06751082999999994,
+          "mutationMs": 0.09672978999999941,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.14195799999993142,
+          "warmMs": 0.03166645499999959,
+          "mutationMs": 0.06009791500000006,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.12587500000017826,
+          "warmMs": 0.06363646000000017,
+          "mutationMs": 0.09267520999999988,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03249999999979991,
+          "warmMs": 0.030731250000000047,
+          "mutationMs": 0.06061125000000061,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "engine": "baseline",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 3.5065419999999676,
+          "warmMs": 0.059034164999999916,
+          "mutationMs": 0.09371666500000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.45137499999998454,
+          "warmMs": 0.06680000000000007,
+          "mutationMs": 0.18729625,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.9162919999999986,
+          "warmMs": 0.185308335,
+          "mutationMs": 0.18546437499999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.30287500000002865,
+          "warmMs": 0.08577437500000001,
+          "mutationMs": 0.30408582999999967,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.3742089999999507,
+          "warmMs": 0.2399768750000004,
+          "mutationMs": 0.2751056249999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7253749999999854,
+          "warmMs": 0.16446000000000027,
+          "mutationMs": 0.4865760449999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8427919999999176,
+          "warmMs": 0.5657558300000005,
+          "mutationMs": 0.5632766699999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8146249999999782,
+          "warmMs": 0.24274333500000012,
+          "mutationMs": 0.7899920850000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.43870899999978974,
+          "warmMs": 0.04982479499999954,
+          "mutationMs": 0.07940333499999952,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2420830000000933,
+          "warmMs": 0.047471249999999826,
+          "mutationMs": 0.14394187500000044,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.5208329999998114,
+          "warmMs": 0.22352917000000047,
+          "mutationMs": 0.22123624999999947,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.30712500000004184,
+          "warmMs": 0.08038979499999982,
+          "mutationMs": 0.27518895499999985,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.36287499999980355,
+          "warmMs": 0.04921270499999991,
+          "mutationMs": 0.07052979000000051,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.24016600000004473,
+          "warmMs": 0.042191249999999625,
+          "mutationMs": 0.13147395499999903,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.2642920000000686,
+          "warmMs": 0.14452333500000009,
+          "mutationMs": 0.1438635450000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.29720799999995506,
+          "warmMs": 0.062988335,
+          "mutationMs": 0.20455250000000091,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "engine": "candidate",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.921875,
+          "warmMs": 0.11429312500000009,
+          "mutationMs": 0.152660415,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5815830000000233,
+          "warmMs": 0.054137920000000006,
+          "mutationMs": 0.09621062499999994,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.3796249999999759,
+          "warmMs": 0.0937941649999999,
+          "mutationMs": 0.13979979000000015,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05079200000000128,
+          "warmMs": 0.04922812499999992,
+          "mutationMs": 0.09181562500000012,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.8641660000000115,
+          "warmMs": 0.2325268749999998,
+          "mutationMs": 0.338878335,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.23079200000006495,
+          "warmMs": 0.10736104000000012,
+          "mutationMs": 0.20006916999999988,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.36045899999999165,
+          "warmMs": 0.22542250000000025,
+          "mutationMs": 0.31775792000000025,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11416599999995469,
+          "warmMs": 0.1109643749999998,
+          "mutationMs": 0.19848374999999976,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.7039160000000493,
+          "warmMs": 0.11938187500000026,
+          "mutationMs": 0.1554785400000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.20799999999997,
+          "warmMs": 0.09197604000000012,
+          "mutationMs": 0.13331353999999976,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.1915000000000191,
+          "warmMs": 0.11953312500000038,
+          "mutationMs": 0.1566429149999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.10008399999992434,
+          "warmMs": 0.09204916499999967,
+          "mutationMs": 0.1285041650000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4834169999999176,
+          "warmMs": 0.06347667000000001,
+          "mutationMs": 0.09043104000000085,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.11999999999989086,
+          "warmMs": 0.02985645999999974,
+          "mutationMs": 0.0575,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.1007919999999558,
+          "warmMs": 0.060521249999999326,
+          "mutationMs": 0.09231249999999931,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03358299999990777,
+          "warmMs": 0.03063354000000004,
+          "mutationMs": 0.0582333349999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "engine": "baseline",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.940958999999964,
+          "warmMs": 0.061492705,
+          "mutationMs": 0.09660250000000019,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.49433299999998326,
+          "warmMs": 0.06919375000000003,
+          "mutationMs": 0.18776770999999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.02962500000001,
+          "warmMs": 0.18498604,
+          "mutationMs": 0.18689791500000014,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.316915999999992,
+          "warmMs": 0.08940708000000001,
+          "mutationMs": 0.30372979499999986,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.5620839999999134,
+          "warmMs": 0.23614000000000032,
+          "mutationMs": 0.2714727049999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7352090000000544,
+          "warmMs": 0.16590312499999982,
+          "mutationMs": 0.4934352100000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8552500000000691,
+          "warmMs": 0.5605147900000003,
+          "mutationMs": 0.5628843749999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.8133339999999407,
+          "warmMs": 0.2433668750000004,
+          "mutationMs": 0.7980183350000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.4176669999999376,
+          "warmMs": 0.05021333000000027,
+          "mutationMs": 0.07686374999999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.21929199999999582,
+          "warmMs": 0.04587396000000012,
+          "mutationMs": 0.14248000000000047,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4285419999998794,
+          "warmMs": 0.21054416500000003,
+          "mutationMs": 0.21351208499999985,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.28283399999986614,
+          "warmMs": 0.07880728999999974,
+          "mutationMs": 0.2728333299999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.2539589999998952,
+          "warmMs": 0.050904584999999544,
+          "mutationMs": 0.07164458500000023,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.24629200000003948,
+          "warmMs": 0.042755204999999706,
+          "mutationMs": 0.13114458499999956,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.26545899999996436,
+          "warmMs": 0.14517375000000016,
+          "mutationMs": 0.14622229000000062,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.20970899999997528,
+          "warmMs": 0.06296979000000079,
+          "mutationMs": 0.20436207999999964,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 4,
+      "engine": "baseline",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 3.358875000000012,
+          "warmMs": 0.05757833499999975,
+          "mutationMs": 0.09551103999999981,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.43583300000000236,
+          "warmMs": 0.06674396000000002,
+          "mutationMs": 0.18332791500000012,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.946790999999962,
+          "warmMs": 0.18351208000000013,
+          "mutationMs": 0.1838537500000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.3014580000000251,
+          "warmMs": 0.08471458000000012,
+          "mutationMs": 0.30314020999999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 1.4155420000000731,
+          "warmMs": 0.23516583499999968,
+          "mutationMs": 0.276665835,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7342079999999669,
+          "warmMs": 0.16751208500000017,
+          "mutationMs": 0.49167187499999954,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8572499999999081,
+          "warmMs": 0.5642431249999998,
+          "mutationMs": 0.5562370850000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7903329999999187,
+          "warmMs": 0.23816708500000006,
+          "mutationMs": 0.7794343749999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.42699999999990723,
+          "warmMs": 0.047649999999999866,
+          "mutationMs": 0.07464604000000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.21450000000004366,
+          "warmMs": 0.045992085000000314,
+          "mutationMs": 0.13523812499999963,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4343750000000455,
+          "warmMs": 0.2083822900000007,
+          "mutationMs": 0.20539312499999937,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2730410000001484,
+          "warmMs": 0.07736583499999938,
+          "mutationMs": 0.26855854000000023,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.34283300000015515,
+          "warmMs": 0.048866249999999806,
+          "mutationMs": 0.07008729499999959,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.25654199999985394,
+          "warmMs": 0.041342915000000174,
+          "mutationMs": 0.12848270999999956,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.25212499999997817,
+          "warmMs": 0.14290208499999948,
+          "mutationMs": 0.141800414999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.20162499999992178,
+          "warmMs": 0.06106062500000007,
+          "mutationMs": 0.19985083499999973,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": false
+        }
+      ]
+    },
+    {
+      "trial": 4,
+      "engine": "candidate",
+      "route": "direct",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.963708999999994,
+          "warmMs": 0.11245062500000018,
+          "mutationMs": 0.15596145500000005,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.5687090000000126,
+          "warmMs": 0.05600604500000003,
+          "mutationMs": 0.09758333499999992,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.3566250000000082,
+          "warmMs": 0.09936416499999978,
+          "mutationMs": 0.14461770999999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05566700000002811,
+          "warmMs": 0.05260854499999994,
+          "mutationMs": 0.09721667000000025,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.0677499999999895,
+          "warmMs": 0.24685458499999982,
+          "mutationMs": 0.3570493750000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.28537500000004457,
+          "warmMs": 0.11251896000000045,
+          "mutationMs": 0.2128929199999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.3802500000000464,
+          "warmMs": 0.22705395500000009,
+          "mutationMs": 0.3276772900000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11045799999999417,
+          "warmMs": 0.11101104499999963,
+          "mutationMs": 0.21022896000000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.7068749999999682,
+          "warmMs": 0.12100187500000004,
+          "mutationMs": 0.15790124999999988,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2049170000000231,
+          "warmMs": 0.09136271000000022,
+          "mutationMs": 0.13668583499999953,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.19916699999998855,
+          "warmMs": 0.1213904150000002,
+          "mutationMs": 0.15995728999999984,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.09400000000005093,
+          "warmMs": 0.09278166499999997,
+          "mutationMs": 0.13062625000000025,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4760830000000169,
+          "warmMs": 0.06561812499999974,
+          "mutationMs": 0.0925293750000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.12095899999985704,
+          "warmMs": 0.030571875000000547,
+          "mutationMs": 0.05827042000000006,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.10625000000004547,
+          "warmMs": 0.062498959999999215,
+          "mutationMs": 0.0951856250000003,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.033167000000048574,
+          "warmMs": 0.03044583500000044,
+          "mutationMs": 0.05952270999999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 4,
+      "engine": "baseline",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 6.990750000000048,
+          "warmMs": 0.06087416499999989,
+          "mutationMs": 0.09726771000000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.4966670000000022,
+          "warmMs": 0.06813625000000002,
+          "mutationMs": 0.18566416500000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 1.0392500000000382,
+          "warmMs": 0.18793312500000015,
+          "mutationMs": 0.18694208499999973,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.30970800000000054,
+          "warmMs": 0.08599812500000013,
+          "mutationMs": 0.30561020499999986,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.6402919999999312,
+          "warmMs": 0.23379708499999993,
+          "mutationMs": 0.270580415,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.7320409999999811,
+          "warmMs": 0.16537729000000012,
+          "mutationMs": 0.4854318749999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.8354999999999109,
+          "warmMs": 0.5562820850000003,
+          "mutationMs": 0.5750229150000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.9250420000000759,
+          "warmMs": 0.24840958499999943,
+          "mutationMs": 0.8505806250000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.4906670000000304,
+          "warmMs": 0.05180312500000014,
+          "mutationMs": 0.0808356249999997,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2691669999999249,
+          "warmMs": 0.04910854000000086,
+          "mutationMs": 0.14716895999999907,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.4131250000000364,
+          "warmMs": 0.21759458499999937,
+          "mutationMs": 0.22157791999999973,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2887909999999465,
+          "warmMs": 0.08200104499999952,
+          "mutationMs": 0.28278749999999947,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.5088330000000951,
+          "warmMs": 0.05507958500000086,
+          "mutationMs": 0.07605729499999939,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.26520799999980227,
+          "warmMs": 0.04420812500000011,
+          "mutationMs": 0.1384812499999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.28737500000011096,
+          "warmMs": 0.15122104499999978,
+          "mutationMs": 0.15158229000000006,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.2259999999998854,
+          "warmMs": 0.06618458499999974,
+          "mutationMs": 0.2155518749999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    },
+    {
+      "trial": 4,
+      "engine": "candidate",
+      "route": "host",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 9.439707999999996,
+          "warmMs": 0.11468499999999977,
+          "mutationMs": 0.15419603999999992,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.6102080000000001,
+          "warmMs": 0.055069790000000014,
+          "mutationMs": 0.09411749999999984,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 0.32766700000001947,
+          "warmMs": 0.09716187500000018,
+          "mutationMs": 0.13829000000000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "original",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 125,
+          "firstMs": 0.05324999999999136,
+          "warmMs": 0.0508416699999998,
+          "mutationMs": 0.09103812500000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.0729580000000283,
+          "warmMs": 0.2391154149999997,
+          "mutationMs": 0.3415131250000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.2524999999999409,
+          "warmMs": 0.1091500000000002,
+          "mutationMs": 0.20359666500000004,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 0.38075000000003456,
+          "warmMs": 0.22606520999999988,
+          "mutationMs": 0.32005729499999974,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "wide",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 256,
+          "firstMs": 0.11041599999998652,
+          "warmMs": 0.10932645499999978,
+          "mutationMs": 0.2117697949999996,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.9182080000000497,
+          "warmMs": 0.123515625,
+          "mutationMs": 0.16697604000000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.254291999999964,
+          "warmMs": 0.09412103999999999,
+          "mutationMs": 0.1307118749999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.181583000000046,
+          "warmMs": 0.12085083499999996,
+          "mutationMs": 0.15615791999999998,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "deep",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.09249999999997272,
+          "warmMs": 0.09465791500000023,
+          "mutationMs": 0.12740479499999993,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.6304999999999836,
+          "warmMs": 0.0661287500000003,
+          "mutationMs": 0.0908952099999999,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.11316699999997581,
+          "warmMs": 0.030809584999999515,
+          "mutationMs": 0.05758437500000014,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.10599999999999454,
+          "warmMs": 0.06774375000000077,
+          "mutationMs": 0.09226625000000013,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        },
+        {
+          "shape": "mixed",
+          "scope": "element",
+          "selector": ".box .block.inner > .content",
+          "matches": 64,
+          "firstMs": 0.03395799999998417,
+          "warmMs": 0.030474169999999957,
+          "mutationMs": 0.059874790000000074,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "engine": "baseline",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 4.861749999999972,
+          "warmMs": 0.060662294999999915,
+          "mutationMs": 0.09414937500000008,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 6
+            },
+            {
+              "frame": "matchLeaves (evaluator.js:240)",
+              "samples": 6
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 3
+            },
+            {
+              "frame": "exports.DOMString (index.js:240)",
+              "samples": 2
+            },
+            {
+              "frame": "namedItem (HTMLCollection-impl.js:25)",
+              "samples": 2
+            },
+            {
+              "frame": "yieldCombinatorMatches (evaluator.js:1138)",
+              "samples": 2
+            },
+            {
+              "frame": "#dfsComplexBranchNext (finder.js:857)",
+              "samples": 2
+            },
+            {
+              "frame": "isArrayIndexPropName (utils.js:157)",
+              "samples": 2
+            },
+            {
+              "frame": "next (TreeIterator.js:16)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "getElementsByClassName (Document.js:225)",
+              "samples": 1
+            },
+            {
+              "frame": "contains (DOMTokenList.js:135)",
+              "samples": 1
+            },
+            {
+              "frame": "#evaluatePseudoClassFunc (evaluator.js:1946)",
+              "samples": 1
+            },
+            {
+              "frame": "matchSelector (evaluator.js:219)",
+              "samples": 1
+            },
+            {
+              "frame": "yieldFindDescendantNodes (evaluator.js:1243)",
+              "samples": 1
+            }
+          ]
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.710083000000054,
+          "warmMs": 0.22583895499999984,
+          "mutationMs": 0.28917395999999995,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 35
+            },
+            {
+              "frame": "matchLeaves (evaluator.js:240)",
+              "samples": 29
+            },
+            {
+              "frame": "#matchSelectorForElement (evaluator.js:2149)",
+              "samples": 21
+            },
+            {
+              "frame": "yieldCombinatorMatches (evaluator.js:1138)",
+              "samples": 10
+            },
+            {
+              "frame": "#matchAnPlusB (evaluator.js:1354)",
+              "samples": 8
+            },
+            {
+              "frame": "matchSelector (evaluator.js:219)",
+              "samples": 6
+            },
+            {
+              "frame": "yieldFindDescendantNodes (evaluator.js:1243)",
+              "samples": 5
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 5
+            },
+            {
+              "frame": "contains (DOMTokenList.js:135)",
+              "samples": 5
+            },
+            {
+              "frame": "next (TreeIterator.js:16)",
+              "samples": 5
+            },
+            {
+              "frame": "exports.getAttributeByNameNS (attributes.js:191)",
+              "samples": 3
+            },
+            {
+              "frame": "get nextElementSibling (Element.js:3404)",
+              "samples": 3
+            },
+            {
+              "frame": "get nodeType (Node.js:479)",
+              "samples": 3
+            },
+            {
+              "frame": "#evaluatePseudoClassFunc (evaluator.js:1946)",
+              "samples": 3
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 3
+            }
+          ]
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.4032090000000608,
+          "warmMs": 0.04938750000000027,
+          "mutationMs": 0.07916021000000001,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "#matchAnPlusB (evaluator.js:1354)",
+              "samples": 5
+            },
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 4
+            },
+            {
+              "frame": "matchPseudoClassSelector (evaluator.js:363)",
+              "samples": 3
+            },
+            {
+              "frame": "get nodeType (Node.js:479)",
+              "samples": 3
+            },
+            {
+              "frame": "yieldCombinatorMatches (evaluator.js:1138)",
+              "samples": 2
+            },
+            {
+              "frame": "#filterAndFormatCollection (finder.js:335)",
+              "samples": 2
+            },
+            {
+              "frame": "matchLeaves (evaluator.js:240)",
+              "samples": 2
+            },
+            {
+              "frame": "get (DOMTokenList.js:400)",
+              "samples": 2
+            },
+            {
+              "frame": "yieldFindDescendantNodes (evaluator.js:1243)",
+              "samples": 2
+            },
+            {
+              "frame": "#matchSelectorForElement (evaluator.js:2149)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "get firstElementChild (Element.js:3426)",
+              "samples": 1
+            },
+            {
+              "frame": "querySelectorAll (index.js:362)",
+              "samples": 1
+            },
+            {
+              "frame": "isArrayIndexPropName (utils.js:157)",
+              "samples": 1
+            },
+            {
+              "frame": "querySelectorAll (ParentNode-impl.js:73)",
+              "samples": 1
+            }
+          ]
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.2828330000002097,
+          "warmMs": 0.05020812500000034,
+          "mutationMs": 0.06961145999999985,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 13
+            },
+            {
+              "frame": "matchLeaves (evaluator.js:240)",
+              "samples": 5
+            },
+            {
+              "frame": "#matchSelectorForElement (evaluator.js:2149)",
+              "samples": 3
+            },
+            {
+              "frame": "yieldCombinatorMatches (evaluator.js:1138)",
+              "samples": 2
+            },
+            {
+              "frame": "get nodeType (Node.js:479)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "isArrayIndexPropName (utils.js:157)",
+              "samples": 1
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 1
+            },
+            {
+              "frame": "get documentElement (Document-impl.js:396)",
+              "samples": 1
+            },
+            {
+              "frame": "#matchAnPlusB (evaluator.js:1354)",
+              "samples": 1
+            },
+            {
+              "frame": "implForWrapper (utils.js:118)",
+              "samples": 1
+            },
+            {
+              "frame": "get (HTMLCollection.js:189)",
+              "samples": 1
+            },
+            {
+              "frame": "get (DOMTokenList.js:400)",
+              "samples": 1
+            },
+            {
+              "frame": "yieldFindDescendantNodes (evaluator.js:1243)",
+              "samples": 1
+            },
+            {
+              "frame": "namedItem (HTMLCollection-impl.js:25)",
+              "samples": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "candidate",
+      "rows": [
+        {
+          "shape": "original",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 25,
+          "firstMs": 12.171583000000055,
+          "warmMs": 0.1319033350000001,
+          "mutationMs": 0.16958833500000026,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "Resolver (:3)",
+              "samples": 28
+            },
+            {
+              "frame": "get parentElement (Node.js:535)",
+              "samples": 15
+            },
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 10
+            },
+            {
+              "frame": "classOf (nwsapi.js:1243)",
+              "samples": 8
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 7
+            },
+            {
+              "frame": "_querySelectorAll (nwsapi.js:3864)",
+              "samples": 4
+            },
+            {
+              "frame": "exports.getAttributeByNameNS (attributes.js:191)",
+              "samples": 3
+            },
+            {
+              "frame": "(garbage collector) (:0)",
+              "samples": 2
+            },
+            {
+              "frame": "get previousElementSibling (Element.js:3393)",
+              "samples": 2
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 2
+            },
+            {
+              "frame": "pop (custom-elements.js:29)",
+              "samples": 2
+            },
+            {
+              "frame": "invokeCEReactions (custom-elements.js:188)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "takeRecords (MutationObserver.js:151)",
+              "samples": 1
+            },
+            {
+              "frame": "collectionCopy (nwsapi.js:1051)",
+              "samples": 1
+            }
+          ]
+        },
+        {
+          "shape": "wide",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 60,
+          "firstMs": 2.39066600000001,
+          "warmMs": 0.2578045850000001,
+          "mutationMs": 0.3704475000000002,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "Resolver (:3)",
+              "samples": 52
+            },
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 30
+            },
+            {
+              "frame": "get parentElement (Node.js:535)",
+              "samples": 24
+            },
+            {
+              "frame": "classOf (nwsapi.js:1243)",
+              "samples": 17
+            },
+            {
+              "frame": "_querySelectorAll (nwsapi.js:3864)",
+              "samples": 14
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 14
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 8
+            },
+            {
+              "frame": "(anonymous) (nwsapi.js:1412)",
+              "samples": 7
+            },
+            {
+              "frame": "get className (Element.js:1197)",
+              "samples": 6
+            },
+            {
+              "frame": "exports.getAttributeByNameNS (attributes.js:191)",
+              "samples": 6
+            },
+            {
+              "frame": "get previousElementSibling (Element.js:3393)",
+              "samples": 6
+            },
+            {
+              "frame": "wrapperForImpl (utils.js:141)",
+              "samples": 5
+            },
+            {
+              "frame": "get parentElement (Node-impl.js:466)",
+              "samples": 4
+            },
+            {
+              "frame": "isObject (utils.js:4)",
+              "samples": 3
+            },
+            {
+              "frame": "next (TreeIterator.js:16)",
+              "samples": 3
+            }
+          ]
+        },
+        {
+          "shape": "deep",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 1.1203749999999673,
+          "warmMs": 0.1351670850000005,
+          "mutationMs": 0.17444500000000063,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "Resolver (:3)",
+              "samples": 40
+            },
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 21
+            },
+            {
+              "frame": "get className (Element.js:1197)",
+              "samples": 11
+            },
+            {
+              "frame": "get parentElement (Node.js:535)",
+              "samples": 10
+            },
+            {
+              "frame": "classOf (nwsapi.js:1243)",
+              "samples": 4
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 4
+            },
+            {
+              "frame": "_querySelectorAll (nwsapi.js:3864)",
+              "samples": 3
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 3
+            },
+            {
+              "frame": "(anonymous) (nwsapi.js:1412)",
+              "samples": 2
+            },
+            {
+              "frame": "get parentElement (Node-impl.js:466)",
+              "samples": 2
+            },
+            {
+              "frame": "collectionCopy (nwsapi.js:1051)",
+              "samples": 2
+            },
+            {
+              "frame": "wrapperForImpl (utils.js:141)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "get (Document.js:4307)",
+              "samples": 1
+            },
+            {
+              "frame": "tryWrapperForImpl (utils.js:145)",
+              "samples": 1
+            }
+          ]
+        },
+        {
+          "shape": "mixed",
+          "scope": "document",
+          "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+          "matches": 12,
+          "firstMs": 0.6849580000002788,
+          "warmMs": 0.0726585399999999,
+          "mutationMs": 0.10184166500000175,
+          "mutationCorrect": true,
+          "unnotifiedMutationCorrect": true,
+          "profile": [
+            {
+              "frame": "Resolver (:3)",
+              "samples": 18
+            },
+            {
+              "frame": "implForWrapperWithInterface (utils.js:125)",
+              "samples": 8
+            },
+            {
+              "frame": "classOf (nwsapi.js:1243)",
+              "samples": 5
+            },
+            {
+              "frame": "(program) (:0)",
+              "samples": 4
+            },
+            {
+              "frame": "wrapperForImpl (utils.js:141)",
+              "samples": 4
+            },
+            {
+              "frame": "(anonymous) (nwsapi.js:1412)",
+              "samples": 4
+            },
+            {
+              "frame": "_node (SymbolTree.js:49)",
+              "samples": 3
+            },
+            {
+              "frame": "get parentElement (Node.js:535)",
+              "samples": 3
+            },
+            {
+              "frame": "exports.getAttributeByNameNS (attributes.js:191)",
+              "samples": 2
+            },
+            {
+              "frame": "isObject (utils.js:4)",
+              "samples": 2
+            },
+            {
+              "frame": "get previousElementSibling (NonDocumentTypeChildNode-impl.js:16)",
+              "samples": 2
+            },
+            {
+              "frame": "post (node:inspector:115)",
+              "samples": 1
+            },
+            {
+              "frame": "_querySelectorAll (nwsapi.js:3864)",
+              "samples": 1
+            },
+            {
+              "frame": "getAttributeNS (Element-impl.js:203)",
+              "samples": 1
+            },
+            {
+              "frame": "get documentElement (Document-impl.js:396)",
+              "samples": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

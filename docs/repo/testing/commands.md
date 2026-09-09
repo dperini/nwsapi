@@ -55,4 +55,14 @@ Use a prepared `jsdom` checkout with its dependencies installed:
 node scripts/repo/bench/complex-selectors.mts --host /absolute/path/to/jsdom
 ```
 
-The script writes `assets/repo/bench/complex-selectors.json`. It runs fresh worker processes for direct and public-host queries, checks fixture-derived results, records mutation controls, and collects separate CPU profile summaries. Run it without concurrent test or benchmark jobs. The [performance journal](../perf/journal.md#complex-sibling-and-descendant-queries) explains the fixtures, integration contract, and remaining gaps.
+The script writes `assets/repo/bench/complex-selectors.json`. It runs fresh worker processes for direct and public-host queries, checks fixture-derived results, records mutation controls, and collects separate CPU profile summaries when passed `--profile`. Run it without concurrent test or benchmark jobs. The [performance journal](../perf/journal.md#complex-sibling-and-descendant-queries) explains the fixtures, integration contract, and remaining gaps.
+
+## Compare general `:has()` queries
+
+Keep a separately built baseline engine outside this checkout, build the candidate, and run:
+
+```sh
+node scripts/repo/bench/has.mts --baseline /absolute/path/to/baseline/nwsapi.js --profile
+```
+
+The script writes `assets/repo/bench/has.json`. It checks node identity and order before recording warm and first-query timings. Cases cover many matches, a late match, misses, branch lists, siblings, positional selectors, and the existing direct-child shortcut. Five rounds alternate engine order. Optional CPU profiles run after the timed batches. Run this comparison without concurrent test or benchmark jobs. The [performance journal](../perf/journal.md#adjacent-class-reads-and-general-has-queries) records the measured gains and limits.

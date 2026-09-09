@@ -422,3 +422,45 @@ The wide mutation-and-query case fell from 596.5µs to 350.9µs, about 41% lower
 The operation-count guard checks a 100-element sibling list. It verifies the 99 matching nodes and requires fewer than 200 preceding-sibling reads. The changed build uses 99 reads. Tests also cover compound restrictions, combinator boundaries, logical selectors, fragments, shadow roots, public matching, and callbacks. Public selection callbacks retain their collected-result behavior, and compiled resolver callbacks can still change later matches.
 
 The readable core grows by 413bytes, including 91bytes after gzip and 79bytes after Brotli. The next traversal investigation should focus on repeated ancestor and class checks in the small and deep fixtures. This change does not resolve general `:has()` parsing and result-collection work.
+
+## Adjacent class reads and general `:has()` queries
+
+Adjacent class predicates now share one class-value read. For example, matching `.a.b.c` reads the value once and tests all three classes in the existing right-to-left order. The value is local to that predicate evaluation. SVG handling, escaped identifiers, quirks mode, and later DOM changes keep their existing behavior.
+
+General `:has()` now separates branch compilation from candidate matching. A bounded cache stores compiled relative plans and lookup tokens. It is allocated on first use and discarded when the document or selector configuration changes. Every branch is compiled before an early match can return, so a valid branch cannot hide an invalid later branch. Each branch then uses one compiled loop that stops at its first result. Positional indexes remain shared within that loop and are cleared when it exits. Candidate collections are still fetched for each call. The cache stores no anchors or result collections.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The before engine is `c107cb1`. The [general has report](../../../assets/repo/bench/has.json) records both engine hashes and raw samples. Run [has.mts](../../../scripts/repo/bench/has.mts) with `--baseline` pointing to that separately built engine and `--profile` to collect separate CPU samples. Seven fixtures each contain 20 sections with 20 children per section. Five rounds alternate engine order, with 100 warm queries and 10 fresh-engine first queries per round. First-query timers exclude engine construction. Identity and order checks run outside the timers. These are direct calls in `jsdom` 30.0.1 on Node 26.5.0 and an Apple M3 Max, without concurrent test jobs or rendering.
+
+The [traversal report](../../../assets/repo/bench/complex-selectors-class-reads.json) uses the same fixtures and host contract as the preceding entry. It adds separate CPU profiles for the original and deep fixtures. Its timings and the preceding report are separate runs, not a paired experiment isolating the class change. The host comparison remains pinned to `@asamuzakjp/dom-selector` 9.0.1.
+
+</details>
+
+| Warm `select()` case | Before | After |
+| --- | ---: | ---: |
+| Many matching descendants | 73.09µs | 10.16µs |
+| Last descendant matches | 56.39µs | 36.26µs |
+| No descendant matches | 59.14µs | 35.96µs |
+| Matching branch followed by a miss | 131.99µs | 10.43µs |
+| Adjacent section with matching descendants | 6910.35µs | 3716.00µs |
+| Twentieth child matches | 96.01µs | 61.49µs |
+| Existing direct-child type shortcut | 4.96µs | 5.20µs |
+
+The many-hit case benefits from both plan reuse and early exit. Late hits and misses still inspect their candidate lists, but avoid repeated parsing and plan construction. The sibling case still searches a broad parent context and remains much more expensive. The direct-child control follows its existing shortcut and stays close to its prior time. These fixtures do not establish a universal `:has()` speedup.
+
+Warm `first()` for the many-hit case fell from 4.27µs to 1.12µs. Its cold first query stayed close, at 196.77µs before and 199.64µs after. Cold all-result selection for the same fixture fell from 322.91µs to 250.02µs. The separate baseline CPU profile sampled parsing and collection work prominently. The candidate profile contains only seven samples over the same query count, so it is too short to rank its remaining costs reliably.
+
+| Warm host traversal | Before | After | Pinned host baseline after |
+| --- | ---: | ---: | ---: |
+| Original complex fixture | 119.23µs | 122.31µs | 61.49µs |
+| Wide complex fixture | 259.47µs | 247.97µs | 233.80µs |
+| Deep complex fixture | 126.15µs | 127.11µs | 51.80µs |
+| Mixed complex fixture | 69.35µs | 67.73µs | 51.30µs |
+
+These public-host measurements show no reliable improvement in the original or deep fixture. Their profiles still contain repeated resolver, parent-element, and class-access work. Sharing adjacent class reads reduces measured property reads but does not solve repeated ancestor traversal. The small wide and mixed timing differences should not be treated as proof that the remaining traversal gap is closed.
+
+The refreshed [native-memory report](../../../assets/repo/bench/memory-footprint.json) records 9.28KiB after initialization and 75.92KiB after 100 distinct queries per engine. It uses Chromium 151.0.7922.34, 40 retained documents, five alternating rounds, and forced garbage collection. DOM allocation and shared library code are outside the measured increment. Its comparison package is `@asamuzakjp/dom-selector` 8.3.2, separate from the host timing baseline. This existing workload does not use general `:has()` and therefore does not measure the populated new plan cache.
+
+The readable core grows by 1839bytes, including 431bytes after gzip and 363bytes after Brotli. The size and memory charts have been regenerated. Validation passed 662 unit tests, 147 integration tests, and all 141 selected WPT pages in both modern and legacy runs. Accumulated coverage is 98.51% of executable lines and 96.28% of type identifiers. Operation-count tests require one class read for `.a.b.c` and one successful attribute check per anchor in the many-hit fixture.
