@@ -5,13 +5,75 @@ import { expect, test, vi, type TestContext } from 'vitest'
 
 const require = createRequire(import.meta.url)
 const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const minified: typeof factory = require('../../../dist/nwsapi.min.js')
 
-function fixture(t: TestContext) {
+function fixture(t: TestContext, make = factory) {
   const { window } = new JSDOM(
     '<main><p data-score="2"></p><p data-score="3"></p><i></i></main>',
   )
   t.onTestFinished(() => window.close())
-  return { window, engine: factory(window), doc: window.document }
+  return { window, engine: make(window), doc: window.document }
+}
+
+for (const [label, make] of [
+  ['source', factory],
+  ['minified', minified],
+] as const) {
+  test(`${label}: double-colon extensions compose without replacing built-in pseudo-elements`, t => {
+    const { engine, doc, window } = fixture(t, make)
+    const nodes = Array.from(doc.getElementsByTagName('p'))
+    const other = doc.querySelector('i')!
+    nodes[0]!.className = 'item'
+    engine.registerSelector('custom', /^::custom(.*)/, (match, source) => ({
+      match,
+      status: true,
+      source: `if(e.localName==="p"){${source}}`,
+    }))
+    engine.registerSelector('declined', /^::declined(.*)/, (match, source) => ({
+      match,
+      source,
+      status: false,
+    }))
+    engine.registerSelector('before', /^::before(.*)/, () => {
+      throw Error('replaced built-in pseudo-element')
+    })
+    for (const legacy of [false, true] as const) {
+      engine.configure({ LEGACY: legacy })
+      for (const selector of [
+        '::custom',
+        'p::custom',
+        'main > ::custom',
+        ':is(::custom)',
+        ':where(::custom)',
+      ] as const) {
+        expect(engine.select(selector, doc), selector).toEqual(nodes)
+        expect(engine.first(selector, doc), selector).toBe(nodes[0])
+        expect(engine.match(selector, nodes[0]!), selector).toBe(true)
+        expect(engine.match(selector, other), selector).toBe(false)
+      }
+      for (const selector of [
+        '::custom.item',
+        '::custom[data-score="2"]',
+        '::custom:not([data-score="3"])',
+      ] as const) {
+        expect(engine.select(selector, doc), selector).toEqual([nodes[0]])
+        expect(engine.match(selector, nodes[1]!), selector).toBe(false)
+      }
+      expect(engine.match(':not(::custom)', nodes[0]!)).toBe(false)
+      expect(engine.match(':not(::custom)', other)).toBe(true)
+      expect(engine.select('::before', doc)).toEqual([])
+      for (const selector of [
+        '::unknown',
+        '::declined',
+        '::before.item',
+        '::custom::before.item',
+      ] as const) {
+        expect(() => engine.select(selector, doc), selector).toThrow()
+      }
+    }
+    // Registration remains local to its engine instance.
+    expect(() => make(window).select('::custom', doc)).toThrow()
+  })
 }
 
 test('selector extensions declare local variables in both resolver modes and compose with built-ins', t => {

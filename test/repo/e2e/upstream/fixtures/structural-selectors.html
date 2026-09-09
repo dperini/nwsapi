@@ -1,0 +1,117 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Selector API checks using upstream structural fixtures</title>
+<link rel="help" href="https://drafts.csswg.org/selectors/#child-index" />
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<div id="log"></div>
+<script>
+  // These upstream pages are rendering tests. Keep their original DOM and
+  // assert through installed selector APIs instead of counting rendered color
+  // as engine coverage. Indices below refer to the original body's children.
+  const cases = [
+    ['nth-child-of-classname-002.html', 'div:nth-child(-n+3 of .test)', 'test'],
+    [
+      'nth-child-of-nth-child.html',
+      'div:nth-child(even of :nth-child(even))',
+      'test',
+    ],
+    ['nth-child-of-has.html', 'div:nth-child(even of :has(span))', 'test'],
+    ['nth-child-of-attribute.html', 'div:nth-child(3n-1 of [align])', 'test'],
+    [
+      'nth-child-of-compound-selector.html',
+      'p:nth-child(3n+1 of p.foobar:not([class=foobar]))',
+      [0, 7],
+    ],
+    [
+      'nth-child-of-complex-selector.html',
+      'p:nth-child(4n of html:root>body>p+p:not(empty), :not(*), p:not(p), span, .notthere)',
+      [4, 8],
+    ],
+    ['nth-child-of-tagname.html', ':nth-child(odd of webkit, fast)', [0, 7]],
+    [
+      'nth-last-child-of-classname.html',
+      'p:nth-last-child(even of .webkit, .fast)',
+      [3, 8],
+    ],
+    ['nth-child-of-no-space-after-of.html', ':nth-child(3 of.target)', [12]],
+    ['nth-child-of-no-space-after-of.html', ':nth-child(3 of[target])', [18]],
+    [
+      'nth-last-child-of-no-space-after-of.html',
+      ':nth-last-child(1 of.target)',
+      [12],
+    ],
+    [
+      'nth-last-child-of-no-space-after-of.html',
+      ':nth-last-child(1 of[target])',
+      [18],
+    ],
+  ]
+
+  for (const [file, selector, expectedNodes] of cases) {
+    promise_test(
+      async t => {
+        const frame = document.createElement('iframe')
+        t.add_cleanup(() => frame.remove())
+        await new Promise(resolve => {
+          frame.onload = resolve
+          frame.src = '/css/selectors/' + file
+          document.body.append(frame)
+        })
+        const doc = frame.contentDocument
+        assert_true(
+          frame.contentWindow.__nwInstalledAPIs.every(Boolean),
+          'Frame uses all installed selector APIs',
+        )
+        const expected =
+          typeof expectedNodes === 'string'
+            ? Array.from(doc.getElementsByClassName(expectedNodes))
+            : expectedNodes.map(index => doc.body.children[index])
+        assert_greater_than(expected.length, 0, 'Fixture has matching elements')
+        assert_true(expected.every(Boolean), 'Expected fixture positions exist')
+        assert_array_equals(
+          Array.from(doc.querySelectorAll(selector)),
+          expected,
+        )
+        assert_equals(doc.querySelector(selector), expected[0])
+        for (const node of doc.getElementsByTagName('*')) {
+          assert_equals(
+            node.matches(selector),
+            expected.includes(node),
+            node.outerHTML,
+          )
+        }
+      },
+      file + ': ' + selector,
+    )
+  }
+
+  // DOM API adaptation of /css/selectors/nth-of-type-namespace.html. The
+  // upstream page asserts color, so its namespace setup alone is reused here.
+  test(t => {
+    const container = document.createElement('div')
+    document.body.append(container)
+    t.add_cleanup(() => container.remove())
+    const expected = []
+    for (const namespace of [
+      'http://www.w3.org/1999/xhtml',
+      'urn:first',
+      'urn:second',
+    ]) {
+      for (let i = 0; i < 100; i++) {
+        const span = document.createElementNS(namespace, 'span')
+        container.append(span)
+        if (i === 99) expected.push(span)
+      }
+    }
+    const selector = 'span:nth-of-type(100)'
+    assert_array_equals(
+      Array.from(container.querySelectorAll(selector)),
+      expected,
+    )
+    assert_equals(container.querySelector(selector), expected[0])
+    for (const span of container.children) {
+      assert_equals(span.matches(selector), expected.includes(span))
+    }
+  }, 'Typed positions count namespaces separately through selector APIs')
+</script>

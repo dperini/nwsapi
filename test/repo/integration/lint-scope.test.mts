@@ -21,6 +21,8 @@ test('the lint runner includes source, tests, scripts, and config', () => {
   for (const file of [
     'bin/nwsapi.mts',
     'src/nwsapi.mts',
+    'src/external/unicode.js',
+    'src/external/unicode.d.ts',
     'src/dom-selector.mts',
     'src/modules/nwsapi-jquery.mts',
     'scripts/repo/lint.mts',
@@ -34,7 +36,11 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     expect(files).toContain(file)
   }
   expect(
-    files.some(file => file.endsWith('.js') || file.startsWith('upstream/')),
+    files.some(
+      file =>
+        (file.endsWith('.js') && !file.startsWith('src/external/')) ||
+        file.startsWith('upstream/'),
+    ),
   ).toBe(false)
 })
 
@@ -43,11 +49,15 @@ test('lint and format share a scope that excludes generated and upstream files',
   expect(files).toContain('src/nwsapi.mts')
   expect(files).toContain('scripts/repo/format.mts')
   expect(files).toContain('.config/runtime.d.ts')
-  expect(files.every(file => !file.endsWith('.js'))).toBe(true)
+  expect(files).toContain('src/external/unicode.js')
+  expect(files).toContain('src/external/unicode.d.ts')
+  expect(files).not.toContain('src/nwsapi.js')
+  expect(files).not.toContain('dist/external/unicode.js')
   expect(files.some(file => file.startsWith('upstream/'))).toBe(false)
-  expect(
-    files.some(file => file.startsWith('test/repo/e2e/upstream/fixtures/')),
-  ).toBe(false)
+  expect(files).toContain('test/repo/e2e/upstream/fixtures/switch-idl.mts')
+  expect(files).not.toContain(
+    'test/repo/e2e/upstream/fixtures/wrapper-arguments.html',
+  )
 })
 
 test('lint requires literals for static regexes and allows dynamic patterns', t => {

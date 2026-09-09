@@ -37,7 +37,10 @@
     "bin/nwsapi.js",
     "dist/cli.js",
     "dist/nwsapi.min.js",
-    "src/**/*.js"
+    "dist/external/*.js",
+    "dist/external/*.d.ts",
+    "src/**/*.js",
+    "!src/external/**"
   ],
   "main": "./src/nwsapi",
   "scripts": {
@@ -54,6 +57,7 @@
     "gen:bench": "node scripts/repo/run.mts scripts/repo/gen/benchmark-charts.mts && node scripts/repo/run.mts scripts/repo/gen/readme-performance.mts && node scripts/repo/run.mts scripts/repo/gen/footprint-charts.mts",
     "bench:selectors": "node scripts/repo/run.mts scripts/repo/bench/run.mts selectors",
     "check:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts",
+    "check:wpt-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/scope.mts",
     "fix:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts --fix",
     "gen:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts",
     "check:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts --check",
@@ -108,6 +112,7 @@
     "@types/istanbul-reports": "catalog:",
     "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
+    "@unicode/unicode-17.0.0": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitiate/core": "catalog:",
     "acorn": "catalog:",

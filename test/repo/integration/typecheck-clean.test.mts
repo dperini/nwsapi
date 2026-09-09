@@ -33,6 +33,8 @@ test('type and lint checks pass without build outputs or an incremental cache', 
     [
       'bin/**/*.mts',
       'src/**/*.mts',
+      'src/external/*.js',
+      'src/external/*.d.ts',
       'scripts/repo/**/*.mts',
       'test/repo/**/*.mts',
       '.config/*.mts',

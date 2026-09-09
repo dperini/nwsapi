@@ -1,0 +1,283 @@
+{
+  "recorded": "2026-09-08T22:44:31.932Z",
+  "baseline": "6b87731",
+  "hashes": {
+    "before": "45c4f6e3bf7a85a81da31fd4d7edaa605d13b3e2386d65015f06297c0adb9848",
+    "after": "e4f7c28f458476b17924c7fa7e93d1cca6c4dc0032ab17e55611867a21eec02c"
+  },
+  "node": "v26.5.0",
+  "v8": "14.6.202.34-node.24",
+  "cpu": "Apple M3 Max",
+  "html": "<!doctype html><main><p id=\"p0\"></p><p id=\"p1\" class=\"item\"></p><p id=\"p2\" class=\"item\"></p><p id=\"p3\"></p><p id=\"p4\" class=\"item\"></p><p id=\"p5\" class=\"item\"></p><p id=\"p6\"></p><p id=\"p7\" class=\"item\"></p><p id=\"p8\" class=\"item\"></p><p id=\"p9\"></p><p id=\"p10\" class=\"item\"></p><p id=\"p11\" class=\"item\"></p><p id=\"p12\"></p><p id=\"p13\" class=\"item\"></p><p id=\"p14\" class=\"item\"></p><p id=\"p15\"></p><p id=\"p16\" class=\"item\"></p><p id=\"p17\" class=\"item\"></p><p id=\"p18\"></p><p id=\"p19\" class=\"item\"></p><p id=\"p20\" class=\"item\"></p><p id=\"p21\"></p><p id=\"p22\" class=\"item\"></p><p id=\"p23\" class=\"item\"></p><p id=\"p24\"></p><p id=\"p25\" class=\"item\"></p><p id=\"p26\" class=\"item\"></p><p id=\"p27\"></p><p id=\"p28\" class=\"item\"></p><p id=\"p29\" class=\"item\"></p><p id=\"p30\"></p><p id=\"p31\" class=\"item\"></p><p id=\"p32\" class=\"item\"></p><p id=\"p33\"></p><p id=\"p34\" class=\"item\"></p><p id=\"p35\" class=\"item\"></p><p id=\"p36\"></p><p id=\"p37\" class=\"item\"></p><p id=\"p38\" class=\"item\"></p><p id=\"p39\"></p><p id=\"p40\" class=\"item\"></p><p id=\"p41\" class=\"item\"></p><p id=\"p42\"></p><p id=\"p43\" class=\"item\"></p><p id=\"p44\" class=\"item\"></p><p id=\"p45\"></p><p id=\"p46\" class=\"item\"></p><p id=\"p47\" class=\"item\"></p><p id=\"p48\"></p><p id=\"p49\" class=\"item\"></p><p id=\"p50\" class=\"item\"></p><p id=\"p51\"></p><p id=\"p52\" class=\"item\"></p><p id=\"p53\" class=\"item\"></p><p id=\"p54\"></p><p id=\"p55\" class=\"item\"></p><p id=\"p56\" class=\"item\"></p><p id=\"p57\"></p><p id=\"p58\" class=\"item\"></p><p id=\"p59\" class=\"item\"></p><p id=\"p60\"></p><p id=\"p61\" class=\"item\"></p><p id=\"p62\" class=\"item\"></p><p id=\"p63\"></p><p id=\"p64\" class=\"item\"></p><p id=\"p65\" class=\"item\"></p><p id=\"p66\"></p><p id=\"p67\" class=\"item\"></p><p id=\"p68\" class=\"item\"></p><p id=\"p69\"></p><p id=\"p70\" class=\"item\"></p><p id=\"p71\" class=\"item\"></p><p id=\"p72\"></p><p id=\"p73\" class=\"item\"></p><p id=\"p74\" class=\"item\"></p><p id=\"p75\"></p><p id=\"p76\" class=\"item\"></p><p id=\"p77\" class=\"item\"></p><p id=\"p78\"></p><p id=\"p79\" class=\"item\"></p><p id=\"p80\" class=\"item\"></p><p id=\"p81\"></p><p id=\"p82\" class=\"item\"></p><p id=\"p83\" class=\"item\"></p><p id=\"p84\"></p><p id=\"p85\" class=\"item\"></p><p id=\"p86\" class=\"item\"></p><p id=\"p87\"></p><p id=\"p88\" class=\"item\"></p><p id=\"p89\" class=\"item\"></p><p id=\"p90\"></p><p id=\"p91\" class=\"item\"></p><p id=\"p92\" class=\"item\"></p><p id=\"p93\"></p><p id=\"p94\" class=\"item\"></p><p id=\"p95\" class=\"item\"></p><p id=\"p96\"></p><p id=\"p97\" class=\"item\"></p><p id=\"p98\" class=\"item\"></p><p id=\"p99\"></p><p id=\"p100\" class=\"item\"></p><p id=\"p101\" class=\"item\"></p><p id=\"p102\"></p><p id=\"p103\" class=\"item\"></p><p id=\"p104\" class=\"item\"></p><p id=\"p105\"></p><p id=\"p106\" class=\"item\"></p><p id=\"p107\" class=\"item\"></p><p id=\"p108\"></p><p id=\"p109\" class=\"item\"></p><p id=\"p110\" class=\"item\"></p><p id=\"p111\"></p><p id=\"p112\" class=\"item\"></p><p id=\"p113\" class=\"item\"></p><p id=\"p114\"></p><p id=\"p115\" class=\"item\"></p><p id=\"p116\" class=\"item\"></p><p id=\"p117\"></p><p id=\"p118\" class=\"item\"></p><p id=\"p119\" class=\"item\"></p><p id=\"p120\"></p><p id=\"p121\" class=\"item\"></p><p id=\"p122\" class=\"item\"></p><p id=\"p123\"></p><p id=\"p124\" class=\"item\"></p><p id=\"p125\" class=\"item\"></p><p id=\"p126\"></p><p id=\"p127\" class=\"item\"></p><p id=\"p128\" class=\"item\"></p><p id=\"p129\"></p><p id=\"p130\" class=\"item\"></p><p id=\"p131\" class=\"item\"></p><p id=\"p132\"></p><p id=\"p133\" class=\"item\"></p><p id=\"p134\" class=\"item\"></p><p id=\"p135\"></p><p id=\"p136\" class=\"item\"></p><p id=\"p137\" class=\"item\"></p><p id=\"p138\"></p><p id=\"p139\" class=\"item\"></p><p id=\"p140\" class=\"item\"></p><p id=\"p141\"></p><p id=\"p142\" class=\"item\"></p><p id=\"p143\" class=\"item\"></p><p id=\"p144\"></p><p id=\"p145\" class=\"item\"></p><p id=\"p146\" class=\"item\"></p><p id=\"p147\"></p><p id=\"p148\" class=\"item\"></p><p id=\"p149\" class=\"item\"></p><p id=\"p150\"></p><p id=\"p151\" class=\"item\"></p><p id=\"p152\" class=\"item\"></p><p id=\"p153\"></p><p id=\"p154\" class=\"item\"></p><p id=\"p155\" class=\"item\"></p><p id=\"p156\"></p><p id=\"p157\" class=\"item\"></p><p id=\"p158\" class=\"item\"></p><p id=\"p159\"></p><p id=\"p160\" class=\"item\"></p><p id=\"p161\" class=\"item\"></p><p id=\"p162\"></p><p id=\"p163\" class=\"item\"></p><p id=\"p164\" class=\"item\"></p><p id=\"p165\"></p><p id=\"p166\" class=\"item\"></p><p id=\"p167\" class=\"item\"></p><p id=\"p168\"></p><p id=\"p169\" class=\"item\"></p><p id=\"p170\" class=\"item\"></p><p id=\"p171\"></p><p id=\"p172\" class=\"item\"></p><p id=\"p173\" class=\"item\"></p><p id=\"p174\"></p><p id=\"p175\" class=\"item\"></p><p id=\"p176\" class=\"item\"></p><p id=\"p177\"></p><p id=\"p178\" class=\"item\"></p><p id=\"p179\" class=\"item\"></p><p id=\"p180\"></p><p id=\"p181\" class=\"item\"></p><p id=\"p182\" class=\"item\"></p><p id=\"p183\"></p><p id=\"p184\" class=\"item\"></p><p id=\"p185\" class=\"item\"></p><p id=\"p186\"></p><p id=\"p187\" class=\"item\"></p><p id=\"p188\" class=\"item\"></p><p id=\"p189\"></p><p id=\"p190\" class=\"item\"></p><p id=\"p191\" class=\"item\"></p><p id=\"p192\"></p><p id=\"p193\" class=\"item\"></p><p id=\"p194\" class=\"item\"></p><p id=\"p195\"></p><p id=\"p196\" class=\"item\"></p><p id=\"p197\" class=\"item\"></p><p id=\"p198\"></p><p id=\"p199\" class=\"item\"></p><p id=\"p200\" class=\"item\"></p><p id=\"p201\"></p><p id=\"p202\" class=\"item\"></p><p id=\"p203\" class=\"item\"></p><p id=\"p204\"></p><p id=\"p205\" class=\"item\"></p><p id=\"p206\" class=\"item\"></p><p id=\"p207\"></p><p id=\"p208\" class=\"item\"></p><p id=\"p209\" class=\"item\"></p><p id=\"p210\"></p><p id=\"p211\" class=\"item\"></p><p id=\"p212\" class=\"item\"></p><p id=\"p213\"></p><p id=\"p214\" class=\"item\"></p><p id=\"p215\" class=\"item\"></p><p id=\"p216\"></p><p id=\"p217\" class=\"item\"></p><p id=\"p218\" class=\"item\"></p><p id=\"p219\"></p><p id=\"p220\" class=\"item\"></p><p id=\"p221\" class=\"item\"></p><p id=\"p222\"></p><p id=\"p223\" class=\"item\"></p><p id=\"p224\" class=\"item\"></p><p id=\"p225\"></p><p id=\"p226\" class=\"item\"></p><p id=\"p227\" class=\"item\"></p><p id=\"p228\"></p><p id=\"p229\" class=\"item\"></p><p id=\"p230\" class=\"item\"></p><p id=\"p231\"></p><p id=\"p232\" class=\"item\"></p><p id=\"p233\" class=\"item\"></p><p id=\"p234\"></p><p id=\"p235\" class=\"item\"></p><p id=\"p236\" class=\"item\"></p><p id=\"p237\"></p><p id=\"p238\" class=\"item\"></p><p id=\"p239\" class=\"item\"></p><p id=\"p240\"></p><p id=\"p241\" class=\"item\"></p><p id=\"p242\" class=\"item\"></p><p id=\"p243\"></p><p id=\"p244\" class=\"item\"></p><p id=\"p245\" class=\"item\"></p><p id=\"p246\"></p><p id=\"p247\" class=\"item\"></p><p id=\"p248\" class=\"item\"></p><p id=\"p249\"></p><p id=\"p250\" class=\"item\"></p><p id=\"p251\" class=\"item\"></p><p id=\"p252\"></p><p id=\"p253\" class=\"item\"></p><p id=\"p254\" class=\"item\"></p><p id=\"p255\"></p><p id=\"p256\" class=\"item\"></p><p id=\"p257\" class=\"item\"></p><p id=\"p258\"></p><p id=\"p259\" class=\"item\"></p><p id=\"p260\" class=\"item\"></p><p id=\"p261\"></p><p id=\"p262\" class=\"item\"></p><p id=\"p263\" class=\"item\"></p><p id=\"p264\"></p><p id=\"p265\" class=\"item\"></p><p id=\"p266\" class=\"item\"></p><p id=\"p267\"></p><p id=\"p268\" class=\"item\"></p><p id=\"p269\" class=\"item\"></p><p id=\"p270\"></p><p id=\"p271\" class=\"item\"></p><p id=\"p272\" class=\"item\"></p><p id=\"p273\"></p><p id=\"p274\" class=\"item\"></p><p id=\"p275\" class=\"item\"></p><p id=\"p276\"></p><p id=\"p277\" class=\"item\"></p><p id=\"p278\" class=\"item\"></p><p id=\"p279\"></p><p id=\"p280\" class=\"item\"></p><p id=\"p281\" class=\"item\"></p><p id=\"p282\"></p><p id=\"p283\" class=\"item\"></p><p id=\"p284\" class=\"item\"></p><p id=\"p285\"></p><p id=\"p286\" class=\"item\"></p><p id=\"p287\" class=\"item\"></p><p id=\"p288\"></p><p id=\"p289\" class=\"item\"></p><p id=\"p290\" class=\"item\"></p><p id=\"p291\"></p><p id=\"p292\" class=\"item\"></p><p id=\"p293\" class=\"item\"></p><p id=\"p294\"></p><p id=\"p295\" class=\"item\"></p><p id=\"p296\" class=\"item\"></p><p id=\"p297\"></p><p id=\"p298\" class=\"item\"></p><p id=\"p299\" class=\"item\"></p><p id=\"p300\"></p><p id=\"p301\" class=\"item\"></p><p id=\"p302\" class=\"item\"></p><p id=\"p303\"></p><p id=\"p304\" class=\"item\"></p><p id=\"p305\" class=\"item\"></p><p id=\"p306\"></p><p id=\"p307\" class=\"item\"></p><p id=\"p308\" class=\"item\"></p><p id=\"p309\"></p><p id=\"p310\" class=\"item\"></p><p id=\"p311\" class=\"item\"></p><p id=\"p312\"></p><p id=\"p313\" class=\"item\"></p><p id=\"p314\" class=\"item\"></p><p id=\"p315\"></p><p id=\"p316\" class=\"item\"></p><p id=\"p317\" class=\"item\"></p><p id=\"p318\"></p><p id=\"p319\" class=\"item\"></p><p id=\"p320\" class=\"item\"></p><p id=\"p321\"></p><p id=\"p322\" class=\"item\"></p><p id=\"p323\" class=\"item\"></p><p id=\"p324\"></p><p id=\"p325\" class=\"item\"></p><p id=\"p326\" class=\"item\"></p><p id=\"p327\"></p><p id=\"p328\" class=\"item\"></p><p id=\"p329\" class=\"item\"></p><p id=\"p330\"></p><p id=\"p331\" class=\"item\"></p><p id=\"p332\" class=\"item\"></p><p id=\"p333\"></p><p id=\"p334\" class=\"item\"></p><p id=\"p335\" class=\"item\"></p><p id=\"p336\"></p><p id=\"p337\" class=\"item\"></p><p id=\"p338\" class=\"item\"></p><p id=\"p339\"></p><p id=\"p340\" class=\"item\"></p><p id=\"p341\" class=\"item\"></p><p id=\"p342\"></p><p id=\"p343\" class=\"item\"></p><p id=\"p344\" class=\"item\"></p><p id=\"p345\"></p><p id=\"p346\" class=\"item\"></p><p id=\"p347\" class=\"item\"></p><p id=\"p348\"></p><p id=\"p349\" class=\"item\"></p><p id=\"p350\" class=\"item\"></p><p id=\"p351\"></p><p id=\"p352\" class=\"item\"></p><p id=\"p353\" class=\"item\"></p><p id=\"p354\"></p><p id=\"p355\" class=\"item\"></p><p id=\"p356\" class=\"item\"></p><p id=\"p357\"></p><p id=\"p358\" class=\"item\"></p><p id=\"p359\" class=\"item\"></p><p id=\"p360\"></p><p id=\"p361\" class=\"item\"></p><p id=\"p362\" class=\"item\"></p><p id=\"p363\"></p><p id=\"p364\" class=\"item\"></p><p id=\"p365\" class=\"item\"></p><p id=\"p366\"></p><p id=\"p367\" class=\"item\"></p><p id=\"p368\" class=\"item\"></p><p id=\"p369\"></p><p id=\"p370\" class=\"item\"></p><p id=\"p371\" class=\"item\"></p><p id=\"p372\"></p><p id=\"p373\" class=\"item\"></p><p id=\"p374\" class=\"item\"></p><p id=\"p375\"></p><p id=\"p376\" class=\"item\"></p><p id=\"p377\" class=\"item\"></p><p id=\"p378\"></p><p id=\"p379\" class=\"item\"></p><p id=\"p380\" class=\"item\"></p><p id=\"p381\"></p><p id=\"p382\" class=\"item\"></p><p id=\"p383\" class=\"item\"></p><p id=\"p384\"></p><p id=\"p385\" class=\"item\"></p><p id=\"p386\" class=\"item\"></p><p id=\"p387\"></p><p id=\"p388\" class=\"item\"></p><p id=\"p389\" class=\"item\"></p><p id=\"p390\"></p><p id=\"p391\" class=\"item\"></p><p id=\"p392\" class=\"item\"></p><p id=\"p393\"></p><p id=\"p394\" class=\"item\"></p><p id=\"p395\" class=\"item\"></p><p id=\"p396\"></p><p id=\"p397\" class=\"item\"></p><p id=\"p398\" class=\"item\"></p><p id=\"p399\"></p><p id=\"p400\" class=\"item\"></p><p id=\"p401\" class=\"item\"></p><p id=\"p402\"></p><p id=\"p403\" class=\"item\"></p><p id=\"p404\" class=\"item\"></p><p id=\"p405\"></p><p id=\"p406\" class=\"item\"></p><p id=\"p407\" class=\"item\"></p><p id=\"p408\"></p><p id=\"p409\" class=\"item\"></p><p id=\"p410\" class=\"item\"></p><p id=\"p411\"></p><p id=\"p412\" class=\"item\"></p><p id=\"p413\" class=\"item\"></p><p id=\"p414\"></p><p id=\"p415\" class=\"item\"></p><p id=\"p416\" class=\"item\"></p><p id=\"p417\"></p><p id=\"p418\" class=\"item\"></p><p id=\"p419\" class=\"item\"></p><p id=\"p420\"></p><p id=\"p421\" class=\"item\"></p><p id=\"p422\" class=\"item\"></p><p id=\"p423\"></p><p id=\"p424\" class=\"item\"></p><p id=\"p425\" class=\"item\"></p><p id=\"p426\"></p><p id=\"p427\" class=\"item\"></p><p id=\"p428\" class=\"item\"></p><p id=\"p429\"></p><p id=\"p430\" class=\"item\"></p><p id=\"p431\" class=\"item\"></p><p id=\"p432\"></p><p id=\"p433\" class=\"item\"></p><p id=\"p434\" class=\"item\"></p><p id=\"p435\"></p><p id=\"p436\" class=\"item\"></p><p id=\"p437\" class=\"item\"></p><p id=\"p438\"></p><p id=\"p439\" class=\"item\"></p><p id=\"p440\" class=\"item\"></p><p id=\"p441\"></p><p id=\"p442\" class=\"item\"></p><p id=\"p443\" class=\"item\"></p><p id=\"p444\"></p><p id=\"p445\" class=\"item\"></p><p id=\"p446\" class=\"item\"></p><p id=\"p447\"></p><p id=\"p448\" class=\"item\"></p><p id=\"p449\" class=\"item\"></p><p id=\"p450\"></p><p id=\"p451\" class=\"item\"></p><p id=\"p452\" class=\"item\"></p><p id=\"p453\"></p><p id=\"p454\" class=\"item\"></p><p id=\"p455\" class=\"item\"></p><p id=\"p456\"></p><p id=\"p457\" class=\"item\"></p><p id=\"p458\" class=\"item\"></p><p id=\"p459\"></p><p id=\"p460\" class=\"item\"></p><p id=\"p461\" class=\"item\"></p><p id=\"p462\"></p><p id=\"p463\" class=\"item\"></p><p id=\"p464\" class=\"item\"></p><p id=\"p465\"></p><p id=\"p466\" class=\"item\"></p><p id=\"p467\" class=\"item\"></p><p id=\"p468\"></p><p id=\"p469\" class=\"item\"></p><p id=\"p470\" class=\"item\"></p><p id=\"p471\"></p><p id=\"p472\" class=\"item\"></p><p id=\"p473\" class=\"item\"></p><p id=\"p474\"></p><p id=\"p475\" class=\"item\"></p><p id=\"p476\" class=\"item\"></p><p id=\"p477\"></p><p id=\"p478\" class=\"item\"></p><p id=\"p479\" class=\"item\"></p><p id=\"p480\"></p><p id=\"p481\" class=\"item\"></p><p id=\"p482\" class=\"item\"></p><p id=\"p483\"></p><p id=\"p484\" class=\"item\"></p><p id=\"p485\" class=\"item\"></p><p id=\"p486\"></p><p id=\"p487\" class=\"item\"></p><p id=\"p488\" class=\"item\"></p><p id=\"p489\"></p><p id=\"p490\" class=\"item\"></p><p id=\"p491\" class=\"item\"></p><p id=\"p492\"></p><p id=\"p493\" class=\"item\"></p><p id=\"p494\" class=\"item\"></p><p id=\"p495\"></p><p id=\"p496\" class=\"item\"></p><p id=\"p497\" class=\"item\"></p><p id=\"p498\"></p><p id=\"p499\" class=\"item\"></p></main>",
+  "rounds": 7,
+  "rows": [
+    {
+      "phase": "construction",
+      "selector": "",
+      "beforeMs": 0.00638332,
+      "afterMs": 0.006325,
+      "samples": [
+        [
+          0.0105675, 0.00638332, 0.00806834, 0.00614834, 0.006233340000004768,
+          0.00629666, 0.01021668
+        ],
+        [
+          0.0076475, 0.01182334, 0.006244160000002385, 0.00628334,
+          0.006214180000000001, 0.006325, 0.0083125
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": "p",
+      "beforeMs": 0.00023709,
+      "afterMs": 0.00023833,
+      "samples": [
+        [
+          0.00042291000000000003, 0.0002625, 0.00023709, 0.00024333000000000002,
+          0.00023584, 0.00023334, 0.0002325
+        ],
+        [
+          0.000305, 0.00023833, 0.00024083, 0.00024041999999999998, 0.00023792,
+          0.00023666, 0.00023583000000000002
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": ".item",
+      "beforeMs": 0.00028209,
+      "afterMs": 0.00028208,
+      "samples": [
+        [
+          0.00031041, 0.00027333999999999995, 0.00027457999999999996,
+          0.00027457999999999996, 0.00028209, 0.00048667000000000003,
+          0.00028416000000000004
+        ],
+        [
+          0.00030708, 0.00028208, 0.00027625, 0.00027625,
+          0.00028292000000000004, 0.00028167000000000003, 0.00028833
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": "main > p",
+      "beforeMs": 0.0235225,
+      "afterMs": 0.023229580000000003,
+      "samples": [
+        [
+          0.02525417, 0.0235225, 0.02331417, 0.023927080000000003,
+          0.023476669999999998, 0.02329666, 0.04681875
+        ],
+        [
+          0.02417125, 0.02291125, 0.02405334, 0.023229580000000003, 0.02328875,
+          0.0231325, 0.0231525
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": "p:nth-child(2n)",
+      "beforeMs": 0.01921,
+      "afterMs": 0.01972916,
+      "samples": [
+        [
+          0.04578666000000001, 0.01921, 0.01895625, 0.01944334, 0.03925958,
+          0.01908375, 0.01906875
+        ],
+        [
+          0.020281669999999998, 0.01932834, 0.022517919999999997, 0.01893959,
+          0.01965916, 0.01972916, 0.01978834000000238
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": "p:nth-child(3)",
+      "beforeMs": 0.01591042,
+      "afterMs": 0.0158325,
+      "samples": [
+        [
+          0.016055840000000002, 0.02427083, 0.020117919999997614, 0.01572208,
+          0.01591042, 0.01584209, 0.01533916
+        ],
+        [
+          0.015772500000002385, 0.015848339999997615, 0.021040419999999997,
+          0.01759333, 0.0158325, 0.01578208, 0.01538958
+        ]
+      ]
+    },
+    {
+      "phase": "select",
+      "selector": "p:nth-of-type(2n)",
+      "beforeMs": 0.06543125,
+      "afterMs": 0.04120291,
+      "samples": [
+        [
+          0.05796584, 0.05622792, 0.06543125, 0.11363125, 0.056107080000000004,
+          0.06574958, 0.07246792
+        ],
+        [
+          0.04120291, 0.09531959, 0.03977584, 0.15088207999999997, 0.04204667,
+          0.040129160000000004, 0.04046042
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": "p",
+      "beforeMs": 0.00022583000000000002,
+      "afterMs": 0.00023041999999999998,
+      "samples": [
+        [
+          0.000225, 0.00022583000000000002, 0.00022375, 0.00022583000000000002,
+          0.00022959, 0.00022958, 0.00022583000000000002
+        ],
+        [
+          0.00023708, 0.00022916, 0.00022875, 0.0002275, 0.00023125, 0.00023083,
+          0.00023041999999999998
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": ".item",
+      "beforeMs": 0.00013833,
+      "afterMs": 0.00013791999999999998,
+      "samples": [
+        [
+          0.00014375, 0.0001375, 0.00013833, 0.00013875, 0.00013833,
+          0.00013790999999999999, 0.00013708
+        ],
+        [
+          0.00014625, 0.00013916, 0.00013791999999999998, 0.0001375,
+          0.00013790999999999999, 0.00013875, 0.0001375
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": "main > p",
+      "beforeMs": 0.00026833,
+      "afterMs": 0.00026667,
+      "samples": [
+        [
+          0.00028125, 0.00026792, 0.00026958, 0.00026833, 0.00026833,
+          0.00026833, 0.00027167
+        ],
+        [
+          0.00028, 0.00026667, 0.0002675, 0.00026542, 0.00026708, 0.00026583,
+          0.00026584
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-child(2n)",
+      "beforeMs": 0.00049417,
+      "afterMs": 0.000495,
+      "samples": [
+        [
+          0.00056292, 0.00049417, 0.00049416, 0.00049417, 0.00049375,
+          0.0004954100000000001, 0.00050042
+        ],
+        [
+          0.00051541, 0.000495, 0.00049458, 0.0004945899999999999, 0.000495,
+          0.00050375, 0.00050125
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-child(3)",
+      "beforeMs": 0.00076792,
+      "afterMs": 0.00075875,
+      "samples": [
+        [
+          0.0007745800000000001, 0.00077625, 0.00076875, 0.00076417,
+          0.0007629199999999999, 0.00076792, 0.0007579199999999999
+        ],
+        [
+          0.00076917, 0.00075875, 0.0007616599999999999, 0.0007604199999999999,
+          0.00075625, 0.0007583300000000001, 0.0007554199999999999
+        ]
+      ]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-of-type(2n)",
+      "beforeMs": 0.06337084,
+      "afterMs": 0.00056792,
+      "samples": [
+        [
+          0.06337084, 0.06299209, 0.06250375, 0.06261833, 0.0640525,
+          0.06352458999999999, 0.07656792
+        ],
+        [
+          0.0005675, 0.00057125, 0.0005675, 0.00056459, 0.0005695800000000001,
+          0.00056792, 0.0005708400000000001
+        ]
+      ]
+    }
+  ],
+  "filtered": [
+    {
+      "phase": "select",
+      "selector": "p:nth-child(2n of .item)",
+      "milliseconds": 0.09834375,
+      "samples": [0.09834375, 0.10588083999999999]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-child(2n of .item)",
+      "milliseconds": 0.06663792,
+      "samples": [0.06660875, 0.06663792, 0.07408083]
+    },
+    {
+      "phase": "select",
+      "selector": "p:nth-last-child(1 of .item)",
+      "milliseconds": 0.09713583,
+      "samples": [0.09713583, 0.103165]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-last-child(1 of .item)",
+      "milliseconds": 0.18372708,
+      "samples": [0.18372708, 0.19850125]
+    },
+    {
+      "phase": "select",
+      "selector": "p:nth-child(2n of :not([hidden]))",
+      "milliseconds": 0.09700334,
+      "samples": [0.09700334, 0.13358417]
+    },
+    {
+      "phase": "first",
+      "selector": "p:nth-child(2n of :not([hidden]))",
+      "milliseconds": 0.07269333,
+      "samples": [0.07200042, 0.07269333, 0.08421791]
+    }
+  ],
+  "profile": {
+    "samples": 146,
+    "top": [
+      { "function": "nthFiltered", "samples": 44 },
+      { "function": "Resolver", "samples": 11 },
+      { "function": "exports.getAttributeByNameNS", "samples": 11 },
+      { "function": "classOf", "samples": 9 },
+      { "function": "nextOf", "samples": 8 },
+      { "function": "(program)", "samples": 7 },
+      { "function": "exports.is", "samples": 6 },
+      { "function": "_node", "samples": 5 },
+      { "function": "get className", "samples": 4 },
+      { "function": "exports.is", "samples": 4 },
+      { "function": "exports.is", "samples": 4 },
+      { "function": "_querySelectorAll", "samples": 3 },
+      { "function": "Resolver", "samples": 3 },
+      { "function": "pop", "samples": 3 },
+      { "function": "match_assert", "samples": 2 }
+    ]
+  },
+  "consumed": 390630350
+}

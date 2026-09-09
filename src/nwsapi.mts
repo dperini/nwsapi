@@ -62,11 +62,13 @@ interface PrefixSnapshot {
   classes: PlanCache<Element[]>
 }
 interface CompiledResolver {
+  filtered?: boolean
   (
     candidate: Element,
     callback: ElementCallback,
     context: EngineContext | null,
     result: false,
+    filtered?: Record<string, FilteredNthState>,
   ): boolean
   (
     candidates: ArrayLike<Element>,
@@ -78,6 +80,15 @@ interface CompiledResolver {
 interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
+}
+interface FilteredSiblings {
+  nodes: Element[]
+  positions: WeakMap<Element, number> | undefined
+}
+interface FilteredNthState {
+  parents?: WeakMap<Node, FilteredSiblings> | undefined
+  parent?: Node
+  siblings?: FilteredSiblings
 }
 interface SelectorExtension {
   Expression: RegExp
@@ -121,6 +132,9 @@ interface IdentifierSyntax {
   className: RegExp
   attribute: RegExp
 }
+interface DirectionHelpers {
+  directionality(element: Element): 'ltr' | 'rtl'
+}
 interface AttributeOperator {
   p1: string
   p2: string
@@ -132,6 +146,10 @@ interface AttributeOperator {
   factory: (global: EngineGlobal, exporter: unknown) => unknown,
 ) {
   'use strict'
+
+  Object.defineProperty(factory, '_direction', {
+    value: /* @bundle:direction */ {} as DirectionHelpers,
+  })
 
   // Share immutable grammar templates, never the mutable lastIndex of a
   // validation regexp. Custom grammars stay local and are not retained here.
@@ -164,25 +182,22 @@ interface AttributeOperator {
       //
 
       var parenthesized,
-        // non-ascii chars
-        noascii = '[^\\x00-\\x9f]',
-        // unicode chars
+        // CSS identifiers use their own grammar, not JavaScript ID_Start.
+        // Keep the non-ASCII range accepted by browser selector APIs.
+        noascii = '[^\\x00-\\x7f]',
         unicode = '\\\\[0-9a-fA-F]{1,6}',
-        // can start with single/double dash
-        // but it can not start with a digit
+        escaped = '(?:' + unicode + WSP + '?|\\\\[^' + VSP + '])',
+        identStart = '(?:[_a-zA-Z]|' + noascii + '|' + escaped + ')',
         identifier =
-          '(?:-|--|' +
-          unicode +
-          '[' +
-          HSP +
-          ']' +
-          '?|\\\\[^' +
-          VSP +
-          ']|' +
+          '(?:--|-?' +
+          identStart +
+          ')(?:[\\w-]|' +
           noascii +
-          '|[\\w-])+',
+          '|' +
+          escaped +
+          ')*',
         pseudonames = '[-\\w]+',
-        pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
+        pseudoparms = '(?:[-+]?(?:\\d*n(?:\\s?[-+]?\\s?\\d*)?|\\d+))',
         doublequote =
           '"[^"\\\\' + VSP + ']*(?:\\\\.[^"\\\\' + VSP + ']*)*(?:"|$)',
         singlequote =
@@ -192,9 +207,9 @@ interface AttributeOperator {
         attributes =
           '\\[' +
           // attribute presence
-          '(?:\\*\\|)?' +
           WSP +
           '?' +
+          '(?:\\*\\||\\|)?' +
           '(' +
           identifier +
           '(?::' +
@@ -237,6 +252,8 @@ interface AttributeOperator {
           pseudoparms +
           '?(?:\\x29|$))?|' +
           ')|' +
+          // Function arguments can contain numbers without making them idents.
+          '(?:[-+]?\\d+)|' +
           '(?:[.#]?' +
           identifier +
           ')|' +
@@ -423,13 +440,10 @@ interface AttributeOperator {
         /[\n\r\f\x20]+(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
       TabCharWSP:
         /(\x20?\t+\x20?)(?=(?:[^']*['][^']*['])*[^']*$)(?=(?:[^"]*["][^"]*["])*[^"]*$)/g,
-      PseudosWSP: /\s+([-+])\s+(?![^\x5b]*\x5d)/g,
       LogicalPfx: /^:(is|where|matches|not|has)\x28/i,
     },
     STD = {
-      combinator: /\s?([>+~])\s?/g,
       apimethods: /^(?:\w+|\*)\|/,
-      namespaces: /(\*|\w+)\|[\w-]+/,
     },
     Patterns: Record<string, RegExp> & {
       id?: RegExp
@@ -437,8 +451,7 @@ interface AttributeOperator {
       className?: RegExp
       attribute?: RegExp
     } = {
-      treestruct:
-        /^:(?:(nth(?:-last)?(?:-child|-of\-type))(?:\x28\s?(even|odd|(?:[-+]?\d*)(?:n\s?[-+]?\s?\d*)?)\s?(?:\x29|$)))(.*)/i,
+      treestruct: /^:(nth(?:-last)?(?:-child|-of-type))\(/i,
       structural:
         /^:(?:(scope|root|empty|(?:(?:first|last|only)(?:-child|\-of\-type)))\b)(.*)/i,
       linguistic: /^:(?:(dir|lang)(?:\x28\s?([-\w]{2,})\s?(?:\x29|$)))(.*)/i,
@@ -457,8 +470,6 @@ interface AttributeOperator {
       logicalsel:
         /^:(?:(is|where|matches|not|has)(?:\x28\s?([^()]*|.*)\s?(?:\x29|$)))(.*)/i,
       pseudo_sng: /^:(?:(after|before|first\-letter|first\-line)\b)(.*)/i,
-      pseudo_dbl:
-        /^:(?::(after|before|first\-letter|first\-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\b)(.*)/i,
       children: /^[\x20\t\r\n\f]?\>[\x20\t\r\n\f]?(.*)/,
       adjacent: /^[\x20\t\r\n\f]?\+[\x20\t\r\n\f]?(.*)/,
       relative: /^[\x20\t\r\n\f]?\~[\x20\t\r\n\f]?(.*)/,
@@ -466,10 +477,6 @@ interface AttributeOperator {
       universal: /^(\*)(.*)/,
       namespace: /^(\*|[\w-]+)?\|(.*)/,
     },
-    // regular expression to better aproximate
-    // detection of RTL languages (like Arabic)
-    RTL =
-      /^(?:[\u0627-\u064a]|[\u0591-\u08ff]|[\ufb1d-\ufdfd]|[\ufe70-\ufefc])+$/,
     // elements that can carry a hyperlink, see isLink()
     reLinkName = /^(?:a|area)$/i,
     // emulate firefox error strings
@@ -1091,6 +1098,66 @@ interface AttributeOperator {
         selector.slice(close),
       ]
     },
+    matchNth = function (selector: string) {
+      var match = matchLogical(selector, Patterns['treestruct']),
+        parts
+      if (!match) {
+        return null
+      }
+      parts =
+        /^(even|odd|[+-]?(?:\d*n(?:[\t\n\f\r ]*[+-][\t\n\f\r ]*\d+)?|\d+))(?:[\t\n\f\r ]+of(?![-\w\u0080-\uFFFF\\])[\t\n\f\r ]*([\s\S]+))?$/i.exec(
+          match[2],
+        )
+      if (!parts) {
+        emit("'" + selector + "'" + qsInvalid)
+        return null
+      }
+      return [
+        match[0],
+        match[1],
+        parts[1]!.toLowerCase().replace(/[\t\n\f\r ]/g, ''),
+        parts[2]!,
+        match[3],
+      ] as RegExpMatchArray
+    },
+    normalizeCombinators = function (text: string) {
+      if (!/[>+~]/.test(text)) {
+        return text
+      }
+      var result = '',
+        depth = 0,
+        quote = '',
+        i = 0,
+        char
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          result += char + text.charAt(++i)
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+        } else if (char == '"' || char == "'") {
+          quote = char
+        } else if (char == '(' || char == '[') {
+          ++depth
+        } else if (char == ')' || char == ']') {
+          --depth
+        } else if (!depth && (char == '>' || char == '+' || char == '~')) {
+          result = result.replace(/[\t\n\f\r ]+$/, '')
+          while (
+            /[\t\n\f\r ]/.test(text.charAt(i + 1)) &&
+            i + 1 < text.length
+          ) {
+            ++i
+          }
+        }
+        result += char
+      }
+      return result
+    },
     method = {
       '#': 'getElementById',
       '*': 'getElementsByTagName',
@@ -1226,14 +1293,27 @@ interface AttributeOperator {
       return byIdRaw(id, context)
     },
     // wrapped up namespaced TagName api calls
-    byTagNS = function (context: EngineContext, tag: string) {
-      return byTag(tag, context)
+    byTagNS = function (context: EngineContext, tag: string): Element[] {
+      if (context.getElementsByTagNameNS) {
+        return collectionCopy(context.getElementsByTagNameNS('*', tag), context)
+      }
+      // Fragments and older hosts may have no namespace lookup. A qualified
+      // name lookup can omit prefixed elements, so filter the complete walk.
+      var candidates = byTag('*', context),
+        nodes = [],
+        i
+      for (i = 0; i < candidates.length; ++i) {
+        if (tag == '*' || tagOf(candidates[i]!) == tag) {
+          nodes[nodes.length] = candidates[i]!
+        }
+      }
+      return nodes
     },
     // context agnostic getElementsByTagName
     // Narrow logical type lists only when they cover a minority of the tree.
     typeRoutes = createCache<{ broad: boolean; remaining: number }>(),
     byTags = function (names: string, context: EngineContext) {
-      if (Config.LEGACY || !context.getElementsByTagName) {
+      if (Config.LEGACY || !HTML_DOCUMENT || !context.getElementsByTagName) {
         return byTag('*', context)
       }
       var route = typeRoutes.get(names)
@@ -1411,6 +1491,9 @@ interface AttributeOperator {
       return result
     },
     byTag = function (tag: string, context: EngineContext) {
+      if (!HTML_DOCUMENT && tag != '*') {
+        return byTagNS(context, tag)
+      }
       var e,
         nodes,
         api = method['*']
@@ -1512,15 +1595,42 @@ interface AttributeOperator {
           ? nodes
           : toNodeList(nodes)
     },
+    attributeValueNS = function (e: Element, name: string) {
+      if (e.getAttributeNS) {
+        return e.getAttributeNS(null, name)
+      }
+      var attribute = e.getAttributeNode && e.getAttributeNode(name)
+      return attribute && attribute.namespaceURI ? null : attrOf(e, name)
+    },
     // namespace aware hasAttribute
     // helper for XML/XHTML documents
-    hasAttributeNS = function (e: Element, name: string | RegExp) {
+    hasAttributeNS = function (
+      e: Element,
+      name: string,
+      pattern?: RegExp,
+      expected?: boolean,
+    ) {
       var i,
         l,
+        local,
+        attribute,
         attr = attrNamesOf(e)
-      name = RegExp(':?' + name + '$', HTML_DOCUMENT ? 'i' : '')
+      if (HTML_DOCUMENT) {
+        name = name.toLowerCase()
+      }
       for (i = 0, l = attr.length; l > i; ++i) {
-        if (name.test(attr[i]!)) {
+        local = attr[i]!
+        if (local.indexOf(':') >= 0) {
+          attribute = e.getAttributeNode && e.getAttributeNode(local)
+          local =
+            attribute && attribute.localName
+              ? attribute.localName
+              : local.slice(local.indexOf(':') + 1)
+        }
+        if (
+          (HTML_DOCUMENT ? local.toLowerCase() : local) == name &&
+          (!pattern || pattern.test(attrOf(e, attr[i]!)!) === expected)
+        ) {
           return true
         }
       }
@@ -2096,15 +2206,67 @@ interface AttributeOperator {
         return dir ? l - j : idx
       }
     })(),
+    // A filtered position belongs to one resolver invocation. Index each
+    // parent's matching siblings once, and release the index on return or
+    // exception. Callbacks use fresh state because they can change the tree.
+    nthFiltered = function (
+      element: Element,
+      selector: string,
+      reverse: boolean,
+      state: FilteredNthState | null,
+    ) {
+      var parent = element.parentNode || element,
+        siblings =
+          state &&
+          (state.parent === parent
+            ? state.siblings
+            : state.parents && state.parents.get(parent)),
+        resolvers,
+        child,
+        index
+      if (!siblings) {
+        siblings = { nodes: [], positions: createWeakMap() }
+        resolvers = matchResolvers.get('false:' + selector)
+        if (!resolvers) {
+          resolvers = match_collect(
+            parse(selector, false) as string[],
+            undefined,
+          )
+          matchResolvers.set('false:' + selector, resolvers)
+        }
+        child = element.parentNode ? firstOf(parent) : element
+        while (child) {
+          if (match_assert(resolvers, child, undefined)) {
+            siblings.nodes[siblings.nodes.length] = child
+            siblings.positions &&
+              siblings.positions.set(child, siblings.nodes.length)
+          }
+          child = nextOf(child)
+        }
+        if (state) {
+          state.parents || (state.parents = createWeakMap())
+          state.parents && state.parents.set(parent, siblings)
+        }
+      }
+      if (state) {
+        state.parent = parent
+        state.siblings = siblings
+      }
+      index = siblings.positions
+        ? siblings.positions.get(element) || 0
+        : siblings.nodes.indexOf(element) + 1
+      return index && reverse ? siblings.nodes.length - index + 1 : index
+    },
     // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
     nthOfType = (function () {
       var idx = 0,
         len = 0,
         set = 0,
+        current: Element[] | undefined,
         parent: ParentNode | null | undefined = undefined,
         parents = Array<ParentNode | null>(),
         nodes = Array<Record<string, Element[]>>()
-      return function (element: Element | null, dir: number) {
+      return function (element: Element | null, dir: number, stable?: boolean) {
         // ensure caches are emptied after each run, invoking with dir = 2
         if (dir == 2) {
           idx = 0
@@ -2113,25 +2275,41 @@ interface AttributeOperator {
           nodes.length = 0
           parents.length = 0
           parent = undefined
+          current = undefined
           return -1
         }
+        // Adjacent candidates already identify their type and parent. Reuse
+        // that identity before paying for three more DOM property reads.
+        if (stable && current) {
+          if (current[idx] === element) {
+            ++idx
+            return dir ? len - idx + 1 : idx
+          }
+          if (current[idx - 1] === element) {
+            return dir ? len - idx + 1 : idx
+          }
+        }
+        current = undefined
         var e: Element | Element[] | null,
           i,
           j,
           k,
           l,
-          name = Config.LEGACY ? tagOf(element!) : element!.localName
+          local = Config.LEGACY ? tagOf(element!) : element!.localName,
+          namespace = element!.namespaceURI,
+          name =
+            namespace == NAMESPACE ? local : (namespace || '') + '\x00' + local
         if (
           nodes[set]! &&
           nodes[set]![name]! &&
-          parent === (Config.LEGACY ? upOf(element!) : element!.parentElement)
+          parent === element!.parentNode
         ) {
           i = set
           j = idx
           l = len
         } else {
           l = parents.length
-          parent = Config.LEGACY ? upOf(element!) : element!.parentElement
+          parent = element!.parentNode
           for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
             if (parents[j] === parent) {
               i = j
@@ -2144,7 +2322,7 @@ interface AttributeOperator {
           }
           if (i < 0 || !nodes[i]![name]!) {
             parents[(i = l)] = parent
-            nodes[i]! || (nodes[i] = Object())
+            nodes[i]! || (nodes[i] = Object.create(null))
             l = 0
             nodes[i]![name] = Array<Element>()
             e = parent ? firstOf(parent) || element : element
@@ -2153,7 +2331,10 @@ interface AttributeOperator {
                 if (e === element) {
                   j = l
                 }
-                if (tagOf(e as Element) == name) {
+                if (
+                  tagOf(e as Element) == local &&
+                  (e as Element).namespaceURI == namespace
+                ) {
                   nodes[i]![name]![l] = e as Element
                   ++l
                 }
@@ -2164,7 +2345,10 @@ interface AttributeOperator {
                 if (e === element) {
                   j = l
                 }
-                if ((e as Element).localName == name) {
+                if (
+                  (e as Element).localName == local &&
+                  (e as Element).namespaceURI == namespace
+                ) {
                   nodes[i]![name]![l] = e as Element
                   ++l
                 }
@@ -2196,6 +2380,7 @@ interface AttributeOperator {
             }
           }
         }
+        current = nodes[i]![name]
         idx = j + 1
         len = l
         return dir ? l - j : idx
@@ -2732,7 +2917,7 @@ interface AttributeOperator {
       'relative:null:false:',
       'relative:null:true:',
     ],
-    F_INIT = '"use strict";return function Resolver(c,f,x,r)',
+    F_INIT = '"use strict";return function Resolver(c,f,x,r,v)',
     S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
     M_HEAD = 'var e,n,o',
     N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length',
@@ -2774,6 +2959,7 @@ interface AttributeOperator {
       var i,
         mask,
         filter,
+        filtered,
         ancestry: CompilerAncestry,
         alias,
         factory,
@@ -2867,12 +3053,17 @@ interface AttributeOperator {
         loop = 'try{' + loop + '}finally{s.clearAncestorMasks();}'
       }
 
-      if (mode || selector.includes(':nth')) {
-        loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : ''
-        loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : ''
+      var clearPositions =
+        (reNthElem.test(selector) ? 's.nthElement(null, 2);' : '') +
+        (reNthType.test(selector) ? 's.nthOfType(null, 2);' : '')
+      if (clearPositions) {
+        loop = 'try{' + loop + '}finally{' + clearPositions + '}'
       }
 
       if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
+        filtered = S_VARS.some(function (name) {
+          return name.slice(0, 2) == '_f'
+        })
         vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0])
         S_VARS.length = 0
         M_VARS.length = 0
@@ -2890,6 +3081,10 @@ interface AttributeOperator {
         F_INIT + '{' + head + vars + ';' + loop + 'return r;}',
       )(Snapshot, filter)
 
+      if (filtered) {
+        factory.filtered = true
+      }
+
       if (mode || mode === null) {
         selectLambdas.set(cacheKey, factory)
       } else {
@@ -2899,7 +3094,7 @@ interface AttributeOperator {
       return factory
     },
     // build conditional code to check components of selector strings
-    isCompound = function (text: string) {
+    isCompound = function (text: string, siblings?: boolean) {
       var chr,
         depth = 0,
         escaped,
@@ -2929,8 +3124,8 @@ interface AttributeOperator {
           depth === 0 &&
           (chr == 44 /* ',' */ ||
             chr == 62 /* '>' */ ||
-            chr == 43 /* '+' */ ||
-            chr == 126 /* '~' */ ||
+            (!siblings && chr == 43) /* '+' */ ||
+            (!siblings && chr == 126) /* '~' */ ||
             chr == 32 /* ' ' */ ||
             chr == 9 /* '\t' */ ||
             chr == 10 /* '\n' */ ||
@@ -3057,6 +3252,621 @@ interface AttributeOperator {
       }
       return output + text.slice(start)
     },
+    // Read one pseudo token without treating quoted or nested arguments as tails.
+    readPseudo = function (text: string) {
+      var double = text.charAt(1) == ':',
+        start = double ? 2 : 1,
+        identifier = Patterns.tagName!.exec(text.slice(start)),
+        end,
+        block,
+        name
+      if (text.charAt(0) != ':' || !identifier) {
+        return null
+      }
+      name = unescapeIdentifier(identifier[1]!).toLowerCase()
+      end = start + identifier[1]!.length
+      if (text.charAt(end) == '(') {
+        // matchLogical owns nested parentheses, strings, and EOF closure.
+        block = matchLogical(':x' + text.slice(end), /^:(x)\(/)!
+        return {
+          name: name,
+          double: double,
+          argument: block[2],
+          rest: block[3],
+        }
+      }
+      return {
+        name: name,
+        double: double,
+        argument: null,
+        rest: text.slice(end),
+      }
+    },
+    isIdent = function (text: string, custom?: boolean) {
+      var token = Patterns.tagName!.exec(text)
+      return (
+        !!token &&
+        !token[2] &&
+        (!custom ||
+          !/^(?:initial|inherit|unset|revert|revert-layer|default)$/i.test(
+            unescapeIdentifier(text),
+          ))
+      )
+    },
+    hasPseudoElement = function (text: string) {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        pseudo
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        pseudo = readPseudo(text.slice(i))
+        if (!pseudo) {
+          continue
+        }
+        if (
+          (pseudo.double && !isPseudoExtension(text.slice(i))) ||
+          /^(?:before|after|first-line|first-letter)$/.test(pseudo.name)
+        ) {
+          return true
+        }
+        if (pseudo.name == 'is' || pseudo.name == 'where') {
+          i = text.length - pseudo.rest.length - 1
+        }
+      }
+      return false
+    },
+    treePseudo = function (name: string) {
+      return /^(?:before|after|marker|placeholder|file-selector-button|details-content|checkmark|picker-icon|picker|backdrop|scroll-marker|scroll-marker-group)$/.test(
+        name,
+      )
+    },
+    validPseudoElement = function (name: string, argument: string | null) {
+      var pieces
+      if (name == 'part') {
+        return (
+          argument !== null &&
+          !!argument &&
+          argument.split(/[\t\n\f\r ]+/).every(function (part) {
+            return isIdent(part)
+          })
+        )
+      }
+      if (name == 'slotted') {
+        return (
+          argument !== null &&
+          isCompound(argument) &&
+          !hasPseudoElement(argument) &&
+          validateLogical(argument, false)
+        )
+      }
+      if (name == 'highlight') {
+        return argument !== null && isIdent(argument, true)
+      }
+      if (name == 'picker') {
+        return (
+          argument !== null &&
+          unescapeIdentifier(argument).toLowerCase() == 'select'
+        )
+      }
+      if (name == 'scroll-button') {
+        return (
+          argument !== null &&
+          /^(?:\*|up|down|left|right|block-start|block-end|inline-start|inline-end)$/.test(
+            unescapeIdentifier(argument).toLowerCase(),
+          )
+        )
+      }
+      if (
+        /^view-transition-(?:group|image-pair|old|new|group-children)$/.test(
+          name,
+        )
+      ) {
+        if (argument === null) {
+          return false
+        }
+        // Dots delimit class identifiers, except when escaped within an identifier.
+        pieces = argument.charAt(0) == '*' ? argument.slice(1) : argument
+        if (argument.charAt(0) != '*') {
+          var first = Patterns.tagName!.exec(pieces)
+          if (!first || !isIdent(first[1]!, true)) {
+            return false
+          }
+          pieces = first[2]!
+        }
+        while (pieces) {
+          if (pieces.charAt(0) != '.') {
+            return false
+          }
+          var part = Patterns.tagName!.exec(pieces.slice(1))
+          if (!part || !isIdent(part[1]!, true)) {
+            return false
+          }
+          pieces = part[2]!
+        }
+        return true
+      }
+      if (name == 'cue' || name == 'cue-region') {
+        return (
+          argument === null ||
+          (isCompound(argument) &&
+            !hasPseudoElement(argument) &&
+            validateLogical(argument, false))
+        )
+      }
+      return (
+        argument === null &&
+        (treePseudo(name) ||
+          /^(?:first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
+            name,
+          ))
+      )
+    },
+    // Registered double-colon extensions retain their compiler dispatch.
+    isPseudoExtension = function (text: string): boolean {
+      for (var name in Selectors) {
+        if (text.search(Selectors[name]!.Expression) == 0) {
+          var token = readPseudo(text)
+          return (
+            !!token &&
+            token.double &&
+            !validPseudoElement(token.name, token.argument)
+          )
+        }
+      }
+      return false
+    },
+    validPseudoStates = function (text: string, context: string): boolean {
+      var token, name, argument, valid
+      while (text) {
+        token = readPseudo(text)
+        if (!token || token.double) {
+          return false
+        }
+        name = token.name
+        argument = token.argument
+        if (name == 'is' || name == 'where') {
+          if (argument === null) {
+            return false
+          }
+          // Invalid branches of forgiving lists do not invalidate the outer selector.
+        } else if (name == 'not') {
+          if (
+            !argument ||
+            !splitList(argument).every(function (item) {
+              return validPseudoStates(item, context)
+            })
+          ) {
+            return false
+          }
+        } else {
+          if (context == 'part') {
+            valid =
+              !/^(?:root|scope|empty|host|host-context|has|has-slotted|nth-.+|(?:first|last|only)-(?:child|of-type))$/.test(
+                name,
+              )
+          } else if (context == 'search-text') {
+            valid = name == 'current' && argument === null
+          } else if (context.indexOf('view-transition-') == 0) {
+            valid = name == 'only-child' && argument === null
+          } else {
+            valid =
+              (treePseudo(context) || context == 'scroll-button') &&
+              /^(?:hover|active|focus|focus-visible|focus-within)$/.test(name)
+            if (
+              context == 'scroll-button' &&
+              /^(?:enabled|disabled)$/.test(name)
+            ) {
+              valid = true
+            }
+          }
+          if (
+            !valid ||
+            !validateLogical(
+              text.slice(0, text.length - token.rest.length),
+              false,
+            )
+          ) {
+            return false
+          }
+        }
+        text = token.rest
+      }
+      return true
+    },
+    validPseudoTail = function (text: string) {
+      var token,
+        name,
+        context = '',
+        states = '',
+        previous
+      while (text) {
+        token = readPseudo(text)
+        if (!token) {
+          return false
+        }
+        name = token.name
+        if (
+          token.double ||
+          (!context && /^(?:before|after|first-line|first-letter)$/.test(name))
+        ) {
+          if (states && !validPseudoStates(states, context)) {
+            return false
+          }
+          states = ''
+          previous = context
+          if (
+            previous &&
+            !(previous == 'part' && name != 'part' && name != 'slotted') &&
+            !(previous == 'slotted' && treePseudo(name)) &&
+            !(/^(?:before|after)$/.test(previous) && name == 'marker') &&
+            !(previous == 'picker' && treePseudo(name))
+          ) {
+            return false
+          }
+          if (!validPseudoElement(name, token.argument)) {
+            return false
+          }
+          context = name
+        } else {
+          states += text.slice(0, text.length - token.rest.length)
+        }
+        text = token.rest
+      }
+      return !states || validPseudoStates(states, context)
+    },
+    validPseudoSyntax = function (text: string) {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (!token) {
+          continue
+        }
+        if (
+          (token.double ||
+            /^(?:before|after|first-line|first-letter)$/.test(token.name)) &&
+          !isPseudoExtension(text.slice(i))
+        ) {
+          return validPseudoTail(text.slice(i))
+        }
+        i = text.length - token.rest.length - 1
+      }
+      return true
+    },
+    hasHost = function (text: string): boolean {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (
+          token &&
+          !token.double &&
+          (/^host(?:-context)?$/.test(token.name) ||
+            (token.argument !== null && hasHost(token.argument)))
+        ) {
+          return true
+        }
+        if (token) {
+          i = text.length - token.rest.length - 1
+        }
+      }
+      return false
+    },
+    prepareCompound = function (text: string): string | null {
+      if (!isCompound(text)) {
+        return null
+      }
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token,
+        items,
+        result = '',
+        start = 0
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (
+          !token ||
+          token.argument === null ||
+          !/^(?:not|is|where)$/.test(token.name)
+        ) {
+          continue
+        }
+        items = splitList(token.argument).map(prepareCompound)
+        if (
+          token.name == 'not' &&
+          items.some(function (item) {
+            return item === null
+          })
+        ) {
+          return null
+        }
+        result +=
+          text.slice(start, i) +
+          ':' +
+          token.name +
+          '(' +
+          (items
+            .filter(function (item) {
+              return item !== null
+            })
+            .join(',') || ':not(*)') +
+          ')'
+        i = text.length - token.rest.length - 1
+        start = i + 1
+      }
+      return result + text.slice(start)
+    },
+    shadowRootOf = function (scope: Node): ShadowRoot | null {
+      var root = scope.getRootNode ? scope.getRootNode() : scope
+      return root.nodeType == 11 && 'host' in root ? (root as ShadowRoot) : null
+    },
+    shadowParent = function (element: Element, scope: Node) {
+      var root = shadowRootOf(scope)
+      if (root && root.host === element) {
+        return null
+      }
+      return (
+        element.parentElement ||
+        (root && element.parentNode === root ? root.host : null)
+      )
+    },
+    isHost = function (
+      element: Element,
+      argument: string | null,
+      contextual: boolean,
+      scope: Node,
+    ) {
+      var root = shadowRootOf(scope),
+        current: Element | null = element
+      if (!root || root.host !== element) {
+        return false
+      }
+      if (argument === null) {
+        return true
+      }
+      do {
+        if (match(argument, current)) {
+          return true
+        }
+        current = contextual ? upOf(current) : null
+      } while (current)
+      return false
+    },
+    hasSlotted = function (element: Element, argument: string | null) {
+      if (
+        element.namespaceURI != 'http://www.w3.org/1999/xhtml' ||
+        element.localName != 'slot'
+      ) {
+        return false
+      }
+      var slot = element as HTMLSlotElement
+      if (typeof slot.assignedNodes != 'function') {
+        return false
+      }
+      var nodes = slot.assignedNodes({ flatten: true })
+      if (argument === null) {
+        return nodes.length > 0
+      }
+      for (var i = 0; i < nodes.length; ++i) {
+        if (nodes[i]!.nodeType == 1 && match(argument, nodes[i] as Element)) {
+          return true
+        }
+      }
+      return false
+    },
+    directionality = (
+      Factory as typeof Factory & {
+        _direction: DirectionHelpers
+      }
+    )._direction.directionality,
+    isDirection = function (element: Element, direction: string) {
+      var native = Snapshot.matchesNative(
+        element,
+        ':dir(' + direction + ')',
+        undefined,
+      )
+      return native === undefined
+        ? directionality(element) === direction
+        : native
+    },
+    isLanguage = function (element: Element, range: string) {
+      var current: Element | null = element,
+        language: string | null = null,
+        parts,
+        wanted,
+        i,
+        j
+      while (current) {
+        language =
+          current.getAttributeNS &&
+          current.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'lang')
+        if (
+          language == null &&
+          current.namespaceURI == 'http://www.w3.org/1999/xhtml'
+        ) {
+          language = attrOf(current, 'lang')
+        }
+        if (language !== null) {
+          break
+        }
+        current = upOf(current)
+      }
+      if (!language || !/^[a-z]{1,8}(?:-[a-z0-9]{1,8})*$/i.test(language)) {
+        return false
+      }
+      parts = language.toLowerCase().split('-')
+      wanted = range.toLowerCase().split('-')
+      if (wanted[0] != '*' && wanted[0] != parts[0]) {
+        return false
+      }
+      i = 1
+      j = 1
+      while (i < wanted.length) {
+        if (wanted[i] == '*') {
+          ++i
+          continue
+        }
+        if (j >= parts.length) {
+          return false
+        }
+        if (wanted[i] == parts[j]) {
+          ++i
+          ++j
+          continue
+        }
+        if (parts[j]!.length == 1) {
+          return false
+        }
+        ++j
+      }
+      return true
+    },
+    // Reject bad closing tokens even inside forgiving selector lists.
+    validBlocks = function (text: string) {
+      var stack: string[] = [],
+        quote = '',
+        char,
+        i = 0
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          } else if (char == '\n' || char == '\r' || char == '\f') {
+            return false
+          }
+        } else if (char == '"' || char == "'") {
+          quote = char
+        } else if (char == '(' || char == '[') {
+          stack.push(char)
+        } else if (char == ')' || char == ']') {
+          if (stack.pop() != (char == ')' ? '(' : '[')) {
+            return false
+          }
+        } else if (char == '{' || char == '}') {
+          return false
+        }
+      }
+      // CSS closes unterminated strings and blocks at EOF.
+      return true
+    },
     notFlag = 0,
     compileSelector = function (
       expression: string,
@@ -3074,6 +3884,9 @@ interface AttributeOperator {
         compat,
         name,
         NS,
+        attributeSource,
+        attributeGuard,
+        attributePattern,
         expr,
         value,
         match: RegExpMatchArray | null | undefined,
@@ -3084,6 +3897,8 @@ interface AttributeOperator {
         test,
         type,
         selector = expression,
+        shadow = expression.indexOf(':') >= 0 && hasHost(expression),
+        pseudo,
         vars,
         argument,
         flag,
@@ -3101,7 +3916,7 @@ interface AttributeOperator {
       ancestry = ancestry || { required: [], pending: [], walk: false }
 
       // isolate selector combinators
-      selector = selector.replace(STD.combinator, '$1')
+      selector = normalizeCombinators(selector)
 
       // javascript needs a label to break
       // out of the while loops processing
@@ -3183,14 +3998,9 @@ interface AttributeOperator {
               source = 'if(true){' + source + '}'
             } else if (!match![1]!) {
               source = 'if((!e.namespaceURI)){' + source + '}'
-            } else if (
-              typeof match![1] == 'string' &&
-              root &&
-              root.prefix == match![1]!
-            ) {
-              source =
-                'if((e.namespaceURI=="' + NAMESPACE + '")){' + source + '}'
             } else {
+              // DOM selector APIs have no namespace-prefix resolver. An XML
+              // xmlns declaration does not declare a CSS selector prefix.
               emit("'" + expression + "'" + qsInvalid)
             }
             break
@@ -3201,7 +4011,7 @@ interface AttributeOperator {
             if (!match) {
               break
             }
-            NS = match![0]!.match(STD.namespaces)
+            NS = /^\[[\t\n\f\r ]*\*\|/.test(match[0])
             name = match![1]!
             expr = unescapeIdentifier(name).split(':')
             expr = expr.length == 2 ? expr[1] : expr[0]
@@ -3213,6 +4023,12 @@ interface AttributeOperator {
                 return part == '"' ? '\\"' : part
               },
             )
+            attributeSource = read.attr('e', name)
+            attributeGuard = ''
+            if (!NS && (!HTML_DOCUMENT || /^\[[\t\n\f\r ]*\|/.test(match[0]))) {
+              attributeSource = 'n'
+              attributeGuard = 'n=s.attributeValueNS(e,"' + name + '");'
+            }
             if (match![2]! && !(test = Operators[match![2]!])) {
               emit("'" + expression + "'" + qsInvalid)
               return ''
@@ -3247,29 +4063,58 @@ interface AttributeOperator {
                 HTML_TABLE[expr!.toLowerCase()])
                 ? 'i'
                 : ''
+            if (match[2]) {
+              attributePattern =
+                '/' +
+                (test as AttributeOperator).p1 +
+                match[4] +
+                (test as AttributeOperator).p2 +
+                '/'
+              attributePattern =
+                !match[5] && type == 'i'
+                  ? '(e.namespaceURI=="http://www.w3.org/1999/xhtml"?' +
+                    attributePattern +
+                    'i:' +
+                    attributePattern +
+                    ')'
+                  : attributePattern + type
+            }
+            if (NS && match[2]) {
+              source =
+                'if(s.hasAttributeNS(e,"' +
+                name +
+                '",' +
+                attributePattern +
+                ',' +
+                (test as AttributeOperator).p3 +
+                ')){' +
+                source +
+                '}'
+              break
+            }
             source =
+              attributeGuard +
               'if((' +
+              (attributeGuard && match[2] ? 'n!==null&&' : '') +
               (!match![2]!
                 ? NS
                   ? 's.hasAttributeNS(e,"' + name + '")'
-                  : read.has('e', name)
+                  : attributeGuard
+                    ? 'n!==null'
+                    : read.has('e', name)
                 : !match![4]! && ATTR_STD_OPS[match![2]!] && match![2]! != '~='
-                  ? read.attr('e', name) + '==""'
+                  ? attributeSource + '==""'
                   : match[2] == '=' &&
                       type == '' &&
                       (test as AttributeOperator).p3 == 'true'
-                    ? read.attr('e', name) + '=="' + value + '"'
-                    : '(/' +
-                      (test as AttributeOperator).p1 +
-                      match![4]! +
-                      (test as AttributeOperator).p2 +
-                      '/' +
-                      type +
+                    ? attributeSource + '=="' + value + '"'
+                    : '(' +
+                      attributePattern +
                       ').test(' +
                       (match[2] == '~=' &&
                       (test as AttributeOperator).p3 == 'true'
-                        ? '(' + read.attr('e', name) + '||"")'
-                        : read.attr('e', name)) +
+                        ? '(' + attributeSource + '||"")'
+                        : attributeSource) +
                       ')==' +
                       (test as AttributeOperator).p3) +
               ')){' +
@@ -3338,7 +4183,9 @@ interface AttributeOperator {
               'var N' +
               k +
               '=e;while(e&&(e=' +
-              read.up('e') +
+              (shadow
+                ? 's.shadowParent(e,x||(c.nodeType?c:s.from))'
+                : read.up('e')) +
               ')){' +
               source +
               '}e=N' +
@@ -3360,7 +4207,9 @@ interface AttributeOperator {
               'var N' +
               k +
               '=e;if(e&&(e=' +
-              read.up('e') +
+              (shadow
+                ? 's.shadowParent(e,x||(c.nodeType?c:s.from))'
+                : read.up('e')) +
               ')){' +
               source +
               '}e=N' +
@@ -3378,6 +4227,99 @@ interface AttributeOperator {
           // *** tree-structural pseudo-classes
           // :root, :empty, :first-child, :last-child, :only-child, :first-of-type, :last-of-type, :only-of-type
           case 58 /* ':' */:
+            if (
+              (selector.charAt(1) == ':' ||
+                Patterns['pseudo_sng']!.test(selector)) &&
+              !isPseudoExtension(selector)
+            ) {
+              if (!validPseudoTail(selector)) {
+                emit("'" + expression + "'" + qsInvalid)
+                return ''
+              }
+              // DOM queries never return pseudo-elements. Preserve the compiler's
+              // synthetic { element, type } candidates for existing consumers.
+              source =
+                'if(!e.nodeType&&e.element&&e.type&&e.type.toLowerCase()==' +
+                JSON.stringify(
+                  selector.charAt(1) == ':'
+                    ? selector.toLowerCase()
+                    : ':' + selector.toLowerCase(),
+                ) +
+                '){e=e.element;' +
+                source +
+                '}'
+              match = [selector, '']
+              break
+            }
+            pseudo = readPseudo(selector)
+            if (
+              pseudo &&
+              /^(?:host|host-context|has-slotted|state|active-view-transition-type|active-view-transition|user-valid|user-invalid|xr-overlay|interest-source|interest-target|target-current|target-before|target-after)$/.test(
+                pseudo.name,
+              )
+            ) {
+              name = pseudo.name
+              argument = pseudo.argument
+              if (name == 'host' || name == 'host-context') {
+                if (
+                  argument === null
+                    ? name != 'host'
+                    : (argument = prepareCompound(argument)) === null ||
+                      hasPseudoElement(argument) ||
+                      !validateLogical(argument, false)
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                source =
+                  'if(s.isHost(e,' +
+                  JSON.stringify(argument) +
+                  ',' +
+                  (name == 'host-context') +
+                  ',x||(c.nodeType?c:s.from))){' +
+                  source +
+                  '}'
+              } else if (name == 'has-slotted') {
+                if (
+                  argument !== null &&
+                  (!argument ||
+                    hasPseudoElement(argument) ||
+                    !isCompound(normalizeCombinators(argument), true) ||
+                    !validateLogical(argument, false))
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                source =
+                  'if(s.hasSlotted(e,' +
+                  JSON.stringify(argument) +
+                  ')){' +
+                  source +
+                  '}'
+              } else {
+                if (
+                  name == 'state' || name == 'active-view-transition-type'
+                    ? argument === null || !isIdent(argument, true)
+                    : argument !== null
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                expr =
+                  ':' + name + (argument === null ? '' : '(' + argument + ')')
+                source =
+                  'if(s.matchesNative(e,' +
+                  JSON.stringify(expr) +
+                  ')){' +
+                  source +
+                  '}'
+              }
+              match = [
+                selector.slice(0, selector.length - pseudo.rest.length),
+                pseudo.rest,
+              ]
+              break
+            }
             if (
               (match = /^:heading(?:\(([^)]*)(?:\)|$))?(?![-\w])(.*)/i.exec(
                 selector,
@@ -3459,20 +4401,20 @@ interface AttributeOperator {
                 case 'only-of-type':
                   source =
                     'o=e.localName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.localName!=o);}if(!n){' +
+                    'n=e;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
+                    'n=e;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));}if(!n){' +
                     source +
                     '}'
                   break
                 case 'last-of-type':
                   source =
-                    'n=e;o=e.localName;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
+                    'n=e;o=e.localName;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                     source +
                     '}'
                   break
                 case 'first-of-type':
                   source =
-                    'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(!n){' +
+                    'n=e;o=e.localName;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                     source +
                     '}'
                   break
@@ -3484,7 +4426,7 @@ interface AttributeOperator {
 
             // *** child-indexed & typed child-indexed pseudo-classes
             // :nth-child, :nth-of-type, :nth-last-child, :nth-last-of-type
-            else if ((match = selector.match(Patterns['treestruct']!))) {
+            else if ((match = matchNth(selector))) {
               match![1] = match![1]!.toLowerCase()
               switch (match![1]!) {
                 case 'nth-child':
@@ -3492,18 +4434,26 @@ interface AttributeOperator {
                 case 'nth-last-child':
                 case 'nth-last-of-type':
                   expr = /-of-type/i.test(match![1]!)
+                  var nthFilter = match[3]
+                  if (
+                    nthFilter !== undefined &&
+                    (expr || !validateLogical(nthFilter, false))
+                  ) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
                   if (match![1]! && match![2]!) {
                     type = /last/i.test(match![1]!)
-                    if (match[2] == 'n') {
+                    if (match[2] == 'n' && nthFilter === undefined) {
                       source = 'if(true){' + source + '}'
                       break
-                    } else if (match[2] == '1') {
+                    } else if (match[2] == '1' && nthFilter === undefined) {
                       test = type ? 'next' : 'previous'
                       source = expr
                         ? 'n=e;o=e.localName;' +
                           'while((n=n.' +
                           test +
-                          'ElementSibling)&&n.localName!=o);if(!n){' +
+                          'ElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
                           source +
                           '}'
                         : 'if(!e.' + test + 'ElementSibling){' + source + '}'
@@ -3557,6 +4507,29 @@ interface AttributeOperator {
                                 ? 'n==' + b
                                 : 'n>' + (b - 1)
                               : 'false'
+                    }
+                    if (nthFilter !== undefined) {
+                      flag = '_f' + notFlag++
+                      S_VARS.push(flag)
+                      source =
+                        'n=s.nthFiltered(e,' +
+                        JSON.stringify(nthFilter) +
+                        ',' +
+                        !!type +
+                        ',f?null:(' +
+                        flag +
+                        '||(' +
+                        flag +
+                        '=v?(v.' +
+                        flag +
+                        '||(v.' +
+                        flag +
+                        '={})):{})));if(n>0&&(' +
+                        test +
+                        ')){' +
+                        source +
+                        '}'
+                      break
                     }
                     // A constant index needs no index. nth(Element|OfType)
                     // builds the sibling list of the parent to number the
@@ -3629,7 +4602,30 @@ interface AttributeOperator {
                         '}'
                       break
                     }
-                    if (mode === false && !Config.LEGACY && !expr) {
+                    if (mode === false && !Config.LEGACY) {
+                      if (expr) {
+                        flag = '_t' + notFlag++
+                        S_VARS.push(flag, flag + 's')
+                        source =
+                          flag +
+                          '=e.localName;' +
+                          flag +
+                          's=e.namespaceURI;n=1;o=e;' +
+                          'while((o=o.' +
+                          (type ? 'next' : 'previous') +
+                          'ElementSibling)){' +
+                          'if(o.localName===' +
+                          flag +
+                          '&&o.namespaceURI===' +
+                          flag +
+                          's)++n;}' +
+                          'if((' +
+                          test +
+                          ')){' +
+                          source +
+                          '}'
+                        break
+                      }
                       source =
                         'n=1;o=e;while((o=o.' +
                         (type ? 'next' : 'previous') +
@@ -3697,6 +4693,7 @@ interface AttributeOperator {
                       expr +
                       '(e,' +
                       type +
+                      (expr == 'OfType' && !Config.LEGACY ? ',!f' : '') +
                       ');if((' +
                       test +
                       ')){' +
@@ -3767,6 +4764,10 @@ interface AttributeOperator {
                   source = 'if(s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'not':
+                  if (hasPseudoElement(match[2]!)) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
                   if (isCompound((argument = match![2]!))) {
                     flag = '_n' + notFlag++
                     nested = compileSelector(
@@ -3829,37 +4830,21 @@ interface AttributeOperator {
               match![1] = match![1]!.toLowerCase()
               switch (match![1]!) {
                 case 'dir':
+                  argument = match[2]!.toLowerCase()
                   source =
-                    'var p;if(s.matchesNative(e,":dir(' +
-                    match![2]! +
-                    ')",(' +
-                    '(/' +
-                    match![2]! +
-                    '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
-                    '(/' +
-                    match![2]! +
-                    '/i.test(p.dir))||(!p||!/^(?:ltr|rtl)$/i.test(p.dir))&&(e.dir==""||e.dir=="auto")&&' +
-                    '(' +
-                    (match[2] == 'ltr' ? '!' : '') +
-                    RTL +
-                    '.test(e.textContent)))' +
+                    'if(s.isDirection(e,' +
+                    JSON.stringify(argument) +
                     ')){' +
                     source +
-                    '};'
+                    '}'
                   break
                 case 'lang':
-                  expr = '(?:^|-)' + match![2]! + '(?:-|$)'
                   source =
-                    'var p;if((' +
-                    '(e.lang==""&&(p=s.ancestor("[lang]",e))&&' +
-                    '(p.lang=="' +
-                    match![2]! +
-                    '")||/' +
-                    expr +
-                    '/i.test(e.lang)))' +
-                    '){' +
+                    'if(s.isLanguage(e,' +
+                    JSON.stringify(match[2]) +
+                    ')){' +
                     source +
-                    '};'
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -4035,7 +5020,7 @@ interface AttributeOperator {
                 case 'indeterminate':
                   source =
                     'if((/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
-                    '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate)||' +
+                    '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate&&!e.switch&&!e.hasAttribute("switch"))||' +
                     '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' +
                     source +
@@ -4151,7 +5136,7 @@ interface AttributeOperator {
                 if (
                   !match ||
                   !match![2]! ||
-                  !splitList(match![2]!).every(isCompound) ||
+                  !splitList(match![2]!).every(item => isCompound(item)) ||
                   !validateLogical(match![2]!, false)
                 ) {
                   emit("'" + expression + "'" + qsInvalid)
@@ -4163,42 +5148,6 @@ interface AttributeOperator {
                 'if(s.matchesNative(e,' +
                 JSON.stringify(expr) +
                 ')){' +
-                source +
-                '}'
-            } else if ((match = matchLogical(selector, /^:(:slotted)\(/i))) {
-              if (
-                !match![2]! ||
-                !isCompound(match![2]!) ||
-                !validateLogical(match![2]!, false)
-              ) {
-                emit("'" + expression + "'" + qsInvalid)
-                return ''
-              }
-              source = 'if(false){' + source + '}'
-            }
-
-            // allow pseudo-elements starting with single colon (:)
-            // :after, :before, :first-letter, :first-line
-            // assert: e.type is in double-colon format, like ::after
-            else if ((match = selector.match(Patterns['pseudo_sng']!))) {
-              source =
-                'if(e.element&&e.type.toLowerCase()=="' +
-                ':' +
-                match![0]!.toLowerCase() +
-                '"){e=e.element;' +
-                source +
-                '}'
-            }
-
-            // allow pseudo-elements starting with double colon (::)
-            // ::after, ::before, ::marker, ::placeholder, ::selection,
-            // ::inactive-selection, ::-webkit-<foo-bar>
-            // assert: e.type is in double-colon format, like ::after
-            else if ((match = selector.match(Patterns['pseudo_dbl']!))) {
-              source =
-                'if(e.element&&e.type.toLowerCase()=="' +
-                match![0]!.toLowerCase() +
-                '"){e=e.element;' +
                 source +
                 '}'
             } else {
@@ -4417,11 +5366,15 @@ interface AttributeOperator {
         selectors = '' + selectors
       }
 
+      selectors = stringContinuations(selectors)
+      if (!validBlocks(selectors)) {
+        emit("'" + selectors + "'" + qsInvalid)
+        return type ? none : false
+      }
       // normalize input string
-      parsed = stringContinuations(selectors)
+      parsed = selectors
         .replace(/\x00|\\$/g, '\ufffd')
         .replace(REX.CombineWSP, '\x20')
-        .replace(REX.PseudosWSP, '$1')
         .replace(REX.TabCharWSP, '\t')
         .replace(REX.CommaGroup, ',')
         .replace(REX.TrimSpaces, '')
@@ -4458,6 +5411,10 @@ interface AttributeOperator {
         }
       }
 
+      if (selectors && !selectors.every(validPseudoSyntax)) {
+        emit("'" + parsed + "'" + qsInvalid)
+        return type ? none : false
+      }
       return selectors as string[] | null
     },
     // equivalent of w3c 'matches' method
@@ -4468,6 +5425,10 @@ interface AttributeOperator {
     ) {
       var resolver,
         cacheKey = !!callback + ':' + selectors
+
+      if (element && element.ownerDocument !== doc) {
+        switchContext(element)
+      }
 
       if (element && (resolver = matchResolvers.get(cacheKey))) {
         return match_assert(resolver, element, callback)
@@ -4554,6 +5515,7 @@ interface AttributeOperator {
       name: string,
       tag?: string | null | undefined,
       resolver?: CompiledResolver | null | undefined,
+      filtered?: Record<string, FilteredNthState>,
     ) {
       var element: Element | null | undefined,
         next: Element | null,
@@ -4671,7 +5633,7 @@ interface AttributeOperator {
             (HTML_DOCUMENT &&
               element.namespaceURI == NAMESPACE &&
               element.localName == tag.toLowerCase())) &&
-          (!resolver || resolver(element, null, context, false))
+          (!resolver || resolver(element, null, context, false, filtered))
         ) {
           return element
         }
@@ -4742,7 +5704,9 @@ interface AttributeOperator {
           }
           collection = match![2]!
             ? context.getElementsByClassName!(match![2]!)
-            : context.getElementsByTagName!(match![1]!)
+            : !HTML_DOCUMENT && match![1] != '*'
+              ? byTagNS(context, match![1]!)
+              : context.getElementsByTagName!(match![1]!)
           element = collection[0] || null
           if (match![2]! && match![1]! && match![1]! != '*') {
             i = 0
@@ -4795,6 +5759,8 @@ interface AttributeOperator {
       callback: ElementCallback,
     ) {
       var plan,
+        resolver,
+        filtered,
         i,
         token,
         name,
@@ -4822,6 +5788,8 @@ interface AttributeOperator {
         firstResolvers.set(selectors, plan)
       }
       for (i = 0; i < plan.nodeset.length; ++i) {
+        resolver = plan.factory[i]!
+        filtered = resolver.filtered ? {} : undefined
         token = plan.nodeset[i]!
         name = token.slice(1)
         api = method[token[0]! as keyof typeof method] as
@@ -4830,7 +5798,7 @@ interface AttributeOperator {
         result =
           token.charCodeAt(0) == 46 /* '.' */ &&
           !/[\t\n\f\r ]/.test(name) &&
-          firstClass(context, name, null, plan.factory[i]!)
+          firstClass(context, name, null, resolver, filtered)
         if (result) {
           if (!element || result.compareDocumentPosition(element) & 4) {
             element = result
@@ -4839,26 +5807,27 @@ interface AttributeOperator {
         }
         collection =
           !Config.LEGACY &&
+          (HTML_DOCUMENT || token[0] != '*') &&
           (token[0] == '*' || (token[0] == '.' && !/[\t\n\f\r ]/.test(name))) &&
           api in context
             ? context[api]!(name)
             : fetch[token[0]!]!(name, context)
         result = collection[0]
-        if (result && !plan.factory[i]!(result, null, context, false)) {
+        if (result && !resolver(result, null, context, false, filtered)) {
           var j = 1,
             length
           // Most first matches occur near the start. Defer a live collection's
           // length until a short bounded probe has failed.
           for (; j < 8; ++j) {
             result = collection[j]
-            if (!result || plan.factory[i]!(result, null, context, false)) {
+            if (!result || resolver(result, null, context, false, filtered)) {
               break
             }
           }
           if (j === 8) {
             result = null
             for (length = collection.length; j < length; ++j) {
-              if (plan.factory[i]!(collection[j]!, null, context, false)) {
+              if (resolver(collection[j]!, null, context, false, filtered)) {
                 result = collection[j]
                 break
               }
@@ -5058,6 +6027,7 @@ interface AttributeOperator {
       // levels through helpers, which is the ordinary path's job as well.
       if (
         Config.LEGACY ||
+        !HTML_DOCUMENT ||
         context.nodeType != 9 ||
         !context.getElementsByClassName ||
         !context.getElementsByTagName
@@ -5649,7 +6619,13 @@ interface AttributeOperator {
       ancestor: typeof ancestor
       nthOfType: typeof nthOfType
       nthElement: typeof nthElement
+      nthFiltered: typeof nthFiltered
       isMediaState: typeof isMediaState
+      isDirection: typeof isDirection
+      isLanguage: typeof isLanguage
+      isHost: typeof isHost
+      hasSlotted: typeof hasSlotted
+      shadowParent: typeof shadowParent
       matchesNative: typeof matchesNative
       isRequired: typeof isRequired
       isDisabled: typeof isDisabled
@@ -5663,6 +6639,7 @@ interface AttributeOperator {
       isContentEditable: typeof isContentEditable
       isLink: typeof isLink
       hasAttributeNS: typeof hasAttributeNS
+      attributeValueNS: typeof attributeValueNS
     } = {
       doc: doc,
       from: doc,
@@ -5696,7 +6673,13 @@ interface AttributeOperator {
 
       nthOfType: nthOfType,
       nthElement: nthElement,
+      nthFiltered: nthFiltered,
 
+      isDirection: isDirection,
+      isLanguage: isLanguage,
+      isHost: isHost,
+      hasSlotted: hasSlotted,
+      shadowParent: shadowParent,
       matchesNative: matchesNative,
       isDefined: isDefined,
       isRequired: isRequired,
@@ -5712,6 +6695,7 @@ interface AttributeOperator {
       isContentEditable: isContentEditable,
       isLink: isLink,
       hasAttributeNS: hasAttributeNS,
+      attributeValueNS: attributeValueNS,
       isMediaState: isMediaState,
     },
     // public exported methods/objects

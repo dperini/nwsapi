@@ -2,9 +2,10 @@
  * Curated list of upstream WPT files to run against src/nwsapi.js.
  * Paths are root-absolute within the upstream/wpt checkout (pinned @ 7aed663).
  *
- * Hand-picked Selectors API tests. Programmatic focus/state tests may depend
- * on browser rendering, but assert through DOM APIs; CSSOM-only tests,
- * screenshot comparisons, and testdriver automation are excluded.
+ * Hand-picked Selectors API tests and adapted selector-validity inputs.
+ * Programmatic focus/state tests may depend on browser rendering, but assert
+ * through DOM APIs. Parsing adapters exclude CSSOM serialization and rendering
+ * assertions. Screenshot comparisons and testdriver automation are excluded.
  *
  * Enumerated but deliberately excluded:
  * - /dom/nodes/Element-webkitMatchesSelector.html — exercises the
@@ -30,12 +31,104 @@
  * - Focus tests requiring testdriver remain excluded; programmatic focus
  *   and state-preserving move tests below run without testdriver.
  */
-export const manifest: Array<{
+export interface WptEntry {
   path: string
   note: string
   install?: boolean
   legacyMap?: boolean
-}> = [
+  parsing?: boolean
+  selectorInputs?: number
+  script?: boolean
+  reflectSwitch?: boolean
+  domOnly?: 'form-validity' | 'input-direction' | 'namespace-matches'
+}
+
+export const manifest: WptEntry[] = [
+  ...[
+    '/css/css-forms/parsing/checkmark-pseudo-element.html',
+    '/css/css-forms/parsing/picker-icon-pseudo-element.html',
+    '/css/css-forms/parsing/picker-select-pseudo-element.html',
+    '/css/css-overflow/parsing/scroll-buttons-invalid.html',
+    '/css/css-overflow/parsing/scroll-buttons-valid.html',
+    '/css/css-pseudo/parsing/highlight-pseudos-search-text.tentative.html',
+    '/css/css-pseudo/parsing/highlight-pseudos.html',
+    '/css/css-pseudo/parsing/tree-abiding-pseudo-elements.html',
+    '/css/css-shadow/host-context-parsing.html',
+    '/css/css-shadow/host-parsing.html',
+    '/css/css-shadow/part/pseudo-classes-after-part.html',
+    '/css/css-shadow/slotted-parsing.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-invalid-with-classes.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-invalid.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-valid-with-classes.html',
+    '/css/css-view-transitions/parsing/pseudo-elements-valid.html',
+    '/html/semantics/selectors/pseudo-classes/autofill.html',
+  ].map(path => ({
+    path,
+    note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
+    parsing: true,
+  })),
+  {
+    path: '/css/css-shadow/part/pseudo-elements-after-part.html',
+    note: 'Only the 23 top-level selector validity inputs run. Rendering assertions are excluded.',
+    parsing: true,
+    selectorInputs: 23,
+  },
+  ...[
+    'invalid-pseudos',
+    'parse-anplusb',
+    'parse-attribute',
+    'parse-child',
+    'parse-class',
+    'parse-descendant',
+    'parse-focus-visible',
+    'parse-has-disallow-nesting-has-inside-has',
+    'parse-has-forgiving-selector',
+    'parse-has-slotted.tentative',
+    'parse-has',
+    'parse-heading',
+    'parse-id',
+    'parse-is-where',
+    'parse-is',
+    'parse-not',
+    'parse-part',
+    'parse-sibling',
+    'parse-slotted',
+    'parse-state',
+    'parse-universal',
+    'parse-where',
+  ].map(name => ({
+    path: `/css/selectors/parsing/${name}.html`,
+    note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
+    parsing: true,
+  })),
+  ...[
+    '/html/semantics/selectors/case-sensitivity/values.window.html',
+    '/html/semantics/selectors/pseudo-classes/checked-indeterminate.window.html',
+    '/html/semantics/selectors/pseudo-classes/input-checkbox-switch.tentative.window.html',
+  ].map(path => ({
+    path,
+    note: 'Upstream window script wrapped with testharness. Switch-control cases require draft host behavior.',
+    script: true,
+    reflectSwitch: path.endsWith(
+      '/input-checkbox-switch.tentative.window.html',
+    ),
+  })),
+  {
+    path: '/css/css-shadow/host-dom-001.html',
+    note: 'Shadow host scoping through matches() and querySelector().',
+  },
+  {
+    path: '/css/css-shadow/slotted-matches.html',
+    note: 'Slotted pseudo-elements do not match elements outside the shadow tree.',
+  },
+  {
+    path: '/css/css-shadow/has-slotted-manual-assignment.html',
+    note: 'Draft slot state through selector APIs. Manual means programmatic slot assignment.',
+  },
+  {
+    path: '/css/selectors/selectors-4/lang-singleton-subtag-matching.html',
+    note: 'Language-range matching and singleton subtags through querySelectorAll().',
+  },
   {
     path: '/html/semantics/selectors/pseudo-classes/checked.html',
     note: 'HTML selector semantics: checked through DOM APIs',
@@ -107,6 +200,7 @@ export const manifest: Array<{
   {
     path: '/html/semantics/selectors/pseudo-classes/valid-invalid.html',
     note: 'HTML selector semantics: valid-invalid through DOM APIs',
+    domOnly: 'form-validity',
   },
 
   {
@@ -116,6 +210,7 @@ export const manifest: Array<{
   {
     path: '/css/selectors/dir-pseudo-on-input-element.html',
     note: 'input directionality across types, values and live type changes',
+    domOnly: 'input-direction',
   },
   {
     path: '/_repo/test/repo/e2e/upstream/fixtures/media-time-state.html',
@@ -171,6 +266,10 @@ export const manifest: Array<{
     path: '/_repo/test/repo/e2e/upstream/fixtures/nth-constant.html',
     note: 'local WPT regression: constant sibling indexes agree with native queries after mutation',
     install: false,
+  },
+  {
+    path: '/_repo/test/repo/e2e/upstream/fixtures/structural-selectors.html',
+    note: 'DOM API adaptations of upstream filtered-position and namespace rendering fixtures',
   },
   {
     path: '/_repo/test/repo/e2e/upstream/fixtures/legacy-dom.html',
@@ -261,7 +360,8 @@ export const manifest: Array<{
   },
   {
     path: '/dom/nodes/Element-matches-namespaced-elements.html',
-    note: 'matches() on createElementNS elements (jsdom regressions); the webkitMatchesSelector half runs the native engine (alias not overridden by install())',
+    note: 'matches() on createElementNS elements. The native-only alias variants are excluded.',
+    domOnly: 'namespace-matches',
   },
   {
     path: '/dom/nodes/Element-closest.html',
@@ -306,6 +406,14 @@ export const manifest: Array<{
   {
     path: '/css/selectors/is-where-basic.html',
     note: 'basic :is()/:where() matching via querySelectorAll',
+  },
+  {
+    path: '/css/selectors/query/query-is.html',
+    note: 'upstream query assertions for simple, compound, complex, and nested :is() arguments',
+  },
+  {
+    path: '/css/selectors/query/query-where.html',
+    note: 'upstream query assertions for simple, compound, complex, and nested :where() arguments',
   },
   {
     path: '/css/selectors/is-where-not.html',
