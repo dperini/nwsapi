@@ -3,7 +3,6 @@ import { gzipSync, brotliCompressSync, constants } from 'node:zlib'
 import { parseArgs } from 'node:util'
 import path from 'node:path'
 import { rolldown } from 'rolldown'
-import { minify } from 'rolldown/utils'
 import {
   competitorEntry,
   engineNames,
@@ -59,31 +58,23 @@ export async function sizeReport() {
   } finally {
     await bundle.close()
   }
-  const minified = await minify('dom-selector.js', code, {
-    compress: { target: 'es2015' },
-    mangle: true,
-    codegen: { legalComments: 'none' },
-  })
-  if (minified.errors.length || !minified.code) {
-    throw new Error('Failed to minify the competitor bundle.')
-  }
   return {
     metadata: {
       ...provenance(),
       rolldown: require('rolldown/package.json').version as string,
       method:
-        'NWSAPI published core browser file versus a full dom-selector ESM bundle, including runtime dependencies; no tree shaking; same Rolldown minifier; gzip level 9; Brotli quality 11. Excludes jsdom, NWSAPI CLI, adapter and optional css-tree peer.',
+        'Readable nwsapi core browser file versus a full readable dom-selector ESM bundle, including runtime dependencies; no minification; full competitor exports; gzip level 9; Brotli quality 11. Excludes jsdom, nwsapi CLI, adapter, optional legacy module and css-tree peer.',
     },
     rows: [
       {
         engine: engineNames[0],
-        artifact: 'dist/nwsapi.min.js (published core browser file)',
-        ...fileSizes(readFileSync(path.join(REPO_ROOT, 'dist/nwsapi.min.js'))),
+        artifact: 'dist/nwsapi.js (readable core browser file)',
+        ...fileSizes(readFileSync(path.join(REPO_ROOT, 'dist/nwsapi.js'))),
       },
       {
         engine: engineNames[1],
-        artifact: 'Full runtime bundle, minified for this report',
-        ...fileSizes(minified.code),
+        artifact: 'Full readable runtime bundle',
+        ...fileSizes(code),
       },
     ],
     competitorModules: modules,
@@ -107,7 +98,7 @@ if (isMainModule(import.meta.url)) {
     writeFileSync(output, JSON.stringify(result, null, 2) + '\n')
     for (const row of result.rows) {
       console.log(
-        `${row.engine}: ${kib(row.bytes)} minified, ${kib(row.gzip)} gzip, ${kib(row.brotli)} Brotli`,
+        `${row.engine}: ${kib(row.bytes)} readable, ${kib(row.gzip)} gzip, ${kib(row.brotli)} Brotli`,
       )
     }
   }

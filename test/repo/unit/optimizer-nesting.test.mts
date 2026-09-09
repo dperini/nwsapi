@@ -2,7 +2,7 @@ import type * as NodeFs from 'node:fs'
 import type * as NodePath from 'node:path'
 import type * as NodeVm from 'node:vm'
 import type * as Jsdom from 'jsdom'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 const __dirname = import.meta.dirname
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
@@ -12,7 +12,7 @@ const { join } = require('node:path') as typeof NodePath
 import { test } from 'vitest'
 const vm = require('node:vm') as typeof NodeVm
 const { JSDOM } = require('jsdom') as typeof Jsdom
-const source = readFileSync(join(__dirname, '../../../src/nwsapi.js'), 'utf8')
+const source = readFileSync(join(__dirname, '../../../dist/nwsapi.js'), 'utf8')
 
 test('strict factory initialization does not leak parser variables', () => {
   const context = {
@@ -42,7 +42,7 @@ for (const selector of [
     )
     try {
       const nw = (
-        require('../../../src/nwsapi') as typeof NwsapiModule.default
+        require('../../../dist/nwsapi') as typeof NwsapiModule.default
       )(window)
       const expected = [...window.document.querySelectorAll(selector)]
       assert.deepEqual(nw.select(selector), expected)

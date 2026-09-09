@@ -47,7 +47,7 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
     )
     await page.addScriptTag({
       content: readFileSync(
-        path.join(__dirname, '../../../src/nwsapi.js'),
+        path.join(__dirname, '../../../dist/nwsapi.js'),
         'utf8',
       ),
     })

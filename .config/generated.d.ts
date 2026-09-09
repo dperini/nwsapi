@@ -1,8 +1,8 @@
 // The build creates this CommonJS module before tests run. Keep clean-tree
 // type checks independent of the generated JavaScript file.
-declare module '*/src/nwsapi.js' {
+declare module '*/dist/nwsapi.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
-  type AdapterConstructor = typeof import('*/src/dom-selector.js').default
+  type AdapterConstructor = typeof import('*/dist/dom-selector.js').default
   interface Factory {
     (host: {
       document: Document
@@ -15,7 +15,7 @@ declare module '*/src/nwsapi.js' {
   export default factory
 }
 
-declare module '*/src/dom-selector.js' {
+declare module '*/dist/dom-selector.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
   type QueryCollection = import('./runtime.d.ts').NwsapiCollection
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
@@ -58,4 +58,11 @@ declare module '*/src/dom-selector.js' {
       pseudoElement: null
     }
   }
+}
+
+// The optional module registers hooks on an existing engine.
+declare module '*/dist/modules/nwsapi-legacy.js' {
+  export default function registerLegacy<Engine extends typeof NW.Dom>(
+    engine: Engine,
+  ): Engine
 }

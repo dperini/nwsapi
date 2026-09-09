@@ -14,7 +14,7 @@ test(
       await page.setContent(markup)
       await page.addScriptTag({
         content: fs.readFileSync(
-          new URL('../../../src/nwsapi.js', import.meta.url),
+          new URL('../../../dist/nwsapi.js', import.meta.url),
           'utf8',
         ),
       })

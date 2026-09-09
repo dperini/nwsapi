@@ -39,6 +39,7 @@
     "../scripts/repo/**/*.mts",
     "../test/repo/**/*.mts",
     "./*.mts",
+    "./repo/**/*.mts",
     "./*.d.ts"
   ]
 }

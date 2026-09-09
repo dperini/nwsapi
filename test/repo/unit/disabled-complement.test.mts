@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('fieldset absence follows insertions, detached trees, and document changes', t => {
   const { window } = new JSDOM('<!doctype html><input id="a"><input id="b">')

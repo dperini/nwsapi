@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('candidate snapshots follow synchronous mutations and protect returned arrays', async t => {
   const { window } = new JSDOM(

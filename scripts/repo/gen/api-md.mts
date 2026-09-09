@@ -35,8 +35,10 @@ const descriptions: Record<string, string> = {
     'Reads or changes options. Pass `true` as the second argument to clear compiled selectors.',
   emit: 'Reports an error using the configured error policy.',
   install:
-    'Replaces native selector methods; `querySelectorAll()` returns static NodeList-compatible snapshots. The `all` flag enables legacy iframe-load handling.',
+    'Replaces native selector methods. `querySelectorAll()` returns static NodeList-compatible snapshots. The `all` flag enables legacy iframe-load handling.',
   uninstall: 'Restores the native methods saved by `install()`.',
+  registerLegacyHooks:
+    'Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered.',
   registerCombinator:
     'Adds a relationship between elements using trusted resolver code.',
   registerOperator:
@@ -88,7 +90,8 @@ const optionDescriptions: Record<string, string> = {
   FORGIVING:
     'Allows invalid items in forgiving lists such as `:is()` and `:where()`.',
   IDS_DUPES: 'Allows duplicate IDs when finding elements.',
-  LEGACY: 'Enables feature checks and fallbacks for older environments.',
+  LEGACY:
+    'Enables older DOM behavior after the legacy module has registered its hooks.',
   LOGERRORS: 'Logs errors when exception throwing is disabled.',
   NODE_LIST: 'Uses NodeList-style results where supported.',
   USR_EVENT:
@@ -218,7 +221,7 @@ export function renderApiMarkdown(
     ],
     [
       'Configure the engine',
-      ['configure', 'emit'],
+      ['configure', 'emit', 'registerLegacyHooks'],
       'Change engine options and error handling.',
     ],
     [
@@ -383,10 +386,18 @@ export function renderApiMarkdown(
     '',
     '<blockquote>',
     '<p><img src="../../../assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>',
-    '<p>Set <code>LEGACY</code> before the first query when the environment needs compatibility fallbacks.</p>',
+    '<p>Load <code>src/modules/nwsapi-legacy.js</code> after the core and before the first query when the environment needs compatibility fallbacks.</p>',
     '</blockquote>',
     '',
     '</details>',
+    '',
+    '### Legacy hooks',
+    '',
+    'The optional `src/modules/nwsapi-legacy.js` module calls `registerLegacyHooks()` on the existing engine. It supplies attribute readers, tree traversal, candidate lookup, cache allocators, native matcher aliases, resolver rewriting, and iframe setup. It reuses the core parser and selector logic.',
+    '',
+    'In a browser, load the module after `src/nwsapi.js` and before the jQuery or traversal modules. With CommonJS, call `require("nwsapi/src/modules/nwsapi-legacy.js")(engine)`. Registration detects older DOM hosts. Use `engine.configure({ LEGACY: true })` to force that behavior on a modern host.',
+    '',
+    'Each engine owns its hook state. Repeated registration keeps the first set of hooks. The core contains the registration points, and the optional module contains the compatibility implementations. The jsdom adapter loads this module when its setup options enable `LEGACY`.',
     '',
     '<details>',
     '<summary>Compiler data and caches</summary>',

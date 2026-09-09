@@ -4,7 +4,7 @@ import type { TestProject } from 'vitest/node'
 
 export default function setup(project: TestProject) {
   const build = () => {
-    execFileSync(process.execPath, ['scripts/repo/build.mts'], {
+    execFileSync(process.execPath, ['scripts/repo/build/run.mts'], {
       cwd: new URL('../', import.meta.url),
       stdio: 'inherit',
     })

@@ -1,3 +1,4 @@
+import { packPackage } from '../../../scripts/repo/build/package.mts'
 import type * as NodeChildProcess from 'node:child_process'
 import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
@@ -29,26 +30,7 @@ const run = (
 ) => execFileSync(command, [...prefix, ...args], options)
 
 try {
-  const packResult = JSON.parse(
-    run(
-      [
-        ...(isPnpm ? ['--reporter=silent'] : []),
-        'pack',
-        '--json',
-        '--pack-destination',
-        directory,
-      ],
-      {
-        cwd: REPO_ROOT,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'inherit'],
-      },
-    ),
-  )
-  // npm 11 returns an array; npm 12 keys results by package name.
-  const packed = Array.isArray(packResult)
-    ? packResult[0]
-    : packResult.nwsapi || packResult
+  const packed = await packPackage(directory)
   assert.deepEqual(
     packed.files.map((file: { path: string }) => file.path).toSorted(),
     [
@@ -58,7 +40,7 @@ try {
       'dist/cli.js',
       'dist/external/unicode.js',
       'dist/external/unicode.d.ts',
-      'dist/nwsapi.min.js',
+      'src/modules/nwsapi-legacy.js',
       'package.json',
       'src/dom-selector.js',
       'src/modules/nwsapi-jquery.js',

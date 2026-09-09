@@ -1,14 +1,11 @@
-import { createRequire } from 'node:module'
+import { createLegacyEngine } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
-
-const require = createRequire(import.meta.url)
-const minified: typeof factory = require('../../../dist/nwsapi.min.js')
+import factory from '../../../dist/nwsapi.js'
 
 for (const [label, make] of [
-  ['source', factory],
-  ['minified', minified],
+  ['modern', factory],
+  ['legacy hooks', createLegacyEngine],
 ] as const) {
   test(`${label}: CSS identifiers include Unicode 17 and names outside JavaScript's grammar`, t => {
     const { window } = new JSDOM('<p></p>')

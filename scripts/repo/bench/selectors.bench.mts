@@ -25,8 +25,8 @@ import { fileURLToPath } from 'node:url'
 import { JSDOM } from 'jsdom'
 import { bench, do_not_optimize, group, run, summary } from 'mitata'
 
-// src/nwsapi.js is CommonJS; its module.exports is the Factory function.
-import nwsapiFactory from '../../../src/nwsapi.js'
+// dist/nwsapi.js is CommonJS; its module.exports is the Factory function.
+import nwsapiFactory from '../../../dist/nwsapi.js'
 import presets from './presets.mts'
 import { agrees } from './charts.mts'
 import type { NwsapiEngine } from '../../../.config/runtime.js'
@@ -53,7 +53,7 @@ Options:
                       in the same process and the same document, so the two
                       are interleaved rather than compared across runs. Use
                       a file extracted from git, e.g.
-                      git show 2e9498f:src/nwsapi.js > baseline.js
+                      git show 2e9498f:dist/nwsapi.js > baseline.js
   --preset <name>     Run only the named preset group. Repeatable, and each
                       value may be a comma-separated list. Default: all.
   --selector <match>  Run only selectors whose text contains <match>, or,

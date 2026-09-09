@@ -1,5 +1,5 @@
 import type * as Jsdom from 'jsdom'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import type * as Playwright from '@playwright/test'
 import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
@@ -7,7 +7,8 @@ const require = createRequire(import.meta.url)
 import assert from 'node:assert/strict'
 import { test, type TestContext } from 'vitest'
 const { JSDOM } = require('jsdom') as typeof Jsdom
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 const markup =
   '<!doctype html><body><main id="scope"><div id="a"><i id="i" class="a"><b id="b" class="b"></b></i></div><div id="c"><p id="p"></p></div><div id="d"></div></main><aside id="outside"><p></p></aside>'
 const selectors = [
@@ -119,7 +120,7 @@ test(
       await page.setContent(markup)
       await page.addScriptTag({
         content: readFileSync(
-          require.resolve('../../../src/nwsapi.js'),
+          require.resolve('../../../dist/nwsapi.js'),
           'utf8',
         ),
       })

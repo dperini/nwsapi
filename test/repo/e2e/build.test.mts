@@ -1,6 +1,7 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
 import { parse } from 'acorn'
@@ -14,7 +15,7 @@ const pkg = JSON.parse(
 
 beforeAll(() => {
   source = readFileSync(
-    new URL('../../../dist/nwsapi.min.js', import.meta.url),
+    new URL('../../../dist/nwsapi.js', import.meta.url),
     'utf8',
   )
   assert.match(source, /^\/\*!\n \* NWSAPI /)
@@ -22,12 +23,12 @@ beforeAll(() => {
 })
 
 for (const [file, ecmaVersion] of [
-  ['src/nwsapi.js', 2015],
-  ['dist/nwsapi.min.js', 2015],
-  ['src/modules/nwsapi-jquery.js', 5],
-  ['src/modules/nwsapi-traversal.js', 5],
+  ['dist/nwsapi.js', 5],
+  ['dist/modules/nwsapi-legacy.js', 5],
+  ['dist/modules/nwsapi-jquery.js', 5],
+  ['dist/modules/nwsapi-traversal.js', 5],
 ] as const) {
-  test(`${file} retains its existing ES${ecmaVersion} script syntax`, () => {
+  test(`${file} parses as ES${ecmaVersion} script syntax`, () => {
     const code = readFileSync(
       new URL(`../../../${file}`, import.meta.url),
       'utf8',
@@ -46,7 +47,10 @@ test('Unicode external paths and declarations agree between source and distribut
     string,
     RegExp
   >
-  assert.deepEqual(Object.keys(bundled), Object.keys(external))
+  assert.deepEqual(
+    Object.keys(bundled).toSorted(),
+    Object.keys(external).toSorted(),
+  )
   for (const key of Object.keys(external)) {
     assert.equal(bundled[key]!.source, external[key]!.source)
     assert.equal(bundled[key]!.flags, external[key]!.flags)
@@ -78,12 +82,54 @@ test('Unicode external paths and declarations agree between source and distribut
     ),
     { module, exports: module.exports },
   )
-  assert.deepEqual(Object.keys(module.exports), Object.keys(external))
+  assert.deepEqual(
+    Object.keys(module.exports).toSorted(),
+    Object.keys(external).toSorted(),
+  )
+})
+
+for (const tree of ['src', 'dist']) {
+  test(`${tree}/external supports Node CommonJS and ESM named imports`, () => {
+    const data = new URL(
+      `../../../${tree}/external/unicode.js`,
+      import.meta.url,
+    )
+    execFileSync(process.execPath, [
+      '--input-type=module',
+      '--eval',
+      `import assert from 'node:assert/strict';
+       import { createRequire } from 'node:module';
+       import { leftToRight, rightToLeft, arabicLetter } from ${JSON.stringify(data.href)};
+       const require = createRequire(${JSON.stringify(data.href)});
+       const commonjs = require(${JSON.stringify(data.pathname)});
+       assert.equal(leftToRight, commonjs.leftToRight);
+       assert.equal(rightToLeft, commonjs.rightToLeft);
+       assert.equal(arabicLetter, commonjs.arabicLetter);`,
+    ])
+  })
+}
+
+test('build output stays in dist and has no minified artifact', () => {
+  for (const file of [
+    'src/nwsapi.js',
+    'src/dom-selector.js',
+    'src/modules/nwsapi-jquery.js',
+    'src/modules/nwsapi-traversal.js',
+    'bin/nwsapi.js',
+    'dist/nwsapi.min.js',
+  ]) {
+    assert.equal(
+      existsSync(new URL('../../../' + file, import.meta.url)),
+      false,
+      file,
+    )
+  }
+  assert.ok(source.split('\n').length > 1000)
 })
 
 test('adapter retains its existing ES2019 CommonJS syntax', () => {
   const code = readFileSync(
-    new URL('../../../src/dom-selector.js', import.meta.url),
+    new URL('../../../dist/dom-selector.js', import.meta.url),
     'utf8',
   )
   parse(code, { ecmaVersion: 2019, sourceType: 'script' })
@@ -92,7 +138,7 @@ test('adapter retains its existing ES2019 CommonJS syntax', () => {
 })
 
 for (const format of ['browser', 'CommonJS', 'AMD'] as const) {
-  test(`minified ${format} build selects, matches, and observes mutations`, () => {
+  test(`distribution ${format} build selects, matches, and observes mutations`, () => {
     const dom = new JSDOM('<div><p id="a" class="x"></p><p id="b"></p></div>', {
       runScripts: 'outside-only',
     })

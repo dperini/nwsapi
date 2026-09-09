@@ -1,11 +1,12 @@
 import type * as Jsdom from 'jsdom'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 import assert from 'node:assert/strict'
 import { test, type TestContext } from 'vitest'
 const { JSDOM } = require('jsdom') as typeof Jsdom
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 
 function fixture(t: TestContext) {
   const { window } = new JSDOM(

@@ -10,7 +10,7 @@ import { test } from 'vitest'
 import type { NwsapiEngine } from '../../../.config/runtime'
 const { chromium } = require('@playwright/test') as typeof Playwright
 const source = readFileSync(
-  path.resolve(__dirname, '../../../src/nwsapi.js'),
+  path.resolve(__dirname, '../../../dist/nwsapi.js'),
   'utf8',
 )
 

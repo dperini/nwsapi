@@ -1,6 +1,7 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 for (const legacy of [false, true]) {
   test(`namespace queries preserve candidate contexts (legacy=${legacy})`, t => {
@@ -14,7 +15,7 @@ for (const legacy of [false, true]) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'item')
     const bare = document.createElementNS(null, 'item')
     section.append(html, svg, bare)
-    const engine = factory(window)
+    const engine = registerLegacy(factory(window))
     engine.configure({ LEGACY: legacy })
     const fragment = document.createDocumentFragment()
     fragment.append(section.cloneNode(true))
@@ -47,7 +48,7 @@ for (const legacy of [false, true]) {
     )
     t.onTestFinished(() => window.close())
     const doc = window.document
-    const engine = factory(window)
+    const engine = registerLegacy(factory(window))
     engine.configure({ LEGACY: legacy })
     const fragment = doc.createDocumentFragment()
     fragment.append(
@@ -113,7 +114,7 @@ test('XML attribute namespaces preserve local names and all matching values', t 
     { contentType: 'application/xml' },
   )
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   for (const legacy of [false, true]) {
     engine.configure({ LEGACY: legacy })
     for (const [selector, ids] of new Map([
@@ -156,7 +157,7 @@ test('XML attributes without prefixes still retain their namespace', t => {
   )
   t.onTestFinished(() => window.close())
   const doc = window.document
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const named = doc.getElementById('namespaced')!
   named.setAttributeNS('urn:attributes', 'x', 'value')
   for (const selector of ['[x]', '[|x]', '[x="value"]', '[|x="value"]']) {

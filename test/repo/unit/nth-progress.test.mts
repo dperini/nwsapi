@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('positional plans handle dense, sparse, nested, and moved candidates', t => {
   const { window } = new JSDOM('<!doctype html><main></main><aside></aside>')

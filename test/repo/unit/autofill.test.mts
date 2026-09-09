@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 for (const pseudo of [':autofill', ':-webkit-autofill'] as const) {
   test(`${pseudo} does not match ordinary elements or skip its suffix`, t => {

@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('required and optional apply only to the complete control names', t => {
   const { window } = new JSDOM(

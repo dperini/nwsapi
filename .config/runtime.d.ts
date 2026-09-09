@@ -1,3 +1,4 @@
+import type { LegacyHookFactory } from '../src/internal/legacy.d.ts'
 export type NwsapiCollection = Element[] | NodeListOf<Element>
 export type NwsapiContext = Document | DocumentFragment | Element
 
@@ -9,6 +10,7 @@ export interface NwsapiEngine {
     root: Element
     from: Node
     anchor: Element | null
+    includes(this: void, value: string, search: string): boolean
     match: NwsapiEngine['match']
     has(selectors: string[], anchor: Element): boolean
     matchesNative(
@@ -82,6 +84,7 @@ export interface NwsapiEngine {
   configure(options: Record<string, unknown>, clear?: boolean): boolean
   install(all?: boolean): void
   uninstall(): void
+  registerLegacyHooks(factory: LegacyHookFactory): boolean
   registerOperator(
     name: string,
     resolver: { p1: string; p2: string; p3: string },

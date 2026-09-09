@@ -7,7 +7,7 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
   async t => {
     const browser = await chromium.launch()
     t.onTestFinished(() => browser.close())
-    for (const file of ['src/nwsapi.js', 'dist/nwsapi.min.js']) {
+    for (const legacy of [false, true]) {
       const page = await browser.newPage()
       try {
         await page.setContent(
@@ -15,10 +15,16 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
         )
         await page.addScriptTag({
           content: readFileSync(
-            new URL(`../../../${file}`, import.meta.url),
+            new URL('../../../dist/nwsapi.js', import.meta.url),
             'utf8',
           ),
         })
+        if (legacy) {
+          await page.addScriptTag({
+            content: readFileSync('dist/modules/nwsapi-legacy.js', 'utf8'),
+          })
+          await page.evaluate(() => NW.Dom.configure({ LEGACY: true }))
+        }
         const results = await page.evaluate(() => {
           const engine = window.NW.Dom
           const element = document.querySelector('x-state')!
@@ -62,7 +68,7 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
           }
           return values
         })
-        expect(results.every(Boolean), file).toBe(true)
+        expect(results.every(Boolean), `legacy=${legacy}`).toBe(true)
       } finally {
         await page.close()
       }

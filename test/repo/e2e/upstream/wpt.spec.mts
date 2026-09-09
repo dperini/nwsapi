@@ -1,9 +1,9 @@
 /*
- * Runs upstream WPT selector tests against this repo's src/nwsapi.js in a
+ * Runs upstream WPT selector tests against this repo's dist/nwsapi.js in a
  * real browser.
  *
  * For every page in manifest.mts an init script is injected that evaluates
- * src/nwsapi.js and calls NW.Dom.install() before any page script runs,
+ * dist/nwsapi.js and calls NW.Dom.install() before any page script runs,
  * overriding document.querySelector(All)/matches/closest with the NW engine
  * (the same trick the legacy test/wpt/wpt-helper.js used). Playwright runs
  * init scripts in every frame, so iframes used by the WPT pages get the NW
@@ -40,15 +40,15 @@ import { isAgent } from '../../../../scripts/repo/lib/is-agent.mts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 import { REPO_ROOT as repoRoot } from '../../../../scripts/repo/lib/paths.mts'
-const nwsapiSource = readFileSync(
-  path.join(
-    repoRoot,
-    process.env['NWSAPI_MINIFIED'] === '1'
-      ? 'dist/nwsapi.min.js'
-      : 'src/nwsapi.js',
-  ),
+const nwsapiSource = readFileSync(path.join(repoRoot, 'dist/nwsapi.js'), 'utf8')
+const legacyModule = readFileSync(
+  path.join(repoRoot, 'dist/modules/nwsapi-legacy.js'),
   'utf8',
 )
+const forceLegacy = process.env['NWSAPI_LEGACY'] === '1'
+const legacySource = forceLegacy
+  ? legacyModule + '\nNW.Dom.configure({ LEGACY: true });'
+  : ''
 const expectationsPath = path.join(here, 'expectations.json')
 const engineSha256 = createHash('sha256').update(nwsapiSource).digest('hex')
 const wptRevision = execFileSync('git', ['rev-parse', 'HEAD'], {
@@ -56,15 +56,14 @@ const wptRevision = execFileSync('git', ['rev-parse', 'HEAD'], {
   encoding: 'utf8',
 }).trim()
 const coverageDirectory = process.env['WPT_COVERAGE_DIR']
-const coverageURL = 'http://nwsapi.test/src/nwsapi.js'
+const coverageURL = 'http://nwsapi.test/dist/nwsapi.js'
 if (
   coverageDirectory &&
-  (process.env['NWSAPI_MINIFIED'] ||
-    process.env['WPT_FILTER'] ||
+  (process.env['WPT_FILTER'] ||
     process.env['WPT_SECTION'] ||
     process.env['WPT_UPDATE_EXPECTATIONS'])
 ) {
-  throw new Error('WPT coverage requires the complete, unminified suite.')
+  throw new Error('WPT coverage requires the complete suite.')
 }
 const expectations: Record<string, string> = JSON.parse(
   readFileSync(expectationsPath, 'utf8'),
@@ -129,12 +128,15 @@ if (filter.active && updateExpectations) {
 // Init script: nwsapi + install + testharness completion hook.
 // ---------------------------------------------------------------------------
 // A named script separates engine coverage from the harness, including frames.
-const engineScript = coverageDirectory
-  ? `(0, eval)(${JSON.stringify(`${nwsapiSource}\n//# sourceURL=${coverageURL}`)});`
-  : nwsapiSource
-const initScript = `${engineScript}
-;(function () {
+const engineScript =
+  (coverageDirectory
+    ? `(0, eval)(${JSON.stringify(`${nwsapiSource}\n//# sourceURL=${coverageURL}`)});`
+    : nwsapiSource) +
+  '\n' +
+  legacySource
+const installationScript = `;(function () {
   try {
+    window.__nwLegacyMode = window.NW.Dom.Config.LEGACY;
     var targets = [
       [Document.prototype, 'querySelector'],
       [Document.prototype, 'querySelectorAll'],
@@ -223,13 +225,16 @@ for (const entry of manifest) {
     if (coverageDirectory) {
       await page.coverage.startJSCoverage({ resetOnNavigation: false })
     }
-    const content =
+    const installation =
       entry.install === false
-        ? initScript.replace('window.NW.Dom.install();', '')
-        : initScript
+        ? installationScript.replace('window.NW.Dom.install();', '')
+        : installationScript
+    const content = `${engineScript}\n${entry.legacyMap ? legacyModule : ''}\n${installation}`
     await page.addInitScript({
       content: entry.legacyMap
-        ? `const savedMap = window.Map; try { window.Map = undefined; ${content} } finally { window.Map = savedMap; }`
+        ? `const savedMap = window.Map, savedWeakMap = window.WeakMap;
+          try { window.Map = window.WeakMap = undefined; ${content} }
+          finally { window.Map = savedMap; window.WeakMap = savedWeakMap; }`
         : content,
     })
     const response = await page.goto(entry.path)
@@ -262,6 +267,10 @@ for (const entry of manifest) {
         ? 'typeof window.NW.Dom.match === "function"'
         : 'typeof window.NW.Dom.match === "function" && Object.values(window.__nwInstalledAPIs).every(Boolean)',
     )
+    expect(
+      await page.evaluate('window.__nwLegacyMode'),
+      'WPT initialization must use the requested legacy mode',
+    ).toBe(forceLegacy)
     expect(
       nwInstalled,
       'document.querySelectorAll must return an Array (nwsapi installed), got the native engine',

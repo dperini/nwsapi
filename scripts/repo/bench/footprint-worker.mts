@@ -1,6 +1,6 @@
 import { setImmediate } from 'node:timers/promises'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { jsdomRequire, positiveInteger, sha256 } from './footprint-shared.mts'
 
 export const fixture =

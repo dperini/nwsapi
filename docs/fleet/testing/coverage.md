@@ -16,6 +16,14 @@ Include owned source files that no test imports so uncovered files remain visibl
 
 Exclude TypeScript declaration files from runtime coverage because they contain no executable implementation. Match declaration extensions such as `.d.ts`, `.d.mts`, and `.d.cts`. A directory named `types` can contain executable helpers, so its name alone does not justify an exclusion.
 
+## Match coverage to the executed source
+
+V8 coverage positions describe the source that ran. Generated CommonJS files loaded through Node can execute outside `vite` while coverage conversion requests `vite`'s transformed source. Inserted semicolons can then shift branch locations and produce incorrect counts.
+
+For those files, use `export default createV8CoverageModule({ untransformedFiles })` in a repository coverage provider module. Import the factory from `scripts/fleet/cover/v8-provider.mts`, and select that module with `coverage.provider: 'custom'` and `coverage.customProviderModule`. Pass filesystem paths from the repository's build configuration. Relative paths resolve against the working directory when the factory runs.
+
+The helper preserves the `@vitest/coverage-v8` collector and uses `vitest`'s original-source path for the selected files. Other files keep `vitest`'s configured source handling. Select only files that execute outside `vite`, and retain a regression that checks their source bytes and branch counts. The helper uses the public `transformFile` method in `vitest` 5.0.0. Recheck that contract when upgrading `vitest`.
+
 ## Avoid counting installed copies twice
 
 Wheelhouse can measure both a canonical template file and its installed copy. The fleet merge helper combines these entries only after confirming that their source bytes are identical. Different implementations remain separate. Do not merge files merely because their names match.

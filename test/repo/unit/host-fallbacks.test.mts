@@ -1,4 +1,5 @@
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import { registerLegacy } from '../common/legacy.mts'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
@@ -7,9 +8,10 @@ import { JSDOM } from 'jsdom'
 import { expect, test, vi } from 'vitest'
 
 const require = createRequire(import.meta.url)
-const factory = require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+const factory =
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 const filename = fileURLToPath(
-  new URL('../../../src/nwsapi.js', import.meta.url),
+  new URL('../../../dist/nwsapi.js', import.meta.url),
 )
 const source = readFileSync(filename, 'utf8')
 
@@ -59,6 +61,10 @@ test('weak observer ownership disconnects collected snapshots and tolerates coll
     },
     { filename },
   )
+  // Supply test doubles through the captured table after native detection.
+  const primordials = Reflect.get(module.exports, '_primordials')
+  primordials.WeakRefCtor = Reference
+  primordials.FinalizationRegistryCtor = Registry
   let callback: MutationCallback | undefined
   const disconnect = vi.fn(),
     observe = vi.fn()
@@ -109,7 +115,7 @@ test('custom-element definition fallback follows upgrades and customized built-i
       configurable: true,
     })
   }
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const custom = window.document.getElementsByTagName('x-widget')[0]
   const button = window.document.getElementsByTagName('button')[0]
   expect(engine.match(':defined', custom!)).toBe(false)
@@ -134,11 +140,13 @@ test('custom-element definition fallback follows upgrades and customized built-i
 test('NODE_LIST gracefully falls back to arrays on hosts with no NodeList interface', t => {
   const { window } = new JSDOM('<p></p>')
   t.onTestFinished(() => window.close())
-  const engine = factory({
-    document: window.document,
-    DOMException: window.DOMException,
-    Element: window.Element,
-  })
+  const engine = registerLegacy(
+    factory({
+      document: window.document,
+      DOMException: window.DOMException,
+      Element: window.Element,
+    }),
+  )
   engine.configure({ NODE_LIST: true })
   const result = engine.select('p')
   expect(Array.isArray(result)).toBe(true)
@@ -148,7 +156,7 @@ test('NODE_LIST gracefully falls back to arrays on hosts with no NodeList interf
 test('unique-ID lookup handles hits, misses, detached fragments and legacy mode', t => {
   const { window } = new JSDOM('<p id="one"></p><p id="one"></p>')
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const doc = window.document
   engine.configure({ IDS_DUPES: false })
   for (const legacy of [false, true] as const) {
@@ -167,7 +175,7 @@ test('unique-ID lookup handles hits, misses, detached fragments and legacy mode'
 test('legacy readers use available sibling and namespace APIs and return NodeLists', t => {
   const { window } = new JSDOM('<main><p data-a="yes"></p><p></p></main>')
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   const doc = window.document
   engine.configure({ LEGACY: true, NODE_LIST: true })
   for (const selector of [
@@ -220,7 +228,7 @@ test('astral CSS escapes work without String.fromCodePoint', t => {
 test('legacy namespace attributes use host names or attribute-node names', t => {
   const { window } = new JSDOM('<p role="button"></p>')
   t.onTestFinished(() => window.close())
-  const engine = factory(window)
+  const engine = registerLegacy(factory(window))
   engine.configure({ LEGACY: true })
   const matches = engine.compile('[*|role]', false)
   for (const [node, expected] of [

@@ -172,13 +172,13 @@ const casesPath = path.join(
 )
 const inputs = readFileSync(casesPath, 'utf8')
 const fixtureCases = JSON.parse(inputs) as Cases
-const candidate = readFileSync(path.join(REPO_ROOT, 'src/nwsapi.js'), 'utf8')
+const candidate = readFileSync(path.join(REPO_ROOT, 'dist/nwsapi.js'), 'utf8')
 const competitorBundle = await bundle(
   path.join(competitorRoot, 'src/index.js'),
   '__competitor',
 )
 const adapterBundle = await bundle(
-  path.join(REPO_ROOT, 'src/dom-selector.js'),
+  path.join(REPO_ROOT, 'dist/dom-selector.js'),
   '__adapter',
 )
 const sha256 = (value: string) =>

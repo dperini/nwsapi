@@ -1,6 +1,6 @@
 import type * as RuntimeTypes from '../../../.config/runtime.js'
 import { expect, test, vi } from 'vitest'
-import DOMSelector from '../../../src/dom-selector.js'
+import DOMSelector from '../../../dist/dom-selector.js'
 
 function fixture() {
   const node = { nodeType: 1 }

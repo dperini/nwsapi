@@ -11,6 +11,7 @@ import { collectPackumentFailures } from '../../../scripts/repo/lib/taze-output.
 import {
   API_SCRIPT_PATH,
   SVG_CHECK_SCRIPT_PATH,
+  UNICODE_ES5_CHECK_SCRIPT_PATH,
   FORMAT_SCRIPT_PATH,
   LINT_SCRIPT_PATH,
   PLAYWRIGHT_CLI_PATH,
@@ -73,6 +74,7 @@ test('check runs formatting, lint, and types without fix flags', () => {
   expect(calls).toEqual([
     [API_SCRIPT_PATH, ['--check']],
     [SVG_CHECK_SCRIPT_PATH, []],
+    [UNICODE_ES5_CHECK_SCRIPT_PATH, []],
     [FORMAT_SCRIPT_PATH, ['--check']],
     [LINT_SCRIPT_PATH, []],
     [TSC_CLI_PATH, ['--noEmit', '-p', TSC_CONFIG_PATH]],

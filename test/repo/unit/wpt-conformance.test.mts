@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('heading levels validate integer lists and use HTML local names', t => {
   const { window } = new JSDOM('<h1></h1><h2></h2><h7></h7>')

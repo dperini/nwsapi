@@ -1,5 +1,11 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -36,28 +42,36 @@ try {
   const types = runTypeCoverage(REPO_ROOT)
   writeTypeCoverage(REPO_ROOT, types)
   run('scripts/repo/test.mts', ['all', '--coverage'])
-  run('scripts/repo/test.mts', ['upstream'], {
-    ...process.env,
-    WPT_COVERAGE_DIR: raw,
-  })
   const coverage = createCoverageMap({})
-  const engine = path.join(REPO_ROOT, 'src/nwsapi.js')
-  for (let i = 0; i < manifest.length; i++) {
-    const entries = JSON.parse(
-      readFileSync(path.join(raw, `${i}.json`), 'utf8'),
-    )
-    if (!entries.length) {
-      throw new Error(`Missing WPT coverage: ${manifest[i]!.path}`)
-    }
-    for (const entry of entries) {
-      coverage.merge(
-        await convert({
-          code: entry.source,
-          ast: parse(entry.source, { ecmaVersion: 'latest', locations: true }),
-          coverage: { ...entry, url: pathToFileURL(engine).href },
-          wrapperLength: 0,
-        }),
+  const engine = path.join(REPO_ROOT, 'dist/nwsapi.js')
+  for (const mode of ['modern', 'legacy']) {
+    const directory = path.join(raw, mode)
+    mkdirSync(directory)
+    run('scripts/repo/test.mts', ['upstream'], {
+      ...process.env,
+      NWSAPI_LEGACY: mode === 'legacy' ? '1' : '0',
+      WPT_COVERAGE_DIR: directory,
+    })
+    for (let i = 0; i < manifest.length; i++) {
+      const entries = JSON.parse(
+        readFileSync(path.join(directory, `${i}.json`), 'utf8'),
       )
+      if (!entries.length) {
+        throw new Error(`Missing WPT coverage: ${manifest[i]!.path}`)
+      }
+      for (const entry of entries) {
+        coverage.merge(
+          await convert({
+            code: entry.source,
+            ast: parse(entry.source, {
+              ecmaVersion: 'latest',
+              locations: true,
+            }),
+            coverage: { ...entry, url: pathToFileURL(engine).href },
+            wrapperLength: 0,
+          }),
+        )
+      }
     }
   }
   const node = createCoverageMap({})

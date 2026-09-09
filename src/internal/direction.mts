@@ -66,7 +66,7 @@ export function containedText(
     } else if (node.nodeType === 1) {
       const element = node as Element
       skip = element !== root && excluded(element)
-      if (!skip && htmlName(element) === 'slot') {
+      if (!skip && htmlName(element) === 'slot' && element.getRootNode) {
         const host = shadowHost(element.getRootNode())
         if (host) {
           return directionality(host)
@@ -97,10 +97,15 @@ export function autoDirection(element: Element): Direction | null {
     const value = (element as HTMLInputElement | HTMLTextAreaElement).value
     return firstStrong(value) || (value ? 'ltr' : null)
   }
-  if (name === 'slot' && shadowHost(element.getRootNode())) {
+  if (
+    name === 'slot' &&
+    element.getRootNode &&
+    shadowHost(element.getRootNode())
+  ) {
     const assigned = (element as HTMLSlotElement).assignedNodes()
     if (assigned.length) {
-      for (const node of assigned) {
+      for (let index = 0; index < assigned.length; index++) {
+        const node = assigned[index]!
         const value =
           node.nodeType === 3
             ? firstStrong((node as Text).data)

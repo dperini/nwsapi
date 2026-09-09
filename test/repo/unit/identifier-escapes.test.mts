@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 for (const [value, identifier] of [
   ['a,b', 'a\\2c b'],

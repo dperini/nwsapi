@@ -26,21 +26,22 @@ const { inspectSelector } =
   require('../../../scripts/repo/compile.mts') as typeof CompileModule
 const { runCli } = require('../../../scripts/repo/cli.mts') as typeof CliModule
 
-test('compiler inspection reports source, modes, helper bindings and identity selection', () => {
-  const inspect = (selector: string, options = {}) =>
-    JSON.parse(inspectSelector(selector, { ...options, json: true }))
-  const selection = inspect('div:nth-child(2n)')
+test('compiler inspection reports source, modes, helper bindings and identity selection', async () => {
+  const inspect = async (selector: string, options = {}) =>
+    JSON.parse(await inspectSelector(selector, { ...options, json: true }))
+  const selection = await inspect('div:nth-child(2n)')
   expect(selection.source).toContain('function Resolver(')
   expect(selection.helpers).toContain('s.nthElement')
   expect(selection.sourceBytes).toBe(Buffer.byteLength(selection.source))
-  expect(inspect('.card', { mode: 'match' }).mode).toBe('match')
-  expect(inspect('.card', { mode: 'item' }).source).toContain('c.item(')
-  expect(inspect('.card', { legacy: true }).legacy).toBe(true)
-  expect(inspect('*').source).toBeNull()
-  expect(inspect('*').sourceBytes).toBe(0)
-  expect(inspect('*').helpers).toEqual([])
-  expect(inspectSelector('*')).toContain('Identity selection')
-  expect(inspectSelector('p')).toContain('function Resolver(')
+  expect((await inspect('.card', { mode: 'match' })).mode).toBe('match')
+  expect((await inspect('.card', { mode: 'item' })).source).toContain('c.item(')
+  expect((await inspect('.card', { legacy: true })).legacy).toBe(true)
+  const identity = await inspect('*')
+  expect(identity.source).toBeNull()
+  expect(identity.sourceBytes).toBe(0)
+  expect(identity.helpers).toEqual([])
+  expect(await inspectSelector('*')).toContain('Identity selection')
+  expect(await inspectSelector('p')).toContain('function Resolver(')
 })
 
 test('CLI dispatches commands and parses flags and literal selectors', async () => {
@@ -77,7 +78,9 @@ test('CLI dispatches commands and parses flags and literal selectors', async () 
 test('the executable runs from another directory and covers every entry-point branch', async t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-test-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  const bin = fileURLToPath(new URL('../../../bin/nwsapi.js', import.meta.url))
+  const bin = fileURLToPath(
+    new URL('../../../dist/bin/nwsapi.js', import.meta.url),
+  )
   // Real process boundaries remain covered; mode/parser permutations run above.
   const run = (...args: string[]) =>
     spawnSync(bin, args, {
@@ -167,16 +170,30 @@ test('the executable runs from another directory and covers every entry-point br
 test('the compiled help runs without repository sources or optional peers', t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-help-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  for (const file of ['bin/nwsapi.js', 'dist/cli.js'] as const) {
+  for (const file of ['dist/bin/nwsapi.js', 'dist/cli.js'] as const) {
     const target = path.join(directory, file)
     mkdirSync(path.dirname(target), { recursive: true })
     const source = new URL(`../../../${file}`, import.meta.url)
     const code = readFileSync(source, 'utf8')
-    expect(code).not.toMatch(/\bimport\s*\(/)
-    expect(code).not.toMatch(/require\(['"][^'"]+\.mts['"]\)/)
+    const program = parse(code, { ecmaVersion: 'latest' })
+    const visit = (node: unknown): void => {
+      if (!node || typeof node !== 'object') {
+        return
+      }
+      if (Array.isArray(node)) {
+        node.forEach(visit)
+        return
+      }
+      const value = node as { type?: string; value?: unknown }
+      if (value.type === 'Literal' && typeof value.value === 'string') {
+        expect(value.value.endsWith('.mts')).toBe(false)
+      }
+      Object.values(node).forEach(visit)
+    }
+    visit(program)
     copyFileSync(source, target)
   }
-  const result = spawnSync(process.execPath, ['bin/nwsapi.js', '--help'], {
+  const result = spawnSync(process.execPath, ['dist/bin/nwsapi.js', '--help'], {
     cwd: directory,
     encoding: 'utf8',
   })

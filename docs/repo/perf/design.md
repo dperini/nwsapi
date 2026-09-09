@@ -262,7 +262,7 @@ To reproduce the profiles, run:
 ```sh
 node scripts/repo/bench/cold-first-profile.mts
 node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first
-node bin/nwsapi.js compile --mode match ".card > button.primary"
+pnpm run compile -- --mode match ".card > button.primary"
 ```
 
 Profile files use an operating-system temporary directory by default.

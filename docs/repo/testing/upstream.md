@@ -37,7 +37,7 @@ The parsing pages cover selector grammar across attributes, combinators, logical
 
 These adaptations retain upstream selector inputs and acceptance expectations. They exclude CSSOM serialization and rendering assertions. The `An+B` page has embedded helpers, so an AST-based adapter redirects those helpers. A mixed part page contributes only its 23 direct selector helper calls. Both adapters reject unexpected upstream changes for review. Tentative WPT cases remain useful grammar probes and do not establish stable browser support.
 
-The [scope check](wpt-runner.md#scope-check) runs before every WPT invocation, including minified and coverage runs. It parses the selected pages and their shared scripts. Explicit adapters preserve form-validity and input-direction selector assertions while removing computed-style checks. The namespace page exercises only the installed `matches()` method.
+The [scope check](wpt-runner.md#scope-check) runs before every WPT invocation, including legacy-hook and coverage runs. It parses the selected pages and their shared scripts. Explicit adapters preserve form-validity and input-direction selector assertions while removing computed-style checks. The namespace page exercises only the installed `matches()` method.
 
 This corrects the earlier report's inclusion of 16 rendering-only subtests and three native `webkitMatchesSelector` subtests. The expanded inputs add 353 subtests, so the net increase is 334. Three computed-direction assertions were also removed from retained matching subtests. These accounting changes do not represent engine regressions or fixes.
 
@@ -88,10 +88,10 @@ Those tests do not need Chromium or WPT. See [test budgets](commands.md) for the
 Run `pnpm run test:browser` for browser regression tests.
 Run `pnpm run cover` to measure coverage with WPT and Node tests.
 
-To test the minified build:
+To run the same WPT selection with legacy hooks enabled:
 
 ```sh
-NWSAPI_MINIFIED=1 pnpm run test:wpt
+NWSAPI_LEGACY=1 pnpm run test:wpt
 ```
 
 </details>

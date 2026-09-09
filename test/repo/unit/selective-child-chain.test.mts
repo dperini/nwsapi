@@ -1,6 +1,7 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 const dom = (html: string) => new JSDOM(html, { url: 'https://example.test/' })
 
 test('selective child chains preserve nested anchor order and live results', t => {
@@ -9,7 +10,7 @@ test('selective child chains preserve nested anchor order and live results', t =
       <section class="anchor" id="inner"><div><span id="first"></span></div></section>
       <span id="second"></span></div><div><span id="third"></span></div></section>`)
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   const selectors = [
     '.anchor > div > span',
@@ -46,7 +47,7 @@ test('child chains keep scoped, callback, first, legacy, and list behavior', t =
     '<!doctype html><section class="anchor"><div><span id="a"></span></div><div><span id="b"></span></div></section>',
   )
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   const selector = '.anchor > div > span'
   const expected = [...doc.querySelectorAll(selector)]
@@ -82,7 +83,7 @@ test('child chains handle wide anchors, tag case, SVG, quirks, and invalid synta
         '<svg class="anchor"><g><path></path></g></svg></main>',
     )
     t.onTestFinished(() => window.close())
-    const nw = factory(window)
+    const nw = registerLegacy(factory(window))
     const doc = window.document
     for (const selector of [
       '.anchor > div > span',
@@ -115,7 +116,7 @@ test('simple logical compounds preserve matching, forgiving lists, and mutations
     '<!doctype html><div class="card"><button class="primary" id="ok"></button><input></div>',
   )
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   for (const legacy of [false, true] as const) {
     for (const forgiving of [false, true] as const) {
@@ -150,7 +151,7 @@ test('logical type candidates retain order, uniqueness, scopes, and callbacks', 
     '<!doctype html><div class="card"><input id="a"><button id="b"></button><input id="c"><span></span></div><button id="d"></button>',
   )
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   for (const legacy of [false, true] as const) {
     nw.configure({ LEGACY: legacy })
@@ -192,7 +193,7 @@ test('logical type candidates retain order, uniqueness, scopes, and callbacks', 
 test('logical routing samples density without caching answers', t => {
   const { window } = dom('<!doctype html><main></main>')
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   const main = doc.querySelector('main')!
   for (const html of [

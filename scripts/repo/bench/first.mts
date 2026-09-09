@@ -4,7 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { components } from './documents.mts'
 import { sample, timingEngine } from './timing.mts'
 
@@ -88,7 +88,7 @@ const data = {
       'jsdom querySelector',
     ],
     baselineSha256: hash(fs.readFileSync(baseline)),
-    candidateSha256: hash(fs.readFileSync('src/nwsapi.js')),
+    candidateSha256: hash(fs.readFileSync('dist/nwsapi.js')),
     fixtureSha256: hash(html),
     node: process.version,
     cpu: os.cpus()[0]?.model,

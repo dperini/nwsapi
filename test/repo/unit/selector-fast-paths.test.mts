@@ -1,6 +1,7 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 for (const legacy of [false, true] as const) {
   test(`logical type tests preserve context and mutations (legacy=${legacy})`, t => {
@@ -8,7 +9,7 @@ for (const legacy of [false, true] as const) {
       '<!doctype html><div id="a"><!-- comment --><button></button></div><div id="b"><span><button></button></span></div><input>',
     )
     t.onTestFinished(() => window.close())
-    const nw = factory(window)
+    const nw = registerLegacy(factory(window))
     nw.configure({ LEGACY: legacy })
     const { document } = window
     const a = document.getElementById('a')!
@@ -50,7 +51,7 @@ for (const doctype of ['<!doctype html>', ''] as const) {
         '<p class="primary" id="a"></p><p class="PRIMARY" id="b"></p><p class="x\u00a0primary" id="c"></p><svg><g class="primary" id="d"></g></svg>',
     )
     t.onTestFinished(() => window.close())
-    const nw = factory(window)
+    const nw = registerLegacy(factory(window))
     const { document } = window
     for (const selector of [
       '[class~="primary"]',
@@ -90,7 +91,7 @@ test('logical type tests preserve XML case and empty contexts', t => {
     { contentType: 'application/xml' },
   )
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   for (const selector of [
     ':is(button,input)',
     'box:has(> button)',

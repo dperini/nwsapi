@@ -14,7 +14,7 @@ const jsdomRequire = createRequire(
 )
 const factory = process.env['JSDOM_PACKAGE']
   ? jsdomRequire('@asamuzakjp/dom-selector')
-  : require('../../../src/nwsapi.js')
+  : require('../../../dist/nwsapi.js')
 const { DOMSelector } = factory
 if (!process.env['JSDOM_PACKAGE']) {
   const path = jsdomRequire.resolve('@asamuzakjp/dom-selector')
@@ -233,7 +233,7 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   const vm = require('node:vm') as typeof NodeVm
   const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
-    : require.resolve('../../../src/nwsapi.js')
+    : require.resolve('../../../dist/nwsapi.js')
   const adapterPath = createRequire(entry).resolve('./dom-selector.js')
   const copy: { exports: typeof DOMSelector | undefined } = {
     exports: undefined,
@@ -471,7 +471,7 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const Module = require('node:module') as typeof NodeModule
   const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
-    : require.resolve('../../../src/nwsapi.js')
+    : require.resolve('../../../dist/nwsapi.js')
   const path = createRequire(entry).resolve('./dom-selector.js')
   // Save the method before replacing it; the call below supplies its receiver.
   // oxlint-disable-next-line typescript/unbound-method -- Preserve the original receiver.

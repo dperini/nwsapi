@@ -1,13 +1,14 @@
+import { registerLegacy } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('first-token queries preserve scopes, mutations, callbacks, and fallback syntax', t => {
   const { window } = new JSDOM(
     '<!doctype html><main class="card"><span class="primary" id="wrong"></span><button class="primary" id="a"></button><button class="primary" id="b"></button><svg><g class="primary" id="svg"></g></svg></main>',
   )
   t.onTestFinished(() => window.close())
-  const nw = factory(window)
+  const nw = registerLegacy(factory(window))
   const doc = window.document
   for (const legacy of [false, true] as const) {
     nw.configure({ LEGACY: legacy })
@@ -60,7 +61,7 @@ test('first-token queries update document state and preserve XML and quirks case
     xml.window.close()
     quirks.window.close()
   })
-  const nw = factory(html.window)
+  const nw = registerLegacy(factory(html.window))
   expect(nw.first('.x', html.window.document)!.id).toBe('html')
   expect(nw.first('P.x', xml.window.document)!.id).toBe('upper')
   expect(nw.first('p.x')!.id).toBe('lower')

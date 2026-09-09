@@ -1,12 +1,13 @@
+import { registerLegacy } from '../common/legacy.mts'
 import type * as Jsdom from 'jsdom'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 const { JSDOM } = require('jsdom') as typeof Jsdom
 const createNwsapi =
-  require('../../../src/nwsapi.js') as typeof NwsapiModule.default
+  require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 const aliases = [
   'webkitMatchesSelector',
   'mozMatchesSelector',
@@ -40,10 +41,12 @@ for (const fallback of [false, true] as const) {
         const node = document.createElement('div')
         node.setAttribute('popover', '')
         document.body.appendChild(node)
-        const nw = createNwsapi({
-          document,
-          Element: { prototype: proto } as unknown as typeof Element,
-        })
+        const nw = registerLegacy(
+          createNwsapi({
+            document,
+            Element: { prototype: proto } as unknown as typeof Element,
+          }),
+        )
         assert.equal(
           Object.values(reads).reduce((a, b) => a + b, 0),
           0,
@@ -87,7 +90,7 @@ test('legacy mode caches an absent matcher without rereading the factory prototy
       },
     })
   }
-  const nw = createNwsapi(dom.window)
+  const nw = registerLegacy(createNwsapi(dom.window))
   nw.configure({ LEGACY: true })
   for (let i = 0; i < 50; i++) {
     assert.equal(
@@ -116,7 +119,7 @@ for (const legacy of [false, true] as const) {
         },
       })
     }
-    const nw = createNwsapi(dom.window)
+    const nw = registerLegacy(createNwsapi(dom.window))
     nw.configure({ LEGACY: legacy })
     assert.equal(
       nw.match(':popover-open', dom.window.document.body.firstElementChild!),

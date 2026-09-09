@@ -15,6 +15,11 @@
  *  https://javascript.nwbox.com/nwsapi/nwsapi.js
  */
 
+// Keep the UMD source a script. Runtime imports would change its wrapper.
+type LegacyHooks = import('./internal/legacy.d.ts').LegacyHooks
+type LegacyHookFactory = import('./internal/legacy.d.ts').LegacyHookFactory
+type LegacyReaders = import('./internal/legacy.d.ts').LegacyReaders
+
 type EngineContext = (Document | Element | DocumentFragment) &
   Partial<
     Pick<
@@ -43,13 +48,6 @@ interface NativeMatcherRecord {
   matcher: Element['matches'] | null | false | undefined
   delegates: boolean
 }
-type LegacyMatcherHost = Element &
-  Partial<
-    Record<
-      'webkitMatchesSelector' | 'mozMatchesSelector' | 'msMatchesSelector',
-      Element['matches']
-    >
-  >
 interface CollectionState<Value> {
   copies: WeakMap<object, Value>
   observer: MutationObserver | null
@@ -112,12 +110,6 @@ interface PlanCache<Value> {
   set(key: string, value: Value): Value
   size(): number
 }
-interface LegacyCacheEntry<Value> {
-  key: string
-  value: Value
-  prev: LegacyCacheEntry<Value> | null
-  next: LegacyCacheEntry<Value> | null
-}
 interface CompilerAncestry {
   required: string[]
   pending: string[]
@@ -140,21 +132,131 @@ interface AttributeOperator {
   p2: string
   p3: string
 }
+interface Primordials {
+  MapCtor: MapConstructor | undefined
+  WeakMapCtor: WeakMapConstructor | undefined
+  WeakRefCtor: WeakRefConstructor | undefined
+  FinalizationRegistryCtor: FinalizationRegistryConstructor | undefined
+  SymbolIterator: typeof Symbol.iterator | undefined
+  StringPrototypeIncludes: LegacyReaders['includes'] | undefined
+  StringFromCharCode: typeof String.fromCharCode
+  StringFromCodePoint: typeof String.fromCodePoint | undefined
+  ObjectCreate: typeof Object.create
+  ObjectDefineProperty: typeof Object.defineProperty
+  ObjectDefineProperties: typeof Object.defineProperties
+  ObjectPrototypeHasOwnProperty(value: object, name: PropertyKey): boolean
+  ArrayPrototypeSlice(nodes: ArrayLike<Element>): Element[]
+}
 
 ;(function Export(
   global: EngineGlobal | undefined,
-  factory: (global: EngineGlobal, exporter: unknown) => unknown,
+  factory: (global: EngineGlobal) => unknown,
 ) {
   'use strict'
 
-  Object.defineProperty(factory, '_direction', {
+  // Load shims before the library. All engines share these startup references.
+  var uncurryThis = Function.prototype.bind.bind(Function.prototype.call),
+    FunctionPrototypeToString = uncurryThis(Function.prototype.toString),
+    // Native-source pattern adapted from Lodash. See LICENSE for attribution.
+    nativePattern = RegExp(
+      '^' +
+        FunctionPrototypeToString(Object.prototype.hasOwnProperty)
+          .replace(
+            /[\\^$.*+?()[\]{}|]/g,
+            (character: string) => '\\' + character,
+          )
+          .replace(
+            /hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g,
+            (_match: string, keyword: string | undefined) =>
+              (keyword || '') + '.*?',
+          ) +
+        '$',
+    ),
+    isNative = function (value: unknown) {
+      if (typeof value != 'function') {
+        return false
+      }
+      try {
+        return nativePattern.test(FunctionPrototypeToString(value))
+      } catch (_error) {
+        return false
+      }
+    },
+    StringPrototypeIncludes = String.prototype.includes,
+    // oxlint-disable-next-line compat/compat -- Snapshot the optional method and validate it before any call.
+    StringFromCodePoint = String.fromCodePoint,
+    ObjectPrototypeHasOwnProperty = Object.prototype.hasOwnProperty,
+    primordials: Primordials = {
+      MapCtor: typeof Map == 'function' ? Map : undefined,
+      WeakMapCtor: typeof WeakMap == 'function' ? WeakMap : undefined,
+      WeakRefCtor: typeof WeakRef == 'function' ? WeakRef : undefined,
+      FinalizationRegistryCtor:
+        typeof FinalizationRegistry == 'function'
+          ? FinalizationRegistry
+          : undefined,
+      // oxlint-disable-next-line compat/compat -- A missing Symbol or iterator disables iteration support.
+      SymbolIterator: typeof Symbol == 'function' ? Symbol.iterator : undefined,
+      StringPrototypeIncludes: isNative(StringPrototypeIncludes)
+        ? uncurryThis(StringPrototypeIncludes)
+        : undefined,
+      StringFromCharCode: String.fromCharCode,
+      StringFromCodePoint: isNative(StringFromCodePoint)
+        ? StringFromCodePoint
+        : undefined,
+      ObjectCreate: Object.create,
+      ObjectDefineProperty: Object.defineProperty,
+      ObjectDefineProperties: Object.defineProperties,
+      ObjectPrototypeHasOwnProperty: uncurryThis(ObjectPrototypeHasOwnProperty),
+      ArrayPrototypeSlice: uncurryThis(Array.prototype.slice),
+    }
+  // Ordinary shims cannot provide weak ownership. Disable those optimizations.
+  if (!isNative(primordials.WeakRefCtor)) {
+    primordials.WeakRefCtor = undefined
+  }
+  if (!isNative(primordials.FinalizationRegistryCtor)) {
+    primordials.FinalizationRegistryCtor = undefined
+  }
+  var mapNames = ['MapCtor', 'WeakMapCtor'] as const
+  for (var mapIndex = 0; mapIndex < mapNames.length; ++mapIndex) {
+    var name = mapNames[mapIndex]!,
+      Constructor = primordials[name]
+    if (!isNative(Constructor)) {
+      primordials[name] = undefined
+      continue
+    }
+    try {
+      var map = new (Constructor as WeakMapConstructor)(),
+        key = Object.freeze({}),
+        other = {}
+      if (
+        !isNative(map.get) ||
+        !isNative(map.set) ||
+        !isNative(map.has) ||
+        !isNative(map.delete) ||
+        map.set(key, other) !== map ||
+        map.get(key) !== other ||
+        map.has(other) ||
+        !map.delete(key) ||
+        map.has(key)
+      ) {
+        primordials[name] = undefined
+      }
+    } catch (_error) {
+      primordials[name] = undefined
+    }
+  }
+  primordials.ObjectDefineProperty(factory, '_primordials', {
+    value: primordials,
+  })
+
+  primordials.ObjectDefineProperty(factory, '_direction', {
     value: /* @bundle:direction */ {} as DirectionHelpers,
   })
 
   // Share immutable grammar templates, never the mutable lastIndex of a
   // validation regexp. Custom grammars stay local and are not retained here.
   var defaultSyntax: IdentifierSyntax | undefined
-  Object.defineProperty(factory, '_identifierSyntax', {
+  primordials.ObjectDefineProperty(factory, '_identifierSyntax', {
     value: function (operators: string, combinators: string): IdentifierSyntax {
       var standard =
         operators == '[~*^$|]=|=' && combinators == '[\\x20\\t>+~](?=[^>+~])'
@@ -357,27 +459,27 @@ interface AttributeOperator {
   // Keep observer callbacks outside an engine's closure. Weak ownership lets
   // an engine and its snapshots disappear while the document stays alive.
   var collectionFinalizer: FinalizationRegistry<WeakRef<MutationObserver>>
-  Object.defineProperty(factory, '_observeCollections', {
+  primordials.ObjectDefineProperty(factory, '_observeCollections', {
     value: function <Value>(
       root: Node,
       view: Pick<typeof globalThis, 'MutationObserver'>,
       state: CollectionState<Value>,
     ) {
-      var reference = new WeakRef(state)
+      var reference = new primordials.WeakRefCtor!(state)
       var observer = new view.MutationObserver(function (
         _records,
         current: { disconnect: () => void },
       ) {
         var snapshot = reference.deref()
         if (snapshot) {
-          snapshot.copies = new WeakMap()
+          snapshot.copies = new primordials.WeakMapCtor!()
         } else {
           current.disconnect()
         }
       })
-      if (typeof FinalizationRegistry == 'function') {
+      if (primordials.FinalizationRegistryCtor) {
         collectionFinalizer ||
-          (collectionFinalizer = new FinalizationRegistry<
+          (collectionFinalizer = new primordials.FinalizationRegistryCtor<
             WeakRef<MutationObserver>
           >(function (reference) {
             var observer = reference.deref()
@@ -385,7 +487,10 @@ interface AttributeOperator {
               observer.disconnect()
             }
           }))
-        collectionFinalizer.register(state, new WeakRef(observer))
+        collectionFinalizer.register(
+          state,
+          new primordials.WeakRefCtor!(observer),
+        )
       }
       observer.observe(root, {
         childList: true,
@@ -399,7 +504,7 @@ interface AttributeOperator {
 
   if (typeof module == 'object' && typeof exports == 'object') {
     module.exports = factory
-    Object.defineProperty(module.exports, 'DOMSelector', {
+    primordials.ObjectDefineProperty(module.exports, 'DOMSelector', {
       get: function () {
         return require('./dom-selector.js')
       },
@@ -408,18 +513,18 @@ interface AttributeOperator {
     define(factory)
   } else {
     global!.NW || (global!.NW = {})
-    global!.NW.Dom = factory(global!, Export)
+    global!.NW.Dom = factory(global!)
   }
-})(this, function Factory(global: EngineGlobal, Export: unknown) {
+})(this, function Factory(global: EngineGlobal) {
   var version = 'nwsapi-2.3.0-prerelease',
+    primordials = (Factory as typeof Factory & { _primordials: Primordials })[
+      '_primordials'
+    ],
     doc = global.document,
     root = doc.documentElement,
-    slice = Array.prototype.slice,
     // Factory fallback for documents without a window.
     ELEMENT_PROTO = global.Element && global.Element.prototype,
-    sliceCall = slice.call.bind(slice) as (
-      nodes: ArrayLike<Element>,
-    ) => Element[],
+    sliceCall = primordials.ArrayPrototypeSlice,
     CFG = {
       // extensions
       operators: '[~*^$|]=|=',
@@ -508,21 +613,16 @@ interface AttributeOperator {
       USR_EVENT: true,
       VERBOSITY: true,
     },
-    // Select the allocator once, when the first cache is requested. Legacy
-    // hosts probe the constructor; modern hosts use it directly. Capture it
-    // so later allocations do not repeat feature detection.
+    legacyHooks: LegacyHooks | undefined,
+    // Capture the constructor on first use. The optional hooks can supply an
+    // allocator for a host without WeakMap before any cache is requested.
     createWeakMap = function <Key extends WeakKey, Value>():
       | WeakMap<Key, Value>
       | undefined {
-      var Constructor =
-        !Config.LEGACY || typeof WeakMap == 'function' ? WeakMap : undefined
-      createWeakMap = Constructor
-        ? function () {
-            return new Constructor!<Key, Value>()
-          }
-        : function () {
-            return undefined
-          }
+      var Constructor = primordials.WeakMapCtor!
+      createWeakMap = function () {
+        return new Constructor()
+      }
       return createWeakMap<Key, Value>()
     },
     NAMESPACE: string | null,
@@ -624,84 +724,6 @@ interface AttributeOperator {
     },
     // caching limit for compiled resolver functions
     CACHE_LIMIT = 4096,
-    // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
-    // never DOM result sets. A prefixed dictionary avoids user-key collisions
-    // and a doubly linked list keeps the least-recently-used entry at the head.
-    createLegacyCache = function <Value>(
-      limit?: number,
-    ): PlanCache<Value> & { has(key: string): boolean } {
-      var cache: Record<string, LegacyCacheEntry<Value>> = {},
-        head: LegacyCacheEntry<Value> | null = null,
-        tail: LegacyCacheEntry<Value> | null = null,
-        size = 0,
-        prefix = '\x01',
-        has = function (key: string) {
-          return Object.prototype.hasOwnProperty.call(cache, prefix + key)
-        },
-        unlink = function (entry: LegacyCacheEntry<Value>) {
-          entry.prev ? (entry.prev.next = entry.next) : (head = entry.next)
-          entry.next ? (entry.next.prev = entry.prev) : (tail = entry.prev)
-        },
-        link = function (entry: LegacyCacheEntry<Value>) {
-          entry.prev = tail
-          entry.next = null
-          tail ? (tail.next = entry) : (head = entry)
-          tail = entry
-        },
-        promote = function (entry: LegacyCacheEntry<Value>) {
-          if (entry !== tail) {
-            unlink(entry)
-            link(entry)
-          }
-        },
-        remove = function (entry: LegacyCacheEntry<Value>) {
-          unlink(entry)
-          delete cache[entry.key]
-          --size
-        }
-
-      limit || (limit = CACHE_LIMIT)
-
-      return {
-        clear: function () {
-          cache = {}
-          head = tail = null
-          size = 0
-        },
-        get: function (key: string) {
-          var entry
-          if (!has(key)) {
-            return undefined
-          }
-          entry = cache[prefix + key]!
-          promote(entry)
-          return entry.value
-        },
-        has: function (key: string) {
-          return has(key)
-        },
-        set: function (key: string, value: Value) {
-          var entry,
-            entryKey = prefix + key
-
-          if (has(key)) {
-            entry = cache[entryKey]!
-            entry.value = value
-            promote(entry)
-          } else {
-            size >= limit && remove(head!)
-            entry = { key: entryKey, value: value, prev: null, next: null }
-            cache[entryKey] = entry
-            link(entry)
-            ++size
-          }
-          return value
-        },
-        size: function () {
-          return size
-        },
-      }
-    },
     // Bounded cache for query plans, in two generations.
     //
     // A strict LRU has to reorder on use and evict one entry per insertion, and
@@ -721,9 +743,6 @@ interface AttributeOperator {
     // A value is never undefined, so get() answers existence as well and the
     // cache needs no has().
     createCache = function <Value>(limit?: number): PlanCache<Value> {
-      if (typeof Map != 'function') {
-        return createLegacyCache<Value>(limit)
-      }
       var young: Map<string, Value> | undefined,
         old: Map<string, Value> | undefined,
         half: number
@@ -753,7 +772,7 @@ interface AttributeOperator {
             old.delete(key)
             if (young.size >= half) {
               old = young
-              young = new Map<string, Value>()
+              young = new primordials.MapCtor!<string, Value>()
             }
             young.set(key, value)
           }
@@ -762,7 +781,7 @@ interface AttributeOperator {
         set: function (key: string, value: Value) {
           if (!young || young.size >= half) {
             old = young
-            young = new Map<string, Value>()
+            young = new primordials.MapCtor!<string, Value>()
           }
           young.set(key, value)
           return value
@@ -781,9 +800,9 @@ interface AttributeOperator {
       if (!global.NodeList || isInstanceOf(nodeArray)) {
         return nodeArray
       }
-      var list = Object.create(global.NodeList.prototype),
+      var list = primordials.ObjectCreate(global.NodeList.prototype),
         i
-      Object.defineProperties(list, {
+      primordials.ObjectDefineProperties(list, {
         length: { value: nodeArray.length },
         item: {
           value: function (index: number) {
@@ -813,12 +832,12 @@ interface AttributeOperator {
         },
       })
       for (i = 0; i < nodeArray.length; ++i) {
-        Object.defineProperty(list, i, {
+        primordials.ObjectDefineProperty(list, i, {
           value: nodeArray[i],
           enumerable: true,
         })
       }
-      if (typeof Symbol == 'function' && Symbol.iterator) {
+      if (primordials.SymbolIterator) {
         var iterator = function (kind: number) {
           var index = 0,
             result: {
@@ -841,12 +860,12 @@ interface AttributeOperator {
                 }
               },
             }
-          result[Symbol.iterator] = function () {
+          result[primordials.SymbolIterator!] = function () {
             return this
           }
           return result
         }
-        Object.defineProperties(list, {
+        primordials.ObjectDefineProperties(list, {
           values: {
             value: function () {
               return iterator(0)
@@ -863,7 +882,9 @@ interface AttributeOperator {
             },
           },
         })
-        Object.defineProperty(list, Symbol.iterator, { value: list.values })
+        primordials.ObjectDefineProperty(list, primordials.SymbolIterator, {
+          value: list.values,
+        })
       }
       return list
     },
@@ -910,7 +931,7 @@ interface AttributeOperator {
         matchResolvers.clear()
         selectResolvers.clear()
         firstResolvers.clear()
-        if (!Config.LEGACY && detectLegacy(doc)) {
+        if (legacyHooks && !Config.LEGACY && legacyHooks.detect(doc)) {
           Config.LEGACY = true
         }
         useLegacy(Config.LEGACY)
@@ -957,14 +978,15 @@ interface AttributeOperator {
         return '\ufffd'
       }
       if (codePoint < 0x10000) {
-        return String.fromCharCode(codePoint)
+        return primordials.StringFromCharCode(codePoint)
       }
-      return String.fromCodePoint
-        ? String.fromCodePoint(codePoint)
-        : String.fromCharCode(
-            ((codePoint - 0x10000) >> 0x0a) + 0xd800,
-            ((codePoint - 0x10000) % 0x400) + 0xdc00,
-          )
+      if (primordials.StringFromCodePoint) {
+        return primordials.StringFromCodePoint(codePoint)
+      }
+      return primordials.StringFromCharCode(
+        ((codePoint - 0x10000) >> 0x0a) + 0xd800,
+        ((codePoint - 0x10000) % 0x400) + 0xdc00,
+      )
     },
     // convert escape sequence in a CSS string or identifier
     // to javascript string with javascript escape sequences
@@ -1188,17 +1210,7 @@ interface AttributeOperator {
         next
 
       if (Config.LEGACY) {
-        next = from || firstOf(node)
-        while ((node = next)) {
-          idOf(node as Element) == id && (nodes[nodes.length] = node as Element)
-          if ((next = firstOf(node) || nextOf(node as Element))) {
-            continue
-          }
-          while (!next && (node = upOf(node as Element)) && node !== context) {
-            next = nextOf(node as Element)
-          }
-        }
-        return nodes
+        return legacyHooks!.byIdRaw(id, context, from)
       }
 
       next = from || node.firstElementChild
@@ -1322,7 +1334,7 @@ interface AttributeOperator {
       }
       var probe = !route || route.remaining <= 0,
         tags = names.split(','),
-        seen = Object.create(null),
+        seen = primordials.ObjectCreate(null),
         collections = [],
         count = 0,
         nodes: Element[] = [],
@@ -1418,7 +1430,7 @@ interface AttributeOperator {
       if (
         (length < 16 && !small) ||
         Config.LEGACY ||
-        typeof WeakRef != 'function' ||
+        !primordials.WeakRefCtor ||
         !context.getRootNode
       ) {
         return nodes
@@ -1442,7 +1454,9 @@ interface AttributeOperator {
         state = {
           copies: createWeakMap()!,
           observer: null,
-          document: new WeakRef((context.ownerDocument || context) as Document),
+          document: new primordials.WeakRefCtor(
+            (context.ownerDocument || context) as Document,
+          ),
         }
         state.observer = (
           Factory as typeof Factory & {
@@ -1459,7 +1473,7 @@ interface AttributeOperator {
         state.document.deref() !== (context.ownerDocument || context)
       ) {
         state.copies = createWeakMap()!
-        state.document = new WeakRef(
+        state.document = new primordials.WeakRefCtor(
           (context.ownerDocument || context) as Document,
         )
       }
@@ -1497,28 +1511,11 @@ interface AttributeOperator {
       var e,
         nodes,
         api = method['*']
-      // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
-      if (api in context) {
-        nodes = context[api]!(tag)
-        if (Config.LEGACY) {
-          return elementsOf(sliceCall(nodes))
-        }
-        return collectionCopy(nodes, context)
-      } else if (Config.LEGACY) {
-        // DOCUMENT_FRAGMENT_NODE (11) on a host without the element-only
-        // traversal, so the children are walked by hand
-        tag = tag.toLowerCase()
-        nodes = []
-        e = firstOf(context)
-        while (e) {
-          if (tag == '*' || tagOf(e) == tag) {
-            nodes[nodes.length] = e
-          }
-          if (e[api]) {
-            concatList(nodes, elementsOf(e[api](tag)))
-          }
-          e = nextOf(e)
-        }
+      // Legacy hooks filter non-element nodes returned by older hosts.
+      if (Config.LEGACY) {
+        nodes = legacyHooks!.byTag(tag, context)
+      } else if (api in context) {
+        return collectionCopy(context[api]!(tag), context)
       } else {
         tag = tag.toLowerCase()
         // DOCUMENT_FRAGMENT_NODE (11)
@@ -1547,29 +1544,13 @@ interface AttributeOperator {
     // context agnostic getElementsByClassName
     byClass = function (cls: string, context: EngineContext) {
       var e,
-        i,
-        l,
         nodes,
         api = method['.'],
         reCls
-      // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
-      if (api in context) {
-        nodes = context[api]!(cls)
-        return Config.LEGACY
-          ? elementsOf(sliceCall(nodes))
-          : collectionCopy(nodes, context)
-      } else if (Config.LEGACY) {
-        // A host from before this lookup existed. Every element under the
-        // context is asked for its class instead, which is what the engine
-        // would otherwise have the fetch avoid.
-        reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '')
-        nodes = []
-        e = byTag('*', context)
-        for (i = 0, l = e.length; l > i; ++i) {
-          if (reCls.test(classOf((e as ArrayLike<Element>)[i]!)!)) {
-            nodes[nodes.length] = (e as ArrayLike<Element>)[i]!
-          }
-        }
+      if (Config.LEGACY) {
+        nodes = legacyHooks!.byClass(cls, context)
+      } else if (api in context) {
+        return collectionCopy(context[api]!(cls), context)
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
@@ -1636,358 +1617,75 @@ interface AttributeOperator {
       }
       return false
     },
-    elementsOf = function (nodes: ArrayLike<Node>): Element[] {
-      var i,
-        l,
-        out = []
-      for (i = 0, l = nodes.length; l > i; ++i) {
-        if (nodes[i] && nodes[i]!.nodeType == 1) {
-          out[out.length] = nodes[i] as Element
-        }
-      }
-      return out
+    includes: LegacyReaders['includes'] = primordials.StringPrototypeIncludes!,
+    attrOf: LegacyReaders['attrOf'] = function (e, name) {
+      return e.getAttribute(name)
     },
-    LEGACY_NAMES: Record<string, string> = {
-      accesskey: 'accessKey',
-      cellpadding: 'cellPadding',
-      cellspacing: 'cellSpacing',
-      class: 'className',
-      colspan: 'colSpan',
-      contenteditable: 'contentEditable',
-      for: 'htmlFor',
-      frameborder: 'frameBorder',
-      maxlength: 'maxLength',
-      readonly: 'readOnly',
-      rowspan: 'rowSpan',
-      tabindex: 'tabIndex',
-      usemap: 'useMap',
-      valign: 'vAlign',
+    hasAttrOf: LegacyReaders['hasAttrOf'] = function (e, name) {
+      return e.hasAttribute(name)
     },
-    LEGACY_URLS: Record<string, number> = {
-      action: 1,
-      background: 1,
-      cite: 1,
-      classid: 1,
-      codebase: 1,
-      data: 1,
-      href: 1,
-      longdesc: 1,
-      profile: 1,
-      src: 1,
-      usemap: 1,
+    tagOf: LegacyReaders['tagOf'] = function (e) {
+      return e.localName
     },
-    LEGACY_URL_READ = 'flag',
-    LEGACY_PROBE = './nwsapi-probe',
-    probeAttributes = function (document: Document) {
-      var element, node
-
-      LEGACY_URL_READ = 'flag'
-      try {
-        element = document.createElement('a')
-        element.setAttribute('href', LEGACY_PROBE)
-        if (
-          (element.getAttribute as (name: string, flag: number) => unknown)(
-            'href',
-            2,
-          ) === LEGACY_PROBE
-        ) {
-          return
-        }
-        node =
-          element.attributes &&
-          element.attributes.getNamedItem &&
-          element.attributes.getNamedItem('href')
-        if (
-          node &&
-          (node.value === LEGACY_PROBE || node.nodeValue === LEGACY_PROBE)
-        ) {
-          LEGACY_URL_READ = 'node'
-          return
-        }
-        if (element.getAttribute('href') === LEGACY_PROBE) {
-          LEGACY_URL_READ = 'plain'
-        }
-        // nothing answered the markup, so the second argument stays the best
-        // of the three: it is what the host most likely to resolve took
-      } catch (e) {
-        // a host that cannot create an element is not one to probe
-      }
+    idOf: LegacyReaders['idOf'] = function (e) {
+      return e.id
     },
-    legacyAttrNode = function (e: Element, lower: string) {
-      var attrs = e.attributes as NamedNodeMap &
-          Record<string, Attr | undefined>,
-        node
-      if (!attrs) {
-        return null
-      }
-      node = attrs.getNamedItem ? attrs.getNamedItem(lower) : attrs[lower]
-      if (!node && LEGACY_NAMES[lower]!) {
-        node = attrs.getNamedItem
-          ? attrs.getNamedItem(LEGACY_NAMES[lower]!)
-          : attrs[LEGACY_NAMES[lower]!]
-      }
-      return node || null
+    upOf: LegacyReaders['upOf'] = function (e) {
+      return e.parentElement
     },
-    legacyAttrOf = function (e: EngineElement, name: string) {
-      var lower, node, value: unknown
-
-      if (!e || e.nodeType != 1) {
-        return null
-      }
-      lower = name.toLowerCase()
-      node = legacyAttrNode(e, lower)
-
-      // Presence is the attribute node's to answer, not the property's. A
-      // property default is not an attribute, and IE 6 and 7 answered
-      // getAttribute('enctype') with the form default when the markup had set
-      // nothing at all (Mark, "Known Exceptions"). Where the host keeps an
-      // attributes collection, that collection decides.
-      if (e.attributes && (!node || node.specified === false)) {
-        return null
-      }
-
-      // A URL attribute, read the way this host answers the markup.
-      if (LEGACY_URLS[lower] && e.getAttribute) {
-        if (LEGACY_URL_READ == 'node' && node) {
-          value = node.value !== undefined ? node.value : node.nodeValue
-        } else {
-          value =
-            LEGACY_URL_READ == 'plain'
-              ? e.getAttribute(name)
-              : (e.getAttribute as (name: string, flag: number) => unknown)(
-                  name,
-                  2,
-                )
-        }
-        if (typeof value == 'string') {
-          return value
-        }
-      }
-
-      if (e.getAttribute) {
-        value = e.getAttribute(name)
-        if (value == null && LEGACY_NAMES[lower]!) {
-          value = e.getAttribute(LEGACY_NAMES[lower]!)
-        }
-      }
-      if (value == null && node) {
-        value = node.value !== undefined ? node.value : node.nodeValue
-      }
-      if (value == null) {
-        return null
-      }
-
-      if (typeof value == 'string') {
-        return value
-      }
-      // a style attribute came back as an object and an event handler as a
-      // function
-      if (lower == 'style') {
-        return e.style ? e.style.cssText : null
-      }
-      // A boolean attribute came back as the property's true or false. Read
-      // as '' when it is present, which is the markup of '<input checked>'
-      // and the only answer available: this host cannot say whether the
-      // markup wrote 'checked' or 'checked="checked"', a loss Mark documents
-      // under "Booleans" and settles the same way.
-      if (value === true) {
-        return ''
-      }
-      if (value === false) {
-        return null
-      }
-      // oxlint-disable-next-line typescript/no-base-to-string -- Legacy hosts may return nonstring attributes.
-      return String(value)
+    nextOf: LegacyReaders['nextOf'] = function (e) {
+      return e.nextElementSibling
     },
-    legacyHasAttrOf = function (e: Element, name: string) {
-      if (!e || e.nodeType != 1) {
-        return false
-      }
-      if (e.hasAttribute) {
-        return e.hasAttribute(name)
-      }
-      return legacyAttrOf(e, name) !== null
+    _prevOf: LegacyReaders['prevOf'] = function (e) {
+      return e.previousElementSibling
     },
-    legacyTagOf = function (e: Element) {
-      if (!e) {
-        return ''
-      }
-      if (typeof e.localName == 'string') {
-        return e.localName
-      }
-      // nodeName is upper case for an HTML element and carries the prefix in
-      // XML, so the part after a colon is the local name
-      var name = e.nodeName
-      if (typeof name != 'string') {
-        return ''
-      }
-      name = name.slice(name.indexOf(':') + 1)
-      return HTML_DOCUMENT ? name.toLowerCase() : name
+    firstOf: LegacyReaders['firstOf'] = function (e) {
+      return e.firstElementChild
     },
-    legacyIdOf = function (e: Element) {
-      var value = e && e.id
-      if (typeof value == 'string' && legacyTagOf(e) != 'form') {
-        return value
-      }
-      return legacyAttrOf(e, 'id') || ''
+    attrNamesOf: LegacyReaders['attrNamesOf'] = function (e) {
+      return e.getAttributeNames()
     },
-    legacyClassOf = function (e: Element) {
-      var value = e && (e.className as string | SVGAnimatedString)
-      if (typeof value == 'string') {
-        return value
-      }
-      if (value && typeof value.baseVal == 'string') {
-        return value.baseVal
-      }
-      return legacyAttrOf(e, 'class') || ''
+    connectedOf: LegacyReaders['connectedOf'] = function (e) {
+      return e.isConnected
     },
-    legacyUpOf = function (e: Element): Element | null {
-      var node: Node | null = e.parentElement
-      if (node !== undefined) {
-        return node as Element | null
-      }
-      node = e.parentNode
-      return node && node.nodeType == 1 ? (node as Element) : null
+    modernReaders: LegacyReaders = {
+      includes: includes,
+      attrOf: attrOf,
+      hasAttrOf: hasAttrOf,
+      tagOf: tagOf,
+      idOf: idOf,
+      legacyClassOf: function (e) {
+        return classOf(e) || ''
+      },
+      upOf: upOf,
+      nextOf: nextOf,
+      prevOf: _prevOf,
+      firstOf: firstOf,
+      attrNamesOf: attrNamesOf,
+      connectedOf: connectedOf,
     },
-    legacyNextOf = function (e: Element): Element | null {
-      var node: Node | null = e.nextElementSibling
-      if (node !== undefined) {
-        return node as Element | null
-      }
-      node = e.nextSibling
-      while (node && node.nodeType != 1) {
-        node = node.nextSibling
-      }
-      return (node as Element | null) || null
-    },
-    legacyPrevOf = function (e: Element): Element | null {
-      var node: Node | null = e.previousElementSibling
-      if (node !== undefined) {
-        return node as Element | null
-      }
-      node = e.previousSibling
-      while (node && node.nodeType != 1) {
-        node = node.previousSibling
-      }
-      return (node as Element | null) || null
-    },
-    legacyFirstOf = function (e: ParentNode): Element | null {
-      var node: Node | null = e.firstElementChild
-      if (node !== undefined) {
-        return node as Element | null
-      }
-      node = e.firstChild
-      while (node && node.nodeType != 1) {
-        node = node.nextSibling
-      }
-      return (node as Element | null) || null
-    },
-    legacyAttrNamesOf = function (e: Element) {
-      var i,
-        l,
-        names = [],
-        attrs
-      if (e.getAttributeNames) {
-        return e.getAttributeNames()
-      }
-      attrs = e.attributes
-      for (i = 0, l = attrs ? attrs.length : 0; l > i; ++i) {
-        if (
-          attrs[i] &&
-          (attrs[i]!.specified === undefined || attrs[i]!.specified)
-        ) {
-          names[names.length] =
-            attrs[i]!.name !== undefined ? attrs[i]!.name : attrs[i]!.nodeName
-        }
-      }
-      return names
-    },
-    legacyConnectedOf = function (e: Node) {
-      var node = e
-      if (e.isConnected !== undefined) {
-        return e.isConnected
-      }
-      while (node.parentNode) {
-        node = node.parentNode
-      }
-      return node.nodeType == 9
-    },
-    // initialize() selects the host readers before any query can run.
-    // Avoid allocating a second, immediately discarded set of functions.
-    attrOf: typeof legacyAttrOf,
-    hasAttrOf: typeof legacyHasAttrOf,
-    tagOf: typeof legacyTagOf,
-    idOf: typeof legacyIdOf,
-    upOf: typeof legacyUpOf,
-    nextOf: typeof legacyNextOf,
-    _prevOf: typeof legacyPrevOf,
-    firstOf: typeof legacyFirstOf,
-    attrNamesOf: typeof legacyAttrNamesOf,
-    connectedOf: typeof legacyConnectedOf,
     useLegacy = function (on: boolean) {
+      var readers = on ? legacyHooks! : modernReaders,
+        name
       if (on) {
-        probeAttributes(doc)
+        legacyHooks!.initialize(doc)
       }
-      attrOf = on
-        ? legacyAttrOf
-        : function (e, name) {
-            return e.getAttribute(name)
-          }
-      hasAttrOf = on
-        ? legacyHasAttrOf
-        : function (e, name) {
-            return e.hasAttribute(name)
-          }
-      tagOf = on
-        ? legacyTagOf
-        : function (e) {
-            return e.localName
-          }
-      idOf = on
-        ? legacyIdOf
-        : function (e) {
-            return e.id
-          }
-      upOf = on
-        ? legacyUpOf
-        : function (e) {
-            return e.parentElement
-          }
-      nextOf = on
-        ? legacyNextOf
-        : function (e) {
-            return e.nextElementSibling
-          }
-      _prevOf = on
-        ? legacyPrevOf
-        : function (e) {
-            return e.previousElementSibling
-          }
-      firstOf = on
-        ? legacyFirstOf
-        : function (e) {
-            return e.firstElementChild
-          }
-      attrNamesOf = on
-        ? legacyAttrNamesOf
-        : function (e) {
-            return e.getAttributeNames()
-          }
-      connectedOf = on
-        ? legacyConnectedOf
-        : function (e) {
-            return e.isConnected
-          }
-    },
-    detectLegacy = function (document: Document) {
-      var root = document && document.documentElement
-      return (
-        !!root &&
-        (!root.hasAttribute ||
-          !document.getElementsByClassName ||
-          root.firstElementChild === undefined ||
-          typeof root.localName != 'string')
-      )
+      includes = readers.includes
+      attrOf = readers.attrOf
+      hasAttrOf = readers.hasAttrOf
+      tagOf = readers.tagOf
+      idOf = readers.idOf
+      upOf = readers.upOf
+      nextOf = readers.nextOf
+      _prevOf = readers.prevOf
+      firstOf = readers.firstOf
+      attrNamesOf = readers.attrNamesOf
+      connectedOf = readers.connectedOf
+      for (name in modernReaders) {
+        ;(Snapshot as unknown as Record<string, unknown>)[name] = (
+          readers as unknown as Record<string, unknown>
+        )[name]
+      }
     },
     classOf = function (e: Element) {
       var value = e.className as string | SVGAnimatedString
@@ -2000,11 +1698,6 @@ interface AttributeOperator {
         return value.baseVal
       }
       return attrOf(e, 'class')
-    },
-    H_USED: Record<string, string> = {},
-    helper = function (alias: string, name: string) {
-      H_USED[alias] = name
-      return alias
     },
     readDirect = {
       tag: function (v: string) {
@@ -2031,73 +1724,6 @@ interface AttributeOperator {
       has: function (v: string, name: string) {
         return v + '.hasAttribute("' + name + '")'
       },
-    },
-    readHelped = {
-      tag: function (v: string) {
-        return helper('hTag', 'tagOf') + '(' + v + ')'
-      },
-      id: function (v: string) {
-        return helper('hId', 'idOf') + '(' + v + ')'
-      },
-      cls: function (v: string) {
-        return helper('hCls', 'legacyClassOf') + '(' + v + ')'
-      },
-      up: function (v: string) {
-        return helper('hUp', 'upOf') + '(' + v + ')'
-      },
-      next: function (v: string) {
-        return helper('hNext', 'nextOf') + '(' + v + ')'
-      },
-      prev: function (v: string) {
-        return helper('hPrev', 'prevOf') + '(' + v + ')'
-      },
-      attr: function (v: string, name: string) {
-        return helper('hAttr', 'attrOf') + '(' + v + ',"' + name + '")'
-      },
-      has: function (v: string, name: string) {
-        return helper('hHas', 'hasAttrOf') + '(' + v + ',"' + name + '")'
-      },
-    },
-    helpReads = function (code: string) {
-      var reads: Record<string, [string, string]> = {
-        localName: ['hTag', 'tagOf'],
-        className: ['hCls', 'legacyClassOf'],
-        id: ['hId', 'idOf'],
-        parentElement: ['hUp', 'upOf'],
-        nextElementSibling: ['hNext', 'nextOf'],
-        previousElementSibling: ['hPrev', 'prevOf'],
-        firstElementChild: ['hFirst', 'firstOf'],
-        isConnected: ['hConn', 'connectedOf'],
-        hasAttribute: ['hHas', 'hasAttrOf'],
-        getAttribute: ['hAttr', 'attrOf'],
-      }
-      // Match literals before looking inside them. A nested selector may
-      // contain text such as "e.localName", which is data, not a host read.
-      // This recognizes the string and regexp forms emitted by this compiler.
-      return code.replace(
-        /("(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\/(?:\\[\s\S]|\[(?:\\[\s\S]|[^\]\\])*\]|[^/\\\r\n])+\/[a-z]*)|\b([eno])\.(localName|className|id|parentElement|nextElementSibling|previousElementSibling|firstElementChild|isConnected)\b|\b([eno])\.(hasAttribute|getAttribute)\(("(?:\\[\s\S]|[^"\\])*")\)/g,
-        function (
-          _all: string,
-          literal: string,
-          node: string,
-          prop: string,
-          namedNode: string,
-          method: string,
-          attr: string,
-        ) {
-          if (literal) {
-            return literal
-          }
-          var read = reads[prop || method]!
-          return (
-            helper(read[0], read[1]) +
-            '(' +
-            (node || namedNode) +
-            (attr ? ',' + attr : '') +
-            ')'
-          )
-        },
-      )
     },
     readGuarded = {
       tag: readDirect.tag,
@@ -2161,14 +1787,13 @@ interface AttributeOperator {
             nodes[i] = Array<Element>()
             e = parent ? firstOf(parent) || element : element
             if (Config.LEGACY) {
-              while (e) {
-                nodes[i]![l] = e as Element
-                if (e === element) {
-                  j = l
-                }
-                e = nextOf(e as Element)
-                ++l
-              }
+              var siblings = legacyHooks!.siblings(
+                e as Element | null,
+                element!,
+              )
+              nodes[i] = siblings.nodes
+              j = siblings.index
+              l = siblings.nodes.length
             } else {
               while (e) {
                 nodes[i]![l] = e as Element
@@ -2322,24 +1947,20 @@ interface AttributeOperator {
           }
           if (i < 0 || !nodes[i]![name]!) {
             parents[(i = l)] = parent
-            nodes[i]! || (nodes[i] = Object.create(null))
+            nodes[i]! || (nodes[i] = primordials.ObjectCreate(null))
             l = 0
             nodes[i]![name] = Array<Element>()
             e = parent ? firstOf(parent) || element : element
             if (Config.LEGACY) {
-              while (e) {
-                if (e === element) {
-                  j = l
-                }
-                if (
-                  tagOf(e as Element) == local &&
-                  (e as Element).namespaceURI == namespace
-                ) {
-                  nodes[i]![name]![l] = e as Element
-                  ++l
-                }
-                e = nextOf(e as Element)
-              }
+              var siblings = legacyHooks!.siblings(
+                e as Element | null,
+                element!,
+                local,
+                namespace,
+              )
+              nodes[i]![name] = siblings.nodes
+              j = siblings.index
+              l = siblings.nodes.length
             } else {
               while (e) {
                 if (e === element) {
@@ -2399,7 +2020,7 @@ interface AttributeOperator {
     // parent: answering from the last one skips the Map entirely
     lastMaskNode: Element | null = null,
     lastMaskValue = 0,
-    tagBits = Object.create(null),
+    tagBits = primordials.ObjectCreate(null),
     tagBit = function (name: string) {
       var i = 0,
         l = name.length,
@@ -2625,15 +2246,6 @@ interface AttributeOperator {
       }
       return false
     },
-    // Called during document setup only when legacy mode needs an alias.
-    legacyMatcher = function (proto: LegacyMatcherHost | null | undefined) {
-      return (
-        proto &&
-        (proto.webkitMatchesSelector ||
-          proto.mozMatchesSelector ||
-          proto.msMatchesSelector)
-      )
-    },
     // use the native selector state when it is available; when NWSAPI has
     // installed itself, _matches retains the native implementation
     matchesNative = function (
@@ -2676,7 +2288,7 @@ interface AttributeOperator {
       matcher =
         _matches ||
         ((ownerDoc.defaultView ||
-          Object.prototype.hasOwnProperty.call(node, 'matches')) &&
+          primordials.ObjectPrototypeHasOwnProperty(node, 'matches')) &&
           node.matches) ||
         (ELEMENT_PROTO && ELEMENT_PROTO.matches)
       if (!matcher && Config.LEGACY) {
@@ -2684,9 +2296,9 @@ interface AttributeOperator {
           view = ownerDoc.defaultView
           proto = view && view.Element && view.Element.prototype
           matcherRecord!.fallback =
-            legacyMatcher(proto as LegacyMatcherHost | undefined) ||
+            legacyHooks!.matcher(proto) ||
             (proto !== ELEMENT_PROTO
-              ? legacyMatcher(ELEMENT_PROTO as LegacyMatcherHost)
+              ? legacyHooks!.matcher(ELEMENT_PROTO)
               : undefined)
         }
         matcher = matcherRecord!.fallback
@@ -2823,6 +2435,11 @@ interface AttributeOperator {
           Config[i] !== !!option[i]
         ) {
           clear = true
+        }
+        if (!legacyHooks && i == 'LEGACY' && option[i]) {
+          throw new TypeError(
+            'Load modules/nwsapi-legacy.js before enabling LEGACY',
+          )
         }
         if (i == 'LEGACY' && Config[i] !== !!option[i]) {
           matcherDoc = matcherCache = null
@@ -2961,7 +2578,6 @@ interface AttributeOperator {
         filter,
         filtered,
         ancestry: CompilerAncestry,
-        alias,
         factory,
         head = '',
         loop = '',
@@ -3001,7 +2617,6 @@ interface AttributeOperator {
       }
 
       // Cache hits need no parser state or helper-alias bookkeeping.
-      H_USED = {}
       ancestry = { required: [], pending: [], walk: false }
 
       source = compileSelector(
@@ -3011,9 +2626,6 @@ interface AttributeOperator {
         callback,
         ancestry,
       )
-      if (Config.LEGACY) {
-        source = helpReads(source)
-      }
 
       if ((mode || mode === null) && !callback && source === macro) {
         selectLambdas.set(cacheKey, null)
@@ -3070,8 +2682,10 @@ interface AttributeOperator {
         N_VARS.length = 0
       }
 
-      for (alias in H_USED) {
-        vars += ',' + alias + '=s.' + H_USED[alias]
+      if (Config.LEGACY) {
+        var rewritten = legacyHooks!.compile(loop)
+        loop = rewritten.source
+        vars += rewritten.variables
       }
 
       // oxlint-disable-next-line typescript/no-implied-eval -- Selectors compile to resolver functions.
@@ -3144,7 +2758,6 @@ interface AttributeOperator {
     // matchForgiving(), where an invalid item can be discarded independently.
     validateLogical = function (argument: string, relative: boolean) {
       var previousErrors = errors,
-        aliases = H_USED,
         selectVars = S_VARS,
         matchVars = M_VARS,
         nodeVars = N_VARS,
@@ -3152,7 +2765,6 @@ interface AttributeOperator {
         parsed,
         i,
         j
-      H_USED = {}
       S_VARS = []
       M_VARS = []
       N_VARS = []
@@ -3172,7 +2784,6 @@ interface AttributeOperator {
         }
         return errors == previousErrors
       } finally {
-        H_USED = aliases
         S_VARS = selectVars
         M_VARS = matchVars
         N_VARS = nodeVars
@@ -3906,7 +3517,7 @@ interface AttributeOperator {
         read: typeof readDirect
 
       read = Config.LEGACY
-        ? readHelped
+        ? legacyHooks!.read
         : mode === false
           ? readGuarded
           : readDirect
@@ -4944,7 +4555,7 @@ interface AttributeOperator {
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
-                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
+                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -4955,7 +4566,7 @@ interface AttributeOperator {
                   source =
                     'if(' +
                     '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||"|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|".includes("|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
+                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
                     '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
                     '){' +
                     source +
@@ -4972,7 +4583,7 @@ interface AttributeOperator {
                   source =
                     'if((' +
                     '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
-                    '("|textarea|password|number|search|email|text|tel|url|".includes("|"+e.type+"|"))&&' +
+                    '(s.includes("|textarea|password|number|search|email|text|tel|url|","|"+e.type+"|"))&&' +
                     'e.value==""' +
                     ')){' +
                     source +
@@ -4990,9 +4601,9 @@ interface AttributeOperator {
                     'x++;' +
                     '}' +
                     '}' +
-                    'if((e.form&&(e===n[x]&&"|image|submit|".includes("|"+e.type+"|"))||' +
+                    'if((e.form&&(e===n[x]&&s.includes("|image|submit|","|"+e.type+"|"))||' +
                     '((/^option$/i.test(e.localName))&&e.defaultSelected)||' +
-                    '(("|radio|checkbox|".includes("|"+e.type+"|"))&&e.defaultChecked)' +
+                    '((s.includes("|radio|checkbox|","|"+e.type+"|"))&&e.defaultChecked)' +
                     ')){' +
                     source +
                     '}'
@@ -5011,7 +4622,7 @@ interface AttributeOperator {
                 case 'checked':
                   source =
                     'if((/^input$/i.test(e.localName)&&' +
-                    '("|radio|checkbox|".includes("|"+e.type+"|")&&e.checked)||' +
+                    '(s.includes("|radio|checkbox|","|"+e.type+"|")&&e.checked)||' +
                     '(/^option$/i.test(e.localName)&&(e.selected||e.checked))' +
                     ')){' +
                     source +
@@ -5061,7 +4672,7 @@ interface AttributeOperator {
                     'if((/^input$/i.test(e.localName))&&' +
                     '(e.willValidate&&!e.formNoValidate)&&' +
                     '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
-                    '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
+                    '(s.includes("|date|datetime-local|month|number|range|time|week|","|"+e.type+"|"))&&' +
                     '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' +
                     source +
@@ -5072,7 +4683,7 @@ interface AttributeOperator {
                     'if((/^input$/i.test(e.localName))&&' +
                     '(e.willValidate&&!e.formNoValidate)&&' +
                     '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
-                    '("|date|datetime-local|month|number|range|time|week|".includes("|"+e.type+"|"))&&' +
+                    '(s.includes("|date|datetime-local|month|number|range|time|week|","|"+e.type+"|"))&&' +
                     '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
                     '){' +
                     source +
@@ -5392,7 +5003,7 @@ interface AttributeOperator {
       } else {
         if (Config.FORGIVING) {
           // forgiving pseudos allow to continue even after parse errors
-          if (!(parsed.includes(':is(') || parsed.includes(':where('))) {
+          if (!(includes(parsed, ':is(') || includes(parsed, ':where('))) {
             // 'selectors' holds the fragments the validator did match,
             // which read as a mangled selector once joined by String()
             emit("'" + parsed + "'" + qsInvalid)
@@ -5423,6 +5034,10 @@ interface AttributeOperator {
       element: Element,
       callback?: (element: Element) => unknown,
     ) {
+      if (arguments.length === 0) {
+        emit(qsNotArgs, TypeError)
+        return false
+      }
       var resolver,
         cacheKey = !!callback + ':' + selectors
 
@@ -5541,7 +5156,7 @@ interface AttributeOperator {
         }
         cached = state.copies.get(context)
       } else if (
-        typeof WeakRef == 'function' &&
+        primordials.WeakRefCtor &&
         (view = ((context.ownerDocument || context) as Document).defaultView) &&
         view.MutationObserver
       ) {
@@ -6130,7 +5745,7 @@ interface AttributeOperator {
 
       if (
         typeof selectors == 'string' &&
-        selectors.includes('>') &&
+        includes(selectors, '>') &&
         callback === undefined &&
         !Config.LEGACY &&
         HTML_DOCUMENT &&
@@ -6448,6 +6063,11 @@ interface AttributeOperator {
       }
     },
     install = function (all?: boolean) {
+      var Element = global.Element,
+        HTMLElement = global.HTMLElement,
+        Document = global.Document,
+        DocumentFragment = global.DocumentFragment
+
       // Saved DOM methods are invoked with their receiver or restored below.
       /* oxlint-disable typescript/unbound-method */
       _closest = Element.prototype.closest
@@ -6530,30 +6150,20 @@ interface AttributeOperator {
           ) as NodeListOf<Element>
         }
 
-      if (all) {
-        doc.addEventListener(
-          'load',
-          function (e) {
-            var c,
-              d,
-              r,
-              s,
-              t = e.target as Element
-            if (/iframe/i.test(t.localName)) {
-              c = '(' + Export + ')(this, ' + Factory + ');'
-              d = t.ownerDocument
-              s = d.createElement('script')
-              s.textContent = c + 'NW.Dom.install(true)'
-              r = d.documentElement
-              r.removeChild(r.insertBefore(s, r.firstChild))
-            }
-          },
-          true,
+      if (all && legacyHooks) {
+        legacyHooks.installFrames(
+          doc,
+          window => Factory(window) as unknown as typeof NW.Dom,
         )
       }
     },
     // restore QSA methods (only for browsers)
     uninstall = function () {
+      var Element = global.Element,
+        HTMLElement = global.HTMLElement,
+        Document = global.Document,
+        DocumentFragment = global.DocumentFragment
+
       // restore references
       if (_closest) {
         Element.prototype.closest = _closest
@@ -6593,16 +6203,17 @@ interface AttributeOperator {
       ancestorMask: typeof ancestorMask
       clearAncestorMasks: typeof clearAncestorMasks
       classOf: typeof classOf
-      attrOf: typeof legacyAttrOf
-      hasAttrOf: typeof legacyHasAttrOf
-      tagOf: typeof legacyTagOf
-      idOf: typeof legacyIdOf
-      legacyClassOf: typeof legacyClassOf
-      upOf: typeof legacyUpOf
-      nextOf: typeof legacyNextOf
+      includes: LegacyReaders['includes']
+      attrOf: LegacyReaders['attrOf']
+      hasAttrOf: LegacyReaders['hasAttrOf']
+      tagOf: LegacyReaders['tagOf']
+      idOf: LegacyReaders['idOf']
+      legacyClassOf: LegacyReaders['legacyClassOf']
+      upOf: LegacyReaders['upOf']
+      nextOf: LegacyReaders['nextOf']
       prevOf: typeof _prevOf
-      firstOf: typeof legacyFirstOf
-      connectedOf: typeof legacyConnectedOf
+      firstOf: LegacyReaders['firstOf']
+      connectedOf: LegacyReaders['connectedOf']
       anchor: Element | null
       isDefined: typeof isDefined
       HOVER?: EventTarget | null | undefined
@@ -6647,16 +6258,17 @@ interface AttributeOperator {
       anchor: null,
 
       byTag: byTag,
-      attrOf: legacyAttrOf,
-      hasAttrOf: legacyHasAttrOf,
-      tagOf: legacyTagOf,
-      idOf: legacyIdOf,
-      legacyClassOf: legacyClassOf,
-      upOf: legacyUpOf,
-      nextOf: legacyNextOf,
-      prevOf: legacyPrevOf,
-      firstOf: legacyFirstOf,
-      connectedOf: legacyConnectedOf,
+      includes: includes,
+      attrOf: attrOf,
+      hasAttrOf: hasAttrOf,
+      tagOf: tagOf,
+      idOf: idOf,
+      legacyClassOf: modernReaders.legacyClassOf,
+      upOf: upOf,
+      nextOf: nextOf,
+      prevOf: _prevOf,
+      firstOf: firstOf,
+      connectedOf: connectedOf,
 
       has: has,
       hasChild: hasChild,
@@ -6746,6 +6358,37 @@ interface AttributeOperator {
 
       Operators: Operators,
       Selectors: Selectors,
+
+      // Register the optional module once. Each engine owns its hook state.
+      registerLegacyHooks: function (factory: LegacyHookFactory): boolean {
+        if (legacyHooks) {
+          return false
+        }
+        legacyHooks = factory({
+          MapCtor: primordials.MapCtor,
+          WeakMapCtor: primordials.WeakMapCtor,
+          StringPrototypeIncludes: primordials.StringPrototypeIncludes,
+          isHTML: () => HTML_DOCUMENT,
+          isQuirks: () => QUIRKS_MODE,
+          byTag: (tag, context) => byTag(tag, context),
+        })
+        createWeakMap = legacyHooks.createWeakMap
+        if (!legacyHooks.hasMap) {
+          createCache = legacyHooks.createCache
+          typeRoutes = createCache()
+          childPlans = createCache()
+          partCounts = createCache()
+          descentDeclined = createCache()
+          Dom.matchLambdas = matchLambdas = createCache()
+          Dom.selectLambdas = selectLambdas = createCache()
+          Dom.matchResolvers = matchResolvers = createCache()
+          Dom.selectResolvers = selectResolvers = createCache()
+          firstResolvers = createCache()
+        }
+        initialize(doc)
+        configure({}, true)
+        return true
+      },
 
       // register a new selector combinator symbol and its related function resolver
       registerCombinator: function (

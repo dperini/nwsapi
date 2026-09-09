@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { components } from './documents.mts'
 import { sample, timingEngine } from './timing.mts'
 
@@ -86,7 +86,7 @@ writeFileSync(
       metadata: {
         timestamp: new Date().toISOString(),
         engines: ['before cold fix', 'cold fix', 'current'],
-        sourceSha256: [hash(original), hash(coldFix), hash('src/nwsapi.js')],
+        sourceSha256: [hash(original), hash(coldFix), hash('dist/nwsapi.js')],
         node: process.version,
         cpu: os.cpus()[0]?.model,
         jsdom: require('jsdom/package.json').version,

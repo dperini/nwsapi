@@ -6,6 +6,7 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  '@swc/core': '1.15.41'
   '@types/istanbul-lib-coverage': '2.0.6'
   '@types/istanbul-lib-report': '3.0.3'
   '@types/istanbul-reports': '3.0.4'
@@ -13,11 +14,13 @@ catalog:
   '@types/css-tree': '3.2.0'
   '@types/jsdom': '30.0.0'
   '@types/node': '26.4.1'
+  '@ultrathink/acorn.rs.wasm': '0.1.1'
   '@unicode/unicode-17.0.0': '2.0.2'
   '@vitest/coverage-v8': '5.0.0'
   '@vitiate/core': '0.3.1'
   'acorn': '8.18.0'
   'ast-v8-to-istanbul': '1.0.5'
+  'eslint-plugin-compat': '7.0.2'
   'istanbul-lib-coverage': '3.2.2'
   'istanbul-lib-report': '3.0.1'
   'istanbul-reports': '3.2.0'

@@ -1,8 +1,10 @@
+import { registerLegacyInContext } from '../common/legacy.mts'
 import type * as NodeFs from 'node:fs'
 import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { aqs_match } from '@ultrathink/acorn.rs.wasm'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -10,16 +12,27 @@ import assert from 'node:assert/strict'
 const { readFileSync } = require('node:fs') as typeof NodeFs
 import path from 'node:path'
 const vm = require('node:vm') as typeof NodeVm
-const source = readFileSync(
-  path.join(__dirname, '../../../src/nwsapi.js'),
-  'utf8',
-)
+const source = readFileSync(path.join(__dirname, '../../../dist/nwsapi.js'))
 // A test-only hook exercises the internal allocator without adding public API.
-assert.equal(source.split('return Dom;').length, 2)
-const instrumented = source.replace(
-  'return Dom;',
-  'Dom.testCreateWeakMap = function() { return createWeakMap(); }; return Dom;',
-)
+// Locate the return by syntax so indentation and semicolons do not affect it.
+// Query inside WASM so only the matching span crosses into JavaScript.
+const result = JSON.parse(
+  aqs_match(
+    source.toString('utf8'),
+    'ReturnStatement[argument.type="Identifier"][argument.name="Dom"]',
+  ),
+) as { ok: boolean; matches: Array<{ start: number }> }
+assert.equal(result.ok, true)
+assert.equal(result.matches.length, 1)
+const start = result.matches[0]!.start
+// The WASM parser returns byte offsets, so splice the original UTF-8 buffer.
+const instrumented = Buffer.concat([
+  source.subarray(0, start),
+  Buffer.from(
+    'Dom.testCreateWeakMap = function() { return createWeakMap(); };\n',
+  ),
+  source.subarray(start),
+]).toString('utf8')
 
 type TestFactory = (host: {
   document: ReturnType<typeof documentStub>
@@ -38,6 +51,8 @@ function documentStub() {
           localName: string
           firstElementChild: null
           hasAttribute(): boolean
+          getAttributeNames(): string[]
+          isConnected: boolean
           namespaceURI: string
           ownerDocument: unknown
         }
@@ -59,6 +74,10 @@ function documentStub() {
     hasAttribute() {
       return false
     },
+    getAttributeNames() {
+      return []
+    },
+    isConnected: true,
     namespaceURI: 'http://www.w3.org/1999/xhtml',
     ownerDocument: document,
   }
@@ -82,14 +101,17 @@ for (const [name, value, legacy, available] of [
     })
     vm.runInNewContext(instrumented, context)
     const document = documentStub()
-    const nw = (context.module.exports as TestFactory)({
-      document,
-      DOMException: Error,
-    })
+    const nw = registerLegacyInContext(
+      (context.module.exports as TestFactory)({
+        document,
+        DOMException: Error,
+      }),
+      context,
+    )
     assert.equal(
       nw.configure('LEGACY'),
       false,
-      'capability does not determine the flag',
+      'WeakMap availability does not determine the flag',
     )
     nw.configure({ LEGACY: legacy })
     const first = nw.testCreateWeakMap()

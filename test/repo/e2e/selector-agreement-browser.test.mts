@@ -18,7 +18,7 @@ import type { Browser, Page } from '@playwright/test'
 const here = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(here, '..', '..', '..')
 const nwsapiSource = fs.readFileSync(
-  path.join(repoRoot, 'src', 'nwsapi.js'),
+  path.join(repoRoot, 'dist', 'nwsapi.js'),
   'utf8',
 )
 
@@ -229,4 +229,4 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])(
     })
   },
 )
-import type factory from '../../../src/nwsapi.js'
+import type factory from '../../../dist/nwsapi.js'

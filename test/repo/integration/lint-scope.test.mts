@@ -51,7 +51,7 @@ test('lint and format share a scope that excludes generated and upstream files',
   expect(files).toContain('.config/runtime.d.ts')
   expect(files).toContain('src/external/unicode.js')
   expect(files).toContain('src/external/unicode.d.ts')
-  expect(files).not.toContain('src/nwsapi.js')
+  expect(files).not.toContain('dist/nwsapi.js')
   expect(files).not.toContain('dist/external/unicode.js')
   expect(files.some(file => file.startsWith('upstream/'))).toBe(false)
   expect(files).toContain('test/repo/e2e/upstream/fixtures/switch-idl.mts')

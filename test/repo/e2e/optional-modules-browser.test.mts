@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 import { chromium } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 
-for (const core of ['src/nwsapi.js', 'dist/nwsapi.min.js'] as const) {
+for (const legacy of [false, true] as const) {
   test.skipIf(!process.env['NWSAPI_BROWSER'])(
-    `optional scripts work after ${core} with real layout`,
+    `optional scripts work with real layout (legacy=${legacy})`,
     async () => {
       const browser = await chromium.launch()
       try {
@@ -12,10 +12,18 @@ for (const core of ['src/nwsapi.js', 'dist/nwsapi.min.js'] as const) {
         await page.setContent(
           '<main>text<!-- gap --><p id="a">shown</p><p id="b" style="display:none">hidden</p><p id="c">shown</p><input type="button" id="button"></main>',
         )
+        await page.addScriptTag({
+          content: readFileSync('dist/nwsapi.js', 'utf8'),
+        })
+        if (legacy) {
+          await page.addScriptTag({
+            content: readFileSync('dist/modules/nwsapi-legacy.js', 'utf8'),
+          })
+          await page.evaluate(() => NW.Dom.configure({ LEGACY: true }))
+        }
         for (const file of [
-          core,
-          'src/modules/nwsapi-traversal.js',
-          'src/modules/nwsapi-jquery.js',
+          'dist/modules/nwsapi-traversal.js',
+          'dist/modules/nwsapi-jquery.js',
         ] as const) {
           await page.addScriptTag({ content: readFileSync(file, 'utf8') })
         }

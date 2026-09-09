@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 import { markup, cases } from '../fixtures/attribute-equality.mts'
 
 test('exact comparisons preserve attribute case rules', () => {

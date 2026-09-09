@@ -1,12 +1,12 @@
 import type * as Jsdom from 'jsdom'
-import type * as NwsapiModule from '../../../src/nwsapi.js'
+import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import { test } from 'vitest'
 import { createRequire } from 'node:module'
 
 const require = createRequire(import.meta.url)
 import assert from 'node:assert/strict'
 const { JSDOM } = require('jsdom') as typeof Jsdom
-const factory = require('../../../src/nwsapi') as typeof NwsapiModule.default
+const factory = require('../../../dist/nwsapi') as typeof NwsapiModule.default
 
 test('CommonJS factory supports selection, matching, and mutations', () => {
   const { window } = new JSDOM(

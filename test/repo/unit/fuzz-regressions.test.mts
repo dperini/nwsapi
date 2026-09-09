@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { JSDOM } from 'jsdom'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('escaped attribute values remain intact during candidate lookup', t => {
   const dom = new JSDOM('<!doctype html><p></p>')

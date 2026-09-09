@@ -1,12 +1,13 @@
+import { registerLegacy } from '../common/legacy.mts'
 import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
 import { test, vi, type TestContext } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 function fixture(t: TestContext) {
   const { window } = new JSDOM('<!doctype html><div id="parent"></div>')
   t.onTestFinished(() => window.close())
-  return { document: window.document, nw: factory(window) }
+  return { document: window.document, nw: registerLegacy(factory(window)) }
 }
 
 for (const selector of [

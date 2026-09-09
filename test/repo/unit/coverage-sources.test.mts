@@ -8,10 +8,10 @@ import {
 import { coverageThresholds } from '../../../.config/coverage.config.mts'
 
 const root = path.resolve('coverage-fixture')
-const engine = path.join(root, 'src/nwsapi.js')
-const adapter = path.join(root, 'src/dom-selector.js')
-const modules = ['jquery', 'traversal'].map(name =>
-  path.join(root, `src/modules/nwsapi-${name}.js`),
+const engine = path.join(root, 'dist/nwsapi.js')
+const adapter = path.join(root, 'dist/dom-selector.js')
+const modules = ['jquery', 'legacy', 'traversal'].map(name =>
+  path.join(root, `dist/modules/nwsapi-${name}.js`),
 )
 const moduleCoverage = Object.assign(
   {},

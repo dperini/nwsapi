@@ -1,0 +1,260 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-09T01:08:37.234Z",
+    "node": "v26.5.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M3 Max",
+    "jsdom": "30.0.1",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "2937eeb808cde18a07815180d504099e0f5148b20e7d19eb34587a52ac56f107",
+    "competitorVersion": "8.3.2",
+    "lockfileSha256": "ed5bf22fbe0343d84e30955e7a750c4777dd3c93b431c09c9e35f1b558b8f52c",
+    "baseline": "83771437fc660727479481a59e5361d71593d7c6",
+    "v8": "14.6.202.34-node.24",
+    "method": "Build both revisions with the same installed dependencies. Measure readable files with gzip level 9 and Brotli quality 11. Package totals also reflect replacing the minified browser artifact with a readable artifact.",
+    "decision": "Rejected experiment. Unicode packing reduced transfer size but increased module initialization time and retained heap."
+  },
+  "files": [
+    {
+      "file": "bin/nwsapi.js",
+      "before": {
+        "bytes": 265,
+        "gzip": 209,
+        "brotli": 204,
+        "sha256": "8039dad517750b59ca582aee8a661565ec976f7c7a9bbd161c48548076e33082"
+      },
+      "after": {
+        "bytes": 265,
+        "gzip": 209,
+        "brotli": 204,
+        "sha256": "8039dad517750b59ca582aee8a661565ec976f7c7a9bbd161c48548076e33082"
+      }
+    },
+    {
+      "file": "dist/cli.js",
+      "before": {
+        "bytes": 149346,
+        "gzip": 39056,
+        "brotli": 31930,
+        "sha256": "753e3ee298410637d37b5ece9157afd581c9621e6153f48e08927ac8c7c19fe3"
+      },
+      "after": {
+        "bytes": 3313,
+        "gzip": 1500,
+        "brotli": 1272,
+        "sha256": "ac7f88be9388ffaac0bab0c57023077e6fde21a5720058e2196d6a410a74acdd"
+      }
+    },
+    {
+      "file": "dist/external/unicode-pattern.d.ts",
+      "before": null,
+      "after": {
+        "bytes": 76,
+        "gzip": 79,
+        "brotli": 53,
+        "sha256": "19fd86f618dbef16137c67fa0e7dba4f8f4b7bcf49f1fe6ba4de15e09590cce2"
+      }
+    },
+    {
+      "file": "dist/external/unicode-pattern.js",
+      "before": null,
+      "after": {
+        "bytes": 911,
+        "gzip": 572,
+        "brotli": 511,
+        "sha256": "a6c6345a470938d04cb1a99ab2f369239ead6c6ba4a2dccccd702a182f9bff3a"
+      }
+    },
+    {
+      "file": "dist/external/unicode.d.ts",
+      "before": {
+        "bytes": 100,
+        "gzip": 80,
+        "brotli": 70,
+        "sha256": "1fcea398e909a46e1e0632db08ab44398c675e01b1f9d1130278624304d4d654"
+      },
+      "after": {
+        "bytes": 100,
+        "gzip": 80,
+        "brotli": 70,
+        "sha256": "1fcea398e909a46e1e0632db08ab44398c675e01b1f9d1130278624304d4d654"
+      }
+    },
+    {
+      "file": "dist/external/unicode.js",
+      "before": {
+        "bytes": 12196,
+        "gzip": 4524,
+        "brotli": 2984,
+        "sha256": "0041f11a64fdb121550e8dcc0ceaca71748cb939b767566a9cc9734b03fc6c3f"
+      },
+      "after": {
+        "bytes": 6632,
+        "gzip": 2734,
+        "brotli": 2343,
+        "sha256": "f6c767cce4efcbc9a5830ec96e8b9b9c425e77eed59ee1256545ae4f3a2f269c"
+      }
+    },
+    {
+      "file": "dist/nwsapi.js",
+      "before": null,
+      "after": {
+        "bytes": 155327,
+        "gzip": 42448,
+        "brotli": 35364,
+        "sha256": "01e67795389614a765f20bedc316cd767f8f597621a978bb01ef6d158ee8c18f"
+      }
+    },
+    {
+      "file": "dist/nwsapi.min.js",
+      "before": {
+        "bytes": 78058,
+        "gzip": 27901,
+        "brotli": 23496,
+        "sha256": "3e2ff4ca1f98022133ebd7d0171c0864267f7618021638c5d3b43746306a5f88"
+      },
+      "after": null
+    },
+    {
+      "file": "src/dom-selector.js",
+      "before": {
+        "bytes": 7610,
+        "gzip": 2582,
+        "brotli": 2186,
+        "sha256": "fabb3f6c1276203eca7da297c495c7cc62c13d9d3e02e8771fd08f67f8d872bc"
+      },
+      "after": {
+        "bytes": 7610,
+        "gzip": 2582,
+        "brotli": 2186,
+        "sha256": "fabb3f6c1276203eca7da297c495c7cc62c13d9d3e02e8771fd08f67f8d872bc"
+      }
+    },
+    {
+      "file": "src/modules/nwsapi-jquery.js",
+      "before": {
+        "bytes": 3448,
+        "gzip": 1452,
+        "brotli": 1193,
+        "sha256": "58f3b2cba48cfc30f835b07f39c5c85dd9b21527d40e5f86c7574a81faaa9271"
+      },
+      "after": {
+        "bytes": 3448,
+        "gzip": 1452,
+        "brotli": 1193,
+        "sha256": "58f3b2cba48cfc30f835b07f39c5c85dd9b21527d40e5f86c7574a81faaa9271"
+      }
+    },
+    {
+      "file": "src/modules/nwsapi-traversal.js",
+      "before": {
+        "bytes": 2530,
+        "gzip": 720,
+        "brotli": 595,
+        "sha256": "111d6125f051452929c2db5ca4176a813b290aeb7a40a21f964f31320a7f8f14"
+      },
+      "after": {
+        "bytes": 2530,
+        "gzip": 720,
+        "brotli": 595,
+        "sha256": "111d6125f051452929c2db5ca4176a813b290aeb7a40a21f964f31320a7f8f14"
+      }
+    },
+    {
+      "file": "src/nwsapi.js",
+      "before": {
+        "bytes": 160861,
+        "gzip": 44545,
+        "brotli": 36283,
+        "sha256": "e973145c2c8c799d0221a22959aecf0b670b6bc4087dd5a209c1fb2bfad58ad8"
+      },
+      "after": {
+        "bytes": 155179,
+        "gzip": 42360,
+        "brotli": 35235,
+        "sha256": "2937eeb808cde18a07815180d504099e0f5148b20e7d19eb34587a52ac56f107"
+      }
+    }
+  ],
+  "packages": {
+    "before": {
+      "packedBytes": 123961,
+      "files": 12,
+      "sha256": "29f05505b282bb7325d3639af8abb98ca1d925db79b90d370f12f8fc232dee63"
+    },
+    "after": {
+      "packedBytes": 97065,
+      "files": 14,
+      "sha256": "99dabe8bd5964b22fa0ef04dfddc556d2e4d575e54a61d055cb97988c94491d4"
+    }
+  },
+  "initialization": {
+    "method": "Alternate revisions over fresh VM contexts. Compile scripts and create contexts before timing. Collect garbage outside timers. Retain contexts through the heap reading. Measure the module factory and shared data without creating DOMs or engine instances. Exclude process startup and JavaScript compilation.",
+    "contextsPerRound": 32,
+    "rounds": 7,
+    "rows": [
+      {
+        "revision": "before",
+        "milliseconds": {
+          "median": 0.01898700000000275,
+          "min": 0.01757031249999841,
+          "max": 0.02055728124999945,
+          "samples": [
+            0.02055728124999945,
+            0.020322937499997806,
+            0.017678374999995583,
+            0.01898700000000275,
+            0.01757031249999841,
+            0.0181484375000025,
+            0.02006250000000165
+          ]
+        },
+        "retainedBytes": {
+          "median": 3292.75,
+          "min": 3292.75,
+          "max": 3481.5,
+          "samples": [
+            3481.5,
+            3312.25,
+            3292.75,
+            3292.75,
+            3292.75,
+            3292.75,
+            3332
+          ]
+        }
+      },
+      {
+        "revision": "after",
+        "milliseconds": {
+          "median": 0.30339974999999697,
+          "min": 0.2944362187499934,
+          "max": 0.32557031249999824,
+          "samples": [
+            0.32557031249999824,
+            0.30464581249999867,
+            0.30871874999999704,
+            0.29748046874999545,
+            0.2973671875000008,
+            0.30339974999999697,
+            0.2944362187499934
+          ]
+        },
+        "retainedBytes": {
+          "median": 15209,
+          "min": 15202.5,
+          "max": 15285.75,
+          "samples": [
+            15202.5,
+            15224.75,
+            15285.75,
+            15209,
+            15209,
+            15209,
+            15209
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import factory from '../../../src/nwsapi.js'
+import factory from '../../../dist/nwsapi.js'
 
 test('relative anchors are not public selector syntax, including cached queries', t => {
   const { window } = new JSDOM(

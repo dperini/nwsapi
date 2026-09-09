@@ -3,7 +3,7 @@
  *
  * Document root: upstream/wpt — WPT pages use root-absolute paths such as
  * "/resources/testharness.js", so the checkout must be served from "/".
- * The repo itself is mounted under "/_repo/" so that "/_repo/src/nwsapi.js"
+ * The repo itself is mounted under "/_repo/" so that "/_repo/dist/nwsapi.js"
  * and the legacy "/_repo/test/wpt" pages remain reachable from a browser.
  *
  * The port comes from process.env['PORT'] and falls

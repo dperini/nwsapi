@@ -46,7 +46,7 @@ import { replaceCacheLimit } from './cache-source.mts'
 const require = createRequire(import.meta.url)
 const here = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(here, '..', '..', '..')
-const SOURCE = path.join(repoRoot, 'src', 'nwsapi.js')
+const SOURCE = path.join(repoRoot, 'dist', 'nwsapi.js')
 
 const USAGE = `nwsapi cache size sweep (mitata + jsdom)
 
