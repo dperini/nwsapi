@@ -12,14 +12,19 @@ import { median } from './timing.mts'
 const { values } = parseArgs({
   options: {
     baseline: { type: 'string' },
+    layout: { type: 'string', default: 'adjacent' },
     memory: { type: 'boolean', default: false },
     output: { type: 'string' },
   },
 })
 if (!values.output) {
   throw new Error(
-    'Use --output <report.json> [--baseline engine.cjs] [--memory]',
+    'Use --output <report.json> [--baseline engine.cjs] [--memory] [--layout adjacent|separated|nested]',
   )
+}
+const layout = values.layout
+if (!['adjacent', 'separated', 'nested'].includes(layout)) {
+  throw new Error('Use --layout adjacent, separated, or nested')
 }
 const paths = values.baseline
   ? [values.baseline, 'dist/nwsapi.js']
@@ -32,11 +37,13 @@ const rows = []
 for (const matches of [0, 1, 16, 256]) {
   const { window } = new JSDOM(
     '<!doctype html><body>' +
-      Array.from(
-        { length: 256 },
-        (_, i) =>
-          '<p class="' + (i < matches ? 'hit g' + (i % 4) : '') + '"></p>',
-      ).join(''),
+      Array.from({ length: 256 }, (_, i) => {
+        const element =
+          '<p class="' + (i < matches ? 'hit g' + (i % 4) : '') + '"></p>'
+        return layout === 'nested'
+          ? '<section>' + element + '</section>'
+          : element + (layout === 'separated' ? ' gap <!-- gap -->' : '')
+      }).join(''),
   )
   try {
     const doc = window.document
@@ -96,11 +103,12 @@ writeFileSync(
   JSON.stringify(
     {
       node: process.version,
+      layout,
       hashes: paths.map(p =>
         createHash('sha256').update(readFileSync(p)).digest('hex'),
       ),
       methodology:
-        'Warm public select calls on 256-element jsdom fixtures with 0, 1, 16, or 256 matches. Single-class control and four disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
+        'Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Queries run with 0, 1, 16, or 256 matches. Single-class control and four disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
       rows,
     },
     null,

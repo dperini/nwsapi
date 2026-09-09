@@ -959,3 +959,49 @@ In the dense baseline profile, `compareDocumentPosition` and `documentOrder` acc
 The readable core shrinks by 42bytes. Gzip at level 9 shrinks by 12bytes, and Brotli at quality 11 shrinks by 6bytes. Size charts are refreshed. The broader runtime and retained-memory charts keep their previous measurements because this pass measures grouped-result behavior separately.
 
 Validation passes 670 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.46%. The regression test covers cached grouped queries, overlapping compiled and lookup-only groups, document order, duplicate removal, independent arrays, reentrant callbacks, synchronous mutation, and document fragments in array and NodeList modes. Formatting, lint, and type checks pass.
+
+## Check adjacent siblings before document-order comparisons
+
+An adjacent-sibling shortcut improves tightly packed results but slows other common layouts. The shortcut is rejected. The engine remains at the implementation from `7d81ef0`. The grouped-result benchmarks now support separated and nested elements so future sorting changes face these cases too.
+
+<details>
+<summary>Methodology and reproduction</summary>
+
+The baseline is the readable build from `7d81ef0`. The prototype inserts the following checks in `documentOrder`, after the existing duplicate check and before `compareDocumentPosition`:
+
+```js
+if (a.nextSibling === b) {
+  return -1
+}
+if (b.nextSibling === a) {
+  return 1
+}
+```
+
+Save the baseline build outside the repository, insert those checks, and rebuild to reproduce the candidate. Both benchmark scripts record the build hashes. Run each command in its own process. Repeat with `separated` and `nested` in place of `adjacent`:
+
+```sh
+node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/sibling-node.json
+node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/sibling-browser.json adjacent
+```
+
+Every layout has 256 `p` elements. The adjacent layout places them directly beside one another. The separated layout inserts text and comments between them. The nested layout gives each element its own `section` parent. Queries return 0, 1, 16, or 256 matches. Four disjoint class groups interleave in document order. A single-class query provides a control. Each variant receives 1000 warmups, followed by nine rotating timing rounds lasting at least 50ms. Ordered node identities are checked outside timing. These measurements exclude compilation and rendering.
+
+The Node records are [adjacent](../../../assets/repo/bench/sibling-sort-node.json), [separated](../../../assets/repo/bench/sibling-sort-separated-node.json), and [nested](../../../assets/repo/bench/sibling-sort-nested-node.json). The Chromium records are [adjacent](../../../assets/repo/bench/sibling-sort-browser.json), [separated](../../../assets/repo/bench/sibling-sort-separated-browser.json), and [nested](../../../assets/repo/bench/sibling-sort-nested-browser.json). The original adjacent records predate the explicit layout field and use the same adjacent fixture.
+
+</details>
+
+| Layout | Grouped matches | Node time change | Chromium time change |
+| --- | ---: | ---: | ---: |
+| Adjacent | 16 | -9.6% | -5.4% |
+| Adjacent | 256 | -10.9% | -27.9% |
+| Separated | 16 | +9.7% | +16.2% |
+| Separated | 256 | +19.1% | +1.9% |
+| Nested | 16 | +6.4% | +13.3% |
+| Nested | 256 | +8.9% | +2.3% |
+
+These are warm public grouped-query medians in Node and native Chromium. Negative changes mean faster queries. The shortcut avoids some expensive comparisons when matching elements are adjacent. Text separators and separate parents prevent that shortcut from succeeding, leaving extra DOM reads before the original comparison. Single-class controls vary by up to 3.2%. Empty and single-result grouped controls also vary, even though they do not sort, so small changes need caution. The larger repeated regressions are enough to reject this change without claiming a precise penalty for every document.
+
+The allocation profiling process terminated with exit code 143 before writing a report. There is no completed allocation or retained-memory result for this candidate, and no memory saving is claimed. Further profiling of the rejected shortcut is deferred. The existing dense-result profile still identifies document-order comparisons as a major source of allocation. Merging already ordered group results is a separate hypothesis worth measuring across all three layouts.
+
+The production source is restored and rebuilt. Runtime and size charts retain their previous measurements because no engine change is being shipped. All six benchmark runs verified ordered result identities for both builds. Repository checks validate the expanded benchmark scripts.

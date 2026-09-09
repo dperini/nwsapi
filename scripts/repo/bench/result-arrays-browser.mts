@@ -3,11 +3,14 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import type factory from '../../../dist/nwsapi.js'
 
-const [baseline, output] = process.argv.slice(2)
+const [baseline, output, layout = 'adjacent'] = process.argv.slice(2)
 if (!baseline || !output) {
   throw new Error(
-    'Usage: result-arrays-browser.mts <baseline.cjs> <output.json>',
+    'Usage: result-arrays-browser.mts <baseline.cjs> <output.json> [adjacent|separated|nested]',
   )
+}
+if (!['adjacent', 'separated', 'nested'].includes(layout)) {
+  throw new Error('Use layout adjacent, separated, or nested')
 }
 const paths = [baseline, 'dist/nwsapi.js']
 const code = paths.map(p => readFileSync(p, 'utf8'))
@@ -23,11 +26,13 @@ try {
     try {
       await page.setContent(
         '<!doctype html><body>' +
-          Array.from(
-            { length: 256 },
-            (_, i) =>
-              '<p class="' + (i < matches ? 'hit g' + (i % 4) : '') + '"></p>',
-          ).join(''),
+          Array.from({ length: 256 }, (_, i) => {
+            const element =
+              '<p class="' + (i < matches ? 'hit g' + (i % 4) : '') + '"></p>'
+            return layout === 'nested'
+              ? '<section>' + element + '</section>'
+              : element + (layout === 'separated' ? ' gap <!-- gap -->' : '')
+          }).join(''),
       )
       await page.addScriptTag({ content: code[0]! })
       await page.evaluate(() => {
@@ -87,11 +92,12 @@ try {
     JSON.stringify(
       {
         browser: browser.version(),
+        layout,
         hashes: code.map(text =>
           createHash('sha256').update(text).digest('hex'),
         ),
         methodology:
-          'Native Chromium warm public queries. Each fixture has 256 elements and 0, 1, 16, or 256 matches. Baseline and candidate rotate across nine rounds of at least 50ms in batches of 3000 calls after 1000 warmups. Ordered identity is checked outside timing. No rendering, compilation, retained-memory or allocation measurements. samplesMs lists baseline then candidate.',
+          'Native Chromium warm public queries. Each fixture has 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Queries return 0, 1, 16, or 256 matches. Baseline and candidate rotate across nine rounds of at least 50ms in batches of 3000 calls after 1000 warmups. Ordered identity is checked outside timing. No rendering, compilation, retained-memory or allocation measurements. samplesMs lists baseline then candidate.',
         rows,
       },
       null,
