@@ -829,3 +829,25 @@ The generated resolver comparison covers 78 combinations of selector, array or i
 The readable core adds 35bytes. Gzip at level 9 adds 3bytes, and Brotli at quality 11 adds 29bytes. File-size measurements and charts are refreshed for the new build.
 
 Validation passes 668 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. The local unit gate takes 3667ms against its 10000ms budget. Formatting, lint, and type checks pass.
+
+## Test prefix eligibility during compilation
+
+The experiment checks ancestor-prefix eligibility while the compiler parses that prefix. A look-ahead still checks the suffix before emitting the cached ancestor loop, because a later predicate or second descendant walk can disqualify the selector. The prototype avoids reparsing the prefix, but adds eligibility state changes to the attribute, namespace, and pseudo branches. The production engine remains at the implementation from `f20e7f9` because the final measurements do not show a consistent benefit large enough to justify that complexity.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The [candidate patch](../../../assets/repo/bench/ancestor-token-candidate.patch) applies to the source at `f20e7f9`. Use a temporary checkout to apply and build it. Save the original CommonJS build before applying the patch. Run `node scripts/repo/bench/compiler.mts /path/to/before.cjs dist/nwsapi.js assets/repo/bench/ancestor-token-compiler.json`, then repeat in a fresh process with another output path. The [first final-build record](../../../assets/repo/bench/ancestor-token-compiler.json) and [confirmation](../../../assets/repo/bench/ancestor-token-compiler-confirmation.json) retain both engine hashes. They measure uncached compilation on warm Node engines using unique class suffixes and nine rotating rounds. Timing includes consuming the resolver source but excludes DOM setup. It does not measure query execution.
+
+</details>
+
+| Uncached compilation | First run before | First run candidate | Confirmation before | Confirmation candidate |
+| --- | ---: | ---: | ---: | ---: |
+| Plain ancestor | 15.50µs | 15.23µs | 15.61µs | 15.53µs |
+| Positional ancestor | 25.45µs | 25.76µs | 25.87µs | 23.77µs |
+
+These medians come from two fresh processes. Plain compilation improves by 1.7% and 0.5%. Positional compilation is 1.2% slower in the first run and 8.2% faster in the confirmation. Earlier development measurements looked more promising, but the final build does not establish a stable saving. The readable core grows by 457bytes, gzip at level 9 grows by 68bytes, and Brotli at quality 11 grows by 43bytes.
+
+The candidate passes 668 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. All 378 compared generated resolvers are identical to baseline. These comparisons cover allowed and excluded prefixes and suffixes across matching, array collection, item collection, and callback modes. Additional behavioral cases for logical, attribute, and filtered positional suffixes remain in the unit suite after reverting the engine experiment.
+
+The existing normalization optimization stays in place. Avoid a larger parser rewrite solely to remove this remaining scan. The next stronger target is allocation inside generated resolvers and class-name access, which dominates the Node profile. Candidate-array copying remains a smaller share and protects public result isolation.
