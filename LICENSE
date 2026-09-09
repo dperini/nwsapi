@@ -1,5 +1,9 @@
 Copyright (c) 2007-2026 Diego Perini (http://www.iport.it/)
 
+Bundled Unicode bidi data from @unicode/unicode-17.0.0:
+Copyright Mathias Bynens
+https://github.com/node-unicode/unicode-17.0.0
+
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
 files (the "Software"), to deal in the Software without

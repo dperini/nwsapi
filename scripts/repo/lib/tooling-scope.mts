@@ -7,6 +7,8 @@ export function toolingFiles() {
       'vitest.config.mts',
       'bin/**/*.mts',
       'src/**/*.mts',
+      'src/external/*.js',
+      'src/external/*.d.ts',
       'scripts/repo/**/*.mts',
       'test/repo/**/*.mts',
       '.config/*.mts',

@@ -56,6 +56,8 @@ try {
       'README.md',
       'bin/nwsapi.js',
       'dist/cli.js',
+      'dist/external/unicode.js',
+      'dist/external/unicode.d.ts',
       'dist/nwsapi.min.js',
       'package.json',
       'src/dom-selector.js',

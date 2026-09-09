@@ -200,6 +200,25 @@ These filtered cases have no before measurement because the baseline did not sup
 
 **Finding.** The arbitrary-input fuzzer stalled inside regular-expression validation. A native stack sample showed `RegExpMatchFast`, and a debugger pause located the call in `parse()`. The captured input contains 232 UTF-16 code units. It is stored as base64 in [the recorded observations](../../../assets/repo/bench/parser-stall.json), together with build hashes and runtime versions.
 
-**Comparison.** The input exceeded a 3000ms process limit in both the `6b87731` baseline and the current build. Each attempt used a fresh Node process and `jsdom` document. The limit included startup. The live stack evidence identifies a matching stall, rather than treating startup time alone as the cause. This gap predates the current filtered-position and namespace changes.
+**Comparison.** The input exceeded a 3000ms process limit in both the `6b87731` baseline and the initial audit build. Each attempt used a fresh Node process and `jsdom` document. The limit included startup. The live stack evidence identifies a matching stall, rather than treating startup time alone as the cause. This gap predates the current filtered-position and namespace changes.
 
-**Decision and follow-up.** Preserve the input and report the randomized run as incomplete. The generated-selector target and saved-corpus replay passed. The arbitrary-input target was stopped after capture. Its time budget could not interrupt the synchronous match. Address the validator with bounded parsing and use an external process limit for this regression. Adding it directly to ordinary in-process replay would stall that runner too.
+**Resolution.** A linear scan now rejects mismatched closing tokens and invalid string newlines before regular-expression validation. The captured input returns `SyntaxError` in 0.466ms after engine creation. The process also completes within the same 3000ms limit that the earlier attempts exceeded. The [verification script](../../../scripts/repo/bench/parser-stall.mts) updates the recorded observations, and a unit test runs the input in a separate process with that limit.
+
+Fresh fuzzing passed both targets. The generated-selector target passed in the combined run. The arbitrary-input target passed separately after a detached shared-memory segment from this run was removed. Saved-corpus replay also passed. This verifies the captured case and those runs. It does not establish a runtime bound for every possible selector.
+
+## Share Unicode data while expanding selector coverage
+
+**Implementation.** Unicode 17 directionality uses three selected bidi-class expressions. Rolldown embeds them once outside engine instances. The external entry and its type declaration have matching `.js` and `.d.ts` paths under `src/external/` and `dist/external/`. The fallback reads live DOM state and does not retain text or query results. The same build also adds pseudo-element validation, namespace-sensitive attribute defaults, language matching, and shadow helpers.
+
+**Measured cost.** The refreshed [memory report](../../../assets/repo/bench/memory-footprint.json) uses 40 native Chromium documents, 100 distinct queries per engine, and five rounds. It follows the existing measurement contract and excludes loaded modules and document allocation.
+
+| Measurement                     | Previous record | Current record |
+| ------------------------------- | --------------: | -------------: |
+| Idle retained heap per engine   |         9.74KiB |       10.33KiB |
+| Retained heap after 100 queries |        73.14KiB |       74.89KiB |
+| Minified browser file           |        54.11KiB |       76.06KiB |
+| Brotli browser file             |        16.82KiB |       22.89KiB |
+
+Retained heap after the queries is about 2.4% above the previous record. The comparison library, `@asamuzakjp/dom-selector` 8.3.2, retains 550.33KiB in this run. The current core uses about 86.4% less retained heap for this workload. These records describe the combined feature changes, rather than isolate the cost of each helper. The file-size report includes shared Unicode data that the incremental per-engine heap measurement excludes.
+
+**Decision.** Retain the correctness changes and the shared data layout. All 7,445 selected WPT subtests pass in generated source and the minified build. Forced-fallback tests verify Unicode range boundaries, control values, shadow assignments, and DOM changes. The timing charts keep their separately recorded inputs and hashes. This refresh does not claim a new query-speed improvement.

@@ -39,6 +39,7 @@ export interface WptEntry {
   parsing?: boolean
   selectorInputs?: number
   script?: boolean
+  reflectSwitch?: boolean
   domOnly?: 'form-validity' | 'input-direction' | 'namespace-matches'
 }
 
@@ -108,6 +109,9 @@ export const manifest: WptEntry[] = [
     path,
     note: 'Upstream window script wrapped with testharness. Switch-control cases require draft host behavior.',
     script: true,
+    reflectSwitch: path.endsWith(
+      '/input-checkbox-switch.tentative.window.html',
+    ),
   })),
   {
     path: '/css/css-shadow/host-dom-001.html',

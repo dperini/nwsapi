@@ -13,6 +13,7 @@ catalog:
   '@types/css-tree': '3.2.0'
   '@types/jsdom': '30.0.0'
   '@types/node': '26.4.1'
+  '@unicode/unicode-17.0.0': '2.0.2'
   '@vitest/coverage-v8': '5.0.0'
   '@vitiate/core': '0.3.1'
   'acorn': '8.18.0'

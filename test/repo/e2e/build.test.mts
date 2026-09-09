@@ -2,6 +2,7 @@ import type * as NwsapiModule from '../../../src/nwsapi.js'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import vm from 'node:vm'
+import { createRequire } from 'node:module'
 import { parse } from 'acorn'
 import { JSDOM } from 'jsdom'
 import { beforeAll, test } from 'vitest'
@@ -34,6 +35,51 @@ for (const [file, ecmaVersion] of [
     parse(code, { ecmaVersion, sourceType: 'script' })
   })
 }
+
+test('Unicode external paths and declarations agree between source and distribution', () => {
+  const require = createRequire(import.meta.url)
+  const external = require('../../../src/external/unicode.js') as Record<
+    string,
+    RegExp
+  >
+  const bundled = require('../../../dist/external/unicode.js') as Record<
+    string,
+    RegExp
+  >
+  assert.deepEqual(Object.keys(bundled), Object.keys(external))
+  for (const key of Object.keys(external)) {
+    assert.equal(bundled[key]!.source, external[key]!.source)
+    assert.equal(bundled[key]!.flags, external[key]!.flags)
+  }
+  assert.equal(
+    readFileSync(
+      new URL('../../../src/external/unicode.d.ts', import.meta.url),
+      'utf8',
+    ),
+    readFileSync(
+      new URL('../../../dist/external/unicode.d.ts', import.meta.url),
+      'utf8',
+    ),
+  )
+  const program = parse(
+    readFileSync(
+      new URL('../../../dist/external/unicode.js', import.meta.url),
+      'utf8',
+    ),
+    { ecmaVersion: 2015 },
+  )
+  // Resolving the bundle must not leave a dependency on an installed data package.
+  assert.ok(program.body.length)
+  const module = { exports: {} }
+  vm.runInNewContext(
+    readFileSync(
+      new URL('../../../dist/external/unicode.js', import.meta.url),
+      'utf8',
+    ),
+    { module, exports: module.exports },
+  )
+  assert.deepEqual(Object.keys(module.exports), Object.keys(external))
+})
 
 test('adapter retains its existing ES2019 CommonJS syntax', () => {
   const code = readFileSync(

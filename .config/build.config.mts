@@ -7,8 +7,14 @@ export const entries = [
   'src/modules/nwsapi-traversal',
 ] as const
 
+export const externalEntries = ['unicode'] as const
+
 export const outputs = [
   ...entries.map(entry => `${entry}.js`),
   'dist/nwsapi.min.js',
   'dist/cli.js',
+  ...externalEntries.flatMap(name => [
+    `dist/external/${name}.js`,
+    `dist/external/${name}.d.ts`,
+  ]),
 ]

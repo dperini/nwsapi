@@ -44,6 +44,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.js'],
+      // External data is exercised in the embedded engine, not its build wrapper.
+      exclude: ['src/external/**'],
       reportsDirectory: 'coverage/node',
       reporter: ['text', 'json', 'json-summary'],
     },

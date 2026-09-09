@@ -74,4 +74,6 @@
 /test-results/
 /upstream/
 /src/**/*.js
+!/src/external/*.js
+!/src/external/*.d.ts
 yarn.lock

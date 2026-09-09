@@ -37,7 +37,10 @@
     "bin/nwsapi.js",
     "dist/cli.js",
     "dist/nwsapi.min.js",
-    "src/**/*.js"
+    "dist/external/*.js",
+    "dist/external/*.d.ts",
+    "src/**/*.js",
+    "!src/external/**"
   ],
   "main": "./src/nwsapi",
   "scripts": {
@@ -109,6 +112,7 @@
     "@types/istanbul-reports": "catalog:",
     "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
+    "@unicode/unicode-17.0.0": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitiate/core": "catalog:",
     "acorn": "catalog:",

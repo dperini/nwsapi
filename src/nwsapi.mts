@@ -132,6 +132,9 @@ interface IdentifierSyntax {
   className: RegExp
   attribute: RegExp
 }
+interface DirectionHelpers {
+  directionality(element: Element): 'ltr' | 'rtl'
+}
 interface AttributeOperator {
   p1: string
   p2: string
@@ -143,6 +146,10 @@ interface AttributeOperator {
   factory: (global: EngineGlobal, exporter: unknown) => unknown,
 ) {
   'use strict'
+
+  Object.defineProperty(factory, '_direction', {
+    value: /* @bundle:direction */ {} as DirectionHelpers,
+  })
 
   // Share immutable grammar templates, never the mutable lastIndex of a
   // validation regexp. Custom grammars stay local and are not retained here.
@@ -175,25 +182,22 @@ interface AttributeOperator {
       //
 
       var parenthesized,
-        // non-ascii chars
-        noascii = '[^\\x00-\\x9f]',
-        // unicode chars
+        // CSS identifiers use their own grammar, not JavaScript ID_Start.
+        // Keep the non-ASCII range accepted by browser selector APIs.
+        noascii = '[^\\x00-\\x7f]',
         unicode = '\\\\[0-9a-fA-F]{1,6}',
-        // can start with single/double dash
-        // but it can not start with a digit
+        escaped = '(?:' + unicode + WSP + '?|\\\\[^' + VSP + '])',
+        identStart = '(?:[_a-zA-Z]|' + noascii + '|' + escaped + ')',
         identifier =
-          '(?:-|--|' +
-          unicode +
-          '[' +
-          HSP +
-          ']' +
-          '?|\\\\[^' +
-          VSP +
-          ']|' +
+          '(?:--|-?' +
+          identStart +
+          ')(?:[\\w-]|' +
           noascii +
-          '|[\\w-])+',
+          '|' +
+          escaped +
+          ')*',
         pseudonames = '[-\\w]+',
-        pseudoparms = '(?:[-+]?\\d*)(?:n\\s?[-+]?\\s?\\d*)',
+        pseudoparms = '(?:[-+]?(?:\\d*n(?:\\s?[-+]?\\s?\\d*)?|\\d+))',
         doublequote =
           '"[^"\\\\' + VSP + ']*(?:\\\\.[^"\\\\' + VSP + ']*)*(?:"|$)',
         singlequote =
@@ -248,6 +252,8 @@ interface AttributeOperator {
           pseudoparms +
           '?(?:\\x29|$))?|' +
           ')|' +
+          // Function arguments can contain numbers without making them idents.
+          '(?:[-+]?\\d+)|' +
           '(?:[.#]?' +
           identifier +
           ')|' +
@@ -464,8 +470,6 @@ interface AttributeOperator {
       logicalsel:
         /^:(?:(is|where|matches|not|has)(?:\x28\s?([^()]*|.*)\s?(?:\x29|$)))(.*)/i,
       pseudo_sng: /^:(?:(after|before|first\-letter|first\-line)\b)(.*)/i,
-      pseudo_dbl:
-        /^:(?::(after|before|first\-letter|first\-line|selection|placeholder|-webkit-[-a-zA-Z0-9]{2,})\b)(.*)/i,
       children: /^[\x20\t\r\n\f]?\>[\x20\t\r\n\f]?(.*)/,
       adjacent: /^[\x20\t\r\n\f]?\+[\x20\t\r\n\f]?(.*)/,
       relative: /^[\x20\t\r\n\f]?\~[\x20\t\r\n\f]?(.*)/,
@@ -473,10 +477,6 @@ interface AttributeOperator {
       universal: /^(\*)(.*)/,
       namespace: /^(\*|[\w-]+)?\|(.*)/,
     },
-    // regular expression to better aproximate
-    // detection of RTL languages (like Arabic)
-    RTL =
-      /^(?:[\u0627-\u064a]|[\u0591-\u08ff]|[\ufb1d-\ufdfd]|[\ufe70-\ufefc])+$/,
     // elements that can carry a hyperlink, see isLink()
     reLinkName = /^(?:a|area)$/i,
     // emulate firefox error strings
@@ -3094,7 +3094,7 @@ interface AttributeOperator {
       return factory
     },
     // build conditional code to check components of selector strings
-    isCompound = function (text: string) {
+    isCompound = function (text: string, siblings?: boolean) {
       var chr,
         depth = 0,
         escaped,
@@ -3124,8 +3124,8 @@ interface AttributeOperator {
           depth === 0 &&
           (chr == 44 /* ',' */ ||
             chr == 62 /* '>' */ ||
-            chr == 43 /* '+' */ ||
-            chr == 126 /* '~' */ ||
+            (!siblings && chr == 43) /* '+' */ ||
+            (!siblings && chr == 126) /* '~' */ ||
             chr == 32 /* ' ' */ ||
             chr == 9 /* '\t' */ ||
             chr == 10 /* '\n' */ ||
@@ -3252,6 +3252,606 @@ interface AttributeOperator {
       }
       return output + text.slice(start)
     },
+    // Read one pseudo token without treating quoted or nested arguments as tails.
+    readPseudo = function (text: string) {
+      var double = text.charAt(1) == ':',
+        start = double ? 2 : 1,
+        identifier = Patterns.tagName!.exec(text.slice(start)),
+        end,
+        block,
+        name
+      if (text.charAt(0) != ':' || !identifier) {
+        return null
+      }
+      name = unescapeIdentifier(identifier[1]!).toLowerCase()
+      end = start + identifier[1]!.length
+      if (text.charAt(end) == '(') {
+        // matchLogical owns nested parentheses, strings, and EOF closure.
+        block = matchLogical(':x' + text.slice(end), /^:(x)\(/)!
+        return {
+          name: name,
+          double: double,
+          argument: block[2],
+          rest: block[3],
+        }
+      }
+      return {
+        name: name,
+        double: double,
+        argument: null,
+        rest: text.slice(end),
+      }
+    },
+    isIdent = function (text: string, custom?: boolean) {
+      var token = Patterns.tagName!.exec(text)
+      return (
+        !!token &&
+        !token[2] &&
+        (!custom ||
+          !/^(?:initial|inherit|unset|revert|revert-layer|default)$/i.test(
+            unescapeIdentifier(text),
+          ))
+      )
+    },
+    hasPseudoElement = function (text: string) {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        pseudo
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        pseudo = readPseudo(text.slice(i))
+        if (!pseudo) {
+          continue
+        }
+        if (
+          pseudo.double ||
+          /^(?:before|after|first-line|first-letter)$/.test(pseudo.name)
+        ) {
+          return true
+        }
+        if (pseudo.name == 'is' || pseudo.name == 'where') {
+          i = text.length - pseudo.rest.length - 1
+        }
+      }
+      return false
+    },
+    treePseudo = function (name: string) {
+      return /^(?:before|after|marker|placeholder|file-selector-button|details-content|checkmark|picker-icon|picker|backdrop|scroll-marker|scroll-marker-group)$/.test(
+        name,
+      )
+    },
+    validPseudoElement = function (name: string, argument: string | null) {
+      var pieces
+      if (name == 'part') {
+        return (
+          argument !== null &&
+          !!argument &&
+          argument.split(/[\t\n\f\r ]+/).every(function (part) {
+            return isIdent(part)
+          })
+        )
+      }
+      if (name == 'slotted') {
+        return (
+          argument !== null &&
+          isCompound(argument) &&
+          !hasPseudoElement(argument) &&
+          validateLogical(argument, false)
+        )
+      }
+      if (name == 'highlight') {
+        return argument !== null && isIdent(argument, true)
+      }
+      if (name == 'picker') {
+        return (
+          argument !== null &&
+          unescapeIdentifier(argument).toLowerCase() == 'select'
+        )
+      }
+      if (name == 'scroll-button') {
+        return (
+          argument !== null &&
+          /^(?:\*|up|down|left|right|block-start|block-end|inline-start|inline-end)$/.test(
+            unescapeIdentifier(argument).toLowerCase(),
+          )
+        )
+      }
+      if (
+        /^view-transition-(?:group|image-pair|old|new|group-children)$/.test(
+          name,
+        )
+      ) {
+        if (argument === null) {
+          return false
+        }
+        // Dots delimit class identifiers, except when escaped within an identifier.
+        pieces = argument.charAt(0) == '*' ? argument.slice(1) : argument
+        if (argument.charAt(0) != '*') {
+          var first = Patterns.tagName!.exec(pieces)
+          if (!first || !isIdent(first[1]!, true)) {
+            return false
+          }
+          pieces = first[2]!
+        }
+        while (pieces) {
+          if (pieces.charAt(0) != '.') {
+            return false
+          }
+          var part = Patterns.tagName!.exec(pieces.slice(1))
+          if (!part || !isIdent(part[1]!, true)) {
+            return false
+          }
+          pieces = part[2]!
+        }
+        return true
+      }
+      if (name == 'cue' || name == 'cue-region') {
+        return (
+          argument === null ||
+          (isCompound(argument) &&
+            !hasPseudoElement(argument) &&
+            validateLogical(argument, false))
+        )
+      }
+      return (
+        argument === null &&
+        (treePseudo(name) ||
+          /^(?:first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
+            name,
+          ))
+      )
+    },
+    validPseudoStates = function (text: string, context: string): boolean {
+      var token, name, argument, valid
+      while (text) {
+        token = readPseudo(text)
+        if (!token || token.double) {
+          return false
+        }
+        name = token.name
+        argument = token.argument
+        if (name == 'is' || name == 'where') {
+          if (argument === null) {
+            return false
+          }
+          // Invalid branches of forgiving lists do not invalidate the outer selector.
+        } else if (name == 'not') {
+          if (
+            !argument ||
+            !splitList(argument).every(function (item) {
+              return validPseudoStates(item, context)
+            })
+          ) {
+            return false
+          }
+        } else {
+          if (context == 'part') {
+            valid =
+              !/^(?:root|scope|empty|host|host-context|has|has-slotted|nth-.+|(?:first|last|only)-(?:child|of-type))$/.test(
+                name,
+              )
+          } else if (context == 'search-text') {
+            valid = name == 'current' && argument === null
+          } else if (context.indexOf('view-transition-') == 0) {
+            valid = name == 'only-child' && argument === null
+          } else {
+            valid =
+              (treePseudo(context) || context == 'scroll-button') &&
+              /^(?:hover|active|focus|focus-visible|focus-within)$/.test(name)
+            if (
+              context == 'scroll-button' &&
+              /^(?:enabled|disabled)$/.test(name)
+            ) {
+              valid = true
+            }
+          }
+          if (
+            !valid ||
+            !validateLogical(
+              text.slice(0, text.length - token.rest.length),
+              false,
+            )
+          ) {
+            return false
+          }
+        }
+        text = token.rest
+      }
+      return true
+    },
+    validPseudoTail = function (text: string) {
+      var token,
+        name,
+        context = '',
+        states = '',
+        previous
+      while (text) {
+        token = readPseudo(text)
+        if (!token) {
+          return false
+        }
+        name = token.name
+        if (
+          token.double ||
+          (!context && /^(?:before|after|first-line|first-letter)$/.test(name))
+        ) {
+          if (states && !validPseudoStates(states, context)) {
+            return false
+          }
+          states = ''
+          previous = context
+          if (
+            previous &&
+            !(previous == 'part' && name != 'part' && name != 'slotted') &&
+            !(previous == 'slotted' && treePseudo(name)) &&
+            !(/^(?:before|after)$/.test(previous) && name == 'marker') &&
+            !(previous == 'picker' && treePseudo(name))
+          ) {
+            return false
+          }
+          if (!validPseudoElement(name, token.argument)) {
+            return false
+          }
+          context = name
+        } else {
+          states += text.slice(0, text.length - token.rest.length)
+        }
+        text = token.rest
+      }
+      return !states || validPseudoStates(states, context)
+    },
+    validPseudoSyntax = function (text: string) {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (!token) {
+          continue
+        }
+        if (
+          token.double ||
+          /^(?:before|after|first-line|first-letter)$/.test(token.name)
+        ) {
+          return validPseudoTail(text.slice(i))
+        }
+        i = text.length - token.rest.length - 1
+      }
+      return true
+    },
+    hasHost = function (text: string): boolean {
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (
+          token &&
+          !token.double &&
+          (/^host(?:-context)?$/.test(token.name) ||
+            (token.argument !== null && hasHost(token.argument)))
+        ) {
+          return true
+        }
+        if (token) {
+          i = text.length - token.rest.length - 1
+        }
+      }
+      return false
+    },
+    prepareCompound = function (text: string): string | null {
+      if (!isCompound(text)) {
+        return null
+      }
+      var quote = '',
+        bracket = 0,
+        i = 0,
+        char,
+        token,
+        items,
+        result = '',
+        start = 0
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          }
+          continue
+        }
+        if (char == '"' || char == "'") {
+          quote = char
+          continue
+        }
+        if (char == '[') {
+          ++bracket
+          continue
+        }
+        if (char == ']') {
+          --bracket
+          continue
+        }
+        if (bracket || char != ':') {
+          continue
+        }
+        token = readPseudo(text.slice(i))
+        if (
+          !token ||
+          token.argument === null ||
+          !/^(?:not|is|where)$/.test(token.name)
+        ) {
+          continue
+        }
+        items = splitList(token.argument).map(prepareCompound)
+        if (
+          token.name == 'not' &&
+          items.some(function (item) {
+            return item === null
+          })
+        ) {
+          return null
+        }
+        result +=
+          text.slice(start, i) +
+          ':' +
+          token.name +
+          '(' +
+          (items
+            .filter(function (item) {
+              return item !== null
+            })
+            .join(',') || ':not(*)') +
+          ')'
+        i = text.length - token.rest.length - 1
+        start = i + 1
+      }
+      return result + text.slice(start)
+    },
+    shadowRootOf = function (scope: Node): ShadowRoot | null {
+      var root = scope.getRootNode ? scope.getRootNode() : scope
+      return root.nodeType == 11 && 'host' in root ? (root as ShadowRoot) : null
+    },
+    shadowParent = function (element: Element, scope: Node) {
+      var root = shadowRootOf(scope)
+      if (root && root.host === element) {
+        return null
+      }
+      return (
+        element.parentElement ||
+        (root && element.parentNode === root ? root.host : null)
+      )
+    },
+    isHost = function (
+      element: Element,
+      argument: string | null,
+      contextual: boolean,
+      scope: Node,
+    ) {
+      var root = shadowRootOf(scope),
+        current: Element | null = element
+      if (!root || root.host !== element) {
+        return false
+      }
+      if (argument === null) {
+        return true
+      }
+      do {
+        if (match(argument, current)) {
+          return true
+        }
+        current = contextual ? upOf(current) : null
+      } while (current)
+      return false
+    },
+    hasSlotted = function (element: Element, argument: string | null) {
+      if (
+        element.namespaceURI != 'http://www.w3.org/1999/xhtml' ||
+        element.localName != 'slot'
+      ) {
+        return false
+      }
+      var slot = element as HTMLSlotElement
+      if (typeof slot.assignedNodes != 'function') {
+        return false
+      }
+      var nodes = slot.assignedNodes({ flatten: true })
+      if (argument === null) {
+        return nodes.length > 0
+      }
+      for (var i = 0; i < nodes.length; ++i) {
+        if (nodes[i]!.nodeType == 1 && match(argument, nodes[i] as Element)) {
+          return true
+        }
+      }
+      return false
+    },
+    directionality = (
+      Factory as typeof Factory & {
+        _direction: DirectionHelpers
+      }
+    )._direction.directionality,
+    isDirection = function (element: Element, direction: string) {
+      var native = Snapshot.matchesNative(
+        element,
+        ':dir(' + direction + ')',
+        undefined,
+      )
+      return native === undefined
+        ? directionality(element) === direction
+        : native
+    },
+    isLanguage = function (element: Element, range: string) {
+      var current: Element | null = element,
+        language: string | null = null,
+        parts,
+        wanted,
+        i,
+        j
+      while (current) {
+        language =
+          current.getAttributeNS &&
+          current.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'lang')
+        if (
+          language == null &&
+          current.namespaceURI == 'http://www.w3.org/1999/xhtml'
+        ) {
+          language = attrOf(current, 'lang')
+        }
+        if (language !== null) {
+          break
+        }
+        current = upOf(current)
+      }
+      if (!language || !/^[a-z]{1,8}(?:-[a-z0-9]{1,8})*$/i.test(language)) {
+        return false
+      }
+      parts = language.toLowerCase().split('-')
+      wanted = range.toLowerCase().split('-')
+      if (wanted[0] != '*' && wanted[0] != parts[0]) {
+        return false
+      }
+      i = 1
+      j = 1
+      while (i < wanted.length) {
+        if (wanted[i] == '*') {
+          ++i
+          continue
+        }
+        if (j >= parts.length) {
+          return false
+        }
+        if (wanted[i] == parts[j]) {
+          ++i
+          ++j
+          continue
+        }
+        if (parts[j]!.length == 1) {
+          return false
+        }
+        ++j
+      }
+      return true
+    },
+    // Reject bad closing tokens even inside forgiving selector lists.
+    validBlocks = function (text: string) {
+      var stack: string[] = [],
+        quote = '',
+        char,
+        i = 0
+      for (; i < text.length; ++i) {
+        char = text.charAt(i)
+        if (char == '\\') {
+          ++i
+          continue
+        }
+        if (quote) {
+          if (char == quote) {
+            quote = ''
+          } else if (char == '\n' || char == '\r' || char == '\f') {
+            return false
+          }
+        } else if (char == '"' || char == "'") {
+          quote = char
+        } else if (char == '(' || char == '[') {
+          stack.push(char)
+        } else if (char == ')' || char == ']') {
+          if (stack.pop() != (char == ')' ? '(' : '[')) {
+            return false
+          }
+        } else if (char == '{' || char == '}') {
+          return false
+        }
+      }
+      // CSS closes unterminated strings and blocks at EOF.
+      return true
+    },
     notFlag = 0,
     compileSelector = function (
       expression: string,
@@ -3271,6 +3871,7 @@ interface AttributeOperator {
         NS,
         attributeSource,
         attributeGuard,
+        attributePattern,
         expr,
         value,
         match: RegExpMatchArray | null | undefined,
@@ -3281,6 +3882,8 @@ interface AttributeOperator {
         test,
         type,
         selector = expression,
+        shadow = expression.indexOf(':') >= 0 && hasHost(expression),
+        pseudo,
         vars,
         argument,
         flag,
@@ -3445,16 +4048,28 @@ interface AttributeOperator {
                 HTML_TABLE[expr!.toLowerCase()])
                 ? 'i'
                 : ''
+            if (match[2]) {
+              attributePattern =
+                '/' +
+                (test as AttributeOperator).p1 +
+                match[4] +
+                (test as AttributeOperator).p2 +
+                '/'
+              attributePattern =
+                !match[5] && type == 'i'
+                  ? '(e.namespaceURI=="http://www.w3.org/1999/xhtml"?' +
+                    attributePattern +
+                    'i:' +
+                    attributePattern +
+                    ')'
+                  : attributePattern + type
+            }
             if (NS && match[2]) {
               source =
                 'if(s.hasAttributeNS(e,"' +
                 name +
-                '",/' +
-                (test as AttributeOperator).p1 +
-                match[4] +
-                (test as AttributeOperator).p2 +
-                '/' +
-                type +
+                '",' +
+                attributePattern +
                 ',' +
                 (test as AttributeOperator).p3 +
                 ')){' +
@@ -3478,12 +4093,8 @@ interface AttributeOperator {
                       type == '' &&
                       (test as AttributeOperator).p3 == 'true'
                     ? attributeSource + '=="' + value + '"'
-                    : '(/' +
-                      (test as AttributeOperator).p1 +
-                      match![4]! +
-                      (test as AttributeOperator).p2 +
-                      '/' +
-                      type +
+                    : '(' +
+                      attributePattern +
                       ').test(' +
                       (match[2] == '~=' &&
                       (test as AttributeOperator).p3 == 'true'
@@ -3557,7 +4168,9 @@ interface AttributeOperator {
               'var N' +
               k +
               '=e;while(e&&(e=' +
-              read.up('e') +
+              (shadow
+                ? 's.shadowParent(e,x||(c.nodeType?c:s.from))'
+                : read.up('e')) +
               ')){' +
               source +
               '}e=N' +
@@ -3579,7 +4192,9 @@ interface AttributeOperator {
               'var N' +
               k +
               '=e;if(e&&(e=' +
-              read.up('e') +
+              (shadow
+                ? 's.shadowParent(e,x||(c.nodeType?c:s.from))'
+                : read.up('e')) +
               ')){' +
               source +
               '}e=N' +
@@ -3597,6 +4212,98 @@ interface AttributeOperator {
           // *** tree-structural pseudo-classes
           // :root, :empty, :first-child, :last-child, :only-child, :first-of-type, :last-of-type, :only-of-type
           case 58 /* ':' */:
+            if (
+              selector.charAt(1) == ':' ||
+              Patterns['pseudo_sng']!.test(selector)
+            ) {
+              if (!validPseudoTail(selector)) {
+                emit("'" + expression + "'" + qsInvalid)
+                return ''
+              }
+              // DOM queries never return pseudo-elements. Preserve the compiler's
+              // synthetic { element, type } candidates for existing consumers.
+              source =
+                'if(!e.nodeType&&e.element&&e.type&&e.type.toLowerCase()==' +
+                JSON.stringify(
+                  selector.charAt(1) == ':'
+                    ? selector.toLowerCase()
+                    : ':' + selector.toLowerCase(),
+                ) +
+                '){e=e.element;' +
+                source +
+                '}'
+              match = [selector, '']
+              break
+            }
+            pseudo = readPseudo(selector)
+            if (
+              pseudo &&
+              /^(?:host|host-context|has-slotted|state|active-view-transition-type|active-view-transition|user-valid|user-invalid|xr-overlay|interest-source|interest-target|target-current|target-before|target-after)$/.test(
+                pseudo.name,
+              )
+            ) {
+              name = pseudo.name
+              argument = pseudo.argument
+              if (name == 'host' || name == 'host-context') {
+                if (
+                  argument === null
+                    ? name != 'host'
+                    : (argument = prepareCompound(argument)) === null ||
+                      hasPseudoElement(argument) ||
+                      !validateLogical(argument, false)
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                source =
+                  'if(s.isHost(e,' +
+                  JSON.stringify(argument) +
+                  ',' +
+                  (name == 'host-context') +
+                  ',x||(c.nodeType?c:s.from))){' +
+                  source +
+                  '}'
+              } else if (name == 'has-slotted') {
+                if (
+                  argument !== null &&
+                  (!argument ||
+                    hasPseudoElement(argument) ||
+                    !isCompound(normalizeCombinators(argument), true) ||
+                    !validateLogical(argument, false))
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                source =
+                  'if(s.hasSlotted(e,' +
+                  JSON.stringify(argument) +
+                  ')){' +
+                  source +
+                  '}'
+              } else {
+                if (
+                  name == 'state' || name == 'active-view-transition-type'
+                    ? argument === null || !isIdent(argument, true)
+                    : argument !== null
+                ) {
+                  emit("'" + expression + "'" + qsInvalid)
+                  return ''
+                }
+                expr =
+                  ':' + name + (argument === null ? '' : '(' + argument + ')')
+                source =
+                  'if(s.matchesNative(e,' +
+                  JSON.stringify(expr) +
+                  ')){' +
+                  source +
+                  '}'
+              }
+              match = [
+                selector.slice(0, selector.length - pseudo.rest.length),
+                pseudo.rest,
+              ]
+              break
+            }
             if (
               (match = /^:heading(?:\(([^)]*)(?:\)|$))?(?![-\w])(.*)/i.exec(
                 selector,
@@ -4041,6 +4748,10 @@ interface AttributeOperator {
                   source = 'if(s.match("' + expr + '",e)){' + source + '}'
                   break
                 case 'not':
+                  if (hasPseudoElement(match[2]!)) {
+                    emit("'" + expression + "'" + qsInvalid)
+                    return ''
+                  }
                   if (isCompound((argument = match![2]!))) {
                     flag = '_n' + notFlag++
                     nested = compileSelector(
@@ -4103,37 +4814,21 @@ interface AttributeOperator {
               match![1] = match![1]!.toLowerCase()
               switch (match![1]!) {
                 case 'dir':
+                  argument = match[2]!.toLowerCase()
                   source =
-                    'var p;if(s.matchesNative(e,":dir(' +
-                    match![2]! +
-                    ')",(' +
-                    '(/' +
-                    match![2]! +
-                    '/i.test(e.dir))||(p=s.ancestor("[dir]", e))&&' +
-                    '(/' +
-                    match![2]! +
-                    '/i.test(p.dir))||(!p||!/^(?:ltr|rtl)$/i.test(p.dir))&&(e.dir==""||e.dir=="auto")&&' +
-                    '(' +
-                    (match[2] == 'ltr' ? '!' : '') +
-                    RTL +
-                    '.test(e.textContent)))' +
+                    'if(s.isDirection(e,' +
+                    JSON.stringify(argument) +
                     ')){' +
                     source +
-                    '};'
+                    '}'
                   break
                 case 'lang':
-                  expr = '(?:^|-)' + match![2]! + '(?:-|$)'
                   source =
-                    'var p;if((' +
-                    '(e.lang==""&&(p=s.ancestor("[lang]",e))&&' +
-                    '(p.lang=="' +
-                    match![2]! +
-                    '")||/' +
-                    expr +
-                    '/i.test(e.lang)))' +
-                    '){' +
+                    'if(s.isLanguage(e,' +
+                    JSON.stringify(match[2]) +
+                    ')){' +
                     source +
-                    '};'
+                    '}'
                   break
                 default:
                   emit("'" + expression + "'" + qsInvalid)
@@ -4309,7 +5004,7 @@ interface AttributeOperator {
                 case 'indeterminate':
                   source =
                     'if((/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
-                    '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate)||' +
+                    '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate&&!e.switch&&!e.hasAttribute("switch"))||' +
                     '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
                     ')){' +
                     source +
@@ -4425,7 +5120,7 @@ interface AttributeOperator {
                 if (
                   !match ||
                   !match![2]! ||
-                  !splitList(match![2]!).every(isCompound) ||
+                  !splitList(match![2]!).every(item => isCompound(item)) ||
                   !validateLogical(match![2]!, false)
                 ) {
                   emit("'" + expression + "'" + qsInvalid)
@@ -4437,42 +5132,6 @@ interface AttributeOperator {
                 'if(s.matchesNative(e,' +
                 JSON.stringify(expr) +
                 ')){' +
-                source +
-                '}'
-            } else if ((match = matchLogical(selector, /^:(:slotted)\(/i))) {
-              if (
-                !match![2]! ||
-                !isCompound(match![2]!) ||
-                !validateLogical(match![2]!, false)
-              ) {
-                emit("'" + expression + "'" + qsInvalid)
-                return ''
-              }
-              source = 'if(false){' + source + '}'
-            }
-
-            // allow pseudo-elements starting with single colon (:)
-            // :after, :before, :first-letter, :first-line
-            // assert: e.type is in double-colon format, like ::after
-            else if ((match = selector.match(Patterns['pseudo_sng']!))) {
-              source =
-                'if(e.element&&e.type.toLowerCase()=="' +
-                ':' +
-                match![0]!.toLowerCase() +
-                '"){e=e.element;' +
-                source +
-                '}'
-            }
-
-            // allow pseudo-elements starting with double colon (::)
-            // ::after, ::before, ::marker, ::placeholder, ::selection,
-            // ::inactive-selection, ::-webkit-<foo-bar>
-            // assert: e.type is in double-colon format, like ::after
-            else if ((match = selector.match(Patterns['pseudo_dbl']!))) {
-              source =
-                'if(e.element&&e.type.toLowerCase()=="' +
-                match![0]!.toLowerCase() +
-                '"){e=e.element;' +
                 source +
                 '}'
             } else {
@@ -4691,8 +5350,13 @@ interface AttributeOperator {
         selectors = '' + selectors
       }
 
+      selectors = stringContinuations(selectors)
+      if (!validBlocks(selectors)) {
+        emit("'" + selectors + "'" + qsInvalid)
+        return type ? none : false
+      }
       // normalize input string
-      parsed = stringContinuations(selectors)
+      parsed = selectors
         .replace(/\x00|\\$/g, '\ufffd')
         .replace(REX.CombineWSP, '\x20')
         .replace(REX.TabCharWSP, '\t')
@@ -4731,6 +5395,10 @@ interface AttributeOperator {
         }
       }
 
+      if (selectors && !selectors.every(validPseudoSyntax)) {
+        emit("'" + parsed + "'" + qsInvalid)
+        return type ? none : false
+      }
       return selectors as string[] | null
     },
     // equivalent of w3c 'matches' method
@@ -4741,6 +5409,10 @@ interface AttributeOperator {
     ) {
       var resolver,
         cacheKey = !!callback + ':' + selectors
+
+      if (element && element.ownerDocument !== doc) {
+        switchContext(element)
+      }
 
       if (element && (resolver = matchResolvers.get(cacheKey))) {
         return match_assert(resolver, element, callback)
@@ -5933,6 +6605,11 @@ interface AttributeOperator {
       nthElement: typeof nthElement
       nthFiltered: typeof nthFiltered
       isMediaState: typeof isMediaState
+      isDirection: typeof isDirection
+      isLanguage: typeof isLanguage
+      isHost: typeof isHost
+      hasSlotted: typeof hasSlotted
+      shadowParent: typeof shadowParent
       matchesNative: typeof matchesNative
       isRequired: typeof isRequired
       isDisabled: typeof isDisabled
@@ -5982,6 +6659,11 @@ interface AttributeOperator {
       nthElement: nthElement,
       nthFiltered: nthFiltered,
 
+      isDirection: isDirection,
+      isLanguage: isLanguage,
+      isHost: isHost,
+      hasSlotted: hasSlotted,
+      shadowParent: shadowParent,
       matchesNative: matchesNative,
       isDefined: isDefined,
       isRequired: isRequired,

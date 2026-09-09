@@ -18,7 +18,9 @@ need review.
 loads the source used by both the runner and its scope check. It also adapts
 the three matching pages and wraps upstream `.window.js` files in a page
 with testharness. The wrapper executes the original script and rejects
-unreviewed `META:` directives.
+unreviewed `META:` directives. The tentative switch-control page also loads
+`fixtures/switch-idl.mts` when the browser lacks the reflected `switch` property.
+That helper provides attribute reflection without changing selector behavior.
 
 `fixtures/structural-selectors.html` reuses upstream DOM fixtures for query
 assertions about filtered child positions and XML sibling types. It does not

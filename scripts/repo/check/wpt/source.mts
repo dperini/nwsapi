@@ -40,7 +40,7 @@ export function wptFile(url: string, root = REPO_ROOT) {
   return file
 }
 
-export function scriptPage(url: string, source: string) {
+export function scriptPage(url: string, source: string, reflectSwitch = false) {
   if (!url.endsWith('.window.html')) {
     throw new Error('Script wrappers require a .window.html path.')
   }
@@ -55,7 +55,10 @@ export function scriptPage(url: string, source: string) {
     throw new Error('Review WPT script metadata before adding this wrapper.')
   }
   const script = url.slice(0, -5) + '.js'
-  return `<!doctype html><meta charset="utf-8"><title>WPT selector script</title><script src="/resources/testharness.js"></script><script src="/resources/testharnessreport.js"></script><body><script src="${script}"></script>`
+  const setup = reflectSwitch
+    ? '<script src="/_repo/test/repo/e2e/upstream/fixtures/switch-idl.mts"></script>'
+    : ''
+  return `<!doctype html><meta charset="utf-8"><title>WPT selector script</title><script src="/resources/testharness.js"></script><script src="/resources/testharnessreport.js"></script><body>${setup}<script src="${script}"></script>`
 }
 
 export interface SourceEdit {
@@ -188,7 +191,11 @@ export function adaptDomOnly(
 export function pageSource(entry: WptEntry, root = REPO_ROOT) {
   if (entry.script) {
     const script = entry.path.slice(0, -5) + '.js'
-    return scriptPage(entry.path, readFileSync(wptFile(script, root), 'utf8'))
+    return scriptPage(
+      entry.path,
+      readFileSync(wptFile(script, root), 'utf8'),
+      entry.reflectSwitch,
+    )
   }
   const source = readFileSync(wptFile(entry.path, root), 'utf8')
   if (entry.selectorInputs) {

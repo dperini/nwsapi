@@ -20,12 +20,12 @@ The selected manifest contains **141 pages**. It does not run the complete WPT p
 
 | Test group                         | Pages | Subtests | Passed | Known failures |
 | ---------------------------------- | ----: | -------: | -----: | -------------: |
-| Upstream DOM matching              |    76 |    5,326 |  5,320 |              6 |
-| Wrapped upstream window scripts    |     3 |      283 |     94 |            189 |
+| Upstream DOM matching              |    76 |    5,326 |  5,326 |              0 |
+| Wrapped upstream window scripts    |     3 |      283 |    283 |              0 |
 | Adapted upstream DOM matching      |     3 |       37 |     37 |              0 |
-| Adapted upstream selector validity |    40 |    1,722 |  1,176 |            546 |
+| Adapted upstream selector validity |    40 |    1,722 |  1,722 |              0 |
 | Local regressions                  |    19 |       77 |     77 |              0 |
-| Total                              |   141 |    7,445 |  6,704 |            741 |
+| Total                              |   141 |    7,445 |  7,445 |              0 |
 
 These counts describe the selected manifest in Chromium 151.0.7922.34. A known failure remains a failed subtest. No subtests were filtered. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
@@ -43,7 +43,9 @@ This corrects the earlier report's inclusion of 16 rendering-only subtests and t
 
 Each page attaches a `wpt-subtests` JSON report with its origin, adaptation, counts, and failures. The runner verifies that `nwsapi` replaced all eight methods before upstream tests run. The manifest excludes screenshots, computed-style assertions, manual and crash tests without harness results, testdriver-dependent interaction, and aliases the engine does not replace.
 
-The 741 known failures include 546 parsing failures, 184 attribute case-sensitivity failures, five tentative switch-control failures, five shadow-selector failures, and one language-range failure. Their reasons are recorded in [expectations.json](../../../test/repo/e2e/upstream/expectations.json). The switch cases also depend on host behavior missing from the tested Chromium build. See the [compatibility review](../selector/compatibility.md) for the implementation priorities and browser evidence.
+All 7,445 selected subtests pass. The former failures covered pseudo-element grammar, attribute casing, language ranges, shadow selectors, and tentative switch controls. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is empty. See the [compatibility review](../selector/compatibility.md) for the measured behavior and its limits.
+
+The tentative switch page uses a small reflected-property helper because the tested Chromium build does not provide `HTMLInputElement.switch`. The helper maps that boolean property to the `switch` attribute, as the upstream script expects. It runs only for this page and preserves a native property when one exists. It does not replace selector methods or expected results. These cases test `nwsapi` with that host provision, rather than establish native switch support.
 
 To regenerate the tracked summary after a complete run:
 
