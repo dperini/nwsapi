@@ -72,6 +72,18 @@ test('ancestor reuse avoids repeated prefix reads without adding persistent node
     nodes,
   )
   assert.equal(reads, 2, 'Callbacks must retain live prefix evaluation')
+  for (const normalized of [
+    '.box/**/ .block.inner > .content',
+    '.box\t.block.inner\n>\t.content',
+    '.\\62 ox .block.inner > .content',
+  ]) {
+    reads = 0
+    assert.deepEqual(
+      nw.compile(normalized, true)!(nodes, null, document, []),
+      nodes,
+    )
+    assert.equal(reads, 1, normalized)
+  }
 })
 
 test('callback mutations invalidate later candidates and ordinary calls see subsequent changes', t => {

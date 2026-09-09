@@ -1,0 +1,107 @@
+{
+  "engineSha256": "e1c41a3660157577d3007032155820e5dc718f4bcec7c2f50058fb1ff55368db",
+  "methodology": "Node --cpu-prof over compiler.mts comparing two copies of the pre-change engine. Includes module startup, both engines, all selectors, timing infrastructure, and GC. Counts are self samples grouped by function name. This profile locates work but does not isolate eligibility cost. Raw profile was written to an OS temporary directory. Timing conclusions use separate unprofiled runs.",
+  "totalSelfSamples": 3608,
+  "topFunctions": [
+    {
+      "name": "compile",
+      "selfSamples": 1791
+    },
+    {
+      "name": "readFileUtf8",
+      "selfSamples": 368
+    },
+    {
+      "name": "compileSelector",
+      "selfSamples": 167
+    },
+    {
+      "name": "matchLogical",
+      "selfSamples": 126
+    },
+    {
+      "name": "(garbage collector)",
+      "selfSamples": 116
+    },
+    {
+      "name": "",
+      "selfSamples": 106
+    },
+    {
+      "name": "wrapSafe",
+      "selfSamples": 84
+    },
+    {
+      "name": "hasHost",
+      "selfSamples": 70
+    },
+    {
+      "name": "get",
+      "selfSamples": 69
+    },
+    {
+      "name": "normalizeCombinators",
+      "selfSamples": 61
+    },
+    {
+      "name": "internalModuleStat",
+      "selfSamples": 57
+    },
+    {
+      "name": "canReuseAncestor",
+      "selfSamples": 48
+    },
+    {
+      "name": "splitList",
+      "selfSamples": 40
+    },
+    {
+      "name": "readPseudo",
+      "selfSamples": 36
+    },
+    {
+      "name": "open",
+      "selfSamples": 25
+    },
+    {
+      "name": "readPackageJSON",
+      "selfSamples": 22
+    },
+    {
+      "name": "RegExp: ^\\.((?:--|-?(?:[_a-zA-Z]|[^\\x00-\\x7f]|(?:\\\\[0-9a-fA-F]{1,6}[\\x20\\t\\r\\n\\f]?|\\\\[^\\r\\n\\f])))(?:[\\w-]|[^\\x00-\\x7f]|(?:\\\\[0-9a-fA-F]{1,6}[\\x20\\t\\r\\n\\f]?|\\\\[^\\r\\n\\f]))*)(.*)",
+      "selfSamples": 21
+    },
+    {
+      "name": "compileSourceTextModule",
+      "selfSamples": 20
+    },
+    {
+      "name": "exports.installInterfaces",
+      "selfSamples": 20
+    },
+    {
+      "name": "close",
+      "selfSamples": 19
+    },
+    {
+      "name": "RegExp: ^((?:--|-?(?:[_a-zA-Z]|[^\\x00-\\x7f]|(?:\\\\[0-9a-fA-F]{1,6}[\\x20\\t\\r\\n\\f]?|\\\\[^\\r\\n\\f])))(?:[\\w-]|[^\\x00-\\x7f]|(?:\\\\[0-9a-fA-F]{1,6}[\\x20\\t\\r\\n\\f]?|\\\\[^\\r\\n\\f]))*)(.*)",
+      "selfSamples": 19
+    },
+    {
+      "name": "unescapeIdentifier",
+      "selfSamples": 18
+    },
+    {
+      "name": "RegExp: ^[\\x20\\t\\r\\n\\f]+|[\\x20\\t\\r\\n\\f]+$",
+      "selfSamples": 18
+    },
+    {
+      "name": "set",
+      "selfSamples": 17
+    },
+    {
+      "name": "read",
+      "selfSamples": 16
+    }
+  ]
+}

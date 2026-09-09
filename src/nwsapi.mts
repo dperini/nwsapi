@@ -2688,6 +2688,11 @@ interface Primordials {
     // so escaped identifiers and whitespace keep the parser's meaning. Other
     // pseudos, namespaces, attributes, and extensions retain their full matcher.
     canReuseAncestor = function (selector: string) {
+      // A descendant combinator requires whitespace. Strings and escapes can
+      // also contain it, so only absence is enough to skip token inspection.
+      if (!/[\t\n\f\r ]/.test(selector)) {
+        return false
+      }
       for (var extension in Selectors) {
         if (Selectors[extension]) {
           return false
@@ -2698,7 +2703,6 @@ interface Primordials {
           return false
         }
       }
-      selector = normalizeCombinators(selectorComments(selector))
       var walks = 0,
         token,
         pattern,
@@ -2829,13 +2833,7 @@ interface Primordials {
 
       // Cache hits need no parser state or helper-alias bookkeeping.
       ancestry = { required: [], pending: [], walk: false }
-      if (
-        (mode || mode === null) &&
-        !callback &&
-        !relative &&
-        !Config.LEGACY &&
-        canReuseAncestor(selector)
-      ) {
+      if ((mode || mode === null) && !callback && !relative && !Config.LEGACY) {
         ancestry.reuse = macro
       }
 
@@ -3761,6 +3759,11 @@ interface Primordials {
 
       // isolate selector combinators
       selector = normalizeCombinators(selector)
+      // Eligibility reads the same normalized tokens as code generation.
+      // Reusing this pass avoids normalizing comments and combinators twice.
+      if (ancestry.reuse && !canReuseAncestor(selector)) {
+        ancestry.reuse = ''
+      }
 
       // javascript needs a label to break
       // out of the while loops processing

@@ -803,3 +803,29 @@ These medians measure unique selectors on warm Node engines. Eligible plain and 
 These are median allocation estimates, not retained heap. Public selection can remove a terminal class check after fetching candidates by that class, so it allocates less than compiling the complete selector against a supplied array. In the ancestor query's public path, sampled resolver work and class-name getters dominate. Class lookup accounts for about 5% of its total allocation. The `byClass` allocation site contributes about 4.2MB in the middle round, consistent with copying a 256-element array on each call. Sampling and inlining prevent exact source-level attribution.
 
 The production engine remains unchanged in this follow-up. Public lookup results must remain independent arrays, and cached candidate snapshots must be protected from callers and callbacks. Removing those copies broadly would trade away those guarantees for a small share of this workload's allocation. The next focused experiment should reduce uncached eligibility work without adding warm-query branches or broadening supported selectors. Any later internal snapshot borrowing needs its own callback, reentrancy, mutation, and result-array isolation checks.
+
+## Normalize once before ancestor eligibility
+
+The eligibility scan previously normalized comments and combinator spacing before the compiler repeated the same work. It now reads the compiler's normalized selector. Selectors without CSS whitespace return false before token inspection because they cannot contain a descendant combinator. Whitespace inside strings or escapes still goes through the full token check. The accepted selector forms and generated query behavior remain unchanged.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+The baseline is the production engine at `7252bf5`. Save its built CommonJS file outside the repository before rebuilding. Run `node scripts/repo/bench/compiler.mts /path/to/before.cjs dist/nwsapi.js assets/repo/bench/ancestor-eligibility-compiler.json`, then repeat in a fresh process with another output path. The [first timing record](../../../assets/repo/bench/ancestor-eligibility-compiler.json) and [confirmation](../../../assets/repo/bench/ancestor-eligibility-compiler-confirmation.json) use unique class suffixes and nine rotating rounds. They measure uncached compilation and resolver source consumption on warm Node engines. They do not measure query execution or fresh process startup.
+
+A separate run with `node --cpu-prof --cpu-prof-dir=/path/to/temporary/directory scripts/repo/bench/compiler.mts /path/to/before.cjs /path/to/before.cjs /path/to/temporary/report.json` located normalization and eligibility work. The [profile summary](../../../assets/repo/bench/ancestor-eligibility-profile.json) groups self samples by function name. It includes module startup, both engine instances, all compiler cases, and garbage collection. Its counts identify work to inspect rather than attributing the entire compilation difference to one helper. Timing conclusions use the unprofiled runs.
+
+</details>
+
+| Uncached compilation, confirmation | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Plain ancestor | 16.31µs | 15.32µs | -6.1% |
+| Positional ancestor | 25.90µs | 24.57µs | -5.1% |
+
+These are median times for unique selectors on warm engines. The first run improves the plain case by 4.6% and the positional case by 4.2%. Across both runs, the saving is about 0.7–1.3µs per compilation. This recovers part of the earlier eligibility overhead. Other cases vary, including one nested logical case that is 16.8% slower in the first run and about equal in the confirmation. The results support the narrow normalization change rather than a claim that every selector compiles faster.
+
+The generated resolver comparison covers 78 combinations of selector, array or item collection mode, matching mode, and callback setting. All compared function sources are identical before and after. The ancestor-reuse tests also cover comment boundaries, mixed whitespace, and escaped identifiers while checking both matching results and prefix-read reuse. Runtime timing and allocation charts are not remeasured because this change only alters compilation, and those warm-query measurements exclude compilation.
+
+The readable core adds 35bytes. Gzip at level 9 adds 3bytes, and Brotli at quality 11 adds 29bytes. File-size measurements and charts are refreshed for the new build.
+
+Validation passes 668 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated execution coverage is 98.53% of lines, and type identifier coverage is 96.42%. The local unit gate takes 3667ms against its 10000ms budget. Formatting, lint, and type checks pass.
