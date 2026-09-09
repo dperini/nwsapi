@@ -1161,3 +1161,42 @@ The change is retained for lower allocation when only one group contributes matc
 The readable core grows by 113bytes, from 166623bytes to 166736bytes. Gzip at level 9 grows by 28bytes, from 40296bytes to 40324bytes. Brotli at quality 11 grows by 36bytes, from 32648bytes to 32684bytes. Size charts are refreshed. Broader runtime and retained-memory charts retain their previous measurements because these reports target grouped queries.
 
 Validation passes 673 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Accumulated coverage is 98.55% of execution lines and 96.45% of type identifiers. Added cases cover empty groups, one populated group with one or multiple matches, compiled groups, independent returned arrays, callbacks, and transitions between one and multiple populated groups after DOM mutation. Existing duplicate-removal and reentrant callback tests also pass. Formatting, lint, types, and build compatibility checks pass. All candidate report hashes match the final build.
+
+## Add shared mitata comparison harnesses
+
+The comparison tools now have a shared measurement implementation for Node and native Chromium. Timing and memory use separate command modes. The existing grouped-result loops remain available for reproducing earlier measurements. [Comparison practices](comparisons.md) document the commands, GC policy, batch percentiles, memory meanings, and control runs.
+
+The recorded timing runs compare `a2e2a80` with `761f817`, the lazy-boundary change. They use three rotating rounds, a requested 50ms minimum, and 256 queries per sample. Each fixture has 256 elements and 0, 1, 16, or 256 matches. Memory runs use one and 256 matches, three rounds, and 64 queries per `mitata` sample. Allocation sampling separately measures 2000 calls. These are new measurements and do not replace the earlier chart data.
+
+<details>
+<summary>Recorded commands</summary>
+
+Save the readable `a2e2a80` build as the baseline. Build `761f817` into `dist/`, then run:
+
+```sh
+node scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-node-timing.json --batch 256 --rounds 3
+node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-timing.json --batch 256 --rounds 3
+node --expose-gc scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-node-memory.json --mode memory --matches 1,256 --batch 64 --rounds 3
+node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-memory.json --mode memory --matches 1,256 --batch 64 --rounds 3
+```
+
+</details>
+
+| Grouped matches | Node timing change | Chromium timing change |
+| --- | ---: | ---: |
+| 0 | +0.5% | 0.0% |
+| 1 | +0.2% | 0.0% |
+| 16 | -1.3% | 0.0% |
+| 256 | -0.8% | -0.4% |
+
+These changes compare medians of the three per-round medians for four interleaved selector groups. Negative changes mean faster queries. Dense performance is essentially unchanged in this sample. Small-query results remain mixed. The Node and browser harnesses use different DOM implementations, so their absolute times are not directly comparable. Their reports share the same `mitata` version and implementation hash. Browser timer isolation and the measurement algorithm differ from the earlier custom-loop harnesses.
+
+The earlier exploratory records remain as `mitata-initial-*.json`. The final harness uses a negative automatic-batch threshold so a zero timer reading cannot activate extra batching. Final reports also include the shared harness source hash and host information. The table above uses the final reports.
+
+The [Node control](../../../assets/repo/bench/mitata-node-control.json) and [browser control](../../../assets/repo/bench/mitata-browser-control.json) compare the current build with itself. For the one-match grouped case, their median changes are -2.0% and 0.0%. These controls illustrate why a small observed timing difference should not be treated as an exact engine improvement.
+
+The [Node memory report](../../../assets/repo/bench/mitata-node-memory.json) estimates 5.49MB before and 5.03MB after over 2000 one-match grouped calls, an 8.3% reduction. The [browser memory report](../../../assets/repo/bench/mitata-browser-memory.json) estimates 1.04MB and 0.83MB, a 20.2% reduction. Dense allocation changes are -0.2% in Node and -0.4% in Chromium. These are V8 allocation samples that include collected objects, rather than retained-heap improvements.
+
+For the same one-match case, `mitata` reports median positive heap deltas of about 2767bytes and 2570bytes per query in Node, and 533bytes and 425bytes in Chromium. Those heap probes use forced collection around batches and answer a different question from allocation sampling. The reports retain the raw GC statistics and post-GC heap readings separately. No engine source or existing performance chart changes are part of this harness work.
+
+Validation runs all four harness modes plus identical-build controls. The three focused tests cover argument validation, fixture identities and order, sample normalization, and propagation of benchmark errors. Formatting, lint, and type checks pass. The source hashes in the final reports match the shared timing module and installed `mitata` implementation. The earlier lazy-boundary commit also completed CI successfully before this work was added.
