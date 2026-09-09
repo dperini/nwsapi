@@ -509,3 +509,33 @@ The warm allocation estimate falls by about 40%. The before profile attributes s
 The ordinary native-memory chart is refreshed separately. It records 9.32KiB after initialization and 75.95KiB after 100 queries. That workload does not populate the general `:has()` cache, so it must not replace the saturated-cache measurement above. The readable core grows by 1099bytes, including 294bytes after gzip and 213bytes after Brotli.
 
 Regression tests cover adjacent and general siblings, chained sibling fallbacks, positional and logical predicates, mutation, and public candidate-array isolation. The full local gate passed 663 unit tests, 148 integration tests, and all 141 selected WPT pages in both modern and legacy runs. Accumulated coverage is 98.52% of executable lines and 96.29% of type identifiers. The [test-performance record](../testing/journal.md#reuse-the-legacy-module-and-close-its-fixtures) explains the fixture cleanup and process-test placement.
+
+## Experiment with query-local ancestor reads
+
+The remaining class-based descendant queries revisit parent elements and class values across candidates. This experiment compares the existing compiled resolver with two alternatives. One stores each visited element's parent and class value in a new weak map for every call. The other creates that map only when the candidate list has at least 16 elements and the first candidate has eight ancestors.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts` after building the engine. The [script](../../../scripts/repo/bench/ancestor-reads.mts) writes [ancestor-reads.json](../../../assets/repo/bench/ancestor-reads.json). It transforms known reads in compiled resolvers for fixed selectors. It does not modify the production engine or accept arbitrary selector input.
+
+The report records the engine hash, runtime, fixtures, raw samples, and operation counts. Measurements use Node 26.5.0 and `jsdom` fixtures on macOS arm64. Seven rounds rotate the three variants. Each variant receives 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside the timers. Parent and class counters run separately. Node identity, order, and results after a class mutation are checked outside the timers.
+
+These are compiled-resolver measurements. They are not public-host timings and cannot be compared directly with the earlier host tables. The experiment does not measure allocation or retained memory. The candidate-count and depth thresholds are experimental choices, not established policy.
+
+</details>
+
+| Warm compiled resolver | Existing | Always cache | Depth gate |
+| --- | ---: | ---: | ---: |
+| Original complex fixture | 88.95µs | 73.20µs | 86.97µs |
+| Original plain control | 47.33µs | 54.07µs | 48.31µs |
+| Wide complex fixture | 204.54µs | 193.49µs | 201.28µs |
+| Wide plain control | 105.97µs | 139.73µs | 104.78µs |
+| Deep complex fixture | 130.73µs | 90.29µs | 96.26µs |
+| Deep plain control | 101.90µs | 73.91µs | 80.02µs |
+
+The original fixture has 125 content candidates, the wide fixture has 256, and the deep fixture has 64. The deep tree adds eight wrapper ancestors inside each box. Always-on caching improves the deep complex fixture by about 31%, but slows the wide plain control by about 32%. Fewer DOM reads do not guarantee a faster query because the map and records also require work.
+
+The deep complex resolver performs 860 parent reads and 896 class reads before the change. Always-on caching reduces each count to 306. The depth gate performs 314 parent reads and 306 class reads, including its depth probe. It skips the map in shallow fixtures and stays close to their baseline timings in this run. The original plain control still incurs a small overhead.
+
+No production change was retained from this experiment. The depth gate merits further investigation, but it samples only the first candidate and does not establish a general rule for mixed-depth trees. Before adoption, compare public-host timing, allocation, retained memory, mutation callbacks, missing APIs, legacy behavior, and mixed depths. Reducing repeated prefix matching remains a separate option that could avoid allocating a record for every visited element.

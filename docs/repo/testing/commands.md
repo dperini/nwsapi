@@ -74,3 +74,12 @@ node scripts/repo/bench/has-memory.mts --baseline /absolute/path/to/baseline/nws
 ```
 
 The script writes `assets/repo/bench/has-memory.json`. It uses three alternating rounds in native Chromium pages. Each engine receives 512 distinct relative plans, enough additional plans to pass the cache capacity, and another batch to check continued churn. It measures retained JavaScript heap after forced garbage collection, checks removed nodes through weak references, and measures explicit cache clearing. A separate warm-query allocation sample includes collected objects. Whole-page heap includes code and DOM, so compare stage differences and retain the measurement limits in the [journal](../perf/journal.md#sibling-has-scope-and-cache-allocation).
+
+## Compare experimental ancestor reads
+
+```sh
+pnpm run build
+node scripts/repo/bench/ancestor-reads.mts
+```
+
+The script writes `assets/repo/bench/ancestor-reads.json`. It compares the existing compiled resolver with always-on and depth-gated read caches for fixed small, wide, and deep fixtures. Timing excludes candidate lookup and compilation. Operation counts and mutation checks run outside the timers. The [journal](../perf/journal.md#experiment-with-query-local-ancestor-reads) explains why these experiments have not changed the production engine.
