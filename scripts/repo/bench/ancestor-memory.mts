@@ -3,7 +3,10 @@ import { setImmediate } from 'node:timers/promises'
 
 // Keep profiler work outside query timing. Collected objects must be included
 // because query-local weak maps should disappear before a retained-heap reading.
-export async function profileAncestorMemory(query: (index: number) => unknown) {
+export async function profileAncestorMemory(
+  query: (index: number) => unknown,
+  names = ['baseline', 'always-cache', 'depth-gated'],
+) {
   const session = new Session()
   session.connect()
   const heap = async () => {
@@ -49,7 +52,7 @@ export async function profileAncestorMemory(query: (index: number) => unknown) {
         const allocatedBytesEstimate = total(profile.head)
         rows.push({
           round,
-          name: ['baseline', 'always-cache', 'depth-gated'][index],
+          name: names[index],
           allocatedBytesEstimate,
           heapBefore: before,
           heapAfter: after,

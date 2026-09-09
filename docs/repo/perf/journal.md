@@ -633,3 +633,52 @@ The allocation columns cover 2000 compiled queries. Positive time changes mean s
 Compared with the earlier record-cache runs, storing class values directly reduces deep-case allocation by roughly 12–14% in Node and 17% in the browser. It brings Node allocation close to baseline, but loses the earlier timing advantage. The class-value gate performs 868 parent reads in the deep complex fixture, compared with 314 for the record gate. Class reads remain at 306. The smaller representation saves record allocations but gives up most of the saved parent reads.
 
 Correctness and mutation checks pass in both environments. Browser reversed-order checks pass, and both sampled detached nodes become collectible in every fixture. No production change is retained. A better next experiment would cache a repeated selector-prefix result rather than every raw read. That could avoid repeated matching and traversal together, but still needs measurement and callback-mutation checks. Reusing a mutable cache across queries would add invalidation and retention risks, so it is not an automatic remedy for allocation cost.
+
+## Cache repeated ancestor-prefix results
+
+The raw-read caches remain experiments. The record cache adds allocation, while the class-only cache gives up too many parent-read savings. Neither change is adopted. The next experiment stores a boolean result for a repeated ancestor-prefix search instead of storing individual property values.
+
+The fixed selector is split before `.block.inner > .content`. One compiled matcher checks that suffix. Another checks the prefix at each ancestor above the candidate's parent. The cached variant stores whether a matching prefix exists at or above each visited ancestor. A reusable path array lets it fill in that result for the traversed path, including misses. The map and path array belong to one query. No depth probe or first-candidate decision is involved.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --prefix --output assets/repo/bench/ancestor-prefix-timing.json` for unprofiled Node timing. Add `--memory` and use `assets/repo/bench/ancestor-prefix-memory.json` for separate Node allocation and retained-memory measurements. Run `node scripts/repo/bench/ancestor-browser.mts --prefix --output assets/repo/bench/ancestor-prefix-browser.json` for the browser comparison.
+
+The same fixture shapes and measurement methods apply. The three variants are the unchanged compiled resolver, the split prefix matcher without caching, and the split prefix matcher with cached results. The uncached split control distinguishes the cost of splitting the matcher from the effect of caching. Node timing uses a fresh process without allocation profiling. Each allocation sample covers 2000 calls. The helper is in [ancestor-prefix.mts](../../../scripts/repo/bench/ancestor-prefix.mts).
+
+This is a fixed-selector benchmark, not a general compiler transformation. It does not support callbacks or establish behavior for every selector, legacy environment, or public host query. Mutation checks cover both suffix and prefix classes between calls, and reversed candidates check result order. The browser also checks collection of a detached candidate and parent.
+
+</details>
+
+| Prefix-cache timing | Existing | Cached prefix | Change |
+| --- | ---: | ---: | ---: |
+| Node wide complex | 196.60µs | 342.03µs | +74.0% |
+| Node wide plain | 105.71µs | 112.79µs | +6.7% |
+| Node deep complex | 130.26µs | 91.49µs | -29.8% |
+| Node deep plain | 96.75µs | 64.00µs | -33.8% |
+| Browser shallow complex | 13.80µs | 16.90µs | +22.5% |
+| Browser shallow plain | 8.50µs | 11.00µs | +29.4% |
+| Browser deep complex | 31.90µs | 29.50µs | -7.5% |
+| Browser deep plain | 20.40µs | 17.60µs | -13.7% |
+
+These are median times for precompiled resolvers over preselected candidates. Deep cases have 64 candidates beneath eight extra wrappers. The wide Node case has 256 candidates across 64 boxes. The shallow browser case has 64 candidates. Negative changes mean faster queries. The complex selector includes sibling positions, while the plain control uses descendant classes and a child relationship. Both mixed-depth orders improve in these runs, without choosing a caching policy from the first candidate.
+
+The wide complex regression exposes a limitation of this prototype. Splitting the prefix uses the engine's single-element matcher, whose positional check scans siblings independently. The unchanged collection resolver shares positional state across candidates. Caching the ancestor result cuts repeated prefix calls but does not recover that shared positional work. The uncached split control is even slower, so splitting alone is not an optimization.
+
+| Allocation across 2000 queries | Existing | Cached prefix | Change |
+| --- | ---: | ---: | ---: |
+| Node wide complex | 391.29MB | 638.46MB | +63.2% |
+| Node wide plain | 223.24MB | 239.30MB | +7.2% |
+| Node deep complex | 186.83MB | 133.06MB | -28.8% |
+| Node deep plain | 144.90MB | 106.18MB | -26.7% |
+| Browser shallow complex | 22.41MB | 21.31MB | -4.9% |
+| Browser shallow plain | 16.48MB | 21.95MB | +33.2% |
+| Browser deep complex | 46.84MB | 39.96MB | -14.7% |
+| Browser deep plain | 40.84MB | 40.40MB | -1.1% |
+
+These are sampled allocations, including objects collected during the batch. Node values are medians across three rotating rounds. Browser values come from one allocation sample per variant on a fresh fixture page. The deep Node cases allocate about 27–29% less, and both mixed-depth orders allocate about 21–26% less. The wide positional case instead allocates 63% more. The browser deep complex case allocates about 15% less, while the deep plain case stays close to baseline. Shallow browser queries still expose cache overhead.
+
+Both retained batches show zero measured heap growth for the cached deep Node cases in all three rounds. This is a short whole-process measurement with attached fixtures, not proof that every use is leak-free. The browser's detached-node checks pass. Result identity, suffix mutation, prefix mutation, and reversed candidate-order checks also pass. Lint and type checks pass.
+
+The records are [Node timing](../../../assets/repo/bench/ancestor-prefix-timing.json), [Node memory](../../../assets/repo/bench/ancestor-prefix-memory.json), and [browser timing and memory](../../../assets/repo/bench/ancestor-prefix-browser.json). The result supports further work on prefix caching for shared deep paths. It does not support enabling this prototype generally. Before an engine change, preserve collection-level positional reuse, address shallow-path overhead, and validate callback mutation and public-host queries. Production `nwsapi` is unchanged.

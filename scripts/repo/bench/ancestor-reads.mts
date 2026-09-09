@@ -4,11 +4,13 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
+import { createPrefixVariants } from './ancestor-prefix.mts'
 import { median } from './timing.mts'
 import { profileAncestorMemory } from './ancestor-memory.mts'
 
 const { values } = parseArgs({
   options: {
+    prefix: { type: 'boolean', default: false },
     memory: { type: 'boolean', default: false },
     classes: { type: 'boolean', default: false },
     output: {
@@ -17,6 +19,9 @@ const { values } = parseArgs({
     },
   },
 })
+const names = values.prefix
+  ? ['baseline', 'split-prefix', 'cached-prefix']
+  : ['baseline', 'always-cache', 'depth-gated']
 const shapes = [
   { name: 'original', boxes: 5, outer: 5, inner: 5, depths: [0] },
   { name: 'wide', boxes: 64, outer: 2, inner: 2, depths: [0] },
@@ -118,42 +123,75 @@ for (const shape of shapes) {
           source.includes('s.classOf(e)') &&
           source.includes('e.parentElement'),
       )
-      const variants = [baseline]
-      for (const gated of [false, true]) {
-        const changed = source
-          .replace(
-            'var e,',
-            () => `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
-          )
-          .replaceAll(
-            'e.parentElement',
-            values.classes
-              ? 'e.parentElement'
-              : gated
-                ? '(_cache?record(e,_cache).parent:e.parentElement)'
-                : 'record(e,_cache).parent',
-          )
-          .replaceAll(
-            's.classOf(e)',
-            values.classes
-              ? gated
-                ? '(_cache?classRead(e,_cache):s.classOf(e))'
-                : 'classRead(e,_cache)'
-              : gated
-                ? '(_cache?record(e,_cache).cls:s.classOf(e))'
-                : 'record(e,_cache).cls',
-          )
+      const variants: Array<
+        (
+          candidates: Element[],
+          callback: null,
+          context: Document,
+          results: Element[],
+        ) => unknown
+      > = [baseline]
+      if (values.prefix) {
+        const suffixText = ' .block.inner > .content'
+        assert(selector.endsWith(suffixText))
+        type Match = (
+          element: Element,
+          callback: null,
+          context: Document,
+          result: boolean,
+        ) => boolean
+        const prefixMatch = engine.compile(
+          selector.slice(0, -suffixText.length),
+          false,
+        ) as unknown as Match
+        const suffixMatch = engine.compile(
+          suffixText.trim(),
+          false,
+        ) as unknown as Match
         variants.push(
-          // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, checked against the unchanged engine.
-          Function(
-            's',
-            'a',
-            'record',
-            'depthCache',
-            'classRead',
-            'return ' + changed,
-          )(engine.Snapshot, undefined, record, depthCache, classRead),
+          ...createPrefixVariants(
+            element => prefixMatch(element, null, doc, false),
+            element => suffixMatch(element, null, doc, false),
+          ),
         )
+      } else {
+        for (const gated of [false, true]) {
+          const changed = source
+            .replace(
+              'var e,',
+              () =>
+                `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
+            )
+            .replaceAll(
+              'e.parentElement',
+              values.classes
+                ? 'e.parentElement'
+                : gated
+                  ? '(_cache?record(e,_cache).parent:e.parentElement)'
+                  : 'record(e,_cache).parent',
+            )
+            .replaceAll(
+              's.classOf(e)',
+              values.classes
+                ? gated
+                  ? '(_cache?classRead(e,_cache):s.classOf(e))'
+                  : 'classRead(e,_cache)'
+                : gated
+                  ? '(_cache?record(e,_cache).cls:s.classOf(e))'
+                  : 'record(e,_cache).cls',
+            )
+          variants.push(
+            // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, checked against the unchanged engine.
+            Function(
+              's',
+              'a',
+              'record',
+              'depthCache',
+              'classRead',
+              'return ' + changed,
+            )(engine.Snapshot, undefined, record, depthCache, classRead),
+          )
+        }
       }
       const query = (index: number) =>
         variants[index]!(candidates, null, doc, []) as Element[]
@@ -184,7 +222,7 @@ for (const shape of shapes) {
         }
       }
       const memory = values.memory
-        ? await profileAncestorMemory(query)
+        ? await profileAncestorMemory(query, names)
         : undefined
       const counts: Array<{ parentReads: number; classReads: number }> = []
       const parentDescriptor = Object.getOwnPropertyDescriptor(
@@ -238,20 +276,33 @@ for (const shape of shapes) {
         check(query(index), mutated)
       }
       target.className = 'block inner'
+      const box = target.closest('.box')!
+      const boxClass = box.className
+      box.className = ''
+      const prefixMutated = Array.from(doc.querySelectorAll(selector))
+      for (let index = 0; index < variants.length; ++index) {
+        check(query(index), prefixMutated)
+      }
+      box.className = boxClass
+      candidates.reverse()
+      for (let index = 0; index < variants.length; ++index) {
+        check(query(index), expected.toReversed())
+      }
+      candidates.reverse()
       rows.push({
         shape: shape.name,
         selector,
         candidates: candidates.length,
         matches: expected.length,
-        variants: ['baseline', 'always-cache', 'depth-gated'].map(
-          (name, index) => ({
-            name,
-            medianMs: median(timings[index]!),
-            samplesMs: timings[index],
-            ...counts[index],
-          }),
-        ),
+        variants: names.map((name, index) => ({
+          name,
+          medianMs: median(timings[index]!),
+          samplesMs: timings[index],
+          ...counts[index],
+        })),
         mutationCorrect: true,
+        prefixMutationCorrect: true,
+        reversedOrderCorrect: true,
         memory,
       })
     }
@@ -271,9 +322,11 @@ writeFileSync(
         .digest('hex'),
       methodology:
         'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. The depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
-      cachePayload: values.classes
-        ? 'Class value only. Parent reads remain direct.'
-        : 'Parent and class record.',
+      cachePayload: values.prefix
+        ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+        : values.classes
+          ? 'Class value only. Parent reads remain direct.'
+          : 'Parent and class record.',
       memoryMethodology: values.memory
         ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
         : undefined,

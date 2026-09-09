@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
+import { createPrefixVariants } from './ancestor-prefix.mts'
 
 type Probe = {
   run(index: number, count: number): void
@@ -11,6 +12,7 @@ type Probe = {
 }
 const { values } = parseArgs({
   options: {
+    prefix: { type: 'boolean', default: false },
     classes: { type: 'boolean', default: false },
     output: {
       type: 'string',
@@ -18,6 +20,9 @@ const { values } = parseArgs({
     },
   },
 })
+const names = values.prefix
+  ? ['baseline', 'split-prefix', 'cached-prefix']
+  : ['baseline', 'always-cache', 'depth-gated']
 const code = readFileSync('dist/nwsapi.js', 'utf8')
 const browser = await chromium.launch()
 const rows = []
@@ -32,7 +37,7 @@ try {
         await page.setContent('<!doctype html><body></body>')
         await page.addScriptTag({ content: code })
         const timing = await page.evaluate(
-          ({ depths, selector, classes }) => {
+          ({ depths, selector, classes, prefixMode, prefixFactory }) => {
             const host = window as unknown as {
               NW: {
                 Dom: {
@@ -126,6 +131,37 @@ try {
               ) {
                 throw new Error('Generated resolver shape changed')
               }
+              if (prefixMode) {
+                const suffixText = ' .block.inner > .content'
+                if (!selector.endsWith(suffixText)) {
+                  throw new Error('Unexpected experimental suffix')
+                }
+                type Match = (
+                  element: Element,
+                  callback: null,
+                  context: Document,
+                  result: boolean,
+                ) => boolean
+                const prefixMatch = engine.compile(
+                  selector.slice(0, -suffixText.length),
+                  false,
+                ) as unknown as Match
+                const suffixMatch = engine.compile(
+                  suffixText.trim(),
+                  false,
+                ) as unknown as Match
+                // oxlint-disable-next-line typescript/no-implied-eval -- Serialize the local fixed-selector benchmark helper into the browser.
+                const build = Function(
+                  'return ' + prefixFactory,
+                )() as typeof createPrefixVariants
+                return [
+                  baseline,
+                  ...build(
+                    element => prefixMatch(element, null, document, false),
+                    element => suffixMatch(element, null, document, false),
+                  ),
+                ]
+              }
               for (const gated of [false, true]) {
                 const rewritten = source
                   .replace(
@@ -200,6 +236,16 @@ try {
               verify(query(index), mutated)
             }
             changed.className = 'block inner'
+            const box = changed.closest('.box')!
+            const boxClass = box.className
+            box.className = ''
+            const prefixMutated = Array.from(
+              document.querySelectorAll(selector),
+            )
+            for (let index = 0; index < variants.length; ++index) {
+              verify(query(index), prefixMutated)
+            }
+            box.className = boxClass
             // Candidate order is part of the first-candidate gate's input.
             nodes.reverse()
             const reversed = expected.toReversed()
@@ -233,6 +279,8 @@ try {
             depths: fixtureDepths,
             selector: fixtureSelector,
             classes: values.classes,
+            prefixMode: values.prefix,
+            prefixFactory: createPrefixVariants.toString(),
           },
         )
         const session = await page.context().newCDPSession(page)
@@ -267,7 +315,7 @@ try {
             node.children.reduce((sum, child) => sum + total(child), 0)
           const after = await heap()
           variants.push({
-            name: ['baseline', 'always-cache', 'depth-gated'][index],
+            name: names[index],
             samplesMs: timing.samples[index],
             allocatedBytesEstimate: total(profile.head),
             retainedBefore: before,
@@ -298,6 +346,7 @@ try {
           detachedHeap,
           survivingNodes,
           mutationCorrect: true,
+          prefixMutationCorrect: true,
           reversedOrderCorrect: true,
         })
       } finally {
@@ -314,9 +363,11 @@ try {
         platform: process.platform,
         architecture: process.arch,
         engineSha256: createHash('sha256').update(code).digest('hex'),
-        cachePayload: values.classes
-          ? 'Class value only. Parent reads remain direct.'
-          : 'Parent and class record.',
+        cachePayload: values.prefix
+          ? 'Ancestor-prefix boolean results. Per-query weak map and reusable path array. No depth gate.'
+          : values.classes
+            ? 'Class value only. Parent reads remain direct.'
+            : 'Parent and class record.',
         methodology:
           'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain four candidates each. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.',
         rows,
