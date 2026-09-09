@@ -46,3 +46,13 @@ node scripts/repo/bench/first-id.mts --baseline /absolute/path/to/baseline/nwsap
 ```
 
 The script writes `assets/repo/bench/first-id.json`. It compares document, connected shadow-root, and element-scoped queries. Exact attributes have compound-selector and class-query controls. Each row records correctness before timing. A baseline that returns the wrong node receives no timing result. Warm measurements reuse an engine. Cold measurements use fresh engines with construction outside the timer. Run this comparison without concurrent test or benchmark jobs.
+
+## Compare complex sibling and descendant queries
+
+Use a prepared `jsdom` checkout with its dependencies installed:
+
+```sh
+node scripts/repo/bench/complex-selectors.mts --host /absolute/path/to/jsdom
+```
+
+The script writes `assets/repo/bench/complex-selectors.json`. It runs fresh worker processes for direct and public-host queries, checks fixture-derived results, records mutation controls, and collects separate CPU profile summaries. Run it without concurrent test or benchmark jobs. The [performance journal](../perf/journal.md#complex-sibling-and-descendant-queries) explains the fixtures, integration contract, and remaining gaps.

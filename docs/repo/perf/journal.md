@@ -387,3 +387,38 @@ Cold document attribute lookup fell from 1034.713µs to 0.400µs. Cold shadow at
 An initial eligibility check added about 0.11µs to warm document class queries by reading document type before rejecting non-attribute syntax. Rejecting that syntax first removed most of the overhead. The final report includes all controls rather than only the improved selectors.
 
 The readable core grew by 580bytes, including 114bytes after gzip and 98bytes after Brotli. The [size report](../../../assets/repo/bench/file-size.json) and charts use the final build. Regression tests cover duplicate IDs, connected and detached scopes, default contexts, XML, escapes, invalid syntax, mutation callbacks, missing APIs, and forced-legacy execution.
+
+## Complex sibling and descendant queries
+
+The exact complex selector from the PR investigation is `.box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content`. The original fixture has five boxes, five outer blocks per box, and five inner blocks per outer block. The comparison also includes wider and deeper trees, text and comment siblings, and the plain descendant control `.box .block.inner > .content`.
+
+Profiles showed repeated preceding-sibling reads in the generated resolver. When a general-sibling combinator follows a compound that requires `:first-child`, only the parent's first element can match. The compiler now reads that element directly and runs the complete existing predicate on it. It clears this condition at other combinator boundaries. This adds no result cache and reads the current tree on every call.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run [complex-selectors.mts](../../../scripts/repo/bench/complex-selectors.mts) with `--host` pointing to a prepared `jsdom` checkout. The [before report](../../../assets/repo/bench/complex-selectors-before.json) records `nwsapi` at `8792132`. The [after report](../../../assets/repo/bench/complex-selectors.json) records the changed build. Both record engine hashes, the same fixture-script hash, host revision, lock hash, raw trials, and profile summaries. The host is `jsdom` 30.0.1 and its locked comparison engine is `@asamuzakjp/dom-selector` 9.0.1. This is not a comparison against a newer package release.
+
+Each engine and API route runs in five fresh worker processes with rotating order. Direct engine calls and public host calls are separate. Each row checks node identity and order against expected nodes derived from the fixture. Warm batches contain 200 queries after 30 warmups. First invocations are recorded separately. Direct engine construction is outside those timers, while a first host query can initialize its engine lazily. Element-scope measurements follow document-scope queries and are not cold compilation measurements.
+
+Mutation batches remove and restore one matching class. Their timing includes the mutation, cache notification where needed, query, and result-length check. The direct baseline receives its public `clear()` notification, as the host integration does after document changes. The report retains the separate unnotified diagnostic, which exposed stale direct results for the plain descendant query. All notified mutation controls pass. That diagnostic is not a failure of the tested host route.
+
+Separate CPU profiles sample 1,000 wide complex host queries. These are selector workloads through the public DOM API. They do not include rendering or establish a whole-application speedup. The before and after reports are separate runs on Node 26.5.0 and an Apple M3 Max, with no concurrent test jobs during timing.
+
+</details>
+
+| Warm document query | `nwsapi` before | `nwsapi` after | Host baseline after |
+| --- | ---: | ---: | ---: |
+| Original complex fixture | 122.9µs | 119.2µs | 61.9µs |
+| Wide complex fixture | 511.5µs | 259.5µs | 243.7µs |
+| Deep complex fixture | 134.5µs | 126.1µs | 51.6µs |
+| Mixed-sibling complex fixture | 84.9µs | 69.3µs | 51.8µs |
+| Wide plain descendant control | 120.2µs | 119.4µs | 171.0µs |
+
+These values use public `jsdom` queries. The wide fixture has 64 boxes with four content nodes each. The deep and mixed fixtures have 16 boxes with four content nodes each. Deep fixtures add eight ancestors inside each box. The wide complex query improves by about 49%, while the plain control stays close to its previous result. The original and deep complex cases still favor the pinned host baseline. Direct-engine measurements show the same broad gap, so this is not solely adapter overhead.
+
+The wide mutation-and-query case fell from 596.5µs to 350.9µs, about 41% lower. Its pinned host baseline took 279.8µs. The optimization therefore helps after DOM changes too, but does not close that remaining gap.
+
+The operation-count guard checks a 100-element sibling list. It verifies the 99 matching nodes and requires fewer than 200 preceding-sibling reads. The changed build uses 99 reads. Tests also cover compound restrictions, combinator boundaries, logical selectors, fragments, shadow roots, public matching, and callbacks. Public selection callbacks retain their collected-result behavior, and compiled resolver callbacks can still change later matches.
+
+The readable core grows by 413bytes, including 91bytes after gzip and 79bytes after Brotli. The next traversal investigation should focus on repeated ancestor and class checks in the small and deep fixtures. This change does not resolve general `:has()` parsing and result-collection work.

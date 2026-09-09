@@ -3632,6 +3632,7 @@ interface Primordials {
         value,
         match: RegExpMatchArray | null | undefined,
         pendingTag = '',
+        firstChildOnly = false,
         result,
         status,
         symbol,
@@ -3880,21 +3881,29 @@ interface Primordials {
               source = pendingTag + source + '}'
               pendingTag = ''
             }
+            // A first-child predicate has exactly one possible sibling.
+            // Read it live so callbacks and fragment roots retain their behavior.
             source =
               'var N' +
               k +
-              '=e;while(e&&(e=' +
-              read.prev('e') +
-              ')){' +
+              '=e;' +
+              (firstChildOnly
+                ? 'if(e&&(e=e.parentNode)&&(e=e.firstElementChild)&&e!==N' +
+                  k +
+                  ')'
+                : 'while(e&&(e=' + read.prev('e') + '))') +
+              '{' +
               source +
               '}e=N' +
               k +
               ';'
+            firstChildOnly = false
             break
 
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case 43 /* '+' */:
+            firstChildOnly = false
             match = selector.match(Patterns['adjacent']!)
             ancestry.pending.length = 0
             if (pendingTag) {
@@ -3917,6 +3926,7 @@ interface Primordials {
           // E F (E ancestor of F)
           case 9 /* '\x09' */:
           case 32 /* '\x20' */:
+            firstChildOnly = false
             match = selector.match(Patterns['ancestor']!)
             // Pending tags now have to appear above the candidate. Sibling
             // combinators discard their own pending tags but retain earlier
@@ -3945,6 +3955,7 @@ interface Primordials {
           // *** Child combinator
           // E > F (F children of E)
           case 62 /* '>' */:
+            firstChildOnly = false
             match = selector.match(Patterns['children']!)
             ancestry.required.push.apply(ancestry.required, ancestry.pending)
             ancestry.pending.length = 0
@@ -3968,6 +3979,7 @@ interface Primordials {
 
           // *** user supplied combinators extensions
           case (selector[0] as string) in Combinators ? symbol : undefined:
+            firstChildOnly = false
             // for other registered combinators extensions
             match![match!.length - 1] = '*'
             source = Combinators[selector[0]!]!(match!) + source
@@ -4173,6 +4185,7 @@ interface Primordials {
                   source = 'if((!e.nextElementSibling)){' + source + '}'
                   break
                 case 'first-child':
+                  firstChildOnly = true
                   source = 'if((!e.previousElementSibling)){' + source + '}'
                   break
 
