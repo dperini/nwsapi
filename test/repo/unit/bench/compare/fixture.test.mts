@@ -10,6 +10,17 @@ import {
 test('comparison fixtures preserve matches across layouts and reject bad results', t => {
   const { window } = new JSDOM()
   t.onTestFinished(() => window.close())
+  for (const scenario of ['ancestor', 'has', 'sibling'] as const) {
+    for (const matches of [0, 1, 16]) {
+      const doc = new window.DOMParser().parseFromString(
+        fixture(matches, 4, 'nested', scenario),
+        'text/html',
+      )
+      for (const selector of selectors(4, scenario)) {
+        assert.equal(doc.querySelectorAll(selector).length, matches)
+      }
+    }
+  }
   for (const layout of ['adjacent', 'separated', 'nested'] as const) {
     const doc = new window.DOMParser().parseFromString(
       fixture(16, 4, layout),

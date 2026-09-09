@@ -20,6 +20,7 @@ test('comparison options reject invalid measurement budgets and fixture sizes', 
     ['--milliseconds', '-1'],
     ['--mode', 'both'],
     ['--layout', 'unknown'],
+    ['--scenario', 'unknown'],
   ]) {
     assert.throws(() => options([...args, ...pair]))
   }

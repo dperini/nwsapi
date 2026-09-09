@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { cpus, release } from 'node:os'
 import { parseArgs } from 'node:util'
-import type { Layout } from './fixture.mts'
+import type { Layout, Scenario } from './fixture.mts'
 
 const require = createRequire(import.meta.url)
 export function options(args = process.argv.slice(2)) {
@@ -16,6 +16,7 @@ export function options(args = process.argv.slice(2)) {
       output: { type: 'string' },
       mode: { type: 'string', default: 'timing' },
       groups: { type: 'string', default: '4' },
+      scenario: { type: 'string', default: 'grouped' },
       layout: { type: 'string', default: 'adjacent' },
       matches: { type: 'string', default: '0,1,16,256' },
       rounds: { type: 'string', default: '5' },
@@ -43,7 +44,11 @@ export function options(args = process.argv.slice(2)) {
   if (!['adjacent', 'separated', 'nested'].includes(values.layout)) {
     throw new Error('Use --layout adjacent, separated, or nested')
   }
+  if (!['grouped', 'ancestor', 'has', 'sibling'].includes(values.scenario)) {
+    throw new Error('Use --scenario grouped, ancestor, has, or sibling')
+  }
   return {
+    scenario: values.scenario as Scenario,
     paths: [resolve(values.baseline), resolve(values.candidate)],
     output: resolve(values.output),
     mode: values.mode,
@@ -69,6 +74,7 @@ export function metadata(config: ReturnType<typeof options>) {
       release: release(),
       cpu: cpus()[0]?.model,
     },
+    scenario: config.scenario,
     mode: config.mode,
     groups: config.groups,
     layout: config.layout,

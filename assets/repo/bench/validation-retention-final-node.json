@@ -1,0 +1,95 @@
+{
+  "harnessSourceHash": "1dbf6e98fd13dd1472263cdbab694b0ce9f0fe1843b282089552994c90445ccf",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.6.0",
+    "cpu": "Apple M3 Max"
+  },
+  "scenario": "grouped",
+  "mode": "retention",
+  "groups": 4,
+  "layout": "adjacent",
+  "settings": {
+    "rounds": 3,
+    "milliseconds": 50,
+    "batch": 64
+  },
+  "hashes": [
+    "93bcc250bae8a6a3dc8fd33b25e4d0bb1e51e4d7311009c8581d250200271277",
+    "9d22cd8d577233fb39e5d01b1934b2af1b3840248da5af2b27654828d907c4e2"
+  ],
+  "mitata": "1.0.34",
+  "mitataSourceHash": "936a3c55181392bd26ce889bb0cc47a7a27a718b6c42a25c5a0e7bee1d2ff6d2",
+  "methodology": "Rotating variants in fresh jsdom windows. Keep the engine alive through 512, then 8192, then another 8192 distinct relative plans. Measure whole-process used heap after four task-separated forced GCs. Remove the anchor and release public query scope before checking WeakRefs to the anchor and child. Finally clear caches. Stage differences include jsdom and runtime caches. They are retained heap, not allocation traffic. WeakRef assertions cover these two nodes and are not proof of absence of all leaks.",
+  "node": "v26.5.0",
+  "jsdom": "30.0.1",
+  "samples": [
+    {
+      "round": 0,
+      "engine": 0,
+      "initial": 45618856,
+      "populated": 48608912,
+      "saturated": 76226512,
+      "churned": 102469984,
+      "detached": 102347688,
+      "cleared": 99911120,
+      "survivingNodes": 0
+    },
+    {
+      "round": 0,
+      "engine": 1,
+      "initial": 101337040,
+      "populated": 101063880,
+      "saturated": 102997408,
+      "churned": 103013272,
+      "detached": 102856880,
+      "cleared": 100433928,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "engine": 1,
+      "initial": 101697688,
+      "populated": 101255648,
+      "saturated": 103202752,
+      "churned": 103222864,
+      "detached": 103053296,
+      "cleared": 100513352,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "engine": 0,
+      "initial": 101833280,
+      "populated": 101315320,
+      "saturated": 103307256,
+      "churned": 103373584,
+      "detached": 103109056,
+      "cleared": 100569112,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "engine": 0,
+      "initial": 101863112,
+      "populated": 101449920,
+      "saturated": 103361080,
+      "churned": 103445240,
+      "detached": 103223784,
+      "cleared": 100683984,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "engine": 1,
+      "initial": 101945928,
+      "populated": 101455432,
+      "saturated": 103409952,
+      "churned": 103486064,
+      "detached": 103253536,
+      "cleared": 100713592,
+      "survivingNodes": 0
+    }
+  ]
+}

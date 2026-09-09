@@ -15,11 +15,13 @@ const require = createRequire(import.meta.url)
 const make = config.paths.map(p => require(p) as typeof factory)
 const rows = []
 for (const matches of config.counts) {
-  const { window } = new JSDOM(fixture(matches, config.groups, config.layout))
+  const { window } = new JSDOM(
+    fixture(matches, config.groups, config.layout, config.scenario),
+  )
   try {
     const doc = window.document
     const engines = make.map(create => create(window))
-    for (const selector of selectors(config.groups)) {
+    for (const selector of selectors(config.groups, config.scenario)) {
       const expected = Array.from(doc.querySelectorAll(selector))
       if (expected.length !== matches) {
         throw new Error('Fixture returned an unexpected match count')
@@ -52,6 +54,7 @@ for (const matches of config.counts) {
         checkResults(query(), expected)
       }
       rows.push({ matches, selector, measurements, memory })
+      console.log(`${config.scenario}: ${matches} matches, ${selector}`)
     }
   } finally {
     window.close()

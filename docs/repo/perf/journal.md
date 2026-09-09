@@ -1200,3 +1200,85 @@ The [Node memory report](../../../assets/repo/bench/mitata-node-memory.json) est
 For the same one-match case, `mitata` reports median positive heap deltas of about 2767bytes and 2570bytes per query in Node, and 533bytes and 425bytes in Chromium. Those heap probes use forced collection around batches and answer a different question from allocation sampling. The reports retain the raw GC statistics and post-GC heap readings separately. No engine source or existing performance chart changes are part of this harness work.
 
 Validation runs all four harness modes plus identical-build controls. The three focused tests cover argument validation, fixture identities and order, sample normalization, and propagation of benchmark errors. Formatting, lint, and type checks pass. The source hashes in the final reports match the shared timing module and installed `mitata` implementation. The earlier lazy-boundary commit also completed CI successfully before this work was added.
+
+## Validate the retained optimizations and decision criteria
+
+The [shared decision criteria](../../fleet/perf/decisions.md) now define how to keep, reject, or defer a performance change. Correctness comes first. The decision then weighs repeatable gains, practical costs, representative workloads, and maintenance. The repository has no measured application query frequencies. The acceptance decision therefore applies to the recorded workloads and does not establish an overall application speedup.
+
+The ancestor and class-regex changes remain useful. Grouped queries retain a large dense-query benefit in Chromium. Some small `:has()` workloads have higher timing and allocation costs. Those costs remain in the reports. A separate empty-sibling case exposed a larger regression and led to a focused correction.
+
+<details>
+<summary>Builds, commands, and measurement scope</summary>
+
+The initial comparisons use the engine from `4dafdfd`, which has the same engine source as `761f817`. The ancestor baseline is `458d6a9`. The class-regex baseline is `19d1630`. The `:has()` baseline is `886765c`. The grouped-result baseline is the saved `5c37eb6` build.
+
+Historical sources were rebuilt in temporary directories with the installed dependencies. Normalizing the generated directory comments reproduces the earlier recorded baseline hashes. Every report retains the exact hash of the file measured.
+
+Run the [comparison commands](comparisons.md) with `--scenario ancestor`, `--scenario has`, or `--groups 64`. The initial timing runs use five rotating rounds, a 50ms requested minimum, and batches of 256 queries. Ancestor cases use 16 and 256 matches with adjacent or nested layouts. The `has` cases use one and 16 matches. Grouped cases use 16 and 256 matches. Setup and correctness checks remain outside the timer.
+
+Memory runs use three rounds and batches of 64 queries. Separate V8 allocation sampling measures 2000 calls and includes collected objects. Both runtimes measure retained heap after task-separated collection. Chromium uses its native DOM. Node uses `jsdom`.
+
+Follow-up sibling and `:has()` controls use batches of 64. The sparse Node confirmation uses batches of 256. The `validation-*-timing.json` and `validation-*-memory.json` files preserve the individual reports. `node scripts/repo/bench/compare/report.mts` generates the paired summaries and records each input hash.
+
+The percentage tables below compare medians of per-round medians. The generated summary also reports paired changes by round ID. Those calculations can differ. Neither calculation establishes a confidence interval. Identical-build controls describe observed variation within these runs.
+
+</details>
+
+| Ancestor fixture | Matches | Node timing change | Chromium timing change |
+| --- | ---: | ---: | ---: |
+| Shallow | 16 | -22.6% to -15.9% | -28.8% to -25.6% |
+| Shallow | 256 | -30.5% to -24.2% | -40.1% to -39.9% |
+| Deep | 16 | -75.0% to -72.5% | -73.8% to -71.8% |
+| Deep | 256 | -84.2% to -79.2% | -84.1% to -81.4% |
+
+Each range covers a plain ancestor selector and a positional ancestor selector. The deep fixture adds eight wrappers. These public queries include candidate lookup. The [Node deep report](../../../assets/repo/bench/validation-ancestor-nested-node-timing.json) and [Chromium deep report](../../../assets/repo/bench/validation-ancestor-nested-browser-timing.json) preserve their samples. Negative changes mean lower query costs.
+
+| Class-regex case | Node allocation before | Node allocation after | Chromium allocation before | Chromium allocation after |
+| --- | ---: | ---: | ---: | ---: |
+| Deep plain ancestor | 66.85MB | 37.36MB | 22.14MB | 9.40MB |
+| Deep positional ancestor | 68.67MB | 39.38MB | 22.25MB | 9.67MB |
+
+These medians cover 2000 public queries with 256 matches. The [Node profile](../../../assets/repo/bench/validation-class-node-memory.json) shows 43–44% less allocation. The [Chromium profile](../../../assets/repo/bench/validation-class-browser-memory.json) shows 56.6–57.5% less allocation. The timing effects of this later change are smaller and mixed. Allocation savings support keeping the change without claiming that every query becomes faster.
+
+| Grouped matches | Initial Node change | Fresh Node confirmation | Chromium change |
+| --- | ---: | ---: | ---: |
+| 16 | +1.7% | -0.2% | -3.8% |
+| 256 | +3.5% | +2.0% | -43.8% |
+
+These cases use 64 interleaved groups. The [fresh Node confirmation](../../../assets/repo/bench/validation-sparse-confirmation-node-timing.json) does not reproduce the sparse regression. The small dense Node cost repeats. Identical-build grouped controls vary by up to 0.7% in Node and 2.3% in Chromium. Sparse allocation changes are -1.5% in Node and -0.3% in Chromium. Node allocation remains concentrated in class lookup, collection access, and document-order comparisons. This evidence supports keeping the browser gain while retaining the dense Node cost in the decision.
+
+| `:has()` case with 16 matches | Node timing change | Chromium timing change | Node allocation change | Chromium allocation change |
+| --- | ---: | ---: | ---: | ---: |
+| Descendant | +18.5% | +7.3% | +8.0% | +25.4% |
+| Child then descendant | +20.0% | +14.7% | +10.1% | +36.8% |
+| Class-led adjacent sibling | +5.9% | +5.1% | +4.8% | +24.2% |
+| Class-led general sibling | +22.2% | +5.4% | +4.8% | +23.9% |
+
+These fixtures have 256 cards and short descendant lists. Their sibling selectors do not qualify for narrowed lookup. The [Node reports](../../../assets/repo/bench/validation-has-node-memory.json) and [Chromium reports](../../../assets/repo/bench/validation-has-browser-memory.json) show allocation traffic, not retained memory. Node control changes stay within 1.5%. Chromium controls stay within 1.0%. Comparing the intermediate `458d6a9` build with the current build produces much smaller differences. This points to the earlier sibling and snapshot work as the main period where this cost appeared. It does not isolate a single helper as the cause.
+
+The type-led sibling fixture adds 16 empty following siblings under each parent. Adjacent-sibling queries improve, but general-sibling queries initially regress by 643% in Node and 192% in Chromium. Each empty sibling triggers a separate collection lookup. The engine now skips those lookups when a narrowed root has no element children. A descendant selector cannot match under that root. The regression test fails before this guard and passes after it. Existing mutation checks keep the result live when descendants change.
+
+| Guard comparison | Before | After | Change |
+| --- | ---: | ---: | ---: |
+| Node adjacent sibling | 480.17µs | 494.69µs | +3.0% |
+| Node general sibling | 4455.04µs | 805.45µs | -81.9% |
+| Chromium adjacent sibling | 69.06µs | 73.20µs | +6.0% |
+| Chromium general sibling | 420.78µs | 125.86µs | -70.1% |
+
+The [Node confirmation](../../../assets/repo/bench/validation-sibling-guard-node-timing.json) and [Chromium confirmation](../../../assets/repo/bench/validation-sibling-guard-browser-timing.json) compare the saved current build directly with the guard. Both use five rotating rounds and batches of 64. The general-sibling saving is about 3.65ms per Node query and 295µs per Chromium query. The added adjacent-sibling cost is about 15µs and 4µs. The guard is kept for this large reduction in repeated empty-root work. The nonempty adjacent-sibling cost remains part of that decision.
+
+A separate comparison against `886765c` still leaves general-sibling Node queries 33.5% slower. Chromium is 14.7% faster than that older baseline. The [fixed Node report](../../../assets/repo/bench/validation-sibling-fixed-node-timing.json) and [fixed Chromium report](../../../assets/repo/bench/validation-sibling-fixed-browser-timing.json) preserve those results. The guard removes most of the later regression. It does not make every sibling workload faster than the older engine.
+
+The reusable decision guidance and paired-summary helper are also in Wheelhouse's fleet template. The helper validates finite positive measurements and matching round IDs. It preserves input data and returns descriptive summaries without an acceptance verdict. Its 15 focused tests cover pairing, controls, invalid input, input immutability, and extreme values. The `nwsapi` report generator consumes the same helper.
+
+The final [Node retention report](../../../assets/repo/bench/validation-retention-final-node.json) and [Chromium retention report](../../../assets/repo/bench/validation-retention-final-browser.json) keep the engine alive through cache saturation, churn, fixture removal, and explicit clearing. All six variant runs per runtime collect both observed detached nodes. The candidate's median heap change across another 8192 plans is +20112bytes in Node and -2444bytes in Chromium. These whole-process and whole-page readings do not show growth proportional to plan count. They do not prove that every retained object is harmless. The initial retention reports remain available separately.
+
+The broader comparison refresh uses the final guarded build against `@asamuzakjp/dom-selector` 8.3.2. It preserves the existing chart methodology instead of mixing the new `mitata` measurements into older chart series. The refresh includes 36 warm public-query cases, 12 first-query cases, browser and Node memory footprints, and readable file sizes. The final build is faster in all 36 warm public-query cases. First-query results favor it in 11 of 12 warm cases and 4 of 12 cold cases. The first refresh before the guard remains under `assets/repo/bench/validation-before-empty-siblings/`.
+
+Browser retained memory measures 9.39KiB per initialized `nwsapi` engine and 75.11KiB after 100 distinct queries. The Node results are 21.49KiB and 113.17KiB. Both measurements use five rounds and 40 instances. These are engine increments under different DOM implementations, so their absolute values are not interchangeable.
+
+The readable core grows from 166736bytes to 166791bytes, an increase of 55bytes. Gzip grows by 14bytes to 40338bytes. Brotli grows by 26bytes to 32710bytes. The size and runtime charts use the refreshed generated inputs.
+
+The decision is to keep the guard and the earlier retained improvements with the stated tradeoffs. Reconsider that decision if representative application measurements show that the slower cases dominate, or if a supported latency or memory limit fails. The benchmarks establish results for their fixtures. They do not establish a universal speedup.
+
+Validation passes 691 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Unit tests take 5.76s against the 10s local budget. Accumulated coverage is 98.55% of execution lines and 96.55% of type identifiers. Formatting, lint, types, generated API references, and Unicode compatibility checks pass. The final broad benchmark and footprint reports identify the same built engine hash.

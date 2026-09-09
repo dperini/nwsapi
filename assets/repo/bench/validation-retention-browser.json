@@ -1,0 +1,96 @@
+{
+  "runtime": "151.0.7922.34",
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "engines": [
+    {
+      "sha256": "6f56af438b347ef092794ebdbf2f6b2333f5879f3a7b94fd7510a0ceb1283753"
+    },
+    {
+      "sha256": "93bcc250bae8a6a3dc8fd33b25e4d0bb1e51e4d7311009c8581d250200271277"
+    }
+  ],
+  "methodology": "Three default rotating rounds with a fresh native browser page per engine. One retained engine and a 24-child anchor. Whole-page retained JS heap after four forced GCs at each stage: initialized, 512 distinct plans, 8192 additional plans, another 8192 plans, detached anchor, explicit cache clear. WeakRefs check the removed anchor and child after crossing task boundaries. Shared code and DOM are included, so stage differences are more useful than absolute totals. Allocation sampling covers 10000 warmed existence queries before churn, including collected objects. Sampling estimates allocated bytes and is not an exact allocation count. No rendering is measured.",
+  "rounds": 3,
+  "samples": [
+    {
+      "round": 0,
+      "engine": 0,
+      "initial": 1394928,
+      "populated": 3086128,
+      "saturated": 8518704,
+      "churned": 8516508,
+      "detached": 8513404,
+      "cleared": 1739704,
+      "survivingNodes": 0,
+      "sampledBytes": 2475248,
+      "collectionCopyBytes": 204872
+    },
+    {
+      "round": 0,
+      "engine": 1,
+      "initial": 1397204,
+      "populated": 3054568,
+      "saturated": 8512396,
+      "churned": 8495024,
+      "detached": 8494428,
+      "cleared": 1725852,
+      "survivingNodes": 0,
+      "sampledBytes": 1571188,
+      "collectionCopyBytes": 0
+    },
+    {
+      "round": 1,
+      "engine": 1,
+      "initial": 1397204,
+      "populated": 3060756,
+      "saturated": 8511740,
+      "churned": 8509136,
+      "detached": 8508540,
+      "cleared": 1740384,
+      "survivingNodes": 0,
+      "sampledBytes": 1520300,
+      "collectionCopyBytes": 0
+    },
+    {
+      "round": 1,
+      "engine": 0,
+      "initial": 1394928,
+      "populated": 3086148,
+      "saturated": 8519444,
+      "churned": 8517088,
+      "detached": 8513984,
+      "cleared": 1739704,
+      "survivingNodes": 0,
+      "sampledBytes": 2501220,
+      "collectionCopyBytes": 117208
+    },
+    {
+      "round": 2,
+      "engine": 0,
+      "initial": 1394928,
+      "populated": 3086188,
+      "saturated": 8519124,
+      "churned": 8516788,
+      "detached": 8513684,
+      "cleared": 1739704,
+      "survivingNodes": 0,
+      "sampledBytes": 2473708,
+      "collectionCopyBytes": 126984
+    },
+    {
+      "round": 2,
+      "engine": 1,
+      "initial": 1397204,
+      "populated": 3054276,
+      "saturated": 8510808,
+      "churned": 8494448,
+      "detached": 8493852,
+      "cleared": 1725776,
+      "survivingNodes": 0,
+      "sampledBytes": 1621144,
+      "collectionCopyBytes": 0
+    }
+  ]
+}

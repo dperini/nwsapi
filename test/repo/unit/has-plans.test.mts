@@ -114,9 +114,11 @@ test('sibling descendant plans narrow lookup roots without changing scope or sib
   )
   expect(reads).not.toHaveBeenCalled()
   sections[1]!.replaceChildren()
+  const emptyReads = vi.spyOn(sections[1]!, 'getElementsByTagName')
   expect(nw.match('section:has(+ section [data-hit])', sections[0]!)).toBe(
     false,
   )
+  expect(emptyReads).not.toHaveBeenCalled()
   expect(nw.match('section:has(~ section [data-hit])', sections[0]!)).toBe(true)
   sections[1]!.remove()
   expect(nw.match('section:has(+ section [data-hit])', sections[0]!)).toBe(true)

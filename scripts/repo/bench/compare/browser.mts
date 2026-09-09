@@ -57,7 +57,7 @@ try {
       await page.route('https://nwsapi.test/**', route =>
         route.fulfill({
           contentType: 'text/html',
-          body: fixture(matches, config.groups, config.layout),
+          body: fixture(matches, config.groups, config.layout, config.scenario),
           headers: {
             'Cross-Origin-Opener-Policy': 'same-origin',
             'Cross-Origin-Embedder-Policy': 'require-corp',
@@ -83,7 +83,7 @@ try {
       })
       const session = await page.context().newCDPSession(page)
       try {
-        for (const selector of selectors(config.groups)) {
+        for (const selector of selectors(config.groups, config.scenario)) {
           await page.evaluate(
             value => {
               const host = window as unknown as BrowserHost
@@ -159,6 +159,7 @@ try {
             }
           })
           rows.push({ matches, selector, measurements, memory })
+          console.log(`${config.scenario}: ${matches} matches, ${selector}`)
         }
       } finally {
         await session.detach()

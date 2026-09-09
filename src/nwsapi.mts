@@ -5663,17 +5663,19 @@ interface Primordials {
           }
           root = plans[i]!.subtree ? nextOf(anchor) : context
           while (root) {
-            for (j = 0; j < plans[i]!.nodeset.length; ++j) {
-              token = plans[i]!.nodeset[j]!
-              resolver = plans[i]!.factory[j]
-              candidates = hasCandidates(token, root)
-              // Keep the original scope while narrowing only the lookup root.
-              if (
-                resolver
-                  ? resolver(candidates, null, context, []).length
-                  : candidates.length
-              ) {
-                return true
+            if (!plans[i]!.subtree || firstOf(root)) {
+              for (j = 0; j < plans[i]!.nodeset.length; ++j) {
+                token = plans[i]!.nodeset[j]!
+                resolver = plans[i]!.factory[j]
+                candidates = hasCandidates(token, root)
+                // Keep the original scope while narrowing only the lookup root.
+                if (
+                  resolver
+                    ? resolver(candidates, null, context, []).length
+                    : candidates.length
+                ) {
+                  return true
+                }
               }
             }
             root = plans[i]!.subtree == 126 ? nextOf(root as Element) : null

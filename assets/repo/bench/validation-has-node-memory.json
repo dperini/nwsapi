@@ -1,0 +1,2046 @@
+{
+  "harnessSourceHash": "1dbf6e98fd13dd1472263cdbab694b0ce9f0fe1843b282089552994c90445ccf",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.6.0",
+    "cpu": "Apple M3 Max"
+  },
+  "scenario": "has",
+  "mode": "memory",
+  "groups": 4,
+  "layout": "adjacent",
+  "settings": {
+    "rounds": 3,
+    "milliseconds": 50,
+    "batch": 64
+  },
+  "hashes": [
+    "6f56af438b347ef092794ebdbf2f6b2333f5879f3a7b94fd7510a0ceb1283753",
+    "93bcc250bae8a6a3dc8fd33b25e4d0bb1e51e4d7311009c8581d250200271277"
+  ],
+  "mitata": "1.0.34",
+  "mitataSourceHash": "936a3c55181392bd26ce889bb0cc47a7a27a718b6c42a25c5a0e7bee1d2ff6d2",
+  "methodology": "Same installed mitata measurement implementation in both runtimes. Variants rotate between rounds after 1000 query warmups. Explicit batches, mitata automatic batching disabled, all sorted samples retained without trimming, nanoseconds per query. Timing disables manual GC and heap probes. Memory mode separately reports mitata positive heap deltas and GC timings, then V8 allocation sampling including collected objects and post-GC heap readings. Heap totals and GC values are per measurement, not per query. Setup, correctness checks and compilation are outside measurements. Browser and Node results are separate workloads.",
+  "node": "v26.5.0",
+  "jsdom": "30.0.1",
+  "heapProvider": "v8.getHeapStatistics().used_heap_size",
+  "rows": [
+    {
+      "matches": 16,
+      "selector": ".card:has([data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 402470.703125,
+            "p99Ns": 418739.578125,
+            "samplesNs": [
+              398526.046875,
+              399142.578125,
+              399307.296875,
+              400030.59375,
+              401492.1875,
+              402470.703125,
+              403999.359375,
+              404970.046875,
+              410666.65625,
+              412205.078125,
+              418739.578125,
+              421259.765625
+            ],
+            "heapDeltaBytes": {
+              "avg": 22464.03125,
+              "min": 21948.875,
+              "max": 22993.75,
+              "total": 17252376
+            },
+            "gcNs": {
+              "total": 60084419,
+              "min": 4306000,
+              "max": 6323709,
+              "avg": 5007034.916666667
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 402222.65625,
+            "p99Ns": 411656.90625,
+            "samplesNs": [
+              397874.34375,
+              398065.109375,
+              398203.125,
+              400067.703125,
+              401098.296875,
+              402222.65625,
+              405669.28125,
+              406213.53125,
+              406628.265625,
+              410229.8125,
+              411656.90625,
+              421781.890625
+            ],
+            "heapDeltaBytes": {
+              "avg": 22025.729166666668,
+              "min": 21948.875,
+              "max": 22533.625,
+              "total": 16915760
+            },
+            "gcNs": {
+              "total": 59519791,
+              "min": 4452625,
+              "max": 5609500,
+              "avg": 4959982.583333333
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 399045.578125,
+            "p99Ns": 417486.96875,
+            "samplesNs": [
+              397087.890625,
+              397595.703125,
+              397824.859375,
+              398338.546875,
+              398855.46875,
+              399045.578125,
+              400541.671875,
+              400996.75,
+              405162.109375,
+              409426.4375,
+              417486.96875,
+              434126.3125
+            ],
+            "heapDeltaBytes": {
+              "avg": 21979.8125,
+              "min": 21948.875,
+              "max": 21982.625,
+              "total": 16880496
+            },
+            "gcNs": {
+              "total": 61714044,
+              "min": 4306750,
+              "max": 7091500,
+              "avg": 5142837
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 501485.03125,
+            "p99Ns": 522061.1875,
+            "samplesNs": [
+              475777.34375,
+              480080.078125,
+              482130.203125,
+              483582.6875,
+              495218.75,
+              501485.03125,
+              502458.3281250037,
+              502645.828125,
+              505194,
+              511313.8125,
+              522061.1875,
+              579304.6875000037
+            ],
+            "heapDeltaBytes": {
+              "avg": 65064.15625,
+              "min": 64969.875,
+              "max": 66068.625,
+              "total": 49969272
+            },
+            "gcNs": {
+              "total": 70732167,
+              "min": 4458334,
+              "max": 9359250,
+              "avg": 5894347.25
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 499058.59375,
+            "p99Ns": 505882.8125,
+            "samplesNs": [
+              482985.671875,
+              486869.796875,
+              488653,
+              496543.609375,
+              498520.1875,
+              499058.59375,
+              500940.75,
+              503602.21875,
+              503730.46875,
+              504526.6875,
+              505882.8125,
+              513194.671875
+            ],
+            "heapDeltaBytes": {
+              "avg": 64981.125,
+              "min": 64969.875,
+              "max": 65039.625,
+              "total": 49905504
+            },
+            "gcNs": {
+              "total": 66712750,
+              "min": 4485916,
+              "max": 6464334,
+              "avg": 5559395.833333333
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 477959.640625,
+            "p99Ns": 483602.203125,
+            "samplesNs": [
+              475769.53125,
+              476554.6875,
+              477440.75,
+              477551.4375,
+              477841.79687499255,
+              477959.640625,
+              480230.46874999255,
+              480250.640625,
+              481891.921875,
+              483558.59375,
+              483602.203125,
+              494826.171875
+            ],
+            "heapDeltaBytes": {
+              "avg": 64978.03125,
+              "min": 64969.875,
+              "max": 65002.5,
+              "total": 49903128
+            },
+            "gcNs": {
+              "total": 61355708.00000048,
+              "min": 4441792,
+              "max": 6301625,
+              "avg": 5112975.666666706
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1092126920,
+          "heapBefore": 49816592,
+          "heapAfter": 50123752,
+          "heapAfterRepeat": 49856296,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 458147008
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 198096160
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 171765040
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 159851624
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98464072
+            },
+            {
+              "site": "byClass /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1137",
+              "bytes": 4167808
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 847384
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 598824
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 70720
+            },
+            {
+              "site": "map :0",
+              "bytes": 65536
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1181789688,
+          "heapBefore": 107041784,
+          "heapAfter": 107042256,
+          "heapAfterRepeat": 107049120,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 458783200
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 198201192
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 169633968
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147867040
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 106983696
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94750880
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 4168768
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 847424
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 364464
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 125856
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1179697568,
+          "heapBefore": 111901032,
+          "heapAfter": 111901032,
+          "heapAfterRepeat": 111901032,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 458697184
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197960800
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 168307080
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147117032
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 107053256
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94981128
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 4181152
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 835768
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 386504
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 133120
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1092110976,
+          "heapBefore": 109448928,
+          "heapAfter": 109453616,
+          "heapAfterRepeat": 109454240,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 459156872
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197198560
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 172630680
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 159829512
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 97792528
+            },
+            {
+              "site": "byClass /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1137",
+              "bytes": 4180096
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 826040
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 329200
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 135200
+            },
+            {
+              "site": "slice :0",
+              "bytes": 30048
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1093207344,
+          "heapBefore": 104775080,
+          "heapAfter": 104775096,
+          "heapAfterRepeat": 104762968,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 459084568
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197556912
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 172575944
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 160068296
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98535720
+            },
+            {
+              "site": "byClass /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1137",
+              "bytes": 4167664
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 627544
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 374912
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 125856
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 48384
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1176087672,
+          "heapBefore": 104843880,
+          "heapAfter": 104843880,
+          "heapAfterRepeat": 104848704,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 457903880
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197179832
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 167798960
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147864224
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 106180928
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 93961136
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 4703480
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 370432
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 124800
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(> .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 427898.4375,
+            "p99Ns": 451850.25,
+            "samplesNs": [
+              421436.859375,
+              422585.28125,
+              425128.90625,
+              425757.15625,
+              426988.28125,
+              427898.4375,
+              432408.203125,
+              438675.78125,
+              442120.4375,
+              446512.375,
+              451850.25,
+              454360.671875
+            ],
+            "heapDeltaBytes": {
+              "avg": 35798,
+              "min": 34650.5,
+              "max": 38514.5,
+              "total": 27492864
+            },
+            "gcNs": {
+              "total": 70257792,
+              "min": 4976417,
+              "max": 8191125,
+              "avg": 5854816
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 424597.65625,
+            "p99Ns": 488905.59375,
+            "samplesNs": [
+              413521.484375,
+              413988.9375,
+              417136.0625,
+              418910.8125,
+              424431.640625,
+              424597.65625,
+              426054.046875,
+              438062.5,
+              449453.765625,
+              452899.734375,
+              488905.59375,
+              491862.640625
+            ],
+            "heapDeltaBytes": {
+              "avg": 34595.989583333336,
+              "min": 34109.625,
+              "max": 35133.875,
+              "total": 26569720
+            },
+            "gcNs": {
+              "total": 69046875,
+              "min": 4326709,
+              "max": 6637583,
+              "avg": 5753906.25
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 455916.671875,
+            "p99Ns": 469259.765625,
+            "samplesNs": [
+              433459.640625,
+              435889.96875,
+              436554.03125,
+              439070.3125,
+              445076.171875,
+              455916.671875,
+              459060.546875,
+              460395.1875,
+              460744.140625,
+              468933.59375,
+              469259.765625,
+              474024.75
+            ],
+            "heapDeltaBytes": {
+              "avg": 34463.364583333336,
+              "min": 34075.25,
+              "max": 34623.75,
+              "total": 26467864
+            },
+            "gcNs": {
+              "total": 71481333,
+              "min": 4928125,
+              "max": 6957208,
+              "avg": 5956777.75
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 515369.140625,
+            "p99Ns": 540421.21875,
+            "samplesNs": [
+              494293.609375,
+              496664.0625,
+              501082.03125,
+              503003.90625,
+              505153.640625,
+              515369.140625,
+              515951.828125,
+              525437.5,
+              527581.375,
+              528761.71875,
+              540421.21875,
+              558625.65625
+            ],
+            "heapDeltaBytes": {
+              "avg": 91027.92708333333,
+              "min": 90590,
+              "max": 91911.125,
+              "total": 69909448
+            },
+            "gcNs": {
+              "total": 67988251,
+              "min": 4618417,
+              "max": 6783541,
+              "avg": 5665687.583333333
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 532455.078125,
+            "p99Ns": 579888.671875,
+            "samplesNs": [
+              492649.078125,
+              500580.078125,
+              510115.890625,
+              519057.28125,
+              526341.15625,
+              532455.078125,
+              533540.359375,
+              543712.890625,
+              544833.984375,
+              558652.984375,
+              579888.671875,
+              592846.34375
+            ],
+            "heapDeltaBytes": {
+              "avg": 90900.86458333333,
+              "min": 90509.875,
+              "max": 91046.75,
+              "total": 69811864
+            },
+            "gcNs": {
+              "total": 76026251,
+              "min": 4705333,
+              "max": 7206292,
+              "avg": 6335520.916666667
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 548456.375,
+            "p99Ns": 555968.09375,
+            "samplesNs": [
+              539859.375,
+              540407.546875,
+              543944.65625,
+              546718.75,
+              548330.734375,
+              548456.375,
+              549433.59375,
+              550722.65625,
+              552656.90625,
+              553535.8125,
+              555968.09375,
+              556186.84375
+            ],
+            "heapDeltaBytes": {
+              "avg": 90864.75,
+              "min": 90509.875,
+              "max": 91568.5,
+              "total": 69784128
+            },
+            "gcNs": {
+              "total": 73628709,
+              "min": 4953708,
+              "max": 7010166,
+              "avg": 6135725.75
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1114525688,
+          "heapBefore": 48091216,
+          "heapAfter": 48098096,
+          "heapAfterRepeat": 48098112,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 459451928
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197344424
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 160029064
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 98389080
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 97605728
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94352128
+            },
+            {
+              "site": "byClass /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1137",
+              "bytes": 4167728
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 1044256
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 474536
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 465104
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1230943456,
+          "heapBefore": 106397136,
+          "heapAfter": 106397504,
+          "heapAfterRepeat": 106409552,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 487787784
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 198218272
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 167772712
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147728056
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 127778096
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94505736
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 4216256
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 1002656
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 730128
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 454528
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1229433288,
+          "heapBefore": 112620328,
+          "heapAfter": 112620328,
+          "heapAfterRepeat": 112620328,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 487383888
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197568808
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 167928712
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147332384
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 127331248
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94783392
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 4156400
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 1005760
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 708520
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 451352
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1117677264,
+          "heapBefore": 112428424,
+          "heapAfter": 112428424,
+          "heapAfterRepeat": 112428424,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 461458336
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197710136
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 160505568
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 98507008
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98267232
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94034704
+            },
+            {
+              "site": "byClass /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1137",
+              "bytes": 4104800
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 1070240
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 745088
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 461856
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 1116576640,
+          "heapBefore": 106482080,
+          "heapAfter": 106485224,
+          "heapAfterRepeat": 106494688,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 459857024
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197865904
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 160499160
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98524544
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 98302232
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94350352
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4288352
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 1036960
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 756704
+            },
+            {
+              "site": "_querySelectorAll /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3864",
+              "bytes": 422440
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 1229381648,
+          "heapBefore": 106433272,
+          "heapAfter": 106436584,
+          "heapAfterRepeat": 106445648,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 486439176
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 197075192
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 168215848
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 148291824
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 127607080
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94471288
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4338200
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 1046336
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 731808
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 445536
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(+ .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 797718.09375,
+            "p99Ns": 836798.171875,
+            "samplesNs": [
+              739036.46875,
+              745570.953125,
+              762770.1875,
+              771634.765625,
+              785663.40625,
+              797718.09375,
+              812063.796875,
+              820596.34375,
+              824044.921875,
+              825569.015625,
+              836798.171875,
+              855300.140625
+            ],
+            "heapDeltaBytes": {
+              "avg": 28514.458333333332,
+              "min": 26985.125,
+              "max": 31934.875,
+              "total": 21899104
+            },
+            "gcNs": {
+              "total": 72316333,
+              "min": 5160292,
+              "max": 6960541,
+              "avg": 6026361.083333333
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 744492.84375,
+            "p99Ns": 791679.6875,
+            "samplesNs": [
+              734970.703125,
+              738278.65625,
+              741564.453125,
+              742091.796875,
+              742357.421875,
+              744492.84375,
+              745736.328125,
+              748617.84375,
+              775781.890625,
+              782094.40625,
+              791679.6875,
+              852546.875
+            ],
+            "heapDeltaBytes": {
+              "avg": 26250.322916666668,
+              "min": 25136.5,
+              "max": 26995.375,
+              "total": 20160248
+            },
+            "gcNs": {
+              "total": 69395666,
+              "min": 5197292,
+              "max": 6922333,
+              "avg": 5782972.166666667
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 735697.265625,
+            "p99Ns": 761807.953125,
+            "samplesNs": [
+              715689.453125,
+              715738.921875,
+              724639.984375,
+              726223.296875,
+              728259.765625,
+              735697.265625,
+              738696.625,
+              743811.203125,
+              748108.734375,
+              748957.03125,
+              761807.953125,
+              762960.28125
+            ],
+            "heapDeltaBytes": {
+              "avg": 26106.739583333332,
+              "min": 25730,
+              "max": 26523,
+              "total": 20049976
+            },
+            "gcNs": {
+              "total": 65371793,
+              "min": 4839917,
+              "max": 6605834,
+              "avg": 5447649.416666667
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 852026.046875,
+            "p99Ns": 863473.96875,
+            "samplesNs": [
+              819061.84375,
+              826785.15625,
+              837662.109375,
+              840811.203125,
+              843835.28125,
+              852026.046875,
+              858786.46875,
+              858817.703125,
+              859304.03125,
+              859971.34375,
+              863473.96875,
+              866407.546875
+            ],
+            "heapDeltaBytes": {
+              "avg": 78393.57291666667,
+              "min": 77773.5,
+              "max": 78932.875,
+              "total": 60206264
+            },
+            "gcNs": {
+              "total": 71164458,
+              "min": 4428375,
+              "max": 7298709,
+              "avg": 5930371.5
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 826754.5625,
+            "p99Ns": 844516.265625,
+            "samplesNs": [
+              816647.125,
+              817898.4375,
+              820561.84375,
+              822146.484375,
+              826743.5,
+              826754.5625,
+              829850.265625,
+              838410.15625,
+              842941.40625,
+              844449.21875,
+              844516.265625,
+              845255.21875
+            ],
+            "heapDeltaBytes": {
+              "avg": 78108.92708333333,
+              "min": 77238.625,
+              "max": 78414,
+              "total": 59987656
+            },
+            "gcNs": {
+              "total": 68675626,
+              "min": 5151209,
+              "max": 6669833,
+              "avg": 5722968.833333333
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 836977.21875,
+            "p99Ns": 861248.703125,
+            "samplesNs": [
+              811231.125,
+              819433.59375,
+              821564.453125,
+              833062.5,
+              836257.15625,
+              836977.21875,
+              837313.796875,
+              840386.078125,
+              844418.625,
+              854603.515625,
+              861248.703125,
+              868449.21875
+            ],
+            "heapDeltaBytes": {
+              "avg": 78176.82291666667,
+              "min": 76713.375,
+              "max": 78948.625,
+              "total": 60039800
+            },
+            "gcNs": {
+              "total": 70690415,
+              "min": 5144042,
+              "max": 7018541,
+              "avg": 5890867.916666667
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2146203944,
+          "heapBefore": 48858800,
+          "heapAfter": 48858600,
+          "heapAfterRepeat": 48858616,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1035026392
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 445114856
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 332479456
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 122786216
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98614888
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94306080
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 6185376
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4440096
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4312256
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1022784
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2248701032,
+          "heapBefore": 160998800,
+          "heapAfter": 160998672,
+          "heapAfterRepeat": 161001056,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1046282944
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 443541920
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 339721000
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151867072
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147527912
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 93998296
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:383",
+              "bytes": 8024080
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6154176
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4263736
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 3679704
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2250287568,
+          "heapBefore": 166482616,
+          "heapAfter": 166484560,
+          "heapAfterRepeat": 166486504,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1045816336
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444502488
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 341020120
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151467168
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147115392
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94590328
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:383",
+              "bytes": 8073920
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6153120
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4246560
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 3680824
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2144905816,
+          "heapBefore": 166474496,
+          "heapAfter": 166472112,
+          "heapAfterRepeat": 166472112,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1035138424
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444184728
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 331957224
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 123301584
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98303312
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94257584
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 6079296
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4557024
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4262520
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 973336
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2143656768,
+          "heapBefore": 160844208,
+          "heapAfter": 160844208,
+          "heapAfterRepeat": 160855208,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1034651312
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444241040
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 332817080
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 122057864
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98003384
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94036056
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 6029376
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4543104
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4380664
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 998592
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2248235128,
+          "heapBefore": 160787632,
+          "heapAfter": 160787632,
+          "heapAfterRepeat": 160799080,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1044990800
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 443198640
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 342226072
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151301360
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 146957264
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 93931584
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:383",
+              "bytes": 8041320
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6109440
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4332600
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 3526152
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(~ .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 739389.984375,
+            "p99Ns": 777626.3125,
+            "samplesNs": [
+              730118.484375,
+              733619.140625,
+              734905.609375,
+              736286.453125,
+              737710.28125,
+              739389.984375,
+              740920.578125,
+              742111.328125,
+              742964.84375,
+              750597,
+              777626.3125,
+              785778.640625
+            ],
+            "heapDeltaBytes": {
+              "avg": 26435.708333333332,
+              "min": 25246.875,
+              "max": 28630.125,
+              "total": 20302624
+            },
+            "gcNs": {
+              "total": 73262666,
+              "min": 4324666,
+              "max": 8293875,
+              "avg": 6105222.166666667
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 734447.265625,
+            "p99Ns": 790093.75,
+            "samplesNs": [
+              721932.9375,
+              726791.65625,
+              727329.4375,
+              730407.5625,
+              734171.234375,
+              734447.265625,
+              759944.015625,
+              760352.875,
+              776996.09375,
+              781957.03125,
+              790093.75,
+              1003371.734375
+            ],
+            "heapDeltaBytes": {
+              "avg": 25830.083333333332,
+              "min": 24906,
+              "max": 26883.625,
+              "total": 19837504
+            },
+            "gcNs": {
+              "total": 68009125,
+              "min": 4370792,
+              "max": 7680500,
+              "avg": 5667427.083333333
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 755708.984375,
+            "p99Ns": 795611.984375,
+            "samplesNs": [
+              726218.75,
+              727274.75,
+              739100.90625,
+              745639.328125,
+              747117.828125,
+              755708.984375,
+              758186.203125,
+              759469.40625,
+              759958.984375,
+              783825.515625,
+              795611.984375,
+              803363.28125
+            ],
+            "heapDeltaBytes": {
+              "avg": 25716.135416666668,
+              "min": 24889.125,
+              "max": 26027.5,
+              "total": 19749992
+            },
+            "gcNs": {
+              "total": 68113956,
+              "min": 4332542,
+              "max": 6689916,
+              "avg": 5676163
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 833324.21875,
+            "p99Ns": 886892.578125,
+            "samplesNs": [
+              816927.078125,
+              822561.1875,
+              826481.765625,
+              829028.65625,
+              833089.84375,
+              833324.21875,
+              844006.5,
+              844063.796875,
+              860895.828125,
+              869725.90625,
+              886892.578125,
+              922742.1875
+            ],
+            "heapDeltaBytes": {
+              "avg": 78012.04166666667,
+              "min": 77219.75,
+              "max": 78995.75,
+              "total": 59913248
+            },
+            "gcNs": {
+              "total": 70259085,
+              "min": 5124667,
+              "max": 7128291,
+              "avg": 5854923.75
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 807070.3125,
+            "p99Ns": 818304.03125,
+            "samplesNs": [
+              798155.59375,
+              800954.421875,
+              805302.734375,
+              806054.03125,
+              806289.71875,
+              807070.3125,
+              808031.90625,
+              808552.734375,
+              809453.125,
+              811908.84375,
+              818304.03125,
+              865040.375
+            ],
+            "heapDeltaBytes": {
+              "avg": 77816.89583333333,
+              "min": 77389.75,
+              "max": 78162.625,
+              "total": 59763376
+            },
+            "gcNs": {
+              "total": 64294250,
+              "min": 4348000,
+              "max": 6795625,
+              "avg": 5357854.166666667
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 802606.765625,
+            "p99Ns": 823292.96875,
+            "samplesNs": [
+              799802.078125,
+              800984.375,
+              801014.96875,
+              801639.328125,
+              802363.9375,
+              802606.765625,
+              804553.390625,
+              808246.09375,
+              819672.53125,
+              822973.3125,
+              823292.96875,
+              845104.8125
+            ],
+            "heapDeltaBytes": {
+              "avg": 77538.61458333333,
+              "min": 77383.625,
+              "max": 77902.625,
+              "total": 59549656
+            },
+            "gcNs": {
+              "total": 62388793,
+              "min": 4999042,
+              "max": 5632834,
+              "avg": 5199066.083333333
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2146073424,
+          "heapBefore": 48949392,
+          "heapAfter": 48949280,
+          "heapAfterRepeat": 48950608,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1034902696
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444290328
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 332438848
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 123539320
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98473472
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94553496
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 6162496
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4597824
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4253304
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 940744
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2249193336,
+          "heapBefore": 161078952,
+          "heapAfter": 161079136,
+          "heapAfterRepeat": 161079136,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1053318888
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444126248
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 340094432
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151898280
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147786064
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94173336
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6063680
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4524864
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4357912
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 931224
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2247161712,
+          "heapBefore": 166589080,
+          "heapAfter": 166589080,
+          "heapAfterRepeat": 166589080,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1052811504
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 443284864
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 340535392
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151261624
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 146872576
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94541288
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6174976
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4471200
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4286624
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 1006992
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2146968072,
+          "heapBefore": 166388224,
+          "heapAfter": 166388224,
+          "heapAfterRepeat": 166392976,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1035774600
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444781352
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 332924600
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 122509400
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98392464
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94452512
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 6280032
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4577376
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4353864
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 981736
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 2146941464,
+          "heapBefore": 161043216,
+          "heapAfter": 161043216,
+          "heapAfterRepeat": 161052344,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1035276864
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 445431008
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 331874000
+            },
+            {
+              "site": "has /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:3463",
+              "bytes": 123116440
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 98751864
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94579280
+            },
+            {
+              "site": "classOf /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:1243",
+              "bytes": 6156256
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4604256
+            },
+            {
+              "site": ". /private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-validation-ii9efbri/886765c/dist/nwsapi.js:912",
+              "bytes": 4312456
+            },
+            {
+              "site": "next /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js:16",
+              "bytes": 965944
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 2249147408,
+          "heapBefore": 161057136,
+          "heapAfter": 161057136,
+          "heapAfterRepeat": 161069008,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 1053626928
+            },
+            {
+              "site": "hasAttribute /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js:279",
+              "bytes": 444034256
+            },
+            {
+              "site": "get /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js:189",
+              "bytes": 340158960
+            },
+            {
+              "site": "has /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3611",
+              "bytes": 151257184
+            },
+            {
+              "site": "getOwnPropertyDescriptor :0",
+              "bytes": 147524168
+            },
+            {
+              "site": "getElementsByTagName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:685",
+              "bytes": 94679544
+            },
+            {
+              "site": "classOf /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1297",
+              "bytes": 6109440
+            },
+            {
+              "site": "get previousElementSibling /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:3504",
+              "bytes": 4450848
+            },
+            {
+              "site": ". /Users/jdalton/projects/nwsapi/dist/nwsapi.js:966",
+              "bytes": 4350512
+            },
+            {
+              "site": "previousSiblingsIterator /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:389",
+              "bytes": 1000720
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
