@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
 
 type Probe = {
@@ -8,6 +9,15 @@ type Probe = {
   detach(): void
   refs: Array<WeakRef<Element>>
 }
+const { values } = parseArgs({
+  options: {
+    classes: { type: 'boolean', default: false },
+    output: {
+      type: 'string',
+      default: 'assets/repo/bench/ancestor-browser.json',
+    },
+  },
+})
 const code = readFileSync('dist/nwsapi.js', 'utf8')
 const browser = await chromium.launch()
 const rows = []
@@ -22,7 +32,7 @@ try {
         await page.setContent('<!doctype html><body></body>')
         await page.addScriptTag({ content: code })
         const timing = await page.evaluate(
-          ({ depths, selector }) => {
+          ({ depths, selector, classes }) => {
             const host = window as unknown as {
               NW: {
                 Dom: {
@@ -81,6 +91,17 @@ try {
               }
               return entry
             }
+            const classRead = (
+              element: Element,
+              cache: WeakMap<Element, string | null>,
+            ) => {
+              let value = cache.get(element)
+              if (value === undefined) {
+                value = engine.Snapshot.classOf(element)
+                cache.set(element, value)
+              }
+              return value
+            }
             const depthCache = (candidates: Element[]) => {
               if (candidates.length < 16) {
                 return null
@@ -94,46 +115,57 @@ try {
               }
               return new WeakMap<Element, Read>()
             }
-            const baseline = engine.compile(selector, true)
-            const variants = [baseline]
-            const source = baseline.toString()
-            if (
-              !source.includes('var e,') ||
-              !source.includes('s.classOf(e)') ||
-              !source.includes('e.parentElement')
-            ) {
-              throw new Error('Generated resolver shape changed')
+            const buildVariants = () => {
+              const baseline = engine.compile(selector, true)
+              const variants = [baseline]
+              const source = baseline.toString()
+              if (
+                !source.includes('var e,') ||
+                !source.includes('s.classOf(e)') ||
+                !source.includes('e.parentElement')
+              ) {
+                throw new Error('Generated resolver shape changed')
+              }
+              for (const gated of [false, true]) {
+                const rewritten = source
+                  .replace(
+                    'var e,',
+                    () =>
+                      `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
+                  )
+                  .replaceAll(
+                    'e.parentElement',
+                    classes
+                      ? 'e.parentElement'
+                      : gated
+                        ? '(_cache?record(e,_cache).parent:e.parentElement)'
+                        : 'record(e,_cache).parent',
+                  )
+                  .replaceAll(
+                    's.classOf(e)',
+                    classes
+                      ? gated
+                        ? '(_cache?classRead(e,_cache):s.classOf(e))'
+                        : 'classRead(e,_cache)'
+                      : gated
+                        ? '(_cache?record(e,_cache).cls:s.classOf(e))'
+                        : 'record(e,_cache).cls',
+                  )
+                variants.push(
+                  // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, validated against native results.
+                  Function(
+                    's',
+                    'a',
+                    'record',
+                    'depthCache',
+                    'classRead',
+                    'return ' + rewritten,
+                  )(engine.Snapshot, undefined, record, depthCache, classRead),
+                )
+              }
+              return variants
             }
-            for (const gated of [false, true]) {
-              const rewritten = source
-                .replace(
-                  'var e,',
-                  () =>
-                    `var _cache=${gated ? 'depthCache(c)' : 'new WeakMap()'},e,`,
-                )
-                .replaceAll(
-                  'e.parentElement',
-                  gated
-                    ? '(_cache?record(e,_cache).parent:e.parentElement)'
-                    : 'record(e,_cache).parent',
-                )
-                .replaceAll(
-                  's.classOf(e)',
-                  gated
-                    ? '(_cache?record(e,_cache).cls:s.classOf(e))'
-                    : 'record(e,_cache).cls',
-                )
-              variants.push(
-                // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, validated against native results.
-                Function(
-                  's',
-                  'a',
-                  'record',
-                  'depthCache',
-                  'return ' + rewritten,
-                )(engine.Snapshot, undefined, record, depthCache),
-              )
-            }
+            const variants = buildVariants()
             const query = (index: number) =>
               variants[index]!(nodes, null, document, [])
             const verify = (result: Element[], wanted: Element[]) => {
@@ -197,7 +229,11 @@ try {
               candidates: nodes.length,
             }
           },
-          { depths: fixtureDepths, selector: fixtureSelector },
+          {
+            depths: fixtureDepths,
+            selector: fixtureSelector,
+            classes: values.classes,
+          },
         )
         const session = await page.context().newCDPSession(page)
         const heap = async () => {
@@ -270,7 +306,7 @@ try {
     }
   }
   writeFileSync(
-    'assets/repo/bench/ancestor-browser.json',
+    values.output,
     JSON.stringify(
       {
         browser: browser.version(),
@@ -278,6 +314,9 @@ try {
         platform: process.platform,
         architecture: process.arch,
         engineSha256: createHash('sha256').update(code).digest('hex'),
+        cachePayload: values.classes
+          ? 'Class value only. Parent reads remain direct.'
+          : 'Parent and class record.',
         methodology:
           'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain four candidates each. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.',
         rows,
@@ -286,7 +325,7 @@ try {
       2,
     ) + '\n',
   )
-  console.log('Wrote assets/repo/bench/ancestor-browser.json')
+  console.log(`Wrote ${values.output}`)
 } finally {
   await browser.close()
 }

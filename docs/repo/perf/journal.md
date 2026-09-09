@@ -603,3 +603,33 @@ The allocation sites help explain the tradeoff. In the first deep plain sample, 
 The deep plain gate has zero measured post-GC growth in both retained batches in all three rounds. For the deep complex gate, the first batch changes the heap by 0bytes to 1392bytes, and the repeated batch changes it by -1240bytes to 5776bytes. This workload does not show retention proportional to total allocated bytes. These short batches do not establish a general absence of leaks, and the fixtures remain attached throughout.
 
 Node therefore presents a tradeoff: the earlier unprofiled deep queries were about 27% and 21% faster, while this allocation experiment shows more temporary allocation. Neither the Node timing gain nor these heap readings justify adopting the gate without public-host and longer-running garbage-collection measurements. The browser regressions remain a separate reason not to enable it generally. Production `nwsapi` is unchanged.
+
+## Reduce the ancestor cache payload
+
+The original cache creates a `{ parent, cls }` record for each visited element. A cache miss reads both properties, even if the resolver only needs one. The smaller experiment stores the class value directly in the weak map and leaves parent reads unchanged. This removes the per-element record and avoids eagerly reading classes for elements visited only to find a parent.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-browser.mts --classes --output assets/repo/bench/ancestor-browser-classes.json` and `node scripts/repo/bench/ancestor-reads.mts --classes --memory --output assets/repo/bench/ancestor-node-classes.json`. The reports are [ancestor-browser-classes.json](../../../assets/repo/bench/ancestor-browser-classes.json) and [ancestor-node-classes.json](../../../assets/repo/bench/ancestor-node-classes.json).
+
+These runs use the same fixture shapes and measurement methods described above. Each report includes its own unchanged-engine baseline. Timing excludes compilation and candidate lookup. Allocation sampling covers 2000 calls. Browser timing has seven rotating rounds, and Node allocation has three rotating rounds. Comparisons with the earlier record cache come from separate runs rather than a single paired experiment. Treat those comparisons as exploratory. All measurements still concern experimental compiled resolvers, not the public host APIs.
+
+</details>
+
+The different DOM implementations help explain the browser and Node results. In the installed `jsdom` 30.0.1 source, the generated `className` getter validates its receiver, starts custom-element reactions, reads the attribute, and ends reactions. The reaction helper pushes a new empty queue. The Node allocation profile attributes substantial allocation to this getter, so avoiding repeated calls can save work. The browser profile measures a different balance between direct reads and cache maintenance.
+
+Every cache hit still adds a helper call, a weak-map lookup, and, for the gated version, a conditional branch. Misses also insert an entry. The browser regressions show that the saved reads do not repay that work in these fixtures. This is an explanation supported by source inspection and allocation measurements, not a CPU-profile attribution of the slowdown to a single operation. Less allocation alone does not guarantee less runtime.
+
+| Class-value gate | Existing allocation | Gate allocation | Allocation change | Time change |
+| --- | ---: | ---: | ---: | ---: |
+| Node deep complex | 187.64MB | 183.01MB | -2.5% | +7.9% |
+| Node deep plain | 145.25MB | 148.58MB | +2.3% | +13.9% |
+| Browser deep complex | 46.62MB | 63.57MB | +36.4% | +22.9% |
+| Browser deep plain | 41.42MB | 58.14MB | +40.4% | +36.5% |
+
+The allocation columns cover 2000 compiled queries. Positive time changes mean slower queries. Node timings come from a separate fresh process with no inspector profiling, recorded in [ancestor-node-classes-timing.json](../../../assets/repo/bench/ancestor-node-classes-timing.json). Reproduce it with `node scripts/repo/bench/ancestor-reads.mts --classes --output assets/repo/bench/ancestor-node-classes-timing.json`. Timing fields in a Node memory report can be affected by profiler activity from earlier fixtures, so use the separate timing report for this comparison. Browser timers run before profiling on each fresh page.
+
+Compared with the earlier record-cache runs, storing class values directly reduces deep-case allocation by roughly 12–14% in Node and 17% in the browser. It brings Node allocation close to baseline, but loses the earlier timing advantage. The class-value gate performs 868 parent reads in the deep complex fixture, compared with 314 for the record gate. Class reads remain at 306. The smaller representation saves record allocations but gives up most of the saved parent reads.
+
+Correctness and mutation checks pass in both environments. Browser reversed-order checks pass, and both sampled detached nodes become collectible in every fixture. No production change is retained. A better next experiment would cache a repeated selector-prefix result rather than every raw read. That could avoid repeated matching and traversal together, but still needs measurement and callback-mutation checks. Reusing a mutable cache across queries would add invalidation and retention risks, so it is not an automatic remedy for allocation cost.

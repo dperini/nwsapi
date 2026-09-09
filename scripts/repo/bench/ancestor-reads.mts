@@ -10,6 +10,7 @@ import { profileAncestorMemory } from './ancestor-memory.mts'
 const { values } = parseArgs({
   options: {
     memory: { type: 'boolean', default: false },
+    classes: { type: 'boolean', default: false },
     output: {
       type: 'string',
       default: 'assets/repo/bench/ancestor-reads.json',
@@ -83,6 +84,17 @@ for (const shape of shapes) {
       }
       return row
     }
+    const classRead = (
+      element: Element,
+      cache: WeakMap<Element, string | null>,
+    ) => {
+      let value = cache.get(element)
+      if (value === undefined) {
+        value = snapshot.classOf(element)
+        cache.set(element, value)
+      }
+      return value
+    }
     const depthCache = (nodes: Element[]) => {
       if (nodes.length < 16) {
         return null
@@ -115,15 +127,21 @@ for (const shape of shapes) {
           )
           .replaceAll(
             'e.parentElement',
-            gated
-              ? '(_cache?record(e,_cache).parent:e.parentElement)'
-              : 'record(e,_cache).parent',
+            values.classes
+              ? 'e.parentElement'
+              : gated
+                ? '(_cache?record(e,_cache).parent:e.parentElement)'
+                : 'record(e,_cache).parent',
           )
           .replaceAll(
             's.classOf(e)',
-            gated
-              ? '(_cache?record(e,_cache).cls:s.classOf(e))'
-              : 'record(e,_cache).cls',
+            values.classes
+              ? gated
+                ? '(_cache?classRead(e,_cache):s.classOf(e))'
+                : 'classRead(e,_cache)'
+              : gated
+                ? '(_cache?record(e,_cache).cls:s.classOf(e))'
+                : 'record(e,_cache).cls',
           )
         variants.push(
           // oxlint-disable-next-line typescript/no-implied-eval -- Fixed experimental resolver code, checked against the unchanged engine.
@@ -132,8 +150,9 @@ for (const shape of shapes) {
             'a',
             'record',
             'depthCache',
+            'classRead',
             'return ' + changed,
-          )(engine.Snapshot, undefined, record, depthCache),
+          )(engine.Snapshot, undefined, record, depthCache, classRead),
         )
       }
       const query = (index: number) =>
@@ -252,6 +271,9 @@ writeFileSync(
         .digest('hex'),
       methodology:
         'Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. The depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.',
+      cachePayload: values.classes
+        ? 'Class value only. Parent reads remain direct.'
+        : 'Parent and class record.',
       memoryMethodology: values.memory
         ? 'Node inspector allocation sampling includes collected objects at a 1024byte interval. Three rounds rotate variant order. Retained heap is measured before and after two batches of 2000 calls without allocation sampling. A separate sample then covers 2000 warm compiled-resolver calls. Four GCs across event-loop turns precede whole-process heapUsed readings. Profiler structures and report storage can affect retained readings. Candidate lookup, compilation, timing, and getter instrumentation are outside allocation sampling. No detached-node test or public-host query measurement.'
         : undefined,
