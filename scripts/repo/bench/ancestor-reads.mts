@@ -15,9 +15,17 @@ const { values } = parseArgs({
   },
 })
 const shapes = [
-  { name: 'original', boxes: 5, outer: 5, inner: 5, depth: 0 },
-  { name: 'wide', boxes: 64, outer: 2, inner: 2, depth: 0 },
-  { name: 'deep', boxes: 16, outer: 2, inner: 2, depth: 8 },
+  { name: 'original', boxes: 5, outer: 5, inner: 5, depths: [0] },
+  { name: 'wide', boxes: 64, outer: 2, inner: 2, depths: [0] },
+  { name: 'deep', boxes: 16, outer: 2, inner: 2, depths: [8] },
+  {
+    name: 'mixed-shallow-first',
+    boxes: 16,
+    outer: 2,
+    inner: 2,
+    depths: [0, 8],
+  },
+  { name: 'mixed-deep-first', boxes: 16, outer: 2, inner: 2, depths: [8, 0] },
 ]
 const selectors = [
   '.box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content',
@@ -33,7 +41,11 @@ for (const shape of shapes) {
       box.className = 'box container'
       doc.body.append(box)
       let parent: Element = box
-      for (let depth = 0; depth < shape.depth; ++depth) {
+      for (
+        let depth = 0;
+        depth < shape.depths[i % shape.depths.length]!;
+        ++depth
+      ) {
         const wrapper = doc.createElement('section')
         parent.append(wrapper)
         parent = wrapper

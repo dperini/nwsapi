@@ -539,3 +539,35 @@ The original fixture has 125 content candidates, the wide fixture has 256, and t
 The deep complex resolver performs 860 parent reads and 896 class reads before the change. Always-on caching reduces each count to 306. The depth gate performs 314 parent reads and 306 class reads, including its depth probe. It skips the map in shallow fixtures and stays close to their baseline timings in this run. The original plain control still incurs a small overhead.
 
 No production change was retained from this experiment. The depth gate merits further investigation, but it samples only the first candidate and does not establish a general rule for mixed-depth trees. Before adoption, compare public-host timing, allocation, retained memory, mutation callbacks, missing APIs, legacy behavior, and mixed depths. Reducing repeated prefix matching remains a separate option that could avoid allocating a record for every visited element.
+
+## Validate the ancestor-read depth gate
+
+The browser follow-up does not support adding the depth gate to the production engine. The earlier 26% gain came from a compiled-resolver experiment using `jsdom`. Native DOM measurements show slower deep queries and more allocation with the same approach.
+
+<details>
+<summary>Measurement scope and reproduction</summary>
+
+Run `node scripts/repo/bench/ancestor-reads.mts --output assets/repo/bench/ancestor-reads-mixed.json` for the expanded `jsdom` experiment. Run `node scripts/repo/bench/ancestor-browser.mts` for browser timing, allocation sampling, retained heap, and detached-node checks. The reports are [ancestor-reads-mixed.json](../../../assets/repo/bench/ancestor-reads-mixed.json) and [ancestor-browser.json](../../../assets/repo/bench/ancestor-browser.json).
+
+The browser run used Chromium 151.0.7922.34 on macOS arm64. Each fixture has 16 boxes and 64 content candidates. Deep boxes add eight wrapper ancestors. Mixed fixtures alternate shallow and deep boxes. Each selector and fixture gets a fresh page. Seven rounds rotate the three variants, with 100 warmups and 1000 calls per timed batch. The table reports median time per call. Compilation and candidate lookup are outside the timers.
+
+Allocation sampling covers 2000 calls per variant and includes objects collected during sampling. Allocation measurements use a fixed variant order and a 1024byte sampling interval. Four garbage collections precede each whole-page retained-heap reading. These estimates are separate from timing and do not establish a retained-memory limit. Mutation and reversed candidate-order checks run outside timers. Two weak references check whether a removed candidate and its parent remain reachable.
+
+</details>
+
+| Browser compiled resolver | Existing | Always cache | Depth gate |
+| --- | ---: | ---: | ---: |
+| Shallow complex | 14.1µs | 18.7µs | 14.2µs |
+| Shallow plain | 9.4µs | 13.7µs | 9.7µs |
+| Deep complex | 32.7µs | 34.1µs | 35.0µs |
+| Deep plain | 20.6µs | 26.3µs | 26.6µs |
+| Mixed shallow-first complex | 25.0µs | 26.3µs | 25.0µs |
+| Mixed shallow-first plain | 15.3µs | 19.9µs | 15.1µs |
+| Mixed deep-first complex | 24.1µs | 25.7µs | 25.7µs |
+| Mixed deep-first plain | 15.1µs | 19.5µs | 19.7µs |
+
+The complex selector combines sibling positions with descendant classes. The plain control only uses descendant classes and a child relationship. Both use preselected candidates. In the deep browser fixture, the gate slows the complex resolver by about 7% and the plain resolver by about 29%. A shallow first candidate skips caching for the entire mixed tree. A deep first candidate enables it, including for shallow candidates. Reversing candidate order preserves results, but the gate still bases its decision on a single candidate.
+
+Across 2000 deep queries, sampled allocation rises from 46.99MB to 76.17MB for the complex selector and from 41.01MB to 70.27MB for the plain selector. Those increases are about 62% and 71%. The weak map and per-element records add work even when they reduce DOM reads. All result, mutation, and reversed-order checks pass. Both removed nodes become collectible in every fixture. This rules out retention of those two sampled nodes in this workload, not every possible retention problem.
+
+No engine change is retained. Public-host integration and callback compatibility were not tested because the browser timing and allocation regressions already reject this candidate as a general optimization. Reducing repeated prefix matching remains a separate avenue to investigate without a per-element read cache.

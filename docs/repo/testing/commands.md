@@ -79,7 +79,8 @@ The script writes `assets/repo/bench/has-memory.json`. It uses three alternating
 
 ```sh
 pnpm run build
-node scripts/repo/bench/ancestor-reads.mts
+node scripts/repo/bench/ancestor-reads.mts --output assets/repo/bench/ancestor-reads-mixed.json
+node scripts/repo/bench/ancestor-browser.mts
 ```
 
-The script writes `assets/repo/bench/ancestor-reads.json`. It compares the existing compiled resolver with always-on and depth-gated read caches for fixed small, wide, and deep fixtures. Timing excludes candidate lookup and compilation. Operation counts and mutation checks run outside the timers. The [journal](../perf/journal.md#experiment-with-query-local-ancestor-reads) explains why these experiments have not changed the production engine.
+The scripts write `assets/repo/bench/ancestor-reads-mixed.json` and `assets/repo/bench/ancestor-browser.json`. They compare the existing compiled resolver with always-on and depth-gated read caches for fixed shallow, wide, deep, and mixed-depth fixtures. The browser script also measures sampled allocation and retained heap, then checks detached-node collection. Timing excludes candidate lookup and compilation. Operation counts and mutation checks run outside the timers. The [journal](../perf/journal.md#experiment-with-query-local-ancestor-reads) explains why these experiments have not changed the production engine.
