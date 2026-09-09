@@ -42,7 +42,8 @@ export default defineConfig({
     restoreMocks: true,
     testTimeout: 10_000,
     coverage: {
-      provider: 'v8',
+      provider: 'custom',
+      customProviderModule: '.config/repo/vitest/coverage.mts',
       include: ['dist/nwsapi.js', 'dist/dom-selector.js', 'dist/modules/*.js'],
       // External data is exercised in the embedded engine, not its build wrapper.
       exclude: ['dist/external/**'],

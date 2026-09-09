@@ -110,6 +110,7 @@
     "@types/istanbul-reports": "catalog:",
     "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
+    "@ultrathink/acorn.rs.wasm": "catalog:",
     "@unicode/unicode-17.0.0": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitiate/core": "catalog:",

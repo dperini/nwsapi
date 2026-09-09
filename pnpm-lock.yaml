@@ -128,6 +128,9 @@ catalogs:
     '@types/node':
       specifier: 26.4.1
       version: 26.4.1
+    '@ultrathink/acorn.rs.wasm':
+      specifier: 0.1.1
+      version: 0.1.1
     '@unicode/unicode-17.0.0':
       specifier: 2.0.2
       version: 2.0.2
@@ -229,6 +232,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.4.1
+      '@ultrathink/acorn.rs.wasm':
+        specifier: 'catalog:'
+        version: 0.1.1
       '@unicode/unicode-17.0.0':
         specifier: 'catalog:'
         version: 2.0.2
@@ -1092,6 +1098,10 @@ packages:
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
+
+  '@ultrathink/acorn.rs.wasm@0.1.1':
+    resolution: {integrity: sha512-oL0uqC5cROkhhVqeGQ4h0CeGYPwkc+tu/dPyfUcmdA2tKpa0o9x5L5L+nu/FeWsqMoO/OjAqHQDCUF0bqVNVwQ==}
+    engines: {node: '>=18'}
 
   '@unicode/unicode-17.0.0@2.0.2':
     resolution: {integrity: sha512-Hbn+Gzleef51c+x0tCbhFMYliWJjf7+kA82D9r7ljadl1NM2c+Dg9oggmGzXW96pIZU23v3N646cjSEaLmoMtw==}
@@ -2921,6 +2931,8 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.1.0-dev.20260901.1':
     optional: true
+
+  '@ultrathink/acorn.rs.wasm@0.1.1': {}
 
   '@unicode/unicode-17.0.0@2.0.2': {}
 

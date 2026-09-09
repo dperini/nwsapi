@@ -4,6 +4,7 @@ import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { simple } from '@ultrathink/acorn.rs.wasm'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -11,16 +12,34 @@ import assert from 'node:assert/strict'
 const { readFileSync } = require('node:fs') as typeof NodeFs
 import path from 'node:path'
 const vm = require('node:vm') as typeof NodeVm
-const source = readFileSync(
-  path.join(__dirname, '../../../dist/nwsapi.js'),
-  'utf8',
-)
+const source = readFileSync(path.join(__dirname, '../../../dist/nwsapi.js'))
 // A test-only hook exercises the internal allocator without adding public API.
-assert.equal(source.split('return Dom;').length, 2)
-const instrumented = source.replace(
-  'return Dom;',
-  'Dom.testCreateWeakMap = function() { return createWeakMap(); }; return Dom;',
+// Locate the return by syntax so indentation and semicolons do not affect it.
+const returns: number[] = []
+simple(
+  source.toString('utf8'),
+  {
+    ReturnStatement(statement) {
+      if (
+        statement.argument?.type === 'Identifier' &&
+        statement.argument.name === 'Dom'
+      ) {
+        returns.push(statement.start)
+      }
+    },
+  },
+  { sourceType: 'script' },
 )
+assert.equal(returns.length, 1)
+const start = returns[0]!
+// The WASM parser returns byte offsets, so splice the original UTF-8 buffer.
+const instrumented = Buffer.concat([
+  source.subarray(0, start),
+  Buffer.from(
+    'Dom.testCreateWeakMap = function() { return createWeakMap(); };\n',
+  ),
+  source.subarray(start),
+]).toString('utf8')
 
 type TestFactory = (host: {
   document: ReturnType<typeof documentStub>

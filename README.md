@@ -1,7 +1,7 @@
 # [NWSAPI](http://dperini.github.io/nwsapi/)
 
 <a href="https://badge.socket.dev/npm/package/nwsapi"><img src="https://badge.socket.dev/npm/package/nwsapi" alt="Socket Badge" height="20"></a>
-<picture><img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg?v=66258ab9f3b4" height="20" alt="Coverage" /></picture>
+<picture><img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg?v=d3f1fd881dda" height="20" alt="Coverage" /></picture>
 
 Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
@@ -20,7 +20,7 @@ File sizes compare the browser libraries after Brotli compression. The [benchmar
 
 </details>
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=4f6be14bf99b)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=f36ba64c312a)](docs/repo/perf/benchmarks.md)
 
 This summary covers 36 repeated all-results queries, retained heap after 100 distinct queries per engine, and compressed browser file sizes.
 The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native browser DOMs and exclude `jsdom`.

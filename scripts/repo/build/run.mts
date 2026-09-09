@@ -3,7 +3,11 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'rolldown'
 import { transform } from 'rolldown/utils'
-import { entries, externalEntries } from '../../../.config/build.config.mts'
+import {
+  browserOutputs,
+  entries,
+  externalEntries,
+} from '../../../.config/build.config.mts'
 import { externalLoaderPlugin } from '../../../.config/repo/rolldown/external-loaders.mts'
 import { postBuild } from './post.mts'
 import { bundleEngine } from '../rolldown/engine.mts'
@@ -65,10 +69,7 @@ for (const entry of entries) {
     entry.source === 'src/nwsapi.mts'
       ? await bundleEngine(result.code)
       : result.code
-  if (
-    entry.source === 'src/nwsapi.mts' ||
-    entry.source.startsWith('src/modules/')
-  ) {
+  if (browserOutputs.has(entry.output)) {
     code = await lowerToEs5(code)
   }
   await writeFile(entry.output, code, 'utf8')

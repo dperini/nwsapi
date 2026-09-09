@@ -9,27 +9,36 @@ test('pseudo-element validation survives empty contexts and candidate optimizati
   const engine = factory(window)
   const element = doc.querySelector('p')!
   for (const selector of [
-    '::part(--)',
-    'p::marker',
-    '::part(tab):hover',
     '::before::marker',
+    '::cue-region(:lang(en))',
+    '::cue(.spoken)',
+    '::part(--)',
+    '::part(tab):hover',
     '::slotted(.a)::before',
     '::view-transition-group(foo.bar)',
+    'p::marker',
   ]) {
     expect(engine.select(selector, doc), selector).toEqual([])
     expect(engine.match(selector, element), selector).toBe(false)
   }
   for (const selector of [
-    '::slotted(*).a',
+    '::cue(::before)',
+    '::cue(:unknown)',
+    '::cue(.a .b)',
+    '::part(tab):has(.a)::before',
+    '::part(tab):is',
     '::part(tab)#b',
-    'p::before > .a',
     '::selection:hover',
-    ':not(::before)',
+    '::slotted(*).a',
+    '::view-transition-group(foo.)',
+    '::view-transition-group(foo.0)',
     ':host(:not(.a .b))',
+    ':is(p])',
+    ':not(::before)',
     ':state(0)',
     ':state(0rem)',
-    ':is(p])',
     ':where(p})',
+    'p::before > .a',
   ]) {
     expect(() => engine.select(selector, doc), selector).toThrow()
     expect(

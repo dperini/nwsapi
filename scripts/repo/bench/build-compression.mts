@@ -15,11 +15,43 @@ import { parseArgs } from 'node:util'
 import vm from 'node:vm'
 import { parse } from 'acorn'
 import type { Comment } from 'acorn'
-import { outputs } from '../../../.config/build.config.mts'
+import { format } from 'oxfmt'
+import type { FormatConfig } from 'oxfmt'
+import { outputFormat, outputs } from '../../../.config/build.config.mts'
 import { packPackage } from '../build/package.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { fileSizes } from './filesize.mts'
-import { provenance, sha256, summarize } from './footprint-shared.mts'
+import { provenance, require, sha256, summarize } from './footprint-shared.mts'
+
+async function measureFormatting(file: string) {
+  const source = readFileSync(file, 'utf8')
+  const variants = [
+    { name: 'selected', options: {} },
+    { name: 'two-space indentation', options: { useTabs: false } },
+    { name: 'four-column tabs', options: { tabWidth: 4 } },
+    { name: '120-column wrapping', options: { printWidth: 120 } },
+    { name: 'double quotes', options: { singleQuote: false } },
+    { name: 'property quotes as needed', options: { quoteProps: 'as-needed' } },
+    { name: 'semicolons', options: { semi: true } },
+    { name: 'CRLF newlines', options: { endOfLine: 'crlf' } },
+  ] satisfies Array<{ name: string; options: FormatConfig }>
+  const rows = []
+  for (const { name, options } of variants) {
+    const result = await format(file, source, { ...outputFormat, ...options })
+    if (result.errors.length) {
+      throw new Error(result.errors.map(error => error.message).join('\n'))
+    }
+    rows.push({ name, options, ...fileSizes(result.code) })
+  }
+  return {
+    oxfmt: require('oxfmt/package.json').version as string,
+    method:
+      'Format the candidate core with the selected settings, then change one option per comparison. Measure UTF-8 bytes, gzip level 9, and Brotli quality 11. Each comparison includes the same code and comments.',
+    sourceSha256: sha256(source),
+    settings: outputFormat,
+    rows,
+  }
+}
 
 function measureInitialization(script: vm.Script, count: number) {
   const contexts = Array.from({ length: count }, () => {
@@ -45,25 +77,36 @@ function measureInitialization(script: vm.Script, count: number) {
   return { milliseconds, retainedBytes }
 }
 
-function measurePackage(root: string, destination: string) {
+async function measurePackage(root: string, destination: string) {
   mkdirSync(destination)
-  const cli = process.env['npm_execpath'] || 'pnpm'
-  const javascript = /\.[cm]?js$/.test(cli)
-  const packed = JSON.parse(
-    execFileSync(
-      javascript ? process.execPath : cli,
-      [
-        ...(javascript ? [cli] : []),
-        '--reporter=silent',
-        '--config.ignore-scripts=true',
-        'pack',
-        '--json',
-        '--pack-destination',
-        destination,
-      ],
-      { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
-    ),
-  )
+  const staging = path.join(root, 'scripts/repo/build/package.mts')
+  let packed
+  if (existsSync(staging)) {
+    const { packPackage: packBaseline } = (await import(
+      pathToFileURL(staging).href
+    )) as {
+      packPackage: typeof packPackage
+    }
+    packed = await packBaseline(destination, root)
+  } else {
+    const cli = process.env['npm_execpath'] || 'pnpm'
+    const javascript = /\.[cm]?js$/.test(cli)
+    packed = JSON.parse(
+      execFileSync(
+        javascript ? process.execPath : cli,
+        [
+          ...(javascript ? [cli] : []),
+          '--reporter=silent',
+          '--config.ignore-scripts=true',
+          'pack',
+          '--json',
+          '--pack-destination',
+          destination,
+        ],
+        { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] },
+      ),
+    )
+  }
   const result = (
     Array.isArray(packed) ? packed[0] : packed.nwsapi || packed
   ) as {
@@ -193,7 +236,12 @@ if (!global.gc) {
         }
       })
     const coreFiles = [
-      path.join(baselineRoot, 'src/nwsapi.js'),
+      path.join(
+        baselineRoot,
+        baselineConfig.outputs.includes('dist/nwsapi.js')
+          ? 'dist/nwsapi.js'
+          : 'src/nwsapi.js',
+      ),
       path.join(REPO_ROOT, 'dist/nwsapi.js'),
     ]
     const scripts = coreFiles.map(
@@ -222,7 +270,7 @@ if (!global.gc) {
         baseline,
         v8: process.versions.v8,
         method:
-          'Build both revisions with the same installed dependencies. Normalize generated dependency region comments in the temporary checkout. Measure readable files with gzip level 9 and Brotli quality 11. Stage the candidate package in os.tmpdir(). Package totals also reflect removing the duplicate core and adding the optional legacy module.',
+          'Build both revisions with the same installed dependencies. Normalize generated dependency region comments in the temporary checkout. Measure readable files with gzip level 9 and Brotli quality 11. Stage packages in os.tmpdir() when the revision uses package staging. Package totals include every published file and its current layout.',
       },
       core: {
         before: fileSizes(readFileSync(coreFiles[0]!)),
@@ -232,8 +280,9 @@ if (!global.gc) {
         ),
       },
       files,
+      formatting: await measureFormatting(coreFiles[1]!),
       packages: {
-        before: measurePackage(
+        before: await measurePackage(
           baselineRoot,
           path.join(temporary, 'before-pack'),
         ),

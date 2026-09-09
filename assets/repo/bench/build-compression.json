@@ -1,82 +1,82 @@
 {
   "metadata": {
-    "timestamp": "2026-09-09T02:31:12.564Z",
+    "timestamp": "2026-09-09T03:29:32.700Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "bd0d7778e1fdab13dd42a1366d6db02c8cfceed30f8c8388dfd11696f09c9219",
+    "candidateSha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20",
     "competitorVersion": "8.3.2",
-    "lockfileSha256": "a47c0d668d734062113d09f0deb722623dd517fa99249c6892c249414d4a9d86",
-    "baseline": "83771437fc660727479481a59e5361d71593d7c6",
+    "lockfileSha256": "f9aea6d77b5047d1f8bc185b357065774e76deb605bba3eb20e16283e4832952",
+    "baseline": "f7f821ee2fc043b74fe262e0ca76478905b9bfdc",
     "v8": "14.6.202.34-node.24",
-    "method": "Build both revisions with the same installed dependencies. Normalize generated dependency region comments in the temporary checkout. Measure readable files with gzip level 9 and Brotli quality 11. Stage the candidate package in os.tmpdir(). Package totals also reflect removing the duplicate core and adding the optional legacy module."
+    "method": "Build both revisions with the same installed dependencies. Normalize generated dependency region comments in the temporary checkout. Measure readable files with gzip level 9 and Brotli quality 11. Stage packages in os.tmpdir() when the revision uses package staging. Package totals include every published file and its current layout."
   },
   "core": {
     "before": {
-      "bytes": 160699,
-      "gzip": 44520,
-      "brotli": 36247,
-      "sha256": "7ad43ced74d9ac0147ebf61d4369d3f8f9922faadc532a2820204288ab843d90"
-    },
-    "after": {
       "bytes": 191617,
       "gzip": 37702,
       "brotli": 30321,
       "sha256": "bd0d7778e1fdab13dd42a1366d6db02c8cfceed30f8c8388dfd11696f09c9219"
     },
+    "after": {
+      "bytes": 152639,
+      "gzip": 37090,
+      "brotli": 30045,
+      "sha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20"
+    },
     "legacyModule": {
-      "bytes": 20549,
-      "gzip": 4653,
-      "brotli": 4072,
-      "sha256": "28ec5ae8802a1fb5903b792d421706f49a193c08a6a2ccbda9f7fcf70d2a2be8"
+      "bytes": 15560,
+      "gzip": 4439,
+      "brotli": 3857,
+      "sha256": "d5a9da52352d9d21652186a0c30700ef3840fbb287387bc0e41f2bbc1466913a"
     }
   },
   "files": [
     {
-      "file": "bin/nwsapi.js",
-      "before": {
-        "bytes": 265,
-        "gzip": 209,
-        "brotli": 204,
-        "sha256": "8039dad517750b59ca582aee8a661565ec976f7c7a9bbd161c48548076e33082"
-      },
-      "after": null
-    },
-    {
       "file": "dist/bin/nwsapi.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 260,
         "gzip": 206,
         "brotli": 169,
         "sha256": "11e2935437a343dc0f16b2bbb8c21e956b5056f125e5538094412d0caf236586"
+      },
+      "after": {
+        "bytes": 263,
+        "gzip": 206,
+        "brotli": 175,
+        "sha256": "f2466696f863a9d6d0aee5ac9217d984674011fb24afd3aafbfd85af9d1630fc"
       }
     },
     {
       "file": "dist/cli.js",
       "before": {
-        "bytes": 149346,
-        "gzip": 39056,
-        "brotli": 31930,
-        "sha256": "753e3ee298410637d37b5ece9157afd581c9621e6153f48e08927ac8c7c19fe3"
-      },
-      "after": {
         "bytes": 3438,
         "gzip": 1532,
         "brotli": 1302,
         "sha256": "d3be4d2a64b6e5f892083e0b73ec48ac8451a9b51c9147049fcb42007826cf48"
+      },
+      "after": {
+        "bytes": 3485,
+        "gzip": 1534,
+        "brotli": 1310,
+        "sha256": "f4f6a7cfcb94068cbab0c68f08b1a7d0e1b18a0a805e7b924a838558653b2dc0"
       }
     },
     {
       "file": "dist/dom-selector.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 7941,
         "gzip": 2702,
         "brotli": 2287,
         "sha256": "533e07d231c3f18a61993e703bcc6ab464f60819b510d096c88109e6e28cd4aa"
+      },
+      "after": {
+        "bytes": 7893,
+        "gzip": 2693,
+        "brotli": 2289,
+        "sha256": "86556498ef09e41bec8c036d2865168f6efe6eae56a845b13965095142cdcd30"
       }
     },
     {
@@ -97,119 +97,186 @@
     {
       "file": "dist/external/unicode.js",
       "before": {
-        "bytes": 12034,
-        "gzip": 4485,
-        "brotli": 2958,
-        "sha256": "e65956893ba0dda2560ed240f7e6e4b80953d5f36b02d717de6a03dcd8bbd900"
-      },
-      "after": {
         "bytes": 12212,
         "gzip": 4612,
         "brotli": 3052,
         "sha256": "c29503c1dbffe7bb4b89009540e56540710908d5a1eb9d570b38bd023668aa0e"
+      },
+      "after": {
+        "bytes": 12208,
+        "gzip": 4613,
+        "brotli": 3043,
+        "sha256": "1c3ccc3b1a4f87d89bcc78a645a00186999cdd2af05672394787293322ffcaa3"
       }
     },
     {
       "file": "dist/modules/nwsapi-jquery.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 4183,
         "gzip": 1482,
         "brotli": 1219,
         "sha256": "6184c85d7389661edf99c795f1da9939ab6403f3a736cc9d2313e0905572a3e0"
+      },
+      "after": {
+        "bytes": 3470,
+        "gzip": 1469,
+        "brotli": 1200,
+        "sha256": "5347ae2932607306c521683216d4ef5dc2c9178800abbf9bcb03b02e31c347c6"
       }
     },
     {
       "file": "dist/modules/nwsapi-legacy.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 20549,
         "gzip": 4653,
         "brotli": 4072,
         "sha256": "28ec5ae8802a1fb5903b792d421706f49a193c08a6a2ccbda9f7fcf70d2a2be8"
+      },
+      "after": {
+        "bytes": 15560,
+        "gzip": 4439,
+        "brotli": 3857,
+        "sha256": "d5a9da52352d9d21652186a0c30700ef3840fbb287387bc0e41f2bbc1466913a"
       }
     },
     {
       "file": "dist/modules/nwsapi-traversal.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 2931,
         "gzip": 738,
         "brotli": 639,
         "sha256": "fd3a777e77087eb55076ddd28fb092568cb9830d520764829cd50bdfc0101e7d"
+      },
+      "after": {
+        "bytes": 2555,
+        "gzip": 721,
+        "brotli": 613,
+        "sha256": "b2407911bcb0765e72bb16fea18c9db6b0fedcc489619fb99c2ca0c2640a776d"
       }
     },
     {
       "file": "dist/nwsapi.js",
-      "before": null,
-      "after": {
+      "before": {
         "bytes": 191617,
         "gzip": 37702,
         "brotli": 30321,
         "sha256": "bd0d7778e1fdab13dd42a1366d6db02c8cfceed30f8c8388dfd11696f09c9219"
+      },
+      "after": {
+        "bytes": 152639,
+        "gzip": 37090,
+        "brotli": 30045,
+        "sha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20"
       }
-    },
-    {
-      "file": "dist/nwsapi.min.js",
-      "before": {
-        "bytes": 78058,
-        "gzip": 27901,
-        "brotli": 23496,
-        "sha256": "3e2ff4ca1f98022133ebd7d0171c0864267f7618021638c5d3b43746306a5f88"
-      },
-      "after": null
-    },
-    {
-      "file": "src/dom-selector.js",
-      "before": {
-        "bytes": 7610,
-        "gzip": 2582,
-        "brotli": 2186,
-        "sha256": "fabb3f6c1276203eca7da297c495c7cc62c13d9d3e02e8771fd08f67f8d872bc"
-      },
-      "after": null
-    },
-    {
-      "file": "src/modules/nwsapi-jquery.js",
-      "before": {
-        "bytes": 3448,
-        "gzip": 1452,
-        "brotli": 1193,
-        "sha256": "58f3b2cba48cfc30f835b07f39c5c85dd9b21527d40e5f86c7574a81faaa9271"
-      },
-      "after": null
-    },
-    {
-      "file": "src/modules/nwsapi-traversal.js",
-      "before": {
-        "bytes": 2530,
-        "gzip": 720,
-        "brotli": 595,
-        "sha256": "111d6125f051452929c2db5ca4176a813b290aeb7a40a21f964f31320a7f8f14"
-      },
-      "after": null
-    },
-    {
-      "file": "src/nwsapi.js",
-      "before": {
-        "bytes": 160699,
-        "gzip": 44520,
-        "brotli": 36247,
-        "sha256": "7ad43ced74d9ac0147ebf61d4369d3f8f9922faadc532a2820204288ab843d90"
-      },
-      "after": null
     }
   ],
+  "formatting": {
+    "oxfmt": "0.66.0",
+    "method": "Format the candidate core with the selected settings, then change one option per comparison. Measure UTF-8 bytes, gzip level 9, and Brotli quality 11. Each comparison includes the same code and comments.",
+    "sourceSha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20",
+    "settings": {
+      "useTabs": true,
+      "tabWidth": 2,
+      "printWidth": 160,
+      "singleQuote": true,
+      "quoteProps": "preserve",
+      "trailingComma": "none",
+      "semi": false,
+      "embeddedLanguageFormatting": "off",
+      "jsdoc": false,
+      "endOfLine": "lf"
+    },
+    "rows": [
+      {
+        "name": "selected",
+        "options": {},
+        "bytes": 152639,
+        "gzip": 37090,
+        "brotli": 30045,
+        "sha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20"
+      },
+      {
+        "name": "two-space indentation",
+        "options": {
+          "useTabs": false
+        },
+        "bytes": 182910,
+        "gzip": 38024,
+        "brotli": 30687,
+        "sha256": "491b5360a4493418130b7c180fc95c0984b4d9e8f73c45fb284b79b3bd669b5d"
+      },
+      {
+        "name": "four-column tabs",
+        "options": {
+          "tabWidth": 4
+        },
+        "bytes": 153912,
+        "gzip": 37247,
+        "brotli": 30124,
+        "sha256": "c0df36d33e8448d0a07924bb70815205ebdc1a573b825e7a22d57d6d6abd87a4"
+      },
+      {
+        "name": "120-column wrapping",
+        "options": {
+          "printWidth": 120
+        },
+        "bytes": 155424,
+        "gzip": 37479,
+        "brotli": 30326,
+        "sha256": "af37e2263657923ee7c0908aebc10f4f7a597416f27603f6ac6e6e34d4fb80d2"
+      },
+      {
+        "name": "double quotes",
+        "options": {
+          "singleQuote": false
+        },
+        "bytes": 152639,
+        "gzip": 37130,
+        "brotli": 30087,
+        "sha256": "71fc9f71e675b4d52ea66cd9f8098966dfca20c2371d3ef012ce5c2a5a843717"
+      },
+      {
+        "name": "property quotes as needed",
+        "options": {
+          "quoteProps": "as-needed"
+        },
+        "bytes": 152639,
+        "gzip": 37090,
+        "brotli": 30045,
+        "sha256": "c10eb0b219763de4c63685ca4e2cdcee0b54d47a8ba73914387d1764230b3b20"
+      },
+      {
+        "name": "semicolons",
+        "options": {
+          "semi": true
+        },
+        "bytes": 154319,
+        "gzip": 37368,
+        "brotli": 30257,
+        "sha256": "3efa996487aed0c472edea9f7cd0d24c5c004f38cd7e511adcb03656ad49c6b4"
+      },
+      {
+        "name": "CRLF newlines",
+        "options": {
+          "endOfLine": "crlf"
+        },
+        "bytes": 156695,
+        "gzip": 37324,
+        "brotli": 30116,
+        "sha256": "5b3a292b39f70bf6d5f3072f5d23c58e734bf9b99f18f8f2cdb4176a8d299603"
+      }
+    ]
+  },
   "packages": {
     "before": {
-      "packedBytes": 123902,
-      "files": 12,
-      "sha256": "b72f6bec3fb02054dc22a111406d3fce7b55013c9f8f6440b5d1522b89e3145c"
-    },
-    "after": {
       "packedBytes": 58869,
       "files": 12,
       "sha256": "4ef0e0bfee1b4967ef509e3c39ada26b678506334e274d7ca1c5e159363e8cbe"
+    },
+    "after": {
+      "packedBytes": 57802,
+      "files": 12,
+      "sha256": "10c8e60597120cc6a75b4219b93d591117ee720378145c39e0dcfee589d54079"
     }
   },
   "initialization": {
@@ -220,56 +287,56 @@
       {
         "revision": "before",
         "milliseconds": {
-          "median": 0.02583071875000087,
-          "min": 0.023704437500001063,
-          "max": 0.026835937500003126,
+          "median": 0.04885418749999815,
+          "min": 0.046811218749994055,
+          "max": 0.05786068749999629,
           "samples": [
-            0.026354156250000926,
-            0.026173156249996055,
-            0.02486199999999883,
-            0.026835937500003126,
-            0.02551303125000004,
-            0.023704437500001063,
-            0.02583071875000087
+            0.05126434375000599,
+            0.04745443750000078,
+            0.05786068749999629,
+            0.04954428125000021,
+            0.04735415624999462,
+            0.046811218749994055,
+            0.04885418749999815
           ]
         },
         "retainedBytes": {
-          "median": 3292.75,
-          "min": 3292.75,
-          "max": 3329.75,
+          "median": 5378.5,
+          "min": 5378.5,
+          "max": 5415.5,
           "samples": [
-            3300.25,
-            3312.25,
-            3292.75,
-            3292.75,
-            3292.75,
-            3292.75,
-            3329.75
+            5386.5,
+            5398,
+            5378.5,
+            5378.5,
+            5378.5,
+            5378.5,
+            5415.5
           ]
         }
       },
       {
         "revision": "after",
         "milliseconds": {
-          "median": 0.051201843750000364,
-          "min": 0.049800781249999204,
-          "max": 0.05712368749999541,
+          "median": 0.05092578125000102,
+          "min": 0.04781900000000405,
+          "max": 0.056867187500003524,
           "samples": [
-            0.05703515624999511,
-            0.054480468750000455,
-            0.05712368749999541,
-            0.049813781249994804,
-            0.05092968750000182,
-            0.051201843750000364,
-            0.049800781249999204
+            0.05367578124999994,
+            0.04963149999999672,
+            0.056867187500003524,
+            0.04875912500000368,
+            0.04781900000000405,
+            0.05181509375000104,
+            0.05092578125000102
           ]
         },
         "retainedBytes": {
           "median": 5378.5,
-          "min": 5371.5,
+          "min": 5372,
           "max": 5569.75,
           "samples": [
-            5371.5,
+            5372,
             5569.75,
             5455.25,
             5378.5,
