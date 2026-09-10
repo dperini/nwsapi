@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
@@ -5,7 +6,7 @@ import { expect, test } from 'vitest'
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'foreign HTML type matching agrees with Chromium after mutation and XML switching',
   async t => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     t.onTestFinished(() => browser.close())
     const page = await browser.newPage()
     await page.setContent(

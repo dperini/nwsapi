@@ -1542,3 +1542,41 @@ The new [public jsdom benchmark](jsdom.md) installs two consumers under `os.tmpd
 Three additional upstream pages contribute 19 subtests: eight for slot assignment, four for WebKit-prefixed pseudo-elements, and seven for selector-result iteration and enumeration. Narrow AST adapters remove rendering and CSSOM assertions while preserving selector expectations. Exact edit counts and the scope checker require review if upstream structure changes. The WebKit page exposed rejected user-action pseudo-classes after a recognized prefixed pseudo-element. The grammar now accepts those states while retaining rejection of invalid nested pseudo-elements.
 
 Modern and legacy runs each pass 7,464 subtests across 144 pages. The update-time candidate inventory records likely unselected pages, content hashes, scope blockers, and relevant filenames outside the sparse checkout. Discovery flags review work rather than admitting tests automatically. Pages that only use selectors for fixture setup do not count as selector coverage. The namespace and custom-state pages inspected outside the selected set assert computed styles and remain excluded.
+
+## Full-tree selector test inventory
+
+The [full WPT audit](../testing/wpt-inventory.md) verifies 144,489 source files against the pinned Git tree. The matching and parsing suite expands from 144 to 190 pages, with 413 additional subtests. Both modern and legacy runs record 7,793 passes and 84 known failures out of 7,877 subtests. The failures belong to the newly exposed draft heading-offset pages and remain visible.
+
+The added tests exposed grammar gaps for column and details-content pseudo-elements, plus matching gaps for nested shadow focus, shadow-host language inheritance, disabled option wrappers, and host-backed custom form-control states. Those fixes pass their new WPT cases. No timing or allocation improvement is claimed for these correctness changes. Existing performance charts retain their recorded builds and measurements.
+
+The bulk source scanner uses `parse5` to inspect HTML without constructing DOM windows. An initial scan using `jsdom` exhausted the Node heap. The parser-only scanner completes the full inventory without retaining browser environments. Full scans run only when requested during WPT updates. Normal setup verifies the saved revision and the smaller sparse inventory.
+
+The expanded suite runs against pinned Chrome for Testing 153.0.8010.12. The initial browser upgrade preserved the 188-page outcomes before the release refresh added more inputs. Browser tests and future benchmark runs now share this executable. Existing timing and memory reports remain historical measurements rather than being relabeled as Chrome 153 results.
+
+The release updater resolves the latest published WPT tag to an exact commit during `pnpm run update`. The first release-based pin is `merge_pr_62589`, at `fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9`. Its inventory identifies new WebVTT cue parsing and universal custom-highlight parsing inputs. All 16 inputs are included. The tentative `::highlight(*)` grammar is accepted without selecting DOM elements. Chrome 153 still rejects that wildcard form, so this is a WPT draft grammar decision rather than a browser-equivalence claim. Computed-style assertions from the mixed highlight page remain excluded.
+
+## Discover the browser beta during updates
+
+`pnpm run update` now discovers Chrome stable and beta through the official Chrome for Testing channel feed. It records both versions and pins beta for browser tests and future measurements. The initial discovery records stable 153.0.8010.36 and beta 154.0.8037.0. Setup and CI reuse that exact committed beta without looking up a moving channel. Existing benchmark reports retain their original browser versions. The regular selector target covers current standards and behavior enabled by default in stable or beta, with existing stable regressions retained.
+
+## Refresh published comparisons on Chrome 154
+
+The published charts now use the current readable build, Chrome for Testing beta 154.0.8037.0, and `@asamuzakjp/dom-selector` 9.1.1. The browser measurements ran on an Apple M3 Max connected to AC power. Timed workloads ran sequentially, with tests outside their measurement windows. The raw reports retain source hashes and samples.
+
+Across the 36 warm all-results queries, `nwsapi` has lower median time in every recorded case and a **5.16× geometric-mean speedup**. The same refresh includes all 12 cold and warm first-match cases. The [benchmark documentation](benchmarks.md) explains the fixtures and the four first-match examples displayed in the chart.
+
+After 100 distinct queries per engine, retained heap is **74.08KiB** for `nwsapi` and **549.32KiB** for the comparison library, a **86.5% reduction**. This excludes document allocation and shared library code. The readable browser core compresses to **32.30KiB with Brotli**, compared with **109.59KiB** for the full comparison bundle. Neither build is minified.
+
+The separate [public `jsdom` comparison](jsdom.md) records a **5.31× geometric-mean speedup** across the same 36 selectors. It uses real temporary installations of `jsdom` 30.0.1, the packed override and its `css-tree` peer, and the same pinned comparison-library version. Construction and installation remain outside measured query time.
+
+The [compliance charts](../selector/compatibility.md#comparison-results) now come from recorded browser and WPT results. They separate upstream WPT inputs, local regressions, and native discovery requirements. The comparison still agrees with Chrome on 185 of 200 targeted cases for `nwsapi`, compared with 131 for `@asamuzakjp/dom-selector`. Known failures are not passes.
+
+Chart regeneration now leaves historical experiment snapshots untouched. Published timing bars render at their final lengths immediately, so static previews cannot capture an incomplete entrance animation. All published chart pages receive content-hashed image URLs, including the `jsdom` and compliance pages. Summary generation checks matching engine builds and browser provenance. Tests exercise structured counts, identity checks, and URL behavior without asserting document wording.
+
+The prior CI revision exceeded the 10s unit coverage budget. Two alternating local measurements took 5.04–5.52s with two workers and 2.80–3.02s with four. Unit coverage now uses up to four workers, capped by available CPUs. Ordinary unit runs retain two shared workers. This removes about 45% of the measured local coverage time without changing the test set or budget. The first hosted CI run completed unit coverage in 8,018ms, leaving 1,982ms of the 10,000ms budget. This is one run, rather than an estimate of timing variance.
+
+## Preserve duplicate IDs with supplied host helpers
+
+`jsdom` returns every duplicate ID from `querySelectorAll()`, even though `getElementById()` returns one element. The adapter therefore retains `IDS_DUPES: true` when the host supplies `idlUtils` and `domSymbolTree`. Regression tests exercise HTML, XML, tree reordering, ID changes, removal, and detached fragments.
+
+A fresh run of the same 36 public `jsdom` queries passed every result check and recorded a **5.57× geometric-mean speedup** for the `nwsapi` override. The report, chart, and summary were regenerated. No engine optimization was made for this refresh, so the difference from the preceding 5.31× result is a repeated measurement, not evidence of a code improvement.

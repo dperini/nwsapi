@@ -11,6 +11,8 @@ The unit suite has a **10,000ms wall-clock budget**, following the fleet's fast 
 | `pnpm run test:node`               | Both tiers, each enforced separately      | 10,000 + 60,000ms |
 | `pnpm run test:wpt`                | WPT browser run                           |         600,000ms |
 
+`pnpm run test:wpt:native` is a separate discovery and qualification job outside the regular CI test budgets. Use the [timing guidance for checks, replay, resume, and full qualification](wpt-inventory.md#native-support-pool) to plan the operation you need. That process document covers replay, resume, generated artifacts, and the required finalization check.
+
 `pnpm run cover`, used by CI, runs both Node tiers under their usual budgets, merges their coverage, then runs WPT under its separate budget. Coverage does not increase the unit allowance. WPT also retains its 90,000ms per-page timeout.
 
 Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the command and terminates its workers on POSIX systems. The runner prints elapsed milliseconds and the limit for each tier. Improve fixtures and startup overhead when the unit tier exceeds its ceiling; tests requiring subprocesses or shared module mutations belong in integration. No tests are omitted from CI by changing tiers.
@@ -29,7 +31,6 @@ Type checks run without an incremental cache so they recheck changes to shared d
 `test/repo/unit/` covers selector behavior and helpers. `test/repo/integration/` covers the `jsdom` adapter and development commands. `test/repo/e2e/` covers browsers, published packages, and WPT. Reusable DOM fixtures live in `test/repo/fixtures/`, and fuzz targets live in `test/repo/fuzz/`.
 
 Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Development commands live in `scripts/repo/`. Older HTML suites remain under `test/`, and the pristine WPT checkout remains under `upstream/wpt/`.
-
 
 ## Integrated host workload
 
@@ -107,3 +108,19 @@ To isolate class-reader cost, pass `--attribute-classes --baseline dist/nwsapi.j
 Run `node scripts/repo/bench/result-arrays.mts --output assets/repo/bench/result-arrays-profile.json --memory` for a single-build profile. Add `--baseline /absolute/path/to/before.cjs` to compare builds. Use a separate process without `--memory` for timing conclusions. The fixtures return 0, 1, 16, or 256 nodes through either one class selector or four disjoint groups.
 
 Run `node scripts/repo/bench/result-arrays-browser.mts /absolute/path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing. Both timing scripts use nine rotating rounds with batches lasting at least 50ms. This makes timer resolution a smaller part of tiny-query measurements. The memory script records allocation traffic and retained heap separately. Keep those measures distinct from timing and from the number of nodes returned.
+
+## Refresh published comparisons
+
+Run performance measurements separately from tests and other CPU-heavy work. Use AC power and keep the machine configuration consistent across the run.
+
+```sh
+pnpm run bench
+pnpm run compare:memory
+pnpm run report:size
+pnpm run bench:jsdom
+pnpm run gen:bench
+```
+
+These commands refresh the browser timing, first-match, retained-heap, file-size, public `jsdom`, and README summary charts. Raw samples remain in `assets/repo/bench/`. The [benchmark method](../perf/benchmarks.md) defines their scope.
+
+Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evidence) to refresh the browser comparison and selected WPT report. Then run `pnpm run gen:compliance`. That generator writes both compliance charts and their documentation summary from the reports. It rejects mismatched browser or engine builds. The native discovery pool identifies requirements and does not supply engine pass counts.

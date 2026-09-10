@@ -1,3 +1,4 @@
+import { availableParallelism } from 'node:os'
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 import { isAgent } from '../scripts/repo/lib/is-agent.mts'
@@ -37,8 +38,13 @@ export default defineConfig({
     pool: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 'threads' : 'forks',
     // Unit fixtures own their DOM instances; subprocess suites stay isolated.
     isolate: process.env['NWSAPI_TEST_TIER'] !== 'unit',
-    // Shared unit workers amortize jsdom startup; more workers duplicate it.
-    maxWorkers: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 2 : 4,
+    // Four coverage workers reduced measured unit time by about 45%.
+    // Ordinary unit runs keep two shared workers to amortize jsdom startup.
+    maxWorkers:
+      process.env['NWSAPI_TEST_TIER'] === 'unit' &&
+      !process.argv.includes('--coverage')
+        ? 2
+        : Math.min(4, availableParallelism()),
     restoreMocks: true,
     testTimeout: 10_000,
     coverage: {

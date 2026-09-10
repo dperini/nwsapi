@@ -1,0 +1,36 @@
+{
+  "browser": "154.0.8037.0",
+  "versions": {
+    "nwsapi": "2.3.0-prerelease",
+    "competitor": "9.1.1",
+    "dependencies": {
+      "bidi-js": "1.0.3",
+      "css-tree": "3.2.1",
+      "is-potential-custom-element-name": "1.0.1",
+      "lru-cache": "11.5.2"
+    }
+  },
+  "engineSha256": "7aa14e270c6223681705026b930fda0d4f2edeb3d30b285a182aef9598201347",
+  "wptRevision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
+  "native": {
+    "total": 200,
+    "nwsapi": 185,
+    "competitor": 131,
+    "both": 129,
+    "onlyNwsapi": 56,
+    "onlyCompetitor": 2,
+    "neither": 13
+  },
+  "upstream": {
+    "pages": 171,
+    "total": 7800,
+    "passed": 7716,
+    "knownFailures": 84
+  },
+  "local": {
+    "pages": 19,
+    "total": 77,
+    "passed": 77,
+    "knownFailures": 0
+  }
+}

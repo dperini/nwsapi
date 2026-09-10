@@ -115,7 +115,30 @@
     ":lang(us)",
     ":dir(ltr)",
     "camera",
-    "microphone"
+    "microphone",
+    "#\\00006fne",
+    "#\\6f\nne",
+    "#\\6f ne",
+    "#null",
+    ".\\69 tem",
+    ".null",
+    "[data-value/**/=/**/\"A\"]",
+    "h1:has(~ h4)",
+    "p/* gap */ b",
+    "p/**/>/**/b",
+    "p:has(> b, + p)",
+    "p:nth-child(-n+2 of .item)",
+    "p:nth-child(0n+2 of .item)",
+    "p:nth-child(1 of ::before)",
+    "p:nth-child(1 of :not(.special))",
+    "p:nth-child(1 of > .item)",
+    "p:nth-child(2 of .item, #three)",
+    "p:nth-child(2n/**/+1)",
+    "p:nth-last-child(-n+2 of .item)",
+    "p:nth-last-child(2 of .item)",
+    "section:has(:unknown-pseudo, .item)",
+    "section:has(> p + p.special)",
+    "section:not(:has(.missing))"
   ],
   "shadowSelectors": [
     "slot",
@@ -147,7 +170,10 @@
         "item:nth-of-type(1)",
         "item:nth-of-type(2)",
         "item:nth-last-of-type(2n)",
-        ":lang(en)"
+        ":lang(en)",
+        "*|item:nth-child(2 of *|item)",
+        "*|item:nth-child(2)",
+        "*|item:nth-last-child(1)"
       ]
     },
     {
@@ -160,7 +186,10 @@
         "[|x]",
         "[|x=\"two\"]",
         "[a|x]",
-        "[x]"
+        "[x]",
+        "[*|x$=\"ne\"]",
+        "[*|x=\"TWO\" i]",
+        "[*|x^=\"tw\"]"
       ]
     },
     {

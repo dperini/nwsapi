@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "browser": "154.0.8037.0",
+  "revision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
+  "finalized": true,
+  "inference": "1e6797a4e3b803bde1fefa7173853e854562d3833e35590ede3c6bb77c8956b7",
+  "durationMs": 1933305,
+  "runs": 3,
+  "processes": 4,
+  "platform": "mac",
+  "arch": "arm",
+  "planned": 11278,
+  "observed": 11278,
+  "disabled": 0,
+  "nativePassing": 1267698,
+  "selected": 14734,
+  "selectedPages": 571,
+  "totals": {
+    "other-api": 1141986,
+    "selector-matching": 11865,
+    "css-values": 32711,
+    "rendering": 78267,
+    "mixed-selector": 1083,
+    "selector-parsing": 1786
+  },
+  "supportSha256": "c756d1ecf38198577ebdd144d211138bf26c8edb6c983aab86ce29dd31500d8d",
+  "categoriesSha256": "01b80e2e50e1f8b80f2e004338a9725a63fb8a1250edc9903f0522d59147434c",
+  "inputs": [
+    {
+      "file": "plan-2.json",
+      "sha256": "66002b2e1f8969ba35a47a3b7f4fcd363a298ce5a925a0f57b6e66315e1c2f5a"
+    },
+    {
+      "file": "report-2.json",
+      "sha256": "1062cf3449d77f85c41d3a3e8f54091d9230c326e2741c4db206133d2ca2ba72"
+    },
+    {
+      "file": "plan-3.json",
+      "sha256": "b58010cebe1f9920eea4f29b605251b5d51814601f21a1b2a418b6464d1ee4f1"
+    },
+    {
+      "file": "report-3.json",
+      "sha256": "f0212324c5d3e175acbf8b815681295e56237cc022e1ce430e1f55863b700f2c"
+    },
+    {
+      "file": "plan.json",
+      "sha256": "aa45e2248ca353cb70497b4c300af8c25f769f23eb124b977eff06d72f9a0bc3"
+    },
+    {
+      "file": "report.json",
+      "sha256": "2a5499451d7d978e57d9f2f9cd9b965c195158797ed0de50f0c167bb913bf42f"
+    },
+    {
+      "file": "discovery.json",
+      "sha256": "613a28d78e58a4e5d6552fc7486a2206ddf151ae1a1596bc2b607a88ebdc7e93"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import type * as NodeFs from 'node:fs'
 import type * as Playwright from '@playwright/test'
 const __dirname = import.meta.dirname
@@ -17,7 +18,7 @@ const source = readFileSync(
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'browser state stays live across factory shapes, documents, and install()',
   async t => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     t.onTestFinished(() => browser.close())
     for (const mode of [
       'script',

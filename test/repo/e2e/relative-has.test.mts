@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import type * as Jsdom from 'jsdom'
 import type * as NwsapiModule from '../../../dist/nwsapi.js'
 import type * as Playwright from '@playwright/test'
@@ -114,7 +115,10 @@ test(
   async () => {
     const { chromium } = require('@playwright/test') as typeof Playwright
     const { readFileSync } = require('node:fs') as typeof NodeFs
-    const browser = await chromium.launch({ headless: true })
+    const browser = await chromium.launch({
+      ...browserLaunchOptions(),
+      headless: true,
+    })
     try {
       const page = await browser.newPage()
       await page.setContent(markup)

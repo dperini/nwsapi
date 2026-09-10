@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "timestamp": "2026-09-10T04:38:55.411Z",
+    "timestamp": "2026-09-10T16:47:22.322Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "18ebdd82f22e74bcc5380b8b22e8791cdadf0e358c2d0bd69e3add85cb1567ca",
+    "candidateSha256": "7aa14e270c6223681705026b930fda0d4f2edeb3d30b285a182aef9598201347",
     "competitorVersion": "9.1.1",
-    "lockfileSha256": "823a658412bf8339e8edb9ba680e9e4a100c72b17a5802783ff0d91e49ef9bba",
+    "lockfileSha256": "2b09bd1f37adcd1edc9b1c59c5a596b36e62f12e06c7043cd24606d0c486e668",
     "rolldown": "1.2.7",
     "method": "Readable nwsapi core browser file versus a full readable dom-selector ESM bundle, including runtime dependencies; no minification; full competitor exports; gzip level 9; Brotli quality 11. Excludes jsdom, nwsapi CLI, adapter, optional legacy module and css-tree peer."
   },
@@ -16,10 +16,10 @@
     {
       "engine": "NWSAPI",
       "artifact": "dist/nwsapi.js (readable core browser file)",
-      "bytes": 167646,
-      "gzip": 40556,
-      "brotli": 32868,
-      "sha256": "18ebdd82f22e74bcc5380b8b22e8791cdadf0e358c2d0bd69e3add85cb1567ca"
+      "bytes": 168546,
+      "gzip": 40699,
+      "brotli": 33074,
+      "sha256": "7aa14e270c6223681705026b930fda0d4f2edeb3d30b285a182aef9598201347"
     },
     {
       "engine": "@asamuzakjp/dom-selector",

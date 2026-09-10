@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { browserLaunchOptions } from '../scripts/repo/browser.mts'
 import { defineConfig } from '@playwright/test'
 import { isAgent } from '../scripts/repo/lib/is-agent.mts'
 
@@ -13,7 +14,11 @@ export default defineConfig({
   workers: process.env['WPT_UPDATE_EXPECTATIONS'] ? 1 : 4,
   reporter: isAgent() ? 'dot' : 'list',
   timeout: 90_000,
-  use: { baseURL: 'http://127.0.0.1:8000', browserName: 'chromium' },
+  use: {
+    baseURL: 'http://127.0.0.1:8000',
+    browserName: 'chromium',
+    launchOptions: browserLaunchOptions(),
+  },
   webServer: {
     cwd: fileURLToPath(new URL('../', import.meta.url)),
     command: 'node scripts/repo/serve.mts',

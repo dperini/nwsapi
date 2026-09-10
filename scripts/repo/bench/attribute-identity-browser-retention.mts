@@ -1,10 +1,11 @@
+import { browserLaunchOptions } from '../browser.mts'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { chromium } from '@playwright/test'
 
 const files = [process.argv[2]!, 'dist/nwsapi.js']
-const browser = await chromium.launch()
+const browser = await chromium.launch(browserLaunchOptions())
 const rows = []
 try {
   for (let round = 0; round < 3; ++round) {

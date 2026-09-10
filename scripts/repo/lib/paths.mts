@@ -46,9 +46,9 @@ export const UPSTREAM_HELPER_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/git-partial-submodule.mts',
 )
-export const PLAYWRIGHT_CLI_PATH = path.join(
+export const BROWSER_SETUP_PATH = path.join(
   REPO_ROOT,
-  'node_modules/@playwright/test/cli.js',
+  'scripts/repo/browser.mts',
 )
 export const TAZE_CLI_PATH = path.join(
   REPO_ROOT,

@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
@@ -6,7 +7,10 @@ for (const legacy of [false, true]) {
   test.skipIf(!process.env['NWSAPI_BROWSER'])(
     `filtered positions and XML namespaces agree with Chromium (legacy=${legacy})`,
     async () => {
-      const browser = await chromium.launch({ headless: true })
+      const browser = await chromium.launch({
+        ...browserLaunchOptions(),
+        headless: true,
+      })
       try {
         const page = await browser.newPage()
         await page.setContent(

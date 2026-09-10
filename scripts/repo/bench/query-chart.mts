@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { chromium } from '@playwright/test'
 import { optimiseSvg } from '../gen/svg-optimize.mts'
 import { escapeText, unitText } from './charts.mts'
@@ -27,7 +28,7 @@ export async function wrapQueryNotes(
   notes: QueryChartOptions['notes'],
   breakBefore: number[] = [],
 ) {
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   try {
     const page = await browser.newPage()
     return await page.evaluate(

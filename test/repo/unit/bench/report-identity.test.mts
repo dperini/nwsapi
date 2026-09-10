@@ -7,9 +7,15 @@ const identity = {
   competitorVersion: '9.1.1',
   lockfileSha256: 'lock',
   competitorBundleSha256: 'bundle',
+  runtime: 'Chromium 154',
+  cpu: 'fixture CPU',
+  platform: 'fixture platform',
 }
 
 test.each([
+  'runtime',
+  'cpu',
+  'platform',
   'candidateVersion',
   'candidateSha256',
   'competitorVersion',

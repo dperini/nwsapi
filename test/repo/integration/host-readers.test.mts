@@ -14,6 +14,51 @@ const {
 } = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 
 for (const contentType of ['text/html', 'application/xml']) {
+  test(`supplied host helpers preserve duplicate IDs in ${contentType}`, t => {
+    const { window } = new JSDOM(
+      '<main><section><i id="same"></i><b id="same"></b></section><i id="same"></i></main>',
+      { contentType },
+    )
+    t.onTestFinished(() => window.close())
+    const doc = window.document
+    const adapter = new Adapter(window, idlUtils.implForWrapper(doc), {
+      idlUtils,
+      domSymbolTree,
+    })
+    assert.equal(adapter.engine.configure()['IDS_DUPES'], true)
+    const root = doc.querySelector('main')!
+    const section = root.firstElementChild!
+    const first = section.firstElementChild!
+    const second = section.lastElementChild!
+    const third = root.lastElementChild!
+    const check = (
+      context: Document | Element | DocumentFragment,
+      expected: Element[],
+    ) => {
+      const impl = idlUtils.implForWrapper(context)
+      assert.deepEqual(
+        Array.from(adapter.querySelectorAll('#same', impl)),
+        expected,
+      )
+      assert.equal(adapter.querySelector('#same', impl), expected[0] || null)
+    }
+    check(doc, [first, second, third])
+    check(section, [first, second])
+    section.prepend(second)
+    check(doc, [second, first, third])
+    first.id = 'other'
+    check(doc, [second, third])
+    second.remove()
+    check(doc, [third])
+    first.id = 'same'
+    check(doc, [first, third])
+    const fragment = doc.createDocumentFragment()
+    fragment.appendChild(root)
+    check(doc, [])
+    check(fragment, [first, third])
+    check(section, [first])
+  })
+
   test(`host readers preserve attributes and traversal in ${contentType}`, t => {
     const { window } = new JSDOM(
       '<main><section><i data-hit="a"></i>text<!--gap--><i data-hit="b"></i><b><i data-hit="c"></i></b></section></main>',

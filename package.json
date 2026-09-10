@@ -38,7 +38,6 @@
     "dist/**/*.d.ts"
   ],
   "main": "./dist/nwsapi",
-  "browserslist": ["ie 11"],
   "scripts": {
     "bench": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/report.mts",
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
@@ -57,6 +56,7 @@
     "check:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts",
     "check:unicode-es5": "node scripts/repo/run.mts scripts/repo/check/unicode-es5.mts",
     "check:wpt-candidates": "node scripts/repo/run.mts scripts/repo/check/wpt/candidates.mts",
+    "check:wpt-inventory": "node scripts/repo/run.mts scripts/repo/check/wpt/inventory.mts",
     "check:wpt-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/scope.mts",
     "fix:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts --fix",
     "gen:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts",
@@ -65,9 +65,11 @@
     "check:api": "node scripts/repo/run.mts scripts/repo/gen/api-md.mts --check",
     "check": "node scripts/repo/run.mts scripts/repo/check.mts",
     "fix": "node scripts/repo/run.mts scripts/repo/fix.mts",
+    "update:chrome": "node scripts/repo/run.mts scripts/repo/update/chrome.mts",
     "update": "node scripts/repo/run.mts scripts/repo/update.mts",
     "soak:check": "node scripts/repo/run.mts scripts/repo/soak.mts --check",
     "soak:bypass": "node scripts/repo/run.mts scripts/repo/soak.mts --bypass",
+    "setup:browser": "node scripts/repo/run.mts scripts/repo/browser.mts",
     "prepare": "node scripts/repo/run.mts scripts/repo/setup.mts",
     "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/node.js.yml --quiet --pause-on-failure --github-token",
     "clean": "node scripts/repo/run.mts scripts/repo/clean.mts",
@@ -92,6 +94,11 @@
     "gen:coverage": "node scripts/repo/run.mts scripts/repo/gen/coverage-badge.mts",
     "check:coverage": "node scripts/repo/run.mts scripts/repo/gen/coverage-badge.mts --check",
     "test:package": "pnpm run build && node scripts/repo/run.mts test/repo/e2e/jsdom-adapter-package.mts",
+    "test:wpt:native": "node scripts/repo/run.mts scripts/repo/check/wpt/native-run.mts",
+    "test:wpt:native:status": "node scripts/repo/run.mts scripts/repo/check/wpt/native-status.mts",
+    "check:wpt-native-contract": "node scripts/repo/run.mts scripts/repo/check/wpt/native-contract.mts --check",
+    "check:wpt-native-pool": "node scripts/repo/run.mts scripts/repo/check/wpt/native-pool.mts",
+    "check:wpt-native-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/native-scope.mts",
     "test:wpt": "pnpm run build && node scripts/repo/run.mts scripts/repo/test.mts upstream",
     "upstream:clone": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts clone",
     "upstream:verify": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts verify && pnpm run check:wpt-candidates",
@@ -102,12 +109,14 @@
     "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts",
     "compile": "node dist/bin/nwsapi.js compile",
     "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts",
-    "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts"
+    "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts",
+    "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",
-    "@swc/core": "catalog:",
     "@playwright/test": "catalog:",
+    "@puppeteer/browsers": "catalog:",
+    "@swc/core": "catalog:",
     "@types/css-tree": "catalog:",
     "@types/istanbul-lib-coverage": "catalog:",
     "@types/istanbul-lib-report": "catalog:",
@@ -130,6 +139,7 @@
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "parse5": "catalog:",
     "rolldown": "catalog:",
     "run-local-ci": "catalog:",
     "svgo": "catalog:",
@@ -151,6 +161,9 @@
       "optional": true
     }
   },
+  "browserslist": [
+    "ie 11"
+  ],
   "devEngines": {
     "packageManager": [
       {

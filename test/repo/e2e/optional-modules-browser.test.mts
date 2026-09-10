@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { expect, test } from 'vitest'
 import { chromium } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -6,7 +7,7 @@ for (const legacy of [false, true] as const) {
   test.skipIf(!process.env['NWSAPI_BROWSER'])(
     `optional scripts work with real layout (legacy=${legacy})`,
     async () => {
-      const browser = await chromium.launch()
+      const browser = await chromium.launch(browserLaunchOptions())
       try {
         const page = await browser.newPage()
         await page.setContent(

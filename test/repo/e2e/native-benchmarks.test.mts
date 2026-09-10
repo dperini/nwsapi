@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { test, expect } from 'vitest'
 import { chromium } from '@playwright/test'
 import {
@@ -10,7 +11,7 @@ import { nativeTiming } from '../../../scripts/repo/bench/native-timing.mts'
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'direct comparison checks both libraries and prevents fixture scripts from executing',
   async () => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     try {
       const page = await nativePage(browser, await nativeSources())
       const html =

@@ -2439,16 +2439,22 @@ interface Primordials {
         return true
       }
 
-      // Options inherit an immediate optgroup's disabled attribute. Both
-      // options and optgroups also participate in fieldset disabledness.
+      // Options inherit disabled optgroups through ordinary wrappers, but
+      // nested options, optgroups, selects, datalists, and rules bound the search.
       if (name == 'option') {
         node = upOf(element)
-        if (
-          node &&
-          tagOf(node) == 'optgroup' &&
-          (node as EngineElement).disabled === true
-        ) {
-          return true
+        while (node) {
+          name = tagOf(node)
+          if (name == 'optgroup') {
+            if ((node as EngineElement).disabled === true) {
+              return true
+            }
+            break
+          }
+          if (/^(?:option|select|datalist|hr)$/.test(name)) {
+            break
+          }
+          node = upOf(node)
         }
       }
 
@@ -2474,7 +2480,11 @@ interface Primordials {
       return false
     },
     isFocusable = function (node: EngineElement) {
-      var doc = node.ownerDocument
+      var native = Snapshot.matchesNative(node, ':focus', undefined),
+        doc = node.ownerDocument
+      if (native !== undefined) {
+        return native ? node : false
+      }
       if (node.contentDocument && tagOf(node) == 'iframe') {
         return false
       }
@@ -3316,7 +3326,7 @@ interface Primordials {
         )
       }
       if (name == 'highlight') {
-        return argument !== null && isIdent(argument, true)
+        return argument !== null && (argument == '*' || isIdent(argument, true))
       }
       if (name == 'picker') {
         return (
@@ -3415,7 +3425,7 @@ interface Primordials {
             return false
           }
         } else {
-          if (context == 'part') {
+          if (context == 'part' || context == 'details-content') {
             valid =
               !/^(?:root|scope|empty|host|host-context|has|has-slotted|nth-.+|(?:first|last|only)-(?:child|of-type))$/.test(
                 name,
@@ -3475,8 +3485,17 @@ interface Primordials {
           if (
             previous &&
             !(previous == 'part' && name != 'part' && name != 'slotted') &&
+            !(
+              previous == 'details-content' &&
+              name != 'part' &&
+              name != 'slotted'
+            ) &&
             !(previous == 'slotted' && treePseudo(name)) &&
-            !(/^(?:before|after)$/.test(previous) && name == 'marker') &&
+            !(
+              /^(?:before|after)$/.test(previous) &&
+              (name == 'marker' || name == 'column')
+            ) &&
+            !(previous == 'column' && name == 'scroll-marker') &&
             !(previous == 'picker' && treePseudo(name))
           ) {
             return false
@@ -3753,7 +3772,10 @@ interface Primordials {
         if (language !== null) {
           break
         }
-        current = upOf(current)
+        current =
+          upOf(current) ||
+          (current.parentNode && (current.parentNode as ShadowRoot).host) ||
+          null
       }
       if (!language) {
         return range === ''
@@ -4995,14 +5017,14 @@ interface Primordials {
                   // the complement of ':disabled' over the same elements
                   source =
                     'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
-                    '"disabled" in e&&!s.isDisabled(e))){' +
+                    '"disabled" in e&&!s.isDisabled(e))||(e.localName.indexOf("-")>=0&&s.matchesNative(e,":enabled"))){' +
                     source +
                     '}'
                   break
                 case 'disabled':
                   source =
                     'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
-                    '"disabled" in e&&s.isDisabled(e))){' +
+                    '"disabled" in e&&s.isDisabled(e))||(e.localName.indexOf("-")>=0&&s.matchesNative(e,":disabled"))){' +
                     source +
                     '}'
                   break
@@ -5102,7 +5124,8 @@ interface Primordials {
                     'if(((' +
                     '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                     '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
-                    '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))' +
+                    '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))||' +
+                    '(e.localName.indexOf("-")>=0&&s.matchesNative(e,":invalid"))' +
                     '){' +
                     source +
                     '}'
@@ -5112,7 +5135,8 @@ interface Primordials {
                     'if(((' +
                     '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
                     '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-                    '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
+                    '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))||' +
+                    '(e.localName.indexOf("-")>=0&&s.matchesNative(e,":valid"))' +
                     '){' +
                     source +
                     '}'

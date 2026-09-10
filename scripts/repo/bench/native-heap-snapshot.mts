@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import {
   closeSync,
@@ -44,7 +45,7 @@ const output = values.output
   ? path.resolve(values.output)
   : mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-heap-'))
 mkdirSync(output, { recursive: true })
-const browser = await chromium.launch()
+const browser = await chromium.launch(browserLaunchOptions())
 try {
   const page = await browser.newPage()
   await page.addScriptTag({

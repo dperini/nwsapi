@@ -7,28 +7,45 @@ import { REPO_ROOT } from '../lib/paths.mts'
 export const chartBaseUrl =
   'https://raw.githubusercontent.com/dperini/nwsapi/master/'
 
+export function chartReference(
+  href: string,
+  document: string,
+  root = REPO_ROOT,
+) {
+  const chartRoot = path.join(root, 'assets/repo/bench') + path.sep
+  const asset = href.startsWith(chartBaseUrl)
+    ? path.resolve(root, href.slice(chartBaseUrl.length))
+    : path.resolve(path.dirname(document), href)
+  if (!asset.startsWith(chartRoot) || !fs.existsSync(asset)) {
+    return undefined
+  }
+  const revision = crypto
+    .createHash('sha256')
+    .update(fs.readFileSync(asset))
+    .digest('hex')
+    .slice(0, 12)
+  const assetPath = path.relative(root, asset).split(path.sep).join('/')
+  return `${chartBaseUrl}${assetPath}?v=${revision}`
+}
+
 // A changed SVG needs a new URL so GitHub requests the updated image.
 export function refreshChartReferences(root = REPO_ROOT) {
-  const chartRoot = path.join(root, 'assets/repo/bench') + path.sep
-  for (const relative of ['README.md', 'docs/repo/perf/benchmarks.md']) {
+  for (const relative of [
+    'README.md',
+    'docs/repo/perf/benchmarks.md',
+    'docs/repo/perf/jsdom.md',
+    'docs/repo/selector/compatibility.md',
+  ]) {
     const document = path.join(root, relative)
+    if (!fs.existsSync(document)) {
+      continue
+    }
     const before = fs.readFileSync(document, 'utf8')
     const after = before.replace(
       /\]\(([^\s)?]+\.svg)(?:\?[^\s)]*)?\)/g,
       (reference, href: string) => {
-        const asset = href.startsWith(chartBaseUrl)
-          ? path.resolve(root, href.slice(chartBaseUrl.length))
-          : path.resolve(path.dirname(document), href)
-        if (!asset.startsWith(chartRoot) || !fs.existsSync(asset)) {
-          return reference
-        }
-        const revision = crypto
-          .createHash('sha256')
-          .update(fs.readFileSync(asset))
-          .digest('hex')
-          .slice(0, 12)
-        const assetPath = path.relative(root, asset).split(path.sep).join('/')
-        return `](${chartBaseUrl}${assetPath}?v=${revision})`
+        const updated = chartReference(href, document, root)
+        return updated ? `](${updated})` : reference
       },
     )
     if (after !== before) {

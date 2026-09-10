@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
@@ -5,7 +6,7 @@ import { expect, test } from 'vitest'
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'custom states and shadow queries follow live changes before and after installation',
   async t => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     t.onTestFinished(() => browser.close())
     for (const legacy of [false, true]) {
       const page = await browser.newPage()

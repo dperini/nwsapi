@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
@@ -42,7 +43,7 @@ if (values.help) {
     ).join('') +
     '</main>'
   const sources = await nativeSources()
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   const samples: Array<
     Array<{ initialized: number; queried: number; cacheGrowth: number }>
   > = [[], []]

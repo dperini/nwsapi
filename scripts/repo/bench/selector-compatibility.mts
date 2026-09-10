@@ -1,3 +1,4 @@
+import { CHROME_VERSION, browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -73,7 +74,7 @@ interface Cases {
 const { values } = parseArgs({
   options: {
     browser: { type: 'string' },
-    'expect-major': { type: 'string', default: '153' },
+    'expect-major': { type: 'string', default: CHROME_VERSION.split('.')[0] },
     competitor: { type: 'string', default: '../domSelector' },
     output: {
       type: 'string',
@@ -186,8 +187,10 @@ const sha256 = (value: string) =>
 const revision = (cwd: string) =>
   execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim()
 const browser = await chromium.launch({
+  ...(values.browser
+    ? { executablePath: values.browser }
+    : browserLaunchOptions()),
   headless: true,
-  ...(values.browser ? { executablePath: values.browser } : {}),
 })
 try {
   if (browser.version().split('.')[0] !== values['expect-major']) {

@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import fs from 'node:fs'
 import { JSDOM } from 'jsdom'
 import { chromium } from '@playwright/test'
@@ -10,7 +11,7 @@ test(
     skip: !process.env['NWSAPI_BROWSER'],
   },
   async () => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     try {
       const page = await browser.newPage()
       for (const doctype of ['<!doctype html>', ''] as const) {

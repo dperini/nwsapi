@@ -6,6 +6,7 @@ import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { inspectWptScope } from './scope.mts'
+import { checkInventory } from './inventory.mts'
 
 export function candidateSignals(source: string) {
   // This broad prefilter only discovers review candidates. The AST scope check
@@ -85,6 +86,7 @@ export function auditCandidates(root = REPO_ROOT) {
 }
 
 export function checkCandidates(write = false) {
+  checkInventory()
   const report = auditCandidates()
   const filename = path.join(
     REPO_ROOT,

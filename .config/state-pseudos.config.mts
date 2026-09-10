@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../scripts/repo/browser.mts'
 import { defineConfig } from '@playwright/test'
 import { isAgent } from '../scripts/repo/lib/is-agent.mts'
 
@@ -6,5 +7,5 @@ export default defineConfig({
   testMatch: 'state-pseudos.spec.mts',
   reporter: isAgent() ? 'dot' : 'list',
   workers: 1,
-  use: { browserName: 'chromium' },
+  use: { browserName: 'chromium', launchOptions: browserLaunchOptions() },
 })

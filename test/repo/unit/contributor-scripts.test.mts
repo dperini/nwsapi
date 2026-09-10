@@ -1,4 +1,11 @@
-import { expect, test } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
+import { checkNativeContract } from '../../../scripts/repo/check/wpt/native-contract.mts'
+
+vi.mock('../../../scripts/repo/check/wpt/native-contract.mts', () => ({
+  checkNativeContract: vi.fn(),
+}))
+
+beforeEach(() => vi.clearAllMocks())
 import { checkCode } from '../../../scripts/repo/check.mts'
 import { fixCode } from '../../../scripts/repo/fix.mts'
 import { setupUpstream } from '../../../scripts/repo/setup.mts'
@@ -14,7 +21,7 @@ import {
   UNICODE_ES5_CHECK_SCRIPT_PATH,
   FORMAT_SCRIPT_PATH,
   LINT_SCRIPT_PATH,
-  PLAYWRIGHT_CLI_PATH,
+  BROWSER_SETUP_PATH,
   TAZE_CLI_PATH,
   TSC_CLI_PATH,
   TSC_CONFIG_PATH,
@@ -53,7 +60,7 @@ test('setup clones and verifies WPT before installing Chromium', () => {
     [UPSTREAM_HELPER_PATH, ['clone']],
     [UPSTREAM_HELPER_PATH, ['verify']],
     [WPT_CANDIDATES_PATH, []],
-    [PLAYWRIGHT_CLI_PATH, ['install', 'chromium']],
+    [BROWSER_SETUP_PATH, []],
   ])
 })
 
@@ -73,6 +80,7 @@ test('setup stops if checkout verification fails', () => {
 test('check runs formatting, lint, and types without fix flags', () => {
   const { calls, run } = recorder()
   checkCode(run)
+  expect(checkNativeContract).toHaveBeenCalledOnce()
   expect(calls).toEqual([
     [API_SCRIPT_PATH, ['--check']],
     [SVG_CHECK_SCRIPT_PATH, []],
@@ -128,9 +136,21 @@ test('update refreshes the lockfile only after a successful write pass', () => {
   const install = () => {
     installs++
   }
-  updateDependencies(true, run, install, () => {})
+  updateDependencies(
+    true,
+    run,
+    install,
+    () => {},
+    () => {},
+  )
   expect(installs).toBe(0)
-  updateDependencies(false, run, install, () => {})
+  updateDependencies(
+    false,
+    run,
+    install,
+    () => {},
+    () => {},
+  )
   expect(installs).toBe(1)
   expect(calls.every(([entry]) => entry === TAZE_CLI_PATH)).toBe(true)
   expect(() =>
@@ -140,6 +160,7 @@ test('update refreshes the lockfile only after a successful write pass', () => {
         throw new Error('registry failed')
       },
       install,
+      () => {},
       () => {},
     ),
   ).toThrow()

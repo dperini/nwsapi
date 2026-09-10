@@ -1,7 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process'
+import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import { REPO_ROOT, TAZE_CLI_PATH, WORKSPACE_PATH } from './lib/paths.mts'
-import { isMainModule } from './lib/run-node.mts'
+import { isMainModule, runNode } from './lib/run-node.mts'
 import { collectPackumentFailures } from './lib/taze-output.mts'
 import { checkSoak, refreshSoak, soakPolicy } from './soak.mts'
 
@@ -37,11 +38,21 @@ export function updateArgs(workspace: string, check: boolean) {
   ]
 }
 
+export function updateReferences(check: boolean, run = runNode) {
+  for (const name of ['wpt', 'chrome']) {
+    run(
+      path.join(REPO_ROOT, `scripts/repo/update/${name}.mts`),
+      check ? ['--check'] : [],
+    )
+  }
+}
+
 export function updateDependencies(
   check: boolean,
   run = runTaze,
   install = installDependencies,
   prepare = () => (check ? checkSoak() : refreshSoak()),
+  upstream = updateReferences,
 ) {
   if (
     !check &&
@@ -52,6 +63,7 @@ export function updateDependencies(
   }
   prepare()
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
+  upstream(check)
   if (!check) {
     install()
   }
@@ -105,5 +117,10 @@ if (isMainModule(import.meta.url)) {
   if (process.argv.slice(2).some(arg => arg !== '--check')) {
     throw new Error('Usage: pnpm run update [--check]')
   }
-  updateDependencies(process.argv.includes('--check'))
+  const check = process.argv.includes('--check')
+  updateDependencies(check)
+  runNode(
+    path.join(REPO_ROOT, 'scripts/repo/update/native.mts'),
+    check ? ['--check'] : [],
+  )
 }

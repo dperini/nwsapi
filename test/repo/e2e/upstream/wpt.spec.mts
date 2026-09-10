@@ -212,6 +212,8 @@ for (const entry of manifest) {
     if (
       entry.path.endsWith('/parse-anplusb.html') ||
       entry.selectorInputs ||
+      entry.supportsInputs ||
+      entry.selectorTests ||
       entry.domOnly ||
       entry.script
     ) {
@@ -365,7 +367,7 @@ for (const entry of manifest) {
         origin: entry.path.startsWith('/_repo/') ? 'local' : 'upstream',
         adaptation: entry.parsing
           ? 'selector-validity'
-          : entry.domOnly
+          : entry.domOnly || entry.selectorTests
             ? 'selector-matching'
             : entry.script
               ? 'script-wrapper'

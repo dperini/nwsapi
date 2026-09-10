@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
@@ -23,7 +24,7 @@ type Host = {
   NW: { Dom: ReturnType<typeof factory> }
   before: ReturnType<typeof factory>
 }
-const browser = await chromium.launch()
+const browser = await chromium.launch(browserLaunchOptions())
 const rows = []
 try {
   for (const matches of [0, 1, 16, 256]) {

@@ -58,3 +58,26 @@ test('focus-within fallback distinguishes default body state from actual focus',
   window.document.querySelector('input')!.focus()
   expect(engine.match(':focus-within', body)).toBe(true)
 })
+
+test('focus matching falls back to activeElement when native matches is absent', t => {
+  const { window } = new JSDOM(
+    '<!doctype html><input><button>Focus</button><iframe></iframe>',
+  )
+  t.onTestFinished(() => window.close())
+  Object.defineProperty(window.Element.prototype, 'matches', {
+    value: undefined,
+  })
+  const engine = factory(window)
+  const input = window.document.querySelector('input')!
+  const button = window.document.querySelector('button')!
+  const frame = window.document.querySelector('iframe')!
+  expect(engine.match(':focus', input)).toBe(false)
+  input.focus()
+  expect(engine.match(':focus', input)).toBe(true)
+  expect(engine.match(':focus', button)).toBe(false)
+  button.focus()
+  expect(engine.match(':focus', input)).toBe(false)
+  expect(engine.match(':focus', button)).toBe(true)
+  frame.focus()
+  expect(engine.match(':focus', frame)).toBe(false)
+})
