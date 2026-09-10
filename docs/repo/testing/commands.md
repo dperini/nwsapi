@@ -124,3 +124,9 @@ pnpm run gen:bench
 These commands refresh the browser timing, first-match, retained-heap, file-size, public `jsdom`, and README summary charts. Raw samples remain in `assets/repo/bench/`. The [benchmark method](../perf/benchmarks.md) defines their scope.
 
 Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evidence) to refresh the browser comparison and selected WPT report. Then run `pnpm run gen:compliance`. That generator writes both compliance charts and their documentation summary from the reports. It rejects mismatched browser or engine builds. The native discovery pool identifies requirements and does not supply engine pass counts.
+
+## Source and package layout
+
+The engine entry is `src/engine/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Shared internal helpers remain in `src/internal/`. Optional modules remain in `src/modules/`, and external loaders and declarations remain in `src/external/`.
+
+The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/dom-selector.js`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.

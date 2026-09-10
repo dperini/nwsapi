@@ -210,7 +210,7 @@ export function renderApiMarkdown(
       name,
       signature(name, value, source),
       descriptions[name],
-      'src/nwsapi.mts',
+      'src/engine/nwsapi.mts',
       prop.loc!.start.line,
     )
     if (value?.type === 'FunctionExpression') {
@@ -299,7 +299,7 @@ export function renderApiMarkdown(
                 adapterSource,
               ),
           adapterDescriptions[name],
-          'src/dom-selector.mts',
+          'src/adapter/dom-selector.mts',
           node.loc!.start.line,
         ),
       }

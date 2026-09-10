@@ -16,9 +16,9 @@
  */
 
 // Keep the UMD source a script. Runtime imports would change its wrapper.
-type LegacyHooks = import('./internal/legacy.d.ts').LegacyHooks
-type LegacyHookFactory = import('./internal/legacy.d.ts').LegacyHookFactory
-type LegacyReaders = import('./internal/legacy.d.ts').LegacyReaders
+type LegacyHooks = import('../internal/legacy.d.ts').LegacyHooks
+type LegacyHookFactory = import('../internal/legacy.d.ts').LegacyHookFactory
+type LegacyReaders = import('../internal/legacy.d.ts').LegacyReaders
 
 type EngineContext = (Document | Element | DocumentFragment) &
   Partial<
@@ -41,7 +41,7 @@ type EngineElement = Element &
     style?: CSSStyleDeclaration
     open?: boolean
   }
-type HostReaders = import('./internal/host.d.ts').HostReaders
+type HostReaders = import('../internal/host.d.ts').HostReaders
 type EngineGlobal = typeof globalThis & {
   NW?: { Dom?: unknown }
   hostReaders?: HostReaders

@@ -11,7 +11,7 @@ import type { NwsapiEngine } from '../../../.config/runtime.d.ts'
 import type { DOMWindow } from 'jsdom'
 import { sample, median } from './timing.mts'
 import { sha256 } from './footprint-shared.mts'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { ENGINE_SOURCE_PATH, REPO_ROOT } from '../lib/paths.mts'
 
 const { values } = parseArgs({
   options: {
@@ -32,7 +32,7 @@ const before = execFileSync(
   ['show', `${values.baseline}:src/nwsapi.mts`],
   { cwd: REPO_ROOT, encoding: 'utf8' },
 )
-const after = readFileSync(path.join(REPO_ROOT, 'src/nwsapi.mts'), 'utf8')
+const after = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
 async function load(source: string, name: string) {
   const result = await transform('nwsapi.mts', source, {
     lang: 'ts',

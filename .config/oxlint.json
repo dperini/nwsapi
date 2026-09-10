@@ -121,7 +121,7 @@
   "overrides": [
     {
       "files": [
-        "**/src/nwsapi.mts",
+        "**/src/engine/nwsapi.mts",
         "**/src/internal/direction.mts",
         "**/src/modules/*.mts"
       ],
@@ -131,8 +131,8 @@
     },
     {
       "files": [
-        "**/src/dom-selector.mts",
-        "**/src/nwsapi.mts",
+        "**/src/adapter/dom-selector.mts",
+        "**/src/engine/nwsapi.mts",
         "**/src/modules/nwsapi-legacy.mts"
       ],
       "rules": {

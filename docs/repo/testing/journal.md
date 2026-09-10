@@ -63,3 +63,11 @@ These values include startup, the build, tests, and coverage reporting. The medi
 To reproduce the setup comparison, keep the current engine and other tests fixed. Alternate the legacy test file from `886765c` with the changed file and run `pnpm run test:unit --coverage --reporter=json --outputFile=<owned-temporary-path>` in fresh processes. Restore the changed file even if a run fails. The report records both fixture hashes, the engine hash, all test inventories, and coverage summaries. The lane subsequently moved the parser-stall case to integration, so reproducing the original 664-test unit inventory also requires its original placement.
 
 The parser-stall regression runs a child process with an external timeout. It now lives at `test/repo/integration/bench/parser-stall.test.mts`, matching the script it tests. The same malformed selector, SyntaxError assertion, and process deadline remain. This changes lane ownership rather than removing work. The final local coverage run passed 663 unit tests in 3455ms and 148 integration tests in 7050ms. Cumulative coverage also includes modern and legacy WPT. Remote CI remains the evidence for the Linux lane budget.
+
+## Reduce unit coverage work without changing the budget
+
+CI ran past the 10,000ms unit coverage budget at 10,129ms. Comparison-fixture tests now use eight candidates for empty, single-match, dense, and layout checks. The benchmark generator still defaults to 256 candidates, and the test verifies that default separately. Reporter-selection tests mock Playwright's configuration wrapper to avoid loading the browser runner. The local unit coverage run completed in 3,749ms. This local timing is not a hosted-runner comparison.
+
+## Guard display-state initialization and body portals
+
+The cause identified in [issue #214](https://github.com/dperini/nwsapi/issues/214) is eager display-state detection that delegates back into the selector engine. The current engine already uses lazy detection and caches reentry. A regression test now verifies zero display-state probes during initialization, inserts a popover into the document body through a click handler, and checks that repeated display-state queries make only one delegation probe. This covers the reported low-level cause. It does not reproduce the reporter's unavailable React application.

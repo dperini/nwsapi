@@ -1,6 +1,6 @@
 'use strict'
 
-type HostReaders = import('./internal/host.d.ts').HostReaders
+type HostReaders = import('../internal/host.d.ts').HostReaders
 type IdlUtils = {
   wrapperForImpl(node: unknown): Node
   implForWrapper?(node: Node): Element | undefined
@@ -113,8 +113,8 @@ function createHostReaders(
 
 type CssNode = import('css-tree').CssNode
 type Selector = import('css-tree').Selector
-type NwsapiEngine = import('../.config/runtime.d.ts').NwsapiEngine
-type NwsapiCollection = import('../.config/runtime.d.ts').NwsapiCollection
+type NwsapiEngine = import('../../.config/runtime.d.ts').NwsapiEngine
+type NwsapiCollection = import('../../.config/runtime.d.ts').NwsapiCollection
 
 type HostWindow = Window & typeof globalThis
 type Engine = NwsapiEngine & {

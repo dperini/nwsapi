@@ -37,7 +37,7 @@ export const entries = [
     published: 'bin/nwsapi.js',
   },
   {
-    source: 'src/nwsapi.mts',
+    source: 'src/engine/nwsapi.mts',
     output: 'dist/nwsapi.js',
     published: 'src/nwsapi.js',
   },
@@ -47,7 +47,7 @@ export const entries = [
     published: 'src/modules/nwsapi-legacy.js',
   },
   {
-    source: 'src/dom-selector.mts',
+    source: 'src/adapter/dom-selector.mts',
     output: 'dist/dom-selector.js',
     published: 'src/dom-selector.js',
   },
@@ -67,7 +67,7 @@ export const browserOutputs = new Set<string>(
   entries
     .filter(
       ({ source }) =>
-        source === 'src/nwsapi.mts' || source.startsWith('src/modules/'),
+        source === 'src/engine/nwsapi.mts' || source.startsWith('src/modules/'),
     )
     .map(({ output }) => output),
 )

@@ -49,7 +49,7 @@ if (!directionCode || directionCode.type !== 'chunk') {
 // stays intact. Do not bundle the lazy css-tree peer or change module wrappers.
 for (const entry of entries) {
   let source = await readFile(entry.source, 'utf8')
-  if (entry.source === 'src/nwsapi.mts') {
+  if (entry.source === 'src/engine/nwsapi.mts') {
     const marker = '/* @bundle:direction */ {}'
     if (!source.includes(marker)) {
       throw new Error('Missing Unicode direction bundle marker')
@@ -69,7 +69,7 @@ for (const entry of entries) {
   }
   await mkdir(path.dirname(entry.output), { recursive: true })
   let code =
-    entry.source === 'src/nwsapi.mts'
+    entry.source === 'src/engine/nwsapi.mts'
       ? await bundleEngine(result.code)
       : result.code
   if (browserOutputs.has(entry.output)) {
