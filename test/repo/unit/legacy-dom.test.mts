@@ -22,7 +22,7 @@ import { legacyHost } from '../fixtures/legacy-host.mts'
 const require = createRequire(import.meta.url)
 const here = path.dirname(fileURLToPath(import.meta.url))
 const nwsapiPath = path.resolve(here, '..', '..', '..', 'dist', 'nwsapi.js')
-const engineFactory = require(nwsapiPath)
+const engineFactory: typeof factory = require(nwsapiPath)
 
 const MARKUP =
   '<!doctype html><html><body>' +
@@ -206,19 +206,21 @@ test('LEGACY restores the handling a pre-2015 host needed', () => {
   expect(() => NW.select('[href]', scope)).toThrow()
   expect(() => NW.select('.x.big', scope)).toThrow()
   // a tag test reads a property, so it rejects the comment either way
-  expect(NW.select('a.x', scope).map((node: Element) => node.id)).toEqual(['b'])
+  expect(
+    Array.from(NW.select('a.x', scope)).map((node: Element) => node.id),
+  ).toEqual(['b'])
 
   try {
     NW.configure({ LEGACY: true })
-    expect(NW.select('[href]', scope).map((node: Element) => node.id)).toEqual([
-      'b',
-    ])
-    expect(NW.select('.x.big', scope).map((node: Element) => node.id)).toEqual([
-      'b',
-    ])
-    expect(NW.match('.x', comment)).toBe(false)
-    expect(NW.match('[href]', comment)).toBe(false)
-    expect(NW.match('#a', comment)).toBe(false)
+    expect(
+      Array.from(NW.select('[href]', scope)).map((node: Element) => node.id),
+    ).toEqual(['b'])
+    expect(
+      Array.from(NW.select('.x.big', scope)).map((node: Element) => node.id),
+    ).toEqual(['b'])
+    expect(NW.match('.x', comment as unknown as Element)).toBe(false)
+    expect(NW.match('[href]', comment as unknown as Element)).toBe(false)
+    expect(NW.match('#a', comment as unknown as Element)).toBe(false)
 
     // and the ordinary answers do not change under it
     for (const selector of [
@@ -228,7 +230,9 @@ test('LEGACY restores the handling a pre-2015 host needed', () => {
       'a[href]',
       '.x.big',
     ] as const) {
-      const mine = NW.select(selector, document).map((node: Element) => node.id)
+      const mine = Array.from(NW.select(selector, document)).map(
+        (node: Element) => node.id,
+      )
       const reference = Array.from(
         document.querySelectorAll(selector),
         node => node.id,
@@ -273,7 +277,7 @@ describe('a host that needs the legacy handling', () => {
 
   test('the engine turns the handling on by itself', () => {
     const { NW } = build(MARKUP)
-    expect(NW.configure().LEGACY).toBe(true)
+    expect(NW.configure()['LEGACY']).toBe(true)
   })
 
   test('switching from a modern document invalidates direct-read resolvers', () => {
@@ -283,17 +287,17 @@ describe('a host that needs the legacy handling', () => {
       'p1',
       'p3',
     ])
-    expect(modern.NW.configure().LEGACY).toBe(false)
+    expect(modern.NW.configure()['LEGACY']).toBe(false)
     expect(ids(modern.NW.select('div.box > p.a', legacy.host))).toEqual([
       'p1',
       'p3',
     ])
-    expect(modern.NW.configure().LEGACY).toBe(true)
+    expect(modern.NW.configure()['LEGACY']).toBe(true)
     expect(ids(modern.NW.select('div.box > p.a', modern.document))).toEqual([
       'p1',
       'p3',
     ])
-    expect(modern.NW.configure().LEGACY).toBe(true)
+    expect(modern.NW.configure()['LEGACY']).toBe(true)
   })
 
   test('URL reads are selected again for each document', () => {
@@ -316,7 +320,7 @@ describe('a host that needs the legacy handling', () => {
   test('match, first and closest agree as well', () => {
     const { NW, host, document } = build(MARKUP)
     const byId = (id: string) => {
-      const node = host.getElementById(id)
+      const node = host.getElementById(id)!
       expect(node, id).toBeTruthy()
       return node
     }
@@ -327,17 +331,19 @@ describe('a host that needs the legacy handling', () => {
     expect(NW.match('[for="x"]', byId('a1'))).toBe(true)
     expect(NW.match('input[checked]', byId('i1'))).toBe(true)
 
-    expect(NW.first('div p', host).id).toBe(document.querySelector('div p')!.id)
-    expect(NW.first('li.row', host).id).toBe('l2')
+    expect(NW.first('div p', host)!.id).toBe(
+      document.querySelector('div p')!.id,
+    )
+    expect(NW.first('li.row', host)!.id).toBe('l2')
     expect(NW.first('table', host)).toBeNull()
 
-    expect(NW.closest('div', byId('p1')).id).toBe('d1')
-    expect(NW.closest('#d2', byId('p1'))).toBeNull()
+    expect(NW.closest('div', byId('p1'))!.id).toBe('d1')
+    expect(NW.closest('#d2', byId('p1')!)).toBeNull()
   })
 
   test('a query scoped to an element stays inside it', () => {
     const { NW, host, document } = build(MARKUP)
-    const scope = host.getElementById('d2')
+    const scope = host.getElementById('d2')!
     for (const selector of [
       'li',
       'ul li',
@@ -347,7 +353,7 @@ describe('a host that needs the legacy handling', () => {
     ] as const) {
       const mine = ids(NW.select(selector, scope))
       const reference = ids(
-        document.getElementById('d2')!.querySelectorAll(selector),
+        document.getElementById('d2')!.querySelectorAll(selector)!,
       )
       expect(mine, selector).toEqual(reference)
     }
@@ -400,8 +406,8 @@ describe('pseudo-classes on a host that needs the handling', () => {
     // the legacy reads change an answer, and they must not.
     const legacy = build(FORM)
     const modern = buildModern(FORM)
-    expect(legacy.NW.configure().LEGACY).toBe(true)
-    expect(modern.NW.configure().LEGACY).toBe(false)
+    expect(legacy.NW.configure()['LEGACY']).toBe(true)
+    expect(modern.NW.configure()['LEGACY']).toBe(false)
 
     for (const selector of PSEUDOS) {
       let mine
@@ -520,7 +526,7 @@ describe('what a legacy resolver is allowed to contain', () => {
 
   test('no resolver reads the host directly', () => {
     const { NW } = build(MARKUP)
-    expect(NW.configure().LEGACY).toBe(true)
+    expect(NW.configure()['LEGACY']).toBe(true)
 
     const offenders = []
     for (const selector of SHAPES) {
@@ -547,7 +553,7 @@ describe('what a legacy resolver is allowed to contain', () => {
 
   test('host-read text inside selector strings is data, not generated code', () => {
     const { NW, document } = buildModern('<div id=a></div><div id=b></div>')
-    const a = document.getElementById('a')
+    const a = document.getElementById('a')!
     for (const value of [
       'e.localName',
       'n.parentElement',
@@ -576,7 +582,7 @@ describe('what a legacy resolver is allowed to contain', () => {
     // the other half of the bargain: with the option off, the reads are
     // written in place and cost neither a call nor a branch
     const { NW } = buildModern(MARKUP)
-    expect(NW.configure().LEGACY).toBe(false)
+    expect(NW.configure()['LEGACY']).toBe(false)
     expect(String(NW.compile('div p', true, null))).toContain('.localName')
     expect(String(NW.compile('[href]', true, null))).toContain('.hasAttribute')
     expect(String(NW.compile(':first-child', true, null))).toContain(
@@ -591,7 +597,7 @@ describe('the attribute quirks that host had', () => {
   // not always the markup a selector compares against.
   test('a URL attribute compares as markup, not as the resolved URL', () => {
     const { NW, host } = build(MARKUP)
-    const link = host.getElementById('a1')
+    const link = host.getElementById('a1')!
 
     // what this host answers without the flag, which is not what the
     // selector is asking about
@@ -609,7 +615,7 @@ describe('the attribute quirks that host had', () => {
 
   test('class and for are read through the property that host exposed', () => {
     const { NW, host } = build(MARKUP)
-    const link = host.getElementById('a1')
+    const link = host.getElementById('a1')!
 
     // the markup name answered nothing at all
     expect(link!.getAttribute('for')).toBeNull()
@@ -629,7 +635,7 @@ describe('the attribute quirks that host had', () => {
     // and this engine does the same: the presence test works either way and
     // the value test agrees with the reference engine on the bare form.
     const { NW, host, document } = build(MARKUP)
-    expect(host.getElementById('i1')!.getAttribute('checked')).toBe(true)
+    expect(host.getElementById('i1')!.getAttribute('checked')!).toBe(true)
 
     expect(ids(NW.select('input[checked]', host))).toEqual(['i1'])
     expect(ids(NW.select('input[disabled]', host))).toEqual(['i2'])
@@ -649,7 +655,7 @@ describe('the attribute quirks that host had', () => {
     // IE 6 and 7 answered getAttribute('enctype') with the form default when
     // the markup had set nothing, so a value cannot decide presence.
     const { NW, host, document } = build(MARKUP)
-    const form = host.getElementById('f1')
+    const form = host.getElementById('f1')!
     expect(form!.getAttribute('enctype')).toBe(
       'application/x-www-form-urlencoded',
     )
@@ -664,7 +670,7 @@ describe('the attribute quirks that host had', () => {
     // Opera up to 9.27 resolved a form action and took no second argument,
     // so the read that answers the markup is detected rather than assumed.
     const { NW, host, document } = build(MARKUP, { urls: 'plain' })
-    const link = host.getElementById('a1')
+    const link = host.getElementById('a1')!
     expect(link!.getAttribute('href')).toBe('http://legacy.example/go')
     expect(
       Reflect.apply(Reflect.get(link!, 'getAttribute'), link, ['href', 2]),
@@ -683,7 +689,7 @@ describe('the attribute quirks that host had', () => {
 
   test('a style attribute is a presence test, not an object stringified', () => {
     const { NW, host } = build(MARKUP)
-    expect(typeof host.getElementById('d3')!.getAttribute('style')).toBe(
+    expect(typeof host.getElementById('d3')!.getAttribute('style')!).toBe(
       'object',
     )
     expect(ids(NW.select('div[style]', host))).toEqual(['d3'])
@@ -693,7 +699,7 @@ describe('the attribute quirks that host had', () => {
     const { NW, host } = build(MARKUP)
     expect(ids(NW.select('[data-missing]', host))).toEqual([])
     expect(ids(NW.select('input[readonly]', host))).toEqual([])
-    expect(NW.match('[data-missing]', host.getElementById('d1'))).toBe(false)
+    expect(NW.match('[data-missing]', host.getElementById('d1')!)).toBe(false)
   })
 })
 
@@ -737,11 +743,13 @@ describe('what LEGACY does to a host that does not need it', () => {
         DOMException: dom.window.DOMException,
       }),
     )
-    expect(NW.configure().LEGACY, 'not detected on a modern host').toBe(false)
+    expect(NW.configure()['LEGACY'], 'not detected on a modern host').toBe(
+      false,
+    )
 
     const modern = SELECTORS.map(selector => ids(NW.select(selector, document)))
     NW.configure({ LEGACY: true })
-    expect(NW.configure().LEGACY).toBe(true)
+    expect(NW.configure()['LEGACY']).toBe(true)
     const legacy = SELECTORS.map(selector => ids(NW.select(selector, document)))
     NW.configure({ LEGACY: false })
 

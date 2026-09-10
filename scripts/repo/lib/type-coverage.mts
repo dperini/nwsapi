@@ -1,3 +1,4 @@
+import { typeCoverageThreshold } from '../../../.config/coverage.config.mts'
 import { measureNativeTypeCoverage } from '../cover/types/analysis.mts'
 import type { NativeTypeCoverageResult } from '../cover/types/analysis.mts'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -34,4 +35,12 @@ export function accumulatedCoverage(
   types: TypeCoverageMetric,
 ) {
   return { execution, types }
+}
+
+export function checkTypeCoverage(metric: TypeCoverageMetric) {
+  if (!Number.isFinite(metric.pct) || metric.pct < typeCoverageThreshold) {
+    throw new Error(
+      `Type coverage ${metric.pct}% is below ${typeCoverageThreshold}%.`,
+    )
+  }
 }

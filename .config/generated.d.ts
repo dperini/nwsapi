@@ -20,14 +20,14 @@ declare module '*/dist/nwsapi.js' {
 
 declare module '*/dist/adapter/dom-selector.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
-  type QueryCollection = import('./runtime.d.ts').NwsapiCollection
-  // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
   type SelectorList = import('css-tree').SelectorList
   export default class DOMSelector {
     constructor(window: unknown, document?: unknown, options?: unknown)
     static configure(window: unknown, options: Record<string, boolean>): void
     static use(window: unknown, engine: typeof NW.Dom): typeof NW.Dom
     engine: typeof NW.Dom
+    // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
+    css: typeof import('css-tree') | undefined
     selectors: Map<string, unknown> | undefined
     matches(
       selector: string,
@@ -48,10 +48,14 @@ declare module '*/dist/adapter/dom-selector.js' {
       selector: string,
       node: unknown,
       options?: { noexcept?: boolean },
-    ): QueryCollection
+    ): Element[]
     clear(clearAll?: boolean): void
     supports(selector: unknown): boolean
-    extractSubjects(): Array<{ id: null; className: null; tag: null }>
+    extractSubjects(selector?: string): Array<{
+      id: string | null
+      className: string | null
+      tag: string | null
+    }>
     check(
       selector: string,
       node: unknown,

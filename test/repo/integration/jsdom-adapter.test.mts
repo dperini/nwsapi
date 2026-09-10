@@ -4,6 +4,8 @@ import type * as NodeVm from 'node:vm'
 import type * as NodeModule from 'node:module'
 import type ModuleInstance from 'node:module'
 import type { ConstructorOptions } from 'jsdom'
+import type * as Jsdom from 'jsdom'
+import type createNwsapi from '../../../dist/nwsapi.js'
 import { test, vi, type TestContext } from 'vitest'
 import { createRequire } from 'node:module'
 
@@ -13,7 +15,7 @@ import assert from 'node:assert/strict'
 const jsdomRequire = createRequire(
   process.env['JSDOM_PACKAGE'] || require.resolve('jsdom'),
 )
-const factory = process.env['JSDOM_PACKAGE']
+const factory: typeof createNwsapi = process.env['JSDOM_PACKAGE']
   ? jsdomRequire('@asamuzakjp/dom-selector')
   : require('../../../dist/nwsapi.js')
 const { DOMSelector } = factory
@@ -29,7 +31,7 @@ if (process.env['JSDOM_PACKAGE']) {
   )
 }
 assert.equal(jsdomRequire('@asamuzakjp/dom-selector'), factory)
-const { JSDOM } = jsdomRequire('jsdom')
+const { JSDOM } = jsdomRequire('jsdom') as typeof Jsdom
 
 function host(
   t: TestContext,
@@ -45,7 +47,7 @@ test('the callable factory and the DOMSelector export coexist', t => {
   const window = host(t)
   assert.equal(typeof factory, 'function')
   assert.equal(typeof DOMSelector, 'function')
-  assert.equal(factory(window).first('.item', window.document).id, 'one')
+  assert.equal(factory(window).first('.item', window.document)!.id, 'one')
 })
 
 test('jsdom uses the configured engine without sharing ordinary factory calls', t => {
@@ -54,15 +56,15 @@ test('jsdom uses the configured engine without sharing ordinary factory calls', 
   DOMSelector.configure(window, { LEGACY: true })
   const engine = new DOMSelector(window).engine
   DOMSelector.configure(window, { IDS_DUPES: true })
-  assert.equal(engine.configure().LEGACY, true)
+  assert.equal(engine.configure()['LEGACY'], true)
   const direct = factory(window)
   assert.notEqual(direct, engine)
-  assert.equal(direct.configure().LEGACY, false)
+  assert.equal(direct.configure()['LEGACY'], false)
   DOMSelector.configure(other, { LEGACY: false })
   const separate = new DOMSelector(other).engine
   assert.notEqual(separate, engine)
   const first = vi.spyOn(engine, 'first')
-  assert.equal(window.document.querySelector('#one').id, 'one')
+  assert.equal(window.document.querySelector('#one')!.id, 'one')
   assert.equal(first.mock.calls.length, 1)
   assert.equal(new DOMSelector(window).engine, engine)
   assert.equal(new DOMSelector(other).engine, separate)
@@ -80,20 +82,18 @@ test('an injected engine handles DOM queries, nested selectors, and styles', t =
   const style = document.createElement('style')
   style.textContent = 'section:has(input:-moz-read-only) { display: none }'
   document.head.append(style)
-  const target = document.getElementById('target')
+  const target = document.getElementById('target')!
   assert.equal(document.querySelector('section:has(input)'), target)
   assert.equal(document.querySelectorAll('section:has(input)')[0], target)
   assert.equal(target.matches('section:has(input)'), true)
-  assert.equal(target.closest('section'), target)
+  assert.equal(target.closest('section')!, target)
   for (const spy of [first, select, match, closest] as const) {
     assert.ok(spy.mock.calls.length > 0)
   }
   match.mockClear()
   assert.equal(window.getComputedStyle(target).display, 'block')
-  assert.ok(
-    match.mock.calls.some(call => String(call[0]).includes(':-moz-read-only')),
-  )
-  assert.equal(engine.configure().VERBOSITY, true)
+  assert.ok(match.mock.calls.some(call => call[0].includes(':-moz-read-only')))
+  assert.equal(engine.configure()['VERBOSITY'], true)
   assert.throws(
     () => document.querySelector('section:has(input:-moz-read-only)'),
     { name: 'SyntaxError' },
@@ -112,21 +112,21 @@ test('an injected engine handles DOM queries, nested selectors, and styles', t =
   assert.throws(() => target.matches(':-moz-read-only'), {
     name: 'SyntaxError',
   })
-  assert.equal(engine.configure().VERBOSITY, true)
+  assert.equal(engine.configure()['VERBOSITY'], true)
 })
 
 test('configuration clears an injected engine warmed before adapter setup', t => {
   const window = host(t)
   const engine = factory(window)
-  const node = window.document.getElementById('one')
+  const node = window.document.getElementById('one')!
   const selector = ':is(:unknown, .item)'
   assert.equal(engine.match(selector, node), true)
   assert.equal(engine.select(selector, window.document).length, 2)
   DOMSelector.use(window, engine)
   assert.equal(engine.match(selector, node), true)
   DOMSelector.configure(window, { FORGIVING: false })
-  assert.equal(engine.configure().FORGIVING, false)
-  assert.throws(() => window.document.querySelector(selector), {
+  assert.equal(engine.configure()['FORGIVING'], false)
+  assert.throws(() => window.document.querySelector(selector)!, {
     name: 'SyntaxError',
   })
   assert.throws(() => node.matches(selector), { name: 'SyntaxError' })
@@ -138,15 +138,15 @@ test('adapter setup rejects silent engines without changing their configuration'
   const engine = factory(window)
   engine.configure({ VERBOSITY: false })
   assert.throws(() => DOMSelector.use(window, engine), /VERBOSITY: true/)
-  assert.equal(engine.configure().VERBOSITY, false)
+  assert.equal(engine.configure()['VERBOSITY'], false)
   assert.throws(
     () => DOMSelector.configure(window, { VERBOSITY: false }),
     /VERBOSITY: true/,
   )
   DOMSelector.configure(window, { VERBOSITY: true })
   const configured = new DOMSelector(window).engine
-  assert.equal(configured.configure().VERBOSITY, true)
-  assert.throws(() => window.document.querySelector('['), {
+  assert.equal(configured.configure()['VERBOSITY'], true)
+  assert.throws(() => window.document.querySelector('[')!, {
     name: 'SyntaxError',
   })
 })
@@ -158,23 +158,26 @@ test('setup ignores inherited options and locks on the first query', t => {
   DOMSelector.configure(window, options)
   const adapter = new DOMSelector(window)
   const engine = adapter.engine
-  assert.equal(engine.configure().FORGIVING, true)
-  assert.equal(engine.configure().LEGACY, true)
+  assert.equal(engine.configure()['FORGIVING'], true)
+  assert.equal(engine.configure()['LEGACY'], true)
   assert.equal(new DOMSelector(window).engine, engine)
-  adapter.matches('.item', window.document.getElementById('one'))
+  adapter.matches('.item', window.document.getElementById('one')!)
   assert.throws(
     () => DOMSelector.configure(window, { FORGIVING: false }),
     /before its first use/,
   )
   assert.throws(() => DOMSelector.use(window, engine), /before its first use/)
-  assert.equal(engine.configure().FORGIVING, true)
+  assert.equal(engine.configure()['FORGIVING'], true)
 })
 
 test('injection rejects wrong documents and replacement engines', t => {
   const window = host(t)
   const other = host(t)
   const engine = factory(window)
-  assert.throws(() => DOMSelector.use(window, {}), /engine for this document/)
+  assert.throws(
+    () => DOMSelector.use(window, {} as typeof NW.Dom),
+    /engine for this document/,
+  )
   assert.throws(
     () => DOMSelector.use(other, engine),
     /engine for this document/,
@@ -199,11 +202,11 @@ test('a bound engine must still throw when jsdom first queries it', t => {
   const engine = new DOMSelector(window).engine
   engine.configure({ VERBOSITY: false })
   assert.throws(
-    () => window.document.querySelector('section'),
+    () => window.document.querySelector('section')!,
     /VERBOSITY: true/,
   )
   engine.configure({ VERBOSITY: true })
-  assert.equal(window.document.querySelector('section').localName, 'section')
+  assert.equal(window.document.querySelector('section')!.localName, 'section')
 })
 
 test('beforeParse can configure before the document has a root element', t => {
@@ -220,8 +223,8 @@ test('beforeParse can configure before the document has a root element', t => {
     },
   )
   options.LEGACY = false
-  const node = window.document.querySelector('.item')
-  assert.equal(new DOMSelector(window).engine.configure().LEGACY, true)
+  const node = window.document.querySelector('.item')!
+  assert.equal(new DOMSelector(window).engine.configure()['LEGACY'], true)
   assert.equal(window.getComputedStyle(node).color, 'rgb(255, 0, 0)')
   assert.throws(
     () => DOMSelector.configure(window, { LEGACY: false }),
@@ -255,9 +258,9 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   assert.equal(OtherAdapter!.use(window, engine), engine)
   const adapter = new DOMSelector(window)
   assert.equal(adapter.engine, engine)
-  assert.equal(engine.configure().LEGACY, true)
+  assert.equal(engine.configure()['LEGACY'], true)
   const first = vi.spyOn(engine, 'first')
-  assert.equal(window.document.querySelector('#one').id, 'one')
+  assert.equal(window.document.querySelector('#one')!.id, 'one')
   assert.equal(first.mock.calls.length, 1)
   assert.throws(
     () => OtherAdapter!.configure(window, { LEGACY: false }),
@@ -281,7 +284,7 @@ for (const method of ['check', 'supports'] as const) {
     const window = host(t)
     const adapter = new DOMSelector(window)
     DOMSelector.configure(window, { LEGACY: true })
-    adapter[method]('.item', window.document.getElementById('one'))
+    adapter[method]('.item', window.document.getElementById('one')!)
     assert.throws(
       () => DOMSelector.configure(window, { LEGACY: false }),
       /before its first use/,
@@ -302,11 +305,11 @@ test('real jsdom queries return wrappers and a static NodeList in document order
     Array.from(nodes, (n: Element) => n.id),
     ['one', 'two'],
   )
-  assert.equal(document.querySelector('#one'), nodes[0])
+  assert.equal(document.querySelector('#one')!, nodes[0])
   assert.ok(nodes[0] instanceof window.Element)
   assert.equal(nodes[0].matches('.item'), true)
   assert.equal(nodes[0].matches('#two'), false)
-  assert.equal(nodes[0].closest('section'), document.body.firstElementChild)
+  assert.equal(nodes[0].closest('section')!, document.body.firstElementChild!)
   assert.equal(nodes[0].closest('article'), null)
   nodes[0].remove()
   assert.equal(nodes.length, 2)
@@ -316,7 +319,7 @@ test('real jsdom queries return wrappers and a static NodeList in document order
 test('element, detached subtree, and fragment queries stay in their context', t => {
   const window = host(t)
   const document = window.document
-  const section = document.body.firstElementChild
+  const section = document.body.firstElementChild!
   assert.equal(section.querySelector('section'), null)
   assert.deepEqual(
     Array.from(
@@ -329,21 +332,21 @@ test('element, detached subtree, and fragment queries stay in their context', t 
   const article = document.createElement('article')
   article.innerHTML = '<b class="item"></b>'
   fragment.append(article)
-  assert.equal(fragment.querySelector('.item'), article.firstElementChild)
+  assert.equal(fragment.querySelector('.item')!, article.firstElementChild!)
   assert.equal(fragment.querySelectorAll('b').length, 1)
-  assert.equal(article.firstElementChild.closest('article'), article)
+  assert.equal(article.firstElementChild!.closest('article')!, article)
   assert.equal(article.matches('article'), true)
 })
 
 test('cached selectors see attribute, tree, and stylesheet mutations', t => {
   const window = host(t, '<style>.on { color: red }</style><div></div>')
   const document = window.document
-  const node = document.body.firstElementChild
+  const node = document.body.firstElementChild!
   assert.equal(document.querySelector('.on'), null)
   node.className = 'on'
-  assert.equal(document.querySelector('.on'), node)
+  assert.equal(document.querySelector('.on')!, node)
   assert.equal(window.getComputedStyle(node).color, 'rgb(255, 0, 0)')
-  document.head.firstElementChild.textContent = '.on { color: blue }'
+  document.head.firstElementChild!.textContent = '.on { color: blue }'
   assert.equal(window.getComputedStyle(node).color, 'rgb(0, 0, 255)')
   node.className = ''
   assert.equal(document.querySelector('.on'), null)
@@ -355,7 +358,7 @@ test('CSS matching supplies specificity and excludes nonmatching list branches',
     '<style>#missing, .item { color: red } section .item { color: blue } .item::before { color: green }</style><section><div class="item"></div></section>',
   )
   assert.equal(
-    window.getComputedStyle(window.document.querySelector('.item')).color,
+    window.getComputedStyle(window.document.querySelector('.item')!).color,
     'rgb(0, 0, 255)',
   )
 })
@@ -363,12 +366,12 @@ test('CSS matching supplies specificity and excludes nonmatching list branches',
 test('DOM selector errors use the window SyntaxError and stylesheet errors do not escape', t => {
   const window = host(t)
   const document = window.document
-  const node = document.body.firstElementChild
+  const node = document.body.firstElementChild!
   for (const call of [
-    () => document.querySelector('['),
+    () => document.querySelector('[')!,
     () => document.querySelectorAll('['),
     () => node.matches('['),
-    () => node.closest('['),
+    () => node.closest('[')!,
   ] as const) {
     assert.throws(
       call,
@@ -386,89 +389,79 @@ test('DOM selector errors use the window SyntaxError and stylesheet errors do no
   assert.throws(() => adapter.matches('div', document), window.TypeError)
   adapter.clear()
   adapter.clear(true)
-  assert.equal(adapter.querySelector('section', document), node)
+  assert.equal(adapter.querySelector('section', document)!, node)
 })
 
 test('separate documents and XML preserve ownership and case', t => {
   const a = host(t)
   const b = host(t)
   assert.notEqual(
-    a.document.querySelector('.item'),
-    b.document.querySelector('.item'),
+    a.document.querySelector('.item')!,
+    b.document.querySelector('.item')!,
   )
   const xml = host(t, '<root><Item id="upper"/><item id="lower"/></root>', {
     contentType: 'application/xml',
   })
-  assert.equal(xml.document.querySelector('Item').id, 'upper')
-  assert.equal(xml.document.querySelector('item').id, 'lower')
+  assert.equal(xml.document.querySelector('Item')!.id, 'upper')
+  assert.equal(xml.document.querySelector('item')!.id, 'lower')
 })
 
 test('DOM-only calls leave the CSS parser and syntax cache unloaded', t => {
   const window = host(t)
   const adapter = new DOMSelector(window)
   const document = window.document
-  const node = document.body.firstElementChild
-  adapter.querySelector('section', document)
+  const node = document.body.firstElementChild!
+  adapter.querySelector('section', document)!
   adapter.querySelectorAll('div', node)
   adapter.matches('section', node)
-  adapter.closest('section', node)
+  adapter.closest('section', node)!
   adapter.supports('section')
   adapter.extractSubjects('section')
   adapter.clear(true)
   assert.equal(adapter.css, undefined)
   assert.equal(adapter.selectors, undefined)
   assert.equal(adapter.check('section', node).match, true)
-  assert.equal(typeof adapter.css.parse, 'function')
-  assert.equal(adapter.selectors.size, 1)
+  assert.equal(typeof adapter.css!.parse, 'function')
+  assert.equal(adapter.selectors!.size, 1)
 })
 
 test('stylesheet checks reuse syntax but not match results or result lists', t => {
   const window = host(t)
   const adapter = new DOMSelector(window)
-  const node = window.document.body.firstElementChild
+  const node = window.document.body.firstElementChild!
   adapter.check('section', node)
-  const css = adapter.css
-  let parses = 0,
-    generations = 0
-  adapter.css = {
-    ...css,
-    parse(...args: Parameters<typeof css.parse>) {
-      parses++
-      return css.parse(...args)
-    },
-    generate(...args: Parameters<typeof css.generate>) {
-      generations++
-      return css.generate(...args)
-    },
-  }
+  assert.ok(adapter.css)
+  adapter.css = { ...adapter.css }
+  const parse = vi.spyOn(adapter.css, 'parse')
+  const generate = vi.spyOn(adapter.css, 'generate')
   const selector = '#changed, section'
   const first = adapter.check(selector, node)
-  assert.equal(first.ast.children.size, 1)
+  assert.equal(first.ast!.children.size, 1)
   node.id = 'changed'
   adapter.clear()
   const second = adapter.check(selector, node)
-  assert.equal(second.ast.children.size, 2)
-  assert.equal(first.ast.children.size, 1)
-  assert.equal(parses, 1)
-  assert.equal(generations, 2)
+  assert.equal(second.ast!.children.size, 2)
+  assert.equal(first.ast!.children.size, 1)
+  assert.equal(parse.mock.calls.length, 1)
+  assert.equal(generate.mock.calls.length, 2)
   adapter.clear(true)
   adapter.check(selector, node)
-  assert.equal(parses, 2)
-  assert.equal(generations, 4)
+  assert.equal(parse.mock.calls.length, 2)
+  assert.equal(generate.mock.calls.length, 4)
 })
 
 test('stylesheet syntax cache stays bounded and evicted selectors still work', t => {
   const window = host(t)
   const adapter = new DOMSelector(window)
-  const node = window.document.body.firstElementChild
+  const node = window.document.body.firstElementChild!
   for (let i = 0; i < 300; i++) {
     adapter.check('.item' + i, node)
   }
-  assert.equal(adapter.selectors.size, 256)
-  assert.equal(adapter.selectors.has('.item0'), false)
+  assert.equal(adapter.selectors!.size, 256)
+  assert.equal(adapter.selectors!.has('.item0'), false)
   node.className = 'item0'
   assert.equal(adapter.check('.item0', node).match, true)
-  assert.equal(adapter.selectors.size, 256)
+  assert.equal(adapter.selectors!.size, 256)
 })
 
 test('a missing CSS peer only fails when stylesheet matching needs it', t => {
@@ -514,16 +507,16 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
     )
     const document = window.document
     assert.equal(
-      adapter.querySelector('section', document),
-      document.body.firstElementChild,
+      adapter.querySelector('section', document)!,
+      document.body.firstElementChild!,
     )
     assert.equal(
-      adapter.matches('section', document.body.firstElementChild),
+      adapter.matches('section', document.body.firstElementChild!),
       true,
     )
     assert.equal(loads, 0)
     assert.throws(
-      () => adapter.check('section', document.body.firstElementChild),
+      () => adapter.check('section', document.body.firstElementChild!),
       error => error === missing,
     )
     assert.equal(loads, 1)
@@ -548,7 +541,7 @@ test('stylesheet checks ignore non-elements and query APIs reject invalid contex
   }
   assert.throws(
     () =>
-      adapter.querySelector('section', window.document.createTextNode('text')),
+      adapter.querySelector('section', window.document.createTextNode('text')!),
     /Document, DocumentFragment, or Element/,
   )
 })
@@ -562,7 +555,7 @@ for (const [method, fallback] of [
   test(`${method} preserves throwing and noexcept contracts without poisoning subsequent queries`, t => {
     const window = host(t)
     const adapter = new DOMSelector(window)
-    const node = window.document.getElementById('one')
+    const node = window.document.getElementById('one')!
     for (const context of [
       null,
       window.document.createTextNode('text'),
@@ -576,7 +569,7 @@ for (const [method, fallback] of [
     assert.throws(() => adapter[method]('[', node), { name: 'SyntaxError' })
     assert.deepEqual(adapter[method]('[', node, { noexcept: true }), fallback)
     assert.equal(adapter.matches('.item', node), true)
-    assert.equal(adapter.engine.configure().VERBOSITY, true)
+    assert.equal(adapter.engine.configure()['VERBOSITY'], true)
     assert.throws(() => adapter[method]('[', node), { name: 'SyntaxError' })
   })
 }
@@ -593,7 +586,7 @@ test('noexcept query results and subject hints are independently owned', t => {
     [],
   )
   const subjects = adapter.extractSubjects('.item')
-  subjects[0].id = 'mutated'
+  subjects[0]!.id = 'mutated'
   subjects.push({ id: 'extra', className: null, tag: null })
   assert.deepEqual(adapter.extractSubjects('#one'), [
     { id: null, className: null, tag: null },
@@ -605,9 +598,9 @@ test('shared adapter instances observe resolver clearing and synchronous DOM mut
   const a = new DOMSelector(window)
   const b = new DOMSelector(window)
   const document = window.document
-  const first = document.getElementById('one')
-  const second = document.getElementById('two')
-  assert.equal(a.querySelector('.item', document), first)
+  const first = document.getElementById('one')!
+  const second = document.getElementById('two')!
+  assert.equal(a.querySelector('.item', document)!, first)
   const snapshot = a.querySelectorAll('.item', document)
   first.className = ''
   second.remove()
@@ -615,7 +608,7 @@ test('shared adapter instances observe resolver clearing and synchronous DOM mut
   replacement.className = 'item'
   document.body.append(replacement)
   b.clear(true)
-  assert.equal(a.querySelector('.item', document), replacement)
+  assert.equal(a.querySelector('.item', document)!, replacement)
   assert.deepEqual(Array.from(b.querySelectorAll('.item', document)), [
     replacement,
   ])
@@ -666,33 +659,33 @@ test('public DOM APIs preserve scope, XML, shadow, null, and identifier regressi
   const div = document.querySelector('div')!
   const button = document.querySelector('button')!
   const svg = document.querySelector('svg')!
-  assert.equal(div.querySelector(':scope > span'), div.firstElementChild)
-  assert.equal(button.querySelector(':scope svg'), svg)
-  assert.equal(svg.querySelector(':scope g'), svg.firstElementChild)
+  assert.equal(div.querySelector(':scope > span')!, div.firstElementChild!)
+  assert.equal(button.querySelector(':scope svg')!, svg)
+  assert.equal(svg.querySelector(':scope g')!, svg.firstElementChild!)
   assert.equal(div.closest('#null'), null)
   assert.equal(div.closest('.null'), null)
   assert.equal(div.matches(':active'), false)
   for (const selector of ['#-123', '.-123', 'button#react-aria-:r6: svg']) {
-    assert.throws(() => document.querySelector(selector), {
+    assert.throws(() => document.querySelector(selector)!, {
       name: 'SyntaxError',
     })
   }
-  assert.equal(document.querySelector('button#react-aria-\\:r6\\: svg'), svg)
+  assert.equal(document.querySelector('button#react-aria-\\:r6\\: svg')!, svg)
   const shadow = div.attachShadow({ mode: 'open' })
   const article = document.createElement('article')
   shadow.append(article)
-  assert.equal(shadow.querySelector(':host > article'), article)
+  assert.equal(shadow.querySelector(':host > article')!, article)
   const parse = (text: string) =>
     new window.DOMParser().parseFromString(text, 'text/xml')
   const namespaced = parse('<cp:coreProperties xmlns:cp="urn:properties"/>')
   assert.equal(
-    namespaced.querySelector('coreProperties'),
+    namespaced.querySelector('coreProperties')!,
     namespaced.documentElement,
   )
   const numeric = parse('<a id="9a"><b/></a>')
   assert.equal(
-    numeric.documentElement.querySelector(':scope>b'),
-    numeric.documentElement.firstElementChild,
+    numeric.documentElement.querySelector(':scope>b')!,
+    numeric.documentElement.firstElementChild!,
   )
   const tree = parse(
     '<bar><bar id="theBar"><child-bars/></bar><child-bars/></bar>',
@@ -757,7 +750,7 @@ test('the drop-in distinguishes modal state from ARIA and open body portals', t 
     )
     assert.deepEqual(Array.from(doc.querySelectorAll(':modal')), [])
     assert.equal(dialog.matches(':modal'), false)
-    assert.equal(doc.querySelector('[aria-modal="true"]'), dialog)
+    assert.equal(doc.querySelector('[aria-modal="true"]')!, dialog)
   }
   dialog.remove()
   assert.equal(dialog.matches(':modal'), false)

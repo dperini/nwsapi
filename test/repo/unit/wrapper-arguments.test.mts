@@ -1,3 +1,4 @@
+import createNwsapi from '../../../dist/nwsapi.js'
 import fs from 'node:fs'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
@@ -136,4 +137,14 @@ test('installed query results are static NodeList-compatible snapshots', t => {
   expect(Reflect.set(list, 'length', 0)).toBe(false)
   expect(list.length).toBe(2)
   engine.uninstall()
+})
+
+test('nonthrowing configuration returns empty results for missing arguments', t => {
+  const { window } = new JSDOM('<div></div>')
+  t.onTestFinished(() => window.close())
+  const engine = createNwsapi(window)
+  engine.configure({ VERBOSITY: false, LOGERRORS: false })
+  expect(Reflect.apply(engine.match, engine, [])).toBe(false)
+  expect(Reflect.apply(engine.select, engine, [])).toEqual([])
+  expect(Reflect.apply(engine.first, engine, [])).toBeNull()
 })

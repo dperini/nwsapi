@@ -23,16 +23,16 @@ The reports record browser versions, source hashes, and upstream revisions. The 
 
 <!-- compliance-summary:start -->
 
-![Selector parsing and matching against Chrome](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/selector-compliance.svg?v=a7b565de3e89)
+![Selector parsing and matching against Chrome](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/selector-compliance.svg?v=e74a45a733b8)
 
-In 200 targeted selector and context cases, `nwsapi` agrees with Chrome on **185**, compared with **131** for the local source of `@asamuzakjp/dom-selector` 9.1.1. Agreement means the same ordered results or the same error type. These cases investigate suspected gaps and extensions. They do not represent all CSS selectors.
+Of 200 targeted cases, 185 use Chrome as their oracle. In those cases, `nwsapi` agrees with Chrome on **185**, compared with **129** for the local source of `@asamuzakjp/dom-selector` 9.1.1. Agreement means the same ordered results or the same error type. 15 reviewed standard, draft, or library extension cases are reported separately because Chrome rejects their syntax. They count as neither passes nor failures. The raw report retains all 200 outcomes.
 
 | Outcome against Chrome | Cases |
 | --- | ---: |
 | Both libraries agree | 129 |
 | Only `nwsapi` agrees | 56 |
-| Only `@asamuzakjp/dom-selector` agrees | 2 |
-| Neither library agrees | 13 |
+| Only `@asamuzakjp/dom-selector` agrees | 0 |
+| Neither library agrees | 0 |
 
 ![Selected WPT inputs and local regressions](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/wpt-compliance.svg?v=4d17c8d7f5f7)
 
@@ -59,7 +59,15 @@ See the [API reference](api.md) for methods and configuration, and [display-stat
 
 ## Differences and limitations
 
-The recorded Chrome disagreements are accepted selectors that Chrome rejects. They include quoted and list `:lang()` forms, attribute `s` flags, headings, column combinators, slots, and media states. They remain visible in the comparison report.
+The 15 separately reported cases are not all Chrome bugs:
+
+| Cases | Reason |
+| --- | --- |
+| 6 | Chrome lacks tested [Selectors Level 4](https://drafts.csswg.org/selectors/) syntax for quoted or list `:lang()`, attribute `s` flags, and media states. |
+| 8 | [Selectors Level 5](https://drafts.csswg.org/selectors-5/) and [CSS Shadow](https://drafts.csswg.org/css-shadow-1/) describe the tested headings, columns, current elements, and slots. These are draft features. |
+| 1 | `:closed` is a library extension. The current spec only mentions it as a possible future addition. |
+
+These cases are neither native passes nor native failures. Their results remain in the report. The [classification script](../../../scripts/repo/bench/selector-extensions.mts) records the reviewed syntax and sources. Classification applies equally to both libraries. New Chrome support automatically returns a case to the native comparison. Unreviewed disagreements remain failures.
 
 The selected WPT suite has 84 failures for draft heading offsets and resets. Basic `:heading` support does not implement those behaviors. The switch-control fixture supplies missing host reflection, so its result does not establish native browser support.
 

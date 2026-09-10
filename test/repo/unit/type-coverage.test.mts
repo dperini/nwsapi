@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import {
   accumulatedCoverage,
+  checkTypeCoverage,
   runTypeCoverage,
   writeTypeCoverage,
 } from '../../../scripts/repo/lib/type-coverage.mts'
@@ -57,4 +58,14 @@ test('writes the independently measured type artifact', () => {
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
+})
+
+test('type coverage enforces its independent 99 percent floor', () => {
+  expect(() =>
+    checkTypeCoverage({ covered: 99, total: 100, pct: 99 }),
+  ).not.toThrow()
+  expect(() =>
+    checkTypeCoverage({ covered: 9899, total: 10_000, pct: 98.99 }),
+  ).toThrow()
+  expect(() => checkTypeCoverage({ covered: 0, total: 0, pct: NaN })).toThrow()
 })

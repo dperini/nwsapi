@@ -71,3 +71,11 @@ CI ran past the 10,000ms unit coverage budget at 10,129ms. Comparison-fixture te
 ## Guard display-state initialization and body portals
 
 The display-state regression in [issue #214](https://github.com/dperini/nwsapi/issues/214) involves native matching that delegates back into the selector engine. A later [historical reproduction](../selector/display-state.md) confirmed that the repeated calls occur during matching, with no factory initialization probes. The current engine already uses lazy detection and caches reentry. A regression test now verifies zero display-state probes during initialization, inserts a popover into the document body through a click handler, and checks that repeated display-state queries make only one delegation probe. This covers the reported low-level cause. It does not reproduce the reporter's unavailable React application.
+
+## Raise execution and type coverage to 99 percent
+
+Typed imports now connect the adapter and legacy tests to their actual API contracts. Engine annotations cover candidate collections, parser tokens, counters, and host state. The built engine hash is unchanged, so these annotations do not alter shipped JavaScript.
+
+Additional behavior tests cover legacy attribute values, URL reads, sibling traversal, connection checks, and missing query arguments. The completed run measured **99.08% executable lines** and **99.00% typed identifiers**. Execution lines and typed identifiers each have an independent 99 percent threshold. Neither metric borrows coverage from the other.
+
+Run `node scripts/repo/cover/types/run.mts --details` to list untyped identifiers in `coverage/type-coverage-details.json`. The report ranks files by their uncovered counts and records each identifier's source offset. This makes future gaps actionable without excluding files or suppressing compiler errors.

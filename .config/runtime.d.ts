@@ -70,7 +70,7 @@ export interface NwsapiEngine {
   compile(
     selector: string,
     mode: boolean | null,
-    callback?: boolean | ((element: Element) => unknown),
+    callback?: boolean | null | ((element: Element) => unknown),
   ):
     | ((
         candidates: unknown,

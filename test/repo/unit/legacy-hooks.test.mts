@@ -162,3 +162,78 @@ test('frame hooks install in the child DOM and preserve the parent engine', t =>
   parent.uninstall()
   /* oxlint-enable typescript/unbound-method */
 })
+
+test('legacy readers handle host values and tree links without modern APIs', t => {
+  const { window } = new JSDOM('<div></div>')
+  t.onTestFinished(() => window.close())
+  let create: LegacyHookFactory | undefined
+  installLegacy({
+    registerLegacyHooks(value: LegacyHookFactory) {
+      create = value
+      return true
+    },
+  } as typeof NW.Dom)
+  const engine = factory(window)
+  let readers: ReturnType<LegacyHookFactory> | undefined
+  engine.registerLegacyHooks(context => (readers = create!(context)))
+  const hooks = readers!
+  const host = (value: unknown) =>
+    ({ nodeType: 1, getAttribute: () => value }) as unknown as Element
+  expect(hooks.attrOf(host(false), 'checked')).toBeNull()
+  expect(hooks.attrOf(host(42), 'data-count')).toBe('42')
+  expect(hooks.attrOf(host(undefined), 'data-missing')).toBeNull()
+  expect(hooks.tagOf(host(null))).toBe('')
+  expect(hooks.tagOf(null as unknown as Element)).toBe('')
+  const left = { nodeType: 1 } as unknown as Element
+  const right = { nodeType: 1 } as unknown as Element
+  Object.defineProperty(left, 'nextSibling', {
+    value: { nodeType: 3, nextSibling: right },
+  })
+  Object.defineProperty(right, 'previousSibling', {
+    value: { nodeType: 8, previousSibling: left },
+  })
+  expect(hooks.nextOf(left)).toBe(right)
+  expect(hooks.prevOf(right)).toBe(left)
+  const root = { nodeType: 9 }
+  const child = { nodeType: 1, parentNode: { nodeType: 1, parentNode: root } }
+  expect(hooks.connectedOf(child as unknown as Node)).toBe(true)
+  expect(hooks.connectedOf(left)).toBe(false)
+  const readNext = hooks.read.next('e')
+  // Compile the hook expression to check its result, not its emitted spelling.
+  // oxlint-disable-next-line typescript/no-implied-eval -- Execute the compiler hook against a legacy host fixture.
+  const next = new Function('s', 'e', 'return ' + readNext) as (
+    readers: typeof hooks,
+    node: Element,
+  ) => Element
+  expect(next(hooks, left)).toBe(right)
+})
+
+test('legacy URL reads preserve markup when only the plain getter supports it', t => {
+  const { window } = new JSDOM('<div></div>')
+  t.onTestFinished(() => window.close())
+  let create: LegacyHookFactory | undefined
+  installLegacy({
+    registerLegacyHooks(value: LegacyHookFactory) {
+      create = value
+      return true
+    },
+  } as typeof NW.Dom)
+  const engine = factory(window)
+  let readers: ReturnType<LegacyHookFactory> | undefined
+  engine.registerLegacyHooks(context => (readers = create!(context)))
+  let href = ''
+  const anchor = {
+    nodeType: 1,
+    setAttribute(_name: string, value: string) {
+      href = value
+    },
+    getAttribute(_name: string, flag?: number) {
+      return flag === undefined ? href : 'https://example.test/resolved'
+    },
+  }
+  readers!.initialize({ createElement: () => anchor } as unknown as Document)
+  anchor.setAttribute('href', '../relative')
+  expect(readers!.attrOf(anchor as unknown as Element, 'href')).toBe(
+    '../relative',
+  )
+})

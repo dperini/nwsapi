@@ -171,7 +171,9 @@ interface Primordials {
 
   // Load shims before the library. All engines share these startup references.
   var uncurryThis = Function.prototype.bind.bind(Function.prototype.call),
-    FunctionPrototypeToString = uncurryThis(Function.prototype.toString),
+    FunctionPrototypeToString: (value: unknown) => string = uncurryThis(
+      Function.prototype.toString,
+    ),
     // Native-source pattern adapted from Lodash. See LICENSE for attribution.
     nativePattern = RegExp(
       '^' +
@@ -298,7 +300,7 @@ interface Primordials {
       // pairs, coloring breakage and other editors highlightning problems.
       //
 
-      var parenthesized,
+      var parenthesized: string,
         // CSS identifiers use their own grammar, not JavaScript ID_Start.
         // Keep the non-ASCII range accepted by browser selector APIs.
         noascii = '[^\\x00-\\x7f]',
@@ -830,8 +832,10 @@ interface Primordials {
       if (!global.NodeList || isInstanceOf(nodeArray)) {
         return nodeArray
       }
-      var list = primordials.ObjectCreate(global.NodeList.prototype),
-        i
+      var list: NodeListOf<Element> = primordials.ObjectCreate(
+          global.NodeList.prototype,
+        ),
+        i: number
       primordials.ObjectDefineProperties(list, {
         length: { value: nodeArray.length },
         item: {
@@ -932,16 +936,16 @@ interface Primordials {
       var length = nodes.length,
         count = ends.length - 1,
         output: Element[],
-        swap,
-        width,
-        group,
-        i,
-        j,
-        end,
-        middle,
-        out,
-        a,
-        b
+        swap: Element[],
+        width: number,
+        group: number,
+        i: number,
+        j: number,
+        end: number,
+        middle: number,
+        out: number,
+        a: Element,
+        b: Element
       if (length < 2 || count < 2) {
         return nodes
       }
@@ -1109,19 +1113,22 @@ interface Primordials {
     // to javascript string with characters representations
     unescapeIdentifier = function (str: string) {
       return REX.HasEscapes.test(str)
-        ? str.replace(REX.FixEscapes, function (substring, p1: string, p2) {
-            // unescaped " or '
-            return p2
-              ? p2
-              : // javascript strings are UTF-16 encoded
-                REX.HexNumbers.test(p1)
-                ? stringFromCodePoint(parseInt(p1, 16))
-                : // \' \"
-                  REX.EscOrQuote.test(p1)
-                  ? substring
-                  : // \g \h \. \# etc
-                    p1
-          })
+        ? str.replace(
+            REX.FixEscapes,
+            function (substring: string, p1: string, p2: string) {
+              // unescaped " or '
+              return p2
+                ? p2
+                : // javascript strings are UTF-16 encoded
+                  REX.HexNumbers.test(p1)
+                  ? stringFromCodePoint(parseInt(p1, 16))
+                  : // \' \"
+                    REX.EscOrQuote.test(p1)
+                    ? substring
+                    : // \g \h \. \# etc
+                      p1
+            },
+          )
         : str
     },
     // split ':is(', ':where(', ':matches(', ':not(' and ':has(' into their
@@ -1132,9 +1139,9 @@ interface Primordials {
     // with any open construct. Returns a match-like array so that callers can
     // pop() the remainder the same way they do with a RegExp match.
     splitList = function (text: string) {
-      var chr,
+      var chr: number,
         depth = 0,
-        escaped,
+        escaped: boolean | undefined,
         i = 0,
         l = text.length,
         quote = 0,
@@ -1171,12 +1178,12 @@ interface Primordials {
       selector: string,
       prefix?: RegExp,
     ): [string, string, string, string] | null {
-      var chr,
-        close,
-        escaped,
+      var chr: number,
+        close: number,
+        escaped: boolean | undefined,
         depth = 1,
-        i,
-        l,
+        i: number,
+        l: number,
         quote = 0,
         match = selector.match(prefix || REX.LogicalPfx)
 
@@ -1217,7 +1224,7 @@ interface Primordials {
     },
     matchNth = function (selector: string) {
       var match = matchLogical(selector, Patterns['treestruct']),
-        parts
+        parts: RegExpExecArray | null
       if (!match) {
         return null
       }
@@ -1245,7 +1252,7 @@ interface Primordials {
         depth = 0,
         quote = '',
         i = 0,
-        char
+        char: string
       for (; i < text.length; ++i) {
         char = text.charAt(i)
         if (char == '\\') {
@@ -1326,8 +1333,8 @@ interface Primordials {
     // context agnostic getElementById
     byId = function (id: string, context: EngineContext): Element[] {
       var e,
-        i,
-        l,
+        i: number,
+        l: number,
         nodes,
         lookupRoot,
         api = method['#']
@@ -1407,7 +1414,7 @@ interface Primordials {
       // name lookup can omit prefixed elements, so filter the complete walk.
       var candidates = byTag('*', context),
         nodes = [],
-        i
+        i: number
       for (i = 0; i < candidates.length; ++i) {
         if (tag == '*' || tagOf(candidates[i]!) == tag) {
           nodes[nodes.length] = candidates[i]!
@@ -1433,16 +1440,16 @@ interface Primordials {
       }
       var probe = !route || route.remaining <= 0,
         tags = names.split(','),
-        seen = primordials.ObjectCreate(null),
-        collections = [],
+        seen: Record<string, boolean> = primordials.ObjectCreate(null),
+        collections: Array<ArrayLike<Element>> = [],
         count = 0,
         nodes: Element[] = [],
-        list,
-        merged,
-        left,
-        right,
-        i,
-        tag
+        list: ArrayLike<Element>,
+        merged: Element[],
+        left: number,
+        right: number,
+        i: number,
+        tag: string
       for (i = 0; i < tags.length; ++i) {
         tag = tags[i]!.trim()
         if (!seen[tag]) {
@@ -1469,7 +1476,7 @@ interface Primordials {
       for (i = 0; i < collections.length; ++i) {
         list = sliceCall(collections[i]!)
         if (!nodes.length) {
-          nodes = list
+          nodes = list as Element[]
           continue
         }
         merged = []
@@ -1509,11 +1516,11 @@ interface Primordials {
       identity?: object | undefined,
     ) {
       var state: CollectionSnapshotState | undefined,
-        root,
-        view,
-        cached,
-        i,
-        result
+        root: Node,
+        view: (Window & typeof globalThis) | null,
+        cached: Element[] | undefined,
+        i: number,
+        result: Element[]
       identity = identity || nodes
       if (collectionStates && (state = collectionStates.get(identity))) {
         if (state.observer!.takeRecords().length) {
@@ -1581,9 +1588,9 @@ interface Primordials {
       collectionStates || (collectionStates = createWeakMap())
       collectionStates!.set(identity, state)
       // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
-      result = new Array(length)
+      result = new Array<Element>(length)
       for (i = 0; i < length; ++i) {
-        result[i] = nodes[i]
+        result[i] = nodes[i]!
       }
       state.copies.set(identity, result)
       return result
@@ -1603,7 +1610,7 @@ interface Primordials {
         return (snapshot as Element[]).slice()
       }
       var length = nodes.length,
-        i,
+        i: number,
         // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
         result = new Array(length)
       for (i = 0; i < length; ++i) {
@@ -1713,8 +1720,8 @@ interface Primordials {
       if (!HTML_DOCUMENT && tag != '*') {
         return byTagNS(context, tag)
       }
-      var e,
-        nodes,
+      var e: Element | null,
+        nodes: Element[],
         api = method['*']
       // Legacy hooks filter non-element nodes returned by older hosts.
       if (Config.LEGACY) {
@@ -1755,10 +1762,10 @@ interface Primordials {
     },
     // context agnostic getElementsByClassName
     byClass = function (cls: string, context: EngineContext) {
-      var e,
-        nodes,
+      var e: Element | null,
+        nodes: Element[],
         api = method['.'],
-        reCls
+        reCls: RegExp
       if (Config.LEGACY) {
         nodes = legacyHooks!.byClass(cls, context)
       } else if (api in context) {
@@ -1803,10 +1810,10 @@ interface Primordials {
       pattern?: RegExp,
       expected?: boolean,
     ) {
-      var i,
-        l,
-        local,
-        attribute,
+      var i: number,
+        l: number,
+        local: string,
+        attribute: Attr | null,
         attr = attrNamesOf(e)
       if (HTML_DOCUMENT) {
         name = name.toLowerCase()
@@ -1995,10 +2002,10 @@ interface Primordials {
           return -1
         }
         var e: Element | Element[] | null,
-          i,
-          j,
-          k,
-          l,
+          i: number,
+          j: number,
+          k: number,
+          l: number,
           p = Config.LEGACY ? upOf(element!) : element!.parentNode
         if (parent === p) {
           i = set
@@ -2152,10 +2159,10 @@ interface Primordials {
         }
         current = undefined
         var e: Element | Element[] | null,
-          i,
-          j,
-          k,
-          l,
+          i: number,
+          j: number,
+          k: number,
+          l: number,
           local = Config.LEGACY ? tagOf(element!) : element!.localName,
           namespace = element!.namespaceURI,
           name =
@@ -2256,7 +2263,7 @@ interface Primordials {
     // parent: answering from the last one skips the Map entirely
     lastMaskNode: Element | null = null,
     lastMaskValue = 0,
-    tagBits = primordials.ObjectCreate(null),
+    tagBits: Record<string, number> = primordials.ObjectCreate(null),
     tagBit = function (name: string) {
       if (HTML_DOCUMENT) {
         name = asciiLower(name)
@@ -2277,7 +2284,7 @@ interface Primordials {
       if (ancestorMasks === null) {
         ancestorMasks = createWeakMap()
       }
-      var i,
+      var i: number,
         mask,
         chain = [],
         parent = node.parentElement
@@ -2358,11 +2365,11 @@ interface Primordials {
     // Native matching exposes custom element state that attributes cannot.
     // https://dom.spec.whatwg.org/#concept-element-defined
     isDefined = function (element: EngineElement) {
-      var native,
-        custom,
+      var native: boolean | undefined,
+        custom: CustomElementConstructor | undefined,
         name = tagOf(element),
-        registry,
-        view
+        registry: CustomElementRegistry | null,
+        view: (Window & typeof globalThis) | null
 
       if (element.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
         return true
@@ -2502,9 +2509,9 @@ interface Primordials {
       selector: string,
       unavailable?: boolean | undefined,
     ) {
-      var view,
-        proto,
-        matcher,
+      var view: (Window & typeof globalThis) | null,
+        proto: Element | null,
+        matcher: NativeMatcherRecord['matcher'],
         ownerDoc = node.ownerDocument || doc
       if (arguments.length < 3) {
         unavailable = false
@@ -2934,7 +2941,7 @@ interface Primordials {
       if (existenceOnly) {
         cacheKey = 'exists:' + cacheKey
       }
-      var i,
+      var i: number,
         mask,
         filter,
         filtered,
@@ -3086,9 +3093,9 @@ interface Primordials {
     },
     // build conditional code to check components of selector strings
     isCompound = function (text: string, siblings?: boolean) {
-      var chr,
+      var chr: number,
         depth = 0,
-        escaped,
+        escaped: boolean | undefined,
         i = 0,
         l = text.length,
         quote = 0
@@ -3140,8 +3147,8 @@ interface Primordials {
         nodeVars = N_VARS,
         list = splitList(argument),
         parsed,
-        i,
-        j
+        i: number,
+        j: number
       S_VARS = []
       M_VARS = []
       N_VARS = []
@@ -3173,12 +3180,12 @@ interface Primordials {
       var i = 0,
         quote = 0,
         bracket = 0,
-        code,
-        logical,
-        items,
-        kept,
-        item,
-        j,
+        code: number,
+        logical: ReturnType<typeof matchLogical>,
+        items: string[],
+        kept: string[],
+        item: string | null,
+        j: number,
         output = '',
         start = 0
       for (; i < text.length; ++i) {
@@ -3245,9 +3252,9 @@ interface Primordials {
       var double = text.charAt(1) == ':',
         start = double ? 2 : 1,
         identifier = Patterns.tagName!.exec(text.slice(start)),
-        end,
-        block,
-        name
+        end: number,
+        block: NonNullable<ReturnType<typeof matchLogical>>,
+        name: string
       if (text.charAt(0) != ':' || !identifier) {
         return null
       }
@@ -3285,7 +3292,7 @@ interface Primordials {
       var quote = '',
         bracket = 0,
         i = 0,
-        char,
+        char: string,
         pseudo
       for (; i < text.length; ++i) {
         char = text.charAt(i)
@@ -3336,7 +3343,7 @@ interface Primordials {
       )
     },
     validPseudoElement = function (name: string, argument: string | null) {
-      var pieces
+      var pieces: string
       if (name == 'part') {
         return (
           argument !== null &&
@@ -3431,7 +3438,10 @@ interface Primordials {
       return false
     },
     validPseudoStates = function (text: string, context: string): boolean {
-      var token, name, argument, valid
+      var token: ReturnType<typeof readPseudo>,
+        name: string,
+        argument: string | null,
+        valid: boolean
       while (text) {
         token = readPseudo(text)
         if (!token || token.double) {
@@ -3491,11 +3501,11 @@ interface Primordials {
       return true
     },
     validPseudoTail = function (text: string) {
-      var token,
-        name,
+      var token: ReturnType<typeof readPseudo>,
+        name: string,
         context = '',
         states = '',
-        previous
+        previous: string
       while (text) {
         token = readPseudo(text)
         if (!token) {
@@ -3544,7 +3554,7 @@ interface Primordials {
       var quote = '',
         bracket = 0,
         i = 0,
-        char,
+        char: string,
         token
       for (; i < text.length; ++i) {
         char = text.charAt(i)
@@ -3592,7 +3602,7 @@ interface Primordials {
       var quote = '',
         bracket = 0,
         i = 0,
-        char,
+        char: string,
         token
       for (; i < text.length; ++i) {
         char = text.charAt(i)
@@ -3643,7 +3653,7 @@ interface Primordials {
       var quote = '',
         bracket = 0,
         i = 0,
-        char,
+        char: string,
         token,
         items,
         result = '',
@@ -3786,8 +3796,8 @@ interface Primordials {
         language: string | null = null,
         parts,
         wanted,
-        i,
-        j
+        i: number,
+        j: number
       while (current) {
         language =
           current.getAttributeNS &&
@@ -3846,7 +3856,7 @@ interface Primordials {
     validBlocks = function (text: string) {
       var stack: string[] = [],
         quote = '',
-        char,
+        char: string,
         i = 0
       for (; i < text.length; ++i) {
         char = text.charAt(i)
@@ -5393,12 +5403,12 @@ interface Primordials {
       var result = '',
         quote = '',
         i = 0,
-        end,
-        c,
-        before,
-        after,
+        end: number,
+        c: string,
+        before: string,
+        after: string,
         escapedEnd = -1,
-        hex
+        hex: RegExpExecArray | null
       while (i < text.length) {
         c = text[i++]!
         if (c == '\\') {
@@ -5467,9 +5477,9 @@ interface Primordials {
         return selectors
       }
       var i = 0,
-        j,
-        c,
-        next,
+        j: number,
+        c: string,
+        next: string,
         quote = '',
         result = '',
         length = selectors.length
@@ -5713,8 +5723,8 @@ interface Primordials {
         candidates,
         resolver,
         token,
-        i,
-        j,
+        i: number,
+        j: number,
         previousErrors = errors,
         previous = Snapshot.anchor
       Snapshot.anchor = anchor
@@ -5811,16 +5821,16 @@ interface Primordials {
     ) {
       var element: Element | null | undefined,
         next: Element | null,
-        value,
-        offset,
-        before,
-        after,
+        value: string,
+        offset: number,
+        before: number,
+        after: number,
         state: CollectionState<PrefixSnapshot> | null | undefined,
         cached: PrefixSnapshot | undefined,
         nodes: Element[],
         candidates: Element[] | undefined,
-        i,
-        view
+        i: number,
+        view: (Window & typeof globalThis) | null
       if (QUIRKS_MODE) {
         return null
       }
@@ -5932,7 +5942,12 @@ interface Primordials {
       context?: EngineContext | null,
       callback?: ElementCallback,
     ) {
-      var element, match, collection, i, length, lookupContext
+      var element: Element | null | undefined | '',
+        match: RegExpMatchArray | null,
+        collection: ArrayLike<Element>,
+        i: number,
+        length: number | undefined,
+        lookupContext: EngineContext
       if (arguments.length === 0) {
         emit(qsNotArgs, TypeError)
         return null
@@ -6055,7 +6070,7 @@ interface Primordials {
       var plan,
         resolver,
         filtered,
-        i,
+        i: number,
         token,
         name,
         api,
@@ -6150,19 +6165,19 @@ interface Primordials {
     } | null>(),
     selectChildren = function (selectors: string, context: EngineContext) {
       var plan = childPlans.get(selectors),
-        found,
-        roots,
-        root,
-        candidates,
-        element,
-        parent,
-        previous,
+        found: RegExpMatchArray | null,
+        roots: ArrayLike<Element>,
+        root: Element,
+        candidates: ArrayLike<Element>,
+        element: Element,
+        parent: Element | null,
+        previous: Element | undefined,
         results: Element[] = [],
         unordered = false,
-        i,
-        j,
-        k,
-        length
+        i: number,
+        j: number,
+        k: number,
+        length: number
 
       if (plan === undefined) {
         // Selective class anchors followed by direct-child type selectors.
@@ -6214,7 +6229,7 @@ interface Primordials {
         // Validate the fixed parent chain against this exact anchor: nested
         // anchors must neither duplicate nor borrow one another's matches.
         candidates = collectionSnapshot(
-          root.getElementsByTagName!(plan.tags[plan.tags.length - 1]),
+          root.getElementsByTagName!(plan.tags[plan.tags.length - 1]!),
           root,
           undefined,
           true,
@@ -6247,7 +6262,7 @@ interface Primordials {
       root: EngineContext,
       out: Element[],
     ) {
-      var found, i, l
+      var found: ArrayLike<Element>, i: number, l: number
 
       if (part.cls !== undefined) {
         found = collectionSnapshot(
@@ -6292,7 +6307,7 @@ interface Primordials {
       part: { cls: string | undefined; tag: string | undefined },
       context: EngineContext,
     ) {
-      var count,
+      var count: number | undefined,
         key = part.cls !== undefined ? '.' + part.cls : part.tag!
 
       if ((count = partCounts.get(key)) === undefined) {
@@ -6311,19 +6326,19 @@ interface Primordials {
       context: EngineContext,
     ) {
       var budget = -1,
-        i,
-        j,
-        k,
-        l,
-        level,
-        m,
+        i: number,
+        j: number,
+        k: number,
+        l: number,
+        level: Element[],
+        m: number,
         next: Element[],
-        node,
-        part,
-        prev,
-        size,
+        node: Element,
+        part: { cls: string | undefined; tag: string | undefined },
+        prev: Element | null,
+        size: number,
         spent = 0,
-        want
+        want: number
 
       // a DocumentFragment has neither lookup, and byClass()/byTag() walk it
       // by hand; the ordinary path already knows how. A legacy host reads its
@@ -6396,8 +6411,8 @@ interface Primordials {
       return level
     },
     parseChain = function (selectors: string) {
-      var i,
-        l,
+      var i: number,
+        l: number,
         match,
         parts: Array<
           string | { tag: string | undefined; cls: string | undefined }
@@ -6470,8 +6485,8 @@ interface Primordials {
 
       if (selectors) {
         if ((resolver = selectResolvers.get(selectors))) {
-          var i,
-            l,
+          var i: number,
+            l: number,
             start,
             ends: number[] | undefined,
             list,
@@ -6560,8 +6575,8 @@ interface Primordials {
       firstOnly?: boolean | undefined,
       existenceOnly?: boolean | undefined,
     ) {
-      var i,
-        l,
+      var i: number,
+        l: number,
         seen: Record<string, boolean> = {},
         token: string[] = ['', '*', '*'],
         optimized = selectors,

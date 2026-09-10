@@ -1584,3 +1584,7 @@ A fresh run of the same 36 public `jsdom` queries passed every result check and 
 ## Reproduce display-state reentry
 
 The [display-state investigation](../selector/display-state.md) traces commit `24cdab6aa` with a bounded subprocess harness. One uncapped historical `:modal` query made 2,717,975 delegated matcher calls and took 463.92ms. The current build made one call and took 3.75ms. Both factories made zero initialization probes. These are single-query diagnostic observations, not a substitute for the reporter's application-suite timing or a throughput benchmark. Browser, direct-engine, and packed-adapter regressions distinguish actual modal state from ARIA, open dialogs, and expando properties.
+
+## Separate native parity from selector extensions
+
+The same 200 comparison cases now report 185 native-parity cases and 15 reviewed extensions. `nwsapi` agrees with Chrome on all 185 native-parity cases. `@asamuzakjp/dom-selector` agrees on 129. This changes the reporting scope, not either engine's measured results. All 200 raw outcomes remain available. The 15 extensions count as neither passes nor failures and return to the native pool when Chrome accepts their syntax.

@@ -13,14 +13,544 @@
   "engineSha256": "aa03308c34eaf4accea94a6b9e51e05737a23fa3e981fe32f0528e6b7da709d0",
   "wptRevision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
   "native": {
-    "total": 200,
+    "total": 185,
     "nwsapi": 185,
-    "competitor": 131,
+    "competitor": 129,
     "both": 129,
     "onlyNwsapi": 56,
-    "onlyCompetitor": 2,
-    "neither": 13
+    "onlyCompetitor": 0,
+    "neither": 0
   },
+  "total": 200,
+  "extensions": [
+    {
+      "selector": ":lang(\"en\")",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "competitor": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "adapter": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": true,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#lang-pseudo"
+    },
+    {
+      "selector": ":lang(en, fr)",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "competitor": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "adapter": {
+        "value": [
+          "html",
+          "head",
+          "script",
+          "script",
+          "script",
+          "body",
+          "scope",
+          "section",
+          "one",
+          "two",
+          "bold",
+          "three",
+          "h1",
+          "h4",
+          "details-open",
+          "summary",
+          "details-closed",
+          "summary",
+          "dialog",
+          "popover",
+          "form",
+          "email",
+          "button",
+          "rtl",
+          "link",
+          "custom",
+          "shadow-host",
+          "assigned-content"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": true,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#lang-pseudo"
+    },
+    {
+      "selector": ":current(p)",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/selectors-5/#the-current-pseudo"
+    },
+    {
+      "selector": "col || td",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "error": "SyntaxError"
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/selectors-5/#column-combinator"
+    },
+    {
+      "selector": ":has-slotted",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/css-shadow-1/#the-has-slotted-pseudo"
+    },
+    {
+      "selector": ":heading",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "h1",
+          "h4"
+        ]
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": [
+          "h1",
+          "h4"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/selectors-5/#headings"
+    },
+    {
+      "selector": ":heading(1)",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "h1"
+        ]
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": [
+          "h1"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/selectors-5/#headings"
+    },
+    {
+      "selector": "[data-value=\"A\" s]",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "one"
+        ]
+      },
+      "competitor": {
+        "value": [
+          "one"
+        ]
+      },
+      "adapter": {
+        "value": [
+          "one"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": true,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#attribute-case"
+    },
+    {
+      "selector": ":heading(1,4)",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "h1",
+          "h4"
+        ]
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": [
+          "h1",
+          "h4"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/selectors-5/#headings"
+    },
+    {
+      "selector": ":closed",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "details-closed"
+        ]
+      },
+      "competitor": {
+        "error": "SyntaxError"
+      },
+      "adapter": {
+        "value": [
+          "details-closed"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": true,
+      "kind": "library",
+      "specification": "https://drafts.csswg.org/selectors/#open-state"
+    },
+    {
+      "selector": ":playing",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#video-state"
+    },
+    {
+      "selector": ":paused",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#video-state"
+    },
+    {
+      "selector": ":muted",
+      "context": "document",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": []
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": []
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "standard",
+      "specification": "https://drafts.csswg.org/selectors/#sound-state"
+    },
+    {
+      "selector": ":has-slotted",
+      "context": "shadow",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "assigned",
+          "fallback"
+        ]
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": [
+          "assigned",
+          "fallback"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/css-shadow-1/#the-has-slotted-pseudo"
+    },
+    {
+      "selector": "slot:has-slotted",
+      "context": "shadow",
+      "native": {
+        "error": "SyntaxError"
+      },
+      "nwsapi": {
+        "value": [
+          "assigned",
+          "fallback"
+        ]
+      },
+      "competitor": {
+        "value": []
+      },
+      "adapter": {
+        "value": [
+          "assigned",
+          "fallback"
+        ]
+      },
+      "nativeSupports": false,
+      "adapterSupports": true,
+      "competitorSupports": false,
+      "kind": "draft",
+      "specification": "https://drafts.csswg.org/css-shadow-1/#the-has-slotted-pseudo"
+    }
+  ],
   "upstream": {
     "pages": 171,
     "total": 7800,

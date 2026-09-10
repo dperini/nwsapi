@@ -24,6 +24,7 @@ import {
 
 import {
   runTypeCoverage,
+  checkTypeCoverage,
   writeTypeCoverage,
   accumulatedCoverage,
 } from './lib/type-coverage.mts'
@@ -41,6 +42,7 @@ const run = (entry: string, args: string[], env = process.env) =>
 try {
   const types = runTypeCoverage(REPO_ROOT)
   writeTypeCoverage(REPO_ROOT, types)
+  checkTypeCoverage(types)
   run('scripts/repo/test.mts', ['all', '--coverage'])
   const coverage = createCoverageMap({})
   const engine = path.join(REPO_ROOT, 'dist/nwsapi.js')
