@@ -1,5 +1,5 @@
 import { refreshChartReferences } from './chart-references.mts'
-import { globSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { writeBenchmarkCharts } from '../bench/chart-report.mts'
@@ -7,7 +7,11 @@ import { writeBenchmarkCharts } from '../bench/chart-report.mts'
 const root = fileURLToPath(
   new URL('../../../assets/repo/bench/', import.meta.url),
 )
-for (const file of globSync('**/results.json', { cwd: root })) {
+for (const file of [
+  'results.json',
+  'documentation/results.json',
+  'atomic/results.json',
+]) {
   const { metadata, rows } = JSON.parse(
     readFileSync(path.join(root, file), 'utf8'),
   )

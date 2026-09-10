@@ -1,45 +1,58 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { expect, test } from 'vitest'
-import { refreshChartReferences } from '../../../scripts/repo/gen/chart-references.mts'
+import {
+  chartBaseUrl,
+  chartReference,
+} from '../../../scripts/repo/gen/chart-references.mts'
 
-test('changes both chart URLs when the SVG changes and preserves other images', () => {
+test('chart references use artifact hashes and preserve the same target across document locations', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nwsapi-chart-refs-'))
   try {
     const asset = path.join(root, 'assets/repo/bench/perf-hero.svg')
     const readme = path.join(root, 'README.md')
     const guide = path.join(root, 'docs/repo/perf/benchmarks.md')
     fs.mkdirSync(path.dirname(asset), { recursive: true })
-    fs.mkdirSync(path.dirname(guide), { recursive: true })
-    fs.writeFileSync(asset, '<svg>first</svg>')
-    fs.writeFileSync(
+    const firstBytes = Buffer.from('<svg/>')
+    fs.writeFileSync(asset, firstBytes)
+    const first = chartReference(
+      'assets/repo/bench/perf-hero.svg',
       readme,
-      '![Chart](assets/repo/bench/perf-hero.svg?v=1)\n![Coverage](assets/repo/coverage.svg?v=keep)\n',
+      root,
+    )!
+    const url = new URL(first)
+    expect(url.origin).toBe(new URL(chartBaseUrl).origin)
+    expect(url.pathname).toBe(
+      '/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg',
     )
-    fs.writeFileSync(
-      guide,
-      '![Chart](../../../assets/repo/bench/perf-hero.svg)\n',
+    expect(url.searchParams.get('v')).toBe(
+      crypto.createHash('sha256').update(firstBytes).digest('hex').slice(0, 12),
     )
-    refreshChartReferences(root)
-    const first = fs.readFileSync(readme, 'utf8')
-    expect(first).toContain(
-      'https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=',
-    )
-    expect(first).toMatch(/perf-hero\.svg\?v=[a-f\d]{12}\)/)
-    expect(fs.readFileSync(guide, 'utf8')).toContain(
-      first.match(/perf-hero\.svg\?v=[a-f\d]{12}/)![0],
-    )
-    refreshChartReferences(root)
-    expect(fs.readFileSync(readme, 'utf8')).toBe(first)
-    fs.writeFileSync(asset, '<svg>updated footer</svg>')
-    refreshChartReferences(root)
-    const updated = fs.readFileSync(readme, 'utf8')
-    expect(updated).not.toBe(first)
-    expect(updated).toContain('![Coverage](assets/repo/coverage.svg?v=keep)')
-    expect(fs.readFileSync(guide, 'utf8')).toContain(
-      updated.match(/perf-hero\.svg\?v=[a-f\d]{12}/)![0],
-    )
+    expect(
+      chartReference('../../../assets/repo/bench/perf-hero.svg', guide, root),
+    ).toBe(first)
+    expect(
+      chartReference(
+        chartBaseUrl + 'assets/repo/bench/perf-hero.svg',
+        readme,
+        root,
+      ),
+    ).toBe(first)
+    expect(
+      chartReference('assets/repo/coverage.svg', readme, root),
+    ).toBeUndefined()
+    expect(
+      chartReference('assets/repo/bench/missing.svg', readme, root),
+    ).toBeUndefined()
+    expect(
+      chartReference('https://example.test/chart.svg', readme, root),
+    ).toBeUndefined()
+    fs.writeFileSync(asset, '<svg width="1100"/>')
+    expect(
+      chartReference('assets/repo/bench/perf-hero.svg', readme, root),
+    ).not.toBe(first)
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

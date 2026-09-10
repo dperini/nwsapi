@@ -1,4 +1,4 @@
-import { browserLaunchOptions } from '../browser.mts'
+import { CHROME_VERSION, browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -74,7 +74,7 @@ interface Cases {
 const { values } = parseArgs({
   options: {
     browser: { type: 'string' },
-    'expect-major': { type: 'string', default: '153' },
+    'expect-major': { type: 'string', default: CHROME_VERSION.split('.')[0] },
     competitor: { type: 'string', default: '../domSelector' },
     output: {
       type: 'string',

@@ -6,12 +6,14 @@
 Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 
 `nwsapi` builds on [`nwmatcher`](https://github.com/dperini/nwmatcher) with [Selectors Level 4](https://drafts.csswg.org/selectors-4/) features such as `:is()`, `:where()`, and `:has()`, plus state selectors such as `:open` and `:modal`.
-See the [selector support](https://github.com/dperini/nwsapi/wiki/CSS-supported-selectors) and [compatibility notes](https://github.com/dperini/nwsapi/wiki/Features-and-compliance).
+See the [measured selector compatibility](docs/repo/selector/compatibility.md) and [API reference](docs/repo/selector/api.md).
 The [project history](docs/repo/history.md) traces the name and its NWBOX origins.
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=7c2dcf529d49)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=a4a3a4522ed1)](docs/repo/perf/benchmarks.md)
+
+This summary compares the standalone browser libraries across query time, retained JavaScript heap, and compressed file size.
 
 <details>
 <summary>How the benchmarks work</summary>
@@ -32,9 +34,9 @@ Query timings exclude document creation, library loading, and engine constructio
 pnpm add nwsapi
 ```
 
-## In jsdom
+## In `jsdom`
 
-Plug `nwsapi` into `jsdom` for queries and stylesheet matching. Requires `nwsapi` ≥ 2.3.0 and `jsdom` ≥ 27.
+Plug `nwsapi` into `jsdom` for queries and stylesheet matching. Requires `nwsapi` ≥ 2.3.0 and `jsdom` 30.0.1 or a later 30.x release.
 See the [public `jsdom` query comparison](docs/repo/perf/jsdom.md) against `jsdom` using `@asamuzakjp/dom-selector`.
 
 <details>
@@ -50,7 +52,7 @@ Add the adapter's `css-tree` peer dependency to `package.json`:
 }
 ```
 
-Replace `<version>` with the published nwsapi version you want to use.
+Replace `<version>` with the published `nwsapi` version you want to use.
 
 - npm (`package.json`):
 
@@ -77,7 +79,7 @@ The override does not change the NWSAPI factory API or add selector support.
 <details>
 <summary>Use the factory in Node.js</summary>
 
-Node.js does not provide a DOM. This example creates one with jsdom.
+Node.js does not provide a DOM. This example creates one with `jsdom`.
 
 ```sh
 pnpm add nwsapi jsdom
@@ -93,7 +95,7 @@ const items = nw.select('.item', window.document)
 window.close()
 ```
 
-This example calls NWSAPI directly. It does not replace jsdom's selector engine.
+This example calls `nwsapi` directly. It does not replace `jsdom`'s selector engine.
 
 </details>
 

@@ -109,7 +109,8 @@
     "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts",
     "compile": "node dist/bin/nwsapi.js compile",
     "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts",
-    "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts"
+    "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts",
+    "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",

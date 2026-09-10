@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'vitest'
-import fs from 'node:fs'
 import { JSDOM } from 'jsdom'
 import {
   agrees,
@@ -60,30 +59,25 @@ describe('benchmark charts', () => {
       dom.window.close()
     }
   })
-  test('animates timing bars and respects reduced motion', () => {
-    const svg = chart('basic', ['old', 'candidate'], [row()], '')
-    expect(svg).toContain('@keyframes fill')
-    expect(svg).toContain('class="bar"')
-    expect(svg).toContain('prefers-reduced-motion:reduce')
-    expect(svg).toContain('animation:none')
-    expect(isSvgOptimized(svg)).toBe(true)
-  })
-  test('shows category charts outside the introductory details', () => {
-    const document = fs.readFileSync(
-      new URL('../../../docs/repo/perf/benchmarks.md', import.meta.url),
-      'utf8',
+  test('renders measured bar widths in the static SVG', () => {
+    const svg = chart(
+      'basic',
+      ['old', 'candidate'],
+      [{ ...row(), milliseconds: [1, 4] }],
+      '',
     )
-    const firstChart = document.indexOf('## Component queries')
-    expect(document.lastIndexOf('</details>')).toBeLessThan(firstChart)
-    expect(document.indexOf('How measurements work')).toBeLessThan(
-      document.indexOf('Other measurements'),
-    )
-    expect(document).toContain('## First matches')
-    expect(document).toContain('## All-results comparison')
-    expect(document).toContain('## Component queries')
-    expect(document).not.toContain('2.0.0')
-    expect(document).toContain('2.3.0-prerelease')
-    expect(document).toContain('@asamuzakjp/dom-selector')
+    const dom = new JSDOM(svg, { contentType: 'image/svg+xml' })
+    try {
+      const bars = Array.from(dom.window.document.querySelectorAll('rect.bar'))
+      const widths = bars.map(bar => Number(bar.getAttribute('width')))
+      expect(widths).toHaveLength(2)
+      expect(widths[0]).toBeGreaterThan(0)
+      expect(widths[1]).toBeGreaterThan(widths[0]!)
+      expect(widths[1]).toBeLessThanOrEqual(480)
+      expect(isSvgOptimized(svg)).toBe(true)
+    } finally {
+      dom.window.close()
+    }
   })
   test('keeps selector categories separate and at most four rows per chart', () => {
     const groups = splitCharts([

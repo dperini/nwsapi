@@ -1558,3 +1558,19 @@ The release updater resolves the latest published WPT tag to an exact commit dur
 ## Discover the browser beta during updates
 
 `pnpm run update` now discovers Chrome stable and beta through the official Chrome for Testing channel feed. It records both versions and pins beta for browser tests and future measurements. The initial discovery records stable 153.0.8010.36 and beta 154.0.8037.0. Setup and CI reuse that exact committed beta without looking up a moving channel. Existing benchmark reports retain their original browser versions. The regular selector target covers current standards and behavior enabled by default in stable or beta, with existing stable regressions retained.
+
+## Refresh published comparisons on Chrome 154
+
+The published charts now use the current readable build, Chrome for Testing beta 154.0.8037.0, and `@asamuzakjp/dom-selector` 9.1.1. The browser measurements ran on an Apple M3 Max connected to AC power. Timed workloads ran sequentially, with tests outside their measurement windows. The raw reports retain source hashes and samples.
+
+Across the 36 warm all-results queries, `nwsapi` has lower median time in every recorded case and a **5.16× geometric-mean speedup**. The same refresh includes all 12 cold and warm first-match cases. The [benchmark documentation](benchmarks.md) explains the fixtures and the four first-match examples displayed in the chart.
+
+After 100 distinct queries per engine, retained heap is **74.08KiB** for `nwsapi` and **549.32KiB** for the comparison library, a **86.5% reduction**. This excludes document allocation and shared library code. The readable browser core compresses to **32.30KiB with Brotli**, compared with **109.59KiB** for the full comparison bundle. Neither build is minified.
+
+The separate [public `jsdom` comparison](jsdom.md) records a **5.31× geometric-mean speedup** across the same 36 selectors. It uses real temporary installations of `jsdom` 30.0.1, the packed override and its `css-tree` peer, and the same pinned comparison-library version. Construction and installation remain outside measured query time.
+
+The [compliance charts](../selector/compatibility.md#comparison-results) now come from recorded browser and WPT results. They separate upstream WPT inputs, local regressions, and native discovery requirements. The comparison still agrees with Chrome on 185 of 200 targeted cases for `nwsapi`, compared with 131 for `@asamuzakjp/dom-selector`. Known failures are not passes.
+
+Chart regeneration now leaves historical experiment snapshots untouched. Published timing bars render at their final lengths immediately, so static previews cannot capture an incomplete entrance animation. All published chart pages receive content-hashed image URLs, including the `jsdom` and compliance pages. Summary generation checks matching engine builds and browser provenance. Tests exercise structured counts, identity checks, and URL behavior without asserting document wording.
+
+The prior CI revision exceeded the 10s unit coverage budget. Two alternating local measurements took 5.04–5.52s with two workers and 2.80–3.02s with four. Unit coverage now uses up to four workers, capped by available CPUs. Ordinary unit runs retain two shared workers. This removes about 45% of the measured local coverage time without changing the test set or budget. CI remains the validation for the hosted runner.

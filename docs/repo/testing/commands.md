@@ -108,3 +108,19 @@ To isolate class-reader cost, pass `--attribute-classes --baseline dist/nwsapi.j
 Run `node scripts/repo/bench/result-arrays.mts --output assets/repo/bench/result-arrays-profile.json --memory` for a single-build profile. Add `--baseline /absolute/path/to/before.cjs` to compare builds. Use a separate process without `--memory` for timing conclusions. The fixtures return 0, 1, 16, or 256 nodes through either one class selector or four disjoint groups.
 
 Run `node scripts/repo/bench/result-arrays-browser.mts /absolute/path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing. Both timing scripts use nine rotating rounds with batches lasting at least 50ms. This makes timer resolution a smaller part of tiny-query measurements. The memory script records allocation traffic and retained heap separately. Keep those measures distinct from timing and from the number of nodes returned.
+
+## Refresh published comparisons
+
+Run performance measurements separately from tests and other CPU-heavy work. Use AC power and keep the machine configuration consistent across the run.
+
+```sh
+pnpm run bench
+pnpm run compare:memory
+pnpm run report:size
+pnpm run bench:jsdom
+pnpm run gen:bench
+```
+
+These commands refresh the browser timing, first-match, retained-heap, file-size, public `jsdom`, and README summary charts. Raw samples remain in `assets/repo/bench/`. The [benchmark method](../perf/benchmarks.md) defines their scope.
+
+Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evidence) to refresh the browser comparison and selected WPT report. Then run `pnpm run gen:compliance`. That generator writes both compliance charts and their documentation summary from the reports. It rejects mismatched browser or engine builds. The native discovery pool identifies requirements and does not supply engine pass counts.
