@@ -8,18 +8,20 @@ The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 144 pages 
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
-The comparison includes 171 selector and context cases and five adapter comparisons. There are 18 native-versus-core differences among the selector cases. Inputs deliberately exercise possible gaps, repeated state changes, and library extensions. Their disagreement count is not a compatibility percentage or a count of separate missing features. `CSS.supports()` results are recorded separately from query results because accepted syntax alone does not establish matching behavior.
+The comparison includes 200 selector and context cases and five adapter comparisons. There are 15 native-versus-core differences among the selector cases. Inputs deliberately exercise possible gaps, repeated state changes, and library extensions. Their disagreement count is not a compatibility percentage or a count of separate missing features. `CSS.supports()` results are recorded separately from query results because accepted syntax alone does not establish matching behavior.
 
 ## Comparison results
 
-In the [recorded browser comparison](../../../assets/repo/bench/selector-compatibility.json), `nwsapi` agrees with Chrome on **153 of 171 cases**, compared with **103 of 171** for `@asamuzakjp/dom-selector` 9.1.1. Agreement requires the same ordered results or the same error type. This is 50 more matching outcomes in this deliberately targeted set.
+In the [recorded browser comparison](../../../assets/repo/bench/selector-compatibility.json), `nwsapi` agrees with Chrome on **185 of 200 cases**, compared with **131 of 200** for `@asamuzakjp/dom-selector` 9.1.1. Agreement requires the same ordered results or the same error type. This is 54 more matching outcomes in this deliberately targeted set.
 
 | Outcome against Chrome | Cases |
 | --- | ---: |
-| Both libraries agree | 100 |
-| Only `nwsapi` agrees | 53 |
-| Only `@asamuzakjp/dom-selector` agrees | 3 |
-| Neither library agrees | 15 |
+| Both libraries agree | 129 |
+| Only `nwsapi` agrees | 56 |
+| Only `@asamuzakjp/dom-selector` agrees | 2 |
+| Neither library agrees | 13 |
+
+The expansion from 171 to 200 cases adds eight filtered-position cases, five relational selector cases, four CSS comment cases, six escaped-identifier or missing-ID/class cases, and six XML namespace cases. These check parsing and ordered DOM matches without rendering assertions. The added cases cover both accepted and rejected syntax. They were selected before comparing either library’s outcomes.
 
 The cases include selector parsing, XML attributes, shadow contexts, and changing browser-owned states. They were chosen to investigate gaps, so these counts are not a general compliance score. The five adapter API comparisons are separate. The selected WPT results above run against `nwsapi` and do not establish a WPT pass count for the comparison library.
 
