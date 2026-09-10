@@ -32,7 +32,7 @@ export const outputFormat = {
 // Authoring paths, local outputs, and published paths have one shared mapping.
 export const entries = [
   {
-    source: 'bin/nwsapi.mts',
+    source: 'src/bin/nwsapi.mts',
     output: 'dist/bin/nwsapi.js',
     published: 'bin/nwsapi.js',
   },

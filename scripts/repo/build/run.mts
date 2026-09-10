@@ -48,7 +48,7 @@ if (!directionCode || directionCode.type !== 'chunk') {
 // Transform each file as a script so its UMD, CommonJS, or global registration
 // stays intact. Do not bundle the lazy css-tree peer or change module wrappers.
 for (const entry of entries) {
-  if (entry.source === 'bin/nwsapi.mts') {
+  if (entry.source === 'src/bin/nwsapi.mts') {
     continue
   }
   let source = await readFile(entry.source, 'utf8')
@@ -88,7 +88,7 @@ const legacyPath = fileURLToPath(
   new URL('../../../dist/modules/nwsapi-legacy.js', import.meta.url),
 )
 await build({
-  input: './bin/nwsapi.mts',
+  input: './src/bin/nwsapi.mts',
   platform: 'node',
   external: ['jsdom', 'css-tree', enginePath, legacyPath],
   output: {

@@ -31,7 +31,6 @@ test('type and lint checks pass without build outputs or an incremental cache', 
   t.onTestFinished(() => rmSync(root, { recursive: true, force: true }))
   const files = globSync(
     [
-      'bin/**/*.mts',
       'src/**/*.mts',
       'src/external/*.js',
       'src/**/*.d.ts',

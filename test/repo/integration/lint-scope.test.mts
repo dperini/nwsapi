@@ -19,7 +19,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     .trim()
     .split('\n')
   for (const file of [
-    'bin/nwsapi.mts',
+    'src/bin/nwsapi.mts',
     'src/engine/nwsapi.mts',
     'src/external/unicode.js',
     'src/external/unicode.d.ts',
