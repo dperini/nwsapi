@@ -119,6 +119,8 @@
     "nwsapi/max-comment-block-lines": "error",
     "nwsapi/no-comment-glob-star-slash": "error",
     "nwsapi/no-process-chdir": "error",
+    "nwsapi/no-map-async-callback": "error",
+    "nwsapi/no-spawnsync-code-property": "error",
     "nwsapi/no-minified-bundler-output": "error",
     "nwsapi/max-file-lines": "error"
   },

@@ -18,6 +18,10 @@ The following rules are adapted from `socket-wheelhouse/template/base/universal/
 
 The ports use the installed `oxlint` AST types. They do not add a Socket library dependency. Standard local `oxlint-disable-next-line` comments remain available for a specific rule with a reason. Wheelhouse's custom bypass and mirror-marker infrastructure is not imported.
 
+`nwsapi/no-map-async-callback` rejects discarded async map results for array literals and bindings initialized from array literals. Unknown receivers and reassigned bindings stay outside this syntax-based check. Awaited, returned, and assigned results remain valid.
+
+`nwsapi/no-spawnsync-code-property` rejects `.code` and `['code']` on recognized `spawnSync` results. Node exposes the exit status as `.status`. The rule respects shadowed bindings and leaves reassigned values alone. Neither rule adds a Socket library dependency.
+
 ## Other rules reviewed
 
 Socket API tokens, private registry conventions, Socket library import preferences, fleet workflow names, and Wheelhouse-generated file ownership do not apply here. They are not enabled.
