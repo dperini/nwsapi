@@ -2,9 +2,13 @@
 
 `nwsapi` supports filtered child positions, namespace-aware XML matching, inherited language ranges, shadow-host queries, and the selector grammar covered by the selected WPT suite. Of 7,877 selected WPT subtests, 7,793 pass and 84 expose unsupported draft heading-offset behavior or missing host reflection. Browser-owned states use the host's saved matching method when available. These results describe the tested inputs and host provisions, not complete CSS conformance.
 
+## Support policy
+
+Selector parsing and matching target the latest standards and features enabled by default in Chrome stable or beta. Beta is the regular browser test target. Existing stable behavior remains covered by regressions because beta can also change or remove behavior. Rendering, layout, and CSSOM serialization remain outside the selector engine. Standards support can precede browser support, as with the tentative universal-highlight grammar. The [browser updater](../testing/browser.md) discovers and pins beta during `pnpm run update`.
+
 ## Evidence and scope
 
-The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 190 pages in Chrome for Testing 153.0.8010.12. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
+The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 190 pages in Chrome for Testing beta 154.0.8037.0. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
@@ -144,4 +148,4 @@ The expanded WPT selection includes `headingoffset-and-headingreset.html` and `h
 
 The added matching tests confirm language inheritance across shadow hosts, focus matching through nested shadow hosts, form-associated custom-element states supplied by the host, and disabled options inside ordinary wrappers. Added parsing inputs cover `::column::scroll-marker`, `::before::column`, and permitted states and pseudo-elements after `::details-content`. These are parsing and DOM-matching checks, not rendering assertions.
 
-The tentative WPT universal-highlight inputs are accepted as `::highlight(*)`, including after an element selector. They return no DOM elements, like other pseudo-elements. Chrome 153 rejects this wildcard form, although it accepts the escaped identifier `::highlight(\*)`. This deliberate grammar extension follows the [pinned tentative WPT](https://github.com/web-platform-tests/wpt/blob/fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9/css/css-highlight-api/custom-highlight-universal-parsing-and-computed-style.tentative.html). It does not add highlight rendering or change the recorded browser-comparison results.
+The tentative WPT universal-highlight inputs are accepted as `::highlight(*)`, including after an element selector. They return no DOM elements, like other pseudo-elements. Chrome 153 and beta 154 reject this wildcard form, although they accept the escaped identifier `::highlight(\*)`. This deliberate grammar extension follows the [pinned tentative WPT](https://github.com/web-platform-tests/wpt/blob/fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9/css/css-highlight-api/custom-highlight-universal-parsing-and-computed-style.tentative.html). It does not add highlight rendering or change the recorded browser-comparison results.

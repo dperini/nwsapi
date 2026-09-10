@@ -1,12 +1,14 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { Browser, computeExecutablePath, install } from '@puppeteer/browsers'
 import { isMainModule } from './lib/run-node.mts'
 
 // Updating this pin changes the browser used by WPT, browser tests, and benchmarks.
-export const CHROME_VERSION = '153.0.8010.12'
+export const CHROME_VERSION: string = JSON.parse(
+  readFileSync(new URL('../../.config/chrome.json', import.meta.url), 'utf8'),
+).version
 export const browserInstallOptions = {
   browser: Browser.CHROME,
   buildId: CHROME_VERSION,

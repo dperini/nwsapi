@@ -38,16 +38,21 @@ export function updateArgs(workspace: string, check: boolean) {
   ]
 }
 
+export function updateReferences(check: boolean, run = runNode) {
+  for (const name of ['wpt', 'chrome']) {
+    run(
+      path.join(REPO_ROOT, `scripts/repo/update/${name}.mts`),
+      check ? ['--check'] : [],
+    )
+  }
+}
+
 export function updateDependencies(
   check: boolean,
   run = runTaze,
   install = installDependencies,
   prepare = () => (check ? checkSoak() : refreshSoak()),
-  wpt = (preview: boolean) =>
-    runNode(
-      path.join(REPO_ROOT, 'scripts/repo/update/wpt.mts'),
-      preview ? ['--check'] : [],
-    ),
+  upstream = updateReferences,
 ) {
   if (
     !check &&
@@ -58,7 +63,7 @@ export function updateDependencies(
   }
   prepare()
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
-  wpt(check)
+  upstream(check)
   if (!check) {
     install()
   }

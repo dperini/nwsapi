@@ -2,7 +2,7 @@
 
 See the [WPT runner layout](wpt-runner.md) for the local harness files.
 
-Contributor installs set up Web Platform Tests (WPT) and pinned Chrome for Testing 153.0.8010.12.
+Contributor installs set up Web Platform Tests (WPT) and the pinned Chrome for Testing beta.
 
 ```sh
 pnpm install
@@ -15,7 +15,7 @@ The first install needs Git and network access. Linux may also need browser syst
 pnpm exec playwright install-deps chromium
 ```
 
-The shared [browser setup](../../../scripts/repo/browser.mts) follows the explicit executable approach used by `odai`. It downloads the pinned build with `@puppeteer/browsers` and caches it outside the checkout. WPT, browser regression tests, and browser benchmarks pass that executable to Playwright and verify its version before use. Run `pnpm run setup:browser` to restore a missing installation. Updating Playwright alone does not change this browser pin.
+The shared [browser setup](../../../scripts/repo/browser.mts) follows the explicit executable approach used by `odai`. It downloads the pinned build with `@puppeteer/browsers` and caches it outside the checkout. WPT, browser regression tests, and browser benchmarks pass that executable to Playwright and verify its version before use. Run `pnpm run setup:browser` to restore a missing installation. Updating Playwright alone does not change this browser pin. `pnpm run update` discovers the current stable and beta channels from Google, pins beta, and installs it. See [browser discovery](browser.md).
 
 The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
 The selected manifest contains **190 pages**. It does not run the complete WPT project.
@@ -29,7 +29,7 @@ The selected manifest contains **190 pages**. It does not run the complete WPT p
 | Local regressions | 19 | 77 | 77 | 0 |
 | Total | 190 | 7,877 | 7,793 | 84 |
 
-These counts describe the selected manifest in Chrome for Testing 153.0.8010.12. A known failure remains a failed subtest. No subtests were filtered at runtime. The documented source adapters remove out-of-scope assertions before execution. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
+These counts describe the selected manifest in Chrome for Testing beta 154.0.8037.0. A known failure remains a failed subtest. No subtests were filtered at runtime. The documented source adapters remove out-of-scope assertions before execution. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
 The matching pages cover query results, form states, directionality, focus, dialogs, popovers, and tree changes. Local regressions cover API contracts and compiler behavior, including filtered child positions and sibling types across XML namespaces. Some fixtures reuse the DOM from upstream rendering tests, but assert query results instead of pixels or computed styles.
 

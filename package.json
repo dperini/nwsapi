@@ -66,6 +66,7 @@
     "check:api": "node scripts/repo/run.mts scripts/repo/gen/api-md.mts --check",
     "check": "node scripts/repo/run.mts scripts/repo/check.mts",
     "fix": "node scripts/repo/run.mts scripts/repo/fix.mts",
+    "update:chrome": "node scripts/repo/run.mts scripts/repo/update/chrome.mts",
     "update": "node scripts/repo/run.mts scripts/repo/update.mts",
     "soak:check": "node scripts/repo/run.mts scripts/repo/soak.mts --check",
     "soak:bypass": "node scripts/repo/run.mts scripts/repo/soak.mts --bypass",
