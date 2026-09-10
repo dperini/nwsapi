@@ -1352,3 +1352,16 @@ Validation passes 692 unit tests, 148 integration tests with one existing skip, 
 The readable core grows by 302bytes to 167093bytes. Gzip grows by 40bytes to 40378bytes. Brotli grows by 61bytes to 32771bytes. The size chart and its generated references are refreshed. Broad runtime charts retain their previous measurements because this pass only measures the named fixtures.
 
 The bounded follow-up is complete. The older local audit reports now mark completed implementation work as superseded and point here. The next task returns to reconciling the original upstream findings. The grouped-query cost, state investigation candidates, and exploratory validity discrepancy do not extend this pass.
+
+## Repeat the small `:has()` comparison on AC power
+
+The repeat uses the same baseline and candidate hashes as the bounded follow-up. `pmset -g batt` confirmed AC power and a fully charged battery before the run. Timing runs first with five rotating rounds and 64-call batches. The separate memory run uses three rounds and the same 2000-call allocation sampling. No engine code changes are included. The previous run did not record its power source, so this is a reproducibility check, not a controlled battery-versus-AC comparison.
+
+| Case | Node timing change | Node allocation change |
+| --- | ---: | ---: |
+| `.card:has([data-hit])` | -15.5% | -5.0% |
+| `.card:has(> .target [data-hit])` | -15.0% | -4.8% |
+| `.card:has(+ .target [data-hit])` | -10.0% | -2.6% |
+| `.card:has(~ .target [data-hit])` | -9.6% | -2.4% |
+
+These are the same four fixtures with 256 cards and 16 matches. Negative changes mean lower cost. The [AC timing report](../../../assets/repo/bench/bounded-has-node-ac-timing.json) and [AC memory report](../../../assets/repo/bench/bounded-has-node-ac-memory.json) preserve the samples. Allocation is sampled traffic, not retained heap. This repeat supports the earlier decision to retain the duplicate snapshot-check removal.
