@@ -1574,3 +1574,9 @@ The [compliance charts](../selector/compatibility.md#comparison-results) now com
 Chart regeneration now leaves historical experiment snapshots untouched. Published timing bars render at their final lengths immediately, so static previews cannot capture an incomplete entrance animation. All published chart pages receive content-hashed image URLs, including the `jsdom` and compliance pages. Summary generation checks matching engine builds and browser provenance. Tests exercise structured counts, identity checks, and URL behavior without asserting document wording.
 
 The prior CI revision exceeded the 10s unit coverage budget. Two alternating local measurements took 5.04–5.52s with two workers and 2.80–3.02s with four. Unit coverage now uses up to four workers, capped by available CPUs. Ordinary unit runs retain two shared workers. This removes about 45% of the measured local coverage time without changing the test set or budget. The first hosted CI run completed unit coverage in 8,018ms, leaving 1,982ms of the 10,000ms budget. This is one run, rather than an estimate of timing variance.
+
+## Preserve duplicate IDs with supplied host helpers
+
+`jsdom` returns every duplicate ID from `querySelectorAll()`, even though `getElementById()` returns one element. The adapter therefore retains `IDS_DUPES: true` when the host supplies `idlUtils` and `domSymbolTree`. Regression tests exercise HTML, XML, tree reordering, ID changes, removal, and detached fragments.
+
+A fresh run of the same 36 public `jsdom` queries passed every result check and recorded a **5.57× geometric-mean speedup** for the `nwsapi` override. The report, chart, and summary were regenerated. No engine optimization was made for this refresh, so the difference from the preceding 5.31× result is a repeated measurement, not evidence of a code improvement.
