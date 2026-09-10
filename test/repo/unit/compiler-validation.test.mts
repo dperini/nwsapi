@@ -13,6 +13,9 @@ afterAll(() => invalidWindow.close())
 for (const selector of [
   '??',
   '[a?=b]',
+  '::part(tab)#extra',
+  '::view-transition-group(foo.-1)',
+  '::view-transition-group(foo.)',
   ':has(:has(*))',
   ':host()',
   ':lang()',
@@ -94,4 +97,38 @@ test('strict logical compilation rejects an unknown branch without poisoning lat
     resolver!([window.document.querySelector('p')!], null, window.document, []),
   ).toEqual([])
   expect(engine.select('p', window.document)).toHaveLength(1)
+})
+
+test('declined relative extensions fail quietly without poisoning later plans', t => {
+  const { window } = new JSDOM('<div><span></span></div>')
+  t.onTestFinished(() => window.close())
+  const engine = create(window)
+  const parent = window.document.querySelector('div')!
+  engine.configure({ VERBOSITY: false, LOGERRORS: false })
+  engine.registerSelector('declined', /^:declined(.*)/, (_match, source) => ({
+    source,
+    status: false,
+  }))
+  const anchor = engine.Snapshot.anchor
+  expect(engine.Snapshot.has(['> span:declined'], parent)).toBe(false)
+  expect(engine.Snapshot.anchor).toBe(anchor)
+  expect(engine.Snapshot.has(['> span'], parent)).toBe(true)
+  expect(engine.Snapshot.anchor).toBe(anchor)
+})
+
+test('explicit contenteditable false stops inherited editability', t => {
+  const { window } = new JSDOM(
+    '<section contenteditable=true><div contenteditable=false><span></span></div></section>',
+  )
+  t.onTestFinished(() => window.close())
+  const engine = create(window)
+  const doc = window.document
+  const section = doc.querySelector('section')!
+  const blocked = doc.querySelector('div')!
+  const child = doc.querySelector('span')!
+  expect(engine.match(':read-write', section)).toBe(true)
+  expect(engine.match(':read-only', blocked)).toBe(true)
+  expect(engine.match(':read-write', child)).toBe(false)
+  blocked.removeAttribute('contenteditable')
+  expect(engine.match(':read-write', child)).toBe(true)
 })
