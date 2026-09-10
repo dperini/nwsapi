@@ -1,0 +1,48 @@
+{
+  "node": "v26.5.0",
+  "hashes": [
+    "270e508f8885cf4c0043ad11b29b24d67e8ce5d848c858c3891836cb25c2b334",
+    "7ca3c3e0856eac6df3ca6941d08bb940b8a12c45c9d67f317c194523ee7f0346",
+    "86556498ef09e41bec8c036d2865168f6efe6eae56a845b13965095142cdcd30",
+    "e6bdf03ea0f2dfec6525670f466e7ff9c9411d576926cc34ff6257d0130e9a44"
+  ],
+  "methodology": "Three rotating rounds. Keep document and adapter alive. Query 40 contexts through internal attribute and tree readers, mutate an attribute and query again, detach roots, release public query scope, then four task-separated forced GCs. Observe root and child WeakRefs. This checks detached-node collection, not retained-byte savings or every possible leak.",
+  "rows": [
+    {
+      "round": 0,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 0,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    }
+  ]
+}

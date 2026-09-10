@@ -1,0 +1,1786 @@
+{
+  "node": "v26.5.0",
+  "hashes": [
+    {
+      "file": "dist/nwsapi.js",
+      "sha256": "2aefabaaffbe9a92c12edc1a0aed879df4908d9609c00fb0ac3bdc259e935fa4"
+    },
+    {
+      "file": "dist/dom-selector.js",
+      "sha256": "86556498ef09e41bec8c036d2865168f6efe6eae56a845b13965095142cdcd30"
+    }
+  ],
+  "methodology": "Existing 300-card component fixture. Core and public adapter measured separately. Zero means warm query without mutation; otherwise one unrelated root attribute mutation followed by one or four queries per cycle. 100 warmup cycles, five timed batches of 100 cycles, then 200 CPU-profiled cycles. Mutation cost is included. No private host access, no candidate implementation, no application-speedup claim.",
+  "rows": [
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.24562999999999988,
+        0.24100584000000025,
+        0.2397924999999998,
+        0.24259000000000014,
+        0.23981957999999964
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 32.55813953488372
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 25.58139534883721
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 11.627906976744185
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 6.976744186046512
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 6.976744186046512
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 4.651162790697675
+        },
+        {
+          "function": "dispatch",
+          "file": "",
+          "line": 0,
+          "percent": 2.3255813953488373
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 2.3255813953488373
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "line": 0,
+          "percent": 2.3255813953488373
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.3255813953488373
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.8513729200000012,
+        0.8760137499999996,
+        0.8633729200000017,
+        0.8551974999999993,
+        0.8540145800000005
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 21.014492753623188
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 9.420289855072463
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 7.246376811594203
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 7.246376811594203
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 6.521739130434782
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 6.521739130434782
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 5.797101449275362
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 4.3478260869565215
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 4.3478260869565215
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 3.6231884057971016
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 2.898550724637681
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 2.898550724637681
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 2.1739130434782608
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.1739130434782608
+        },
+        {
+          "function": "item",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 21,
+          "percent": 2.1739130434782608
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        1.6400862499999993,
+        1.5755341700000007,
+        1.6334720800000013,
+        1.6462008400000014,
+        1.5746962500000017
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 15.498154981549815
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 14.760147601476016
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 13.284132841328413
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 7.380073800738008
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 6.642066420664206
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 5.535055350553505
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 4.428044280442805
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.428044280442805
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 4.059040590405904
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 3.321033210332103
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 2.952029520295203
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 2.2140221402214024
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 1.845018450184502
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.845018450184502
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 1.4760147601476015
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.29258208000000197,
+        0.2852475000000004,
+        0.2901041599999962,
+        0.2839949999999999,
+        0.28863334000000124
+      ],
+      "sites": [
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 34.04255319148936
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 25.53191489361702
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 8.51063829787234
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 8.51063829787234
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 8.51063829787234
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 6.382978723404255
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 4.25531914893617
+        },
+        {
+          "function": "isObject",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 4,
+          "percent": 2.127659574468085
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.8898054199999978,
+        0.8901737500000035,
+        0.8986020800000005,
+        0.8908441699999957,
+        0.8911987499999942
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 27.586206896551722
+        },
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 9.655172413793103
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 6.206896551724138
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 6.206896551724138
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 6.206896551724138
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 6.206896551724138
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 6.206896551724138
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 5.517241379310345
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 4.827586206896552
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 4.827586206896552
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 4.137931034482759
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 2.0689655172413794
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.0689655172413794
+        },
+        {
+          "function": "getAttributeNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 203,
+          "percent": 1.3793103448275863
+        },
+        {
+          "function": "_update",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 43,
+          "percent": 1.3793103448275863
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        1.8815083400000003,
+        2.0518954200000006,
+        1.7899416699999984,
+        1.789440830000003,
+        1.7883104099999947
+      ],
+      "sites": [
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 20.53872053872054
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 13.468013468013469
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 11.784511784511784
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 8.754208754208754
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 7.407407407407407
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 6.0606060606060606
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 5.3872053872053876
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 4.713804713804714
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 3.367003367003367
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 2.356902356902357
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.0202020202020203
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 2.0202020202020203
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 2.0202020202020203
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.0202020202020203
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.6835016835016836
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.26389000000000123,
+        0.2608487500000047,
+        0.2609087499999987,
+        0.2600395800000024,
+        0.2626204200000029
+      ],
+      "sites": [
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 20.930232558139537
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 20.930232558139537
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 11.627906976744185
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 11.627906976744185
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 9.30232558139535
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 6.976744186046512
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 6.976744186046512
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 4.651162790697675
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 279,
+          "percent": 2.3255813953488373
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "line": 0,
+          "percent": 2.3255813953488373
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.8774487500000032,
+        0.8665916599999945,
+        0.8697858300000008,
+        0.8685820899999999,
+        0.8675725000000056
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 21.98581560283688
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 10.638297872340425
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 9.21985815602837
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 7.801418439716312
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 5.673758865248227
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 5.673758865248227
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 4.25531914893617
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 3.5460992907801416
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 3.5460992907801416
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 2.8368794326241136
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 2.8368794326241136
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.8368794326241136
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.127659574468085
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 279,
+          "percent": 2.127659574468085
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 2.127659574468085
+        }
+      ]
+    },
+    {
+      "route": "core",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        1.6899383299999955,
+        1.6779404199999954,
+        1.7242125000000033,
+        1.7422216600000047,
+        1.675337500000005
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 18.47826086956522
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 12.318840579710145
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 10.507246376811594
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 9.420289855072463
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 8.695652173913043
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 6.521739130434782
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 3.9855072463768115
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 3.9855072463768115
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 3.6231884057971016
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 2.898550724637681
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.536231884057971
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 2.536231884057971
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 2.1739130434782608
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.8115942028985508
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 1.8115942028985508
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.25394500000000336,
+        0.2533741700000064,
+        0.25389124999999696,
+        0.2497545899999932,
+        0.2505612499999916
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 28.571428571428573
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 26.19047619047619
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 19.047619047619047
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 9.523809523809524
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 7.142857142857143
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 2.380952380952381
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 279,
+          "percent": 2.380952380952381
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 2.380952380952381
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.8851179200000115,
+        0.8861891599999945,
+        0.8872791700000016,
+        0.8916333300000042,
+        0.9255333400000018
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 25.35211267605634
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 9.154929577464788
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 8.450704225352112
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 7.042253521126761
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 6.338028169014085
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 5.633802816901408
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 5.633802816901408
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 4.929577464788732
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 4.929577464788732
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 3.5211267605633805
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 3.5211267605633805
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 2.816901408450704
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.112676056338028
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 1.408450704225352
+        },
+        {
+          "function": "collectionCopy",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1105,
+          "percent": 1.408450704225352
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "document",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        1.6268433299999925,
+        1.6644383300000118,
+        1.6586612499999864,
+        1.6552387500000076,
+        1.8174049999999988
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 17.51824817518248
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 15.693430656934307
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 10.218978102189782
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 10.218978102189782
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 6.569343065693431
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 5.109489051094891
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 5.109489051094891
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 4.744525547445256
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 3.2846715328467155
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.5547445255474455
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 2.5547445255474455
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 2.18978102189781
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 1.8248175182481752
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.4598540145985401
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 1.4598540145985401
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.31341249999999493,
+        0.31109250000001337,
+        0.3105066700000134,
+        0.3095741699999962,
+        0.31062542000001486
+      ],
+      "sites": [
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 26.923076923076923
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 17.307692307692307
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 17.307692307692307
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 9.615384615384615
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 7.6923076923076925
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 7.6923076923076925
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 5.769230769230769
+        },
+        {
+          "function": "isObject",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 4,
+          "percent": 1.9230769230769231
+        },
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 195,
+          "percent": 1.9230769230769231
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 1.9230769230769231
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.9750979099999859,
+        0.9459124999999949,
+        0.9506404199999997,
+        0.9618083400000068,
+        0.9615099999999984
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 23.56687898089172
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 10.828025477707007
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 10.19108280254777
+        },
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 8.280254777070065
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 6.369426751592357
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 5.095541401273885
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 5.095541401273885
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.45859872611465
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 3.821656050955414
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 3.1847133757961785
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.910828025477707
+        },
+        {
+          "function": "getAttributeNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 203,
+          "percent": 1.910828025477707
+        },
+        {
+          "function": "collectionCopy",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1105,
+          "percent": 1.2738853503184713
+        },
+        {
+          "function": "exports.setup",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 58,
+          "percent": 1.2738853503184713
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 1.2738853503184713
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid=\"btn-150\"]",
+      "context": "document",
+      "matches": 1,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        2.012015419999989,
+        1.9632041700000082,
+        1.922807499999999,
+        1.9412800000000061,
+        1.9069966699999896
+      ],
+      "sites": [
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 18.51851851851852
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 13.271604938271604
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 11.728395061728396
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 9.25925925925926
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 5.864197530864198
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 5.555555555555555
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 4.62962962962963
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 4.320987654320987
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 4.012345679012346
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 3.3950617283950617
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 3.0864197530864197
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 2.4691358024691357
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 2.4691358024691357
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.1604938271604937
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 1.2345679012345678
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 0,
+      "millisecondsPerCycle": [
+        0.25192958999999976,
+        0.25044000000001687,
+        0.251162089999998,
+        0.24996041999998853,
+        0.2515158400000109
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 39.02439024390244
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 26.829268292682926
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 7.317073170731708
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 4.878048780487805
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 4.878048780487805
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 279,
+          "percent": 4.878048780487805
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 4.878048780487805
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 627,
+          "percent": 2.4390243902439024
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 1,
+      "millisecondsPerCycle": [
+        0.9012291699999878,
+        0.8972837500000059,
+        0.8925333400000091,
+        0.8907041700000081,
+        0.8923662500000137
+      ],
+      "sites": [
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 20.833333333333332
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 9.027777777777779
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 9.027777777777779
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 9.027777777777779
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 7.638888888888889
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 5.555555555555555
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 4.861111111111111
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 4.861111111111111
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 2.7777777777777777
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 2.7777777777777777
+        },
+        {
+          "function": "tryWrapperForImpl",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 86,
+          "percent": 2.0833333333333335
+        },
+        {
+          "function": "wrapperForImpl",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 78,
+          "percent": 2.0833333333333335
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.0833333333333335
+        }
+      ]
+    },
+    {
+      "route": "adapter",
+      "selector": "[data-testid]",
+      "context": "element",
+      "matches": 900,
+      "collectionIdentity": {
+        "sameObject": false,
+        "sameMembers": true
+      },
+      "queriesPerMutation": 4,
+      "millisecondsPerCycle": [
+        1.656592499999988,
+        1.6630854100000034,
+        1.7464075000000048,
+        1.6940274999999747,
+        1.681914590000015
+      ],
+      "sites": [
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 18.88888888888889
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 4030,
+          "percent": 16.296296296296298
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file://<repo>/dist/nwsapi.js",
+          "line": 1071,
+          "percent": 12.222222222222221
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 7.037037037037037
+        },
+        {
+          "function": "query",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/node.js",
+          "line": 136,
+          "percent": 5.925925925925926
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 4.444444444444445
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 4.444444444444445
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 3.7037037037037037
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 3.3333333333333335
+        },
+        {
+          "function": "treeToArray",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 338,
+          "percent": 2.962962962962963
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 2.5925925925925926
+        },
+        {
+          "function": "following",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 220,
+          "percent": 2.5925925925925926
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.5925925925925926
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 279,
+          "percent": 2.2222222222222223
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.8518518518518519
+        }
+      ]
+    }
+  ]
+}

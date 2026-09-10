@@ -1,0 +1,2038 @@
+{
+  "harnessSourceHash": "1dbf6e98fd13dd1472263cdbab694b0ce9f0fe1843b282089552994c90445ccf",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.6.0",
+    "cpu": "Apple M3 Max"
+  },
+  "scenario": "has",
+  "mode": "memory",
+  "groups": 4,
+  "layout": "adjacent",
+  "settings": {
+    "rounds": 3,
+    "milliseconds": 50,
+    "batch": 64
+  },
+  "hashes": [
+    "9d22cd8d577233fb39e5d01b1934b2af1b3840248da5af2b27654828d907c4e2",
+    "2aefabaaffbe9a92c12edc1a0aed879df4908d9609c00fb0ac3bdc259e935fa4"
+  ],
+  "mitata": "1.0.34",
+  "mitataSourceHash": "936a3c55181392bd26ce889bb0cc47a7a27a718b6c42a25c5a0e7bee1d2ff6d2",
+  "methodology": "Same installed mitata measurement implementation in both runtimes. Variants rotate between rounds after 1000 query warmups. Explicit batches, mitata automatic batching disabled, all sorted samples retained without trimming, nanoseconds per query. Timing disables manual GC and heap probes. Memory mode separately reports mitata positive heap deltas and GC timings, then V8 allocation sampling including collected objects and post-GC heap readings. Heap totals and GC values are per measurement, not per query. Setup, correctness checks and compilation are outside measurements. Browser and Node results are separate workloads.",
+  "browser": "151.0.7922.34",
+  "crossOriginIsolated": true,
+  "heapProvider": "performance.memory.usedJSHeapSize (precise-memory-info flag), retained heap from CDP Runtime.getHeapUsage",
+  "rows": [
+    {
+      "matches": 16,
+      "selector": ".card:has([data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 97421.87522351742,
+            "p99Ns": 98593.7500372529,
+            "samplesNs": [
+              96328.12533527613,
+              96640.6250372529,
+              96874.99981373549,
+              97109.37552154064,
+              97343.74936670065,
+              97421.87522351742,
+              97421.87522351742,
+              97812.49985098839,
+              97890.62477648258,
+              98515.62511175871,
+              98593.7500372529,
+              100781.24981373549
+            ],
+            "heapDeltaBytes": {
+              "avg": 30184.125,
+              "min": 30154.5,
+              "max": 30417.875,
+              "total": 23181408
+            },
+            "gcNs": {
+              "total": 14964999.973773956,
+              "min": 1014999.9856948853,
+              "max": 1524999.976158142,
+              "avg": 1247083.3311478298
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 97343.75029802322,
+            "p99Ns": 97890.62477648258,
+            "samplesNs": [
+              95625.0000745058,
+              96015.62470197678,
+              96249.99947845936,
+              97109.37552154064,
+              97109.37552154064,
+              97343.75029802322,
+              97421.87522351742,
+              97578.1250745058,
+              97656.25,
+              97812.49985098839,
+              97890.62477648258,
+              98125.00048428774
+            ],
+            "heapDeltaBytes": {
+              "avg": 30154.5,
+              "min": 30154.5,
+              "max": 30154.5,
+              "total": 23158656
+            },
+            "gcNs": {
+              "total": 14310000.06198883,
+              "min": 1079999.9833106995,
+              "max": 1305000.0071525574,
+              "avg": 1192500.005165736
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 97109.37552154064,
+            "p99Ns": 97890.62477648258,
+            "samplesNs": [
+              94921.87481373549,
+              96015.62470197678,
+              96562.50011175871,
+              96640.6250372529,
+              96718.7499627471,
+              97109.37552154064,
+              97265.62444120646,
+              97421.87522351742,
+              97578.1250745058,
+              97656.25,
+              97890.62477648258,
+              97890.62477648258
+            ],
+            "heapDeltaBytes": {
+              "avg": 30154.5,
+              "min": 30154.5,
+              "max": 30154.5,
+              "total": 23158656
+            },
+            "gcNs": {
+              "total": 14209999.918937683,
+              "min": 1014999.9856948853,
+              "max": 1479999.9594688416,
+              "avg": 1184166.6599114735
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 95078.12466472387,
+            "p99Ns": 95937.49977648258,
+            "samplesNs": [
+              94140.62462747097,
+              94374.99940395355,
+              94531.25018626451,
+              94921.87481373549,
+              94999.99973922968,
+              95078.12466472387,
+              95234.37451571226,
+              95312.49944120646,
+              95468.75022351742,
+              95625.0000745058,
+              95937.49977648258,
+              96953.12473922968
+            ],
+            "heapDeltaBytes": {
+              "avg": 30154.5,
+              "min": 30154.5,
+              "max": 30154.5,
+              "total": 23158656
+            },
+            "gcNs": {
+              "total": 13800000.131130219,
+              "min": 1024999.9761581421,
+              "max": 1450000.0476837158,
+              "avg": 1150000.0109275181
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 95625.0000745058,
+            "p99Ns": 96015.62563329935,
+            "samplesNs": [
+              94921.87481373549,
+              95312.49944120646,
+              95312.50037252903,
+              95312.50037252903,
+              95390.62436670065,
+              95625.0000745058,
+              95703.125,
+              95937.49977648258,
+              95937.49977648258,
+              96015.62470197678,
+              96015.62563329935,
+              96406.25026077032
+            ],
+            "heapDeltaBytes": {
+              "avg": 30154.5,
+              "min": 30154.5,
+              "max": 30154.5,
+              "total": 23158656
+            },
+            "gcNs": {
+              "total": 13909999.966621399,
+              "min": 1019999.9809265137,
+              "max": 1290000.0214576721,
+              "avg": 1159166.6638851166
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 96249.99947845936,
+            "p99Ns": 97656.25,
+            "samplesNs": [
+              94218.74955296516,
+              95156.25052154064,
+              95781.2499254942,
+              95859.37578231096,
+              96171.87455296516,
+              96249.99947845936,
+              96328.12533527613,
+              96718.7499627471,
+              96874.99981373549,
+              97265.62537252903,
+              97656.25,
+              98046.87462747097
+            ],
+            "heapDeltaBytes": {
+              "avg": 30154.453125,
+              "min": 30154.125,
+              "max": 30154.6875,
+              "total": 23158620
+            },
+            "gcNs": {
+              "total": 14810000.06198883,
+              "min": 1080000.0429153442,
+              "max": 1665000.0214576721,
+              "avg": 1234166.6718324025
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "heapBefore": 1938756,
+          "heapAfter": 1938732,
+          "heapAfterRepeat": 1938732,
+          "allocatedBytesEstimate": 60615000,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 58063852
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2078456
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 403968
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 34064
+            },
+            {
+              "site": "slice :0",
+              "bytes": 28912
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 4668
+            },
+            {
+              "site": "deref :0",
+              "bytes": 1080
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "heapBefore": 1958228,
+          "heapAfter": 1958228,
+          "heapAfterRepeat": 1958228,
+          "allocatedBytesEstimate": 60214784,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 57523856
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2214672
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 399760
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 37152
+            },
+            {
+              "site": "slice :0",
+              "bytes": 28896
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 7836
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 1556
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "heapBefore": 1976076,
+          "heapAfter": 1976076,
+          "heapAfterRepeat": 1976076,
+          "allocatedBytesEstimate": 60244120,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 57663656
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2106320
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 397676
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 35088
+            },
+            {
+              "site": "slice :0",
+              "bytes": 28912
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 6760
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 5708
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "heapBefore": 1976076,
+          "heapAfter": 1976076,
+          "heapAfterRepeat": 1976076,
+          "allocatedBytesEstimate": 60464968,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 57892500
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2078456
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 422724
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 33024
+            },
+            {
+              "site": "slice :0",
+              "bytes": 30960
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 4668
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 1556
+            },
+            {
+              "site": "deref :0",
+              "bytes": 1080
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "heapBefore": 1976076,
+          "heapAfter": 1976076,
+          "heapAfterRepeat": 1976076,
+          "allocatedBytesEstimate": 60274300,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 57785380
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 1971344
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 463368
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 38672
+            },
+            {
+              "site": "slice :0",
+              "bytes": 8272
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5708
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 1556
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "heapBefore": 1978036,
+          "heapAfter": 1978036,
+          "heapAfterRepeat": 1968228,
+          "allocatedBytesEstimate": 60489072,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 57941792
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2058856
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 223688
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 141640
+            },
+            {
+              "site": ". :966",
+              "bytes": 42480
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 36128
+            },
+            {
+              "site": "slice :0",
+              "bytes": 33024
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 5708
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 4668
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 1088
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(> .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 106640.62481373549,
+            "p99Ns": 107812.49962747097,
+            "samplesNs": [
+              105234.37522351742,
+              105781.24970197678,
+              106015.62447845936,
+              106484.3749627471,
+              106484.3749627471,
+              106640.62481373549,
+              107109.37529802322,
+              107109.37529802322,
+              107187.50022351742,
+              107265.62514901161,
+              107812.49962747097,
+              124453.12459021807
+            ],
+            "heapDeltaBytes": {
+              "avg": 41988.395833333336,
+              "min": 13768.0625,
+              "max": 44775.5625,
+              "total": 32247088
+            },
+            "gcNs": {
+              "total": 15229999.899864197,
+              "min": 1094999.9690055847,
+              "max": 1519999.9809265137,
+              "avg": 1269166.6583220165
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 106250.00018626451,
+            "p99Ns": 107578.12485098839,
+            "samplesNs": [
+              105937.49955296516,
+              105937.50048428774,
+              106093.75033527613,
+              106171.87526077032,
+              106250.00018626451,
+              106250.00018626451,
+              106406.2500372529,
+              106562.49988824129,
+              106718.74973922968,
+              107265.62514901161,
+              107578.12485098839,
+              108124.99932944775
+            ],
+            "heapDeltaBytes": {
+              "avg": 44509.875,
+              "min": 44509.875,
+              "max": 44509.875,
+              "total": 34183584
+            },
+            "gcNs": {
+              "total": 13484999.95470047,
+              "min": 964999.9737739563,
+              "max": 1264999.9856948853,
+              "avg": 1123749.9962250392
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 106328.12511175871,
+            "p99Ns": 107265.62514901161,
+            "samplesNs": [
+              105703.12477648258,
+              105859.37555879354,
+              105937.50048428774,
+              106250.00018626451,
+              106250.00018626451,
+              106328.12511175871,
+              106484.3749627471,
+              106484.3749627471,
+              106562.50081956387,
+              106796.87559604645,
+              107265.62514901161,
+              108593.74981373549
+            ],
+            "heapDeltaBytes": {
+              "avg": 44509.875,
+              "min": 44509.875,
+              "max": 44509.875,
+              "total": 34183584
+            },
+            "gcNs": {
+              "total": 13100000.143051147,
+              "min": 1004999.9952316284,
+              "max": 1175000.011920929,
+              "avg": 1091666.6785875957
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 103125.00037252903,
+            "p99Ns": 103515.625,
+            "samplesNs": [
+              100390.62518626451,
+              102343.75018626451,
+              102500.0000372529,
+              102812.50067055225,
+              102890.62559604645,
+              103125.00037252903,
+              103281.25022351742,
+              103359.37421768904,
+              103359.37514901161,
+              103359.37514901161,
+              103515.625,
+              103671.87485098839
+            ],
+            "heapDeltaBytes": {
+              "avg": 44539.828125,
+              "min": 44536.1875,
+              "max": 44579.875,
+              "total": 34206588
+            },
+            "gcNs": {
+              "total": 13375000,
+              "min": 1000000,
+              "max": 1300000.011920929,
+              "avg": 1114583.3333333333
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 102968.75052154064,
+            "p99Ns": 103749.99977648258,
+            "samplesNs": [
+              102500.0000372529,
+              102656.24988824129,
+              102890.62466472387,
+              102890.62466472387,
+              102890.62466472387,
+              102968.75052154064,
+              103281.24929219484,
+              103281.25022351742,
+              103281.25022351742,
+              103359.37514901161,
+              103749.99977648258,
+              103749.99977648258
+            ],
+            "heapDeltaBytes": {
+              "avg": 44509.869791666664,
+              "min": 44509.8125,
+              "max": 44509.875,
+              "total": 34183580
+            },
+            "gcNs": {
+              "total": 13675000.131130219,
+              "min": 985000.0143051147,
+              "max": 1284999.966621399,
+              "avg": 1139583.3442608516
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 102968.75052154064,
+            "p99Ns": 103515.625,
+            "samplesNs": [
+              102421.87511175871,
+              102500.0000372529,
+              102500.0000372529,
+              102578.1249627471,
+              102734.37481373549,
+              102968.75052154064,
+              103046.87451571226,
+              103125.00037252903,
+              103203.12436670065,
+              103203.12529802322,
+              103515.625,
+              103515.625
+            ],
+            "heapDeltaBytes": {
+              "avg": 44509.838541666664,
+              "min": 44509.5,
+              "max": 44509.875,
+              "total": 34183556
+            },
+            "gcNs": {
+              "total": 12889999.985694885,
+              "min": 969999.9690055847,
+              "max": 1250000,
+              "avg": 1074166.6654745738
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "heapBefore": 2065464,
+          "heapAfter": 2065424,
+          "heapAfterRepeat": 2065424,
+          "allocatedBytesEstimate": 88905900,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 71494480
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14926228
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2105280
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 224728
+            },
+            {
+              "site": "slice :0",
+              "bytes": 42320
+            },
+            {
+              "site": ". :966",
+              "bytes": 39360
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 33024
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 26848
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 6740
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 4772
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "heapBefore": 2065576,
+          "heapAfter": 2065536,
+          "heapAfterRepeat": 2065536,
+          "allocatedBytesEstimate": 88892204,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 71503652
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14862732
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2162040
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 238136
+            },
+            {
+              "site": ". :966",
+              "bytes": 45600
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 27872
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 23744
+            },
+            {
+              "site": "slice :0",
+              "bytes": 21680
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 6748
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "heapBefore": 2065536,
+          "heapAfter": 2065536,
+          "heapAfterRepeat": 2065536,
+          "allocatedBytesEstimate": 89591004,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 72063436
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14978584
+            },
+            {
+              "site": ". :966",
+              "bytes": 1202480
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 1011360
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 231924
+            },
+            {
+              "site": "slice :0",
+              "bytes": 36128
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 32480
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 28912
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5700
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "heapBefore": 2067744,
+          "heapAfter": 2067744,
+          "heapAfterRepeat": 2067744,
+          "allocatedBytesEstimate": 88871220,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 71693808
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14711776
+            },
+            {
+              "site": "byClass :1191",
+              "bytes": 2060920
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 246504
+            },
+            {
+              "site": ". :966",
+              "bytes": 54912
+            },
+            {
+              "site": "slice :0",
+              "bytes": 32000
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 30960
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 26832
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5708
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 5708
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "heapBefore": 2067744,
+          "heapAfter": 2069780,
+          "heapAfterRepeat": 2077268,
+          "allocatedBytesEstimate": 88994000,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 71614544
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14921716
+            },
+            {
+              "site": ". :966",
+              "bytes": 2149856
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 212772
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 30960
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 29936
+            },
+            {
+              "site": "slice :0",
+              "bytes": 21680
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5756
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 4668
+            },
+            {
+              "site": "deref :0",
+              "bytes": 1080
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "heapBefore": 2077268,
+          "heapAfter": 2084624,
+          "heapAfterRepeat": 2084624,
+          "allocatedBytesEstimate": 88805740,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 71452688
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14941636
+            },
+            {
+              "site": ". :966",
+              "bytes": 2092064
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 211872
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 35104
+            },
+            {
+              "site": "hasForeignTypes :1126",
+              "bytes": 30976
+            },
+            {
+              "site": "slice :0",
+              "bytes": 24768
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 6740
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 4668
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 3152
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(+ .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 173359.37544703484,
+            "p99Ns": 176484.37526077032,
+            "samplesNs": [
+              171718.7501490116,
+              172812.5000372529,
+              172968.7498882413,
+              173203.12466472387,
+              173203.12466472387,
+              173359.37544703484,
+              174375.00040978193,
+              174453.12533527613,
+              174453.12533527613,
+              174453.12533527613,
+              176484.37526077032,
+              178046.87563329935
+            ],
+            "heapDeltaBytes": {
+              "avg": 47953.151041666664,
+              "min": 18413.0625,
+              "max": 50654.25,
+              "total": 36828020
+            },
+            "gcNs": {
+              "total": 16995000.00476837,
+              "min": 1205000.0429153442,
+              "max": 1865000.0095367432,
+              "avg": 1416250.0003973644
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 172734.3751117587,
+            "p99Ns": 174531.24932944775,
+            "samplesNs": [
+              171718.7501490116,
+              172031.2498509884,
+              172265.62462747097,
+              172343.74955296516,
+              172734.3751117587,
+              172734.3751117587,
+              173124.99973922968,
+              173203.12466472387,
+              173281.25052154064,
+              173359.37544703484,
+              174531.24932944775,
+              177890.6248509884
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 15579999.9833107,
+              "min": 1194999.9928474426,
+              "max": 1544999.9570846558,
+              "avg": 1298333.3319425583
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 173281.24959021807,
+            "p99Ns": 174921.87581956387,
+            "samplesNs": [
+              170781.2501117587,
+              172031.2498509884,
+              172499.99940395355,
+              172890.6249627471,
+              173281.24959021807,
+              173281.24959021807,
+              173437.50037252903,
+              173750.0000745058,
+              174218.75055879354,
+              174296.87455296516,
+              174921.87581956387,
+              176093.75063329935
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 17150000.035762787,
+              "min": 1275000.0357627869,
+              "max": 1620000.0047683716,
+              "avg": 1429166.669646899
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 170156.24977648258,
+            "p99Ns": 170937.50089406967,
+            "samplesNs": [
+              169531.24944120646,
+              169765.6251490116,
+              169843.74914318323,
+              169843.7500745058,
+              169999.9999254942,
+              170156.24977648258,
+              170312.49962747097,
+              170468.74947845936,
+              170546.87440395355,
+              170937.4999627471,
+              170937.50089406967,
+              171249.99966472387
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 15189999.93801117,
+              "min": 1150000.0357627869,
+              "max": 1439999.9976158142,
+              "avg": 1265833.3281675975
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 169843.7500745058,
+            "p99Ns": 170859.3750372529,
+            "samplesNs": [
+              169296.87466472387,
+              169453.12544703484,
+              169609.37529802322,
+              169687.50022351742,
+              169843.7500745058,
+              169843.7500745058,
+              169921.875,
+              169999.9999254942,
+              169999.9999254942,
+              169999.9999254942,
+              170859.3750372529,
+              171328.12459021807
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 14734999.95470047,
+              "min": 1079999.9833106995,
+              "max": 1379999.9952316284,
+              "avg": 1227916.6628917058
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 170546.87440395355,
+            "p99Ns": 171562.50029802322,
+            "samplesNs": [
+              169218.75067055225,
+              169609.37529802322,
+              169921.875,
+              170234.37470197678,
+              170468.75040978193,
+              170546.87440395355,
+              170937.4999627471,
+              171015.6248882413,
+              171328.12552154064,
+              171562.49936670065,
+              171562.50029802322,
+              172500.00033527613
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 16544999.957084656,
+              "min": 1209999.9785423279,
+              "max": 1655000.0309944153,
+              "avg": 1378749.9964237213
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "heapBefore": 2182792,
+          "heapAfter": 2186588,
+          "heapAfterRepeat": 2186588,
+          "allocatedBytesEstimate": 101647652,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 84390500
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14861708
+            },
+            {
+              "site": ". :966",
+              "bytes": 2111648
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 212816
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 33040
+            },
+            {
+              "site": "slice :0",
+              "bytes": 24784
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 6780
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 4256
+            },
+            {
+              "site": "Map :0",
+              "bytes": 1064
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "heapBefore": 2186740,
+          "heapAfter": 2186740,
+          "heapAfterRepeat": 2186740,
+          "allocatedBytesEstimate": 101274332,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 84150992
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14735920
+            },
+            {
+              "site": ". :966",
+              "bytes": 2101376
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 219900
+            },
+            {
+              "site": "slice :0",
+              "bytes": 32000
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 26832
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 2620
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 2596
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            },
+            {
+              "site": "Map :0",
+              "bytes": 1040
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "heapBefore": 2186740,
+          "heapAfter": 2186740,
+          "heapAfterRepeat": 2186740,
+          "allocatedBytesEstimate": 101749960,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 84494892
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14742708
+            },
+            {
+              "site": ". :966",
+              "bytes": 2205576
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 220968
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 41296
+            },
+            {
+              "site": "slice :0",
+              "bytes": 34064
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 6788
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 2112
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 1556
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "heapBefore": 2186740,
+          "heapAfter": 2186740,
+          "heapAfterRepeat": 2186740,
+          "allocatedBytesEstimate": 101042836,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 83728040
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14886232
+            },
+            {
+              "site": ". :966",
+              "bytes": 2163288
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 187664
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 34064
+            },
+            {
+              "site": "slice :0",
+              "bytes": 34064
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 4668
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 2112
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 1556
+            },
+            {
+              "site": "(PARSER) :0",
+              "bytes": 1148
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "heapBefore": 2186740,
+          "heapAfter": 2186700,
+          "heapAfterRepeat": 2186700,
+          "allocatedBytesEstimate": 100932532,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 83838440
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14716828
+            },
+            {
+              "site": ". :966",
+              "bytes": 2112728
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 192200
+            },
+            {
+              "site": "slice :0",
+              "bytes": 39232
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 23744
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5708
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 2596
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "heapBefore": 2186700,
+          "heapAfter": 2186700,
+          "heapAfterRepeat": 2188808,
+          "allocatedBytesEstimate": 100916464,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 83738924
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14884052
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 2243816
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 39232
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 5708
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 2612
+            },
+            {
+              "site": "Map :0",
+              "bytes": 1064
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 16,
+      "selector": ".card:has(~ .target [data-hit])",
+      "measurements": [
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 174218.74962747097,
+            "p99Ns": 175625.0001490116,
+            "samplesNs": [
+              173359.37451571226,
+              173593.75022351742,
+              173906.2499254942,
+              174062.49977648258,
+              174218.74962747097,
+              174218.74962747097,
+              174531.25026077032,
+              174687.5001117587,
+              175078.12473922968,
+              175156.25059604645,
+              175625.0001490116,
+              176484.37526077032
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637.947916666664,
+              "min": 50636.9375,
+              "max": 50648.4375,
+              "total": 38889944
+            },
+            "gcNs": {
+              "total": 15135000.109672546,
+              "min": 1139999.9856948853,
+              "max": 1370000.0047683716,
+              "avg": 1261250.0091393788
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 173828.125,
+            "p99Ns": 174843.7499627471,
+            "samplesNs": [
+              173515.62436670065,
+              173593.74929219484,
+              173593.75022351742,
+              173671.8751490116,
+              173671.8751490116,
+              173828.125,
+              173906.2499254942,
+              174375.00040978193,
+              174375.00040978193,
+              174453.12440395355,
+              174843.7499627471,
+              175781.25
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637.015625,
+              "min": 50637,
+              "max": 50637.1875,
+              "total": 38889228
+            },
+            "gcNs": {
+              "total": 14020000.040531158,
+              "min": 1040000.0214576721,
+              "max": 1435000.0023841858,
+              "avg": 1168333.3367109299
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 174843.7499627471,
+            "p99Ns": 175859.3749254942,
+            "samplesNs": [
+              174062.49977648258,
+              174453.12440395355,
+              174453.12533527613,
+              174609.37425494194,
+              174609.37518626451,
+              174843.7499627471,
+              174999.99981373549,
+              175078.12473922968,
+              175156.24966472387,
+              175312.50044703484,
+              175859.3749254942,
+              176093.74970197678
+            ],
+            "heapDeltaBytes": {
+              "avg": 50637,
+              "min": 50637,
+              "max": 50637,
+              "total": 38889216
+            },
+            "gcNs": {
+              "total": 15375000.059604645,
+              "min": 1120000.0047683716,
+              "max": 1509999.9904632568,
+              "avg": 1281250.0049670537
+            }
+          }
+        ],
+        [
+          {
+            "round": 0,
+            "calls": 768,
+            "p50Ns": 171640.62522351742,
+            "p99Ns": 172968.7498882413,
+            "samplesNs": [
+              170937.4999627471,
+              171093.74981373549,
+              171328.12459021807,
+              171406.24951571226,
+              171562.50029802322,
+              171640.62522351742,
+              172031.2498509884,
+              172109.37477648258,
+              172187.49970197678,
+              172187.50063329935,
+              172968.7498882413,
+              173906.2499254942
+            ],
+            "heapDeltaBytes": {
+              "avg": 50546.625,
+              "min": 50546.625,
+              "max": 50546.625,
+              "total": 38819808
+            },
+            "gcNs": {
+              "total": 15319999.992847443,
+              "min": 1094999.9690055847,
+              "max": 1540000.0214576721,
+              "avg": 1276666.6660706203
+            }
+          },
+          {
+            "round": 1,
+            "calls": 768,
+            "p50Ns": 171484.37444120646,
+            "p99Ns": 172109.37477648258,
+            "samplesNs": [
+              170468.74947845936,
+              171171.87473922968,
+              171249.99966472387,
+              171406.24951571226,
+              171406.25044703484,
+              171484.37444120646,
+              171484.37444120646,
+              171562.49936670065,
+              172031.2498509884,
+              172109.37477648258,
+              172109.37477648258,
+              172499.99940395355
+            ],
+            "heapDeltaBytes": {
+              "avg": 50546.625,
+              "min": 50546.625,
+              "max": 50546.625,
+              "total": 38819808
+            },
+            "gcNs": {
+              "total": 13979999.899864197,
+              "min": 1054999.9475479126,
+              "max": 1309999.942779541,
+              "avg": 1164999.9916553497
+            }
+          },
+          {
+            "round": 2,
+            "calls": 768,
+            "p50Ns": 171875,
+            "p99Ns": 172890.6249627471,
+            "samplesNs": [
+              170937.4999627471,
+              171093.74981373549,
+              171484.37537252903,
+              171562.50029802322,
+              171718.7501490116,
+              171875,
+              171953.12585681677,
+              172109.37570780516,
+              172343.75048428774,
+              172421.87447845936,
+              172890.6249627471,
+              173984.3748509884
+            ],
+            "heapDeltaBytes": {
+              "avg": 50546.625,
+              "min": 50546.625,
+              "max": 50546.625,
+              "total": 38819808
+            },
+            "gcNs": {
+              "total": 15730000.019073486,
+              "min": 1095000.0286102295,
+              "max": 1544999.9570846558,
+              "avg": 1310833.3349227905
+            }
+          }
+        ]
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "heapBefore": 2234432,
+          "heapAfter": 2234432,
+          "heapAfterRepeat": 2234432,
+          "allocatedBytesEstimate": 100844416,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 83647360
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14764440
+            },
+            {
+              "site": ". :966",
+              "bytes": 2129192
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 225364
+            },
+            {
+              "site": "slice :0",
+              "bytes": 40256
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 32000
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 2144
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 1556
+            },
+            {
+              "site": "Map :0",
+              "bytes": 1064
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 1040
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "heapBefore": 2234584,
+          "heapAfter": 2234584,
+          "heapAfterRepeat": 2234584,
+          "allocatedBytesEstimate": 100958964,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 83906420
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14831384
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 2184920
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 26848
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 6796
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 2596
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "heapBefore": 2234584,
+          "heapAfter": 2234584,
+          "heapAfterRepeat": 2234584,
+          "allocatedBytesEstimate": 100783428,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 83445332
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14996168
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 2291240
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 40256
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 6748
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 2128
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 1556
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "heapBefore": 2234584,
+          "heapAfter": 2234584,
+          "heapAfterRepeat": 2234584,
+          "allocatedBytesEstimate": 101421184,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 84115144
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14847396
+            },
+            {
+              "site": ". :966",
+              "bytes": 2156056
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 227028
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 29936
+            },
+            {
+              "site": "slice :0",
+              "bytes": 29936
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 7884
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 6764
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "heapBefore": 2234584,
+          "heapAfter": 2236620,
+          "heapAfterRepeat": 2236620,
+          "allocatedBytesEstimate": 101338752,
+          "allocationSites": [
+            {
+              "site": "has :3611",
+              "bytes": 84294232
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14794984
+            },
+            {
+              "site": "_querySelectorAll :4019",
+              "bytes": 2208680
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 33040
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 3652
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 2072
+            },
+            {
+              "site": "(BYTECODE_COMPILER) :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 1036
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "heapBefore": 2236620,
+          "heapAfter": 2236620,
+          "heapAfterRepeat": 2236620,
+          "allocatedBytesEstimate": 101134280,
+          "allocationSites": [
+            {
+              "site": "has :3622",
+              "bytes": 83969660
+            },
+            {
+              "site": "Resolver :3",
+              "bytes": 14911984
+            },
+            {
+              "site": "_querySelectorAll :4030",
+              "bytes": 2204480
+            },
+            {
+              "site": "collectionSnapshot :1071",
+              "bytes": 39216
+            },
+            {
+              "site": "evaluate :305",
+              "bytes": 4668
+            },
+            {
+              "site": "(V8 API) :0",
+              "bytes": 3192
+            },
+            {
+              "site": "deref :0",
+              "bytes": 1080
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :1",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :10",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

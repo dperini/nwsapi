@@ -40,10 +40,31 @@ export interface WptEntry {
   selectorInputs?: number
   script?: boolean
   reflectSwitch?: boolean
-  domOnly?: 'form-validity' | 'input-direction' | 'namespace-matches'
+  domOnly?:
+    | 'form-validity'
+    | 'input-direction'
+    | 'namespace-matches'
+    | 'slot-assignment'
+    | 'webkit-pseudos'
+    | 'selector-lists'
 }
 
 export const manifest: WptEntry[] = [
+  {
+    path: '/dom/nodes/NodeList-Iterable.html',
+    note: 'Seven checks of querySelectorAll result iteration and enumeration. The unrelated live childNodes test is excluded.',
+    domOnly: 'selector-lists',
+  },
+  {
+    path: '/css/selectors/webkit-pseudo-element.html',
+    note: 'Four selector API tests retain their original assertions. Two stylesheet tests and one CSSOM assertion are excluded.',
+    domOnly: 'webkit-pseudos',
+  },
+  {
+    path: '/css/css-shadow/has-slotted-query-selector.html',
+    note: 'Slot assignment, replacement, and flattened assignment through selector APIs. Four computed-style assertions are excluded.',
+    domOnly: 'slot-assignment',
+  },
   ...[
     '/css/css-forms/parsing/checkmark-pseudo-element.html',
     '/css/css-forms/parsing/picker-icon-pseudo-element.html',

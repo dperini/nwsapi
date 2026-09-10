@@ -158,3 +158,32 @@ test('keeps matching assertions when removing the reviewed direction checks', ()
     ),
   ).toThrow('assertions changed')
 })
+
+test('slot adapter preserves selector assertions and requires the reviewed edit count', () => {
+  const assertion = 'assert_equals(getComputedStyle(slot).color, "green");'
+  const html = `<script>${assertion.repeat(4)} assert_true(slot.matches(':has-slotted'));</script>`
+  const result = adaptDomOnly(html, 'slot-assignment')
+  expect(result).toContain("slot.matches(':has-slotted')")
+  expect(result).not.toContain('getComputedStyle')
+  expect(() =>
+    adaptDomOnly(html.replace(assertion, ''), 'slot-assignment'),
+  ).toThrow('expected 4 edits')
+})
+
+test('WebKit adapter retains syntax assertions and rejects upstream drift', () => {
+  const html = `<script>
+    test(() => { getComputedStyle(el) }, 'rules include webkit-prefixed pseudo-element should be cascaded');
+    test(() => { sheet.cssRules }, 'webkit-prefixed pseudo-element selectors should be accessible from CSSOM');
+    test(() => { assert_equals(sheet.cssRules.length, 2); assert_throws_dom('SyntaxError', () => document.querySelector('::-webkitfoo')); }, 'webkit-prefix without dash is invalid');
+  </script>`
+  const result = adaptDomOnly(html, 'webkit-pseudos')
+  expect(result).toContain("document.querySelector('::-webkitfoo')")
+  expect(result).not.toContain('cssRules')
+  expect(result).not.toContain('getComputedStyle')
+  expect(() =>
+    adaptDomOnly(
+      html.replace('sheet.cssRules.length', 'sheet.length'),
+      'webkit-pseudos',
+    ),
+  ).toThrow('expected 3 edits')
+})

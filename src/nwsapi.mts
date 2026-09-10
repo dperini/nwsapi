@@ -41,7 +41,11 @@ type EngineElement = Element &
     style?: CSSStyleDeclaration
     open?: boolean
   }
-type EngineGlobal = typeof globalThis & { NW?: { Dom?: unknown } }
+type HostReaders = import('./internal/host.d.ts').HostReaders
+type EngineGlobal = typeof globalThis & {
+  NW?: { Dom?: unknown }
+  hostReaders?: HostReaders
+}
 type ElementCallback = ((element: Element) => unknown) | null | undefined
 interface NativeMatcherRecord {
   fallback: Element['matches'] | null | undefined
@@ -84,6 +88,10 @@ interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
 }
+interface RelativePlan extends QueryPlan {
+  sibling: boolean
+  subtree: number
+}
 interface FilteredSiblings {
   nodes: Element[]
   positions: WeakMap<Element, number> | undefined
@@ -116,6 +124,8 @@ interface PlanCache<Value> {
   size(): number
 }
 interface CompilerAncestry {
+  classes?: string[]
+  reuse?: string
   required: string[]
   pending: string[]
   walk: boolean
@@ -539,6 +549,7 @@ interface Primordials {
     primordials = (Factory as typeof Factory & { _primordials: Primordials })[
       '_primordials'
     ],
+    hostReaders = global.hostReaders,
     doc = global.document,
     root = doc.documentElement,
     // Factory fallback for documents without a window.
@@ -917,6 +928,70 @@ interface Primordials {
       }
       return a.compareDocumentPosition(b) & 4 ? -1 : 1
     },
+    mergeResults = function (nodes: Element[], ends: number[]) {
+      var length = nodes.length,
+        count = ends.length - 1,
+        output: Element[],
+        swap,
+        width,
+        group,
+        i,
+        j,
+        end,
+        middle,
+        out,
+        a,
+        b
+      if (length < 2 || count < 2) {
+        return nodes
+      }
+      for (group = 1; group < count; ++group) {
+        i = ends[group]!
+        a = nodes[i - 1]!
+        b = nodes[i]!
+        if (a === b || !(a.compareDocumentPosition(b) & 4)) {
+          break
+        }
+      }
+      if (group == count) {
+        return nodes
+      }
+      output = Array<Element>(length)
+      for (width = 1; width < count; width *= 2) {
+        for (group = 0; group < count; group += width * 2) {
+          i = ends[group]!
+          middle = ends[Math.min(group + width, count)]!
+          j = middle
+          end = ends[Math.min(group + width * 2, count)]!
+          out = i
+          while (i < middle && j < end) {
+            a = nodes[i]!
+            b = nodes[j]!
+            if (a === b) {
+              hasDupes = true
+              output[out++] = a
+              ++i
+            } else if (a.compareDocumentPosition(b) & 4) {
+              output[out++] = a
+              ++i
+            } else {
+              output[out++] = b
+              ++j
+            }
+          }
+          while (i < middle) {
+            output[out++] = nodes[i++]!
+          }
+          while (j < end) {
+            output[out++] = nodes[j++]!
+          }
+        }
+        swap = nodes
+        nodes = output
+        output = swap
+      }
+      return hasDupes ? unique(nodes) : nodes
+    },
     hasDupes = false,
     unique = function (nodes: Element[]) {
       var i = 0,
@@ -950,6 +1025,7 @@ interface Primordials {
         matchResolvers.clear()
         selectResolvers.clear()
         firstResolvers.clear()
+        hasPlans = undefined
         if (legacyHooks && !Config.LEGACY && legacyHooks.detect(doc)) {
           Config.LEGACY = true
         }
@@ -1253,7 +1329,7 @@ interface Primordials {
         i,
         l,
         nodes,
-        ownerDoc,
+        lookupRoot,
         api = method['#']
 
       // duplicates id allowed
@@ -1302,20 +1378,19 @@ interface Primordials {
       // constant time: whether the id exists anywhere, and where the first
       // one is, since it returns the first in tree order and any duplicate
       // has to follow it.
-      ownerDoc = context.nodeType == 9 ? context : context.ownerDocument
-
-      if (
-        ownerDoc &&
-        ownerDoc.getElementById &&
-        (context.nodeType == 9 || connectedOf(context))
-      ) {
-        e = ownerDoc.getElementById(id)
-        // nothing in the document carries the id, so nothing under context does
+      // A connected element may belong to a shadow tree. Only its actual
+      // document root can prove absence through the document's ID map.
+      lookupRoot =
+        context.nodeType == 9
+          ? context
+          : context.getRootNode
+            ? context.getRootNode()
+            : null
+      if (lookupRoot && lookupRoot.nodeType == 9) {
+        e = (lookupRoot as Document).getElementById(id)
         if (!e) {
           return none
         }
-        // scoped to an element, the first document-order match may sit
-        // outside it, and a match inside it would then be missed
         if (context.nodeType == 9) {
           return byIdRaw(id, context, e)
         }
@@ -1431,6 +1506,7 @@ interface Primordials {
       context: EngineContext,
       length?: number | undefined,
       small?: boolean | undefined,
+      identity?: object | undefined,
     ) {
       var state: CollectionSnapshotState | undefined,
         root,
@@ -1438,11 +1514,12 @@ interface Primordials {
         cached,
         i,
         result
-      if (collectionStates && (state = collectionStates.get(nodes))) {
+      identity = identity || nodes
+      if (collectionStates && (state = collectionStates.get(identity))) {
         if (state.observer!.takeRecords().length) {
           state.copies = createWeakMap()!
         }
-        cached = state.copies.get(nodes)
+        cached = state.copies.get(identity)
         if (
           cached &&
           state.document.deref() === (context.ownerDocument || context)
@@ -1502,20 +1579,26 @@ interface Primordials {
         )
       }
       collectionStates || (collectionStates = createWeakMap())
-      collectionStates!.set(nodes, state)
+      collectionStates!.set(identity, state)
       // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
       result = new Array(length)
       for (i = 0; i < length; ++i) {
         result[i] = nodes[i]
       }
-      state.copies.set(nodes, result)
+      state.copies.set(identity, result)
       return result
     },
     collectionCopy = function (
       nodes: ArrayLike<Element>,
       context: EngineContext,
+      snapshot?: ArrayLike<Element>,
+      identity?: object | undefined,
     ) {
-      var snapshot = Config.LEGACY ? nodes : collectionSnapshot(nodes, context)
+      snapshot =
+        snapshot ||
+        (Config.LEGACY
+          ? nodes
+          : collectionSnapshot(nodes, context, undefined, undefined, identity))
       if (snapshot !== nodes) {
         return (snapshot as Element[]).slice()
       }
@@ -1637,7 +1720,14 @@ interface Primordials {
       if (Config.LEGACY) {
         nodes = legacyHooks!.byTag(tag, context)
       } else if (api in context) {
-        return collectionCopy(context[api]!(tag), context)
+        // Wildcard membership depends on the context, not collection identity.
+        // Hosts can replace a collection after unrelated attribute mutations.
+        return collectionCopy(
+          context[api]!(tag),
+          context,
+          undefined,
+          tag == '*' ? context : undefined,
+        )
       } else {
         tag = tag.toLowerCase()
         // DOCUMENT_FRAGMENT_NODE (11)
@@ -1740,27 +1830,37 @@ interface Primordials {
       return false
     },
     includes: LegacyReaders['includes'] = primordials.StringPrototypeIncludes!,
-    attrOf: LegacyReaders['attrOf'] = function (e, name) {
-      return e.getAttribute(name)
-    },
-    hasAttrOf: LegacyReaders['hasAttrOf'] = function (e, name) {
-      return e.hasAttribute(name)
-    },
+    attrOf: LegacyReaders['attrOf'] =
+      (hostReaders && hostReaders.attrOf) ||
+      function (e, name) {
+        return e.getAttribute(name)
+      },
+    hasAttrOf: LegacyReaders['hasAttrOf'] =
+      (hostReaders && hostReaders.hasAttrOf) ||
+      function (e, name) {
+        return e.hasAttribute(name)
+      },
     tagOf: LegacyReaders['tagOf'] = function (e) {
       return e.localName
     },
     idOf: LegacyReaders['idOf'] = function (e) {
       return e.id
     },
-    upOf: LegacyReaders['upOf'] = function (e) {
-      return e.parentElement
-    },
-    nextOf: LegacyReaders['nextOf'] = function (e) {
-      return e.nextElementSibling
-    },
-    _prevOf: LegacyReaders['prevOf'] = function (e) {
-      return e.previousElementSibling
-    },
+    upOf: LegacyReaders['upOf'] =
+      (hostReaders && hostReaders.upOf) ||
+      function (e) {
+        return e.parentElement
+      },
+    nextOf: LegacyReaders['nextOf'] =
+      (hostReaders && hostReaders.nextOf) ||
+      function (e) {
+        return e.nextElementSibling
+      },
+    _prevOf: LegacyReaders['prevOf'] =
+      (hostReaders && hostReaders.prevOf) ||
+      function (e) {
+        return e.previousElementSibling
+      },
     firstOf: LegacyReaders['firstOf'] = function (e) {
       return e.firstElementChild
     },
@@ -1819,7 +1919,7 @@ interface Primordials {
       if (value && typeof value.baseVal == 'string') {
         return value.baseVal
       }
-      return attrOf(e, 'class')
+      return attrOf(e, 'class') || ''
     },
     readDirect = {
       tag: function (v: string) {
@@ -1832,19 +1932,29 @@ interface Primordials {
         return 's.classOf(' + v + ')'
       },
       up: function (v: string) {
-        return v + '.parentElement'
+        return hostReaders && hostReaders.upOf
+          ? 's.upOf(' + v + ')'
+          : v + '.parentElement'
       },
       next: function (v: string) {
-        return v + '.nextElementSibling'
+        return hostReaders && hostReaders.nextOf
+          ? 's.nextOf(' + v + ')'
+          : v + '.nextElementSibling'
       },
       prev: function (v: string) {
-        return v + '.previousElementSibling'
+        return hostReaders && hostReaders.prevOf
+          ? 's.prevOf(' + v + ')'
+          : v + '.previousElementSibling'
       },
       attr: function (v: string, name: string) {
-        return v + '.getAttribute("' + name + '")'
+        return hostReaders && hostReaders.attrOf
+          ? 's.attrOf(' + v + ',"' + name + '")'
+          : v + '.getAttribute("' + name + '")'
       },
       has: function (v: string, name: string) {
-        return v + '.hasAttribute("' + name + '")'
+        return hostReaders && hostReaders.hasAttrOf
+          ? 's.hasAttrOf(' + v + ',"' + name + '")'
+          : v + '.hasAttribute("' + name + '")'
       },
     },
     readGuarded = {
@@ -1855,10 +1965,14 @@ interface Primordials {
       next: readDirect.next,
       prev: readDirect.prev,
       attr: function (v: string, name: string) {
-        return v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'
+        return hostReaders && hostReaders.attrOf
+          ? readDirect.attr(v, name)
+          : v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'
       },
       has: function (v: string, name: string) {
-        return v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'
+        return hostReaders && hostReaders.hasAttrOf
+          ? readDirect.has(v, name)
+          : v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'
       },
     },
     // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
@@ -2582,6 +2696,7 @@ interface Primordials {
         matchResolvers.clear()
         selectResolvers.clear()
         firstResolvers.clear()
+        hasPlans = undefined
       }
       useLegacy(Config.LEGACY)
       setIdentifierSyntax()
@@ -2678,6 +2793,84 @@ interface Primordials {
     S_VARS: string[] = [],
     M_VARS: string[] = [],
     N_VARS: string[] = [],
+    // Reuse only one static ancestor search. Read the existing selector tokens
+    // so escaped identifiers and whitespace keep the parser's meaning. Other
+    // pseudos, namespaces, attributes, and extensions retain their full matcher.
+    canReuseAncestor = function (selector: string) {
+      // A descendant combinator requires whitespace. Strings and escapes can
+      // also contain it, so only absence is enough to skip token inspection.
+      if (!/[\t\n\f\r ]/.test(selector)) {
+        return false
+      }
+      for (var extension in Selectors) {
+        if (Selectors[extension]) {
+          return false
+        }
+      }
+      for (extension in Combinators) {
+        if (Combinators[extension]) {
+          return false
+        }
+      }
+      var walks = 0,
+        token,
+        pattern,
+        match: RegExpMatchArray | null
+      while (selector) {
+        token = selector.charAt(0)
+        pattern =
+          token == '.'
+            ? 'className'
+            : token == '#'
+              ? 'id'
+              : token == '*'
+                ? 'universal'
+                : token == '>'
+                  ? 'children'
+                  : token == '+'
+                    ? 'adjacent'
+                    : token == '~'
+                      ? 'relative'
+                      : token == ' ' || token == '\t'
+                        ? 'ancestor'
+                        : 'tagName'
+        if (token == ':') {
+          match = selector.match(Patterns['structural']!)
+          if (match) {
+            if (
+              match[1]!.toLowerCase() == 'root' ||
+              match[1]!.toLowerCase() == 'scope'
+            ) {
+              return false
+            }
+          } else {
+            // Inspect the token without validating it again. Validation can
+            // emit errors, while this eligibility pass must remain silent.
+            var nth = readPseudo(selector)
+            if (
+              !nth ||
+              !Patterns['treestruct']!.test(selector) ||
+              nth.argument === null ||
+              nth.argument.toLowerCase().indexOf('of') >= 0
+            ) {
+              return false
+            }
+            selector = nth.rest
+            continue
+          }
+        } else {
+          if (pattern == 'ancestor' && ++walks > 1) {
+            return false
+          }
+          match = selector.match(Patterns[pattern]!)
+        }
+        if (!match || match[match.length - 1] === selector) {
+          return false
+        }
+        selector = match[match.length - 1]!
+      }
+      return walks == 1
+    },
     // compile groups or single selector strings into
     // executable functions for matching or selecting
     compile = function (
@@ -2685,6 +2878,7 @@ interface Primordials {
       mode: boolean | null,
       callback: boolean | ElementCallback,
       relative?: boolean,
+      existenceOnly?: boolean,
     ): CompiledResolver | null {
       var cacheKey =
         (mode === true || mode === false || mode === null
@@ -2698,6 +2892,9 @@ interface Primordials {
             ':' +
             !!callback +
             ':') + selector
+      if (existenceOnly) {
+        cacheKey = 'exists:' + cacheKey
+      }
       var i,
         mask,
         filter,
@@ -2717,7 +2914,9 @@ interface Primordials {
           if ((factory = selectLambdas.get(cacheKey)) !== undefined) {
             return factory
           }
-          macro = S_BODY + (callback ? S_TEST : '') + S_TAIL
+          macro =
+            S_BODY +
+            (existenceOnly ? 'break main;' : (callback ? S_TEST : '') + S_TAIL)
           head = S_HEAD
           loop = S_LOOP
           break
@@ -2743,6 +2942,12 @@ interface Primordials {
 
       // Cache hits need no parser state or helper-alias bookkeeping.
       ancestry = { required: [], pending: [], walk: false }
+      if ((mode || mode === null) && !Config.LEGACY) {
+        ancestry.classes = []
+      }
+      if ((mode || mode === null) && !callback && !relative && !Config.LEGACY) {
+        ancestry.reuse = macro
+      }
 
       source = compileSelector(
         relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
@@ -2807,6 +3012,14 @@ interface Primordials {
         N_VARS.length = 0
       }
 
+      if (ancestry.reuse) {
+        vars += ',_pStart=null,_pResult=false'
+      }
+      if (ancestry.classes) {
+        for (i = 0; i < ancestry.classes.length; ++i) {
+          vars += ',_c' + i + '=' + ancestry.classes[i]
+        }
+      }
       if (Config.LEGACY) {
         var rewritten = legacyHooks!.compile(loop)
         loop = rewritten.source
@@ -3159,7 +3372,7 @@ interface Primordials {
       return (
         argument === null &&
         (treePseudo(name) ||
-          /^(?:first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
+          /^(?:column|first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
             name,
           ))
       )
@@ -3213,7 +3426,9 @@ interface Primordials {
             valid = name == 'only-child' && argument === null
           } else {
             valid =
-              (treePseudo(context) || context == 'scroll-button') &&
+              (treePseudo(context) ||
+                context == 'scroll-button' ||
+                context.indexOf('-webkit-') == 0) &&
               /^(?:hover|active|focus|focus-visible|focus-within)$/.test(name)
             if (
               context == 'scroll-button' &&
@@ -3633,6 +3848,9 @@ interface Primordials {
         value,
         match: RegExpMatchArray | null | undefined,
         pendingTag = '',
+        firstChildOnly = false,
+        classTests: string[],
+        classIndex,
         result,
         status,
         symbol,
@@ -3660,6 +3878,11 @@ interface Primordials {
 
       // isolate selector combinators
       selector = normalizeCombinators(selector)
+      // Eligibility reads the same normalized tokens as code generation.
+      // Reusing this pass avoids normalizing comments and combinators twice.
+      if (ancestry.reuse && !canReuseAncestor(selector)) {
+        ancestry.reuse = ''
+      }
 
       // javascript needs a label to break
       // out of the while loops processing
@@ -3705,18 +3928,52 @@ interface Primordials {
           // class name resolver
           case 46 /* '.' */:
             match = selector.match(Patterns['className']!)
-            match![1] = /[\t\n\f\r ]/.test(unescapeIdentifier(match![1]!))
-              ? '(?!)'
-              : escapeIdentifier(match![1]!).replace(REX.RegExpChar, '\\$&')
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(' + read.cls('e') + ')'
-            source =
-              'if((/(^|\\s)' +
-              match![1]! +
-              '(\\s|$)/' +
-              compat +
-              ')){' +
-              source +
-              '}'
+            classTests = []
+            do {
+              expr = /[\t\n\f\r ]/.test(unescapeIdentifier(match![1]!))
+                ? '(?!)'
+                : escapeIdentifier(match![1]!).replace(REX.RegExpChar, '\\$&')
+              classTests.push(
+                '/(^|\\s)' + expr + '(\\s|$)/' + (QUIRKS_MODE ? 'i' : ''),
+              )
+              if (ancestry.classes) {
+                // These expressions have no stateful flags. Create them once
+                // per query instead of once for every candidate or ancestor.
+                classIndex = ancestry.classes.indexOf(
+                  classTests[classTests.length - 1]!,
+                )
+                if (classIndex < 0) {
+                  classIndex = ancestry.classes.length
+                  ancestry.classes.push(classTests[classTests.length - 1]!)
+                }
+                classTests[classTests.length - 1] = '_c' + classIndex
+              }
+              argument = match![match!.length - 1]!
+              nested =
+                argument.charAt(0) == '.' &&
+                argument.match(Patterns['className']!)
+              if (nested) {
+                match = nested
+              }
+            } while (nested)
+            compat = ''
+            // Preserve right-to-left test order, but read one class value for
+            // adjacent class tests before their continuation can change n.
+            for (
+              classIndex = classTests.length - 1;
+              classIndex >= 0;
+              --classIndex
+            ) {
+              compat +=
+                (compat ? '&&' : '') +
+                classTests[classIndex] +
+                '.test(' +
+                (classIndex == classTests.length - 1
+                  ? (classTests.length > 1 ? 'n=' : '') + read.cls('e')
+                  : 'n') +
+                ')'
+            }
+            source = 'if(' + compat + '){' + source + '}'
             break
 
           // tag name resolver
@@ -3881,21 +4138,29 @@ interface Primordials {
               source = pendingTag + source + '}'
               pendingTag = ''
             }
+            // A first-child predicate has exactly one possible sibling.
+            // Read it live so callbacks and fragment roots retain their behavior.
             source =
               'var N' +
               k +
-              '=e;while(e&&(e=' +
-              read.prev('e') +
-              ')){' +
+              '=e;' +
+              (firstChildOnly
+                ? 'if(e&&(e=e.parentNode)&&(e=e.firstElementChild)&&e!==N' +
+                  k +
+                  ')'
+                : 'while(e&&(e=' + read.prev('e') + '))') +
+              '{' +
               source +
               '}e=N' +
               k +
               ';'
+            firstChildOnly = false
             break
 
           // *** Adjacent sibling combinator
           // E + F (F adiacent sibling of E)
           case 43 /* '+' */:
+            firstChildOnly = false
             match = selector.match(Patterns['adjacent']!)
             ancestry.pending.length = 0
             if (pendingTag) {
@@ -3918,6 +4183,7 @@ interface Primordials {
           // E F (E ancestor of F)
           case 9 /* '\x09' */:
           case 32 /* '\x20' */:
+            firstChildOnly = false
             match = selector.match(Patterns['ancestor']!)
             // Pending tags now have to appear above the candidate. Sibling
             // combinators discard their own pending tags but retain earlier
@@ -3928,6 +4194,26 @@ interface Primordials {
             if (pendingTag) {
               source = pendingTag + source + '}'
               pendingTag = ''
+            }
+            if (ancestry.reuse) {
+              // A successful prefix continues the candidate loop before the
+              // final false assignment. Keep positional state in the original
+              // query wrapper, and reuse the parent read this walk already needs.
+              source =
+                'var N' +
+                k +
+                '=e;if((e=e&&' +
+                read.up('e') +
+                ')===_pStart){if(_pResult){' +
+                ancestry.reuse +
+                '}}else{_pStart=e;_pResult=true;while(e){' +
+                source +
+                'e=' +
+                read.up('e') +
+                ';}_pResult=false;}e=N' +
+                k +
+                ';'
+              break
             }
             source =
               'var N' +
@@ -3946,6 +4232,7 @@ interface Primordials {
           // *** Child combinator
           // E > F (F children of E)
           case 62 /* '>' */:
+            firstChildOnly = false
             match = selector.match(Patterns['children']!)
             ancestry.required.push.apply(ancestry.required, ancestry.pending)
             ancestry.pending.length = 0
@@ -3969,6 +4256,7 @@ interface Primordials {
 
           // *** user supplied combinators extensions
           case (selector[0] as string) in Combinators ? symbol : undefined:
+            firstChildOnly = false
             // for other registered combinators extensions
             match![match!.length - 1] = '*'
             source = Combinators[selector[0]!]!(match!) + source
@@ -4079,9 +4367,17 @@ interface Primordials {
                   '}'
               } else {
                 if (
-                  name == 'state' || name == 'active-view-transition-type'
-                    ? argument === null || !isIdent(argument, true)
-                    : argument !== null
+                  name == 'state'
+                    ? argument === null || !isIdent(argument)
+                    : name == 'active-view-transition-type'
+                      ? argument === null ||
+                        !splitList(argument).every(function (value) {
+                          return isIdent(
+                            value.replace(REX.TrimSpaces, ''),
+                            true,
+                          )
+                        })
+                      : argument !== null
                 ) {
                   emit("'" + expression + "'" + qsInvalid)
                   return ''
@@ -4174,6 +4470,7 @@ interface Primordials {
                   source = 'if((!e.nextElementSibling)){' + source + '}'
                   break
                 case 'first-child':
+                  firstChildOnly = true
                   source = 'if((!e.previousElementSibling)){' + source + '}'
                   break
 
@@ -4602,7 +4899,7 @@ interface Primordials {
                   }
                   source =
                     'if(s.has(' +
-                    JSON.stringify(splitList(match![2]!)) +
+                    JSON.stringify(match![2]!) +
                     ',e)){' +
                     source +
                     '}'
@@ -4713,22 +5010,14 @@ interface Primordials {
                 // normalization getter on this common path.
                 case 'read-only':
                 case '-moz-read-only':
-                  source =
-                    'if(' +
-                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
-                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
-                    '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
-                    '){' +
-                    source +
-                    '}'
-                  break
                 case 'read-write':
                 case '-moz-read-write':
                   source =
-                    'if(' +
-                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
+                    'n=e.localName;if(' +
+                    (match[1]!.indexOf('read-only') >= 0 ? '!' : '') +
+                    '(/^input$/i.test(n)?' +
+                    '((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e)):' +
+                    '/^textarea$/i.test(n)?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
                     '){' +
                     source +
                     '}'
@@ -5321,40 +5610,130 @@ interface Primordials {
       }
       return false
     },
+    // Internal existence queries never expose or mutate their candidate arrays.
+    // Reuse an observed snapshot instead of copying it for every anchor.
+    hasCandidates = function (token: string, context: EngineContext) {
+      var kind = token[0]!,
+        name = token.slice(1),
+        api = kind == '.' ? method['.'] : method['*'],
+        nodes,
+        snapshot
+      if (
+        !Config.LEGACY &&
+        (kind == '.' ||
+          (kind == '*' &&
+            (name == '*' || (HTML_DOCUMENT && !hasForeignTypes(context))))) &&
+        !/[\t\n\f\r ]/.test(name) &&
+        api in context
+      ) {
+        nodes = context[api]!(name)
+        snapshot = collectionSnapshot(
+          nodes,
+          context,
+          undefined,
+          undefined,
+          kind == '*' && name == '*' ? context : undefined,
+        )
+        if (snapshot !== nodes) {
+          return snapshot
+        }
+        return collectionCopy(nodes, context, snapshot)
+      }
+      return fetch[kind]!(name, context)
+    },
     // true if element matches the selector
-    has = function (list: string[], anchor: Element) {
-      var context,
-        found = false,
-        i = 0,
-        l = list.length,
+    has = function (argument: string | string[], anchor: Element) {
+      var key =
+          typeof argument == 'string'
+            ? 's:' + argument
+            : 'a:' + JSON.stringify(argument),
+        plans = (hasPlans || (hasPlans = createCache<RelativePlan[]>())).get(
+          key,
+        ),
+        list,
+        parsed,
+        normalized,
+        range,
+        result,
+        context,
+        root,
+        candidates,
+        resolver,
+        token,
+        i,
+        j,
+        previousErrors = errors,
         previous = Snapshot.anchor
       Snapshot.anchor = anchor
       try {
-        for (; l > i; ++i) {
-          context = /^[+~]/.test(list[i]!) ? upOf(anchor) : anchor
-          if (!list[i]) {
-            emit(qsInvalid)
+        if (!plans) {
+          list = typeof argument == 'string' ? splitList(argument) : argument
+          plans = []
+          // Compile every branch before accepting any match. Plans contain
+          // code and lookup tokens, never anchors or DOM result collections.
+          for (i = 0; i < list.length; ++i) {
+            if (!list[i]) {
+              emit(qsInvalid)
+              return false
+            }
+            parsed = parse('* ' + list[i], true)
+            if (!parsed) {
+              return false
+            }
+            normalized = parsed.map(function (selector: string) {
+              return selector.slice(1).replace(/^\s+/, '')
+            })
+            // A simple sibling type followed by descendants cannot leave that
+            // sibling subtree without another sibling or custom combinator.
+            range = normalized[0]!.match(
+              /^[+~][\t\n\f\r ]*(?:[a-zA-Z][\w-]*|\*)(?:[\t\n\f\r ]+|>)([\s\S]+)$/,
+            )
+            result = collect(normalized, anchor, undefined, true, true, true)
+            plans.push({
+              sibling: /^[+~]/.test(list[i]!),
+              subtree:
+                !Config.LEGACY &&
+                normalized.length == 1 &&
+                range &&
+                !/[+~]/.test(range[1]!) &&
+                Object.keys(Combinators).length == 0
+                  ? normalized[0]!.charCodeAt(0)
+                  : 0,
+              factory: result.factory,
+              nodeset: result.nodeset,
+            })
+          }
+          if (errors != previousErrors) {
             return false
           }
-          // Compile even a root sibling argument, whose candidate set is empty.
-          // Later invalid items must not be hidden by an earlier match.
-          if (
-            collect(
-              (parse('* ' + list[i], true) as string[]).map(function (
-                selector: string,
-              ) {
-                return selector.slice(1).replace(/^\s+/, '')
-              }),
-              context || anchor,
-              undefined,
-              true,
-            ).results.length &&
-            context
-          ) {
-            found = true
+          hasPlans!.set(key, plans)
+        }
+        for (i = 0; i < plans.length; ++i) {
+          context = plans[i]!.sibling ? upOf(anchor) : anchor
+          if (!context) {
+            continue
+          }
+          root = plans[i]!.subtree ? nextOf(anchor) : context
+          while (root) {
+            if (!plans[i]!.subtree || firstOf(root)) {
+              for (j = 0; j < plans[i]!.nodeset.length; ++j) {
+                token = plans[i]!.nodeset[j]!
+                resolver = plans[i]!.factory[j]
+                candidates = hasCandidates(token, root)
+                // Keep the original scope while narrowing only the lookup root.
+                if (
+                  resolver
+                    ? resolver(candidates, null, context, []).length
+                    : candidates.length
+                ) {
+                  return true
+                }
+              }
+            }
+            root = plans[i]!.subtree == 126 ? nextOf(root as Element) : null
           }
         }
-        return found
+        return false
       } finally {
         Snapshot.anchor = previous
       }
@@ -5500,28 +5879,41 @@ interface Primordials {
       context?: EngineContext | null,
       callback?: ElementCallback,
     ) {
-      var element, match, collection, i, length
+      var element, match, collection, i, length, lookupContext
       if (arguments.length === 0) {
         emit(qsNotArgs, TypeError)
         return null
       }
 
-      // A lone '#id' against a document is the id map's own question, and the
-      // first match in tree order is exactly what getElementById returns.
-      // Going through select() means building the whole candidate list first,
-      // and without document.all that list is built by walking the document:
-      // 2.4ms against 43ns here. Duplicate ids do not change the answer, only
-      // which of them comes first, and they cannot precede this one. Scoped
-      // to an element the first document-order match may sit outside it, so
-      // that case takes the ordinary path.
+      // Root ID maps return the first duplicate in tree order. Element scopes
+      // cannot use an owner-document lookup because its first hit may be outside.
+      // Keep attribute escapes, flags, namespaces, and empty values on the full
+      // parser path. Empty IDs are attributes but are absent from the ID map.
+      lookupContext = context || doc
       if (
+        typeof selectors == 'string' &&
         selectors &&
-        context &&
-        context.nodeType == 9 &&
-        context.getElementById &&
-        (match = reSimpleId.exec(selectors))
+        lookupContext.getElementById &&
+        (lookupContext.nodeType == 9 ||
+          (!Config.LEGACY && lookupContext.nodeType == 11)) &&
+        ((match = reSimpleId.exec(selectors)) ||
+          (!Config.LEGACY &&
+            selectors.charCodeAt(0) == 91 /* '[' */ &&
+            (match =
+              /^\[id=(?:"([-\w]+)"|'([-\w]+)'|([_a-zA-Z][-\w]*))\]$/.exec(
+                selectors,
+              )) &&
+            isHTML(lookupContext.ownerDocument || lookupContext)))
       ) {
-        element = context.getElementById(unescapeIdentifier(match![1]!))
+        if (
+          lastContext !== lookupContext ||
+          (lookupContext !== doc && lookupContext.ownerDocument !== doc)
+        ) {
+          lastContext = switchContext(lookupContext)
+        }
+        element = lookupContext.getElementById(
+          unescapeIdentifier(match![1] || match![2] || match![3]!),
+        )
         if (element && typeof callback == 'function') {
           callback(element)
         }
@@ -6027,23 +6419,30 @@ interface Primordials {
         if ((resolver = selectResolvers.get(selectors))) {
           var i,
             l,
+            start,
+            ends: number[] | undefined,
             list,
             f = resolver.factory,
             n = resolver.nodeset
           if (n.length > 1) {
             for (i = 0, l = n.length; l > i; ++i) {
+              start = nodes.length
               list = fetch[n[i]![0]!]!(n[i]!.slice(1), context)
               if (f[i] !== null) {
                 f[i]!(list, callback, context, nodes)
               } else {
-                nodes = nodes.concat(
-                  isInstanceOf(list) ? sliceCall(list) : (list as Element[]),
-                )
+                concatList(nodes, list)
+              }
+              if (start && nodes.length > start) {
+                if (ends) {
+                  ends[ends.length] = nodes.length
+                } else {
+                  ends = [0, start, nodes.length]
+                }
               }
             }
-            if (l > 1 && nodes.length > 1) {
-              nodes.sort(documentOrder)
-              hasDupes && (nodes = unique(nodes))
+            if (ends) {
+              nodes = mergeResults(nodes, ends)
             }
           } else if (n.length) {
             list = fetch[n[0]![0]!]!(n[0]!.slice(1), context)
@@ -6106,6 +6505,7 @@ interface Primordials {
       callback: ElementCallback,
       relative?: boolean | undefined,
       firstOnly?: boolean | undefined,
+      existenceOnly?: boolean | undefined,
     ) {
       var i,
         l,
@@ -6172,7 +6572,13 @@ interface Primordials {
         // run rebuilds its candidate list from, so the two must agree
         token[2] = unescapeIdentifier(token[2]!)
         nodeset[i] = token[1]! + token[2]!
-        factory[i] = compile(optimized[i]!, !firstOnly, null, relative)
+        factory[i] = compile(
+          optimized[i]!,
+          existenceOnly || !firstOnly,
+          null,
+          relative,
+          existenceOnly,
+        )
 
         if (firstOnly) {
           continue
@@ -6442,6 +6848,7 @@ interface Primordials {
     matchResolvers = createCache<CompiledResolver[]>(),
     selectResolvers = createCache<QueryPlan>(),
     firstResolvers = createCache<QueryPlan>(),
+    hasPlans: PlanCache<RelativePlan[]> | undefined,
     // passed to resolvers
     Snapshot: {
       matchesTag: typeof matchesTag
@@ -6626,6 +7033,7 @@ interface Primordials {
           childPlans = createCache()
           partCounts = createCache()
           descentDeclined = createCache()
+          hasPlans = undefined
           Dom.matchLambdas = matchLambdas = createCache()
           Dom.selectLambdas = selectLambdas = createCache()
           Dom.matchResolvers = matchResolvers = createCache()

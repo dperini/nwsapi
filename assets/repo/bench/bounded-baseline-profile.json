@@ -1,0 +1,1349 @@
+{
+  "node": "v26.5.0",
+  "engineHash": "9d22cd8d577233fb39e5d01b1934b2af1b3840248da5af2b27654828d907c4e2",
+  "methodology": "Node/jsdom. 200 warmup queries. 200 CPU-profiled queries, then five unprofiled batches of 200 queries. State fixture has 256 required populated inputs under eight wrappers in a fieldset, inherited en/ltr. The fieldset is disabled except for validity probes. No application-frequency claim.",
+  "rows": [
+    {
+      "selector": ".card:has([data-hit])",
+      "matches": 16,
+      "millisecondsPerQuery": [
+        0.4890677049999999,
+        0.48662979000000006,
+        0.4973414550000001,
+        0.48510250000000044,
+        0.47936874999999984
+      ],
+      "sites": [
+        {
+          "function": "collectionCopy",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1105,
+          "percent": 15.189873417721518
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 12.658227848101266
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 8.860759493670885
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 7.594936708860759
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 7.594936708860759
+        },
+        {
+          "function": "has",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3611,
+          "percent": 5.063291139240507
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 5.063291139240507
+        },
+        {
+          "function": "isArrayIndexPropName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 98,
+          "percent": 3.7974683544303796
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1071,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "isArrayIndexPropName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 98,
+          "percent": 2.5316455696202533
+        },
+        {
+          "function": "exports.hasAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 18,
+          "percent": 1.2658227848101267
+        },
+        {
+          "function": "hasCandidates",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3592,
+          "percent": 1.2658227848101267
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 1.2658227848101267
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.2658227848101267
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.2658227848101267
+        },
+        {
+          "function": "getElementsByTagName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 685,
+          "percent": 1.2658227848101267
+        }
+      ]
+    },
+    {
+      "selector": ".card:has(> .target [data-hit])",
+      "matches": 16,
+      "millisecondsPerQuery": [
+        0.5089629200000002,
+        0.5053056249999998,
+        0.5123704149999991,
+        0.522449170000001,
+        0.531796250000001
+      ],
+      "sites": [
+        {
+          "function": "collectionCopy",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1105,
+          "percent": 15.662650602409638
+        },
+        {
+          "function": "has",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3611,
+          "percent": 9.63855421686747
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 8.433734939759036
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 7.228915662650603
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 7.228915662650603
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 4.819277108433735
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 4.819277108433735
+        },
+        {
+          "function": "hasCandidates",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3592,
+          "percent": 3.6144578313253013
+        },
+        {
+          "function": "get length",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 155,
+          "percent": 3.6144578313253013
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 3.6144578313253013
+        },
+        {
+          "function": "get",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 627,
+          "percent": 3.6144578313253013
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 2.4096385542168677
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 1.2048192771084338
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1071,
+          "percent": 1.2048192771084338
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.2048192771084338
+        }
+      ]
+    },
+    {
+      "selector": ".card:has(+ .target [data-hit])",
+      "matches": 16,
+      "millisecondsPerQuery": [
+        0.8427856249999991,
+        0.8473906250000005,
+        0.8441285450000009,
+        0.8465552100000013,
+        0.8623147949999997
+      ],
+      "sites": [
+        {
+          "function": "collectionCopy",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1105,
+          "percent": 26.277372262773724
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 9.489051094890511
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 5.109489051094891
+        },
+        {
+          "function": "has",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3611,
+          "percent": 5.109489051094891
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 5.109489051094891
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 4.37956204379562
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 3.6496350364963503
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 3.6496350364963503
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 2.9197080291970803
+        },
+        {
+          "function": "getAttributeNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 203,
+          "percent": 2.9197080291970803
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 2.9197080291970803
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.9197080291970803
+        },
+        {
+          "function": "get",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 627,
+          "percent": 2.9197080291970803
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.18978102189781
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 2.18978102189781
+        },
+        {
+          "function": "hasCandidates",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3592,
+          "percent": 1.4598540145985401
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.4598540145985401
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.4598540145985401
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 4019,
+          "percent": 0.7299270072992701
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1071,
+          "percent": 0.7299270072992701
+        }
+      ]
+    },
+    {
+      "selector": ".card:has(~ .target [data-hit])",
+      "matches": 16,
+      "millisecondsPerQuery": [
+        1.1762474999999994,
+        1.2114514599999984,
+        1.2243656250000003,
+        1.242686249999997,
+        1.2239445800000022
+      ],
+      "sites": [
+        {
+          "function": "collectionCopy",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1105,
+          "percent": 29.878048780487806
+        },
+        {
+          "function": "has",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 3611,
+          "percent": 6.097560975609756
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 5.487804878048781
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 4.878048780487805
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 3.658536585365854
+        },
+        {
+          "function": "hasAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 383,
+          "percent": 3.658536585365854
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 3.658536585365854
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 3.048780487804878
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 2.4390243902439024
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1071,
+          "percent": 1.829268292682927
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.829268292682927
+        },
+        {
+          "function": "getElementsByTagName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 685,
+          "percent": 1.829268292682927
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 1.829268292682927
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.2195121951219512
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.2195121951219512
+        },
+        {
+          "function": "isArrayIndexPropName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 98,
+          "percent": 1.2195121951219512
+        }
+      ]
+    },
+    {
+      "selector": ".g0,.g1,.g2,.g3,.g4,.g5,.g6,.g7,.g8,.g9,.g10,.g11,.g12,.g13,.g14,.g15,.g16,.g17,.g18,.g19,.g20,.g21,.g22,.g23,.g24,.g25,.g26,.g27,.g28,.g29,.g30,.g31,.g32,.g33,.g34,.g35,.g36,.g37,.g38,.g39,.g40,.g41,.g42,.g43,.g44,.g45,.g46,.g47,.g48,.g49,.g50,.g51,.g52,.g53,.g54,.g55,.g56,.g57,.g58,.g59,.g60,.g61,.g62,.g63",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        0.6633764599999995,
+        0.6603193749999992,
+        0.6602879200000007,
+        0.6612085400000024,
+        0.6584756250000009
+      ],
+      "sites": [
+        {
+          "function": "compareDocumentPosition",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 219,
+          "percent": 26.16822429906542
+        },
+        {
+          "function": "compareTreePosition",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 563,
+          "percent": 21.49532710280374
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 10.280373831775702
+        },
+        {
+          "function": "collectionCopy",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1105,
+          "percent": 5.607476635514018
+        },
+        {
+          "function": "mergeResults",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 737,
+          "percent": 4.672897196261682
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.672897196261682
+        },
+        {
+          "function": "index",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 473,
+          "percent": 3.7383177570093458
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 2.803738317757009
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 2.803738317757009
+        },
+        {
+          "function": "reverseArrayIndex",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 16,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "namedItem",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCollection-impl.js",
+          "line": 25,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "getOwnPropertyDescriptor",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 245,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "isArrayIndexPropName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 98,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 11,
+          "percent": 1.8691588785046729
+        },
+        {
+          "function": "parent",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 143,
+          "percent": 0.9345794392523364
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 0.9345794392523364
+        },
+        {
+          "function": "collectionSnapshot",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1071,
+          "percent": 0.9345794392523364
+        },
+        {
+          "function": "get",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLCollection.js",
+          "line": 189,
+          "percent": 0.9345794392523364
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 0.9345794392523364
+        }
+      ]
+    },
+    {
+      "selector": "input",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        0.0014924999999993815,
+        0.0013404150000042136,
+        0.0012602049999986776,
+        0.0011677050000025702,
+        0.0012412500000027649
+      ],
+      "sites": []
+    },
+    {
+      "selector": "input:disabled",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        0.38672603999999866,
+        0.38632166500000037,
+        0.38635437499999625,
+        0.3847510399999965,
+        0.3858043750000024
+      ],
+      "sites": [
+        {
+          "function": "contains",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 243,
+          "percent": 20.634920634920636
+        },
+        {
+          "function": "get parentElement",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 542,
+          "percent": 14.285714285714286
+        },
+        {
+          "function": "upOf",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1246,
+          "percent": 12.698412698412698
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 6.349206349206349
+        },
+        {
+          "function": "isDisabled",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1657,
+          "percent": 4.761904761904762
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.761904761904762
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 4.761904761904762
+        },
+        {
+          "function": "get firstElementChild",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 3540,
+          "percent": 4.761904761904762
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 3.1746031746031744
+        },
+        {
+          "function": "get localName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 1146,
+          "percent": 3.1746031746031744
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 3.1746031746031744
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "get parentElement",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js",
+          "line": 376,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "wrapperForImpl",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 78,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "TreeIterator",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/TreeIterator.js",
+          "line": 9,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "get disabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLFieldSetElement.js",
+          "line": 150,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/HTMLFieldSetElement.js",
+          "line": 18,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "get defaultView",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js",
+          "line": 1435,
+          "percent": 1.5873015873015872
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 1.5873015873015872
+        }
+      ]
+    },
+    {
+      "selector": "input:valid",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        0.9206877050000003,
+        0.9192518749999999,
+        0.9200195800000028,
+        0.9219287499999973,
+        0.9185389600000008
+      ],
+      "sites": [
+        {
+          "function": "checkValidity",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 24,
+          "percent": 13.907284768211921
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 13.245033112582782
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 9.933774834437086
+        },
+        {
+          "function": "get willValidate",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 10,
+          "percent": 8.609271523178808
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 5.960264900662252
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 5.960264900662252
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.635761589403973
+        },
+        {
+          "function": "get _mutable",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLInputElement-impl.js",
+          "line": 351,
+          "percent": 3.9735099337748343
+        },
+        {
+          "function": "exports.closest",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/traversal.js",
+          "line": 7,
+          "percent": 3.9735099337748343
+        },
+        {
+          "function": "exports.closest",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/traversal.js",
+          "line": 7,
+          "percent": 3.3112582781456954
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 3.3112582781456954
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.6490066225165565
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.9867549668874172
+        },
+        {
+          "function": "_barredFromConstraintValidationSpecialization",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLInputElement-impl.js",
+          "line": 883,
+          "percent": 1.9867549668874172
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 1.3245033112582782
+        },
+        {
+          "function": "get localName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 114,
+          "percent": 1.3245033112582782
+        },
+        {
+          "function": "_satisfiesConstraints",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 72,
+          "percent": 1.3245033112582782
+        },
+        {
+          "function": "get localName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 114,
+          "percent": 1.3245033112582782
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 0.6622516556291391
+        },
+        {
+          "function": "exports.hasAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 22,
+          "percent": 0.6622516556291391
+        }
+      ]
+    },
+    {
+      "selector": "input:invalid",
+      "matches": 0,
+      "millisecondsPerQuery": [
+        0.9124897899999996,
+        0.9113470850000067,
+        0.9399897949999922,
+        0.9098114600000008,
+        0.9124299999999949
+      ],
+      "sites": [
+        {
+          "function": "checkValidity",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 24,
+          "percent": 13.605442176870747
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 12.92517006802721
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 10.884353741496598
+        },
+        {
+          "function": "exports.isDisabled",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/form-controls.js",
+          "line": 28,
+          "percent": 9.523809523809524
+        },
+        {
+          "function": "get willValidate",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 10,
+          "percent": 8.16326530612245
+        },
+        {
+          "function": "exports.closest",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/traversal.js",
+          "line": 7,
+          "percent": 6.122448979591836
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.761904761904762
+        },
+        {
+          "function": "get _mutable",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLInputElement-impl.js",
+          "line": 351,
+          "percent": 4.081632653061225
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 4.081632653061225
+        },
+        {
+          "function": "exports.closest",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/traversal.js",
+          "line": 7,
+          "percent": 4.081632653061225
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 3.401360544217687
+        },
+        {
+          "function": "_satisfiesConstraints",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/constraint-validation/DefaultConstraintValidation-impl.js",
+          "line": 72,
+          "percent": 2.0408163265306123
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 1.3605442176870748
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.3605442176870748
+        },
+        {
+          "function": "_barredFromConstraintValidationSpecialization",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLInputElement-impl.js",
+          "line": 883,
+          "percent": 1.3605442176870748
+        },
+        {
+          "function": "get localName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 114,
+          "percent": 1.3605442176870748
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "line": 0,
+          "percent": 1.3605442176870748
+        },
+        {
+          "function": "_querySelectorAll",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 4019,
+          "percent": 0.6802721088435374
+        },
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 0.6802721088435374
+        },
+        {
+          "function": "_barredFromConstraintValidationSpecialization",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/HTMLInputElement-impl.js",
+          "line": 883,
+          "percent": 0.6802721088435374
+        }
+      ]
+    },
+    {
+      "selector": "input:lang(en)",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        0.8951945800000067,
+        0.8801860399999987,
+        0.8782004150000011,
+        0.8774135400000068,
+        0.8887177099999917
+      ],
+      "sites": [
+        {
+          "function": "Resolver",
+          "file": "",
+          "line": 3,
+          "percent": 9.722222222222221
+        },
+        {
+          "function": "isLanguage",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 2475,
+          "percent": 9.722222222222221
+        },
+        {
+          "function": "get parentElement",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 542,
+          "percent": 8.333333333333334
+        },
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 125,
+          "percent": 7.638888888888889
+        },
+        {
+          "function": "upOf",
+          "file": "file:///private/var/folders/sy/76y25nm91xn26xqscmhdtzlr0000gn/T/nwsapi-bounded-or3yq6e6/baseline.cjs",
+          "line": 1246,
+          "percent": 7.638888888888889
+        },
+        {
+          "function": "getAttributeNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 148,
+          "percent": 6.944444444444445
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 4.861111111111111
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 4.861111111111111
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 4.861111111111111
+        },
+        {
+          "function": "exports.getAttributeByName",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 164,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "exports.asciiLowercase",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/helpers/strings.js",
+          "line": 8,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "exports.DOMString",
+          "file": "file://<repo>/node_modules/.pnpm/webidl-conversions@8.0.1/node_modules/webidl-conversions/lib/index.js",
+          "line": 240,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js",
+          "line": 17,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "get namespaceURI",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 1124,
+          "percent": 3.4722222222222223
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "line": 0,
+          "percent": 2.7777777777777777
+        },
+        {
+          "function": "wrapperForImpl",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/utils.js",
+          "line": 78,
+          "percent": 2.0833333333333335
+        },
+        {
+          "function": "exports.is",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js",
+          "line": 18,
+          "percent": 1.3888888888888888
+        },
+        {
+          "function": "exports.getAttributeByNameNS",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/attributes.js",
+          "line": 181,
+          "percent": 1.3888888888888888
+        },
+        {
+          "function": "getAttribute",
+          "file": "file://<repo>/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Element-impl.js",
+          "line": 195,
+          "percent": 1.3888888888888888
+        },
+        {
+          "function": "_node",
+          "file": "file://<repo>/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js",
+          "line": 49,
+          "percent": 1.3888888888888888
+        }
+      ]
+    },
+    {
+      "selector": "input:dir(ltr)",
+      "matches": 256,
+      "millisecondsPerQuery": [
+        38.576973750000015,
+        38.60761020500002,
+        36.72694166500001,
+        36.575989794999984,
+        36.75560771000001
+      ],
+      "sites": [
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 7.37221494102228
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.913499344692005
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.716906946264745
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.684141546526868
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.487549148099607
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.487549148099607
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.471166448230669
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.45478374836173
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.323722149410223
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.241808650065531
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 40,
+          "percent": 6.094364351245085
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "line": 0,
+          "percent": 2.0969855832241153
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.6218872870249017
+        },
+        {
+          "function": "resolveContent",
+          "file": "file://<repo>/node_modules/.pnpm/@asamuzakjp+dom-selector@8.3.2/node_modules/@asamuzakjp/dom-selector/src/js/utility.js",
+          "line": 104,
+          "percent": 1.5072083879423328
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.4089121887287024
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.3761467889908257
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.3761467889908257
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.3106159895150722
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.2778505897771952
+        },
+        {
+          "function": "",
+          "file": "file://<repo>/node_modules/.pnpm/bidi-js@1.0.3/node_modules/bidi-js/dist/bidi.js",
+          "line": 8,
+          "percent": 1.2778505897771952
+        }
+      ]
+    }
+  ]
+}

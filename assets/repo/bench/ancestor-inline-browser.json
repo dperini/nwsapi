@@ -1,0 +1,504 @@
+{
+  "browser": "151.0.7922.34",
+  "node": "v26.5.0",
+  "candidatesPerOuter": 2,
+  "platform": "darwin",
+  "architecture": "arm64",
+  "engineSha256": "ba674d8504a996d4295b3a738693592a4d9d57a3f61c5a8b27c4e1addea04de8",
+  "cachePayload": "Previous ancestor result in the original compiled resolver. Original positional state and cleanup. No extra parent reads, weak map, path array, or depth gate.",
+  "methodology": "Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. No production engine change, public-host timing, or rendering.",
+  "rows": [
+    {
+      "depths": [
+        0
+      ],
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.015,
+            0.014200000047683715,
+            0.014,
+            0.0145,
+            0.01430000001192093,
+            0.0145,
+            0.014399999976158142
+          ],
+          "allocatedBytesEstimate": 22587968,
+          "retainedBefore": 1511860,
+          "retainedAfter": 1549620
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.015399999976158141,
+            0.014800000011920928,
+            0.014699999988079072,
+            0.01519999998807907,
+            0.014899999976158143,
+            0.014699999988079072,
+            0.014900000035762787
+          ],
+          "allocatedBytesEstimate": 22482444,
+          "retainedBefore": 1549620,
+          "retainedAfter": 1550072
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.010699999988079072,
+            0.010199999988079071,
+            0.010199999988079071,
+            0.010100000023841859,
+            0.010100000023841859,
+            0.01,
+            0.010299999952316284
+          ],
+          "allocatedBytesEstimate": 16253780,
+          "retainedBefore": 1550072,
+          "retainedAfter": 1552240
+        }
+      ],
+      "detachedHeap": 1548920,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        0
+      ],
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.009900000035762788,
+            0.009,
+            0.009,
+            0.00919999998807907,
+            0.009300000011920929,
+            0.00919999998807907,
+            0.00919999998807907
+          ],
+          "allocatedBytesEstimate": 16538644,
+          "retainedBefore": 1424136,
+          "retainedAfter": 1433584
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.010899999976158143,
+            0.01030000001192093,
+            0.010600000023841857,
+            0.010599999964237213,
+            0.01030000001192093,
+            0.0105,
+            0.0105
+          ],
+          "allocatedBytesEstimate": 16513816,
+          "retainedBefore": 1433584,
+          "retainedAfter": 1443416
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.00830000001192093,
+            0.008,
+            0.007899999976158142,
+            0.007900000035762788,
+            0.007799999952316284,
+            0.007800000011920929,
+            0.007800000011920929
+          ],
+          "allocatedBytesEstimate": 13387292,
+          "retainedBefore": 1443416,
+          "retainedAfter": 1470716
+        }
+      ],
+      "detachedHeap": 1466384,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        8
+      ],
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.03410000002384186,
+            0.03409999996423721,
+            0.03419999998807907,
+            0.034,
+            0.034,
+            0.03419999998807907,
+            0.034
+          ],
+          "allocatedBytesEstimate": 46923692,
+          "retainedBefore": 1511064,
+          "retainedAfter": 1547316
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.031199999988079073,
+            0.030599999964237214,
+            0.03080000001192093,
+            0.03089999997615814,
+            0.030600000023841858,
+            0.030599999964237214,
+            0.030600000023841858
+          ],
+          "allocatedBytesEstimate": 47274208,
+          "retainedBefore": 1547316,
+          "retainedAfter": 1547732
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.021100000023841856,
+            0.020700000047683714,
+            0.020300000011920928,
+            0.02060000002384186,
+            0.0205,
+            0.0205,
+            0.020399999976158142
+          ],
+          "allocatedBytesEstimate": 28709312,
+          "retainedBefore": 1547732,
+          "retainedAfter": 1549900
+        }
+      ],
+      "detachedHeap": 1544532,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        8
+      ],
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.022200000047683716,
+            0.023199999988079072,
+            0.023199999988079072,
+            0.023300000011920927,
+            0.023199999988079072,
+            0.023299999952316283,
+            0.023199999988079072
+          ],
+          "allocatedBytesEstimate": 41192276,
+          "retainedBefore": 1427912,
+          "retainedAfter": 1434664
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.023,
+            0.02410000002384186,
+            0.02419999998807907,
+            0.02410000002384186,
+            0.02410000002384186,
+            0.02410000002384186,
+            0.024
+          ],
+          "allocatedBytesEstimate": 41222568,
+          "retainedBefore": 1434664,
+          "retainedAfter": 1442504
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.014799999952316284,
+            0.014699999988079072,
+            0.014600000023841857,
+            0.014599999964237213,
+            0.014600000023841857,
+            0.014800000011920928,
+            0.014699999988079072
+          ],
+          "allocatedBytesEstimate": 25651912,
+          "retainedBefore": 1442504,
+          "retainedAfter": 1468308
+        }
+      ],
+      "detachedHeap": 1461912,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        0,
+        8
+      ],
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.02680000001192093,
+            0.0265,
+            0.026299999952316286,
+            0.02630000001192093,
+            0.0265,
+            0.026600000023841858,
+            0.026299999952316286
+          ],
+          "allocatedBytesEstimate": 34998548,
+          "retainedBefore": 1507012,
+          "retainedAfter": 1543284
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.02419999998807907,
+            0.023899999976158142,
+            0.02360000002384186,
+            0.02369999998807907,
+            0.023800000011920928,
+            0.023800000011920928,
+            0.02360000002384186
+          ],
+          "allocatedBytesEstimate": 34857668,
+          "retainedBefore": 1543284,
+          "retainedAfter": 1546280
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.01730000001192093,
+            0.017200000047683715,
+            0.017,
+            0.016899999976158143,
+            0.016900000035762787,
+            0.01659999996423721,
+            0.017100000023841856
+          ],
+          "allocatedBytesEstimate": 22501132,
+          "retainedBefore": 1546280,
+          "retainedAfter": 1548448
+        }
+      ],
+      "detachedHeap": 1544104,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        0,
+        8
+      ],
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.017,
+            0.01619999998807907,
+            0.01659999996423721,
+            0.01660000002384186,
+            0.016400000035762786,
+            0.01619999998807907,
+            0.016399999976158142
+          ],
+          "allocatedBytesEstimate": 28830064,
+          "retainedBefore": 1426888,
+          "retainedAfter": 1433676
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.017900000035762788,
+            0.017799999952316285,
+            0.017600000023841857,
+            0.017399999976158143,
+            0.01730000001192093,
+            0.01680000001192093,
+            0.017600000023841857
+          ],
+          "allocatedBytesEstimate": 29192800,
+          "retainedBefore": 1433676,
+          "retainedAfter": 1441600
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.011700000047683717,
+            0.011300000011920929,
+            0.011400000035762787,
+            0.011399999976158141,
+            0.011,
+            0.010899999976158143,
+            0.0115
+          ],
+          "allocatedBytesEstimate": 19601568,
+          "retainedBefore": 1441600,
+          "retainedAfter": 1467284
+        }
+      ],
+      "detachedHeap": 1461912,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        8,
+        0
+      ],
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "matches": 12,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.02630000001192093,
+            0.02589999997615814,
+            0.02580000001192093,
+            0.026,
+            0.026099999964237213,
+            0.02589999997615814,
+            0.026
+          ],
+          "allocatedBytesEstimate": 34889808,
+          "retainedBefore": 1509640,
+          "retainedAfter": 1545892
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.02410000002384186,
+            0.02339999997615814,
+            0.02360000002384186,
+            0.0235,
+            0.0235,
+            0.02360000002384186,
+            0.023299999952316283
+          ],
+          "allocatedBytesEstimate": 35156864,
+          "retainedBefore": 1545892,
+          "retainedAfter": 1546344
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.017,
+            0.01660000002384186,
+            0.01669999998807907,
+            0.01659999996423721,
+            0.01660000002384186,
+            0.016700000047683714,
+            0.01660000002384186
+          ],
+          "allocatedBytesEstimate": 22415700,
+          "retainedBefore": 1546344,
+          "retainedAfter": 1548512
+        }
+      ],
+      "detachedHeap": 1544168,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "depths": [
+        8,
+        0
+      ],
+      "selector": ".box .block.inner > .content",
+      "matches": 64,
+      "candidates": 64,
+      "variants": [
+        {
+          "name": "baseline",
+          "samplesMs": [
+            0.016899999976158143,
+            0.016300000011920928,
+            0.01619999998807907,
+            0.016899999976158143,
+            0.01680000001192093,
+            0.017,
+            0.016300000011920928
+          ],
+          "allocatedBytesEstimate": 29219996,
+          "retainedBefore": 1426888,
+          "retainedAfter": 1450944
+        },
+        {
+          "name": "shared-prefix",
+          "samplesMs": [
+            0.01780000001192093,
+            0.017600000023841857,
+            0.017100000023841856,
+            0.017400000035762787,
+            0.017600000023841857,
+            0.0175,
+            0.01730000001192093
+          ],
+          "allocatedBytesEstimate": 28885620,
+          "retainedBefore": 1450944,
+          "retainedAfter": 1458868
+        },
+        {
+          "name": "inline-prefix",
+          "samplesMs": [
+            0.01180000001192093,
+            0.011399999976158141,
+            0.011399999976158141,
+            0.011399999976158141,
+            0.011399999976158141,
+            0.011399999976158141,
+            0.011399999976158141
+          ],
+          "allocatedBytesEstimate": 19600080,
+          "retainedBefore": 1458868,
+          "retainedAfter": 1467284
+        }
+      ],
+      "detachedHeap": 1461912,
+      "survivingNodes": 0,
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+diff --git a/src/nwsapi.mts b/src/nwsapi.mts
+index a102a7e..7b81153 100644
+--- a/src/nwsapi.mts
++++ b/src/nwsapi.mts
+@@ -2684,15 +2684,10 @@ interface Primordials {
+     S_VARS: string[] = [],
+     M_VARS: string[] = [],
+     N_VARS: string[] = [],
+-    // Reuse only one static ancestor search. Read the existing selector tokens
+-    // so escaped identifiers and whitespace keep the parser's meaning. Other
+-    // pseudos, namespaces, attributes, and extensions retain their full matcher.
+-    canReuseAncestor = function (selector: string) {
+-      // A descendant combinator requires whitespace. Strings and escapes can
+-      // also contain it, so only absence is enough to skip token inspection.
+-      if (!/[\t\n\f\r ]/.test(selector)) {
+-        return false
+-      }
++    // The compiler checks the prefix as it emits it. Before reusing that
++    // ancestor search, check that the remaining tokens contain no second walk
++    // or unsupported predicates. Keep escapes and whitespace in parser terms.
++    canReuseAncestorTail = function (selector: string) {
+       for (var extension in Selectors) {
+         if (Selectors[extension]) {
+           return false
+@@ -2703,10 +2698,7 @@ interface Primordials {
+           return false
+         }
+       }
+-      var walks = 0,
+-        token,
+-        pattern,
+-        match: RegExpMatchArray | null
++      var token, pattern, match: RegExpMatchArray | null
+       while (selector) {
+         token = selector.charAt(0)
+         pattern =
+@@ -2750,7 +2742,7 @@ interface Primordials {
+             continue
+           }
+         } else {
+-          if (pattern == 'ancestor' && ++walks > 1) {
++          if (pattern == 'ancestor') {
+             return false
+           }
+           match = selector.match(Patterns[pattern]!)
+@@ -2760,7 +2752,7 @@ interface Primordials {
+         }
+         selector = match[match.length - 1]!
+       }
+-      return walks == 1
++      return true
+     },
+     // compile groups or single selector strings into
+     // executable functions for matching or selecting
+@@ -3759,9 +3751,7 @@ interface Primordials {
+ 
+       // isolate selector combinators
+       selector = normalizeCombinators(selector)
+-      // Eligibility reads the same normalized tokens as code generation.
+-      // Reusing this pass avoids normalizing comments and combinators twice.
+-      if (ancestry.reuse && !canReuseAncestor(selector)) {
++      if (ancestry.reuse && !/[\t\n\f\r ]/.test(selector)) {
+         ancestry.reuse = ''
+       }
+ 
+@@ -3869,6 +3859,7 @@ interface Primordials {
+ 
+           // namespace resolver
+           case 124 /* '|' */:
++            ancestry.reuse = ''
+             match = selector.match(Patterns['namespace']!)
+             if (match![1] == '*') {
+               source = 'if(true){' + source + '}'
+@@ -3883,6 +3874,7 @@ interface Primordials {
+ 
+           // attributes resolver
+           case 91 /* '[' */:
++            ancestry.reuse = ''
+             match = selector.match(Patterns['attribute']!)
+             if (!match) {
+               break
+@@ -4064,6 +4056,12 @@ interface Primordials {
+               source = pendingTag + source + '}'
+               pendingTag = ''
+             }
++            if (
++              ancestry.reuse &&
++              (!match || !canReuseAncestorTail(match[match.length - 1]!))
++            ) {
++              ancestry.reuse = ''
++            }
+             if (ancestry.reuse) {
+               // A successful prefix continues the candidate loop before the
+               // final false assignment. Keep positional state in the original
+@@ -4139,6 +4137,7 @@ interface Primordials {
+                 Patterns['pseudo_sng']!.test(selector)) &&
+               !isPseudoExtension(selector)
+             ) {
++              ancestry.reuse = ''
+               if (!validPseudoTail(selector)) {
+                 emit("'" + expression + "'" + qsInvalid)
+                 return ''
+@@ -4159,6 +4158,17 @@ interface Primordials {
+               break
+             }
+             pseudo = readPseudo(selector)
++            if (
++              ancestry.reuse &&
++              (!pseudo ||
++                !/^(?:empty|(?:first|last|only)-(?:child|of-type)|nth(?:-last)?-(?:child|of-type))$/.test(
++                  pseudo.name,
++                ) ||
++                (pseudo.argument !== null &&
++                  pseudo.argument.toLowerCase().indexOf('of') >= 0))
++            ) {
++              ancestry.reuse = ''
++            }
+             if (
+               pseudo &&
+               /^(?:lang|host|host-context|has-slotted|state|active-view-transition-type|active-view-transition|user-valid|user-invalid|xr-overlay|interest-source|interest-target|target-current|target-before|target-after)$/.test(
+@@ -5148,6 +5158,10 @@ interface Primordials {
+       }
+       // end of while selector
+ 
++      if (!ancestry.walk) {
++        ancestry.reuse = ''
++      }
++
+       if (pendingTag) {
+         source = pendingTag + source + '}'
+       }

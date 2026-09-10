@@ -60,7 +60,7 @@ if (isMainModule(import.meta.url)) {
   report.notes = [
     'The earlier before/after entries preserve the initial timeout observations.',
     'The verification entry measures the current build with an external process limit.',
-    'This regression is also checked by the unit suite. One input does not establish a bound for every selector.',
+    'This regression is also checked by the integration suite. One input does not establish a bound for every selector.',
   ]
   writeFileSync(file, JSON.stringify(report, null, 2) + '\n')
   console.log(

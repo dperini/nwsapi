@@ -1,0 +1,648 @@
+{
+  "node": "v26.5.0",
+  "layout": "adjacent",
+  "groups": 4,
+  "hashes": [
+    "a2f534e2e110dd5afd9016d1a75abcfb2e03862f9205e330032656c45f252e36",
+    "1e31d64805883a2989fe0554078254827e54ba7d58a85418f2035f2d981343f0"
+  ],
+  "methodology": "Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Each row records its match count. The default counts are 0, 1, 16, and 256. Single-class control and the requested disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.",
+  "rows": [
+    {
+      "matches": 256,
+      "selector": ".hit",
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.00022954166513761511,
+          "samplesMs": [
+            0.00026261343455497396,
+            0.0002327606558139535,
+            0.0002302209495412845,
+            0.00022954166513761511,
+            0.0002294794520547949,
+            0.00022882039726027456,
+            0.00022844615525114168,
+            0.0002295433853211017,
+            0.00021687590043290006
+          ]
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.00022866837899543298,
+          "samplesMs": [
+            0.00024295611165048528,
+            0.00022973433027522939,
+            0.00022957932110091823,
+            0.00022866837899543298,
+            0.00022613063063063073,
+            0.00022478288789237608,
+            0.00022342336607142853,
+            0.00021612499999999936,
+            0.0002304258394495414
+          ]
+        }
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 4942264,
+          "heapBefore": 39583320,
+          "heapAfter": 39596536,
+          "heapAfterRepeat": 39622944,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 4421952
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 389400
+            },
+            {
+              "site": "collectionSnapshot /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1064",
+              "bytes": 118560
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 11272
+            },
+            {
+              "site": "deref :0",
+              "bytes": 1080
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 4840936,
+          "heapBefore": 39855920,
+          "heapAfter": 39855808,
+          "heapAfterRepeat": 39855808,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 4337352
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 375640
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1071",
+              "bytes": 126880
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/result-arrays.mts:70",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 4874160,
+          "heapBefore": 39889720,
+          "heapAfter": 39889720,
+          "heapAfterRepeat": 39889720,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 4423360
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 324792
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1071",
+              "bytes": 122720
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1056
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 4953992,
+          "heapBefore": 39914944,
+          "heapAfter": 39914928,
+          "heapAfterRepeat": 39915552,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 4434600
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 369440
+            },
+            {
+              "site": "collectionSnapshot /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1064",
+              "bytes": 146656
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1064
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 4994496,
+          "heapBefore": 38943968,
+          "heapAfter": 38943984,
+          "heapAfterRepeat": 38943984,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 4511352
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 358344
+            },
+            {
+              "site": "collectionSnapshot /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1064",
+              "bytes": 124800
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/result-arrays.mts:70",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 4939056,
+          "heapBefore": 37504504,
+          "heapAfter": 37504504,
+          "heapAfterRepeat": 37504504,
+          "allocationSites": [
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 4447136
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 356720
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1071",
+              "bytes": 135200
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/result-arrays.mts:70",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matches": 256,
+      "selector": ".g0,.g1,.g2,.g3",
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.1496262919999999,
+          "samplesMs": [
+            0.15198866700000052,
+            0.1496262919999999,
+            0.15577829100000054,
+            0.1513176250000006,
+            0.15261345899999923,
+            0.14896129100000052,
+            0.14846416599999976,
+            0.14261770799999976,
+            0.144149625
+          ]
+        },
+        {
+          "name": "candidate",
+          "medianMs": 0.1530225419999997,
+          "samplesMs": [
+            0.15196454099999937,
+            0.1502105419999998,
+            0.16298720800000047,
+            0.1584086670000006,
+            0.15319533299999966,
+            0.15321470800000042,
+            0.1530225419999997,
+            0.1463841250000005,
+            0.1429007499999998
+          ]
+        }
+      ],
+      "memory": [
+        {
+          "round": 0,
+          "name": "baseline",
+          "allocatedBytesEstimate": 586614264,
+          "heapBefore": 37707256,
+          "heapAfter": 37726032,
+          "heapAfterRepeat": 37726048,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 373355008
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 187275904
+            },
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 15254128
+            },
+            {
+              "site": "byClass /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1184",
+              "bytes": 5843808
+            },
+            {
+              "site": "mergeResults /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:737",
+              "bytes": 4204896
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 484672
+            },
+            {
+              "site": "slice :0",
+              "bytes": 194784
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "candidate",
+          "allocatedBytesEstimate": 589021592,
+          "heapBefore": 67380632,
+          "heapAfter": 67399952,
+          "heapAfterRepeat": 67399952,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 375122968
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 187754464
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 15327080
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 5947880
+            },
+            {
+              "site": "mergeResults /Users/jdalton/projects/nwsapi/dist/nwsapi.js:737",
+              "bytes": 4111856
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 533568
+            },
+            {
+              "site": "slice :0",
+              "bytes": 223776
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "candidate",
+          "allocatedBytesEstimate": 589266288,
+          "heapBefore": 67526568,
+          "heapAfter": 67526568,
+          "heapAfterRepeat": 67526568,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 375052960
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 187870344
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 15313320
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 6037288
+            },
+            {
+              "site": "mergeResults /Users/jdalton/projects/nwsapi/dist/nwsapi.js:737",
+              "bytes": 4303040
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1071",
+              "bytes": 338016
+            },
+            {
+              "site": "slice :0",
+              "bytes": 180264
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 143520
+            },
+            {
+              "site": "index /Users/jdalton/projects/nwsapi/node_modules/.pnpm/symbol-tree@3.2.4/node_modules/symbol-tree/lib/SymbolTree.js:473",
+              "bytes": 24200
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "baseline",
+          "allocatedBytesEstimate": 587172192,
+          "heapBefore": 67480832,
+          "heapAfter": 67480832,
+          "heapAfterRepeat": 67480832,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 373852592
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 187078456
+            },
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 15466448
+            },
+            {
+              "site": "byClass /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1184",
+              "bytes": 5954272
+            },
+            {
+              "site": "mergeResults /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:737",
+              "bytes": 4139856
+            },
+            {
+              "site": "collectionSnapshot /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1064",
+              "bytes": 313056
+            },
+            {
+              "site": "slice :0",
+              "bytes": 196848
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 168480
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1064
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "baseline",
+          "allocatedBytesEstimate": 586929808,
+          "heapBefore": 67387632,
+          "heapAfter": 67393072,
+          "heapAfterRepeat": 67393072,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 373504320
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 187412168
+            },
+            {
+              "site": "_querySelectorAll /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:4011",
+              "bytes": 19420960
+            },
+            {
+              "site": "byClass /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1184",
+              "bytes": 6088968
+            },
+            {
+              "site": "collectionSnapshot /private/tmp/nwsapi-ordered.q7RQKg/before.cjs:1064",
+              "bytes": 503392
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/result-arrays.mts:70",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "candidate",
+          "allocatedBytesEstimate": 587567216,
+          "heapBefore": 67376936,
+          "heapAfter": 67383272,
+          "heapAfterRepeat": 67383272,
+          "allocationSites": [
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/living/nodes/Node-impl.js:385",
+              "bytes": 374950352
+            },
+            {
+              "site": "compareDocumentPosition /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:219",
+              "bytes": 186967928
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:4018",
+              "bytes": 19312856
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1191",
+              "bytes": 5827472
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1071",
+              "bytes": 508608
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "query file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/result-arrays.mts:70",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

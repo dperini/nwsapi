@@ -12,7 +12,7 @@ export interface NwsapiEngine {
     anchor: Element | null
     includes(this: void, value: string, search: string): boolean
     match: NwsapiEngine['match']
-    has(selectors: string[], anchor: Element): boolean
+    has(selectors: string | string[], anchor: Element): boolean
     matchesNative(
       node: Element,
       selector: string,

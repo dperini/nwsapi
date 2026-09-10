@@ -19,6 +19,7 @@ import {
   TSC_CLI_PATH,
   TSC_CONFIG_PATH,
   UPSTREAM_HELPER_PATH,
+  WPT_CANDIDATES_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
 
 function recorder() {
@@ -51,6 +52,7 @@ test('setup clones and verifies WPT before installing Chromium', () => {
   expect(calls).toEqual([
     [UPSTREAM_HELPER_PATH, ['clone']],
     [UPSTREAM_HELPER_PATH, ['verify']],
+    [WPT_CANDIDATES_PATH, []],
     [PLAYWRIGHT_CLI_PATH, ['install', 'chromium']],
   ])
 })

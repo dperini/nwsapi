@@ -1,0 +1,893 @@
+{
+  "node": "v26.5.0",
+  "engineSha256": "e1c41a3660157577d3007032155820e5dc718f4bcec7c2f50058fb1ff55368db",
+  "methodology": "Three rotating Node allocation rounds per route. Each sample covers 2000 warm calls with collected objects included at a 1024byte sampling interval. Compiled uses preselected candidates and a fresh result array. Select includes public query dispatch and candidate lookup. Lookup only calls byClass and is not an equivalent selector query. Routes share a static 256-candidate jsdom fixture. Ordered results are checked before profiling. Compilation and fixture setup are excluded. Retained heap uses four GCs before readings and two batches of 2000 calls. Allocation differences are diagnostic, not an exact attribution to array copying.",
+  "rows": [
+    {
+      "selector": ".content",
+      "candidates": 256,
+      "matches": 256,
+      "memory": [
+        {
+          "round": 0,
+          "name": "compiled",
+          "allocatedBytesEstimate": 59108512,
+          "heapBefore": 40333600,
+          "heapAfter": 40348096,
+          "heapAfterRepeat": 40374552,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59041224
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 58240
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 7984
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "select",
+          "allocatedBytesEstimate": 5566496,
+          "heapBefore": 43179120,
+          "heapAfter": 43219856,
+          "heapAfterRepeat": 43219856,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4220416
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 562408
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 497968
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/utils.js:45",
+              "bytes": 118376
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 59296
+            },
+            {
+              "site": "map :0",
+              "bytes": 57216
+            },
+            {
+              "site": "slice :0",
+              "bytes": 48696
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4943296,
+          "heapBefore": 40691808,
+          "heapAfter": 40692792,
+          "heapAfterRepeat": 40692792,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4169808
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 561432
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/utils.js:45",
+              "bytes": 103816
+            },
+            {
+              "site": "map :0",
+              "bytes": 58240
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 46816
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 1064
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1064
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "select",
+          "allocatedBytesEstimate": 5546960,
+          "heapBefore": 40684224,
+          "heapAfter": 40684208,
+          "heapAfterRepeat": 40684832,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4182128
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 576280
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 507184
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/utils.js:45",
+              "bytes": 76880
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 67616
+            },
+            {
+              "site": "slice :0",
+              "bytes": 65280
+            },
+            {
+              "site": "map :0",
+              "bytes": 49920
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 11472
+            },
+            {
+              "site": "includes :0",
+              "bytes": 5904
+            },
+            {
+              "site": "exports.is /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:21",
+              "bytes": 3240
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4734704,
+          "heapBefore": 40723816,
+          "heapAfter": 40718896,
+          "heapAfterRepeat": 40718896,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4257600
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 350224
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 126880
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 0
+            },
+            {
+              "site": "queries file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:26",
+              "bytes": 0
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1017",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "compiled",
+          "allocatedBytesEstimate": 59202224,
+          "heapBefore": 39712960,
+          "heapAfter": 39712960,
+          "heapAfterRepeat": 39712960,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59148008
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:24",
+              "bytes": 52000
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4720944,
+          "heapBefore": 40985208,
+          "heapAfter": 40985208,
+          "heapAfterRepeat": 40985208,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4245136
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 372832
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 102976
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 0
+            },
+            {
+              "site": "queries file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:26",
+              "bytes": 0
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1017",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "compiled",
+          "allocatedBytesEstimate": 59470192,
+          "heapBefore": 38326008,
+          "heapAfter": 38327304,
+          "heapAfterRepeat": 38327304,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 59403632
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:24",
+              "bytes": 66560
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "select",
+          "allocatedBytesEstimate": 5362368,
+          "heapBefore": 41002384,
+          "heapAfter": 41002384,
+          "heapAfterRepeat": 41002384,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4237984
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 565288
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 394824
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 112320
+            },
+            {
+              "site": "slice :0",
+              "bytes": 48696
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1040
+            },
+            {
+              "site": "#onMessage node:inspector:84",
+              "bytes": 1040
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "selector": ".box .inner > .content",
+      "candidates": 256,
+      "matches": 256,
+      "memory": [
+        {
+          "round": 0,
+          "name": "compiled",
+          "allocatedBytesEstimate": 127109344,
+          "heapBefore": 38835760,
+          "heapAfter": 38837200,
+          "heapAfterRepeat": 38837216,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 85976992
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 41058336
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:24",
+              "bytes": 70720
+            },
+            {
+              "site": "push :0",
+              "bytes": 1176
+            },
+            {
+              "site": "delete :0",
+              "bytes": 1064
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "select",
+          "allocatedBytesEstimate": 88328880,
+          "heapBefore": 45292192,
+          "heapAfter": 45330000,
+          "heapAfterRepeat": 45330000,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 57199368
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24662464
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4205872
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 530336
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 504688
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 399280
+            },
+            {
+              "site": "create :0",
+              "bytes": 359072
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 231936
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/utils.js:45",
+              "bytes": 108008
+            },
+            {
+              "site": "exports.convert /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/GetRootNodeOptions.js:23",
+              "bytes": 67616
+            }
+          ]
+        },
+        {
+          "round": 0,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4791072,
+          "heapBefore": 43143712,
+          "heapAfter": 43143712,
+          "heapAfterRepeat": 43143712,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4199760
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 355088
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 123776
+            },
+            {
+              "site": "(anonymous) /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/jsdom/utils.js:45",
+              "bytes": 111104
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 1344
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "queries file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:26",
+              "bytes": 0
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1017",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "select",
+          "allocatedBytesEstimate": 87840600,
+          "heapBefore": 39052512,
+          "heapAfter": 39052512,
+          "heapAfterRepeat": 39052344,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 57151936
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24389472
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4211104
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 542128
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 468040
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 369624
+            },
+            {
+              "site": "create :0",
+              "bytes": 327744
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 275616
+            },
+            {
+              "site": "exports.convert /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/GetRootNodeOptions.js:23",
+              "bytes": 59296
+            },
+            {
+              "site": "slice :0",
+              "bytes": 38328
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4674928,
+          "heapBefore": 43040128,
+          "heapAfter": 43040128,
+          "heapAfterRepeat": 43040128,
+          "allocationSites": [
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4185264
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 364768
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 122720
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 1120
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 1,
+          "name": "compiled",
+          "allocatedBytesEstimate": 127106032,
+          "heapBefore": 38974048,
+          "heapAfter": 38974048,
+          "heapAfterRepeat": 38974048,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 86017520
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 41026080
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:24",
+              "bytes": 60320
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 1056
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 1056
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "lookup",
+          "allocatedBytesEstimate": 4706104,
+          "heapBefore": 45263696,
+          "heapAfter": 45263696,
+          "heapAfterRepeat": 45263696,
+          "allocationSites": [
+            {
+              "site": "queries file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:26",
+              "bytes": 2215920
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 1975472
+            },
+            {
+              "site": "getElementsByClassName /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Document.js:211",
+              "bytes": 386752
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 122720
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:40",
+              "bytes": 5240
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "collectionSnapshot /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1017",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "compiled",
+          "allocatedBytesEstimate": 127246432,
+          "heapBefore": 38977376,
+          "heapAfter": 38977376,
+          "heapAfterRepeat": 38977376,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 86011728
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 41167080
+            },
+            {
+              "site": "(anonymous) file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/candidate-memory.mts:24",
+              "bytes": 66560
+            },
+            {
+              "site": "post node:inspector:115",
+              "bytes": 1064
+            },
+            {
+              "site": "(root) :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) :0",
+              "bytes": 0
+            },
+            {
+              "site": "profileAncestorMemory file:///Users/jdalton/projects/nwsapi/scripts/repo/bench/ancestor-memory.mts:6",
+              "bytes": 0
+            },
+            {
+              "site": "fn node:internal/util:477",
+              "bytes": 0
+            },
+            {
+              "site": "Promise :0",
+              "bytes": 0
+            },
+            {
+              "site": "(anonymous) node:internal/util:478",
+              "bytes": 0
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "name": "select",
+          "allocatedBytesEstimate": 88102168,
+          "heapBefore": 45273824,
+          "heapAfter": 45273824,
+          "heapAfterRepeat": 45281608,
+          "allocationSites": [
+            {
+              "site": "Resolver :3",
+              "bytes": 57277368
+            },
+            {
+              "site": "get className /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Element.js:1204",
+              "bytes": 24572672
+            },
+            {
+              "site": "byClass /Users/jdalton/projects/nwsapi/dist/nwsapi.js:1137",
+              "bytes": 4544880
+            },
+            {
+              "site": "getRootNode /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/Node.js:102",
+              "bytes": 697720
+            },
+            {
+              "site": "_querySelectorAll /Users/jdalton/projects/nwsapi/dist/nwsapi.js:3953",
+              "bytes": 566728
+            },
+            {
+              "site": "takeRecords /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/MutationObserver.js:152",
+              "bytes": 258976
+            },
+            {
+              "site": "create :0",
+              "bytes": 114288
+            },
+            {
+              "site": "slice :0",
+              "bytes": 47664
+            },
+            {
+              "site": "exports.convert /Users/jdalton/projects/nwsapi/node_modules/.pnpm/jsdom@30.0.1/node_modules/jsdom/lib/generated/idl/GetRootNodeOptions.js:23",
+              "bytes": 19776
+            },
+            {
+              "site": "wrappedFn node:internal/errors:542",
+              "bytes": 1056
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

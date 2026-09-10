@@ -16,16 +16,16 @@ pnpm exec playwright install --with-deps chromium
 ```
 
 The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
-The selected manifest contains **141 pages**. It does not run the complete WPT project.
+The selected manifest contains **144 pages**. It does not run the complete WPT project.
 
 | Test group                         | Pages | Subtests | Passed | Known failures |
 | ---------------------------------- | ----: | -------: | -----: | -------------: |
 | Upstream DOM matching              |    76 |    5,326 |  5,326 |              0 |
 | Wrapped upstream window scripts    |     3 |      283 |    283 |              0 |
-| Adapted upstream DOM matching      |     3 |       37 |     37 |              0 |
+| Adapted upstream DOM matching      |     6 |       56 |     56 |              0 |
 | Adapted upstream selector validity |    40 |    1,722 |  1,722 |              0 |
 | Local regressions                  |    19 |       77 |     77 |              0 |
-| Total                              |   141 |    7,445 |  7,445 |              0 |
+| Total                              |   144 |    7,464 |  7,464 |              0 |
 
 These counts describe the selected manifest in Chromium 151.0.7922.34. A known failure remains a failed subtest. No subtests were filtered. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
@@ -43,7 +43,7 @@ This corrects the earlier report's inclusion of 16 rendering-only subtests and t
 
 Each page attaches a `wpt-subtests` JSON report with its origin, adaptation, counts, and failures. The runner verifies that `nwsapi` replaced all eight methods before upstream tests run. The manifest excludes screenshots, computed-style assertions, manual and crash tests without harness results, testdriver-dependent interaction, and aliases the engine does not replace.
 
-All 7,445 selected subtests pass. The former failures covered pseudo-element grammar, attribute casing, language ranges, shadow selectors, and tentative switch controls. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is empty. See the [compatibility review](../selector/compatibility.md) for the measured behavior and its limits.
+All 7,464 selected subtests pass. The former failures covered pseudo-element grammar, attribute casing, language ranges, shadow selectors, and tentative switch controls. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is empty. See the [compatibility review](../selector/compatibility.md) for the measured behavior and its limits.
 
 The tentative switch page uses a small reflected-property helper because the tested Chromium build does not provide `HTMLInputElement.switch`. The helper maps that boolean property to the `switch` attribute, as the upstream script expects. It runs only for this page and preserves a native property when one exists. It does not replace selector methods or expected results. These cases test `nwsapi` with that host provision, rather than establish native switch support.
 
@@ -128,3 +128,15 @@ node test/repo/e2e/upstream/sections.mts
 ```
 
 </details>
+
+## Review candidates when updating WPT
+
+The install setup runs the candidate check after verifying WPT. Run `pnpm run upstream:verify` after changing the pinned WPT revision or sparse paths. It verifies the checkout and checks the tracked [candidate inventory](../../../test/repo/e2e/upstream/candidates.json). A changed revision, candidate, or selector/pseudo path outside the checkout fails the check.
+
+Run `pnpm run check:wpt-candidates --write` to produce a review diff. This writes an inventory, not an approval. Read the changed pages and their helpers before committing it. Confirm that assertions exercise installed selector APIs, that expected results remain intact, and that required host behavior exists in the runner. Add eligible pages to the manifest, run modern and legacy WPT, and regenerate the summary. Record exclusions when a page needs rendering, testdriver, CSSOM, or unrelated DOM behavior.
+
+Discovery uses broad text signals to avoid overlooking likely pages. The AST scope check then inspects scripts and dependencies. A clean scope result only means that no known blocker was detected. For example, `getElementsByClassName-whitespace-class-names.html` uses `querySelectorAll()` to prepare its fixture but asserts a different API. It should not inflate selector coverage. Media pages require media resources and browser state, and remain in the separate media lane. Missing paths listed from Git metadata identify areas outside the sparse checkout. They have not been content-audited. Discovery does not prove that every upstream selector test has been found.
+
+The current expansion retains eight slot-assignment tests, four WebKit pseudo-element tests, and seven selector-result collection tests. The separate live `childNodes` test is excluded because it exercises the host collection rather than our selector results. Narrow AST adapters remove four computed-style assertions from the slot page and two stylesheet tests plus one CSSOM assertion from the WebKit page. Exact edit counts and the scope check reject upstream changes that need another review. The namespace `nth-of-type` page asserts only computed color, so it remains excluded. Existing DOM regression tests cover namespace-sensitive sibling positions.
+
+Additional checks of the pinned Git tree found custom-state `nth-of` and shadow-root pages outside the sparse checkout. Both assert computed colors rather than selector results. The inert/disabled page also reads computed style. They remain outside this DOM-only suite. The inventory flags selector and pseudo-element filenames outside the checkout for future review without downloading every WPT file.

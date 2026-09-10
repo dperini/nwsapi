@@ -1,0 +1,629 @@
+{
+  "node": "v26.5.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "engineSha256": "ba674d8504a996d4295b3a738693592a4d9d57a3f61c5a8b27c4e1addea04de8",
+  "methodology": "Experimental compiled-resolver comparison only. Three rotating variants, seven rounds, 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside timers. Parent/class counts run separately from timing. Node identity, order, and mutation results are checked outside timers. No production engine change, integrated host timing, or rendering. Optional memory profiling runs separately and is described in memoryMethodology. For raw-read variants, the depth gate uses the first candidate and requires 16 candidates and eight parents. These are experimental thresholds, not a recommended policy.",
+  "cachePayload": "Shared collection positional state and one previous ancestor result per query. No weak map, path array, or depth gate.",
+  "shapes": [
+    {
+      "name": "original",
+      "boxes": 5,
+      "outer": 5,
+      "inner": 1,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "wide",
+      "boxes": 64,
+      "outer": 2,
+      "inner": 1,
+      "depths": [
+        0
+      ]
+    },
+    {
+      "name": "deep",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 1,
+      "depths": [
+        8
+      ]
+    },
+    {
+      "name": "mixed-shallow-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 1,
+      "depths": [
+        0,
+        8
+      ]
+    },
+    {
+      "name": "mixed-deep-first",
+      "boxes": 16,
+      "outer": 2,
+      "inner": 1,
+      "depths": [
+        8,
+        0
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "shape": "original",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 25,
+      "matches": 5,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.01778458333333333,
+          "samplesMs": [
+            0.023069999999999785,
+            0.034937223333333045,
+            0.01976152666666659,
+            0.017751250000000027,
+            0.01778458333333333,
+            0.016918886666666518,
+            0.016950973333333272
+          ],
+          "parentReads": 135,
+          "classReads": 150
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.01805749999999989,
+          "samplesMs": [
+            0.05683083333333343,
+            0.03885777666666665,
+            0.025827499999999948,
+            0.016875139999999646,
+            0.01695305666666665,
+            0.016778333333333346,
+            0.01805749999999989
+          ],
+          "parentReads": 160,
+          "classReads": 150
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.017675140000000054,
+          "samplesMs": [
+            0.0355940266666668,
+            0.020220693333333203,
+            0.02442055666666685,
+            0.017675140000000054,
+            0.017545140000000098,
+            0.01682153000000009,
+            0.016746943333333396
+          ],
+          "parentReads": 160,
+          "classReads": 150
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "original",
+      "selector": ".box .block.inner > .content",
+      "candidates": 25,
+      "matches": 25,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.008008056666666713,
+          "samplesMs": [
+            0.009162916666666661,
+            0.010563610000000001,
+            0.01671069333333321,
+            0.008008056666666713,
+            0.007964719999999943,
+            0.007839999999999918,
+            0.007815693333333608
+          ],
+          "parentReads": 75,
+          "classReads": 100
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.00911194666666688,
+          "samplesMs": [
+            0.0094845833333333,
+            0.00911194666666688,
+            0.02495222333333345,
+            0.008992083333333388,
+            0.008972500000000234,
+            0.009837916666666995,
+            0.009018193333333025
+          ],
+          "parentReads": 100,
+          "classReads": 100
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.00913110999999996,
+          "samplesMs": [
+            0.00921069333333321,
+            0.00913110999999996,
+            0.02808569666666661,
+            0.009148473333333414,
+            0.008947636666666767,
+            0.009065833333333254,
+            0.009025556666666337
+          ],
+          "parentReads": 100,
+          "classReads": 100
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "wide",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 128,
+      "matches": 30,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.12420472000000018,
+          "samplesMs": [
+            0.12014111000000033,
+            0.11795346999999992,
+            0.10842458333333373,
+            0.12610097333333367,
+            0.14160013666666676,
+            0.15550680666666647,
+            0.12420472000000018
+          ],
+          "parentReads": 678,
+          "classReads": 768
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.12879902666666718,
+          "samplesMs": [
+            0.18989777666666668,
+            0.22190694666666635,
+            0.1204338900000001,
+            0.12796069666666654,
+            0.12623221999999942,
+            0.12879902666666718,
+            0.1343700000000005
+          ],
+          "parentReads": 806,
+          "classReads": 768
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.1448736100000004,
+          "samplesMs": [
+            0.17869625000000042,
+            0.12879847333333297,
+            0.10869388999999956,
+            0.1084079166666667,
+            0.18323180666666683,
+            0.1448736100000004,
+            0.20401138666666688
+          ],
+          "parentReads": 806,
+          "classReads": 768
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "wide",
+      "selector": ".box .block.inner > .content",
+      "candidates": 128,
+      "matches": 128,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.07686083333333348,
+          "samplesMs": [
+            0.09288583333333311,
+            0.07686083333333348,
+            0.059031943333332795,
+            0.05855708333333344,
+            0.0566850000000007,
+            0.09488139000000047,
+            0.08159471999999975
+          ],
+          "parentReads": 384,
+          "classReads": 512
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.08389458333333247,
+          "samplesMs": [
+            0.08389458333333247,
+            0.09591472333333362,
+            0.05855527666666603,
+            0.05877750000000106,
+            0.05922930666666616,
+            0.09224138999999923,
+            0.1106562500000003
+          ],
+          "parentReads": 512,
+          "classReads": 512
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.0652270833333326,
+          "samplesMs": [
+            0.06125833333333352,
+            0.07637653000000076,
+            0.13490388666666756,
+            0.06537055666666675,
+            0.05964180666666683,
+            0.0652270833333326,
+            0.06380416666666709
+          ],
+          "parentReads": 512,
+          "classReads": 512
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "deep",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 32,
+      "matches": 6,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.08817819333333318,
+          "samplesMs": [
+            0.08817819333333318,
+            0.12307360999999976,
+            0.08901583333333443,
+            0.11945458333333288,
+            0.06856819333333229,
+            0.06945069666666769,
+            0.06967680666666638
+          ],
+          "parentReads": 430,
+          "classReads": 448
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.07133736000000075,
+          "samplesMs": [
+            0.07979847000000063,
+            0.07111319333333237,
+            0.0873376366666677,
+            0.07129708333333232,
+            0.07111388999999993,
+            0.0713694466666675,
+            0.07133736000000075
+          ],
+          "parentReads": 462,
+          "classReads": 448
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.07218735999999959,
+          "samplesMs": [
+            0.07416444333333402,
+            0.10411513666666602,
+            0.14692527999999888,
+            0.07191583333333255,
+            0.07163652999999916,
+            0.07108041666666547,
+            0.07218735999999959
+          ],
+          "parentReads": 462,
+          "classReads": 448
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "deep",
+      "selector": ".box .block.inner > .content",
+      "candidates": 32,
+      "matches": 32,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.05214125000000119,
+          "samplesMs": [
+            0.05214125000000119,
+            0.052963470000001206,
+            0.05160180666666596,
+            0.05148458333333262,
+            0.05908222333333318,
+            0.053156806666665946,
+            0.05182736000000053
+          ],
+          "parentReads": 352,
+          "classReads": 384
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.05472902666666717,
+          "samplesMs": [
+            0.05457583333333332,
+            0.05467819666666704,
+            0.05472902666666717,
+            0.056819306666666305,
+            0.055014723333333675,
+            0.054932359999999486,
+            0.054106530000000624
+          ],
+          "parentReads": 384,
+          "classReads": 384
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.055112916666666935,
+          "samplesMs": [
+            0.055520276666666174,
+            0.054696806666665904,
+            0.056892639999999425,
+            0.055112916666666935,
+            0.05481111000000055,
+            0.05647222333333351,
+            0.05506902666666671
+          ],
+          "parentReads": 384,
+          "classReads": 384
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 32,
+      "matches": 6,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.050925136666666426,
+          "samplesMs": [
+            0.05169014000000061,
+            0.051496249999998626,
+            0.050925136666666426,
+            0.05056805666666757,
+            0.051074029999999764,
+            0.0502254166666656,
+            0.05053916666666585
+          ],
+          "parentReads": 302,
+          "classReads": 320
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.05321555666666578,
+          "samplesMs": [
+            0.05379152666666717,
+            0.05299041666666653,
+            0.053901806666667655,
+            0.05321555666666578,
+            0.052890553333333326,
+            0.05343458333333426,
+            0.05256819666666615
+          ],
+          "parentReads": 334,
+          "classReads": 320
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.05345972333333369,
+          "samplesMs": [
+            0.05516860999999911,
+            0.05215347333333284,
+            0.05402305333333364,
+            0.053833053333332825,
+            0.05345972333333369,
+            0.05339972333333359,
+            0.053250136666667156
+          ],
+          "parentReads": 334,
+          "classReads": 320
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-shallow-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 32,
+      "matches": 32,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.03404666666666799,
+          "samplesMs": [
+            0.034478333333333167,
+            0.03430444666666669,
+            0.03393347333333319,
+            0.03388402666666631,
+            0.03404666666666799,
+            0.034239306666666684,
+            0.033891803333334185
+          ],
+          "parentReads": 224,
+          "classReads": 256
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.03636277666666653,
+          "samplesMs": [
+            0.03568291666666634,
+            0.03680111333333268,
+            0.03636277666666653,
+            0.03560860999999932,
+            0.03713694333333327,
+            0.0366877800000005,
+            0.036237500000000485
+          ],
+          "parentReads": 256,
+          "classReads": 256
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.036443609999999654,
+          "samplesMs": [
+            0.03595139000000017,
+            0.03706680666666671,
+            0.0362811099999999,
+            0.036905833333333554,
+            0.036443609999999654,
+            0.036732780000000576,
+            0.03615013999999974
+          ],
+          "parentReads": 256,
+          "classReads": 256
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box:first-child ~ .box:nth-of-type(4n) + .box .block.inner > .content",
+      "candidates": 32,
+      "matches": 6,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.05130361333333288,
+          "samplesMs": [
+            0.051817636666667874,
+            0.052654999999999744,
+            0.05096722000000076,
+            0.05130361333333288,
+            0.05170653000000129,
+            0.0509519466666643,
+            0.051064303333332645
+          ],
+          "parentReads": 302,
+          "classReads": 320
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.05295180666666662,
+          "samplesMs": [
+            0.052280416666667405,
+            0.05295180666666662,
+            0.05354180333333109,
+            0.052594303333332086,
+            0.05390250000000075,
+            0.05256888666666479,
+            0.05414736000000024
+          ],
+          "parentReads": 334,
+          "classReads": 320
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.053131943333332855,
+          "samplesMs": [
+            0.05516125000000102,
+            0.053131943333332855,
+            0.051427776666666127,
+            0.05260138999999981,
+            0.051122916666666546,
+            0.05336513999999928,
+            0.054683193333333595
+          ],
+          "parentReads": 334,
+          "classReads": 320
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    },
+    {
+      "shape": "mixed-deep-first",
+      "selector": ".box .block.inner > .content",
+      "candidates": 32,
+      "matches": 32,
+      "variants": [
+        {
+          "name": "baseline",
+          "medianMs": 0.03432097333333331,
+          "samplesMs": [
+            0.03327750000000075,
+            0.03432097333333331,
+            0.03475194666666842,
+            0.03396611333333567,
+            0.034408750000002326,
+            0.03466722333333261,
+            0.034313890000000055
+          ],
+          "parentReads": 224,
+          "classReads": 256
+        },
+        {
+          "name": "shared-prefix",
+          "medianMs": 0.03689749999999852,
+          "samplesMs": [
+            0.03705708333333253,
+            0.036170973333334286,
+            0.03689749999999852,
+            0.03688583333333251,
+            0.03741472333333149,
+            0.03699194333333556,
+            0.03684027666666528
+          ],
+          "parentReads": 256,
+          "classReads": 256
+        },
+        {
+          "name": "last-prefix",
+          "medianMs": 0.03687153000000156,
+          "samplesMs": [
+            0.03693027666666542,
+            0.03709805333333255,
+            0.03650305666666706,
+            0.03687153000000156,
+            0.036587916666667296,
+            0.036952916666665864,
+            0.03679694666666668
+          ],
+          "parentReads": 256,
+          "classReads": 256
+        }
+      ],
+      "mutationCorrect": true,
+      "prefixMutationCorrect": true,
+      "positionalMutationCorrect": true,
+      "reversedOrderCorrect": true
+    }
+  ]
+}

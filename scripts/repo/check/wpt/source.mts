@@ -143,6 +143,56 @@ export function namespaceEdit(node: AnyNode): SourceEdit | undefined {
   return undefined
 }
 
+export function webkitEdit(node: AnyNode): SourceEdit | undefined {
+  if (
+    node.type !== 'ExpressionStatement' ||
+    node.expression.type !== 'CallExpression'
+  ) {
+    return undefined
+  }
+  const call = node.expression
+  if (call.callee.type !== 'Identifier') {
+    return undefined
+  }
+  const title = call.arguments[1]
+  if (
+    call.callee.name === 'test' &&
+    title?.type === 'Literal' &&
+    [
+      'rules include webkit-prefixed pseudo-element should be cascaded',
+      'webkit-prefixed pseudo-element selectors should be accessible from CSSOM',
+    ].includes(String(title.value))
+  ) {
+    return { start: node.start, end: node.end, text: '' }
+  }
+  const actual = call.arguments[0]
+  if (
+    call.callee.name === 'assert_equals' &&
+    actual?.type === 'MemberExpression' &&
+    actual.object.type === 'MemberExpression' &&
+    actual.object.property.type === 'Identifier' &&
+    actual.object.property.name === 'cssRules'
+  ) {
+    return { start: node.start, end: node.end, text: '' }
+  }
+  return undefined
+}
+
+export function nodeListEdit(node: AnyNode): SourceEdit | undefined {
+  if (
+    node.type === 'ExpressionStatement' &&
+    node.expression.type === 'CallExpression' &&
+    node.expression.callee.type === 'Identifier' &&
+    node.expression.callee.name === 'test' &&
+    node.expression.arguments[1]?.type === 'Literal' &&
+    node.expression.arguments[1].value ===
+      'live NodeLists are for-of iterable and update appropriately'
+  ) {
+    return { start: node.start, end: node.end, text: '' }
+  }
+  return undefined
+}
+
 export function adaptDomOnly(
   source: string,
   mode: NonNullable<WptEntry['domOnly']>,
@@ -150,6 +200,9 @@ export function adaptDomOnly(
   const adapters = {
     'form-validity': { edit: formValidityEdit, expected: 4 },
     'input-direction': { edit: directionEdit, expected: 3 },
+    'slot-assignment': { edit: directionEdit, expected: 4 },
+    'webkit-pseudos': { edit: webkitEdit, expected: 3 },
+    'selector-lists': { edit: nodeListEdit, expected: 1 },
     'namespace-matches': { edit: namespaceEdit, expected: 4 },
   }
   const adapter = adapters[mode]

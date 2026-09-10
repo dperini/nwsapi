@@ -52,6 +52,15 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
             values.push(engine.match(':state(ready)', element))
             states!.delete('ready')
             values.push(!engine.match(':state(ready)', element))
+            states!.add('initial')
+            values.push(engine.match(':state(initial)', element))
+            states!.delete('initial')
+            values.push(!engine.match(':state(initial)', element))
+            values.push(engine.select('::column', document).length === 0)
+            values.push(
+              engine.select(':active-view-transition-type(one, two)', document)
+                .length === 0,
+            )
             for (const selector of [
               ':host > slot',
               ':host(#host) > slot',

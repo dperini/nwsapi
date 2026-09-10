@@ -1,14 +1,27 @@
 # Selector compatibility
 
-`nwsapi` supports filtered child positions, namespace-aware XML matching, inherited language ranges, shadow-host queries, and the selector grammar covered by the selected WPT suite. All 7,445 selected WPT subtests pass. Browser-owned states use the host's saved matching method when available. These results describe the tested inputs and host provisions, not complete CSS conformance.
+`nwsapi` supports filtered child positions, namespace-aware XML matching, inherited language ranges, shadow-host queries, and the selector grammar covered by the selected WPT suite. All 7,464 selected WPT subtests pass. Browser-owned states use the host's saved matching method when available. These results describe the tested inputs and host provisions, not complete CSS conformance.
 
 ## Evidence and scope
 
-The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 141 pages in Chromium 151.0.7922.34. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
+The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 144 pages in Chromium 151.0.7922.34. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
 The comparison includes 171 selector and context cases and five adapter comparisons. There are 18 native-versus-core differences among the selector cases. Inputs deliberately exercise possible gaps, repeated state changes, and library extensions. Their disagreement count is not a compatibility percentage or a count of separate missing features. `CSS.supports()` results are recorded separately from query results because accepted syntax alone does not establish matching behavior.
+
+## Comparison results
+
+In the [recorded browser comparison](../../../assets/repo/bench/selector-compatibility.json), `nwsapi` agrees with Chrome on **153 of 171 cases**, compared with **103 of 171** for `@asamuzakjp/dom-selector` 9.1.1. Agreement requires the same ordered results or the same error type. This is 50 more matching outcomes in this deliberately targeted set.
+
+| Outcome against Chrome | Cases |
+| --- | ---: |
+| Both libraries agree | 100 |
+| Only `nwsapi` agrees | 53 |
+| Only `@asamuzakjp/dom-selector` agrees | 3 |
+| Neither library agrees | 15 |
+
+The cases include selector parsing, XML attributes, shadow contexts, and changing browser-owned states. They were chosen to investigate gaps, so these counts are not a general compliance score. The five adapter API comparisons are separate. The selected WPT results above run against `nwsapi` and do not establish a WPT pass count for the comparison library.
 
 ## Matching behavior
 
@@ -29,6 +42,12 @@ Public `match()` scopes `:scope` to the subject element. `closest()` preserves t
 
 The 276 attribute-casing WPT cases repeat the rules across 46 attributes and six document or namespace contexts. They provide breadth across inputs rather than 276 independent features. Filtered-position tests also check read counts: a selection and a first-result search each read a 200-sibling group once.
 
+## Missing ID and class attributes
+
+`#null` and `.null` require a literal `"null"` attribute value. Missing and empty attributes do not match. Regression tests cover matching and closest-ancestor lookup after attributes are added and removed, including cached calls, XML, legacy hooks, and the adapter. Hosts without a `className` property use an empty string when the class attribute is absent, preventing regular expressions from coercing a missing value to `"null"`.
+
+This also covers the failure described by the [upstream fix](https://github.com/asamuzaK/domSelector/commit/c5b01a422d1520a7e24773cf7c45a43f4accd4e0). Ordinary DOM matching already returned the expected results. The attribute-reader fallback needed the correction.
+
 ## Comments and foreign HTML elements
 
 Comments are consumed between CSS tokens. Quoted comment text stays literal, and removing a comment cannot join two identifiers or manufacture a function token. Tests cover filtered child positions, attribute flags, escaped identifiers, adjacent comments, and comments ending at EOF. A browser comparison inserts comments at every position in representative selectors and checks selection, first-result lookup, and matching on cold and cached calls.
@@ -44,6 +63,16 @@ The unit stylesheet case checks the selector used by `getComputedStyle()`. The s
 The public DOM integration suite also runs the linked selector cases through `jsdom`. The stylesheet reproduction checks `getComputedStyle()` before and after a matching-state mutation. Isolated package tests exercise Testing Library role, label, and test-ID lookups against the installed adapter.
 
 The [host workload report](../../../assets/repo/bench/jsdom-workload.json) records 2,808 passing subtests from `Range-mutations-dataChange.html` in each trial, along with construction, query, disposal, and profile measurements. These checks do not establish complete jsdom integration coverage or downstream maintainer acceptance.
+
+## Host-supplied readers
+
+When `jsdom` supplies `idlUtils`, the adapter can use implementation `getAttribute()` and `hasAttribute()` methods for ordinary attribute matching. When it also supplies a compatible `domSymbolTree`, parent and sibling readers use that tree's methods. Results remain public DOM nodes. Production code does not deep-import `jsdom`, inspect symbol descriptions, or read raw tree records or `_attributeList`.
+
+The adapter checks wrapper identity and missing and empty attribute behavior on detached probe elements before selecting the readers. Tree checks verify parent and sibling relationships against the same host. Missing or incompatible capabilities keep the public route. Nodes that cannot be unwrapped also use public readers. Capability checks reduce integration risk but do not promise compatibility with every future host implementation.
+
+Reader selection happens before the adapter creates its engine. Compiled selectors retain direct public reads when host readers are absent. An explicitly supplied engine through `DOMSelector.use()` keeps its own readers. Legacy mode keeps its registered legacy readers. Tests cover XML, mutations, text and comment siblings, fragments, adoption, shadow boundaries, nested callbacks, and fallback behavior. Ordinary HTML attribute matching through host readers also bypasses overridden instance attribute methods.
+
+The [performance journal](../perf/journal.md#use-host-supplied-attribute-and-tree-readers) records the comparison and retention scope. These readers use the host options already supplied by the tested `jsdom` release. The unmerged `getAttributeList` callback is not required.
 
 ## Pseudo-elements and browser states
 
@@ -73,7 +102,7 @@ The current CSS Syntax draft narrows unescaped non-ASCII identifiers beyond the 
 
 | Area                     | Recorded limitation                                                                                                                                                                                                                              |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Browser syntax           | Chrome accepts `::column`, `:state(initial)`, and a comma-separated `:active-view-transition-type()` case that the core rejects. WPT custom-state validation rejects CSS-wide keywords, so the pinned WPT expectations differ from this browser. |
+
 | Stylesheet analysis      | The adapter's `extractSubjects()` and `check()` results differ from the comparison library. These methods are separate from DOM query correctness.                                                                                               |
 | Execution policy         | Compiled selectors use `Function()`. In the recorded enforced-CSP probe, complex core queries throw `EvalError` when dynamic code generation is blocked. Simple direct lookup can still work.                                                    |
 
@@ -98,3 +127,11 @@ NWSAPI_DISTRIBUTION=1 pnpm run test:wpt
 ```
 
 The comparison uses [tracked fixtures](../../../test/repo/fixtures/selectors/compatibility.json), intercepted requests, and no live site. Its report records input hashes and dependency versions. The WPT [scope check](../testing/wpt-runner.md#scope-check) parses executed pages and helpers before the browser runs. Explicit adapters remove rendering assertions while retaining the selected upstream inputs and acceptance expectations.
+
+## Browser syntax follow-up
+
+The three recorded syntax differences are resolved. `::column` is accepted as a non-functional pseudo-element and returns no DOM elements. This does not implement column rendering. `:state()` accepts identifiers such as `initial`, consistent with the [Selectors Level 5 grammar](https://drafts.csswg.org/selectors-5/#state-pseudo). Earlier documentation incorrectly described the pinned `parse-state.html` page as rejecting CSS-wide keywords. That page has no such assertion.
+
+`:active-view-transition-type()` accepts comma-separated custom identifiers, as defined by [View Transitions Level 2](https://drafts.csswg.org/css-view-transitions-2/#active-view-transition-type-pseudo). Empty items, CSS-wide keywords, and whitespace-separated names remain invalid. The [column pseudo-element specification](https://drafts.csswg.org/css-multicol-2/#column-pseudo) defines the rendering concept separately from element queries.
+
+The [focused Chrome 153 report](../../../assets/repo/bench/bounded-browser-syntax.json) records matching custom state, state removal, a matching active transition type, and the result after that transition finishes. Native and engine results agree by element identity. Unit tests also cover empty contexts and legacy mode.
