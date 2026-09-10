@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -23,7 +24,7 @@ try {
       engine: actual,
     }
   })
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   try {
     const page = await browser.newPage()
     await page.setContent(html)

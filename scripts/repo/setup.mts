@@ -1,5 +1,5 @@
 import {
-  PLAYWRIGHT_CLI_PATH,
+  BROWSER_SETUP_PATH,
   UPSTREAM_HELPER_PATH,
   WPT_CANDIDATES_PATH,
 } from './lib/paths.mts'
@@ -9,7 +9,7 @@ export function setupUpstream(run = runNode) {
   run(UPSTREAM_HELPER_PATH, ['clone'])
   run(UPSTREAM_HELPER_PATH, ['verify'])
   run(WPT_CANDIDATES_PATH, [])
-  run(PLAYWRIGHT_CLI_PATH, ['install', 'chromium'])
+  run(BROWSER_SETUP_PATH, [])
 }
 
 if (isMainModule(import.meta.url)) {

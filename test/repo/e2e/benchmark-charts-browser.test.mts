@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { chromium } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import type { Browser } from '@playwright/test'
@@ -8,7 +9,7 @@ import { chart } from '../../../scripts/repo/bench/charts.mts'
 let browser: Browser
 beforeAll(async () => {
   if (process.env['NWSAPI_BROWSER']) {
-    browser = await chromium.launch()
+    browser = await chromium.launch(browserLaunchOptions())
   }
 })
 afterAll(async () => {

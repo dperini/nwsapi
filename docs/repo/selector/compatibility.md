@@ -1,10 +1,10 @@
 # Selector compatibility
 
-`nwsapi` supports filtered child positions, namespace-aware XML matching, inherited language ranges, shadow-host queries, and the selector grammar covered by the selected WPT suite. All 7,464 selected WPT subtests pass. Browser-owned states use the host's saved matching method when available. These results describe the tested inputs and host provisions, not complete CSS conformance.
+`nwsapi` supports filtered child positions, namespace-aware XML matching, inherited language ranges, shadow-host queries, and the selector grammar covered by the selected WPT suite. Of 7,877 selected WPT subtests, 7,793 pass and 84 expose unsupported draft heading-offset behavior or missing host reflection. Browser-owned states use the host's saved matching method when available. These results describe the tested inputs and host provisions, not complete CSS conformance.
 
 ## Evidence and scope
 
-The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 144 pages in Chromium 151.0.7922.34. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
+The [WPT summary](../../../assets/repo/bench/wpt-summary.json) covers 190 pages in Chrome for Testing 153.0.8010.12. It records the executed source hash, pinned upstream revision, and individual page results. The same selected inputs run against the readable core, with a separate pass for legacy hooks. The [runner documentation](../testing/upstream.md) explains the selection and adaptations.
 
 The separate [browser comparison](../../../assets/repo/bench/selector-compatibility.json) uses Chrome for Testing 153.0.8010.12 without added experimental feature flags. It compares `nwsapi` 2.3.0-prerelease, its adapter, and the local source of `@asamuzakjp/dom-selector` 9.1.1. The report records repository revisions and executed bundle hashes. A source hash identifies an uncommitted build more precisely than its recorded `HEAD`.
 
@@ -137,3 +137,11 @@ The three recorded syntax differences are resolved. `::column` is accepted as a 
 `:active-view-transition-type()` accepts comma-separated custom identifiers, as defined by [View Transitions Level 2](https://drafts.csswg.org/css-view-transitions-2/#active-view-transition-type-pseudo). Empty items, CSS-wide keywords, and whitespace-separated names remain invalid. The [column pseudo-element specification](https://drafts.csswg.org/css-multicol-2/#column-pseudo) defines the rendering concept separately from element queries.
 
 The [focused Chrome 153 report](../../../assets/repo/bench/bounded-browser-syntax.json) records matching custom state, state removal, a matching active transition type, and the result after that transition finishes. Native and engine results agree by element identity. Unit tests also cover empty contexts and legacy mode.
+
+## Draft heading offsets
+
+The expanded WPT selection includes `headingoffset-and-headingreset.html` and `headingoffset-mutations.html`. Their 84 recorded failures remain visible in the [WPT summary](../../../assets/repo/bench/wpt-summary.json). `nwsapi` recognizes headings by their HTML local names but does not yet apply ancestor heading offsets, resets, or their flat-tree mutation rules. Chromium 151 also lacks the `headingOffset` and `headingReset` reflection properties used by these fixtures. Basic `:heading` support should not be read as support for those draft behaviors.
+
+The added matching tests confirm language inheritance across shadow hosts, focus matching through nested shadow hosts, form-associated custom-element states supplied by the host, and disabled options inside ordinary wrappers. Added parsing inputs cover `::column::scroll-marker`, `::before::column`, and permitted states and pseudo-elements after `::details-content`. These are parsing and DOM-matching checks, not rendering assertions.
+
+The tentative WPT universal-highlight inputs are accepted as `::highlight(*)`, including after an element selector. They return no DOM elements, like other pseudo-elements. Chrome 153 rejects this wildcard form, although it accepts the escaped identifier `::highlight(\*)`. This deliberate grammar extension follows the [pinned tentative WPT](https://github.com/web-platform-tests/wpt/blob/fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9/css/css-highlight-api/custom-highlight-universal-parsing-and-computed-style.tentative.html). It does not add highlight rendering or change the recorded browser-comparison results.

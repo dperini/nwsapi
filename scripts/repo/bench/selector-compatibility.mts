@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -186,8 +187,10 @@ const sha256 = (value: string) =>
 const revision = (cwd: string) =>
   execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim()
 const browser = await chromium.launch({
+  ...(values.browser
+    ? { executablePath: values.browser }
+    : browserLaunchOptions()),
   headless: true,
-  ...(values.browser ? { executablePath: values.browser } : {}),
 })
 try {
   if (browser.version().split('.')[0] !== values['expect-major']) {

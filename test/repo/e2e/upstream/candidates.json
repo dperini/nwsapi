@@ -1,12 +1,94 @@
 {
-  "revision": "7aed6630812b20e6eec2a2e40594f8dfda036e00",
+  "revision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
   "candidates": [
+    {
+      "path": "/css/css-conditional/at-media-matches-001.html",
+      "sha256": "da2e2c7941d8e1c70eb95d8d535fc727a77a862011574f7f95f6aea964742d5f",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers.",
+        "cssRules reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-conditional/at-media-matches-002.html",
+      "sha256": "1f857adecf7435e97a0a17bb9285bd8f901eea0c22670b03cf4a75aed80dac26",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/css/css-conditional/support/at-media-matches-002-iframe.html'"
+      ]
+    },
+    {
+      "path": "/css/css-conditional/at-supports-matches.html",
+      "sha256": "a250a3e12b5f67ed3d2da9c17157b9e22564ba16cfe3e6339ac8904fe56dce75",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers.",
+        "cssRules reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-conditional/at-supports-named-feature-001.html",
+      "sha256": "3f1d28a1bc2503e8480b5d1c00b85b8688497810e294676b3feacc28d5619c75",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-conditional/match-container-change-event.tentative.html",
+      "sha256": "13881a895068d1146c6f55392135aa954e206c5710404d875748f7aea75fe047",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/css/css-conditional/match-container.tentative.html",
+      "sha256": "ea2768cd8091369f1e1548e1a0da42d0c78e5d8eba4e66d7283d2260bc255883",
+      "parsing": false,
+      "reasons": []
+    },
     {
       "path": "/css/css-forms/input-text-base-appearance-computed-style.html",
       "sha256": "3edd2882b6de8704dd3036192c66fabe53847c356f5be888700c098c8da13f06",
       "parsing": false,
       "reasons": [
         "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-highlight-api/HighlightRegistry-highlightsFromPoint-ranges.html",
+      "sha256": "3cfb3a292929516e8c2a9e91df88bbefe3ab1c9f6f7f82945d74615d944fbff6",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-highlight-api/HighlightRegistry-highlightsFromPoint.html",
+      "sha256": "40b880b60862c80bb348e8ea99ac3b94d32b4daf48471d0580e04a2d8eb1ef3d",
+      "parsing": false,
+      "reasons": [
+        "clientHeight reads rendering or CSSOM results, or requires testdriver.",
+        "clientWidth reads rendering or CSSOM results, or requires testdriver.",
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-multicol/getclientrects-000.html",
+      "sha256": "59a5f89a8626f174e04959c1c02808ce461e682a70f19bb8ec92b035ec069723",
+      "parsing": false,
+      "reasons": [
+        "getClientRects reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-multicol/getclientrects-001.html",
+      "sha256": "42fa5585fc0f6327d670dbf2854a0ae8ec2cca3871b1fc51fafbab8f0e64fbb7",
+      "parsing": false,
+      "reasons": [
+        "getClientRects reads rendering or CSSOM results, or requires testdriver."
       ]
     },
     {
@@ -175,6 +257,14 @@
         "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
         "selectorText reads rendering or CSSOM results, or requires testdriver.",
         "styleSheets reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/css/css-pseudo/first-letter-punctuation-and-space.html",
+      "sha256": "4b84701c8f85421b5387f9ae2ca87dd6b20f7f172fe0f8ec9ed3e2bc92ffcbec",
+      "parsing": false,
+      "reasons": [
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver."
       ]
     },
     {
@@ -535,6 +625,17 @@
       ]
     },
     {
+      "path": "/css/selectors/active-inside-link.html",
+      "sha256": "f8e57a06e129f098528924663f8897ef85aa85dcbcb338b4192f020e2acb353d",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
       "path": "/css/selectors/active-observable.html",
       "sha256": "a7dc9d189d8aae1ed74b4b4e28dbd9300fd49d30b6532f9dd62daf6cc7ddf35b",
       "parsing": false,
@@ -609,7 +710,7 @@
     },
     {
       "path": "/css/selectors/focus-visible-003.html",
-      "sha256": "b7f4193678bcefc18a093981d8011dbc29d1b2ec894ca81c09a63355f8a154d6",
+      "sha256": "4744a9c9d71548c5f634cb145b856f6e24a5d4bb7b876c4915833507f40164d3",
       "parsing": false,
       "reasons": [
         "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
@@ -621,7 +722,7 @@
     },
     {
       "path": "/css/selectors/focus-visible-004.html",
-      "sha256": "bbba41f49f2fcc519681195dd3d44c74d09f4848d9a741f3b4d0325a8882b730",
+      "sha256": "2934031504de028b02ce4b9bf7a1237e344c8fbc64d36c5c7e1c46e696d63573",
       "parsing": false,
       "reasons": [
         "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
@@ -1072,6 +1173,17 @@
       ]
     },
     {
+      "path": "/css/selectors/hover-boundary-events.html",
+      "sha256": "f56bdf92f12cc73db0c4b9e95f1d2e8f306cd9721197e4fdfe5ff3ca5f90afe6",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
       "path": "/css/selectors/hover-toplayer-001.html",
       "sha256": "d6465f561cff699bd098af6d16070a57ba08a3f02dd50fce2cd332f8f3bc0a41",
       "parsing": false,
@@ -1412,7 +1524,7 @@
     },
     {
       "path": "/css/selectors/media/sound-state.html",
-      "sha256": "72da8df394805419d6f83d52f3ad513e98ff99334f77f74e6614a1e0ee853993",
+      "sha256": "9ef32a8c19cb4daac4696699e404e56c5cc610c8f58b9d4b5f861a8146c65bbc",
       "parsing": false,
       "reasons": []
     },
@@ -1527,6 +1639,413 @@
       "reasons": [
         "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
       ]
+    },
+    {
+      "path": "/custom-elements/Document-createElement-customized-builtins.html",
+      "sha256": "aa07b90626de39cd7f19b07eb4f6e102d0b30f1a1ef3aa3c946568548aea9b47",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/HTMLElement-attachInternals.html",
+      "sha256": "301b39ac299b4d9ddc7575ee824118528813754a8e193ba33ff6920dd170f4c3",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/HTMLElement-constructor.html",
+      "sha256": "9d1ae705e8f4be6ea6d620adf81de6b568be331b3a86fa08f11b133468c03dff",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/append-children-to-new-parent-cycle.html",
+      "sha256": "57031705e2fae1d88e568ad09b6baf849d2bc7d77a82a9966d39b57bc427c40a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/builtin-coverage.html",
+      "sha256": "68c55f23ae43600e7b2fd100d6ddca0ee214ff2a587882870cd7f02fd0caacf3",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/custom-element-reaction-queue.html",
+      "sha256": "f2f46f5778afc43056a783f8e82b6ea6a452a168b6a2402250ba723f61556067",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/ElementInternals-behavior-accessibility.tentative.html",
+      "sha256": "8631060a0b4d7d4490bdff6ad1b1cff8f7097855aa37ffc680702de683d85b97",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/custom-elements/form-associated/ElementInternals-labels.html",
+      "sha256": "15fbf6a32ca25ce4c3b4954e96b3d0cd2780b1c546f1b70877fec1c2b59ee504",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/ElementInternals-setFormValue.html",
+      "sha256": "b777928aa521f3eed0e26dd3b4a2718f4b402f1ef62ebdb8c0e8c0bfae93621f",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers."
+      ]
+    },
+    {
+      "path": "/custom-elements/form-associated/ElementInternals-submit-behavior-dialog.tentative.html",
+      "sha256": "47c6c4f1215be003293561c84eb77c07bbbc29553aaeb73869cb54dd9373895d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/ElementInternals-submit-behavior.tentative.html",
+      "sha256": "c88ed5a92d25a764c5138d583dcb2806b841e851cdcc1f2932bb2a6e4021517d",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/custom-elements/form-associated/disabled-delegatesFocus.html",
+      "sha256": "27c41982202334592c6576eafc40e10c6988cf01fc5e8da0e5cd664d8c8a0ffb",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/fieldset-elements-during-construction.html",
+      "sha256": "ac05acee01ccab1473412e81ef81cd0aac0e6b5b00b5c5205bc81e11c70bc1cb",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/focusability.html",
+      "sha256": "2fb5f35e4d024a118a67f45915dcd58f7460727cb414270a46407a08c1291e2c",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/form-associated-callback.html",
+      "sha256": "af2765824f5cf75c602699958bb8246315fc40059a8949052965dbc3eef76f7c",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers."
+      ]
+    },
+    {
+      "path": "/custom-elements/form-associated/form-disabled-legend.html",
+      "sha256": "d04a64651b9535f1a3a8750ec7b516b765911457a3d716b68190cf5bba4a399d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/form-associated/label-delegatesFocus.html",
+      "sha256": "1dca3ef9f37fddb7c0270aa16c953e3d7bf6fa247665e460ad42e8b319acda95",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/custom-elements/microtasks-and-constructors.html",
+      "sha256": "f6672451495d533bb1cc63dd77f9b036b47c8ee032f8cedb55865d489a7057be",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-constructs-custom-element-in-document-write.html",
+      "sha256": "d957d3230ca54f9cfc8b33151466449ffb87d73fc51599aed41b03bb1eb039c2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-constructs-custom-element-synchronously.html",
+      "sha256": "1e6afa65d72f27aa109351f62f0062bdd5297147be477136cab4915a9f811413",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-custom-element-in-foreign-content.html",
+      "sha256": "528f0006f4759df8af3e6102cce8de28f902b647faf08c9a5c5becfff8c64549",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-fallsback-to-unknown-element.html",
+      "sha256": "de5b574a7947029cb5729916be9d0e232d5eaed02c92b27160770b85290a0eb7",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-sets-attributes-and-children.html",
+      "sha256": "3f8171cb5294a49765426282bde82233ff7455295e889ef271c74ad831ae49d1",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-uses-constructed-element.html",
+      "sha256": "5fd60d6d49a469d8db87485e0a59d68d62ab096f4f67a147d31613e930a98dbd",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/parser-uses-registry-of-owner-document.html",
+      "sha256": "50402ef949fb466ace37a70dc54454754b8df5afcc9f7d418c388376145234d5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/serializing-html-fragments-customized-builtins.html",
+      "sha256": "9a37c1f18f0d19a5eedaba9e2368062d4ff90facebd66d388a65ceb70d295b47",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/parser/xml-parser-custom-element-reparents-during-construction.xhtml",
+      "sha256": "8e97fdaa65519e43f4221fccda99f4fec72eb3bd74c8f4615049662c925ce5f6",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/perform-microtask-checkpoint-before-construction-xml-parser.xhtml",
+      "sha256": "8eea02561e2be964e7a86685cd174c08988285845ba249834e6f6ec98b450955",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/perform-microtask-checkpoint-before-construction.html",
+      "sha256": "e4332fcbadc89a82c101e2d4c48d551aa6071b9290a7443aaa73ec18115ee78f",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/Document.html",
+      "sha256": "8615af393f3263271798114d7143cda6924185222b5198b8a3b388c200056a32",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLAnchorElement.html",
+      "sha256": "eae833c8667f95b027671e6a5879ccf01d82d7f4e24d1e8a7b46689410c474f4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLOptionElement.html",
+      "sha256": "172ba81c9e0a4f15cdebef27a8528ff356f0e2e89a5f9edc4f8fa8e1b6a9df8b",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLOptionsCollection.html",
+      "sha256": "f70d47a307a67755a2933fb0d1ef021de03672ca14542a5fbd07e515e93011bc",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLOutputElement.html",
+      "sha256": "ceaf478d27233abc2278fc63f2f4eb33d5386bfaa66123bbc48e67e714852d8e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLSelectElement.html",
+      "sha256": "27656024ba949200d7bd92e03f0ac79737cd82baedb3c713e161377a165dd728",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLTableElement.html",
+      "sha256": "079b640d148f5bf3c000f58643702e7560016b1313b5a8682f285d907a219dee",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLTableRowElement.html",
+      "sha256": "338ab352e8cb28a85d9b632235a78e4e6abccdc767c083e1d839d80c2be512bc",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLTableSectionElement.html",
+      "sha256": "5ca94b232b362f1da5aec32c40e88fba652ece4a09e41c125669a2a02be67394",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/reactions/HTMLTitleElement.html",
+      "sha256": "da7aab0a7448a37dd7f42e51c4bb084320e86b339376ccc01e9d4bda5b520624",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/CustomElementRegistry-initialize.html",
+      "sha256": "00f2da3d3c74e225bdb46d3e6a27ffd783425f9e88c3a8d9b309a2583410f404",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/CustomElementRegistry-upgrade.html",
+      "sha256": "35ae4f3896737c105ec3ba7ec026b41417775da686ed2cdca37a8b281a0dc85a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/Document-importNode.html",
+      "sha256": "951199c89c3fd7caa7044bb5bd7db0359f3e75fd71d7321aad5d783397087396",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/Element-customElementRegistry-exceptions.html",
+      "sha256": "956c8a7fe2aef1b9ae715b51c30dfb8e0e67cca38560ca7cfbb266c942613534",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/Element-customElementRegistry.html",
+      "sha256": "10543fe45c00c13dffd2fa79ec41da1a24c1ba7105c5d43a08efb27bd696c97e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/Element-innerHTML.html",
+      "sha256": "2539ed1206585054033e3c101f04e5c9d6cc49d229f627459100dd20ac1a2e88",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/ShadowRoot-init-customElementRegistry.html",
+      "sha256": "91ff1dbef65db6c9983cc73b5875253ab2e1d534149c698beff06f69b0eb75d7",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/ShadowRoot-innerHTML.html",
+      "sha256": "1a15ed19b3fc509a5f18b215ae2aafbe22aaa39abb6c56975b750f5d718cba57",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/element-mutation-null-registry-removal.html",
+      "sha256": "ea7540d0609f234a0df80bb6dd76ba741f38a540f6ed685b6ce82a0f67a2176f",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/element-mutation.html",
+      "sha256": "76ec392ca34cf809c5413790047dfecdbf4a2e22b84ef1ae9bf58aa07a5568da",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-custom-element-registry-customelementregistry-attribute-in-xhtml.xhtml",
+      "sha256": "676fce0ad65f10d3c44e98c9679c9cd77cd526adad45d286be60118b4fecebc9",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-custom-element-registry-customelementregistry-attribute.html",
+      "sha256": "50f5c913f9c26450886dffa0e5991d051714db6a7666187ab00dfc3e76d9792a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-registry-append.html",
+      "sha256": "81b6e14c26bc65a856eee3470cce6c6ceae77c8025a592782a0308a4ca837f93",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-registry-define-upgrade-criteria.html",
+      "sha256": "f82ca6b0f0d62f9a26522d9b8bc59e2aeeff47fc2609a3c689efe29ff3482ec7",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-registry-effective-global-registry.html",
+      "sha256": "575c61cdb6c1334d6903a817cf2f2be624aa757bd6426150d4da27bba62e5605",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-registry-initialize-upgrades.html",
+      "sha256": "dee7dee9339b9bbd546085420c15f454320347be0d321d08d2d156ba7543906d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/scoped-registry-initialize.html",
+      "sha256": "0140af8b1bc64a228b9f2c74124f91aa15ee698856c992250adbe976fdc3b888",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/template.window.js",
+      "sha256": "69829de50e5ec66f4ca4b74973f89c655422eca344213c13e830c82e7cf41b16",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/registries/upgrade.html",
+      "sha256": "2e6378679878b77a4d75737074a90f5c8e2e33532e6a8caf928fc1fff83f5445",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/throw-on-dynamic-markup-insertion-counter-construct-xml-parser.xhtml",
+      "sha256": "9a98b198bbee5de7776d836313a3e1efa4d74ea2e10b75688cede34d9eef966b",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/throw-on-dynamic-markup-insertion-counter-construct.html",
+      "sha256": "a03a8cba0f0eb5636d1226aad684de5876f97fdc303629a1557c97facd108493",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/throw-on-dynamic-markup-insertion-counter-reactions-xml-parser.xhtml",
+      "sha256": "55c700c866c5b58591ffd7f1ecbf55f1f953c3326b256b73dc787b031572d122",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/throw-on-dynamic-markup-insertion-counter-reactions.html",
+      "sha256": "64d4aeb99cb0130dc1bb613beb33ff0f53fb4a0b2eec80fc14f6986cf40a2dac",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/upgrading.html",
+      "sha256": "f1a3b87f2e9e2689fcb0e054a29b6d59550c5d37fb744a12b3000ad912d0f651",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/upgrading/upgrading-enqueue-reactions.html",
+      "sha256": "d298f6d3b8f87a54cae1eb132effcfcdeeb98bd8fa9d6243e0d28d292eac58d3",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/custom-elements/upgrading/upgrading-parser-created-element.html",
+      "sha256": "d004cdcd6b5c8609407002846ba8cb290d76b9fdd3619f97fc1896e72e1dc06f",
+      "parsing": false,
+      "reasons": []
     },
     {
       "path": "/dom/idlharness.window.js",
@@ -1736,17 +2255,13 @@
       "reasons": []
     },
     {
-      "path": "/dom/nodes/moveBefore/focus-preserve.html",
-      "sha256": "f6df9fc1b5c92f88ebc0f827d673500db0966d38de0c5d05759bce4ec7d8096d",
-      "parsing": false,
-      "reasons": []
-    },
-    {
       "path": "/dom/nodes/moveBefore/fullscreen-preserve.html",
       "sha256": "2061af0e9a4867883be2f28c4b584e1d54d25438b958052825f85f74684a0272",
       "parsing": false,
       "reasons": [
-        "Error: ENOENT: no such file or directory, open 'upstream/wpt/fullscreen/trusted-click.js'"
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
       ]
     },
     {
@@ -1814,7 +2329,7 @@
     },
     {
       "path": "/dom/nodes/moveBefore/select-option-optgroup.html",
-      "sha256": "c3ff010f3eee48e2719d65a43bcc59f515834d50994154472f2cb294d688630f",
+      "sha256": "ef6c997fdce8990c02b3385aef99a59865d6443e033356c1a5acccb28fa00262",
       "parsing": false,
       "reasons": []
     },
@@ -1855,6 +2370,18 @@
       "reasons": []
     },
     {
+      "path": "/dom/nodes/querySelector-empty-id.html",
+      "sha256": "38cdd8e2090ffcb67f89c605ac56b68ebae810a1e65d861b4b28ef761db90ff4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/dom/nodes/querySelector-id-nth-child.html",
+      "sha256": "b6a580f97d930bbf601b6c80ff194ea4ad3960565f058e1d2b950f82c4026b46",
+      "parsing": false,
+      "reasons": []
+    },
+    {
       "path": "/dom/nodes/remove-next-sibling-during-replace-with.html",
       "sha256": "a0c64b9ad1d47461a1701ba64e45990f29ce8db67ecae1ac70b914a47cf101d1",
       "parsing": false,
@@ -1873,8 +2400,2311 @@
       "reasons": []
     },
     {
+      "path": "/fullscreen/rendering/fullscreen-pseudo-class.html",
+      "sha256": "e83e67f202f9b07f4cb89b2c9c90d8472f6ece80b19045839a563c7d0570adfe",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/browsers/browsing-the-web/scroll-to-fragid/target-pseudo-after-adoption.html",
+      "sha256": "8d76a9f6ec7b077c71d574427677bcf3294faae08f0996dfcadc4890f9efe7c7",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/dom/aria-element-reflection-disconnected.html",
+      "sha256": "222cb513b30bf00bfbb02e2bc25b450f8abd49aea4e94dc7916e61d72b2b9864",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/dom/aria-element-reflection.html",
+      "sha256": "509c03cbf9af83fe85471440616e44b8f0f1a0ab8f498903741197a7f7c80803",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers."
+      ]
+    },
+    {
+      "path": "/html/dom/elements/global-attributes/dir-not-changed-text-input-typing.html",
+      "sha256": "ad7d4d1618a2bc18079126f6b1ee37b7b61084cdaabe1c8b557ac4ee9f91b789",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/dom/elements/global-attributes/dir-slots-directionality.html",
+      "sha256": "97303092e088bf438b92eb7e68eb7a5e0c293ed7e64ea27094494b711f8f5084",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/dom/elements/global-attributes/mapped-attribute-adopt-001.html",
+      "sha256": "40c36447d0f8f3c920a3a85a5c0e07e3d2c3d2d064dca3d755729882be35d19a",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/dom/elements/global-attributes/translate-enumerated-ascii-case-insensitive.html",
+      "sha256": "c93a9baeba68ea48a1e6fa6922f1d2b0ee0d73870394805487f518eac1f6f523",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/attributes-common-to-form-controls/dirname-ltr.html",
+      "sha256": "998ab371749239ca15464b1322a584c637ea25a6fd689f94a60c818e6e956357",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/attributes-common-to-form-controls/dirname-only-if-applies.html",
+      "sha256": "7f83b420af1b3676d47433a16e763309b78c418b9b37681498b1aafcada22b27",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/attributes-common-to-form-controls/dirname-rtl-auto.html",
+      "sha256": "546aeaa3bce9abff5ef3ea6d049e58fb71945a644d617108bf2fe1411808af69",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/attributes-common-to-form-controls/dirname-rtl-inherited.html",
+      "sha256": "c3c7c100f0309dd3c87f57016a11d29e7d59f319e41f9f4cf4b3d0cc8043778b",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/attributes-common-to-form-controls/formAction_document_address.html",
+      "sha256": "82e08ffa4419af9fb278559417ffe2910f260e77e9c05657d1c2f78145a57d30",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/constraints/form-validation-validity-patternMismatch.html",
+      "sha256": "3dbd7d9e41dc812015798ba82357b78c97d33dbd49b2a14c7db5a949af8d046d",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/constraints/form-validation-validity-textarea-defaultValue.html",
+      "sha256": "426d5b51b1336b04d7c1acdc449d3b243600ad8781e0c94c6a905a89c7bcada1",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/constraints/form-validation-willValidate-datalist.html",
+      "sha256": "631f935f0f42fe7e375bd32d56ddfe5a0e3466ebab718f22b8228c3679b731ee",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/constraints/infinite_backtracking.tentative.html",
+      "sha256": "f5c7c12b5135000767b662ed7d3688a7146d648e81642b07fe878612948640e8",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-beforefilter.tentative.html",
+      "sha256": "4c593b7b83d690166367dfc727a3087914f98cab22d9b4fbc16e4ac23cbce311",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-filtered-pseudo.tentative.html",
+      "sha256": "e73289de44be30e0e3f6213f0d0151e5b5a997777e77f2373746ba10bdd61d27",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-keyboard-behavior.tentative.html",
+      "sha256": "4b778aa64e79d3e4984b8232959d24a5b346d748a347d2f6b1452f2c9700fda2",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-option-attributes.html",
+      "sha256": "5b8a68a5971a66cf4572d3390dbed52cd1dba5a91e40b3cac19fec686eab414c",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-pointer-behavior.tentative.html",
+      "sha256": "3835bdc218a108cedbd68d92c8969f8d386eacaec1d7406e7654cad68db46d5d",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/customizable-combobox-popover-exception.tentative.html",
+      "sha256": "667bbfaf074b77a56bd83dc2508d082081c89ec57f4bb4ce0a47c9ecb2334131",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/customizable-combobox/datalist-popover.tentative.html",
+      "sha256": "25a256f80959ce8344731089a133cfe9c8ca687d854acf0b09220e1c20ad0def",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-control-infrastructure/form_owner_and_table_3.html",
+      "sha256": "a0b76777b45f88bb2321d9b3084e2ea8e3f85b62a660a93dfe223b02cf674494",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/constructing-form-data-set.html",
+      "sha256": "f601fb1861a8ca619eca7c29930ece5546d0e67ec4c3ec7c6d17f59d519aba2a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-data-set-usv.html",
+      "sha256": "eda4dbe0c89e663aa947bce237efe509a44532ee6a4220fd6fd20e30c8de3c72",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-double-submit-default-action.html",
+      "sha256": "decf0e7df2009c2a7e56125f8c682287dcbfc89095e25944e9ec644bd765125d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-double-submit-input-type-change.html",
+      "sha256": "f721eb37d9d3cb9ffb6c715d7569b1a593e5df1f8d37f3d34473d398a8e47667",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-double-submit-preventdefault-click.html",
+      "sha256": "2e8d7826197f44457f45d5240b84b615cc645df0046090e31c2f3ff29f2f9f3a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-double-submit-preventdefault.html",
+      "sha256": "72a88169242b3d131399a726dbb705739207a84151857391af8224f6b4bb8387",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/form-submission-algorithm.html",
+      "sha256": "1a82db77cfa9ad412a79a8a75a8ec11c310a599c537c8c485b05ec01b36381ab",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/historical.window.js",
+      "sha256": "17581b90bc4cf0c137551d1af11b56b179f98097c4ae81569b280e99ab483359",
+      "parsing": false,
+      "reasons": [
+        "Error: Review WPT script metadata before adding this wrapper."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-0/request-submit-activation.html",
+      "sha256": "ef2b56c4bafaeb3baf88b15865e338dbf16f041322d6a08aa07ba571b4ab2663",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/form-target-blank-useractivation-multi-globals.html",
+      "sha256": "cc3fda5d0808d17e9ae79e62e7ab5344e6453a5828871565eb2256eaf214183c",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/form-target-blank-useractivation.html",
+      "sha256": "297960ecd2df6999f93133ce677bd066970ce09ae36d12d59d79334293125406",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/rel-base-target.html",
+      "sha256": "0e098642c6189868fb987865381eda6eb2614ef3b39bb655317caa4d9abcd874",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/rel-button-target.html",
+      "sha256": "541ddc11da1a79d9c5d48f8e59ac20b706e95e004098f7106ec9ec46457d66c5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/rel-form-target.html",
+      "sha256": "f8bd9cd752fa717c52b477f71272ba23e051249bb85c35ade8dcdf37216f4042",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/form-submission-target/rel-input-target.html",
+      "sha256": "16fd7debb3d3c098f5e49d724bdf1e6d875d08e815fbcc0b052860711d262791",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/input-change-event-properties.html",
+      "sha256": "2a82146cb2e08a7d7e5cb6711fa06a7421db473f901816b040212190cef0e713",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/defaultSelection.html",
+      "sha256": "6b6a319bb3efb8abcdb31e2a5c8c96f034293e4e466a457927496d6edd916329",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/select-event.html",
+      "sha256": "6b7eedc458b9cce0aba6ad2eb549231596302946b5f4a572f6668640153a1959",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/selection-after-content-change.html",
+      "sha256": "2ece0bbc9a3075ba8d62b9fde26b0a9f6fde5b83e2eae68e5ae72918b88f4504",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/selection-value-interactions.html",
+      "sha256": "5f31cd76e05b03065800dccef1abe6c4b1dedbdbef17455eacae0867e874c741",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/setSelectionRange.html",
+      "sha256": "fa8141c5ab1d258c88b33bd395aa8a11c61f504a0de8de2576e654565d7b7cd4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/textfieldselection/textarea-selection-while-parsing.xhtml",
+      "sha256": "d438c8f11dec8bdbab2e04d542532a67d2b8da6aad524c52835827e4d5e11acb",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/active-onblur.html",
+      "sha256": "fd9faa45bfbe727ed9476326caed110e5a93a02545d03cfd923df05383379fe9",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-activate-keyup-prevented.html",
+      "sha256": "fb5c0d6042af579d60eab14f6a1cea3a79f140b7fd2afc4fff756f907174cc70",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-activate.html",
+      "sha256": "39e80e80c77af91533f1382cc6a2f8d6695762dbb481d2e357e7ceac48c2c5c6",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-click-submits.html",
+      "sha256": "3bcca1706b3ac288d067ca544a7485b84e6de649e830d607cbd9249e010bb782",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-menu-historical.html",
+      "sha256": "b01cb02b5dda0f2fb95f1bb4883d76e07b4a9b90f5efe16a5bc479b3e63bd651",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-type-enumerated-ascii-case-insensitive.html",
+      "sha256": "c84d4d8bb38d96fe2d9b02477fcb6440a9e3bfd613437cb1d549547f8fe8698c",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-button-element/button-untrusted-key-event.html",
+      "sha256": "c2c8d3cbc0efd6679d21b32f9cd9c9a2ca4768f64d258882d054ee0f12bd0cff",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-fieldset-element/disabled-001.html",
+      "sha256": "5a6fa04e94595f84d767945c401868353e7eee78ccce7046cbff2769a83a3ce0",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-fieldset-element/disabled-nested-legend.html",
+      "sha256": "44ed53695b88a00d02dd56cd2d34309aaf9b6d1c9fe53be9a0e5abdb12522d4f",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-fieldset-element/fieldset-intrinsic-size.html",
+      "sha256": "5afc48fb1da6b667f0017fc0bc393cb8ba606dcf0ee14727c138c5513f74036b",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-action-reflection-with-base-url.html",
+      "sha256": "5730de90c9c4f9db4983202f3f232d89e3e39cbc3bcb0b7604a95e83e4e4fb2e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-action-reflection.html",
+      "sha256": "23a2db695a6079220e5ff65f1acc22f49ebe6d2e47f9e5712c5c0093c29326f5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-elements-filter.html",
+      "sha256": "0c00e738a421f7db1aa2b8dd1d49b7968bc287524e102c7bf4726638c7588706",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-elements-matches.html",
+      "sha256": "a270bdd69df08daa53f535828ac2bda51db5dc24a13fa65de2b7b19fbf784833",
+      "parsing": false,
+      "reasons": [
+        "No selector API calls were found in the page or its helpers."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-elements-sameobject.html",
+      "sha256": "2719b5048c52c3f0eb481fdb5ed3535fb5135bffce07a872511cc4138944bb92",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-form-element/form-requestsubmit.html",
+      "sha256": "2dabb9f77acf405bec50db85a1fe272777eb970c2e57a51290d5a5b473090bc4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/anchor-active-contenteditable.html",
+      "sha256": "5b89ae420106d39761d701a817e4290646c785d6621d4cdaa4971afe19505d51",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/change-to-empty-value.html",
+      "sha256": "e1b0a6ee4b74cc3d679a5a7c2404571a75e184ed94e7d4781a3f48dd78c62e7c",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checkable-active-onblur-with-click.html",
+      "sha256": "d073976b94eb8f7df5150e12a04ff83aa935f23ff45da7438b8c9bf392598df5",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checkable-active-onblur.html",
+      "sha256": "f3958dfae506209534f226a17c5b0c1ef82f441c440d2fc949346f977527cc23",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checkable-active-space-key-being-disabled.html",
+      "sha256": "e2a328aadc17c0f4da35e13bba05d9f2864cdb69b81ed1c3204d1da846689f1a",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checkable-active-space-key-prevented-default.html",
+      "sha256": "6f1137314a564bb03327e9afcce177d907bc60ddce27b59f176f4d8cadbc9f24",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checkable-active-space-key-untrusted-event.html",
+      "sha256": "2b39b117c13622478a146f54e0224d3d2ea77143c545ff69d3a662e3e7ec0664",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/checked.xhtml",
+      "sha256": "6a1bdc651c48ae4e55fd9e713f68139571719fd7d7bce35377d828c3a50d1451",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/date-readonly-keyboard.html",
+      "sha256": "5307786fefff1d6407ea4d2e5f4f98fd8ffd117e2e31076e57f66369e389573b",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/email-set-value.html",
+      "sha256": "233a5b78c3a61f01460040430e797de3a98d0a31764f0746938fa3928a74a26d",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/focus-dynamic-type-change-on-blur.html",
+      "sha256": "1f82a9ef3e1347b4dd4a81bd4832ee48ebb0811b3398d0c047d3efd6c609c99e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/hidden-charset-case-sensitive.html",
+      "sha256": "5390b48932d13c94b03f5aa18e8f9fe24a16219503caf7e76cfc05ca80f86378",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/input-disabled-fieldset-dynamic.html",
+      "sha256": "a8e0290e539aab83bf4eccd65415aedf413613bb56b109fed397500ef3af6da6",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/input-list.html",
+      "sha256": "8c7f2189d52eb39294d8be54ad2a44129a9e55f72115b123d825b81a4d51cfa2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/input-type-change-submit.html",
+      "sha256": "9ae449613eab548de2bbbc6da4eb907885be2d9b5ca84b7d24cdd198906437d5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/input-untrusted-key-event.html",
+      "sha256": "f5352d0542bdca45831308e1c73e7537919d423b64dbec67191ca8dcbd835b25",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/number-disabled.html",
+      "sha256": "ff3c0c3aec7242d13cebd11f708d3aebaf77991fecf7b7a3f29ed7eb8008b1dc",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/number-invalid-scientific-key-events.html",
+      "sha256": "6af444a2f6f297857cb645a198c843ccf091e74a1a048ac3efe26f2dc76d49a7",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio-disconnected-group-owner.html",
+      "sha256": "5775e97235a470eaf00736d6daa38e45cf24746641887f8ec2e57b9deaef659b",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio-double-activate-pseudo.html",
+      "sha256": "29248c03a5790e9086c81652666e6f041df762724ae4acf74000662c7652b68b",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio-focus-navigation-checked.html",
+      "sha256": "f87310e10e6133ad8fe9e53d2626bcdc4fb629363713e19fa36c13af96885698",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio-input-cancel.html",
+      "sha256": "76f3d3d8c581238fc014e39c50493b3acbaf1f6ae7c080dc6d8c45a654094bab",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio-keyboard-navigation-order.html",
+      "sha256": "f2eb4c2101b971910ea90bd7a4ce2f5535298e9dd62159f19fe53e09bcde6f13",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/radio.html",
+      "sha256": "b56f05a48a93e92522c6fb878f85def7417e0179dde4d8b2085c46558b50cb40",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-input-element/range-restore-oninput-onchange-event.https.html",
+      "sha256": "879ceaab56c80d8ba64e080db957248435a27fceeed21da6da57c517ca1d46a1",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-label-element/control-active-with-multiple-clicks.html",
+      "sha256": "bb60d01655d01ac2c7984a2f9e451a7d0ef3ad56e4ca069858be10d7ae2939e7",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-label-element/label-attributes.sub.html",
+      "sha256": "a96a61d97aab3b8da2b77c3cdc54934c102f7618aa2b241d643300af847bfd82",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-optgroup-element/optgroup-removal.window.js",
+      "sha256": "15eb88857deac362cb08ea2832237a1d6699790a0706bc1b26e1e4d4a69777c3",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-option-element/option-index.html",
+      "sha256": "be8d6cdfb337e4ba50448c1858c42e1d89873efc811ca6369671e324cddb2281",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-option-element/option-text-setter.html",
+      "sha256": "0d38a4d3e7d0eb58a14517e57e068233c8af2bae0ad9f61e70be50749bdd324e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-listbox/customizable-select-listbox-keyboard-behavior.optional.html",
+      "sha256": "fd56d1e791137607c98ede77382b976100fcbc02353ae0807ad136f15e6c15c0",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-listbox/customizable-select-listbox-mouse-behavior.html",
+      "sha256": "305eb188e9b769326943680c667a4fa29d0923f8fdeda7383ab1c64a51fbb618",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-listbox/select-listbox-typeahead.optional.html",
+      "sha256": "d94920d3eb69d0fc4dd461641dde53e58778c11a575e6d89b41421f8618e2c28",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-listbox/selectedcontent-listbox.html",
+      "sha256": "eee1d4390527575b0f0c60ae6bb55a9614e3f3dc605c2e3a1469a56b8ba87001",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-multiple-popup/select-multiple-popup-keyboard-behavior.tentative.html",
+      "sha256": "997ae6c7ba7a75e969fe163411dbe3f0b959e2436173a6c09847aa693652de98",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-multiple-popup/select-multiple-popup-mouse-behavior.tentative.html",
+      "sha256": "24b46f418636c417590d3e8f065e3bb0f6228af591ff370c451da1a6e1c0ef85",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-multiple-popup/select-multiple-validity-invalidation.tentative.html",
+      "sha256": "de337d534821dcbde03e3c012eb1679278b2c6c31c693456896be95da7605a66",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-multiple-popup/selectedcontent-multiple-restore.optional.html",
+      "sha256": "35d2d458fd7e4ceba13b20ba940947e27c38f26146dac15acb1003ef1eec1951",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select-multiple-popup/selectedcontent-multiple.tentative.html",
+      "sha256": "1cbabdd0b9216b71e88032f290f6cc8eea02cf022c051123f0b2340f466f6d47",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/base-appearance-inheritance.html",
+      "sha256": "de87ee84fafeb27285e37ef1a92e990f3809b346597eb02114673fb9a81625cb",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/button-in-popover.html",
+      "sha256": "5b978157dd4b3b43c16ff98cc3a1d58c5f47dd9457bc61d9745d901ff045aa26",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/nested-options.html",
+      "sha256": "1ce95eb9f7926ccf31dc932a8693bec446a950b60b5840a01568d106ec2f6fd6",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/option-color-inheritance.html",
+      "sha256": "14884c06960a979734110480c52ba4078a4b64e918712b653e5a2b1784d449c6",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/option-disabled-optgroup.html",
+      "sha256": "596c2adb5d9555b3e24032005918bea2d6cf424615ce3a2a2dbd5c3ed935cb98",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/option-form-ancestor-select.html",
+      "sha256": "4280f4a26946a820ba0863b9a779da47fb04c980849f3d686011cb70c9f39204",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/placeholder-label-option-wrapper.html",
+      "sha256": "4d8723f6480e622a853a5c5ec47f74bc759d2901719102742cf51f7c2bc1a2bd",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-accessibility-minimum-target-size.html",
+      "sha256": "4dda6b23573944401e36536dbe8d3f5d7385273f88f491a710be05493f920a87",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-anchor-regression.html",
+      "sha256": "4c299727d9f689ade9128dd771f7f41a2ce3db7a2354a8d3df428a9cdb6404e1",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-base-appearance-computed-style.html",
+      "sha256": "f5269d50ecfdde3dc3968d0b56342a38658735531c5080294e8b04c07cbdbc96",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-button-behaviors.html",
+      "sha256": "6c1fdacb62aba005e13b76a43299c4b46ff5597da101d8a0f49866f561ae6063",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-click-drag-option.optional.html",
+      "sha256": "c575d71991b8223b1a4e978587b9ae8ed6160229a0d30bd71323356b2c382a25",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-click-picker-light-dismiss.tentative.html",
+      "sha256": "9b5ffc1d488b873943b5ae9e59b4eefdd6c924120e0b035ed892e8f6fb8e43bd",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-dialog-mode-focus.optional.html",
+      "sha256": "0066d6f3c543259b72d3c696320a63dffea39c0b654710f5527dd48e47a9e597",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-disabled.html",
+      "sha256": "4056f575e373a931f59d3b9529007bc060a65c8f33feb851095fede490dee835",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-events-2.optional.html",
+      "sha256": "b67997be15b6f1259e8a169fa415fa520b75498872e44cb231a638917d229673",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-events.optional.html",
+      "sha256": "5e30e023fcfae00254ba688729c0dbbeb895151ac82352e8f676ffc400be2148",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-focus-visible-with-mouse.html",
+      "sha256": "ea66f31069257f44c80e368eddb64682d1866782875171732537f65e63a2e026",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-home-end-pagedown-pageup-detailed.optional.html",
+      "sha256": "f2dc151aae3ca1b833e3a8ccfa2678f944849cea8c38c517125d2b333cc975cc",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-home-end-pagedown-pageup.optional.html",
+      "sha256": "8c045ad150563bd7c7eb578368f144b960566a98aef7e21fb64342f7f49f95db",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-initial-focus-display-animation.html",
+      "sha256": "f1036a372d9aa9898589b50ed4aa147ca8eda8d8995b1681a478f5acb641fbf1",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-input-parsing.tentative.html",
+      "sha256": "c49ae9b16381d8211de8e3cdf3a09daa4c17cc5932e0dc1a932adc4eca9639a2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-inside-top-layer.html",
+      "sha256": "31a46e3c5adfda5753ac3b4f7329ceb29285cfd17376bba462647d7ca2f630c8",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-iterate-before-beginning.optional.html",
+      "sha256": "d69711e1d217ec99c44f4524e78bdf866239d8ef16adb7951f9a6d878b1d7a43",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-keyboard-behavior.optional.html",
+      "sha256": "67662dac554da5e80c3ce013646b3fa409e26317bb33aadd215d4d221f8c4be2",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-keyboard-focus-change-for-hidden-options.optional.html",
+      "sha256": "2f19546822ed3e9a47919b8ee60bfbf0b117af09c25761d80680e31fa94d36d7",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-mouse-behavior.html",
+      "sha256": "e4d309e53da8c2f5693e539fcd13b0655ead8c7ee0d1107d6d8f42a5e5612f41",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-mousedown-slot-mutation.optional.html",
+      "sha256": "12d23c986a6af787eddc047d2afb9d88bbb55140d66c05de19282b2961a59e08",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-multiple-removed.html",
+      "sha256": "e870820df1fbf67648c65bf8db09add85baf6007539e3e561380079b933069b6",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-optgroup-arrow-keys.optional.html",
+      "sha256": "ac7a49f55fc4b88dc8ebfd50b87bb3a3528fb04071b120a70ffca0b591bc56c6",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-option-arrow-scroll.optional.html",
+      "sha256": "84a90e2302cfa8ef056c41828b2171b57541065c2d3956215c94b4e51397db05",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-option-hover-styles.html",
+      "sha256": "c84da41454310faa0a50dad4abd971db6d5d3fe31b8bab94017f9a970a13b77b",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-options-id.html",
+      "sha256": "f9bd59d61f10e9d1f63b511b1a19f0f8d1080d7e8e0d9791f161f2bd20e721ea",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-parsing.html",
+      "sha256": "0a497ad9d9d757cbb2fdb55c1ea2129d2c34a32cebcacda2011d9966e855ab7c",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-animations.html",
+      "sha256": "c6adc9f3f4f9753556ad483c82a4a866e6a3b461c93f67ce4bc4fbbe0792a7be",
+      "parsing": false,
+      "reasons": [
+        "cssRules reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "styleSheets reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-exit-animation.html",
+      "sha256": "cbfdb46039b2cd2258429ada77662f7f4e46145ebe5c9d8c5812db863dd835d0",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-hover-active-pseudo.html",
+      "sha256": "a8ebfae6d815723af08914d8377d7ee5f50e9d8e2b578ea9bb7a674143290ee9",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-interactive-element-focus.optional.html",
+      "sha256": "8977a9d26112d7874eb77d1936484e9eedac9fb4d8e22cd801ba7bb193632bbc",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-option-animation-reopens.html",
+      "sha256": "04fb89fcee43d020f089a1fecb32d0ef1ee1bf3bed6a78106c83a9d6a2f858e2",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-picker-starting-style.html",
+      "sha256": "a41a75ad3136aa7519824088552c06d3c5211b8b52066d940e9a0d7d55b1e2b5",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-pseudo-open.html",
+      "sha256": "6bb202f86044d3f0c53b3103fa1cebc3451ed7cd6be3be0e7f4f1acf79f1cc2c",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-size-change.html",
+      "sha256": "ffb949ec0c28eb9bc74d3c74ad67838a28af9cbab7860e402c598d673b7ad5be",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-synthetic-events.html",
+      "sha256": "1c115da4123593502dd696e15fdb101c25478e5927ecb26041da3250658c45a2",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-type-to-search.tentative.html",
+      "sha256": "d4945188bcc45b30db12a241e7408376396472065f1cbd746234fb3dcd732d73",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/select-vertical-writing-mode-navigation.optional.html",
+      "sha256": "fc7670bcff886a8d8aa33b9d0b11a43d8f7f2b843950d9615c5b3b897af49a12",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent-insertion-removal.html",
+      "sha256": "f068ce10a8c08ff8289f4f74a0a56cdd52d4831ae23f05a9c7e537d66703e6f9",
+      "parsing": false,
+      "reasons": [
+        "Use a static script dependency so the scope check can inspect it."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent-movebefore.html",
+      "sha256": "bf121e53ad3728cbebc3cf973eb6da5a0c44c218495e791cd4cf9a76ae85bd49",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent-mutations.html",
+      "sha256": "28de2521f813b6c26802ce701b9fa644ed9d5df3c085353f375d7b63929497ba",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent-nested.html",
+      "sha256": "93625f20d177cbe42c14a12b1570887a12d477b697dd8540dd05f80eed6294e4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent-restore.optional.html",
+      "sha256": "c6cacf3dfde4937c01748f6df19eeafee51e5ea77ac5bebc454c5163ba5e86e5",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontent.html",
+      "sha256": "c592dc5e79c218d6f170b33d1d11f8c6b653c9ef124e1f77e4c8dcbc3e3e88a0",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/selectedcontentelement-attr.tentative.html",
+      "sha256": "d806027ae8ba01ad2e12a0ba9d114882aa658c3a0c7397b631bdf4fe38cfbcac",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/customizable-select/switch-picker-appearance.html",
+      "sha256": "d4472ce82af83b12d2b085a9357ffd7ba9f67dffbb566aa889d260fe9209caff",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/filterable-select/filterable-select-filtered-pseudo.tentative.html",
+      "sha256": "597bca6525e51866cbe383d9e3b5443db60108c05ad61d7565708f932c077566",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/filterable-select/filterable-select-keyboard-behavior.tentative.html",
+      "sha256": "1cac264dc2f08f2e9165b8503b3aea6a4eb1ad800229403510fa6ff540ffc110",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/filterable-select/select-beforefilter.tentative.html",
+      "sha256": "87bea384b08e9b7c38aed514f58d255293fb03b520ac299e518df53e00cd820f",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/inserted-or-removed.html",
+      "sha256": "dd9b56322caee7b5b429e3b7f7748b394dbb8a40f51fbd4b6b8b08c8cd8a192a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-add-optgroup.html",
+      "sha256": "69465deecdba029b490e2e62a713842381c4458447f76b211d65227105b8c1da",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-clear-reappend.tentative.html",
+      "sha256": "1c6e9cd4c3e5c76d892dc9835f6dff6b048e68c1fe8c3778bf18a32d3d197335",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-click-does-not-open-picker.html",
+      "sha256": "7ff2f6a649d2a18b01748378edcf1c00446d42387f10b361622333d003eb9bcf",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-listbox-touch.optional.html",
+      "sha256": "1afbd69ac45aef71b70957f77e8503cdb86b0ea0444866b886291f669c3aa4f3",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-option-focusable.tentative.html",
+      "sha256": "46b93148adcc1820d5fac80c75c9db42bd9a9d292fbacca03f25e217fabfe1fa",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-restore-invalid-option.html",
+      "sha256": "71bd0ba149a55c60ec259ad94c6824c3739b7590a0d9c240b4428a42d3525284",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/select-validity.tentative.html",
+      "sha256": "47b4d2e88b100814e5d050b8b69af6856435110907e6e321513a787c1a616af6",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-select-element/show-picker-user-gesture.html",
+      "sha256": "ca708633a56a457cae94ab1c0fe8b2edce7b6afe17d97d493e097623286a34de",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-textarea-element/change-to-empty-value.html",
+      "sha256": "2ff4564daefd8c3e81cfc2e7e6711a8563c35de68a17e0f22cb6e2870b6ad6b8",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-textarea-element/textarea-placeholder-lineheight.html",
+      "sha256": "df88d5469ca503f2226da54568ffc261e4d710696ea371c8e600794d8eb699a3",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/forms/the-textarea-element/textarea-validity-clone.html",
+      "sha256": "322acb1c955a384e4561c305e7427a1e6971af38663186d401dffec48f657ea5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-textarea-element/textarea-validity-valueMissing-inside-datalist.html",
+      "sha256": "18463daa5d5c96910d899b4a8e37766f43ca162adbd550ac96cb2ef4522ee0c0",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/forms/the-textarea-element/wrap-enumerated-ascii-case-insensitive.html",
+      "sha256": "3238377699262f74bfaffb3dc33135fcd55341a083b56210802959e1c78206d9",
+      "parsing": false,
+      "reasons": []
+    },
+    {
       "path": "/html/semantics/interfaces.html",
       "sha256": "8202de1cdb6a2b989ac8c4b9885ea8abe3b3c83d1fb4ddaca30871423ad13d56",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/button-type-popovertarget.html",
+      "sha256": "470c3c793c7d2c9c6b73e3e4ced09ea2a8ea7d9d7c1929e6ba0131195f87d1b5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/hide-other-popover-side-effects.html",
+      "sha256": "e82738dfe2897b557bb4199316640f420be04dd45394a73b862b6e9cee3c84ea",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/imperative-invokers.html",
+      "sha256": "b7e6d9438bb21331b0fa1943d26b72f60265074f12a3a481b7b1dbee85e27471",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/input-type-popovertarget.html",
+      "sha256": "6e294e2105802c59ee397c95526839429a0930c1a78e794035d1588d6cb643ea",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/label-in-invoker.html",
+      "sha256": "8be753ea59e4a704773634a323dba4d28eaab30a1706dd2c14374145f47ff299",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/light-dismiss-event-ordering.html",
+      "sha256": "d295bb0f0cf0c2754d9ff029677034cf8927b41113640c5698f108a57f6bf5b1",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/light-dismiss-event-ordering.tentative.html",
+      "sha256": "871c9b490a786075ed74266b6ee52223e3eec918a51e0dc4b5468837a94fc16c",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/light-dismiss-remove-target.html",
+      "sha256": "92b16c78dda1d0f820bc97209f400dab87b1fab91d515a63df9d98d6fb574147",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-anchor-nesting.tentative.html",
+      "sha256": "87832a038dc9f041ab23552fcb80cb5be45e1081a678dfb5536859eedc6afa0c",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-attribute-basic.html",
+      "sha256": "4ee6f697ecaf2a6a76b6e55f62e4c19f25723838544a6680b641cad6f518a2f1",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-beforetoggle-opening-event.html",
+      "sha256": "d8c3aa8330a2a55b3ded33502c947e33f1302ca7d51d44a300dd3a5b0b8228a9",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-change-type.html",
+      "sha256": "fa78579af391f827179e87d8123337a027b55fad4e130e802c539ce1caae86d4",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-close-request.html",
+      "sha256": "937fa26840cd2777104b0f13573eb360e360c03f1ab3a9c1ea5790df5beebd98",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/close-watcher/resources/helpers.js'"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-document-open.html",
+      "sha256": "82ce7a22a337af48f7b9097891135f8e7ef93fe982938811f3bb00f43cdf26fe",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-events.html",
+      "sha256": "2fe7fc5d7dcf737f2682d704cb84ecd19df845398812b5fe91bc4a1317f67172",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-2.html",
+      "sha256": "7ed6edb292ebb2fc4271df850a6b9e36b1c7b10798674ee213ae165a099c097a",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-3.html",
+      "sha256": "1395d80a1bd5fe188b277e5ee22b13a0c520fb9268ceb75f407df8a354768623",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-4.html",
+      "sha256": "87332a484c26f2db7505c9c1a39b48b9630585b873b4fcc222ca924bb3d47964",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-5.html",
+      "sha256": "5c09a932d81e711bdd4d9ac41c48bd89f08c6b89f97a849bc4c011f57b5e23d1",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-across-slot.html",
+      "sha256": "5d1fa07697f5d7df941ea4338c0767430d79e1e791047996a8296913eec308e4",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-form-control.html",
+      "sha256": "e4afb6c911b6e8247aa83f3bd2a4e52bdcbbc2d04f627cdbaaabce7fe51db3a0",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-inert-invoker.html",
+      "sha256": "7bc76e1e56b8378b1827a32981b845ebea19a336048923f6418bf44da261e553",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-inside-shadow-dom.html",
+      "sha256": "353bb3eb5fb1743a245cc5434a8650a3ad78a67d5cdb2235964a60ac75ba21c6",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-inside-slot.html",
+      "sha256": "12e3fee147b316d3b803ef10b7bbf486a94590daebba8d4c955939b370abe571",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-invoker-inside-popover.html",
+      "sha256": "af5bea3b9c8597c78e9aadab7b440a19a1509c3ab37cd62428fd680aed34f095",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-slotted.html",
+      "sha256": "027c07e794a2e75e87be93aecc4151085b29d5400655f7c970004e2035d5787f",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus-tabindex.html",
+      "sha256": "6b37e1f6745e9c2f8d20165242d9a3754e74dabc3805b09d84bbb2a7515ce678",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-focus.html",
+      "sha256": "f23b0a8f49034c4a676ac78d8a794081731bc8559c640a30234bcf70f1926619",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-hint-hierarchy.html",
+      "sha256": "2373789e22396877e57a8f8a1daf5122a3ec4bba293819d74e16a1cb3958f71d",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-hint-loseinterest-show-child.html",
+      "sha256": "174bfcebcc52517bf0372fc850b44df74342e1222c7afb1f56dadfcce0a6a780",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/html/semantics/interestfor/resources/invoker-utils.js'"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-invoker-reset.html",
+      "sha256": "cc92f93cbc01cab546f125c0dd9f243d9a82dd02d4e117ae23f9cd3852742b74",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-invoking-attribute.html",
+      "sha256": "07ba1dcb17afd9c54e1a08d6a1d1b6186559a017729da29bbcff7d72bf7a8660",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-command-edge-cases.html",
+      "sha256": "515395bc660d2a5969f036a8f3c44826cd2f211c1f2549ae90f08248bc4b25a9",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-command.html",
+      "sha256": "4064d868cf88ff82ec0aadb63fc626c6d011f75248ffad814cd8b75628f10376",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-contextmenu.html",
+      "sha256": "53937012702e9cd0d609c9f5dfd0443da8fed3e6ce93afba6c153e7aa9ed06da",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-disabled-button.html",
+      "sha256": "75a999974b2fbc91c40122cb18343976217d5cfec5164d97ff20b991ba1fe4f4",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-flat-tree-nested.html",
+      "sha256": "7ec7b728dfd25e611dd6ac7c54cbb017b20a1777510617be474590195ed0db09",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-flat-tree.html",
+      "sha256": "dac5faa8e7def16a5ce720dcc13f68c2bcf7b9fdcb46023de1dcf74b5f02fe39",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-hint.html",
+      "sha256": "689b5eadc4a161f18a08d08c9e65cec7114a60a55751fe0ef53c4ced6ebad8d3",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-input-button.html",
+      "sha256": "00fb1de8efa8c430a7d4854085173a0deecdb9f153e017284fe1bc603f8b7c29",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-input-text.html",
+      "sha256": "63e08b50fd8885a4a933d8e337abddc12b1b7159e4a7ace1a98ae38a2b6f11b7",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-on-scroll.html",
+      "sha256": "87b740aca979d4266fcd2c04e30444a5a3f77c213072a52095ff0ab47296baba",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-scroll-within.html",
+      "sha256": "edaca71f86dad6454264c081d4dc9cfc34a2f5a67546b19b5a39774d3cb852bf",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss-touch-scroll.html",
+      "sha256": "03fbcc0f4314806bd9018288a0cb0b38ae698916ee82e38d64e8b9b76d23040f",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-light-dismiss.html",
+      "sha256": "37df86ba15562280ef561db4b9bbb481d9b9efb413fed9e172fe9037becde055",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-manual-hide-does-not-close-auto.html",
+      "sha256": "41af8c16789355cdca4faa2172e4858b382f6e8b1308260e49df2794956200e1",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-nested-in-button.html",
+      "sha256": "ef139305792bc8cb4c058e2e9ce2528b95438538c262ca0428922a597d9c9c0c",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-not-keyboard-focusable.html",
+      "sha256": "a9d423e5150f2af1f53e052c1543f7f3e96efa5004c5a6dfdf913c3dc3e38e9d",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-open-in-beforetoggle.html",
+      "sha256": "d7a51388da186894a57d723e44c964164102ff3ab50029175bf1b5a057415b97",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-open-overflow-display-2.html",
+      "sha256": "b5c8c50cdfae235db9d978127f2c19ebe83253907add95b1289e22e38c49b8e3",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-self-invoke.html",
+      "sha256": "b025aa6093dac04050d6a89d1e7a5a7aee03503660f70569ea04ea0db2a760f5",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-shadow-dom.html",
+      "sha256": "471b280a46538a5efecc62a34744efd00d6524901decf652c70383cb9b44a5cf",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-shadowhost-focus-navigation.html",
+      "sha256": "321fa9fc2d3ad880c70d18841830f1b07e440a91026be43bfcd9ee43b097ffc3",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-shadowhost-focus.html",
+      "sha256": "9a7556b09ad6d343b16be7bfb3cef0752829573f68c7e698c3e0a58452f3c7d2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-stacking.html",
+      "sha256": "29f72c8193abc0daffb78cacd3a767cd5a221bb62eb30e3922ee922c86b1037a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-synthetic-keydown.html",
+      "sha256": "83707d2d3df7bec54741972cb770781d92a4095d03d4ee368bdb171f8770442e",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-target-element-disabled.html",
+      "sha256": "d3959126f730767fc921ee033e77d93c85046b9241dfb741ed16e7633f9952a5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-top-layer-combinations.html",
+      "sha256": "7a3d3368cfef095bf549b535120eb01f689b34e7a1411c5b9662fa245736f322",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-top-layer-interactions.html",
+      "sha256": "0c6607fa6ddf24fe4c209560b0e18ec636fdde163a6a15844b873a2dadfb9bd2",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-top-layer-nesting-anchor.tentative.html",
+      "sha256": "1dfbedc2452a0c120d64851032a5f5268a3e49b3e3ea38369ec56533b8b21b0e",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-top-layer-nesting-hints.html",
+      "sha256": "f72f51df83fc51a1370247d96682f1c3bb7fad9b2c8f1a99003d61c678226741",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-top-layer-nesting.html",
+      "sha256": "5f59aae1f17e6862ec2ae199dfa2a05dc2ddb374190e75630036ea1f8e50abcc",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getClientRects reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/html/semantics/popovers/popover-types-with-hints.html",
+      "sha256": "9e87a07b8c1e34c40af3c802db94cea2d7d10863c9c57a7fe7b76bb149036d7f",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popover-types.html",
+      "sha256": "edafaa3475406feb7e28d06d0fdbae2083682fb5487964223a8778353bb9a417",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/html/semantics/popovers/popovertarget-disabled-fieldset.html",
+      "sha256": "7783ab575f8d3a61ba703d8da51a120a7800b92696e5950e2a6e32cae72062af",
       "parsing": false,
       "reasons": []
     },
@@ -1898,6 +4728,719 @@
         "testdriver dependency: /resources/testdriver-vendor.js",
         "testdriver dependency: /resources/testdriver.js"
       ]
+    },
+    {
+      "path": "/inert/dynamic-inert-on-focused-element.html",
+      "sha256": "8f849a6360a895d44ba994725feee6eaf5675533bbf8409fba9037bc309ff14e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-and-contenteditable.html",
+      "sha256": "3f31ff55498d3445536e1630db7e6473588b73751401ab69596b1491ee715fff",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-and-find-flat-tree.html",
+      "sha256": "57e0459cdfeeb36584aab892cdee87ded0895843fced4abe687bac3aa267f18d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-and-find.html",
+      "sha256": "884f7de8b52a544874ab26079551d3a5258e6da1a56ae2896c1a149695fc9dcc",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-canvas-fallback-content.html",
+      "sha256": "0b2e7aed508918d957620a49f64f58c5511f8415f16f41a1643a87f341886597",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-focus-in-frames.html",
+      "sha256": "abd371adfee50f69a3c6baa726b85e0ed9ea57bc92ce64f0b3f717baf22a7247",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-form-control.html",
+      "sha256": "6637d2dc64ad64970b6ba2e5da509014d4f6b5b0d34b2fa8bd4eb78745f77753",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-iframe-hittest.html",
+      "sha256": "09a2062ff342f397535fab12fa6f978dc6f459a840807784a90f15355bbb840f",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-in-shadow-dom.html",
+      "sha256": "22328806467a39ef21ae120efc192d007f8a09ad7374b1eb2c77569844c4aba5",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-inlines-around-selection-range-in-contenteditable.html",
+      "sha256": "ed88e7217bd0979ca9a3c4eef3540b8884026e08eb8a1541c3165c06342ca22a",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/editing/include/editor-test-utils.js'"
+      ]
+    },
+    {
+      "path": "/inert/inert-label-focus.html",
+      "sha256": "92172efc72ac23ea4b55ff528a1abc22b06ba1d0d00a32183828f68d1beab2f7",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-node-is-uneditable.html",
+      "sha256": "4e69777ac244fa355d366159a90febe604cb3a3459da5a8a3f69de0711a74056",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-on-non-html.html",
+      "sha256": "c241dcaf956833a3495273a9d5522695981d13c501f8c8f0654a17c97b3322bd",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-on-slots.html",
+      "sha256": "c97e65492a9b84811b78cefe122c467f9393017a36e2aebd60825f66449b9e6d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/inert/inert-pseudo-element-hittest.html",
+      "sha256": "a4303de6a5bc5a3aacd93a13d4904f38d163adf8e3fa2ed3095fab88a5e6ea5d",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/inert/inert-svg-hittest.html",
+      "sha256": "74bda053dc9d0882dccde255a0c2133f36cf0c8eed301deaee4fce89d9133ec3",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/quirks/active-and-hover-manual.html",
+      "sha256": "694235d1a2b09eb22ad276988b91d39b1919c680ab145ca02895f8e60ea34ea6",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/quirks/table-cell-width-calculation.html",
+      "sha256": "d056b863aba333f17c29aa41f81dfb4c31e627d8c0305d73c8dc8be42a8a57cb",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "offsetLeft reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/Document-caretPositionFromPoint.tentative.html",
+      "sha256": "ca2222354b360ef1728b4a985f884306201ab3f3300e9e2faf09463eaadeb533",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/DocumentOrShadowRoot-prototype-elementFromPoint.html",
+      "sha256": "e92e9747b7e810558b9a1d2e1dc24680ee632884586f954449c59e0d10b44e25",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver.",
+        "offsetLeft reads rendering or CSSOM results, or requires testdriver.",
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/HighlightRegistry-highlightsFromPoint.html",
+      "sha256": "28ce765e3f7ef41b42074966bb0e75ce6744e2364ddc5d5a30f7aeb9ceeadebf",
+      "parsing": false,
+      "reasons": [
+        "getBoundingClientRect reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/MouseEvent-prototype-offsetX-offsetY.html",
+      "sha256": "a2e93896d7462b848b8fc01e771199ff43690639c3e49dc1e867a6d3af2d3c32",
+      "parsing": false,
+      "reasons": [
+        "offsetLeft reads rendering or CSSOM results, or requires testdriver.",
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/ShadowRoot-interface.html",
+      "sha256": "2332d49d844c3ac679ba3c4748bfee5d2a508d04763b9813e15666b05a323cf4",
+      "parsing": false,
+      "reasons": [
+        "styleSheets reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-after-attachshadow.html",
+      "sha256": "567de552e82a32f8b7d698dd5e2b45b1cbbe474210f47e1397ff19a6e7319227",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-parser-interaction.html",
+      "sha256": "957c6660ae31f816a2d4c2e3e0b6db853ce4d55a9d22e1c8d1691cbdd652d64d",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-attachment.html",
+      "sha256": "476db5f0c501d3b1c6d8ac7e634b405d4281a9264ec28306c1997c58a7de34d4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-available-to-element-internals.html",
+      "sha256": "ac41efa5d2db5c05b2b21cf2baed7a90ecc72c8bf81d00df86020096ad06a04a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-basic.html",
+      "sha256": "f4eb6d3e2a5459e08453f1ff25ffcbc9da0cfe696c76221d194f646532274bca",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-opt-in.html",
+      "sha256": "d1b7e6157c3d01c37cf5db7fe46f4734152b3abf2234e7368bea6083268c67f6",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-slot-assignment-serialization.html",
+      "sha256": "9185a61c97434edc3c771580d78d97cacb2d75db003301045c37d3d9ffed0e56",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-slot-assignment.html",
+      "sha256": "4f787845ea19657912b8d0d9aa8a3d445f448ba990a6f387d1e5a04b752efc82",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-shadow-dom-write-to-iframe.html",
+      "sha256": "cd0ba36bbce56f8fcd800007e0df73451db6c38a46a76edea769ade1d8710ce2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/declarative-with-disabled-shadow.html",
+      "sha256": "14d2e426a46a5932490499701af196a640277463cf1a8d9359f90c1bc5b29543",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/gethtml-ordering.html",
+      "sha256": "f1f8b80e7d87038e23d0e40406289350eb8c4861b213897cf72cdcd3914fde8c",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/gethtml.html",
+      "sha256": "392ece06798c9a21083b0f3a49cc4ff7a08a57cb00ca2bbcee45a08c62df8d26",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/innerhtml-before-closing-tag.html",
+      "sha256": "f7efef5029e635f141135baa074135e7ca3dd069be2964c10b310e8d6780bb70",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/innerhtml-on-ordinary-template.html",
+      "sha256": "1693cd57a8b99e80e6600fc423dd40b97cf699120f995fd08a68bf90587bc116",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/move-template-before-closing-tag.html",
+      "sha256": "a9d56d315f93669d09235a8b5c37e34c9ba7ebde1fd874886170b4e24e707833",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/script-access.html",
+      "sha256": "3ece9e797d9cd1da4faf5b343bf7f2ae45a3456087005d8364539e791e96e51a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/declarative/tentative/shadowrootadoptedstylesheets/shadowrootadoptedstylesheets-clonenode.html",
+      "sha256": "d2e2d3cb65b3c81b3732fdcf152caed002cf008790ac5e040099ea88fa2c63cf",
+      "parsing": false,
+      "reasons": [
+        "CSSStyleSheet reads rendering or CSSOM results, or requires testdriver.",
+        "No selector API calls were found in the page or its helpers.",
+        "adoptedStyleSheets reads rendering or CSSOM results, or requires testdriver.",
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/declarative/tentative/shadowrootadoptedstylesheets/shadowrootadoptedstylesheets-fetched-module.html",
+      "sha256": "966b9debcf79e8b51146cee74c3d648eea3cb51df0102b0eca3ef3b699367914",
+      "parsing": false,
+      "reasons": [
+        "Error: Cannot inspect WPT script /shadow-dom/declarative/tentative/shadowrootadoptedstylesheets/support/styles.css: SyntaxError: Unexpected token (1:5)"
+      ]
+    },
+    {
+      "path": "/shadow-dom/event-composed-path-after-dom-mutation.html",
+      "sha256": "431e0ff5a1fdde41c7816d71d825a9aba5afdfc0ddb750201cffd2726564a108",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/event-inside-slotted-node.html",
+      "sha256": "cd0acec5e8259973b36f3a821ccebbd226637727c8b07f564a3842d40c015d45",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/execcommand-insertList-in-shadow.html",
+      "sha256": "824a9adef855e80f5e68f6896133f82593684943e2de62b0e59910fb323217e8",
+      "parsing": false,
+      "reasons": [
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetLeft reads rendering or CSSOM results, or requires testdriver.",
+        "offsetTop reads rendering or CSSOM results, or requires testdriver.",
+        "offsetWidth reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/delegatesFocus-highlight-sibling.html",
+      "sha256": "7b2453c3840df07c73291682da77ffb782534a583752dab9deb540be94e37e4a",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-navigation-slot-nested-2levels.html",
+      "sha256": "cf55161f543a7fb9b64889419fdac5c62afec07dffd158a3935f3dceb294fd3f",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-navigation-slot-nested-delegatesFocus.html",
+      "sha256": "dd234f329b5a5fb6cb3f979a977fdb192c0f366528e66e73c3936ff75217cc8f",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-navigation-slot-nested.html",
+      "sha256": "952fdb21f40662e6b0888906e12a0c135ba360247b23afc94bad62b87192cd0f",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-navigation-web-component-radio.html",
+      "sha256": "b43b46b776c905d073be76eb216ca26ea00d947fa5f23174c921c97dd3886033",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-navigation.html",
+      "sha256": "0421492348fb79449fa87c1a09080a8748cf8d297692d5d6788943ee6c411381",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/focus-with-negative-index.html",
+      "sha256": "51dca54e30a8b49c2c08a611ac344397bbcdfc48838bd086995dd047ef237a43",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-navigation/reading-flow/tentative/grid-order-with-popover.html",
+      "sha256": "b2b47392861f8fdc26dfc463c80211ef87e895f0d12a91dbfb7ed6627d22eb4e",
+      "parsing": false,
+      "reasons": [
+        "getComputedStyle reads rendering or CSSOM results, or requires testdriver.",
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus-within-shadow.html",
+      "sha256": "bdd809208af2d82bcc2463495dcab7a64882d1f01986eaa3943e7c7d2dd127f4",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/focus/blur-on-shadow-host-delegatesFocus.html",
+      "sha256": "8af4b358c61785451104daab58e78cb8fceb8a10e3badfe04b994f3b4bbe0f73",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-click-on-shadow-host.html",
+      "sha256": "2b53b6e4ca73f72803f714b607de0ac5b97dd8d67b4287b8b8234bf1dd9926ad",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-method-with-delegatesFocus.html",
+      "sha256": "c802027f8254b5ecbfe0dbad348d972262d009e128c2ab2cf18b7d2ba8b47c0e",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/shadow-dom/focus/resources/shadow-dom.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-selector-delegatesFocus.html",
+      "sha256": "a30c40cfc4d73f90a873304cfe65a247c68fa9e3869a54fc04d53af99d0a60cf",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-slot-box-generated-tabindex-0.html",
+      "sha256": "247a79f42959499da827e2895a3435f0c483beaf1f71e0184c3a91f7c2fc23d5",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-tab-on-shadow-host.html",
+      "sha256": "43c9652ca7cbf7bc1a18481dcb530f51286174a0d9da632897d179e7a1414ac4",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-tabindex-order-shadow-varying-tabindex-2.html",
+      "sha256": "d4d59d15642bb864932a92a0220d61ebef08c92f80b64fbca7360b4440bdb97d",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/focus/focus-tabindex-order-shadow-varying-tabindex-3.html",
+      "sha256": "60845d5ff18608f549035a5cbae9b2e8334454b232625f54115d972ef6adc638",
+      "parsing": false,
+      "reasons": [
+        "test_driver reads rendering or CSSOM results, or requires testdriver.",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/inserting-fragment-under-shadow-host.html",
+      "sha256": "b8f1f115e3fd5693d097dc5a99b934dd6197eec614798bc44597d33fc0ebfe1c",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/offsetParent-across-shadow-boundaries.html",
+      "sha256": "20af893c0b1773c2d0f21a3054404d6ca376048670eb0889dc7015b973af0c02",
+      "parsing": false,
+      "reasons": [
+        "offsetLeft reads rendering or CSSOM results, or requires testdriver.",
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/aria-labelledby.html",
+      "sha256": "cdeee5b79c81f5073d1d8f3ef0d83a36e294835aa4aa80d6eace2e35ef36f9fb",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/commandfor.html",
+      "sha256": "ef2babaa47fce82046cecdc9fdcea91decd823112c6ebe64d9835ea03b833d04",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/dom-mutation.html",
+      "sha256": "e3db2e932e66636ed72b187a908955cfc297e478b3652288a493375ce4184680",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/event-path.html",
+      "sha256": "d26100f9b6e8ef20e628de8e75fceff9cbbdb0098c413c399dd9a589bd4d3077",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/form.html",
+      "sha256": "59ce6858afc1f39eaa61276b1a851e71b6106978df854fa60e5a5c50bc2dff50",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-actions.js",
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/interestfor.tentative.html",
+      "sha256": "5ebd9e906d4fed7a2aa32d7b63090c1221cc12b2b6a06d31680a531c4493efc0",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/label-descendant.html",
+      "sha256": "a28c690372bf31ae87756bf56d2916518fd90177608775d6386a26eba4fba167",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/popovertarget.html",
+      "sha256": "5453f159e5777de99101c5b54ff5c6984d36ff8d287c7adfd0cd30952dd0ac68",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/property-reflection.html",
+      "sha256": "5dca2249d50f949da19c63d4ab4ea6ab70878d7f2c26be698452acffd70ba47a",
+      "parsing": false,
+      "reasons": [
+        "Error: ENOENT: no such file or directory, open 'upstream/wpt/wai-aria/scripts/aria-utils.js'"
+      ]
+    },
+    {
+      "path": "/shadow-dom/reference-target/tentative/reference-target-basics.html",
+      "sha256": "4e390757e06c080769d931b468de2239632176426b4b16453753e4d719175539",
+      "parsing": false,
+      "reasons": [
+        "testdriver dependency: /resources/testdriver-vendor.js",
+        "testdriver dependency: /resources/testdriver.js"
+      ]
+    },
+    {
+      "path": "/shadow-dom/scroll-restore-shadow.html",
+      "sha256": "9844ef26267eec7a9743d67a3ac1a4860aba34cd98180b6cfbf29c5a8fca96f1",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/scroll-to-the-fragment-in-shadow-tree.html",
+      "sha256": "e54e665b8a394f77131dba19dd4cbfc0681db7cdab612d737a90c64cc54424f8",
+      "parsing": false,
+      "reasons": [
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/shadow-root-clonable.html",
+      "sha256": "0fb8294bda8da8b309f571fe11a697078e9a595bfadf34e449610a68b46434b2",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/elements-and-dom-objects/shadowroot-object/shadowroot-attributes/test-010.html",
+      "sha256": "188b6425b290650d196b095c1d6b582a792e4e40cfd4da17fea3647afd73759a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/events/event-dispatch/test-002.html",
+      "sha256": "8b049828ce00ba0f98568b323177f7699123b11c238aefdbe67425ccb73675db",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/events/event-retargeting/test-003.html",
+      "sha256": "9d7229dd29bf872a8c558d0e4230a110f972af1506ac37960bc47d01bbb6593a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/events/retargeting-focus-events/test-002.html",
+      "sha256": "cb1bb5606315f78baa288994257b6527f05fc59a1aaddd2e35b58f9c4acb360e",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/events/retargeting-focus-events/test-003.html",
+      "sha256": "d3f8f6f49a42d37a12bdc1c2e64f3939a4c57f396b450f42923b3a3e783bd9a9",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/html-elements-in-shadow-trees/html-forms/test-001.html",
+      "sha256": "d401061f0434f442e59069b5b310d7fa1647455038ffab12bcf00f6f5dfae4ca",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/html-elements-in-shadow-trees/html-forms/test-002.html",
+      "sha256": "8905124bc7b51ad78de0e3688997d4a344f49233272c88103b699a91ba21294a",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/shadow-trees/upper-boundary-encapsulation/dom-tree-accessors-001.html",
+      "sha256": "d7b97b548b1bab6d5175ca205d3567b3fa5edef8cf714c674e522e0203a2a9cf",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/shadow-trees/upper-boundary-encapsulation/dom-tree-accessors-002.html",
+      "sha256": "9f30ea42f0b6915c639ee118659f8ee698610346b72d4b203f92a3ef813a1280",
+      "parsing": false,
+      "reasons": []
+    },
+    {
+      "path": "/shadow-dom/untriaged/styles/test-001.html",
+      "sha256": "31b831086065c7941e66d32872d5233925a3f0bb3948d59d0d58e4a6bbdcc48c",
+      "parsing": false,
+      "reasons": [
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/untriaged/styles/test-005.html",
+      "sha256": "22e49cdb53ddf4f0c74a11e251264fb9b8427cc3f483ca2fa393ee015ca8699c",
+      "parsing": false,
+      "reasons": [
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/shadow-dom/untriaged/styles/test-008.html",
+      "sha256": "aad969c32610775990775696ca52e675ca3c2a62c90420a20c75d72b9cd09c80",
+      "parsing": false,
+      "reasons": [
+        "offsetHeight reads rendering or CSSOM results, or requires testdriver.",
+        "offsetTop reads rendering or CSSOM results, or requires testdriver."
+      ]
+    },
+    {
+      "path": "/webvtt/api/VTTRegion/non-visible-cue-with-region.html",
+      "sha256": "5a0b007287cddedadcfe0df8b957dee0490411630fed27989e1c5b401bb1a4c2",
+      "parsing": false,
+      "reasons": []
     }
   ],
   "outsideCheckout": [
@@ -2935,19 +6478,6 @@
     "css/css-cascade/scope-inner-pseudo-scope-crash.html",
     "css/css-cascade/scope-pseudo-element-ref.html",
     "css/css-cascade/scope-pseudo-element.html",
-    "css/css-conditional/at-supports-selector-001.html",
-    "css/css-conditional/at-supports-selector-002.html",
-    "css/css-conditional/at-supports-selector-003.html",
-    "css/css-conditional/at-supports-selector-004.html",
-    "css/css-conditional/at-supports-selector-details-content-before.html",
-    "css/css-conditional/at-supports-selector-details-content.html",
-    "css/css-conditional/at-supports-selector-detecting-invalid-in-logical-combinations-ref.html",
-    "css/css-conditional/at-supports-selector-detecting-invalid-in-logical-combinations.html",
-    "css/css-conditional/at-supports-selector-file-selector-button.html",
-    "css/css-conditional/at-supports-selector-picker-icon.html",
-    "css/css-conditional/at-supports-selector-picker.html",
-    "css/css-conditional/at-supports-selector-placeholder.html",
-    "css/css-conditional/at-supports-selector-webkit-slider-thumb.tentative.html",
     "css/css-conditional/container-queries/container-units-selection-pseudo-ref.html",
     "css/css-conditional/container-queries/container-units-selection-pseudo.html",
     "css/css-conditional/container-queries/crashtests/pseudo-container-crash.html",
@@ -2972,9 +6502,6 @@
     "css/css-conditional/container-queries/scroll-state/scroll-state-scrollable-pseudo.html",
     "css/css-conditional/container-queries/scroll-state/scroll-state-snapped-pseudo.html",
     "css/css-conditional/container-queries/scroll-state/scroll-state-stuck-pseudo.html",
-    "css/css-conditional/js/CSS-supports-details-content-pseudo-parsing.html",
-    "css/css-conditional/js/CSS-supports-selector-detecting-invalid-in-logical-combinations.html",
-    "css/css-conditional/js/CSS-supports-selector-picker.html",
     "css/css-contain/contain-style-ol-ordinal-pseudo-reversed.html",
     "css/css-contain/contain-style-ol-ordinal-pseudo.html",
     "css/css-contain/content-visibility/hidden-pseudo-element-removed-crash.html",
@@ -2998,12 +6525,19 @@
     "css/css-flexbox/flexbox-with-pseudo-elements-003-ref.html",
     "css/css-flexbox/flexbox-with-pseudo-elements-003.html",
     "css/css-flexbox/hittest-before-pseudo.html",
-    "css/css-highlight-api/highlight-pseudo-computed.html",
-    "css/css-highlight-api/highlight-pseudo-from-font-computed.html",
-    "css/css-highlight-api/highlight-pseudo-parsing.html",
     "css/css-image-animation/image-animation-pseudo-animated-image-dynamic.html",
     "css/css-image-animation/image-animation-pseudo-animated-image-ref.html",
     "css/css-image-animation/image-animation-pseudo-animated-image.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-001-ref.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-001.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-002-ref.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-002.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-003-ref.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-003.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-004-ref.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-004.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-005-ref.html",
+    "css/css-inline/text-box-trim/text-box-trim-first-line-pseudo-005.html",
     "css/css-inline/text-box-trim/text-box-trim-pseudo-before-after-001-ref.html",
     "css/css-inline/text-box-trim/text-box-trim-pseudo-before-after-001.html",
     "css/css-inline/text-box-trim/text-box-trim-pseudo-before-after-002-ref.html",
@@ -3019,11 +6553,6 @@
     "css/css-lists/deep-pseudo-element-remove-update.html",
     "css/css-lists/pseudo-element-remove-update-ref.html",
     "css/css-lists/pseudo-element-remove-update.html",
-    "css/css-multicol/column-pseudo-background-color-ref.html",
-    "css/css-multicol/column-pseudo-background-color.html",
-    "css/css-multicol/parsing/column-pseudo-computed.html",
-    "css/css-multicol/parsing/column-pseudo-invalid.html",
-    "css/css-multicol/parsing/column-pseudo-valid.html",
     "css/css-nesting/contextually-invalid-selectors-001.html",
     "css/css-nesting/contextually-invalid-selectors-002.html",
     "css/css-nesting/contextually-invalid-selectors-003.html",
@@ -3072,6 +6601,8 @@
     "css/css-pseudo/highlight-cascade/highlight-cascade-009.html",
     "css/css-pseudo/highlight-cascade/highlight-cascade-010.html",
     "css/css-pseudo/highlight-cascade/highlight-cascade-011.html",
+    "css/css-pseudo/highlight-cascade/highlight-cascade-parent-style-change.html",
+    "css/css-pseudo/highlight-cascade/highlight-cascade-shadow-boundary.html",
     "css/css-pseudo/highlight-cascade/highlight-currentcolor-computed-inheritance.html",
     "css/css-pseudo/highlight-cascade/highlight-currentcolor-computed-visited.html",
     "css/css-pseudo/highlight-cascade/highlight-currentcolor-computed.html",
@@ -3208,17 +6739,6 @@
     "css/cssom/set-selector-text-detached-rule-replace-crash.html",
     "css/printing/pseudo-animations-print-ref.html",
     "css/printing/pseudo-animations-print.html",
-    "custom-elements/pseudo-class-defined-customized-builtins.html",
-    "custom-elements/pseudo-class-defined-print-ref.html",
-    "custom-elements/pseudo-class-defined-print.html",
-    "custom-elements/pseudo-class-defined.html",
-    "custom-elements/registries/pseudo-class-defined.window.js",
-    "custom-elements/state/ElementInternals-states.html",
-    "custom-elements/state/custom-state-set-strong-ref.html",
-    "custom-elements/state/state-css-selector-nth-of.html",
-    "custom-elements/state/state-css-selector-shadow-dom.html",
-    "custom-elements/state/state-css-selector.html",
-    "custom-elements/state/state-pseudo-class.html",
     "density-size-correction/density-corrected-size-pseudo-elements-cross-origin.sub.html",
     "density-size-correction/density-corrected-size-pseudo-elements-ref.html",
     "density-size-correction/density-corrected-size-pseudo-elements.html",
@@ -3229,9 +6749,28 @@
     "element-timing/pseudo-content-image.html",
     "element-timing/pseudo-content-text.html",
     "event-timing/target-selector.tentative.html",
-    "fullscreen/rendering/fullscreen-pseudo-class-support.html",
-    "fullscreen/rendering/fullscreen-pseudo-class.html",
-    "html/browsers/browsing-the-web/scroll-to-fragid/target-pseudo-after-reinsertion.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-after-images-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-after-images-moved-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-after-visited-color-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-background-image-iframe-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-background-image-iframe-modified-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-background-image-iframe-moved-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-images-iframe-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/before-images-iframe-moved-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/details-content-after-image-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/details-content-background-image-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/details-content-visited-link-currentcolor-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/details-content-visited-link-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-letter-background-images-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-letter-visited-link-color-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-letter-visited-link-currentcolor-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-line-background-images-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-line-background-images-moved-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-line-visited-link-color-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-line-visited-link-color-moved-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/first-line-visited-link-currentcolor-ignored.tentative.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/marker-images-ignored.tentative.https.sub.html",
+    "html/canvas/element/manual/draw-element-image/privacy/pseudos/marker-visited-link-currentcolor-ignored.tentative.html",
     "html/canvas/element/text/2d.text.variationSelectors.html",
     "html/dom/partial-updates/tentative/stream-append-positional-pseudo-class-invalidation.html",
     "html/rendering/non-replaced-elements/the-fieldset-and-legend-elements/fieldset-dynamic-pseudo-ref.html",
@@ -3251,41 +6790,39 @@
     "html/rendering/the-details-element/details-pseudo-elements-006.html",
     "html/semantics/embedded-content/media-elements/track/track-element/track-css-cue-pseudo-class.html",
     "html/semantics/embedded-content/the-audio-element/audio-with-replaced-after-pseudo-crash.html",
-    "html/semantics/forms/customizable-combobox/customizable-combobox-filtered-pseudo.tentative.html",
-    "html/semantics/forms/the-input-element/radio-double-activate-pseudo.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-hover-active-pseudo.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-backdrop-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-backdrop.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-before-after-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-before-after.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-first-letter-first-line-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-first-letter-first-line.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-highlight-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-highlight.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-selection-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-selection.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-target-text-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-picker-pseudo-target-text.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-pseudo-light-dismiss-invalidation.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-pseudo-open.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-pseudo-ordering-ref.html",
-    "html/semantics/forms/the-select-element/customizable-select/select-pseudo-ordering.html",
-    "html/semantics/forms/the-select-element/filterable-select/filterable-select-filtered-pseudo.tentative.html",
     "html/semantics/interactive-elements/the-dialog-element/backdrop-descendant-selector-ref.html",
     "html/semantics/interactive-elements/the-dialog-element/backdrop-descendant-selector.html",
     "html/semantics/interactive-elements/the-dialog-element/dialog-open-pseudo-invalidation-ref.html",
     "html/semantics/interactive-elements/the-dialog-element/dialog-open-pseudo-invalidation.html",
     "html/semantics/interactive-elements/the-dialog-element/inert-does-not-match-disabled-selector.html",
     "html/semantics/interestfor/interestfor-pseudo-classes.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-abspos-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-abspos-appearance.tentative.html",
     "html/semantics/interestfor/interestfor-pseudo-element-anchor-pos-ref.html",
     "html/semantics/interestfor/interestfor-pseudo-element-anchor-pos.tentative.html",
     "html/semantics/interestfor/interestfor-pseudo-element-appearance-ref.html",
     "html/semantics/interestfor/interestfor-pseudo-element-appearance.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-block-button.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-both-table-display.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-contents-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-contents-appearance.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-counter-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-counter-appearance.tentative.html",
     "html/semantics/interestfor/interestfor-pseudo-element-crash.html",
     "html/semantics/interestfor/interestfor-pseudo-element-dynamic-ref.html",
     "html/semantics/interestfor/interestfor-pseudo-element-dynamic.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-flex-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-flex-appearance.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-float-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-float-appearance.tentative.html",
     "html/semantics/interestfor/interestfor-pseudo-element-insertion-order-ref.html",
     "html/semantics/interestfor/interestfor-pseudo-element-insertion-order.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-multiline-link-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-multiline-link-appearance.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-pseudo-table-display.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-quotes-appearance-ref.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-quotes-appearance.tentative.html",
+    "html/semantics/interestfor/interestfor-pseudo-element-table-cell.tentative.html",
     "html/semantics/interestfor/interestfor-pseudo-element.tentative.html",
     "html/semantics/menu/tentative/menu-elements-pseudo-ordering-ref.html",
     "html/semantics/menu/tentative/menu-elements-pseudo-ordering.html",
@@ -3305,8 +6842,6 @@
     "html/semantics/permission-element/pseudo-elements-in-div.tentative.html",
     "html/semantics/permission-element/pseudo-elements-ref.html",
     "html/semantics/permission-element/pseudo-elements.tentative.html",
-    "inert/inert-does-not-match-disabled-selector.html",
-    "inert/inert-pseudo-element-hittest.html",
     "mathml/presentation-markup/mpadded/legacy-orthogonal-pseudo-units.html",
     "mathml/relations/css-styling/first-line-first-letter-pseudo-elements-001-ref.html",
     "mathml/relations/css-styling/first-line-first-letter-pseudo-elements-001.html",
@@ -3331,17 +6866,6 @@
     "scroll-animations/css/scroll-timeline-on-pseudo.html",
     "scroll-animations/css/view-timeline-pseudo-on-scroller-002.html",
     "scroll-animations/css/view-timeline-pseudo-on-scroller.html",
-    "shadow-dom/crashtests/scrollbar-pseudo-attach-shadow-crash.html",
-    "shadow-dom/event-on-pseudo-element-crash.html",
-    "shadow-dom/focus-navigation/reading-flow/tentative/grid-order-pseudo-elements.html",
-    "shadow-dom/focus/focus-pseudo-matches-on-shadow-host.html",
-    "shadow-dom/focus/focus-pseudo-on-shadow-host-1.html",
-    "shadow-dom/focus/focus-pseudo-on-shadow-host-2.html",
-    "shadow-dom/focus/focus-pseudo-on-shadow-host-3.html",
-    "shadow-dom/focus/focus-selector-delegatesFocus.html",
-    "shadow-dom/nested-hover-pseudo-class-removal.html",
-    "shadow-dom/untriaged/shadow-trees/upper-boundary-encapsulation/selectors-api-001.html",
-    "shadow-dom/untriaged/shadow-trees/upper-boundary-encapsulation/selectors-api-002.html",
     "soft-navigation-heuristics/icp/tentative/pseudo-element-background-image-with-text-mult-paints.html",
     "soft-navigation-heuristics/icp/tentative/pseudo-element-background-image-with-text.html",
     "soft-navigation-heuristics/icp/tentative/pseudo-element-background-image.html",
@@ -3358,6 +6882,7 @@
     "svg/styling/use-element-non-rendered-has-selector.html",
     "svg/styling/use-element-non-rendered-sibling-selector.html",
     "svg/styling/use-element-selector-ref.html",
+    "svg/text/crashtests/abspos-pseudo.html",
     "tools/lint/tests/dummy/css/css-unique/selectors/a.html",
     "uievents/ui_event_pseudo_target.html",
     "web-animations/crashtests/get-timing-bad-pseudo-crash.html",

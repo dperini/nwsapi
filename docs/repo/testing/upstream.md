@@ -2,7 +2,7 @@
 
 See the [WPT runner layout](wpt-runner.md) for the local harness files.
 
-Contributor installs set up Web Platform Tests (WPT) and Chromium.
+Contributor installs set up Web Platform Tests (WPT) and pinned Chrome for Testing 153.0.8010.12.
 
 ```sh
 pnpm install
@@ -12,22 +12,24 @@ pnpm run test:wpt
 The first install needs Git and network access. Linux may also need browser system libraries:
 
 ```sh
-pnpm exec playwright install --with-deps chromium
+pnpm exec playwright install-deps chromium
 ```
 
+The shared [browser setup](../../../scripts/repo/browser.mts) follows the explicit executable approach used by `odai`. It downloads the pinned build with `@puppeteer/browsers` and caches it outside the checkout. WPT, browser regression tests, and browser benchmarks pass that executable to Playwright and verify its version before use. Run `pnpm run setup:browser` to restore a missing installation. Updating Playwright alone does not change this browser pin.
+
 The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
-The selected manifest contains **144 pages**. It does not run the complete WPT project.
+The selected manifest contains **190 pages**. It does not run the complete WPT project.
 
-| Test group                         | Pages | Subtests | Passed | Known failures |
-| ---------------------------------- | ----: | -------: | -----: | -------------: |
-| Upstream DOM matching              |    76 |    5,326 |  5,326 |              0 |
-| Wrapped upstream window scripts    |     3 |      283 |    283 |              0 |
-| Adapted upstream DOM matching      |     6 |       56 |     56 |              0 |
-| Adapted upstream selector validity |    40 |    1,722 |  1,722 |              0 |
-| Local regressions                  |    19 |       77 |     77 |              0 |
-| Total                              |   144 |    7,464 |  7,464 |              0 |
+| Test group | Pages | Subtests | Passed | Known failures |
+| --- | ---: | ---: | ---: | ---: |
+| Upstream DOM matching | 99 | 5,532 | 5,448 | 84 |
+| Wrapped upstream window scripts | 8 | 356 | 356 | 0 |
+| Adapted upstream DOM matching | 16 | 132 | 132 | 0 |
+| Adapted upstream selector validity | 48 | 1,780 | 1,780 | 0 |
+| Local regressions | 19 | 77 | 77 | 0 |
+| Total | 190 | 7,877 | 7,793 | 84 |
 
-These counts describe the selected manifest in Chromium 151.0.7922.34. A known failure remains a failed subtest. No subtests were filtered. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
+These counts describe the selected manifest in Chrome for Testing 153.0.8010.12. A known failure remains a failed subtest. No subtests were filtered at runtime. The documented source adapters remove out-of-scope assertions before execution. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
 The matching pages cover query results, form states, directionality, focus, dialogs, popovers, and tree changes. Local regressions cover API contracts and compiler behavior, including filtered child positions and sibling types across XML namespaces. Some fixtures reuse the DOM from upstream rendering tests, but assert query results instead of pixels or computed styles.
 
@@ -43,7 +45,7 @@ This corrects the earlier report's inclusion of 16 rendering-only subtests and t
 
 Each page attaches a `wpt-subtests` JSON report with its origin, adaptation, counts, and failures. The runner verifies that `nwsapi` replaced all eight methods before upstream tests run. The manifest excludes screenshots, computed-style assertions, manual and crash tests without harness results, testdriver-dependent interaction, and aliases the engine does not replace.
 
-All 7,464 selected subtests pass. The former failures covered pseudo-element grammar, attribute casing, language ranges, shadow selectors, and tentative switch controls. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) is empty. See the [compatibility review](../selector/compatibility.md) for the measured behavior and its limits.
+Of 7,877 selected subtests, 7,793 pass and 84 remain known failures in two newly exposed draft heading-offset pages. The browser lacks the draft reflection properties, and the engine does not yet apply heading offsets or resets. [expectations.json](../../../test/repo/e2e/upstream/expectations.json) records each failure and its reason. These failures are not counted as passes. All previously selected subtests still pass. See the [compatibility review](../selector/compatibility.md) for the measured behavior and its limits.
 
 The tentative switch page uses a small reflected-property helper because the tested Chromium build does not provide `HTMLInputElement.switch`. The helper maps that boolean property to the `switch` attribute, as the upstream script expects. It runs only for this page and preserves a native property when one exists. It does not replace selector methods or expected results. These cases test `nwsapi` with that host provision, rather than establish native switch support.
 
@@ -137,6 +139,9 @@ Run `pnpm run check:wpt-candidates --write` to produce a review diff. This write
 
 Discovery uses broad text signals to avoid overlooking likely pages. The AST scope check then inspects scripts and dependencies. A clean scope result only means that no known blocker was detected. For example, `getElementsByClassName-whitespace-class-names.html` uses `querySelectorAll()` to prepare its fixture but asserts a different API. It should not inflate selector coverage. Media pages require media resources and browser state, and remain in the separate media lane. Missing paths listed from Git metadata identify areas outside the sparse checkout. They have not been content-audited. Discovery does not prove that every upstream selector test has been found.
 
-The current expansion retains eight slot-assignment tests, four WebKit pseudo-element tests, and seven selector-result collection tests. The separate live `childNodes` test is excluded because it exercises the host collection rather than our selector results. Narrow AST adapters remove four computed-style assertions from the slot page and two stylesheet tests plus one CSSOM assertion from the WebKit page. Exact edit counts and the scope check reject upstream changes that need another review. The namespace `nth-of-type` page asserts only computed color, so it remains excluded. Existing DOM regression tests cover namespace-sensitive sibling positions.
+The earlier expansion retains eight slot-assignment tests, four WebKit pseudo-element tests, and seven selector-result collection tests. The separate live `childNodes` test is excluded because it exercises the host collection rather than our selector results. Narrow AST adapters remove four computed-style assertions from the slot page and two stylesheet tests plus one CSSOM assertion from the WebKit page. Exact edit counts and the scope check reject upstream changes that need another review. The namespace `nth-of-type` page asserts only computed color, so it remains excluded. Existing DOM regression tests cover namespace-sensitive sibling positions.
 
 Additional checks of the pinned Git tree found custom-state `nth-of` and shadow-root pages outside the sparse checkout. Both assert computed colors rather than selector results. The inert/disabled page also reads computed style. They remain outside this DOM-only suite. The inventory flags selector and pseudo-element filenames outside the checkout for future review without downloading every WPT file.
+
+
+The [full-tree inventory](wpt-inventory.md) extends discovery beyond sparse filenames. It covers all 144,489 HTML, XHTML, XML, JavaScript, and module source files in the pinned Git tree. Its 6,742 candidates are review inputs, not a test count. Setup rejects an inventory from a different WPT revision. The latest additions cover 46 pages and 413 subtests, including grammar, custom-element states, shadow boundaries, direction and language inheritance, option disabledness, popover state, and draft heading offsets.

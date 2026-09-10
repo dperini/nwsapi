@@ -37,6 +37,20 @@ function test_valid_forgiving_selector(selector) {
   test_valid_selector(selector)
 }
 
+function selectorSyntaxAccepted(selector) {
+  let accepted
+  for (const [name, run] of selectorParserAPIs(selector)) {
+    let result = true
+    try { run() } catch (error) {
+      assert_equals(error.name, 'SyntaxError', name)
+      result = false
+    }
+    if (accepted === undefined) accepted = result
+    else assert_equals(result, accepted, name + ' agrees on selector validity')
+  }
+  return accepted
+}
+
 function test_invalid_selector(selector) {
   test(
     () => {

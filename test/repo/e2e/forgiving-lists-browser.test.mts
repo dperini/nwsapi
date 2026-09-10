@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
@@ -7,7 +8,10 @@ import { cases, markup } from '../unit/fixtures/forgiving-cases.mts'
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'Chromium agrees on every forgiving selector',
   async t => {
-    const browser = await chromium.launch({ headless: true })
+    const browser = await chromium.launch({
+      ...browserLaunchOptions(),
+      headless: true,
+    })
     t.onTestFinished(() => browser.close())
     const page = await browser.newPage()
     await page.setContent(markup)

@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
 import { compareTiming } from './compare/timing.mts'
@@ -111,7 +112,7 @@ if (values.node) {
     }) + '\n',
   )
 } else {
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   const rows = []
   const profiles = []
   try {

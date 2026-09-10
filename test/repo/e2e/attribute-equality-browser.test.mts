@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { test } from 'vitest'
@@ -8,7 +9,7 @@ test(
   'Chromium independently verifies HTML case rules',
   { skip: !process.env['NWSAPI_BROWSER'] },
   async () => {
-    const browser = await chromium.launch()
+    const browser = await chromium.launch(browserLaunchOptions())
     try {
       const page = await browser.newPage()
       await page.setContent(markup)

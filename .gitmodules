@@ -1,11 +1,10 @@
-# wpt-7aed663 sha256:9954c30501783f0c12ea5026a94cf988c8c5d2ac3ed51279cbfdd7476f92c393
+# merge_pr_62589 sha256:b00e229cb3ed89596d68d22c488abce63c18f308e172f5182d44e26465cf4a10
 [submodule "upstream/wpt"]
 	ignore = dirty
-	ref = 7aed6630812b20e6eec2a2e40594f8dfda036e00
+	ref = fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9
 	path = upstream/wpt
 	url = https://github.com/web-platform-tests/wpt.git
 	branch = master
 	shallow = true
-	sparse-checkout = common css/css-forms/parsing css/css-overflow/parsing css/css-pseudo/parsing css/css-shadow css/css-view-transitions/parsing css/selectors css/support dom/nodes html/semantics/selectors resources
-	verify = pnpm run test:upstream
-# no-release-tag: web-platform-tests publishes no release tags; pinned by ref on master
+	sparse-checkout = common css/css-conditional/js css/css-forms/parsing css/css-highlight-api css/css-multicol/parsing css/css-overflow/parsing css/css-pseudo/parsing css/css-shadow css/css-view-transitions/parsing css/selectors css/support custom-elements dom/nodes fullscreen/rendering html/browsers/browsing-the-web/scroll-to-fragid html/dom/elements/global-attributes html/resources html/semantics/forms html/semantics/popovers html/semantics/sections html/semantics/selectors inert quirks resources shadow-dom webvtt/api
+	verify = pnpm run test:wpt

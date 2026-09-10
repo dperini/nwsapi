@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
@@ -34,7 +35,7 @@ if (values.help) {
   )
   const coldCount = positiveInteger(values['cold-count'], 'cold-count', 100)
   const sources = await nativeSources()
-  const browser = await chromium.launch()
+  const browser = await chromium.launch(browserLaunchOptions())
   const output = path.resolve(REPO_ROOT, values.output)
   const { jsdom: _jsdom, ...sourceMetadata } = provenance()
   const metadata = {

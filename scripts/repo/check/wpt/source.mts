@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { parse } from 'acorn'
 import type { AnyNode } from 'acorn'
+import { tokenize, tokenTypes } from 'css-tree'
 import { JSDOM } from 'jsdom'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import {
@@ -40,7 +41,13 @@ export function wptFile(url: string, root = REPO_ROOT) {
   return file
 }
 
-export function scriptPage(url: string, source: string, reflectSwitch = false) {
+export function scriptPage(
+  url: string,
+  source: string,
+  reflectSwitch = false,
+  dependencies: string[] = [],
+  inline?: string,
+) {
   if (!url.endsWith('.window.html')) {
     throw new Error('Script wrappers require a .window.html path.')
   }
@@ -51,20 +58,245 @@ export function scriptPage(url: string, source: string, reflectSwitch = false) {
       comments.push(comment)
     },
   })
-  if (comments.some(comment => comment.trimStart().startsWith('META:'))) {
+  const metadata = comments
+    .map(comment => comment.trim())
+    .filter(comment => comment.startsWith('META:'))
+  if (
+    JSON.stringify(metadata) !==
+    JSON.stringify(dependencies.map(dependency => `META: script=${dependency}`))
+  ) {
     throw new Error('Review WPT script metadata before adding this wrapper.')
   }
   const script = url.slice(0, -5) + '.js'
   const setup = reflectSwitch
     ? '<script src="/_repo/test/repo/e2e/upstream/fixtures/switch-idl.mts"></script>'
     : ''
-  return `<!doctype html><meta charset="utf-8"><title>WPT selector script</title><script src="/resources/testharness.js"></script><script src="/resources/testharnessreport.js"></script><body>${setup}<script src="${script}"></script>`
+  const helpers = dependencies
+    .map(
+      dependency =>
+        `<script src="${new URL(dependency, 'http://wpt.test' + url).pathname}"></script>`,
+    )
+    .join('')
+  return `<!doctype html><meta charset="utf-8"><title>WPT selector script</title><script src="/resources/testharness.js"></script><script src="/resources/testharnessreport.js"></script><body>${setup}${helpers}${inline === undefined ? `<script src="${script}"></script>` : `<script>${inline}</script>`}`
+}
+
+export function namedTest(node: AnyNode) {
+  return node.type === 'ExpressionStatement' &&
+    node.expression.type === 'CallExpression' &&
+    node.expression.callee.type === 'Identifier' &&
+    ['test', 'promise_test'].includes(node.expression.callee.name)
+    ? node.expression
+    : undefined
+}
+
+export function testName(node: AnyNode | undefined) {
+  if (node?.type === 'Literal' && typeof node.value === 'string') {
+    return node.value
+  }
+  if (node?.type === 'TemplateLiteral' && node.expressions.length === 0) {
+    return node.quasis[0]?.value.cooked
+  }
+  return undefined
+}
+
+export function selectTests(
+  source: string,
+  selection: NonNullable<WptEntry['selectorTests']>,
+) {
+  const dom = new JSDOM(source)
+  const found: string[] = []
+  let total = 0
+  try {
+    for (const script of dom.window.document.scripts) {
+      if (script.src || !script.textContent) {
+        continue
+      }
+      const code = script.textContent
+      const ast = parse(code, { ecmaVersion: 'latest' })
+      const edits: SourceEdit[] = []
+      for (const node of ast.body) {
+        const call = namedTest(node)
+        if (!call) {
+          continue
+        }
+        total++
+        const title = testName(call.arguments[1])
+        if (
+          title !== undefined &&
+          title !== null &&
+          selection.names.includes(title)
+        ) {
+          found.push(title)
+        } else {
+          edits.push({ start: node.start, end: node.end, text: '' })
+        }
+      }
+      let result = code
+      for (const edit of edits.toReversed()) {
+        result = result.slice(0, edit.start) + result.slice(edit.end)
+      }
+      script.textContent = result
+    }
+    if (
+      total !== selection.total ||
+      JSON.stringify(found.toSorted()) !==
+        JSON.stringify(selection.names.toSorted())
+    ) {
+      throw new Error(
+        `Review upstream selector test selection: found ${total} tests and ${found.length} selected titles.`,
+      )
+    }
+    return dom.serialize()
+  } finally {
+    dom.window.close()
+  }
+}
+
+export function definedEdit(node: AnyNode): SourceEdit | undefined {
+  if (node.type === 'FunctionDeclaration' && node.id?.name === 'test_defined') {
+    const callback = node.body.body[0]
+    if (
+      callback?.type !== 'ExpressionStatement' ||
+      callback.expression.type !== 'CallExpression'
+    ) {
+      throw new Error('Review defined-state helper.')
+    }
+    const fn = callback.expression.arguments[0]
+    if (
+      fn?.type !== 'ArrowFunctionExpression' ||
+      fn.body.type !== 'BlockStatement' ||
+      fn.body.body.length !== 6
+    ) {
+      throw new Error('Review defined-state assertions.')
+    }
+    return {
+      start: fn.body.body[2]!.start,
+      end: fn.body.body[5]!.end,
+      text: '',
+    }
+  }
+  return undefined
+}
+
+export function dynamicDirectionEdit(node: AnyNode): SourceEdit | undefined {
+  if (
+    node.type === 'VariableDeclaration' &&
+    node.declarations.length === 1 &&
+    node.declarations[0]?.id.type === 'Identifier' &&
+    node.declarations[0].id.name === 'acs'
+  ) {
+    return { start: node.start, end: node.end, text: '' }
+  }
+  if (
+    node.type === 'ExpressionStatement' &&
+    node.expression.type === 'CallExpression' &&
+    node.expression.callee.type === 'Identifier' &&
+    node.expression.callee.name === 'assert_equals'
+  ) {
+    const actual = node.expression.arguments[0]
+    if (
+      actual?.type === 'MemberExpression' &&
+      actual.object.type === 'Identifier' &&
+      actual.object.name === 'acs'
+    ) {
+      return { start: node.start, end: node.end, text: '' }
+    }
+  }
+  return undefined
+}
+
+export function inertEdit(node: AnyNode): SourceEdit | undefined {
+  if (
+    node.type === 'ExpressionStatement' &&
+    node.expression.type === 'AssignmentExpression' &&
+    node.expression.left.type === 'Identifier' &&
+    node.expression.left.name === 'color'
+  ) {
+    return { start: node.start, end: node.end, text: '' }
+  }
+  return undefined
 }
 
 export interface SourceEdit {
   start: number
   end: number
   text: string
+}
+
+export function supportSelector(condition: string) {
+  if (!condition.startsWith('selector(')) {
+    throw new Error('Expected one selector() support condition.')
+  }
+  let depth = 0
+  let end = condition.length
+  tokenize(condition, (type, start, stop) => {
+    if (type === tokenTypes.Function || type === tokenTypes.LeftParenthesis) {
+      depth++
+    } else if (type === tokenTypes.RightParenthesis && --depth === 0) {
+      if (stop !== condition.length) {
+        throw new Error('Review compound support conditions separately.')
+      }
+      end = start
+    }
+  })
+  return condition.slice('selector('.length, end)
+}
+
+export function adaptSupports(source: string, expected: number) {
+  const dom = new JSDOM(source)
+  let count = 0
+  try {
+    for (const script of dom.window.document.scripts) {
+      if (script.src || !script.textContent) {
+        continue
+      }
+      const code = script.textContent
+      const edits: SourceEdit[] = []
+      walkAst(parse(code, { ecmaVersion: 'latest' }), node => {
+        if (
+          node.type !== 'CallExpression' ||
+          node.callee.type !== 'MemberExpression' ||
+          node.callee.object.type !== 'Identifier' ||
+          node.callee.object.name !== 'CSS' ||
+          node.callee.property.type !== 'Identifier' ||
+          node.callee.property.name !== 'supports'
+        ) {
+          return
+        }
+        const input = node.arguments[0]
+        if (
+          node.arguments.length !== 1 ||
+          input?.type !== 'Literal' ||
+          typeof input.value !== 'string'
+        ) {
+          throw new Error('Review changed CSS.supports selector input.')
+        }
+        edits.push({
+          start: node.start,
+          end: node.end,
+          text: `selectorSyntaxAccepted(${JSON.stringify(supportSelector(input.value))})`,
+        })
+      })
+      let result = code
+      for (const edit of edits.toSorted((a, b) => b.start - a.start)) {
+        result =
+          result.slice(0, edit.start) + edit.text + result.slice(edit.end)
+      }
+      count += edits.length
+      script.textContent = result
+    }
+    if (count !== expected) {
+      throw new Error(
+        `Review CSS.supports adaptation: expected ${expected} inputs, found ${count}.`,
+      )
+    }
+    const helper = dom.window.document.createElement('script')
+    helper.src = '/css/support/parsing-testcommon.js'
+    dom.window.document.head.prepend(helper)
+    return dom.serialize()
+  } finally {
+    dom.window.close()
+  }
 }
 
 export function formValidityEdit(node: AnyNode): SourceEdit | undefined {
@@ -198,6 +430,9 @@ export function adaptDomOnly(
   mode: NonNullable<WptEntry['domOnly']>,
 ) {
   const adapters = {
+    inert: { edit: inertEdit, expected: 1 },
+    defined: { edit: definedEdit, expected: 1 },
+    'dynamic-direction': { edit: dynamicDirectionEdit, expected: 3 },
     'form-validity': { edit: formValidityEdit, expected: 4 },
     'input-direction': { edit: directionEdit, expected: 3 },
     'slot-assignment': { edit: directionEdit, expected: 4 },
@@ -244,13 +479,23 @@ export function adaptDomOnly(
 export function pageSource(entry: WptEntry, root = REPO_ROOT) {
   if (entry.script) {
     const script = entry.path.slice(0, -5) + '.js'
-    return scriptPage(
+    const source = readFileSync(wptFile(script, root), 'utf8')
+    const page = scriptPage(
       entry.path,
-      readFileSync(wptFile(script, root), 'utf8'),
+      source,
       entry.reflectSwitch,
+      entry.scriptDependencies,
+      entry.domOnly ? source : undefined,
     )
+    return entry.domOnly ? adaptDomOnly(page, entry.domOnly) : page
   }
   const source = readFileSync(wptFile(entry.path, root), 'utf8')
+  if (entry.supportsInputs) {
+    return adaptSupports(source, entry.supportsInputs)
+  }
+  if (entry.selectorTests) {
+    return selectTests(source, entry.selectorTests)
+  }
   if (entry.selectorInputs) {
     return adaptSelectorInputs(source, entry.selectorInputs)
   }

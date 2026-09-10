@@ -39,16 +39,17 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - run: pnpm run test:package
-      - name: Install Playwright Chromium
+      - name: Install Chrome system dependencies
         run: |
-          # Playwright downloads its own Chromium. A stale system-Chrome index
+          # Setup installs pinned Chrome for Testing. A stale system-Chrome index
           # must not block installation of Ubuntu's browser dependencies.
           for source in /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.sources; do
             if [ -f "$source" ]; then
               sudo mv "$source" "$source.disabled"
             fi
           done
-          pnpm exec playwright install --with-deps chromium
+          pnpm exec playwright install-deps chromium
+          pnpm run setup:browser
       - run: pnpm run cover
       - run: pnpm run check:coverage
       - run: pnpm run test:browser

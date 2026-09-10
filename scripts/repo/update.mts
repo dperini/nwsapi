@@ -1,7 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process'
+import path from 'node:path'
 import { readFileSync } from 'node:fs'
 import { REPO_ROOT, TAZE_CLI_PATH, WORKSPACE_PATH } from './lib/paths.mts'
-import { isMainModule } from './lib/run-node.mts'
+import { isMainModule, runNode } from './lib/run-node.mts'
 import { collectPackumentFailures } from './lib/taze-output.mts'
 import { checkSoak, refreshSoak, soakPolicy } from './soak.mts'
 
@@ -42,6 +43,11 @@ export function updateDependencies(
   run = runTaze,
   install = installDependencies,
   prepare = () => (check ? checkSoak() : refreshSoak()),
+  wpt = (preview: boolean) =>
+    runNode(
+      path.join(REPO_ROOT, 'scripts/repo/update/wpt.mts'),
+      preview ? ['--check'] : [],
+    ),
 ) {
   if (
     !check &&
@@ -52,6 +58,7 @@ export function updateDependencies(
   }
   prepare()
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
+  wpt(check)
   if (!check) {
     install()
   }

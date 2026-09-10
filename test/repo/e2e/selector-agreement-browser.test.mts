@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 /* global document, window */
 // ^ the page.evaluate() callbacks below run inside Chromium, not in Node.
 import fs from 'node:fs'
@@ -29,7 +30,10 @@ let browser: Browser
 let page: Page
 beforeAll(async () => {
   if (process.env['NWSAPI_BROWSER']) {
-    browser = await chromium.launch({ headless: true })
+    browser = await chromium.launch({
+      ...browserLaunchOptions(),
+      headless: true,
+    })
   }
 })
 afterAll(async () => {

@@ -1,8 +1,11 @@
+import { browserLaunchOptions } from '../browser.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 
 const browser = await chromium.launch(
-  process.argv[2] ? { executablePath: process.argv[2] } : {},
+  process.argv[2]
+    ? { executablePath: process.argv[2] }
+    : browserLaunchOptions(),
 )
 try {
   const page = await browser.newPage()

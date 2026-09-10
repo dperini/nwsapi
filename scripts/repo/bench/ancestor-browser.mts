@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -46,7 +47,7 @@ const code = readFileSync('dist/nwsapi.js', 'utf8')
 const beforeCode = values.baseline
   ? readFileSync(values.baseline, 'utf8')
   : undefined
-const browser = await chromium.launch()
+const browser = await chromium.launch(browserLaunchOptions())
 const rows = []
 try {
   for (const fixtureDepths of [[0], [8], [0, 8], [8, 0]]) {

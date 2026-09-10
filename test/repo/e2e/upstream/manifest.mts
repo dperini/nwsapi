@@ -1,3 +1,4 @@
+import { additionalSelectors } from './selection.mts'
 /*
  * Curated list of upstream WPT files to run against dist/nwsapi.js.
  * Paths are root-absolute within the upstream/wpt checkout (pinned @ 7aed663).
@@ -38,9 +39,15 @@ export interface WptEntry {
   legacyMap?: boolean
   parsing?: boolean
   selectorInputs?: number
+  supportsInputs?: number
   script?: boolean
   reflectSwitch?: boolean
+  scriptDependencies?: string[]
+  selectorTests?: { names: string[]; total: number }
   domOnly?:
+    | 'inert'
+    | 'defined'
+    | 'dynamic-direction'
     | 'form-validity'
     | 'input-direction'
     | 'namespace-matches'
@@ -50,6 +57,7 @@ export interface WptEntry {
 }
 
 export const manifest: WptEntry[] = [
+  ...additionalSelectors,
   {
     path: '/dom/nodes/NodeList-Iterable.html',
     note: 'Seven checks of querySelectorAll result iteration and enumeration. The unrelated live childNodes test is excluded.',
@@ -66,6 +74,11 @@ export const manifest: WptEntry[] = [
     domOnly: 'slot-assignment',
   },
   ...[
+    '/css/css-highlight-api/highlight-pseudo-parsing.html',
+    '/webvtt/api/cue-pseudo-parsing.html',
+    '/css/css-multicol/parsing/column-pseudo-invalid.html',
+    '/css/css-multicol/parsing/column-pseudo-valid.html',
+    '/html/semantics/forms/the-select-element/customizable-select/select-picker-popover-open-invalid.tentative.html',
     '/css/css-forms/parsing/checkmark-pseudo-element.html',
     '/css/css-forms/parsing/picker-icon-pseudo-element.html',
     '/css/css-forms/parsing/picker-select-pseudo-element.html',
@@ -88,6 +101,12 @@ export const manifest: WptEntry[] = [
     note: 'Upstream validity inputs adapted to installed selector APIs. CSSOM serialization is excluded.',
     parsing: true,
   })),
+  {
+    path: '/css/css-highlight-api/custom-highlight-universal-parsing-and-computed-style.tentative.html',
+    note: 'Eight selector validity inputs run. Computed-style assertions are excluded.',
+    parsing: true,
+    selectorInputs: 8,
+  },
   {
     path: '/css/css-shadow/part/pseudo-elements-after-part.html',
     note: 'Only the 23 top-level selector validity inputs run. Rendering assertions are excluded.',

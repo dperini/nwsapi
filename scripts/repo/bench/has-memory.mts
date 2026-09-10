@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../browser.mts'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -23,7 +24,7 @@ const rounds = Number(values.rounds)
 assert(Number.isSafeInteger(rounds) && rounds > 0 && rounds <= 10)
 const files = [values.baseline, values.candidate]
 const sources = files.map(file => readFileSync(file, 'utf8'))
-const browser = await chromium.launch()
+const browser = await chromium.launch(browserLaunchOptions())
 const samples = []
 try {
   for (let round = 0; round < rounds; ++round) {

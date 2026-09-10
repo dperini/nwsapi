@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import type * as NodeFs from 'node:fs'
 import type * as NodePath from 'node:path'
 import type * as Playwright from '@playwright/test'
@@ -38,7 +39,10 @@ for (const newline of ['\n', '\r', '\r\n', '\f'] as const) {
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'attribute strings agree with native Chromium on cold and cached calls',
   async t => {
-    const browser = await chromium.launch({ headless: true })
+    const browser = await chromium.launch({
+      ...browserLaunchOptions(),
+      headless: true,
+    })
     t.onTestFinished(() => browser.close())
     const page = await browser.newPage()
     await page.setContent(

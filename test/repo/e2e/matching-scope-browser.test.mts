@@ -1,3 +1,4 @@
+import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { expect, test } from 'vitest'
@@ -7,7 +8,7 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
   async t => {
     const executablePath = process.env['NWSAPI_BROWSER_EXECUTABLE']
     const browser = await chromium.launch(
-      executablePath ? { executablePath } : {},
+      executablePath ? { executablePath } : browserLaunchOptions(),
     )
     t.onTestFinished(() => browser.close())
     const page = await browser.newPage()
