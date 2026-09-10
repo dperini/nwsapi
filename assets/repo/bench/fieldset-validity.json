@@ -1,0 +1,63 @@
+{
+  "node": "v26.5.0",
+  "browser": "151.0.7922.34",
+  "engineHash": "827ac9a0fa29e8e5e7588984ea7b986d1c7d0ab7855a93f76e92331d97797475",
+  "html": "<fieldset disabled><legend><input id=legend required value=ok></legend><input id=filled required value=ok><input id=empty required></fieldset>",
+  "methodology": "Disabled fieldset with populated and empty required inputs and a first-legend control. Compare public native and engine selection by element ID. No timing claim.",
+  "jsdom": [
+    {
+      "selector": "input:disabled",
+      "host": [
+        "filled",
+        "empty"
+      ],
+      "engine": [
+        "filled",
+        "empty"
+      ]
+    },
+    {
+      "selector": "input:valid",
+      "host": [
+        "legend",
+        "filled",
+        "empty"
+      ],
+      "engine": [
+        "legend"
+      ]
+    },
+    {
+      "selector": "input:invalid",
+      "host": [],
+      "engine": []
+    }
+  ],
+  "chromium": [
+    {
+      "selector": "input:disabled",
+      "host": [
+        "filled",
+        "empty"
+      ],
+      "engine": [
+        "filled",
+        "empty"
+      ]
+    },
+    {
+      "selector": "input:valid",
+      "host": [
+        "legend"
+      ],
+      "engine": [
+        "legend"
+      ]
+    },
+    {
+      "selector": "input:invalid",
+      "host": [],
+      "engine": []
+    }
+  ]
+}
