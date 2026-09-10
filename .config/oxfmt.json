@@ -14,7 +14,7 @@
   "singleAttributePerLine": false,
   "overrides": [
     {
-      "files": ["**/src/modules/*.mts"],
+      "files": ["**/src/extensions/*.mts"],
       "options": { "quoteProps": "preserve" }
     }
   ],

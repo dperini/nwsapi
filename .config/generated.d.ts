@@ -2,9 +2,9 @@
 // type checks independent of the generated JavaScript file.
 declare module '*/dist/nwsapi.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
-  type AdapterConstructor = typeof import('*/dist/dom-selector.js').default
+  type Adapter = typeof import('*/dist/adapter/dom-selector.js').default
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
-  type HostReaders = import('../src/internal/host.d.ts').HostReaders
+  type HostReaders = import('../src/adapter/host.d.ts').HostReaders
   interface Factory {
     (host: {
       document: Document
@@ -12,13 +12,13 @@ declare module '*/dist/nwsapi.js' {
       Element?: typeof Element
       hostReaders?: HostReaders
     }): typeof NW.Dom
-    readonly DOMSelector: AdapterConstructor
+    readonly DOMSelector: Adapter
   }
   const factory: Factory
   export default factory
 }
 
-declare module '*/dist/dom-selector.js' {
+declare module '*/dist/adapter/dom-selector.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
   type QueryCollection = import('./runtime.d.ts').NwsapiCollection
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.

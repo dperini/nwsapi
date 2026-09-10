@@ -24,7 +24,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     'src/external/unicode.js',
     'src/external/unicode.d.ts',
     'src/adapter/dom-selector.mts',
-    'src/modules/nwsapi-jquery.mts',
+    'src/extensions/nwsapi-jquery.mts',
     'scripts/repo/lint.mts',
     'scripts/repo/gen/coverage-badge.mts',
     'test/repo/integration/lint-scope.test.mts',

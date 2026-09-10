@@ -116,14 +116,18 @@
     "no-console": "off",
     "typescript/no-floating-promises": "error",
     "typescript/no-misused-promises": "error",
-    "typescript/await-thenable": "error"
+    "typescript/await-thenable": "error",
+    "nwsapi/max-comment-block-lines": "error",
+    "nwsapi/no-comment-glob-star-slash": "error",
+    "nwsapi/no-process-chdir": "error",
+    "nwsapi/no-minified-bundler-output": "error"
   },
   "overrides": [
     {
       "files": [
         "**/src/engine/nwsapi.mts",
-        "**/src/internal/direction.mts",
-        "**/src/modules/*.mts"
+        "**/src/engine/direction.mts",
+        "**/src/extensions/*.mts"
       ],
       "rules": {
         "compat/compat": "error"
@@ -133,7 +137,7 @@
       "files": [
         "**/src/adapter/dom-selector.mts",
         "**/src/engine/nwsapi.mts",
-        "**/src/modules/nwsapi-legacy.mts"
+        "**/src/extensions/nwsapi-legacy.mts"
       ],
       "rules": {
         "typescript/consistent-type-imports": "off"
@@ -167,9 +171,18 @@
         "typescript/no-unnecessary-type-conversion": "off",
         "typescript/unbound-method": "off",
         "eslint/prefer-const": "off",
-        "eslint/complexity": "off",
         "eslint/no-shadow": "off",
         "typescript/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": [
+        "**/src/engine/nwsapi.mts",
+        "**/src/adapter/dom-selector.mts",
+        "**/src/extensions/nwsapi-legacy.mts"
+      ],
+      "rules": {
+        "eslint/complexity": "off"
       }
     }
   ]

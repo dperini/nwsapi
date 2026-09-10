@@ -31,7 +31,7 @@ for (const name of externalEntries) {
 // Bundle only the direction helpers and their three Unicode bidi classes.
 // The IIFE lives inside the UMD wrapper, shared by every engine instance.
 const direction = await build({
-  input: './src/internal/direction.mts',
+  input: './src/engine/direction.mts',
   platform: 'browser',
   plugins: [externalLoaderPlugin()],
   write: false,
@@ -48,6 +48,9 @@ if (!directionCode || directionCode.type !== 'chunk') {
 // Transform each file as a script so its UMD, CommonJS, or global registration
 // stays intact. Do not bundle the lazy css-tree peer or change module wrappers.
 for (const entry of entries) {
+  if (entry.source === 'bin/nwsapi.mts') {
+    continue
+  }
   let source = await readFile(entry.source, 'utf8')
   if (entry.source === 'src/engine/nwsapi.mts') {
     const marker = '/* @bundle:direction */ {}'
@@ -85,15 +88,15 @@ const legacyPath = fileURLToPath(
   new URL('../../../dist/modules/nwsapi-legacy.js', import.meta.url),
 )
 await build({
-  input: './scripts/repo/cli.mts',
+  input: './bin/nwsapi.mts',
   platform: 'node',
   external: ['jsdom', 'css-tree', enginePath, legacyPath],
   output: {
-    file: './dist/cli.js',
+    file: './dist/bin/nwsapi.js',
     format: 'cjs',
     paths: {
-      [enginePath]: './nwsapi.js',
-      [legacyPath]: './modules/nwsapi-legacy.js',
+      [enginePath]: '../nwsapi.js',
+      [legacyPath]: '../modules/nwsapi-legacy.js',
     },
   },
 })

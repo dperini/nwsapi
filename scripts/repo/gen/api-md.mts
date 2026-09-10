@@ -355,7 +355,7 @@ export function renderApiMarkdown(
           name,
           signature(name, value, traversalSource),
           traversalDescriptions[name],
-          'src/modules/nwsapi-traversal.mts',
+          'src/extensions/nwsapi-traversal.mts',
           node.loc!.start.line,
         ),
       }

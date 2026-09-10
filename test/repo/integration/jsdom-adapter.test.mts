@@ -235,7 +235,11 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
     : require.resolve('../../../dist/nwsapi.js')
-  const adapterPath = createRequire(entry).resolve('./dom-selector.js')
+  const adapterPath = createRequire(entry).resolve(
+    process.env['JSDOM_PACKAGE']
+      ? './dom-selector.js'
+      : './adapter/dom-selector.js',
+  )
   const copy: { exports: typeof DOMSelector | undefined } = {
     exports: undefined,
   }
@@ -473,7 +477,11 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const entry = process.env['JSDOM_PACKAGE']
     ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
     : require.resolve('../../../dist/nwsapi.js')
-  const path = createRequire(entry).resolve('./dom-selector.js')
+  const path = createRequire(entry).resolve(
+    process.env['JSDOM_PACKAGE']
+      ? './dom-selector.js'
+      : './adapter/dom-selector.js',
+  )
   // Save the method before replacing it; the call below supplies its receiver.
   // oxlint-disable-next-line typescript/unbound-method -- Preserve the original receiver.
   const original = Module.prototype.require
@@ -483,7 +491,10 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const requireSpy = vi
     .spyOn(Module.prototype, 'require')
     .mockImplementation(function (this: ModuleInstance, name) {
-      if (this.filename === path && name === './nwsapi.js') {
+      if (
+        this.filename === path &&
+        name === (process.env['JSDOM_PACKAGE'] ? './nwsapi.js' : '../nwsapi.js')
+      ) {
         factoryLoads++
       }
       if (this.filename === path && name === 'css-tree') {

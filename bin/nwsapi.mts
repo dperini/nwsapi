@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-// oxlint-disable-next-line typescript/consistent-type-imports -- Keep this CommonJS launcher a script.
-type Cli = typeof import('../scripts/repo/cli.mts')
-const { runCli } = require('../cli.js') as Cli
+import { runCli } from '../scripts/repo/cli.mts'
+
 runCli(process.argv.slice(2))
   .then(output => console.log(output))
   .catch((error: unknown) => {

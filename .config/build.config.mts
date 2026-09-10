@@ -42,22 +42,22 @@ export const entries = [
     published: 'src/nwsapi.js',
   },
   {
-    source: 'src/modules/nwsapi-legacy.mts',
+    source: 'src/extensions/nwsapi-legacy.mts',
     output: 'dist/modules/nwsapi-legacy.js',
     published: 'src/modules/nwsapi-legacy.js',
   },
   {
     source: 'src/adapter/dom-selector.mts',
-    output: 'dist/dom-selector.js',
+    output: 'dist/adapter/dom-selector.js',
     published: 'src/dom-selector.js',
   },
   {
-    source: 'src/modules/nwsapi-jquery.mts',
+    source: 'src/extensions/nwsapi-jquery.mts',
     output: 'dist/modules/nwsapi-jquery.js',
     published: 'src/modules/nwsapi-jquery.js',
   },
   {
-    source: 'src/modules/nwsapi-traversal.mts',
+    source: 'src/extensions/nwsapi-traversal.mts',
     output: 'dist/modules/nwsapi-traversal.js',
     published: 'src/modules/nwsapi-traversal.js',
   },
@@ -67,7 +67,8 @@ export const browserOutputs = new Set<string>(
   entries
     .filter(
       ({ source }) =>
-        source === 'src/engine/nwsapi.mts' || source.startsWith('src/modules/'),
+        source === 'src/engine/nwsapi.mts' ||
+        source.startsWith('src/extensions/'),
     )
     .map(({ output }) => output),
 )
@@ -76,7 +77,6 @@ export const externalEntries = ['unicode'] as const
 
 export const packageFiles = [
   ...entries.map(({ output, published }) => ({ output, published })),
-  { output: 'dist/cli.js', published: 'dist/cli.js' },
   ...externalEntries.flatMap(name => [
     {
       output: `dist/external/${name}.js`,
@@ -99,4 +99,7 @@ export const obsoleteOutputs = [
   'src/modules/nwsapi-jquery.js',
   'src/modules/nwsapi-traversal.js',
   'dist/nwsapi.min.js',
+  'dist/cli.js',
+  'dist/bin/cli.js',
+  'dist/dom-selector.js',
 ]

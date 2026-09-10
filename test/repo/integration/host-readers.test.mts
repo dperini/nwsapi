@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
 import { test } from 'vitest'
-import Adapter from '../../../dist/dom-selector.js'
+import Adapter from '../../../dist/adapter/dom-selector.js'
 
 const require = createRequire(import.meta.url)
 const idlUtils = require('jsdom/lib/generated/idl/utils.js') as {

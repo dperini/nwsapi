@@ -1,6 +1,6 @@
 'use strict'
 
-type HostReaders = import('../internal/host.d.ts').HostReaders
+type HostReaders = import('./host.d.ts').HostReaders
 type IdlUtils = {
   wrapperForImpl(node: unknown): Node
   implForWrapper?(node: Node): Element | undefined
@@ -126,7 +126,7 @@ const createNwsapi: (host: {
   document: Document
   DOMException: typeof DOMException
   hostReaders?: HostReaders | undefined
-}) => Engine = require('./nwsapi.js')
+}) => Engine = require('../nwsapi.js')
 type QueryOptions = { noexcept?: boolean | undefined }
 type AdapterDocument = Document & { [DOCUMENT_STATE]?: State }
 type State = {
@@ -178,7 +178,7 @@ function configureEngine(
   clear?: boolean,
 ) {
   if (options['LEGACY'] && typeof engine.registerLegacyHooks === 'function') {
-    const install = require('./modules/nwsapi-legacy.js') as (
+    const install = require('../modules/nwsapi-legacy.js') as (
       engine: Engine,
     ) => Engine
     install(engine)

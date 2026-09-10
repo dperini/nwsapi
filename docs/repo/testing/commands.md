@@ -127,6 +127,6 @@ Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evid
 
 ## Source and package layout
 
-The engine entry is `src/engine/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Shared internal helpers remain in `src/internal/`. Optional modules remain in `src/modules/`, and external loaders and declarations remain in `src/external/`.
+The engine entry is `src/engine/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Direction helpers and legacy types live with the engine. Host-reader types live with the adapter. Optional extensions live in `src/extensions/`, and external loaders and declarations remain in `src/external/`.
 
-The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/dom-selector.js`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.
+The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/adapter/dom-selector.js`, `dist/bin/`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.

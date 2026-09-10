@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
-import Adapter from '../../../dist/dom-selector.js'
+import Adapter from '../../../dist/adapter/dom-selector.js'
 import { createLegacyEngine } from '../common/legacy.mts'
 
 // https://github.com/asamuzaK/domSelector/commit/c5b01a422d1520a7e24773cf7c45a43f4accd4e0

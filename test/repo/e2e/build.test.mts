@@ -129,7 +129,7 @@ test('build output stays in dist and has no minified artifact', () => {
 
 test('adapter retains its existing ES2019 CommonJS syntax', () => {
   const code = readFileSync(
-    new URL('../../../dist/dom-selector.js', import.meta.url),
+    new URL('../../../dist/adapter/dom-selector.js', import.meta.url),
     'utf8',
   )
   parse(code, { ecmaVersion: 2019, sourceType: 'script' })

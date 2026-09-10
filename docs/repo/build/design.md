@@ -37,3 +37,11 @@ Run `pnpm run package` to build and pack the library. `scripts/repo/build/packag
 The mapping in `.config/build.config.mts` preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. It also places the executable at `bin/nwsapi.js`. The staging step parses generated JavaScript and adjusts relative module references for those published paths. Local files remain runnable under `dist/`.
 
 Direct packing from the repository is rejected because it bypasses this mapping. Package tests install the staged tarball into a separate temporary project, check its file list, run its executable, and exercise the `jsdom` adapter.
+
+## Authored sources and local outputs
+
+Engine code and direction helpers live in `src/engine/`. The adapter and its host types live in `src/adapter/`. Optional selector extensions live in `src/extensions/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+
+The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
+
+The CLI launcher and implementation are bundled together as `dist/bin/nwsapi.js`. There is no separate `cli.js` runtime dependency. The packed executable remains `bin/nwsapi.js`, and its help works without repository sources or optional peers. Packing translates relative module references to the published file mapping.

@@ -73,7 +73,7 @@ export function summarizeProfile(profile: Profiler.Profile) {
       if (
         url.includes('/dom-selector/') ||
         url.endsWith('/dist/nwsapi.js') ||
-        url.endsWith('/dist/dom-selector.js')
+        url.endsWith('/dist/adapter/dom-selector.js')
       ) {
         selector += delta
         break

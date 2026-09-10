@@ -1,3 +1,7 @@
+import maxCommentBlockLines from './rules/max-comment-block-lines/index.mts'
+import noCommentGlobStarSlash from './rules/no-comment-glob-star-slash/index.mts'
+import noProcessChdir from './rules/no-process-chdir/index.mts'
+import noMinifiedBundlerOutput from './rules/no-minified-bundler-output/index.mts'
 import type { ForOfStatement } from 'acorn'
 
 export const noForOf = {
@@ -22,5 +26,11 @@ export const noForOf = {
 
 export default {
   meta: { name: 'nwsapi' },
-  rules: { 'no-for-of': noForOf },
+  rules: {
+    'no-for-of': noForOf,
+    'max-comment-block-lines': maxCommentBlockLines,
+    'no-comment-glob-star-slash': noCommentGlobStarSlash,
+    'no-process-chdir': noProcessChdir,
+    'no-minified-bundler-output': noMinifiedBundlerOutput,
+  },
 }

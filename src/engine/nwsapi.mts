@@ -16,9 +16,9 @@
  */
 
 // Keep the UMD source a script. Runtime imports would change its wrapper.
-type LegacyHooks = import('../internal/legacy.d.ts').LegacyHooks
-type LegacyHookFactory = import('../internal/legacy.d.ts').LegacyHookFactory
-type LegacyReaders = import('../internal/legacy.d.ts').LegacyReaders
+type LegacyHooks = import('./legacy.d.ts').LegacyHooks
+type LegacyHookFactory = import('./legacy.d.ts').LegacyHookFactory
+type LegacyReaders = import('./legacy.d.ts').LegacyReaders
 
 type EngineContext = (Document | Element | DocumentFragment) &
   Partial<
@@ -41,7 +41,7 @@ type EngineElement = Element &
     style?: CSSStyleDeclaration
     open?: boolean
   }
-type HostReaders = import('../internal/host.d.ts').HostReaders
+type HostReaders = import('../adapter/host.d.ts').HostReaders
 type EngineGlobal = typeof globalThis & {
   NW?: { Dom?: unknown }
   hostReaders?: HostReaders
@@ -535,7 +535,7 @@ interface Primordials {
     module.exports = factory
     primordials.ObjectDefineProperty(module.exports, 'DOMSelector', {
       get: function () {
-        return require('./dom-selector.js')
+        return require('./adapter/dom-selector.js')
       },
     })
   } else if (typeof define == 'function' && define['amd']) {

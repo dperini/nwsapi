@@ -37,7 +37,6 @@ try {
       'LICENSE',
       'README.md',
       'bin/nwsapi.js',
-      'dist/cli.js',
       'dist/external/unicode.js',
       'dist/external/unicode.d.ts',
       'src/modules/nwsapi-legacy.js',

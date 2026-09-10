@@ -46,7 +46,7 @@ export function combineCoverage(
     normalizeCoverageLocations(nodeData),
   )
   const engine = path.join(root, 'dist/nwsapi.js')
-  const adapter = path.join(root, 'dist/dom-selector.js')
+  const adapter = path.join(root, 'dist/adapter/dom-selector.js')
   if (!wpt.files().includes(engine)) {
     throw new Error('Missing WPT engine coverage')
   }

@@ -13,3 +13,10 @@
 - Use `perf/` for performance and `testing/` for testing in both trees. Use descriptive document names instead of section README files.
 - Keep measured outcomes, commands, and performance journals with the repository. Shared measurement and testing practices belong in the fleet tree.
 - Keep benchmark measurements and generated reports under `assets/repo/bench/`, tracked by Git. Generate derived reports from recorded inputs rather than storing result JSON under `docs/`.
+
+# Style
+
+- Follow [code style practices](docs/fleet/style/practices.md) and [comment practices](docs/fleet/style/comments.md).
+- Use braces and multiline bodies for conditionals and loops. Keep function complexity at or below 15 unless an existing, documented compatibility exception applies.
+- Test behavior or parsed structures. Never test Markdown wording or source text. A stable heading or marker requires a local allowance with a reason.
+- Keep new explanatory comments within two lines when possible. Explain the constraint in full sentences for a junior developer. Put investigation narratives in documentation.

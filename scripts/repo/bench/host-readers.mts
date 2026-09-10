@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
-import type Adapter from '../../../dist/dom-selector.js'
+import type Adapter from '../../../dist/adapter/dom-selector.js'
 import { components } from './documents.mts'
 import { fixture, selectors, checkResults } from './compare/fixture.mts'
 import { compareTiming } from './compare/timing.mts'
@@ -18,8 +18,8 @@ const {
 } = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),
-  require('../../../dist/dom-selector.js'),
-  require('../../../dist/dom-selector.js'),
+  require('../../../dist/adapter/dom-selector.js'),
+  require('../../../dist/adapter/dom-selector.js'),
 ]
 const cases = [
   ...['[data-testid]', '[data-testid="btn-150"]'].flatMap(selector =>
@@ -101,7 +101,7 @@ writeFileSync(
         path.join(baseline, 'nwsapi.js'),
         'dist/nwsapi.js',
         path.join(baseline, 'dom-selector.js'),
-        'dist/dom-selector.js',
+        'dist/adapter/dom-selector.js',
       ].map(file =>
         createHash('sha256').update(readFileSync(file)).digest('hex'),
       ),

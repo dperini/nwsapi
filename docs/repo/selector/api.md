@@ -182,10 +182,10 @@ These helpers navigate an existing DOM; they do not create a DOM or replace nati
 
 | Method | Result |
 | --- | --- |
-| [`down(element, expr)`](../../../src/modules/nwsapi-traversal.mts#L138) | Finds a matching descendant or indexed element. The starting element can match. |
-| [`next(element, expr)`](../../../src/modules/nwsapi-traversal.mts#L139) | Finds a following sibling by selector or index. |
-| [`previous(element, expr)`](../../../src/modules/nwsapi-traversal.mts#L140) | Finds a preceding sibling by selector or index. |
-| [`up(element, expr)`](../../../src/modules/nwsapi-traversal.mts#L137) | Finds an ancestor by selector or index. |
+| [`down(element, expr)`](../../../src/extensions/nwsapi-traversal.mts#L138) | Finds a matching descendant or indexed element. The starting element can match. |
+| [`next(element, expr)`](../../../src/extensions/nwsapi-traversal.mts#L139) | Finds a following sibling by selector or index. |
+| [`previous(element, expr)`](../../../src/extensions/nwsapi-traversal.mts#L140) | Finds a preceding sibling by selector or index. |
+| [`up(element, expr)`](../../../src/extensions/nwsapi-traversal.mts#L137) | Finds an ancestor by selector or index. |
 
 Traversal sibling and ancestor indexes are zero-based: omitted or `0` returns the nearest element. `down()` without an argument (or with `null`) returns the first element child; `down(element, 0)` returns the starting element and positive indexes walk descendants in document order, starting at `1`. Selector arguments may match the starting element for `down()`. Missing matches return `null`.
 

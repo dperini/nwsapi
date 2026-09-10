@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
-import DOMSelector from '../../../dist/dom-selector.js'
+import DOMSelector from '../../../dist/adapter/dom-selector.js'
 import { components } from './documents.mts'
 
 // PRs 311, 335, 337 and 343: fixed existing attribute cases, public DOM only.
@@ -114,7 +114,7 @@ writeFileSync(
   JSON.stringify(
     {
       node: process.version,
-      hashes: ['dist/nwsapi.js', 'dist/dom-selector.js'].map(file => ({
+      hashes: ['dist/nwsapi.js', 'dist/adapter/dom-selector.js'].map(file => ({
         file,
         sha256: createHash('sha256').update(readFileSync(file)).digest('hex'),
       })),

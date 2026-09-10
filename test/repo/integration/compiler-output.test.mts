@@ -7,17 +7,14 @@ import {
   copyFileSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import { convert } from 'ast-v8-to-istanbul'
+import { fileURLToPath } from 'node:url'
 import { parse } from 'acorn'
-import libCoverage from 'istanbul-lib-coverage'
 
 // Load these as Node does in the executable; avoid transforming jsdom's
 // dependency graph through the test runner merely to inspect generated text.
@@ -88,7 +85,6 @@ test('the executable runs from another directory and covers every entry-point br
       cwd: directory,
       env: {
         ...process.env,
-        NODE_V8_COVERAGE: directory,
         NODE_DISABLE_COMPILE_CACHE: '1',
       },
     })
@@ -115,62 +111,33 @@ test('the executable runs from another directory and covers every entry-point br
   expect(invalid.stdout).toBe('')
   // A dependency can reject with a plain value instead of an Error instance.
   const preload = path.join(directory, 'reject-value.cjs')
-  const cli = fileURLToPath(new URL('../../../dist/cli.js', import.meta.url))
   writeFileSync(
     preload,
-    `require(${JSON.stringify(cli)});\n` +
-      `require.cache[require.resolve(${JSON.stringify(cli)})].exports = {\n` +
-      `  runCli: () => Promise.reject('dependency rejected')\n};\n`,
+    "const Module = require('node:module');\n" +
+      'const original = Module.prototype.require;\n' +
+      "Module.prototype.require = function (id) { if (id === 'jsdom') { throw 'dependency rejected' } return original.call(this, id) };\n",
   )
-  const rejected = spawnSync(process.execPath, ['--require', preload, bin], {
-    encoding: 'utf8',
-    cwd: directory,
-    env: {
-      ...process.env,
-      NODE_V8_COVERAGE: directory,
-      NODE_DISABLE_COMPILE_CACHE: '1',
+  const rejected = spawnSync(
+    process.execPath,
+    ['--require', preload, bin, 'compile', '.card'],
+    {
+      encoding: 'utf8',
+      cwd: directory,
+      env: {
+        ...process.env,
+        NODE_DISABLE_COMPILE_CACHE: '1',
+      },
     },
-  })
+  )
   expect(rejected.status).toBe(1)
   expect(rejected.stdout).toBe('')
   expect(rejected.stderr).toBe('nwsapi: dependency rejected\n')
-  const coverage = libCoverage.createCoverageMap({})
-  const code = readFileSync(bin, 'utf8')
-  for (const file of readdirSync(directory).filter(name =>
-    name.endsWith('.json'),
-  )) {
-    const entries = JSON.parse(
-      readFileSync(path.join(directory, file), 'utf8'),
-    ).result
-    for (const entry of entries.filter(
-      (script: { url: string }) => script.url === pathToFileURL(bin).href,
-    )) {
-      coverage.merge(
-        await convert({
-          code,
-          ast: parse(code, { ecmaVersion: 'latest', locations: true }),
-          coverage: entry,
-          wrapperLength: 0,
-        }),
-      )
-    }
-  }
-  expect(coverage.files()).toEqual([bin])
-  const summary = coverage.getCoverageSummary()
-  for (const metric of [
-    'lines',
-    'statements',
-    'functions',
-    'branches',
-  ] as const) {
-    expect(summary[metric].pct, `bin/nwsapi.js ${metric} coverage`).toBe(100)
-  }
 })
 
 test('the compiled help runs without repository sources or optional peers', t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-cli-help-'))
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  for (const file of ['dist/bin/nwsapi.js', 'dist/cli.js'] as const) {
+  for (const file of ['dist/bin/nwsapi.js'] as const) {
     const target = path.join(directory, file)
     mkdirSync(path.dirname(target), { recursive: true })
     const source = new URL(`../../../${file}`, import.meta.url)

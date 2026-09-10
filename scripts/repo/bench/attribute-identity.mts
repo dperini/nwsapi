@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
 import type factory from '../../../dist/nwsapi.js'
-import type Adapter from '../../../dist/dom-selector.js'
+import type Adapter from '../../../dist/adapter/dom-selector.js'
 import { components } from './documents.mts'
 import { compareTiming } from './compare/timing.mts'
 

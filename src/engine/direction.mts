@@ -47,6 +47,12 @@ export function excluded(element: Element): boolean {
   )
 }
 
+export function slotHost(element: Element): Element | null {
+  return htmlName(element) === 'slot' && element.getRootNode
+    ? shadowHost(element.getRootNode())
+    : null
+}
+
 // Walk the live DOM without retaining text, nodes, or mutation-sensitive results.
 export function containedText(
   root: Element,
@@ -66,8 +72,8 @@ export function containedText(
     } else if (node.nodeType === 1) {
       const element = node as Element
       skip = element !== root && excluded(element)
-      if (!skip && htmlName(element) === 'slot' && element.getRootNode) {
-        const host = shadowHost(element.getRootNode())
+      if (!skip) {
+        const host = slotHost(element)
         if (host) {
           return directionality(host)
         }
