@@ -54,3 +54,7 @@ dom.window.close()
 The benchmark uses a `file:` override pointing to the freshly packed checkout because the measured build may not yet be published. It exercises the package's published file layout and peer resolution. For pnpm, put the same override under `overrides` in `pnpm-workspace.yaml`, as shown in the [installation instructions](../../../README.md#in-jsdom).
 
 The comparison consumer keeps the same dependencies and uses `"@asamuzakjp/dom-selector": "9.1.1"` as its override. Neither library is patched. The 36 timing selectors do not include `#null` or `.null`, which are affected by [PR #344](https://github.com/asamuzaK/domSelector/pull/344). Missing-attribute behavior remains covered by the correctness suite.
+
+## Duplicate IDs and host helpers
+
+`jsdom` supports multiple elements with the same ID. `getElementById()` returns one element, while `querySelectorAll()` must return every matching element in tree order. Supplying `idlUtils` and `domSymbolTree` enables host readers but does not guarantee unique IDs. The adapter therefore keeps `IDS_DUPES` enabled. The helper integration tests cover duplicate IDs in HTML and XML, including reordering, ID changes, removal, and detached fragments.
