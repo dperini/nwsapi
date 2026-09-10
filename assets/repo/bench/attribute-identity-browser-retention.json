@@ -1,0 +1,46 @@
+{
+  "browser": "151.0.7922.34",
+  "hashes": [
+    "2aefabaaffbe9a92c12edc1a0aed879df4908d9609c00fb0ac3bdc259e935fa4",
+    "827ac9a0fa29e8e5e7588984ea7b986d1c7d0ab7855a93f76e92331d97797475"
+  ],
+  "methodology": "Three rotating rounds with fresh pages. Forty queried wildcard contexts per page, unrelated attribute mutation and predicate change, then detach. Keep engine alive, release public scope, and force collection in four separate protocol calls. Observe two weak references per context. No retained-byte claim.",
+  "rows": [
+    {
+      "round": 0,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 0,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 1,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "variant": 0,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    },
+    {
+      "round": 2,
+      "variant": 1,
+      "observedNodes": 80,
+      "survivingNodes": 0
+    }
+  ]
+}

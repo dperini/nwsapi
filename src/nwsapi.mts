@@ -1501,6 +1501,7 @@ interface Primordials {
       context: EngineContext,
       length?: number | undefined,
       small?: boolean | undefined,
+      identity?: object | undefined,
     ) {
       var state: CollectionSnapshotState | undefined,
         root,
@@ -1508,11 +1509,12 @@ interface Primordials {
         cached,
         i,
         result
-      if (collectionStates && (state = collectionStates.get(nodes))) {
+      identity = identity || nodes
+      if (collectionStates && (state = collectionStates.get(identity))) {
         if (state.observer!.takeRecords().length) {
           state.copies = createWeakMap()!
         }
-        cached = state.copies.get(nodes)
+        cached = state.copies.get(identity)
         if (
           cached &&
           state.document.deref() === (context.ownerDocument || context)
@@ -1572,22 +1574,26 @@ interface Primordials {
         )
       }
       collectionStates || (collectionStates = createWeakMap())
-      collectionStates!.set(nodes, state)
+      collectionStates!.set(identity, state)
       // oxlint-disable-next-line unicorn/no-new-array -- dense native collection
       result = new Array(length)
       for (i = 0; i < length; ++i) {
         result[i] = nodes[i]
       }
-      state.copies.set(nodes, result)
+      state.copies.set(identity, result)
       return result
     },
     collectionCopy = function (
       nodes: ArrayLike<Element>,
       context: EngineContext,
       snapshot?: ArrayLike<Element>,
+      identity?: object | undefined,
     ) {
       snapshot =
-        snapshot || (Config.LEGACY ? nodes : collectionSnapshot(nodes, context))
+        snapshot ||
+        (Config.LEGACY
+          ? nodes
+          : collectionSnapshot(nodes, context, undefined, undefined, identity))
       if (snapshot !== nodes) {
         return (snapshot as Element[]).slice()
       }
@@ -1709,7 +1715,14 @@ interface Primordials {
       if (Config.LEGACY) {
         nodes = legacyHooks!.byTag(tag, context)
       } else if (api in context) {
-        return collectionCopy(context[api]!(tag), context)
+        // Wildcard membership depends on the context, not collection identity.
+        // Hosts can replace a collection after unrelated attribute mutations.
+        return collectionCopy(
+          context[api]!(tag),
+          context,
+          undefined,
+          tag == '*' ? context : undefined,
+        )
       } else {
         tag = tag.toLowerCase()
         // DOCUMENT_FRAGMENT_NODE (11)
@@ -5591,7 +5604,13 @@ interface Primordials {
         api in context
       ) {
         nodes = context[api]!(name)
-        snapshot = collectionSnapshot(nodes, context)
+        snapshot = collectionSnapshot(
+          nodes,
+          context,
+          undefined,
+          undefined,
+          kind == '*' && name == '*' ? context : undefined,
+        )
         if (snapshot !== nodes) {
           return snapshot
         }

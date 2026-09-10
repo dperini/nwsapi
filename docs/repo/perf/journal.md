@@ -1395,3 +1395,43 @@ The engine observer already filters attributes to `class`, so broad attribute in
 No engine change is retained from this diagnosis. Narrowing the observer filter would do nothing because it is already narrow. Unconditional streaming would change the candidate-copy boundary and require separate callback and mutation analysis. The next single experiment is stable lookup identity for the existing candidate snapshot cache. It must preserve class and child mutation invalidation, adoption, context boundaries, nested queries, and detached-node collection. Keep it only if the fixed mutation cases improve without materially regressing warm queries or retention. This remains the original attribute-mutation item, not a new query family.
 
 The original local plan has been reconciled with the landed ID, ancestor, general `:has()`, Range, application-consumer, and retention work. Its stale unchecked implementation entries are replaced by source-linked statuses. Private host access and a CSP interpreter remain separate architecture decisions. State reuse is a profiled candidate rather than an automatic cache implementation. Formatting, lint, types, generated artifact checks, and every benchmark identity assertion pass. No runtime or size chart changes are needed for this diagnostic-only commit.
+
+## Preserve wildcard snapshots across unrelated attribute mutations
+
+The attribute-mutation experiment is retained. Wildcard candidate snapshots now use the query context as their weak cache key. A replacement host collection with the same wildcard membership no longer forces a copy. Named tag and class collections keep their existing keys. This uses the existing weak maps without adding another cache. Child and class mutation invalidation, document adoption checks, callback snapshots, and live attribute predicates remain in place.
+
+The regression fixture replaces the native collection object on every access. After an unrelated attribute mutation, indexed collection reads fall from 32 to zero. Removing a matching attribute still changes the result immediately. Adding a child rebuilds the snapshot. Separate contexts, detached roots, nested queries, and adoption are covered by the collection tests.
+
+<details>
+<summary>Comparison method and reproduction</summary>
+
+Preserve the baseline build from `a282b8c` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Build the candidate, then run `node scripts/repo/bench/attribute-identity.mts "$baselineDirectory"`. An optional second argument selects the output report. The existing 300-card component fixture supplies three selectors and contexts through both the core and adapter. Each variant gets a separate document. The shared `mitata` helper runs five rotating rounds after 100 warmup cycles, with 16 cycles per sample and a 50ms minimum. Compare the medians of the five per-round medians. Mutation timings include the attribute write and all queries in that cycle.
+
+The [initial report](../../../assets/repo/bench/attribute-identity.json) and [confirmation report](../../../assets/repo/bench/attribute-identity-confirmation.json) retain the raw samples and build hashes. The confirmation runs after validation rather than alongside it. Node is v26.5.0. These are fixture results, not an application-wide speedup.
+
+</details>
+
+| Route and context | Warm query change | Mutation plus one query change | Mutation plus four queries change |
+| --- | ---: | ---: | ---: |
+| Core, document presence | +1.0% | -43.1% | -24.8% |
+| Core, document equality | -1.6% | -42.9% | -28.9% |
+| Core, element presence | -0.6% | -46.3% | -23.4% |
+| Adapter, document presence | -0.5% | -45.5% | -25.4% |
+| Adapter, document equality | -2.4% | -42.9% | -24.2% |
+| Adapter, element presence | -1.4% | -41.6% | -22.9% |
+
+Negative changes mean lower cycle cost. Presence uses `[data-testid]`. Equality uses `[data-testid="btn-150"]`. The initial run also improves every mutation case, with 43.0–47.2% lower one-query cycle cost and 19.2–25.9% lower four-query cycle cost. Warm changes in that run range from -2.7% to +2.2%. The repeat supports retaining the change without a material warm-query regression.
+
+The [Chromium timing control](../../../assets/repo/bench/attribute-identity-browser-timing.json) repeats the four existing 256-card `:has()` cases with 16 matches, five rotating rounds, and 64-call batches. Median changes range from -3.2% to approximately zero. This guards the shared wildcard snapshot route. It does not measure native-browser attribute-mutation speedups.
+
+### Retention and validation
+
+The [Node retention report](../../../assets/repo/bench/attribute-identity-retention.json) preserves three rotating rounds of plan population, saturation, and churn. Both observed detached nodes are collected in every baseline and candidate run. Candidate heap growth between saturation and churn is 64608–79752bytes. The first baseline run grows by 26243568bytes, while its later runs grow by 67400–77592bytes. Whole-process heap includes host and runtime state. That first-run difference prevents a clean retained-byte savings claim. No allocation-byte reduction is claimed.
+
+The [Chromium retention report](../../../assets/repo/bench/attribute-identity-browser-retention.json) creates 40 wildcard query contexts per page, changes an unrelated attribute and a matching predicate, then detaches the contexts. All 80 observed nodes are collected in each of six page runs while the engine remains alive. These weak-reference checks cover the exercised paths, not every possible leak.
+
+Reproduce retention with `node --expose-gc scripts/repo/bench/compare/retention.mts --baseline "$baselineDirectory/nwsapi.js" --rounds 3` and `node scripts/repo/bench/attribute-identity-browser-retention.mts "$baselineDirectory/nwsapi.js"`. Reproduce the browser timing control with `node scripts/repo/bench/compare/browser.mts --baseline "$baselineDirectory/nwsapi.js" --scenario has --matches 16 --rounds 5 --batch 64`.
+
+Validation passes 693 unit tests, 148 integration tests with one existing skip, and all 141 WPT pages in both modern and legacy builds. Package integration passes 41 assertions, and all 38 browser tests pass. Unit tests take 3.539s against the unchanged 10s budget. Accumulated coverage is 98.55% of execution lines and 96.59% of type identifiers. Formatting, lint, types, and generated checks pass.
+
+The readable core grows by 195bytes to 167288bytes. Gzip grows by 50bytes to 40428bytes. Brotli falls by 21bytes to 32750bytes. The size chart and generated references are refreshed. Broad runtime charts keep their previous measurements. This completes the single cache-identity experiment from the original attribute-mutation audit item.

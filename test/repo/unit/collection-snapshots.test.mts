@@ -1,7 +1,49 @@
 import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
+
+test('wildcard snapshots survive replacement collections while predicates stay live', t => {
+  const { window } = new JSDOM(
+    '<main>' + '<i data-hit></i>'.repeat(32) + '</main>',
+  )
+  t.onTestFinished(() => window.close())
+  const doc = window.document
+  const context = doc.querySelector('main')!
+  const lookup = context.getElementsByTagName.bind(context)
+  let reads = 0
+  const spy = vi.spyOn(context, 'getElementsByTagName').mockImplementation(
+    name =>
+      new Proxy(lookup(name), {
+        get(target, key) {
+          if (typeof key === 'string' && /^\d+$/.test(key)) {
+            ++reads
+          }
+          return Reflect.get(target, key, target)
+        },
+      }),
+  )
+  t.onTestFinished(() => spy.mockRestore())
+  const engine = factory(window)
+  expect(engine.select('[data-hit]', context)).toHaveLength(32)
+  reads = 0
+  context.setAttribute('data-unrelated', 'changed')
+  context.firstElementChild!.removeAttribute('data-hit')
+  expect(engine.select('[data-hit]', context)).toHaveLength(31)
+  expect(reads).toBe(0)
+  const extra = doc.createElement('i')
+  extra.setAttribute('data-hit', '')
+  context.prepend(extra)
+  expect(engine.select('[data-hit]', context)).toHaveLength(32)
+  expect(reads).toBeGreaterThan(0)
+  const other = doc.createElement('aside')
+  other.innerHTML = '<b data-hit></b>'.repeat(20)
+  context.after(other)
+  expect(engine.select('[data-hit]', other)).toHaveLength(20)
+  context.remove()
+  context.firstElementChild!.remove()
+  expect(engine.select('[data-hit]', context)).toHaveLength(31)
+})
 
 test('candidate snapshots follow synchronous mutations and protect returned arrays', async t => {
   const { window } = new JSDOM(
