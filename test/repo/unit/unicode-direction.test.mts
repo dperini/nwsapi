@@ -3,7 +3,7 @@ import { createLegacyEngine } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
 import { expect, test, vi, type TestContext } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
-import type * as Direction from '../../../src/engine/direction.mts'
+import type * as Direction from '../../../src/core/unicode-directionality.mts'
 
 const require = createRequire(import.meta.url)
 

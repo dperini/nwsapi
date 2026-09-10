@@ -22,7 +22,6 @@
   },
   "rules": {
     "typescript/no-unsafe-type-assertion": "off",
-    "eslint/complexity": ["error", 15],
     "eslint/curly": "error",
     "eslint/no-await-in-loop": "off",
     "eslint/no-console": "off",
@@ -125,8 +124,8 @@
   "overrides": [
     {
       "files": [
-        "**/src/engine/nwsapi.mts",
-        "**/src/engine/direction.mts",
+        "**/src/core/nwsapi.mts",
+        "**/src/core/unicode-directionality.mts",
         "**/src/extension/*.mts"
       ],
       "rules": {
@@ -136,7 +135,7 @@
     {
       "files": [
         "**/src/adapter/dom-selector.mts",
-        "**/src/engine/nwsapi.mts",
+        "**/src/core/nwsapi.mts",
         "**/src/extension/nwsapi-legacy.mts"
       ],
       "rules": {
@@ -176,14 +175,11 @@
       }
     },
     {
-      "files": [
-        "**/src/engine/nwsapi.mts",
-        "**/src/adapter/dom-selector.mts",
-        "**/src/extension/nwsapi-legacy.mts"
-      ],
+      "files": ["**/src/core/nwsapi.mts", "**/src/extension/nwsapi-legacy.mts"],
       "rules": {
         "eslint/complexity": "off"
       }
     }
-  ]
+  ],
+  "extends": ["./fleet/oxlint/complexity.json"]
 }

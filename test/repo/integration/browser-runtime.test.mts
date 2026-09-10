@@ -21,13 +21,13 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
     path.join(os.tmpdir(), 'nwsapi-browser-runtime-'),
   )
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  mkdirSync(path.join(directory, 'src/engine'), { recursive: true })
+  mkdirSync(path.join(directory, 'src/core'), { recursive: true })
   copyFileSync(
     path.join(REPO_ROOT, 'package.json'),
     path.join(directory, 'package.json'),
   )
   // Match the real source override while keeping all test output outside the repo.
-  const file = path.join(directory, 'src/engine/nwsapi.mts')
+  const file = path.join(directory, 'src/core/nwsapi.mts')
   const lint = (code: string) => {
     writeFileSync(file, code)
     return spawnSync(

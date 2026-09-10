@@ -19,7 +19,7 @@ export const API_SCRIPT_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/gen/api-md.mts',
 )
-export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/engine/nwsapi.mts')
+export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/core/nwsapi.mts')
 export const ENGINE_BUILD_PATH = path.join(REPO_ROOT, 'dist/nwsapi.js')
 export const BENCHMARK_CACHE_PATH = path.join(
   REPO_ROOT,

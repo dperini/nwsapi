@@ -1,6 +1,6 @@
 # Build design
 
-Authoring files live in `src/` and `bin/`. `pnpm run build` writes generated JavaScript to `dist/`. The `.js` loaders and `.d.ts` declarations in `src/external/` are authored files. The build bundles those loaders into the matching `dist/external/` paths.
+Authoring files live in `src/`. `pnpm run build` writes generated JavaScript to `dist/`. The `.js` loaders and `.d.ts` declarations in `src/external/` are authored files. The build bundles those loaders into the matching `dist/external/` paths.
 
 The build entry point is `scripts/repo/build/run.mts`. Its post-build work starts in `scripts/repo/build/post.mts`, with individual transforms under `scripts/repo/build/post/`. The engine bundling helper lives in `scripts/repo/rolldown/engine.mts`. Rolldown plugins live in `.config/repo/rolldown/`.
 
@@ -40,8 +40,10 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code and direction helpers live in `src/engine/`. The adapter and its host types live in `src/adapter/`. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+Engine code lives in `src/core/`. Its Unicode fallback is in `unicode-directionality.mts`. The adapter, host types, and host-reader validation live in `src/adapter/`. The build bundles `host-readers.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 
 The CLI entry at `src/bin/nwsapi.mts` and its implementation are bundled together as `dist/bin/nwsapi.js`. There is no separate `cli.js` runtime dependency. The packed executable remains `bin/nwsapi.js`, and its help works without repository sources or optional peers. Packing translates relative module references to the published file mapping.
+
+The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits function complexity to 15. The adapter and its extracted host readers follow this limit. The core compiler and legacy extension retain their existing exceptions while their larger functions are simplified.

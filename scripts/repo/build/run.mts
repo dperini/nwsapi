@@ -31,7 +31,7 @@ for (const name of externalEntries) {
 // Bundle only the direction helpers and their three Unicode bidi classes.
 // The IIFE lives inside the UMD wrapper, shared by every engine instance.
 const direction = await build({
-  input: './src/engine/direction.mts',
+  input: './src/core/unicode-directionality.mts',
   platform: 'browser',
   plugins: [externalLoaderPlugin()],
   write: false,
@@ -45,14 +45,23 @@ const directionCode = direction.output[0]
 if (!directionCode || directionCode.type !== 'chunk') {
   throw new Error('Rolldown produced no Unicode direction helpers')
 }
-// Transform each file as a script so its UMD, CommonJS, or global registration
-// stays intact. Do not bundle the lazy css-tree peer or change module wrappers.
+// Keep browser registrations intact and bundle the adapter's local helpers.
+// The adapter keeps its engine, legacy module, and lazy css-tree peer external.
 for (const entry of entries) {
   if (entry.source === 'src/bin/nwsapi.mts') {
     continue
   }
+  if (entry.source === 'src/adapter/dom-selector.mts') {
+    await build({
+      input: entry.source,
+      platform: 'node',
+      external: ['../nwsapi.js', '../modules/nwsapi-legacy.js', 'css-tree'],
+      output: { file: entry.output, format: 'cjs' },
+    })
+    continue
+  }
   let source = await readFile(entry.source, 'utf8')
-  if (entry.source === 'src/engine/nwsapi.mts') {
+  if (entry.source === 'src/core/nwsapi.mts') {
     const marker = '/* @bundle:direction */ {}'
     if (!source.includes(marker)) {
       throw new Error('Missing Unicode direction bundle marker')
@@ -72,7 +81,7 @@ for (const entry of entries) {
   }
   await mkdir(path.dirname(entry.output), { recursive: true })
   let code =
-    entry.source === 'src/engine/nwsapi.mts'
+    entry.source === 'src/core/nwsapi.mts'
       ? await bundleEngine(result.code)
       : result.code
   if (browserOutputs.has(entry.output)) {

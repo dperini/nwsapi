@@ -210,7 +210,7 @@ export function renderApiMarkdown(
       name,
       signature(name, value, source),
       descriptions[name],
-      'src/engine/nwsapi.mts',
+      'src/core/nwsapi.mts',
       prop.loc!.start.line,
     )
     if (value?.type === 'FunctionExpression') {
@@ -270,7 +270,11 @@ export function renderApiMarkdown(
   }
   const adapterSource = stripTypeScriptTypes(adapter)
   const adapterNode = findNode(
-    parse(adapterSource, { ecmaVersion: 'latest', locations: true }),
+    parse(adapterSource, {
+      ecmaVersion: 'latest',
+      locations: true,
+      sourceType: 'module',
+    }),
     (node): node is ClassDeclaration =>
       node.type === 'ClassDeclaration' &&
       (node as ClassDeclaration).id?.name === 'DOMSelector',
