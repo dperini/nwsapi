@@ -1282,3 +1282,73 @@ The readable core grows from 166736bytes to 166791bytes, an increase of 55bytes.
 The decision is to keep the guard and the earlier retained improvements with the stated tradeoffs. Reconsider that decision if representative application measurements show that the slower cases dominate, or if a supported latency or memory limit fails. The benchmarks establish results for their fixtures. They do not establish a universal speedup.
 
 Validation passes 691 unit tests, 148 integration tests, and all 141 WPT pages in both modern and legacy modes. One integration test remains skipped. Unit tests take 5.76s against the 10s local budget. Accumulated coverage is 98.55% of execution lines and 96.55% of type identifiers. Formatting, lint, types, generated API references, and Unicode compatibility checks pass. The final broad benchmark and footprint reports identify the same built engine hash.
+
+## Close the bounded follow-up
+
+This pass closes the five-item follow-up without starting another optimization search. It tests one small `:has()` change, profiles the existing dense grouped query and state checks, resolves three named syntax differences, and updates the earlier reports. It does not claim to close the separate upstream PR, issue, commit-history, or integration audit.
+
+<details>
+<summary>Workloads and reproduction</summary>
+
+The baseline is a readable build of `6503d35`. Save it as `baseline.cjs` in an `os.tmpdir()` directory before building the candidate. Reports preserve exact engine hashes. The initial three-round timing runs overlap the exploratory profile. The five-round confirmations run after that profile and memory profiling finish. Measurements use a shared development machine and rotating variants, not an isolated performance lab. The existing identical-build controls provide context, but this pass adds no new control run or confidence interval.
+
+```sh
+node scripts/repo/bench/compare/bounded-profile.mts assets/repo/bench/bounded-baseline-profile.json /path/to/baseline.cjs
+node scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 5 --batch 64 --output assets/repo/bench/bounded-has-node-confirmation.json
+node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 5 --batch 64 --output assets/repo/bench/bounded-has-browser-confirmation.json
+node --expose-gc scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 3 --batch 64 --mode memory --output assets/repo/bench/bounded-has-node-memory.json
+node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 3 --batch 64 --mode memory --output assets/repo/bench/bounded-has-browser-memory.json
+node scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --groups 64 --matches 256 --rounds 5 --batch 64 --output assets/repo/bench/bounded-grouped-node-timing.json
+node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --groups 64 --matches 256 --rounds 5 --batch 64 --output assets/repo/bench/bounded-grouped-browser-timing.json
+node scripts/repo/bench/browser-syntax.mts '/path/to/Chrome for Testing'
+```
+
+Timing uses `mitata`, 1000 warmup calls, and 64-call batches. Allocation sampling measures 2000 calls per variant in each of three rounds and includes collected objects. Its timing probes are separate from the timing reports. The CPU profile uses 200 warmup calls, 200 profiled calls, and five unprofiled 200-call batches. State timings are descriptive rankings for the fixed fixture. They are not candidate comparisons.
+
+</details>
+
+### Small `:has()` queries
+
+The baseline CPU samples attribute 15–30% of self samples in these cases to `collectionCopy`. Source inspection shows that `hasCandidates` checks the snapshot, then asks `collectionCopy` to check it again. The candidate passes the already checked collection to the copy helper. It preserves copied candidates, cached snapshots, synchronous mutation checks, and legacy behavior. It adds no cache or persistent node reference. No second candidate was needed.
+
+| Selector | Node timing | Chromium timing | Node allocation | Chromium allocation |
+| --- | ---: | ---: | ---: | ---: |
+| `.card:has([data-hit])` | -14.8% | -4.2% | -4.8% | -0.4% |
+| `.card:has(> .target [data-hit])` | -14.8% | -5.4% | -4.6% | -0.0% |
+| `.card:has(+ .target [data-hit])` | -9.0% | -1.6% | -2.5% | +0.2% |
+| `.card:has(~ .target [data-hit])` | -9.0% | -2.1% | -2.5% | -0.4% |
+
+These are the four recorded fixtures with 256 cards and 16 matching cards. Negative values mean lower cost. Timing compares medians of per-round medians from the [Node confirmation](../../../assets/repo/bench/bounded-has-node-confirmation.json) and [Chromium confirmation](../../../assets/repo/bench/bounded-has-browser-confirmation.json). Allocation compares median sampled bytes from the separate memory reports. The [initial Node](../../../assets/repo/bench/bounded-has-node-timing.json) and [initial Chromium](../../../assets/repo/bench/bounded-has-browser-timing.json) runs remain available. Both timing passes favor the candidate, while the smaller browser differences deserve caution.
+
+Node post-GC median changes across the second batch range from 864bytes to 9496bytes for the candidate. Chromium medians are zero for all four cases. These whole-process and whole-page readings do not establish a retained-memory saving. The decision is to retain the duplicate-check removal for repeated timing improvement and modest Node allocation savings. Chromium allocation is effectively unchanged. This does not erase every cost introduced by earlier `:has()` work.
+
+### Dense grouped queries
+
+The [baseline profile](../../../assets/repo/bench/bounded-baseline-profile.json) assigns about 26% of self samples to `compareDocumentPosition`, 22% to `compareTreePosition`, and 10% to `_node`. The merge loop itself accounts for about 5%. This points to host document-order access as the main sampled cost. A new ordering index would add traversal, allocation, and mutation obligations. This pass adds no ordering structure and tests no grouped algorithm candidate. The earlier Node cost remains documented.
+
+The final 64-group comparison is +0.4% in Node and effectively unchanged in Chromium against `6503d35`. Its single-class control is -0.9% in Node and unchanged in Chromium. These results check that the accepted change preserves dense grouped behavior. They do not claim to remove the earlier roughly 2% Node tradeoff. Both [Node](../../../assets/repo/bench/bounded-grouped-node-timing.json) and [Chromium](../../../assets/repo/bench/bounded-grouped-browser-timing.json) reports retain the samples.
+
+### Repeated state checks
+
+| Query | Median Node cost |
+| --- | ---: |
+| `input:dir(ltr)` | 36.756ms |
+| `input:valid` | 0.920ms |
+| `input:invalid` | 0.912ms |
+| `input:lang(en)` | 0.880ms |
+| `input:disabled` | 0.386ms |
+| `input` | 0.001ms |
+
+These are warm public queries over 256 populated required inputs under eight wrappers, with inherited English language and left-to-right direction. The fieldset is disabled for the disabled and inheritance probes and enabled for validity probes. `input:invalid` returns no matches. The other state queries return 256. This ranking describes this Node/`jsdom` fixture only. There is no corresponding application-frequency claim.
+
+The direction profile is dominated by `bidi-js` through the host's native matching route. Validity spends substantial time in host validity and disabled-state checks. Language and disabled matching repeat ancestor access. The evidence makes host direction work the first investigation candidate if state work is separately authorized. It does not justify a broad result cache. No state implementation changes are included. An exploratory disabled-fieldset validity probe disagreed with the host matcher. That correctness question is recorded for separate review rather than silently treated as a performance result.
+
+### Syntax, validation, and stopping point
+
+All three named syntax differences are fixed. `::column` is accepted without producing DOM elements. `:state(initial)` uses the current identifier grammar. `:active-view-transition-type()` accepts comma-separated custom identifiers. The [compatibility document](../selector/compatibility.md#browser-syntax-follow-up) links the specifications and Chrome 153 evidence, including active matching and removal. Rendering remains outside this pass.
+
+Validation passes 692 unit tests, 148 integration tests with one existing skip, 141 WPT pages in each modern and legacy mode, the browser state test, package integration, and fuzz replay. Accumulated coverage is 98.55% of execution lines and 96.56% of type identifiers. The uninstrumented unit run takes 3.68s against its unchanged 10s budget. Formatting, lint, types, generated API documentation, and ES5 Unicode checks pass.
+
+The readable core grows by 302bytes to 167093bytes. Gzip grows by 40bytes to 40378bytes. Brotli grows by 61bytes to 32771bytes. The size chart and its generated references are refreshed. Broad runtime charts retain their previous measurements because this pass only measures the named fixtures.
+
+The bounded follow-up is complete. The older local audit reports now mark completed implementation work as superseded and point here. The next task returns to reconciling the original upstream findings. The grouped-query cost, state investigation candidates, and exploratory validity discrepancy do not extend this pass.

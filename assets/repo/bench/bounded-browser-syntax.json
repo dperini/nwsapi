@@ -1,0 +1,25 @@
+{
+  "browser": "153.0.8010.12",
+  "rows": [
+    {
+      "selector": "::column",
+      "matches": 0
+    },
+    {
+      "selector": ":state(initial)",
+      "matches": 1
+    },
+    {
+      "selector": ":active-view-transition-type(one, two)",
+      "matches": 1
+    },
+    {
+      "selector": ":active-view-transition-type(one, two)",
+      "matches": 0
+    },
+    {
+      "selector": ":state(initial)",
+      "matches": 0
+    }
+  ]
+}

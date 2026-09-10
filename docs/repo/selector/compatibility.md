@@ -73,7 +73,7 @@ The current CSS Syntax draft narrows unescaped non-ASCII identifiers beyond the 
 
 | Area                     | Recorded limitation                                                                                                                                                                                                                              |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Browser syntax           | Chrome accepts `::column`, `:state(initial)`, and a comma-separated `:active-view-transition-type()` case that the core rejects. WPT custom-state validation rejects CSS-wide keywords, so the pinned WPT expectations differ from this browser. |
+
 | Stylesheet analysis      | The adapter's `extractSubjects()` and `check()` results differ from the comparison library. These methods are separate from DOM query correctness.                                                                                               |
 | Execution policy         | Compiled selectors use `Function()`. In the recorded enforced-CSP probe, complex core queries throw `EvalError` when dynamic code generation is blocked. Simple direct lookup can still work.                                                    |
 
@@ -98,3 +98,11 @@ NWSAPI_DISTRIBUTION=1 pnpm run test:wpt
 ```
 
 The comparison uses [tracked fixtures](../../../test/repo/fixtures/selectors/compatibility.json), intercepted requests, and no live site. Its report records input hashes and dependency versions. The WPT [scope check](../testing/wpt-runner.md#scope-check) parses executed pages and helpers before the browser runs. Explicit adapters remove rendering assertions while retaining the selected upstream inputs and acceptance expectations.
+
+## Browser syntax follow-up
+
+The three recorded syntax differences are resolved. `::column` is accepted as a non-functional pseudo-element and returns no DOM elements. This does not implement column rendering. `:state()` accepts identifiers such as `initial`, consistent with the [Selectors Level 5 grammar](https://drafts.csswg.org/selectors-5/#state-pseudo). Earlier documentation incorrectly described the pinned `parse-state.html` page as rejecting CSS-wide keywords. That page has no such assertion.
+
+`:active-view-transition-type()` accepts comma-separated custom identifiers, as defined by [View Transitions Level 2](https://drafts.csswg.org/css-view-transitions-2/#active-view-transition-type-pseudo). Empty items, CSS-wide keywords, and whitespace-separated names remain invalid. The [column pseudo-element specification](https://drafts.csswg.org/css-multicol-2/#column-pseudo) defines the rendering concept separately from element queries.
+
+The [focused Chrome 153 report](../../../assets/repo/bench/bounded-browser-syntax.json) records matching custom state, state removal, a matching active transition type, and the result after that transition finishes. Native and engine results agree by element identity. Unit tests also cover empty contexts and legacy mode.

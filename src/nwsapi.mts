@@ -1584,8 +1584,10 @@ interface Primordials {
     collectionCopy = function (
       nodes: ArrayLike<Element>,
       context: EngineContext,
+      snapshot?: ArrayLike<Element>,
     ) {
-      var snapshot = Config.LEGACY ? nodes : collectionSnapshot(nodes, context)
+      snapshot =
+        snapshot || (Config.LEGACY ? nodes : collectionSnapshot(nodes, context))
       if (snapshot !== nodes) {
         return (snapshot as Element[]).slice()
       }
@@ -3328,7 +3330,7 @@ interface Primordials {
       return (
         argument === null &&
         (treePseudo(name) ||
-          /^(?:first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
+          /^(?:column|first-line|first-letter|selection|target-text|spelling-error|grammar-error|search-text|view-transition|-webkit-[-a-z0-9]{2,})$/.test(
             name,
           ))
       )
@@ -4321,9 +4323,17 @@ interface Primordials {
                   '}'
               } else {
                 if (
-                  name == 'state' || name == 'active-view-transition-type'
-                    ? argument === null || !isIdent(argument, true)
-                    : argument !== null
+                  name == 'state'
+                    ? argument === null || !isIdent(argument)
+                    : name == 'active-view-transition-type'
+                      ? argument === null ||
+                        !splitList(argument).every(function (value) {
+                          return isIdent(
+                            value.replace(REX.TrimSpaces, ''),
+                            true,
+                          )
+                        })
+                      : argument !== null
                 ) {
                   emit("'" + expression + "'" + qsInvalid)
                   return ''
@@ -5585,7 +5595,7 @@ interface Primordials {
         if (snapshot !== nodes) {
           return snapshot
         }
-        return collectionCopy(nodes, context)
+        return collectionCopy(nodes, context, snapshot)
       }
       return fetch[kind]!(name, context)
     },
