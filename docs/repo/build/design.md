@@ -40,10 +40,20 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code lives in `src/core/`. Its Unicode fallback is in `unicode-directionality.mts`. The adapter, host types, and host-reader validation live in `src/adapter/`. The build bundles `host-readers.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+Engine code lives in `src/core/`. Its Unicode fallback lives in `src/core/unicode/`. `text-direction.mts` finds the first character with a strong Unicode direction. `dom.mts` handles DOM boundaries, and `directionality.mts` resolves inherited and automatic direction. The adapter, host types, and host-reader validation live in `src/adapter/`. The build bundles `host-readers.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 
 The CLI entry at `src/bin/nwsapi.mts` and its implementation are bundled together as `dist/bin/nwsapi.js`. There is no separate `cli.js` runtime dependency. The packed executable remains `bin/nwsapi.js`, and its help works without repository sources or optional peers. Packing translates relative module references to the published file mapping.
 
-The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits function complexity to 15. The adapter and its extracted host readers follow this limit. The core compiler and legacy extension retain their existing exceptions while their larger functions are simplified.
+The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits function complexity to 15. The rule also checks the core compiler and legacy extension. The ported `nwsapi/max-file-lines` rule requires splitting modules above 500 lines and applies a hard cap of 1,000 lines. Existing violations remain visible as lint errors.
+
+## Engine module boundaries
+
+`src/core/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
+
+`compile.mts` prepares a resolver and its cleanup. `compile-selector.mts` walks the selector, while `compile-token.mts` dispatches tokens to their handlers. Attribute, combinator, and pseudo-class handlers have separate modules. Positional helpers separate formula parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
+
+The first-match shortcuts live in `first-simple.mts`. General first-match resolution lives in `first.mts`. The sibling-cache factories live in `create-nth-element.mts` and `create-nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+
+The build inlines these source modules into the existing distribution files. Consumers do not need to load the source modules separately. API documentation follows parsed declarations and bound engine methods to link to their defining modules.

@@ -1,8 +1,9 @@
-import maxCommentBlockLines from './rules/max-comment-block-lines/index.mts'
-import noCommentGlobStarSlash from './rules/no-comment-glob-star-slash/index.mts'
-import noProcessChdir from './rules/no-process-chdir/index.mts'
-import noMinifiedBundlerOutput from './rules/no-minified-bundler-output/index.mts'
 import type { ForOfStatement } from 'acorn'
+import maxCommentBlockLines from './rules/max-comment-block-lines/index.mts'
+import maxFileLines from './rules/max-file-lines/index.mts'
+import noCommentGlobStarSlash from './rules/no-comment-glob-star-slash/index.mts'
+import noMinifiedBundlerOutput from './rules/no-minified-bundler-output/index.mts'
+import noProcessChdir from './rules/no-process-chdir/index.mts'
 
 export const noForOf = {
   meta: {
@@ -27,6 +28,7 @@ export const noForOf = {
 export default {
   meta: { name: 'nwsapi' },
   rules: {
+    'max-file-lines': maxFileLines,
     'no-for-of': noForOf,
     'max-comment-block-lines': maxCommentBlockLines,
     'no-comment-glob-star-slash': noCommentGlobStarSlash,

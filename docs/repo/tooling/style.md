@@ -2,7 +2,7 @@
 
 The authoring settings in `.config/oxfmt.json` match Wheelhouse's base formatter profile. The extension override preserves property quoting because these scripts retain their registration format. Distribution formatting stays in `.config/build.config.mts`, where the measured file-size choices are documented.
 
-The base `oxlint` profile already carries Wheelhouse's braces rule and complexity limit of 15. Complexity now applies to source helpers as well as scripts. Three existing monolithic implementations retain their previous exception: the selector engine, its adapter, and the legacy extension. This is a limited exception, not a claim that those functions meet the limit. The direction helper now separates slot-host lookup to meet the limit without changing its traversal decisions.
+The base `oxlint` profile carries Wheelhouse's braces rule and complexity limit of 15. Complexity applies to every authored module, including the core compiler and legacy extension. The file-wide complexity exclusions have been removed.
 
 ## Ported custom rules
 
@@ -10,6 +10,7 @@ The following rules are adapted from `socket-wheelhouse/template/base/universal/
 
 | Wheelhouse rule                     | Local rule                          | Purpose                                                                       |
 | ----------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------- |
+| `socket/max-file-lines`             | `nwsapi/max-file-lines`             | Reports modules above 500 lines, with a 1,000-line hard cap.                  |
 | `socket/max-comment-block-lines`    | `nwsapi/max-comment-block-lines`    | Reports oversized inline and documentation comments.                          |
 | `socket/no-comment-glob-star-slash` | `nwsapi/no-comment-glob-star-slash` | Fixes escaped glob text that formatting could turn into a comment terminator. |
 | `socket/no-process-chdir`           | `nwsapi/no-process-chdir`           | Requires explicit working directories outside tests.                          |
@@ -24,3 +25,5 @@ Socket API tokens, private registry conventions, Socket library import preferenc
 The source-content test rule is relevant, but porting it requires migrating the remaining document and source assertions. The shared practice prohibits new instances now. This pass does not claim that existing assertions are all migrated or that the prohibition is lint-enforced. The broader prose vocabulary rules also depend on Wheelhouse's hook pattern libraries. Their writing guidance is imported, but their hook runtime is not.
 
 The audit does not replace the existing ES5 compatibility checks, runtime loop rule, selector tests, or package-layout checks. These enforce requirements specific to `nwsapi`.
+
+The size-rule port preserves Wheelhouse's hard-cap-only justification marker. Files between 501 and 1,000 lines must split even when marked. Both bands fail local lint. Generated outputs and vendored fixtures stay outside the authored tooling scope.

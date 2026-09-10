@@ -1,16 +1,16 @@
-import { registerLegacyInContext } from '../common/legacy.mts'
+import { aqs_match } from '@ultrathink/acorn.rs.wasm'
+import assert from 'node:assert/strict'
 import type * as NodeFs from 'node:fs'
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type * as NodeVm from 'node:vm'
 import { test } from 'vitest'
-import { createRequire } from 'node:module'
-import { fileURLToPath } from 'node:url'
-import { aqs_match } from '@ultrathink/acorn.rs.wasm'
+import { registerLegacyInContext } from '../common/legacy.mts'
 
 const require = createRequire(import.meta.url)
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-import assert from 'node:assert/strict'
 const { readFileSync } = require('node:fs') as typeof NodeFs
-import path from 'node:path'
 const vm = require('node:vm') as typeof NodeVm
 const source = readFileSync(path.join(__dirname, '../../../dist/nwsapi.js'))
 // A test-only hook exercises the internal allocator without adding public API.
@@ -19,7 +19,7 @@ const source = readFileSync(path.join(__dirname, '../../../dist/nwsapi.js'))
 const result = JSON.parse(
   aqs_match(
     source.toString('utf8'),
-    'ReturnStatement[argument.type="Identifier"][argument.name="Dom"]',
+    'ReturnStatement[argument.type="MemberExpression"][argument.object.name="engine"][argument.property.name="Dom"]',
   ),
 ) as { ok: boolean; matches: Array<{ start: number }> }
 assert.equal(result.ok, true)
@@ -29,7 +29,7 @@ const start = result.matches[0]!.start
 const instrumented = Buffer.concat([
   source.subarray(0, start),
   Buffer.from(
-    'Dom.testCreateWeakMap = function() { return createWeakMap(); };\n',
+    'engine.Dom.testCreateWeakMap = function() { return engine.createWeakMap(); };\n',
   ),
   source.subarray(start),
 ]).toString('utf8')

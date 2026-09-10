@@ -2,6 +2,10 @@ import process from 'node:process'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 // Reporter selection only needs the configuration value, not a browser runner.
+vi.mock('vitest/config', () => ({
+  defineConfig: (config: unknown) => config,
+}))
+
 vi.mock('@playwright/test', () => ({
   defineConfig: (config: unknown) => config,
 }))

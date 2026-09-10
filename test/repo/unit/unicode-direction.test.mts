@@ -1,9 +1,9 @@
-import { createRequire } from 'node:module'
-import { createLegacyEngine } from '../common/legacy.mts'
 import { JSDOM } from 'jsdom'
+import { createRequire } from 'node:module'
 import { expect, test, vi, type TestContext } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
-import type * as Direction from '../../../src/core/unicode-directionality.mts'
+import type * as Direction from '../../../src/core/unicode/directionality.mts'
+import { createLegacyEngine } from '../common/legacy.mts'
 
 const require = createRequire(import.meta.url)
 
@@ -167,7 +167,10 @@ for (const [label, make] of [
 }
 
 test('bundled bidi data agrees with Unicode 17 range boundaries', () => {
-  const { firstStrong } = Reflect.get(factory, '_direction') as typeof Direction
+  const { textDirection } = Reflect.get(
+    factory,
+    '_direction',
+  ) as typeof Direction
   const classes = ['Left_To_Right', 'Right_To_Left', 'Arabic_Letter'].map(
     name =>
       (
@@ -190,7 +193,7 @@ test('bundled bidi data agrees with Unicode 17 range boundaries', () => {
     const index = classes.findIndex(ranges =>
       ranges.some(({ begin, end }) => point >= begin && point < end),
     )
-    expect(firstStrong(String.fromCodePoint(point)), point.toString(16)).toBe(
+    expect(textDirection(String.fromCodePoint(point)), point.toString(16)).toBe(
       index < 0 ? null : index === 0 ? 'ltr' : 'rtl',
     )
   }

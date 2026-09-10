@@ -1,57 +1,23 @@
-import { leftToRight, rightToLeft, arabicLetter } from '../external/unicode.js'
+import {
+  directionParent,
+  excluded,
+  explicitDirection,
+  htmlName,
+  shadowHost,
+  slotHost,
+} from './dom.mts'
+import type { Direction } from './text-direction.mts'
+import { textDirection } from './text-direction.mts'
 
-export type Direction = 'ltr' | 'rtl'
-
-// The three immutable expressions are bundled once, outside engine instances.
-export function firstStrong(text: string): Direction | null {
-  const left = text.search(leftToRight)
-  if (left === 0) {
-    return 'ltr'
-  }
-  const prefix = left < 0 ? text : text.slice(0, left)
-  if (rightToLeft.test(prefix) || arabicLetter.test(prefix)) {
-    return 'rtl'
-  }
-  return left < 0 ? null : 'ltr'
-}
-
-export function htmlName(element: Element): string {
-  return element.namespaceURI === 'http://www.w3.org/1999/xhtml'
-    ? element.localName
-    : ''
-}
-
-export function explicitDirection(element: Element): string {
-  return htmlName(element)
-    ? (element.getAttribute('dir') || '').toLowerCase()
-    : ''
-}
-
-export function shadowHost(node: Node): Element | null {
-  return node.nodeType === 11 ? (node as ShadowRoot).host || null : null
-}
-
-export function directionParent(element: Element): Element | null {
-  return (
-    element.parentElement ||
-    (element.parentNode && shadowHost(element.parentNode))
-  )
-}
-
-export function excluded(element: Element): boolean {
-  const name = htmlName(element)
-  return (
-    !!name &&
-    (/^(?:bdi|script|style|textarea)$/.test(name) ||
-      /^(?:ltr|rtl|auto)$/.test(explicitDirection(element)))
-  )
-}
-
-export function slotHost(element: Element): Element | null {
-  return htmlName(element) === 'slot' && element.getRootNode
-    ? shadowHost(element.getRootNode())
-    : null
-}
+export {
+  directionParent,
+  excluded,
+  explicitDirection,
+  htmlName,
+  shadowHost,
+  slotHost,
+} from './dom.mts'
+export { textDirection } from './text-direction.mts'
 
 // Walk the live DOM without retaining text, nodes, or mutation-sensitive results.
 export function containedText(
@@ -65,7 +31,7 @@ export function containedText(
   while (node) {
     let skip = false
     if (node.nodeType === 3) {
-      const value = firstStrong((node as Text).data)
+      const value = textDirection((node as Text).data)
       if (value) {
         return value
       }
@@ -101,7 +67,7 @@ export function autoDirection(element: Element): Direction | null {
       ))
   ) {
     const value = (element as HTMLInputElement | HTMLTextAreaElement).value
-    return firstStrong(value) || (value ? 'ltr' : null)
+    return textDirection(value) || (value ? 'ltr' : null)
   }
   if (
     name === 'slot' &&
@@ -114,7 +80,7 @@ export function autoDirection(element: Element): Direction | null {
         const node = assigned[index]!
         const value =
           node.nodeType === 3
-            ? firstStrong((node as Text).data)
+            ? textDirection((node as Text).data)
             : node.nodeType === 1
               ? containedText(node as Element, true)
               : null

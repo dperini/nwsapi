@@ -36,6 +36,8 @@ Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Develop
 
 `node scripts/repo/bench/jsdom-workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
 
+Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. The adapter suite covers public queries, stylesheet matching, and recorded GitHub issue regressions. The host-reader suite covers supplied implementation helpers, attribute access, tree traversal, duplicate IDs, mutations, shadow boundaries, and fallback behavior. Both suites load the installed package and its matching `jsdom` utilities. This subset does not run the full WPT or browser suites.
+
 The isolated package test also installs `@testing-library/dom` 10.4.1 and exercises role, label, and test-ID lookups against the packed adapter. Its temporary installation stays outside the repository.
 
 ## Compare first-result ID lookups

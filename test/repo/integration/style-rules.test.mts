@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { expect, test } from 'vitest'
@@ -80,4 +80,71 @@ test('the style profile reports violations and accepts repaired code', t => {
   )
   writeFileSync(paths[5]!, "export const options = { cwd: '/tmp' }")
   expect(lint(paths)).toEqual({ status: 0, codes: [] })
+})
+
+test('module size checks boundaries and permits justified hard-cap exceptions only', t => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-module-size-'))
+  t.onTestFinished(() => rmSync(root, { recursive: true, force: true }))
+  const cases = [
+    { name: 'at-soft', lines: 500, marker: '', expected: false },
+    { name: 'over-soft', lines: 501, marker: '', expected: true },
+    { name: 'at-hard', lines: 1000, marker: '', expected: true },
+    { name: 'over-hard', lines: 1001, marker: '', expected: true },
+    {
+      name: 'soft-marker',
+      lines: 501,
+      marker:
+        '// max-file-lines: table — An exhaustive table must stay together.',
+      expected: true,
+    },
+    {
+      name: 'hard-marker',
+      lines: 1001,
+      marker:
+        '// max-file-lines: table — An exhaustive table must stay together.',
+      expected: false,
+    },
+    {
+      name: 'invalid-marker',
+      lines: 1001,
+      marker: '// max-file-lines: legitimate — This file is large.',
+      expected: true,
+    },
+  ]
+  const targets = cases.map(item => {
+    const file = path.join(root, item.name + '.mts')
+    const content = Array<string>(item.lines).fill('')
+    content[0] = item.marker
+    content[item.lines - 1] = 'export const value = 1'
+    writeFileSync(file, content.join('\n'))
+    return file
+  })
+  const result = spawnSync(
+    process.execPath,
+    [
+      'node_modules/oxlint/bin/oxlint',
+      '--config',
+      '.config/oxlint.json',
+      '--format',
+      'json',
+      ...targets,
+    ],
+    { cwd: REPO_ROOT, encoding: 'utf8' },
+  )
+  expect(result.error).toBeUndefined()
+  expect(result.status).toBe(1)
+  const report = JSON.parse(result.stdout) as {
+    diagnostics: Array<{ code: string; filename: string }>
+  }
+  const violations = report.diagnostics.filter(
+    item => item.code === 'nwsapi(max-file-lines)',
+  )
+  expect(
+    violations.map(item => path.basename(item.filename, '.mts')).toSorted(),
+  ).toEqual(
+    cases
+      .filter(item => item.expected)
+      .map(item => item.name)
+      .toSorted(),
+  )
 })

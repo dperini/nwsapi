@@ -119,13 +119,14 @@
     "nwsapi/max-comment-block-lines": "error",
     "nwsapi/no-comment-glob-star-slash": "error",
     "nwsapi/no-process-chdir": "error",
-    "nwsapi/no-minified-bundler-output": "error"
+    "nwsapi/no-minified-bundler-output": "error",
+    "nwsapi/max-file-lines": "error"
   },
   "overrides": [
     {
       "files": [
         "**/src/core/nwsapi.mts",
-        "**/src/core/unicode-directionality.mts",
+        "**/src/core/unicode/*.mts",
         "**/src/extension/*.mts"
       ],
       "rules": {
@@ -172,12 +173,6 @@
         "eslint/prefer-const": "off",
         "eslint/no-shadow": "off",
         "typescript/no-explicit-any": "off"
-      }
-    },
-    {
-      "files": ["**/src/core/nwsapi.mts", "**/src/extension/nwsapi-legacy.mts"],
-      "rules": {
-        "eslint/complexity": "off"
       }
     }
   ],

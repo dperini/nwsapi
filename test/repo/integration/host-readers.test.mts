@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
-import { JSDOM } from 'jsdom'
+import type * as Jsdom from 'jsdom'
 import { test } from 'vitest'
-import Adapter from '../../../dist/adapter/dom-selector.js'
+import type AdapterType from '../../../dist/adapter/dom-selector.js'
 
-const require = createRequire(import.meta.url)
+const require = createRequire(process.env['JSDOM_PACKAGE'] || import.meta.url)
+const { JSDOM } = require('jsdom') as typeof Jsdom
+const Adapter: typeof AdapterType = process.env['JSDOM_PACKAGE']
+  ? require('@asamuzakjp/dom-selector').DOMSelector
+  : require('../../../dist/adapter/dom-selector.js')
 const idlUtils = require('jsdom/lib/generated/idl/utils.js') as {
   implForWrapper(node: Node): object
   wrapperForImpl(node: unknown): Node

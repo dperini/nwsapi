@@ -133,6 +133,7 @@ try {
       '--config',
       '.config/repo/vitest.config.mts',
       'test/repo/integration/jsdom-adapter.test.mts',
+      'test/repo/integration/host-readers.test.mts',
     ],
     {
       cwd: REPO_ROOT,
