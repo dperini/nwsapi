@@ -1904,7 +1904,7 @@ interface Primordials {
       if (value && typeof value.baseVal == 'string') {
         return value.baseVal
       }
-      return attrOf(e, 'class')
+      return attrOf(e, 'class') || ''
     },
     readDirect = {
       tag: function (v: string) {

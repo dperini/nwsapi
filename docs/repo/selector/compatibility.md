@@ -29,6 +29,12 @@ Public `match()` scopes `:scope` to the subject element. `closest()` preserves t
 
 The 276 attribute-casing WPT cases repeat the rules across 46 attributes and six document or namespace contexts. They provide breadth across inputs rather than 276 independent features. Filtered-position tests also check read counts: a selection and a first-result search each read a 200-sibling group once.
 
+## Missing ID and class attributes
+
+`#null` and `.null` require a literal `"null"` attribute value. Missing and empty attributes do not match. Regression tests cover matching and closest-ancestor lookup after attributes are added and removed, including cached calls, XML, legacy hooks, and the adapter. Hosts without a `className` property use an empty string when the class attribute is absent, preventing regular expressions from coercing a missing value to `"null"`.
+
+This also covers the failure described by the [upstream fix](https://github.com/asamuzaK/domSelector/commit/c5b01a422d1520a7e24773cf7c45a43f4accd4e0). Ordinary DOM matching already returned the expected results. The attribute-reader fallback needed the correction.
+
 ## Comments and foreign HTML elements
 
 Comments are consumed between CSS tokens. Quoted comment text stays literal, and removing a comment cannot join two identifiers or manufacture a function token. Tests cover filtered child positions, attribute flags, escaped identifiers, adjacent comments, and comments ending at EOF. A browser comparison inserts comments at every position in representative selectors and checks selection, first-result lookup, and matching on cold and cached calls.

@@ -1,12 +1,12 @@
 {
   "metadata": {
-    "timestamp": "2026-09-10T03:03:53.025Z",
+    "timestamp": "2026-09-10T03:31:25.824Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "827ac9a0fa29e8e5e7588984ea7b986d1c7d0ab7855a93f76e92331d97797475",
+    "candidateSha256": "270e508f8885cf4c0043ad11b29b24d67e8ce5d848c858c3891836cb25c2b334",
     "competitorVersion": "8.3.2",
     "lockfileSha256": "f9aea6d77b5047d1f8bc185b357065774e76deb605bba3eb20e16283e4832952",
     "rolldown": "1.2.7",
@@ -16,10 +16,10 @@
     {
       "engine": "NWSAPI",
       "artifact": "dist/nwsapi.js (readable core browser file)",
-      "bytes": 167288,
-      "gzip": 40428,
-      "brotli": 32750,
-      "sha256": "827ac9a0fa29e8e5e7588984ea7b986d1c7d0ab7855a93f76e92331d97797475"
+      "bytes": 167294,
+      "gzip": 40430,
+      "brotli": 32792,
+      "sha256": "270e508f8885cf4c0043ad11b29b24d67e8ce5d848c858c3891836cb25c2b334"
     },
     {
       "engine": "@asamuzakjp/dom-selector",
