@@ -1,4 +1,11 @@
-import { expect, test } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
+import { checkNativeContract } from '../../../scripts/repo/check/wpt/native-contract.mts'
+
+vi.mock('../../../scripts/repo/check/wpt/native-contract.mts', () => ({
+  checkNativeContract: vi.fn(),
+}))
+
+beforeEach(() => vi.clearAllMocks())
 import { checkCode } from '../../../scripts/repo/check.mts'
 import { fixCode } from '../../../scripts/repo/fix.mts'
 import { setupUpstream } from '../../../scripts/repo/setup.mts'
@@ -73,6 +80,7 @@ test('setup stops if checkout verification fails', () => {
 test('check runs formatting, lint, and types without fix flags', () => {
   const { calls, run } = recorder()
   checkCode(run)
+  expect(checkNativeContract).toHaveBeenCalledOnce()
   expect(calls).toEqual([
     [API_SCRIPT_PATH, ['--check']],
     [SVG_CHECK_SCRIPT_PATH, []],
