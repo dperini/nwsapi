@@ -1,3 +1,4 @@
+import { checkNativeContract } from './check/wpt/native-contract.mts'
 import {
   API_SCRIPT_PATH,
   SVG_CHECK_SCRIPT_PATH,
@@ -12,6 +13,7 @@ import { toolVersions } from './external-tools.mts'
 import { checkSoak } from './soak.mts'
 
 export function checkCode(run = runNode) {
+  checkNativeContract()
   toolVersions()
   checkSoak()
   run(API_SCRIPT_PATH, ['--check'])

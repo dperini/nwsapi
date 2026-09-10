@@ -38,7 +38,6 @@
     "dist/**/*.d.ts"
   ],
   "main": "./dist/nwsapi",
-  "browserslist": ["ie 11"],
   "scripts": {
     "bench": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/report.mts",
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
@@ -95,6 +94,11 @@
     "gen:coverage": "node scripts/repo/run.mts scripts/repo/gen/coverage-badge.mts",
     "check:coverage": "node scripts/repo/run.mts scripts/repo/gen/coverage-badge.mts --check",
     "test:package": "pnpm run build && node scripts/repo/run.mts test/repo/e2e/jsdom-adapter-package.mts",
+    "test:wpt:native": "node scripts/repo/run.mts scripts/repo/check/wpt/native-run.mts",
+    "test:wpt:native:status": "node scripts/repo/run.mts scripts/repo/check/wpt/native-status.mts",
+    "check:wpt-native-contract": "node scripts/repo/run.mts scripts/repo/check/wpt/native-contract.mts --check",
+    "check:wpt-native-pool": "node scripts/repo/run.mts scripts/repo/check/wpt/native-pool.mts",
+    "check:wpt-native-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/native-scope.mts",
     "test:wpt": "pnpm run build && node scripts/repo/run.mts scripts/repo/test.mts upstream",
     "upstream:clone": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts clone",
     "upstream:verify": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts verify && pnpm run check:wpt-candidates",
@@ -109,9 +113,9 @@
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",
-    "@swc/core": "catalog:",
     "@playwright/test": "catalog:",
     "@puppeteer/browsers": "catalog:",
+    "@swc/core": "catalog:",
     "@types/css-tree": "catalog:",
     "@types/istanbul-lib-coverage": "catalog:",
     "@types/istanbul-lib-report": "catalog:",
@@ -132,9 +136,9 @@
     "jsdom": "catalog:",
     "mitata": "catalog:",
     "oxfmt": "catalog:",
-    "parse5": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "parse5": "catalog:",
     "rolldown": "catalog:",
     "run-local-ci": "catalog:",
     "svgo": "catalog:",
@@ -156,6 +160,9 @@
       "optional": true
     }
   },
+  "browserslist": [
+    "ie 11"
+  ],
   "devEngines": {
     "packageManager": [
       {

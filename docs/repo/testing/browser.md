@@ -9,3 +9,13 @@ The updater records both channels, the feed timestamp, and the selected beta ver
 Beta is the regular test target for current selector parsing and matching. Standards and features available in stable remain in scope. Beta is not proof that every stable behavior is unchanged, so existing regression cases remain. Experimental command-line feature flags are not added. Browser rendering and CSSOM serialization are outside this selector suite.
 
 After a browser update, run modern and legacy WPT, browser regressions, and coverage checks. Regenerate the WPT summary from the new run. Existing performance reports keep their measured browser versions until their benchmarks are rerun.
+
+## Native selector qualification
+
+Use the [timing guidance for your operation](wpt-inventory.md#native-support-pool). An unchanged contract needs a short verification. Saved-result replay does local analysis, and resume runs only newly discovered URLs. A browser or WPT pin change requires full candidate qualification. Its browser time is separate from checkout, downloads, and analysis.
+
+`pnpm run update` checks the native support contract after dependency installation. If the browser or WPT pin changed, it runs candidate discovery and browser qualification. If only inference code or dependencies changed, it reuses saved native reports when they still exist and both pins match. It rescans discovery and runs any newly discovered URLs before classification. `pnpm run update --check` reports the required work without starting browser tests.
+
+See [the native support pool process](wpt-inventory.md#native-support-pool) for discovery rules, classification, generated reports, replay commands, and the checks that enforce finalization.
+
+Chrome uses its default beta feature set. The generated launcher removes WPT feature overrides while preserving the debugging pipes required by ChromeDriver. Rendering assertions do not become selector requirements. Mixed cases retain a requirement to extract only their selector assertions.

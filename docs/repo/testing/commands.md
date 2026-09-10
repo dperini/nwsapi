@@ -11,6 +11,8 @@ The unit suite has a **10,000ms wall-clock budget**, following the fleet's fast 
 | `pnpm run test:node`               | Both tiers, each enforced separately      | 10,000 + 60,000ms |
 | `pnpm run test:wpt`                | WPT browser run                           |         600,000ms |
 
+`pnpm run test:wpt:native` is a separate discovery and qualification job outside the regular CI test budgets. Use the [timing guidance for checks, replay, resume, and full qualification](wpt-inventory.md#native-support-pool) to plan the operation you need. That process document covers replay, resume, generated artifacts, and the required finalization check.
+
 `pnpm run cover`, used by CI, runs both Node tiers under their usual budgets, merges their coverage, then runs WPT under its separate budget. Coverage does not increase the unit allowance. WPT also retains its 90,000ms per-page timeout.
 
 Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the command and terminates its workers on POSIX systems. The runner prints elapsed milliseconds and the limit for each tier. Improve fixtures and startup overhead when the unit tier exceeds its ceiling; tests requiring subprocesses or shared module mutations belong in integration. No tests are omitted from CI by changing tiers.
@@ -29,7 +31,6 @@ Type checks run without an incremental cache so they recheck changes to shared d
 `test/repo/unit/` covers selector behavior and helpers. `test/repo/integration/` covers the `jsdom` adapter and development commands. `test/repo/e2e/` covers browsers, published packages, and WPT. Reusable DOM fixtures live in `test/repo/fixtures/`, and fuzz targets live in `test/repo/fuzz/`.
 
 Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Development commands live in `scripts/repo/`. Older HTML suites remain under `test/`, and the pristine WPT checkout remains under `upstream/wpt/`.
-
 
 ## Integrated host workload
 

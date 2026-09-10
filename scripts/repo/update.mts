@@ -117,5 +117,10 @@ if (isMainModule(import.meta.url)) {
   if (process.argv.slice(2).some(arg => arg !== '--check')) {
     throw new Error('Usage: pnpm run update [--check]')
   }
-  updateDependencies(process.argv.includes('--check'))
+  const check = process.argv.includes('--check')
+  updateDependencies(check)
+  runNode(
+    path.join(REPO_ROOT, 'scripts/repo/update/native.mts'),
+    check ? ['--check'] : [],
+  )
 }
