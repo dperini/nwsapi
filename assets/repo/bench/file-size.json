@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "timestamp": "2026-09-10T04:01:02.212Z",
+    "timestamp": "2026-09-10T04:38:55.411Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "7ca3c3e0856eac6df3ca6941d08bb940b8a12c45c9d67f317c194523ee7f0346",
-    "competitorVersion": "8.3.2",
-    "lockfileSha256": "f9aea6d77b5047d1f8bc185b357065774e76deb605bba3eb20e16283e4832952",
+    "candidateSha256": "18ebdd82f22e74bcc5380b8b22e8791cdadf0e358c2d0bd69e3add85cb1567ca",
+    "competitorVersion": "9.1.1",
+    "lockfileSha256": "823a658412bf8339e8edb9ba680e9e4a100c72b17a5802783ff0d91e49ef9bba",
     "rolldown": "1.2.7",
     "method": "Readable nwsapi core browser file versus a full readable dom-selector ESM bundle, including runtime dependencies; no minification; full competitor exports; gzip level 9; Brotli quality 11. Excludes jsdom, nwsapi CLI, adapter, optional legacy module and css-tree peer."
   },
@@ -16,68 +16,80 @@
     {
       "engine": "NWSAPI",
       "artifact": "dist/nwsapi.js (readable core browser file)",
-      "bytes": 168059,
-      "gzip": 40558,
-      "brotli": 32880,
-      "sha256": "7ca3c3e0856eac6df3ca6941d08bb940b8a12c45c9d67f317c194523ee7f0346"
+      "bytes": 167646,
+      "gzip": 40556,
+      "brotli": 32868,
+      "sha256": "18ebdd82f22e74bcc5380b8b22e8791cdadf0e358c2d0bd69e3add85cb1567ca"
     },
     {
       "engine": "@asamuzakjp/dom-selector",
       "artifact": "Full readable runtime bundle",
-      "bytes": 586019,
-      "gzip": 131818,
-      "brotli": 110593,
-      "sha256": "638e58603834f7926ebaf4b3c75e59251e8f8a48c5e32005c4bdb2842f16d356"
+      "bytes": 600265,
+      "gzip": 133869,
+      "brotli": 112218,
+      "sha256": "1f5823dac833a5cc3c71b14c19d1f07bd3048720b66d992d877992d3a4d29678"
     }
   ],
   "competitorModules": [
     {
       "file": "@asamuzakjp/dom-selector/src/index.js",
-      "sha256": "cfa411c3efdc6885b7d88d4df800fa1c749db901d146dc2601c481486954d466"
+      "sha256": "92c339612f36e22589433957633dcabef87ad58b1958233f936e2127a35133f9"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/constant.js",
-      "sha256": "c3bf549b549315a73100e03e31bf21cc7a94acd8c021040de9908b85e3eb6433"
+      "sha256": "f4064aa5024e16e09fbe52655437d8fcb9ae9fba2789845308cb6f2ab7c12176"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/evaluator.js",
-      "sha256": "38942bf1485c75dcad5610f66a4dc0825589074beb41ffb030b4af69493eb2ed"
+      "sha256": "ae062d14f7d017c4fc51dbfa62547bed11cf98fd97ec837d80eb9e5e4601f18f"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/event.js",
-      "sha256": "2f39c4eae3d1f93d71aa2405218993992f22b801ec2aaae960c506ba6c0603d8"
+      "sha256": "d23ac78dfc9c299270ec36e6ca984685cf6b98551112245dbe9f719083b041de"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/finder.js",
-      "sha256": "ebc4f5dca4d8f3a7e20b80ba3422a924a9f1e7f2784905ed20241ea5d7a1871a"
+      "sha256": "d236928d343b78a59fe9dfcbb6fcd5b12da56ae9e5570a4290425f490f13cf89"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/mapper.js",
-      "sha256": "d713d87bf6eb85d5977344eecf2048148120bceffe991ec5325fb8f0b7c88d96"
+      "sha256": "9e5091fe6a6328ee7b3c0c35329ca8267494d6e7cf8018d7d7743d9b822159e0"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/matcher.js",
-      "sha256": "db2f4c60ca0d20864da1f725c72250476a5097c86dcd5fc76e4011a453d87f00"
+      "sha256": "6bab3d5734fbcc983ca0b9953bc63e6091fa695e008a6c7f3f14669c2322f62f"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/nwsapi.js",
-      "sha256": "c232f330b9e48ef420c4d97ea25a0f459f7e16eab4d69edca5461feb68b4f054"
+      "sha256": "598edb18158157e7cf80bc962259fac0513168f76e0cf8ee548535d8eeb197a6"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/parser.js",
-      "sha256": "0e13caebb235f2e14b9e320d79f164ee4b4ebf38f88e75b4f0ba1006d925d76a"
+      "sha256": "b62a68225f73c2e592058aa0dcbbed8277b6ea9a77dd26eaf44e2685484da468"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/processor.js",
-      "sha256": "e259bf496ecfdc5bc0f29a4251ab892f87097b0db4bc740d9531459ea5a996fe"
+      "sha256": "80d4db6d97043cf2028f84e0b45d269781ea3aa5b44f24b93e17f6ecb50f6c3c"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/pseudo-class.js",
+      "sha256": "8f7d5ee89a3c0453538a2e69bbf116b300a39a1777d293aa954806c5044e94f1"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/selector.js",
-      "sha256": "db1e68283f2cc1dba2c67c98a91be9904c50b4a0a2f61b997410319d4950d034"
+      "sha256": "5c9cf1c8f0b5e5f56091ce449c2729de4f68803ce6ccecda7572411b32aaef40"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/shadow.js",
+      "sha256": "0487f169d381b79457f75319a260ca77ba7cf8f113b22a32719b3e4d33c6c95c"
+    },
+    {
+      "file": "@asamuzakjp/dom-selector/src/js/traverser.js",
+      "sha256": "7639aa8245bb2351d9e6f46050d236d9023dd70e3b94fc2a21a91cea01f0cc9c"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/utility.js",
-      "sha256": "328ca8a8b4f9f81b6aec36079342aa2365b52998a072edafb743ccd80181e3d2"
+      "sha256": "23c4aede8e8af4099c4453b306ade40e695eddba2661b8d17b5f350cb2024ab8"
     },
     {
       "file": "bidi-js/dist/bidi.mjs",

@@ -5,8 +5,8 @@ import os from 'node:os'
 import { ENGINE_BUILD_PATH } from '../lib/paths.mts'
 
 export const require = createRequire(import.meta.url)
-export const jsdomRequire = createRequire(require.resolve('jsdom'))
-export const competitorEntry = jsdomRequire.resolve('@asamuzakjp/dom-selector')
+// Benchmark versions are explicit dependencies, independent of jsdom's range.
+export const competitorEntry = require.resolve('@asamuzakjp/dom-selector')
 export const engineNames = ['NWSAPI', '@asamuzakjp/dom-selector'] as const
 export const sha256 = (bytes: string | Buffer) =>
   createHash('sha256').update(bytes).digest('hex')
@@ -20,7 +20,7 @@ export function provenance() {
     jsdom: require('jsdom/package.json').version as string,
     candidateVersion: require('../../../package.json').version as string,
     candidateSha256: sha256(readFileSync(ENGINE_BUILD_PATH)),
-    competitorVersion: jsdomRequire('@asamuzakjp/dom-selector/package.json')
+    competitorVersion: require('@asamuzakjp/dom-selector/package.json')
       .version as string,
     lockfileSha256: sha256(
       readFileSync(new URL('../../../pnpm-lock.yaml', import.meta.url)),

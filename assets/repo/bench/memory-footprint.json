@@ -1,98 +1,98 @@
 {
   "metadata": {
-    "timestamp": "2026-09-09T21:19:52.691Z",
+    "timestamp": "2026-09-10T04:38:55.217Z",
     "node": "v26.5.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M3 Max",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "9d22cd8d577233fb39e5d01b1934b2af1b3840248da5af2b27654828d907c4e2",
-    "competitorVersion": "8.3.2",
-    "lockfileSha256": "f9aea6d77b5047d1f8bc185b357065774e76deb605bba3eb20e16283e4832952",
+    "candidateSha256": "18ebdd82f22e74bcc5380b8b22e8791cdadf0e358c2d0bd69e3add85cb1567ca",
+    "competitorVersion": "9.1.1",
+    "lockfileSha256": "823a658412bf8339e8edb9ba680e9e4a100c72b17a5802783ff0d91e49ef9bba",
     "runtime": "Chromium 151.0.7922.34",
     "host": "native browser DOM; no jsdom",
     "count": 40,
     "queries": 100,
     "rounds": 5,
     "fixtureSha256": "a2b1e6100a31fc02d3c3bf7011230fb7cd723b3b72752e64fb637f69e5fb0c55",
-    "competitorBundleSha256": "34e4e27a3e9db7d2f51a94672b836c7b3c8b0f434f6f0a75bbd61859a1459ee3",
+    "competitorBundleSha256": "2fbb2ff9dc83bd6e97b9aafa8beaf02867f136f2b1f9aea007a1758e45414c1a",
     "method": "Incremental retained JS heap per engine after forced GC. DOMs and both loaded libraries exist before baseline. Fresh browser page per engine and round; rotating order. Excludes DOM allocation, shared code, native browser memory and jsdom entirely."
   },
   "rows": [
     {
       "engine": "NWSAPI",
       "initialized": {
-        "median": 9618.6,
-        "min": 9618.6,
-        "max": 9618.6,
+        "median": 9644.2,
+        "min": 9644.2,
+        "max": 9644.2,
         "samples": [
-          9618.6,
-          9618.6,
-          9618.6,
-          9618.6,
-          9618.6
+          9644.2,
+          9644.2,
+          9644.2,
+          9644.2,
+          9644.2
         ]
       },
       "queried": {
-        "median": 76910.8,
-        "min": 76888.4,
-        "max": 76949.6,
+        "median": 76943.9,
+        "min": 76923.5,
+        "max": 76985.7,
         "samples": [
-          76910.8,
-          76888.4,
-          76949.6,
-          76888.4,
-          76910.8
+          76923.5,
+          76985.7,
+          76943.9,
+          76943.9,
+          76943.9
         ]
       },
       "cacheGrowth": {
-        "median": 67292.2,
-        "min": 67269.8,
-        "max": 67331,
+        "median": 67299.7,
+        "min": 67279.3,
+        "max": 67341.5,
         "samples": [
-          67292.2,
-          67269.8,
-          67331,
-          67269.8,
-          67292.2
+          67279.3,
+          67341.5,
+          67299.7,
+          67299.7,
+          67299.7
         ]
       }
     },
     {
       "engine": "@asamuzakjp/dom-selector",
       "initialized": {
-        "median": 338013.9,
-        "min": 338013.9,
-        "max": 338013.9,
+        "median": 334955.2,
+        "min": 334955.2,
+        "max": 334955.2,
         "samples": [
-          338013.9,
-          338013.9,
-          338013.9,
-          338013.9,
-          338013.9
+          334955.2,
+          334955.2,
+          334955.2,
+          334955.2,
+          334955.2
         ]
       },
       "queried": {
-        "median": 563582.7,
-        "min": 563524.4,
-        "max": 564004.8,
+        "median": 564507.8,
+        "min": 564423.2,
+        "max": 564712.8,
         "samples": [
-          563524.4,
-          563924,
-          563582.7,
-          564004.8,
-          563544.4
+          564423.2,
+          564699.7,
+          564467.9,
+          564507.8,
+          564712.8
         ]
       },
       "cacheGrowth": {
-        "median": 225568.8,
-        "min": 225510.5,
-        "max": 225990.9,
+        "median": 229552.6,
+        "min": 229468,
+        "max": 229757.6,
         "samples": [
-          225510.5,
-          225910.1,
-          225568.8,
-          225990.9,
-          225530.5
+          229468,
+          229744.5,
+          229512.7,
+          229552.6,
+          229757.6
         ]
       }
     }

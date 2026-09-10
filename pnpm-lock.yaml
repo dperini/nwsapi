@@ -107,6 +107,9 @@ settings:
 
 catalogs:
   default:
+    '@asamuzakjp/dom-selector':
+      specifier: 9.1.1
+      version: 9.1.1
     '@playwright/test':
       specifier: 1.62.1
       version: 1.62.1
@@ -208,6 +211,9 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
     devDependencies:
+      '@asamuzakjp/dom-selector':
+        specifier: 'catalog:'
+        version: 9.1.1
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.62.1
@@ -331,6 +337,10 @@ packages:
   '@asamuzakjp/dom-selector@8.3.2':
     resolution: {integrity: sha512-93Z1N+BQNXysodoicpOIyNh2drHfz/CTf9nnT0FEx72GJcIiwgydD7tGAr78j41LsYn3hlRn+LdGPuBLn1Bl8Q==}
     engines: {node: ^22.13.0 || >=24.0.0}
+
+  '@asamuzakjp/dom-selector@9.1.1':
+    resolution: {integrity: sha512-4lLC4AQ9fePhuMgL1/aTIjOTasv4z7zekgcCAu7xnpTqdi+nfh2jAjvbk9DQWoc62QAPua+nx2b8dQlgRIH//Q==}
+    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
 
   '@babel/helper-string-parser@7.29.7':
     resolution: {integrity: sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==}
@@ -2441,6 +2451,13 @@ snapshots:
       lru-cache: 11.5.2
 
   '@asamuzakjp/dom-selector@8.3.2':
+    dependencies:
+      bidi-js: 1.0.3
+      css-tree: 3.2.1
+      is-potential-custom-element-name: 1.0.1
+      lru-cache: 11.5.2
+
+  '@asamuzakjp/dom-selector@9.1.1':
     dependencies:
       bidi-js: 1.0.3
       css-tree: 3.2.1

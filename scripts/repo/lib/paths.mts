@@ -38,6 +38,10 @@ export const TRAVERSAL_SOURCE_PATH = path.join(
   REPO_ROOT,
   'src/modules/nwsapi-traversal.mts',
 )
+export const WPT_CANDIDATES_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/check/wpt/candidates.mts',
+)
 export const UPSTREAM_HELPER_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/git-partial-submodule.mts',

@@ -11,21 +11,20 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=7c2dcf529d49)](docs/repo/perf/benchmarks.md)
+
 <details>
 <summary>How the benchmarks work</summary>
 
-Both libraries run directly on native Chromium DOMs. Query timings measure repeated calls and exclude document creation, library loading, and engine construction.
-Memory measurements record retained JavaScript heap after garbage collection. Documents and shared library code exist before the baseline reading.
-File sizes compare the browser libraries after Brotli compression. The [benchmark report](docs/repo/perf/benchmarks.md) explains each workload and links to its recorded samples.
+The timing comparison runs [36 different CSS selectors](docs/repo/perf/benchmarks.md#all-results-comparison) repeatedly. Each call returns every matching element, rather than stopping at the first match. The selectors cover component markup, documentation pages, and utility classes. The summary gives each selector equal weight.
+
+This summary also covers retained heap after 100 distinct queries per engine and compressed browser file sizes. The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native Chromium DOMs and exclude `jsdom`.
+
+Query timings exclude document creation, library loading, and engine construction. Memory measurements record retained JavaScript heap after garbage collection. Documents and shared library code exist before the baseline reading. File sizes compare the browser libraries after Brotli compression. The [benchmark report](docs/repo/perf/benchmarks.md) explains each workload and links to its recorded samples.
 
 </details>
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=cbfd808299f7)](docs/repo/perf/benchmarks.md)
-
-This summary covers 36 repeated all-results queries, retained heap after 100 distinct queries per engine, and compressed browser file sizes.
-The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native browser DOMs and exclude `jsdom`.
-
-[Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Inside the compiler](docs/repo/perf/design.md)
+[Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Compliance](docs/repo/selector/compatibility.md#comparison-results) · [Inside the compiler](docs/repo/perf/design.md)
 
 ## Install
 
@@ -35,7 +34,8 @@ pnpm add nwsapi
 
 ## In jsdom
 
-Plug NWSAPI into jsdom for queries and stylesheet matching. Requires nwsapi ≥ 2.3.0 and jsdom ≥ 27.
+Plug `nwsapi` into `jsdom` for queries and stylesheet matching. Requires `nwsapi` ≥ 2.3.0 and `jsdom` ≥ 27.
+See the [public `jsdom` query comparison](docs/repo/perf/jsdom.md) against `jsdom` using `@asamuzakjp/dom-selector`.
 
 <details>
 <summary>Set up the dependency and override</summary>

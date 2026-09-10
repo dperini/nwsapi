@@ -1,3 +1,5 @@
+import { assertReportIdentity } from '../bench/report-identity.mts'
+import type { ReportIdentity } from '../bench/report-identity.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { refreshChartReferences } from './chart-references.mts'
 import { compactQueryChart } from '../bench/compact-query-chart.mts'
@@ -9,7 +11,7 @@ import type { QueryChartOptions } from '../bench/query-chart.mts'
 const root = new URL('../../../', import.meta.url)
 const data: {
   rows: QueryChartOptions['rows']
-  metadata: {
+  metadata: ReportIdentity & {
     runtime: string
     competitor: string
     candidateVersion: string
@@ -26,6 +28,33 @@ if (!data.metadata.runtime?.startsWith('Chromium')) {
     'Regenerate standalone browser measurements before publishing the hero.',
   )
 }
+const reports: Array<{ metadata: ReportIdentity; rows: Measurement[] }> = [
+  'results.json',
+  'documentation/results.json',
+  'atomic/results.json',
+].map(file =>
+  JSON.parse(readFileSync(new URL('assets/repo/bench/' + file, root), 'utf8')),
+)
+const rows = reports.flatMap(report => report.rows)
+const speedup = geometricSpeedup(rows)
+const memory: {
+  metadata: ReportIdentity & { queries: number }
+  rows: Array<{ queried: { median: number } }>
+} = JSON.parse(
+  readFileSync(
+    new URL('assets/repo/bench/memory-footprint.json', root),
+    'utf8',
+  ),
+)
+const sizes: { metadata: ReportIdentity; rows: Array<{ brotli: number }> } =
+  JSON.parse(
+    readFileSync(new URL('assets/repo/bench/file-size.json', root), 'utf8'),
+  )
+assertReportIdentity(data.metadata, [
+  ...reports.map(report => report.metadata),
+  memory.metadata,
+  sizes.metadata,
+])
 writeFileSync(
   new URL('assets/repo/bench/first-matches.svg', root),
   compactQueryChart({
@@ -39,27 +68,6 @@ writeFileSync(
       `nwsapi v${data.metadata.candidateVersion} · @asamuzakjp/dom-selector v${data.metadata.competitor} · No jsdom`,
     ],
   }),
-)
-const reports: Array<{ rows: Measurement[] }> = [
-  'results.json',
-  'documentation/results.json',
-  'atomic/results.json',
-].map(file =>
-  JSON.parse(readFileSync(new URL('assets/repo/bench/' + file, root), 'utf8')),
-)
-const rows = reports.flatMap(report => report.rows)
-const speedup = geometricSpeedup(rows)
-const memory: {
-  metadata: { queries: number }
-  rows: Array<{ queried: { median: number } }>
-} = JSON.parse(
-  readFileSync(
-    new URL('assets/repo/bench/memory-footprint.json', root),
-    'utf8',
-  ),
-)
-const sizes: { rows: Array<{ brotli: number }> } = JSON.parse(
-  readFileSync(new URL('assets/repo/bench/file-size.json', root), 'utf8'),
 )
 const heap: [number, number] = [
   memory.rows[0]!.queried.median,

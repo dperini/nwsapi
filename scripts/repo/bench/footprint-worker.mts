@@ -1,7 +1,11 @@
 import { setImmediate } from 'node:timers/promises'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
-import { jsdomRequire, positiveInteger, sha256 } from './footprint-shared.mts'
+import {
+  require as competitorRequire,
+  positiveInteger,
+  sha256,
+} from './footprint-shared.mts'
 
 export const fixture =
   '<!doctype html><main>' +
@@ -17,7 +21,7 @@ export const fixture =
 interface SelectorEngine {
   querySelectorAll(selector: string, context: Document): Element[]
 }
-const { DOMSelector } = jsdomRequire('@asamuzakjp/dom-selector') as {
+const { DOMSelector } = competitorRequire('@asamuzakjp/dom-selector') as {
   DOMSelector: new (
     window: JSDOM['window'],
     document: Document,

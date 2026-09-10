@@ -52,9 +52,11 @@
     "report:build": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/build-compression.mts",
     "report:size": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/filesize.mts",
     "gen:bench": "node scripts/repo/run.mts scripts/repo/gen/benchmark-charts.mts && node scripts/repo/run.mts scripts/repo/gen/readme-performance.mts && node scripts/repo/run.mts scripts/repo/gen/footprint-charts.mts",
+    "bench:jsdom": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/jsdom-override.mts",
     "bench:selectors": "node scripts/repo/run.mts scripts/repo/bench/run.mts selectors",
     "check:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts",
     "check:unicode-es5": "node scripts/repo/run.mts scripts/repo/check/unicode-es5.mts",
+    "check:wpt-candidates": "node scripts/repo/run.mts scripts/repo/check/wpt/candidates.mts",
     "check:wpt-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/scope.mts",
     "fix:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts --fix",
     "gen:memory": "node scripts/repo/run.mts scripts/repo/gen/memory-performance.mts",
@@ -92,7 +94,7 @@
     "test:package": "pnpm run build && node scripts/repo/run.mts test/repo/e2e/jsdom-adapter-package.mts",
     "test:wpt": "pnpm run build && node scripts/repo/run.mts scripts/repo/test.mts upstream",
     "upstream:clone": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts clone",
-    "upstream:verify": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts verify",
+    "upstream:verify": "node scripts/repo/run.mts scripts/repo/git-partial-submodule.mts verify && pnpm run check:wpt-candidates",
     "test:attributes": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/unit/attribute-parse-error.test.mts",
     "test:attributes:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e/attribute-strings-browser.test.mts",
     "test:browser": "NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/vitest.config.mts test/repo/e2e && pnpm run test:media",
@@ -103,6 +105,7 @@
     "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts"
   },
   "devDependencies": {
+    "@asamuzakjp/dom-selector": "catalog:",
     "@swc/core": "catalog:",
     "@playwright/test": "catalog:",
     "@types/css-tree": "catalog:",

@@ -250,3 +250,40 @@ test('tree readers respect shadow boundaries and callback mutations', t => {
   })
   assert.equal(calls.length, 2)
 })
+
+test('host readers require literal null attributes for ID and class matching', t => {
+  const { window } = new JSDOM('<main><span></span></main>')
+  t.onTestFinished(() => window.close())
+  const parent = window.document.querySelector('main')!
+  const child = parent.firstElementChild!
+  const adapter = new Adapter(
+    window,
+    idlUtils.implForWrapper(window.document),
+    {
+      idlUtils,
+      domSymbolTree,
+    },
+  )
+  const subject = idlUtils.implForWrapper(child)
+  for (const [selector, attribute] of [
+    ['#null', 'id'],
+    ['.null', 'class'],
+  ]) {
+    for (const value of [null, '', 'null', null]) {
+      if (value === null) {
+        child.removeAttribute(attribute!)
+      } else {
+        child.setAttribute(attribute!, value)
+      }
+      assert.equal(adapter.matches(selector!, subject), value === 'null')
+      assert.equal(
+        adapter.closest(selector!, subject),
+        value === 'null' ? child : null,
+      )
+    }
+    parent.setAttribute(attribute!, 'null')
+    assert.equal(adapter.closest(selector!, subject), parent)
+    parent.removeAttribute(attribute!)
+    assert.equal(adapter.closest(selector!, subject), null)
+  }
+})

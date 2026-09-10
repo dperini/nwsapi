@@ -6,6 +6,7 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  '@asamuzakjp/dom-selector': '9.1.1'
   '@swc/core': '1.15.41'
   '@types/istanbul-lib-coverage': '2.0.6'
   '@types/istanbul-lib-report': '3.0.3'

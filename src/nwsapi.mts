@@ -3426,7 +3426,9 @@ interface Primordials {
             valid = name == 'only-child' && argument === null
           } else {
             valid =
-              (treePseudo(context) || context == 'scroll-button') &&
+              (treePseudo(context) ||
+                context == 'scroll-button' ||
+                context.indexOf('-webkit-') == 0) &&
               /^(?:hover|active|focus|focus-visible|focus-within)$/.test(name)
             if (
               context == 'scroll-button' &&
@@ -5008,22 +5010,14 @@ interface Primordials {
                 // normalization getter on this common path.
                 case 'read-only':
                 case '-moz-read-only':
-                  source =
-                    'if(' +
-                    '(/^textarea$/i.test(e.localName)&&(e.readOnly||s.isDisabled(e)))||' +
-                    '(/^input$/i.test(e.localName)&&((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))?(e.readOnly||s.isDisabled(e)):true))||' +
-                    '(!/^(?:input|textarea)$/i.test(e.localName) && !s.isContentEditable(e))' +
-                    '){' +
-                    source +
-                    '}'
-                  break
                 case 'read-write':
                 case '-moz-read-write':
                   source =
-                    'if(' +
-                    '(/^textarea$/i.test(e.localName)&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(/^input$/i.test(e.localName)&&(e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e))||' +
-                    '(!/^(?:input|textarea)$/i.test(e.localName) && s.isContentEditable(e))' +
+                    'n=e.localName;if(' +
+                    (match[1]!.indexOf('read-only') >= 0 ? '!' : '') +
+                    '(/^input$/i.test(n)?' +
+                    '((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e)):' +
+                    '/^textarea$/i.test(n)?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
                     '){' +
                     source +
                     '}'
