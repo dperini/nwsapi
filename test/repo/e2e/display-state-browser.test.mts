@@ -31,7 +31,7 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
         const page = await browser.newPage()
         try {
           await page.setContent(
-            '<!doctype html><dialog></dialog><div popover></div><iframe></iframe>',
+            '<!doctype html><dialog aria-modal="true"></dialog><div popover aria-modal="true"></div><details open aria-modal="true"></details><div role="dialog" aria-modal="true"></div><iframe></iframe>',
           )
           const browserResults = await page.evaluate(
             ({ source: browserSource, mode: browserMode }) => {
@@ -78,13 +78,32 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
                       native.call(dialog, ':modal'),
                     ])
                     results.push([
+                      nw.match(':modal', popover!),
+                      native.call(popover, ':modal'),
+                    ])
+                    results.push([
                       nw.match(':popover-open', popover!),
                       native.call(popover, ':popover-open'),
                     ])
                   }
                 }
               }
+              for (const node of document.querySelectorAll('[aria-modal]')) {
+                Object.defineProperty(node, 'modal', { value: true })
+                results.push([
+                  nw.match(':modal', node),
+                  native.call(node, ':modal'),
+                ])
+              }
               check()
+              for (const [dialog] of pairs) {
+                dialog!.show()
+              }
+              check()
+              for (const [dialog] of pairs) {
+                dialog!.close()
+                dialog!.setAttribute('aria-modal', 'false')
+              }
               if (browserMode === 'install-after') {
                 nw.install()
               }
@@ -110,6 +129,48 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
           await page.close()
         }
       })()
+    }
+  },
+)
+
+test.skipIf(!process.env['NWSAPI_BROWSER'])(
+  'modal and fullscreen matching preserve hidden browser state',
+  async t => {
+    const browser = await chromium.launch(browserLaunchOptions())
+    t.onTestFinished(() => browser.close())
+    const page = await browser.newPage()
+    await page.setContent(
+      '<!doctype html><dialog></dialog><div id="host"></div>',
+    )
+    const results = await page.evaluate(async browserSource => {
+      // eslint-disable-next-line no-eval -- Exercise the published browser entry.
+      ;(0, eval)(browserSource)
+      const comparisons: Array<[boolean, boolean]> = []
+      const check = (node: Element, selector: string) => {
+        comparisons.push([NW.Dom.match(selector, node), node.matches(selector)])
+      }
+      const dialog = document.querySelector('dialog')!
+      dialog.showModal()
+      dialog.removeAttribute('open')
+      check(dialog, ':modal')
+      dialog.setAttribute('open', '')
+      dialog.close()
+      const host = document.querySelector('#host')!
+      const root = host.attachShadow({ mode: 'closed' })
+      const target = document.createElement('div')
+      root.append(target)
+      await target.requestFullscreen()
+      for (const node of [host, target, dialog]) {
+        check(node, ':fullscreen')
+        check(node, ':modal')
+      }
+      await document.exitFullscreen()
+      check(target, ':fullscreen')
+      check(target, ':modal')
+      return comparisons
+    }, source)
+    for (const [actual, expected] of results) {
+      assert.equal(actual, expected)
     }
   },
 )

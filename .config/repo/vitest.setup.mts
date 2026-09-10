@@ -5,14 +5,16 @@ import type { TestProject } from 'vitest/node'
 export default function setup(project: TestProject) {
   const build = () => {
     execFileSync(process.execPath, ['scripts/repo/build/run.mts'], {
-      cwd: new URL('../', import.meta.url),
+      cwd: new URL('../../', import.meta.url),
       stdio: 'inherit',
     })
   }
   build()
   // Tests import generated CommonJS files, so watch their sources explicitly.
   if (project.vitest.config.watch) {
-    project.vite.watcher.add(fileURLToPath(new URL('../src', import.meta.url)))
+    project.vite.watcher.add(
+      fileURLToPath(new URL('../../src', import.meta.url)),
+    )
   }
   project.onTestsRerun(build)
 }

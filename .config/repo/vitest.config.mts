@@ -1,7 +1,7 @@
 import { availableParallelism } from 'node:os'
 import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
-import { isAgent } from '../scripts/repo/lib/is-agent.mts'
+import { isAgent } from '../../scripts/repo/lib/is-agent.mts'
 
 process.env['TZ'] ??= 'UTC'
 
@@ -26,11 +26,11 @@ export default defineConfig({
           ? 'test/repo/integration/**/*.test.mts'
           : 'test/repo/**/*.test.mts',
     ],
-    globalSetup: ['.config/vitest.setup.mts'],
+    globalSetup: ['.config/repo/vitest.setup.mts'],
     forceRerunTriggers: [
-      '../src/**/*.mts',
-      '../scripts/repo/build/run.mts',
-      './**',
+      '../../src/**/*.mts',
+      '../../scripts/repo/build/run.mts',
+      '../**',
     ].map(path => fileURLToPath(new URL(path, import.meta.url))),
     environment: 'node',
     // Execute the published CommonJS bytes consistently for import and require.

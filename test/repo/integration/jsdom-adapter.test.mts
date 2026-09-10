@@ -738,3 +738,27 @@ test.skipIf(!process.env['JSDOM_PACKAGE'])(
     assert.equal(consumer.getByTestId(root, 'updated'), save)
   },
 )
+
+test('the drop-in distinguishes modal state from ARIA and open body portals', t => {
+  const window = host(t, '<button id="trigger">Open</button>')
+  const doc = window.document
+  const dialog = doc.createElement('dialog')
+  dialog.setAttribute('aria-modal', 'true')
+  Object.defineProperty(dialog, 'modal', { value: true })
+  doc
+    .getElementById('trigger')!
+    .addEventListener('click', () => doc.body.appendChild(dialog))
+  doc.getElementById('trigger')!.click()
+  for (let index = 0; index < 20; index++) {
+    dialog.open = index % 2 === 0
+    assert.deepEqual(
+      Array.from(doc.querySelectorAll('dialog:open')),
+      dialog.open ? [dialog] : [],
+    )
+    assert.deepEqual(Array.from(doc.querySelectorAll(':modal')), [])
+    assert.equal(dialog.matches(':modal'), false)
+    assert.equal(doc.querySelector('[aria-modal="true"]'), dialog)
+  }
+  dialog.remove()
+  assert.equal(dialog.matches(':modal'), false)
+})

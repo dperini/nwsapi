@@ -1,0 +1,141 @@
+{
+  "baseline": "24cdab6aa6b6e0a483197d30b09bfeed892256ef",
+  "engineHash": "aa03308c34eaf4accea94a6b9e51e05737a23fa3e981fe32f0528e6b7da709d0",
+  "node": "v26.5.0",
+  "subprocessBudgetMs": 3000,
+  "scope": "One :modal query with an Element.matches delegate. The subprocess deadline includes startup. Capped cases interrupt recursion deliberately and are not throughput benchmarks.",
+  "rows": [
+    {
+      "name": "before-change",
+      "limit": 10,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 0,
+        "result": false,
+        "queryMs": 3.73029200000002
+      }
+    },
+    {
+      "name": "before-change",
+      "limit": 100,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 0,
+        "result": false,
+        "queryMs": 3.7706249999999955
+      }
+    },
+    {
+      "name": "before-change",
+      "limit": 1000,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 0,
+        "result": false,
+        "queryMs": 3.663874999999962
+      }
+    },
+    {
+      "name": "before-change",
+      "limit": null,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 0,
+        "result": false,
+        "queryMs": 3.725999999999999
+      }
+    },
+    {
+      "name": "historical",
+      "limit": 10,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 22,
+        "result": false,
+        "queryMs": 3.7820410000000493
+      }
+    },
+    {
+      "name": "historical",
+      "limit": 100,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 202,
+        "result": false,
+        "queryMs": 3.7432079999999814
+      }
+    },
+    {
+      "name": "historical",
+      "limit": 1000,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 2002,
+        "result": false,
+        "queryMs": 5.931375000000003
+      }
+    },
+    {
+      "name": "historical",
+      "limit": null,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 2717975,
+        "result": false,
+        "queryMs": 463.92058399999996
+      }
+    },
+    {
+      "name": "current",
+      "limit": 10,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 1,
+        "result": false,
+        "queryMs": 3.794125000000008
+      }
+    },
+    {
+      "name": "current",
+      "limit": 100,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 1,
+        "result": false,
+        "queryMs": 3.8516670000000204
+      }
+    },
+    {
+      "name": "current",
+      "limit": 1000,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 1,
+        "result": false,
+        "queryMs": 3.794207999999969
+      }
+    },
+    {
+      "name": "current",
+      "limit": null,
+      "timedOut": false,
+      "result": {
+        "initializationCalls": 0,
+        "calls": 1,
+        "result": false,
+        "queryMs": 3.7467920000000277
+      }
+    }
+  ]
+}

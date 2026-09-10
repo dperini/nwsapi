@@ -42,7 +42,7 @@ export const entries = [
     published: 'src/nwsapi.js',
   },
   {
-    source: 'src/extensions/nwsapi-legacy.mts',
+    source: 'src/extension/nwsapi-legacy.mts',
     output: 'dist/modules/nwsapi-legacy.js',
     published: 'src/modules/nwsapi-legacy.js',
   },
@@ -52,12 +52,12 @@ export const entries = [
     published: 'src/dom-selector.js',
   },
   {
-    source: 'src/extensions/nwsapi-jquery.mts',
+    source: 'src/extension/nwsapi-jquery.mts',
     output: 'dist/modules/nwsapi-jquery.js',
     published: 'src/modules/nwsapi-jquery.js',
   },
   {
-    source: 'src/extensions/nwsapi-traversal.mts',
+    source: 'src/extension/nwsapi-traversal.mts',
     output: 'dist/modules/nwsapi-traversal.js',
     published: 'src/modules/nwsapi-traversal.js',
   },
@@ -68,7 +68,7 @@ export const browserOutputs = new Set<string>(
     .filter(
       ({ source }) =>
         source === 'src/engine/nwsapi.mts' ||
-        source.startsWith('src/extensions/'),
+        source.startsWith('src/extension/'),
     )
     .map(({ output }) => output),
 )

@@ -89,9 +89,10 @@ describe('state pseudo-classes under a host that delegates to nwsapi', () => {
   })
 
   test('an open <dialog> still matches :modal via the fullscreen flag', () => {
-    const { document, NW } = build(
+    const { window, document, NW } = build(
       '<!doctype html><body><dialog id=g open>hi</dialog></body>',
     )
+    wireMatchesToNwsapi(window, NW)
     const dialog = document.getElementById('g')
 
     // Without a native matcher there is no "is modal" flag to read, so the

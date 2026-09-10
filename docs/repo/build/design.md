@@ -40,7 +40,7 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code and direction helpers live in `src/engine/`. The adapter and its host types live in `src/adapter/`. Optional selector extensions live in `src/extensions/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+Engine code and direction helpers live in `src/engine/`. The adapter and its host types live in `src/adapter/`. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 

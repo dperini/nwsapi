@@ -2592,36 +2592,65 @@ interface Primordials {
         matchesNative(node, ':closed')
       )
     },
-    isFullscreen = function (node: EngineElement) {
-      var doc = node.ownerDocument
-      return (
-        matchesNative(node, ':fullscreen') ||
-        !!(
-          doc &&
-          (doc.fullscreenElement === node ||
-            (doc as Document & { webkitFullscreenElement?: Element })
-              .webkitFullscreenElement === node ||
-            (doc as Document & { mozFullScreenElement?: Element })
-              .mozFullScreenElement === node ||
-            (doc as Document & { msFullscreenElement?: Element })
-              .msFullscreenElement === node)
-        )
-      )
+    fullscreenState = function (node: EngineElement): boolean | undefined {
+      var owner = node.ownerDocument,
+        standard = owner && owner.fullscreenElement,
+        webkit =
+          owner &&
+          (owner as Document & { webkitFullscreenElement?: Element })
+            .webkitFullscreenElement,
+        moz =
+          owner &&
+          (owner as Document & { mozFullScreenElement?: Element })
+            .mozFullScreenElement,
+        ms =
+          owner &&
+          (owner as Document & { msFullscreenElement?: Element })
+            .msFullscreenElement
+      if (standard === node || webkit === node || moz === node || ms === node) {
+        return true
+      }
+      if (standard === null && !webkit && !moz && !ms) {
+        return false
+      }
+      return undefined
     },
-    // A modal dialog cannot be distinguished from dialog.show() without the
-    // native :modal state. Fullscreen is explicitly modal per the WPT suite.
+    isFullscreen = function (node: EngineElement) {
+      var state = fullscreenState(node)
+      if (state === false) {
+        return false
+      }
+      var native = matchesNative(node, ':fullscreen', undefined)
+      return native === undefined ? state === true : native
+    },
+    // Neither open nor aria-modal identifies the browser's modal state.
+    // An unresolved state still needs native matching, including shadow trees.
     isModal = function (node: EngineElement) {
-      return matchesNative(node, ':modal') || isFullscreen(node)
+      var fullscreen = fullscreenState(node)
+      if (
+        fullscreen === false &&
+        node.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
+        tagOf(node) !== 'dialog'
+      ) {
+        return false
+      }
+      var native = matchesNative(node, ':modal', undefined)
+      if (native !== undefined) {
+        return native
+      }
+      return (
+        fullscreen === true ||
+        (fullscreen === undefined && matchesNative(node, ':fullscreen'))
+      )
     },
     isPictureInPicture = function (node: EngineElement) {
       var doc = node.ownerDocument
       return (
-        matchesNative(node, ':picture-in-picture') ||
         !!(
           doc &&
           (doc.pictureInPictureElement === node ||
             node.webkitPresentationMode === 'picture-in-picture')
-        )
+        ) || matchesNative(node, ':picture-in-picture')
       )
     },
     // The popover attribute declares capability, not the showing state. The

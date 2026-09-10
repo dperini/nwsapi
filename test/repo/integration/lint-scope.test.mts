@@ -24,13 +24,13 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     'src/external/unicode.js',
     'src/external/unicode.d.ts',
     'src/adapter/dom-selector.mts',
-    'src/extensions/nwsapi-jquery.mts',
+    'src/extension/nwsapi-jquery.mts',
     'scripts/repo/lint.mts',
     'scripts/repo/gen/coverage-badge.mts',
     'test/repo/integration/lint-scope.test.mts',
     'test/repo/e2e/jsdom-adapter-package.mts',
     'test/repo/e2e/upstream/wpt.spec.mts',
-    '.config/vitest.config.mts',
+    '.config/repo/vitest.config.mts',
     '.config/runtime.d.ts',
   ] as const) {
     expect(files).toContain(file)

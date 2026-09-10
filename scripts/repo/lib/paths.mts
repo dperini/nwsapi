@@ -39,7 +39,7 @@ export const ADAPTER_SOURCE_PATH = path.join(
 )
 export const TRAVERSAL_SOURCE_PATH = path.join(
   REPO_ROOT,
-  'src/extensions/nwsapi-traversal.mts',
+  'src/extension/nwsapi-traversal.mts',
 )
 export const WPT_CANDIDATES_PATH = path.join(
   REPO_ROOT,

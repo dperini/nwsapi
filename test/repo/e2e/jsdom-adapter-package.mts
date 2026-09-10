@@ -131,7 +131,7 @@ try {
       vitest,
       'run',
       '--config',
-      '.config/vitest.config.mts',
+      '.config/repo/vitest.config.mts',
       'test/repo/integration/jsdom-adapter.test.mts',
     ],
     {

@@ -19,7 +19,7 @@ for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
         'node_modules/vitest/vitest.mjs',
         'run',
         '--config',
-        '.config/vitest.config.mts',
+        '.config/repo/vitest.config.mts',
       ]
   const coverage = args.includes('--coverage')
   const code = await runBudgeted(

@@ -127,7 +127,7 @@
       "files": [
         "**/src/engine/nwsapi.mts",
         "**/src/engine/direction.mts",
-        "**/src/extensions/*.mts"
+        "**/src/extension/*.mts"
       ],
       "rules": {
         "compat/compat": "error"
@@ -137,7 +137,7 @@
       "files": [
         "**/src/adapter/dom-selector.mts",
         "**/src/engine/nwsapi.mts",
-        "**/src/extensions/nwsapi-legacy.mts"
+        "**/src/extension/nwsapi-legacy.mts"
       ],
       "rules": {
         "typescript/consistent-type-imports": "off"
@@ -179,7 +179,7 @@
       "files": [
         "**/src/engine/nwsapi.mts",
         "**/src/adapter/dom-selector.mts",
-        "**/src/extensions/nwsapi-legacy.mts"
+        "**/src/extension/nwsapi-legacy.mts"
       ],
       "rules": {
         "eslint/complexity": "off"

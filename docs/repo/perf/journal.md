@@ -1580,3 +1580,7 @@ The prior CI revision exceeded the 10s unit coverage budget. Two alternating loc
 `jsdom` returns every duplicate ID from `querySelectorAll()`, even though `getElementById()` returns one element. The adapter therefore retains `IDS_DUPES: true` when the host supplies `idlUtils` and `domSymbolTree`. Regression tests exercise HTML, XML, tree reordering, ID changes, removal, and detached fragments.
 
 A fresh run of the same 36 public `jsdom` queries passed every result check and recorded a **5.57× geometric-mean speedup** for the `nwsapi` override. The report, chart, and summary were regenerated. No engine optimization was made for this refresh, so the difference from the preceding 5.31× result is a repeated measurement, not evidence of a code improvement.
+
+## Reproduce display-state reentry
+
+The [display-state investigation](../selector/display-state.md) traces commit `24cdab6aa` with a bounded subprocess harness. One uncapped historical `:modal` query made 2,717,975 delegated matcher calls and took 463.92ms. The current build made one call and took 3.75ms. Both factories made zero initialization probes. These are single-query diagnostic observations, not a substitute for the reporter's application-suite timing or a throughput benchmark. Browser, direct-engine, and packed-adapter regressions distinguish actual modal state from ARIA, open dialogs, and expando properties.
