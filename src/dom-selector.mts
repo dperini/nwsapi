@@ -1,5 +1,116 @@
 'use strict'
 
+type HostReaders = import('./internal/host.d.ts').HostReaders
+type IdlUtils = {
+  wrapperForImpl(node: unknown): Node
+  implForWrapper?(node: Node): Element | undefined
+}
+type HostOptions = {
+  idlUtils?: IdlUtils
+  domSymbolTree?: {
+    parent(node: Node): Node | null
+    nextSibling(node: Node): Node | null
+    previousSibling(node: Node): Node | null
+  }
+}
+
+// Use the utilities supplied by the host, never a separately imported copy.
+function createHostReaders(
+  document: Document,
+  options: HostOptions,
+): HostReaders | undefined {
+  const utils = options.idlUtils
+  if (!utils || typeof utils.implForWrapper !== 'function') {
+    return undefined
+  }
+  const unwrap = utils.implForWrapper.bind(utils)
+  const probe = document.createElement('i')
+  const implementation = unwrap(probe)
+  if (
+    !implementation ||
+    utils.wrapperForImpl(implementation) !== probe ||
+    typeof implementation.getAttribute !== 'function' ||
+    typeof implementation.hasAttribute !== 'function' ||
+    implementation.getAttribute('data-nwsapi-probe') !== null ||
+    implementation.hasAttribute('data-nwsapi-probe')
+  ) {
+    return undefined
+  }
+  probe.setAttribute('data-nwsapi-probe', '')
+  if (
+    implementation.getAttribute('data-nwsapi-probe') !== '' ||
+    !implementation.hasAttribute('data-nwsapi-probe')
+  ) {
+    return undefined
+  }
+  const readers: HostReaders = {
+    attrOf: (node, name) => {
+      const impl = unwrap(node)
+      return impl ? impl.getAttribute(name) : node.getAttribute(name)
+    },
+    hasAttrOf: (node, name) => {
+      const impl = unwrap(node)
+      return impl ? impl.hasAttribute(name) : node.hasAttribute(name)
+    },
+  }
+  const tree = options.domSymbolTree
+  if (
+    tree &&
+    typeof tree.parent === 'function' &&
+    typeof tree.nextSibling === 'function' &&
+    typeof tree.previousSibling === 'function'
+  ) {
+    const left = probe.appendChild(document.createElement('i'))
+    const right = probe.appendChild(document.createElement('i'))
+    const leftImpl = unwrap(left)
+    const rightImpl = unwrap(right)
+    if (
+      !leftImpl ||
+      !rightImpl ||
+      tree.parent(leftImpl) !== implementation ||
+      tree.nextSibling(leftImpl) !== rightImpl ||
+      tree.previousSibling(rightImpl) !== leftImpl
+    ) {
+      return readers
+    }
+    readers.upOf = node => {
+      const impl = unwrap(node)
+      if (!impl) {
+        return node.parentElement
+      }
+      const parent = tree.parent(impl)
+      return parent && parent.nodeType === 1
+        ? (utils.wrapperForImpl(parent) as Element)
+        : null
+    }
+    readers.nextOf = node => {
+      let impl: Node | null | undefined = unwrap(node)
+      if (!impl) {
+        return node.nextElementSibling
+      }
+      while ((impl = tree.nextSibling(impl))) {
+        if (impl.nodeType === 1) {
+          return utils.wrapperForImpl(impl) as Element
+        }
+      }
+      return null
+    }
+    readers.prevOf = node => {
+      let impl: Node | null | undefined = unwrap(node)
+      if (!impl) {
+        return node.previousElementSibling
+      }
+      while ((impl = tree.previousSibling(impl))) {
+        if (impl.nodeType === 1) {
+          return utils.wrapperForImpl(impl) as Element
+        }
+      }
+      return null
+    }
+  }
+  return readers
+}
+
 type CssNode = import('css-tree').CssNode
 type Selector = import('css-tree').Selector
 type NwsapiEngine = import('../.config/runtime.d.ts').NwsapiEngine
@@ -14,6 +125,7 @@ type Engine = NwsapiEngine & {
 const createNwsapi: (host: {
   document: Document
   DOMException: typeof DOMException
+  hostReaders?: HostReaders | undefined
 }) => Engine = require('./nwsapi.js')
 type QueryOptions = { noexcept?: boolean | undefined }
 type AdapterDocument = Document & { [DOCUMENT_STATE]?: State }
@@ -21,6 +133,7 @@ type State = {
   engine?: Engine
   options: Record<string, boolean> | { __proto__: null }
   active: boolean
+  hostReaders?: HostReaders | undefined
 }
 
 // A package override can load a second copy. Versioned, non-enumerable slots
@@ -77,7 +190,7 @@ function configureEngine(
 // css-tree is needed only by this adapter, for stylesheet specificity.
 class DOMSelector {
   declare window: Window & typeof globalThis
-  declare idlUtils: { wrapperForImpl(node: unknown): Node } | undefined
+  declare idlUtils: IdlUtils | undefined
   declare document: Document
   declare state: State
   declare css: typeof import('css-tree') | undefined
@@ -149,18 +262,22 @@ class DOMSelector {
   constructor(
     window: Window & typeof globalThis,
     document = window.document,
-    options: { idlUtils?: { wrapperForImpl(node: unknown): Node } } = {},
+    options: HostOptions = {},
   ) {
     this.window = window
     this.idlUtils = options.idlUtils
     this.document = this.wrap(document) as Document
     this.state = getState(this.document)
+    if (!this.state.engine && !this.state.hostReaders) {
+      this.state.hostReaders = createHostReaders(this.document, options)
+    }
   }
 
   get engine() {
     if (!this.state.engine) {
       const engine = createNwsapi({
         document: this.document,
+        hostReaders: this.state.hostReaders,
         DOMException: this.window.DOMException,
       })
       configureEngine(engine, {

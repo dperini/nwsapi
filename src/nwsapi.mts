@@ -41,7 +41,11 @@ type EngineElement = Element &
     style?: CSSStyleDeclaration
     open?: boolean
   }
-type EngineGlobal = typeof globalThis & { NW?: { Dom?: unknown } }
+type HostReaders = import('./internal/host.d.ts').HostReaders
+type EngineGlobal = typeof globalThis & {
+  NW?: { Dom?: unknown }
+  hostReaders?: HostReaders
+}
 type ElementCallback = ((element: Element) => unknown) | null | undefined
 interface NativeMatcherRecord {
   fallback: Element['matches'] | null | undefined
@@ -545,6 +549,7 @@ interface Primordials {
     primordials = (Factory as typeof Factory & { _primordials: Primordials })[
       '_primordials'
     ],
+    hostReaders = global.hostReaders,
     doc = global.document,
     root = doc.documentElement,
     // Factory fallback for documents without a window.
@@ -1825,27 +1830,37 @@ interface Primordials {
       return false
     },
     includes: LegacyReaders['includes'] = primordials.StringPrototypeIncludes!,
-    attrOf: LegacyReaders['attrOf'] = function (e, name) {
-      return e.getAttribute(name)
-    },
-    hasAttrOf: LegacyReaders['hasAttrOf'] = function (e, name) {
-      return e.hasAttribute(name)
-    },
+    attrOf: LegacyReaders['attrOf'] =
+      (hostReaders && hostReaders.attrOf) ||
+      function (e, name) {
+        return e.getAttribute(name)
+      },
+    hasAttrOf: LegacyReaders['hasAttrOf'] =
+      (hostReaders && hostReaders.hasAttrOf) ||
+      function (e, name) {
+        return e.hasAttribute(name)
+      },
     tagOf: LegacyReaders['tagOf'] = function (e) {
       return e.localName
     },
     idOf: LegacyReaders['idOf'] = function (e) {
       return e.id
     },
-    upOf: LegacyReaders['upOf'] = function (e) {
-      return e.parentElement
-    },
-    nextOf: LegacyReaders['nextOf'] = function (e) {
-      return e.nextElementSibling
-    },
-    _prevOf: LegacyReaders['prevOf'] = function (e) {
-      return e.previousElementSibling
-    },
+    upOf: LegacyReaders['upOf'] =
+      (hostReaders && hostReaders.upOf) ||
+      function (e) {
+        return e.parentElement
+      },
+    nextOf: LegacyReaders['nextOf'] =
+      (hostReaders && hostReaders.nextOf) ||
+      function (e) {
+        return e.nextElementSibling
+      },
+    _prevOf: LegacyReaders['prevOf'] =
+      (hostReaders && hostReaders.prevOf) ||
+      function (e) {
+        return e.previousElementSibling
+      },
     firstOf: LegacyReaders['firstOf'] = function (e) {
       return e.firstElementChild
     },
@@ -1917,19 +1932,29 @@ interface Primordials {
         return 's.classOf(' + v + ')'
       },
       up: function (v: string) {
-        return v + '.parentElement'
+        return hostReaders && hostReaders.upOf
+          ? 's.upOf(' + v + ')'
+          : v + '.parentElement'
       },
       next: function (v: string) {
-        return v + '.nextElementSibling'
+        return hostReaders && hostReaders.nextOf
+          ? 's.nextOf(' + v + ')'
+          : v + '.nextElementSibling'
       },
       prev: function (v: string) {
-        return v + '.previousElementSibling'
+        return hostReaders && hostReaders.prevOf
+          ? 's.prevOf(' + v + ')'
+          : v + '.previousElementSibling'
       },
       attr: function (v: string, name: string) {
-        return v + '.getAttribute("' + name + '")'
+        return hostReaders && hostReaders.attrOf
+          ? 's.attrOf(' + v + ',"' + name + '")'
+          : v + '.getAttribute("' + name + '")'
       },
       has: function (v: string, name: string) {
-        return v + '.hasAttribute("' + name + '")'
+        return hostReaders && hostReaders.hasAttrOf
+          ? 's.hasAttrOf(' + v + ',"' + name + '")'
+          : v + '.hasAttribute("' + name + '")'
       },
     },
     readGuarded = {
@@ -1940,10 +1965,14 @@ interface Primordials {
       next: readDirect.next,
       prev: readDirect.prev,
       attr: function (v: string, name: string) {
-        return v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'
+        return hostReaders && hostReaders.attrOf
+          ? readDirect.attr(v, name)
+          : v + '.getAttribute&&' + v + '.getAttribute("' + name + '")'
       },
       has: function (v: string, name: string) {
-        return v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'
+        return hostReaders && hostReaders.hasAttrOf
+          ? readDirect.has(v, name)
+          : v + '.hasAttribute&&' + v + '.hasAttribute("' + name + '")'
       },
     },
     // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes

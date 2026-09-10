@@ -51,6 +51,16 @@ The public DOM integration suite also runs the linked selector cases through `js
 
 The [host workload report](../../../assets/repo/bench/jsdom-workload.json) records 2,808 passing subtests from `Range-mutations-dataChange.html` in each trial, along with construction, query, disposal, and profile measurements. These checks do not establish complete jsdom integration coverage or downstream maintainer acceptance.
 
+## Host-supplied readers
+
+When `jsdom` supplies `idlUtils`, the adapter can use implementation `getAttribute()` and `hasAttribute()` methods for ordinary attribute matching. When it also supplies a compatible `domSymbolTree`, parent and sibling readers use that tree's methods. Results remain public DOM nodes. Production code does not deep-import `jsdom`, inspect symbol descriptions, or read raw tree records or `_attributeList`.
+
+The adapter checks wrapper identity and missing and empty attribute behavior on detached probe elements before selecting the readers. Tree checks verify parent and sibling relationships against the same host. Missing or incompatible capabilities keep the public route. Nodes that cannot be unwrapped also use public readers. Capability checks reduce integration risk but do not promise compatibility with every future host implementation.
+
+Reader selection happens before the adapter creates its engine. Compiled selectors retain direct public reads when host readers are absent. An explicitly supplied engine through `DOMSelector.use()` keeps its own readers. Legacy mode keeps its registered legacy readers. Tests cover XML, mutations, text and comment siblings, fragments, adoption, shadow boundaries, nested callbacks, and fallback behavior. Ordinary HTML attribute matching through host readers also bypasses overridden instance attribute methods.
+
+The [performance journal](../perf/journal.md#use-host-supplied-attribute-and-tree-readers) records the comparison and retention scope. These readers use the host options already supplied by the tested `jsdom` release. The unmerged `getAttributeList` callback is not required.
+
 ## Pseudo-elements and browser states
 
 The parser validates pseudo-element names, arguments, and allowed continuations. Covered families include parts, slots, markers, highlights, search text, scroll buttons, form-control pseudo-elements, and view transitions. Valid built-in pseudo-element selectors produce no DOM elements. Invalid forms such as `::selection:hover`, `::before *`, `::slotted(*).class`, and pseudo-elements inside strict `:not()` arguments throw even with empty query contexts. The compiler retains its existing synthetic pseudo-element candidate interface. Registered double-colon extensions keep their callbacks and can compose with attributes, classes, and logical selectors. They do not replace valid built-in pseudo-elements.
