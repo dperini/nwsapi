@@ -1365,3 +1365,33 @@ The repeat uses the same baseline and candidate hashes as the bounded follow-up.
 | `.card:has(~ .target [data-hit])` | -9.6% | -2.4% |
 
 These are the same four fixtures with 256 cards and 16 matches. Negative changes mean lower cost. The [AC timing report](../../../assets/repo/bench/bounded-has-node-ac-timing.json) and [AC memory report](../../../assets/repo/bench/bounded-has-node-ac-memory.json) preserve the samples. Allocation is sampled traffic, not retained heap. This repeat supports the earlier decision to retain the duplicate snapshot-check removal.
+
+## Attribute mutation costs from the upstream PR audit
+
+This investigation returns to [PR 311](https://github.com/asamuzaK/domSelector/pull/311), [PR 335](https://github.com/asamuzaK/domSelector/pull/335), [PR 337](https://github.com/asamuzaK/domSelector/pull/337), and the recorded private-host proposal in [PR 343](https://github.com/asamuzaK/domSelector/pull/343). It measures the three existing attribute cases before adding a streaming path or importing private host objects. The engine is unchanged from `64a440b`.
+
+<details>
+<summary>Workload and reproduction</summary>
+
+Run `node scripts/repo/bench/attribute-mutation.mts`. The script uses the existing 300-card component document. It checks attribute presence, exact equality, and element-scoped presence through the core and public adapter. Each case has 100 warmup cycles, five timed batches of 100 cycles, and a separate 200-cycle CPU profile. A mutation cycle changes only `data-unrelated` on the root, then runs one or four queries. Warm cycles run one query without mutation. Timed mutation cycles include the mutation cost. Identity and order checks stay outside timing.
+
+The [recorded report](../../../assets/repo/bench/attribute-mutation.json) contains both build hashes, raw batch times, CPU sample sites, and collection-identity observations. This is a Node/`jsdom` diagnosis, not a comparison with a candidate optimization or a native-browser measurement. No allocation-byte reduction is inferred from CPU samples.
+
+</details>
+
+| Route | Selector and context | Warm query | Mutation plus one query | Mutation plus four queries |
+| --- | --- | ---: | ---: | ---: |
+| core | `[data-testid]`, document | 0.241ms | 0.855ms | 1.633ms |
+| core | `[data-testid="btn-150"]`, document | 0.289ms | 0.891ms | 1.790ms |
+| core | `[data-testid]`, element | 0.261ms | 0.869ms | 1.690ms |
+| adapter | `[data-testid]`, document | 0.253ms | 0.887ms | 1.659ms |
+| adapter | `[data-testid="btn-150"]`, document | 0.311ms | 0.962ms | 1.941ms |
+| adapter | `[data-testid]`, element | 0.251ms | 0.893ms | 1.682ms |
+
+These medians describe whole cycles, so the four-query column must not be read as the cost of one query. Both routes show the same pattern. An unrelated mutation adds substantial work to the next query. Several queries per mutation amortize some of that cost. The adapter does not show a distinct large overhead in this fixture.
+
+The engine observer already filters attributes to `class`, so broad attribute invalidation is not the cause. The identity probe shows that `jsdom` returns a different `getElementsByTagName('*')` collection object after the unrelated mutation while preserving identical members. The snapshot map uses collection objects as weak keys. The new object misses that cache and must be copied. CPU samples place substantial time in `collectionSnapshot` during mutation-followed queries. Warm queries instead spend most sampled time in public attribute access and matching.
+
+No engine change is retained from this diagnosis. Narrowing the observer filter would do nothing because it is already narrow. Unconditional streaming would change the candidate-copy boundary and require separate callback and mutation analysis. The next single experiment is stable lookup identity for the existing candidate snapshot cache. It must preserve class and child mutation invalidation, adoption, context boundaries, nested queries, and detached-node collection. Keep it only if the fixed mutation cases improve without materially regressing warm queries or retention. This remains the original attribute-mutation item, not a new query family.
+
+The original local plan has been reconciled with the landed ID, ancestor, general `:has()`, Range, application-consumer, and retention work. Its stale unchecked implementation entries are replaced by source-linked statuses. Private host access and a CSP interpreter remain separate architecture decisions. State reuse is a profiled candidate rather than an automatic cache implementation. Formatting, lint, types, generated artifact checks, and every benchmark identity assertion pass. No runtime or size chart changes are needed for this diagnostic-only commit.
