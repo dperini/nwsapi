@@ -16,7 +16,7 @@ afterAll(async () => {
   await browser?.close()
 })
 
-describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
+describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart rendering', () => {
   test('all published comparison SVGs share a viewport and keep text inside it', async () => {
     const markdown = readFileSync(
       new URL('../../../docs/repo/perf/benchmarks.md', import.meta.url),
@@ -108,7 +108,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
     }
   })
 
-  test('logarithmic bars stay visible across orders of magnitude and respect reduced motion', async () => {
+  test('logarithmic bars render at full width immediately with either motion preference', async () => {
     const svg = chart(
       'Basic selectors',
       ['nwsapi 2.3.0-prerelease', '@asamuzakjp/dom-selector'],
@@ -130,11 +130,13 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart animation', () => {
           x: node.getAttribute('x'),
           width: node.getAttribute('width'),
           animations: node.getAnimations().length,
+          renderedWidth: node.getBoundingClientRect().width,
         })),
       )
       expect(bars.map(bar => Number(bar.x))).toEqual([440, 440])
       expect(bars.map(bar => Number(bar.width))).toEqual([120, 480])
-      expect(bars.every(bar => bar.animations === 1)).toBe(true)
+      expect(bars.every(bar => bar.animations === 0)).toBe(true)
+      expect(bars.map(bar => bar.renderedWidth)).toEqual([120, 480])
       await page.emulateMedia({ reducedMotion: 'reduce' })
       await page.reload()
       expect(
