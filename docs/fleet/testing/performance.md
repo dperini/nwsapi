@@ -72,13 +72,23 @@ If installed, use the `writing-fast-tests` skill and its `references/reviewing-s
 
    Add `DEBUG=vitest:coverage` to the coverage measurement command and inspect `suite.main.log` and any `suite.isolated.log` under `.cache/fleet/coverage/measurement/lane-fast/`. Normal coverage output is filtered. The coverage measurement report has `measurement: true`, `gateEvidence: false`, and `thresholdsEvaluated: false`. Read its measured scope and excluded phases. A completed diagnostic run cannot establish a passing gate.
 
-4. **Remove the repeated work you measured.** Count Git commands, file reads, parsing, fixture construction, and cleanup. [Batch stable reads and reuse immutable seeds](#remove-repeated-work-first) within one suite or invocation. Compute the changed-file set once per invocation and reuse it across checks that use the same Git state. Keep mutable copies private and invalidate results when inputs change. Compare call counts and elapsed time after each change.
+4. **Generate a recovery report from a completed run.** Save the runner's JSON results in an owned temporary directory. Supply the measured wall time and budget for the whole command:
 
-5. **Consolidate tests around distinct behavior.** Test policy combinations through production decision functions. Keep process tests for distinct argument, exit, environment, and I/O contracts. Share expensive setup only when cases can safely share it. Preserve assertions, required scenarios, and the coverage denominator. [Run affected tests first](#check-the-affected-work-while-iterating), then run the full affected lane before assessing its budget.
+   ```sh
+   node scripts/fleet/test/budget/balance.mts --report /path/to/vitest.json --elapsed 69.08s --budget 10s --shards 5
+   ```
 
-6. **Change scheduling only after measuring its cost.** Compare one setting at a time. The fleet test wrapper accepts `--maxWorkers=2` and `--sequence.shuffle --sequence.seed=42` for worker and order experiments. Configure pool, `fileParallelism`, isolation, and `experimental.importDurations.print` in the owning `vitest` project configuration because this wrapper does not forward those flags. Inspect import durations when module loading dominates. Follow the [isolation rules](isolation.md) before sharing state and the [sharding rules](#split-large-lanes-into-shards) before splitting a lane. Repeat runs to detect leaked state and CPU or memory contention.
+   The script shows a short summary of the 10 most expensive files, prints the checks below, and proposes shards balanced by recorded file duration. Use `--top` to change the displayed count and `--json` for full machine-readable assignments. `--shards` defaults to five or the number of files when fewer than five are present. Durations accept `u` or `us` for microseconds, `ms` for milliseconds, `s` for seconds, `m` for minutes, and `h` for hours. The existing `--budget-ms` and `--elapsed-ms` flags remain supported, but cannot be combined with their unit-based counterparts. Invalid input exits with status 2. It exits with status 1 when the supplied command time exceeds the budget. It rejects failed, skipped, incomplete, or ambiguous file inventories. Each proposed shard must contain a distinct part of the supplied inventory, with every file accounted for exactly once. The report cannot prove that the original run selected every required test. Keep its revision and selection settings with the evidence.
 
-7. **Verify the final lane without profiling.** Run the original test and coverage commands with their normal deadlines and thresholds. Confirm the required inventory and coverage denominator still match. Record the command, before and after timing, memory, call counts, and correctness checks in `docs/repo/testing/`. Keep the permanent target visible when an existing temporary coverage allowance applies.
+   The assignment is a proposal. The built-in `--shard` flag does not consume it. File durations are scheduling weights, not predicted wall times, because workers overlap and each runner has startup costs. Inspect Git setup and scans first, then imports, scheduling, and final validation. One successful sample does not establish stable budget headroom.
+
+5. **Remove the repeated work you measured.** Count Git commands, file reads, parsing, fixture construction, and cleanup. [Batch stable reads and reuse immutable seeds](#remove-repeated-work-first) within one suite or invocation. Compute the changed-file set once per invocation and reuse it across checks that use the same Git state. Keep mutable copies private and invalidate results when inputs change. Compare call counts and elapsed time after each change.
+
+6. **Consolidate tests around distinct behavior.** Test policy combinations through production decision functions. Keep process tests for distinct argument, exit, environment, and I/O contracts. Share expensive setup only when cases can safely share it. Preserve assertions, required scenarios, and the coverage denominator. [Run affected tests first](#check-the-affected-work-while-iterating), then run the full affected lane before assessing its budget.
+
+7. **Change scheduling only after measuring its cost.** Compare one setting at a time. The fleet test wrapper accepts `--maxWorkers=2` and `--sequence.shuffle --sequence.seed=42` for worker and order experiments. Configure pool, `fileParallelism`, isolation, and `experimental.importDurations.print` in the owning `vitest` project configuration because this wrapper does not forward those flags. Inspect import durations when module loading dominates. Follow the [isolation rules](isolation.md) before sharing state and the [sharding rules](#split-large-lanes-into-shards) before splitting a lane. Repeat runs to detect leaked state and CPU or memory contention.
+
+8. **Verify the final lane without profiling.** Run the original test and coverage commands with their normal deadlines and thresholds. Confirm the required inventory and coverage denominator still match. Record the command, before and after timing, memory, call counts, and correctness checks in `docs/repo/testing/`. Keep the permanent target visible when an existing temporary coverage allowance applies.
 
 ## Profile a repository with its own runner
 
@@ -108,6 +118,10 @@ Test policy combinations through the existing decision function when the process
 Create read-only Git seeds once per suite. Copy a seed into a private temporary directory for each test that changes files or refs. Give mutating tests private origins too, and update remote URLs in each copy. Preserve the commit graph, identities, hooks, ignored files, and remote behavior that the test needs.
 
 Read stable fixture files and parse unchanged configuration once within the owning suite or invocation. Batch Git queries when one command can answer several questions. Remove unused commit lookups and repeated directory scans. Keep cache lifetimes explicit so a test that changes an input cannot receive an earlier result.
+
+A Git subprocess is a separate invocation such as `git init` or `git add`. Count these calls in fixture builders before changing them. Five identical fixtures that each run `git init`, two `git config` commands, `git add`, and `git commit` start 25 Git processes. If the tests only inspect unchanged files and the index, one shared fixture can use just `git init` and `git add`. That removes 23 process starts. Keep commits and author configuration when history or identity is part of the behavior being tested.
+
+Check whether those tests also repeat the same scan. Five read-only assertions can share one result computed in suite setup, removing four scans. Tests that modify files or the index need fresh results and private mutable fixtures. Run the affected suite with shuffled order after sharing setup, then verify the full lane. Count saved calls separately from elapsed-time improvements.
 
 Shared setup must outlive its consumers. Clean up a suite seed after the suite finishes, and clean up each mutable copy after its test. Follow the [temporary fixture guidance](isolation.md#use-ostmpdir-for-temporary-fixtures).
 
@@ -178,6 +192,16 @@ A shard runs part of a lane's test inventory. The lane still defines the kind of
 The [`vitest` sharding guide](https://vitest.dev/guide/improving-performance#sharding) explains `--shard`, blob reports, and report merging. The runner divides test files between shards. It does not split the individual cases inside one file.
 
 Use the same revision, configuration, runtime, and selected inventory for every shard. Verify that their combined inventory contains each intended file exactly once for each required test environment. Keep reports separate by shard and environment until merging them.
+
+For the fleet wrapper, run each shard on a separate CI runner with its own index:
+
+```sh
+pnpm test --all --shard=1/5
+```
+
+The other runners use `2/5` through `5/5`. The wrapper requires full-suite scope for this option. Do not treat these commands as equivalent to a narrower lane measurement. Use measured file durations to assess imbalance, and verify the actual merged inventory after any scheduling change.
+
+Separate CI runners add compute capacity. Tests on one machine already run through parallel workers. Adding local shards can increase CPU and memory contention without reducing elapsed time.
 
 Budget workers across the whole machine. Four shards with four workers each can compete for resources as sixteen workers, in addition to their runner processes. Compare elapsed time and peak memory before increasing parallelism.
 

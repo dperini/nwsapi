@@ -132,3 +132,15 @@ Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evid
 The engine entry is `src/core/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Direction helpers and legacy types live with the engine. Host-reader types live with the adapter. Optional extensions live in `src/extension/`, and external loaders and declarations remain in `src/external/`.
 
 The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/adapter/dom-selector.js`, `dist/bin/`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.
+
+## Diagnose an exceeded test budget
+
+The copied Wheelhouse tool is available without fleet membership:
+
+```sh
+node scripts/repo/run.mts scripts/fleet/test/budget/balance.mts -r /path/to/vitest.json --budget 10s --elapsed 69.08s
+```
+
+Use a completed `vitest` JSON report and the measured wall time of the same command. `--json` prints complete proposed shard assignments. `--top` changes the number of expensive files shown. Durations support `u` or `us`, `ms`, `s`, `m`, and `h`.
+
+The parsing, inventory validation, and shard planning modules are copied from Wheelhouse. The entrypoint uses this repository's Node launcher and output conventions. It does not add fleet membership or change CI scheduling. See the [shared recovery runbook](../../fleet/testing/performance.md#recover-an-exceeded-budget) for the checks and limits of the report. Fleet wrapper examples elsewhere in that document apply only where those wrappers are installed.
