@@ -78,7 +78,7 @@ export function firstCompiled(
     plan = { factory: collected.factory, nodeset: collected.nodeset }
     engine.firstResolvers.set(selectors, plan)
   }
-  for (i = 0; i < plan.nodeset.length; ++i) {
+  for (var nodesetLength = plan.nodeset.length, i = 0; i < nodesetLength; ++i) {
     resolver = plan.factory[i]!
     filtered = resolver.filtered ? {} : undefined
     token = plan.nodeset[i]!

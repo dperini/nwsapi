@@ -155,6 +155,7 @@
       "files": ["**/src/**/*.mts"],
       "rules": {
         "nwsapi/no-for-of": "error",
+        "nwsapi/prefer-cached-loop-length": "error",
         "no-unused-vars": "off",
         "no-unused-expressions": "off",
         "no-cond-assign": "off",

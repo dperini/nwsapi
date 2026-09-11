@@ -14,7 +14,11 @@ export function compilePseudoModern(
       languageTests: string[] = [],
       range,
       quoted
-    for (var rangeIndex = 0; rangeIndex < ranges.length; ++rangeIndex) {
+    for (
+      var rangeIndex = 0, rangesLength = ranges.length;
+      rangeIndex < rangesLength;
+      ++rangeIndex
+    ) {
       range = ranges[rangeIndex]!
       quoted =
         /^(?:"(?:[^"\\\n\r\f]|\\[^\n\r\f])*"|'(?:[^'\\\n\r\f]|\\[^\n\r\f])*')$/.test(

@@ -185,7 +185,7 @@ export function normalizeCombinators(_engine: EngineState, text: string) {
     quote = '',
     i = 0,
     char: string
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       result += char + text.charAt(++i)
@@ -371,7 +371,11 @@ export function byTagNS(
   var candidates = engine.byTag('*', context),
     nodes = [],
     i: number
-  for (i = 0; i < candidates.length; ++i) {
+  for (
+    var candidatesLength = candidates.length, i = 0;
+    i < candidatesLength;
+    ++i
+  ) {
     if (tag == '*' || engine.tagOf(candidates[i]!) == tag) {
       nodes[nodes.length] = candidates[i]!
     }

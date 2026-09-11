@@ -6,6 +6,7 @@ import noCommentGlobStarSlash from './rules/no-comment-glob-star-slash/index.mts
 import noMinifiedBundlerOutput from './rules/no-minified-bundler-output/index.mts'
 import noSpawnsyncCodeProperty from './rules/no-spawnsync-code-property/index.mts'
 import noProcessChdir from './rules/no-process-chdir/index.mts'
+import preferCachedLoopLength from './rules/prefer-cached-loop-length/index.mts'
 
 export const noForOf = {
   meta: {
@@ -38,5 +39,6 @@ export default {
     'no-process-chdir': noProcessChdir,
     'no-spawnsync-code-property': noSpawnsyncCodeProperty,
     'no-minified-bundler-output': noMinifiedBundlerOutput,
+    'prefer-cached-loop-length': preferCachedLoopLength,
   },
 }

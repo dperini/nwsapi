@@ -128,13 +128,21 @@ export function toNodeList(
         if (typeof callback != 'function') {
           throw new TypeError('callback must be a function')
         }
-        for (var j = 0; j < nodeArray.length; ++j) {
+        for (
+          var j = 0, nodeArrayLength = nodeArray.length;
+          j < nodeArrayLength;
+          ++j
+        ) {
           callback.call(receiver, nodeArray[j]!, j, list)
         }
       },
     },
   })
-  for (i = 0; i < nodeArray.length; ++i) {
+  for (
+    var nodeArrayLength = nodeArray.length, i = 0;
+    i < nodeArrayLength;
+    ++i
+  ) {
     engine.primordials.ObjectDefineProperty(list, i, {
       value: nodeArray[i],
       enumerable: true,

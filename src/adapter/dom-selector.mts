@@ -343,7 +343,11 @@ class DOMSelector {
       }
       const entry = this.parse(selector)
       const matched = new css.List<CssNode>()
-      for (let index = 0; index < entry.branches.length; index++) {
+      for (
+        let index = 0, branchesLength = entry.branches.length;
+        index < branchesLength;
+        index++
+      ) {
         const branch = entry.branches[index]!
         if (engine.match(branch.selector, node as Element)) {
           matched.appendData(branch.ast)

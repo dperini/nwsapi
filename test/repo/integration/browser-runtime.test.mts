@@ -42,6 +42,8 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
         'compat/compat',
         '--deny',
         'nwsapi/no-for-of',
+        '--deny',
+        'nwsapi/prefer-cached-loop-length',
         file,
       ],
       { cwd: REPO_ROOT, encoding: 'utf8' },
@@ -53,6 +55,7 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
       'String.fromCodePoint(0x1f600);',
       'void fetch("/");',
       'for (const value of [1]) { console.log(value); }',
+      'for (var index = 0; index < values.length; index++) { console.log(values[index]); }',
     ].join('\n'),
   )
   expect(rejected.status).not.toBe(0)
@@ -62,6 +65,7 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
     'String.fromCodePoint()',
     'fetch',
     'no-for-of',
+    'prefer-cached-loop-length',
     'IE 11',
   ]) {
     expect(messages).toContain(message)
@@ -90,7 +94,7 @@ test('browser lint rejects unsupported APIs and loops and accepts generated reso
   ])
   const output = [
     'if (typeof String.fromCodePoint === "function") { String.fromCodePoint(0x1f600); }',
-    'for (var index = 0; index < 2; index++) { console.log(index); }',
+    'for (var index = 0, length = values.length; index < length; index++) { console.log(values[index]); }',
   ]
   for (const LEGACY of [false, true]) {
     engine.configure({ LEGACY })

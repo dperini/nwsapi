@@ -384,7 +384,11 @@ type Primordials = import('./types.mts').Primordials
   }
 
   function validateMapConstructors() {
-    for (var mapIndex = 0; mapIndex < mapNames.length; ++mapIndex) {
+    for (
+      var mapIndex = 0, mapNamesLength = mapNames.length;
+      mapIndex < mapNamesLength;
+      ++mapIndex
+    ) {
       var name = mapNames[mapIndex]!,
         Constructor = primordials[name]
       if (!isNative(Constructor)) {

@@ -82,7 +82,7 @@ export function has(
         return compileRelativePlansValue
       }
     }
-    for (i = 0; i < plans.length; ++i) {
+    for (var plansLength = plans.length, i = 0; i < plansLength; ++i) {
       context = plans[i]!.sibling ? engine.upOf(anchor) : anchor
       if (!context) {
         continue
@@ -90,7 +90,11 @@ export function has(
       root = plans[i]!.subtree ? engine.nextOf(anchor) : context
       while (root) {
         if (!plans[i]!.subtree || engine.firstOf(root)) {
-          for (j = 0; j < plans[i]!.nodeset.length; ++j) {
+          for (
+            var nodesetLength = plans[i]!.nodeset.length, j = 0;
+            j < nodesetLength;
+            ++j
+          ) {
             token = plans[i]!.nodeset[j]!
             resolver = plans[i]!.factory[j]
             candidates = engine.hasCandidates(token, root)
@@ -118,7 +122,7 @@ export function has(
       plans = []
       // Compile every branch before accepting any match. Plans contain
       // code and lookup tokens, never anchors or DOM result collections.
-      for (i = 0; i < list.length; ++i) {
+      for (var listLength = list.length, i = 0; i < listLength; ++i) {
         if (!list[i]) {
           engine.emit(engine.qsInvalid)
           {
@@ -207,7 +211,11 @@ export function firstClass(
   candidates = cached.classes.get(name)
   candidates = collectClassCandidates(cached)
 
-  for (i = 0; i < candidates.length; ++i) {
+  for (
+    var candidatesLength = candidates.length, i = 0;
+    i < candidatesLength;
+    ++i
+  ) {
     element = candidates[i]!
     if (
       (!tag || tag == '*' || engine.matchesTag(element, tag)) &&
@@ -257,7 +265,11 @@ export function firstClass(
   function collectClassCandidates(cached: PrefixSnapshot) {
     if (!candidates) {
       candidates = []
-      for (i = 0; i < cached.nodes.length; ++i) {
+      for (
+        var cachedNodesLength = cached.nodes.length, i = 0;
+        i < cachedNodesLength;
+        ++i
+      ) {
         element = cached.nodes[i]!
         value = engine.classOf(element)
         offset = -1
