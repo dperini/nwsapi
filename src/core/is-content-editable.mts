@@ -227,15 +227,18 @@ export function fullscreenState(
 
 export function isFullscreen(engine: EngineState, node: EngineElement) {
   var state = engine.fullscreenState(node)
-  if (state === false) {
-    return false
+  if (state !== undefined) {
+    return state
   }
   var native = engine.matchesNative(node, ':fullscreen', undefined)
-  return native === undefined ? state === true : native
+  return native === true
 }
 
 export function isModal(engine: EngineState, node: EngineElement) {
   var fullscreen = engine.fullscreenState(node)
+  if (fullscreen === true) {
+    return true
+  }
   if (
     fullscreen === false &&
     node.namespaceURI === 'http://www.w3.org/1999/xhtml' &&
@@ -247,10 +250,7 @@ export function isModal(engine: EngineState, node: EngineElement) {
   if (native !== undefined) {
     return native
   }
-  return (
-    fullscreen === true ||
-    (fullscreen === undefined && engine.matchesNative(node, ':fullscreen'))
-  )
+  return fullscreen === undefined && engine.matchesNative(node, ':fullscreen')
 }
 
 export function isPictureInPicture(engine: EngineState, node: EngineElement) {

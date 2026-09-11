@@ -54,7 +54,7 @@ test('observable states remain available when native matching is unavailable', t
     })
     expect(engine.match(':fullscreen', node)).toBe(true)
     expect(engine.match(':modal', node)).toBe(true)
-    expect(calls).toBeGreaterThan(0)
+    expect(calls).toBe(0)
     Reflect.deleteProperty(window.document, property)
   }
   calls = 0
@@ -74,6 +74,25 @@ test('observable states remain available when native matching is unavailable', t
   Reflect.deleteProperty(node, 'webkitPresentationMode')
   expect(engine.match(':modal', node)).toBe(false)
   expect(calls).toBeGreaterThan(0)
+})
+
+test('the fullscreen document pointer takes precedence over native matching', t => {
+  const { window } = new JSDOM('<div></div>')
+  t.onTestFinished(() => window.close())
+  const node = window.document.body.firstElementChild!
+  Object.defineProperty(window.document, 'fullscreenElement', {
+    configurable: true,
+    value: node,
+  })
+  let calls = 0
+  window.Element.prototype.matches = function () {
+    calls++
+    return false
+  } as unknown as Element['matches']
+  const engine = createNwsapi(window)
+  expect(engine.match(':fullscreen', node)).toBe(true)
+  expect(engine.match(':modal', node)).toBe(true)
+  expect(calls).toBe(0)
 })
 
 test('known fullscreen absence rejects impossible modal states before native matching', t => {
