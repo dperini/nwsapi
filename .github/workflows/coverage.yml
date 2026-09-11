@@ -1,0 +1,38 @@
+name: Coverage
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+  schedule:
+    - cron: '17 8 * * 3'
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (2026-07-20)
+      - id: tools
+        run: node scripts/repo/external-tools.mts --github-output
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 (2026-07-14)
+        with:
+          node-version: ${{ steps.tools.outputs.node }}
+          package-manager-cache: false
+      - run: npm install --global npm@${{ steps.tools.outputs.npm }}
+        working-directory: ${{ runner.temp }}
+      - run: npm install --global pnpm@${{ steps.tools.outputs.pnpm }}
+        working-directory: ${{ runner.temp }}
+      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
+      - name: Install Chrome system dependencies
+        run: |
+          for source in /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.sources; do
+            if [ -f "$source" ]; then
+              sudo mv "$source" "$source.disabled"
+            fi
+          done
+          pnpm exec playwright install-deps chromium
+          pnpm run setup:browser
+      - name: Run full coverage
+        run: pnpm run cover
+      - name: Check the generated coverage asset
+        run: git diff --exit-code -- assets/repo/coverage.svg

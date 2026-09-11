@@ -96,4 +96,4 @@ pnpm run gen:compliance
 NWSAPI_DISTRIBUTION=1 pnpm run test:wpt
 ```
 
-Use a unique temporary report path when runs overlap. The comparison uses [tracked fixtures](../../../test/repo/fixtures/selectors/compatibility.json) and intercepted requests. The [WPT scope check](../testing/wpt-runner.md#scope-check) validates selected pages and adapters before browser execution.
+Use a unique temporary report path when runs overlap. The comparison uses [tracked fixtures](../../../test/repo/common/fixture/selector/compatibility.json) and intercepted requests. The [WPT scope check](../testing/wpt-runner.md#scope-check) validates selected pages and adapters before browser execution.

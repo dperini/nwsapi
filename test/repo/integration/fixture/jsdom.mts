@@ -5,7 +5,9 @@ import { createRequire } from 'node:module'
 import { type TestContext } from 'vitest'
 import type createNwsapi from '../../../dist/nwsapi.js'
 
-export const require = createRequire(import.meta.url)
+export const require = createRequire(
+  new URL('../fixture-base.js', import.meta.url),
+)
 
 // The installed-package check runs this suite without substituting anything.
 export const jsdomRequire = createRequire(

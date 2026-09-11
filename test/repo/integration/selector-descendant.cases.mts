@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { build } from './selector-fixture.mts'
+import { build } from './fixture/selector.mts'
 
 describe('a descendant chain of tags answered by descending', () => {
   // 'div ul li a' matched right to left starts from every <a> in the context.

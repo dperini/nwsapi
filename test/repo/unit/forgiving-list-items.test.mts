@@ -8,7 +8,7 @@ const { JSDOM } = require('jsdom') as typeof Jsdom
 const factory =
   require('../../../dist/nwsapi.js') as typeof NwsapiModule.default
 
-import { markup, cases } from './fixtures/forgiving-cases.mts'
+import { markup, cases } from '../common/fixture/forgiving-cases.mts'
 
 function fixture(t: TestContext) {
   const { window } = new JSDOM(markup)

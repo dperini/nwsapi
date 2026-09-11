@@ -226,7 +226,7 @@ export function inspectWptScope(
         const file =
           entry.parsing && url === '/css/support/parsing-testcommon.js'
             ? wptFile(
-                '/_repo/test/repo/e2e/upstream/fixtures/parsing-helpers.js',
+                '/_repo/test/repo/e2e/fixture/upstream/parsing-helpers.js',
                 root,
               )
             : wptFile(url, root)

@@ -169,7 +169,7 @@ async function bundle(input: string, name: string) {
 }
 const casesPath = path.join(
   REPO_ROOT,
-  'test/repo/fixtures/selectors/compatibility.json',
+  'test/repo/common/fixture/selector/compatibility.json',
 )
 const inputs = readFileSync(casesPath, 'utf8')
 const fixtureCases = JSON.parse(inputs) as Cases

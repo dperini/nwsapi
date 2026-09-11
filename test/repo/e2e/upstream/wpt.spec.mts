@@ -69,7 +69,7 @@ const expectations: Record<string, string> = JSON.parse(
   readFileSync(expectationsPath, 'utf8'),
 )
 const parsingHelpers = readFileSync(
-  path.join(here, 'fixtures/parsing-helpers.js'),
+  path.join(here, '../fixture/upstream/parsing-helpers.js'),
   'utf8',
 )
 

@@ -5,7 +5,7 @@ import {
   ids,
   MARKUP,
   SELECTORS,
-} from './legacy-fixture.mts'
+} from './fixture/legacy.mts'
 import './legacy-resolver.cases.mts'
 
 test('legacy named collections reject names that do not match an element ID', () => {

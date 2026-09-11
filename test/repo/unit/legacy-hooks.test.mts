@@ -6,7 +6,7 @@ import { expect, test } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
 import installLegacy from '../../../dist/modules/nwsapi-legacy.js'
 import type { LegacyHookFactory } from '../../../src/core/legacy.d.ts'
-import { legacyHost } from '../fixtures/legacy-host.mts'
+import { legacyHost } from '../common/fixture/legacy-host.mts'
 import { registerLegacyInContext } from '../common/legacy.mts'
 
 const filename = fileURLToPath(

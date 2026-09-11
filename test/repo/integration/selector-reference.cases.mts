@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { build } from './selector-fixture.mts'
+import { build } from './fixture/selector.mts'
 
 describe('agreement with the reference engine', () => {
   // jsdom 30 resolves selectors with @asamuzakjp/dom-selector, so

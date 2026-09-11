@@ -3,9 +3,9 @@ import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach } from 'vitest'
-import type factory from '../../../dist/nwsapi.js'
-import { registerLegacy } from '../common/legacy.mts'
-import { legacyHost } from '../fixtures/legacy-host.mts'
+import type factory from '../../../../dist/nwsapi.js'
+import { registerLegacy } from '../../common/legacy.mts'
+import { legacyHost } from '../../common/fixture/legacy-host.mts'
 
 const require = createRequire(import.meta.url)
 
@@ -13,6 +13,7 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 
 export const nwsapiPath = path.resolve(
   here,
+  '..',
   '..',
   '..',
   '..',

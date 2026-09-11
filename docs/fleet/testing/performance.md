@@ -147,7 +147,11 @@ Run affected tests with shuffled order after changing shared setup or cleanup. T
 
 Run the tests affected by the changed behavior first. Include callers and shared dependencies when selecting those tests. Changes to the runner, common setup, configuration, or coverage provider can affect the whole lane.
 
-A focused run provides evidence for its selected cases. Run the complete affected lane before claiming that the lane meets its budget. Keep required full-suite checks in CI. Reuse a previous result only when the relevant source, configuration, dependencies, and runtime still match.
+Ordinary CI should resolve a verified Git comparison range and select the runtime lanes affected by those files. Documentation-only changes can skip runtime tests. Source, dependency, and test-infrastructure changes should expand to the full affected lane when dependency selection cannot prove a narrower inventory. An unavailable comparison range must fall back to the complete suite.
+
+Keep full coverage on the [coverage milestone cadence](coverage.md#run-full-coverage-at-milestones). Do not pay the instrumentation and report-merging cost on every ordinary change.
+
+A focused run provides evidence for its selected cases. Run the complete affected lane before claiming that the lane meets its budget. Reuse a previous result only when the relevant source, configuration, dependencies, and runtime still match.
 
 ## Keep the lanes within their budgets
 

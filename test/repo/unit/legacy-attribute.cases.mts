@@ -12,7 +12,7 @@ import {
   nwsapiPath,
   SELECTORS,
   windows,
-} from './legacy-fixture.mts'
+} from './fixture/legacy.mts'
 
 describe('the attribute quirks that host had', () => {
   // The subject of jQuery's attr/prop split and of David Mark's My-Library:
