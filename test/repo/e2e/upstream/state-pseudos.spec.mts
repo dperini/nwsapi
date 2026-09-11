@@ -136,7 +136,7 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
     expect(result['div:future']).toEqual([])
   })
 
-  test(':fullscreen/:modal/:picture-in-picture follow document element pointers', async ({
+  test(':fullscreen/:modal confirm hidden state while picture-in-picture follows its document pointer', async ({
     page,
   }) => {
     await openFixtureWithNW(page)
@@ -164,10 +164,10 @@ test.describe('state pseudo-classes (nwsapi installed)', () => {
     expect(result['fullscreenStatic']).toEqual([])
     expect(result['modalStatic']).toEqual([])
     expect(result['pipStatic']).toEqual([])
-    // With document.fullscreenElement stubbed, both :fullscreen and :modal
-    // (whose detectable half is the fullscreen flag) match exactly that node.
-    expect(result['fullscreenAfter']).toEqual(['g-open'])
-    expect(result['modalAfter']).toEqual(['g-open'])
+    // A public fullscreen pointer can be retargeted at a shadow host. Native
+    // matching confirms the hidden state and rejects this artificial pointer.
+    expect(result['fullscreenAfter']).toEqual([])
+    expect(result['modalAfter']).toEqual([])
     expect(result['pipAfter']).toEqual(['vid'])
   })
 
