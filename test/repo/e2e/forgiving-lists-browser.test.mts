@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { test } from 'vitest'
-import { cases, markup } from '../unit/fixtures/forgiving-cases.mts'
+import { cases, markup } from '../common/fixture/forgiving-cases.mts'
 
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'Chromium agrees on every forgiving selector',

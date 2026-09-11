@@ -61,7 +61,7 @@ export function scriptPage(
   }
   const script = url.slice(0, -5) + '.js'
   const setup = reflectSwitch
-    ? '<script src="/_repo/test/repo/e2e/upstream/fixtures/switch-idl.mts"></script>'
+    ? '<script src="/_repo/test/repo/e2e/fixture/upstream/switch-idl.mts"></script>'
     : ''
   const helpers = dependencies
     .map(

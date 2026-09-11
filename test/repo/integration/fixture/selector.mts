@@ -1,7 +1,7 @@
 import { JSDOM, type DOMWindow } from 'jsdom'
-import type { NwsapiEngine } from '../../../.config/runtime.js'
-import factory from '../../../dist/nwsapi.js'
-import { registerLegacy } from '../common/legacy.mts'
+import type { NwsapiEngine } from '../../../../.config/runtime.js'
+import factory from '../../../../dist/nwsapi.js'
+import { registerLegacy } from '../../common/legacy.mts'
 
 // The factory is stateful per document, so each test builds its own.
 export function build(html: ConstructorParameters<typeof JSDOM>[0]) {

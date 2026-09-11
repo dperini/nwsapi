@@ -2,6 +2,16 @@
 
 Runtime coverage records which parts of the source ran during tests. TypeScript type coverage measures how much of the analyzed code has types other than `any`. Use both to find gaps. Executing a line or assigning it a type does not prove that its behavior is correct.
 
+## Run full coverage at milestones
+
+Ordinary pull requests and default-branch pushes should run tests related to the Git change. The comparison range must be verified. Use the full suite when the range is unavailable or test infrastructure changes.
+
+Run full coverage before a release publishes, on a weekly schedule, and when a maintainer requests it manually. Keep the coverage command available locally. These milestone runs catch cumulative threshold changes and interactions outside the related-test graph without adding instrumentation overhead to every commit.
+
+Do not run the same complete Linux test inventory once without coverage and again with coverage in one workflow. The coverage command already executes its required tests. Keep separate package-install, browser, operating-system, and integration jobs when they exercise a different subject or environment.
+
+A weekly failure is a current regression. Coverage thresholds remain release gates, so a known weekly failure cannot be carried into publication.
+
 ## Combine coverage across the complete run
 
 Cumulative runtime coverage combines the evidence from the required fast, medium, and slow lanes, their shards, and supported child-process or browser runs. A function covered in one lane remains covered in the combined report. No single lane needs to repeat every case from the others.

@@ -8,7 +8,7 @@ Runner files live under `test/repo/e2e/upstream/`.
 selector sections. `wpt.spec.mts` installs `nwsapi`, collects testharness results,
 and compares failures with `expectations.json`.
 
-`fixtures/parsing-helpers.js` sends upstream selector-validity inputs through
+`test/repo/e2e/fixture/upstream/parsing-helpers.js` sends upstream selector-validity inputs through
 the installed APIs. `parsing.mts` uses HTML and JavaScript parsers to adapt
 pages that embed helpers or mix direct parsing cases with rendering tests.
 The adapters preserve the selected inputs and reject upstream changes that
@@ -19,10 +19,10 @@ loads the source used by both the runner and its scope check. It also adapts
 the three matching pages and wraps upstream `.window.js` files in a page
 with testharness. The wrapper executes the original script and rejects
 unreviewed `META:` directives. The tentative switch-control page also loads
-`fixtures/switch-idl.mts` when the browser lacks the reflected `switch` property.
+`test/repo/e2e/fixture/upstream/switch-idl.mts` when the browser lacks the reflected `switch` property.
 That helper provides attribute reflection without changing selector behavior.
 
-`fixtures/structural-selectors.html` reuses upstream DOM fixtures for query
+`test/repo/e2e/fixture/upstream/structural-selectors.html` reuses upstream DOM fixtures for query
 assertions about filtered child positions and XML sibling types. It does not
 count the original rendering assertions as engine tests.
 

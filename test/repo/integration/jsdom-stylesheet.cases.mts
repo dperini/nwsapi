@@ -3,7 +3,7 @@ import type * as NodeModule from 'node:module'
 import type ModuleInstance from 'node:module'
 import { createRequire } from 'node:module'
 import { test, vi } from 'vitest'
-import { DOMSelector, host, jsdomRequire, require } from './jsdom-fixture.mts'
+import { DOMSelector, host, jsdomRequire, require } from './fixture/jsdom.mts'
 
 test('DOM-only calls leave the CSS parser and syntax cache unloaded', t => {
   const window = host(t)

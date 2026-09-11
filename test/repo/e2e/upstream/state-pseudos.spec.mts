@@ -6,7 +6,7 @@
  * Uses the same init-script mechanism as wpt.spec.mts: dist/nwsapi.js is
  * evaluated and NW.Dom.install() called before any page script runs, then
  * assertions run in-page against NW.Dom on the fixture page
- * test/repo/e2e/upstream/fixtures/state-pseudos.html via a local file URL.
+ * test/repo/e2e/fixture/upstream/state-pseudos.html via a local file URL.
  *
  * The last test opens the fixture WITHOUT the init script to capture native
  * Chromium ground truth: NW.Dom.install() patches Document.prototype, so in
@@ -25,7 +25,10 @@ const nwsapiSource = readFileSync(
   'utf8',
 )
 
-const FIXTURE = new URL('./fixtures/state-pseudos.html', import.meta.url).href
+const FIXTURE = new URL(
+  '../fixture/upstream/state-pseudos.html',
+  import.meta.url,
+).href
 const XML_SOURCE = '<root><details open="open"/><dialog open=""/></root>'
 
 const initScript = `${nwsapiSource}

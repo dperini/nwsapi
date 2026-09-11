@@ -10,7 +10,7 @@ const { readFileSync } = require('node:fs') as typeof NodeFs
 const path = require('node:path') as typeof NodePath
 import { test } from 'vitest'
 const { chromium } = require('@playwright/test') as typeof Playwright
-import stringCases from '../unit/fixtures/attribute-string-cases.mts'
+import stringCases from '../common/fixture/attribute-string-cases.mts'
 const cases: Array<{ selector: string; value: string }> = stringCases.slice()
 
 for (const quote of ['"', "'"] as const) {

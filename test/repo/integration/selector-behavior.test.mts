@@ -5,7 +5,7 @@ import {
   STATE_PSEUDOS,
   build,
   wireMatchesToNwsapi,
-} from './selector-fixture.mts'
+} from './fixture/selector.mts'
 import './selector-reference.cases.mts'
 
 describe('state pseudo-classes under a host that delegates to nwsapi', () => {

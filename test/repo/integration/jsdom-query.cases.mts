@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
-import { DOMSelector, host } from './jsdom-fixture.mts'
+import { DOMSelector, host } from './fixture/jsdom.mts'
 
 for (const method of ['check', 'supports'] as const) {
   test(`${method} also locks shared setup`, t => {

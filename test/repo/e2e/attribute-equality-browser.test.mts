@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { test } from 'vitest'
 import { chromium } from '@playwright/test'
-import { markup, cases } from '../fixtures/attribute-equality.mts'
+import { markup, cases } from '../common/fixture/attribute-equality.mts'
 
 test(
   'Chromium independently verifies HTML case rules',

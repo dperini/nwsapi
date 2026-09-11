@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (2026-07-20)
+        with:
+          # The affected-test planner must be able to verify the comparison range.
+          fetch-depth: 0
       - id: tools
         run: node scripts/repo/external-tools.mts --github-output
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 (2026-07-14)
@@ -24,22 +27,39 @@ jobs:
       # Use real Git for upstream setup, not the local runner's checkout shim.
       - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
       - run: pnpm run check
-      - run: pnpm run test:fuzz:replay
+      - name: Plan affected runtime tests
+        id: test-plan
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        run: pnpm run test:ci --github-output
+      - name: Test affected Node behavior
+        if: steps.test-plan.outputs.node == 'true'
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        run: pnpm run test:ci
+      - name: Replay the fuzz corpus
+        if: steps.test-plan.outputs.fuzz == 'true'
         id: fuzz-replay
-      - run: pnpm run test:fuzz
+        run: pnpm run test:fuzz:replay
+      - name: Fuzz changed selector behavior
+        if: steps.test-plan.outputs.fuzz == 'true'
+        run: pnpm run test:fuzz
         id: fuzz
         env:
           FUZZ_TIME_MS: '15000'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always() && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
+        if: always() && steps.test-plan.outputs.fuzz == 'true' && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
         with:
           name: fuzz-corpus-${{ github.run_id }}
           path: .vitiate/
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
-      - run: pnpm run test:package
+      - name: Test the installed package
+        if: steps.test-plan.outputs.package == 'true'
+        run: pnpm run test:package
       - name: Install Chrome system dependencies
+        if: steps.test-plan.outputs.browser == 'true'
         run: |
           # Setup installs pinned Chrome for Testing. A stale system-Chrome index
           # must not block installation of Ubuntu's browser dependencies.
@@ -50,6 +70,6 @@ jobs:
           done
           pnpm exec playwright install-deps chromium
           pnpm run setup:browser
-      - run: pnpm run cover
-      - run: pnpm run check:coverage
-      - run: pnpm run test:browser
+      - name: Test native browser behavior
+        if: steps.test-plan.outputs.browser == 'true'
+        run: pnpm run test:browser

@@ -106,12 +106,12 @@ export const entries: WptEntry[] = [
   },
 
   {
-    path: '/_repo/test/repo/e2e/upstream/fixtures/nodelist-contract.html',
+    path: '/_repo/test/repo/e2e/fixture/upstream/nodelist-contract.html',
     note: 'local WPT regression: static NodeList indexing, iteration and mutation across four contexts',
   },
 
   {
-    path: '/_repo/test/repo/e2e/upstream/fixtures/structural-selectors.html',
+    path: '/_repo/test/repo/e2e/fixture/upstream/structural-selectors.html',
     note: 'DOM API adaptations of upstream filtered-position and namespace rendering fixtures',
   },
 

@@ -81,6 +81,7 @@
     "prepack": "node scripts/repo/build/require-staging.mts",
     "serve": "node scripts/repo/run.mts scripts/repo/serve.mts",
     "test": "node scripts/repo/run.mts scripts/repo/test.mts unit",
+    "test:ci": "node scripts/repo/run.mts scripts/repo/test/ci.mts",
     "test:fuzz": "pnpm run build && node scripts/repo/run.mts scripts/repo/fuzz.mts",
     "test:fuzz:replay": "pnpm run build && node scripts/repo/run.mts scripts/repo/fuzz.mts --replay",
     "cover:types": "node scripts/repo/run.mts scripts/repo/cover/types/run.mts",

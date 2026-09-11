@@ -96,7 +96,7 @@ for (const newline of ['\n', '\r', '\r\n', '\f'] as const) {
   })
 }
 
-import stringCases from './fixtures/attribute-string-cases.mts'
+import stringCases from '../common/fixture/attribute-string-cases.mts'
 for (const { name, selector, value, valid = true } of stringCases) {
   test(name, () => {
     const { document, nw } = fixture()

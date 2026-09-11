@@ -9,7 +9,7 @@ import {
   host,
   jsdomRequire,
   require,
-} from './jsdom-fixture.mts'
+} from './fixture/jsdom.mts'
 import './jsdom-query.cases.mts'
 
 test('the callable factory and the DOMSelector export coexist', t => {

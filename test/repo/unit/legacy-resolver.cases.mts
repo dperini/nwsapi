@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { build, buildModern, ids, MARKUP } from './legacy-fixture.mts'
+import { build, buildModern, ids, MARKUP } from './fixture/legacy.mts'
 
 describe('what a legacy resolver is allowed to contain', () => {
   // The reads the generated code makes are the whole point of the option, so
