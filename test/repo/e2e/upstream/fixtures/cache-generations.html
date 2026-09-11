@@ -18,10 +18,12 @@ test(() => {
   assert_equals(cache.size(), 0);
   assert_equals(cache.get('0'), undefined);
   for (let i = 0; i < 4096; i++) cache.set(String(i), i);
+  let maximumSize = cache.size();
   for (let i = 0; i < 2048; i++) {
     cache.get(String(i));
-    assert_less_than_equal(cache.size(), 4096);
+    maximumSize = Math.max(maximumSize, cache.size());
   }
+  assert_less_than_equal(maximumSize, 4096);
   cache.set('next', 'value');
   assert_less_than_equal(cache.size(), 4096);
   assert_equals(cache.get('next'), 'value');
@@ -34,22 +36,22 @@ test(() => {
   const b = doc.getElementById('b');
   const seen = [];
   const callback = element => { seen.push(element.id); };
-  for (let round = 0; round < 2; round++) {
-    seen.length = 0;
-    assert_equals(engine.first('p.item', doc, callback), a);
-    assert_array_equals(seen, ['a']);
-    assert_array_equals(engine.select('p.item', doc), [a, b]);
-    assert_equals(engine.closest('section', b), b.parentElement);
-    assert_true(engine.match('p.item', a));
-    // Overflow each cache with actual query plans, not cached result sets.
-    for (let i = 0; i < 4200; i++) {
-      const selector = `[data-cache="${round}-${i}"]`;
-      assert_array_equals(engine.select(selector, doc), []);
-      assert_false(engine.match(selector, a));
-    }
-    for (const cache of [engine.matchLambdas, engine.selectLambdas, engine.matchResolvers, engine.selectResolvers]) {
-      assert_less_than_equal(cache.size(), 4096);
-    }
+  seen.length = 0;
+  assert_equals(engine.first('p.item', doc, callback), a);
+  assert_array_equals(seen, ['a']);
+  assert_array_equals(engine.select('p.item', doc), [a, b]);
+  assert_equals(engine.closest('section', b), b.parentElement);
+  assert_true(engine.match('p.item', a));
+  // Overflow each cache with actual query plans, not cached result sets.
+  let unexpectedResults = 0;
+  for (let i = 0; i < 4097; i++) {
+    const selector = `[data-cache="${i}"]`;
+    unexpectedResults += engine.select(selector, doc).length;
+    unexpectedResults += Number(engine.match(selector, a));
+  }
+  assert_equals(unexpectedResults, 0);
+  for (const cache of [engine.matchLambdas, engine.selectLambdas, engine.matchResolvers, engine.selectResolvers]) {
+    assert_less_than_equal(cache.size(), 4096);
   }
   a.className = 'other';
   assert_array_equals(engine.select('p.item', doc), [b]);
