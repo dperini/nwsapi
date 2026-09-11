@@ -1,4 +1,3 @@
-import { browserLaunchOptions } from '../browser.mts'
 import { createHash } from 'node:crypto'
 import {
   closeSync,
@@ -12,7 +11,6 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import { chromium } from '@playwright/test'
 import type factory from '../../../dist/nwsapi.js'
 import { ENGINE_BUILD_PATH } from '../lib/paths.mts'
 import { positiveInteger } from './footprint-shared.mts'
@@ -27,10 +25,20 @@ interface HeapHost {
   __weakNodes: Array<WeakRef<Element>>
 }
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: pnpm run bench:memory-browser-profile [options]
+--engine <path>          Browser engine build to measure (default: dist/nwsapi.js).
+--output-dir <directory> Result directory (default: new directory under os.tmpdir()).
+--count <number>         Retained documents and engines, 1 through 200 (default: 40).
+--queries <number>       Cached selectors per engine, 1 through 1000 (default: 100).
+-h, --help displays this help without loading Playwright or opening Chrome.`)
+  process.exit(0)
+}
+
 const { values } = parseArgs({
   options: {
     engine: { type: 'string' },
-    output: { type: 'string' },
+    'output-dir': { type: 'string' },
     count: { type: 'string', default: '40' },
     queries: { type: 'string', default: '100' },
   },
@@ -41,10 +49,14 @@ const source = readFileSync(
   values.engine ? path.resolve(values.engine) : ENGINE_BUILD_PATH,
   'utf8',
 )
-const output = values.output
-  ? path.resolve(values.output)
+const output = values['output-dir']
+  ? path.resolve(values['output-dir'])
   : mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-heap-'))
 mkdirSync(output, { recursive: true })
+const [{ chromium }, { browserLaunchOptions }] = await Promise.all([
+  import('@playwright/test'),
+  import('../browser.mts'),
+])
 const browser = await chromium.launch(browserLaunchOptions())
 try {
   const page = await browser.newPage()

@@ -6,12 +6,22 @@ import os from 'node:os'
 import { parseArgs } from 'node:util'
 import { createHash } from 'node:crypto'
 import { writeHeapSnapshot } from 'node:v8'
-import { JSDOM } from 'jsdom'
-import factory from '../../../dist/nwsapi.js'
+import type factoryType from '../../../dist/nwsapi.js'
+
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: pnpm run bench:memory-profile [options]
+--engine <path>          Engine module to measure (default: dist/nwsapi.js).
+--output-dir <directory> Result directory (default: new directory under os.tmpdir()).
+--count <number>         Retained engine instances, 1 through 200 (default: 100).
+--queries <number>       Cached selectors per engine, 1 through 1000 (default: 200).
+--method <name>          Query method: select or match (default: select).
+-h, --help displays this help without loading jsdom or the measured engine.`)
+  process.exit(0)
+}
 
 const { values } = parseArgs({
   options: {
-    output: { type: 'string' },
+    'output-dir': { type: 'string' },
     engine: { type: 'string' },
     count: { type: 'string', default: '100' },
     queries: { type: 'string', default: '200' },
@@ -38,11 +48,15 @@ if (
 const enginePath = values.engine
   ? path.resolve(values.engine)
   : new URL('../../../dist/nwsapi.js', import.meta.url)
-const make: typeof factory = values.engine
+const [{ JSDOM }, { default: factory }] = await Promise.all([
+  import('jsdom'),
+  import('../../../dist/nwsapi.js'),
+])
+const make: typeof factoryType = values.engine
   ? createRequire(import.meta.url)(path.resolve(values.engine))
   : factory
-const output = values.output
-  ? path.resolve(values.output)
+const output = values['output-dir']
+  ? path.resolve(values['output-dir'])
   : mkdtempSync(path.join(os.tmpdir(), 'nwsapi-heap-'))
 mkdirSync(output, { recursive: true })
 const session = new Session()
@@ -50,7 +64,7 @@ session.connect()
 await session.post('HeapProfiler.enable')
 const dom = new JSDOM('<main><i class="item"></i></main>')
 const target = dom.window.document.querySelector('.item')!
-const engines: Array<ReturnType<typeof factory>> = []
+const engines: Array<ReturnType<typeof factoryType>> = []
 const measurements: Record<string, number> = {}
 async function capture(name: string) {
   for (let pass = 0; pass < 4; pass++) {

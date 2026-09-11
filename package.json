@@ -55,6 +55,7 @@
     "bench:selectors": "node scripts/repo/run.mts scripts/repo/bench/run.mts selectors",
     "check:svg": "node scripts/repo/run.mts scripts/repo/check/svgs-are-optimized.mts",
     "check:unicode-es5": "node scripts/repo/run.mts scripts/repo/check/unicode-es5.mts",
+    "check:script-entrypoints": "node scripts/repo/run.mts scripts/repo/check/script-entrypoints.mts",
     "check:wpt-candidates": "node scripts/repo/run.mts scripts/repo/check/wpt/candidates.mts",
     "check:wpt-inventory": "node scripts/repo/run.mts scripts/repo/check/wpt/inventory.mts",
     "check:wpt-scope": "node scripts/repo/run.mts scripts/repo/check/wpt/scope.mts",

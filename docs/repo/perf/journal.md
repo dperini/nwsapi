@@ -46,9 +46,9 @@ The allocation workload warms 100 matching resolvers, then verifies resolver ide
 pnpm run build
 pnpm run gen:memory
 pnpm run check:memory
-pnpm run bench:memory-profile --count 100 --queries 100 --output /tmp/selection-heap
-pnpm run bench:memory-profile --method match --count 100 --queries 100 --output /tmp/matching-heap
-pnpm run bench:memory-browser-profile --count 40 --queries 100 --output /tmp/browser-heap
+pnpm run bench:memory-profile --count 100 --queries 100 --output-dir /tmp/selection-heap
+pnpm run bench:memory-profile --method match --count 100 --queries 100 --output-dir /tmp/matching-heap
+pnpm run bench:memory-browser-profile --count 40 --queries 100 --output-dir /tmp/browser-heap
 pnpm run bench:allocation-profile --output /tmp/compiler-allocations
 ```
 

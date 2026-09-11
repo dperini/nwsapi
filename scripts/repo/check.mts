@@ -3,6 +3,7 @@ import {
   API_SCRIPT_PATH,
   SVG_CHECK_SCRIPT_PATH,
   UNICODE_ES5_CHECK_SCRIPT_PATH,
+  SCRIPT_ENTRYPOINT_CHECK_PATH,
   FORMAT_SCRIPT_PATH,
   LINT_SCRIPT_PATH,
   TSC_CLI_PATH,
@@ -19,6 +20,7 @@ export function checkCode(run = runNode) {
   run(API_SCRIPT_PATH, ['--check'])
   run(SVG_CHECK_SCRIPT_PATH, [])
   run(UNICODE_ES5_CHECK_SCRIPT_PATH, [])
+  run(SCRIPT_ENTRYPOINT_CHECK_PATH, ['--check'])
   run(FORMAT_SCRIPT_PATH, ['--check'])
   run(LINT_SCRIPT_PATH, [])
   run(TSC_CLI_PATH, ['--noEmit', '-p', TSC_CONFIG_PATH])
