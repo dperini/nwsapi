@@ -9,10 +9,10 @@ import {
   externalEntries,
 } from '../../../.config/build.config.mts'
 import { externalLoaderPlugin } from '../../../.config/repo/rolldown/external-loaders.mts'
-import { postBuild } from './post.mts'
-import { bundleEngine } from '../rolldown/engine.mts'
-import { lowerToEs5 } from './post/es5.mts'
 import { checkUnicodeEs5 } from '../check/unicode-es5.mts'
+import { bundleEngine } from '../rolldown/engine.mts'
+import { postBuild } from './post.mts'
+import { lowerToEs5 } from './post/es5.mts'
 
 checkUnicodeEs5()
 
@@ -31,7 +31,7 @@ for (const name of externalEntries) {
 // Bundle only the direction helpers and their three Unicode bidi classes.
 // The IIFE lives inside the UMD wrapper, shared by every engine instance.
 const direction = await build({
-  input: './src/internal/direction.mts',
+  input: './src/core/unicode/directionality.mts',
   platform: 'browser',
   plugins: [externalLoaderPlugin()],
   write: false,
@@ -45,11 +45,67 @@ const directionCode = direction.output[0]
 if (!directionCode || directionCode.type !== 'chunk') {
   throw new Error('Rolldown produced no Unicode direction helpers')
 }
-// Transform each file as a script so its UMD, CommonJS, or global registration
-// stays intact. Do not bundle the lazy css-tree peer or change module wrappers.
+const attributes = await build({
+  input: './src/extension/legacy/attributes.mts',
+  platform: 'browser',
+  write: false,
+  output: {
+    format: 'iife',
+    name: 'legacyAttributes',
+    generatedCode: { symbols: false },
+  },
+})
+const attributesCode = attributes.output[0]
+if (!attributesCode || attributesCode.type !== 'chunk') {
+  throw new Error('Rolldown produced no legacy attribute readers')
+}
+const core = await build({
+  input: './src/core/factory.mts',
+  platform: 'browser',
+  write: false,
+  output: { format: 'iife', name: 'core', generatedCode: { symbols: false } },
+})
+const coreCode = core.output[0]
+if (!coreCode || coreCode.type !== 'chunk') {
+  throw new Error('Rolldown produced no core factory')
+}
+// Keep browser registrations intact and bundle the adapter's local helpers.
+// The adapter keeps its engine, legacy module, and lazy css-tree peer external.
 for (const entry of entries) {
+  if (entry.source === 'src/bin/nwsapi.mts') {
+    continue
+  }
+  if (entry.source === 'src/adapter/dom-selector.mts') {
+    await build({
+      input: entry.source,
+      platform: 'node',
+      external: ['../nwsapi.js', '../modules/nwsapi-legacy.js', 'css-tree'],
+      output: { file: entry.output, format: 'cjs' },
+    })
+    continue
+  }
   let source = await readFile(entry.source, 'utf8')
-  if (entry.source === 'src/nwsapi.mts') {
+  if (entry.source === 'src/extension/nwsapi-legacy.mts') {
+    const marker = '/* @bundle:legacy-attributes */ {}'
+    if (!source.includes(marker)) {
+      throw new Error('Missing legacy attributes bundle marker')
+    }
+    source = source.replace(
+      marker,
+      () =>
+        `(function () {\n${attributesCode.code}\nreturn legacyAttributes\n})()`,
+    )
+  }
+
+  if (entry.source === 'src/core/nwsapi.mts') {
+    const coreMarker = '/* @bundle:core */ {}'
+    if (!source.includes(coreMarker)) {
+      throw new Error('Missing core factory bundle marker')
+    }
+    source = source.replace(
+      coreMarker,
+      () => `(function () {\n${coreCode.code}\nreturn core\n})()`,
+    )
     const marker = '/* @bundle:direction */ {}'
     if (!source.includes(marker)) {
       throw new Error('Missing Unicode direction bundle marker')
@@ -69,7 +125,7 @@ for (const entry of entries) {
   }
   await mkdir(path.dirname(entry.output), { recursive: true })
   let code =
-    entry.source === 'src/nwsapi.mts'
+    entry.source === 'src/core/nwsapi.mts'
       ? await bundleEngine(result.code)
       : result.code
   if (browserOutputs.has(entry.output)) {
@@ -85,15 +141,15 @@ const legacyPath = fileURLToPath(
   new URL('../../../dist/modules/nwsapi-legacy.js', import.meta.url),
 )
 await build({
-  input: './scripts/repo/cli.mts',
+  input: './src/bin/nwsapi.mts',
   platform: 'node',
   external: ['jsdom', 'css-tree', enginePath, legacyPath],
   output: {
-    file: './dist/cli.js',
+    file: './dist/bin/nwsapi.js',
     format: 'cjs',
     paths: {
-      [enginePath]: './nwsapi.js',
-      [legacyPath]: './modules/nwsapi-legacy.js',
+      [enginePath]: '../nwsapi.js',
+      [legacyPath]: '../modules/nwsapi-legacy.js',
     },
   },
 })

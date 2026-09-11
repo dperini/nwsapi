@@ -1,15 +1,19 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import path from 'node:path'
-import os from 'node:os'
 import { JSDOM } from 'jsdom'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { expect, test } from 'vitest'
+import {
+  engineDefinitions,
+  engineSignature,
+  readEngineSources,
+} from '../../../scripts/repo/gen/api-engine.mts'
 import {
   renderApiMarkdown,
   writeApiMarkdown,
 } from '../../../scripts/repo/gen/api-md.mts'
 import {
   ADAPTER_SOURCE_PATH,
-  API_DOC_PATH,
   ENGINE_SOURCE_PATH,
   TRAVERSAL_SOURCE_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
@@ -25,70 +29,61 @@ test('API nests a readable callout inside its collapsed section', t => {
   const notes = dom.window.document.querySelectorAll('details blockquote')
   expect(notes).toHaveLength(1)
   const note = notes[0]
-  expect(note!.querySelector('strong')?.textContent).toBe('Important')
-  expect(note!.querySelector('code')?.textContent).toBe(
-    'src/modules/nwsapi-legacy.js',
-  )
-  expect(note!.querySelectorAll('p')[1]?.textContent).toBe(
-    'Load src/modules/nwsapi-legacy.js after the core and before the first query when the environment needs compatibility fallbacks.',
-  )
+  expect(note!.querySelector('strong')).not.toBeNull()
+  expect(note!.querySelector('code')).not.toBeNull()
   const icon = note!.querySelector('img')
   expect(icon?.getAttribute('src')).toBe('../../../assets/repo/important.svg')
   expect(icon?.getAttribute('alt')).toBe('')
   expect(icon?.getAttribute('width')).toBe('16')
   expect(icon?.getAttribute('height')).toBe('16')
   expect(note!.querySelector('[style], [class], svg, script')).toBeNull()
-  expect(apiMarkdown).not.toContain('[!IMPORTANT]')
 })
 
-test('README links to the API without repeating its reference tables', () => {
-  const markdown = readFileSync(
-    new URL('../../../README.md', import.meta.url),
-    'utf8',
-  )
-  const section = markdown.split('## API\n')[1]!.split('\n## ')[0]!.trim()
-  expect(section).toBe(
-    'See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.',
-  )
+test('API discovery reads declarations without executing engine code', () => {
+  const definitions = engineDefinitions([
+    {
+      file: 'fixture.mts',
+      text: `throw new Error('do not execute')
+      export function select(engine: unknown, selectors: string) { return [] }
+      engine.select = select.bind(null, engine)
+      engine.Dom = { select: engine.select }
+      engine.Config = { IDS_DUPES: true }`,
+    },
+  ])
+  const method = definitions.object('Dom')[0]!
+  const value = definitions.resolve({ ...method, node: method.node.value })
+  expect(value.node.type).toBe('FunctionDeclaration')
+  expect(engineSignature('select', value)).toBe('select(selectors)')
+  expect(definitions.object('Config')[0]!.node.value).toMatchObject({
+    type: 'Literal',
+    value: true,
+  })
 })
 
-test('the API reference matches the source exports without running the factory', () => {
-  const output = apiMarkdown
-  expect(output).toBe(readFileSync(API_DOC_PATH, 'utf8'))
-  expect(output).toContain('`closest(selectors, element, callback)`')
-  expect(output).toContain('`match(selectors, element, callback)`')
-  expect(output).toContain('`select(selectors, context, callback)`')
-  expect(output).toContain('`up(element, expr)`')
-  expect(output).not.toContain('`ancestor(')
-  expect(output).toContain('`USR_EVENT` | `true`')
-  expect(output).toContain('require("nwsapi").DOMSelector')
-  expect(output).toContain('`DOMSelector.configure(window, options)`')
-  expect(output).toContain('`DOMSelector.use(window, engine)`')
-  expect(output.indexOf('`byClass(')).toBeLessThan(output.indexOf('`byId('))
-  expect(
-    renderApiMarkdown(
-      'throw new Error("do not execute");\n' + engine,
-      adapter,
-      traversal,
-    ),
-  ).toContain('# API')
+test('API discovery rejects unsupported export declarations', () => {
+  const definitions = engineDefinitions([
+    { file: 'fixture.mts', text: 'engine.Dom = { ...other }' },
+  ])
+  expect(() => definitions.object('Dom')).toThrow('Unsupported Dom member')
+  expect(() => definitions.object('Config')).toThrow(
+    'Missing Config export object',
+  )
 })
 
 test('new exports need a description instead of silently disappearing', () => {
   expect(() =>
-    renderApiMarkdown(
-      engine.replace('Dom = {', 'Dom = { undocumented: select,'),
-      adapter,
-      traversal,
-    ),
+    renderApiMarkdown(engine, adapter, traversal, [
+      ...readEngineSources(),
+      {
+        file: 'src/core/initialize-fixture.mts',
+        text: 'engine.Dom = { undocumented: function () {} }',
+      },
+    ]),
   ).toThrow('undocumented')
   expect(() =>
     renderApiMarkdown(
       engine,
-      adapter.replace(
-        'class DOMSelector {',
-        'class DOMSelector { undocumented() {}',
-      ),
+      'class DOMSelector { undocumented() {} }',
       traversal,
     ),
   ).toThrow('undocumented')

@@ -37,7 +37,6 @@ try {
       'LICENSE',
       'README.md',
       'bin/nwsapi.js',
-      'dist/cli.js',
       'dist/external/unicode.js',
       'dist/external/unicode.d.ts',
       'src/modules/nwsapi-legacy.js',
@@ -132,8 +131,9 @@ try {
       vitest,
       'run',
       '--config',
-      '.config/vitest.config.mts',
+      '.config/repo/vitest.config.mts',
       'test/repo/integration/jsdom-adapter.test.mts',
+      'test/repo/integration/host-readers.test.mts',
     ],
     {
       cwd: REPO_ROOT,

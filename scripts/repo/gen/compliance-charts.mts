@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { isDeepStrictEqual } from 'node:util'
+import { selectorExtensions } from '../bench/selector-extensions.mts'
 import { CHROME_VERSION } from '../browser.mts'
 import {
   chartBackground,
@@ -17,6 +18,8 @@ import { optimiseSvg } from './svg-optimize.mts'
 
 type Outcome = { value: string[] } | { error: string }
 interface ComparisonRow {
+  selector?: string
+  context?: string
   native: Outcome
   nwsapi: Outcome
   competitor: Outcome
@@ -89,6 +92,18 @@ export function summarizeWpt(pages: WptReport['pages']) {
   return { upstream, local }
 }
 
+export function reviewedExtension(row: ComparisonRow) {
+  if (
+    !row.selector ||
+    !Object.hasOwn(selectorExtensions, row.selector) ||
+    !('error' in row.native) ||
+    row.native.error !== 'SyntaxError'
+  ) {
+    return undefined
+  }
+  return selectorExtensions[row.selector]
+}
+
 export function summarizeCompliance(comparison: Comparison, wpt: WptReport) {
   if (
     comparison.browser !== wpt.browser ||
@@ -108,8 +123,11 @@ export function summarizeCompliance(comparison: Comparison, wpt: WptReport) {
   if (!rows.length || !wpt.pages.length) {
     throw new Error('Compliance reports must contain executed cases.')
   }
+  const extensions: Array<
+    ComparisonRow & { kind: string; specification: string }
+  > = []
   const native = {
-    total: rows.length,
+    total: 0,
     nwsapi: 0,
     competitor: 0,
     both: 0,
@@ -123,6 +141,12 @@ export function summarizeCompliance(comparison: Comparison, wpt: WptReport) {
         'Comparison cases require complete outcomes from all three engines.',
       )
     }
+    const extension = reviewedExtension(row)
+    if (extension) {
+      extensions.push({ ...row, ...extension })
+      continue
+    }
+    native.total++
     const candidate = isDeepStrictEqual(row.native, row.nwsapi)
     const competitor = isDeepStrictEqual(row.native, row.competitor)
     native.nwsapi += Number(candidate)
@@ -144,6 +168,8 @@ export function summarizeCompliance(comparison: Comparison, wpt: WptReport) {
     engineSha256: wpt.engineSha256,
     wptRevision: wpt.wptRevision,
     native,
+    total: rows.length,
+    extensions,
     upstream,
     local,
   }
@@ -224,7 +250,7 @@ export function writeComplianceCharts() {
       ],
       [
         `Chrome ${summary.browser} · nwsapi ${summary.versions.nwsapi} · @asamuzakjp/dom-selector ${summary.versions.competitor} source`,
-        'Selected to investigate gaps and extensions. These percentages are not whole-standard compliance scores.',
+        `${summary.extensions.length} reviewed extension cases are reported separately, not counted as passes or failures.`,
         'Includes rejected syntax, XML, shadow contexts, and state changes. Rendering is outside this comparison.',
       ],
     ),
@@ -254,7 +280,7 @@ export function writeComplianceCharts() {
     ),
   )
   const count = (value: number) => value.toLocaleString('en-US')
-  const text = `<!-- compliance-summary:start -->\n\n![Selector parsing and matching against Chrome](../../../assets/repo/bench/selector-compliance.svg)\n\nIn ${count(summary.native.total)} targeted selector and context cases, \`nwsapi\` agrees with Chrome on **${count(summary.native.nwsapi)}**, compared with **${count(summary.native.competitor)}** for the local source of \`@asamuzakjp/dom-selector\` ${summary.versions.competitor}. Agreement means the same ordered results or the same error type. These cases investigate suspected gaps and extensions. They do not represent all CSS selectors.\n\n| Outcome against Chrome | Cases |\n| --- | ---: |\n| Both libraries agree | ${summary.native.both} |\n| Only \`nwsapi\` agrees | ${summary.native.onlyNwsapi} |\n| Only \`@asamuzakjp/dom-selector\` agrees | ${summary.native.onlyCompetitor} |\n| Neither library agrees | ${summary.native.neither} |\n\n![Selected WPT inputs and local regressions](../../../assets/repo/bench/wpt-compliance.svg)\n\nThe executed suite passes **${count(summary.upstream.passed)} of ${count(summary.upstream.total)} upstream WPT subtests** across ${summary.upstream.pages} pages, plus **${summary.local.passed} of ${summary.local.total} local regression cases** across ${summary.local.pages} pages. Its ${summary.upstream.knownFailures + summary.local.knownFailures} known failures remain visible. Adaptations remove rendering checks while preserving selector inputs. This suite measures \`nwsapi\` only. It does not establish a WPT result for \`@asamuzakjp/dom-selector\`.\n\nThe reports use Chrome **${summary.browser}** and WPT revision \`${summary.wptRevision.slice(0, 12)}\`. The [browser report](../../../assets/repo/bench/selector-compatibility.json), [page-level WPT report](../../../assets/repo/bench/wpt-summary.json), and [chart data](../../../assets/repo/bench/compliance-summary.json) retain the evidence.\n\n<!-- compliance-summary:end -->`
+  const text = `<!-- compliance-summary:start -->\n\n![Selector parsing and matching against Chrome](../../../assets/repo/bench/selector-compliance.svg)\n\nOf ${count(summary.total)} targeted cases, ${count(summary.native.total)} use Chrome as their oracle. In those cases, \`nwsapi\` agrees with Chrome on **${count(summary.native.nwsapi)}**, compared with **${count(summary.native.competitor)}** for the local source of \`@asamuzakjp/dom-selector\` ${summary.versions.competitor}. Agreement means the same ordered results or the same error type. ${summary.extensions.length} reviewed standard, draft, or library extension cases are reported separately because Chrome rejects their syntax. They count as neither passes nor failures. The raw report retains all ${summary.total} outcomes.\n\n| Outcome against Chrome | Cases |\n| --- | ---: |\n| Both libraries agree | ${summary.native.both} |\n| Only \`nwsapi\` agrees | ${summary.native.onlyNwsapi} |\n| Only \`@asamuzakjp/dom-selector\` agrees | ${summary.native.onlyCompetitor} |\n| Neither library agrees | ${summary.native.neither} |\n\n![Selected WPT inputs and local regressions](../../../assets/repo/bench/wpt-compliance.svg)\n\nThe executed suite passes **${count(summary.upstream.passed)} of ${count(summary.upstream.total)} upstream WPT subtests** across ${summary.upstream.pages} pages, plus **${summary.local.passed} of ${summary.local.total} local regression cases** across ${summary.local.pages} pages. Its ${summary.upstream.knownFailures + summary.local.knownFailures} known failures remain visible. Adaptations remove rendering checks while preserving selector inputs. This suite measures \`nwsapi\` only. It does not establish a WPT result for \`@asamuzakjp/dom-selector\`.\n\nThe reports use Chrome **${summary.browser}** and WPT revision \`${summary.wptRevision.slice(0, 12)}\`. The [browser report](../../../assets/repo/bench/selector-compatibility.json), [page-level WPT report](../../../assets/repo/bench/wpt-summary.json), and [chart data](../../../assets/repo/bench/compliance-summary.json) retain the evidence.\n\n<!-- compliance-summary:end -->`
   const document = path.join(REPO_ROOT, 'docs/repo/selector/compatibility.md')
   const before = readFileSync(document, 'utf8')
   const start = before.indexOf('<!-- compliance-summary:start -->')

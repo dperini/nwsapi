@@ -5,7 +5,6 @@ export function toolingFiles() {
   return globSync(
     [
       'vitest.config.mts',
-      'bin/**/*.mts',
       'src/**/*.mts',
       'src/external/*.js',
       'src/**/*.d.ts',

@@ -139,7 +139,9 @@ test('configuration getters and quiet validation preserve public return contract
     expect(engine.select(selector, doc).length, selector).toBe(0)
     expect(engine.match(selector, doc.body), selector).toBe(false)
   }
-  expect(factory.DOMSelector).toBe(require('../../../dist/dom-selector.js'))
+  expect(factory.DOMSelector).toBe(
+    require('../../../dist/adapter/dom-selector.js'),
+  )
 })
 
 test('quiet compiler validation drops invalid strict logical and slotted arguments', t => {

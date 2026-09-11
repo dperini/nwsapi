@@ -1,4 +1,4 @@
-import type { LegacyHookFactory } from '../src/internal/legacy.d.ts'
+import type { LegacyHookFactory } from '../src/core/legacy.d.ts'
 export type NwsapiCollection = Element[] | NodeListOf<Element>
 export type NwsapiContext = Document | DocumentFragment | Element
 
@@ -70,7 +70,7 @@ export interface NwsapiEngine {
   compile(
     selector: string,
     mode: boolean | null,
-    callback?: boolean | ((element: Element) => unknown),
+    callback?: boolean | null | ((element: Element) => unknown),
   ):
     | ((
         candidates: unknown,

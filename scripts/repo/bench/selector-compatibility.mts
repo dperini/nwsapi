@@ -179,7 +179,7 @@ const competitorBundle = await bundle(
   '__competitor',
 )
 const adapterBundle = await bundle(
-  path.join(REPO_ROOT, 'dist/dom-selector.js'),
+  path.join(REPO_ROOT, 'dist/adapter/dom-selector.js'),
   '__adapter',
 )
 const sha256 = (value: string) =>

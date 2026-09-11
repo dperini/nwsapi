@@ -224,3 +224,36 @@ test('hosts without WeakMap retain bounded recursion and the single-document fas
   }
   assert.equal(calls, 1)
 })
+
+test('issue 214: initialization avoids state probes when a click inserts a body portal', t => {
+  const window = host(t)
+  let probes = 0
+  const nw = registerLegacy(createNwsapi({ document: window.document }))
+  window.Element.prototype.matches = function (
+    this: Element,
+    selector: string,
+  ) {
+    assert.ok(++probes < 3, 'state matching must stop delegating after reentry')
+    return nw.match(selector, this)
+  } as unknown as Element['matches']
+  const fresh = createNwsapi(window)
+  assert.equal(probes, 0, 'factory initialization must not query display state')
+  const trigger = window.document.createElement('button')
+  window.document.body.appendChild(trigger)
+  const portal = window.document.createElement('div')
+  portal.setAttribute('popover', '')
+  const option = window.document.createElement('button')
+  option.className = 'option'
+  portal.appendChild(option)
+  trigger.addEventListener('click', () =>
+    window.document.body.appendChild(portal),
+  )
+  trigger.click()
+  assert.equal(portal.parentNode, window.document.body)
+  for (let i = 0; i < 10; i++) {
+    assert.deepEqual(fresh.select('.option', window.document), [option])
+    assert.equal(nw.match(':popover-open', portal), false)
+    assert.equal(nw.match(':modal', portal), false)
+  }
+  assert.equal(probes, 1)
+})

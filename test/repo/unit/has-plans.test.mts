@@ -149,3 +149,12 @@ test('internal has snapshots remain private and refresh after mutation', t => {
   last.remove()
   expect(nw.match(selector, anchor)).toBe(false)
 })
+
+test('has arguments preserve escaped punctuation through forgiving branches', t => {
+  const { window } = new JSDOM('<div><i class="a:b"></i></div><div></div>')
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const expected = [window.document.body.firstElementChild]
+  expect(engine.select('div:has(.a\\:b)')).toEqual(expected)
+  expect(engine.select('div:has(:is(.a\\:b, :unknown))')).toEqual(expected)
+})

@@ -14,12 +14,16 @@ export const UNICODE_ES5_CHECK_SCRIPT_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/check/unicode-es5.mts',
 )
+export const SCRIPT_ENTRYPOINT_CHECK_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/check/script-entrypoints.mts',
+)
 export const API_DOC_PATH = path.join(REPO_ROOT, 'docs/repo/selector/api.md')
 export const API_SCRIPT_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/gen/api-md.mts',
 )
-export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/nwsapi.mts')
+export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/core/nwsapi.mts')
 export const ENGINE_BUILD_PATH = path.join(REPO_ROOT, 'dist/nwsapi.js')
 export const BENCHMARK_CACHE_PATH = path.join(
   REPO_ROOT,
@@ -33,10 +37,13 @@ export const BENCHMARK_SELECTORS_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/bench/selectors.bench.mts',
 )
-export const ADAPTER_SOURCE_PATH = path.join(REPO_ROOT, 'src/dom-selector.mts')
+export const ADAPTER_SOURCE_PATH = path.join(
+  REPO_ROOT,
+  'src/adapter/dom-selector.mts',
+)
 export const TRAVERSAL_SOURCE_PATH = path.join(
   REPO_ROOT,
-  'src/modules/nwsapi-traversal.mts',
+  'src/extension/nwsapi-traversal.mts',
 )
 export const WPT_CANDIDATES_PATH = path.join(
   REPO_ROOT,

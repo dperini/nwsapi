@@ -1,6 +1,15 @@
 import process from 'node:process'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
+// Reporter selection only needs the configuration value, not a browser runner.
+vi.mock('vitest/config', () => ({
+  defineConfig: (config: unknown) => config,
+}))
+
+vi.mock('@playwright/test', () => ({
+  defineConfig: (config: unknown) => config,
+}))
+
 const agentKeys = [
   'AI_AGENT',
   'AUGMENT_AGENT',
@@ -96,7 +105,8 @@ for (const initial of [false, true] as const) {
 
 test('agent runs use minimal Node and dot WPT reporters', async () => {
   vi.stubEnv('CODEX_THREAD_ID', 'thread')
-  const { default: node } = await import('../../../.config/vitest.config.mts')
+  const { default: node } =
+    await import('../../../.config/repo/vitest.config.mts')
   const { default: wpt } =
     await import('../../../.config/playwright.config.mts')
   expect(node.test!.reporters).toEqual(['minimal'])
@@ -106,12 +116,14 @@ test('agent runs use minimal Node and dot WPT reporters', async () => {
 test('agent CI runs keep GitHub annotations', async () => {
   vi.stubEnv('AI_AGENT', 'codex')
   vi.stubEnv('GITHUB_ACTIONS', 'true')
-  const { default: node } = await import('../../../.config/vitest.config.mts')
+  const { default: node } =
+    await import('../../../.config/repo/vitest.config.mts')
   expect(node.test!.reporters).toEqual(['minimal', 'github-actions'])
 })
 
 test('non-agent runs keep the existing reporter choices', async () => {
-  const { default: node } = await import('../../../.config/vitest.config.mts')
+  const { default: node } =
+    await import('../../../.config/repo/vitest.config.mts')
   const { default: wpt } =
     await import('../../../.config/playwright.config.mts')
   expect(node.test!.reporters).toBeUndefined()

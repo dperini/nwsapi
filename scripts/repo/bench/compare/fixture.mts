@@ -7,11 +7,12 @@ export function fixture(
   groups: number,
   layout: Layout,
   scenario: Scenario = 'grouped',
+  size = 256,
 ) {
   if (scenario === 'has' || scenario === 'sibling') {
     return (
       '<!doctype html><body>' +
-      Array.from({ length: 256 }, (_, i) => {
+      Array.from({ length: size }, (_, i) => {
         const target =
           '<div class=target><p' +
           (i < matches ? ' data-hit' : '') +
@@ -34,7 +35,7 @@ export function fixture(
       '<div>'.repeat(depth) +
       '<section class=branch>' +
       Array.from(
-        { length: 256 },
+        { length: size },
         (_, i) => '<p class="' + (i < matches ? 'hit' : '') + '"></p>',
       ).join('') +
       '</section>' +
@@ -44,7 +45,7 @@ export function fixture(
   }
   return (
     '<!doctype html><body>' +
-    Array.from({ length: 256 }, (_, i) => {
+    Array.from({ length: size }, (_, i) => {
       const element =
         '<p class="' + (i < matches ? 'hit g' + (i % groups) : '') + '"></p>'
       return layout === 'nested'

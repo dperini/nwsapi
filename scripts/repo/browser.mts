@@ -5,6 +5,16 @@ import path from 'node:path'
 import { Browser, computeExecutablePath, install } from '@puppeteer/browsers'
 import { isMainModule } from './lib/run-node.mts'
 
+if (
+  isMainModule(import.meta.url) &&
+  (process.argv.includes('--help') || process.argv.includes('-h'))
+) {
+  console.log(`Usage: pnpm run setup:browser
+Installs the pinned Chrome for Testing release used by browser tests, WPT, and benchmarks.
+-h, --help  Show this help without installing Chrome.`)
+  process.exit(0)
+}
+
 // Updating this pin changes the browser used by WPT, browser tests, and benchmarks.
 export const CHROME_VERSION: string = JSON.parse(
   readFileSync(new URL('../../.config/chrome.json', import.meta.url), 'utf8'),

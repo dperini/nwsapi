@@ -16,12 +16,12 @@ The finalized classification contains 14,734 selector-related cases across 571 U
 
 Choose the timing for the operation you need. These estimates cover the native qualification stage. Dependency updates, installation, and other checks have their own costs.
 
-| Operation                                                                             | Work performed                                                                           | Time to allow                                                                             |
-| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Check unchanged inputs                                                                | Verify the committed contract. No discovery or browser tests run.                        | Under 1 second in local measurements.                                                     |
-| Replay saved results with unchanged pins                                              | Rescan discovery and classify recorded results. Chrome stays closed.                     | About 1 minute in local measurements.                                                     |
-| Resume after discovery adds candidates with unchanged pins                            | Run only URLs absent from the saved execution plans, then classify the combined results. | Replay time plus browser time for the added URLs.                                         |
-| Refresh after a Chrome or WPT pin change, or when required cached results are missing | Qualify the full candidate pool.                                                         | About 33 minutes for browser work at this pool size, plus preparation and classification. |
+| Operation | Work performed | Time to allow |
+| --- | --- | --- |
+| Check unchanged inputs | Verify the committed contract. No discovery or browser tests run. | Under 1 second in local measurements. |
+| Replay saved results with unchanged pins | Rescan discovery and classify recorded results. Chrome stays closed. | About 1 minute in local measurements. |
+| Resume after discovery adds candidates with unchanged pins | Run only URLs absent from the saved execution plans, then classify the combined results. | Replay time plus browser time for the added URLs. |
+| Refresh after a Chrome or WPT pin change, or when required cached results are missing | Qualify the full candidate pool. | About 33 minutes for browser work at this pool size, plus preparation and classification. |
 
 Normal setup and checks use the committed pool. Missing temporary reports alone do not trigger a browser run. Regeneration needs matching saved reports or a full qualification run. The updater checks for this after dependency installation. A changed browser or WPT pin requires full qualification even when older reports remain cached.
 
@@ -32,14 +32,14 @@ The browser execution reference covers 11,278 URLs and totals 32 minutes 13 seco
 
 </details>
 
-| Category                      |     Cases | Treatment                                                 |
-| ----------------------------- | --------: | --------------------------------------------------------- |
-| Selector matching             |    11,865 | Retain the selector assertions.                           |
-| Selector parsing              |     1,786 | Retain syntax assertions.                                 |
-| Mixed selector callbacks      |     1,083 | Extract selector assertions from the other checks.        |
-| Rendering                     |    78,267 | Exclude rendering assertions.                             |
-| CSS property values and CSSOM |    32,711 | Exclude assertions outside selector parsing and matching. |
-| Other APIs and fixture setup  | 1,141,986 | Exclude assertions that do not test selector results.     |
+| Category | Cases | Treatment |
+| --- | ---: | --- |
+| Selector matching | 11,865 | Retain the selector assertions. |
+| Selector parsing | 1,786 | Retain syntax assertions. |
+| Mixed selector callbacks | 1,083 | Extract selector assertions from the other checks. |
+| Rendering | 78,267 | Exclude rendering assertions. |
+| CSS property values and CSSOM | 32,711 | Exclude assertions outside selector parsing and matching. |
+| Other APIs and fixture setup | 1,141,986 | Exclude assertions that do not test selector results. |
 
 <!-- native-summary:end -->
 

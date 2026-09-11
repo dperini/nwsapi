@@ -36,6 +36,8 @@ Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Develop
 
 `node scripts/repo/bench/jsdom-workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
 
+Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. The adapter suite covers public queries, stylesheet matching, and recorded GitHub issue regressions. The host-reader suite covers supplied implementation helpers, attribute access, tree traversal, duplicate IDs, mutations, shadow boundaries, and fallback behavior. Both suites load the installed package and its matching `jsdom` utilities. This subset does not run the full WPT or browser suites.
+
 The isolated package test also installs `@testing-library/dom` 10.4.1 and exercises role, label, and test-ID lookups against the packed adapter. Its temporary installation stays outside the repository.
 
 ## Compare first-result ID lookups
@@ -124,3 +126,31 @@ pnpm run gen:bench
 These commands refresh the browser timing, first-match, retained-heap, file-size, public `jsdom`, and README summary charts. Raw samples remain in `assets/repo/bench/`. The [benchmark method](../perf/benchmarks.md) defines their scope.
 
 Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evidence) to refresh the browser comparison and selected WPT report. Then run `pnpm run gen:compliance`. That generator writes both compliance charts and their documentation summary from the reports. It rejects mismatched browser or engine builds. The native discovery pool identifies requirements and does not supply engine pass counts.
+
+## Source and package layout
+
+The engine entry is `src/core/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Direction helpers and legacy types live with the engine. Host-reader types live with the adapter. Optional extensions live in `src/extension/`, and external loaders and declarations remain in `src/external/`.
+
+The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/adapter/dom-selector.js`, `dist/bin/`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.
+
+## Diagnose an exceeded test budget
+
+The copied Wheelhouse tool is available without fleet membership:
+
+```sh
+node scripts/repo/run.mts scripts/fleet/test/budget/balance.mts -r /path/to/vitest.json --budget 10s --elapsed 69.08s
+```
+
+Use a completed `vitest` JSON report and the measured wall time of the same command. `--json` prints complete proposed shard assignments. `--top` changes the number of expensive files shown. Durations support `u` or `us`, `ms`, `s`, `m`, and `h`.
+
+The parsing, inventory validation, and shard planning modules are copied from Wheelhouse. The entrypoint uses this repository's Node launcher and output conventions. It does not add fleet membership or change CI scheduling. See the [shared recovery runbook](../../fleet/testing/performance.md#recover-an-exceeded-budget) for the checks and limits of the report. Fleet wrapper examples elsewhere in that document apply only where those wrappers are installed.
+
+## Inspect command options
+
+The test runner, CPU profiler, and allocation profiler accept `-h` and `--help` without starting measurements. Their help lists defaults, output locations, and forwarded runner flags. The test runner's `all` scope includes unit and integration tests. It does not include upstream browser tests.
+
+The repository runner also accepts `-h` and `--help`. Runner help must be the first argument. A help flag after an entry is forwarded to that script. For example, `node scripts/repo/run.mts --help` explains the wrapper, while `node scripts/repo/run.mts scripts/repo/test.mts --help` explains the test command.
+
+The CPU profiler accepts named flags for scripts and readable shell history. `--phase` selects the workload and `--output` names the `.cpuprofile` file. Their `-p` and `-o` forms are equivalent. The original positional phase and output remain supported. Combining a named value with its positional equivalent is an error.
+
+For allocation profiles, use `--sampling-interval <bytes>`. The default is 512 bytes and the maximum is 32768 bytes. The existing `--interval` alias remains supported. Supplying both names is an error because the command cannot choose which value the caller intended.

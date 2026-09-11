@@ -107,3 +107,63 @@ test('rejects a missing outcome rather than treating missing values as agreement
   Reflect.deleteProperty(comparison.matrix[0]!, 'native')
   expect(() => summarizeCompliance(comparison, wpt)).toThrow()
 })
+
+test('reviewed extensions stay visible without counting as native passes or failures', () => {
+  const { comparison, wpt } = fixture()
+  const extension = {
+    selector: ':lang("en")',
+    native: { error: 'SyntaxError' },
+    nwsapi: { value: ['one'] },
+    competitor: { error: 'SyntaxError' },
+  }
+  const result = summarizeCompliance(
+    { ...comparison, matrix: [...comparison.matrix, extension] },
+    wpt,
+  )
+  expect(result.total).toBe(6)
+  expect(result.native.total).toBe(5)
+  expect(result.extensions).toEqual([
+    {
+      ...extension,
+      kind: 'standard',
+      specification: 'https://drafts.csswg.org/selectors/#lang-pseudo',
+    },
+  ])
+})
+
+test('new native support automatically returns reviewed syntax to the parity pool', () => {
+  const { comparison, wpt } = fixture()
+  const extension = {
+    selector: ':lang("en")',
+    native: { value: ['one'] },
+    nwsapi: { value: [] },
+    competitor: { value: ['one'] },
+  }
+  const result = summarizeCompliance(
+    { ...comparison, matrix: [...comparison.matrix, extension] },
+    wpt,
+  )
+  expect(result.extensions).toEqual([])
+  expect(result.native.total).toBe(6)
+  expect(result.native.onlyCompetitor).toBe(2)
+})
+
+test('unreviewed syntax disagreements cannot disappear into the extension pool', () => {
+  const { comparison, wpt } = fixture()
+  const result = summarizeCompliance(
+    {
+      ...comparison,
+      matrix: [
+        {
+          selector: ':made-up',
+          native: { error: 'SyntaxError' },
+          nwsapi: { value: [] },
+          competitor: { error: 'SyntaxError' },
+        },
+      ],
+    },
+    wpt,
+  )
+  expect(result.extensions).toEqual([])
+  expect(result.native.onlyCompetitor).toBe(2)
+})

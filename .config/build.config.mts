@@ -32,32 +32,32 @@ export const outputFormat = {
 // Authoring paths, local outputs, and published paths have one shared mapping.
 export const entries = [
   {
-    source: 'bin/nwsapi.mts',
+    source: 'src/bin/nwsapi.mts',
     output: 'dist/bin/nwsapi.js',
     published: 'bin/nwsapi.js',
   },
   {
-    source: 'src/nwsapi.mts',
+    source: 'src/core/nwsapi.mts',
     output: 'dist/nwsapi.js',
     published: 'src/nwsapi.js',
   },
   {
-    source: 'src/modules/nwsapi-legacy.mts',
+    source: 'src/extension/nwsapi-legacy.mts',
     output: 'dist/modules/nwsapi-legacy.js',
     published: 'src/modules/nwsapi-legacy.js',
   },
   {
-    source: 'src/dom-selector.mts',
-    output: 'dist/dom-selector.js',
+    source: 'src/adapter/dom-selector.mts',
+    output: 'dist/adapter/dom-selector.js',
     published: 'src/dom-selector.js',
   },
   {
-    source: 'src/modules/nwsapi-jquery.mts',
+    source: 'src/extension/nwsapi-jquery.mts',
     output: 'dist/modules/nwsapi-jquery.js',
     published: 'src/modules/nwsapi-jquery.js',
   },
   {
-    source: 'src/modules/nwsapi-traversal.mts',
+    source: 'src/extension/nwsapi-traversal.mts',
     output: 'dist/modules/nwsapi-traversal.js',
     published: 'src/modules/nwsapi-traversal.js',
   },
@@ -67,7 +67,7 @@ export const browserOutputs = new Set<string>(
   entries
     .filter(
       ({ source }) =>
-        source === 'src/nwsapi.mts' || source.startsWith('src/modules/'),
+        source === 'src/core/nwsapi.mts' || source.startsWith('src/extension/'),
     )
     .map(({ output }) => output),
 )
@@ -76,7 +76,6 @@ export const externalEntries = ['unicode'] as const
 
 export const packageFiles = [
   ...entries.map(({ output, published }) => ({ output, published })),
-  { output: 'dist/cli.js', published: 'dist/cli.js' },
   ...externalEntries.flatMap(name => [
     {
       output: `dist/external/${name}.js`,
@@ -99,4 +98,7 @@ export const obsoleteOutputs = [
   'src/modules/nwsapi-jquery.js',
   'src/modules/nwsapi-traversal.js',
   'dist/nwsapi.min.js',
+  'dist/cli.js',
+  'dist/bin/cli.js',
+  'dist/dom-selector.js',
 ]

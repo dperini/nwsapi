@@ -19,6 +19,11 @@ import {
 import type { Checker, Project, Type } from 'typescript/unstable/sync'
 import type { Expression, Node, SourceFile } from 'typescript/unstable/ast'
 
+export interface UntypedIdentifier {
+  name: string
+  offset: number
+}
+
 export interface NativeTypeCoverageResult {
   covered: number
   total: number
@@ -80,7 +85,11 @@ function resolveCoverageType(
   )
 }
 
-function measureCoverageSource(project: Project, source: SourceFile) {
+function measureCoverageSource(
+  project: Project,
+  source: SourceFile,
+  report?: (file: string, identifiers: UntypedIdentifier[]) => void,
+) {
   const identifiers: Node[] = []
   function visit(node: Node): void {
     let globalMarker = false
@@ -118,6 +127,7 @@ function measureCoverageSource(project: Project, source: SourceFile) {
   visit(source)
   const types = project.checker.getTypeAtLocation(identifiers)
   let uncovered = 0
+  const untyped: UntypedIdentifier[] = []
   for (let index = 0; index < identifiers.length; index += 1) {
     const type = resolveCoverageType(
       identifiers[index]!,
@@ -126,6 +136,10 @@ function measureCoverageSource(project: Project, source: SourceFile) {
     )
     if (type.isErrorType()) {
       uncovered += 1
+      untyped.push({
+        name: identifiers[index]!.getText(),
+        offset: identifiers[index]!.getStart(),
+      })
       continue
     }
     if (!(type.flags & TypeFlags.Any)) {
@@ -140,13 +154,21 @@ function measureCoverageSource(project: Project, source: SourceFile) {
       requireCoverageType(contextual).flags & TypeFlags.Any
     ) {
       uncovered += 1
+      untyped.push({
+        name: identifiers[index]!.getText(),
+        offset: identifiers[index]!.getStart(),
+      })
     }
+  }
+  if (untyped.length) {
+    report?.(source.fileName, untyped)
   }
   return { __proto__: null, total: identifiers.length, uncovered }
 }
 
 export function measureNativeTypeCoverage(
   projectFile: string,
+  report?: (file: string, identifiers: UntypedIdentifier[]) => void,
 ): NativeTypeCoverageResult {
   const config = path.resolve(projectFile)
   const api = new API({ cwd: path.dirname(config) })
@@ -195,7 +217,7 @@ export function measureNativeTypeCoverage(
         files += 1
         let measured: { total: number; uncovered: number }
         try {
-          measured = measureCoverageSource(project, source)
+          measured = measureCoverageSource(project, source, report)
         } catch (cause) {
           throw new Error(`Type coverage failed while analyzing ${file}.`, {
             cause,

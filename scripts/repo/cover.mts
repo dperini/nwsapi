@@ -1,3 +1,4 @@
+import { parseArgs } from 'node:util'
 import { execFileSync } from 'node:child_process'
 import {
   mkdirSync,
@@ -24,12 +25,22 @@ import {
 
 import {
   runTypeCoverage,
+  checkTypeCoverage,
   writeTypeCoverage,
   accumulatedCoverage,
 } from './lib/type-coverage.mts'
 
 const { createCoverageMap } = libCoverage
 const { createContext } = libReport
+
+const { values } = parseArgs({ options: { workers: { type: 'string' } } })
+const testArgs = ['all', '--coverage']
+if (values.workers !== undefined) {
+  if (!/^[1-9]\d*$/.test(values.workers)) {
+    throw new Error('--workers must be a positive integer')
+  }
+  testArgs.push('--maxWorkers', values.workers)
+}
 
 const raw = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-wpt-coverage-'))
 const run = (entry: string, args: string[], env = process.env) =>
@@ -41,7 +52,8 @@ const run = (entry: string, args: string[], env = process.env) =>
 try {
   const types = runTypeCoverage(REPO_ROOT)
   writeTypeCoverage(REPO_ROOT, types)
-  run('scripts/repo/test.mts', ['all', '--coverage'])
+  checkTypeCoverage(types)
+  run('scripts/repo/test.mts', testArgs)
   const coverage = createCoverageMap({})
   const engine = path.join(REPO_ROOT, 'dist/nwsapi.js')
   for (const mode of ['modern', 'legacy']) {

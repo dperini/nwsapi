@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import os from 'node:os'
 import { ENGINE_BUILD_PATH } from '../lib/paths.mts'
+export { positiveInteger } from '../lib/positive-integer.mts'
 
 export const require = createRequire(import.meta.url)
 // Benchmark versions are explicit dependencies, independent of jsdom's range.
@@ -26,14 +27,6 @@ export function provenance() {
       readFileSync(new URL('../../../pnpm-lock.yaml', import.meta.url)),
     ),
   }
-}
-
-export function positiveInteger(value: string, name: string, max = 10_000) {
-  const number = Number(value)
-  if (!Number.isSafeInteger(number) || number < 1 || number > max) {
-    throw new RangeError(`${name} must be an integer between 1 and ${max}.`)
-  }
-  return number
 }
 
 export function median(values: number[]) {

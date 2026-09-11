@@ -4,7 +4,34 @@ This journal records performance hypotheses, measurements, decisions, and correc
 
 Follow the [shared performance practices](../../fleet/perf/practices.md) when designing new experiments.
 
-Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Measurements below were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
+Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Entries record their measurement dates. Older measurements without a separate date were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
+
+## Module boundaries and runtime cost
+
+The September 10, 2026 refactor separates the shared engine closure into modules with explicit per-engine state. Compiler handlers follow token and pseudo-class families. All 36 reported complexity violations and 10 oversized authored files are resolved without new lint exceptions. Published package paths remain unchanged.
+
+The initial 227-field state object used V8 dictionary properties. A constructor that initializes the same fields retains fast properties in Node.js 26.5.0. This was checked with V8's `%HasFastProperties` diagnostic. Query and snapshot helpers also live outside per-query closures. These changes reduced the overhead introduced by the split, but did not eliminate it.
+
+The saved baseline is commit `8e2e9d5`. The [Node timing samples](../../../assets/repo/bench/module-node-timing.json), [browser timing samples](../../../assets/repo/bench/module-browser-timing.json), and [Node allocation samples](../../../assets/repo/bench/module-node-memory.json) record both built engine hashes. Timing covers eight existing all-results queries: a class selector and a four-group selector at zero, one, 16, and 256 matches. Node uses five alternating rounds on `jsdom`. The browser uses seven rounds on its native DOM with 1,024 calls per batch. These are focused refactor comparisons, not a replacement for the broader package benchmark.
+
+| Matches | Selector | Node baseline → split | Browser baseline → split |
+| --- | --- | --- | --- |
+| 0 | `.hit` | 650ns → 676ns | 127ns → 146ns |
+| 0 | Four groups | 2,664ns → 2,655ns | 308ns → 347ns |
+| 1 | `.hit` | 827ns → 867ns | 132ns → 151ns |
+| 1 | Four groups | 2,871ns → 3,070ns | 361ns → 361ns |
+| 16 | `.hit` | 215ns → 259ns | 195ns → 200ns |
+| 16 | Four groups | 12,822ns → 13,085ns | 2,002ns → 2,095ns |
+| 256 | `.hit` | 255ns → 292ns | 220ns → 229ns |
+| 256 | Four groups | 149,794ns → 149,993ns | 85,054ns → 85,977ns |
+
+Values are medians of round medians, rounded to nanoseconds. Most cases are slower. Small Node class queries add about 25–44ns, with relative increases up to 20.3%. Node grouped queries range from 0.3% faster to 6.9% slower. Browser increases range from zero to 15.4%. An earlier Node run overlapped cached WPT analysis and was replaced with a run after that work finished. These observations do not establish significance or predict other workloads.
+
+Three separate allocation rounds cover the 16-match and 256-match fixtures. Median sampled allocation falls 13.0% and 4.5% for the class queries. Grouped queries change by +1.0% and −0.1%. Repeated-query retained-heap changes vary from −14,384 bytes to +16,104 bytes. These samples do not establish a leak or measure engine construction overhead.
+
+The readable core grows from 169,462 bytes to 212,108 bytes. Gzip at level 9 grows from 40,880 bytes to 47,752 bytes. Brotli at quality 11 grows from 33,172 bytes to 38,407 bytes. The file-size charts reflect the new output. The split is retained to meet the module and complexity limits, with these runtime and download costs recorded explicitly. It is not an overall performance improvement.
+
+Verification includes 785 unit tests, 168 integration tests, 190 modern WPT tests, and 190 legacy WPT tests. Accumulated executable-line coverage is 99.06%, and typed-identifier coverage is 99.18%. The isolated installed-package run additionally passes 52 adapter and host-helper tests through the `jsdom` override. Cached native WPT classification preserves 14,734 supported selector/parser cases with no unresolved classifications.
 
 <details>
 <summary>Memory measurement contract and commands</summary>
@@ -19,9 +46,9 @@ The allocation workload warms 100 matching resolvers, then verifies resolver ide
 pnpm run build
 pnpm run gen:memory
 pnpm run check:memory
-pnpm run bench:memory-profile --count 100 --queries 100 --output /tmp/selection-heap
-pnpm run bench:memory-profile --method match --count 100 --queries 100 --output /tmp/matching-heap
-pnpm run bench:memory-browser-profile --count 40 --queries 100 --output /tmp/browser-heap
+pnpm run bench:memory-profile --count 100 --queries 100 --output-dir /tmp/selection-heap
+pnpm run bench:memory-profile --method match --count 100 --queries 100 --output-dir /tmp/matching-heap
+pnpm run bench:memory-browser-profile --count 40 --queries 100 --output-dir /tmp/browser-heap
 pnpm run bench:allocation-profile --output /tmp/compiler-allocations
 ```
 
@@ -1580,3 +1607,11 @@ The prior CI revision exceeded the 10s unit coverage budget. Two alternating loc
 `jsdom` returns every duplicate ID from `querySelectorAll()`, even though `getElementById()` returns one element. The adapter therefore retains `IDS_DUPES: true` when the host supplies `idlUtils` and `domSymbolTree`. Regression tests exercise HTML, XML, tree reordering, ID changes, removal, and detached fragments.
 
 A fresh run of the same 36 public `jsdom` queries passed every result check and recorded a **5.57× geometric-mean speedup** for the `nwsapi` override. The report, chart, and summary were regenerated. No engine optimization was made for this refresh, so the difference from the preceding 5.31× result is a repeated measurement, not evidence of a code improvement.
+
+## Reproduce display-state reentry
+
+The [display-state investigation](../selector/display-state.md) traces commit `24cdab6aa` with a bounded subprocess harness. One uncapped historical `:modal` query made 2,717,975 delegated matcher calls and took 463.92ms. The current build made one call and took 3.75ms. Both factories made zero initialization probes. These are single-query diagnostic observations, not a substitute for the reporter's application-suite timing or a throughput benchmark. Browser, direct-engine, and packed-adapter regressions distinguish actual modal state from ARIA, open dialogs, and expando properties.
+
+## Separate native parity from selector extensions
+
+The same 200 comparison cases now report 185 native-parity cases and 15 reviewed extensions. `nwsapi` agrees with Chrome on all 185 native-parity cases. `@asamuzakjp/dom-selector` agrees on 129. This changes the reporting scope, not either engine's measured results. All 200 raw outcomes remain available. The 15 extensions count as neither passes nor failures and return to the native pool when Chrome accepts their syntax.

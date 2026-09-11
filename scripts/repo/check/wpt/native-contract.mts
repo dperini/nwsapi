@@ -1,17 +1,17 @@
-import { writeNativeSummaryDocumentation } from '../../gen/wpt-native-summary.mts'
-import os from 'node:os'
 import { createHash } from 'node:crypto'
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
+import { writeNativeSummaryDocumentation } from '../../gen/wpt-native-summary.mts'
+import { REPO_ROOT } from '../../lib/paths.mts'
+import { isMainModule } from '../../lib/run-node.mts'
 import {
   nativePins,
   type NativePins,
   type NativeReport,
 } from './native-pool.mts'
 import type { classifyPool } from './native-scope.mts'
-import { REPO_ROOT } from '../../lib/paths.mts'
-import { isMainModule } from '../../lib/run-node.mts'
 
 type Scope = ReturnType<typeof classifyPool>
 export const nativeCachePath = path.join(
@@ -31,6 +31,7 @@ export function inferenceDigest() {
   }).toSorted()
   files.push(
     'scripts/repo/check/wpt/source.mts',
+    'scripts/repo/check/wpt/source-ast.mts',
     'scripts/repo/check/wpt/scope.mts',
     'scripts/repo/check/wpt/inventory.mts',
     'pnpm-lock.yaml',

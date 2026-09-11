@@ -1,0 +1,17 @@
+export function ancestorTokenPattern(token: any) {
+  return token == '.'
+    ? 'className'
+    : token == '#'
+      ? 'id'
+      : token == '*'
+        ? 'universal'
+        : token == '>'
+          ? 'children'
+          : token == '+'
+            ? 'adjacent'
+            : token == '~'
+              ? 'relative'
+              : token == ' ' || token == '\t'
+                ? 'ancestor'
+                : 'tagName'
+}
