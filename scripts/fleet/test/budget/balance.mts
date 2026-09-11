@@ -20,7 +20,7 @@ export function runBalance(args: string[]): number {
   const result = {
     diagnostic: true,
     gateEvidence: false,
-    scope: 'whole-command',
+    timingScope: 'command-wall-time',
     status: exceeded ? 'over-budget' : 'within-budget-sample',
     budgetMs,
     elapsedMs,
@@ -90,8 +90,8 @@ export const help = `Usage: node scripts/fleet/test/budget/balance.mts -r <vites
 
 Required:
   -r, --report <path>    Completed Vitest JSON results, not a profiling report.
-  --budget <duration>   Whole-command budget, such as 10s or 500ms.
-  --elapsed <duration>  Measured whole-command wall time, such as 69.08s or 2m.
+  --budget <duration>   Command wall-time budget, such as 10s or 500ms.
+  --elapsed <duration>  Measured command wall time, such as 69.08s or 2m.
 
 Options:
   --shards <count>      Positive whole number. Default: up to 5, capped by file count.
