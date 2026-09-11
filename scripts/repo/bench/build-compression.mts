@@ -23,6 +23,14 @@ import { REPO_ROOT } from '../lib/paths.mts'
 import { fileSizes } from './filesize.mts'
 import { provenance, require, sha256, summarize } from './footprint-shared.mts'
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: pnpm run report:build --baseline <revision> [options]
+--baseline <revision>  Commit to compare with the current build.
+--output <file>        JSON report path (default: assets/repo/bench/build-compression.json).
+-h, --help  Show this help without creating a checkout or building either revision.`)
+  process.exit(0)
+}
+
 async function measureFormatting(file: string) {
   const source = readFileSync(file, 'utf8')
   const variants = [

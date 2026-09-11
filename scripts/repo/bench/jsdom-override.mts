@@ -19,6 +19,14 @@ import { provenance, sha256 } from './footprint-shared.mts'
 import { writeJsdomBenchmark } from '../gen/jsdom-benchmark.mts'
 import type { Measurement } from './charts.mts'
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: pnpm run bench:jsdom
+Builds a package, creates isolated jsdom installations, compares public selector queries, and updates the tracked benchmark report.
+This command has no workload options.
+-h, --help  Show this help without packing or installing dependencies.`)
+  process.exit(0)
+}
+
 const require = createRequire(import.meta.url)
 const jsdomVersion = (require('jsdom/package.json') as { version: string })
   .version

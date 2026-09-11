@@ -8,6 +8,7 @@ import {
   inspectEntrypointSource,
   runnerTargets,
 } from '../../../../scripts/repo/check/script-entrypoints.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
 function fixture() {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-entrypoints-'))
@@ -94,3 +95,20 @@ test('reports missing and escaping package targets', t => {
   expect(report.errors).toHaveLength(2)
   expect(() => checkScriptEntrypoints(root)).toThrow()
 })
+
+test('expensive repository commands answer help without starting work', () => {
+  for (const entry of [
+    'scripts/repo/bench/build-compression.mts',
+    'scripts/repo/bench/heap-snapshot.mts',
+    'scripts/repo/bench/jsdom-override.mts',
+    'scripts/repo/bench/native-heap-snapshot.mts',
+    'scripts/repo/browser.mts',
+  ]) {
+    execFileSync(process.execPath, [entry, '--help'], {
+      cwd: REPO_ROOT,
+      stdio: 'pipe',
+      timeout: 5000,
+    })
+  }
+})
+import { execFileSync } from 'node:child_process'
