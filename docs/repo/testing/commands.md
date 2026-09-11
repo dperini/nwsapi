@@ -149,6 +149,8 @@ The parsing, inventory validation, and shard planning modules are copied from Wh
 
 The test runner, CPU profiler, and allocation profiler accept `-h` and `--help` without starting measurements. Their help lists defaults, output locations, and forwarded runner flags. The test runner's `all` scope includes unit and integration tests. It does not include upstream browser tests.
 
+The repository runner also accepts `-h` and `--help`. Runner help must be the first argument. A help flag after an entry is forwarded to that script. For example, `node scripts/repo/run.mts --help` explains the wrapper, while `node scripts/repo/run.mts scripts/repo/test.mts --help` explains the test command.
+
 The CPU profiler accepts named flags for scripts and readable shell history. `--phase` selects the workload and `--output` names the `.cpuprofile` file. Their `-p` and `-o` forms are equivalent. The original positional phase and output remain supported. Combining a named value with its positional equivalent is an error.
 
 For allocation profiles, use `--sampling-interval <bytes>`. The default is 512 bytes and the maximum is 32768 bytes. The existing `--interval` alias remains supported. Supplying both names is an error because the command cannot choose which value the caller intended.

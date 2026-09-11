@@ -10,8 +10,14 @@ import {
   COVERAGE_SCRIPT_PATH,
   REPO_ROOT,
 } from './lib/paths.mts'
+import { parseRunArgs, RUN_HELP } from './run/options.mts'
 
-const [entry, ...args] = process.argv.slice(2)
+const request = parseRunArgs(process.argv.slice(2))
+if (request.help) {
+  console.log(RUN_HELP)
+  process.exit(0)
+}
+const { args, entry } = request
 if (invokedByForeignPackageManager()) {
   console.error(
     foreignPackageManagerMessage(
@@ -21,10 +27,6 @@ if (invokedByForeignPackageManager()) {
   )
   process.exit(1)
 }
-if (!entry) {
-  throw new Error('Usage: node scripts/repo/run.mts <entry> [arguments]')
-}
-
 // Node reads these at startup; descendants inherit the same cache and opt-out.
 const filename = path.resolve(REPO_ROOT, entry)
 process.env['NODE_COMPILE_CACHE'] ||= COMPILE_CACHE_DIR
