@@ -26,6 +26,25 @@ That helper provides attribute reflection without changing selector behavior.
 assertions about filtered child positions and XML sibling types. It does not
 count the original rendering assertions as engine tests.
 
+## Long-running pages
+
+WPT testharness pages can declare a longer deadline near the start of the
+document:
+
+```html
+<meta name="timeout" content="long">
+```
+
+Use this metadata when a page deliberately performs enough synchronous work
+to exceed the standard testharness deadline under coverage or CI contention.
+It changes the page's testharness deadline. It does not replace the Playwright
+test timeout, and it should not hide a hang or avoidable repeated work.
+
+Optimize the fixture first. Keep the metadata when the required workload can
+still vary materially across instrumented and shared CI machines. The cache
+generation fixture uses it because it must compile enough distinct selectors
+to overflow four 4,096-entry query-plan caches.
+
 `scripts/repo/gen/wpt-summary.mts` reads a complete Playwright JSON report and
 writes the tracked summary in `assets/repo/bench/wpt-summary.json`. Passing
 subtests and known failures remain separate in that report.

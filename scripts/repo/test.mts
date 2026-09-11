@@ -1,4 +1,4 @@
-import { runBudgeted, TEST_BUDGET_MS } from './lib/test-budget.mts'
+import { runBudgeted, testBudget } from './lib/test-budget.mts'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: node scripts/repo/test.mts [unit|integration|all|upstream] [runner flags]
@@ -42,7 +42,7 @@ for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
         ? [`--coverage.reportsDirectory=coverage/${lane}`]
         : []),
     ],
-    TEST_BUDGET_MS[lane as keyof typeof TEST_BUDGET_MS],
+    testBudget(lane, coverage),
     lane,
     { ...process.env, NWSAPI_TEST_TIER: lane },
   )

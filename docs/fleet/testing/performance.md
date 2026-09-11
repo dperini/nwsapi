@@ -165,6 +165,8 @@ Reduce repeated work before moving a slow test. Move it when its resource requir
 
 A subprocess test with an external timeout belongs in a lane that supports process isolation. Preserve its process boundary, deadline, exit checks, and assertions when moving it. A full benchmark fixture can belong outside the fast lane when its size is part of the behavior being checked. Keep small policy and parser tests in the fast lane when they do not need those resources.
 
+For a WPT testharness page whose required synchronous workload can exceed the standard page deadline under coverage or shared CI load, add `<meta name="timeout" content="long">` near the start of the document. Reduce repeated work first, and keep the runner's own timeout explicit. The metadata extends the testharness deadline. It must not hide a hang or an ordinary slow test. See the repository's [WPT runner guidance](../../repo/testing/wpt-runner.md#long-running-pages) for the page and runner details.
+
 Report lane movement separately from reduced work. Moving a test can lower fast-lane time without lowering total execution time. Verify the combined test inventory and cumulative coverage after the move.
 
 Measure the scope that the budget governs, including startup and reporting within that scope. A JavaScript timer cannot interrupt a blocked synchronous child-process call. Enforce the deadline through the runner's subprocess controls and retain diagnostics when it expires.
