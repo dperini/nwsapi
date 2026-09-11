@@ -36,7 +36,7 @@ Find elements directly by class, ID, or tag name.
 | --- | --- |
 | [`byClass(cls, context)`](../../../src/core/by-class.mts#L7) | Returns elements with the class name. |
 | [`byId(id, context)`](../../../src/core/string-from-code-point.mts#L244) | Returns elements with the ID. Duplicate IDs are allowed by default. |
-| [`byTag(tag, context)`](../../../src/core/by-tags.mts#L335) | Returns elements with the tag name. Use `*` for all elements. |
+| [`byTag(tag, context)`](../../../src/core/by-tags.mts#L339) | Returns elements with the tag name. Use `*` for all elements. |
 
 ### Configure the engine
 

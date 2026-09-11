@@ -13,14 +13,12 @@ export function validateLogical(
     matchVars = engine.M_VARS,
     nodeVars = engine.N_VARS,
     list = engine.splitList(argument),
-    parsed,
-    i: number,
-    j: number
+    parsed
   engine.S_VARS = []
   engine.M_VARS = []
   engine.N_VARS = []
   try {
-    for (i = 0; i < list.length; ++i) {
+    for (var listLength = list.length, i = 0; i < listLength; ++i) {
       if (!list[i]) {
         engine.emit(engine.qsInvalid)
         return false
@@ -29,7 +27,7 @@ export function validateLogical(
       if (!parsed) {
         return false
       }
-      for (j = 0; j < parsed.length; ++j) {
+      for (var parsedLength = parsed.length, j = 0; j < parsedLength; ++j) {
         engine.compileSelector(parsed[j]!, '', relative, false)
       }
     }
@@ -50,10 +48,9 @@ export function prepareHas(engine: EngineState, text: string) {
     items: string[],
     kept: string[],
     item: string | null,
-    j: number,
     output = '',
     start = 0
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     code = text.charCodeAt(i)
     if (code == 92 /* '\\' */) {
       ++i
@@ -100,7 +97,7 @@ export function prepareHas(engine: EngineState, text: string) {
     ) {
       items = engine.splitList(logical![2]!)
       kept = []
-      for (j = 0; j < items.length; ++j) {
+      for (var itemsLength = items.length, j = 0; j < itemsLength; ++j) {
         item = engine.prepareHas(items[j]!)
         if (item !== null) {
           kept.push(item)
@@ -167,7 +164,7 @@ export function hasPseudoElement(engine: EngineState, text: string) {
     i = 0,
     char: string,
     pseudo
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       ++i

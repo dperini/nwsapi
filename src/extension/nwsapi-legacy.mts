@@ -310,7 +310,7 @@ interface LegacyCacheEntry<Value> {
       elements = function (nodes: ArrayLike<Node>) {
         var output: Element[] = [],
           i = 0
-        for (; i < nodes.length; ++i) {
+        for (var nodesLength = nodes.length; i < nodesLength; ++i) {
           if (nodes[i]!.nodeType == 1) {
             output[output.length] = nodes[i] as Element
           }
@@ -334,7 +334,11 @@ interface LegacyCacheEntry<Value> {
           }
           if (node.getElementsByTagName) {
             descendants = elements(node.getElementsByTagName(tag))
-            for (i = 0; i < descendants.length; ++i) {
+            for (
+              var descendantsLength = descendants.length, i = 0;
+              i < descendantsLength;
+              ++i
+            ) {
               result[result.length] = descendants[i]!
             }
           }
@@ -397,7 +401,7 @@ interface LegacyCacheEntry<Value> {
           '*',
           parent as Document | Element | DocumentFragment,
         )
-        for (; i < nodes.length; ++i) {
+        for (var nodesLength = nodes.length; i < nodesLength; ++i) {
           if (pattern.test(legacyClassOf(nodes[i]!))) {
             result[result.length] = nodes[i]!
           }

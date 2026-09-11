@@ -76,7 +76,11 @@ export function autoDirection(element: Element): Direction | null {
   ) {
     const assigned = (element as HTMLSlotElement).assignedNodes()
     if (assigned.length) {
-      for (let index = 0; index < assigned.length; index++) {
+      for (
+        let index = 0, assignedLength = assigned.length;
+        index < assignedLength;
+        index++
+      ) {
         const node = assigned[index]!
         const value =
           node.nodeType === 3

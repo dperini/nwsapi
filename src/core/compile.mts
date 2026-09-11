@@ -25,8 +25,7 @@ export function compile(
     existenceOnly,
   )
 
-  var i: number,
-    mask,
+  var mask = 0,
     filter,
     filtered,
     ancestry: CompilerAncestry,
@@ -177,7 +176,11 @@ export function compile(
       !callback &&
       !engine.Config.LEGACY
     ) {
-      for (i = 0, mask = 0; ancestry.required.length > i; ++i) {
+      for (
+        var requiredLength = ancestry.required.length, i = 0;
+        i < requiredLength;
+        ++i
+      ) {
         mask |= engine.tagBit(ancestry.required[i]!)
       }
       filter = { seen: 0, kept: 0, rest: 0 }
@@ -213,7 +216,11 @@ export function compile(
       vars += ',_pStart=null,_pResult=false'
     }
     if (ancestry.classes) {
-      for (i = 0; i < ancestry.classes.length; ++i) {
+      for (
+        var classesLength = ancestry.classes.length, i = 0;
+        i < classesLength;
+        ++i
+      ) {
         vars += ',_c' + i + '=' + ancestry.classes[i]
       }
     }

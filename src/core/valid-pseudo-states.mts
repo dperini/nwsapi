@@ -115,7 +115,7 @@ export function validPseudoSyntax(engine: EngineState, text: string) {
     i = 0,
     char: string,
     token: ReturnType<EngineState['readPseudo']>
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       ++i
@@ -167,7 +167,7 @@ export function hasHost(engine: EngineState, text: string): boolean {
     i = 0,
     char: string,
     token: ReturnType<EngineState['readPseudo']>
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       ++i
@@ -238,7 +238,7 @@ export function prepareCompound(
     items,
     result = '',
     start = 0
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       ++i

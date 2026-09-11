@@ -35,7 +35,7 @@ export function byTags(
     right: number,
     i: number,
     tag: string
-  for (i = 0; i < tags.length; ++i) {
+  for (var tagsLength = tags.length, i = 0; i < tagsLength; ++i) {
     tag = tags[i]!.trim()
     if (!seen[tag]) {
       seen[tag] = true
@@ -63,7 +63,11 @@ export function byTags(
   return nodes
 
   function mergeTagCollections() {
-    for (i = 0; i < collections.length; ++i) {
+    for (
+      var collectionsLength = collections.length, i = 0;
+      i < collectionsLength;
+      ++i
+    ) {
       list = engine.sliceCall(collections[i]!)
       if (!nodes.length) {
         nodes = list as Element[]
@@ -343,7 +347,7 @@ export function byTag(
   if (tag != '*' && engine.hasForeignTypes(context)) {
     var all = engine.byTag('*', context),
       matched = []
-    for (var index = 0; index < all.length; ++index) {
+    for (var index = 0, allLength = all.length; index < allLength; ++index) {
       if (engine.matchesTag(all[index]!, tag)) {
         matched[matched.length] = all[index]!
       }

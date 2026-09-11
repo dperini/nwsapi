@@ -19,7 +19,7 @@ export function hasSlotted(
   if (argument === null) {
     return nodes.length > 0
   }
-  for (var i = 0; i < nodes.length; ++i) {
+  for (var i = 0, nodesLength = nodes.length; i < nodesLength; ++i) {
     if (
       nodes[i]!.nodeType == 1 &&
       engine.match(argument, nodes[i] as Element)
@@ -123,7 +123,7 @@ export function validBlocks(_engine: EngineState, text: string): boolean {
     quote = '',
     char: string,
     i = 0
-  for (; i < text.length; ++i) {
+  for (var textLength = text.length; i < textLength; ++i) {
     char = text.charAt(i)
     if (char == '\\') {
       ++i
