@@ -3,39 +3,36 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { createHash } from 'node:crypto'
-import { REPO_ROOT } from '../lib/paths.mts'
-import { JSDOM } from 'jsdom'
-import factory from '../../../dist/nwsapi.js'
-import { DOCUMENTS } from './documents.mts'
-import { cases } from './cases.mts'
+import { parseProfileArgs } from './profile/options.mts'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: node scripts/repo/bench/profile.mts [phase] [output.cpuprofile]
+       node scripts/repo/bench/profile.mts --phase <name> --output <file>
 Phases: select (default), first, first-class, match, cold, resolver.
 Output defaults to a new private directory under os.tmpdir().
 Requires a current dist build. Profile output records the measured build.
-Example: node scripts/repo/run.mts scripts/repo/bench/profile.mts first /tmp/first.cpuprofile
+Options:
+  -p, --phase <name>   Profile phase. The positional phase remains supported.
+  -o, --output <file>  Destination .cpuprofile file. The positional file remains supported.
+Example: node scripts/repo/run.mts scripts/repo/bench/profile.mts --phase first --output /tmp/first.cpuprofile
 -h, --help displays this help without creating fixtures or starting a profile.`)
   process.exit(0)
 }
 
-const [phase = 'select', outputArgument] = process.argv.slice(2)
-if (
-  process.argv.slice(2).length > 2 ||
-  !['select', 'first', 'first-class', 'match', 'cold', 'resolver'].includes(
-    phase,
-  )
-) {
-  throw new Error(
-    'Usage: profile.mts <select|first|first-class|match|cold|resolver> <output.cpuprofile>',
-  )
-}
-const output =
-  outputArgument ||
+const { output, phase } = parseProfileArgs(process.argv.slice(2), () =>
   path.join(
     mkdtempSync(path.join(os.tmpdir(), 'nwsapi-profile-')),
     'nwsapi.cpuprofile',
-  )
+  ),
+)
+const [{ JSDOM }, { default: factory }, { DOCUMENTS }, { cases }] =
+  await Promise.all([
+    import('jsdom'),
+    import('../../../dist/nwsapi.js'),
+    import('./documents.mts'),
+    import('./cases.mts'),
+  ])
+const { REPO_ROOT } = await import('../lib/paths.mts')
 const worlds = Object.entries(cases)
   .filter(([name]) => phase !== 'first-class' || name === 'components')
   .map(([name, groups]) => {

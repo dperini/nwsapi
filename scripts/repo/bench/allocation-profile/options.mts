@@ -1,4 +1,4 @@
-import { positiveInteger } from '../footprint-shared.mts'
+import { positiveInteger } from '../../lib/positive-integer.mts'
 
 export function resolveSamplingInterval(
   value?: string,

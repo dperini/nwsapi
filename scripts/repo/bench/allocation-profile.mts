@@ -5,10 +5,9 @@ import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
-import { JSDOM } from 'jsdom'
-import factory from '../../../dist/nwsapi.js'
 import { resolveSamplingInterval } from './allocation-profile/options.mts'
-import { positiveInteger } from './footprint-shared.mts'
+import { positiveInteger } from '../lib/positive-integer.mts'
+import type factoryType from '../../../dist/nwsapi.js'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: node scripts/repo/bench/allocation-profile.mts [options]
@@ -39,13 +38,17 @@ const samplingInterval = resolveSamplingInterval(
 const enginePath = values.engine
   ? path.resolve(values.engine)
   : new URL('../../../dist/nwsapi.js', import.meta.url)
-const make: typeof factory = values.engine
-  ? createRequire(import.meta.url)(path.resolve(values.engine))
-  : factory
 const output = values.output
   ? path.resolve(values.output)
   : mkdtempSync(path.join(os.tmpdir(), 'nwsapi-allocations-'))
 mkdirSync(output, { recursive: true })
+const [{ JSDOM }, { default: factory }] = await Promise.all([
+  import('jsdom'),
+  import('../../../dist/nwsapi.js'),
+])
+const make: typeof factoryType = values.engine
+  ? createRequire(import.meta.url)(path.resolve(values.engine))
+  : factory
 const dom = new JSDOM('<i class="item"></i>')
 const session = new Session()
 session.connect()
