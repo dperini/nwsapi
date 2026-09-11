@@ -7,18 +7,35 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
+import { resolveSamplingInterval } from './allocation-profile/options.mts'
 import { positiveInteger } from './footprint-shared.mts'
+
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: node scripts/repo/bench/allocation-profile.mts [options]
+--engine <path>               Engine module to measure (default: dist/nwsapi.js).
+--output <directory>          Result directory (default: new directory under os.tmpdir()).
+--iterations <count>          Measured iterations, 1 through 1000000 (default: 100000).
+--sampling-interval <bytes>   Heap sampling interval, 1 through 32768 (default: 512 bytes).
+--interval <bytes>            Existing alias. Do not combine with --sampling-interval.
+Requires a current dist build. A smaller sampling interval increases profiling overhead.
+-h, --help displays this help without creating output or starting a profile.`)
+  process.exit(0)
+}
 
 const { values } = parseArgs({
   options: {
     engine: { type: 'string' },
     output: { type: 'string' },
     iterations: { type: 'string', default: '100000' },
-    interval: { type: 'string', default: '512' },
+    interval: { type: 'string' },
+    'sampling-interval': { type: 'string' },
   },
 })
 const iterations = positiveInteger(values.iterations, 'iterations', 1_000_000)
-const samplingInterval = positiveInteger(values.interval, 'interval', 32_768)
+const samplingInterval = resolveSamplingInterval(
+  values['sampling-interval'],
+  values.interval,
+)
 const enginePath = values.engine
   ? path.resolve(values.engine)
   : new URL('../../../dist/nwsapi.js', import.meta.url)

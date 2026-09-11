@@ -144,3 +144,9 @@ node scripts/repo/run.mts scripts/fleet/test/budget/balance.mts -r /path/to/vite
 Use a completed `vitest` JSON report and the measured wall time of the same command. `--json` prints complete proposed shard assignments. `--top` changes the number of expensive files shown. Durations support `u` or `us`, `ms`, `s`, `m`, and `h`.
 
 The parsing, inventory validation, and shard planning modules are copied from Wheelhouse. The entrypoint uses this repository's Node launcher and output conventions. It does not add fleet membership or change CI scheduling. See the [shared recovery runbook](../../fleet/testing/performance.md#recover-an-exceeded-budget) for the checks and limits of the report. Fleet wrapper examples elsewhere in that document apply only where those wrappers are installed.
+
+## Inspect command options
+
+The test runner, CPU profiler, and allocation profiler accept `-h` and `--help` without starting measurements. Their help lists defaults, output locations, and forwarded runner flags. The test runner's `all` scope includes unit and integration tests. It does not include upstream browser tests.
+
+For allocation profiles, use `--sampling-interval <bytes>`. The default is 512 bytes and the maximum is 32768 bytes. The existing `--interval` alias remains supported. Supplying both names is an error because the command cannot choose which value the caller intended.

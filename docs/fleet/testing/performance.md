@@ -15,7 +15,7 @@ pnpm run test:profile --timing-only --runs 10 --command='["node","scripts/fleet/
 The report marks its timing scope as `whole-command`. Use a budget that governs that complete command, including startup and reporting. Read the existing lane measurement report when the budget covers a narrower interval. For a documented 10s budget covering the whole supplied command, assess the saved report with:
 
 ```sh
-pnpm run check:test-budget-headroom --report /path/to/report.json --budget-ms 10000 --scope whole-command
+pnpm run check:test-budget-headroom --report /path/to/report.json --budget 10s --scope whole-command
 ```
 
 This command runs `scripts/fleet/check/test-budget-headroom.mts`. It requires complete, successful, unprofiled runs and clean source identities that match before and after collection. Dirty, unknown, changed, or incomplete source states cannot establish comparable evidence. The collector checks source state once at each boundary, outside the measured command interval.

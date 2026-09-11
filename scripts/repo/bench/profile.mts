@@ -9,8 +9,19 @@ import factory from '../../../dist/nwsapi.js'
 import { DOCUMENTS } from './documents.mts'
 import { cases } from './cases.mts'
 
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log(`Usage: node scripts/repo/bench/profile.mts [phase] [output.cpuprofile]
+Phases: select (default), first, first-class, match, cold, resolver.
+Output defaults to a new private directory under os.tmpdir().
+Requires a current dist build. Profile output records the measured build.
+Example: node scripts/repo/run.mts scripts/repo/bench/profile.mts first /tmp/first.cpuprofile
+-h, --help displays this help without creating fixtures or starting a profile.`)
+  process.exit(0)
+}
+
 const [phase = 'select', outputArgument] = process.argv.slice(2)
 if (
+  process.argv.slice(2).length > 2 ||
   !['select', 'first', 'first-class', 'match', 'cold', 'resolver'].includes(
     phase,
   )
