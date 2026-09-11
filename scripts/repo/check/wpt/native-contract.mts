@@ -34,7 +34,8 @@ export function inferenceDigest() {
     'scripts/repo/check/wpt/source-ast.mts',
     'scripts/repo/check/wpt/scope.mts',
     'scripts/repo/check/wpt/inventory.mts',
-    'pnpm-lock.yaml',
+    'package.json',
+    'pnpm-workspace.yaml',
   )
   return digest(
     files
