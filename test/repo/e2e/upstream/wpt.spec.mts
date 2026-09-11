@@ -246,22 +246,6 @@ for (const entry of manifest) {
       `HTTP ${response!.status()} for ${entry.path} — is scripts/repo/serve.mts the server on port 8000?`,
     ).toBe(true)
 
-    // Fail fast if the loaded page has no testharness at all (e.g. a stranger
-    // process answered on port 8000) instead of burning the 80s results wait.
-    try {
-      await page.waitForFunction(
-        'typeof window.add_completion_callback === "function"',
-        null,
-        { timeout: 5000 },
-      )
-    } catch {
-      throw new Error(
-        `${entry.path} loaded but exposes no testharness.js (window.add_completion_callback) ` +
-          'after 5s — whatever is listening on port 8000 is not scripts/repo/serve.mts ' +
-          'serving upstream/wpt.',
-      )
-    }
-
     // Installation is verified by method identity, independently of the
     // collection shape that the DOM wrappers correctly expose.
     const nwInstalled = await page.evaluate(

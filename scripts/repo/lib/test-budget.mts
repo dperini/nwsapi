@@ -7,6 +7,21 @@ export const TEST_BUDGET_MS = Object.freeze({
   upstream: 600_000,
 })
 
+// Instrumentation adds process startup, source transforms, and report writes.
+// Keep the ordinary unit lane at 10s while giving its coverage run measured
+// headroom above the 10.1–11.1s totals observed locally and in CI.
+export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
+  unit: 15_000,
+  integration: 60_000,
+})
+
+export function testBudget(lane: string, coverage: boolean) {
+  if (coverage && lane in COVERAGE_TEST_BUDGET_MS) {
+    return COVERAGE_TEST_BUDGET_MS[lane as keyof typeof COVERAGE_TEST_BUDGET_MS]
+  }
+  return TEST_BUDGET_MS[lane as keyof typeof TEST_BUDGET_MS]
+}
+
 export function runBudgeted(
   args: string[],
   budgetMs: number,
