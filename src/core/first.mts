@@ -1,6 +1,6 @@
-import { firstCandidates } from './first-candidates.mts'
-import { firstId, firstSimple, notifyFirst } from './first-simple.mts'
-import type { EngineState } from './state.d.ts'
+import { firstCandidates } from './first/candidates.mts'
+import { firstId, firstSimple, notifyFirst } from './first/simple.mts'
+import type { EngineState } from './state/engine.d.ts'
 import type {
   CompiledResolver,
   ElementCallback,

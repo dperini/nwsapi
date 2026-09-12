@@ -1,4 +1,4 @@
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 import type { EngineContext } from './types.mts'
 export function skipsCollectionSnapshot(
   length: number,

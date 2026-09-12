@@ -1,4 +1,4 @@
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 export function languageParent(engine: EngineState, current: Element) {
   return (
     engine.upOf(current) ||

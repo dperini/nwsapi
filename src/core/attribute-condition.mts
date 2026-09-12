@@ -1,4 +1,4 @@
-import type { CompileState } from './compile-state.d.ts'
+import type { CompileState } from './compile/state.d.ts'
 import type { AttributeOperator } from './types.mts'
 export function attributeCondition(state: CompileState) {
   return (

@@ -40,7 +40,7 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code lives in `src/core/`. Its Unicode fallback lives in `src/core/unicode/`. `text-direction.mts` finds the first character with a strong Unicode direction. `dom.mts` handles DOM boundaries, and `directionality.mts` resolves inherited and automatic direction. The adapter and validated `jsdom` integration live in `src/adapter/`. The build bundles `jsdom.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+Engine code lives in `src/core/`. Compiler handlers live in `src/core/compile/`, with positional and pseudo-class handlers in their own directories. Initialization, predicates, state types, validation, first-match helpers, ancestor helpers, and Unicode directionality each have a named directory. Stable façades such as `compile.mts`, `first.mts`, and `ancestor.mts` remain at the root. The adapter and validated `jsdom` integration live in `src/adapter/`. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 
@@ -52,8 +52,10 @@ The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits func
 
 `src/core/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
 
-`compile.mts` prepares a resolver and its cleanup. `compile-selector.mts` walks the selector, while `compile-token.mts` dispatches tokens to their handlers. Attribute, combinator, and pseudo-class handlers have separate modules. Positional helpers separate formula parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
+`compile.mts` prepares a resolver and its cleanup. `compile/selector.mts` walks the selector, while `compile/token.mts` dispatches tokens to their handlers. Attribute, combinator, and pseudo-class handlers have separate modules. Positional helpers under `compile/position/` separate expression parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
 
-The first-match shortcuts live in `first-simple.mts`. General first-match resolution lives in `first.mts`. The sibling-cache factories live in `create-nth-element.mts` and `create-nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+The first-match shortcuts live in `first/simple.mts`. General first-match resolution lives in `first.mts`. The sibling-cache factories live beside the positional compiler as `compile/position/nth-element.mts` and `compile/position/nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+
+`pnpm run check` rejects a new family of three or more hyphen-prefixed sibling source modules. The check reports a candidate singular directory and any paths that would collide. The directory name still requires a review because a semantic name such as `predicate/` can describe the modules better than their former `is-` prefix.
 
 The build inlines these source modules into the existing distribution files. Consumers do not need to load the source modules separately. API documentation follows parsed declarations and bound engine methods to link to their defining modules.

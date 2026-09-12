@@ -25,12 +25,30 @@ export interface ApiDefinition extends ApiSource {
 
 export function readEngineSources(): ApiSource[] {
   const directory = path.dirname(ENGINE_SOURCE_PATH)
-  return readdirSync(directory)
-    .filter(name => name.endsWith('.mts') && name !== 'nwsapi.mts')
-    .map(name => ({
-      file: `src/core/${name}`,
-      text: readFileSync(path.join(directory, name), 'utf8'),
-    }))
+  return readSourceDirectory(directory)
+}
+
+function readSourceDirectory(directory: string): ApiSource[] {
+  const sources: ApiSource[] = []
+  for (const entry of readdirSync(directory, { withFileTypes: true }).toSorted(
+    (left, right) => left.name.localeCompare(right.name, 'en'),
+  )) {
+    const absolutePath = path.join(directory, entry.name)
+    if (entry.isDirectory()) {
+      sources.push(...readSourceDirectory(absolutePath))
+    } else if (entry.name.endsWith('.mts') && entry.name !== 'nwsapi.mts') {
+      sources.push({
+        file: path.posix.join(
+          'src/core',
+          path
+            .relative(path.dirname(ENGINE_SOURCE_PATH), absolutePath)
+            .replaceAll('\\', '/'),
+        ),
+        text: readFileSync(absolutePath, 'utf8'),
+      })
+    }
+  }
+  return sources
 }
 
 export function engineDefinitions(sources: ApiSource[]) {

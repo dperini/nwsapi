@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import vm from 'node:vm'
 import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
-import type { EngineState } from '../../../src/core/state.d.ts'
+import type { EngineState } from '../../../src/core/state/engine.d.ts'
 import type factory from '../../../dist/nwsapi.js'
 
 const require = createRequire(import.meta.url)

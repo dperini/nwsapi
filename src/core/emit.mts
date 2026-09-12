@@ -1,6 +1,6 @@
-import { ancestorTokenPattern } from './ancestor-token-pattern.mts'
-import { isCompoundSeparator } from './is-compound-separator.mts'
-import type { EngineState } from './state.d.ts'
+import { ancestorTokenPattern } from './ancestor/token-pattern.mts'
+import { isCompoundSeparator } from './predicate/compound-separator.mts'
+import type { EngineState } from './state/engine.d.ts'
 import type { IdentifierSyntax } from './types.mts'
 export function emit(
   engine: EngineState,

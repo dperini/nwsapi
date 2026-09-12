@@ -1,5 +1,5 @@
 import { languageParent } from './language-parent.mts'
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 export function hasSlotted(
   engine: EngineState,
   element: Element,

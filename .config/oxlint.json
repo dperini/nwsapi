@@ -139,7 +139,7 @@
       "files": [
         "**/src/adapter/dom-selector.mts",
         "**/src/core/nwsapi.mts",
-        "**/src/extension/nwsapi-legacy.mts"
+        "**/src/extension/legacy.mts"
       ],
       "rules": {
         "typescript/consistent-type-imports": "off"

@@ -1,5 +1,5 @@
 import { skipsCollectionSnapshot } from './skips-collection-snapshot.mts'
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 import type {
   CollectionSnapshotState,
   CollectionState,

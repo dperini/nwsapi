@@ -1,5 +1,5 @@
-import { isTopLevelCombinator } from './is-top-level-combinator.mts'
-import type { EngineState } from './state.d.ts'
+import { isTopLevelCombinator } from './predicate/top-level-combinator.mts'
+import type { EngineState } from './state/engine.d.ts'
 import type { EngineContext } from './types.mts'
 export function stringFromCodePoint(engine: EngineState, codePoint: number) {
   // out of range, use replacement character

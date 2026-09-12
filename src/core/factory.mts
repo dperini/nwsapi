@@ -1,8 +1,8 @@
-import { createState } from './create-state.mts'
-import { initializeMatching } from './initialize-matching.mts'
-import { initializeApi } from './initialize-api.mts'
-import { initializeRuntime } from './initialize-runtime.mts'
-import type { EngineState } from './state.d.ts'
+import { createState } from './state/create.mts'
+import { initializeMatching } from './initialize/matching.mts'
+import { initializeApi } from './initialize/api.mts'
+import { initializeRuntime } from './initialize/runtime.mts'
+import type { EngineState } from './state/engine.d.ts'
 import type { EngineGlobal } from './types.mts'
 export function createEngine(
   global: EngineGlobal,

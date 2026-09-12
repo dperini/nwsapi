@@ -85,7 +85,7 @@ for (const entry of entries) {
     continue
   }
   let source = await readFile(entry.source, 'utf8')
-  if (entry.source === 'src/extension/nwsapi-legacy.mts') {
+  if (entry.source === 'src/extension/legacy.mts') {
     const marker = '/* @bundle:legacy-attributes */ {}'
     if (!source.includes(marker)) {
       throw new Error('Missing legacy attributes bundle marker')

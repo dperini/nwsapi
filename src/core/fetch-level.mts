@@ -1,4 +1,4 @@
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 import type { ElementCallback, EngineContext } from './types.mts'
 export function fetchLevel(
   engine: EngineState,

@@ -1,4 +1,4 @@
-import type { EngineState } from '../../../src/core/state.d.ts'
+import type { EngineState } from '../../../src/core/state/engine.d.ts'
 import { createRequire } from 'node:module'
 import { JSDOM } from 'jsdom'
 import { afterAll, expect, test } from 'vitest'

@@ -1,5 +1,5 @@
-import { isCssWhitespace } from './is-css-whitespace.mts'
-import type { EngineState } from './state.d.ts'
+import { isCssWhitespace } from './predicate/css-whitespace.mts'
+import type { EngineState } from './state/engine.d.ts'
 import type {
   CollectionState,
   CompiledResolver,

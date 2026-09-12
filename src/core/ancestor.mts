@@ -1,6 +1,6 @@
-import { isStringQuote } from './is-string-quote.mts'
+import { isStringQuote } from './predicate/string-quote.mts'
 import { joinsSelectorTokens } from './joins-selector-tokens.mts'
-import type { EngineState } from './state.d.ts'
+import type { EngineState } from './state/engine.d.ts'
 import type { CompiledResolver } from './types.mts'
 export function ancestor(
   engine: EngineState,
