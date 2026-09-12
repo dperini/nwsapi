@@ -1,7 +1,8 @@
-import { createHostReaders } from './host-readers.mts'
-import type { HostOptions, IdlUtils } from './host-readers.mts'
+import { createHostReaders } from './jsdom/readers.mts'
+import type { HostOptions, IdlUtils } from './jsdom/readers.mts'
 
-type HostReaders = import('./host.d.ts').HostReaders
+type HostReaders = import('./jsdom/readers.d.ts').HostReaders
+
 type CssNode = import('css-tree').CssNode
 type Selector = import('css-tree').Selector
 type NwsapiEngine = import('../../.config/runtime.d.ts').NwsapiEngine

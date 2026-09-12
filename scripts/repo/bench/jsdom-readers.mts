@@ -90,7 +90,7 @@ for (const entry of cases) {
   }
 }
 writeFileSync(
-  process.argv[3] || 'assets/repo/bench/host-readers.json',
+  process.argv[3] || 'assets/repo/bench/jsdom-readers.json',
   JSON.stringify(
     {
       node: process.version,

@@ -79,7 +79,7 @@ for (let round = 0; round < 3; ++round) {
   }
 }
 writeFileSync(
-  'assets/repo/bench/host-readers-retention.json',
+  'assets/repo/bench/jsdom-readers-retention.json',
   JSON.stringify(
     {
       node: process.version,

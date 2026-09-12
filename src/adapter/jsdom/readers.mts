@@ -1,4 +1,4 @@
-import type { HostReaders } from './host.d.ts'
+import type { HostReaders } from './readers.d.ts'
 
 export function validAttributeReader(
   probe: Element,

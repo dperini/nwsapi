@@ -1508,11 +1508,11 @@ The adapter now uses the supplied `idlUtils` to call implementation attribute ge
 <details>
 <summary>Comparison and reproduction</summary>
 
-Preserve the build from `0d9ce0a` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Run `node scripts/repo/bench/host-readers.mts "$baselineDirectory"`. Supply an output path as the second argument to preserve a confirmation. The three variants are the baseline adapter, the new adapter with only attribute utilities, and the new adapter with attribute utilities and the host tree. Each uses a separate document and receives implementation nodes through the public adapter boundary.
+Preserve the build from `0d9ce0a` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Run `node scripts/repo/bench/jsdom-readers.mts "$baselineDirectory"`. Supply an output path as the second argument to preserve a confirmation. The three variants are the baseline adapter, the new adapter with only attribute utilities, and the new adapter with attribute utilities and the host tree. Each uses a separate document and receives implementation nodes through the public adapter boundary.
 
 The existing component, shallow and deep ancestor, and four `:has()` fixtures run through the shared `mitata` timing helper. Each case has 100 warmup calls, five rotating rounds, 16 calls per sample, and a 50ms minimum. Changes compare medians of the five round medians. Mutation cycles include one unrelated attribute write and one query. Correctness checks run outside timing.
 
-The [screening report](../../../assets/repo/bench/host-readers.json) overlaps initial validation. The [confirmation](../../../assets/repo/bench/host-readers-confirmation.json) runs separately after validation and identifies the final engine and adapter hashes. Both reports are retained. The tested runtime is Node v26.5.0 with `jsdom` 30.0.1. These measurements exclude adapter initialization and do not establish whole-application gains.
+The [screening report](../../../assets/repo/bench/jsdom-readers.json) overlaps initial validation. The [confirmation](../../../assets/repo/bench/jsdom-readers-confirmation.json) runs separately after validation and identifies the final engine and adapter hashes. Both reports are retained. The tested runtime is Node v26.5.0 with `jsdom` 30.0.1. These measurements exclude adapter initialization and do not establish whole-application gains.
 
 </details>
 
@@ -1533,7 +1533,7 @@ The [screening report](../../../assets/repo/bench/host-readers.json) overlaps in
 
 Negative changes mean lower elapsed time. Attribute cases use the existing 300-card component document. Ancestor cases have 256 matches, with eight extra wrappers in the deep layout. The four `:has()` cases have 256 cards and 16 matches. Attribute-only controls leave ancestor costs roughly unchanged. Tree readers provide the repeatable ancestor improvement, while attribute readers explain most of the `:has()` gain. The combined adapter is retained for these supported paths.
 
-The [Chromium control](../../../assets/repo/bench/host-readers-browser.json) runs the two deep ancestor cases without host utilities. Its timing changes are approximately zero and -3.4%. This checks the public core path and does not claim that the Node readers accelerate native browsers.
+The [Chromium control](../../../assets/repo/bench/jsdom-readers-browser.json) runs the two deep ancestor cases without host utilities. Its timing changes are approximately zero and -3.4%. This checks the public core path and does not claim that the Node readers accelerate native browsers.
 
 ### Correctness, coverage, and retention
 
@@ -1541,9 +1541,9 @@ The host-reader integration tests cover missing and empty attributes, exact and 
 
 Validation passes 698 unit tests, 155 integration tests with one existing skip, 41 package assertions, and 38 browser tests. Both modern and legacy WPT runs pass all 141 selected pages. Formatting, lint, types, and generated checks pass.
 
-The [retention report](../../../assets/repo/bench/host-readers-retention.json) records three rotating rounds with 40 queried and detached contexts per variant. All 80 observed roots and children are collected in every run while the adapter and document remain alive. The initial harness called a native selector to obtain its fixture child and retained the last root even with the baseline. Replacing that setup lookup with direct child access removes the unrelated host query state from this retention check. No retained-byte or allocation reduction is claimed.
+The [retention report](../../../assets/repo/bench/jsdom-readers-retention.json) records three rotating rounds with 40 queried and detached contexts per variant. All 80 observed roots and children are collected in every run while the adapter and document remain alive. The initial harness called a native selector to obtain its fixture child and retained the last root even with the baseline. Replacing that setup lookup with direct child access removes the unrelated host query state from this retention check. No retained-byte or allocation reduction is claimed.
 
-Reproduce with `node --expose-gc scripts/repo/bench/host-readers-retention.mts "$baselineDirectory"`. The check performs attribute mutations and internal tree queries, releases the public query scope, and then forces collection across four separate tasks. It covers these observed nodes rather than every possible ownership path.
+Reproduce with `node --expose-gc scripts/repo/bench/jsdom-readers-retention.mts "$baselineDirectory"`. The check performs attribute mutations and internal tree queries, releases the public query scope, and then forces collection across four separate tasks. It covers these observed nodes rather than every possible ownership path.
 
 The readable browser core grows by 765bytes to 168059bytes. Gzip grows by 128bytes to 40558bytes, and Brotli grows by 88bytes to 32880bytes. The size chart and generated references are refreshed. The adapter is a separate artifact excluded from that core-size comparison. Broad runtime charts retain their prior measurements.
 
