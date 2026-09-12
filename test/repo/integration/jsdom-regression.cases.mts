@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { test } from 'vitest'
-import { jsdomSelectorCases } from '../common/jsdom-selector-cases.mts'
+import { jsdomSelectorCases } from '../common/fixture/jsdom-selector.mts'
 import { DOMSelector, host } from './fixture/jsdom.mts'
 
 test('shared adapter instances observe resolver clearing and synchronous DOM mutations', t => {

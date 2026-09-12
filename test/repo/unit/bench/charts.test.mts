@@ -4,10 +4,10 @@ import {
   agrees,
   chart,
   splitCharts,
-} from '../../../scripts/repo/bench/charts.mts'
-import type { Measurement } from '../../../scripts/repo/bench/charts.mts'
-import { geometricSpeedup } from '../../../scripts/repo/bench/summary-chart.mts'
-import { isSvgOptimized } from '../../../scripts/repo/gen/svg-optimize.mts'
+} from '../../../../scripts/repo/bench/charts.mts'
+import type { Measurement } from '../../../../scripts/repo/bench/charts.mts'
+import { geometricSpeedup } from '../../../../scripts/repo/bench/summary-chart.mts'
+import { isSvgOptimized } from '../../../../scripts/repo/gen/svg-optimize.mts'
 
 const row = (selector = 'a'): Measurement => ({
   category: 'basic',

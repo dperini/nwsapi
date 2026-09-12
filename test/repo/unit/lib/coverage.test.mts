@@ -4,8 +4,8 @@ import {
   combineCoverage,
   checkCoverageThresholds,
   coverageReporters,
-} from '../../../scripts/repo/lib/coverage.mts'
-import { coverageThresholds } from '../../../.config/coverage.config.mts'
+} from '../../../../scripts/repo/lib/coverage.mts'
+import { coverageThresholds } from '../../../../.config/coverage.config.mts'
 
 const root = path.resolve('coverage-fixture')
 const engine = path.join(root, 'dist/nwsapi.js')

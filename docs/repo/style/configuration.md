@@ -1,5 +1,7 @@
 # Style configuration
 
+Use the [repository practices](practices.md) for everyday commands and conventions.
+
 The authoring settings in `.config/oxfmt.json` match Wheelhouse's base formatter profile. The extension override preserves property quoting because these scripts retain their registration format. Distribution formatting stays in `.config/build.config.mts`, where the measured file-size choices are documented.
 
 The base `oxlint` profile carries Wheelhouse's braces rule and complexity limit of 15. Complexity applies to every authored module, including the core compiler and legacy extension. The file-wide complexity exclusions have been removed.

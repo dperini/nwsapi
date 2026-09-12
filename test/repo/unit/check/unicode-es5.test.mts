@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { checkUnicodeEs5 } from '../../../scripts/repo/check/unicode-es5.mts'
+import { checkUnicodeEs5 } from '../../../../scripts/repo/check/unicode-es5.mts'
 
 test('the Unicode tables imported by direction matching support ES5', () => {
   expect(() => checkUnicodeEs5()).not.toThrow()

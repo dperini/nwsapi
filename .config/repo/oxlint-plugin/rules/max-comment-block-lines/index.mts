@@ -1,4 +1,4 @@
-// Adapted from Wheelhouse. See docs/repo/tooling/style.md.
+// Adapted from Wheelhouse. See docs/repo/style/configuration.md.
 const MAX_DOC_COMMENT_LINES = 40
 const MAX_FILE_HEADER_COMMENT_LINES = 20
 import type { AstComment, AstNode, RuleContext } from '../../lib/rule-types.mts'

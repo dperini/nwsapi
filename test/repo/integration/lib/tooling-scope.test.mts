@@ -3,8 +3,8 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
-import { toolingFiles } from '../../../scripts/repo/lib/tooling-scope.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
+import { toolingFiles } from '../../../../scripts/repo/lib/tooling-scope.mts'
 
 test('the lint runner includes source, tests, scripts, and config', () => {
   const files = execFileSync(
@@ -27,7 +27,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     'src/extension/jquery/register.mts',
     'scripts/repo/lint.mts',
     'scripts/repo/gen/coverage-badge.mts',
-    'test/repo/integration/lint-scope.test.mts',
+    'test/repo/integration/lib/tooling-scope.test.mts',
     'test/repo/e2e/jsdom-adapter-package.mts',
     'test/repo/e2e/upstream/wpt.spec.mts',
     '.config/repo/vitest.config.mts',

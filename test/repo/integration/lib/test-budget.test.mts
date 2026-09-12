@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import {
   runBudgeted,
   TEST_BUDGET_MS,
-} from '../../../scripts/repo/lib/test-budget.mts'
+} from '../../../../scripts/repo/lib/test-budget.mts'
 
 test('test tiers keep a strict unit ceiling and a separate WPT allowance', () => {
   expect(TEST_BUDGET_MS.unit).toBe(10_000)

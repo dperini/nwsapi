@@ -1,10 +1,10 @@
-import { browserLaunchOptions } from '../../../scripts/repo/browser.mts'
+import { browserLaunchOptions } from '../../../../scripts/repo/browser.mts'
 import { chromium } from '@playwright/test'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import type { Browser } from '@playwright/test'
 import { readFileSync } from 'node:fs'
-import { chartBaseUrl } from '../../../scripts/repo/gen/chart-references.mts'
-import { chart } from '../../../scripts/repo/bench/charts.mts'
+import { chartBaseUrl } from '../../../../scripts/repo/gen/chart-references.mts'
+import { chart } from '../../../../scripts/repo/bench/charts.mts'
 
 let browser: Browser
 beforeAll(async () => {
@@ -19,7 +19,7 @@ afterAll(async () => {
 describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart rendering', () => {
   test('all published comparison SVGs share a viewport and keep text inside it', async () => {
     const markdown = readFileSync(
-      new URL('../../../docs/repo/perf/benchmarks.md', import.meta.url),
+      new URL('../../../../docs/repo/perf/benchmarks.md', import.meta.url),
       'utf8',
     )
     const paths = [
@@ -34,7 +34,7 @@ describe.skipIf(!process.env['NWSAPI_BROWSER'])('chart rendering', () => {
       await page.emulateMedia({ reducedMotion: 'reduce' })
       for (const path of paths) {
         const svg = readFileSync(
-          new URL('../../../docs/' + path, import.meta.url),
+          new URL('../../../../docs/' + path, import.meta.url),
           'utf8',
         )
         await page.goto('data:image/svg+xml,' + encodeURIComponent(svg))

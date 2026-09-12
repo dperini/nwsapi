@@ -7,7 +7,7 @@ import {
   checkTypeCoverage,
   runTypeCoverage,
   writeTypeCoverage,
-} from '../../../scripts/repo/lib/type-coverage.mts'
+} from '../../../../scripts/repo/lib/type-coverage.mts'
 
 const metric = {
   covered: 2,

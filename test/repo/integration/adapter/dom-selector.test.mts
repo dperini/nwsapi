@@ -9,8 +9,8 @@ import {
   host,
   jsdomRequire,
   require,
-} from './fixture/jsdom.mts'
-import './jsdom-query.cases.mts'
+} from '../fixture/jsdom.mts'
+import '../jsdom-query.cases.mts'
 
 test('the callable factory and the DOMSelector export coexist', t => {
   const window = host(t)
@@ -248,6 +248,6 @@ test('separately loaded adapter copies share configuration, binding, and setup l
   )
 })
 
-import './jsdom-stylesheet.cases.mts'
+import '../jsdom-stylesheet.cases.mts'
 
-import './jsdom-regression.cases.mts'
+import '../jsdom-regression.cases.mts'

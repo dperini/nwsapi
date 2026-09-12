@@ -6,12 +6,12 @@ import {
   inspectScript,
   inspectWptScope,
   resourceUrl,
-} from '../../../scripts/repo/check/wpt/scope.mts'
+} from '../../../../../scripts/repo/check/wpt/scope.mts'
 import {
   adaptDomOnly,
   scriptPage,
   wptFile,
-} from '../../../scripts/repo/check/wpt/source.mts'
+} from '../../../../../scripts/repo/check/wpt/source.mts'
 
 test.each([
   'assert_equals(getComputedStyle(el).color, "red")',

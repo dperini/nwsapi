@@ -132,7 +132,7 @@ try {
       'run',
       '--config',
       '.config/repo/vitest.config.mts',
-      'test/repo/integration/jsdom-adapter.test.mts',
+      'test/repo/integration/adapter/dom-selector.test.mts',
       'test/repo/integration/adapter/jsdom.test.mts',
     ],
     {

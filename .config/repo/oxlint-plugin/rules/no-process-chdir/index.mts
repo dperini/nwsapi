@@ -1,4 +1,4 @@
-// Adapted from Wheelhouse. See docs/repo/tooling/style.md.
+// Adapted from Wheelhouse. See docs/repo/style/configuration.md.
 import type { AstNode, RuleContext } from '../../lib/rule-types.mts'
 
 const rule = {

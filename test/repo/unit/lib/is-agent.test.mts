@@ -58,14 +58,15 @@ test('a normal terminal, CI, or empty agent flag does not imply an agent', async
   for (const key of agentKeys) {
     vi.stubEnv(key, '')
   }
-  const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
+  const { isAgent } = await import('../../../../scripts/repo/lib/is-agent.mts')
   expect(isAgent()).toBe(false)
 })
 
 for (const key of agentKeys) {
   test(`detects ${key}`, async () => {
     vi.stubEnv(key, '1')
-    const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
+    const { isAgent } =
+      await import('../../../../scripts/repo/lib/is-agent.mts')
     expect(isAgent()).toBe(true)
   })
 }
@@ -78,7 +79,8 @@ for (const [key, value] of [
 ] as const) {
   test(`detects the ${key} signature ${value}`, async () => {
     vi.stubEnv(key!, value)
-    const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
+    const { isAgent } =
+      await import('../../../../scripts/repo/lib/is-agent.mts')
     expect(isAgent()).toBe(true)
   })
 }
@@ -89,14 +91,15 @@ test('an interactive Kiro terminal alone is not an agent', async () => {
     configurable: true,
     value: true,
   })
-  const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
+  const { isAgent } = await import('../../../../scripts/repo/lib/is-agent.mts')
   expect(isAgent()).toBe(false)
 })
 
 for (const initial of [false, true] as const) {
   test(`memoizes the initial ${initial} result`, async () => {
     vi.stubEnv('AI_AGENT', initial ? 'codex' : undefined)
-    const { isAgent } = await import('../../../scripts/repo/lib/is-agent.mts')
+    const { isAgent } =
+      await import('../../../../scripts/repo/lib/is-agent.mts')
     expect(isAgent()).toBe(initial)
     vi.stubEnv('AI_AGENT', initial ? undefined : 'codex')
     expect(isAgent()).toBe(initial)
@@ -106,9 +109,9 @@ for (const initial of [false, true] as const) {
 test('agent runs use minimal Node and dot WPT reporters', async () => {
   vi.stubEnv('CODEX_THREAD_ID', 'thread')
   const { default: node } =
-    await import('../../../.config/repo/vitest.config.mts')
+    await import('../../../../.config/repo/vitest.config.mts')
   const { default: wpt } =
-    await import('../../../.config/playwright.config.mts')
+    await import('../../../../.config/playwright.config.mts')
   expect(node.test!.reporters).toEqual(['minimal'])
   expect(wpt.reporter).toBe('dot')
 })
@@ -117,15 +120,15 @@ test('agent CI runs keep GitHub annotations', async () => {
   vi.stubEnv('AI_AGENT', 'codex')
   vi.stubEnv('GITHUB_ACTIONS', 'true')
   const { default: node } =
-    await import('../../../.config/repo/vitest.config.mts')
+    await import('../../../../.config/repo/vitest.config.mts')
   expect(node.test!.reporters).toEqual(['minimal', 'github-actions'])
 })
 
 test('non-agent runs keep the existing reporter choices', async () => {
   const { default: node } =
-    await import('../../../.config/repo/vitest.config.mts')
+    await import('../../../../.config/repo/vitest.config.mts')
   const { default: wpt } =
-    await import('../../../.config/playwright.config.mts')
+    await import('../../../../.config/playwright.config.mts')
   expect(node.test!.reporters).toBeUndefined()
   expect(wpt.reporter).toBe('list')
 })

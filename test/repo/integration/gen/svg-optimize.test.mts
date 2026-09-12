@@ -8,17 +8,17 @@ import {
   isSvgOptimized,
   optimiseSvg,
   SVG_FLOAT_PRECISION,
-} from '../../../scripts/repo/gen/svg-optimize.mts'
+} from '../../../../scripts/repo/gen/svg-optimize.mts'
 import {
   checkSvgs,
   findUnoptimizedSvgs,
   optimiseRepoSvg,
-} from '../../../scripts/repo/check/svgs-are-optimized.mts'
-import { coverageBadgeSvg } from '../../../scripts/repo/lib/coverage-badge.mts'
+} from '../../../../scripts/repo/check/svgs-are-optimized.mts'
+import { coverageBadgeSvg } from '../../../../scripts/repo/lib/coverage-badge.mts'
 import {
   IMPORTANT_ICON_REL_PATH,
   REPO_ROOT,
-} from '../../../scripts/repo/lib/paths.mts'
+} from '../../../../scripts/repo/lib/paths.mts'
 
 const RAW =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><!-- comment --><metadata>x</metadata><path d="M1.000000 2.000000 L3.000000 4.000000" fill="#ff0000"/></svg>'

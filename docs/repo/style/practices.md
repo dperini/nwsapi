@@ -1,4 +1,8 @@
-# Code style
+# Repository style practices
+
+Follow the [shared style practices](../../fleet/style/practices.md) and
+[comment practices](../../fleet/style/comments.md). The [local configuration](configuration.md)
+describes the imported rules and repository exceptions.
 
 Run `pnpm format`, `pnpm lint`, and `pnpm type` before submitting changes.
 Formatting and linting share their file list in `scripts/repo/lib/tooling-scope.mts`.

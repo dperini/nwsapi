@@ -9,12 +9,12 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { test, type TestContext } from 'vitest'
-import { makeCoverageBadge } from '../../../scripts/repo/gen/coverage-badge.mts'
+import { makeCoverageBadge } from '../../../../scripts/repo/gen/coverage-badge.mts'
 import {
   badgeColor,
   coverageBadgeSvg,
   readCoveragePct,
-} from '../../../scripts/repo/lib/coverage-badge.mts'
+} from '../../../../scripts/repo/lib/coverage-badge.mts'
 
 function fixture(t: TestContext) {
   const repoRoot = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-coverage-'))

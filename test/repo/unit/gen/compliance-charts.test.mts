@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { summarizeCompliance } from '../../../scripts/repo/gen/compliance-charts.mts'
+import { summarizeCompliance } from '../../../../scripts/repo/gen/compliance-charts.mts'
 
 function fixture() {
   const native = { value: ['one', 'two'] }

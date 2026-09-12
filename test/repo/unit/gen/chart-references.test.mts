@@ -6,7 +6,7 @@ import { expect, test } from 'vitest'
 import {
   chartBaseUrl,
   chartReference,
-} from '../../../scripts/repo/gen/chart-references.mts'
+} from '../../../../scripts/repo/gen/chart-references.mts'
 
 test('chart references use artifact hashes and preserve the same target across document locations', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nwsapi-chart-refs-'))

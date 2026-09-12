@@ -4,8 +4,8 @@ import {
   foreignPackageManagerMessage,
   invokedByForeignPackageManager,
   invokingPackageManager,
-} from '../../../scripts/repo/lib/package-manager.mts'
-import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
+} from '../../../../scripts/repo/lib/package-manager.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
 for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0'] as const) {
   test(`the launcher permits ${agent ?? 'direct Node invocation'}`, () => {

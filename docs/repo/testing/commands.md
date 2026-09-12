@@ -30,6 +30,10 @@ Type checks run without an incremental cache so they recheck changes to shared d
 
 `test/repo/unit/` covers selector behavior and helpers. `test/repo/integration/` covers the `jsdom` adapter and development commands. `test/repo/e2e/` covers browsers, published packages, and WPT. Reusable DOM fixtures live in `test/repo/common/fixture/`, and fuzz targets live in `test/repo/fuzz/`.
 
+When a suite tests one source module or script, mirror the path after `src/` or `scripts/repo/` inside its test tier. For example, `scripts/repo/check/unicode-es5.mts` has `test/repo/unit/check/unicode-es5.test.mts`. The `src/adapter/dom-selector.mts` adapter has `adapter/dom-selector.test.mts` in both the unit and integration tiers. The separate `adapter/jsdom.test.mts` suite covers `src/adapter/jsdom.mts`, which validates and uses the supplied implementation helpers.
+
+Keep shared input data and setup helpers in the owning tier's `fixture/` directory. Files ending in `.cases.mts` register additional tests and are part of their importing suite. They are executable test cases, so they stay with that suite. Tests spanning several modules may use a behavior name when no single module owns the contract.
+
 Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Development commands live in `scripts/repo/`. Older HTML suites remain under `test/`, and the pristine WPT checkout remains under `upstream/wpt/`.
 
 ## Integrated host workload

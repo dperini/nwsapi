@@ -7,16 +7,16 @@ import {
   engineDefinitions,
   engineSignature,
   readEngineSources,
-} from '../../../scripts/repo/gen/api-engine.mts'
+} from '../../../../scripts/repo/gen/api-engine.mts'
 import {
   renderApiMarkdown,
   writeApiMarkdown,
-} from '../../../scripts/repo/gen/api-md.mts'
+} from '../../../../scripts/repo/gen/api-md.mts'
 import {
   ADAPTER_SOURCE_PATH,
   ENGINE_SOURCE_PATH,
   TRAVERSAL_SOURCE_PATH,
-} from '../../../scripts/repo/lib/paths.mts'
+} from '../../../../scripts/repo/lib/paths.mts'
 
 const engine = readFileSync(ENGINE_SOURCE_PATH, 'utf8')
 const adapter = readFileSync(ADAPTER_SOURCE_PATH, 'utf8')
