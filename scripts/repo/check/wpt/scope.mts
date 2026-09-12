@@ -5,7 +5,12 @@ import type { AnyNode } from 'acorn'
 import { JSDOM } from 'jsdom'
 import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import type { WptEntry } from '../../../../test/repo/e2e/upstream/manifest.mts'
-import { pageContentType, pageSource, walkAst, wptFile } from './source.mts'
+import {
+  pageContentType,
+  pageSource,
+  walkAst,
+  wptFile,
+} from './source/inspect.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 

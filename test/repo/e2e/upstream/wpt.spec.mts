@@ -35,7 +35,7 @@ import { getSection } from './sections.mts'
 import {
   pageContentType,
   pageSource,
-} from '../../../../scripts/repo/check/wpt/source.mts'
+} from '../../../../scripts/repo/check/wpt/source/inspect.mts'
 import { isAgent } from '../../../../scripts/repo/lib/is-agent.mts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))

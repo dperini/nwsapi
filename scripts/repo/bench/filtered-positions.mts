@@ -10,7 +10,7 @@ import { transform } from 'rolldown/utils'
 import type { NwsapiEngine } from '../../../.config/runtime.d.ts'
 import type { DOMWindow } from 'jsdom'
 import { sample, median } from './timing.mts'
-import { sha256 } from './footprint-shared.mts'
+import { sha256 } from './footprint/shared.mts'
 import { ENGINE_SOURCE_PATH, REPO_ROOT } from '../lib/paths.mts'
 
 const { values } = parseArgs({

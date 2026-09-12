@@ -15,7 +15,7 @@ import {
   migrateReadmeBadge,
   readCoveragePct,
   readmeBadgeForm,
-} from '../lib/coverage-badge.mts'
+} from '../lib/coverage/badge.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import {
   isPublishedPackage,

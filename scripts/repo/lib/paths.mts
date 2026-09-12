@@ -7,9 +7,10 @@ export const REPO_ROOT = path.resolve(
 )
 export const SOURCE_DIR = path.join(REPO_ROOT, 'src')
 export const CORE_SOURCE_DIR = path.join(SOURCE_DIR, 'core')
-export const SOURCE_LAYOUT_CHECK_PATH = path.join(
+export const REPO_SCRIPT_DIR = path.join(REPO_ROOT, 'scripts/repo')
+export const NAMING_CHECK_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/source-layout.mts',
+  'scripts/repo/check/naming.mts',
 )
 export const IMPORTANT_ICON_REL_PATH = 'assets/repo/important.svg'
 export const SVG_CHECK_SCRIPT_PATH = path.join(
@@ -27,7 +28,7 @@ export const SCRIPT_ENTRYPOINT_CHECK_PATH = path.join(
 export const API_DOC_PATH = path.join(REPO_ROOT, 'docs/repo/selector/api.md')
 export const API_SCRIPT_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/gen/api-md.mts',
+  'scripts/repo/gen/api/markdown.mts',
 )
 export const ENGINE_SOURCE_PATH = path.join(
   REPO_ROOT,

@@ -5,7 +5,7 @@ import {
   scriptPage,
   selectTests,
   supportSelector,
-} from '../../../../../scripts/repo/check/wpt/source.mts'
+} from '../../../../../scripts/repo/check/wpt/source/inspect.mts'
 import { inspectScript } from '../../../../../scripts/repo/check/wpt/scope.mts'
 import { JSDOM } from 'jsdom'
 

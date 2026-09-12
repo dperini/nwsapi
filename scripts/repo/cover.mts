@@ -21,7 +21,7 @@ import {
   combineCoverage,
   coverageReporters,
   checkCoverageThresholds,
-} from './lib/coverage.mts'
+} from './lib/coverage/report.mts'
 
 import {
   runTypeCoverage,

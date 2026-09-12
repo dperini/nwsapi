@@ -100,8 +100,8 @@ test('expensive repository commands answer help without starting work', () => {
   for (const entry of [
     'scripts/repo/bench/build-compression.mts',
     'scripts/repo/bench/heap-snapshot.mts',
-    'scripts/repo/bench/jsdom-override.mts',
-    'scripts/repo/bench/native-heap-snapshot.mts',
+    'scripts/repo/bench/jsdom/override.mts',
+    'scripts/repo/bench/native/heap-snapshot.mts',
     'scripts/repo/browser.mts',
   ]) {
     execFileSync(process.execPath, [entry, '--help'], {

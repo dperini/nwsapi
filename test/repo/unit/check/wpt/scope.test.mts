@@ -11,7 +11,7 @@ import {
   adaptDomOnly,
   scriptPage,
   wptFile,
-} from '../../../../../scripts/repo/check/wpt/source.mts'
+} from '../../../../../scripts/repo/check/wpt/source/inspect.mts'
 
 test.each([
   'assert_equals(getComputedStyle(el).color, "red")',

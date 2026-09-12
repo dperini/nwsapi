@@ -15,7 +15,7 @@ import { parse as parseHtml } from 'parse5'
 import type { DefaultTreeAdapterTypes } from 'parse5'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
-import { walkAst } from './source.mts'
+import { walkAst } from './source/inspect.mts'
 import { staticName } from './scope.mts'
 
 const inventoryPath = path.join(

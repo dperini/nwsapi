@@ -10,9 +10,9 @@ Save the baseline build under `os.tmpdir()` before changing the source. Build th
 
 ```sh
 node scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --output assets/repo/bench/comparison-node-timing.json
-node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --output assets/repo/bench/comparison-browser-timing.json
+node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --output assets/repo/bench/comparison-browser-timing.json
 node --expose-gc scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --mode memory --output assets/repo/bench/comparison-node-memory.json
-node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --mode memory --output assets/repo/bench/comparison-browser-memory.json
+node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --mode memory --output assets/repo/bench/comparison-browser-memory.json
 ```
 
 Run these commands serially. Timing and memory probes belong in separate processes because heap reads, forced collections, and allocation sampling change the workload. Browser memory mode enables exposed GC and precise heap information only for that run. All browser resources are served through local Playwright routes, without fetching a benchmark dependency from a CDN.
@@ -38,7 +38,7 @@ Run the retention commands separately from timing and allocation measurements:
 
 ```sh
 node --expose-gc scripts/repo/bench/compare/retention.mts --baseline /tmp/before.cjs --rounds 3 --output assets/repo/bench/retention-node.json
-node scripts/repo/bench/has-memory.mts --baseline /tmp/before.cjs --rounds 3 --output assets/repo/bench/retention-browser.json
+node scripts/repo/bench/has/memory.mts --baseline /tmp/before.cjs --rounds 3 --output assets/repo/bench/retention-browser.json
 ```
 
 Both commands retain an engine while populating 512 relative plans, adding 8192 plans, and adding another 8192 plans. They then remove the anchor, release the most recent public query scope, and check weak references to the anchor and a child. Four forced collections cross task boundaries before each heap reading. The final stage clears the engine caches. Node reads whole-process V8 heap, while Chromium reads whole-page V8 heap. Absolute totals include the runtime and DOM implementation.

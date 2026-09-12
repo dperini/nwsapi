@@ -360,7 +360,7 @@ Prepare the checkout with its documented dependency installation and generation 
 
 ```sh
 pnpm run build
-node scripts/repo/bench/jsdom-workload.mts \
+node scripts/repo/bench/jsdom/workload.mts \
   --host /path/to/prepared/jsdom \
   --wpt /path/to/pinned/wpt \
   --profile /path/in/os-temp/selector-workload
@@ -392,7 +392,7 @@ The comparison also exposed a correctness problem. A connected shadow tree is ab
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-The baseline is `7960cdd`. The candidate and baseline build hashes, raw samples, and correctness results are in [first-id.json](../../../assets/repo/bench/first-id.json). The script is [first-id.mts](../../../scripts/repo/bench/first-id.mts), with its invocation in the [testing commands](../testing/commands.md#compare-first-result-id-lookups).
+The baseline is `7960cdd`. The candidate and baseline build hashes, raw samples, and correctness results are in [first-id.json](../../../assets/repo/bench/first-id.json). The script is [first-id.mts](../../../scripts/repo/bench/first/id.mts), with its invocation in the [testing commands](../testing/commands.md#compare-first-result-id-lookups).
 
 Measurements used Node 26.5.0 and `jsdom` 30.0.1 on macOS with an Apple M3 Max. Each root contains 2,000 preceding elements and one target. Seven rounds alternate engine order. Warm batches contain 1,000 queries. Cold batches average 30 fresh engines, with construction outside the timer. The final run had no concurrent test jobs. These are direct-engine timings, not browser or integrated application timings. A baseline that returns the wrong node receives no timing result.
 
@@ -459,7 +459,7 @@ General `:has()` now separates branch compilation from candidate matching. A bou
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-The before engine is `c107cb1`. The [general has report](../../../assets/repo/bench/has.json) records both engine hashes and raw samples. Run [has.mts](../../../scripts/repo/bench/has.mts) with `--baseline` pointing to that separately built engine and `--profile` to collect separate CPU samples. Seven fixtures each contain 20 sections with 20 children per section. Five rounds alternate engine order, with 100 warm queries and 10 fresh-engine first queries per round. First-query timers exclude engine construction. Identity and order checks run outside the timers. These are direct calls in `jsdom` 30.0.1 on Node 26.5.0 and an Apple M3 Max, without concurrent test jobs or rendering.
+The before engine is `c107cb1`. The [general has report](../../../assets/repo/bench/has.json) records both engine hashes and raw samples. Run [has.mts](../../../scripts/repo/bench/has/timing.mts) with `--baseline` pointing to that separately built engine and `--profile` to collect separate CPU samples. Seven fixtures each contain 20 sections with 20 children per section. Five rounds alternate engine order, with 100 warm queries and 10 fresh-engine first queries per round. First-query timers exclude engine construction. Identity and order checks run outside the timers. These are direct calls in `jsdom` 30.0.1 on Node 26.5.0 and an Apple M3 Max, without concurrent test jobs or rendering.
 
 The [traversal report](../../../assets/repo/bench/complex-selectors-class-reads.json) uses the same fixtures and host contract as the preceding entry. It adds separate CPU profiles for the original and deep fixtures. Its timings and the preceding report are separate runs, not a paired experiment isolating the class change. The host comparison remains pinned to `@asamuzakjp/dom-selector` 9.0.1.
 
@@ -503,9 +503,9 @@ Internal existence checks can also reuse an observed candidate snapshot. Public 
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-The baseline is `886765c`. The [timing report](../../../assets/repo/bench/has-sibling.json) records both build hashes, raw samples, and separate profiles. Run [has.mts](../../../scripts/repo/bench/has.mts) with `--baseline` pointing to the separately built baseline and `--profile`. The comparison uses the preceding entry's 20-section, 20-child fixtures, five alternating rounds, 100 warm queries, and 10 first queries on fresh engines per round. Added general-sibling cases place matches in every subtree or only in the last section's last child. Identity and order are checked outside the timers. Measurements used Node 26.5.0 and `jsdom` 30.0.1 on an Apple M3 Max without concurrent test jobs.
+The baseline is `886765c`. The [timing report](../../../assets/repo/bench/has-sibling.json) records both build hashes, raw samples, and separate profiles. Run [has.mts](../../../scripts/repo/bench/has/timing.mts) with `--baseline` pointing to the separately built baseline and `--profile`. The comparison uses the preceding entry's 20-section, 20-child fixtures, five alternating rounds, 100 warm queries, and 10 first queries on fresh engines per round. Added general-sibling cases place matches in every subtree or only in the last section's last child. Identity and order are checked outside the timers. Measurements used Node 26.5.0 and `jsdom` 30.0.1 on an Apple M3 Max without concurrent test jobs.
 
-The [cache-memory report](../../../assets/repo/bench/has-memory.json) comes from [has-memory.mts](../../../scripts/repo/bench/has-memory.mts). It uses three rotating rounds in fresh Chromium 151.0.7922.34 pages, one retained engine per page, and a 24-child anchor. Four forced garbage collections precede each retained-heap measurement. The stages populate 512 plans, add 8192 distinct plans, add another 8192, remove the anchor, and clear the caches. Weak references check both the removed anchor and one child after crossing task boundaries. Whole-page heap includes library code and DOM, so stage differences are more useful than absolute totals.
+The [cache-memory report](../../../assets/repo/bench/has-memory.json) comes from [has-memory.mts](../../../scripts/repo/bench/has/memory.mts). It uses three rotating rounds in fresh Chromium 151.0.7922.34 pages, one retained engine per page, and a 24-child anchor. Four forced garbage collections precede each retained-heap measurement. The stages populate 512 plans, add 8192 distinct plans, add another 8192, remove the anchor, and clear the caches. Weak references check both the removed anchor and one child after crossing task boundaries. Whole-page heap includes library code and DOM, so stage differences are more useful than absolute totals.
 
 Allocation sampling runs separately before cache churn. It covers 10000 warmed existence queries and includes collected objects. Its byte totals are sampling estimates, not exact allocation counts. Neither comparison measures rendering or a whole application.
 
@@ -544,7 +544,7 @@ The remaining class-based descendant queries revisit parent elements and class v
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts` after building the engine. The [script](../../../scripts/repo/bench/ancestor-reads.mts) writes [ancestor-reads.json](../../../assets/repo/bench/ancestor-reads.json). It transforms known reads in compiled resolvers for fixed selectors. It does not modify the production engine or accept arbitrary selector input.
+Run `node scripts/repo/bench/ancestor/reads.mts` after building the engine. The [script](../../../scripts/repo/bench/ancestor/reads.mts) writes [ancestor-reads.json](../../../assets/repo/bench/ancestor-reads.json). It transforms known reads in compiled resolvers for fixed selectors. It does not modify the production engine or accept arbitrary selector input.
 
 The report records the engine hash, runtime, fixtures, raw samples, and operation counts. Measurements use Node 26.5.0 and `jsdom` fixtures on macOS arm64. Seven rounds rotate the three variants. Each variant receives 30 warmups and 300 calls per timed batch. Candidate lookup and compilation are outside the timers. Parent and class counters run separately. Node identity, order, and results after a class mutation are checked outside the timers.
 
@@ -574,7 +574,7 @@ The browser follow-up does not support adding the depth gate to the production e
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --output assets/repo/bench/ancestor-reads-mixed.json` for the expanded `jsdom` experiment. Run `node scripts/repo/bench/ancestor-browser.mts` for browser timing, allocation sampling, retained heap, and detached-node checks. The reports are [ancestor-reads-mixed.json](../../../assets/repo/bench/ancestor-reads-mixed.json) and [ancestor-browser.json](../../../assets/repo/bench/ancestor-browser.json).
+Run `node scripts/repo/bench/ancestor/reads.mts --output assets/repo/bench/ancestor-reads-mixed.json` for the expanded `jsdom` experiment. Run `node scripts/repo/bench/ancestor/browser.mts` for browser timing, allocation sampling, retained heap, and detached-node checks. The reports are [ancestor-reads-mixed.json](../../../assets/repo/bench/ancestor-reads-mixed.json) and [ancestor-browser.json](../../../assets/repo/bench/ancestor-browser.json).
 
 The browser run used Chromium 151.0.7922.34 on macOS arm64. Each fixture has 16 boxes and 64 content candidates. Deep boxes add eight wrapper ancestors. Mixed fixtures alternate shallow and deep boxes. Each selector and fixture gets a fresh page. Seven rounds rotate the three variants, with 100 warmups and 1000 calls per timed batch. The table reports median time per call. Compilation and candidate lookup are outside the timers.
 
@@ -606,7 +606,7 @@ The Node memory experiment compares the existing compiled resolver, always-on ca
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --memory --output assets/repo/bench/ancestor-node-memory.json`. The [report](../../../assets/repo/bench/ancestor-node-memory.json) records runtime details, engine hash, raw measurements, and the ten largest sampled allocation sites per sample. The [profiling helper](../../../scripts/repo/bench/ancestor-memory.mts) uses the Node inspector rather than inferring allocation from heap growth.
+Run `node scripts/repo/bench/ancestor/reads.mts --memory --output assets/repo/bench/ancestor-node-memory.json`. The [report](../../../assets/repo/bench/ancestor-node-memory.json) records runtime details, engine hash, raw measurements, and the ten largest sampled allocation sites per sample. The [profiling helper](../../../scripts/repo/bench/ancestor/memory.mts) uses the Node inspector rather than inferring allocation from heap growth.
 
 Three rounds rotate variant order. Each retained-memory measurement brackets two separate batches of 2000 warm queries. Four garbage collections across event-loop turns precede each whole-process heap reading. A separate batch of 2000 queries uses allocation sampling at a 1024byte interval and includes collected objects. Candidate lookup, compilation, result checks, and getter instrumentation are outside allocation sampling. Fixtures and engine instances remain alive during these measurements.
 
@@ -638,7 +638,7 @@ The original cache creates a `{ parent, cls }` record for each visited element. 
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-browser.mts --classes --output assets/repo/bench/ancestor-browser-classes.json` and `node scripts/repo/bench/ancestor-reads.mts --classes --memory --output assets/repo/bench/ancestor-node-classes.json`. The reports are [ancestor-browser-classes.json](../../../assets/repo/bench/ancestor-browser-classes.json) and [ancestor-node-classes.json](../../../assets/repo/bench/ancestor-node-classes.json).
+Run `node scripts/repo/bench/ancestor/browser.mts --classes --output assets/repo/bench/ancestor-browser-classes.json` and `node scripts/repo/bench/ancestor/reads.mts --classes --memory --output assets/repo/bench/ancestor-node-classes.json`. The reports are [ancestor-browser-classes.json](../../../assets/repo/bench/ancestor-browser-classes.json) and [ancestor-node-classes.json](../../../assets/repo/bench/ancestor-node-classes.json).
 
 These runs use the same fixture shapes and measurement methods described above. Each report includes its own unchanged-engine baseline. Timing excludes compilation and candidate lookup. Allocation sampling covers 2000 calls. Browser timing has seven rotating rounds, and Node allocation has three rotating rounds. Comparisons with the earlier record cache come from separate runs rather than a single paired experiment. Treat those comparisons as exploratory. All measurements still concern experimental compiled resolvers, not the public host APIs.
 
@@ -655,7 +655,7 @@ Every cache hit still adds a helper call, a weak-map lookup, and, for the gated 
 | Browser deep complex | 46.62MB | 63.57MB | +36.4% | +22.9% |
 | Browser deep plain | 41.42MB | 58.14MB | +40.4% | +36.5% |
 
-The allocation columns cover 2000 compiled queries. Positive time changes mean slower queries. Node timings come from a separate fresh process with no inspector profiling, recorded in [ancestor-node-classes-timing.json](../../../assets/repo/bench/ancestor-node-classes-timing.json). Reproduce it with `node scripts/repo/bench/ancestor-reads.mts --classes --output assets/repo/bench/ancestor-node-classes-timing.json`. Timing fields in a Node memory report can be affected by profiler activity from earlier fixtures, so use the separate timing report for this comparison. Browser timers run before profiling on each fresh page.
+The allocation columns cover 2000 compiled queries. Positive time changes mean slower queries. Node timings come from a separate fresh process with no inspector profiling, recorded in [ancestor-node-classes-timing.json](../../../assets/repo/bench/ancestor-node-classes-timing.json). Reproduce it with `node scripts/repo/bench/ancestor/reads.mts --classes --output assets/repo/bench/ancestor-node-classes-timing.json`. Timing fields in a Node memory report can be affected by profiler activity from earlier fixtures, so use the separate timing report for this comparison. Browser timers run before profiling on each fresh page.
 
 Compared with the earlier record-cache runs, storing class values directly reduces deep-case allocation by roughly 12–14% in Node and 17% in the browser. It brings Node allocation close to baseline, but loses the earlier timing advantage. The class-value gate performs 868 parent reads in the deep complex fixture, compared with 314 for the record gate. Class reads remain at 306. The smaller representation saves record allocations but gives up most of the saved parent reads.
 
@@ -670,9 +670,9 @@ The fixed selector is split before `.block.inner > .content`. One compiled match
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --prefix --output assets/repo/bench/ancestor-prefix-timing.json` for unprofiled Node timing. Add `--memory` and use `assets/repo/bench/ancestor-prefix-memory.json` for separate Node allocation and retained-memory measurements. Run `node scripts/repo/bench/ancestor-browser.mts --prefix --output assets/repo/bench/ancestor-prefix-browser.json` for the browser comparison.
+Run `node scripts/repo/bench/ancestor/reads.mts --prefix --output assets/repo/bench/ancestor-prefix-timing.json` for unprofiled Node timing. Add `--memory` and use `assets/repo/bench/ancestor-prefix-memory.json` for separate Node allocation and retained-memory measurements. Run `node scripts/repo/bench/ancestor/browser.mts --prefix --output assets/repo/bench/ancestor-prefix-browser.json` for the browser comparison.
 
-The same fixture shapes and measurement methods apply. The three variants are the unchanged compiled resolver, the split prefix matcher without caching, and the split prefix matcher with cached results. The uncached split control distinguishes the cost of splitting the matcher from the effect of caching. Node timing uses a fresh process without allocation profiling. Each allocation sample covers 2000 calls. The helper is in [ancestor-prefix.mts](../../../scripts/repo/bench/ancestor-prefix.mts).
+The same fixture shapes and measurement methods apply. The three variants are the unchanged compiled resolver, the split prefix matcher without caching, and the split prefix matcher with cached results. The uncached split control distinguishes the cost of splitting the matcher from the effect of caching. Node timing uses a fresh process without allocation profiling. Each allocation sample covers 2000 calls. The helper is in [ancestor-prefix.mts](../../../scripts/repo/bench/ancestor/prefix.mts).
 
 This is a fixed-selector benchmark, not a general compiler transformation. It does not support callbacks or establish behavior for every selector, legacy environment, or public host query. Mutation checks cover both suffix and prefix classes between calls, and reversed candidates check result order. The browser also checks collection of a detached candidate and parent.
 
@@ -719,7 +719,7 @@ The cached variant also removes the weak map and path array. It keeps only the p
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --shared --output assets/repo/bench/ancestor-shared-timing.json` for unprofiled Node timing. Run it with `--shared --memory --output assets/repo/bench/ancestor-shared-memory.json` for Node allocation and retained heap. Run `node scripts/repo/bench/ancestor-browser.mts --shared --output assets/repo/bench/ancestor-shared-browser.json` for browser timing and memory.
+Run `node scripts/repo/bench/ancestor/reads.mts --shared --output assets/repo/bench/ancestor-shared-timing.json` for unprofiled Node timing. Run it with `--shared --memory --output assets/repo/bench/ancestor-shared-memory.json` for Node allocation and retained heap. Run `node scripts/repo/bench/ancestor/browser.mts --shared --output assets/repo/bench/ancestor-shared-browser.json` for browser timing and memory.
 
 The controls are the unchanged collection resolver and the split prefix with shared positional state but no previous-result reuse. The third variant adds previous-result reuse. All variants use the same candidates within each fixture. Timing excludes compilation and candidate lookup. The earlier sampling methods apply. The helper is still a fixed-selector experiment, not a general compiler transform or a callback-capable implementation.
 
@@ -804,7 +804,7 @@ CI passed for `cdf1561`. The follow-up measures the production build against the
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --baseline /path/to/before/nwsapi.js --single --output assets/repo/bench/ancestor-production-single-timing.json`. Run the browser script with the same options and a separate output path. The [Node record](../../../assets/repo/bench/ancestor-production-single-timing.json), [browser record](../../../assets/repo/bench/ancestor-production-single-browser.json), and [fresh browser confirmation](../../../assets/repo/bench/ancestor-production-single-browser-confirmation.json) retain seven rotating timing rounds. Compilation and candidate lookup are outside the timers. Mutation, candidate order, and browser detached-node checks pass.
+Run `node scripts/repo/bench/ancestor/reads.mts --baseline /path/to/before/nwsapi.js --single --output assets/repo/bench/ancestor-production-single-timing.json`. Run the browser script with the same options and a separate output path. The [Node record](../../../assets/repo/bench/ancestor-production-single-timing.json), [browser record](../../../assets/repo/bench/ancestor-production-single-browser.json), and [fresh browser confirmation](../../../assets/repo/bench/ancestor-production-single-browser-confirmation.json) retain seven rotating timing rounds. Compilation and candidate lookup are outside the timers. Mutation, candidate order, and browser detached-node checks pass.
 
 Run `node scripts/repo/bench/compiler.mts /path/to/before/nwsapi.js dist/nwsapi.js assets/repo/bench/ancestor-production-compiler.json`. The [first record](../../../assets/repo/bench/ancestor-production-compiler.json) and [fresh confirmation](../../../assets/repo/bench/ancestor-production-compiler-confirmation.json) use nine rotating rounds. Each compilation receives a unique class suffix to prevent cache hits. The old benchmark used a `:not()` suffix, which excluded every case from ancestor reuse. The revised suffix preserves eligibility. Timing includes resolver source consumption and measures uncached compilation on warm engines, rather than fresh process startup. The suffix classes do not exist in the fixture, and these compiled functions are not executed.
 
@@ -888,7 +888,7 @@ Class-name values are still read from the element. This change does not cache DO
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Save the built CommonJS engine from `19d1630` outside the repository. Its engine code is unchanged from `f20e7f9`. Run `node scripts/repo/bench/ancestor-reads.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-node.json` for Node timing. Add `--memory` and a separate output path for allocation sampling. Run `node scripts/repo/bench/ancestor-browser.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-browser.json` for native Chromium measurements. All these comparisons use actual compiled functions from both builds.
+Save the built CommonJS engine from `19d1630` outside the repository. Its engine code is unchanged from `f20e7f9`. Run `node scripts/repo/bench/ancestor/reads.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-node.json` for Node timing. Add `--memory` and a separate output path for allocation sampling. Run `node scripts/repo/bench/ancestor/browser.mts --baseline /path/to/before.cjs --output assets/repo/bench/class-regex-browser.json` for native Chromium measurements. All these comparisons use actual compiled functions from both builds.
 
 The [Node timing](../../../assets/repo/bench/class-regex-node.json), [Node memory](../../../assets/repo/bench/class-regex-memory.json), and [browser record](../../../assets/repo/bench/class-regex-browser.json) include engine hashes and mutation checks. Timing excludes compilation and candidate lookup. Node allocation estimates are medians from three rotating rounds of 2000 calls. Browser allocation uses one sample per variant per fixture, covering 2000 calls. Samples include collected objects. Retained heap and detached-node checks are reported separately from allocation traffic.
 
@@ -938,7 +938,7 @@ The next experiment replaces only the benchmark candidate's `Snapshot.classOf` r
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Run `node scripts/repo/bench/ancestor-reads.mts --baseline dist/nwsapi.js --attribute-classes --warmups 1000 --iterations 3000 --output assets/repo/bench/class-attribute-node.json`. Run it separately with `--memory` and another output path for allocation profiling. Run `node scripts/repo/bench/ancestor-browser.mts --baseline dist/nwsapi.js --attribute-classes --output assets/repo/bench/class-attribute-browser.json` for native Chromium. The override requires a baseline so an unmodified engine provides the control.
+Run `node scripts/repo/bench/ancestor/reads.mts --baseline dist/nwsapi.js --attribute-classes --warmups 1000 --iterations 3000 --output assets/repo/bench/class-attribute-node.json`. Run it separately with `--memory` and another output path for allocation profiling. Run `node scripts/repo/bench/ancestor/browser.mts --baseline dist/nwsapi.js --attribute-classes --output assets/repo/bench/class-attribute-browser.json` for native Chromium. The override requires a baseline so an unmodified engine provides the control.
 
 The [Node timing](../../../assets/repo/bench/class-attribute-node.json), [Node memory](../../../assets/repo/bench/class-attribute-memory.json), and [browser record](../../../assets/repo/bench/class-attribute-browser.json) identify the reader override as well as the shared build hash. Timing measures warm compiled queries over preselected candidates. Node uses seven rotating rounds, 1000 warmups, and 3000 calls per batch. Browser timing uses seven rotating rounds. Node allocation is the median of three rotating samples of 2000 calls, including collected objects. Browser allocation uses one sample per variant and fixture. Setup, compilation, and candidate lookup are outside these measurements.
 
@@ -966,7 +966,7 @@ The cached grouped-query path previously concatenated each fetched list into a n
 <details>
 <summary>Measurement scope and reproduction</summary>
 
-Save the built CommonJS engine from `7592472` outside the repository before building the candidate. Run `node scripts/repo/bench/result-arrays.mts --baseline /path/to/before.cjs --output assets/repo/bench/result-arrays-timing.json`. Run it separately with `--memory` and another output path for allocation. Run `node scripts/repo/bench/result-arrays-browser.mts /path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing.
+Save the built CommonJS engine from `7592472` outside the repository before building the candidate. Run `node scripts/repo/bench/result-array/node.mts --baseline /path/to/before.cjs --output assets/repo/bench/result-arrays-timing.json`. Run it separately with `--memory` and another output path for allocation. Run `node scripts/repo/bench/result-array/browser.mts /path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing.
 
 The [baseline profile](../../../assets/repo/bench/result-arrays-profile.json), [Node timing](../../../assets/repo/bench/result-arrays-timing.json), [Node allocation comparison](../../../assets/repo/bench/result-arrays-memory.json), and [browser timing](../../../assets/repo/bench/result-arrays-browser.json) retain ordered-result checks and engine hashes. Timing includes warm public selection and candidate lookup, but excludes setup and compilation. The final timing runs rotate engines across nine rounds of at least 50ms after 1000 warmups. The longer batches avoid interpreting timer quantization as a speed change in tiny queries. Allocation uses three rotating samples of 2000 calls and includes collected objects. Timing within the allocation report is not used for conclusions.
 
@@ -1008,8 +1008,8 @@ if (b.nextSibling === a) {
 Save the baseline build outside the repository, insert those checks, and rebuild to reproduce the candidate. Both benchmark scripts record the build hashes. Run each command in its own process. Repeat with `separated` and `nested` in place of `adjacent`:
 
 ```sh
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/sibling-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/sibling-browser.json adjacent
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/sibling-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/sibling-browser.json adjacent
 ```
 
 Every layout has 256 `p` elements. The adjacent layout places them directly beside one another. The separated layout inserts text and comments between them. The nested layout gives each element its own `section` parent. Queries return 0, 1, 16, or 256 matches. Four disjoint class groups interleave in document order. A single-class query provides a control. Each variant receives 1000 warmups, followed by nine rotating timing rounds lasting at least 50ms. Ordered node identities are checked outside timing. These measurements exclude compilation and rendering.
@@ -1045,11 +1045,11 @@ A sequential prototype improved four-group queries but repeatedly revisited the 
 The baseline is the readable build from `5c37eb6`, whose engine is unchanged from `7d81ef0`. Save that build outside the repository and compare it with the current build. Every report records both hashes. Run timing and memory commands separately:
 
 ```sh
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/merge-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/merge-browser.json adjacent
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/merge-many-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/merge-many-browser.json adjacent 64
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/merge-memory.json
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --layout adjacent --output /tmp/merge-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/merge-browser.json adjacent
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/merge-many-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/merge-many-browser.json adjacent 64
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/merge-memory.json
 ```
 
 Repeat the first two commands with `separated` and `nested`. Each fixture has 256 `p` elements. The separated layout inserts text and comments. The nested layout places each element under a separate parent. Four disjoint class groups interleave in document order. The many-group comparison uses 64 groups. Default timing runs cover 0, 1, 16, and 256 matches, with a single-class control for each case. After 1000 warmup calls, variants rotate through nine timing rounds lasting at least 50ms. Result identities and order are checked outside timing. Setup, compilation, and rendering are excluded.
@@ -1093,12 +1093,12 @@ Before allocating a merge buffer, cached grouped queries now compare the last no
 The primary baseline is the readable build from `f1811c7`. Save that build outside the repository and compare it with the current build. Every report records the hashes. Run timing and allocation measurements in separate processes:
 
 ```sh
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/order-many-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/order-many-browser.json adjacent 64
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --output /tmp/order-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/order-browser.json adjacent
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 64 --matches 16 --memory --output /tmp/order-sparse-memory.json
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/order-dense-memory.json
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --groups 64 --output /tmp/order-many-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/order-many-browser.json adjacent 64
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --output /tmp/order-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/order-browser.json adjacent
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --groups 64 --matches 16 --memory --output /tmp/order-sparse-memory.json
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --matches 256 --memory --output /tmp/order-dense-memory.json
 ```
 
 The fixtures and timing protocol match the balanced-merge measurements above. Each timing run includes empty, single-match, sparse, and dense results. Four-group cases also run with text and comment separators and with separate parent elements, using `--layout separated` or `--layout nested` in Node and the corresponding positional argument in the browser script. No rendering work is measured. The sparse 64-group fixture has one match in each of its first 16 groups, so those runs are already ordered. Dense four-group results interleave and still require merging.
@@ -1142,9 +1142,9 @@ Cached grouped queries record the current result length before each selector gro
 The baseline is the readable build from `a2e2a80`. Save that build outside the repository and compare it with the candidate build. Reports record both hashes. The complete timing matrix uses 4 and 64 groups, adjacent elements, text and comment separators, and separate parent elements. Every run measures 0, 1, 16, and 256 matches, with a single-class control for each count. Run commands serially:
 
 ```sh
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 4 --layout adjacent --output /tmp/boundaries-node.json
-node scripts/repo/bench/result-arrays-browser.mts /tmp/before.cjs /tmp/boundaries-browser.json adjacent 4
-node scripts/repo/bench/result-arrays.mts --baseline /tmp/before.cjs --groups 4 --memory --output /tmp/boundaries-memory.json
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --groups 4 --layout adjacent --output /tmp/boundaries-node.json
+node scripts/repo/bench/result-array/browser.mts /tmp/before.cjs /tmp/boundaries-browser.json adjacent 4
+node scripts/repo/bench/result-array/node.mts --baseline /tmp/before.cjs --groups 4 --memory --output /tmp/boundaries-memory.json
 ```
 
 Repeat with 64 groups. For timing, repeat with `separated` and `nested` layouts. After 1000 warmups, variants rotate through nine rounds lasting at least 50ms. Setup, compilation, and rendering are excluded. Every run checks ordered node identities outside timing. Memory profiling runs in separate processes and includes collected objects across three rotating samples of 2000 calls. Its timing values are excluded from timing conclusions. Retained heap is measured after forced collection and reported separately from allocation traffic.
@@ -1202,9 +1202,9 @@ Save the readable `a2e2a80` build as the baseline. Build `761f817` into `dist/`,
 
 ```sh
 node scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-node-timing.json --batch 256 --rounds 3
-node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-timing.json --batch 256 --rounds 3
+node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-timing.json --batch 256 --rounds 3
 node --expose-gc scripts/repo/bench/compare/node.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-node-memory.json --mode memory --matches 1,256 --batch 64 --rounds 3
-node scripts/repo/bench/compare/browser.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-memory.json --mode memory --matches 1,256 --batch 64 --rounds 3
+node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --output assets/repo/bench/mitata-browser-memory.json --mode memory --matches 1,256 --batch 64 --rounds 3
 ```
 
 </details>
@@ -1322,11 +1322,11 @@ The baseline is a readable build of `6503d35`. Save it as `baseline.cjs` in an `
 ```sh
 node scripts/repo/bench/compare/bounded-profile.mts assets/repo/bench/bounded-baseline-profile.json /path/to/baseline.cjs
 node scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 5 --batch 64 --output assets/repo/bench/bounded-has-node-confirmation.json
-node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 5 --batch 64 --output assets/repo/bench/bounded-has-browser-confirmation.json
+node scripts/repo/bench/compare/browser/timing.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 5 --batch 64 --output assets/repo/bench/bounded-has-browser-confirmation.json
 node --expose-gc scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 3 --batch 64 --mode memory --output assets/repo/bench/bounded-has-node-memory.json
-node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 3 --batch 64 --mode memory --output assets/repo/bench/bounded-has-browser-memory.json
+node scripts/repo/bench/compare/browser/timing.mts --baseline /path/to/baseline.cjs --scenario has --matches 16 --rounds 3 --batch 64 --mode memory --output assets/repo/bench/bounded-has-browser-memory.json
 node scripts/repo/bench/compare/node.mts --baseline /path/to/baseline.cjs --groups 64 --matches 256 --rounds 5 --batch 64 --output assets/repo/bench/bounded-grouped-node-timing.json
-node scripts/repo/bench/compare/browser.mts --baseline /path/to/baseline.cjs --groups 64 --matches 256 --rounds 5 --batch 64 --output assets/repo/bench/bounded-grouped-browser-timing.json
+node scripts/repo/bench/compare/browser/timing.mts --baseline /path/to/baseline.cjs --groups 64 --matches 256 --rounds 5 --batch 64 --output assets/repo/bench/bounded-grouped-browser-timing.json
 node scripts/repo/bench/browser-syntax.mts '/path/to/Chrome for Testing'
 ```
 
@@ -1400,7 +1400,7 @@ This investigation returns to [PR 311](https://github.com/asamuzaK/domSelector/p
 <details>
 <summary>Workload and reproduction</summary>
 
-Run `node scripts/repo/bench/attribute-mutation.mts`. The script uses the existing 300-card component document. It checks attribute presence, exact equality, and element-scoped presence through the core and public adapter. Each case has 100 warmup cycles, five timed batches of 100 cycles, and a separate 200-cycle CPU profile. A mutation cycle changes only `data-unrelated` on the root, then runs one or four queries. Warm cycles run one query without mutation. Timed mutation cycles include the mutation cost. Identity and order checks stay outside timing.
+Run `node scripts/repo/bench/attribute/mutation.mts`. The script uses the existing 300-card component document. It checks attribute presence, exact equality, and element-scoped presence through the core and public adapter. Each case has 100 warmup cycles, five timed batches of 100 cycles, and a separate 200-cycle CPU profile. A mutation cycle changes only `data-unrelated` on the root, then runs one or four queries. Warm cycles run one query without mutation. Timed mutation cycles include the mutation cost. Identity and order checks stay outside timing.
 
 The [recorded report](../../../assets/repo/bench/attribute-mutation.json) contains both build hashes, raw batch times, CPU sample sites, and collection-identity observations. This is a Node/`jsdom` diagnosis, not a comparison with a candidate optimization or a native-browser measurement. No allocation-byte reduction is inferred from CPU samples.
 
@@ -1432,7 +1432,7 @@ The regression fixture replaces the native collection object on every access. Af
 <details>
 <summary>Comparison method and reproduction</summary>
 
-Preserve the baseline build from `a282b8c` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Build the candidate, then run `node scripts/repo/bench/attribute-identity.mts "$baselineDirectory"`. An optional second argument selects the output report. The existing 300-card component fixture supplies three selectors and contexts through both the core and adapter. Each variant gets a separate document. The shared `mitata` helper runs five rotating rounds after 100 warmup cycles, with 16 cycles per sample and a 50ms minimum. Compare the medians of the five per-round medians. Mutation timings include the attribute write and all queries in that cycle.
+Preserve the baseline build from `a282b8c` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Build the candidate, then run `node scripts/repo/bench/attribute/identity/timing.mts "$baselineDirectory"`. An optional second argument selects the output report. The existing 300-card component fixture supplies three selectors and contexts through both the core and adapter. Each variant gets a separate document. The shared `mitata` helper runs five rotating rounds after 100 warmup cycles, with 16 cycles per sample and a 50ms minimum. Compare the medians of the five per-round medians. Mutation timings include the attribute write and all queries in that cycle.
 
 The [initial report](../../../assets/repo/bench/attribute-identity.json) and [confirmation report](../../../assets/repo/bench/attribute-identity-confirmation.json) retain the raw samples and build hashes. The confirmation runs after validation rather than alongside it. Node is v26.5.0. These are fixture results, not an application-wide speedup.
 
@@ -1457,7 +1457,7 @@ The [Node retention report](../../../assets/repo/bench/attribute-identity-retent
 
 The [Chromium retention report](../../../assets/repo/bench/attribute-identity-browser-retention.json) creates 40 wildcard query contexts per page, changes an unrelated attribute and a matching predicate, then detaches the contexts. All 80 observed nodes are collected in each of six page runs while the engine remains alive. These weak-reference checks cover the exercised paths, not every possible leak.
 
-Reproduce retention with `node --expose-gc scripts/repo/bench/compare/retention.mts --baseline "$baselineDirectory/nwsapi.js" --rounds 3` and `node scripts/repo/bench/attribute-identity-browser-retention.mts "$baselineDirectory/nwsapi.js"`. Reproduce the browser timing control with `node scripts/repo/bench/compare/browser.mts --baseline "$baselineDirectory/nwsapi.js" --scenario has --matches 16 --rounds 5 --batch 64`.
+Reproduce retention with `node --expose-gc scripts/repo/bench/compare/retention.mts --baseline "$baselineDirectory/nwsapi.js" --rounds 3` and `node scripts/repo/bench/attribute/identity/browser-retention.mts "$baselineDirectory/nwsapi.js"`. Reproduce the browser timing control with `node scripts/repo/bench/compare/browser/timing.mts --baseline "$baselineDirectory/nwsapi.js" --scenario has --matches 16 --rounds 5 --batch 64`.
 
 Validation passes 693 unit tests, 148 integration tests with one existing skip, and all 141 WPT pages in both modern and legacy builds. Package integration passes 41 assertions, and all 38 browser tests pass. Unit tests take 3.539s against the unchanged 10s budget. Accumulated coverage is 98.55% of execution lines and 96.59% of type identifiers. Formatting, lint, types, and generated checks pass.
 
@@ -1508,7 +1508,7 @@ The adapter now uses the supplied `idlUtils` to call implementation attribute ge
 <details>
 <summary>Comparison and reproduction</summary>
 
-Preserve the build from `0d9ce0a` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Run `node scripts/repo/bench/jsdom-readers.mts "$baselineDirectory"`. Supply an output path as the second argument to preserve a confirmation. The three variants are the baseline adapter, the new adapter with only attribute utilities, and the new adapter with attribute utilities and the host tree. Each uses a separate document and receives implementation nodes through the public adapter boundary.
+Preserve the build from `0d9ce0a` in a temporary directory with `nwsapi.js` and `dom-selector.js`. Run `node scripts/repo/bench/jsdom/reader/timing.mts "$baselineDirectory"`. Supply an output path as the second argument to preserve a confirmation. The three variants are the baseline adapter, the new adapter with only attribute utilities, and the new adapter with attribute utilities and the host tree. Each uses a separate document and receives implementation nodes through the public adapter boundary.
 
 The existing component, shallow and deep ancestor, and four `:has()` fixtures run through the shared `mitata` timing helper. Each case has 100 warmup calls, five rotating rounds, 16 calls per sample, and a 50ms minimum. Changes compare medians of the five round medians. Mutation cycles include one unrelated attribute write and one query. Correctness checks run outside timing.
 
@@ -1543,7 +1543,7 @@ Validation passes 698 unit tests, 155 integration tests with one existing skip, 
 
 The [retention report](../../../assets/repo/bench/jsdom-readers-retention.json) records three rotating rounds with 40 queried and detached contexts per variant. All 80 observed roots and children are collected in every run while the adapter and document remain alive. The initial harness called a native selector to obtain its fixture child and retained the last root even with the baseline. Replacing that setup lookup with direct child access removes the unrelated host query state from this retention check. No retained-byte or allocation reduction is claimed.
 
-Reproduce with `node --expose-gc scripts/repo/bench/jsdom-readers-retention.mts "$baselineDirectory"`. The check performs attribute mutations and internal tree queries, releases the public query scope, and then forces collection across four separate tasks. It covers these observed nodes rather than every possible ownership path.
+Reproduce with `node --expose-gc scripts/repo/bench/jsdom/reader/retention.mts "$baselineDirectory"`. The check performs attribute mutations and internal tree queries, releases the public query scope, and then forces collection across four separate tasks. It covers these observed nodes rather than every possible ownership path.
 
 The readable browser core grows by 765bytes to 168059bytes. Gzip grows by 128bytes to 40558bytes, and Brotli grows by 88bytes to 32880bytes. The size chart and generated references are refreshed. The adapter is a separate artifact excluded from that core-size comparison. Broad runtime charts retain their prior measurements.
 

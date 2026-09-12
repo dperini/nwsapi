@@ -18,6 +18,7 @@
 
 - Keep internal authored types in `.mts` files. Use `import type` and colocate types with their implementation when practical. Under `src/`, reserve `.d.ts` declarations for JavaScript loaders in `src/external/`.
 - Mirror the owning source or script path beneath the test tier. For example, `src/adapter/jsdom.mts` uses `test/repo/integration/adapter/jsdom.test.mts`. Use a behavior name for suites that cover several modules without a single owner.
+- Group repeated script prefixes under a singular directory. Keep the subject first, then name the environment or measurement. `scripts/repo/check/naming.mts` enforces the source and script layouts.
 
 - Follow [code style practices](docs/fleet/style/practices.md) and [comment practices](docs/fleet/style/comments.md).
 - Use braces and multiline bodies for conditionals and loops. Keep function complexity at or below 15 unless an existing, documented compatibility exception applies.

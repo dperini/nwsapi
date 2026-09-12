@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest'
-import { checkNativeContract } from '../../../scripts/repo/check/wpt/native-contract.mts'
+import { checkNativeContract } from '../../../scripts/repo/check/wpt/native/contract.mts'
 
-vi.mock('../../../scripts/repo/check/wpt/native-contract.mts', () => ({
+vi.mock('../../../scripts/repo/check/wpt/native/contract.mts', () => ({
   checkNativeContract: vi.fn(),
 }))
 
@@ -21,7 +21,7 @@ import {
   UNICODE_ES5_CHECK_SCRIPT_PATH,
   SCRIPT_ENTRYPOINT_CHECK_PATH,
   FORMAT_SCRIPT_PATH,
-  SOURCE_LAYOUT_CHECK_PATH,
+  NAMING_CHECK_PATH,
   LINT_SCRIPT_PATH,
   BROWSER_SETUP_PATH,
   TAZE_CLI_PATH,
@@ -88,7 +88,7 @@ test('check runs formatting, lint, and types without fix flags', () => {
     [SVG_CHECK_SCRIPT_PATH, []],
     [UNICODE_ES5_CHECK_SCRIPT_PATH, []],
     [SCRIPT_ENTRYPOINT_CHECK_PATH, ['--check']],
-    [SOURCE_LAYOUT_CHECK_PATH, []],
+    [NAMING_CHECK_PATH, []],
     [FORMAT_SCRIPT_PATH, ['--check']],
     [LINT_SCRIPT_PATH, []],
     [TSC_CLI_PATH, ['--noEmit', '-p', TSC_CONFIG_PATH]],
