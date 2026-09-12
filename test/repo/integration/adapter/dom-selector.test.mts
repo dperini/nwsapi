@@ -3,13 +3,7 @@ import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
 import type * as NodeVm from 'node:vm'
 import { test, vi } from 'vitest'
-import {
-  DOMSelector,
-  factory,
-  host,
-  jsdomRequire,
-  require,
-} from '../fixture/jsdom.mts'
+import { DOMSelector, factory, host, require } from '../fixture/jsdom.mts'
 import '../jsdom-query.cases.mts'
 
 test('the callable factory and the DOMSelector export coexist', t => {
@@ -204,14 +198,9 @@ test('beforeParse can configure before the document has a root element', t => {
 test('separately loaded adapter copies share configuration, binding, and setup locks', t => {
   const fs = require('node:fs') as typeof NodeFs
   const vm = require('node:vm') as typeof NodeVm
-  const entry = process.env['JSDOM_PACKAGE']
-    ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
-    : require.resolve('../../../dist/nwsapi.js')
-  const adapterPath = createRequire(entry).resolve(
-    process.env['JSDOM_PACKAGE']
-      ? './dom-selector.js'
-      : './adapter/dom-selector.js',
-  )
+  const adapterPath = createRequire(
+    require.resolve('../../../dist/nwsapi.js'),
+  ).resolve('./adapter/dom-selector.js')
   const copy: { exports: typeof DOMSelector | undefined } = {
     exports: undefined,
   }

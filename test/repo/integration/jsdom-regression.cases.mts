@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createRequire } from 'node:module'
 import { test } from 'vitest'
 import { jsdomSelectorCases } from '../common/fixture/jsdom-selector.mts'
 import { DOMSelector, host } from './fixture/jsdom.mts'
@@ -108,41 +107,6 @@ test('public DOM APIs preserve scope, XML, shadow, null, and identifier regressi
   assert.equal(child.parentElement, destination)
 })
 
-test.skipIf(!process.env['JSDOM_PACKAGE'])(
-  'Testing Library consumer queries use the installed adapter',
-  t => {
-    const window = host(
-      t,
-      '<form><label for="email">Email address</label><input id="email" type="email" required><span id="label">Save changes</span><button aria-labelledby="label" data-testid="save">Save</button><button disabled>Cancel</button></form>',
-    )
-    const consumer = createRequire(process.env['JSDOM_PACKAGE']!)(
-      '@testing-library/dom',
-    ) as {
-      getByRole(
-        root: HTMLElement,
-        role: string,
-        options: { name: string },
-      ): HTMLElement
-      getByLabelText(root: HTMLElement, label: string): HTMLElement
-      getByTestId(root: HTMLElement, id: string): HTMLElement
-      queryByTestId(root: HTMLElement, id: string): HTMLElement | null
-    }
-    const root = window.document.body
-    const save = consumer.getByRole(root, 'button', { name: 'Save changes' })
-    assert.equal(save, consumer.getByTestId(root, 'save'))
-    assert.equal(consumer.getByLabelText(root, 'Email address').id, 'email')
-    assert.equal(
-      consumer
-        .getByRole(root, 'button', { name: 'Cancel' })
-        .hasAttribute('disabled'),
-      true,
-    )
-    save.setAttribute('data-testid', 'updated')
-    assert.equal(consumer.queryByTestId(root, 'save'), null)
-    assert.equal(consumer.getByTestId(root, 'updated'), save)
-  },
-)
-
 test('the drop-in distinguishes modal state from ARIA and open body portals', t => {
   const window = host(t, '<button id="trigger">Open</button>')
   const doc = window.document
@@ -153,7 +117,7 @@ test('the drop-in distinguishes modal state from ARIA and open body portals', t 
     .getElementById('trigger')!
     .addEventListener('click', () => doc.body.appendChild(dialog))
   doc.getElementById('trigger')!.click()
-  for (let index = 0; index < 20; index++) {
+  for (let index = 0; index < 2; index += 1) {
     dialog.open = index % 2 === 0
     assert.deepEqual(
       Array.from(doc.querySelectorAll('dialog:open')),

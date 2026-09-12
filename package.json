@@ -119,6 +119,7 @@
     "@playwright/test": "catalog:",
     "@puppeteer/browsers": "catalog:",
     "@swc/core": "catalog:",
+    "@testing-library/dom": "catalog:",
     "@types/css-tree": "catalog:",
     "@types/istanbul-lib-coverage": "catalog:",
     "@types/istanbul-lib-report": "catalog:",

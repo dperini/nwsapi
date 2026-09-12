@@ -40,9 +40,15 @@ Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Develop
 
 `node scripts/repo/bench/jsdom/workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
 
-Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. The adapter suite covers public queries, stylesheet matching, and recorded GitHub issue regressions. The host-reader suite covers supplied implementation helpers, attribute access, tree traversal, duplicate IDs, mutations, shadow boundaries, and fallback behavior. Both suites load the installed package and its matching `jsdom` utilities. This subset does not run the full WPT or browser suites.
+## Test the Testing Library consumer path
 
-The isolated package test also installs `@testing-library/dom` 10.4.1 and exercises role, label, and test-ID lookups against the packed adapter. Its temporary installation stays outside the repository.
+`@testing-library/dom` is a development-only test consumer. Its role, label, and test-ID queries call the public selector methods supplied by `jsdom`. The adapter redirects those methods to `nwsapi`, so the complete path is `@testing-library/dom` to `jsdom` to `nwsapi`. This covers selectors produced by a widely used consumer without adding a runtime dependency to the published package.
+
+The assertions check returned elements and a synchronous attribute mutation. They do not test Testing Library's own accessibility rules. The consumer contract runs once in `test/repo/e2e/jsdom-adapter-package.mts`, using the packed artifact installed as `jsdom`'s `@asamuzakjp/dom-selector` override. The regular integration suite covers the adapter and selector behavior against `dist/` without repeating this downstream package test.
+
+`@testing-library/dom` is a catalog-managed development dependency, so the repository update tooling can discover and maintain its version. The package harness reads that installed version when it creates the temporary consumer project. The regular integration suite does not execute the package.
+
+Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. It verifies the published file list, package metadata, CommonJS entry points, CLI, dependency override, and Testing Library consumer path. Selector, adapter, and host-helper behavior stay in the regular unit and integration suites, where they run once against `dist/`.
 
 ## Compare first-result ID lookups
 

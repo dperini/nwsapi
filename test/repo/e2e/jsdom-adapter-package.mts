@@ -1,11 +1,17 @@
 import { packPackage } from '../../../scripts/repo/build/package.mts'
+import type * as TestingLibrary from '@testing-library/dom'
 import type * as NodeChildProcess from 'node:child_process'
 import type * as NodeFs from 'node:fs'
+import type * as Jsdom from 'jsdom'
 import { createRequire } from 'node:module'
-import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
 import assert from 'node:assert/strict'
 
 const require = createRequire(import.meta.url)
+const testingLibraryVersion = (
+  require('@testing-library/dom/package.json') as { version: string }
+).version
+const jsdomVersion = (require('jsdom/package.json') as { version: string })
+  .version
 
 // Test the published file layout and an override, not a patched module cache.
 const { execFileSync } =
@@ -54,7 +60,10 @@ try {
       {
         name: 'nwsapi-jsdom-adapter-test',
         private: true,
-        dependencies: { jsdom: '30.0.1', '@testing-library/dom': '10.4.1' },
+        dependencies: {
+          jsdom: jsdomVersion,
+          '@testing-library/dom': testingLibraryVersion,
+        },
         overrides: isPnpm
           ? undefined
           : {
@@ -90,10 +99,9 @@ try {
   const jsdomPackage = realpathSync(
     path.resolve(directory, 'node_modules/jsdom/package.json'),
   )
+  const consumerRequire = createRequire(jsdomPackage)
   const installed = path.resolve(
-    path.dirname(
-      createRequire(jsdomPackage).resolve('@asamuzakjp/dom-selector'),
-    ),
+    path.dirname(consumerRequire.resolve('@asamuzakjp/dom-selector')),
     '..',
   )
   const metadata = JSON.parse(
@@ -121,30 +129,25 @@ try {
     factory.DOMSelector,
     require(path.resolve(installed, 'src/dom-selector.js')),
   )
-  const vitest = path.resolve(
-    require.resolve('vitest/package.json'),
-    '../vitest.mjs',
+  assert.equal(consumerRequire('@asamuzakjp/dom-selector'), factory)
+  const { JSDOM } = consumerRequire('jsdom') as typeof Jsdom
+  const testingLibrary = consumerRequire(
+    '@testing-library/dom',
+  ) as typeof TestingLibrary
+  const dom = new JSDOM(
+    '<form><label for="email">Email address</label><input id="email" type="email" required><span id="label">Save changes</span><button aria-labelledby="label" data-testid="save">Save</button></form>',
   )
-  execFileSync(
-    process.execPath,
-    [
-      vitest,
-      'run',
-      '--config',
-      '.config/repo/vitest.config.mts',
-      'test/repo/integration/adapter/dom-selector.test.mts',
-      'test/repo/integration/adapter/jsdom.test.mts',
-    ],
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        JSDOM_PACKAGE: jsdomPackage,
-      },
-    },
-  )
+  try {
+    const queries = testingLibrary.within(dom.window.document.body)
+    const save = queries.getByRole('button', { name: 'Save changes' })
+    assert.equal(save, queries.getByTestId('save'))
+    assert.equal(queries.getByLabelText('Email address').id, 'email')
+    save.setAttribute('data-testid', 'updated')
+    assert.equal(queries.queryByTestId('save'), null)
+    assert.equal(queries.getByTestId('updated'), save)
+  } finally {
+    dom.window.close()
+  }
 } finally {
   rmSync(directory, { recursive: true, force: true })
 }

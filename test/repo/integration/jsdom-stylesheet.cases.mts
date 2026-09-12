@@ -3,7 +3,7 @@ import type * as NodeModule from 'node:module'
 import type ModuleInstance from 'node:module'
 import { createRequire } from 'node:module'
 import { test, vi } from 'vitest'
-import { DOMSelector, host, jsdomRequire, require } from './fixture/jsdom.mts'
+import { DOMSelector, host, require } from './fixture/jsdom.mts'
 
 test('DOM-only calls leave the CSS parser and syntax cache unloaded', t => {
   const window = host(t)
@@ -66,14 +66,9 @@ test('stylesheet syntax cache stays bounded and evicted selectors still work', t
 test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const window = host(t)
   const Module = require('node:module') as typeof NodeModule
-  const entry = process.env['JSDOM_PACKAGE']
-    ? jsdomRequire.resolve('@asamuzakjp/dom-selector')
-    : require.resolve('../../../dist/nwsapi.js')
-  const path = createRequire(entry).resolve(
-    process.env['JSDOM_PACKAGE']
-      ? './dom-selector.js'
-      : './adapter/dom-selector.js',
-  )
+  const path = createRequire(
+    require.resolve('../../../dist/nwsapi.js'),
+  ).resolve('./adapter/dom-selector.js')
   // Save the method before replacing it; the call below supplies its receiver.
   // oxlint-disable-next-line typescript/unbound-method -- Preserve the original receiver.
   const original = Module.prototype.require
@@ -83,10 +78,7 @@ test('a missing CSS peer only fails when stylesheet matching needs it', t => {
   const requireSpy = vi
     .spyOn(Module.prototype, 'require')
     .mockImplementation(function (this: ModuleInstance, name) {
-      if (
-        this.filename === path &&
-        name === (process.env['JSDOM_PACKAGE'] ? './nwsapi.js' : '../nwsapi.js')
-      ) {
+      if (this.filename === path && name === '../nwsapi.js') {
         factoryLoads++
       }
       if (this.filename === path && name === 'css-tree') {

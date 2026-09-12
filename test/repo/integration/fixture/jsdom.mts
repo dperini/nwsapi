@@ -9,29 +9,14 @@ export const require = createRequire(
   new URL('../fixture-base.js', import.meta.url),
 )
 
-// The installed-package check runs this suite without substituting anything.
-export const jsdomRequire = createRequire(
-  process.env['JSDOM_PACKAGE'] || require.resolve('jsdom'),
-)
-
-export const factory: typeof createNwsapi = process.env['JSDOM_PACKAGE']
-  ? jsdomRequire('@asamuzakjp/dom-selector')
-  : require('../../../dist/nwsapi.js')
+const jsdomRequire = createRequire(require.resolve('jsdom'))
+export const factory: typeof createNwsapi = require('../../../dist/nwsapi.js')
 
 export const { DOMSelector } = factory
 
-if (!process.env['JSDOM_PACKAGE']) {
-  const path = jsdomRequire.resolve('@asamuzakjp/dom-selector')
-  jsdomRequire(path)
-  require.cache[path]!.exports = factory
-}
-
-if (process.env['JSDOM_PACKAGE']) {
-  assert.equal(
-    jsdomRequire('@asamuzakjp/dom-selector/package.json').name,
-    'nwsapi',
-  )
-}
+const path = jsdomRequire.resolve('@asamuzakjp/dom-selector')
+jsdomRequire(path)
+require.cache[path]!.exports = factory
 
 assert.equal(jsdomRequire('@asamuzakjp/dom-selector'), factory)
 
