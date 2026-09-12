@@ -1,5 +1,5 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { IdentifierSyntax } from '../state/types.mts'
+import type { EngineState, IdentifierSyntax } from '../state/types.mts'
+
 export function setIdentifierSyntax(engine: EngineState) {
   var syntax = (
     engine.Factory as unknown as {

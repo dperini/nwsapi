@@ -1,6 +1,6 @@
 import { isStringQuote } from '../predicate/string-quote.mts'
 import { joinsSelectorTokens } from './token-boundary.mts'
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function selectorComments(engine: EngineState, text: string) {
   if (!engine.includes(text, '/*')) {
     return text

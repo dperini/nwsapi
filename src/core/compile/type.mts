@@ -1,4 +1,4 @@
-import type { CompileState } from './state.d.ts'
+import type { CompileState } from './state.mts'
 
 export function compileType(state: CompileState): string | false | undefined {
   state.match = state.selector.match(state.engine.Patterns['tagName']!)

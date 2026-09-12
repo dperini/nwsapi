@@ -38,8 +38,8 @@ import { isDisabled, isFocusable } from '../predicate/form.mts'
 import { isLink } from '../predicate/link.mts'
 import { isMediaState } from '../predicate/media.mts'
 import { matchesNative } from '../match/native.mts'
-import type { EngineState } from '../state/engine.d.ts'
-import type { DirectionHelpers } from '../state/types.mts'
+import type { EngineState, DirectionHelpers } from '../state/types.mts'
+
 import {
   hasHost,
   isHost,

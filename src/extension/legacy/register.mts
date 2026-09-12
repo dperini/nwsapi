@@ -3,10 +3,9 @@
  * Load after the core and before querying or loading other optional modules.
  */
 // Keep this optional module a script for CommonJS, AMD, and browser loading.
-type LegacyContext = import('../../core/state/legacy.d.ts').LegacyContext
-type LegacyHooks = import('../../core/state/legacy.d.ts').LegacyHooks
-type PlanCache<Value> =
-  import('../../core/state/legacy.d.ts').LegacyCache<Value>
+type LegacyContext = import('../../core/state/legacy.mts').LegacyContext
+type LegacyHooks = import('../../core/state/legacy.mts').LegacyHooks
+type PlanCache<Value> = import('../../core/state/legacy.mts').LegacyCache<Value>
 interface LegacyCacheEntry<Value> {
   key: string
   value: Value

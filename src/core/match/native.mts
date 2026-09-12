@@ -1,5 +1,9 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineElement, NativeMatcherRecord } from '../state/types.mts'
+import type {
+  EngineState,
+  EngineElement,
+  NativeMatcherRecord,
+} from '../state/types.mts'
+
 export function matchesNative(
   engine: EngineState,
   node: EngineElement,

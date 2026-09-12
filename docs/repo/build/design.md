@@ -2,6 +2,8 @@
 
 Authoring files live in `src/`. `pnpm run build` writes generated JavaScript to `dist/`. The `.js` loaders and `.d.ts` declarations in `src/external/` are authored files. The build bundles those loaders into the matching `dist/external/` paths.
 
+Internal types live in `.mts` files, either with the implementation or in a type-only module. `state/types.mts` combines the engine state contracts. Use `import type` for these references. The layout check rejects internal declaration files, including declarations without a matching implementation.
+
 The build entry point is `scripts/repo/build/run.mts`. Its post-build work starts in `scripts/repo/build/post.mts`, with individual transforms under `scripts/repo/build/post/`. The engine bundling helper lives in `scripts/repo/rolldown/engine.mts`. Rolldown plugins live in `.config/repo/rolldown/`.
 
 ## Readable output

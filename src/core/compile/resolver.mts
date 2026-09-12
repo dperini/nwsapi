@@ -1,10 +1,11 @@
 import { compileCacheKey } from './cache-key.mts'
-import type { EngineState } from '../state/engine.d.ts'
 import type {
+  EngineState,
   CompiledResolver,
   CompilerAncestry,
   ElementCallback,
 } from '../state/types.mts'
+
 export function compile(
   engine: EngineState,
   selector: string,

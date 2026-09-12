@@ -25,7 +25,7 @@ import { createWeakMap } from '../cache/weak-map.mts'
 import { documentOrder, mergeResults, unique } from '../collection/order.mts'
 import { isInstanceOf, toNodeList } from '../collection/node-list.mts'
 import { switchContext } from '../dom/context.mts'
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState, Primordials } from '../state/types.mts'
 import { byId, byIdRaw } from '../lookup/id.mts'
 import { byTagNS } from '../lookup/namespace.mts'
 import {
@@ -36,7 +36,7 @@ import {
 import { matchLogical, matchNth } from '../parser/logical.mts'
 import { normalizeCombinators } from '../parser/combinator.mts'
 import { splitList } from '../parser/list.mts'
-import type { Primordials } from '../state/types.mts'
+
 export function initializeRuntime(engine: EngineState) {
   engine.version = 'nwsapi-2.3.0-prerelease'
   engine.primordials = (

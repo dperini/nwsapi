@@ -2,8 +2,8 @@ import { createState } from '../state/create.mts'
 import { initializeMatching } from './matching.mts'
 import { initializeApi } from './api.mts'
 import { initializeRuntime } from './runtime.mts'
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineGlobal } from '../state/types.mts'
+import type { EngineState, EngineGlobal } from '../state/types.mts'
+
 export function createEngine(
   global: EngineGlobal,
   Factory: EngineState['Factory'],

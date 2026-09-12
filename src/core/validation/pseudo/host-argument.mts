@@ -1,4 +1,4 @@
-import type { CompileState } from '../../compile/state.d.ts'
+import type { CompileState } from '../../compile/state.mts'
 export function rejectsHostArgument(state: CompileState) {
   return state.argument === null
     ? state.name != 'host'

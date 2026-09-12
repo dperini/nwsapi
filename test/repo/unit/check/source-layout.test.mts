@@ -34,3 +34,7 @@ test('rejects a module beside its category directory', () => {
     ]),
   ).toThrow()
 })
+
+test('rejects internal declaration files', () => {
+  expect(() => checkSourceLayout(['src/core/state/types.d.ts'])).toThrow()
+})

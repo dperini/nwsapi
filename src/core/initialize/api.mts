@@ -15,14 +15,15 @@ import { select } from '../select/all.mts'
 import { first, firstCompiled, selectChildren } from '../first/select.mts'
 import { firstClass } from '../first/class.mts'
 import { firstMatch, has, hasCandidates } from '../match/relative.mts'
-import type { EngineState } from '../state/engine.d.ts'
 import type {
+  EngineState,
   AttributeOperator,
   CompiledResolver,
   LegacyHookFactory,
   QueryPlan,
   SelectorExtension,
 } from '../state/types.mts'
+
 export function initializeApi(engine: EngineState) {
   engine.parse = parse.bind(null, engine) as EngineState['parse']
   engine.match = match.bind(null, engine) as EngineState['match']

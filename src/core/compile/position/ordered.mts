@@ -1,4 +1,4 @@
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePositionOrdered(state: CompileState) {
   // Ordered, nearby candidates can carry their sibling
   // position forward. Sparse runs switch to the shared index.

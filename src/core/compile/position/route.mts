@@ -3,7 +3,7 @@ import { compilePositionDense } from './dense.mts'
 import { compilePositionMatch } from './match.mts'
 import { compilePositionOrdered } from './ordered.mts'
 import { compilePositionShared } from './shared.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePositionRoute(state: CompileState) {
   const stableSelection =
     state.mode === true && !state.callback && !state.engine.Config.LEGACY

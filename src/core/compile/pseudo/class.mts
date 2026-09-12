@@ -11,7 +11,7 @@ import { compilePseudoPosition } from './position.mts'
 import { compilePseudoResource } from './resource.mts'
 import { compilePseudoStructural } from './structural.mts'
 import { compilePseudoTime } from './time.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePseudoClass(
   state: CompileState,
 ): string | false | undefined {

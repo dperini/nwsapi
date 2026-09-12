@@ -1,5 +1,9 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineContext, RelativePlan } from '../state/types.mts'
+import type {
+  EngineState,
+  EngineContext,
+  RelativePlan,
+} from '../state/types.mts'
+
 export function hasCandidates(
   engine: EngineState,
   token: string,

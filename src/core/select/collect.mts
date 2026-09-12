@@ -1,9 +1,10 @@
-import type { EngineState } from '../state/engine.d.ts'
 import type {
+  EngineState,
   CompiledResolver,
   ElementCallback,
   EngineContext,
 } from '../state/types.mts'
+
 export function collect(
   engine: EngineState,
   selectors: string[],

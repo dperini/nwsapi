@@ -1,5 +1,5 @@
 import { isPickerTransition } from '../../predicate/picker-transition.mts'
-import type { EngineState } from '../../state/engine.d.ts'
+import type { EngineState } from '../../state/types.mts'
 export function rejectsPseudoTransition(
   previous: string,
   name: string,

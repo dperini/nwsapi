@@ -1,5 +1,5 @@
 import { compilePositionFormula } from './formula.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePositionTest(state: CompileState) {
   if (
     state.match![2] == 'even' ||

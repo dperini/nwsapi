@@ -1,5 +1,5 @@
 import { isCompoundSeparator } from './separator.mts'
-import type { EngineState } from '../../state/engine.d.ts'
+import type { EngineState } from '../../state/types.mts'
 export function isCompound(
   _engine: EngineState,
   text: string,

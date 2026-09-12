@@ -1,5 +1,5 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineElement } from '../state/types.mts'
+import type { EngineState, EngineElement } from '../state/types.mts'
+
 export function isOpen(engine: EngineState, node: EngineElement) {
   return (
     (/^(details|dialog)$/i.test(engine.tagOf(node)) && node.open === true) ||

@@ -1,4 +1,4 @@
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function codePointToUTF16(_engine: EngineState, codePoint: number) {
   // out of range, use replacement character
   if (

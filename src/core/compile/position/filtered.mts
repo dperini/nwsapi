@@ -1,5 +1,5 @@
-import type { EngineState } from '../../state/engine.d.ts'
-import type { FilteredNthState } from '../../state/types.mts'
+import type { EngineState, FilteredNthState } from '../../state/types.mts'
+
 export function nthFiltered(
   engine: EngineState,
   element: Element,

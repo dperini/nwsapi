@@ -31,7 +31,7 @@ for (const name of externalEntries) {
 // Bundle only the direction helpers and their three Unicode bidi classes.
 // The IIFE lives inside the UMD wrapper, shared by every engine instance.
 const direction = await build({
-  input: './src/core/unicode/directionality.mts',
+  input: './src/core/unicode/direction.mts',
   platform: 'browser',
   plugins: [externalLoaderPlugin()],
   write: false,

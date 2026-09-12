@@ -1,10 +1,17 @@
-import type { LegacyHooks } from './legacy.d.ts'
+import type { RuntimeState } from './runtime.mts'
+import type { QueryState } from './query.mts'
+import type { PublicState } from './public.mts'
+export interface EngineState extends RuntimeState, QueryState, PublicState {}
+
+import type {
+  LegacyHooks,
+  LegacyHookFactory,
+  LegacyReaders,
+} from './legacy.mts'
 export type { LegacyHooks }
 
-import type { LegacyHookFactory } from './legacy.d.ts'
 export type { LegacyHookFactory }
 
-import type { LegacyReaders } from './legacy.d.ts'
 export type { LegacyReaders }
 
 export type EngineContext = (Document | Element | DocumentFragment) &

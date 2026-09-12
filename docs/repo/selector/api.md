@@ -24,9 +24,9 @@ Select descendants, test a match, or find the nearest matching ancestor.
 | Method | Result |
 | --- | --- |
 | [`closest(selectors, element, callback)`](../../../src/core/ancestor/closest.mts#L2) | Returns the nearest match, starting with the element, or `null`. |
-| [`first(selectors, context, callback)`](../../../src/core/first/select.mts#L10) | Returns the first matching descendant, or `null`. |
+| [`first(selectors, context, callback)`](../../../src/core/first/select.mts#L11) | Returns the first matching descendant, or `null`. |
 | [`match(selectors, element, callback)`](../../../src/core/match/selector.mts#L60) | Returns whether the element matches. |
-| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L3) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
+| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L7) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
 
 ### Look up elements
 
@@ -36,7 +36,7 @@ Find elements directly by class, ID, or tag name.
 | --- | --- |
 | [`byClass(cls, context)`](../../../src/core/lookup/class.mts#L3) | Returns elements with the class name. |
 | [`byId(id, context)`](../../../src/core/lookup/id.mts#L32) | Returns elements with the ID. Duplicate IDs are allowed by default. |
-| [`byTag(tag, context)`](../../../src/core/lookup/tag.mts#L191) | Returns elements with the tag name. Use `*` for all elements. |
+| [`byTag(tag, context)`](../../../src/core/lookup/tag.mts#L195) | Returns elements with the tag name. Use `*` for all elements. |
 
 ### Configure the engine
 
@@ -46,7 +46,7 @@ Change engine options and error handling.
 | --- | --- |
 | [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L2) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
 | [`emit(message, proto)`](../../../src/core/validation/error.mts#L2) | Reports an error using the configured error policy. |
-| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L201) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
+| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L202) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
 
 ### Compile and extend selectors
 
@@ -54,10 +54,10 @@ Advanced APIs for compiled resolvers and trusted selector extensions.
 
 | Method | Result |
 | --- | --- |
-| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L8) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L234) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L266) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L291) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L9) | Compiles a selector into a resolver function. This is an advanced API. |
+| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L235) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L267) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L292) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
 
 ### Override browser DOM methods
 
@@ -113,17 +113,17 @@ These exports support extensions and debugging. Prefer query methods and `config
 | [`Config`](../../../src/core/initialize/runtime.mts#L106) | Contains the active options. Use `configure()` to change them. |
 | [`M_BODY`](../../../src/core/initialize/matching.mts#L161) | Contains the matching resolver body template. |
 | [`M_TEST`](../../../src/core/initialize/matching.mts#L167) | Contains the matching resolver test template. |
-| [`matchLambdas`](../../../src/core/initialize/api.mts#L221) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../../../src/core/initialize/api.mts#L223) | Caches matching plans, not DOM results. |
+| [`matchLambdas`](../../../src/core/initialize/api.mts#L222) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../../../src/core/initialize/api.mts#L224) | Caches matching plans, not DOM results. |
 | [`N_BODY`](../../../src/core/initialize/matching.mts#L161) | Exposes the matching resolver body template. |
 | [`N_TEST`](../../../src/core/initialize/matching.mts#L168) | Contains the alternate resolver test template. |
 | [`Operators`](../../../src/core/initialize/runtime.mts#L177) | Contains registered attribute operators. |
 | [`S_BODY`](../../../src/core/initialize/matching.mts#L160) | Contains the selection resolver body template. |
 | [`S_TEST`](../../../src/core/initialize/matching.mts#L166) | Contains the selection resolver test template. |
-| [`selectLambdas`](../../../src/core/initialize/api.mts#L222) | Caches compiled selection functions, not DOM results. |
+| [`selectLambdas`](../../../src/core/initialize/api.mts#L223) | Caches compiled selection functions, not DOM results. |
 | [`Selectors`](../../../src/core/initialize/runtime.mts#L176) | Contains registered selector extensions. |
-| [`selectResolvers`](../../../src/core/initialize/api.mts#L225) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../../../src/core/initialize/api.mts#L92) | Contains the document state and helpers used by compiled selectors. |
+| [`selectResolvers`](../../../src/core/initialize/api.mts#L226) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../../../src/core/initialize/api.mts#L93) | Contains the document state and helpers used by compiled selectors. |
 | [`Version`](../../../src/core/initialize/runtime.mts#L41) | Contains the engine version string. |
 
 </details>

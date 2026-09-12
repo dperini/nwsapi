@@ -40,7 +40,9 @@ export function checkSourceLayout(files = sourcePaths(SOURCE_DIR)) {
     detail.push(
       issue.kind === 'uncategorized-module'
         ? `${issue.file}: ${issue.directory}/ contains category directories only. Move this module into the directory that owns its responsibility and update its imports.`
-        : `${issue.file}: a sibling directory already represents this module. Move it inside ${issue.directory}/ with a name that describes its role, then update its imports.`,
+        : issue.kind === 'authored-declaration'
+          ? `${issue.file}: authored types belong in .mts modules. Move them into the owning implementation or a type-only .mts module and update type imports. Declaration files in src/ are reserved for external JavaScript loaders.`
+          : `${issue.file}: a sibling directory already represents this module. Move it inside ${issue.directory}/ with a name that describes its role, then update its imports.`,
     )
   }
   throw new Error(`Source layout needs organization.\n${detail.join('\n')}`)

@@ -1,4 +1,4 @@
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePositionShared(state: CompileState) {
   state.expr = state.expr ? 'OfType' : 'Element'
   state.type = state.type ? 'true' : 'false'

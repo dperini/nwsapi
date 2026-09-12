@@ -1,5 +1,5 @@
 import { isTopLevelCombinator } from '../predicate/top-level-combinator.mts'
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function normalizeCombinators(_engine: EngineState, text: string) {
   if (!/[>+~]/.test(text)) {
     return text

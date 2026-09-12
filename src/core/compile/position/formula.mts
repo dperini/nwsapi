@@ -1,4 +1,4 @@
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 import { positionalFormula } from './expression.mts'
 export function compilePositionFormula(state: CompileState) {
   state.f = /n/i.test(state.match![2]!)

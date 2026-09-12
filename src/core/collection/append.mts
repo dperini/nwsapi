@@ -1,4 +1,4 @@
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function concatCall(
   _engine: EngineState,
   nodes: ArrayLike<Element>,

@@ -1,5 +1,5 @@
 import { isStringQuote } from '../predicate/string-quote.mts'
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function stringContinuations(_engine: EngineState, selectors: string) {
   if (!/[\r\n\f]/.test(selectors)) {
     return selectors

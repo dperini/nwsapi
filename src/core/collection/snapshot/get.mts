@@ -1,10 +1,11 @@
 import { skipsCollectionSnapshot } from './skip.mts'
-import type { EngineState } from '../../state/engine.d.ts'
 import type {
+  EngineState,
   CollectionSnapshotState,
   CollectionState,
   EngineContext,
 } from '../../state/types.mts'
+
 export function collectionSnapshot(
   engine: EngineState,
   nodes: ArrayLike<Element>,

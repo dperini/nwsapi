@@ -1,4 +1,4 @@
-import type { EngineState } from '../../state/engine.d.ts'
+import type { EngineState } from '../../state/types.mts'
 export function createNthOfType(engine: EngineState) {
   var idx = 0,
     len = 0,

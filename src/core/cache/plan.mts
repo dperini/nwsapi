@@ -1,5 +1,5 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { PlanCache } from '../state/types.mts'
+import type { EngineState, PlanCache } from '../state/types.mts'
+
 export function createCache<Value>(
   engine: EngineState,
   limit?: number,

@@ -1,4 +1,4 @@
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function splitList(engine: EngineState, text: string) {
   var chr: number,
     depth = 0,

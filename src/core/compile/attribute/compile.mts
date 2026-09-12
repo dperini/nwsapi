@@ -1,5 +1,5 @@
 import { attributeCondition } from './condition.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 import type { AttributeOperator } from '../../state/types.mts'
 
 export function compileAttribute(

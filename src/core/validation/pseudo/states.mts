@@ -1,7 +1,7 @@
 import { isLogicalCompound } from '../../predicate/logical-compound.mts'
 import { isStringQuote } from '../../predicate/string-quote.mts'
 import { rejectsPseudoTransition } from './transition.mts'
-import type { EngineState } from '../../state/engine.d.ts'
+import type { EngineState } from '../../state/types.mts'
 export function validPseudoStates(
   engine: EngineState,
   text: string,

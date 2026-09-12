@@ -1,5 +1,9 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { ElementCallback, EngineContext } from '../state/types.mts'
+import type {
+  EngineState,
+  ElementCallback,
+  EngineContext,
+} from '../state/types.mts'
+
 export function select(
   engine: EngineState,
   selectors: string,

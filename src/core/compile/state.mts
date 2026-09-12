@@ -1,10 +1,11 @@
-import type { SelectorExtension } from '../state/types.mts'
-import type { EngineState } from '../state/engine.d.ts'
 import type {
+  SelectorExtension,
+  EngineState,
   AttributeOperator,
   CompilerAncestry,
   ElementCallback,
 } from '../state/types.mts'
+
 export interface CompileState {
   engine: EngineState
   expression: string

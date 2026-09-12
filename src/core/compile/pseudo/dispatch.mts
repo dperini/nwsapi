@@ -1,6 +1,6 @@
 import { compilePseudoClass } from './class.mts'
 import { compilePseudoModern } from './modern.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePseudo(state: CompileState): string | false | undefined {
   if (
     (state.selector.charAt(1) == ':' ||

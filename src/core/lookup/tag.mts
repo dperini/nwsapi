@@ -1,5 +1,9 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineContext, ForeignTypeState } from '../state/types.mts'
+import type {
+  EngineState,
+  EngineContext,
+  ForeignTypeState,
+} from '../state/types.mts'
+
 export function byTags(
   engine: EngineState,
   names: string,

@@ -1,7 +1,11 @@
-import type { CompileState } from './state.d.ts'
+import type { CompileState } from './state.mts'
 import { compileToken } from './token.mts'
-import type { EngineState } from '../state/engine.d.ts'
-import type { CompilerAncestry, ElementCallback } from '../state/types.mts'
+import type {
+  EngineState,
+  CompilerAncestry,
+  ElementCallback,
+} from '../state/types.mts'
+
 export function compileSelector(
   engine: EngineState,
   expression: string,

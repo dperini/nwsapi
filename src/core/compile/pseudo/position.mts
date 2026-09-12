@@ -1,7 +1,7 @@
 import { compilePositionRoute } from '../position/route.mts'
 import { compilePositionSimple } from '../position/simple.mts'
 import { compilePositionTest } from '../position/condition.mts'
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 
 export function compilePseudoPosition(
   state: CompileState,

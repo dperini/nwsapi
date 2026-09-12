@@ -17,6 +17,26 @@ test.each(['src/core', 'src/extension'])(
         file: `${root}/types.d.ts`,
         directory: root,
       },
+      {
+        kind: 'authored-declaration',
+        file: `${root}/types.d.ts`,
+        directory: root,
+      },
+    ])
+  },
+)
+
+test.each(['d.ts', 'd.mts', 'd.cts'])(
+  'rejects internal %s declarations even without a matching implementation',
+  extension => {
+    expect(
+      findSourceLayoutIssues([`src/core/state/types.${extension}`]),
+    ).toEqual([
+      {
+        kind: 'authored-declaration',
+        file: `src/core/state/types.${extension}`,
+        directory: 'src/core/state',
+      },
     ])
   },
 )

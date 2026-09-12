@@ -16,6 +16,8 @@
 
 # Style
 
+- Keep internal authored types in `.mts` files. Use `import type` and colocate types with their implementation when practical. Under `src/`, reserve `.d.ts` declarations for JavaScript loaders in `src/external/`.
+
 - Follow [code style practices](docs/fleet/style/practices.md) and [comment practices](docs/fleet/style/comments.md).
 - Use braces and multiline bodies for conditionals and loops. Keep function complexity at or below 15 unless an existing, documented compatibility exception applies.
 - Test behavior or parsed structures. Never test Markdown wording or source text. A stable heading or marker requires a local allowance with a reason.

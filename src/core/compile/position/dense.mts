@@ -1,4 +1,4 @@
-import type { CompileState } from '../state.d.ts'
+import type { CompileState } from '../state.mts'
 export function compilePositionDense(state: CompileState) {
   // Dense selections usually visit siblings together.
   // Find this parent's one qualifying child once, then

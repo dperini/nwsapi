@@ -1,4 +1,4 @@
-import type { EngineState } from '../state/engine.d.ts'
+import type { EngineState } from '../state/types.mts'
 export function documentOrder(engine: EngineState, a: Element, b: Element) {
   if (!engine.hasDupes && a === b) {
     engine.hasDupes = true

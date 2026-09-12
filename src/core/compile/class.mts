@@ -1,4 +1,4 @@
-import type { CompileState } from './state.d.ts'
+import type { CompileState } from './state.mts'
 
 export function compileClass(state: CompileState): string | false | undefined {
   var nested: RegExpMatchArray | null | false

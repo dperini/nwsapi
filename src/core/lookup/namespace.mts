@@ -1,5 +1,5 @@
-import type { EngineState } from '../state/engine.d.ts'
-import type { EngineContext } from '../state/types.mts'
+import type { EngineState, EngineContext } from '../state/types.mts'
+
 export function byTagNS(
   engine: EngineState,
   context: EngineContext,

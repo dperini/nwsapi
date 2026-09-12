@@ -1,12 +1,13 @@
 import { firstCandidates } from './candidates.mts'
 import { firstId, firstSimple, notifyFirst } from './simple.mts'
-import type { EngineState } from '../state/engine.d.ts'
 import type {
+  EngineState,
   CompiledResolver,
   ElementCallback,
   EngineContext,
   FilteredNthState,
 } from '../state/types.mts'
+
 export function first(
   engine: EngineState,
   selectors: string,
