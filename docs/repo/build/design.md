@@ -70,7 +70,7 @@ The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits func
 
 ## Engine module boundaries
 
-`src/core/initialize/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `initialize/factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
+`src/core/initialize/load.mts` owns the loading wrapper and captured runtime APIs. `initialize/factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
 
 `compile/resolver.mts` prepares a resolver and its cleanup. `compile/selector.mts` walks the selector, while `compile/token.mts` dispatches tokens to their handlers. `compile/pseudo/dispatch.mts` selects the pseudo-class handler. Positional helpers under `compile/position/` separate expression parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
 

@@ -48,7 +48,7 @@ test('detects a module beside an explicitly empty directory', () => {
 test('accepts category modules, external loader pairs, and adapter entries', () => {
   expect(
     findSourceLayoutIssues([
-      'src/core/initialize/nwsapi.mts',
+      'src/core/initialize/load.mts',
       'src/core/compile/resolver.mts',
       'src/extension/legacy/register.mts',
       'src/extension/legacy/attributes.mts',

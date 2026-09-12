@@ -97,7 +97,7 @@ for (const entry of entries) {
     )
   }
 
-  if (entry.source === 'src/core/initialize/nwsapi.mts') {
+  if (entry.source === 'src/core/initialize/load.mts') {
     const coreMarker = '/* @bundle:core */ {}'
     if (!source.includes(coreMarker)) {
       throw new Error('Missing core factory bundle marker')
@@ -125,7 +125,7 @@ for (const entry of entries) {
   }
   await mkdir(path.dirname(entry.output), { recursive: true })
   let code =
-    entry.source === 'src/core/initialize/nwsapi.mts'
+    entry.source === 'src/core/initialize/load.mts'
       ? await bundleEngine(result.code)
       : result.code
   if (browserOutputs.has(entry.output)) {

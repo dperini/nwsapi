@@ -12,7 +12,11 @@ import { parse } from 'acorn'
 import { readFileSync, readdirSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import path from 'node:path'
-import { CORE_SOURCE_DIR, REPO_ROOT } from '../lib/paths.mts'
+import {
+  CORE_SOURCE_DIR,
+  ENGINE_SOURCE_PATH,
+  REPO_ROOT,
+} from '../lib/paths.mts'
 import { walk } from './api-descriptions.mts'
 
 export interface ApiSource {
@@ -35,7 +39,10 @@ function readSourceDirectory(directory: string): ApiSource[] {
     const absolutePath = path.join(directory, entry.name)
     if (entry.isDirectory()) {
       sources.push(...readSourceDirectory(absolutePath))
-    } else if (entry.name.endsWith('.mts') && entry.name !== 'nwsapi.mts') {
+    } else if (
+      entry.name.endsWith('.mts') &&
+      absolutePath !== ENGINE_SOURCE_PATH
+    ) {
       sources.push({
         file: path.relative(REPO_ROOT, absolutePath).replaceAll('\\', '/'),
         text: readFileSync(absolutePath, 'utf8'),

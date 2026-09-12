@@ -129,7 +129,7 @@ Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evid
 
 ## Source and package layout
 
-The engine entry is `src/core/initialize/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Engine implementation families use semantic directories under `src/core/`. The optional extension sources are `src/extension/jquery/register.mts`, `src/extension/legacy/register.mts`, and `src/extension/traversal/register.mts`. External loaders and declarations remain in `src/external/`.
+The engine entry is `src/core/initialize/load.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Engine implementation families use semantic directories under `src/core/`. The optional extension sources are `src/extension/jquery/register.mts`, `src/extension/legacy/register.mts`, and `src/extension/traversal/register.mts`. External loaders and declarations remain in `src/external/`.
 
 The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/adapter/dom-selector.js`, `dist/bin/`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.
 

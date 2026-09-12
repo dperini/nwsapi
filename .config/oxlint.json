@@ -127,7 +127,7 @@
   "overrides": [
     {
       "files": [
-        "**/src/core/initialize/nwsapi.mts",
+        "**/src/core/initialize/load.mts",
         "**/src/core/unicode/*.mts",
         "**/src/extension/*/register.mts"
       ],
@@ -138,7 +138,7 @@
     {
       "files": [
         "**/src/adapter/dom-selector.mts",
-        "**/src/core/initialize/nwsapi.mts",
+        "**/src/core/initialize/load.mts",
         "**/src/extension/legacy/register.mts"
       ],
       "rules": {

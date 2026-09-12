@@ -16,7 +16,7 @@ test('documentation changes do not schedule runtime lanes', () => {
 })
 
 test('source changes schedule every runtime contract and full Node tests', () => {
-  assert.deepEqual(planCiTests(['src/core/initialize/nwsapi.mts']), {
+  assert.deepEqual(planCiTests(['src/core/initialize/load.mts']), {
     browser: true,
     fullNode: true,
     fuzz: true,
