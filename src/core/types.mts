@@ -30,7 +30,7 @@ export type EngineElement = Element &
     open?: boolean
   }
 
-import type { HostReaders } from '../adapter/jsdom/readers.d.ts'
+import type { HostReaders } from '../adapter/jsdom.mts'
 export type { HostReaders }
 
 export type EngineGlobal = typeof globalThis & {

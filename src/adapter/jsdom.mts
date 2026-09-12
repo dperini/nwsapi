@@ -1,4 +1,10 @@
-import type { HostReaders } from './readers.d.ts'
+export interface HostReaders {
+  attrOf?(element: Element, name: string): string | null
+  hasAttrOf?(element: Element, name: string): boolean
+  upOf?(element: Element): Element | null
+  nextOf?(element: Element): Element | null
+  prevOf?(element: Element): Element | null
+}
 
 export function validAttributeReader(
   probe: Element,

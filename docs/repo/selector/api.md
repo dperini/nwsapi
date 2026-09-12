@@ -154,21 +154,21 @@ Setup locks on the first query, selector support check, or stylesheet match. Do 
 
 | Method | Result |
 | --- | --- |
-| [`check(selector, input)`](../../../src/adapter/dom-selector.mts#L334) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
-| [`clear(clearAll = false)`](../../../src/adapter/dom-selector.mts#L267) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
-| [`closest(selector, node, options)`](../../../src/adapter/dom-selector.mts#L255) | Returns the nearest matching element, or `null`. |
-| [`DOMSelector.configure(window, options)`](../../../src/adapter/dom-selector.mts#L102) | Configures the shared engine before the first query or stylesheet match. |
-| [`constructor(window, document = window.document, options = {})`](../../../src/adapter/dom-selector.mts#L154) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
-| [`engine`](../../../src/adapter/dom-selector.mts#L168) | Returns the shared engine, creating it on first access. |
-| [`extractSubjects()`](../../../src/adapter/dom-selector.mts#L278) | Returns a wildcard candidate description for stylesheet matching. |
-| [`matches(selector, node, options)`](../../../src/adapter/dom-selector.mts#L251) | Returns whether an element matches. |
-| [`parse(selector)`](../../../src/adapter/dom-selector.mts#L296) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
-| [`querySelector(selector, node, options)`](../../../src/adapter/dom-selector.mts#L259) | Returns the first matching descendant, or `null`. |
-| [`querySelectorAll(selector, node, options)`](../../../src/adapter/dom-selector.mts#L263) | Returns matching descendants as an array. |
-| [`run(method, selector, input, options, fallback, elementOnly = false)`](../../../src/adapter/dom-selector.mts#L218) | Internal helper that checks nodes and applies the query error policy. |
-| [`supports(selector)`](../../../src/adapter/dom-selector.mts#L284) | Returns whether the engine accepts a selector. |
-| [`DOMSelector.use(window, engine)`](../../../src/adapter/dom-selector.mts#L124) | Binds an existing engine before jsdom first uses the adapter. Returns the engine. |
-| [`wrap(node)`](../../../src/adapter/dom-selector.mts#L188) | Internal helper that converts jsdom implementation nodes to public nodes. |
+| [`check(selector, input)`](../../../src/adapter/dom-selector.mts#L332) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
+| [`clear(clearAll = false)`](../../../src/adapter/dom-selector.mts#L265) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
+| [`closest(selector, node, options)`](../../../src/adapter/dom-selector.mts#L253) | Returns the nearest matching element, or `null`. |
+| [`DOMSelector.configure(window, options)`](../../../src/adapter/dom-selector.mts#L100) | Configures the shared engine before the first query or stylesheet match. |
+| [`constructor(window, document = window.document, options = {})`](../../../src/adapter/dom-selector.mts#L152) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
+| [`engine`](../../../src/adapter/dom-selector.mts#L166) | Returns the shared engine, creating it on first access. |
+| [`extractSubjects()`](../../../src/adapter/dom-selector.mts#L276) | Returns a wildcard candidate description for stylesheet matching. |
+| [`matches(selector, node, options)`](../../../src/adapter/dom-selector.mts#L249) | Returns whether an element matches. |
+| [`parse(selector)`](../../../src/adapter/dom-selector.mts#L294) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
+| [`querySelector(selector, node, options)`](../../../src/adapter/dom-selector.mts#L257) | Returns the first matching descendant, or `null`. |
+| [`querySelectorAll(selector, node, options)`](../../../src/adapter/dom-selector.mts#L261) | Returns matching descendants as an array. |
+| [`run(method, selector, input, options, fallback, elementOnly = false)`](../../../src/adapter/dom-selector.mts#L216) | Internal helper that checks nodes and applies the query error policy. |
+| [`supports(selector)`](../../../src/adapter/dom-selector.mts#L282) | Returns whether the engine accepts a selector. |
+| [`DOMSelector.use(window, engine)`](../../../src/adapter/dom-selector.mts#L122) | Binds an existing engine before jsdom first uses the adapter. Returns the engine. |
+| [`wrap(node)`](../../../src/adapter/dom-selector.mts#L186) | Internal helper that converts jsdom implementation nodes to public nodes. |
 
 </details>
 

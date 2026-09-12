@@ -40,7 +40,7 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code lives in `src/core/`. Its Unicode fallback lives in `src/core/unicode/`. `text-direction.mts` finds the first character with a strong Unicode direction. `dom.mts` handles DOM boundaries, and `directionality.mts` resolves inherited and automatic direction. The adapter and validated `jsdom` readers live in `src/adapter/`. The build bundles `jsdom/readers.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+Engine code lives in `src/core/`. Its Unicode fallback lives in `src/core/unicode/`. `text-direction.mts` finds the first character with a strong Unicode direction. `dom.mts` handles DOM boundaries, and `directionality.mts` resolves inherited and automatic direction. The adapter and validated `jsdom` integration live in `src/adapter/`. The build bundles `jsdom.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 

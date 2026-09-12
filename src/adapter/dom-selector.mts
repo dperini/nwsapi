@@ -1,7 +1,5 @@
-import { createHostReaders } from './jsdom/readers.mts'
-import type { HostOptions, IdlUtils } from './jsdom/readers.mts'
-
-type HostReaders = import('./jsdom/readers.d.ts').HostReaders
+import { createHostReaders } from './jsdom.mts'
+import type { HostOptions, HostReaders, IdlUtils } from './jsdom.mts'
 
 type CssNode = import('css-tree').CssNode
 type Selector = import('css-tree').Selector

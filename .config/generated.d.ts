@@ -4,7 +4,7 @@ declare module '*/dist/nwsapi.js' {
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
   type Adapter = typeof import('*/dist/adapter/dom-selector.js').default
   // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.
-  type HostReaders = import('../src/adapter/jsdom/readers.d.ts').HostReaders
+  type HostReaders = import('../src/adapter/jsdom.mts').HostReaders
   interface Factory {
     (host: {
       document: Document
