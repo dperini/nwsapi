@@ -1,8 +1,8 @@
 import { isParsedPseudoElement } from '../predicate/parsed-pseudo-element.mts'
 import { isStringQuote } from '../predicate/string-quote.mts'
 import type { EngineState } from '../state/engine.d.ts'
-import { validControlPseudo } from './control-pseudo.mts'
-import { validShadowPseudo } from './shadow-pseudo.mts'
+import { validControlPseudo } from './pseudo/control.mts'
+import { validShadowPseudo } from './pseudo/shadow.mts'
 export function validateLogical(
   engine: EngineState,
   argument: string,

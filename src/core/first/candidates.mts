@@ -1,5 +1,5 @@
 import type { EngineState } from '../state/engine.d.ts'
-import type { EngineContext } from '../types.mts'
+import type { EngineContext } from '../state/types.mts'
 export function firstCandidates(
   engine: EngineState,
   token: string,

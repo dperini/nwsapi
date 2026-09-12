@@ -60,7 +60,7 @@ if (!attributesCode || attributesCode.type !== 'chunk') {
   throw new Error('Rolldown produced no legacy attribute readers')
 }
 const core = await build({
-  input: './src/core/factory.mts',
+  input: './src/core/initialize/factory.mts',
   platform: 'browser',
   write: false,
   output: { format: 'iife', name: 'core', generatedCode: { symbols: false } },
@@ -85,7 +85,7 @@ for (const entry of entries) {
     continue
   }
   let source = await readFile(entry.source, 'utf8')
-  if (entry.source === 'src/extension/legacy.mts') {
+  if (entry.source === 'src/extension/legacy/register.mts') {
     const marker = '/* @bundle:legacy-attributes */ {}'
     if (!source.includes(marker)) {
       throw new Error('Missing legacy attributes bundle marker')
@@ -97,7 +97,7 @@ for (const entry of entries) {
     )
   }
 
-  if (entry.source === 'src/core/nwsapi.mts') {
+  if (entry.source === 'src/core/initialize/nwsapi.mts') {
     const coreMarker = '/* @bundle:core */ {}'
     if (!source.includes(coreMarker)) {
       throw new Error('Missing core factory bundle marker')
@@ -125,7 +125,7 @@ for (const entry of entries) {
   }
   await mkdir(path.dirname(entry.output), { recursive: true })
   let code =
-    entry.source === 'src/core/nwsapi.mts'
+    entry.source === 'src/core/initialize/nwsapi.mts'
       ? await bundleEngine(result.code)
       : result.code
   if (browserOutputs.has(entry.output)) {

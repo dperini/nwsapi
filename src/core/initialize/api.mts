@@ -1,33 +1,20 @@
-import {
-  hasChild,
-  match,
-  matchForgiving,
-  matchPublic,
-  parse,
-} from '../ancestor.mts'
-import {
-  argsWith,
-  collect,
-  hoverChanged,
-  install,
-  trackHover,
-  uninstall,
-} from '../collect.mts'
+import { hasChild } from '../match/child.mts'
+import { match, matchForgiving, matchPublic } from '../match/selector.mts'
+import { parse } from '../parser/selector.mts'
+import { argsWith, install, uninstall } from '../dom/install.mts'
+import { collect } from '../select/collect.mts'
+import { hoverChanged, trackHover } from '../dom/hover.mts'
 import {
   countPart,
   descendChain,
   fetchLevel,
-  optimize,
   parseChain,
-  select,
-} from '../fetch-level.mts'
-import { first, firstCompiled, selectChildren } from '../first.mts'
-import {
-  firstClass,
-  firstMatch,
-  has,
-  hasCandidates,
-} from '../has-candidates.mts'
+} from '../select/chain.mts'
+import { optimize } from '../compile/optimize.mts'
+import { select } from '../select/all.mts'
+import { first, firstCompiled, selectChildren } from '../first/select.mts'
+import { firstClass } from '../first/class.mts'
+import { firstMatch, has, hasCandidates } from '../match/relative.mts'
 import type { EngineState } from '../state/engine.d.ts'
 import type {
   AttributeOperator,
@@ -35,7 +22,7 @@ import type {
   LegacyHookFactory,
   QueryPlan,
   SelectorExtension,
-} from '../types.mts'
+} from '../state/types.mts'
 export function initializeApi(engine: EngineState) {
   engine.parse = parse.bind(null, engine) as EngineState['parse']
   engine.match = match.bind(null, engine) as EngineState['match']

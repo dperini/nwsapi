@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-const SOURCE_EXTENSION = /(?:\.d)?\.(?:cts|mts|ts)$/
+const SOURCE_EXTENSION = /(?:\.d)?\.[cm]?[jt]sx?$/
 
 export interface FilenamePrefixGroup {
   directory: string
@@ -11,7 +11,7 @@ export interface FilenamePrefixGroup {
   collisions: string[]
 }
 
-function sourceStem(file: string): string | undefined {
+export function sourceStem(file: string): string | undefined {
   const name = path.posix.basename(file)
   return SOURCE_EXTENSION.test(name)
     ? name.replace(SOURCE_EXTENSION, '')
@@ -60,9 +60,18 @@ export function findFilenamePrefixGroups(
     }
   }
 
-  const candidates = [...groups.values()].filter(
-    group => group.modules.length >= 3,
-  )
+  const candidates = [...groups.values()].filter(group => {
+    const baseFiles = [...normalizedFiles].filter(
+      file =>
+        path.posix.dirname(file) === group.directory &&
+        sourceStem(file) === group.prefix,
+    )
+    if (baseFiles.length) {
+      group.files.push(...baseFiles)
+      group.modules.push(group.prefix)
+    }
+    return baseFiles.length > 0 || group.modules.length >= 3
+  })
   return candidates
     .filter(
       group =>
@@ -79,7 +88,9 @@ export function findFilenamePrefixGroups(
       const targets = group.files.map(file =>
         path.posix.join(
           group.suggestedDirectory,
-          path.posix.basename(file).slice(group.prefix.length + 1),
+          sourceStem(file) === group.prefix
+            ? path.posix.basename(file)
+            : path.posix.basename(file).slice(group.prefix.length + 1),
         ),
       )
       return {

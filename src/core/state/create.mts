@@ -1,5 +1,5 @@
 import type { EngineState } from './engine.d.ts'
-import type { EngineGlobal } from '../types.mts'
+import type { EngineGlobal } from './types.mts'
 
 type InitialState = { [Key in keyof EngineState]: EngineState[Key] | undefined }
 

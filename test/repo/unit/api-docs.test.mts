@@ -70,12 +70,26 @@ test('API discovery rejects unsupported export declarations', () => {
   )
 })
 
+test('API discovery retains initializer definitions over runtime assignments', () => {
+  const definitions = engineDefinitions([
+    { file: 'src/core/dom/earlier.mts', text: 'engine.Dom = { incorrect: 0 }' },
+    {
+      file: 'src/core/initialize/api.mts',
+      text: 'engine.Dom = { selected: 1 }',
+    },
+    { file: 'src/core/dom/later.mts', text: 'engine.Dom = { incorrect: 2 }' },
+  ])
+  expect(definitions.object('Dom').map(member => member.node.key.name)).toEqual(
+    ['selected'],
+  )
+})
+
 test('new exports need a description instead of silently disappearing', () => {
   expect(() =>
     renderApiMarkdown(engine, adapter, traversal, [
       ...readEngineSources(),
       {
-        file: 'src/core/initialize-fixture.mts',
+        file: 'src/core/initialize/fixture.mts',
         text: 'engine.Dom = { undocumented: function () {} }',
       },
     ]),

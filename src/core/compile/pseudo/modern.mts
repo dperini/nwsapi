@@ -1,5 +1,5 @@
 import type { CompileState } from '../state.d.ts'
-import { rejectsHostArgument } from '../../validation/host-argument.mts'
+import { rejectsHostArgument } from '../../validation/pseudo/host-argument.mts'
 export function compilePseudoModern(
   state: CompileState,
 ): string | false | undefined {

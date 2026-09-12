@@ -20,11 +20,11 @@ test('the lint runner includes source, tests, scripts, and config', () => {
     .split('\n')
   for (const file of [
     'src/bin/nwsapi.mts',
-    'src/core/nwsapi.mts',
+    'src/core/initialize/nwsapi.mts',
     'src/external/unicode.js',
     'src/external/unicode.d.ts',
     'src/adapter/dom-selector.mts',
-    'src/extension/jquery.mts',
+    'src/extension/jquery/register.mts',
     'scripts/repo/lint.mts',
     'scripts/repo/gen/coverage-badge.mts',
     'test/repo/integration/lint-scope.test.mts',
@@ -46,7 +46,7 @@ test('the lint runner includes source, tests, scripts, and config', () => {
 
 test('lint and format share a scope that excludes generated and upstream files', () => {
   const files = toolingFiles()
-  expect(files).toContain('src/core/nwsapi.mts')
+  expect(files).toContain('src/core/initialize/nwsapi.mts')
   expect(files).toContain('scripts/repo/format.mts')
   expect(files).toContain('.config/runtime.d.ts')
   expect(files).toContain('src/external/unicode.js')

@@ -24,7 +24,7 @@ import type {
   DirectionHelpers,
   AttributeOperator,
   Primordials,
-} from '../types.mts'
+} from './types.mts'
 export interface QueryState {
   nthElement: (element: Element | null, dir: number) => number
   nthFiltered: (

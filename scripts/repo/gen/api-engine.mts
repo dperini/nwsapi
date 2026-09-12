@@ -12,7 +12,7 @@ import { parse } from 'acorn'
 import { readFileSync, readdirSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import path from 'node:path'
-import { ENGINE_SOURCE_PATH } from '../lib/paths.mts'
+import { CORE_SOURCE_DIR, REPO_ROOT } from '../lib/paths.mts'
 import { walk } from './api-descriptions.mts'
 
 export interface ApiSource {
@@ -24,8 +24,7 @@ export interface ApiDefinition extends ApiSource {
 }
 
 export function readEngineSources(): ApiSource[] {
-  const directory = path.dirname(ENGINE_SOURCE_PATH)
-  return readSourceDirectory(directory)
+  return readSourceDirectory(CORE_SOURCE_DIR)
 }
 
 function readSourceDirectory(directory: string): ApiSource[] {
@@ -38,12 +37,7 @@ function readSourceDirectory(directory: string): ApiSource[] {
       sources.push(...readSourceDirectory(absolutePath))
     } else if (entry.name.endsWith('.mts') && entry.name !== 'nwsapi.mts') {
       sources.push({
-        file: path.posix.join(
-          'src/core',
-          path
-            .relative(path.dirname(ENGINE_SOURCE_PATH), absolutePath)
-            .replaceAll('\\', '/'),
-        ),
+        file: path.relative(REPO_ROOT, absolutePath).replaceAll('\\', '/'),
         text: readFileSync(absolutePath, 'utf8'),
       })
     }
@@ -161,5 +155,5 @@ function ownsDeclaration(
   name: string,
   file: string,
 ) {
-  return !assignments.has(name) || file.includes('/initialize-')
+  return !assignments.has(name) || file.includes('/initialize/')
 }

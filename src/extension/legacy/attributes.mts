@@ -1,4 +1,4 @@
-import type { LegacyContext } from '../../core/legacy.d.ts'
+import type { LegacyContext } from '../../core/state/legacy.d.ts'
 type EngineElement = Element & { style?: CSSStyleDeclaration }
 
 export function createAttributes(context: LegacyContext) {

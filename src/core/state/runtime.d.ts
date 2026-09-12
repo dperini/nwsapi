@@ -24,7 +24,7 @@ import type {
   DirectionHelpers,
   AttributeOperator,
   Primordials,
-} from '../types.mts'
+} from './types.mts'
 export interface RuntimeState {
   global: EngineGlobal
   Factory: (global: EngineGlobal) => unknown

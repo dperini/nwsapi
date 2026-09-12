@@ -1,51 +1,42 @@
+import { attributeValueNS, hasAttributeNS } from '../dom/attribute.mts'
 import {
-  attributeValueNS,
   attrNamesOf,
-  byClass,
   classOf,
   connectedOf,
   firstOf,
-  hasAttributeNS,
   idOf,
   tagOf,
   useLegacy,
-} from '../by-class.mts'
+} from '../dom/readers.mts'
+import { byClass } from '../lookup/class.mts'
 import {
   asciiLower,
   byTag,
   byTags,
-  collectionCopy,
-  collectionSnapshot,
   hasForeignTypes,
   matchesTag,
-} from '../by-tags.mts'
-import {
-  codePointToUTF16,
-  concatCall,
-  concatList,
-  createCache,
-  createWeakMap,
-  documentOrder,
-  isInstanceOf,
-  mergeResults,
-  switchContext,
-  toNodeList,
-  unique,
-} from '../runtime.mts'
+} from '../lookup/tag.mts'
+import { collectionCopy } from '../collection/copy.mts'
+import { collectionSnapshot } from '../collection/snapshot/get.mts'
+import { codePointToUTF16 } from '../unicode/code-point.mts'
+import { concatCall, concatList } from '../collection/append.mts'
+import { createCache } from '../cache/plan.mts'
+import { createWeakMap } from '../cache/weak-map.mts'
+import { documentOrder, mergeResults, unique } from '../collection/order.mts'
+import { isInstanceOf, toNodeList } from '../collection/node-list.mts'
+import { switchContext } from '../dom/context.mts'
 import type { EngineState } from '../state/engine.d.ts'
+import { byId, byIdRaw } from '../lookup/id.mts'
+import { byTagNS } from '../lookup/namespace.mts'
 import {
-  byId,
-  byIdRaw,
-  byTagNS,
   escapeIdentifier,
-  matchLogical,
-  matchNth,
-  normalizeCombinators,
-  splitList,
   stringFromCodePoint,
   unescapeIdentifier,
-} from '../string-from-code-point.mts'
-import type { Primordials } from '../types.mts'
+} from '../parser/identifier.mts'
+import { matchLogical, matchNth } from '../parser/logical.mts'
+import { normalizeCombinators } from '../parser/combinator.mts'
+import { splitList } from '../parser/list.mts'
+import type { Primordials } from '../state/types.mts'
 export function initializeRuntime(engine: EngineState) {
   engine.version = 'nwsapi-2.3.0-prerelease'
   engine.primordials = (

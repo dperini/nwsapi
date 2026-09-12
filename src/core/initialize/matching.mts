@@ -1,55 +1,45 @@
-import {
-  ancestor,
-  match_assert,
-  match_collect,
-  selectorComments,
-  stringContinuations,
-} from '../ancestor.mts'
+import { ancestor } from '../ancestor/closest.mts'
+import { match_assert, match_collect } from '../match/selector.mts'
+import { selectorComments } from '../parser/comments.mts'
+import { stringContinuations } from '../parser/string.mts'
 import {
   ancestorMask,
   clearAncestorMasks,
-  isDefined,
-  isHTML,
-  isRequired,
   mayMatch,
-  nthFiltered,
   tagBit,
-} from '../by-class.mts'
+} from '../ancestor/mask.mts'
+import { isDefined, isHTML, isRequired } from '../predicate/element.mts'
+import { nthFiltered } from '../compile/position/filtered.mts'
 import { compileSelector } from '../compile/selector.mts'
 import { createNthElement } from '../compile/position/nth-element.mts'
 import { createNthOfType } from '../compile/position/nth-of-type.mts'
+import { canReuseAncestor } from '../ancestor/reuse.mts'
+import { compile } from '../compile/resolver.mts'
+import { emit } from '../validation/error.mts'
+import { initialize } from './document.mts'
+import { isCompound } from '../predicate/compound/match.mts'
+import { setIdentifierSyntax } from './syntax.mts'
+import { hasSlotted } from '../match/slot.mts'
+import { isDirection } from '../match/direction.mts'
+import { isLanguage } from '../match/language/match.mts'
+import { validBlocks } from '../validation/blocks.mts'
+import { configure } from './configure.mts'
 import {
-  canReuseAncestor,
-  compile,
-  emit,
-  initialize,
-  isCompound,
-  setIdentifierSyntax,
-} from '../emit.mts'
-import {
-  hasSlotted,
-  isDirection,
-  isLanguage,
-  validBlocks,
-} from '../has-slotted.mts'
-import {
-  configure,
   fullscreenState,
   isClosed,
-  isContentEditable,
-  isDisabled,
-  isFocusable,
   isFullscreen,
-  isLink,
-  isMediaState,
   isModal,
   isOpen,
   isPictureInPicture,
   isPopoverOpen,
-  matchesNative,
-} from '../predicate/content-editable.mts'
+} from '../predicate/display.mts'
+import { isContentEditable } from '../predicate/content-editable.mts'
+import { isDisabled, isFocusable } from '../predicate/form.mts'
+import { isLink } from '../predicate/link.mts'
+import { isMediaState } from '../predicate/media.mts'
+import { matchesNative } from '../match/native.mts'
 import type { EngineState } from '../state/engine.d.ts'
-import type { DirectionHelpers } from '../types.mts'
+import type { DirectionHelpers } from '../state/types.mts'
 import {
   hasHost,
   isHost,
@@ -59,7 +49,7 @@ import {
   validPseudoStates,
   validPseudoSyntax,
   validPseudoTail,
-} from '../validation/pseudo-states.mts'
+} from '../validation/pseudo/states.mts'
 import {
   hasPseudoElement,
   isIdent,

@@ -127,9 +127,9 @@
   "overrides": [
     {
       "files": [
-        "**/src/core/nwsapi.mts",
+        "**/src/core/initialize/nwsapi.mts",
         "**/src/core/unicode/*.mts",
-        "**/src/extension/*.mts"
+        "**/src/extension/*/register.mts"
       ],
       "rules": {
         "compat/compat": "error"
@@ -138,8 +138,8 @@
     {
       "files": [
         "**/src/adapter/dom-selector.mts",
-        "**/src/core/nwsapi.mts",
-        "**/src/extension/legacy.mts"
+        "**/src/core/initialize/nwsapi.mts",
+        "**/src/extension/legacy/register.mts"
       ],
       "rules": {
         "typescript/consistent-type-imports": "off"

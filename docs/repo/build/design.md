@@ -40,7 +40,27 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code lives in `src/core/`. Compiler handlers live in `src/core/compile/`, with positional and pseudo-class handlers in their own directories. Initialization, predicates, state types, validation, first-match helpers, ancestor helpers, and Unicode directionality each have a named directory. Stable façades such as `compile.mts`, `first.mts`, and `ancestor.mts` remain at the root. The adapter and validated `jsdom` integration live in `src/adapter/`. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+`src/core/` and `src/extension/` contain category directories only. Each module lives inside the directory that owns its responsibility, including entry points. A module cannot sit beside a directory with the same name.
+
+| Core directory | Responsibility |
+| --- | --- |
+| `ancestor/` | Finds ancestors and reuses checks along ancestor chains. |
+| `cache/` | Creates bounded plan caches and weak maps. |
+| `collection/` | Copies, snapshots, combines, and orders query results. |
+| `compile/` | Compiles selectors into resolver functions. `position/` and `pseudo/` hold their respective handlers. |
+| `dom/` | Reads DOM properties, tracks document state, and installs selector methods. |
+| `first/` | Resolves the first matching element and its query shortcuts. |
+| `initialize/` | Loads the engine, creates its state, and configures its methods. |
+| `lookup/` | Finds candidates by class, ID, tag, or namespace. |
+| `match/` | Matches individual elements, relative selectors, language, direction, and slots. |
+| `parser/` | Reads selector syntax, identifiers, strings, comments, and lists. |
+| `predicate/` | Tests element states and token conditions. |
+| `select/` | Resolves all matching elements and descendant chains. |
+| `state/` | Creates engine state and declares its types and legacy contracts. |
+| `unicode/` | Handles code points and Unicode directionality. |
+| `validation/` | Validates selector structures and reports syntax errors. `pseudo/` holds pseudo-class and pseudo-element validation. |
+
+Each optional extension uses the same entry convention: `src/extension/jquery/register.mts`, `src/extension/legacy/register.mts`, and `src/extension/traversal/register.mts`. Supporting modules live beside that entry. The adapter and validated `jsdom` integration live in `src/adapter/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 
@@ -50,12 +70,12 @@ The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits func
 
 ## Engine module boundaries
 
-`src/core/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
+`src/core/initialize/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `initialize/factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
 
-`compile.mts` prepares a resolver and its cleanup. `compile/selector.mts` walks the selector, while `compile/token.mts` dispatches tokens to their handlers. Attribute, combinator, and pseudo-class handlers have separate modules. Positional helpers under `compile/position/` separate expression parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
+`compile/resolver.mts` prepares a resolver and its cleanup. `compile/selector.mts` walks the selector, while `compile/token.mts` dispatches tokens to their handlers. `compile/pseudo/dispatch.mts` selects the pseudo-class handler. Positional helpers under `compile/position/` separate expression parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
 
-The first-match shortcuts live in `first/simple.mts`. General first-match resolution lives in `first.mts`. The sibling-cache factories live beside the positional compiler as `compile/position/nth-element.mts` and `compile/position/nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+The first-match shortcuts live in `first/simple.mts` and `first/class.mts`. General first-match resolution lives in `first/select.mts`. The sibling-cache factories live beside the positional compiler as `compile/position/nth-element.mts` and `compile/position/nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
 
-`pnpm run check` rejects a new family of three or more hyphen-prefixed sibling source modules. The check reports a candidate singular directory and any paths that would collide. The directory name still requires a review because a semantic name such as `predicate/` can describe the modules better than their former `is-` prefix.
+`pnpm run check` runs `scripts/repo/check/source-layout.mts`. It rejects loose modules in `src/core/` or `src/extension/`, modules beside a directory with the same name, and a base module beside prefixed helpers such as `language.mts` and `language-parent.mts`. It also flags families of three or more hyphen-prefixed sibling modules. Choose a singular directory name that describes the responsibility, then update imports and the matching test paths.
 
 The build inlines these source modules into the existing distribution files. Consumers do not need to load the source modules separately. API documentation follows parsed declarations and bound engine methods to link to their defining modules.

@@ -40,6 +40,20 @@ describe('findFilenamePrefixGroups', () => {
     ).toEqual([])
   })
 
+  test('groups a base module with its prefixed helper', () => {
+    expect(
+      findFilenamePrefixGroups([
+        'src/core/match/language.mts',
+        'src/core/match/language-parent.mts',
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        modules: ['language', 'language-parent'],
+        suggestedDirectory: 'src/core/match/language',
+      }),
+    ])
+  })
+
   test('counts a declaration and implementation as one module', () => {
     expect(
       findFilenamePrefixGroups([

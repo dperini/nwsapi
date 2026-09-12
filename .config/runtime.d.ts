@@ -1,4 +1,4 @@
-import type { LegacyHookFactory } from '../src/core/legacy.d.ts'
+import type { LegacyHookFactory } from '../src/core/state/legacy.d.ts'
 export type NwsapiCollection = Element[] | NodeListOf<Element>
 export type NwsapiContext = Document | DocumentFragment | Element
 

@@ -1,5 +1,5 @@
 import type { EngineState } from '../state/engine.d.ts'
-import type { ElementCallback, EngineContext } from '../types.mts'
+import type { ElementCallback, EngineContext } from '../state/types.mts'
 
 export function syncLookupContext(engine: EngineState, context: EngineContext) {
   if (

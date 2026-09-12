@@ -1,5 +1,5 @@
 import type { EngineState } from '../state/engine.d.ts'
-import type { ElementCallback } from '../types.mts'
+import type { ElementCallback } from '../state/types.mts'
 export function compileCacheKey(
   engine: EngineState,
   selector: string,
