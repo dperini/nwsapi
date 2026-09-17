@@ -1,0 +1,24 @@
+[project]
+name = "nwsapi-skillspector-pin"
+version = "0.0.0"
+description = "Pinned SkillSpector source and transitive dependencies."
+requires-python = ">=3.12"
+dependencies = ["skillspector"]
+
+[tool.uv]
+exclude-newer = "7d"
+# Retain the security fixes required by the shared scanner lock.
+override-dependencies = [
+  "cryptography>=50.0.0",
+  "langsmith>=0.8.18",
+  "langgraph-api>=0.10.0",
+  "langgraph-checkpoint>=4.1.1",
+  "langgraph-sdk>=0.3.15",
+  "pyjwt>=2.13.0",
+  "setuptools>=83.0.0",
+  "starlette>=1.3.1",
+]
+
+[tool.uv.sources]
+# Keep the source revision consistent with external-tools.json.
+skillspector = { git = "https://github.com/NVIDIA/skillspector.git", rev = "c13f70ebf14905912c616a58c9a8cb8112ef94a4" }

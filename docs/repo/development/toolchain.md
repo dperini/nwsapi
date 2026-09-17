@@ -8,9 +8,9 @@ export PATH="$PWD/.cache/bin:$PATH"
 pnpm install
 ```
 
-In PowerShell, prepend the same directory with `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. Both prerelease workflows run the bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`. The [workflow guide](workflows.md) describes the local checkout and artifact actions.
+In PowerShell, prepend the same directory with `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. The prerelease workflows run the bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`. The [workflow guide](workflows.md) describes the local checkout and artifact actions.
 
-The manifest pins platform-specific GitHub release archives for `nub` and `pnpm` and standalone Socket Firewall Free (`sfw`) binaries, including distinct Linux glibc and musl assets. `npm` has one platform-independent registry archive with its pinned SHA-512 integrity. GitHub asset SHA-256 pins come from the release API's digests. No registry wrapper or global package-manager installation is needed.
+The manifest pins platform-specific GitHub release archives for `nub` and `pnpm` and standalone Socket Firewall Free (`sfw`) binaries, including distinct Linux glibc and musl assets. `npm` has one platform-independent registry archive with its pinned SHA-512 integrity. GitHub asset SHA-256 and SHA-512 pins come from the release API's digests or the shared Wheelhouse manifest. No registry wrapper or global package-manager installation is needed.
 
 The installer rejects missing platform entries, invalid integrity strings, failed downloads, and mismatched bytes. It verifies a download before extraction and rechecks cached archives on every setup. It compares installed executables and sidecars with a fresh extraction of the verified archive, repairing altered installed files. A corrupt archive stops setup. Remove the affected file under `.cache/external-tools/archives/` and rerun setup to download it again.
 
@@ -25,3 +25,5 @@ Setup installs `sfw` 1.15.2, the latest public release when this pin was updated
 To update a tool, select its exact upstream release, record each supported asset and its independently obtained digest in `.config/external-tools.json`, and review the manifest diff. For GitHub releases, use the release API's `assets[].digest`. For `npm`, use the exact version's `dist.integrity`. The bootstrap never learns or rewrites the expected digest from the download it is about to execute. Update `.config/node-interop.json` when changing the tested Node matrix.
 
 Validate a new pin with `node scripts/repo/setup/tools.mts`, `pnpm install --frozen-lockfile`, `pnpm run check`, and `pnpm run test:package`. Test the bootstrap in a disposable checkout without `node_modules` or a tool cache when changing installation code.
+
+The [security tooling guide](contributor-tools.md) covers scanner setup, generated schemas, catalog validation,.

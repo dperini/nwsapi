@@ -1,6 +1,102 @@
 {
   "$schema": "./external-tools.schema.json",
   "tools": {
+    "actionlint": {
+      "origin": "gh-asset",
+      "repository": "github:rhysd/actionlint",
+      "version": "1.7.12",
+      "tag": "v1.7.12",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "actionlint_1.7.12_darwin_arm64.tar.gz",
+          "integrity": "sha512-JcjNckK6f2k4XiRij3CCrU3IhT0gwrmhycfb5VPphAA9+OWIuXrZBFVipDg4nOF+wOLWNbmTMeWYutbarzJyUw==",
+          "binary": "actionlint"
+        },
+        "darwin-x64": {
+          "asset": "actionlint_1.7.12_darwin_amd64.tar.gz",
+          "integrity": "sha512-O31uSGqPSkyAnEFPvVAH+nVnZGXsnsiFr7PxvwBnYaIsPdxtyngc9sX1QbvHvI606cn27HAejgmXHwHTpqhlNg==",
+          "binary": "actionlint"
+        },
+        "linux-arm64": {
+          "asset": "actionlint_1.7.12_linux_arm64.tar.gz",
+          "integrity": "sha512-aGKynUObYrl9Op2V4VCJDuX1oZ5hXCxHw6P6g2fDHGVShXOAEwy6mdERxFzdTBV2dlBGbHemsvi6H3TKr58uMw==",
+          "binary": "actionlint"
+        },
+        "linux-x64": {
+          "asset": "actionlint_1.7.12_linux_amd64.tar.gz",
+          "integrity": "sha512-xHa4UKU6d3eRHqKf2J4rTKqJ8i81/7HBHFquM9VEqJ4rlQULSR723PBXLYoKFaAfYdyiKHnqqlin2W8vwO9hHw==",
+          "binary": "actionlint"
+        },
+        "win32-x64": {
+          "asset": "actionlint_1.7.12_windows_amd64.zip",
+          "integrity": "sha512-uODDGiHpqlIkrP+JYYuCe6CSG9q0s4VlGGDmizpXDTAH6AVcTjX04Cj1Ktw/DOfwHTw4viKDjR7VZvl4GD+cRg==",
+          "binary": "actionlint.exe"
+        }
+      }
+    },
+    "agentshield": {
+      "origin": "catalog",
+      "package": "ecc-agentshield",
+      "version": "1.6.0",
+      "integrity": "sha512-lpeHG96DtEn7ofq7Iiyvq29piQOwParaiZOdDB206i4ZeCL4yjwT6xN5BSGI4yhCEAN0eO0f9F9hxHLBuRqf/g==",
+      "binary": "agentshield"
+    },
+    "cdxgen": {
+      "origin": "gh-asset",
+      "repository": "github:CycloneDX/cdxgen",
+      "version": "13.1.0",
+      "tag": "v13.1.0",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "cdxgen-darwin-arm64-slim",
+          "integrity": "sha512-eXSh6EFYisVtMzjay/XSstIxzn9GKmFz0j91acNNNfB0HYVY7CePRk6Qcl2xHnIZCYYZhfBMPB2YPmkiSpwLNw==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "darwin-x64": {
+          "asset": "cdxgen-darwin-amd64-slim",
+          "integrity": "sha512-lyxmyVAqqq62jQVxZY+yuuE/6/aBQJLXJHWKLwKhXMzA1pTLSzO6EjZVZASMne2wKPE/WZkLI6cXpod4j5Mgag==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "linux-arm64": {
+          "asset": "cdxgen-linux-arm64-slim",
+          "integrity": "sha512-d+hcp4pMSNirMf7Dsd/nIUzWUlnHnVOP/gS57Ui+bQ9upFKdeQIkec3Wc9CBujTESS85BRBM4+PKH1A7rvTEYA==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "linux-arm64-musl": {
+          "asset": "cdxgen-linux-arm64-musl-slim",
+          "integrity": "sha512-Q0oyog2M15o5rYNTlOTSaZn+hbBzAsyfjanixptWCNlNlrhGSeSWcxFUF65OkV2As0bhFTOuSz8UdtHtOP4kNw==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "linux-x64": {
+          "asset": "cdxgen-linux-amd64-slim",
+          "integrity": "sha512-0YQqzmiVZu0izsPqGwJ8HpWsQ/qPekgoIMkpFZ/ivAKfnQBGgkfo/ZrCXWnWQyDhzUJAsscsyUm4cjQT4DtUzA==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "linux-x64-musl": {
+          "asset": "cdxgen-linux-amd64-musl-slim",
+          "integrity": "sha512-K0aOPME1aaNn/O8TAtJYCOecAZmhjJAV2Tmw3zlm6B9hbelRU0q966TiD13LbQ/RjQp4Pw9kERm+pmRMHlv/1Q==",
+          "binary": "cdxgen",
+          "format": "binary"
+        },
+        "win32-arm64": {
+          "asset": "cdxgen-windows-arm64-slim.exe",
+          "integrity": "sha512-qX/FqG9OQZLrbbWpBRhvggvTsBwoG5DX/1iyR6euQezVkhDv/ZloH+bgnUPKiFLTNqDSJjuqc0UyZ9m9FnxOkQ==",
+          "binary": "cdxgen.exe",
+          "format": "binary"
+        },
+        "win32-x64": {
+          "asset": "cdxgen-windows-amd64-slim.exe",
+          "integrity": "sha512-LfhSJxwG+h8oL3ugPyc5ua/dz9+AJU8OBEpFCpBxmODj1Mth3VoYsEkIrzLZUsk6OcxlMJcCEx66mGF2rrbDpA==",
+          "binary": "cdxgen.exe",
+          "format": "binary"
+        }
+      }
+    },
     "node": {
       "origin": "nub",
       "version": "26.9.0"
@@ -12,53 +108,6 @@
       "asset": "npm-12.0.2.tgz",
       "integrity": "sha512-uIXokLlBj6FpNUTQX1PmT5pz7BlIN9QlixX+zdaSNHsd0qUXsbDLr50xzY6Sw7cJVr0uzHKDOle0swmPW/p5Qw==",
       "binary": "package/bin/npm-cli.js"
-    },
-    "pnpm": {
-      "origin": "gh-asset",
-      "repository": "github:pnpm/pnpm",
-      "version": "12.4.1",
-      "platforms": {
-        "darwin-arm64": {
-          "asset": "pnpm-darwin-arm64.tar.gz",
-          "integrity": "sha256-Qy/RUcEEd2MM9cn0EgnCp7daxtznslM6RZUZ2viVTFI=",
-          "binary": "pnpm"
-        },
-        "darwin-x64": {
-          "asset": "pnpm-darwin-x64.tar.gz",
-          "integrity": "sha256-mJIUCdsvUQzMTrUh+b/sUePx6An9ZnF6Bili87Kkzeo=",
-          "binary": "pnpm"
-        },
-        "linux-arm64": {
-          "asset": "pnpm-linux-arm64.tar.gz",
-          "integrity": "sha256-FPej5n1ljUyoACwqoFZ/J9xf4Fap8p+Yun0r/WyBWRs=",
-          "binary": "pnpm"
-        },
-        "linux-arm64-musl": {
-          "asset": "pnpm-linux-arm64-musl.tar.gz",
-          "integrity": "sha256-JuumFWtrR9jFieLtdq+bPToAHZ2H3UdpdUodCfB1Bbs=",
-          "binary": "pnpm"
-        },
-        "linux-x64": {
-          "asset": "pnpm-linux-x64.tar.gz",
-          "integrity": "sha256-ZumIYpkIXa3lbiA64ONYbzV4f4gBpo0z7AesF7DeIAE=",
-          "binary": "pnpm"
-        },
-        "linux-x64-musl": {
-          "asset": "pnpm-linux-x64-musl.tar.gz",
-          "integrity": "sha256-tyz8IUDi8zgOJlVaR0+OCRpEMTdPrOYwpQsA5NuZLds=",
-          "binary": "pnpm"
-        },
-        "win32-arm64": {
-          "asset": "pnpm-win32-arm64.zip",
-          "integrity": "sha256-ZTbDyGR2SABaNHw0gAQLn7Z3Y/B/vKQ98HOKlcGkEYg=",
-          "binary": "pnpm.exe"
-        },
-        "win32-x64": {
-          "asset": "pnpm-win32-x64.zip",
-          "integrity": "sha256-NWCSrb1PaWcJRe0kx/yplLpN2fuvI7Aou5cIr9e8Z24=",
-          "binary": "pnpm.exe"
-        }
-      }
     },
     "nub": {
       "origin": "gh-asset",
@@ -104,6 +153,91 @@
           "asset": "nub-win32-x64.zip",
           "integrity": "sha256-hWAtgD/+D5KmZmQXKHCRa/iUXCiJphGNwBeUvVMIc84=",
           "binary": "bin/nub.exe"
+        }
+      }
+    },
+    "opengrep": {
+      "origin": "gh-asset",
+      "repository": "github:opengrep/opengrep",
+      "version": "1.30.0",
+      "tag": "v1.30.0",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "opengrep_osx_arm64",
+          "integrity": "sha512-wYy3l6cDoPmH3ONx5Q8Q38lx6+I46sJ5h5UzM1cKmJnOww6xVEzgVBSQGzpSvOTmOYLWQYHUcdnT4DEuLYvUlg==",
+          "binary": "opengrep",
+          "format": "binary"
+        },
+        "darwin-x64": {
+          "asset": "opengrep_osx_x86",
+          "integrity": "sha512-Acr+vczwVTTrN91fRyR04sjlBSo7SMqURO40ZON+gQYI1VspqCvuvAr6S8sKwKM1/XhC0cPF9Pap5PY3xFZAtQ==",
+          "binary": "opengrep",
+          "format": "binary"
+        },
+        "linux-arm64": {
+          "asset": "opengrep_manylinux_aarch64",
+          "integrity": "sha512-PUswhKOtRe50Ywcp5H+OKEu3Lm3pwT0K4JYX/FP1NIC9bEpb38iWOUojeVilIMKaXf+k993X2Tm2SxoiVKi7nw==",
+          "binary": "opengrep",
+          "format": "binary"
+        },
+        "linux-x64": {
+          "asset": "opengrep_manylinux_x86",
+          "integrity": "sha512-BoQFNVgpM5CI04T1yDzfPAa4xh2oTlZIBdV6WDL6NVr9jqIfiD0m/iBOc+wlSazQPk2o0Br+zcBUeQFnOokynA==",
+          "binary": "opengrep",
+          "format": "binary"
+        },
+        "win32-x64": {
+          "asset": "opengrep-core_windows_x86.zip",
+          "integrity": "sha512-UD/zKYkFbNYyA5GsALAyW93DZBVw57dwh6U2IjvlWZg3i8wbOP65OuKv3aVa4PCHLbjqVwGrOYZZnbO2Ix1fzg==",
+          "binary": "opengrep.exe"
+        }
+      }
+    },
+    "pnpm": {
+      "origin": "gh-asset",
+      "repository": "github:pnpm/pnpm",
+      "version": "12.4.2",
+      "tag": "v12.4.2",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "pnpm-darwin-arm64.tar.gz",
+          "integrity": "sha512-OHNpC2HJAQjV1W3FRo1mGCVSJFap22fg9meUNXlidX8XvvsNuXQY14SVPnngYLgODqhwFg/T4x9QDlfDqwfyLg==",
+          "binary": "pnpm"
+        },
+        "darwin-x64": {
+          "asset": "pnpm-darwin-x64.tar.gz",
+          "integrity": "sha512-XUE5mbN1jFDQRYWQNitrDrr+oQDWWBxkp65LIS6+2JK4c7dag9+HZ5c/yqAfIdDeT3mx/zMyraZatjoHKNlqiA==",
+          "binary": "pnpm"
+        },
+        "linux-arm64": {
+          "asset": "pnpm-linux-arm64.tar.gz",
+          "integrity": "sha512-TAIJEqjtBBTbeoBBV9xMLBPTfqUO1sQNrD6MWG6T4MoaPDMmf5Ajw9PT3dVb8Mr7I+aQ5pqfohVLjMsNE5Ctxg==",
+          "binary": "pnpm"
+        },
+        "linux-arm64-musl": {
+          "asset": "pnpm-linux-arm64-musl.tar.gz",
+          "integrity": "sha512-P5IRV4ZP0msSzsxnTAppD+bMWisy/HnCkzbBTypJFUNVbxrj33WnXjqeNlAfe5EU/AsJ2lSXEGcG0hE9/Zg6iw==",
+          "binary": "pnpm"
+        },
+        "linux-x64": {
+          "asset": "pnpm-linux-x64.tar.gz",
+          "integrity": "sha512-CzdNUx27xott5V1wQK6XmiMcTt2NXs3BdMOL71my8j/FF8NRfyM+QCBjXkvb3izCdBf9AFsoQ4wzua4jbfAVzQ==",
+          "binary": "pnpm"
+        },
+        "linux-x64-musl": {
+          "asset": "pnpm-linux-x64-musl.tar.gz",
+          "integrity": "sha512-1/WgpsoZJkbUSAWNKwIOIZ7w5yQ+8KOed8vhlQSJ2EgVUqqY0g/WhTlfUWTJp0IOna6nket/0TXJUdlyrW6TQw==",
+          "binary": "pnpm"
+        },
+        "win32-arm64": {
+          "asset": "pnpm-win32-arm64.zip",
+          "integrity": "sha512-SYdquF7ZGVX1ztzLpHZNxaOQt/yO8UZaZMvc1loDVNMY5jdvKJbjqNxzJHC4em4K5RNklbEMOmSQdm6sYWsUFQ==",
+          "binary": "pnpm.exe"
+        },
+        "win32-x64": {
+          "asset": "pnpm-win32-x64.zip",
+          "integrity": "sha512-/+vikx8ZMcvZT12+KdCAUDi93Urbee75fiUeJxSnowq3QEP6tpU3F9u58+fk9ymd2Y+xI7hKU8NYtJRi7gCx2Q==",
+          "binary": "pnpm.exe"
         }
       }
     },
@@ -159,6 +293,176 @@
           "integrity": "sha256-iAKs4VhCEu0DYdtvTxJEf59Ca1LCTq2lT3YlkQw9UpI=",
           "binary": "sfw.exe",
           "format": "binary"
+        }
+      }
+    },
+    "skill-scanner": {
+      "origin": "python",
+      "package": "cisco-ai-skill-scanner",
+      "version": "2.1.0",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "https://files.pythonhosted.org/packages/5e/b5/a16cbb76ef9c7428409f2e74d48b42ad02329d44d9782978bb8c9125b207/cisco_ai_skill_scanner-2.1.0-cp311.cp312.cp313.cp314-none-macosx_13_0_arm64.whl",
+          "integrity": "sha256-RSgRpkOZp/X2ZW9fzLVIel86DKAOjN+khHYQItqFK/Y="
+        },
+        "darwin-x64": {
+          "asset": "https://files.pythonhosted.org/packages/95/c0/f0e1ad8bb6be5e6b0fe0e6a428e863f420c1789d2b56bd411d8dcec16e98/cisco_ai_skill_scanner-2.1.0-cp311.cp312.cp313.cp314-none-macosx_13_0_x86_64.whl",
+          "integrity": "sha256-VeeelhvJbPeHu0G7W3nE3U9DSrvVQSXfK9lIi1wXlBI="
+        },
+        "linux-arm64": {
+          "asset": "https://files.pythonhosted.org/packages/f8/0b/9180f9b582cf3a5eb7270d6adf8d35c68d742610179b6e102e72507e7b72/cisco_ai_skill_scanner-2.1.0-cp311.cp312.cp313.cp314-none-manylinux_2_17_aarch64.whl",
+          "integrity": "sha256-+GdVfZuqfGZUshyYNxckDvr4sLLwBK6IgeiJV8z2nPw="
+        },
+        "linux-x64": {
+          "asset": "https://files.pythonhosted.org/packages/ff/be/5b468d653ece56ab24497b6bb308e0487cc6b4b1b77bb1ebd4b5eb26a19c/cisco_ai_skill_scanner-2.1.0-cp311.cp312.cp313.cp314-none-manylinux_2_17_x86_64.whl",
+          "integrity": "sha256-yEKStyC/Dt3IkT/jAX3NsFvX6Y6xn27mHe4sTrn6kB4="
+        },
+        "win32-x64": {
+          "asset": "https://files.pythonhosted.org/packages/b4/75/39bd974ae912a92c466e21af67c7a89e547e602301bf9195fc40b8821231/cisco_ai_skill_scanner-2.1.0-cp311.cp312.cp313.cp314-none-win_amd64.whl",
+          "integrity": "sha256-wp1oopFcc9OJcXZaNcsMzUZA4qyzpL9UK9urZ22+yKQ="
+        }
+      }
+    },
+    "skillspector": {
+      "origin": "git",
+      "repository": "github:NVIDIA/skillspector",
+      "version": "c13f70ebf14905912c616a58c9a8cb8112ef94a4",
+      "project": ".config/security/skillspector"
+    },
+    "trivy": {
+      "origin": "gh-asset",
+      "repository": "github:aquasecurity/trivy",
+      "version": "0.74.0",
+      "tag": "v0.74.0",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "trivy_0.74.0_macOS-ARM64.tar.gz",
+          "integrity": "sha512-806xgWAwXxsm89joBsf/LaoYLL+kZBU9OsXdEa2soWPJeYVlq/ItLslb/ONB+x/C10ApamsspcSW1owb3CwnHw==",
+          "binary": "trivy"
+        },
+        "darwin-x64": {
+          "asset": "trivy_0.74.0_macOS-64bit.tar.gz",
+          "integrity": "sha512-uqXz9BFTZETu0BQ9RI2rSV94Gg6kjExg3N79vEGQBQtIv3qenw2ISVnftZivpJJZhQPsQaPfKfY+dEENZ6wWZA==",
+          "binary": "trivy"
+        },
+        "linux-arm64": {
+          "asset": "trivy_0.74.0_Linux-ARM64.tar.gz",
+          "integrity": "sha512-Q3zZ3MpnfmV+FW6j9X+75Me0ykyn3rlvdm4IR3BOAsTAyZsbH5hhMYZFObAb/XDzJdXpO8ApkulU7g0poK28yQ==",
+          "binary": "trivy"
+        },
+        "linux-x64": {
+          "asset": "trivy_0.74.0_Linux-64bit.tar.gz",
+          "integrity": "sha512-OF5Mmn/yiANRqlTmdqCfxuQPp+HtQRkx2MFqnO2wqCCN6xqJdSAEV2nUKvGiwu0IDJgou8SFnfQGyP/JRyhHgg==",
+          "binary": "trivy"
+        },
+        "win32-x64": {
+          "asset": "trivy_0.74.0_windows-64bit.zip",
+          "integrity": "sha512-gw49QoHuZaj6iT1cEu4y86Nc2GFSJ6YSPrpGt27ngjTRx3BJjVg/rGU4tGo4T6eDG8nadow9/uJVj1cjSdU+cw==",
+          "binary": "trivy.exe"
+        }
+      }
+    },
+    "trufflehog": {
+      "origin": "gh-asset",
+      "repository": "github:trufflesecurity/trufflehog",
+      "version": "3.97.5",
+      "tag": "v3.97.5",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "trufflehog_3.97.5_darwin_arm64.tar.gz",
+          "integrity": "sha512-4Fg69lPc2gzI1ehtR4+2TbhNamCoWpScy8t2ipyIH5ukNLPCjdR5wybKHUmF/oYPivYWXwcuZTnPhpv3CIjsgA==",
+          "binary": "trufflehog"
+        },
+        "darwin-x64": {
+          "asset": "trufflehog_3.97.5_darwin_amd64.tar.gz",
+          "integrity": "sha512-KPAnzBviQaRoepImkP6XJ94OpeCBBjyz6j77DJ1Yk3TxRN1cmWXcx3CZNtkrd817CT8YEE5FGwWosCWqMOHqAQ==",
+          "binary": "trufflehog"
+        },
+        "linux-arm64": {
+          "asset": "trufflehog_3.97.5_linux_arm64.tar.gz",
+          "integrity": "sha512-5JkQtP3zBIMQXPEyE4owd8wLbqL3sbnzPhxpzhjYtiDp1en801c/2CWEDk0bTVP0cKAL8vVJJlFUUrgZoVPCPQ==",
+          "binary": "trufflehog"
+        },
+        "linux-x64": {
+          "asset": "trufflehog_3.97.5_linux_amd64.tar.gz",
+          "integrity": "sha512-uMk5YLZi1moXvmiXZeoB+NgaCJXGKuugsTVFe5VVz02Ip+tFkJ8iCwnsT3dXcIdBs2nBNxbLs+z6yXA+eLM5aQ==",
+          "binary": "trufflehog"
+        },
+        "win32-x64": {
+          "asset": "trufflehog_3.97.5_windows_amd64.tar.gz",
+          "integrity": "sha512-9FwznorZ2E49Ydu1H/BFRQHr5DJ1xSo1zzBL5brLF3xZoczKiL7XHhJxbX8yMhqhAUwcRboSkokDqc5gXK3+Sw==",
+          "binary": "trufflehog.exe"
+        }
+      }
+    },
+    "uv": {
+      "origin": "gh-asset",
+      "repository": "github:astral-sh/uv",
+      "version": "0.12.15",
+      "tag": "0.12.15",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "uv-aarch64-apple-darwin.tar.gz",
+          "integrity": "sha512-y7xj4+kxiyA66dzmrddriihGl077SM74Q2/XwlI4Kw8jO7yh0pOe3IR/YyVyCfCEq0ccpwVLMOgo5YY2BVd0lw==",
+          "binary": "uv-aarch64-apple-darwin/uv"
+        },
+        "darwin-x64": {
+          "asset": "uv-x86_64-apple-darwin.tar.gz",
+          "integrity": "sha512-r59SZFSWLGcmda5b7rq2yO2sI6SsDKdBE+qvC8KHeoRLV7zCCm1m3s5GwTUCP9O8kx4A7D2GUiV0gPdj2Vkraw==",
+          "binary": "uv-x86_64-apple-darwin/uv"
+        },
+        "linux-arm64": {
+          "asset": "uv-aarch64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha512-wtjxaDy/A91/eSUbn927LdJEsQy9JRpFfmaXqOxiSafoi+wHEFaNWvjxOpqwoMAky7UrBd0icT6PCttBpagKvA==",
+          "binary": "uv-aarch64-unknown-linux-gnu/uv"
+        },
+        "linux-x64": {
+          "asset": "uv-x86_64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha512-HnyqtvfbH/vq3MTydIYAbCr6hS8kC8kuZpXxrGJ/Nr2dac/wJQA3Z6S9bx95TYCTBdOZ1kPbDjtrzfIgwi4xDw==",
+          "binary": "uv-x86_64-unknown-linux-gnu/uv"
+        },
+        "win32-arm64": {
+          "asset": "uv-aarch64-pc-windows-msvc.zip",
+          "integrity": "sha512-+YD0ZEuCcztbfQcd+rCkRgP4YcUXzZIxyDOcYJzya2Bm16z42RVq5/9sPS8rcNmXf9m7B8ZK08CVLzTXAqGitA==",
+          "binary": "uv.exe"
+        },
+        "win32-x64": {
+          "asset": "uv-x86_64-pc-windows-msvc.zip",
+          "integrity": "sha512-sSjnNsmzOB+6d6yvegbwumNJhOSsdEM8ZT8qxnDoUpp4CLym3t00OrImSCCW8dyqh6IUPs6uB7NKY+F1A4D3dQ==",
+          "binary": "uv.exe"
+        }
+      }
+    },
+    "zizmor": {
+      "origin": "gh-asset",
+      "repository": "github:zizmorcore/zizmor",
+      "version": "1.30.1",
+      "tag": "v1.30.1",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "zizmor-aarch64-apple-darwin.tar.gz",
+          "integrity": "sha512-0SJEhWNir4QzfGwrT2oX4w/4UJZp8CqDo2RK2bkcfHCilayAZkpvu/fq6rHo+X+gbJICazQBNRE2bo91mmNAKA==",
+          "binary": "zizmor"
+        },
+        "darwin-x64": {
+          "asset": "zizmor-x86_64-apple-darwin.tar.gz",
+          "integrity": "sha512-QqPld71wwABqcLyxkJ02nItUczTQrtpAAT6xiDvyyBySuywAFGW4mUU7iO2Kcwg+CDY5ZLvkd/vNm76GqqbwXw==",
+          "binary": "zizmor"
+        },
+        "linux-arm64": {
+          "asset": "zizmor-aarch64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha512-7AfMKqT+4SoyYRE4Ke7Ar5H+1SoU7QUuifuSKGjJIb7Qep29+oP0IrMsEMwjqAxpiGbEPyxSMgO7ghDlHhNsNQ==",
+          "binary": "zizmor"
+        },
+        "linux-x64": {
+          "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha512-sMHocgA1Rg12S12/szGaRumgmlAEjaeU5EIdGTczLNldhGFptlctCFqogoebWvE/PFioGlZ2vcSxoCZW3BegYg==",
+          "binary": "zizmor"
+        },
+        "win32-x64": {
+          "asset": "zizmor-x86_64-pc-windows-msvc.zip",
+          "integrity": "sha512-cYagZJ5fG+8UQ/Fr0LshEt7A6CXQgWeeBHlsztvzCepX661rrW9h3h//hedNUu7yM215f+fqDXE0++6MjuLgJg==",
+          "binary": "zizmor.exe"
         }
       }
     }

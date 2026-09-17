@@ -17,7 +17,7 @@ test('every declared platform has a pinned release URL and integrity', () => {
       expect(plan.url).toBe(
         `https://github.com/${manifest.tools[name].repository.slice(7)}/releases/download/v${plan.version}/${plan.asset}`,
       )
-      expect(plan.integrity).toMatch(/^sha256-/)
+      expect(plan.integrity).toMatch(/^sha(?:256|512)-/)
     }
   }
   expect(toolPlan('npm').url).toBe(

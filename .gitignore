@@ -21,6 +21,8 @@
 !/.config/**/*.json
 !/.config/**/*.md
 !/.config/**/*.mts
+!/.config/security/**/*.toml
+!/.config/security/**/uv.lock
 !/.config/**/*.ts
 !/.github/**/*.Dockerfile
 !/.github/**/*.yml

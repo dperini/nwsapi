@@ -41,6 +41,8 @@ jobs:
       # Use real Git for upstream setup, not the local runner's checkout shim.
       - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
       - run: pnpm run check
+      - name: Audit workflows and agent configuration
+        run: pnpm run security
       - name: Plan affected runtime tests
         id: test-plan
         env:

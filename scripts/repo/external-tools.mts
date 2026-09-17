@@ -4,6 +4,7 @@ import manifest from '../../.config/external-tools.json' with { type: 'json' }
 import { REPO_ROOT } from './lib/paths.mts'
 import { isMainModule } from './lib/run-node.mts'
 import { parseIntegrity } from './setup/download.mts'
+import { validate } from '../../.config/generated/external-tools.mts'
 
 export interface AssetPin {
   asset: string
@@ -12,22 +13,50 @@ export interface AssetPin {
   format?: string
 }
 
-interface ToolPin {
+export interface ToolPin {
   origin: string
   version: string
 }
 
+export interface GithubToolPin extends ToolPin {
+  repository: string
+  tag?: string
+  platforms: Record<string, AssetPin>
+}
+
+export const GITHUB_TOOLS = [
+  'pnpm',
+  'nub',
+  'sfw',
+  'uv',
+  'zizmor',
+  'actionlint',
+  'cdxgen',
+  'opengrep',
+  'trivy',
+  'trufflehog',
+] as const
+
+export type GithubTool = (typeof GITHUB_TOOLS)[number]
+
 export interface ExternalTools {
-  tools: {
+  tools: Record<GithubTool, GithubToolPin> & {
     node: ToolPin
+    agentshield: ToolPin & {
+      package: string
+      integrity: string
+      binary: string
+    }
+    'skill-scanner': ToolPin & {
+      package: string
+      platforms: Record<string, { asset: string; integrity: string }>
+    }
+    skillspector: ToolPin & { repository: string; project: string }
     npm: ToolPin & AssetPin & { repository: string }
-    pnpm: ToolPin & { repository: string; platforms: Record<string, AssetPin> }
-    nub: ToolPin & { repository: string; platforms: Record<string, AssetPin> }
-    sfw: ToolPin & { repository: string; platforms: Record<string, AssetPin> }
   }
 }
 
-export type DownloadTool = 'npm' | 'pnpm' | 'nub' | 'sfw'
+export type DownloadTool = 'npm' | GithubTool
 export interface ToolPlan extends AssetPin {
   name: DownloadTool
   version: string
@@ -39,14 +68,12 @@ export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
 
 export function toolVersions(data: ExternalTools = manifest) {
   const versions: Record<string, string> = Object.create(null)
-  const origins = {
+  const origins: Record<string, string> = {
     node: 'nub',
     npm: 'npm',
-    pnpm: 'gh-asset',
-    nub: 'gh-asset',
-    sfw: 'gh-asset',
+    ...Object.fromEntries(GITHUB_TOOLS.map(name => [name, 'gh-asset'])),
   }
-  for (const name of ['node', 'npm', 'pnpm', 'nub', 'sfw'] as const) {
+  for (const name of ['node', 'npm', ...GITHUB_TOOLS] as const) {
     const tool = data.tools[name]
     if (
       tool?.origin !== origins[name] ||
@@ -116,7 +143,7 @@ export function toolPlan(
   const url =
     name === 'npm'
       ? `https://registry.npmjs.org/npm/-/${pin.asset}`
-      : `https://github.com/${repository.slice(7)}/releases/download/v${tool.version}/${pin.asset}`
+      : `https://github.com/${repository.slice(7)}/releases/download/${'tag' in tool && tool.tag ? tool.tag : `v${tool.version}`}/${pin.asset}`
   return { name, version: tool.version, ...pin, url }
 }
 
@@ -131,9 +158,19 @@ export function toolExecutable(name: DownloadTool) {
 }
 
 export function checkExternalTools(data: ExternalTools = manifest) {
+  const result = validate(data)
+  if (!result.valid) {
+    throw new Error(
+      `Invalid external tool configuration: ${JSON.stringify(result.errors)}`,
+    )
+  }
   toolVersions(data)
   toolPlan('npm', undefined, data)
-  for (const name of ['pnpm', 'nub', 'sfw'] as const) {
+  parseIntegrity(data.tools.agentshield.integrity)
+  for (const pin of Object.values(data.tools['skill-scanner'].platforms)) {
+    parseIntegrity(pin.integrity)
+  }
+  for (const name of GITHUB_TOOLS) {
     if (!Object.keys(data.tools[name].platforms).length) {
       throw new Error(`No release platforms configured for ${name}.`)
     }

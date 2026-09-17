@@ -14,10 +14,14 @@ import { isMainModule, runNode } from './lib/run-node.mts'
 import { checkExternalTools } from './external-tools.mts'
 import { checkSoak } from './soak.mts'
 import { checkInlineWorkflows } from './check/workflows.mts'
+import { checkCatalog } from './check/catalog.mts'
+import { generateSchemas } from './schema/run.mts'
 
 export function checkCode(run = runNode) {
   checkNativeContract()
   checkExternalTools()
+  checkCatalog()
+  generateSchemas(true)
   checkSoak()
   checkInlineWorkflows()
   run(API_SCRIPT_PATH, ['--check'])

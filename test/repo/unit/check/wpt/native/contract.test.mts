@@ -49,3 +49,29 @@ test('the committed native contract rejects a different browser or WPT pin', () 
     checkNativeContract({ browser: '0.0.0.0', revision: '0'.repeat(40) }),
   ).toThrow('Native support pool is stale')
 })
+
+test('native inference depends on parser and browser tooling pins, not release or security metadata', async () => {
+  const { INFERENCE_DEPENDENCIES, inferenceDependencies } =
+    await import('../../../../../../scripts/repo/check/wpt/native/contract.mts')
+  const workspace = {
+    catalog: Object.fromEntries(
+      INFERENCE_DEPENDENCIES.map(name => [name, '1.0.0']),
+    ),
+  }
+  const expected = inferenceDependencies(workspace)
+  expect(
+    inferenceDependencies({
+      catalog: {
+        ...workspace.catalog,
+        typebox: '2.0.0',
+        'ecc-agentshield': '3.0.0',
+      },
+    }),
+  ).toEqual(expected)
+  expect(
+    inferenceDependencies({
+      catalog: { ...workspace.catalog, jsdom: '30.0.0' },
+    }),
+  ).not.toEqual(expected)
+  expect(() => inferenceDependencies({ catalog: {} })).toThrow('Missing')
+})

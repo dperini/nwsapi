@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["name", "version", "commit", "integrity", "distTag", "filename"],
+  "properties": {
+    "name": { "type": "string", "const": "nwsapi" },
+    "version": {
+      "type": "string",
+      "pattern": "^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$"
+    },
+    "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "integrity": {
+      "type": "string",
+      "pattern": "^sha512-[A-Za-z0-9+/]{86}==$"
+    },
+    "distTag": { "type": "string", "const": "next" },
+    "filename": {
+      "type": "string",
+      "pattern": "^nwsapi-3\\.[A-Za-z0-9.-]+\\.tgz$"
+    }
+  },
+  "additionalProperties": false,
+  "title": "Reserved npm release artifact"
+}

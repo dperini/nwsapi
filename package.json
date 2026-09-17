@@ -114,7 +114,11 @@
     "compile": "node dist/bin/nwsapi.js compile",
     "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts",
     "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts",
-    "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts"
+    "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts",
+    "setup:security": "node scripts/repo/run.mts scripts/repo/setup/security.mts",
+    "security": "node scripts/repo/run.mts scripts/repo/security/run.mts",
+    "gen:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts",
+    "check:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts --check"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",
@@ -128,12 +132,15 @@
     "@types/istanbul-reports": "catalog:",
     "@types/jsdom": "catalog:",
     "@types/node": "catalog:",
+    "@types/semver": "catalog:",
     "@ultrathink/acorn.rs.wasm": "catalog:",
     "@unicode/unicode-17.0.0": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitiate/core": "catalog:",
     "acorn": "catalog:",
     "ast-v8-to-istanbul": "catalog:",
+    "ata-validator": "catalog:",
+    "ecc-agentshield": "catalog:",
     "eslint-plugin-compat": "catalog:",
     "istanbul-lib-coverage": "catalog:",
     "istanbul-lib-report": "catalog:",
@@ -147,8 +154,10 @@
     "parse5": "catalog:",
     "rolldown": "catalog:",
     "run-local-ci": "catalog:",
+    "semver": "catalog:",
     "svgo": "catalog:",
     "taze": "catalog:",
+    "typebox": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
@@ -173,7 +182,7 @@
     "packageManager": [
       {
         "name": "pnpm",
-        "version": "^11.25.0 || >=12.3.4",
+        "version": "12.4.2",
         "onFail": "error"
       }
     ]
@@ -186,5 +195,6 @@
       "type": "MIT",
       "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
-  ]
+  ],
+  "packageManager": "pnpm@12.4.2"
 }

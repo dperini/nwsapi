@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "distTag"],
+  "properties": {
+    "version": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$" }
+      ]
+    },
+    "distTag": { "type": "string", "const": "next" }
+  },
+  "additionalProperties": false,
+  "title": "Staged v3 release request"
+}

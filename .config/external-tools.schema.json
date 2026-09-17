@@ -1,57 +1,52 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Verified contributor tool releases",
   "type": "object",
-  "additionalProperties": false,
   "required": ["tools"],
   "properties": {
-    "$schema": {
-      "type": "string"
-    },
+    "$schema": { "type": "string" },
     "tools": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["node", "npm", "pnpm", "nub", "sfw"],
+      "required": [
+        "node",
+        "npm",
+        "pnpm",
+        "nub",
+        "sfw",
+        "uv",
+        "zizmor",
+        "actionlint",
+        "cdxgen",
+        "opengrep",
+        "trivy",
+        "trufflehog",
+        "agentshield",
+        "skill-scanner",
+        "skillspector"
+      ],
       "properties": {
         "node": {
           "type": "object",
-          "additionalProperties": false,
           "required": ["origin", "version"],
           "properties": {
-            "origin": {
-              "const": "nub"
-            },
-            "version": {
-              "type": "string",
-              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-            }
-          }
+            "origin": { "type": "string", "const": "nub" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+          },
+          "additionalProperties": false
         },
         "npm": {
           "type": "object",
-          "additionalProperties": false,
           "required": [
-            "origin",
-            "repository",
-            "version",
             "asset",
             "binary",
-            "integrity"
+            "integrity",
+            "origin",
+            "repository",
+            "version"
           ],
           "properties": {
-            "origin": {
-              "const": "npm"
-            },
-            "repository": {
-              "const": "npm:npm"
-            },
-            "version": {
-              "type": "string",
-              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-            },
             "asset": {
               "type": "string",
-              "pattern": "^[A-Za-z0-9_.-]+\\.(?:tar\\.gz|tgz|zip)$"
+              "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
             },
             "binary": {
               "type": "string",
@@ -60,88 +55,657 @@
             "integrity": {
               "type": "string",
               "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
-            }
-          }
+            },
+            "format": {
+              "anyOf": [
+                { "type": "string", "const": "archive" },
+                { "type": "string", "const": "binary" }
+              ]
+            },
+            "origin": { "type": "string", "const": "npm" },
+            "repository": { "type": "string", "const": "npm:npm" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+          },
+          "additionalProperties": false
         },
         "pnpm": {
-          "$ref": "#/$defs/github"
-        },
-        "nub": {
-          "$ref": "#/$defs/github"
-        },
-        "sfw": {
-          "$ref": "#/$defs/github"
-        }
-      }
-    }
-  },
-  "$defs": {
-    "asset": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["asset", "binary", "integrity"],
-      "properties": {
-        "asset": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
-        },
-        "binary": {
-          "type": "string",
-          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
-        },
-        "integrity": {
-          "type": "string",
-          "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
-        },
-        "format": {
-          "enum": ["archive", "binary"],
-          "default": "archive"
-        }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "format": {
-                "const": "binary"
-              }
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
             },
-            "required": ["format"]
-          },
-          "else": {
-            "properties": {
-              "asset": {
-                "pattern": "^[A-Za-z0-9_.-]+\\.(?:tar\\.gz|tgz|zip)$"
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
               }
             }
-          }
-        }
-      ]
-    },
-    "github": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["origin", "repository", "version", "platforms"],
-      "properties": {
-        "origin": {
-          "const": "gh-asset"
+          },
+          "additionalProperties": false
         },
-        "repository": {
-          "type": "string",
-          "pattern": "^github:[\\w-]+/[\\w.-]+$"
-        },
-        "version": {
-          "type": "string",
-          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-        },
-        "platforms": {
+        "nub": {
           "type": "object",
-          "minProperties": 1,
-          "additionalProperties": {
-            "$ref": "#/$defs/asset"
-          }
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "sfw": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "uv": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "zizmor": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "actionlint": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "cdxgen": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "opengrep": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "trivy": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "trufflehog": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "gh-asset" },
+            "repository": {
+              "type": "string",
+              "pattern": "^github:[\\w-]+/[\\w.-]+$"
+            },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "tag": { "type": "string", "pattern": "^[\\w.-]+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "binary", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+                  },
+                  "binary": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  },
+                  "format": {
+                    "anyOf": [
+                      { "type": "string", "const": "archive" },
+                      { "type": "string", "const": "binary" }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "agentshield": {
+          "type": "object",
+          "required": ["origin", "package", "version", "integrity", "binary"],
+          "properties": {
+            "origin": { "type": "string", "const": "catalog" },
+            "package": { "type": "string", "const": "ecc-agentshield" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+            },
+            "binary": { "type": "string", "const": "agentshield" }
+          },
+          "additionalProperties": false
+        },
+        "skill-scanner": {
+          "type": "object",
+          "required": ["origin", "package", "version", "platforms"],
+          "properties": {
+            "origin": { "type": "string", "const": "python" },
+            "package": { "type": "string", "const": "cisco-ai-skill-scanner" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "platforms": {
+              "type": "object",
+              "properties": {},
+              "minProperties": 1,
+              "propertyNames": {
+                "enum": [
+                  "darwin-arm64",
+                  "darwin-x64",
+                  "linux-arm64",
+                  "linux-x64",
+                  "linux-arm64-musl",
+                  "linux-x64-musl",
+                  "win32-arm64",
+                  "win32-x64"
+                ]
+              },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["asset", "integrity"],
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "pattern": "^https://files\\.pythonhosted\\.org/packages/[A-Za-z0-9_./-]+\\.whl$"
+                  },
+                  "integrity": {
+                    "type": "string",
+                    "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "skillspector": {
+          "type": "object",
+          "required": ["origin", "repository", "version", "project"],
+          "properties": {
+            "origin": { "type": "string", "const": "git" },
+            "repository": {
+              "type": "string",
+              "const": "github:NVIDIA/skillspector"
+            },
+            "version": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+            "project": {
+              "type": "string",
+              "const": ".config/security/skillspector"
+            }
+          },
+          "additionalProperties": false
         }
-      }
+      },
+      "additionalProperties": false
     }
-  }
+  },
+  "additionalProperties": false,
+  "title": "Verified contributor and security tools"
 }

@@ -3,6 +3,7 @@ import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
+import { parse } from 'yaml'
 import { writeNativeSummaryDocumentation } from '../../../gen/wpt-native-summary.mts'
 import { REPO_ROOT } from '../../../lib/paths.mts'
 import { isMainModule } from '../../../lib/run-node.mts'
@@ -21,6 +22,31 @@ const categoriesPath = path.join(artifactRoot, 'wpt-native-categories.json')
 const digest = (value: string | Buffer) =>
   createHash('sha256').update(value).digest('hex')
 
+export const INFERENCE_DEPENDENCIES = [
+  '@puppeteer/browsers',
+  'acorn',
+  'css-tree',
+  'jsdom',
+  'parse5',
+] as const
+
+export function inferenceDependencies(
+  workspace: {
+    catalog: Record<string, string>
+  },
+  peers: Record<string, string> = {},
+) {
+  return Object.fromEntries(
+    INFERENCE_DEPENDENCIES.map(name => {
+      const version = workspace.catalog[name] ?? peers[name]
+      if (!version) {
+        throw new Error(`Missing native inference dependency: ${name}`)
+      }
+      return [name, version]
+    }),
+  )
+}
+
 export function inferenceDigest() {
   const files = globSync('scripts/repo/check/wpt/native/*.mts', {
     cwd: REPO_ROOT,
@@ -30,15 +56,29 @@ export function inferenceDigest() {
     'scripts/repo/check/wpt/source/ast.mts',
     'scripts/repo/check/wpt/scope.mts',
     'scripts/repo/check/wpt/inventory.mts',
-    'package.json',
-    'pnpm-workspace.yaml',
   )
+  const workspace = parse(
+    readFileSync(path.join(REPO_ROOT, 'pnpm-workspace.yaml'), 'utf8'),
+  )
+  const tools = JSON.parse(
+    readFileSync(path.join(REPO_ROOT, '.config/external-tools.json'), 'utf8'),
+  )
+  const dependencies = JSON.stringify({
+    catalog: inferenceDependencies(
+      workspace,
+      JSON.parse(readFileSync(path.join(REPO_ROOT, 'package.json'), 'utf8'))
+        .peerDependencies,
+    ),
+    node: tools.tools.node.version,
+  })
   return digest(
     files
       .map(
         file => file + '\0' + digest(readFileSync(path.join(REPO_ROOT, file))),
       )
-      .join('\n'),
+      .join('\n') +
+      '\n' +
+      dependencies,
   )
 }
 

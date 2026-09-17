@@ -53,6 +53,7 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
       'scripts/repo/lib/paths.mts',
       'scripts/repo/lib/run-node.mts',
       '.config/node-interop.json',
+      '.config/generated/external-tools.mts',
     ]
     for (const file of files) {
       const target = path.join(directory, file)
@@ -74,7 +75,8 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
       { cwd: directory, encoding: 'utf8' },
     )
     expect(setup.status).toBe(1)
-    expect(setup.stderr).toContain('Invalid external tool configuration: sfw')
+    expect(setup.stderr).toContain('Invalid external tool configuration:')
+    expect(setup.stderr).toContain('sfw')
     for (const name of ['npm', 'pnpm']) {
       const windows = process.platform === 'win32'
       const command = path.join(bin, windows ? `${name}.cmd` : name)

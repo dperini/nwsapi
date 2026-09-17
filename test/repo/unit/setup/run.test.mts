@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 import { expect, test } from 'vitest'
 import { setupUpstream } from '../../../../scripts/repo/setup/run.mts'
 import {
@@ -22,6 +24,7 @@ test('setup verifies WPT and installs browser and Node runtimes', () => {
   setupUpstream(run)
   expect(calls).toEqual([
     [TOOL_SETUP_PATH, []],
+    [path.join(REPO_ROOT, 'scripts/repo/setup/security.mts'), []],
     [UPSTREAM_HELPER_PATH, ['clone']],
     [UPSTREAM_HELPER_PATH, ['verify']],
     [WPT_CANDIDATES_PATH, []],
@@ -39,5 +42,5 @@ test('setup stops if checkout verification fails', () => {
       }
     }),
   ).toThrow()
-  expect(calls).toHaveLength(3)
+  expect(calls).toHaveLength(4)
 })
