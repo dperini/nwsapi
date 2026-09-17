@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
+import { markup, svgCases } from '../common/fixture/attribute-equality.mts'
 import { DOMSelector, host } from './fixture/jsdom.mts'
 
 for (const method of ['check', 'supports'] as const) {
@@ -37,6 +38,41 @@ test('real jsdom queries return wrappers and a static NodeList in document order
   nodes[0].remove()
   assert.equal(nodes.length, 2)
   assert.equal(document.querySelectorAll('.item').length, 1)
+})
+
+test('domSelector#306: public DOM queries preserve SVG attribute-name case', t => {
+  const window = host(t, markup)
+  const document = window.document
+  const svg = document.getElementById('svg')!
+  const cases: Array<[string, string[]]> = [
+    ...svgCases,
+    // Chromium folds SVG attribute names and rejects the s flag. These
+    // cases verify the specified behavior without a native comparison.
+    ['svg[viewbox]', []],
+    ['svg[viewbox="0 0 10 10"]', []],
+    ['svg[viewbox="0 0 10 10" i]', []],
+    ['svg[preserveaspectratio="xMidYMid"]', []],
+    ['svg[viewBox="0 0 10 10" s]', ['svg']],
+    ['svg[preserveAspectRatio="xMidYMid" s]', ['svg']],
+    ['svg[preserveAspectRatio="xmidymid" s]', []],
+  ]
+  for (let pass = 0; pass < 2; pass += 1) {
+    for (const [selector, expected] of cases) {
+      const match = expected.length > 0
+      assert.deepEqual(
+        Array.from(document.querySelectorAll(selector), node => node.id),
+        expected,
+        selector,
+      )
+      assert.equal(
+        document.querySelector(selector),
+        match ? svg : null,
+        selector,
+      )
+      assert.equal(svg.matches(selector), match, selector)
+      assert.equal(svg.closest(selector), match ? svg : null, selector)
+    }
+  }
 })
 
 test('element, detached subtree, and fragment queries stay in their context', t => {
