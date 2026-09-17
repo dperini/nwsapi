@@ -1,0 +1,1630 @@
+{
+  "createdAt": "2026-09-17T17:15:31.144Z",
+  "wptRevision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
+  "browser": "154.0.8037.0",
+  "scope": "Four upstream DOM matching pages and three adapted :has() validity pages. The separate tentative :has-slotted parsing page is reported independently. No rendering assertions or subtest filters.",
+  "variants": [
+    {
+      "name": "v2",
+      "ref": "master",
+      "commit": "932caf983e1ac7267bec42886595fda58edacf1f",
+      "engineSha256": "ae465bc126f76ddd0173ee25c2d6b9b2c33700e1a0ce85d643b6171879b3bb19",
+      "pages": [
+        {
+          "path": "/css/selectors/parsing/parse-has-disallow-nesting-has-inside-has.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 2,
+            "passed": 0,
+            "failed": 2
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API rejects \".a:has(.b:has(.c))\"",
+              "status": 1,
+              "message": "assert_throws_dom: Document.querySelector function \"() => document.querySelector(selector)\" did not throw"
+            },
+            {
+              "name": "CSS Selectors: The relational pseudo-class (disallow nesting :has() inside :has())",
+              "status": 1,
+              "message": "assert_false: expected false got true"
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has-forgiving-selector.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 3,
+            "passed": 3,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has(:is(:has(*)))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:where(:has(*)))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:is(.a, 123))\"",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has-slotted.tentative.html",
+          "group": "has-slotted",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 23,
+            "passed": 4,
+            "failed": 19
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has-slotted(bar)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted([attr=\\\"foo\\\"])\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(*)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(.class)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(#id)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:not(foo))\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:not(:nth-last-of-type(2)):not([slot=\\\"foo\\\"]))\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:first-child)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:hover)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):first-child\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):hover\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):focus\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):lang(en)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):dir(ltr)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo) + :has-slotted(bar)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":not(:has-slotted(foo))\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(div + div)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(div:has(> span))\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has-slotted\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API rejects \"::has-slotted(foo)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted()\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted(0)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted(div > span)\"",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 29,
+            "passed": 24,
+            "failed": 5
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has(a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(#a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(.a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a=\\\"b\\\"])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a|=\\\"b\\\"])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:hover)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \"*:has(.a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(> .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(~ .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(+ .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b) .c\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c .d)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c .d) .e\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b:is(.c .d))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:is(.b:has(.c) .d)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:not(:has(.b))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(:not(.b))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b):has(.c)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \"*|*:has(*)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API accepts \":has(*|*)\"",
+              "status": 1,
+              "message": "assert_unreached: Document.querySelector rejected valid syntax: SyntaxError Reached unreachable code"
+            },
+            {
+              "name": "Selector API rejects \":has\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \".a:has\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \".a:has b\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has()\"",
+              "status": 1,
+              "message": "assert_throws_dom: Element.querySelector function \"() => element.querySelector(selector)\" did not throw"
+            },
+            {
+              "name": "Selector API rejects \":has(123)\"",
+              "status": 1,
+              "message": "assert_throws_dom: Document.querySelector function \"() => document.querySelector(selector)\" did not throw"
+            },
+            {
+              "name": "Selector API rejects \":has(.a, 123)\"",
+              "status": 1,
+              "message": "assert_throws_dom: Document.querySelector function \"() => document.querySelector(selector)\" did not throw"
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-basic.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 18,
+            "passed": 18,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(#a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.ancestor) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.descendant) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(.target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.sibling ~ .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(.sibling ~ .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(:is(.target ~ .sibling .descendant)) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(:is(.target ~ .sibling .descendant)) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".sibling:has(.descendant) ~ .target matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .parent) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .parent, > .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ #h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(~ #h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".sibling:has(.descendant) matches expected element",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "closest(.ancestor:has(.descendant)) returns expected element",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.target ~ .sibling .descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-relative-argument.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 35,
+            "passed": 35,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ".x:has(.a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b > .c) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b .c) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.d .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.d .e) .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .d) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .d) .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .d ~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .d ~ .e) ~ .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .d ~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .d ~ .e) ~ .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(> .g .h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(.g .h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(> .g .h) .i matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(.g .h) .i matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".d .x:has(.e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".d ~ .x:has(~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-argument-with-explicit-scope.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 13,
+            "passed": 13,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(:scope) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(:scope .c) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.a :scope) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c and :is(.a :scope .c) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c matches expected elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c and :is(.a :scope .c) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and :scope .c:has(.d) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and .c:has(.d) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) matches expected elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and :scope .c:has(.d) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and .c:has(.d) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-matches-to-uninserted-elements.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 12,
+            "passed": 12,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(child) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> child) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ direct_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ direct_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ indirect_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ indirect_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(*) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> *) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ *) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ *) matches expectedly",
+              "status": 0,
+              "message": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "v3",
+      "ref": "prerelease/3.0.0",
+      "commit": "f1347c9ddb359c22255ebed511b6ee41335fa2ff",
+      "engineSha256": "12c37addca06768c96003dc7374035db4dad5a6a955108ce01d546a9ebb139ed",
+      "pages": [
+        {
+          "path": "/css/selectors/parsing/parse-has-disallow-nesting-has-inside-has.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 2,
+            "passed": 2,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API rejects \".a:has(.b:has(.c))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "CSS Selectors: The relational pseudo-class (disallow nesting :has() inside :has())",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has-forgiving-selector.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 3,
+            "passed": 3,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has(:is(:has(*)))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:where(:has(*)))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:is(.a, 123))\"",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has-slotted.tentative.html",
+          "group": "has-slotted",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 23,
+            "passed": 23,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has-slotted(bar)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted([attr=\\\"foo\\\"])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(*)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(.class)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(#id)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:not(foo))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:not(:nth-last-of-type(2)):not([slot=\\\"foo\\\"]))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:first-child)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(:hover)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):first-child\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):hover\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):focus\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):lang(en)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo):dir(ltr)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(foo) + :has-slotted(bar)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":not(:has-slotted(foo))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(div + div)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted(div:has(> span))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has-slotted\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \"::has-slotted(foo)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted()\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted(0)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has-slotted(div > span)\"",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/parsing/parse-has.html",
+          "group": "has",
+          "adaptation": "selector-validity",
+          "counts": {
+            "total": 29,
+            "passed": 29,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": "Selector API accepts \":has(a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(#a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(.a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a=\\\"b\\\"])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has([a|=\\\"b\\\"])\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(:hover)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \"*:has(.a)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(> .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(~ .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(+ .b)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b) .c\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c .d)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a .b:has(.c .d) .e\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b:is(.c .d))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:is(.b:has(.c) .d)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:not(:has(.b))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(:not(.b))\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \".a:has(.b):has(.c)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \"*|*:has(*)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API accepts \":has(*|*)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \".a:has\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \".a:has b\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has()\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has(123)\"",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "Selector API rejects \":has(.a, 123)\"",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-basic.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 18,
+            "passed": 18,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(#a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.ancestor) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.descendant) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(.target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.sibling ~ .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(.sibling ~ .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(:is(.target ~ .sibling .descendant)) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(:is(.target ~ .sibling .descendant)) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".sibling:has(.descendant) ~ .target matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .parent) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> .parent, > .target) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ #h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".parent:has(~ #h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".sibling:has(.descendant) matches expected element",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": "closest(.ancestor:has(.descendant)) returns expected element",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.target ~ .sibling .descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-relative-argument.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 35,
+            "passed": 35,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ".x:has(.a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .a ~ .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a > .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b > .c) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .a + .b .c) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.d .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(.d .e) .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .d) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(> .d) .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .d ~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(~ .d ~ .e) ~ .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .d ~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".x:has(+ .d ~ .e) ~ .f matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(> .g .h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(.g .h) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(> .g .h) .i matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".y:has(.g .h) .i matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".d .x:has(.e) matches expected elements",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".d ~ .x:has(~ .e) matches expected elements",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-argument-with-explicit-scope.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 13,
+            "passed": 13,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(:scope) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(:scope .c) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(.a :scope) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c and :is(.a :scope .c) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c matches expected elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".a:has(:scope) .c and :is(.a :scope .c) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) matches expected elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and :scope .c:has(.d) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and .c:has(.d) returns same elements on scope1",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) matches expected elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and :scope .c:has(.d) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ".c:has(:is(:scope .d)) and .c:has(.d) returns same elements on scope2",
+              "status": 0,
+              "message": null
+            }
+          ]
+        },
+        {
+          "path": "/css/selectors/has-matches-to-uninserted-elements.html",
+          "group": "has",
+          "adaptation": null,
+          "counts": {
+            "total": 12,
+            "passed": 12,
+            "failed": 0
+          },
+          "harness": {
+            "status": 0,
+            "message": null
+          },
+          "tests": [
+            {
+              "name": ":has(child) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> child) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> descendant) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ direct_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ direct_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ indirect_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ indirect_sibling) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(*) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(> *) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(~ *) matches expectedly",
+              "status": 0,
+              "message": null
+            },
+            {
+              "name": ":has(+ *) matches expectedly",
+              "status": 0,
+              "message": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
