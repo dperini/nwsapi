@@ -1,11 +1,13 @@
 import {
   BROWSER_SETUP_PATH,
+  TOOL_SETUP_PATH,
   UPSTREAM_HELPER_PATH,
   WPT_CANDIDATES_PATH,
-} from './lib/paths.mts'
-import { isMainModule, runNode } from './lib/run-node.mts'
+} from '../lib/paths.mts'
+import { isMainModule, runNode } from '../lib/run-node.mts'
 
 export function setupUpstream(run = runNode) {
+  run(TOOL_SETUP_PATH, [])
   run(UPSTREAM_HELPER_PATH, ['clone'])
   run(UPSTREAM_HELPER_PATH, ['verify'])
   run(WPT_CANDIDATES_PATH, [])

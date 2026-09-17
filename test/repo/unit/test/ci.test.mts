@@ -59,3 +59,19 @@ test('browser and package fixtures select their distinct lanes', () => {
     true,
   )
 })
+
+test('Node provisioning and consumer changes run package interoperability', () => {
+  for (const file of [
+    '.config/node-interop.json',
+    '.github/workflows/node.js.yml',
+    'scripts/repo/node.mts',
+    'scripts/repo/setup/tools.mts',
+    'scripts/repo/setup/download.mts',
+    'scripts/repo/external-tools.mts',
+    '.config/external-tools.json',
+    '.github/workflows/coverage.yml',
+    'test/repo/e2e/fixture/node-interop.mts',
+  ]) {
+    assert.equal(planCiTests([file]).package, true, file)
+  }
+})

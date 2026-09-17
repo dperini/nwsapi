@@ -131,14 +131,16 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-Use Node.js 26 and pnpm ≥ 12.3.4 to contribute.
+Use Node.js 22.18 or newer to bootstrap the pinned contributor toolchain.
 
 ```sh
+node scripts/repo/setup/tools.mts
+export PATH="$PWD/.cache/bin:$PATH"
 pnpm install
 pnpm test
 ```
 
-The install sets up WPT and Chromium for browser tests. It needs Git and network access.
+The bootstrap downloads the pinned `nub` and `pnpm` GitHub release archives and the `npm` registry archive. It verifies their committed integrity hashes before extraction, then uses `nub` to provision Node. `pnpm install` repeats tool verification and sets up WPT and Chromium. Setup needs Git, archive extraction tools, and network access.
 Node tests do not use the browser or WPT checkout.
 
 <details>
@@ -156,7 +158,7 @@ Run `pnpm run test:watch` to repeat Node tests while you edit files.
 
 Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
-CI uses one Node.js 26 job.
+CI uses one Node.js 26 job. The package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 
 </details>
 
@@ -198,7 +200,8 @@ Use `pnpm run soak:bypass package@version` for an exact, dated exception.
 Compiler tool versions need a separate compatibility review.
 New dependency versions have a one-day release delay. Dependency scripts need explicit approval.
 Use pnpm to install this repository. npm cannot install its catalog references.
-CI reads Node.js and package manager versions from `.config/external-tools.json`.
+Local setup and CI read exact tool versions, platform assets, and integrity hashes from `.config/external-tools.json`. See [verified tool setup](docs/repo/development/toolchain.md) for cache behavior and pin updates.
+The package interoperability versions are pinned in `.config/node-interop.json`. Run `pnpm run setup:node` after changing those pins.
 
 </details>
 

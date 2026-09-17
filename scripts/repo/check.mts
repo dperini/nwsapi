@@ -11,12 +11,12 @@ import {
   TSC_CONFIG_PATH,
 } from './lib/paths.mts'
 import { isMainModule, runNode } from './lib/run-node.mts'
-import { toolVersions } from './external-tools.mts'
+import { checkExternalTools } from './external-tools.mts'
 import { checkSoak } from './soak.mts'
 
 export function checkCode(run = runNode) {
   checkNativeContract()
-  toolVersions()
+  checkExternalTools()
   checkSoak()
   run(API_SCRIPT_PATH, ['--check'])
   run(SVG_CHECK_SCRIPT_PATH, [])

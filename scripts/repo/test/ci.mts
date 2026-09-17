@@ -60,7 +60,15 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
     normalized.some(
       file =>
         file.startsWith('scripts/repo/build/') ||
-        file === 'test/repo/e2e/jsdom-adapter-package.mts',
+        file === 'scripts/repo/node.mts' ||
+        file.startsWith('scripts/repo/setup/') ||
+        file === 'scripts/repo/external-tools.mts' ||
+        file === '.config/external-tools.json' ||
+        file === '.github/workflows/coverage.yml' ||
+        file === '.config/node-interop.json' ||
+        file === '.github/workflows/node.js.yml' ||
+        file === 'test/repo/e2e/jsdom-adapter-package.mts' ||
+        file === 'test/repo/e2e/fixture/node-interop.mts',
     )
   const fuzz =
     sourceChanged ||

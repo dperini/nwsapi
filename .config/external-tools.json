@@ -1,8 +1,166 @@
 {
   "$schema": "./external-tools.schema.json",
   "tools": {
-    "node": { "origin": "system", "version": "26" },
-    "npm": { "origin": "system", "version": "12.0.2" },
-    "pnpm": { "origin": "system", "version": "12.4.1" }
+    "node": {
+      "origin": "nub",
+      "version": "26.9.0"
+    },
+    "npm": {
+      "origin": "npm",
+      "repository": "npm:npm",
+      "version": "12.0.2",
+      "asset": "npm-12.0.2.tgz",
+      "integrity": "sha512-uIXokLlBj6FpNUTQX1PmT5pz7BlIN9QlixX+zdaSNHsd0qUXsbDLr50xzY6Sw7cJVr0uzHKDOle0swmPW/p5Qw==",
+      "binary": "package/bin/npm-cli.js"
+    },
+    "pnpm": {
+      "origin": "gh-asset",
+      "repository": "github:pnpm/pnpm",
+      "version": "12.4.1",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "pnpm-darwin-arm64.tar.gz",
+          "integrity": "sha256-Qy/RUcEEd2MM9cn0EgnCp7daxtznslM6RZUZ2viVTFI=",
+          "binary": "pnpm"
+        },
+        "darwin-x64": {
+          "asset": "pnpm-darwin-x64.tar.gz",
+          "integrity": "sha256-mJIUCdsvUQzMTrUh+b/sUePx6An9ZnF6Bili87Kkzeo=",
+          "binary": "pnpm"
+        },
+        "linux-arm64": {
+          "asset": "pnpm-linux-arm64.tar.gz",
+          "integrity": "sha256-FPej5n1ljUyoACwqoFZ/J9xf4Fap8p+Yun0r/WyBWRs=",
+          "binary": "pnpm"
+        },
+        "linux-arm64-musl": {
+          "asset": "pnpm-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-JuumFWtrR9jFieLtdq+bPToAHZ2H3UdpdUodCfB1Bbs=",
+          "binary": "pnpm"
+        },
+        "linux-x64": {
+          "asset": "pnpm-linux-x64.tar.gz",
+          "integrity": "sha256-ZumIYpkIXa3lbiA64ONYbzV4f4gBpo0z7AesF7DeIAE=",
+          "binary": "pnpm"
+        },
+        "linux-x64-musl": {
+          "asset": "pnpm-linux-x64-musl.tar.gz",
+          "integrity": "sha256-tyz8IUDi8zgOJlVaR0+OCRpEMTdPrOYwpQsA5NuZLds=",
+          "binary": "pnpm"
+        },
+        "win32-arm64": {
+          "asset": "pnpm-win32-arm64.zip",
+          "integrity": "sha256-ZTbDyGR2SABaNHw0gAQLn7Z3Y/B/vKQ98HOKlcGkEYg=",
+          "binary": "pnpm.exe"
+        },
+        "win32-x64": {
+          "asset": "pnpm-win32-x64.zip",
+          "integrity": "sha256-NWCSrb1PaWcJRe0kx/yplLpN2fuvI7Aou5cIr9e8Z24=",
+          "binary": "pnpm.exe"
+        }
+      }
+    },
+    "nub": {
+      "origin": "gh-asset",
+      "repository": "github:nubjs/nub",
+      "version": "0.9.2",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "nub-darwin-arm64.tar.gz",
+          "integrity": "sha256-eDutTkpLDm+/CXoYuapfXPJm2AeoHV+7s7AbYZg0wVk=",
+          "binary": "bin/nub"
+        },
+        "darwin-x64": {
+          "asset": "nub-darwin-x64.tar.gz",
+          "integrity": "sha256-B3jOkAC9gb9q4Dc8LfzDmtADmF4i8dgp5mRIedumcjs=",
+          "binary": "bin/nub"
+        },
+        "linux-arm64": {
+          "asset": "nub-linux-arm64.tar.gz",
+          "integrity": "sha256-+8mZUaMhKX+jBJP6wwmicyLpA40G0TJCHkxNYdXxqXs=",
+          "binary": "bin/nub"
+        },
+        "linux-arm64-musl": {
+          "asset": "nub-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-XydRTUCpMgMm69IUzvbA8I40WOAGDwk8IX+lXlEsytY=",
+          "binary": "bin/nub"
+        },
+        "linux-x64": {
+          "asset": "nub-linux-x64.tar.gz",
+          "integrity": "sha256-Ch1u2oPfyxMOHkqjb/8j+hsINB50vPqlOajor2dLfB8=",
+          "binary": "bin/nub"
+        },
+        "linux-x64-musl": {
+          "asset": "nub-linux-x64-musl.tar.gz",
+          "integrity": "sha256-+2B/Cj8ODANUeLM3/zNbUCndCN0hCxA2FzbcShASYjk=",
+          "binary": "bin/nub"
+        },
+        "win32-arm64": {
+          "asset": "nub-win32-arm64.zip",
+          "integrity": "sha256-k2q5n2sWfvfDBiM4HXngIEH+hUvD4j6hY7USCpEA5Kk=",
+          "binary": "bin/nub.exe"
+        },
+        "win32-x64": {
+          "asset": "nub-win32-x64.zip",
+          "integrity": "sha256-hWAtgD/+D5KmZmQXKHCRa/iUXCiJphGNwBeUvVMIc84=",
+          "binary": "bin/nub.exe"
+        }
+      }
+    },
+    "sfw": {
+      "origin": "gh-asset",
+      "repository": "github:SocketDev/sfw-free",
+      "version": "1.15.2",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "sfw-free-macos-arm64",
+          "integrity": "sha256-KMTRTtXbCeOj4pnAIDbdqlJMXEdsso4y3qxPdwkayss=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "darwin-x64": {
+          "asset": "sfw-free-macos-x86_64",
+          "integrity": "sha256-Or1ghgmOatYEqIFM1qXZ5d2OZMIQhYP56FwS4IuqeiY=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "linux-arm64": {
+          "asset": "sfw-free-linux-arm64",
+          "integrity": "sha256-0+VJDnoTFf8rqbzJA9nVfeBC2Nzeg93h1ZU2clpHCUY=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "linux-arm64-musl": {
+          "asset": "sfw-free-musl-linux-arm64",
+          "integrity": "sha256-E/Qy0mfJJGtNvXQUk+e0D6ccQIIj9++DYMjA/OHoEww=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "linux-x64": {
+          "asset": "sfw-free-linux-x86_64",
+          "integrity": "sha256-/qgXGAj52RNjXI9V+nD35yRRzTiw/KPWlOEu4anX/Gg=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "linux-x64-musl": {
+          "asset": "sfw-free-musl-linux-x86_64",
+          "integrity": "sha256-AHqXablSNdOIEYIuWZ/16CLZxGho0mO4K0KjHwOwBSw=",
+          "binary": "sfw",
+          "format": "binary"
+        },
+        "win32-arm64": {
+          "asset": "sfw-free-windows-arm64.exe",
+          "integrity": "sha256-12Lrhdt7OfDRTzckUU4etF+GlVtrx6mXi8gpF1Sb9Os=",
+          "binary": "sfw.exe",
+          "format": "binary"
+        },
+        "win32-x64": {
+          "asset": "sfw-free-windows-x86_64.exe",
+          "integrity": "sha256-iAKs4VhCEu0DYdtvTxJEf59Ca1LCTq2lT3YlkQw9UpI=",
+          "binary": "sfw.exe",
+          "format": "binary"
+        }
+      }
+    }
   }
 }

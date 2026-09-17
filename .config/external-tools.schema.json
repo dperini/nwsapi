@@ -1,30 +1,146 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Contributor tools",
+  "title": "Verified contributor tool releases",
   "type": "object",
   "additionalProperties": false,
   "required": ["tools"],
   "properties": {
-    "$schema": { "type": "string" },
+    "$schema": {
+      "type": "string"
+    },
     "tools": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["node", "npm", "pnpm"],
+      "required": ["node", "npm", "pnpm", "nub", "sfw"],
       "properties": {
-        "node": { "$ref": "#/$defs/tool" },
-        "npm": { "$ref": "#/$defs/tool" },
-        "pnpm": { "$ref": "#/$defs/tool" }
+        "node": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["origin", "version"],
+          "properties": {
+            "origin": {
+              "const": "nub"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+            }
+          }
+        },
+        "npm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "origin",
+            "repository",
+            "version",
+            "asset",
+            "binary",
+            "integrity"
+          ],
+          "properties": {
+            "origin": {
+              "const": "npm"
+            },
+            "repository": {
+              "const": "npm:npm"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+            },
+            "asset": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+\\.(?:tar\\.gz|tgz|zip)$"
+            },
+            "binary": {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+            },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+            }
+          }
+        },
+        "pnpm": {
+          "$ref": "#/$defs/github"
+        },
+        "nub": {
+          "$ref": "#/$defs/github"
+        },
+        "sfw": {
+          "$ref": "#/$defs/github"
+        }
       }
     }
   },
   "$defs": {
-    "tool": {
+    "asset": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["origin", "version"],
+      "required": ["asset", "binary", "integrity"],
       "properties": {
-        "origin": { "const": "system" },
-        "version": { "type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){0,2}$" }
+        "asset": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"
+        },
+        "binary": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"
+        },
+        "integrity": {
+          "type": "string",
+          "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+        },
+        "format": {
+          "enum": ["archive", "binary"],
+          "default": "archive"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "format": {
+                "const": "binary"
+              }
+            },
+            "required": ["format"]
+          },
+          "else": {
+            "properties": {
+              "asset": {
+                "pattern": "^[A-Za-z0-9_.-]+\\.(?:tar\\.gz|tgz|zip)$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["origin", "repository", "version", "platforms"],
+      "properties": {
+        "origin": {
+          "const": "gh-asset"
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^github:[\\w-]+/[\\w.-]+$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "platforms": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/asset"
+          }
+        }
       }
     }
   }

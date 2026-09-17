@@ -67,6 +67,10 @@ export const BROWSER_SETUP_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/browser.mts',
 )
+export const TOOL_SETUP_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/setup/tools.mts',
+)
 export const TAZE_CLI_PATH = path.join(
   REPO_ROOT,
   'node_modules/taze/bin/taze.mjs',

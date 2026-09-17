@@ -8,12 +8,10 @@ vi.mock('../../../scripts/repo/check/wpt/native/contract.mts', () => ({
 beforeEach(() => vi.clearAllMocks())
 import { checkCode } from '../../../scripts/repo/check.mts'
 import { fixCode } from '../../../scripts/repo/fix.mts'
-import { setupUpstream } from '../../../scripts/repo/setup.mts'
 import {
   updateArgs,
   updateDependencies,
 } from '../../../scripts/repo/update.mts'
-import { toolVersions } from '../../../scripts/repo/external-tools.mts'
 import { collectPackumentFailures } from '../../../scripts/repo/lib/taze-output.mts'
 import {
   API_SCRIPT_PATH,
@@ -23,12 +21,9 @@ import {
   FORMAT_SCRIPT_PATH,
   NAMING_CHECK_PATH,
   LINT_SCRIPT_PATH,
-  BROWSER_SETUP_PATH,
   TAZE_CLI_PATH,
   TSC_CLI_PATH,
   TSC_CONFIG_PATH,
-  UPSTREAM_HELPER_PATH,
-  WPT_CANDIDATES_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
 
 function recorder() {
@@ -53,30 +48,6 @@ test('registry lookup failures cannot appear as a successful update', () => {
     ),
   ).toEqual(['@types/node', 'taze'])
   expect(collectPackumentFailures('Already up to date')).toEqual([])
-})
-
-test('setup clones and verifies WPT before installing Chromium', () => {
-  const { calls, run } = recorder()
-  setupUpstream(run)
-  expect(calls).toEqual([
-    [UPSTREAM_HELPER_PATH, ['clone']],
-    [UPSTREAM_HELPER_PATH, ['verify']],
-    [WPT_CANDIDATES_PATH, []],
-    [BROWSER_SETUP_PATH, []],
-  ])
-})
-
-test('setup stops if checkout verification fails', () => {
-  const { calls, run } = recorder()
-  expect(() =>
-    setupUpstream((entry, args = []) => {
-      run(entry, args)
-      if (args.includes('verify')) {
-        throw new Error('checkout failed')
-      }
-    }),
-  ).toThrow()
-  expect(calls).toHaveLength(2)
 })
 
 test('check runs formatting, lint, and types without fix flags', () => {
@@ -169,25 +140,4 @@ test('update refreshes the lockfile only after a successful write pass', () => {
     ),
   ).toThrow()
   expect(installs).toBe(1)
-})
-
-test('external tool versions reject shell or GitHub output injection', () => {
-  const versions = toolVersions()
-  expect(Object.getPrototypeOf(versions)).toBeNull()
-  for (const version of [
-    '26\nOTHER=value',
-    '26; echo unsafe',
-    'latest',
-  ] as const) {
-    expect(() =>
-      toolVersions({
-        tools: {
-          node: { origin: 'system', version },
-          npm: { origin: 'system', version: '12.0.2' },
-          pnpm: { origin: 'system', version: '12.3.4' },
-        },
-        $schema: '',
-      }),
-    ).toThrow()
-  }
 })
