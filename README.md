@@ -1,7 +1,7 @@
 # [NWSAPI](http://dperini.github.io/nwsapi/)
 
 <a href="https://badge.socket.dev/npm/package/nwsapi"><img src="https://badge.socket.dev/npm/package/nwsapi" alt="Socket Badge" height="20"></a>
-<picture><img src="https://raw.githubusercontent.com/dperini/nwsapi/HEAD/assets/repo/coverage.svg?v=66258ab9f3b4" height="20" alt="Coverage" /></picture>
+<picture><img src="https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/coverage.svg?v=66258ab9f3b4" height="20" alt="Coverage" /></picture>
 
 Fast CSS selectors API engine with zero dependencies that works in Node.js and browsers.
 

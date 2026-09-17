@@ -8,6 +8,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { JSDOM } from 'jsdom'
 import { test, type TestContext } from 'vitest'
 import { makeCoverageBadge } from '../../../../../scripts/repo/gen/coverage-badge.mts'
 import {
@@ -71,12 +72,17 @@ test('replaces an unmeasured badge with coverage and an absolute README image', 
   )
   assert.equal(badge, coverageBadgeSvg(89.6))
   const readme = readFileSync(path.join(repoRoot, 'README.md'), 'utf8')
-  assert.match(
-    readme,
-    /https:\/\/raw.githubusercontent.com\/dperini\/nwsapi\/HEAD\/assets\/repo\/coverage.svg/,
+  const { window } = new JSDOM(readme)
+  t.onTestFinished(() => window.close())
+  const image = window.document.querySelector('img')!
+  const imageUrl = new URL(image.src)
+  assert.equal(imageUrl.origin, 'https://raw.githubusercontent.com')
+  assert.equal(
+    imageUrl.pathname,
+    '/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/coverage.svg',
   )
-  assert.match(readme, /height="20"/)
-  assert.doesNotMatch(readme, /width=/)
+  assert.equal(image.height, 20)
+  assert.equal(image.hasAttribute('width'), false)
   assert.equal(makeCoverageBadge({ repoRoot, check: true }), 0)
   assert.equal(readFileSync(path.join(repoRoot, 'README.md'), 'utf8'), readme)
   summary(40)

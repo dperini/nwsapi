@@ -14,11 +14,8 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-// The git ref a COMMITTED README pins its asset URLs to. `HEAD` tracks the
-// repo's default branch, so a reader always sees the badge that is currently
-// committed. Note: the publish-time pin uses a release sha instead, because a
-// shipped tarball wants the bytes of that release rather than today's HEAD.
-export const RAW_HEAD_REF = 'HEAD'
+// The maintenance branch has no generated assets. Keep README images on v3.
+export const RAW_ASSET_REF = 'refs/heads/prerelease/3.0.0'
 
 /**
  * The GitHub owner/repo from a package.json `repository` field, which npm lets
@@ -59,13 +56,9 @@ export function rawBaseUrl(slug: string, ref: string): string {
   return `https://raw.githubusercontent.com/${slug}/${ref}/`
 }
 
-/**
- * The absolute URL a COMMITTED README uses for a repo-relative asset path, e.g.
- * `SocketDev/socket-lib` + `assets/coverage.svg` →
- * `https://raw.githubusercontent.com/SocketDev/socket-lib/HEAD/assets/coverage.svg`.
- */
+// README assets use an absolute URL so they also render on the npm page.
 export function rawAssetUrl(slug: string, assetPath: string): string {
-  return `${rawBaseUrl(slug, RAW_HEAD_REF)}${assetPath}`
+  return `${rawBaseUrl(slug, RAW_ASSET_REF)}${assetPath}`
 }
 
 /**

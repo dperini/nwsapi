@@ -3,10 +3,10 @@
  *   badge SVG + README reference from a coverage run) and
  *   check/coverage-badge-is-current.mts (asserts the badge matches actual
  *   coverage). The badge is a repo-local optimized SVG asset — no third-party
- *   badge host — generated at `assets/repo/coverage.svg` and referenced
- *   by the README as a dimensioned `<img>` (standardized `height="20"` + the
- *   SVG's exact width, so the badge row aligns with no layout shift) whose src
- *   is the asset's ABSOLUTE raw-GitHub URL at HEAD. One place owns the SVG
+ *   badge host — generated at `assets/repo/coverage.svg` and referenced by the
+ *   README as a dimensioned `<img>` (standardized `height="20"` + the SVG's
+ *   exact width, so the badge row aligns with no layout shift) whose src is the
+ *   asset's absolute raw-GitHub URL on the v3 branch. One place owns the SVG
  *   renderer, the color buckets, the README regexes, and the coverage-total
  *   read, so the writer and the checker can never disagree on what "current"
  *   means. `migrateReadmeBadge` rewrites every older spelling to that current
@@ -95,7 +95,7 @@ export const BADGE_PLACEHOLDER = 'n/a'
 // The current README reference: a dimensioned <img> whose src is the badge's
 // absolute raw-GitHub URL. Slug- and ref-agnostic on purpose — a README
 // carrying another repo's slug (a scaffolded copy) or an older ref still
-// matches, so the migrator rewrites it to this repo's HEAD url.
+// matches, so the migrator rewrites it to this repo's configured asset ref.
 const ABSOLUTE_IMG_BADGE_RE =
   /<img src="https:\/\/raw\.githubusercontent\.com\/[^"]+\/assets\/repo\/coverage\.svg(?:\?[^"<>]*)?"[^>]*\/>/
 
