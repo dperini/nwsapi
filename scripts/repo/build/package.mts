@@ -15,8 +15,13 @@ import type { Node, CallExpression, ImportExpression, Literal } from 'acorn'
 import { packageFiles } from '../../../.config/build.config.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
+import {
+  assertPackageFiles,
+  checkPackageManifest,
+  publishedManifest,
+} from './manifest.mts'
 
-function moduleSpecifier(node: Node): Literal | undefined {
+export function moduleSpecifier(node: Node): Literal | undefined {
   let specifier: Node | undefined
   if (node.type === 'CallExpression') {
     const call = node as CallExpression
@@ -95,6 +100,7 @@ export function relocateImports(
 }
 
 export async function stagePackage(root = REPO_ROOT) {
+  const manifest = publishedManifest(checkPackageManifest(root))
   const directory = await mkdtemp(path.join(os.tmpdir(), 'nwsapi-package-'))
   try {
     for (const file of packageFiles) {
@@ -115,20 +121,6 @@ export async function stagePackage(root = REPO_ROOT) {
     }
     for (const name of ['LICENSE', 'README.md']) {
       await copyFile(path.join(root, name), path.join(directory, name))
-    }
-    const manifest = JSON.parse(
-      await readFile(path.join(root, 'package.json'), 'utf8'),
-    )
-    manifest.main = './src/nwsapi'
-    manifest.bin = { nwsapi: './bin/nwsapi.js' }
-    manifest.files = packageFiles.map(file => file.published)
-    for (const key of [
-      'scripts',
-      'devDependencies',
-      'devEngines',
-      'allowScripts',
-    ]) {
-      delete manifest[key]
     }
     await writeFile(
       path.join(directory, 'package.json'),
@@ -166,7 +158,11 @@ export async function packPackage(destination: string, root = REPO_ROOT) {
         },
       ),
     )
-    return Array.isArray(response) ? response[0] : response.nwsapi || response
+    const packed = Array.isArray(response)
+      ? response[0]
+      : response.nwsapi || response
+    assertPackageFiles(packed.files.map((file: { path: string }) => file.path))
+    return packed
   } finally {
     await rm(directory, { recursive: true, force: true })
   }

@@ -2,6 +2,8 @@
 
 `pnpm run release --help` describes the release commands. Use the version intended for publication. Examples below use `3.0.0-beta.1` only as a placeholder. The request in `.config/release-request.json` stays disabled until preparation records a version.
 
+Each command also has a package-script alias: `release:prepare`, `release:status`, `release:stage`, `release:verify`, `release:approve`, `release:burn`, `release:trust`, and `release:login`. For example, `pnpm run release:prepare 3.0.0-beta.1` plans a candidate. Mutating commands still require `--apply`, and staging still requires CI with OIDC. Direct repository packing and publishing are blocked by lifecycle guards. Use `pnpm run package` to inspect a tarball locally and the staged release commands to publish it.
+
 ## Configure publishing
 
 Run these commands from a maintainer terminal with GitHub repository administration access and npm package ownership:

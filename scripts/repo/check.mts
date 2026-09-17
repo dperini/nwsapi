@@ -17,11 +17,13 @@ import { checkInlineWorkflows } from './check/workflows.mts'
 import { checkCatalog } from './check/catalog.mts'
 import { generateAgentFavicon } from './gen/agent-favicon.mts'
 import { generateSchemas } from './schema/run.mts'
+import { checkPackageManifest } from './build/manifest.mts'
 
 export function checkCode(run = runNode) {
   checkNativeContract()
   checkExternalTools()
   checkCatalog()
+  checkPackageManifest()
   generateSchemas(true)
   generateAgentFavicon(true)
   checkSoak()

@@ -40,6 +40,12 @@ The mapping in `.config/build.config.mts` preserves the published `src/nwsapi.js
 
 Direct packing from the repository is rejected because it bypasses this mapping. Package tests install the staged tarball into a separate temporary project, check its file list, run its executable, and exercise the `jsdom` adapter.
 
+Both the repository and staged manifests use exact `files` lists, including `package.json`, `README.md`, and `LICENSE`, which npm includes automatically. `pnpm run check:package` verifies the repository manifest against the build mapping. Every pack rejects unexpected, missing, or duplicate files before a release can stage the tarball. Contributor scripts and development dependencies are removed from the published manifest.
+
+Explicit `exports` preserve the package root, `package.json`, and published deep paths. JavaScript subpaths work with and without `.js` for CommonJS and ESM consumers. The Unicode helper exposes its existing declaration through a `types` condition. Local exports resolve to `dist/`, while staged exports resolve to the corresponding published paths. Unlisted internals cannot be imported through package subpaths.
+
+The repository `.gitignore` follows a default-deny policy: new files are ignored unless a root filename or a maintained directory and extension explicitly allows them. Generated output, caches, and dependencies remain ignored even inside otherwise allowed trees. This Git policy is independent of the package's exact `files` allowlist.
+
 ## Authored sources and local outputs
 
 `src/core/` and `src/extension/` contain category directories only. Each module lives inside the directory that owns its responsibility, including entry points. A module cannot sit beside a directory with the same name.

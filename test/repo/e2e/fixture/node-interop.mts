@@ -28,9 +28,25 @@ const cliOutput = execFileSync(
   { cwd: directory, encoding: 'utf8' },
 )
 assert.equal(JSON.parse(cliOutput).selector, '.card')
-assert.equal(metadata.main, './src/nwsapi')
+assert.equal(metadata.main, './src/nwsapi.js')
 assert.equal(metadata.type, undefined)
-assert.equal(metadata.exports, undefined)
+assert.equal(metadata.exports['.'], metadata.main)
+assert.deepEqual(require('nwsapi/package.json'), metadata)
+for (const [subpath, target] of Object.entries(metadata.exports)) {
+  const runtime =
+    typeof target === 'string'
+      ? target
+      : (target as { default: string }).default
+  const specifier = subpath === '.' ? 'nwsapi' : 'nwsapi' + subpath.slice(1)
+  assert.equal(require.resolve(specifier), path.resolve(installed, runtime))
+  assert.equal(
+    fileURLToPath(import.meta.resolve(specifier)),
+    require.resolve(specifier),
+  )
+}
+assert.throws(() => require.resolve('nwsapi/scripts/repo/release/run.mts'), {
+  code: 'ERR_PACKAGE_PATH_NOT_EXPORTED',
+})
 const factory = require('nwsapi')
 assert.equal(typeof factory, 'function')
 assert.equal(factory, require(path.resolve(installed, 'src/nwsapi.js')))
@@ -42,10 +58,20 @@ assert.equal(consumerRequire('@asamuzakjp/dom-selector'), factory)
 const packageName: string = 'nwsapi'
 assert.equal((await import(packageName)).default, factory)
 assert.equal((await import(packageName + '/src/nwsapi.js')).default, factory)
+assert.equal((await import(packageName + '/src/nwsapi')).default, factory)
 assert.equal(
   (await import(packageName + '/src/dom-selector.js')).default,
   factory.DOMSelector,
 )
+for (const subpath of ['src/modules/nwsapi-legacy', 'dist/external/unicode']) {
+  const exported = require(packageName + '/' + subpath)
+  assert.equal(require(packageName + '/' + subpath + '.js'), exported)
+  assert.equal((await import(packageName + '/' + subpath)).default, exported)
+  assert.equal(
+    (await import(packageName + '/' + subpath + '.js')).default,
+    exported,
+  )
+}
 const { JSDOM } = consumerRequire('jsdom') as typeof Jsdom
 const testingLibrary = consumerRequire(
   '@testing-library/dom',
