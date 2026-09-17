@@ -39,7 +39,7 @@
   },
   "scripts": {
     "lint": "eslint ./src/nwsapi.js",
-    "test": "node --test test/repo/integration/maintenance.test.mts",
+    "test": "node --test test/repo/integration/*.test.mts",
     "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
     "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
     "wpt:verify": "node test/wpt/wpt-launcher.mjs verify"
