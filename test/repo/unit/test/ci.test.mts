@@ -1,7 +1,19 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 
-import { planCiTests } from '../../../../scripts/repo/test/ci.mts'
+import { completePlan, planCiTests } from '../../../../scripts/repo/test/ci.mts'
+
+test('an unavailable comparison runs every lane', () => {
+  assert.deepEqual(completePlan(), {
+    browser: true,
+    fullNode: true,
+    fuzz: true,
+    node: true,
+    package: true,
+    relatedFiles: [],
+    testFiles: [],
+  })
+})
 
 test('documentation changes do not schedule runtime lanes', () => {
   assert.deepEqual(planCiTests(['docs/repo/testing/performance.md']), {
@@ -25,6 +37,25 @@ test('source changes schedule every runtime contract and full Node tests', () =>
     relatedFiles: [],
     testFiles: [],
   })
+})
+
+test('workflow and local action changes exercise every runtime lane', () => {
+  for (const file of [
+    '.github/workflows/node.js.yml',
+    '.github/actions/repo/upload-artifact/action.yml',
+    'scripts/repo/ci/artifact/upload.mts',
+  ]) {
+    const plan = planCiTests([file])
+    for (const lane of [
+      'node',
+      'fullNode',
+      'browser',
+      'package',
+      'fuzz',
+    ] as const) {
+      assert.equal(plan[lane], true, `${file}: ${lane}`)
+    }
+  }
 })
 
 test('a changed Node test runs only its tier', () => {

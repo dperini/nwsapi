@@ -24,6 +24,7 @@
 !/.config/**/*.ts
 !/.github/**/*.Dockerfile
 !/.github/**/*.yml
+!/.github/**/*.mts
 !/assets/**/*.LICENSE
 !/assets/**/*.json
 !/assets/**/*.svg

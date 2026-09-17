@@ -37,6 +37,7 @@
     "../src/**/*.mts",
     "../scripts/repo/**/*.mts",
     "../test/repo/**/*.mts",
+    "../.github/**/*.mts",
     "./*.mts",
     "./repo/**/*.mts",
     "./*.d.ts"

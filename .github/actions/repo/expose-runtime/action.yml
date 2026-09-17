@@ -1,0 +1,5 @@
+name: Expose artifact runtime
+description: Make the runner's artifact credentials available to local upload scripts.
+runs:
+  using: node24
+  main: index.mts

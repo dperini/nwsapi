@@ -1,0 +1,31 @@
+name: Upload artifact
+description: Upload an artifact with the local Wheelhouse-derived service client.
+inputs:
+  name:
+    description: Artifact name
+    required: true
+  path:
+    description: File or directory, including hidden files
+    required: true
+  retention-days:
+    description: Retention in days, capped by repository policy
+    default: '14'
+  if-no-files-found:
+    description: Missing file behavior (warn, error, or ignore)
+    default: warn
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/repo/expose-runtime
+    - name: Upload artifact
+      shell: bash
+      env:
+        ARTIFACT_NAME: ${{ inputs.name }}
+        ARTIFACT_PATH: ${{ inputs.path }}
+        ARTIFACT_RETENTION: ${{ inputs.retention-days }}
+        ARTIFACT_MISSING: ${{ inputs.if-no-files-found }}
+      run: >-
+        node scripts/repo/ci/artifact/upload.mts
+        --name "$ARTIFACT_NAME" --path "$ARTIFACT_PATH"
+        --retention-days "$ARTIFACT_RETENTION"
+        --if-no-files-found "$ARTIFACT_MISSING"

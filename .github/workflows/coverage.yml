@@ -1,16 +1,41 @@
 name: Coverage
+run-name: Coverage prerelease/3.0.0
 
 on:
   push:
     branches: [prerelease/3.0.0]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   coverage:
     if: github.ref == 'refs/heads/prerelease/3.0.0'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (2026-07-20)
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          fi
+          # Full ancestry lets the affected-test planner verify its comparison.
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
       - name: Install integrity-verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
       - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile

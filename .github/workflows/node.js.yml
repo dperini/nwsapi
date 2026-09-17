@@ -1,4 +1,5 @@
 name: nwsapi
+run-name: nwsapi prerelease/3.0.0
 
 on:
   push:
@@ -6,14 +7,35 @@ on:
   pull_request:
     branches: [prerelease/3.0.0]
 
+permissions:
+  contents: read
+
 jobs:
   node:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 (2026-07-20)
-        with:
-          # The affected-test planner must be able to verify the comparison range.
-          fetch-depth: 0
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          fi
+          # Full ancestry lets the affected-test planner verify its comparison.
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
       - name: Install integrity-verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
       # Use real Git for upstream setup, not the local runner's checkout shim.
@@ -39,12 +61,11 @@ jobs:
         id: fuzz
         env:
           FUZZ_TIME_MS: '15000'
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: ./.github/actions/repo/upload-artifact
         if: always() && steps.test-plan.outputs.fuzz == 'true' && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
         with:
           name: fuzz-corpus-${{ github.run_id }}
           path: .vitiate/
-          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
       - name: Test package interoperability on nub-managed Node versions

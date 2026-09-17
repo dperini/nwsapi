@@ -8,7 +8,7 @@ export PATH="$PWD/.cache/bin:$PATH"
 pnpm install
 ```
 
-In PowerShell, prepend the same directory with `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. Both prerelease workflows run the bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`.
+In PowerShell, prepend the same directory with `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. Both prerelease workflows run the bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`. The [workflow guide](workflows.md) describes the local checkout and artifact actions.
 
 The manifest pins platform-specific GitHub release archives for `nub` and `pnpm` and standalone Socket Firewall Free (`sfw`) binaries, including distinct Linux glibc and musl assets. `npm` has one platform-independent registry archive with its pinned SHA-512 integrity. GitHub asset SHA-256 pins come from the release API's digests. No registry wrapper or global package-manager installation is needed.
 

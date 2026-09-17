@@ -24,6 +24,9 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   const dependencyChanged = normalized.some(file =>
     ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'].includes(file),
   )
+  const workflowChanged = normalized.some(
+    file => file.startsWith('.github/') || file.startsWith('scripts/repo/ci/'),
+  )
   const testInfrastructureChanged = normalized.some(
     file =>
       file === 'scripts/repo/test.mts' ||
@@ -33,7 +36,10 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       file === '.config/state-pseudos.config.mts',
   )
   const fullNode =
-    sourceChanged || dependencyChanged || testInfrastructureChanged
+    sourceChanged ||
+    dependencyChanged ||
+    testInfrastructureChanged ||
+    workflowChanged
   const testFiles = normalized.filter(file => TEST_FILE_RE.test(file))
   const relatedFiles = normalized.filter(
     file =>
@@ -45,6 +51,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   )
   const node = fullNode || testFiles.length > 0 || relatedFiles.length > 0
   const browser =
+    workflowChanged ||
     sourceChanged ||
     dependencyChanged ||
     normalized.some(
@@ -55,6 +62,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
         file === 'scripts/repo/browser.mts',
     )
   const packageTest =
+    workflowChanged ||
     sourceChanged ||
     dependencyChanged ||
     normalized.some(
@@ -71,6 +79,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
         file === 'test/repo/e2e/fixture/node-interop.mts',
     )
   const fuzz =
+    workflowChanged ||
     sourceChanged ||
     dependencyChanged ||
     normalized.some(
@@ -88,7 +97,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   }
 }
 
-function gitLines(args: string[]): string[] {
+export function gitLines(args: string[]): string[] {
   return execFileSync('git', args, {
     cwd: REPO_ROOT,
     encoding: 'utf8',
@@ -97,7 +106,7 @@ function gitLines(args: string[]): string[] {
     .filter(Boolean)
 }
 
-function comparisonBase(): string | undefined {
+export function comparisonBase(): string | undefined {
   const baseFlag = process.argv.indexOf('--base')
   if (baseFlag !== -1) {
     return process.argv[baseFlag + 1]
@@ -112,7 +121,7 @@ function comparisonBase(): string | undefined {
   return process.env['CI'] ? undefined : 'HEAD^'
 }
 
-function changedFiles(): { files: string[]; reliable: boolean } {
+export function changedFiles(): { files: string[]; reliable: boolean } {
   const base = comparisonBase()
   if (!base) {
     return { files: [], reliable: false }
@@ -136,7 +145,7 @@ function changedFiles(): { files: string[]; reliable: boolean } {
   }
 }
 
-function completePlan(): CiTestPlan {
+export function completePlan(): CiTestPlan {
   return {
     browser: true,
     fullNode: true,
@@ -148,7 +157,7 @@ function completePlan(): CiTestPlan {
   }
 }
 
-function writeGithubPlan(plan: CiTestPlan): void {
+export function writeGithubPlan(plan: CiTestPlan): void {
   const output = process.env['GITHUB_OUTPUT']
   if (!output) {
     throw new Error('GITHUB_OUTPUT is required with --github-output')
@@ -161,7 +170,7 @@ function writeGithubPlan(plan: CiTestPlan): void {
   )
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const changed = changedFiles()
   const plan = changed.reliable ? planCiTests(changed.files) : completePlan()
   if (process.argv.includes('--github-output')) {

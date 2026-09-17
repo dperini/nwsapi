@@ -13,6 +13,7 @@ export function toolingFiles() {
       '.config/*.mts',
       '.config/repo/**/*.mts',
       '.config/*.d.ts',
+      '.github/**/*.mts',
     ],
     { cwd: REPO_ROOT },
   ).toSorted()
