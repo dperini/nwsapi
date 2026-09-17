@@ -5,7 +5,7 @@ import { REPO_ROOT } from '../lib/paths.mts'
 
 // GitHub's /raw redirect drops query parameters; use the raw host directly.
 export const chartBaseUrl =
-  'https://raw.githubusercontent.com/dperini/nwsapi/master/'
+  'https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/'
 
 export function chartReference(
   href: string,

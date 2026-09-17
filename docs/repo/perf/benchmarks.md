@@ -91,7 +91,7 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Component queries
 
-![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/components-1.svg?v=7bef5016ad82)
+![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/components-1.svg?v=7bef5016ad82)
 
 These queries find controls inside repeated cards by combining classes, attributes and parent-child relationships.
 The cases include primary buttons, cards containing inputs, alternatives grouped with `:is()`, and inputs filtered with `:not()`.
@@ -100,7 +100,7 @@ Both engines return every matching control in document order.
 
 ## Documentation queries
 
-![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/documentation/documentation-1.svg?v=0461509bcfd6)
+![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/documentation/documentation-1.svg?v=0461509bcfd6)
 
 These queries find content within a large documentation fixture, including list links, definition-description links and table cells.
 The example-content case follows a direct-child path from an example container through a paragraph to an anchor.
@@ -109,7 +109,7 @@ It measures selector execution against the existing document, with parsing and d
 
 ## Utility-class queries
 
-![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/atomic/atomic-1.svg?v=53dd85a2aec2)
+![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/atomic/atomic-1.svg?v=53dd85a2aec2)
 
 These queries follow class-based paths through nested navigation and card content.
 The cases locate sidebar links, links within card rows, badges within content cards, and anchors reached through a chain of direct children.
@@ -118,7 +118,7 @@ The fixture contains static HTML, so the timings exclude framework rendering and
 
 ## Basic selectors
 
-![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/identifiers-1.svg?v=5a890f9e35c4)
+![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/identifiers-1.svg?v=5a890f9e35c4)
 
 These cases query an ID, a class, a tag and a combined tag/class selector in the component fixture.
 The result sets range from one targeted input to collections of cards or buttons.
@@ -127,7 +127,7 @@ Compare the engines within each query, since different queries return different 
 
 ## Attribute selectors
 
-![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/attributes-1.svg?v=b1606fc84b26)
+![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/attributes-1.svg?v=b1606fc84b26)
 
 These cases test attribute presence, exact values, value prefixes and whitespace-separated tokens.
 The test-ID queries distinguish finding a specific control from matching a broader set of similarly named controls.
@@ -136,7 +136,7 @@ Together, they compare attribute filtering across several matching rules on the 
 
 ## Relationships
 
-![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/relationships-1.svg?v=a03e5893e020)
+![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/relationships-1.svg?v=a03e5893e020)
 
 These queries find elements through descendant, direct-child, adjacent-sibling and general-sibling relationships.
 The descendant and child cases select buttons beneath `div` elements, with different restrictions on nesting depth.
@@ -145,7 +145,7 @@ The comparison measures these traversal patterns while requiring both engines to
 
 ## Position selectors
 
-![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/positional-1.svg?v=fbb4b58b6f46)
+![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/positional-1.svg?v=fbb4b58b6f46)
 
 These queries select `div` elements by their positions among element siblings.
 The cases cover the first child, last child, even-numbered children and the third child counted from the end.
@@ -154,7 +154,7 @@ The comparison measures positional filtering in the component fixture, with expe
 
 ## Logical selectors
 
-![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/logical-1.svg?v=f600841921d8)
+![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/logical-1.svg?v=f600841921d8)
 
 These queries combine exclusion, selector alternatives and relational conditions through `:not()`, `:is()`, `:where()` and `:has()`.
 The cases exclude buttons with a particular class, select buttons or inputs, and find buttons beneath matching cards.
@@ -162,7 +162,7 @@ The relational case selects a parent based on whether it contains a matching dir
 
 ## Form state selectors
 
-![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/forms-1.svg?v=803c9febcb21)
+![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/forms-1.svg?v=803c9febcb21)
 
 These queries select enabled, optional and read-write inputs, along with disabled buttons.
 They exercise form-state pseudo-classes using the native controls in the component fixture.
@@ -171,7 +171,7 @@ The comparison measures queries against those existing states, with no user inte
 
 ## First matches
 
-![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/first-matches.svg?v=b4ceaadd427c)
+![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/first-matches.svg?v=b4ceaadd427c)
 
 This chart compares direct `first()` and `querySelector()` calls with cold and warm engines.
 Each library receives its own native document containing identical HTML, and initialization happens before timing starts.
@@ -181,7 +181,7 @@ The [raw report](../../../assets/repo/bench/first-query-states.json) retains all
 
 ## Memory footprint
 
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/memory-footprint.svg?v=9fe7a8673b9e)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/memory-footprint.svg?v=9fe7a8673b9e)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -197,7 +197,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
 
-![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/file-size.svg?v=19ad50903632)
+![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/file-size.svg?v=19ad50903632)
 
 This is a file size report, not a timing benchmark.
 `nwsapi` uses its readable `dist/nwsapi.js` core browser file.

@@ -21,7 +21,7 @@ The [recorded data](../../../assets/repo/bench/jsdom-override.json) contains all
 
 </details>
 
-![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/jsdom-override.svg?v=c2f96f2c2de8)
+![Public jsdom selector query comparison](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/jsdom-override.svg?v=c2f96f2c2de8)
 
 These four examples cover class lookup, attribute presence, form state, and a relational component query. They use the public `jsdom` DOM API, including adapter overhead and the host-supplied readers. The full report also includes the cases where the libraries are closer. Shorter bars mean less query time.
 

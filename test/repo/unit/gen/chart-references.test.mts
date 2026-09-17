@@ -25,7 +25,7 @@ test('chart references use artifact hashes and preserve the same target across d
     const url = new URL(first)
     expect(url.origin).toBe(new URL(chartBaseUrl).origin)
     expect(url.pathname).toBe(
-      '/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg',
+      '/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg',
     )
     expect(url.searchParams.get('v')).toBe(
       crypto.createHash('sha256').update(firstBytes).digest('hex').slice(0, 12),

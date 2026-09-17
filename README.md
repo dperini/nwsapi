@@ -11,7 +11,7 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/perf-hero.svg?v=a4a3a4522ed1)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=a4a3a4522ed1)](docs/repo/perf/benchmarks.md)
 
 This summary compares the standalone browser libraries across query time, retained JavaScript heap, and compressed file size.
 
@@ -201,6 +201,7 @@ Compiler tool versions need a separate compatibility review.
 New dependency versions have a one-day release delay. Dependency scripts need explicit approval.
 Use pnpm to install this repository. npm cannot install its catalog references.
 Local setup and CI read exact tool versions, platform assets, and integrity hashes from `.config/external-tools.json`. See [verified tool setup](docs/repo/development/toolchain.md) for cache behavior and pin updates.
+See [security tools and schemas](docs/repo/development/contributor-tools.md) and [staged v3 releases](docs/repo/development/releases.md) for the contributor checks and release commands.
 The package interoperability versions are pinned in `.config/node-interop.json`. Run `pnpm run setup:node` after changing those pins.
 
 </details>

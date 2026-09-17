@@ -23,7 +23,7 @@ The reports record browser versions, source hashes, and upstream revisions. The 
 
 <!-- compliance-summary:start -->
 
-![Selector parsing and matching against Chrome](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/selector-compliance.svg?v=e74a45a733b8)
+![Selector parsing and matching against Chrome](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/selector-compliance.svg?v=e74a45a733b8)
 
 Of 200 targeted cases, 185 use Chrome as their oracle. In those cases, `nwsapi` agrees with Chrome on **185**, compared with **129** for the local source of `@asamuzakjp/dom-selector` 9.1.1. Agreement means the same ordered results or the same error type. 15 reviewed standard, draft, or library extension cases are reported separately because Chrome rejects their syntax. They count as neither passes nor failures. The raw report retains all 200 outcomes.
 
@@ -34,7 +34,7 @@ Of 200 targeted cases, 185 use Chrome as their oracle. In those cases, `nwsapi` 
 | Only `@asamuzakjp/dom-selector` agrees | 0 |
 | Neither library agrees | 0 |
 
-![Selected WPT inputs and local regressions](https://raw.githubusercontent.com/dperini/nwsapi/master/assets/repo/bench/wpt-compliance.svg?v=4d17c8d7f5f7)
+![Selected WPT inputs and local regressions](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/wpt-compliance.svg?v=4d17c8d7f5f7)
 
 The executed suite passes **7,716 of 7,800 upstream WPT subtests** across 171 pages, plus **77 of 77 local regression cases** across 19 pages. Its 84 known failures remain visible. Adaptations remove rendering checks while preserving selector inputs. This suite measures `nwsapi` only. It does not establish a WPT result for `@asamuzakjp/dom-selector`.
 
