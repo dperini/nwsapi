@@ -1,8 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 import { checkNativeContract } from '../../../scripts/repo/check/wpt/native/contract.mts'
+import { generateSchemas } from '../../../scripts/repo/schema/run.mts'
 
 vi.mock('../../../scripts/repo/check/wpt/native/contract.mts', () => ({
   checkNativeContract: vi.fn(),
+}))
+vi.mock('../../../scripts/repo/schema/run.mts', () => ({
+  generateSchemas: vi.fn(),
 }))
 
 beforeEach(() => vi.clearAllMocks())
@@ -54,6 +58,7 @@ test('check runs formatting, lint, and types without fix flags', () => {
   const { calls, run } = recorder()
   checkCode(run)
   expect(checkNativeContract).toHaveBeenCalledOnce()
+  expect(generateSchemas).toHaveBeenCalledWith(true)
   expect(calls).toEqual([
     [API_SCRIPT_PATH, ['--check']],
     [SVG_CHECK_SCRIPT_PATH, []],

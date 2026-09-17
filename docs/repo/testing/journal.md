@@ -68,6 +68,12 @@ The parser-stall regression runs a child process with an external timeout. It no
 
 CI ran past the 10,000ms unit coverage budget at 10,129ms. Comparison-fixture tests now use eight candidates for empty, single-match, dense, and layout checks. The benchmark generator still defaults to 256 candidates, and the test verifies that default separately. Reporter-selection tests mock Playwright's configuration wrapper to avoid loading the browser runner. The local unit coverage run completed in 3,749ms. This local timing is not a hosted-runner comparison.
 
+## Keep schema compilation and formatter processes in integration
+
+The package-publication checks passed all 938 unit assertions, but Linux CI took 10,120ms and 10,093ms on two attempts against the unchanged 10,000ms budget. The schema artifact suite used 1,310ms and 1,347ms to compile validators, run formatter subprocesses, write files, and detect drift. It now runs under `test/repo/integration/schema/run.test.mts` with every assertion preserved. Contributor-command unit tests mock schema generation at the orchestration boundary and verify that check mode is requested. Both Node tiers still run in CI and contribute to coverage.
+
+The next coverage run reached 10,373ms in the combined clean-checkout type and lint test. Those independent commands now have separate integration cases sharing the same source-only fixture. Each keeps its existing 10,000ms timeout, and the integration lane keeps its 60,000ms budget.
+
 ## Guard display-state initialization and body portals
 
 The display-state regression in [issue #214](https://github.com/dperini/nwsapi/issues/214) involves native matching that delegates back into the selector engine. A later [historical reproduction](../selector/display-state.md) confirmed that the repeated calls occur during matching, with no factory initialization probes. The current engine already uses lazy detection and caches reentry. A regression test now verifies zero display-state probes during initialization, inserts a popover into the document body through a click handler, and checks that repeated display-state queries make only one delegation probe. This covers the reported low-level cause. It does not reproduce the reporter's unavailable React application.

@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest'
+import { afterAll, beforeAll, test, expect } from 'vitest'
 import { execFileSync, spawnSync } from 'node:child_process'
 import {
   copyFileSync,
@@ -26,9 +26,10 @@ test('local CI selects the workflow explicitly on feature branches', () => {
   expect(existsSync(path.join(REPO_ROOT, args[workflowIndex + 1]))).toBe(true)
 })
 
-test('type and lint checks pass without build outputs or an incremental cache', t => {
-  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-typecheck-'))
-  t.onTestFinished(() => rmSync(root, { recursive: true, force: true }))
+let root: string
+
+beforeAll(() => {
+  root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-typecheck-'))
   const files = globSync(
     [
       'src/**/*.mts',
@@ -58,6 +59,15 @@ test('type and lint checks pass without build outputs or an incremental cache', 
   )
   expect(existsSync(path.join(root, 'dist/nwsapi.js'))).toBe(false)
   expect(existsSync(path.join(root, '.cache'))).toBe(false)
+})
+
+afterAll(() => {
+  if (root) {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('type checks pass without build outputs or an incremental cache', () => {
   execFileSync(
     process.execPath,
     [
@@ -70,6 +80,9 @@ test('type and lint checks pass without build outputs or an incremental cache', 
     ],
     { cwd: root, stdio: 'pipe' },
   )
+})
+
+test('lint checks pass without build outputs or an incremental cache', () => {
   const lint = spawnSync(process.execPath, ['scripts/repo/lint.mts'], {
     cwd: root,
     encoding: 'utf8',
