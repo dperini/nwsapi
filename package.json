@@ -119,7 +119,9 @@
     "setup:security": "node scripts/repo/run.mts scripts/repo/setup/security.mts",
     "security": "node scripts/repo/run.mts scripts/repo/security/run.mts",
     "gen:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts",
-    "check:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts --check"
+    "check:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts --check",
+    "gen:agent-favicon": "node scripts/repo/run.mts scripts/repo/gen/agent-favicon.mts",
+    "browser:agent": "node scripts/repo/run.mts scripts/repo/agent-browser.mts"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",

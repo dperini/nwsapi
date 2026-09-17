@@ -26,4 +26,4 @@ To update a tool, select its exact upstream release, record each supported asset
 
 Validate a new pin with `node scripts/repo/setup/tools.mts`, `pnpm install --frozen-lockfile`, `pnpm run check`, and `pnpm run test:package`. Test the bootstrap in a disposable checkout without `node_modules` or a tool cache when changing installation code.
 
-The [security tooling guide](contributor-tools.md) covers scanner setup, generated schemas, catalog validation,.
+The [security tooling guide](contributor-tools.md) covers scanner setup, generated schemas, catalog validation, and the agent browser favicon. The [release guide](releases.md) covers staged npm publication and OIDC configuration.

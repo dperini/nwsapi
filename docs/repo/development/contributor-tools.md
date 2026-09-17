@@ -27,3 +27,14 @@ pnpm run check
 ```
 
 The check command detects generated-file drift and inconsistent tool, package-manager, catalog, and lockfile integrity pins. Direct development dependencies use exact pnpm catalog versions. Small command, validation, and release helpers are maintained locally without a dependency on `@socketsecurity/lib`.
+
+## Agent browser favicon
+
+```sh
+pnpm run gen:agent-favicon --preview
+pnpm run gen:agent-favicon --check
+python3 -m http.server 8765 --bind 127.0.0.1 --directory .cache/favicon-preview
+pnpm run browser:agent http://127.0.0.1:8765/
+```
+
+The SVG generator owns the yellow–orange–gold diamond, black Playwright masks, and bottom-aligned AI stripe. Facial cutouts and the gap between the masks expose the diamond's gradient. The preview includes 16px, 32px, and 48px sizes. The browser helper installs the icon on existing pages and later navigations in the pinned Chromium browser. `pnpm run check` verifies that the generated asset is current.

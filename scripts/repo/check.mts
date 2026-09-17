@@ -15,6 +15,7 @@ import { checkExternalTools } from './external-tools.mts'
 import { checkSoak } from './soak.mts'
 import { checkInlineWorkflows } from './check/workflows.mts'
 import { checkCatalog } from './check/catalog.mts'
+import { generateAgentFavicon } from './gen/agent-favicon.mts'
 import { generateSchemas } from './schema/run.mts'
 
 export function checkCode(run = runNode) {
@@ -22,6 +23,7 @@ export function checkCode(run = runNode) {
   checkExternalTools()
   checkCatalog()
   generateSchemas(true)
+  generateAgentFavicon(true)
   checkSoak()
   checkInlineWorkflows()
   run(API_SCRIPT_PATH, ['--check'])
