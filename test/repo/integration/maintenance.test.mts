@@ -307,7 +307,7 @@ test('uninstall restores native collection methods', t => {
   }
 })
 
-test('jsdom state matching cannot recurse indefinitely', () => {
+test('issue 215: direct jsdom state matches stay bounded without install()', () => {
   const result = spawnSync(
     process.execPath,
     [
@@ -319,22 +319,39 @@ test('jsdom state matching cannot recurse indefinitely', () => {
     const jsdomRequire = createRequire(require.resolve('jsdom'))
     const path = jsdomRequire.resolve('nwsapi')
     jsdomRequire(path)
-    require.cache[path].exports = require(source)
+    const factory = require(source)
+    let creations = 0
+    require.cache[path].exports = function(...args) {
+      creations++
+      return factory(...args)
+    }
     const { JSDOM } = require('jsdom')
-    const { window } = new JSDOM('<dialog open></dialog><input>')
-    const original = window.Element.prototype.matches
-    let calls = 0
-    window.Element.prototype.matches = function(selector) {
-      if (++calls > 32) {
-        throw new Error('Recursive host matcher')
+    for (const selector of [
+      ':modal', ':fullscreen', ':open', ':closed',
+      ':picture-in-picture', ':popover-open', ':autofill'
+    ]) {
+      const { window } = new JSDOM('<div id="a"></div><div id="b" popover></div>')
+      try {
+        const before = creations
+        const node = window.document.getElementById(selector === ':popover-open' ? 'b' : 'a')
+        const original = window.Element.prototype.matches
+        let calls = 0
+        window.Element.prototype.matches = function(value) {
+          if (++calls > 16) {
+            throw new Error('Recursive host matcher')
+          }
+          return original.call(this, value)
+        }
+        for (let pass = 0; pass < 10; pass++) {
+          calls = 0
+          assert.equal(node.matches(selector), false, selector)
+          assert.ok(calls >= 1 && calls <= 3, selector + ': ' + calls + ' calls')
+        }
+        assert.equal(creations - before, 1, 'jsdom must use the checkout engine')
+      } finally {
+        window.close()
       }
-      return original.call(this, selector)
     }
-    for (const selector of [':modal', ':fullscreen', ':autofill', ':popover-open']) {
-      window.document.querySelectorAll(selector)
-    }
-    assert.ok(calls <= 32, 'Host matching must not recurse through the engine')
-    window.close()
   `,
       source,
     ],
