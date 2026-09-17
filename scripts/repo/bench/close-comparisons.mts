@@ -7,10 +7,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
 import { components, documentation } from './documents.mts'
-import { nativePage, nativeSources } from './native-host.mts'
-import type { NativeContext, NativeGlobals } from './native-host.mts'
-import { nativeTiming } from './native-timing.mts'
-import { provenance, sha256 } from './footprint-shared.mts'
+import { nativePage, nativeSources } from './native/host.mts'
+import type { NativeContext, NativeGlobals } from './native/host.mts'
+import { nativeTiming } from './native/timing.mts'
+import { provenance, sha256 } from './footprint/shared.mts'
 
 const { values } = parseArgs({
   options: {

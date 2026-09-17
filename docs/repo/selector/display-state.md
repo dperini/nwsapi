@@ -30,7 +30,7 @@ These are diagnostic single-query observations, not throughput benchmarks. Each 
 
 Both historical and current factories made zero matcher calls during initialization in this reproduction. The demonstrated regression starts when display-state matching runs, not during factory construction. The roughly 200-second result in [issue #214](https://github.com/dperini/nwsapi/issues/214) is the reporter's application-suite timing, including test timeouts. This reproduction demonstrates the recursive mechanism without claiming to reproduce that complete application.
 
-Run `node scripts/repo/build/run.mts`, then `node scripts/repo/bench/display-state-reentry.mts` to regenerate the report. It needs local Git history for the historical commit. It uses no network requests.
+Run `node scripts/repo/build/run.mts`, then `node scripts/repo/bench/display-state/reentry/run.mts` to regenerate the report. It needs local Git history for the historical commit. It uses no network requests.
 
 ## Regression checks
 

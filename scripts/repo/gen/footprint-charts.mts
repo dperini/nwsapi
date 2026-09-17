@@ -6,7 +6,7 @@ import {
   chartTextStyles,
 } from '../bench/chart-theme.mts'
 import { escapeText, unitText, packageText } from '../bench/charts.mts'
-import { kib } from '../bench/footprint-shared.mts'
+import { kib } from '../bench/footprint/shared.mts'
 import { optimiseSvg } from './svg-optimize.mts'
 import { refreshChartReferences } from './chart-references.mts'
 

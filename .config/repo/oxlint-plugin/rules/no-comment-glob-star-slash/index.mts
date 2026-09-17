@@ -1,4 +1,4 @@
-// Adapted from Wheelhouse. See docs/repo/tooling/style.md.
+// Adapted from Wheelhouse. See docs/repo/style/configuration.md.
 import type { RuleContext, RuleFixer } from '../../lib/rule-types.mts'
 
 // Walk the comment text char by char, tracking backtick depth. At every

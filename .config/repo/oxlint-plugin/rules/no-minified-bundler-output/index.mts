@@ -1,4 +1,4 @@
-// Adapted from Wheelhouse. See docs/repo/tooling/style.md.
+// Adapted from Wheelhouse. See docs/repo/style/configuration.md.
 function normalizePath(value: string) {
   return value.replaceAll('\\', '/')
 }

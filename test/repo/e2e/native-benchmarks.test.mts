@@ -4,9 +4,9 @@ import { chromium } from '@playwright/test'
 import {
   nativePage,
   nativeSources,
-} from '../../../scripts/repo/bench/native-host.mts'
-import type { NativeGlobals } from '../../../scripts/repo/bench/native-host.mts'
-import { nativeTiming } from '../../../scripts/repo/bench/native-timing.mts'
+} from '../../../scripts/repo/bench/native/host.mts'
+import type { NativeGlobals } from '../../../scripts/repo/bench/native/host.mts'
+import { nativeTiming } from '../../../scripts/repo/bench/native/timing.mts'
 
 test.skipIf(!process.env['NWSAPI_BROWSER'])(
   'direct comparison checks both libraries and prevents fixture scripts from executing',

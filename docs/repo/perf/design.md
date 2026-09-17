@@ -314,7 +314,7 @@ Run the focused tools with saved CommonJS engine files:
 ```sh
 node scripts/repo/bench/profile.mts first-class
 node --trace-opt --trace-deopt scripts/repo/bench/profile.mts first-class
-node scripts/repo/bench/first-cache.mts before-cold.cjs cold-fix.cjs
+node scripts/repo/bench/first/cache.mts before-cold.cjs cold-fix.cjs
 ```
 
 The benchmark uses an operating-system temporary directory if you omit the output argument.

@@ -2,6 +2,8 @@
 
 Authoring files live in `src/`. `pnpm run build` writes generated JavaScript to `dist/`. The `.js` loaders and `.d.ts` declarations in `src/external/` are authored files. The build bundles those loaders into the matching `dist/external/` paths.
 
+Internal types live in `.mts` files, either with the implementation or in a type-only module. `state/types.mts` combines the engine state contracts. Use `import type` for these references. The layout check rejects internal declaration files, including declarations without a matching implementation.
+
 The build entry point is `scripts/repo/build/run.mts`. Its post-build work starts in `scripts/repo/build/post.mts`, with individual transforms under `scripts/repo/build/post/`. The engine bundling helper lives in `scripts/repo/rolldown/engine.mts`. Rolldown plugins live in `.config/repo/rolldown/`.
 
 ## Readable output
@@ -40,7 +42,27 @@ Direct packing from the repository is rejected because it bypasses this mapping.
 
 ## Authored sources and local outputs
 
-Engine code lives in `src/core/`. Its Unicode fallback lives in `src/core/unicode/`. `text-direction.mts` finds the first character with a strong Unicode direction. `dom.mts` handles DOM boundaries, and `directionality.mts` resolves inherited and automatic direction. The adapter, host types, and host-reader validation live in `src/adapter/`. The build bundles `host-readers.mts` into the existing adapter output. Optional selector extensions live in `src/extension/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
+`src/core/` and `src/extension/` contain category directories only. Each module lives inside the directory that owns its responsibility, including entry points. A module cannot sit beside a directory with the same name.
+
+| Core directory | Responsibility |
+| --- | --- |
+| `ancestor/` | Finds ancestors and reuses checks along ancestor chains. |
+| `cache/` | Creates bounded plan caches and weak maps. |
+| `collection/` | Copies, snapshots, combines, and orders query results. |
+| `compile/` | Compiles selectors into resolver functions. `position/` and `pseudo/` hold their respective handlers. |
+| `dom/` | Reads DOM properties, tracks document state, and installs selector methods. |
+| `first/` | Resolves the first matching element and its query shortcuts. |
+| `initialize/` | Loads the engine, creates its state, and configures its methods. |
+| `lookup/` | Finds candidates by class, ID, tag, or namespace. |
+| `match/` | Matches individual elements, relative selectors, language, direction, and slots. |
+| `parser/` | Reads selector syntax, identifiers, strings, comments, and lists. |
+| `predicate/` | Tests element states and token conditions. |
+| `select/` | Resolves all matching elements and descendant chains. |
+| `state/` | Creates engine state and declares its types and legacy contracts. |
+| `unicode/` | Handles code points and Unicode directionality. |
+| `validation/` | Validates selector structures and reports syntax errors. `pseudo/` holds pseudo-class and pseudo-element validation. |
+
+Each optional extension uses the same entry convention: `src/extension/jquery/register.mts`, `src/extension/legacy/register.mts`, and `src/extension/traversal/register.mts`. Supporting modules live beside that entry. The adapter and validated `jsdom` integration live in `src/adapter/`. External loaders keep their matching JavaScript and declaration files in `src/external/`.
 
 The local build emits the core at `dist/nwsapi.js`, the adapter at `dist/adapter/dom-selector.js`, and optional extensions under `dist/modules/`. The adapter stays separate so browser consumers do not load its code. The CommonJS factory loads it lazily through the `DOMSelector` export used by the `jsdom` override.
 
@@ -50,10 +72,12 @@ The shared complexity rule in `.config/fleet/oxlint/complexity.json` limits func
 
 ## Engine module boundaries
 
-`src/core/nwsapi.mts` owns the loading wrapper and captured runtime APIs. `factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
+`src/core/initialize/load.mts` owns the loading wrapper and captured runtime APIs. `initialize/factory.mts` creates one engine state object and initializes its readers, caches, and public methods. Each engine keeps its own state. Query results and DOM references are not shared between documents through a module singleton.
 
-`compile.mts` prepares a resolver and its cleanup. `compile-selector.mts` walks the selector, while `compile-token.mts` dispatches tokens to their handlers. Attribute, combinator, and pseudo-class handlers have separate modules. Positional helpers separate formula parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
+`compile/resolver.mts` prepares a resolver and its cleanup. `compile/selector.mts` walks the selector, while `compile/token.mts` dispatches tokens to their handlers. `compile/pseudo/dispatch.mts` selects the pseudo-class handler. Positional helpers under `compile/position/` separate expression parsing from the code emitted for individual matches, ordered selections, and shared sibling indexes. Their working state belongs to one compilation.
 
-The first-match shortcuts live in `first-simple.mts`. General first-match resolution lives in `first.mts`. The sibling-cache factories live in `create-nth-element.mts` and `create-nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+The first-match shortcuts live in `first/simple.mts` and `first/class.mts`. General first-match resolution lives in `first/select.mts`. The sibling-cache factories live beside the positional compiler as `compile/position/nth-element.mts` and `compile/position/nth-of-type.mts`. Their caches retain the existing query cleanup behavior. Legacy attribute handling lives in `src/extension/legacy/attributes.mts` and is bundled into the optional legacy module.
+
+`pnpm run check` runs `scripts/repo/check/naming.mts`. It rejects loose modules in `src/core/` or `src/extension/`, modules beside a directory with the same name, and a base module beside prefixed helpers such as `language.mts` and `language-parent.mts`. It scans both source and repository scripts for families of three or more hyphen-prefixed sibling modules. Choose a singular directory name that describes the responsibility, then update imports, commands, documentation, and matching test paths.
 
 The build inlines these source modules into the existing distribution files. Consumers do not need to load the source modules separately. API documentation follows parsed declarations and bound engine methods to link to their defining modules.

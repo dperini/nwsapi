@@ -14,7 +14,7 @@ pages that embed helpers or mix direct parsing cases with rendering tests.
 The adapters preserve the selected inputs and reject upstream changes that
 need review.
 
-[`scripts/repo/check/wpt/source.mts`](../../../scripts/repo/check/wpt/source.mts)
+[`scripts/repo/check/wpt/source/inspect.mts`](../../../scripts/repo/check/wpt/source/inspect.mts)
 loads the source used by both the runner and its scope check. It also adapts
 the three matching pages and wraps upstream `.window.js` files in a page
 with testharness. The wrapper executes the original script and rejects

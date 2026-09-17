@@ -5,7 +5,7 @@ import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { JSDOM } from 'jsdom'
 import factory from '../../../dist/nwsapi.js'
-import { profileAncestorMemory } from './ancestor-memory.mts'
+import { profileAncestorMemory } from './ancestor/memory.mts'
 
 const [output, enginePath] = process.argv.slice(2)
 if (!output) {

@@ -5,7 +5,7 @@ import {
   median,
   positiveInteger,
   summarize,
-} from '../../../scripts/repo/bench/footprint-shared.mts'
+} from '../../../scripts/repo/bench/footprint/shared.mts'
 import { fuzzInvocation } from '../../../scripts/repo/fuzz.mts'
 
 test('memory summaries retain noise and compute even-sample medians without changing samples', () => {

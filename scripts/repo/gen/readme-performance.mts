@@ -1,11 +1,11 @@
-import { assertReportIdentity } from '../bench/report-identity.mts'
-import type { ReportIdentity } from '../bench/report-identity.mts'
+import { assertReportIdentity } from '../bench/report/identity.mts'
+import type { ReportIdentity } from '../bench/report/identity.mts'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { refreshChartReferences } from './chart-references.mts'
 import { compactQueryChart } from '../bench/compact-query-chart.mts'
 import { geometricSpeedup, summaryChart } from '../bench/summary-chart.mts'
 import type { Measurement } from '../bench/charts.mts'
-import { kib } from '../bench/footprint-shared.mts'
+import { kib } from '../bench/footprint/shared.mts'
 import type { QueryChartOptions } from '../bench/query-chart.mts'
 
 const root = new URL('../../../', import.meta.url)

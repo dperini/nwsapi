@@ -5,6 +5,13 @@ import { fileURLToPath } from 'node:url'
 export const REPO_ROOT = path.resolve(
   fileURLToPath(new URL('../../../', import.meta.url)),
 )
+export const SOURCE_DIR = path.join(REPO_ROOT, 'src')
+export const CORE_SOURCE_DIR = path.join(SOURCE_DIR, 'core')
+export const REPO_SCRIPT_DIR = path.join(REPO_ROOT, 'scripts/repo')
+export const NAMING_CHECK_PATH = path.join(
+  REPO_ROOT,
+  'scripts/repo/check/naming.mts',
+)
 export const IMPORTANT_ICON_REL_PATH = 'assets/repo/important.svg'
 export const SVG_CHECK_SCRIPT_PATH = path.join(
   REPO_ROOT,
@@ -21,9 +28,12 @@ export const SCRIPT_ENTRYPOINT_CHECK_PATH = path.join(
 export const API_DOC_PATH = path.join(REPO_ROOT, 'docs/repo/selector/api.md')
 export const API_SCRIPT_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/gen/api-md.mts',
+  'scripts/repo/gen/api/markdown.mts',
 )
-export const ENGINE_SOURCE_PATH = path.join(REPO_ROOT, 'src/core/nwsapi.mts')
+export const ENGINE_SOURCE_PATH = path.join(
+  REPO_ROOT,
+  'src/core/initialize/load.mts',
+)
 export const ENGINE_BUILD_PATH = path.join(REPO_ROOT, 'dist/nwsapi.js')
 export const BENCHMARK_CACHE_PATH = path.join(
   REPO_ROOT,
@@ -43,7 +53,7 @@ export const ADAPTER_SOURCE_PATH = path.join(
 )
 export const TRAVERSAL_SOURCE_PATH = path.join(
   REPO_ROOT,
-  'src/extension/nwsapi-traversal.mts',
+  'src/extension/traversal/register.mts',
 )
 export const WPT_CANDIDATES_PATH = path.join(
   REPO_ROOT,

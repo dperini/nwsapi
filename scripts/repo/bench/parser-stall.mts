@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { provenance } from './footprint-shared.mts'
+import { provenance } from './footprint/shared.mts'
 
 export function probeParser(selector: string, timeoutMs = 3000) {
   const result = spawnSync(

@@ -4,7 +4,7 @@ import factory from '../../../dist/nwsapi.js'
 
 // Selector-layer reproductions linked by jsdom/jsdom#3854. Rendering and
 // event-library selector construction remain responsibilities of their hosts.
-import { jsdomSelectorCases } from '../common/jsdom-selector-cases.mts'
+import { jsdomSelectorCases } from '../common/fixture/jsdom-selector.mts'
 
 for (const [issue, html, selector, expected] of jsdomSelectorCases) {
   test(`jsdom#${issue}: selector reproduction`, t => {

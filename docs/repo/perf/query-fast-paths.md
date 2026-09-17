@@ -113,7 +113,7 @@ To repeat the first-match comparison, build the baseline and save its `src/nwsap
 Then build the version that you want to test and run:
 
 ```sh
-node scripts/repo/run.mts scripts/repo/bench/first.mts /path/to/before.cjs /tmp/first-results.json
+node scripts/repo/run.mts scripts/repo/bench/first/timing.mts /path/to/before.cjs /tmp/first-results.json
 ```
 
 The output records timing samples, package versions, CPU details, and hashes for the source files and test HTML.

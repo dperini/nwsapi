@@ -14,20 +14,26 @@ import { expect, test } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
 import installLegacy from '../../../dist/modules/nwsapi-legacy.js'
 import { cases } from '../../../scripts/repo/bench/cases.mts'
-import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
+import {
+  ENGINE_SOURCE_PATH,
+  REPO_ROOT,
+} from '../../../scripts/repo/lib/paths.mts'
 
 test('browser lint rejects unsupported APIs and loops and accepts generated resolvers', t => {
   const directory = mkdtempSync(
     path.join(os.tmpdir(), 'nwsapi-browser-runtime-'),
   )
   t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
-  mkdirSync(path.join(directory, 'src/core'), { recursive: true })
   copyFileSync(
     path.join(REPO_ROOT, 'package.json'),
     path.join(directory, 'package.json'),
   )
   // Match the real source override while keeping all test output outside the repo.
-  const file = path.join(directory, 'src/core/nwsapi.mts')
+  const file = path.join(
+    directory,
+    path.relative(REPO_ROOT, ENGINE_SOURCE_PATH),
+  )
+  mkdirSync(path.dirname(file), { recursive: true })
   const lint = (code: string) => {
     writeFileSync(file, code)
     return spawnSync(

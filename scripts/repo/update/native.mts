@@ -3,8 +3,8 @@ import path from 'node:path'
 import {
   checkNativeContract,
   nativeCachePath,
-} from '../check/wpt/native-contract.mts'
-import { nativePins, type NativePins } from '../check/wpt/native-pool.mts'
+} from '../check/wpt/native/contract.mts'
+import { nativePins, type NativePins } from '../check/wpt/native/pool.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 
@@ -42,7 +42,7 @@ export function updateNative(
     ? JSON.parse(readFileSync(nativeCachePath, 'utf8'))
     : undefined
   run(
-    path.join(REPO_ROOT, 'scripts/repo/check/wpt/native-run.mts'),
+    path.join(REPO_ROOT, 'scripts/repo/check/wpt/native/run.mts'),
     nativeRefreshArgs(nativePins(), cached),
   )
   validate()

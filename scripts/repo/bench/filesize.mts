@@ -10,7 +10,7 @@ import {
   provenance,
   require,
   sha256,
-} from './footprint-shared.mts'
+} from './footprint/shared.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 
 export function fileSizes(code: string | Buffer) {

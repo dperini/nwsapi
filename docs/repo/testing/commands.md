@@ -30,22 +30,32 @@ Type checks run without an incremental cache so they recheck changes to shared d
 
 `test/repo/unit/` covers selector behavior and helpers. `test/repo/integration/` covers the `jsdom` adapter and development commands. `test/repo/e2e/` covers browsers, published packages, and WPT. Reusable DOM fixtures live in `test/repo/common/fixture/`, and fuzz targets live in `test/repo/fuzz/`.
 
+When a suite tests one source module or script, mirror the path after `src/` or `scripts/repo/` inside its test tier. For example, `scripts/repo/check/unicode-es5.mts` has `test/repo/unit/check/unicode-es5.test.mts`. The `src/adapter/dom-selector.mts` adapter has `adapter/dom-selector.test.mts` in both the unit and integration tiers. The separate `adapter/jsdom.test.mts` suite covers `src/adapter/jsdom.mts`, which validates and uses the supplied implementation helpers.
+
+Keep shared input data and setup helpers in the owning tier's `fixture/` directory. Files ending in `.cases.mts` register additional tests and are part of their importing suite. They are executable test cases, so they stay with that suite. Tests spanning several modules may use a behavior name when no single module owns the contract.
+
 Run `pnpm run test:e2e` for the complete browser, package, and WPT lane. Development commands live in `scripts/repo/`. Older HTML suites remain under `test/`, and the pristine WPT checkout remains under `upstream/wpt/`.
 
 ## Integrated host workload
 
-`node scripts/repo/bench/jsdom-workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
+`node scripts/repo/bench/jsdom/workload.mts --host <prepared-jsdom> --wpt <pinned-wpt>` runs the Range mutation page with both engines and records host lifecycle measurements. The command uses fresh processes and local resource interception. It checks the test count and every subtest result before reporting timing. Add `--profile <temporary-prefix>` to save separate CPU profiles and include their summaries in the generated report. See the [performance journal](../perf/journal.md#host-workload-and-adapter-classification) for preparation and measurement boundaries.
 
-Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. The adapter suite covers public queries, stylesheet matching, and recorded GitHub issue regressions. The host-reader suite covers supplied implementation helpers, attribute access, tree traversal, duplicate IDs, mutations, shadow boundaries, and fallback behavior. Both suites load the installed package and its matching `jsdom` utilities. This subset does not run the full WPT or browser suites.
+## Test the Testing Library consumer path
 
-The isolated package test also installs `@testing-library/dom` 10.4.1 and exercises role, label, and test-ID lookups against the packed adapter. Its temporary installation stays outside the repository.
+`@testing-library/dom` is a development-only test consumer. Its role, label, and test-ID queries call the public selector methods supplied by `jsdom`. The adapter redirects those methods to `nwsapi`, so the complete path is `@testing-library/dom` to `jsdom` to `nwsapi`. This covers selectors produced by a widely used consumer without adding a runtime dependency to the published package.
+
+The assertions check returned elements and a synchronous attribute mutation. They do not test Testing Library's own accessibility rules. The consumer contract runs once in `test/repo/e2e/jsdom-adapter-package.mts`, using the packed artifact installed as `jsdom`'s `@asamuzakjp/dom-selector` override. The regular integration suite covers the adapter and selector behavior against `dist/` without repeating this downstream package test.
+
+`@testing-library/dom` is a catalog-managed development dependency, so the repository update tooling can discover and maintain its version. The package harness reads that installed version when it creates the temporary consumer project. The regular integration suite does not execute the package.
+
+Run `pnpm run test:package` for a focused installed-package regression check. It packs `nwsapi` into `os.tmpdir()` and installs it as the `@asamuzakjp/dom-selector` override used by `jsdom`. It verifies the published file list, package metadata, CommonJS entry points, CLI, dependency override, and Testing Library consumer path. Selector, adapter, and host-helper behavior stay in the regular unit and integration suites, where they run once against `dist/`.
 
 ## Compare first-result ID lookups
 
 Build the baseline revision separately and keep its engine file outside this checkout. Then build the candidate and run:
 
 ```sh
-node scripts/repo/bench/first-id.mts --baseline /absolute/path/to/baseline/nwsapi.js
+node scripts/repo/bench/first/id.mts --baseline /absolute/path/to/baseline/nwsapi.js
 ```
 
 The script writes `assets/repo/bench/first-id.json`. It compares document, connected shadow-root, and element-scoped queries. Exact attributes have compound-selector and class-query controls. Each row records correctness before timing. A baseline that returns the wrong node receives no timing result. Warm measurements reuse an engine. Cold measurements use fresh engines with construction outside the timer. Run this comparison without concurrent test or benchmark jobs.
@@ -65,7 +75,7 @@ The script writes `assets/repo/bench/complex-selectors.json`. It runs fresh work
 Keep a separately built baseline engine outside this checkout, build the candidate, and run:
 
 ```sh
-node scripts/repo/bench/has.mts --baseline /absolute/path/to/baseline/nwsapi.js --profile
+node scripts/repo/bench/has/timing.mts --baseline /absolute/path/to/baseline/nwsapi.js --profile
 ```
 
 The script writes `assets/repo/bench/has.json`. It checks node identity and order before recording warm and first-query timings. Cases cover many matches, a late match, misses, branch lists, siblings, positional selectors, and the existing direct-child shortcut. Five rounds alternate engine order. Optional CPU profiles run after the timed batches. Run this comparison without concurrent test or benchmark jobs. The [performance journal](../perf/journal.md#adjacent-class-reads-and-general-has-queries) records the measured gains and limits.
@@ -73,7 +83,7 @@ The script writes `assets/repo/bench/has.json`. It checks node identity and orde
 ## Measure populated `:has()` caches
 
 ```sh
-node scripts/repo/bench/has-memory.mts --baseline /absolute/path/to/baseline/nwsapi.js
+node scripts/repo/bench/has/memory.mts --baseline /absolute/path/to/baseline/nwsapi.js
 ```
 
 The script writes `assets/repo/bench/has-memory.json`. It uses three alternating rounds in native Chromium pages. Each engine receives 512 distinct relative plans, enough additional plans to pass the cache capacity, and another batch to check continued churn. It measures retained JavaScript heap after forced garbage collection, checks removed nodes through weak references, and measures explicit cache clearing. A separate warm-query allocation sample includes collected objects. Whole-page heap includes code and DOM, so compare stage differences and retain the measurement limits in the [journal](../perf/journal.md#sibling-has-scope-and-cache-allocation).
@@ -84,9 +94,9 @@ Save a built CommonJS baseline before building the candidate. The production com
 
 ```sh
 pnpm run build
-node scripts/repo/bench/ancestor-reads.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-timing.json
-node scripts/repo/bench/ancestor-reads.mts --baseline /absolute/path/to/before/nwsapi.js --memory --output assets/repo/bench/ancestor-production-memory.json
-node scripts/repo/bench/ancestor-browser.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-browser.json
+node scripts/repo/bench/ancestor/reads.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-timing.json
+node scripts/repo/bench/ancestor/reads.mts --baseline /absolute/path/to/before/nwsapi.js --memory --output assets/repo/bench/ancestor-production-memory.json
+node scripts/repo/bench/ancestor/browser.mts --baseline /absolute/path/to/before/nwsapi.js --output assets/repo/bench/ancestor-production-browser.json
 ```
 
 These commands compare unmodified compiled resolvers from both builds. They record both build hashes and verify node identity, suffix and prefix mutations, sibling reordering, and reversed candidate order. The browser also checks detached-node collection. Timing excludes compilation and candidate lookup. Run Node timing separately from `--memory`, which samples allocation and records post-GC heap across three rotating rounds. Add `--single` to remove consecutive ancestor reuse opportunities. Use separate output files for those controls.
@@ -107,9 +117,9 @@ To isolate class-reader cost, pass `--attribute-classes --baseline dist/nwsapi.j
 
 ## Profile result arrays
 
-Run `node scripts/repo/bench/result-arrays.mts --output assets/repo/bench/result-arrays-profile.json --memory` for a single-build profile. Add `--baseline /absolute/path/to/before.cjs` to compare builds. Use a separate process without `--memory` for timing conclusions. The fixtures return 0, 1, 16, or 256 nodes through either one class selector or four disjoint groups.
+Run `node scripts/repo/bench/result-array/node.mts --output assets/repo/bench/result-arrays-profile.json --memory` for a single-build profile. Add `--baseline /absolute/path/to/before.cjs` to compare builds. Use a separate process without `--memory` for timing conclusions. The fixtures return 0, 1, 16, or 256 nodes through either one class selector or four disjoint groups.
 
-Run `node scripts/repo/bench/result-arrays-browser.mts /absolute/path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing. Both timing scripts use nine rotating rounds with batches lasting at least 50ms. This makes timer resolution a smaller part of tiny-query measurements. The memory script records allocation traffic and retained heap separately. Keep those measures distinct from timing and from the number of nodes returned.
+Run `node scripts/repo/bench/result-array/browser.mts /absolute/path/to/before.cjs assets/repo/bench/result-arrays-browser.json` for native Chromium timing. Both timing scripts use nine rotating rounds with batches lasting at least 50ms. This makes timer resolution a smaller part of tiny-query measurements. The memory script records allocation traffic and retained heap separately. Keep those measures distinct from timing and from the number of nodes returned.
 
 ## Refresh published comparisons
 
@@ -129,7 +139,7 @@ Follow [the compliance commands](../selector/compatibility.md#reproduce-the-evid
 
 ## Source and package layout
 
-The engine entry is `src/core/nwsapi.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Direction helpers and legacy types live with the engine. Host-reader types live with the adapter. Optional extensions live in `src/extension/`, and external loaders and declarations remain in `src/external/`.
+The engine entry is `src/core/initialize/load.mts`, and the `jsdom` adapter entry is `src/adapter/dom-selector.mts`. Engine implementation families use semantic directories under `src/core/`. The optional extension sources are `src/extension/jquery/register.mts`, `src/extension/legacy/register.mts`, and `src/extension/traversal/register.mts`. External loaders and declarations remain in `src/external/`.
 
 The entry mapping in `.config/build.config.mts` keeps these authoring paths separate from the distribution. The build still emits `dist/nwsapi.js`, `dist/adapter/dom-selector.js`, `dist/bin/`, and `dist/modules/`. Packing stages files under `os.tmpdir()` and preserves the published `src/nwsapi.js`, `src/dom-selector.js`, and `src/modules/` paths. Run `pnpm run test:package` after changing this mapping.
 

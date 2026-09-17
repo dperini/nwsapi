@@ -21,7 +21,7 @@ import { outputFormat, outputs } from '../../../.config/build.config.mts'
 import { packPackage } from '../build/package.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { fileSizes } from './filesize.mts'
-import { provenance, require, sha256, summarize } from './footprint-shared.mts'
+import { provenance, require, sha256, summarize } from './footprint/shared.mts'
 
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`Usage: pnpm run report:build --baseline <revision> [options]
