@@ -123,7 +123,29 @@ test('browser bootstrap safely captures an already-delegating prototype', t => {
   assert.equal(calls, 1)
 })
 
-test('the original jsdom Element.matches route uses this engine without recursion', t => {
+for (const pseudo of pseudos) {
+  test(`issue 215: cold ${pseudo} matches stay bounded without install()`, t => {
+    const window = host(t)
+    const before = creations
+    const node = window.document.body.firstElementChild!
+    const original = node.matches.bind(node)
+    let calls = 0
+    window.Element.prototype.matches = function (selector: string) {
+      if (++calls > 16) {
+        throw new Error('Recursive host matcher')
+      }
+      return original(selector)
+    } as Element['matches']
+    for (let pass = 0; pass < 10; pass++) {
+      calls = 0
+      assert.equal(node.matches(pseudo), false)
+      assert.ok(calls >= 1 && calls <= 3, `${pseudo}: ${calls} calls`)
+    }
+    assert.equal(creations - before, 1, 'jsdom must use the checkout engine')
+  })
+}
+
+test('issue 215: repeated jsdom state matches reuse one delegation probe', t => {
   const window = host(t)
   const before = creations
   const beforeCalls = matchCalls
