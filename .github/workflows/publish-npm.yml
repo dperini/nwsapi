@@ -1,0 +1,103 @@
+name: Stage npm prerelease
+run-name: Stage npm prerelease on prerelease/3.0.0
+
+on:
+  push:
+    branches: [prerelease/3.0.0]
+    paths: [.config/release-request.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nwsapi-v3-release
+  cancel-in-progress: false
+
+jobs:
+  request:
+    if: github.ref == 'refs/heads/prerelease/3.0.0'
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.request.outputs.enabled }}
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          git fetch --tags origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - name: Read release request
+        id: request
+        run: |
+          node --input-type=module <<'JS'
+          import { appendFileSync, readFileSync } from 'node:fs'
+          const request = JSON.parse(readFileSync('.config/release-request.json', 'utf8'))
+          appendFileSync(process.env.GITHUB_OUTPUT, `enabled=${request.version !== null}\n`)
+          JS
+  stage:
+    needs: request
+    if: needs.request.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    environment: publish-npm-v3
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          git fetch --tags origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - name: Install verified contributor tools
+        run: node scripts/repo/setup/tools.mts --github-path
+      - name: Install dependencies and security tools
+        run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
+      - name: Validate source and security
+        run: |
+          pnpm run check
+          pnpm run security
+      - name: Install Chrome system dependencies
+        run: |
+          for source in /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.sources; do
+            if [ -f "$source" ]; then
+              sudo mv "$source" "$source.disabled"
+            fi
+          done
+          pnpm exec playwright install-deps chromium
+          pnpm run setup:browser
+      - name: Qualify release bytes
+        run: |
+          pnpm run cover
+          pnpm run test:package
+          pnpm run test:fuzz:replay
+      - name: Reserve artifacts and stage through OIDC
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: pnpm run release -- stage

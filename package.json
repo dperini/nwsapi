@@ -115,6 +115,7 @@
     "bench:profile": "node scripts/repo/run.mts scripts/repo/bench/profile.mts",
     "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts",
     "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts",
+    "release": "node scripts/repo/run.mts scripts/repo/release/run.mts",
     "setup:security": "node scripts/repo/run.mts scripts/repo/setup/security.mts",
     "security": "node scripts/repo/run.mts scripts/repo/security/run.mts",
     "gen:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts",
