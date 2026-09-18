@@ -149,6 +149,7 @@
   // emulate firefox error strings
   qsNotArgs = 'Not enough arguments',
   qsInvalid = ' is not a valid selector',
+  errors = 0,
 
   // detect structural pseudo-classes in selectors
   reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
@@ -489,9 +490,9 @@
     },
 
   matchLogical =
-    function(selector) {
+    function(selector, prefix) {
       var chr, close, escaped, depth = 1, i, l, quote = '',
-      match = selector.match(REX.LogicalPfx);
+      match = selector.match(prefix || REX.LogicalPfx);
 
       if (!match) { return null; }
 
@@ -514,6 +515,93 @@
         selector.slice(match[0].length, i).replace(REX.TrimSpaces, ''),
         selector.slice(close)
       ];
+    },
+
+  // Validate logical arguments even when the query has no candidates.
+  validateLogical =
+    function(argument, relative) {
+      var previousErrors = errors, selectVars = S_VARS,
+        matchVars = M_VARS, nodeVars = N_VARS,
+        list = splitList(argument), parsed, i, j;
+      S_VARS = [];
+      M_VARS = [];
+      N_VARS = [];
+      try {
+        for (i = 0; i < list.length; ++i) {
+          if (!list[i]) {
+            emit(qsInvalid);
+            return false;
+          }
+          parsed = parse(relative ? '* ' + list[i] : list[i], false);
+          if (!parsed) {
+            return false;
+          }
+          for (j = 0; j < parsed.length; ++j) {
+            compileSelector(parsed[j], '', relative, false);
+          }
+        }
+        return errors == previousErrors;
+      } finally {
+        S_VARS = selectVars;
+        M_VARS = matchVars;
+        N_VARS = nodeVars;
+      }
+    },
+
+  // Invalid nested branches disappear only inside forgiving logical lists.
+  prepareForgivingHas =
+    function(logical) {
+      var items = splitList(logical[2]), kept = [], item, i;
+      for (i = 0; i < items.length; ++i) {
+        item = prepareHas(items[i]);
+        if (item !== null) {
+          kept.push(item);
+        }
+      }
+      return ':' + logical[1] + '(' + (kept.join(',') || ':not(*)') + ')';
+    },
+
+  prepareHas =
+    function(text) {
+      var i = 0, quote = '', bracket = 0, chr, logical,
+        output = '', start = 0;
+      for (; i < text.length; ++i) {
+        chr = text.charAt(i);
+        if (chr == '\\') {
+          ++i;
+          continue;
+        }
+        if (quote) {
+          if (chr == quote) {
+            quote = '';
+          }
+          continue;
+        }
+        if (chr == '"' || chr == "'") {
+          quote = chr;
+          continue;
+        }
+        if (chr == '[') {
+          ++bracket;
+          continue;
+        }
+        if (chr == ']') {
+          --bracket;
+          continue;
+        }
+        if (bracket || chr != ':') {
+          continue;
+        }
+        if (/^:(?:has\(|:|(?:before|after|first-line|first-letter)(?![-\w]))/i.test(text.slice(i))) {
+          return null;
+        }
+        if (Config.FORGIVING && (logical = matchLogical(text.slice(i), /^:(is|where)\(/i))) {
+          output += text.slice(start, i) + prepareForgivingHas(logical);
+          i += logical[0].length - 1;
+          start = i + 1;
+        }
+      }
+      return output + text.slice(start);
     },
 
   method = {
@@ -934,8 +1022,10 @@
       if (typeof option == 'string') { return !!Config[option]; }
       if (typeof option != 'object') { return Config; }
       for (var i in option) {
-        // Compiled logical selectors capture the forgiving mode.
-        if (i == 'FORGIVING' && Config[i] !== !!option[i]) { clear = true; }
+        // Compiled selectors capture forgiving and error-reporting behavior.
+        if ((i == 'FORGIVING' || i == 'VERBOSITY') && Config[i] !== !!option[i]) {
+          clear = true;
+        }
         Config[i] = !!option[i];
       }
       // clear lambda cache
@@ -953,6 +1043,7 @@
   emit =
     function(message, proto) {
       var err;
+      ++errors;
       if (Config.VERBOSITY) {
         if (proto) {
           err = new proto(message);
@@ -1037,7 +1128,7 @@
           '(?:' + pseudoparms + '?)?|' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\*\\|)|' +
+          '(?:\\*\\||\\*)|' +
           '(?:' +
             '(?::' + pseudonames +
               '(?:\\x28' + pseudoparms + '?(?:\\x29|$))?|' +
@@ -1059,7 +1150,7 @@
         '(?:' +
           // universal * &
           // namespace *|*
-          '(?:\\*|\\*\\|)|' +
+          '(?:\\*\\||\\*)|' +
           '(?:[.#]?' + identifier + ')+|' +
           '(?:' + attributes + ')+|' +
           '(?:::?' + pseudonames + pseudoclass + ')|' +
@@ -1437,16 +1528,33 @@
                     source = 'if(s.matchForgiving(' +
                       JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
                   } else {
+                    if (!validateLogical(match[2], false)) {
+                      return '';
+                    }
                     source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   }
                   break;
                 case 'matches':
+                  if (!validateLogical(match[2], false)) {
+                    return '';
+                  }
                   source = 'if(s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'not':
+                  if (!validateLogical(match[2], false)) {
+                    return '';
+                  }
                   source = 'if(!s.match("' + expr + '",e)){' + source + '}';
                   break;
                 case 'has':
+                  match[2] = prepareHas(match[2]);
+                  if (match[2] === null) {
+                    emit('\'' + expression + '\'' + qsInvalid);
+                    return '';
+                  }
+                  if (!validateLogical(match[2], true)) {
+                    return '';
+                  }
                   source = 'if(s.has(' + JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
                   break;
                 default:

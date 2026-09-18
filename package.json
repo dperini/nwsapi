@@ -38,7 +38,7 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "test": "node --test test/repo/integration/maintenance.test.mts",
+    "test": "node --test test/repo/integration/*.test.mts",
     "lint": "eslint ./src/nwsapi.js"
   },
   "devDependencies": {
