@@ -251,6 +251,23 @@ test('link states reject similarly named elements', t => {
   }
 })
 
+test('media playing states use the resolver snapshot helper', t => {
+  const { document, engine } = fixture(t, '<audio id="playing"></audio><audio id="paused"></audio>')
+  const playing = document.getElementById('playing')
+  const paused = document.getElementById('paused')
+  for (const [node, state] of [
+    [playing, { currentTime: 1, paused: false, ended: false, readyState: 3 }],
+    [paused, { currentTime: 0, paused: true, ended: false, readyState: 0 }],
+  ] as const) {
+    for (const [name, value] of Object.entries(state)) {
+      Object.defineProperty(node, name, { configurable: true, value })
+    }
+  }
+  assert.equal(engine.match(':playing', playing), true)
+  assert.equal(engine.match(':paused', paused), true)
+  assert.equal(engine.match(':seeking', paused), true)
+})
+
 test('autofill requires host state instead of matching every element', t => {
   const { engine } = fixture(t, '<input><div></div>')
   assert.deepEqual(engine.select(':autofill'), [])
