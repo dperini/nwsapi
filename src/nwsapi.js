@@ -922,7 +922,7 @@
   isPlaying =
     function(media) {
       // for <audio>, <video>, <source> and <track> elements
-      var parent = media instanceof HTMLMediaElement ? null : media.parentElement;
+      var parent = media instanceof global.HTMLMediaElement ? null : media.parentElement;
       return (
         !!( media &&  media.currentTime > 0 &&  !media.paused &&  !media.ended &&  media.readyState > 2) ||
         !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
@@ -2351,6 +2351,7 @@
     isFocusable: isFocusable,
     isContentEditable: isContentEditable,
     isLink: isLink,
+    isPlaying: isPlaying,
     hasAttributeNS: hasAttributeNS
   },
 
