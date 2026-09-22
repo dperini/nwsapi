@@ -1,0 +1,9 @@
+# wpt-fd98377 sha256:b00e229cb3ed89596d68d22c488abce63c18f308e172f5182d44e26465cf4a10
+[submodule "upstream/wpt"]
+	ignore = dirty
+	ref = fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9
+	path = upstream/wpt
+	url = https://github.com/web-platform-tests/wpt.git
+	branch = master
+	shallow = true
+	sparse-checkout = common css/css-conditional/js css/css-forms/parsing css/css-highlight-api css/css-multicol/parsing css/css-overflow/parsing css/css-pseudo/parsing css/css-shadow css/css-view-transitions/parsing css/selectors css/support custom-elements dom/nodes fullscreen/rendering html/browsers/browsing-the-web/scroll-to-fragid html/dom/elements/global-attributes html/resources html/semantics/forms html/semantics/popovers html/semantics/sections html/semantics/selectors inert quirks resources shadow-dom webvtt/api

@@ -31,9 +31,20 @@ function browserRoot(string $nwsapiRoot): string
     return $resolved;
 }
 
-$nwsapiRoot = dirname(__DIR__, 2);
+$nwsapiRoot = getenv('NWSAPI_ROOT') ?: dirname(__DIR__, 2);
 $browserRoot = browserRoot($nwsapiRoot);
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+
+if ($requestPath === '/') {
+    header('Content-Type: text/html; charset=UTF-8');
+    readfile(__DIR__ . DIRECTORY_SEPARATOR . 'index.html');
+    exit;
+}
+if ($requestPath === '/favicon.svg') {
+    header('Content-Type: image/svg+xml');
+    readfile(__DIR__ . DIRECTORY_SEPARATOR . 'favicon.svg');
+    exit;
+}
 $decodedPath = rawurldecode($requestPath);
 
 if (!str_starts_with($decodedPath, '/')) {
@@ -59,14 +70,6 @@ $rootPrefix = $browserRoot . DIRECTORY_SEPARATOR;
 $requestedFile = $browserRoot . ($relativePath === '' ? '' : DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath));
 $realRequested = realpath($requestedFile);
 $isInsideBrowserRoot = $realRequested !== false && ($realRequested === $browserRoot || str_starts_with($realRequested, $rootPrefix));
-
-// A manually entered directory or one reached from a link always shows
-// its corresponding tree without redirects: Back/Forward work normally.
-if ($isInsideBrowserRoot && is_dir($realRequested)) {
-    $_SERVER['WPT_BROWSER_PATH'] = $relativePath;
-    require $browserRoot . DIRECTORY_SEPARATOR . 'wpt-browser.php';
-    exit;
-}
 
 // Let the PHP server handle every file other than the harness.
 if (!preg_match('~(?:^|/)resources/testharness\.js$~', $requestPath)) {

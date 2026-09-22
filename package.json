@@ -38,8 +38,11 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
+    "lint": "eslint ./src/nwsapi.js",
     "test": "node --test test/repo/integration/maintenance.test.mts",
-    "lint": "eslint ./src/nwsapi.js"
+    "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
+    "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
+    "wpt:verify": "node test/wpt/wpt-launcher.mjs verify"
   },
   "devDependencies": {
     "acorn": "8.15.0",
