@@ -82,7 +82,7 @@
     "setup:browser": "node scripts/repo/run.mts scripts/repo/browser.mts",
     "setup:tools": "node scripts/repo/setup/tools.mts",
     "setup:node": "node scripts/repo/run.mts scripts/repo/node.mts",
-    "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts",
+    "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts && node scripts/repo/run.mts scripts/repo/build/run.mts",
     "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/node.js.yml --quiet --pause-on-failure --github-token",
     "clean": "node scripts/repo/run.mts scripts/repo/clean.mts",
     "lint": "node scripts/repo/run.mts scripts/repo/lint.mts",
