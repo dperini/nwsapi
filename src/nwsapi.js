@@ -1316,14 +1316,14 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
-            source = 'if((/^' + match[1] + '$/.test(e.getAttribute("id")))){' + source + '}';
+            source = 'if((/^' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '$/.test(e.getAttribute("id")))){' + source + '}';
             break;
 
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
             compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))';
-            source = 'if((/(^|\\s)' + match[1] + '(\\s|$)/' + compat + ')){' + source + '}';
+            source = 'if((/(^|\\s)' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '(\\s|$)/' + compat + ')){' + source + '}';
             break;
 
           // tag name resolver

@@ -29,6 +29,32 @@ function fixture(t: TestContext, html: string) {
   }
 }
 
+test('escaped IDs and classes match decoded CSS code points', t => {
+  const { document } = fixture(t, '')
+  const container = document.createElement('div')
+  for (const [id, selector] of [
+    ['0next', '#\\30 next'],
+    ['hello', '#hel\\6C o'],
+    ['zero\ufffd', '#zero\\0'],
+    ['🔑nonBMP', '#\\1f511 nonBMP'],
+    ['.comma', '#\\.comma'],
+    ['a+b', '#a\\+b'],
+  ]) {
+    const child = document.createElement('span')
+    child.id = id
+    container.appendChild(child)
+    assert.equal(container.querySelector(selector), child, selector)
+    child.remove()
+  }
+  const child = document.createElement('span')
+  child.className = '0next a+b'
+  container.appendChild(child)
+  assert.equal(container.querySelector('.\\30 next'), child)
+  assert.equal(container.querySelector('.a\\+b'), child)
+  child.id = 'zero\0'
+  assert.equal(container.querySelector('#zero\\0'), null)
+})
+
 test('the maintenance runtime retains the released ES2015 syntax baseline', () => {
   assert.doesNotThrow(() =>
     parse(readFileSync(source, 'utf8'), { ecmaVersion: 2015 }),
