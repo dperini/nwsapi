@@ -9,6 +9,9 @@ import { configureTrust } from './trust.mts'
 
 export const HELP = `Usage: pnpm run release -- <command> [version] [--stage UUID] [--apply]
 
+Package aliases: npm:publish VERSION, npm:staged, npm:verify VERSION --stage UUID,
+npm:approve VERSION --stage UUID, npm:trust, and npm:login.
+
 prepare VERSION   Plan a new v3 candidate. --apply commits, signs, reserves and pushes it.
 status            Read the release request and npm stages.
 stage             CI-only OIDC upload after qualification. Never approves a stage.

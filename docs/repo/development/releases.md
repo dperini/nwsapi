@@ -4,14 +4,16 @@
 
 Each command also has a package-script alias: `release:prepare`, `release:status`, `release:stage`, `release:verify`, `release:approve`, `release:burn`, `release:trust`, and `release:login`. For example, `pnpm run release:prepare 3.0.0-beta.1` plans a candidate. Mutating commands still require `--apply`, and staging still requires CI with OIDC. Direct repository packing and publishing are blocked by lifecycle guards. Use `pnpm run package` to inspect a tarball locally and the staged release commands to publish it.
 
+The npm entry points use the same staged pipeline: `npm:publish` plans or reserves a version, `npm:staged` lists the request and stages, `npm:verify` checks the exact staged bytes, and `npm:approve` requests attended approval. `npm:trust` configures the restricted GitHub environment and stage-only npm publisher. `npm:login` opens npm authentication. Unlike the fleet's automatic version selection, this v3 line requires an exact 3.x version. The `--apply` flag is required for reservation and approval.
+
 ## Configure publishing
 
 Run these commands from a maintainer terminal with GitHub repository administration access and npm package ownership:
 
 ```sh
-pnpm run release login
-pnpm run release trust
-pnpm run release trust --apply
+pnpm run npm:login
+pnpm run npm:trust
+pnpm run npm:trust --apply
 ```
 
 The trust command creates the `publish-npm-v3` GitHub environment restricted to `prerelease/3.0.0`. It establishes a stage-only npm publisher for `dperini/nwsapi` and `publish-npm.yml`. It verifies the replacement before revoking stale bindings for that environment. Maintenance publishers and existing review rules are preserved. Unexpected broad environment policies require correction before reconciliation can continue. npm may request browser authentication or a one-time password.
@@ -21,8 +23,8 @@ The trust command creates the `publish-npm-v3` GitHub environment restricted to 
 Start from a clean, pushed `prerelease/3.0.0` checkout whose latest CI and coverage runs passed. Configure Git signing first.
 
 ```sh
-pnpm run release prepare 3.0.0-beta.1
-pnpm run release prepare 3.0.0-beta.1 --apply
+pnpm run npm:publish 3.0.0-beta.1
+pnpm run npm:publish 3.0.0-beta.1 --apply
 ```
 
 Preparation creates a signed commit and signed `v3.0.0-beta.1` tag, then atomically pushes both. Existing local tags, remote reservations, and published versions cannot be reused. The request-file push starts the inline publishing workflow. CI verifies source, security, coverage, package interoperability, and the fuzz corpus. It uploads a GitHub prerelease containing the exact tarball and its SHA-512 receipt before calling `npm stage publish` through OIDC. The stage UUID appears in the workflow summary.
@@ -37,9 +39,9 @@ Use the exact signed release checkout, with no local changes:
 git fetch origin --tags
 git checkout --detach v3.0.0-beta.1
 pnpm install --frozen-lockfile
-pnpm run release verify 3.0.0-beta.1 --stage STAGE_UUID
-pnpm run release approve 3.0.0-beta.1 --stage STAGE_UUID
-pnpm run release approve 3.0.0-beta.1 --stage STAGE_UUID --apply
+pnpm run npm:verify 3.0.0-beta.1 --stage STAGE_UUID
+pnpm run npm:approve 3.0.0-beta.1 --stage STAGE_UUID
+pnpm run npm:approve 3.0.0-beta.1 --stage STAGE_UUID --apply
 ```
 
 Verification compares the actual GitHub tarball, npm stage download, and freshly rebuilt package against the reserved receipt. Approval repeats verification before requesting npm proof of presence. It then checks the public registry's package identity, version, and integrity. An indeterminate registry response requires inspection before any further action.
