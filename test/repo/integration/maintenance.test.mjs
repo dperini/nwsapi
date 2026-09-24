@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
-import type { TestContext } from 'node:test'
 
 const require = createRequire(import.meta.url)
 const { parse } = require('acorn')
@@ -19,7 +18,7 @@ jsdomRequire(enginePath)
 require.cache[enginePath].exports = factory
 const { JSDOM } = require('jsdom')
 
-function fixture(t: TestContext, html: string) {
+function fixture(t, html) {
   const dom = new JSDOM('<!doctype html>' + html)
   t.after(() => dom.window.close())
   return {
@@ -284,7 +283,7 @@ test('media playing states use the resolver snapshot helper', t => {
   for (const [node, state] of [
     [playing, { currentTime: 1, paused: false, ended: false, readyState: 3 }],
     [paused, { currentTime: 0, paused: true, ended: false, readyState: 0 }],
-  ] as const) {
+  ]) {
     for (const [name, value] of Object.entries(state)) {
       Object.defineProperty(node, name, { configurable: true, value })
     }
