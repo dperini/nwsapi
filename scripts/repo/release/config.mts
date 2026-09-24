@@ -10,7 +10,7 @@ export const RELEASE = Object.freeze({
   repository: 'dperini/nwsapi',
   branch: 'prerelease/3.0.0',
   workflow: 'publish-npm.yml',
-  environment: 'publish-npm-v3',
+  environment: 'publish-npm',
   registry: 'https://registry.npmjs.org/',
   distTag: 'next',
 })

@@ -35,6 +35,15 @@ test('trusted publishers are restricted to staging on the v3 workflow and enviro
   expect(isV3Publisher(publisher)).toBe(true)
   expect(matchesPublisher(publisher)).toBe(true)
   expect(
+    isV3Publisher({
+      ...publisher,
+      claims: {
+        ...publisher.claims,
+        workflow_ref: { file: 'publish-maintenance.yml' },
+      },
+    }),
+  ).toBe(false)
+  expect(
     matchesPublisher({
       ...publisher,
       permissions: ['createPackage', 'createStagedPackage'],
@@ -52,6 +61,19 @@ test('trusted publishers are restricted to staging on the v3 workflow and enviro
     create: false,
     addBranch: false,
   })
+  expect(
+    environmentPlan(environment, {
+      branch_policies: [{ name: 'master', type: 'branch' }],
+    }),
+  ).toMatchObject({ create: false, addBranch: true })
+  expect(
+    environmentPlan(environment, {
+      branch_policies: [
+        { name: 'master', type: 'branch' },
+        ...policies.branch_policies,
+      ],
+    }),
+  ).toMatchObject({ create: false, addBranch: false })
   expect(() => environmentPlan({}, policies)).toThrow()
   expect(() =>
     environmentPlan(environment, {
@@ -60,11 +82,14 @@ test('trusted publishers are restricted to staging on the v3 workflow and enviro
   ).toThrow()
 })
 
-test('trust migration verifies the replacement before revoking only stale v3 bindings', () => {
+test('trust migration preserves publishers for other workflows in the shared environment', () => {
   const maintenance: Publisher = {
     ...publisher,
     id: 'maintenance',
-    claims: { ...publisher.claims, environment: 'publish-npm' },
+    claims: {
+      ...publisher.claims,
+      workflow_ref: { file: 'publish-maintenance.yml' },
+    },
   }
   const stale: Publisher = {
     ...publisher,
@@ -99,6 +124,34 @@ test('trust migration verifies the replacement before revoking only stale v3 bin
   expect(rows).toHaveLength(2)
   configureTrust(true, '/tmp', run)
   expect(rows).toEqual([maintenance, publisher])
+})
+
+test('environment setup adds the v3 branch without replacing shared policies', () => {
+  const existing = { branch_policies: [{ name: 'master', type: 'branch' }] }
+  const run = vi.fn<CommandRunner>((command, args) => {
+    expect(command).toBe('gh')
+    if (args.includes('POST')) {
+      existing.branch_policies.push({ name: RELEASE.branch, type: 'branch' })
+    }
+    return {
+      status: 0,
+      stdout: JSON.stringify(
+        args[1]?.endsWith('deployment-branch-policies')
+          ? existing
+          : environment,
+      ),
+      stderr: '',
+    }
+  })
+  expect(setupEnvironment(true, '/tmp', run)).toMatchObject({
+    create: false,
+    addBranch: true,
+  })
+  expect(existing.branch_policies).toEqual([
+    { name: 'master', type: 'branch' },
+    { name: RELEASE.branch, type: 'branch' },
+  ])
+  expect(run.mock.calls.some(([, args]) => args.includes('PUT'))).toBe(false)
 })
 
 test('failed settings reads and unverifiable replacement publishers cannot revoke trust', () => {

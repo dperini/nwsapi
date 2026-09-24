@@ -16,7 +16,7 @@ pnpm run npm:trust
 pnpm run npm:trust --apply
 ```
 
-The trust command creates the `publish-npm-v3` GitHub environment restricted to `prerelease/3.0.0`. It establishes a stage-only npm publisher for `dperini/nwsapi` and `publish-npm.yml`. It verifies the replacement before revoking stale bindings for that environment. Maintenance publishers and existing review rules are preserved. Unexpected broad environment policies require correction before reconciliation can continue. npm may request browser authentication or a one-time password.
+The trust command uses the shared `publish-npm` GitHub environment and adds a policy for `prerelease/3.0.0` while preserving its existing exact branch policies and review rules. It establishes a stage-only npm publisher for `dperini/nwsapi` and `publish-npm.yml`. It verifies the replacement before revoking stale bindings for that workflow. Publishers for other workflows remain untouched. Unexpected broad environment policies require correction before reconciliation can continue. npm may request browser authentication or a one-time password.
 
 ## Reserve and stage
 
