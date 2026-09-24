@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { test } from 'node:test'
-import type { TestContext } from 'node:test'
 
 const require = createRequire(import.meta.url)
 const { JSDOM } = require('jsdom')
@@ -12,7 +11,7 @@ const source = readFileSync(
   'utf8',
 )
 
-function fixture(t: TestContext) {
+function fixture(t) {
   const { window } = new JSDOM(
     '<!doctype html><div id="parent"><span id="child"></span></div>',
     {
