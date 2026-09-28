@@ -1,0 +1,61 @@
+name: Stage npm v2 release
+run-name: Stage npm v2 (${{ inputs.release-as }}, dry-run=${{ inputs.dry-run }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-as:
+        description: 'patch, minor, or an exact stable 2.x.y version'
+        type: string
+        default: patch
+        required: true
+      dist-tag:
+        description: 'Use v2 once latest points to v3'
+        type: choice
+        options: [latest, v2]
+        default: latest
+      dry-run:
+        description: 'Test the package without reserving or staging a version'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nwsapi-v2-release
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    if: github.repository == 'dperini/nwsapi' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: npm-publish
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Install pinned pnpm
+        run: npm install --global pnpm@12.7.0 --ignore-scripts
+      - name: Install and prepare contributor tools
+        run: pnpm install --frozen-lockfile
+      - name: Test source and release tooling
+        run: pnpm test
+      - name: Qualify and stage v2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_AS: ${{ inputs.release-as }}
+          DIST_TAG: ${{ inputs.dist-tag }}
+          DRY_RUN: ${{ inputs.dry-run }}
+        shell: bash
+        run: |
+          args=(--release-as "$RELEASE_AS" --tag "$DIST_TAG")
+          if [ "$DRY_RUN" = true ]; then args+=(--dry-run); fi
+          pnpm run release -- stage "${args[@]}"
