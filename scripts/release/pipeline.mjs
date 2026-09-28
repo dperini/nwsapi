@@ -23,7 +23,8 @@ export function testTarball(tarball, directory, inspect = () => {}) {
   if (manifest.name !== 'nwsapi' || manifest.scripts || manifest.dependencies || manifest.devDependencies) throw new Error('Unexpected package manifest or lifecycle scripts.')
   validateVersion(manifest.version)
   inspect(path.join(extracted, 'package'), manifest)
-  const tests = readdirSync(path.join(root, 'test/repo/integration')).filter(file => file.endsWith('.test.mts'))
+  const tests = readdirSync(path.join(root, 'test/repo/integration')).filter(file => file.endsWith('.test.mjs'))
+  if (tests.length === 0) throw new Error('No integration tests found for the release tarball.')
   run(process.execPath, ['--test', ...tests.map(file => path.join(root, 'test/repo/integration', file))], {
     interactive: true,
     env: { ...process.env, NWSAPI_TEST_SOURCE: path.join(extracted, 'package/src/nwsapi.js') },
