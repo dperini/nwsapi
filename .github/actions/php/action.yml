@@ -1,0 +1,16 @@
+name: PHP
+description: Install the pinned PHP CLI used to serve the WPT pages from the Ubuntu archive.
+
+inputs:
+  php-version:
+    description: PHP CLI package version from the Ubuntu archive
+    required: false
+    default: '8.3'
+
+runs:
+  using: composite
+  steps:
+    - run: sudo apt-get install -y php${{ inputs.php-version }}-cli
+      shell: bash
+    - run: php --version
+      shell: bash
