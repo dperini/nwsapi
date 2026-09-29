@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { npmCli, root } from './setup.mjs'
+import { root } from './setup.mjs'
 
 export const repository = 'dperini/nwsapi'
 export const workflow = 'publish-npm.yml'
@@ -70,8 +70,9 @@ export function assertTrustedEnvironment(env = process.env) {
   if (env.NODE_AUTH_TOKEN || env.NPM_TOKEN) throw new Error('Remove npm tokens: CI staging uses only OIDC trusted publishing.')
 }
 
-// Run the pinned npm with no project npmrc. Trusted uploads cannot fall back
-// to a maintainer token if the OIDC configuration is wrong.
+// Run the npm on PATH with no project npmrc. The engines floor and the
+// workflow's pinned bootstrap decide the version; trusted uploads must never
+// fall back to a maintainer token if the OIDC configuration is wrong.
 export function npm(args, { trusted = false, cwd, interactive = false } = {}) {
   const temporary = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-'))
   const env = { ...process.env }
@@ -83,7 +84,7 @@ export function npm(args, { trusted = false, cwd, interactive = false } = {}) {
       writeFileSync(env.NPM_CONFIG_USERCONFIG, '')
       writeFileSync(env.NPM_CONFIG_GLOBALCONFIG, '')
     }
-    return run(process.execPath, [npmCli, ...args, '--registry', registry], { cwd: cwd || temporary, env, interactive })
+    return run('npm', [...args, '--registry', registry], { cwd: cwd || temporary, env, interactive, shell: process.platform === 'win32' })
   } finally {
     rmSync(temporary, { recursive: true, force: true })
   }

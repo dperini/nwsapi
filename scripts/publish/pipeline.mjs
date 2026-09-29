@@ -79,7 +79,7 @@ export async function stageRelease({ releaseAs = 'patch', tag = 'latest', dryRun
     const stageId = validateStageId(result.nwsapi?.stageId)
     writeJson(path.join(output, 'stage.json'), { version, stageId, shasum: receipt.shasum })
     gh(['release', 'upload', `v${version}`, path.join(output, 'stage.json')])
-    const summary = `Staged nwsapi@${version} as ${stageId}.\n\nVerify: \`pnpm run release -- verify ${version} --stage ${stageId}\`\n\nApprove: \`pnpm run npm:approve -- ${version} --stage ${stageId}\`\n`
+    const summary = `Staged nwsapi@${version} as ${stageId}.\n\nVerify: \`npm run npm:verify -- ${version} --stage ${stageId}\`\n\nApprove: \`npm run npm:approve -- ${version} --stage ${stageId}\`\n`
     console.log(summary)
     if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary)
     return { ...receipt, stageId }
@@ -165,7 +165,7 @@ export async function finalizeRelease(version) {
     }
     if (published?.name !== 'nwsapi' || published.version !== version ||
         published.dist?.integrity !== receipt.integrity || published.dist?.shasum !== receipt.shasum) {
-      throw new Error(`The public registry has not confirmed the reserved bytes. Retry pnpm run release -- finalize ${version} after propagation.`)
+      throw new Error(`The public registry has not confirmed the reserved bytes. Retry npm run npm:finalize -- ${version} after propagation.`)
     }
     gh(['release', 'edit', `v${version}`, '--draft=false', '--latest=false', '--notes', `Published nwsapi ${version}.\n\nSource: ${receipt.source}\nSHA-512: ${receipt.integrity}`])
     console.log(`Published and verified nwsapi@${version}: https://github.com/${repository}/releases/tag/v${version}`)

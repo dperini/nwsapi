@@ -1,0 +1,23 @@
+name: Setup
+description: Install Node and nwsapi contributor dependencies. The package manager choice lives here so both workflows share one definition.
+
+inputs:
+  node-version:
+    description: Node.js version to install
+    required: false
+    default: '24'
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version: ${{ inputs.node-version }}
+    # v2 uses npm with its committed lockfile. To adopt pnpm later, replace
+    # this step and regenerate the lockfile; no workflow files change.
+    # Bootstrap the pinned npm first: bundled npm versions on Node 22/24 are
+    # older than the enforced >=12.1.0 engines floor.
+    - run: npm install --global npm@12.1.0 --ignore-scripts
+      shell: bash
+    - run: npm ci
+      shell: bash

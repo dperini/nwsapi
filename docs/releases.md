@@ -7,18 +7,20 @@ proof of presence. No browser extension or long-lived CI npm token is needed.
 
 ## Contributor setup
 
-Use Node 22.22.2+, 24.15.0+, or 26+ and pnpm 12.7.0. These are contributor-tool
-requirements; the published selector engine keeps its existing syntax baseline.
+Use Node 22.22.2+, 24.15.0+, or 26+ and npm 12.1.0 or newer (`engines` plus
+`engine-strict` in `.npmrc` reject older npm; the release workflow bootstraps
+the same pinned version). These are contributor-tool requirements;
+the published selector engine keeps its existing syntax baseline.
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm test
+npm ci
+npm test
 ```
 
 Installation runs `prepare`, which checks the pinned npm 12.1.0 release CLI and
-sets up the pinned WPT checkout. `pnpm run setup` repeats both steps safely;
-`pnpm run release:setup` checks just the release CLI. The pnpm lockfile replaces
-the npm lockfile. The packaged manifest excludes contributor scripts and tools,
+sets up the pinned WPT checkout. `npm run setup` repeats both steps safely;
+`npm run publish:setup` checks just the publish CLI. The npm lockfile pins the
+contributor tools. The packaged manifest excludes contributor scripts and tools,
 so installing a release does not clone WPT or install release tooling.
 
 Install the [GitHub CLI](https://cli.github.com/) and sign in with repository
@@ -26,7 +28,7 @@ write access. For approval, sign in to an npm account with publishing access:
 
 ```sh
 gh auth login
-pnpm run npm:auth
+npm run npm:auth
 ```
 
 ## One-time repository and npm configuration
@@ -58,21 +60,21 @@ or `NODE_AUTH_TOKEN` secret: staging uses OIDC with isolated empty npmrc files.
 Test the next version locally without reserving or uploading anything:
 
 ```sh
-pnpm run release -- dry-run
-pnpm run release -- dry-run --release-as minor
+npm run npm:dry-run
+npm run npm:dry-run -- --release-as minor
 ```
 
 Dispatch a qualification-only Actions run:
 
 ```sh
-pnpm run npm:publish -- --dry-run
+npm run npm:publish -- --dry-run
 ```
 
 Dispatch a real staged patch release, or select an explicit v2 target:
 
 ```sh
-pnpm run npm:publish
-pnpm run npm:publish -- --release-as 2.3.0
+npm run npm:publish
+npm run npm:publish -- --release-as 2.3.0
 ```
 
 The Actions UI also exposes **Stage npm v2 release**. Its `dry-run` input defaults
@@ -93,12 +95,12 @@ reuse. No npm package becomes public until approval.
 ## Verify and approve
 
 Copy the version and stage UUID from the Actions summary. List stages with
-`pnpm run npm:staged`. Substitute those exact values below:
+`npm run npm:staged`. Substitute those exact values below:
 
 ```sh
-pnpm run release -- verify 2.2.29 --stage <UUID>
-pnpm run npm:approve -- 2.2.29 --stage <UUID> --dry-run
-pnpm run npm:approve -- 2.2.29 --stage <UUID>
+npm run npm:verify -- 2.2.29 --stage <UUID>
+npm run npm:approve -- 2.2.29 --stage <UUID> --dry-run
+npm run npm:approve -- 2.2.29 --stage <UUID>
 ```
 
 Approval checks the successful workflow run, reserved tag and commit, package
@@ -120,13 +122,13 @@ release ordering across major versions.
   The next patch starts above the consumed version. Do not rerun an upload for
   that version.
 - Reject an unwanted stage with
-  `pnpm run release -- reject 2.2.29 --stage <UUID>`. This verifies the stage's
+  `npm run npm:reject -- 2.2.29 --stage <UUID>`. This verifies the stage's
   identity and leaves its version reserved. Rejection also works when the
   original workflow failed after upload.
 - If approval succeeded but registry propagation or GitHub finalization failed,
-  run `pnpm run release -- finalize 2.2.29`. It verifies the public package against
+  run `npm run npm:finalize -- 2.2.29`. It verifies the public package against
   the saved hashes before finishing; it never uploads another package.
-- If the stage UUID was not saved after upload, `pnpm run npm:staged` lists it.
+- If the stage UUID was not saved after upload, `npm run npm:staged` lists it.
   A failed staging run must be rejected and replaced with a new version rather
   than approved without successful workflow evidence.
 

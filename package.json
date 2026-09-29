@@ -38,25 +38,30 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
-    "prepare": "node scripts/setup.mjs",
-    "setup": "node scripts/setup.mjs",
-    "release:setup": "node scripts/release/setup.mjs",
-    "release": "node scripts/release/run.mjs",
-    "npm:publish": "node scripts/release/run.mjs dispatch",
-    "npm:staged": "node scripts/release/run.mjs staged",
-    "npm:approve": "node scripts/release/run.mjs approve",
-    "npm:auth": "node scripts/release/run.mjs login",
-    "prepublishOnly": "node scripts/release/block-publish.cjs",
     "lint": "eslint ./src/nwsapi.js",
+    "npm:approve": "node scripts/publish/npm/approve.mjs",
+    "npm:auth": "node scripts/publish/npm/auth.mjs",
+    "npm:dry-run": "node scripts/publish/npm/stage.mjs --dry-run",
+    "npm:finalize": "node scripts/publish/npm/finalize.mjs",
+    "npm:publish": "node scripts/publish/npm/publish.mjs",
+    "npm:reject": "node scripts/publish/npm/reject.mjs",
+    "npm:stage": "node scripts/publish/npm/stage.mjs",
+    "npm:staged": "node scripts/publish/npm/staged.mjs",
+    "npm:verify": "node scripts/publish/npm/verify.mjs",
+    "prepare": "node scripts/setup.mjs",
+    "prepublishOnly": "node scripts/publish/block-publish.cjs",
+    "publish:setup": "node scripts/publish/setup.mjs",
+    "setup": "node scripts/setup.mjs",
     "test": "node --test test/repo/integration/*.test.mjs test/repo/release/*.test.mjs",
     "wpt:serve": "node test/wpt/wpt-launcher.mjs serve",
     "wpt:setup": "node test/wpt/wpt-launcher.mjs setup",
     "wpt:verify": "node test/wpt/wpt-launcher.mjs verify"
   },
+  "engines": {
+    "npm": ">=12.1.0"
+  },
   "devDependencies": {
     "acorn": "8.15.0",
-    "jsdom": "26.1.0",
-    "npm": "12.1.0"
-  },
-  "packageManager": "pnpm@12.7.0"
+    "jsdom": "26.1.0"
+  }
 }
