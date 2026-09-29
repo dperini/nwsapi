@@ -212,7 +212,7 @@
     "packageManager": [
       {
         "name": "pnpm",
-        "version": "12.4.2",
+        "version": "12.7.0",
         "onFail": "error"
       }
     ]
@@ -226,7 +226,7 @@
       "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
   ],
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "pnpm@12.7.0",
   "exports": {
     ".": "./dist/nwsapi.js",
     "./package.json": "./package.json",
