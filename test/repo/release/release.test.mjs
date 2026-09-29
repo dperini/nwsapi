@@ -7,9 +7,9 @@ import {
   assertDigest, assertTrustedEnvironment, checkRegistryTarget, nextVersion,
   packManifest, packRelease, parseStage, readJson, repository, run, updateVersions,
   validateReceipt, validateStageId, validateVersion, versionFiles,
-} from '../../../scripts/release/lib.mjs'
-import { approveRelease, testTarball } from '../../../scripts/release/pipeline.mjs'
-import { root } from '../../../scripts/release/setup.mjs'
+} from '../../../scripts/publish/lib.mjs'
+import { approveRelease, testTarball } from '../../../scripts/publish/pipeline.mjs'
+import { root } from '../../../scripts/publish/setup.mjs'
 
 const id = '12345678-1234-1234-1234-123456789abc'
 const version = '2.2.29'
