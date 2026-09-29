@@ -30,6 +30,8 @@ $ npm install nwsapi
 
 NWSAPI currently supports browsers (as a global, `NW.Dom`) and headless environments (as a CommonJS module).
 
+For contributor setup and staged v2 publishing, see [Releasing v2](https://github.com/dperini/nwsapi/blob/master/docs/releases.md).
+
 
 ## Supported Selectors
 
