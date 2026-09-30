@@ -84,6 +84,7 @@ export const initializeState = function (
   this.collectionCopy = undefined
   this.asciiLower = undefined
   this.matchesTag = undefined
+  this.hasClass = undefined
   this.foreignTypeRoots = undefined
   this.hasForeignTypes = undefined
   this.byTag = undefined

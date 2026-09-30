@@ -14,6 +14,7 @@ import type {
 export interface PublicState {
   Snapshot: {
     matchesTag: (element: Element, name: string) => boolean
+    hasClass: (value: string, name: string) => boolean
     mayMatch: (
       node: EngineElement,
       mask: number,
@@ -189,6 +190,7 @@ export interface PublicState {
     }
     Snapshot: {
       matchesTag: (element: Element, name: string) => boolean
+      hasClass: (value: string, name: string) => boolean
       mayMatch: (
         node: EngineElement,
         mask: number,

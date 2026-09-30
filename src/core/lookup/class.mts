@@ -1,3 +1,4 @@
+import { isCssWhitespace } from '../predicate/css-whitespace.mts'
 import type { EngineState, EngineContext } from '../state/types.mts'
 
 export function byClass(
@@ -37,4 +38,29 @@ export function byClass(
     : engine.isInstanceOf(nodes)
       ? nodes
       : engine.toNodeList(nodes)
+}
+
+// Class tokens are separated by ASCII whitespace, the same boundary
+// rule hosts apply when they tokenize the class attribute. Scanning
+// for a token skips the regex execution a per-element class test
+// would otherwise pay.
+export function hasClass(
+  _engine: EngineState,
+  value: string,
+  name: string,
+) {
+  var offset = -1,
+    before: number,
+    after: number
+  while (value && (offset = value.indexOf(name, offset + 1)) >= 0) {
+    before = offset ? value.charCodeAt(offset - 1) : 32 /* space */
+    after =
+      offset + name.length < value.length
+        ? value.charCodeAt(offset + name.length)
+        : 32 /* space */
+    if (isCssWhitespace(before) && isCssWhitespace(after)) {
+      return true
+    }
+  }
+  return false
 }

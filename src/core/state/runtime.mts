@@ -137,6 +137,7 @@ export interface RuntimeState {
   ) => Element[]
   asciiLower: (name: string) => string
   matchesTag: (element: Element, name: string) => boolean
+  hasClass: (value: string, name: string) => boolean
   foreignTypeRoots: WeakMap<Node, ForeignTypeState> | null | undefined
   hasForeignTypes: (context: EngineContext) => boolean
   byTag: (

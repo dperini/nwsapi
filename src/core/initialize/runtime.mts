@@ -8,7 +8,7 @@ import {
   tagOf,
   useLegacy,
 } from '../dom/readers.mts'
-import { byClass } from '../lookup/class.mts'
+import { byClass, hasClass } from '../lookup/class.mts'
 import {
   asciiLower,
   byTag,
@@ -271,6 +271,7 @@ export function initializeRuntime(engine: EngineState) {
   ) as EngineState['collectionCopy']
   engine.asciiLower = asciiLower.bind(null, engine) as EngineState['asciiLower']
   engine.matchesTag = matchesTag.bind(null, engine) as EngineState['matchesTag']
+  engine.hasClass = hasClass.bind(null, engine) as EngineState['hasClass']
   engine.foreignTypeRoots = null
   engine.hasForeignTypes = hasForeignTypes.bind(
     null,
