@@ -15,8 +15,11 @@ export function compilePseudoLocation(
       state.source = 'if((s.isLink(e)&&e.visited)){' + state.source + '}'
       break
     case 'target':
+      // The hash is constant for one query and usually absent, so the
+      // emptiness test runs before the id read, and the position call
+      // runs last, only for an id that already matches the fragment.
       state.source =
-        'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' +
+        'if(s.doc.location.hash&&e.id&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16)){' +
         state.source +
         '}'
       break
