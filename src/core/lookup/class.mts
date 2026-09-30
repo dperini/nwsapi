@@ -54,11 +54,7 @@ export function byClass(
 // rule hosts apply when they tokenize the class attribute. Scanning
 // for a token skips the regex execution a per-element class test
 // would otherwise pay.
-export function hasClass(
-  _engine: EngineState,
-  value: string,
-  name: string,
-) {
+export function hasClass(_engine: EngineState, value: string, name: string) {
   var offset = -1,
     before: number,
     after: number

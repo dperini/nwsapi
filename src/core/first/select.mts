@@ -237,5 +237,8 @@ export function selectChildren(
 function precedes(result: Element, element: Element | null) {
   // An identical element never follows itself, which skips the
   // position call when repeated tokens surface the same element.
-  return !element || (element !== result && !!(result.compareDocumentPosition(element) & 4))
+  return (
+    !element ||
+    (element !== result && !!(result.compareDocumentPosition(element) & 4))
+  )
 }
