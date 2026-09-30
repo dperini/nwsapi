@@ -218,6 +218,7 @@ export interface QueryState {
   ) => Element[] | null
   partCounts: PlanCache<number>
   reTagChain: RegExp
+  reSiblingChain: RegExp
   reChainPart: RegExp
   fetchLevel: (
     part: { cls: string | undefined; tag: string | undefined },

@@ -83,13 +83,13 @@ function selectByDescent(
     !engine.hasForeignTypes(context)
   ) {
     descended =
-      chainByParts(engine, selectors, context, {
+      chainByParts(selectors, context, {
         declined: engine.descentDeclined,
         grammar: engine.reTagChain,
         parse: engine.parseChain,
         answer: engine.descendChain,
       }) ||
-      chainByParts(engine, selectors, context, {
+      chainByParts(selectors, context, {
         declined: engine.siblingDeclined,
         grammar: engine.reSiblingChain,
         parse: engine.parseSiblingChain,
@@ -108,7 +108,6 @@ function selectByDescent(
 }
 
 function chainByParts(
-  engine: EngineState,
   selectors: string,
   context: EngineContext,
   chain: {

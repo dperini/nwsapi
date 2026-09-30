@@ -55,7 +55,8 @@ function prepareMatcherRecord(engine: EngineState, ownerDoc: Document) {
       engine.matcherCache = engine.createWeakMap()
     }
     engine.matcherDoc = ownerDoc
-    engine.matcherRecord = engine.matcherCache && engine.matcherCache.get(ownerDoc)
+    engine.matcherRecord =
+      engine.matcherCache && engine.matcherCache.get(ownerDoc)
     if (!engine.matcherRecord) {
       engine.matcherRecord = {
         fallback: null,
