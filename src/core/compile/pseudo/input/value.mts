@@ -7,18 +7,23 @@ export function compilePseudoInputValue(
   switch (state.match![1]!) {
     case 'checked':
       state.source =
-        'if((/^input$/i.test(e.localName)&&' +
-        '(s.includes("|radio|checkbox|","|"+e.type+"|")&&e.checked)||' +
-        '(/^option$/i.test(e.localName)&&(e.selected||e.checked))' +
-        ')){' +
+        'n=e.localName;' +
+        'if((("input"==n||/^input$/i.test(n))&&' +
+        '(s.includes("|radio|checkbox|","|"+e.type+"|")&&e.checked))||' +
+        '(("option"==n||/^option$/i.test(n))&&(e.selected||e.checked))' +
+        '){' +
         state.source +
         '}'
       break
     case 'indeterminate':
+      if (state.engine.S_VARS.indexOf('_t') < 0) {
+        state.engine.S_VARS.push('_t')
+      }
       state.source =
-        'if((/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
-        '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate&&!e.switch&&!e.hasAttribute("switch"))||' +
-        '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+        '_t=e.type;n=e.localName;' +
+        'if((("progress"==n||/^progress$/i.test(n))&&!e.hasAttribute("value"))||' +
+        '(("input"==n||/^input$/i.test(n))&&("checkbox"==_t&&e.indeterminate&&!e.switch&&!e.hasAttribute("switch"))||' +
+        '("radio"==_t&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
         ')){' +
         state.source +
         '}'
@@ -28,51 +33,51 @@ export function compilePseudoInputValue(
       break
     case 'optional':
       state.source =
-        'if((/^(?:button|input|select|textarea)$/i.test(e.localName)&&!s.isRequired(e))' +
+        'n=e.localName;if((("button"==n||"input"==n||"select"==n||"textarea"==n||/^(?:button|input|select|textarea)$/i.test(n))&&!s.isRequired(e))' +
         '){' +
         state.source +
         '}'
       break
     case 'invalid':
       state.source =
-        'if(((' +
-        '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
+        'n=e.localName;if(((' +
+        '(("form"==n||/^form$/i.test(n))&&!e.noValidate)||' +
         '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
-        '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))||' +
-        '(e.localName.indexOf("-")>=0&&s.matchesNative(e,":invalid"))' +
+        '(("fieldset"==n||/^fieldset$/i.test(n))&&s.first(":invalid",e))||' +
+        '(n.indexOf("-")>=0&&s.matchesNative(e,":invalid"))' +
         '){' +
         state.source +
         '}'
       break
     case 'valid':
       state.source =
-        'if(((' +
-        '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
+        'n=e.localName;if(((' +
+        '(("form"==n||/^form$/i.test(n))&&!e.noValidate)||' +
         '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
-        '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))||' +
-        '(e.localName.indexOf("-")>=0&&s.matchesNative(e,":valid"))' +
+        '(("fieldset"==n||/^fieldset$/i.test(n))&&!s.first(":invalid",e))||' +
+        '(n.indexOf("-")>=0&&s.matchesNative(e,":valid"))' +
         '){' +
         state.source +
         '}'
       break
     case 'in-range':
-      state.source =
-        'if((/^input$/i.test(e.localName))&&' +
-        '(e.willValidate&&!e.formNoValidate)&&' +
-        '(!e.validity.rangeUnderflow&&!e.validity.rangeOverflow)&&' +
-        '(s.includes("|date|datetime-local|month|number|range|time|week|","|"+e.type+"|"))&&' +
-        '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
-        '){' +
-        state.source +
-        '}'
-      break
     case 'out-of-range':
+      if (state.engine.S_VARS.indexOf('_t') < 0) {
+        state.engine.S_VARS.push('_t')
+      }
+      if (state.engine.S_VARS.indexOf('_u') < 0) {
+        state.engine.S_VARS.push('_u')
+      }
       state.source =
-        'if((/^input$/i.test(e.localName))&&' +
+        'n=e.localName;' +
+        'if(("input"==n||/^input$/i.test(n))&&' +
         '(e.willValidate&&!e.formNoValidate)&&' +
-        '(e.validity.rangeUnderflow||e.validity.rangeOverflow)&&' +
-        '(s.includes("|date|datetime-local|month|number|range|time|week|","|"+e.type+"|"))&&' +
-        '("range"==e.type||e.getAttribute("min")||e.getAttribute("max"))' +
+        '(_u=e.validity)&&' +
+        '(s.includes("|date|datetime-local|month|number|range|time|week|","|"+(_t=e.type)+"|"))&&' +
+        ('in-range' == state.match![1]
+          ? '(!_u.rangeUnderflow&&!_u.rangeOverflow)'
+          : '(_u.rangeUnderflow||_u.rangeOverflow)') +
+        '&&("range"==_t||e.getAttribute("min")||e.getAttribute("max"))' +
         '){' +
         state.source +
         '}'
