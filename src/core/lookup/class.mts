@@ -9,21 +9,25 @@ export function byClass(
   var e: Element | null,
     nodes: Element[],
     api = engine.method['.'],
-    reCls: RegExp
+    reCls: RegExp | null
   if (engine.Config.LEGACY) {
     nodes = engine.legacyHooks!.byClass(cls, context)
   } else if (api in context) {
     return engine.collectionCopy(context[api]!(cls), context)
   } else {
-    // DOCUMENT_FRAGMENT_NODE (11)
+    // DOCUMENT_FRAGMENT_NODE (11). Standards mode scans for the token
+    // directly, the same rule hosts apply to the class attribute;
+    // quirks mode needs the case-insensitive regex.
     if ((e = context.firstElementChild)) {
-      reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', engine.QUIRKS_MODE ? 'i' : '')
-      if (!(e.nextElementSibling || reCls.test(e.className))) {
+      reCls = engine.QUIRKS_MODE
+        ? RegExp('(^|\\s)' + cls + '(\\s|$)', 'i')
+        : null
+      if (!(e.nextElementSibling || hasToken(e))) {
         return engine.sliceCall(e[api](cls))
       } else {
         nodes = []
         do {
-          if (reCls.test(e.className)) {
+          if (hasToken(e)) {
             nodes[nodes.length] = e
           }
           engine.concatList(nodes, e[api](cls))
@@ -38,6 +42,12 @@ export function byClass(
     : engine.isInstanceOf(nodes)
       ? nodes
       : engine.toNodeList(nodes)
+
+  function hasToken(element: Element) {
+    return reCls
+      ? reCls.test(element.className)
+      : hasClass(engine, element.className, cls)
+  }
 }
 
 // Class tokens are separated by ASCII whitespace, the same boundary
