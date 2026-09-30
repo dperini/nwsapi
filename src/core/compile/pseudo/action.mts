@@ -28,8 +28,11 @@ export function compilePseudoAction(
         'if(e===s.doc.activeElement&&s.isFocusable(e)){' + state.source + '}'
       break
     case 'focus-within':
+      // Containment decides the pseudo either way: a host matcher can
+      // only agree with it, so it runs first and keeps the native
+      // probe off elements with no focused descendant.
       state.source =
-        'if(s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus()&&e.contains(s.doc.activeElement))){' +
+        'if(e.contains(s.doc.activeElement)&&s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus())){' +
         state.source +
         '}'
       break
