@@ -44,7 +44,7 @@ test('source changes schedule every runtime contract and full Node tests', () =>
 
 test('workflow and local action changes exercise every runtime lane', () => {
   for (const file of [
-    '.github/workflows/node.js.yml',
+    '.github/workflows/ci.yml',
     '.github/actions/repo/upload-artifact/action.yml',
     'scripts/repo/ci/artifact/upload.mts',
   ]) {
@@ -98,7 +98,7 @@ test('browser and package fixtures select their distinct lanes', () => {
 test('Node provisioning and consumer changes run package interoperability', () => {
   for (const file of [
     '.config/node-interop.json',
-    '.github/workflows/node.js.yml',
+    '.github/workflows/ci.yml',
     'scripts/repo/node.mts',
     'scripts/repo/setup/tools.mts',
     'scripts/repo/setup/download.mts',
