@@ -44,9 +44,11 @@ export function byClass(
       : engine.toNodeList(nodes)
 
   function hasToken(element: Element) {
+    // The scan needs a string: an SVG element's className is an
+    // SVGAnimatedString, which the engine's reader unwraps.
     return reCls
       ? reCls.test(element.className)
-      : hasClass(engine, element.className, cls)
+      : hasClass(engine, engine.classOf(element), cls)
   }
 }
 
