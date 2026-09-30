@@ -21,7 +21,9 @@ test('every declared platform has a pinned release URL and integrity', () => {
     }
   }
   expect(toolPlan('npm').url).toBe(
-    'https://registry.npmjs.org/npm/-/npm-12.0.2.tgz',
+    'https://registry.npmjs.org/npm/-/npm-' +
+      manifest.tools.npm.version +
+      '.tgz',
   )
 })
 
