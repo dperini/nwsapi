@@ -4,11 +4,13 @@ import type { EngineState } from '../../state/types.mts'
 // The range arrives as a compile-time constant of the selector, so
 // its lowered parts are remembered per range instead of being split
 // again for every element tested.
-var wantedRanges: Record<string, string[]> | null = null
+var wantedRanges: Record<string, string[]> = Object.create(null)
 
 function wantedParts(range: string) {
-  wantedRanges || (wantedRanges = Object.create(null))
-  return wantedRanges[range] || (wantedRanges[range] = range.toLowerCase().split('-'))
+  return (
+    wantedRanges[range] ||
+    (wantedRanges[range] = range.toLowerCase().split('-'))
+  )
 }
 
 export function isLanguage(
