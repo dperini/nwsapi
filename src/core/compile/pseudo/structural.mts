@@ -21,9 +21,13 @@ export function compilePseudoStructural(
         '}'
       break
     case 'empty':
-      // matches elements that don't contain elements or text nodes
+      // matches elements that don't contain elements, text or CDATA
+      // nodes. Comments and processing instructions do not count, and
+      // the nodeType is compared numerically: coercing it into a
+      // string regex per child costs more and misclassifies types
+      // whose digits overlap, such as doctype (10).
       state.source =
-        'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' +
+        'n=e.firstChild;while(n&&n.nodeType!=1&&n.nodeType!=3&&n.nodeType!=4){n=n.nextSibling}if(!n){' +
         state.source +
         '}'
       break
