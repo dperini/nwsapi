@@ -92,9 +92,18 @@ export function byTags(
 }
 
 export function asciiLower(_engine: EngineState, name: string) {
-  return name.replace(/[A-Z]/g, function (letter: string) {
-    return letter.toLowerCase()
-  })
+  // The name is an invariant of the calling selector, so most calls see
+  // the same already-lowercase text. A charCode scan avoids building a
+  // regex replace closure for it on every element test.
+  for (var i = 0, l = name.length; l > i; ++i) {
+    var c = name.charCodeAt(i)
+    if (c > 64 && c < 91) {
+      return name.replace(/[A-Z]/g, function (letter: string) {
+        return letter.toLowerCase()
+      })
+    }
+  }
+  return name
 }
 
 export function matchesTag(
@@ -107,6 +116,13 @@ export function matchesTag(
     return local == name
   }
   name = engine.asciiLower(name)
+  // An exact match against the lowered name is a match under both
+  // namespace branches below, and skips the namespaceURI read on the
+  // common path. The raw name cannot stand in for it: XHTML elements
+  // with uppercase local names must stay case-sensitive.
+  if (local == name) {
+    return true
+  }
   return (
     (element.namespaceURI == engine.NAMESPACE
       ? local
