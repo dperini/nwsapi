@@ -14,25 +14,17 @@ export function compilePseudoAction(
       state.source = 'if(e===s.doc.activeElement){' + state.source + '}'
       break
     case 'focus':
-      // A positive isFocusable verdict requires the element to be the
-      // focused one, so the identity test runs first and keeps the
-      // native probe off every unfocused candidate.
-      state.source =
-        'if(e===s.doc.activeElement&&s.isFocusable(e)){' + state.source + '}'
+      state.source = 'if(s.isFocusable(e)){' + state.source + '}'
       break
     case 'focus-visible':
       // The v2.x branch has no reliable keyboard-modality state.
       // An element with observable input focus is the conservative
       // behavior shared by focus and focus-visible in this line.
-      state.source =
-        'if(e===s.doc.activeElement&&s.isFocusable(e)){' + state.source + '}'
+      state.source = 'if(s.isFocusable(e)){' + state.source + '}'
       break
     case 'focus-within':
-      // Containment decides the pseudo either way: a host matcher can
-      // only agree with it, so it runs first and keeps the native
-      // probe off elements with no focused descendant.
       state.source =
-        'if(e.contains(s.doc.activeElement)&&s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus())){' +
+        'if(s.matchesNative(e,":focus-within",!!s.doc.hasFocus&&s.doc.hasFocus()&&e.contains(s.doc.activeElement))){' +
         state.source +
         '}'
       break
