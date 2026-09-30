@@ -47,6 +47,31 @@
     "dist/external/unicode.d.ts"
   ],
   "main": "./dist/nwsapi.js",
+  "exports": {
+    ".": "./dist/nwsapi.js",
+    "./package.json": "./package.json",
+    "./bin/nwsapi.js": "./dist/bin/nwsapi.js",
+    "./bin/nwsapi": "./dist/bin/nwsapi.js",
+    "./src/nwsapi.js": "./dist/nwsapi.js",
+    "./src/nwsapi": "./dist/nwsapi.js",
+    "./src/modules/nwsapi-legacy.js": "./dist/modules/nwsapi-legacy.js",
+    "./src/modules/nwsapi-legacy": "./dist/modules/nwsapi-legacy.js",
+    "./src/dom-selector.js": "./dist/adapter/dom-selector.js",
+    "./src/dom-selector": "./dist/adapter/dom-selector.js",
+    "./src/modules/nwsapi-jquery.js": "./dist/modules/nwsapi-jquery.js",
+    "./src/modules/nwsapi-jquery": "./dist/modules/nwsapi-jquery.js",
+    "./src/modules/nwsapi-traversal.js": "./dist/modules/nwsapi-traversal.js",
+    "./src/modules/nwsapi-traversal": "./dist/modules/nwsapi-traversal.js",
+    "./dist/external/unicode.js": {
+      "types": "./dist/external/unicode.d.ts",
+      "default": "./dist/external/unicode.js"
+    },
+    "./dist/external/unicode": {
+      "types": "./dist/external/unicode.d.ts",
+      "default": "./dist/external/unicode.js"
+    },
+    "./dist/external/unicode.d.ts": "./dist/external/unicode.d.ts"
+  },
   "scripts": {
     "bench": "pnpm run build && node scripts/repo/run.mts scripts/repo/bench/report/run.mts",
     "bench:accessors": "node scripts/repo/run.mts scripts/repo/bench/accessors.bench.mts",
@@ -85,7 +110,7 @@
     "setup": "node scripts/repo/run.mts scripts/repo/setup/run.mts",
     "wpt:setup": "node scripts/repo/run.mts scripts/repo/setup/wpt.mts",
     "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts && node scripts/repo/run.mts scripts/repo/build/run.mts",
-    "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/node.js.yml --quiet --pause-on-failure --github-token",
+    "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/ci.yml --quiet --pause-on-failure --github-token",
     "clean": "node scripts/repo/run.mts scripts/repo/clean.mts",
     "lint": "node scripts/repo/run.mts scripts/repo/lint.mts",
     "format": "node scripts/repo/run.mts scripts/repo/format.mts",
@@ -217,6 +242,7 @@
       }
     ]
   },
+  "packageManager": "pnpm@12.7.0",
   "allowScripts": {
     "fsevents": false
   },
@@ -225,31 +251,5 @@
       "type": "MIT",
       "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
-  ],
-  "packageManager": "pnpm@12.7.0",
-  "exports": {
-    ".": "./dist/nwsapi.js",
-    "./package.json": "./package.json",
-    "./bin/nwsapi.js": "./dist/bin/nwsapi.js",
-    "./bin/nwsapi": "./dist/bin/nwsapi.js",
-    "./src/nwsapi.js": "./dist/nwsapi.js",
-    "./src/nwsapi": "./dist/nwsapi.js",
-    "./src/modules/nwsapi-legacy.js": "./dist/modules/nwsapi-legacy.js",
-    "./src/modules/nwsapi-legacy": "./dist/modules/nwsapi-legacy.js",
-    "./src/dom-selector.js": "./dist/adapter/dom-selector.js",
-    "./src/dom-selector": "./dist/adapter/dom-selector.js",
-    "./src/modules/nwsapi-jquery.js": "./dist/modules/nwsapi-jquery.js",
-    "./src/modules/nwsapi-jquery": "./dist/modules/nwsapi-jquery.js",
-    "./src/modules/nwsapi-traversal.js": "./dist/modules/nwsapi-traversal.js",
-    "./src/modules/nwsapi-traversal": "./dist/modules/nwsapi-traversal.js",
-    "./dist/external/unicode.js": {
-      "types": "./dist/external/unicode.d.ts",
-      "default": "./dist/external/unicode.js"
-    },
-    "./dist/external/unicode": {
-      "types": "./dist/external/unicode.d.ts",
-      "default": "./dist/external/unicode.js"
-    },
-    "./dist/external/unicode.d.ts": "./dist/external/unicode.d.ts"
-  }
+  ]
 }

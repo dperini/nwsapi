@@ -19,6 +19,15 @@ export interface CiTestPlan {
 
 const TEST_FILE_RE = /^test\/repo\/(unit|integration)\/.*\.test\.mts$/
 
+// Every lane schedules on the shared drivers, plus its own triggers.
+function laneChanged(
+  normalized: string[],
+  shared: boolean,
+  match: (file: string) => boolean,
+) {
+  return shared || normalized.some(match)
+}
+
 export function planCiTests(files: readonly string[]): CiTestPlan {
   const normalized = files.map(file => file.replaceAll('\\', '/'))
   const sourceChanged = normalized.some(file => file.startsWith('src/'))
@@ -28,6 +37,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   const workflowChanged = normalized.some(
     file => file.startsWith('.github/') || file.startsWith('scripts/repo/ci/'),
   )
+  const shared = workflowChanged || sourceChanged || dependencyChanged
   const testInfrastructureChanged = normalized.some(
     file =>
       file === 'scripts/repo/test.mts' ||
@@ -36,11 +46,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       file.startsWith('.config/playwright') ||
       file === '.config/state-pseudos.config.mts',
   )
-  const fullNode =
-    sourceChanged ||
-    dependencyChanged ||
-    testInfrastructureChanged ||
-    workflowChanged
+  const fullNode = shared || testInfrastructureChanged
   const testFiles = normalized.filter(file => TEST_FILE_RE.test(file))
   const relatedFiles = normalized.filter(
     file =>
@@ -51,53 +57,45 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       !TEST_FILE_RE.test(file),
   )
   const node = fullNode || testFiles.length > 0 || relatedFiles.length > 0
-  const browser =
-    workflowChanged ||
-    sourceChanged ||
-    dependencyChanged ||
-    normalized.some(
-      file =>
-        file.startsWith('test/repo/e2e/') ||
-        file.startsWith('.config/playwright') ||
-        file === '.config/state-pseudos.config.mts' ||
-        file === 'scripts/repo/browser.mts',
-    )
-  const packageTest =
-    workflowChanged ||
-    sourceChanged ||
-    dependencyChanged ||
-    normalized.some(
-      file =>
-        file.startsWith('scripts/repo/build/') ||
-        file === 'scripts/repo/node.mts' ||
-        file.startsWith('scripts/repo/setup/') ||
-        file === 'scripts/repo/external-tools.mts' ||
-        file === '.config/external-tools.json' ||
-        file === '.github/workflows/coverage.yml' ||
-        file === '.config/node-interop.json' ||
-        file === '.github/workflows/node.js.yml' ||
-        file === 'test/repo/e2e/jsdom-adapter-package.mts' ||
-        file === 'test/repo/e2e/fixture/node-interop.mts',
-    )
-  const fuzz =
-    workflowChanged ||
-    sourceChanged ||
-    dependencyChanged ||
-    normalized.some(
-      file =>
-        file.startsWith('test/repo/fuzz/') || file === 'scripts/repo/fuzz.mts',
-    )
-  const upstream =
-    workflowChanged ||
-    sourceChanged ||
-    dependencyChanged ||
-    normalized.some(
-      file =>
-        file.startsWith('test/repo/e2e/upstream/') ||
-        file.startsWith('scripts/repo/check/wpt/') ||
-        file.startsWith('.config/playwright') ||
-        file.startsWith('upstream/'),
-    )
+  const browser = laneChanged(
+    normalized,
+    shared,
+    file =>
+      file.startsWith('test/repo/e2e/') ||
+      file.startsWith('.config/playwright') ||
+      file === '.config/state-pseudos.config.mts' ||
+      file === 'scripts/repo/browser.mts',
+  )
+  const packageTest = laneChanged(
+    normalized,
+    shared,
+    file =>
+      file.startsWith('scripts/repo/build/') ||
+      file === 'scripts/repo/node.mts' ||
+      file.startsWith('scripts/repo/setup/') ||
+      file === 'scripts/repo/external-tools.mts' ||
+      file === '.config/external-tools.json' ||
+      file === '.github/workflows/coverage.yml' ||
+      file === '.config/node-interop.json' ||
+      file === '.github/workflows/ci.yml' ||
+      file === 'test/repo/e2e/jsdom-adapter-package.mts' ||
+      file === 'test/repo/e2e/fixture/node-interop.mts',
+  )
+  const fuzz = laneChanged(
+    normalized,
+    shared,
+    file =>
+      file.startsWith('test/repo/fuzz/') || file === 'scripts/repo/fuzz.mts',
+  )
+  const upstream = laneChanged(
+    normalized,
+    shared,
+    file =>
+      file.startsWith('test/repo/e2e/upstream/') ||
+      file.startsWith('scripts/repo/check/wpt/') ||
+      file.startsWith('.config/playwright') ||
+      file.startsWith('upstream/'),
+  )
   return {
     browser,
     fullNode,
