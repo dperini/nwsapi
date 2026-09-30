@@ -12,11 +12,8 @@ export function compilePseudoHeading(
     state.engine.emit("'" + state.expression + "'" + state.engine.qsInvalid)
     return ''
   }
-  // HTML heading semantics use the local name, including prefixed
-  // HTML elements, and ignore ARIA role/level overrides. The local
-  // name is read once and compared against compile-time names, which
-  // keeps the namespace read off every candidate that is not a
-  // heading; the regex form tested both per element.
+  // HTML heading semantics use the local name, so the name is read
+  // once and decided before the namespace read; no regex runs here.
   state.test =
     state.match![1] === undefined
       ? '123456'

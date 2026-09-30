@@ -116,10 +116,9 @@ export function matchesTag(
     return local == name
   }
   name = engine.asciiLower(name)
-  // An exact match against the lowered name is a match under both
-  // namespace branches below, and skips the namespaceURI read on the
-  // common path. The raw name cannot stand in for it: XHTML elements
-  // with uppercase local names must stay case-sensitive.
+  // The fast path is safe because the selector name is lowered first.
+  // Folding foreign local names case-insensitively below is deliberate
+  // and pinned by the descendant-routing foreign cases.
   if (local == name) {
     return true
   }

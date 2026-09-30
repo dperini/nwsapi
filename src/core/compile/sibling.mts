@@ -10,12 +10,10 @@ export function compileSibling(
     state.pendingTag = ''
   }
   var memo = ''
-  // Candidates arrive in document order, so every later candidate
-  // whose walk passes a rejected sibling would retest it. Recording
-  // the rejection once turns the repeated passes into one test per
-  // sibling per query. Matched candidates continue the main loop from
-  // the walk body, so only rejections are recorded. Match mode and
-  // the first-child form have no repeated passes to save.
+  // Selection walks retest every rejected sibling per later candidate,
+  // so rejections are recorded once per query. Matched candidates
+  // continue the main loop before the record; match mode and the
+  // first-child form have no repeated passes to save.
   if (
     state.mode === true &&
     !state.firstChildOnly &&
