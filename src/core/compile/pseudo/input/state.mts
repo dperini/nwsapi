@@ -56,30 +56,31 @@ export function compilePseudoInput(
         '}'
       break
     case 'default':
-      // The type and local name are read once per candidate: the
-      // scratch collection is per candidate too, so a stale value from
-      // an earlier candidate could not stand in for it. The scratch
-      // starts as null and the comparison guards it, because only
-      // image and submit elements have a list to walk.
+      // Reads are hoisted per candidate; the scan index gets its own
+      // slot because reusing the resolver's context parameter would
+      // hand later tests a number instead of the context.
       if (state.engine.S_VARS.indexOf('_t') < 0) {
         state.engine.S_VARS.push('_t')
       }
       if (state.engine.S_VARS.indexOf('_u') < 0) {
         state.engine.S_VARS.push('_u')
       }
+      if (state.engine.S_VARS.indexOf('_d') < 0) {
+        state.engine.S_VARS.push('_d=0')
+      }
       state.source =
         '_u=e.localName;_t=e.type;' +
         'if(("form" in e&&(o=e.form))){' +
-        'var x=0;n=null;' +
+        '_d=0;n=null;' +
         'if(_t=="image")n=o.getElementsByTagName("input");' +
         '_t=="submit"&&(n=o.elements);' +
-        'while(n&&n[x]&&e!==n[x]){' +
-        'if(n[x].type=="image")break;' +
-        'if(n[x].type=="submit")break;' +
-        'x++;' +
+        'while(n&&n[_d]&&e!==n[_d]){' +
+        'if(n[_d].type=="image")break;' +
+        'if(n[_d].type=="submit")break;' +
+        '_d++;' +
         '}' +
         '}' +
-        'if((o=e.form)&&((n&&e===n[x])&&s.includes("|image|submit|","|"+_t+"|"))||' +
+        'if((o=e.form)&&((n&&e===n[_d])&&s.includes("|image|submit|","|"+_t+"|"))||' +
         '(("option"==_u||/^option$/i.test(_u))&&e.defaultSelected)||' +
         '((s.includes("|radio|checkbox|","|"+_t+"|"))&&e.defaultChecked)' +
         '){' +
