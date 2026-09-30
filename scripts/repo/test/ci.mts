@@ -12,6 +12,7 @@ export interface CiTestPlan {
   fuzz: boolean
   node: boolean
   package: boolean
+  upstream: boolean
   relatedFiles: string[]
   testFiles: string[]
 }
@@ -86,6 +87,17 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       file =>
         file.startsWith('test/repo/fuzz/') || file === 'scripts/repo/fuzz.mts',
     )
+  const upstream =
+    workflowChanged ||
+    sourceChanged ||
+    dependencyChanged ||
+    normalized.some(
+      file =>
+        file.startsWith('test/repo/e2e/upstream/') ||
+        file.startsWith('scripts/repo/check/wpt/') ||
+        file.startsWith('.config/playwright') ||
+        file.startsWith('upstream/'),
+    )
   return {
     browser,
     fullNode,
@@ -94,6 +106,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
     package: packageTest,
     relatedFiles,
     testFiles,
+    upstream,
   }
 }
 
@@ -154,6 +167,7 @@ export function completePlan(): CiTestPlan {
     package: true,
     relatedFiles: [],
     testFiles: [],
+    upstream: true,
   }
 }
 
@@ -164,7 +178,7 @@ export function writeGithubPlan(plan: CiTestPlan): void {
   }
   appendFileSync(
     output,
-    `${(['browser', 'fuzz', 'node', 'package'] as const)
+    `${(['browser', 'fuzz', 'node', 'package', 'upstream'] as const)
       .map(key => `${key}=${String(plan[key])}`)
       .join('\n')}\n`,
   )

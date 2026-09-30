@@ -12,6 +12,7 @@ test('an unavailable comparison runs every lane', () => {
     package: true,
     relatedFiles: [],
     testFiles: [],
+    upstream: true,
   })
 })
 
@@ -24,6 +25,7 @@ test('documentation changes do not schedule runtime lanes', () => {
     package: false,
     relatedFiles: [],
     testFiles: [],
+    upstream: false,
   })
 })
 
@@ -36,6 +38,7 @@ test('source changes schedule every runtime contract and full Node tests', () =>
     package: true,
     relatedFiles: [],
     testFiles: [],
+    upstream: true,
   })
 })
 
@@ -52,6 +55,7 @@ test('workflow and local action changes exercise every runtime lane', () => {
       'browser',
       'package',
       'fuzz',
+      'upstream',
     ] as const) {
       assert.equal(plan[lane], true, `${file}: ${lane}`)
     }
