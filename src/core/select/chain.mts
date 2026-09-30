@@ -180,3 +180,104 @@ export function parseChain(engine: EngineState, selectors: string) {
     cls: string | undefined
   }>
 }
+
+export function parseSiblingChain(engine: EngineState, selectors: string) {
+  var i: number,
+    l: number,
+    match: RegExpMatchArray | null,
+    out: Array<{ tag: string | undefined; cls: string | undefined }> = [],
+    parts = selectors.split('~'),
+    raw: string
+
+  for (i = 0, l = parts.length; l > i; ++i) {
+    raw = parts[i]!.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '')
+    // A part carrying inner whitespace hides a descendant combinator,
+    // which the chain cannot express.
+    if (!raw || /[\t\n\f\r ]/.test(raw)) {
+      return null
+    }
+    match = engine.reChainPart.exec(raw)
+    if (!match || (match[1] === undefined && match[2] === undefined)) {
+      return null
+    }
+    out[out.length] = { tag: match[1]!, cls: match[2]! }
+  }
+
+  return out
+}
+
+function matchesPart(
+  engine: EngineState,
+  element: Element,
+  part: { cls: string | undefined; tag: string | undefined },
+) {
+  if (part.tag !== undefined && !engine.matchesTag(element, part.tag)) {
+    return false
+  }
+  if (
+    part.cls !== undefined &&
+    !engine.hasClass(engine.classOf(element), part.cls)
+  ) {
+    return false
+  }
+  return true
+}
+
+export function siblingChain(
+  engine: EngineState,
+  chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+  context: EngineContext,
+) {
+  var child: Element | null,
+    i: number,
+    l: number,
+    last = chain.length - 1,
+    level: Element[],
+    matched: number,
+    node: Element,
+    parent: Element | null,
+    results: Element[] = []
+
+  // The scan reads class tokens itself, so it needs the standards
+  // tokenization the ordinary walk would get from a host lookup.
+  if (
+    engine.Config.LEGACY ||
+    !engine.HTML_DOCUMENT ||
+    engine.QUIRKS_MODE ||
+    context.nodeType != 9 ||
+    !context.getElementsByClassName ||
+    !context.getElementsByTagName
+  ) {
+    return null
+  }
+
+  level = engine.fetchLevel(chain[last]!, context, [])
+
+  // Candidates arrive in document order, so the children of one parent
+  // form a contiguous run. One pass over each parent's children runs a
+  // greedy subsequence match: a child either advances the chain or, at
+  // the last part, qualifies as an answer. Every sibling is visited
+  // once per query instead of once per later candidate.
+  parent = null
+  for (i = 0, l = level.length; i < l; ++i) {
+    node = level[i]!
+    if (node.parentElement === parent) {
+      continue
+    }
+    parent = node.parentElement
+    matched = 0
+    child = parent ? parent.firstElementChild : null
+    while (child) {
+      if (matched == last) {
+        if (matchesPart(engine, child, chain[last]!)) {
+          results[results.length] = child
+        }
+      } else if (matchesPart(engine, child, chain[matched]!)) {
+        ++matched
+      }
+      child = child.nextElementSibling
+    }
+  }
+
+  return results
+}

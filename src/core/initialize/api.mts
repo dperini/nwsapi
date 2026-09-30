@@ -9,6 +9,8 @@ import {
   descendChain,
   fetchLevel,
   parseChain,
+  parseSiblingChain,
+  siblingChain,
 } from '../select/chain.mts'
 import { optimize } from '../compile/optimize.mts'
 import { select } from '../select/all.mts'
@@ -62,6 +64,8 @@ export function initializeApi(engine: EngineState) {
   engine.partCounts = engine.createCache<number>()
   engine.reTagChain =
     /^[.A-Za-z][-\w]*(?:\.[-\w]+)?(?:\x20[.A-Za-z][-\w]*(?:\.[-\w]+)?)+$/
+  engine.reSiblingChain =
+    /^[.A-Za-z][-\w.]*(?:[\t\n\f\r ]*~[\t\n\f\r ]*[.A-Za-z][-\w.]*)+$/
   engine.reChainPart = /^([A-Za-z][-\w]*)?(?:\.([-\w]+))?$/
   engine.fetchLevel = fetchLevel.bind(null, engine) as EngineState['fetchLevel']
   engine.countPart = countPart.bind(null, engine) as EngineState['countPart']
@@ -70,7 +74,16 @@ export function initializeApi(engine: EngineState) {
     engine,
   ) as EngineState['descendChain']
   engine.parseChain = parseChain.bind(null, engine) as EngineState['parseChain']
+  engine.siblingChain = siblingChain.bind(
+    null,
+    engine,
+  ) as EngineState['siblingChain']
+  engine.parseSiblingChain = parseSiblingChain.bind(
+    null,
+    engine,
+  ) as EngineState['parseSiblingChain']
   engine.descentDeclined = engine.createCache()
+  engine.siblingDeclined = engine.createCache()
   engine.select = select.bind(null, engine) as EngineState['select']
   engine.optimize = optimize.bind(null, engine) as EngineState['optimize']
   engine.collect = collect.bind(null, engine) as EngineState['collect']
