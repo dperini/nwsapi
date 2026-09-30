@@ -7,7 +7,15 @@ export function match_assert(
   callback: ((element: Element) => unknown) | undefined,
 ) {
   for (var i = 0, l = f.length, r = false; l > i; ++i) {
-    f[i]!(element, callback, null, false) && (r = true)
+    if (f[i]!(element, callback, null, false)) {
+      // One match decides the result. A callback still has to observe
+      // every matching alternative, so only callback-free matching
+      // can stop at the first one.
+      if (!callback) {
+        return true
+      }
+      r = true
+    }
   }
   return r
 }
