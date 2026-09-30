@@ -15,6 +15,7 @@ export interface PublicState {
   Snapshot: {
     matchesTag: (element: Element, name: string) => boolean
     hasClass: (value: string, name: string) => boolean
+    createWeakMap: (<Key extends WeakKey, Value>() => WeakMap<Key, Value> | undefined)
     mayMatch: (
       node: EngineElement,
       mask: number,
@@ -191,6 +192,7 @@ export interface PublicState {
     Snapshot: {
       matchesTag: (element: Element, name: string) => boolean
       hasClass: (value: string, name: string) => boolean
+      createWeakMap: (<Key extends WeakKey, Value>() => WeakMap<Key, Value> | undefined)
       mayMatch: (
         node: EngineElement,
         mask: number,

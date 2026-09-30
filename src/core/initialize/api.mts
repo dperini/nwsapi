@@ -120,6 +120,7 @@ export function initializeApi(engine: EngineState) {
 
     matchesTag: engine.matchesTag,
     hasClass: engine.hasClass,
+    createWeakMap: engine.createWeakMap,
     mayMatch: engine.mayMatch,
     ancestorMask: engine.ancestorMask,
     clearAncestorMasks: engine.clearAncestorMasks,

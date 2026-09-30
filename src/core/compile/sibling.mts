@@ -9,6 +9,22 @@ export function compileSibling(
     state.source = state.pendingTag + state.source + '}'
     state.pendingTag = ''
   }
+  var memo = ''
+  // Candidates arrive in document order, so every later candidate
+  // whose walk passes a rejected sibling would retest it. Recording
+  // the rejection once turns the repeated passes into one test per
+  // sibling per query. Matched candidates continue the main loop from
+  // the walk body, so only rejections are recorded. Match mode and
+  // the first-child form have no repeated passes to save.
+  if (
+    state.mode === true &&
+    !state.firstChildOnly &&
+    !state.engine.Config.LEGACY
+  ) {
+    state.flag = '_sw' + state.engine.notFlag++
+    state.engine.S_VARS.push(state.flag + '=s.createWeakMap()')
+    memo = 'if(' + state.flag + '.get(e)!==false){'
+  }
   state.source =
     'var N' +
     state.k +
@@ -17,7 +33,9 @@ export function compileSibling(
       ? 'if(e&&(e=e.parentNode)&&(e=e.firstElementChild)&&e!==N' + state.k + ')'
       : 'while(e&&(e=' + state.read.prev('e') + '))') +
     '{' +
+    memo +
     state.source +
+    (memo ? state.flag + '.set(e,false);}' : '') +
     '}e=N' +
     state.k +
     ';'
