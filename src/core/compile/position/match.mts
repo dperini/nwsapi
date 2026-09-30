@@ -15,7 +15,13 @@ export function compilePositionMatch(state: CompileState) {
       state.flag +
       '&&o.namespaceURI===' +
       state.flag +
-      's)++n;}' +
+      's){++n;' +
+      // The index only grows, so a constant equality is decided once
+      // the count passes it; the answer cannot come back.
+      (/^n==(\d+)$/.test(state.test as string)
+        ? 'if(n>' + (state.test as string).slice(3) + ')break;'
+        : '') +
+      '}}' +
       'if((' +
       (state.test as string) +
       ')){' +
