@@ -223,20 +223,37 @@ function matchesPart(
   return true
 }
 
+function isSeen(seen: WeakMap<object, boolean> | Element[], parent: Element) {
+  return Array.isArray(seen) ? seen.indexOf(parent) >= 0 : !!seen.get(parent)
+}
+
+function markSeen(seen: WeakMap<object, boolean> | Element[], parent: Element) {
+  if (Array.isArray(seen)) {
+    seen[seen.length] = parent
+  } else {
+    seen.set(parent, true)
+  }
+}
+
 export function siblingChain(
   engine: EngineState,
   chain: Array<{ cls: string | undefined; tag: string | undefined }>,
   context: EngineContext,
 ) {
-  var child: Element | null,
-    i: number,
+  var i: number,
     l: number,
     last = chain.length - 1,
+    lastWalked: Element | null = null,
     level: Element[],
-    matched: number,
     node: Element,
     parent: Element | null,
-    results: Element[] = []
+    results: Element[] = [],
+    // Candidate parents can be nested, so a parent already walked is
+    // remembered and its remaining candidates are skipped; the flag
+    // marks answers that a nested walk emitted out of order.
+    seen: WeakMap<object, boolean> | Element[] =
+      engine.createWeakMap<object, boolean>() || [],
+    unordered = false
 
   // The scan reads class tokens itself, so it needs the standards
   // tokenization the ordinary walk would get from a host lookup.
@@ -253,31 +270,54 @@ export function siblingChain(
 
   level = engine.fetchLevel(chain[last]!, context, [])
 
-  // Candidates arrive in document order, so the children of one parent
-  // form a contiguous run. One pass over each parent's children runs a
-  // greedy subsequence match: a child either advances the chain or, at
-  // the last part, qualifies as an answer. Every sibling is visited
-  // once per query instead of once per later candidate.
-  parent = null
+  // One pass over each candidate parent's children runs a greedy
+  // subsequence match: a child either advances the chain or, at the
+  // last part, qualifies as an answer. Every sibling is visited once
+  // per query instead of once per later candidate.
   for (i = 0, l = level.length; i < l; ++i) {
     node = level[i]!
-    if (node.parentElement === parent) {
+    parent = node.parentElement
+    if (parent && isSeen(seen, parent)) {
+      // A run of candidates sharing one parent is one batch; only a
+      // parent seen again after another intervened walked out of turn.
+      if (parent !== lastWalked) {
+        unordered = true
+      }
       continue
     }
-    parent = node.parentElement
-    matched = 0
-    child = parent ? parent.firstElementChild : null
-    while (child) {
-      if (matched == last) {
-        if (matchesPart(engine, child, chain[last]!)) {
-          results[results.length] = child
-        }
-      } else if (matchesPart(engine, child, chain[matched]!)) {
-        ++matched
-      }
-      child = child.nextElementSibling
+    if (parent) {
+      markSeen(seen, parent)
+      lastWalked = parent
+      scanParent(engine, chain, parent, results)
     }
   }
 
+  // Batches are in document order within a parent, but a nested
+  // candidate parent splits its own parent's run around the subtree.
+  if (unordered && results.length > 1) {
+    results.sort(engine.documentOrder)
+  }
+
   return results
+}
+
+function scanParent(
+  engine: EngineState,
+  chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+  parent: Element,
+  results: Element[],
+) {
+  var child = parent.firstElementChild,
+    last = chain.length - 1,
+    matched = 0
+  while (child) {
+    if (matched == last) {
+      if (matchesPart(engine, child, chain[last]!)) {
+        results[results.length] = child
+      }
+    } else if (matchesPart(engine, child, chain[matched]!)) {
+      ++matched
+    }
+    child = child.nextElementSibling
+  }
 }
