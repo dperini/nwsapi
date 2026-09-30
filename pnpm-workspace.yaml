@@ -57,20 +57,3 @@ pmOnFail: error
 saveExact: true
 strictDepBuilds: true
 trustPolicy: no-downgrade
-minimumReleaseAgeExclude:
-  # published: 2026-09-17T12:12:06.251Z | removable: 2026-09-18T12:12:06.251Z
-  - ata-validator@1.27.0
-  # published: 2026-09-17T12:06:36.122Z | removable: 2026-09-18T12:06:36.122Z
-  - "@ata-validator/native-darwin-arm64@1.27.0"
-  # published: 2026-09-17T12:07:37.042Z | removable: 2026-09-18T12:07:37.042Z
-  - "@ata-validator/native-darwin-x64@1.27.0"
-  # published: 2026-09-17T12:06:47.435Z | removable: 2026-09-18T12:06:47.435Z
-  - "@ata-validator/native-linux-arm64-gnu@1.27.0"
-  # published: 2026-09-17T12:07:48.583Z | removable: 2026-09-18T12:07:48.583Z
-  - "@ata-validator/native-linux-arm64-musl@1.27.0"
-  # published: 2026-09-17T12:07:53.767Z | removable: 2026-09-18T12:07:53.767Z
-  - "@ata-validator/native-linux-x64-gnu@1.27.0"
-  # published: 2026-09-17T12:07:59.063Z | removable: 2026-09-18T12:07:59.063Z
-  - "@ata-validator/native-linux-x64-musl@1.27.0"
-  # published: 2026-09-17T12:07:08.861Z | removable: 2026-09-18T12:07:08.861Z
-  - "@ata-validator/native-win32-x64@1.27.0"
