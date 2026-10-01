@@ -99,6 +99,17 @@ async function main() {
     throw new Error(`PHP is required to serve the WPT pages. ${phpInstallHint()}`)
   }
   const { chromium } = await import('playwright')
+  let browser
+  try {
+    browser = await chromium.launch()
+  } catch (error) {
+    const missing = error.message.match(/Executable doesn't exist at (.+)/)
+    if (!missing || existsSync(missing[1])) throw error
+    console.log('Playwright Chromium is missing; installing the pinned browser before running WPT.')
+    execFileSync(process.execPath, [fileURLToPath(new URL('../../node_modules/playwright/cli.js', import.meta.url)), 'install', 'chromium'], { stdio: 'inherit' })
+    if (!existsSync(missing[1])) throw new Error(`Playwright Chromium was not installed at ${missing[1]}`)
+    browser = await chromium.launch()
+  }
   const pages = pageList()
   const server = spawn('php', ['-S', `localhost:${port}`, '-t', upstream, path.join(root, 'test/wpt/router.php')], {
     stdio: 'ignore',
@@ -107,7 +118,6 @@ async function main() {
   process.on('exit', () => server.kill())
   await new Promise(resolve => setTimeout(resolve, 500))
 
-  const browser = await chromium.launch()
   const context = await browser.newContext()
   const queue = [...pages]
   let serverError = null

@@ -17,8 +17,9 @@ npm ci
 npm test
 ```
 
-Installation runs `prepare`, which checks the pinned npm 12.1.0 release CLI and
-sets up the pinned WPT checkout. `npm run setup` repeats both steps safely;
+Installation runs `prepare`, which checks the pinned npm 12.1.0 release CLI,
+resets the pinned WPT checkout, and installs the pinned Playwright Chromium
+browser without interactive prompts. `npm run setup` repeats these steps;
 `npm run publish:setup` checks just the publish CLI. The npm lockfile pins the
 contributor tools. The packaged manifest excludes contributor scripts and tools,
 so installing a release does not clone WPT or install release tooling.
