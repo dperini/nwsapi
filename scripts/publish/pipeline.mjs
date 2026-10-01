@@ -20,9 +20,9 @@ export function testTarball(tarball, directory, inspect = () => {}) {
   if (run('tar', ['-tvzf', tarball]).split('\n').some(line => !line.startsWith('-'))) throw new Error('The tarball must contain only regular files.')
   run('tar', ['-xzf', tarball, '-C', extracted])
   const manifest = readJson(path.join(extracted, 'package/package.json'))
+  inspect(path.join(extracted, 'package'), manifest)
   if (manifest.name !== 'nwsapi' || manifest.scripts || manifest.dependencies || manifest.devDependencies) throw new Error('Unexpected package manifest or lifecycle scripts.')
   validateVersion(manifest.version)
-  inspect(path.join(extracted, 'package'), manifest)
   const tests = readdirSync(path.join(root, 'test/repo/integration')).filter(file => file.endsWith('.test.mjs'))
   if (tests.length === 0) throw new Error('No integration tests found for the release tarball.')
   run(process.execPath, ['--test', ...tests.map(file => path.join(root, 'test/repo/integration', file))], {
