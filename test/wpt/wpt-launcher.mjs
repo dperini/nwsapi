@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -61,18 +61,26 @@ function serve() {
 function setup() {
   if (existsSync(upstream)) return verify()
   mkdirSync(path.dirname(upstream), { recursive: true })
-  git(['clone', '--depth', '1', '--single-branch', '--filter=blob:none', '--no-checkout', '--branch', config.branch, config.url, upstream])
-  git(['-C', upstream, 'sparse-checkout', 'set', '--cone', '--', ...config.sparse])
-  git(['-C', upstream, 'fetch', '--depth', '1', '--filter=blob:none', 'origin', config.ref])
-  git(['-C', upstream, 'checkout', '--detach', 'FETCH_HEAD', '--'])
+  const staging = mkdtempSync(path.join(path.dirname(upstream), '.wpt-setup-'))
+  const checkout = path.join(staging, 'checkout')
+  try {
+    git(['clone', '--depth', '1', '--single-branch', '--filter=blob:none', '--no-checkout', '--branch', config.branch, config.url, checkout])
+    git(['-C', checkout, 'sparse-checkout', 'set', '--cone', '--', ...config.sparse])
+    git(['-C', checkout, 'fetch', '--depth', '1', '--filter=blob:none', 'origin', config.ref])
+    git(['-C', checkout, 'checkout', '--detach', 'FETCH_HEAD', '--'])
+    verify(checkout)
+    renameSync(checkout, upstream)
+  } finally {
+    rmSync(staging, { recursive: true, force: true })
+  }
   verify()
 }
 
-function verify() {
-  const head = existsSync(upstream) ? execFileSync('git', ['-C', upstream, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() : null
+function verify(directory = upstream) {
+  const head = existsSync(directory) ? execFileSync('git', ['-C', directory, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() : null
   if (head !== config.ref) throw new Error(`${config.path} is not pinned at ${config.ref}; run npm run wpt:setup`)
-  if (!existsSync(path.join(upstream, 'resources', 'testharness.js'))) throw new Error(`${config.path} does not contain the WPT harness resources`)
-  if (execFileSync('git', ['-C', upstream, 'status', '--porcelain'], { encoding: 'utf8' }) !== '') throw new Error(`${config.path} is dirty; refusing to run modified upstream tests`)
-  const tree = execFileSync('git', ['-C', upstream, '-c', 'core.quotePath=false', 'ls-tree', '-r', config.ref], { maxBuffer })
+  if (!existsSync(path.join(directory, 'resources', 'testharness.js'))) throw new Error(`${config.path} does not contain the WPT harness resources`)
+  if (execFileSync('git', ['-C', directory, 'status', '--porcelain'], { encoding: 'utf8' }) !== '') throw new Error(`${config.path} is dirty; refusing to run modified upstream tests`)
+  const tree = execFileSync('git', ['-C', directory, '-c', 'core.quotePath=false', 'ls-tree', '-r', config.ref], { maxBuffer })
   if (createHash('sha256').update(tree).digest('hex') !== manifest) throw new Error(`${config.path} does not match its pinned tree manifest`)
 }
