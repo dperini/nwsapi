@@ -59,7 +59,17 @@ function serve() {
 }
 
 function setup() {
-  if (existsSync(upstream)) return verify()
+  git(['submodule', 'init', '--', config.path])
+  git(['submodule', 'sync', '--', config.path])
+
+  if (existsSync(path.join(upstream, '.git'))) {
+    repairSubmodule()
+    return verify()
+  }
+
+  // A clone without --recurse-submodules may leave an empty directory here.
+  // Replace it with the sparse checkout before asking Git to initialize it.
+  rmSync(upstream, { recursive: true, force: true })
   mkdirSync(path.dirname(upstream), { recursive: true })
   const staging = mkdtempSync(path.join(path.dirname(upstream), '.wpt-setup-'))
   const checkout = path.join(staging, 'checkout')
@@ -73,7 +83,16 @@ function setup() {
   } finally {
     rmSync(staging, { recursive: true, force: true })
   }
+  repairSubmodule()
   verify()
+}
+
+// The pinned WPT submodule is read-only test input. Reinitialize it to the
+// recorded gitlink, restore the curated sparse tree, and remove local files.
+function repairSubmodule() {
+  git(['submodule', 'update', '--init', '--recursive', '--force', '--depth', '1', '--', config.path])
+  git(['-C', upstream, 'sparse-checkout', 'set', '--cone', '--', ...config.sparse])
+  git(['-C', upstream, 'clean', '-fdx'])
 }
 
 function verify(directory = upstream) {
