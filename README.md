@@ -184,7 +184,7 @@ CI also creates HTML reports. Known WPT failures remain visible in test results.
 <summary>Build the package and update dependencies</summary>
 
 Rolldown builds readable JavaScript from the `.mts` source files. The browser distribution is `dist/nwsapi.js`. The build does not minify JavaScript.
-Run `pnpm run build` to build the files. Run `pnpm run clean` to remove generated JavaScript.
+Run `pnpm run build` to build the files. Run `pnpm run clean` to remove build outputs, dependencies, and local tool/test/browser caches; it also prunes unreferenced packages from the pnpm store. Re-run the tool bootstrap and `pnpm install` to restore the checkout.
 
 Run `pnpm run package` to build and create a tarball in `dist/`.
 Packaging uses an operating-system temporary directory to preserve the published `src/` paths, CommonJS API, browser and AMD support, and extension modules.
