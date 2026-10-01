@@ -33,10 +33,11 @@ export function validateVersion(version: string) {
   if (
     valid(version) !== version ||
     major(version) !== 3 ||
-    version.includes('+')
+    version.includes('+') ||
+    !/^3\.\d+\.\d+-prerelease(?:\.\d+)*$/.test(version)
   ) {
     throw new Error(
-      'Use an exact version in the 3.x line without build metadata.',
+      'Use an exact 3.x version with a -prerelease suffix and no build metadata.',
     )
   }
   return version

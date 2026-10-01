@@ -5,7 +5,7 @@ import { RELEASE } from '../../../scripts/repo/release/config.mts'
 import { integrity } from '../../../scripts/repo/release/artifact.mts'
 import type { CommandRunner } from '../../../scripts/repo/lib/command.mts'
 
-export const VERSION = '3.0.0-beta.1'
+export const VERSION = '3.0.0-prerelease.1'
 export const COMMIT = 'a'.repeat(40)
 export const STAGE = '12345678-1234-1234-1234-123456789abc'
 export const BYTES = Buffer.from('packed release fixture')
@@ -31,7 +31,7 @@ export function releaseFixture(version: string | null = VERSION) {
   mkdirSync(path.join(root, '.config'))
   writeFileSync(
     path.join(root, 'package.json'),
-    JSON.stringify({ name: 'nwsapi', version: version ?? '2.3.0-prerelease' }),
+    JSON.stringify({ name: 'nwsapi', version: version ?? '3.0.0-prerelease' }),
   )
   writeFileSync(
     path.join(root, '.config/release-request.json'),

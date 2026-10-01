@@ -26,13 +26,14 @@ afterEach(() => {
 
 test('release identities reject maintenance versions and ambiguous tags', () => {
   expect(validateVersion(VERSION)).toBe(VERSION)
-  expect(releaseTag('3.0.0')).toBe('v3.0.0')
+  expect(releaseTag(VERSION)).toBe(`v${VERSION}`)
   expect(validateStageId(STAGE)).toBe(STAGE)
   for (const version of [
     '2.2.27',
     '4.0.0',
     'v3.0.0',
     '3.0',
+    '3.0.0-beta.1',
     '3.0.0+x',
     '3.0.0-01',
   ]) {
@@ -50,9 +51,18 @@ test('release request and receipt validation reject unknown fields and identity 
     JSON.stringify({ version: VERSION, distTag: 'latest' }),
   )
   expect(() => readRequest(fixture.root)).toThrow()
+  for (const version of ['3.0.0', '3.0.0-beta.1']) {
+    writeFileSync(
+      path.join(fixture.root, '.config/release-request.json'),
+      JSON.stringify({ version, distTag: 'next' }),
+    )
+    expect(() => readRequest(fixture.root)).toThrow()
+  }
   expect(parseReceipt(RECEIPT)).toEqual(RECEIPT)
   for (const replacement of [
     { name: 'other' },
+    { version: '3.0.0' },
+    { version: '3.0.0-beta.1' },
     { distTag: 'latest' },
     { filename: '../release.tgz' },
     { commit: 'short' },

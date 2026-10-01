@@ -697,7 +697,7 @@ const ABORT = Object.freeze({
     }),
   ]),
 })
-const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$')
+const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$')
 function _af0_b0(_av) {
   if (_av !== null) return false
   return true
@@ -726,7 +726,7 @@ const errFn = function (d, _all) {
     for (const _ of s) n++
     return n
   }
-  const _re2 = __ataSafeRe('^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$')
+  const _re2 = __ataSafeRe('^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$')
   const __ATA_SEVERITY = {
     type: 10,
     const: 8,
@@ -914,8 +914,9 @@ const errFn = function (d, _all) {
               keyword: 'pattern',
               instancePath: '/version',
               schemaPath: '#/properties/version/anyOf/1/pattern',
-              params: { pattern: '^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$' },
-              message: 'must match pattern "^3\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$"',
+              params: { pattern: '^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$' },
+              message:
+                'must match pattern "^3\.\d+\.\d+-prerelease(?:\.\d+)*$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
               _o: 12,
             })
@@ -984,6 +985,6 @@ function isValid(data) {
 function validate(data) {
   return _fn(data) ? VALID : { valid: false, errors: errFn(data, true).errors }
 }
-const schemaHash = '4b3b1eb7f48b9b5c'
+const schemaHash = '5ee9b5bdad7ae348'
 export { validate, isValid, schemaHash }
 export default { validate, isValid, schemaHash }

@@ -6,7 +6,10 @@
     "version": {
       "anyOf": [
         { "type": "null" },
-        { "type": "string", "pattern": "^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$" }
+        {
+          "type": "string",
+          "pattern": "^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$"
+        }
       ]
     },
     "distTag": { "type": "string", "const": "next" }

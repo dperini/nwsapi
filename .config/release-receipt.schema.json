@@ -6,7 +6,7 @@
     "name": { "type": "string", "const": "nwsapi" },
     "version": {
       "type": "string",
-      "pattern": "^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$"
+      "pattern": "^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$"
     },
     "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
     "integrity": {
@@ -16,7 +16,7 @@
     "distTag": { "type": "string", "const": "next" },
     "filename": {
       "type": "string",
-      "pattern": "^nwsapi-3\\.[A-Za-z0-9.-]+\\.tgz$"
+      "pattern": "^nwsapi-3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*\\.tgz$"
     }
   },
   "additionalProperties": false,
