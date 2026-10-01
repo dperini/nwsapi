@@ -2218,11 +2218,75 @@
       )[0] || null;
     },
 
+  // Read the small selector grammar that can use a one-pass general-sibling
+  // walk. Everything else stays on the ordinary compiled-resolver path.
+  parseSiblingChain =
+    function(selector) {
+      var parts = selector.split('~'), chain = [], part, match, i;
+      if (parts.length < 2) return null;
+      for (i = 0; i < parts.length; ++i) {
+        part = parts[i].replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+        if (!part || /[\t\n\f\r ]|\\/.test(part)) return null;
+        match =
+          /^(\*|[-_a-zA-Z][-_a-zA-Z0-9]*)?(?:\.([-_a-zA-Z][-_a-zA-Z0-9]*))?$/.exec(
+            part
+          );
+        if (!match || (!match[1] && !match[2])) return null;
+        chain[chain.length] = { tag: match[1], cls: match[2] };
+      }
+      return chain;
+    },
+
+  // For simple general-sibling chains, candidates are ordered by parent.
+  // Scanning each distinct parent once avoids repeating the left-side walk
+  // for every later matching sibling.
+  siblingChain =
+    function(chain, context) {
+      var last = chain.length - 1,
+        part = chain[last],
+        candidates, parents, results = [], parent, child, matched, i, l;
+      if (!global.WeakSet || !context.getElementsByTagName) return null;
+      candidates = part.cls
+        ? context.getElementsByClassName(part.cls)
+        : context.getElementsByTagName(part.tag == '*' ? '*' : part.tag);
+      parents = new global.WeakSet();
+      for (i = 0, l = candidates.length; i < l; ++i) {
+        parent = candidates[i].parentElement;
+        if (!parent || parents.has(parent)) continue;
+        parents.add(parent);
+        matched = 0;
+        child = parent.firstElementChild;
+        while (child) {
+          if (matched < last) {
+            if (matchesSiblingPart(child, chain[matched])) ++matched;
+          } else if (matchesSiblingPart(child, part)) {
+            results[results.length] = child;
+          }
+          child = child.nextElementSibling;
+        }
+      }
+      return results.length > 1 ? results.sort(documentOrder) : results;
+    },
+
+  matchesSiblingPart =
+    function(element, part) {
+      if (part.tag && part.tag != '*') {
+        if (element.namespaceURI == 'http://www.w3.org/1999/xhtml') {
+          if (element.localName.toLowerCase() != part.tag.toLowerCase()) {
+            return false;
+          }
+        } else if (element.localName != part.tag) {
+          return false;
+        }
+      }
+      return !part.cls || hasClass(element, part.cls);
+    },
+
   // equivalent of w3c 'querySelectorAll' method
   select =
     function _querySelectorAll(selectors, context, callback) {
 
-      var nodes = [ ], resolver;
+      var nodes = [ ], resolver, parsed, chain, siblingNodes;
 
       arguments.length == 0 &&
         emit(qsNotArgs, TypeError);
@@ -2232,6 +2296,30 @@
           (lastContext = switchContext(context));
 
       if (selectors) {
+        if (
+          !callback &&
+          typeof selectors == 'string' &&
+          selectors.indexOf('~') > -1 &&
+          HTML_DOCUMENT &&
+          !QUIRKS_MODE &&
+          context.nodeType == 9
+        ) {
+          parsed = parse(selectors, true);
+          if (
+            parsed &&
+            parsed.length == 1 &&
+            (chain = parseSiblingChain(parsed[0]))
+          ) {
+            siblingNodes = siblingChain(chain, context);
+            if (siblingNodes !== null) {
+              return !Config.NODE_LIST
+                ? siblingNodes
+                : isInstanceof(siblingNodes)
+                  ? siblingNodes
+                  : toNodeList(siblingNodes);
+            }
+          }
+        }
         if ((resolver = selectResolvers.get(selectors))) {
           if (resolver.context === context &&
             resolver.callback === callback) {
@@ -2270,7 +2358,14 @@
       }
 
       // save/reuse factory and closure collection
-      selectResolvers.set(selectors, collect(parse(selectors, true), context, callback));
+      selectResolvers.set(
+        selectors,
+        collect(
+          parsed === undefined ? parse(selectors, true) : parsed,
+          context,
+          callback
+        )
+      );
 
       nodes = selectResolvers.get(selectors).results;
 
