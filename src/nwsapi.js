@@ -701,13 +701,13 @@
       } else {
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
-          reCls = RegExp('(^|\\s)' + cls + '(\\s|$)', QUIRKS_MODE ? 'i' : '');
-          if (!(e.nextElementSibling || reCls.test(e.className))) {
+          reCls = QUIRKS_MODE ? RegExp('(^|\\s)' + cls + '(\\s|$)', 'i') : null;
+          if (!(e.nextElementSibling || (reCls ? reCls.test(classOf(e)) : hasClassNames(e, cls)))) {
             return slice.call(e[api](cls));
           } else {
             nodes = [ ];
             do {
-              if (reCls.test(e.className)) nodes[nodes.length] = e;
+              if (reCls ? reCls.test(classOf(e)) : hasClassNames(e, cls)) nodes[nodes.length] = e;
               concatList(nodes, e[api](cls));
             } while ((e = e.nextElementSibling));
           }
@@ -716,6 +716,35 @@
       return !Config.NODE_LIST ?
         nodes : isInstanceof(nodes) ?
         nodes : toNodeList(nodes);
+    },
+
+  // Read HTML and SVG class names through the same string path.
+  classOf =
+    function(e) {
+      var value = e.className;
+      return typeof value == 'string' ? value : value && typeof value.baseVal == 'string' ? value.baseVal : '';
+    },
+
+  // Match one standards-mode class token without a per-candidate RegExp.
+  hasClass =
+    function(e, name) {
+      var value = classOf(e), offset = -1, before, after;
+      if (!name || /[\t\n\f\r ]/.test(name)) return false;
+      while ((offset = value.indexOf(name, offset + 1)) >= 0) {
+        before = offset ? value.charCodeAt(offset - 1) : 32;
+        after = offset + name.length < value.length ? value.charCodeAt(offset + name.length) : 32;
+        if ((before == 32 || before == 9 || before == 10 || before == 12 || before == 13) &&
+            (after == 32 || after == 9 || after == 10 || after == 12 || after == 13)) return true;
+      }
+      return false;
+    },
+
+  // getElementsByClassName accepts multiple whitespace-separated tokens.
+  hasClassNames =
+    function(e, names) {
+      var tokens = names.match(/[^\t\n\f\r ]+/g) || [], i = 0;
+      for (; i < tokens.length; ++i) if (!hasClass(e, tokens[i])) return false;
+      return tokens.length > 0;
     },
 
   // namespace aware hasAttribute
@@ -1322,8 +1351,12 @@
           // class name resolver
           case '.':
             match = selector.match(Patterns.className);
-            compat = (QUIRKS_MODE ? 'i' : '') + '.test(e.getAttribute("class"))';
-            source = 'if((/(^|\\s)' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '(\\s|$)/' + compat + ')){' + source + '}';
+            if (QUIRKS_MODE) {
+              compat = 'i.test(e.getAttribute("class"))';
+              source = 'if((/(^|\\s)' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '(\\s|$)/' + compat + ')){' + source + '}';
+            } else {
+              source = 'if(s.hasClass(e,' + JSON.stringify(unescapeIdentifier(match[1])) + ')){' + source + '}';
+            }
             break;
 
           // tag name resolver
@@ -2434,6 +2467,7 @@
     anchor: null,
 
     byTag: byTag,
+    hasClass: hasClass,
 
     has: has,
     first: first,
