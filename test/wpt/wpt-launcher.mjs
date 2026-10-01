@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync } 
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { ensurePhp, phpInstallHint } from '../../scripts/php.mjs'
 
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const maxBuffer = 512 * 1024 * 1024
@@ -37,18 +38,8 @@ function git(args) {
   execFileSync('git', args, { cwd: root, stdio: 'inherit' })
 }
 
-function phpInstallHint() {
-  switch (process.platform) {
-    case 'darwin': return 'Install it with Homebrew: brew install php'
-    case 'linux': return 'Install the PHP CLI with your distribution package manager, for example: sudo apt install php-cli'
-    case 'win32': return 'Install PHP with winget, then restart the terminal so php is on PATH.'
-    default: return 'Install the PHP CLI and make the php command available on PATH.'
-  }
-}
-
 function serve() {
-  const php = spawnSync('php', ['--version'], { stdio: 'ignore' })
-  if (php.error || php.status !== 0) {
+  if (!ensurePhp()) {
     throw new Error(`PHP is required for the interactive WPT server. ${phpInstallHint()}`)
   }
   const result = spawnSync('php', ['-S', `localhost:${process.env.NWSAPI_WPT_PORT || '8000'}`, '-t', upstream, path.join(root, 'test/wpt/router.php')], {

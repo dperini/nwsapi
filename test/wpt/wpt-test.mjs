@@ -1,8 +1,9 @@
-import { execFileSync, spawn, spawnSync } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isAgent } from 'std-env'
+import { ensurePhp, phpInstallHint } from '../../scripts/php.mjs'
 
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const modules = path.join(root, '.gitmodules')
@@ -42,15 +43,6 @@ function pageList() {
 
 const STATUS = { 0: 'PASS', 1: 'FAIL', 2: 'TIMEOUT', 3: 'NOTRUN' }
 const port = process.env.NWSAPI_WPT_PORT || '8123'
-
-function phpInstallHint() {
-  switch (process.platform) {
-    case 'darwin': return 'Install it with Homebrew: brew install php'
-    case 'linux': return 'Install the PHP CLI with your distribution package manager, for example: sudo apt install php-cli'
-    case 'win32': return 'Install PHP with winget, then restart the terminal so php is on PATH.'
-    default: return 'Install PHP and make the php command available on PATH.'
-  }
-}
 
 async function runPage(context, entry) {
   const name = entry.page.split('/').pop()
@@ -95,7 +87,7 @@ async function runPage(context, entry) {
 
 async function main() {
   verify()
-  if (spawnSync('php', ['--version']).status !== 0) {
+  if (!ensurePhp()) {
     throw new Error(`PHP is required to serve the WPT pages. ${phpInstallHint()}`)
   }
   const { chromium } = await import('playwright')
