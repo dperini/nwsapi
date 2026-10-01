@@ -24,6 +24,10 @@ browser without interactive prompts. `npm run setup` repeats these steps;
 contributor tools. The packaged manifest excludes contributor scripts and tools,
 so installing a release does not clone WPT or install release tooling.
 
+If npm reports an unknown global `python` setting, remove the obsolete entry
+from the user npm configuration with `npm config delete python --global`. If
+the warning names an environment setting instead, unset `npm_config_python`.
+
 Install the [GitHub CLI](https://cli.github.com/) and sign in with repository
 write access. For approval, sign in to an npm account with publishing access:
 
