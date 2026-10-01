@@ -1687,3 +1687,78 @@ To reproduce, save the baseline and patched readable builds, then run:
 ```sh
 node scripts/repo/bench/compilation-followup.mts before.cjs after.cjs assets/repo/bench/compilation-followup-2026-10-01.json
 ```
+
+## Reuse private candidates and deterministic code factories
+
+The second implementation batch, `e602507`, addresses the next concrete audit
+opportunities. Filtered queries borrow internal collection snapshots while
+identity queries preserve fresh public arrays. A 256-entry cache retains parsed
+chain syntax independently of document-shape decisions. `closest()` prepares
+matchers once per walk. Each resolver compilation owns deterministic identifiers
+and shared class-regex constants for inline logical predicates.
+
+Engines that switch documents also enable a small unbound factory cache. It
+retains at most 64 entries and 32,768 UTF-16 source units, excluding any source
+over 8,192 units. It reuses generated code while binding fresh execution state.
+The initial design would have enabled this extra retention for every engine.
+We narrowed it before timing so single-document engines do not allocate it.
+A regression observes two `Function()` calls across ten alternating-document
+matches, including the first uncached compilation and the first switched one.
+Subsequent calls reuse the factory. Bound plans still invalidate normally.
+
+The hypothesis was lower copy allocation, less repeated chain and ancestor
+preparation, and better generated-code reuse after bound caches are cleared.
+The [recorded comparison](../../../assets/repo/bench/preparation-2026-10-01.json)
+uses the already-optimized first batch (`64abc81`) as baseline, not the original
+audit commit. It ran on Node.js v26.10.0, V8 14.6.202.34-node.34, `jsdom` v30.0.1,
+and an Apple M1 Max. Seven rotating Mitata rounds used 30ms minimum CPU time and
+batches of eight calls. Equivalent independent documents and identity checks
+before and after timing kept setup and validation outside the measured operation.
+All agents and tests had finished before timing. Source hashes, full samples,
+fixture markup, and settings are recorded.
+
+| Operation | First batch | Second batch | Second-batch range | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| Filtered class snapshot | 0.034068ms | 0.033177ms | 0.032588–0.034469ms | 1.03× |
+| Filtered tag snapshot | 0.039172ms | 0.038344ms | 0.038010–0.039109ms | 1.02× |
+| Missing filtered class | 0.039729ms | 0.040880ms | 0.039630–0.041323ms | 0.97× |
+| Identity class control | 0.000453ms | 0.000438ms | 0.000427–0.000484ms | 1.04× |
+| Descendant syntax reuse | 0.001182ms | 0.001109ms | 0.001089–0.001172ms | 1.07× |
+| Sibling syntax reuse | 0.037963ms | 0.037667ms | 0.037312–0.038823ms | 1.01× |
+| Deep `closest()` hit | 0.013729ms | 0.010516ms | 0.010479–0.010828ms | 1.31× |
+| Deep `closest()` miss | 0.019542ms | 0.014453ms | 0.014380–0.015083ms | 1.35× |
+| Early `closest()` control | 0.000604ms | 0.000255ms | 0.000250–0.000266ms | 2.37× |
+| Raw nested class predicates | 0.082073ms | 0.079354ms | 0.079219–0.082208ms | 1.03× |
+| Cross-document matching | 0.023339ms | 0.004339ms | 0.004245–0.005000ms | 5.38× |
+| Recompile after cache clear | 0.024979ms | 0.008969ms | 0.008760–0.012755ms | 2.79× |
+| Distinct cold compilation control | 0.014927ms | 0.013604ms | 0.013167–0.015286ms | 1.10× |
+
+Values are medians of seven round medians, with the second build's minimum and
+maximum round medians shown as ranges. Snapshot and raw fixtures use 512
+candidates. Deep ancestor walks have 64 wrapper elements. The descendant fixture
+has one relevant span and 256 unrelated spans. Sibling matching uses 64 groups.
+Cross-document matching alternates two HTML documents. Recompilation includes
+`configure({}, true)` and compilation. The cold control generates distinct class
+names. These operations measure the complete batch, not isolated contributions
+from each individual change, and speedups from the two batches must not be added.
+
+Keep the changes. The copy and nested-class timings remain within about 4% of
+baseline, including the 0.97× no-match row. Their justification is removal of
+redundant copies and stable prepared code, not a large measured throughput gain.
+The code and entry limits are verified, but this run does not measure retained
+heap or allocation bytes. Generated class regexes are hoisted per resolver
+invocation, not globally. No standalone AOT format or broad AST rewrite was added.
+General `:has()` early probing and the other conditional audit proposals remain
+future work.
+
+Validation passed 1,006 unit tests in 142 suites, followed by a focused four-test
+candidate run after extending the extension opt-out regression. Twelve combined
+integration and Chromium suites passed 30 tests. They cover saved compilation,
+package output, adapter behavior, namespace and legacy rules, mutated private
+candidates, starting scope, and HTML/XML document switches. Type checking,
+configured lint, naming, and whitespace checks passed. Tests compare generated
+ASTs for identifier stability and constant placement, alongside result behavior.
+
+```sh
+node scripts/repo/bench/preparation.mts first-batch.cjs second-batch.cjs assets/repo/bench/preparation-2026-10-01.json
+```

@@ -145,6 +145,42 @@ shape before inspecting a document for foreign element types. Class-only and
 attribute-only queries therefore avoid an unrelated tree scan after mutation.
 Eligible routes retain the namespace check and general-compiler fallback.
 
+### Reuse prepared syntax and private candidates
+
+Filtered selection can borrow a native collection snapshot when a resolver will
+write a separate result array. Identity selection keeps copying public results.
+Legacy mode and registered selector or combinator extensions keep the ordinary
+fetch path. Borrowing retains the existing snapshot and mutation-observation
+boundary, rather than passing live collections into arbitrary generated code.
+
+Descendant and general-sibling chain descriptions share a 256-entry syntax cache.
+It contains no DOM nodes and survives document switches. Route declines and cost
+decisions keep their separate, document-sensitive lifetimes. `closest()` prepares
+its matcher array once and reuses it through the ancestor walk. It refreshes when
+document semantics or relevant configuration changes and preserves the starting
+scope during reentry. Null-element calls retain their prior parse-only behavior.
+
+### Separate generated code from bound state
+
+Each top-level resolver compilation owns its identifier allocator and class
+constant pool. Inline logical predicates share that pool but keep independent
+ancestor-traversal metadata. Class regexes without stateful flags are initialized
+outside candidate loops. Validation-only compilation cannot perturb the names in
+a later resolver, and nested full compilations own separate allocators.
+
+After an engine first switches documents, it can retain unbound JavaScript
+factories keyed by the complete generated source. Each factory invocation binds
+the current snapshot and fresh ancestor-filter state. Single-document engines
+do not allocate this extra cache. Retention is limited to 64 entries and 32,768
+UTF-16 source units, with individual sources over 8,192 units excluded. These are
+source-retention limits, not total heap-byte limits. Configuration and document
+changes still invalidate bound plans and rerun semantic preparation.
+
+This improves reuse of generated code without adding a standalone precompilation
+format. General relative-plan preparation, attribute-regex hoisting, and a shared
+prepared syntax representation remain separate proposals. See the
+[second-batch measurements](journal.md#reuse-private-candidates-and-deterministic-code-factories).
+
 ### Check the code that V8 produces
 
 The recorded first-match trace showed seven completed resolver optimizations and no resolver deoptimizations.

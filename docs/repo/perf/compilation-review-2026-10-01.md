@@ -2,9 +2,17 @@
 
 Reviewed local `v3` at `f04f47f8bb8cc4a86df33c41c141ace83d5ca963`. The strongest opportunities are avoiding quadratic positional work in `first()`, preparing nested logical predicates once, bounding two overlooked memo tables, and avoiding tree inspection for selectors that cannot use the inspected route. These deserve attention before a parser rewrite or broad additional caching.
 
-This review records the original engine behavior. Its four high-priority findings now have implementations and a [measured follow-up](journal.md#prepare-forgiving-predicates-and-reuse-first-match-positions). The remaining findings are proposals. [Recorded evidence](../../../assets/repo/bench/compilation-review-2026-10-01.json) includes probe outputs, generated functions, timing samples, source hashes, dependency lock data, and the complete diagnostic harness. The probes used Node.js v26.10.0, V8 14.6.202.34-node.34, `jsdom` v30.0.1, and an Apple M1 Max. They loaded the reviewed TypeScript modules directly using the existing loader and factory initialization sequence. They did not measure the bundled release, Chromium, a full application, or retained heap bytes.
+This review records the original engine behavior. Its four high-priority findings now have implementations and a [measured follow-up](journal.md#prepare-forgiving-predicates-and-reuse-first-match-positions). Additional completed work is listed in the implementation status below. [Recorded evidence](../../../assets/repo/bench/compilation-review-2026-10-01.json) includes probe outputs, generated functions, timing samples, source hashes, dependency lock data, and the complete diagnostic harness. The probes used Node.js v26.10.0, V8 14.6.202.34-node.34, `jsdom` v30.0.1, and an Apple M1 Max. They loaded the reviewed TypeScript modules directly using the existing loader and factory initialization sequence. They did not measure the bundled release, Chromium, a full application, or retained heap bytes.
 
 **How compilation works today**
+
+Implementation status: a [second batch](journal.md#reuse-private-candidates-and-deterministic-code-factories)
+now borrows private candidate snapshots, caches successful chain syntax, prepares
+`closest()` walks, localizes resolver identifiers and class constants, and reuses
+bounded unbound factories for engines that switch documents. The numbered findings
+below preserve the original audit observations. Standalone build-time output,
+early probing for general `:has()`, and broader compiler representations remain
+proposals.
 
 The public selection path validates and normalizes selector text, separates groups, chooses terminal tag/class/ID candidates, strips the candidate token when safe, and generates nested JavaScript conditions. Wrapping the previously generated continuation makes matching proceed from the candidate back through its relationships. The compiler delays type guards so they run before the other tests in a compound.
 
