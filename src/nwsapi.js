@@ -1429,7 +1429,7 @@
                   break;
                 case 'empty':
                   // matches elements that don't contain elements or text nodes
-                  source = 'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' + source + '}';
+                  source = 'n=e.firstChild;while(n&&n.nodeType!=1&&n.nodeType!=3&&n.nodeType!=4){n=n.nextSibling}if(!n){' + source + '}';
                   break;
 
                 // *** child-indexed pseudo-classes
@@ -1603,7 +1603,7 @@
                   source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
-                  source = 'if(((s.doc.compareDocumentPosition(e)&16)&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1))){' + source + '}';
+                  source = 'if((s.doc.location.hash&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16))){' + source + '}';
                   break;
                 case 'defined':
                   source = 'if(s.isDefined(e)){' + source + '}';
@@ -1954,8 +1954,14 @@
 
   match_assert =
     function(f, element, callback) {
-      for (var i = 0, l = f.length, r = false; l > i; ++i)
-        f[i](element, callback, null, false) && (r = true);
+      for (var i = 0, l = f.length, r = false; l > i; ++i) {
+        if (f[i](element, callback, null, false)) {
+          // A callback observes every matching selector-list branch. Without
+          // one, the first match settles the result and ends the scan.
+          if (!callback) { return true; }
+          r = true;
+        }
+      }
       return r;
     },
 
