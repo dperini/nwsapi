@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setupRelease } from './publish/setup.mjs'
@@ -19,18 +21,24 @@ const env = Object.fromEntries(Object.entries({ ...process.env, GIT_TERMINAL_PRO
   .filter(([name]) => !/^npm_config_python$/i.test(name)))
 runQuiet(process.execPath, [fileURLToPath(new URL('../test/wpt/wpt-launcher.mjs', import.meta.url)), 'setup'], { cwd: root, env })
 
-const npmArgs = [
-  'exec', '--yes', '--silent',
-  '--userconfig', path.join(root, '.npmrc'),
-  '--globalconfig', path.join(root, '.npmrc'),
-  '--', 'playwright', 'install', 'chromium',
-]
-if (process.env.npm_execpath) {
-  runQuiet(process.execPath, [process.env.npm_execpath, ...npmArgs], { cwd: root, env })
-} else {
-  runQuiet(process.platform === 'win32' ? 'npm.cmd' : 'npm', npmArgs, {
-    cwd: root,
-    env,
-    shell: process.platform === 'win32',
-  })
+const configDirectory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-config-'))
+const globalConfig = path.join(configDirectory, 'global.npmrc')
+writeFileSync(globalConfig, '')
+try {
+  const npmArgs = [
+    'exec', '--yes', '--silent',
+    '--globalconfig', globalConfig,
+    '--', 'playwright', 'install', 'chromium',
+  ]
+  if (process.env.npm_execpath) {
+    runQuiet(process.execPath, [process.env.npm_execpath, ...npmArgs], { cwd: root, env })
+  } else {
+    runQuiet(process.platform === 'win32' ? 'npm.cmd' : 'npm', npmArgs, {
+      cwd: root,
+      env,
+      shell: process.platform === 'win32',
+    })
+  }
+} finally {
+  rmSync(configDirectory, { recursive: true, force: true })
 }
