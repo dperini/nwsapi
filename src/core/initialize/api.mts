@@ -58,6 +58,7 @@ export function initializeApi(engine: EngineState) {
     cls: string
     tags: string[]
   } | null>()
+  engine.chainPlans = engine.createCache(256)
   engine.selectChildren = selectChildren.bind(
     null,
     engine,
@@ -239,6 +240,7 @@ export function initializeApi(engine: EngineState) {
         engine.createCache = engine.legacyHooks.createCache
         engine.typeRoutes = engine.createCache()
         engine.childPlans = engine.createCache()
+        engine.chainPlans = engine.createCache(256)
         engine.partCounts = engine.createCache()
         engine.descentDeclined = engine.createCache()
         engine.hasPlans = undefined

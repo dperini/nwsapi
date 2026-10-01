@@ -1,3 +1,4 @@
+import type { CodeFactoryCache } from '../compile/factory.mts'
 import type {
   EngineContext,
   EngineElement,
@@ -12,8 +13,10 @@ import type {
   FirstPositionState,
   PlanCache,
   CompilerAncestry,
+  CompilerContext,
 } from './types.mts'
 export interface QueryState {
+  codeFactories: CodeFactoryCache | null | undefined
   nthElement: (element: Element | null, dir: number) => number
   nthFiltered: (
     element: Element,
@@ -148,6 +151,7 @@ export interface QueryState {
     mode: boolean | null,
     callback: boolean | ElementCallback,
     ancestry?: CompilerAncestry,
+    compiler?: CompilerContext,
   ) => string
   ancestor: (
     selectors: string,
@@ -224,6 +228,9 @@ export interface QueryState {
     cls: string
     tags: string[]
   } | null>
+  chainPlans: PlanCache<
+    Array<{ tag: string | undefined; cls: string | undefined }>
+  >
   selectChildren: (
     selectors: string,
     context: EngineContext,

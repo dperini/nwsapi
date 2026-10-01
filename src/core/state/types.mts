@@ -149,6 +149,11 @@ export interface CompilerAncestry {
   walk: boolean
 }
 
+export interface CompilerContext {
+  nextIdentifier: number
+  classes: string[]
+}
+
 export interface IdentifierSyntax {
   optimizer: RegExp
   validator: RegExp

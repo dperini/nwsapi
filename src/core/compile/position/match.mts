@@ -1,7 +1,8 @@
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 export function compilePositionMatch(state: CompileState) {
   if (state.expr) {
-    state.flag = '_t' + state.engine.notFlag++
+    state.flag = nextCompileIdentifier(state, '_t')
     state.engine.S_VARS.push(state.flag, state.flag + 's')
     state.source =
       state.flag +

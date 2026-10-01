@@ -4,6 +4,7 @@ import type {
   ElementCallback,
   EngineContext,
 } from '../state/types.mts'
+import { selectCandidates } from './candidates.mts'
 
 export function collect(
   engine: EngineState,
@@ -51,7 +52,12 @@ export function collect(
       continue
     }
 
-    candidates = engine.fetch[token[1]!]!(token[2]!, context)
+    candidates = selectCandidates(
+      engine,
+      token[1]! + token[2]!,
+      context,
+      factory[i] !== null,
+    )
     if (factory[i]!) {
       factory[i]!(candidates, callback, context, results)
     } else {

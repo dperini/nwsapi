@@ -160,13 +160,18 @@ export function descendChain(
 }
 
 export function parseChain(engine: EngineState, selectors: string) {
-  var i: number,
+  var key = 'c:' + selectors,
+    cached = engine.chainPlans.get(key),
+    i: number,
     l: number,
     match,
-    parts: Array<
-      string | { tag: string | undefined; cls: string | undefined }
-    > = selectors.split('\x20')
+    parts: Array<string | { tag: string | undefined; cls: string | undefined }>
 
+  if (cached) {
+    return cached
+  }
+
+  parts = selectors.split('\x20')
   for (i = 0, l = parts.length; l > i; ++i) {
     match = engine.reChainPart.exec(parts[i] as string)
     if (!match || (match![1] === undefined && match[2] === undefined)) {
@@ -175,20 +180,31 @@ export function parseChain(engine: EngineState, selectors: string) {
     parts[i] = { tag: match![1]!, cls: match![2]! }
   }
 
-  return parts as Array<{
-    tag: string | undefined
-    cls: string | undefined
-  }>
+  return cacheChain(
+    engine,
+    key,
+    parts as Array<{
+      tag: string | undefined
+      cls: string | undefined
+    }>,
+  )
 }
 
 export function parseSiblingChain(engine: EngineState, selectors: string) {
-  var i: number,
+  var key = 's:' + selectors,
+    cached = engine.chainPlans.get(key),
+    i: number,
     l: number,
     match: RegExpMatchArray | null,
     out: Array<{ tag: string | undefined; cls: string | undefined }> = [],
-    parts = selectors.split('~'),
+    parts: string[],
     raw: string
 
+  if (cached) {
+    return cached
+  }
+
+  parts = selectors.split('~')
   for (i = 0, l = parts.length; l > i; ++i) {
     raw = parts[i]!.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '')
     // A part carrying inner whitespace hides a descendant combinator,
@@ -203,7 +219,15 @@ export function parseSiblingChain(engine: EngineState, selectors: string) {
     out[out.length] = { tag: match[1]!, cls: match[2]! }
   }
 
-  return out
+  return cacheChain(engine, key, out)
+}
+
+function cacheChain(
+  engine: EngineState,
+  key: string,
+  chain: Array<{ tag: string | undefined; cls: string | undefined }>,
+) {
+  return engine.chainPlans.set(key, chain)
 }
 
 function matchesPart(

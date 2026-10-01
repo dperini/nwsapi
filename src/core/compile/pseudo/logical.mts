@@ -1,3 +1,4 @@
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 
 export function compilePseudoLogical(
@@ -30,12 +31,14 @@ export function compilePseudoLogical(
         return ''
       }
       if (state.engine.isCompound((state.argument = state.match![2]!))) {
-        state.flag = '_n' + state.engine.notFlag++
+        state.flag = nextCompileIdentifier(state, '_n')
         state.nested = state.engine.compileSelector(
           state.argument,
           state.flag + '=true;',
           state.mode,
           state.callback,
+          undefined,
+          state.compiler,
         )
         state.source =
           'var ' +
@@ -95,6 +98,8 @@ export function compilePseudoLogical(
         state.source,
         state.mode,
         state.callback,
+        undefined,
+        state.compiler,
       )
     } else if (
       /^[a-z][a-z0-9-]*(?:[\t\n\f\r ]*,[\t\n\f\r ]*[a-z][a-z0-9-]*)*$/.test(
