@@ -37,6 +37,7 @@ export function configure(
     engine.matchLambdas.clear()
     engine.selectLambdas.clear()
     engine.matchResolvers.clear()
+    engine.forgivingResolvers.clear()
     engine.selectResolvers.clear()
     engine.firstResolvers.clear()
     engine.hasPlans = undefined

@@ -87,9 +87,7 @@ export function compile(
     engine.F_INIT + '{' + head + vars + ';' + loop + 'return r;}',
   )(engine.Snapshot, filter)
 
-  if (filtered) {
-    factory.filtered = true
-  }
+  annotateResolver(factory, filtered, ancestry.position)
 
   if (mode || mode === null) {
     engine.selectLambdas.set(cacheKey, factory)
@@ -230,5 +228,18 @@ export function compile(
       loop = rewritten.source
       vars += rewritten.variables
     }
+  }
+}
+
+function annotateResolver(
+  resolver: CompiledResolver,
+  filtered: boolean | undefined,
+  position: boolean | undefined,
+) {
+  if (filtered) {
+    resolver.filtered = true
+  }
+  if (position) {
+    resolver.position = true
   }
 }

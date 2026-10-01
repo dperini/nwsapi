@@ -125,9 +125,12 @@ export function compilePseudoLogical(
         state.source +
         '}'
     } else if (state.engine.Config.FORGIVING) {
+      var resolverKey = state.engine.forgivingKey(
+        state.engine.splitList(state.match![2]!),
+      )
       state.source =
-        'if(s.matchForgiving(' +
-        JSON.stringify(state.engine.splitList(state.match![2]!)) +
+        'if(s.matchForgivingKey(' +
+        JSON.stringify(resolverKey) +
         ',e)){' +
         state.source +
         '}'

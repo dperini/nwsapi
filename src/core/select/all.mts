@@ -80,6 +80,10 @@ function selectByDescent(
     callback === undefined &&
     selectors &&
     typeof selectors == 'string' &&
+    !engine.Config.LEGACY &&
+    engine.HTML_DOCUMENT &&
+    context.nodeType == 9 &&
+    hasChainRoute(engine, selectors) &&
     !engine.hasForeignTypes(context)
   ) {
     descended =
@@ -153,14 +157,21 @@ function selectDirectChildren(
     callback === undefined &&
     !engine.Config.LEGACY &&
     engine.HTML_DOCUMENT &&
-    !engine.hasForeignTypes(context) &&
     context.nodeType == 9 &&
+    engine.reChildRoute.test(selectors) &&
+    !engine.hasForeignTypes(context) &&
     (descended = engine.selectChildren(selectors, context))
   ) {
     return engine.Config.NODE_LIST ? engine.toNodeList(descended) : descended
   }
 
   return undefined
+}
+
+function hasChainRoute(engine: EngineState, selectors: string) {
+  return (
+    engine.reTagChain.test(selectors) || engine.reSiblingChain.test(selectors)
+  )
 }
 
 function runCachedResolvers(

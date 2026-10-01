@@ -109,6 +109,42 @@ An all-results query can share a sibling index between candidates.
 Building one index can cost less than counting the same siblings for each element.
 Fixed-position selectors keep their existing limited searches.
 
+First-match scans also share forward `:nth-child(an+b)` progress through an
+invocation-local cursor. The cursor remembers the last element and its position.
+The next candidate counts backward until it reaches that element or the start
+of its sibling list. Each group owns a separate cursor, and nested queries get
+their own state. A single-element `match()` call keeps its original counting
+path. Reverse, of-type, filtered, and constant-position predicates retain their
+existing helpers. Registered selector or combinator extensions disable this
+optimization because they can mutate siblings during a scan.
+
+### Prepare forgiving logical branches
+
+Fallback `:is()` and `:where()` predicates prepare their branches during outer
+compilation. A bounded plan cache holds compiled branch arrays and marks invalid
+branches as nonmatching. The generated resolver performs one dependency-cache
+lookup per candidate instead of allocating a branch list and dispatching each
+branch through the public matcher. Branch compilation saves and restores the
+outer compiler's temporary variables and error state.
+
+Configuration changes, document switches, and extension registration invalidate
+these dependencies. A saved raw resolver can rebuild them after cache clearing
+or eviction. This is engine-bound preparation, not a standalone build-time
+artifact. The inspection CLI still emits source that depends on engine helpers.
+
+### Bound pure memo tables and reject ineligible routes early
+
+Ancestor tag hashes and normalized language-range parts each retain at most 256
+entries. A miss at the limit replaces the table. Evicted values are recomputed
+deterministically, so eviction changes cache warmth without changing matching.
+The tag table belongs to one engine. The language table is shared by instances
+of the loaded module. These limits bound entries rather than retained bytes.
+
+Descent, sibling-chain, and direct-child routes test their supported selector
+shape before inspecting a document for foreign element types. Class-only and
+attribute-only queries therefore avoid an unrelated tree scan after mutation.
+Eligible routes retain the namespace check and general-compiler fallback.
+
 ### Check the code that V8 produces
 
 The recorded first-match trace showed seven completed resolver optimizations and no resolver deoptimizations.

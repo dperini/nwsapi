@@ -5,6 +5,7 @@ import type {
   CompiledResolver,
   EngineContext,
   FilteredNthState,
+  FirstPositionState,
   PrefixSnapshot,
 } from '../state/types.mts'
 
@@ -15,6 +16,7 @@ export function firstClass(
   tag?: string | null | undefined,
   resolver?: CompiledResolver | null | undefined,
   filtered?: Record<string, FilteredNthState>,
+  position?: FirstPositionState,
 ) {
   var element: Element | null | undefined,
     next: Element | null,
@@ -49,7 +51,7 @@ export function firstClass(
     element = candidates[i]!
     if (
       (!tag || tag == '*' || engine.matchesTag(element, tag)) &&
-      (!resolver || resolver(element, null, context, false, filtered))
+      (!resolver || resolver(element, null, context, false, filtered, position))
     ) {
       return element
     }

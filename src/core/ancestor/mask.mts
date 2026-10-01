@@ -1,5 +1,7 @@
 import type { EngineState, EngineElement } from '../state/types.mts'
 
+var TAG_BIT_LIMIT = 256
+
 export function tagBit(engine: EngineState, name: string) {
   if (engine.HTML_DOCUMENT) {
     name = engine.asciiLower(name)
@@ -14,7 +16,14 @@ export function tagBit(engine: EngineState, name: string) {
   for (; l > i; ++i) {
     h = (h * 31 + name.charCodeAt(i)) | 0
   }
-  return (engine.tagBits[name] = 1 << (h & 31))
+  bit = 1 << (h & 31)
+  // The hash is deterministic, so eviction changes only cache warmth.
+  if (engine.tagBitCount >= TAG_BIT_LIMIT) {
+    engine.tagBits = engine.primordials.ObjectCreate(null)
+    engine.tagBitCount = 0
+  }
+  ++engine.tagBitCount
+  return (engine.tagBits[name] = bit)
 }
 
 export function ancestorMask(engine: EngineState, node: EngineElement) {

@@ -101,3 +101,118 @@ export function matchForgiving(
   }
   return false
 }
+
+export function prepareForgiving(engine: EngineState, selectors: string[]) {
+  var selectVars = engine.S_VARS
+  var matchVars = engine.M_VARS
+  var nodeVars = engine.N_VARS
+  var previousErrors = engine.errors
+  var key = JSON.stringify([
+      engine.selectorGeneration,
+      engine.Config.FORGIVING,
+      engine.Config.VERBOSITY,
+      engine.Config.LEGACY,
+      engine.HTML_DOCUMENT,
+      engine.QUIRKS_MODE,
+      engine.NAMESPACE,
+      selectors,
+    ]),
+    resolvers = engine.forgivingResolvers.get(key)
+  if (resolvers) {
+    return resolvers
+  }
+  engine.S_VARS = []
+  engine.M_VARS = []
+  engine.N_VARS = []
+  resolvers = Array<CompiledResolver[] | null>(selectors.length)
+  try {
+    for (var length = selectors.length, i = 0; i < length; ++i) {
+      engine.errors = previousErrors
+      if (!selectors[i]) {
+        resolvers[i] = null
+        continue
+      }
+      try {
+        var parsed = engine.parse(selectors[i]!, false)
+        if (!parsed) {
+          resolvers[i] = null
+          continue
+        }
+        var branches = engine.match_collect(parsed, undefined)
+        resolvers[i] = branches
+      } catch {
+        resolvers[i] = null
+      }
+      if (engine.errors !== previousErrors) {
+        resolvers[i] = null
+        engine.errors = previousErrors
+      }
+    }
+  } finally {
+    engine.S_VARS = selectVars
+    engine.M_VARS = matchVars
+    engine.N_VARS = nodeVars
+    engine.errors = previousErrors
+  }
+  return engine.forgivingResolvers.set(key, resolvers)
+}
+
+export function matchPreparedForgiving(
+  engine: EngineState,
+  resolvers: Array<CompiledResolver[] | null>,
+  element: Element,
+) {
+  for (var length = resolvers.length, i = 0; i < length; ++i) {
+    var resolver = resolvers[i]
+    if (resolver) {
+      try {
+        if (engine.match_assert(resolver, element, undefined)) {
+          return true
+        }
+      } catch {}
+    }
+  }
+  return false
+}
+
+export function forgivingKey(engine: EngineState, selectors: string[]) {
+  var key = JSON.stringify([
+      engine.selectorGeneration,
+      engine.Config.FORGIVING,
+      engine.Config.VERBOSITY,
+      engine.Config.LEGACY,
+      engine.HTML_DOCUMENT,
+      engine.QUIRKS_MODE,
+      engine.NAMESPACE,
+      selectors,
+    ]),
+    resolvers = engine.forgivingResolvers.get(key)
+  if (!resolvers) {
+    resolvers = engine.prepareForgiving(selectors)
+    engine.forgivingResolvers.set(key, resolvers)
+  }
+  return key
+}
+
+export function matchForgivingKey(
+  engine: EngineState,
+  key: string,
+  element: Element,
+) {
+  var resolvers = engine.forgivingResolvers.get(key)
+  if (!resolvers) {
+    var profile = JSON.parse(key) as [
+      number,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      boolean,
+      string | null,
+      string[],
+    ]
+    resolvers = engine.prepareForgiving(profile[7])
+    engine.forgivingResolvers.set(key, resolvers)
+  }
+  return engine.matchPreparedForgiving(resolvers, element)
+}

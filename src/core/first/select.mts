@@ -6,6 +6,7 @@ import type {
   ElementCallback,
   EngineContext,
   FilteredNthState,
+  FirstPositionState,
 } from '../state/types.mts'
 
 export function first(
@@ -53,6 +54,7 @@ export function firstCompiled(
   var plan,
     resolver: CompiledResolver,
     filtered: Record<string, FilteredNthState> | undefined,
+    position: FirstPositionState | undefined,
     i: number,
     token: string,
     name,
@@ -82,6 +84,7 @@ export function firstCompiled(
   for (var nodesetLength = plan.nodeset.length, i = 0; i < nodesetLength; ++i) {
     resolver = plan.factory[i]!
     filtered = resolver.filtered ? {} : undefined
+    position = resolver.position ? { element: null, index: 0 } : undefined
     token = plan.nodeset[i]!
     name = token.slice(1)
     api = engine.method[token[0]! as keyof typeof engine.method] as
@@ -90,7 +93,7 @@ export function firstCompiled(
     result =
       token.charCodeAt(0) == 46 /* '.' */ &&
       !/[\t\n\f\r ]/.test(name) &&
-      engine.firstClass(context, name, null, resolver, filtered)
+      engine.firstClass(context, name, null, resolver, filtered, position)
     if (result) {
       if (precedes(result, element)) {
         element = result
@@ -109,21 +112,29 @@ export function firstCompiled(
   return notifyFirst(element, callback)
 
   function scanFirstCandidates() {
-    if (result && !resolver(result, null, context!, false, filtered)) {
+    if (
+      result &&
+      !resolver(result, null, context!, false, filtered, position)
+    ) {
       var j = 1,
         length: number
       // Most first matches occur near the start. Defer a live collection's
       // length until a short bounded probe has failed.
       for (; j < 8; ++j) {
         result = collection[j]
-        if (!result || resolver(result, null, context!, false, filtered)) {
+        if (
+          !result ||
+          resolver(result, null, context!, false, filtered, position)
+        ) {
           break
         }
       }
       if (j === 8) {
         result = null
         for (length = collection.length; j < length; ++j) {
-          if (resolver(collection[j]!, null, context!, false, filtered)) {
+          if (
+            resolver(collection[j]!, null, context!, false, filtered, position)
+          ) {
             result = collection[j]
             break
           }
@@ -156,10 +167,7 @@ export function selectChildren(
   if (plan === undefined) {
     // Selective class anchors followed by direct-child type selectors.
     // The general compiler owns escapes, namespaces, and other syntax.
-    found =
-      /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][-\w]*)([\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*(?:[\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*)*)$/.exec(
-        selectors,
-      )
+    found = engine.reChildRoute.exec(selectors)
     plan = found
       ? {
           tag: found[1]!,
