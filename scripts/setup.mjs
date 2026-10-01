@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setupRelease } from './publish/setup.mjs'
 
@@ -14,10 +15,16 @@ function runQuiet(command, args, options = {}) {
 
 setupRelease()
 const root = fileURLToPath(new URL('../', import.meta.url))
-const env = { ...process.env, GIT_TERMINAL_PROMPT: '0', npm_config_yes: 'true' }
+const env = Object.fromEntries(Object.entries({ ...process.env, GIT_TERMINAL_PROMPT: '0' })
+  .filter(([name]) => !/^npm_config_python$/i.test(name)))
 runQuiet(process.execPath, [fileURLToPath(new URL('../test/wpt/wpt-launcher.mjs', import.meta.url)), 'setup'], { cwd: root, env })
 
-const npmArgs = ['exec', '--yes', '--silent', '--', 'playwright', 'install', 'chromium']
+const npmArgs = [
+  'exec', '--yes', '--silent',
+  '--userconfig', path.join(root, '.npmrc'),
+  '--globalconfig', path.join(root, '.npmrc'),
+  '--', 'playwright', 'install', 'chromium',
+]
 if (process.env.npm_execpath) {
   runQuiet(process.execPath, [process.env.npm_execpath, ...npmArgs], { cwd: root, env })
 } else {
