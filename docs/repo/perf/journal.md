@@ -1902,3 +1902,20 @@ raw round summaries, a guarded generated model, and an
 [HTML bar-chart report](../../../assets/repo/bench/survey-2026-10-03/planner.html).
 Measurements ran on battery. The next model experiment should label forward
 versus inverse `:has()` execution and include witness-fetch costs.
+
+
+## 2026-10-03: Guarded `:has()` routing from offline training
+
+The [has planner report](trained-has-planner.md) records training, independent
+evaluation, an exact empty-witness preflight, and two comparisons of the
+actual built runtime. Training favored inverse marking. A dense filtered
+training case regressed, so the learned preference applies only to plain
+class compounds within the measured 32–192 anchor and four-witnesses-per-anchor
+bounds. Unsupported shapes retain the existing density rule.
+
+The longer reversed-order confirmation measured 1.295× Chromium and 1.256×
+`jsdom` geometric mean speed ratios across 100 synthetic cases per host.
+The initial pass contained a noisy 1.176× `jsdom` outlier that measured 1.018×
+in the repeat. Both passes remain recorded. Cold-query behavior was roughly
+unchanged in the separate Node probe. Gzip increases by 80bytes. Measurements
+ran on battery, and broader compatibility suites were not rerun.

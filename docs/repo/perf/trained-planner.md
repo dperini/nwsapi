@@ -124,18 +124,16 @@ eligible exact plan. Each decision needs its own admissible features,
 measurement labels, and held-out evaluation. Reusing a model across those
 decisions without retraining would be unsupported.
 
-Next, collect labels for the existing forward versus inverse `:has()`
-routes. Anchor and witness counts are candidate features where already
-available. Keep the witness-fetch cost inside the timed path and retain the
-small-anchor early exit. Before another promotion attempt, add real DOM
-families and a confirmation run on AC power. Do not add a topology scan to
-repair this model's feature blind spot without measuring its full cost.
+The [follow-up `:has()` experiment](trained-has-planner.md) now records labels,
+a trained model, and a guarded implementation. It includes witness-fetch
+costs and preserves the small-anchor early exit. The learned preference was
+restricted after a training-case regression, then measured in the actual
+runtime in two confirmation passes. Real-application and AC-power evidence
+remain open. No topology scan was added to obtain model features.
 
-Completed: route-reachability checks, frozen fixtures, cost-sensitive training,
-one shared generated model, separate held-out execution, guarded fallback,
-bar-chart report, and recorded rejection. Remaining: `:has()` labels and
-model evaluation, real-application validation, and any production integration
-that subsequently earns its cost.
+Completed here: route-reachability checks, frozen fixtures, cost-sensitive
+training, one shared generated model, separate held-out execution, guarded
+fallback, bar-chart report, and recorded rejection for type unions.
 
 Packing DOM snapshots and GPU batching remain later research. This first
 experiment establishes whether trained routing beats simple rules before
