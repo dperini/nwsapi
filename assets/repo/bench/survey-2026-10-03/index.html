@@ -60,7 +60,7 @@
 </tr>
 </tbody></table></div>
 <p>The first three are the recommended next implementation batch. The read counts are measurements of current work, not promised speedup factors. The type-position fixture shows approximately quadratic traversal growth. A replacement still needs timing, allocation, mutation and namespace evidence before landing.</p>
-<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/factory.mts">factory cache</a>.</p>
+<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/src/core/compile/factory.mts">factory cache</a>.</p>
 <p>The audit distinguishes these gaps from existing optimizations. v3 already has cheap pure guard ordering, exact-token deduplication, grouped candidate scans, ancestor tag masks, bounded relative existence paths, sparse inverse <code>:has()</code> marking, mixed-chain memoization and byte-budgeted compiled caches. Adding a second generic cache or Bloom filter would duplicate some of that work.</p>
 <h2 id="latest-upstream-host-audit">Latest upstream host audit</h2>
 <p>Downloaded the latest <code>jsdom</code> Git source and resolved the npm <code>latest</code> tags into an isolated installation. The repository dependencies remain pinned. Exact revisions, npm integrity values and the isolated dependency lock are recorded in <a href="upstreams.json">upstreams.json</a> and <a href="dependency-lock.json">dependency-lock.json</a>.</p>
@@ -100,7 +100,7 @@
 </ul>
 <h3>Stylesheet subject filtering: useful, currently unsafe to enable generally</h3>
 <p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/css/helpers/computed-style.js">computed-style matcher</a> calls <code>extractSubjects(selector, caseSensitive)</code> and caches its output on the rule. It checks ID, class and tag keys before invoking <code>check()</code>. Our adapter returns a wildcard subject, so every rule remains eligible.</p>
-<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
+<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/d4a5d75449097317631fb7302b7df3bcee73371a/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
 <thead>
 <tr>
@@ -224,6 +224,14 @@ probe. The gzip increase is 80bytes. Open the
 <a href="has-implementation.html">implementation bar charts</a>.
 These remain synthetic battery measurements, with broader compatibility and
 real-application evidence still outstanding.</p>
+<p>The separate <a href="has-implementation-ac.html">AC-powered report</a>
+reruns the same fixtures and built runtime after plugging in. Its longer
+100-case pass records 22.4% less query time in Chromium and 20.4% less in
+<code>jsdom</code>, with worst individual slowdowns of 11.7% and 4.3%. Both hosts meet
+the preset gate. The battery results remain available for comparison.
+Training inputs were frozen, and AC power was checked before and after each
+host measurement. These independent runs do not establish a causal effect
+of power source. Both optimizations remain enabled on v3.</p>
 <h2 id="competition-charts">Competition charts</h2>
 <p>Open the <a href="atlas/index.html">offline performance atlas</a>. It contains nine standalone SVG charts, category/search filters, exact timings, raw round samples and fingerprints. The generator renders recorded data without rerunning measurements and preserves failed or slower cases when present.</p>
 <details>
