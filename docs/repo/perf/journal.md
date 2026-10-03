@@ -1775,3 +1775,108 @@ when a relative selector spans several candidate roots. The change has a
 focused correctness check. The full unit suite passes 1,006 tests; type
 checking, configured lint, formatting, and build also pass. No wall-time
 improvement is claimed without a dedicated benchmark.
+
+## Port the v2 compiler work to v3
+
+The port starts at v3 commit `bcbf77b`, including its existing compilation work
+and relative result-buffer reuse. It adapts the three local v2 commits
+`dde098c`, `f09f3c8`, and `5058b09` to the TypeScript compiler. The runtime changes
+are in `d8c93a2`, `32ec301`, and `9e993f8`. The v2 commits remain on local `master`.
+
+| v2 opportunity | v3 decision |
+| --- | --- |
+| Cheap compound guards and repeated facts | Keep conservative analysis of plain tags, IDs, classes, and attributes. Put cheap guards before attributes and eligible logical, relative, or positional work. Eliminate exact duplicate simple selectors. Unsupported syntax keeps the existing compiler. |
+| Direct complex logical execution | Inline pure `:is()`, `:where()`, and `:not()` branches, with at most eight branches and 512 characters. Restore the original element after an early traversal exit. Keep compact existing single-compound and type-union forms. |
+| Shared selector-list scans | Fuse pure alternatives with the same candidate seed into one compiled scan. Effectful selectors and callback planning retain their existing routes. |
+| Mixed-combinator backtracking | First try the nearest legal path. On failure, memoize suffix results during this invocation. Eligibility requires at least four compounds, two unbounded steps, and a child or adjacent-sibling step. Weak maps are deferred until 64 states have been visited. |
+| Bounded relative `:has()` | Emit forward child and sibling walks for eligible pure paths. They stop at the first witness and allocate no result arrays or descendant collections. Paths with more than one general-sibling step keep the ordinary relative plan. |
+| Sparse bulk descendant `:has()` | Warm single-compound queries can find witnesses once and mark ancestors. Require at least 32 anchor candidates and no more than twice as many witness candidates. Reuse the ordinary candidate list so small-query fallback does not fetch it twice. Marks live only for one query. |
+| Compiled cache byte limits | Keep the two-generation policy and add estimated source-byte budgets to the seven compiled resolver and plan caches. Each retains at most 2MiB of charged data, with at most 1MiB in either generation. Larger individual entries bypass retention. Other small memo tables keep their existing policies. |
+| WPT expected failures | Agent output was already concise. Require assertion-failure status as well as the named expectation so a timeout cannot consume an expected assertion failure. |
+| Audit tooling | Add shared port fixtures and Node, Chromium, and cache-retention runners under `scripts/repo/bench/port/`. Use v3's existing comparison and browser setup tools. |
+
+The byte charges include UTF-16 keys, generated source, and estimated metadata.
+Plans charge their referenced resolvers and nested bulk plans. Shared functions
+can be charged in more than one cache. These are conservative retention budgets,
+not VM heap limits or a total engine budget. The existing small unbound factory
+cache keeps its separate source-unit limits. Saved public resolvers remain usable
+after eviction or cache clearing.
+
+Existing first-match cursors, namespace-aware positional matching, collection
+snapshots, legacy traversal, and syntax/configuration invalidation remain in use.
+Their regression suites pass. This port does not introduce a second general CSS
+parser, inferred attribute implications, or a new public resolver return type.
+The fixed relative paths provide the allocation-free existence checks. General
+relative plans retain the existing resolver contract and result-buffer reuse.
+
+### Recorded comparisons
+
+The [Node report](../../../assets/repo/bench/compiler-port-node-2026-10-03.json),
+[Chromium report](../../../assets/repo/bench/compiler-port-browser-2026-10-03.json),
+and [retention report](../../../assets/repo/bench/compiler-port-memory-2026-10-03.json)
+record both source hashes. The candidate bundle hash is
+`6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296`.
+Runs used Node.js v26.10.0, Chromium 154.0.8037.0, and an Apple M1 Max on battery
+power. Tests and benchmarks ran separately. Treat small differences as noise.
+
+Warm timing uses seven alternating rounds and batches of eight calls. Node uses
+v3's Mitata helper with a 20ms minimum per round. Chromium uses a 25ms elapsed-time
+minimum. Setup and compilation are excluded. Each variant's element identities
+or boolean answer are checked against its native query before and after timing.
+Node stores full samples in the referenced gzip archive and retains round summaries
+in JSON. Chromium retains every round timing. Node and Chromium use different
+hosts and measurement loops and must be interpreted separately.
+
+| Workload | Node speedup | Chromium speedup |
+| --- | ---: | ---: |
+| Shared class candidates | 4.60× | 9.57× |
+| Shared tag candidates | 5.11× | 12.03× |
+| Complex logical branches | 1.07× | 1.15× |
+| Deep mixed-combinator miss | 22.45× | 23.76× |
+| Deep mixed-combinator hit | 1752.67× | 1293.89× |
+| Sparse overlapping descendant `:has()` | 32.80× | 17.88× |
+| Missing descendant witness | 49.34× | 21.31× |
+| Dense flat descendant `:has()` | 5.03× | 4.06× |
+| Small descendant `:has()` control | 1.00× | 0.98× |
+| Cheap class rejection before attributes | 1.52× | 1.22× |
+| Identity selection control | 1.01× | 0.98× |
+| Simple matching control | 1.00× | 0.99× |
+
+The broad fixture contains 256 sections. The deep fixture contains 100 nested
+anchors and one witness. The very large mixed-path hit ratio reflects repeated
+ancestor traversal after a match in that stress fixture. It is not an expected
+application-wide speedup. The initial sparse-query prototype slowed the small
+control by fetching anchors twice. The retained route shares that lookup with
+fallback and removes the measured regression.
+
+There are measurable costs. A separate Node batch of distinct short selectors
+increases median cold compilation from 0.01700ms to 0.02033ms per selector, about
+20%. The readable bundle grows from 233,203bytes to 252,298bytes. Gzip at level 9
+grows from 51,687bytes to 56,261bytes, and Brotli at quality 11 grows from
+41,470bytes to 45,275bytes. Keep the port for the targeted warm-query gains and
+bounded retention, without claiming faster cold compilation or smaller output.
+
+Retention uses three alternating rounds, with a fresh process for each build.
+After compiling 1,800 distinct selectors with long attribute literals, the
+baseline retains 1,800 lambda entries and the candidate retains 456. Median
+whole-process heap growth after four task-separated forced GCs falls from
+6,024,040bytes to 4,767,040bytes. After clearing caches, the corresponding growth
+is 4,187,904bytes and 4,258,096bytes. The large shared/runtime component means these
+numbers are not a direct measurement of cache object sizes. Long-selector
+compilation is effectively unchanged at 45.59ms versus 45.70ms for the batch.
+All six detached-context reachability checks pass. No allocation-rate result or
+claim of absence of all leaks is implied by this retention test.
+
+Validation passes 1,014 unit tests, 207 integration tests with one existing skip,
+and 42 browser tests. All 190 WPT pages pass in both modern and legacy modes.
+Browser regressions cover cold and cached calls, scoped queries, fragments, XML,
+quirks documents, invalid forgiving branches, and mutation. The repository code
+checks include types, lint, formatting, generated API references, and build.
+
+To reproduce, build and save `bcbf77b` as `before.cjs`, then build the port:
+
+```sh
+node scripts/repo/run.mts scripts/repo/bench/port/run.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-node-2026-10-03.json
+node scripts/repo/run.mts scripts/repo/bench/port/browser.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-browser-2026-10-03.json
+node scripts/repo/run.mts scripts/repo/bench/port/memory.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-memory-2026-10-03.json
+```

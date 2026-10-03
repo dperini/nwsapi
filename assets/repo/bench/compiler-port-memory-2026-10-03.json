@@ -1,0 +1,75 @@
+{
+  "node": "v26.10.0",
+  "files": [
+    {
+      "file": "/tmp/nwsapi-v3-before-port.cjs",
+      "sha256": "46143ec66fa5bcebe0f2dcfb09571f3857ac3f3e1c0d7a194a065f2645ca3011"
+    },
+    {
+      "file": "dist/nwsapi.js",
+      "sha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296"
+    }
+  ],
+  "samples": [
+    {
+      "round": 0,
+      "index": 0,
+      "retained": 6024040,
+      "cleared": 4188056,
+      "entries": 1800,
+      "estimatedBytes": null,
+      "compilationMilliseconds": 46.796666000000016,
+      "detachedCollected": true
+    },
+    {
+      "round": 0,
+      "index": 1,
+      "retained": 4763632,
+      "cleared": 4258096,
+      "entries": 456,
+      "estimatedBytes": 1778400,
+      "compilationMilliseconds": 46.944665999999984,
+      "detachedCollected": true
+    },
+    {
+      "round": 1,
+      "index": 1,
+      "retained": 4931528,
+      "cleared": 4257992,
+      "entries": 456,
+      "estimatedBytes": 1778400,
+      "compilationMilliseconds": 45.70045799999997,
+      "detachedCollected": true
+    },
+    {
+      "round": 1,
+      "index": 0,
+      "retained": 6023888,
+      "cleared": 4187904,
+      "entries": 1800,
+      "estimatedBytes": null,
+      "compilationMilliseconds": 45.58516700000001,
+      "detachedCollected": true
+    },
+    {
+      "round": 2,
+      "index": 0,
+      "retained": 6286032,
+      "cleared": 4187904,
+      "entries": 1800,
+      "estimatedBytes": null,
+      "compilationMilliseconds": 44.26512500000001,
+      "detachedCollected": true
+    },
+    {
+      "round": 2,
+      "index": 1,
+      "retained": 4767040,
+      "cleared": 4258096,
+      "entries": 456,
+      "estimatedBytes": 1778400,
+      "compilationMilliseconds": 45.324250000000006,
+      "detachedCollected": true
+    }
+  ]
+}
