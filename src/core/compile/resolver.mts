@@ -87,7 +87,15 @@ export function compile(
 
   factory = bindResolver(
     engine,
-    engine.F_INIT + '{' + head + vars + ';' + loop + 'return r;}',
+    '"use strict";' +
+      (compiler.prelude || []).join('') +
+      engine.F_INIT +
+      '{' +
+      head +
+      vars +
+      ';' +
+      loop +
+      'return r;}',
     filter,
   )
 
@@ -215,6 +223,9 @@ export function compile(
   }
 
   function finalizeVariables() {
+    if (compiler.variables) {
+      vars += ',' + compiler.variables.join(',')
+    }
     if (ancestry.reuse) {
       vars += ',_pStart=null,_pResult=false'
     }

@@ -1,4 +1,6 @@
 import { nextCompileIdentifier } from '../state.mts'
+import { inlineLogical } from '../logical.mts'
+import { inlineRelative } from '../relative.mts'
 import type { CompileState } from '../state.mts'
 
 export function compilePseudoLogical(
@@ -12,6 +14,9 @@ export function compilePseudoLogical(
   switch (state.match![1]!) {
     case 'is':
     case 'where':
+      if (inlineLogical(state, state.match![2]!, false)) {
+        break
+      }
       {
         compileLogicalCompound()
         if (compileLogicalCompoundDone) {
@@ -26,6 +31,9 @@ export function compilePseudoLogical(
       state.source = 'if(s.match("' + state.expr + '",e)){' + state.source + '}'
       break
     case 'not':
+      if (inlineLogical(state, state.match![2]!, true)) {
+        break
+      }
       if (state.engine.hasPseudoElement(state.match![2]!)) {
         state.engine.emit("'" + state.expression + "'" + state.engine.qsInvalid)
         return ''
@@ -59,28 +67,7 @@ export function compilePseudoLogical(
       }
       break
     case 'has':
-      state.argument = state.engine.prepareHas(state.match![2]!)
-      if (state.argument === null) {
-        state.engine.emit("'" + state.expression + "'" + state.engine.qsInvalid)
-        return ''
-      }
-      state.match![2] = state.argument
-      if (!state.engine.validateLogical(state.match![2]!, true)) {
-        return ''
-      }
-      var child = /^>[\t\n\f\r ]*([a-z][a-z0-9-]*|\*)$/.exec(state.match![2]!)
-      if (child) {
-        state.source =
-          'if(s.hasChild(e,"' + child[1] + '")){' + state.source + '}'
-        break
-      }
-      state.source =
-        'if(s.has(' +
-        JSON.stringify(state.match![2]!) +
-        ',e)){' +
-        state.source +
-        '}'
-      break
+      return compileHas(state)
     default:
       state.engine.emit("'" + state.expression + "'" + state.engine.qsInvalid)
       break
@@ -150,5 +137,32 @@ export function compilePseudoLogical(
       state.source = 'if(s.match("' + state.expr + '",e)){' + state.source + '}'
     }
   }
+  return undefined
+}
+
+function compileHas(state: CompileState) {
+  state.argument = state.engine.prepareHas(state.match![2]!)
+  if (state.argument === null) {
+    state.engine.emit("'" + state.expression + "'" + state.engine.qsInvalid)
+    return ''
+  }
+  state.match![2] = state.argument
+  if (!state.engine.validateLogical(state.match![2]!, true)) {
+    return ''
+  }
+  if (inlineRelative(state, state.match![2]!)) {
+    return undefined
+  }
+  var child = /^>[\t\n\f\r ]*([a-z][a-z0-9-]*|\*)$/.exec(state.match![2]!)
+  if (child) {
+    state.source = 'if(s.hasChild(e,"' + child[1] + '")){' + state.source + '}'
+    return undefined
+  }
+  state.source =
+    'if(s.has(' +
+    JSON.stringify(state.match![2]!) +
+    ',e)){' +
+    state.source +
+    '}'
   return undefined
 }
