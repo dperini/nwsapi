@@ -102,6 +102,7 @@ export interface QueryPlan {
 export interface BulkHasPlan {
   anchor: QueryPlan
   witness: QueryPlan
+  denseInverse: boolean
 }
 
 export interface RelativePlan extends QueryPlan {
