@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>NWSAPI v3 · Performance audit</title><style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#e2eaf4;background:#0b111c;font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:radial-gradient(ellipse 1000px 600px at 75% 0,#183046,transparent)}a{color:#b5edc1;text-decoration-thickness:1px;text-underline-offset:4px}a:hover{color:#fff}a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:2px solid #b5edc1;outline-offset:5px}.skip{position:absolute;top:-80px;background:#172538;padding:16px;z-index:5}.skip:focus{top:10px}.topbar{height:76px;padding:0 40px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #263344;background:#0b111cee;position:sticky;top:0;z-index:2;backdrop-filter:blur(15px)}.brand{font-weight:750;letter-spacing:.1em;text-decoration:none;color:#fff}.brand span{font-weight:400;letter-spacing:0;color:#95a9bd}.topbar>div{display:flex;align-items:center;gap:28px;font-size:13px}button{color:#c5d4e5;background:none;border:1px solid #3b5065;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer}.layout{max-width:1480px;display:grid;grid-template-columns:255px minmax(0,1fr);gap:65px;padding:52px 44px;margin:auto}aside{align-self:start;position:sticky;top:125px}nav{display:flex;flex-direction:column;gap:8px;margin:26px 0}nav a{font-size:14px;text-decoration:none;line-height:1.5;color:#91a7c0;padding:10px 12px;border-left:2px solid transparent}nav a[aria-current]{color:#b5edc1;border-color:#b5edc1;background:#142635;border-radius:0 6px 6px 0}.eyebrow{text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:.14em;color:#9bdfb0}.sidebar-note{border-top:1px solid #253649;padding:24px 12px;color:#6e859e;font-size:12px;line-height:2}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:27px 0 38px}.summary>div{border:1px solid #2a3e52;border-radius:12px;padding:18px 20px;background:#12223380}.summary b{display:block;font-size:30px;font-weight:500;color:#c1eed0}.summary span{font-size:12px;color:#97adc4}h1{font-size:clamp(34px,4.2vw,57px);line-height:1.08;letter-spacing:-.04em;max-width:780px;font-weight:650;margin:0 0 30px;color:#f4f7fb}h2{font-size:30px;letter-spacing:-.025em;line-height:1.3;color:#f4f7fb;margin:68px 0 25px;padding-top:28px;border-top:1px solid #2b3a4d}h3{font-size:20px;line-height:1.4;margin:34px 0 18px;color:#dae7f5}p,li{font-size:15px;line-height:1.85;color:#aebfd1}p{margin:18px 0}li{padding-left:8px;margin:12px 0}code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;color:#d3e6f5;background:#1b2a3a;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre{background:#080e17;border:1px solid #29394d;border-radius:12px;padding:22px;overflow:auto;line-height:1.8}pre code{padding:0;background:none;white-space:pre;overflow-wrap:normal}.table-scroll{overflow:auto;border:1px solid #2b3d53;border-radius:12px;margin:26px 0}table{border-collapse:collapse;width:100%;min-width:620px;font-size:13px;line-height:1.7}th{background:#1b2e43;color:#dce9f7;text-align:left;font-weight:600;padding:16px}td{padding:19px 16px;vertical-align:top;border-top:1px solid #25384d;color:#aebfd1}tbody tr:nth-child(even){background:#12203088}td:first-child{color:#cae4d6;font-weight:550}td code{font-size:12px}th:first-child{min-width:75px}article>.table-scroll:first-of-type td:nth-child(2){min-width:180px}article>.table-scroll:first-of-type td:nth-child(3){min-width:220px}article>.table-scroll:first-of-type td:nth-child(4){min-width:240px}details{border:1px solid #2a4055;border-radius:12px;background:#112031;padding:18px 22px;margin:24px 0}summary{cursor:pointer;font-size:14px;color:#c3dbef}article img{display:block;width:100%;height:auto;border-radius:18px;margin:28px 0}footer{border-top:1px solid #2b3a4d;margin-top:60px;padding:32px 0}footer p{font-size:12px;color:#758aa3}@media(max-width:1050px){.layout{grid-template-columns:190px minmax(0,1fr);gap:30px;padding:32px 24px}.topbar{padding:0 24px}}@media(max-width:760px){.layout{display:block;padding:28px 18px}.topbar{padding:0 18px;height:65px}.brand span{display:none}.topbar>div{gap:14px}.topbar button{display:none}aside{position:static}aside .eyebrow,.sidebar-note{display:none}nav{display:flex;flex-direction:row;overflow:auto;margin:0 0 30px;gap:0}nav a{white-space:nowrap;font-size:12px}.summary>div{padding:12px}.summary b{font-size:25px}.summary span{font-size:11px}h1{font-size:39px}h2{font-size:25px}p,li{font-size:14px}}@media print{html{scroll-behavior:auto}body{background:white;color:#111}.topbar,aside,.summary,.eyebrow,.skip,footer{display:none}.layout{display:block;padding:0}h1,h2,h3,p,li,td,th,a,code{color:#111}h1{font-size:30px}h2{break-after:avoid;margin-top:30px}.table-scroll,pre{overflow:visible}table{min-width:0;font-size:10px}th,td{padding:8px}th,tbody tr:nth-child(even),code,pre,details{background:#f6f6f6}article>.table-scroll:first-of-type td:nth-child(n){min-width:0}a{overflow-wrap:anywhere}details>*{display:block}summary{display:block;color:#111}}
+</style></head>
+<body><a class="skip" href="#report">Skip to report</a><div class="topbar"><a class="brand" href="#">NWSAPI <span>/ v3 research</span></a><div><a href="atlas/index.html">Explore charts ↗</a><button onclick="window.print()">Print / PDF</button></div></div>
+<div class="layout"><aside><p class="eyebrow">October 3, 2026</p><nav aria-label="Report sections"><a href="#findings-to-act-on">Findings to act on</a><a href="#latest-upstream-host-audit">Latest upstream host audit</a><a href="#compiler-and-jit-directions">Compiler and JIT directions</a><a href="#webgpu-and-an-embedded-model">WebGPU and an embedded model</a><a href="#competition-charts">Competition charts</a><a href="#delivered-and-remaining">Delivered and remaining</a></nav><div class="sidebar-note">Recorded evidence<br>Prioritized experiments<br>Exact selector semantics</div></aside>
+<main id="report"><div class="eyebrow">Performance engineering / research report</div><div class="summary"><div><b>07</b><span>ranked opportunities</span></div><div><b>36</b><span>comparison cases</span></div><div><b>03</b><span>recommended next steps</span></div></div><article><h1>Further v3 performance opportunities</h1>
+<p>Audited <code>prerelease/3.0.0</code> at <code>e988a9a</code> on October 3, 2026. The package manifest still labels this development build <code>2.3.0-prerelease</code>. The charts preserve that actual version and identify the bundle by SHA-256. This follow-up adds measurement and chart tooling. It does not change the selector runtime.</p>
+<h2 id="findings-to-act-on">Findings to act on</h2>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Opportunity</th>
+<th>Evidence</th>
+<th>Next implementation and acceptance condition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Stream positions across mixed sibling types</td>
+<td>A warm <code>main &gt; :nth-of-type(2n)</code> query makes 4,102, 16,390 and 65,542 sibling reads for 64, 128 and 256 siblings with four alternating types. At 256 siblings of one type, it makes only 262 reads.</td>
+<td>Replace repeated type-list reconstruction with a per-query parent table keyed by namespace and local name. Forward positions can use incremental counters. Reverse positions need totals or a reverse pass. Preserve the existing cheap homogeneous path and bound allocation to the query.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Make current <code>jsdom</code> implementation-node traversal available</td>
+<td>The latest host supplies only <code>idlUtils</code>. The adapter&#39;s optional <code>domSymbolTree</code> readers are never installed through that constructor.</td>
+<td>Probe implementation <code>parentElement</code>, <code>nextElementSibling</code> and <code>previousElementSibling</code> through the supplied utilities. Add <code>firstOf</code> only if measuring it justifies extending the reader contract. Keep the portable fallback and verify wrapper identity across realms, detached trees, fragments and adoption.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Reuse an attribute load within a pure compound</td>
+<td><code>[data-value^=&quot;foo&quot;][data-value$=&quot;bar&quot;]</code> performs two reads. <code>[data-value=&quot;foobar&quot;][data-value]</code> performs one value read and one presence read. Exact duplicate equality tests already collapse to one read.</td>
+<td>Give a compound a small attribute-load table. Load once, lazily after cheaper guards. Reuse only for the same element, namespace and name. Derive presence from <code>value !== null</code>, preserving empty values. Disable for extension or legacy semantics that can observe read order.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reject irrelevant stylesheet rules before matching</td>
+<td>A simple-class subject prototype lowers <code>check()</code> calls from 9,477 to 2,994 on 241 rules and 24 styled elements.</td>
+<td>Coordinate stylesheet subject-cache invalidation with the host before enabling selective <code>extractSubjects()</code>. The current upstream mutation contract blocks a safe general rollout. See the reproduction below.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Balance sparse type-union merging</td>
+<td><code>lookup/tag.mts</code> merges each new collection into the accumulated output. Later merges recopy earlier nodes and repeat document-order comparisons.</td>
+<td>Reuse the balanced-merge strategy already present for other selector groups. Start at four or more nonempty collections. Retain the existing dense broad-scan route and periodic density probe. Compare interleaved, disjoint, tiny, sparse and dense unions.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Share mixed-chain constants with the factory</td>
+<td><code>compile/mixed.mts</code> compiles recursive helper predicates without the outer compiler context. The greedy predicates receive that context.</td>
+<td>Inspect emitted class/attribute expressions and hoist reusable regex constants into the factory prelude. Measure fallback-heavy misses separately from greedy hits. Audit helper-local variables and avoid making constants engine- or document-bound.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Compile expensive forms only after reuse pays for them</td>
+<td>The previous port measured about 20% higher short-selector cold compilation time while adding warm execution wins. <code>pure.mts</code> analysis is also repeated by several planning paths.</td>
+<td>First share one bounded pure-selector analysis across those paths. Then try a compact first-use plan and promote only eligible reused selectors. Full syntax validation must still happen on the first call. Compare cold application startup, churn, many documents and sustained hot queries.</td>
+</tr>
+</tbody></table></div>
+<p>The first three are the recommended next implementation batch. The read counts are measurements of current work, not promised speedup factors. The type-position fixture shows approximately quadratic traversal growth. A replacement still needs timing, allocation, mutation and namespace evidence before landing.</p>
+<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/factory.mts">factory cache</a>.</p>
+<p>The audit distinguishes these gaps from existing optimizations. v3 already has cheap pure guard ordering, exact-token deduplication, grouped candidate scans, ancestor tag masks, bounded relative existence paths, sparse inverse <code>:has()</code> marking, mixed-chain memoization and byte-budgeted compiled caches. Adding a second generic cache or Bloom filter would duplicate some of that work.</p>
+<h2 id="latest-upstream-host-audit">Latest upstream host audit</h2>
+<p>Downloaded the latest <code>jsdom</code> Git source and resolved the npm <code>latest</code> tags into an isolated installation. The repository dependencies remain pinned. Exact revisions, npm integrity values and the isolated dependency lock are recorded in <a href="upstreams.json">upstreams.json</a> and <a href="dependency-lock.json">dependency-lock.json</a>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Inspected revision</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>jsdom</code> 30.1.1</td>
+<td><code>0a117f4581b067800fdb3287e22e7cec82221a3c</code></td>
+</tr>
+<tr>
+<td><code>@asamuzakjp/dom-selector</code> 9.2.4</td>
+<td>npm package, git head <code>d8b0e1f5d8235364474fb825a8d118be199349db</code></td>
+</tr>
+<tr>
+<td><code>gpu-lexer</code></td>
+<td><code>07f3e56c69f3141c1bcdb9a732aac14889ca5c74</code></td>
+</tr>
+</tbody></table></div>
+<h3>Hooks worth using</h3>
+<p>The host&#39;s <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/nodes/Document-impl.js">Document constructor path</a> lazily creates the selector engine and supplies <code>idlUtils</code>. The current adapter already uses those utilities for attribute reads. Keep that lazy boundary. Creating an engine for every document at construction would discard an upstream optimization.</p>
+<p>The host now owns <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/helpers/dom-tree.js">DOM tree links</a>. Prefer probing implementation-node getters obtained through the supplied utilities over importing that private tree module or reading <code>_links</code> directly. This also avoids a dependency on the removed <code>domSymbolTree</code> constructor option. A more ambitious implementation-node execution mode could unwrap the candidate once and wrap only final results. That requires a distinct adapter backend and careful auditing of every pseudo-class. It is not a small reader substitution.</p>
+<p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/nodes/Node-impl.js">Node implementation</a> has versioned collection invalidation and lazy memoized collection queries. A supported host mutation-epoch hook could reduce observer bookkeeping for collection snapshots. Its invalidation domain must be explicit. A tree version does not by itself certify focus, validity, language, hover or other dynamic selector results. Continue caching plans rather than complete query answers.</p>
+<h3>Stylesheet subject filtering: useful, currently unsafe to enable generally</h3>
+<p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/css/helpers/computed-style.js">computed-style matcher</a> calls <code>extractSubjects(selector, caseSensitive)</code> and caches its output on the rule. It checks ID, class and tag keys before invoking <code>check()</code>. Our adapter returns a wildcard subject, so every rule remains eligible.</p>
+<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th><code>check()</code> calls</th>
+<th>Median style work</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Current v3 adapter</td>
+<td>9,477</td>
+<td>40.26ms</td>
+</tr>
+<tr>
+<td>Narrow subject prototype</td>
+<td>2,994</td>
+<td>9.45ms</td>
+</tr>
+<tr>
+<td>Stock latest host and competitor</td>
+<td>Not instrumented</td>
+<td>7.78ms</td>
+</tr>
+</tbody></table></div>
+<p>These are exploratory, instrumented, fixed-order observations. The count reduction is 68.4%. The apparent 4.26× timing improvement needs an alternating, uninstrumented confirmation. The stock row also shows that the warm query chart does not establish faster style calculation for v3.</p>
+<p>The prerequisite is correctness: after a cached rule changes from <code>.missing</code> to <code>.hit</code>, the <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/css/CSSStyleRule-impl.js">selectorText setter</a> does not clear <code>_selectorSubjects</code>. Even forcing style-cache invalidation through an attribute mutation leaves the selective keys stale. Both the prototype and the stock competitor return black instead of the expected <code>rgb(1, 2, 3)</code>. The current wildcard adapter returns the correct color. The probe records all three results. A host fix should invalidate both style results and subject keys when selector text changes. Do not use a monkey patch of host rule setters as a production optimization.</p>
+<p>Once that contract is fixed, extract conservative keys from each rightmost subject. A selector-list branch without a provable necessary key must contribute a wildcard. Ancestor classes, negated classes, unhandled nested logical forms, escapes, quirks folding and namespace rules must not produce false negatives. Share the adapter&#39;s parsed selector entry with <code>check()</code> to avoid duplicate parsing.</p>
+<h2 id="compiler-and-jit-directions">Compiler and JIT directions</h2>
+<h3>A small plan representation before more string rewriting</h3>
+<p>Use the conservative pure scanner to produce a bounded plan with candidate seed, compound guards, relations, required attribute loads and estimated traversal work. Emit from that representation once. This gives guard ordering, common-load elimination and logical inlining one consistent view. Unsupported syntax continues through the existing compiler. The aim is to avoid repeated analysis and redundant emitted work without introducing a full second CSS parser.</p>
+<h3>Query-local feedback and guarded specialization</h3>
+<p>Candidate counts, witness density, visited ancestors and early-exit rates can choose between existing exact routes. Sample after a small number of queries and use a cooldown before switching again. Never collect telemetry on every element merely to save one cheap guard. Existing type-union routing already follows a similar periodic-probe design.</p>
+<p>A specialization key must include HTML/XML mode, quirks behavior, legacy configuration, extension generation, host reader capabilities and callback semantics. Recheck these when binding or invalidating a plan. A stale cost estimate may select a slower exact path. It must not select a stale result or bypass validation. Keep feedback weakly owned and source-byte bounded.</p>
+<h3>More work avoidance</h3>
+<ul>
+<li>For eligible pure multi-<code>~</code> relative chains, try a monotone forward cursor that advances through each required witness. Prove it only for the all-general-sibling shape first. Mixed child or adjacent relations can require backtracking.</li>
+<li>For inverse <code>:has()</code> with no witnesses, return the known empty result before allocating the ancestor-mark map. Consider selecting that route earlier only when a cheap count justifies it. Avoid repeating the small-query candidate-fetch regression found in the prior port.</li>
+<li>Delay rare fallback helper creation for mixed chains only if allocation measurements show a benefit. Moving helper creation into the hot resolver could create more closures and erase the gain.</li>
+<li>A bounded cross-engine cache of unbound factories can amortize compilation across many <code>jsdom</code> documents. Restrict sharing to factories with no captured document, engine or host nodes. Measure initialization savings against retained machine code and the existing engine-local cache.</li>
+<li>Offline selector-shape profiles could tune thresholds without adding any inference to the runtime. Keep adversarial misses, cheap controls, cold calls and mutation-heavy workloads in the tuning set.</li>
+</ul>
+<h2 id="webgpu-and-an-embedded-model">WebGPU and an embedded model</h2>
+<p><code>gpu-lexer</code> is a useful architecture reference. Its <a href="https://github.com/vercel-labs/gpu-lexer/blob/07f3e56c69f3141c1bcdb9a732aac14889ca5c74/MODEL_CARD.md">model card</a> describes 41,321 deployed int6 weights and 83.02% agreement with normalized syntax-color labels. It explicitly excludes compilation and parsing from intended uses. Those labels cannot safely replace CSS parsing or selector matching.</p>
+<p>Its <a href="https://github.com/vercel-labs/gpu-lexer/blob/07f3e56c69f3141c1bcdb9a732aac14889ca5c74/architecture.md">runtime design</a> provides transferable ideas: compact features, resident resources, compact output and batching. It also accounts for preparation, dispatch and readback. That overhead matters for the microsecond query paths in this report. No GPU benchmark was run in this survey, so no device-specific crossover is claimed.</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
+<thead>
+<tr>
+<th>Idea</th>
+<th>Assessment</th>
+<th>Experiment that could justify it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Neural CSS lexer or matcher</td>
+<td>Reject for the exact synchronous API. Approximate labels can create false matches, missed matches or invalid syntax acceptance.</td>
+<td>None needed for replacing correctness decisions.</td>
+</tr>
+<tr>
+<td>Tiny learned cost model</td>
+<td>Plausible as a planner. Output only a choice among semantically equivalent exact routes. Start with a small CPU decision tree, trained offline.</td>
+<td>Compare it with hand-written thresholds on held-out DOMs. Include feature extraction, initialization, bundle size and worst-case route regret. Keep the model out of per-element work.</td>
+</tr>
+<tr>
+<td>GPU planning advice</td>
+<td>Low priority. Planning features are tiny and CPU-resident. Dispatch is additional work.</td>
+<td>Show a real batched planning workload that beats the CPU model end to end.</td>
+</tr>
+<tr>
+<td>Exact GPU batch queries on an immutable DOM snapshot</td>
+<td>Separate asynchronous API experiment. Encode topology and interned attributes once. Evaluate many selectors against the same snapshot, then resolve node indices on the CPU.</td>
+<td>Include snapshot creation, transfer, shader compilation, synchronization and ordered result reconstruction. Compare CPU bitsets and WASM SIMD before a neural model. Pin snapshot generation so mutation cannot silently change semantics.</td>
+</tr>
+<tr>
+<td>CPU bitsets for stylesheet batches</td>
+<td>More promising near-term research than GPU matching. ID/class/tag postings can reject many rule-element pairs together.</td>
+<td>Benchmark thousands of rules on repeated style passes. Account for index maintenance and retained memory. Integrate with a supported host invalidation contract.</td>
+</tr>
+</tbody></table></div>
+<p>For v3, prioritize the measured sibling traversal problem and adapter read costs. If a model experiment follows, use it to choose work, with deterministic matching responsible for every returned element. Keep any GPU snapshot package optional so Node usage, synchronous APIs and portable browser operation retain their current contract.</p>
+<h2 id="competition-charts">Competition charts</h2>
+<p>Open the <a href="atlas/index.html">offline performance atlas</a>. It contains nine standalone SVG charts, category/search filters, exact timings, raw round samples and fingerprints. The generator renders recorded data without rerunning measurements and preserves failed or slower cases when present.</p>
+<details>
+<summary>Shared methodology and interpretation</summary><p>The existing 36 selectors cover component, documentation and utility-class fixtures. Both engines run direct library APIs in Chromium 154.0.8037.0 on the same native DOM implementation, with independent identical documents. Native selector identities and ordering are checked before and after timing. Each of nine rounds alternates engine order, warms for 20ms and measures batches of 16 calls for at least 30ms. Setup is excluded. Values are medians of per-round batch averages. Whiskers show observed round ranges, not confidence intervals. The machine was an Apple M1 Max running on battery. This run measures warm queries returning all matches. It does not measure cold compilation, browser-native query speed, <code>jsdom</code> wrapper overhead, style computation, mutation throughput or memory. It compares only the named latest competitor, not every selector engine.</p>
+</details><p><img src="atlas/chart-6.svg" alt="Form selector timings"></p>
+<p>These four form-state cases include the narrowest observed advantage: <code>input:read-write</code> was 68.96µs versus 78.49µs, or 1.14× relative speed. The full set has lower v3 medians in 36 of 36 cases, ranging from 1.14× to 388.04×. The largest ratio is an exact-ID case. These descriptive ratios are not a workload-weighted application speedup or a significance claim. The separate style probe above includes a workload where the stock host is faster.</p>
+<h3>Reproduce</h3>
+<p>Run from the v3 worktree with its supported Node version and dependencies installed. Build the candidate first. Restore the isolated upstream dependencies with the recorded manifest and lock:</p>
+<pre><code class="language-sh">mkdir -p /tmp/nwsapi-survey-dependencies
+cp assets/repo/bench/survey-2026-10-03/dependency-manifest.json /tmp/nwsapi-survey-dependencies/package.json
+cp assets/repo/bench/survey-2026-10-03/dependency-lock.json /tmp/nwsapi-survey-dependencies/package-lock.json
+npm ci --prefix /tmp/nwsapi-survey-dependencies --ignore-scripts --no-audit --no-fund
+node scripts/repo/run.mts scripts/repo/build/run.mts
+node scripts/repo/run.mts scripts/repo/bench/survey/run.mts --dependencies /tmp/nwsapi-survey-dependencies --output assets/repo/bench/survey-new/results.json --rounds 9 --power AC
+node scripts/repo/run.mts scripts/repo/bench/atlas/run.mts --input assets/repo/bench/survey-new/results.json
+node scripts/repo/run.mts scripts/repo/bench/survey/hooks.mts --dependencies /tmp/nwsapi-survey-dependencies --output assets/repo/bench/survey-new/hooks.json
+node scripts/repo/run.mts scripts/repo/bench/survey/compiler.mts assets/repo/bench/survey-new/compiler.json
+</code></pre>
+<p>Set <code>--power</code> to the actual power source. Omit <code>--dependencies</code> to compare the repository-pinned competitor instead. Regenerate only the charts with <code>atlas/run.mts --input path/to/results.json --output path/to/atlas</code>. Its input is a two-engine warm all-results report with <code>metadata.engines</code>, <code>metadata.rounds</code>, <code>metadata.timestamp</code>, and rows containing <code>category</code>, <code>selector</code>, <code>milliseconds</code>, <code>errors</code> and optional raw <code>samples</code> arrays. Timings are positive milliseconds or <code>null</code> for unavailable results. Each engine with an error must have a <code>null</code> timing.</p>
+<h2 id="delivered-and-remaining">Delivered and remaining</h2>
+<p>The <a href="index.html">complete HTML report</a> includes section navigation, source links, comparison tables and access to the chart explorer. Regenerate it from this Markdown with the pinned <code>marked</code> CLI:</p>
+<pre><code class="language-sh">node scripts/repo/run.mts scripts/repo/bench/survey/report.mts
+portless nwsapi-report sh -c &#39;exec node node_modules/vite/bin/vite.js assets/repo/bench/survey-2026-10-03 --host 127.0.0.1 --port &quot;$PORT&quot; --strictPort&#39;
+</code></pre>
+<p>Open the URL printed by Portless. This machine uses <code>https://nwsapi-report.localhost:1355</code>. The first HTML render may download <code>marked</code> 18.0.14 through <code>npx</code>. Rendering does not add a runtime dependency or repeat the benchmarks.</p>
+<p>Delivered: latest upstream source audit, isolated current dependencies, 36-case comparison, operation-count probes, stylesheet-hook reproduction, offline atlas generator, generated SVG/HTML artifacts and this prioritized report. The benchmark provenance helper also now resolves root files through <code>REPO_ROOT</code>, fixing stale relative paths left by its directory move.</p>
+<p>Remaining implementation: the prioritized runtime experiments, full compatibility coverage for any resulting changes, alternating confirmation of promising timings, and AC-power confirmation before making release performance claims. No production neural model, GPU backend, host monkey patch or selective stylesheet subject behavior was added by this survey.</p>
+
+</article><footer><a href="atlas/index.html">Open the full chart explorer →</a><p>Generated from the maintained audit. Measurements, limitations and implementation proposals are preserved.</p></footer></main></div>
+<script>const links=[...document.querySelectorAll('nav a')];const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){for(const link of links){link.toggleAttribute('aria-current',link.hash==='#'+entry.target.id)}}}},{rootMargin:'-10% 0px -70% 0px'});document.querySelectorAll('h2[id]').forEach(section=>observer.observe(section));</script></body></html>
