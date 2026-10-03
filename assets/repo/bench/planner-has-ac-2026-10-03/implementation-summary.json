@@ -1,0 +1,60 @@
+{
+  "chromium": {
+    "preflight": {
+      "cases": 52,
+      "speedup": 1.1760212723084968,
+      "worst": 1.0431186116721896,
+      "holdoutSpeedup": 1.1760212723084968
+    },
+    "confirmation": {
+      "cases": 100,
+      "speedup": 1.3034889835919399,
+      "worst": 1.030042918774171,
+      "holdoutSpeedup": 1.2897185041964916
+    },
+    "confirmation-repeat": {
+      "cases": 100,
+      "speedup": 1.289257052525719,
+      "worst": 1.1172766852801523,
+      "holdoutSpeedup": 1.274629017032898
+    }
+  },
+  "jsdom": {
+    "preflight": {
+      "cases": 52,
+      "speedup": 1.090573803953073,
+      "worst": 1.0329891413133694,
+      "holdoutSpeedup": 1.090573803953073
+    },
+    "confirmation": {
+      "cases": 100,
+      "speedup": 1.2680796540013033,
+      "worst": 1.0496179775280898,
+      "holdoutSpeedup": 1.2754009046405077
+    },
+    "confirmation-repeat": {
+      "cases": 100,
+      "speedup": 1.2563575272692975,
+      "worst": 1.043382007975604,
+      "holdoutSpeedup": 1.2577430108684675
+    }
+  },
+  "footprint": [
+    {
+      "sha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+      "bytes": 252298,
+      "gzip9": 56261,
+      "brotli11": 45275
+    },
+    {
+      "sha256": "a7d34965762e56d86caa425680b3a791bc6c853a586686ea751f41d35fc22f43",
+      "bytes": 252610,
+      "gzip9": 56341,
+      "brotli11": 45490
+    }
+  ],
+  "cold": {
+    "speedup": 1.019347880604534,
+    "worst": 0.9942172655926798
+  }
+}

@@ -62,6 +62,73 @@ Open the [implementation bar charts](../../../assets/repo/bench/survey-2026-10-0
 [experimental model report](../../../assets/repo/bench/survey-2026-10-03/has-planner.html),
 or [complete measurement summary](../../../assets/repo/bench/planner-has-2026-10-03/implementation-summary.json).
 
+### AC-powered confirmation
+
+Both optimizations remain enabled on the v3 prerelease branch. The AC rerun
+uses the same baseline and candidate hashes, fixtures, and learned rule as
+the battery run. Training records are copied unchanged from the battery
+collection. The shortcut comparison, two actual-build confirmation passes,
+and cold-query probe are measured again. This measures the selected rule
+without retraining it to fit the new run.
+
+The October 3 AC measurements retain both optimizations. Lower query time
+is better. Percentages below are reductions in geometric mean query time
+relative to the original rule in each independent run.
+
+| Host | Battery repeat, 100 cases | AC first pass, 100 cases | AC repeat, 100 cases | Worst AC repeat slowdown |
+| --- | --- | --- | --- | --- |
+| Chromium | 22.8% less time | 23.3% less time | 22.4% less time | 11.7% more time |
+| `jsdom` | 20.4% less time | 21.1% less time | 20.4% less time | 4.3% more time |
+
+Both AC passes meet the preset gate. On the matching 52 held-out cases,
+the shortcut alone saves 15.0% in Chromium and 8.3% in `jsdom`. Both changes
+together save 21.5% and 20.5% in the longer repeat. These two options were
+measured in separate runs against their own original-rule baselines.
+
+The eight-case AC cold-query probe records 1.9% less geometric mean query
+time, with every case below its original-rule time in this sample. Its short
+timings and limited scope do not establish a cold-start improvement. Ordered
+result-identity checks passed during all measurements. Full compatibility
+suites were not rerun. The emitted runtime and its 80bytes gzip increase
+are unchanged from the battery measurement.
+
+Set `NWSAPI_REQUIRE_AC=1` to require macOS AC power before and after each
+host measurement. Other platforms fail closed when this setting is enabled.
+Each fresh artifact records both power snapshots and start/end timestamps.
+These are boundary checks, not continuous power monitoring. A failed power
+check stops the command before writing that host's measurement artifact.
+
+The [AC report](../../../assets/repo/bench/survey-2026-10-03/has-implementation-ac.html)
+and [AC measurement summary](../../../assets/repo/bench/planner-has-ac-2026-10-03/implementation-summary.json)
+preserve the rerun separately. Battery and AC runs are independent samples.
+Their difference alone does not establish a causal effect of power source.
+
+<details>
+<summary>Reproduce the AC rerun</summary>
+
+After building the saved baseline and candidate as described below, use a
+new output directory. Copy only the frozen fixtures, model, and training
+records. Fresh timing artifacts must come from the AC run.
+
+```sh
+export NWSAPI_PLANNER_BASELINE=/absolute/path/to/before.cjs
+export NWSAPI_REQUIRE_AC=1
+ac_output=assets/repo/bench/planner-has-ac-2026-10-03
+battery_input=assets/repo/bench/planner-has-2026-10-03
+mkdir "$ac_output"
+for file in fixtures.json.gz shared-model.json chromium-training.json jsdom-training.json; do
+  cp "$battery_input/$file" "$ac_output/$file"
+done
+node scripts/repo/run.mts scripts/repo/bench/planner/has/run.mts preflight "$ac_output"
+node scripts/repo/run.mts scripts/repo/bench/planner/has/run.mts confirm "$ac_output"
+node scripts/repo/run.mts scripts/repo/bench/planner/has/run.mts confirm "$ac_output" repeat
+node scripts/repo/run.mts scripts/repo/bench/planner/has/cold.mts "$NWSAPI_PLANNER_BASELINE" "$ac_output"
+node scripts/repo/run.mts scripts/repo/bench/planner/has/summary.mts "$ac_output" "$NWSAPI_PLANNER_BASELINE"
+node scripts/repo/run.mts scripts/repo/bench/planner/report.mts "$ac_output" assets/repo/bench/survey-2026-10-03/has-implementation-ac.html confirmation-repeat
+```
+
+</details>
+
 ## Experiment contract
 
 This experiment reuses the cost-sensitive CPU tree trainer to choose forward

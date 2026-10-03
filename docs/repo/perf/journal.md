@@ -1919,3 +1919,22 @@ The initial pass contained a noisy 1.176× `jsdom` outlier that measured 1.018×
 in the repeat. Both passes remain recorded. Cold-query behavior was roughly
 unchanged in the separate Node probe. Gzip increases by 80bytes. Measurements
 ran on battery, and broader compatibility suites were not rerun.
+
+
+## 2026-10-03: AC-powered confirmation of guarded `:has()` routing
+
+Both optimizations remain enabled. The [AC report](../../../assets/repo/bench/survey-2026-10-03/has-implementation-ac.html)
+remeasures the same baseline, candidate, and fixtures with the training
+inputs frozen from the battery run. The longer 100-case confirmation records
+22.4% less Chromium query time and 20.4% less `jsdom` query time. Worst
+individual slowdowns are 11.7% and 4.3%, within the preset 15% limit. The
+initial confirmation also passes. Both passes and the original battery
+measurements are preserved.
+
+The shortcut-only comparison and eight-case cold-query probe were rerun.
+The latter records 1.9% less query time but does not establish a cold-start
+improvement. Ordered result identity checks passed throughout measurement.
+Full compatibility suites were not rerun. A new `NWSAPI_REQUIRE_AC=1` guard
+checks power before and after each host measurement and records timestamps.
+These are boundary checks. Independent battery and AC runs do not isolate
+the effect of power source.
