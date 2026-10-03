@@ -26,8 +26,19 @@ function verify() {
 // The curated subset and its expected results come from index.html: pages
 // list their historically expected (passed / total) counts. Pages without
 // counts are manual reference pages with no harness completion; skip them.
-// The known-failing subtests are tolerated as expected failures, and a page
-// whose total drifts from its annotation fails the run.
+// Expected failures are identified by name and status. A repaired failure
+// must never provide a budget that hides a different regression.
+const expectedFailuresByPage = {
+  'ParentNode-replaceChildren.html': new Set([
+    'Document.replaceChildren() with an element, replacing an existing doctype and element.',
+    'Document.replaceChildren() with a DocumentFragment containing a single element, replacing an existing doctype and element.',
+    'Document.replaceChildren() with a doctype, replacing an existing doctype and element.',
+  ]),
+  'has-with-nesting-parent-containing-hover.html': new Set([
+    'CSS Selector Invalidation: :has() with nesting parent containing :hover',
+  ]),
+}
+
 function pageList() {
   const index = readFileSync(path.join(root, 'test/wpt/index.html'), 'utf8')
   const pages = [...index.matchAll(/href="http:\/\/localhost:\d+([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)]
@@ -77,14 +88,19 @@ async function runPage(context, entry) {
     }
     const results = await tab.evaluate('window.__wptResults')
     const reported = results.filter(test => test.status !== 0)
-    const tolerated = entry.expectedTotal - entry.expectedPass
+    const expectedNames = expectedFailuresByPage[name]
+    for (const failure of reported) {
+      failure.expected = failure.status === 1 && !!expectedNames?.has(failure.name)
+    }
+    const expected = reported.filter(failure => failure.expected).length
     const drift = results.length !== entry.expectedTotal
     // Agents get quiet reporting: no per-page progress chatter.
     if (!isAgent) console.error(`  ${name}: ${((Date.now() - started) / 1000).toFixed(1)}s`)
     return {
       name,
-      passed: results.length - reported.length + Math.min(reported.length, tolerated),
-      failed: Math.max(0, reported.length - tolerated) + (drift ? 1 : 0),
+      passed: results.length - reported.length,
+      failed: reported.length - expected + (drift ? 1 : 0),
+      expected,
       failures: reported,
       error: drift ? `expected ${entry.expectedTotal} tests, got ${results.length}` : undefined,
     }
@@ -141,19 +157,25 @@ async function main() {
   const byOrder = new Map(summaries.flat().map(line => [line.name, line]))
   const summary = pages.map(entry => byOrder.get(entry.page.split('/').pop()))
 
-  console.log('\nWPT results:')
+  if (!isAgent) console.log('\nWPT results:')
   let totalFailed = 0
+  let expectedFailures = 0
   for (const line of summary) {
     // Server errors and count drift count as page failures; a page with only
     // tolerated (expected) failing subtests stays green.
     totalFailed += line.error ? 1 : (line.failed || 0)
+    if (!line.error) {
+      expectedFailures += line.expected || 0
+    }
+    if (isAgent && !line.failed && !line.error) continue
     const label = line.error ? `ERROR (${line.error})` : `${line.passed} passed, ${line.failed} failed`
     console.log(`  ${line.failed || line.error ? '✗' : '✓'} ${line.name}: ${label}`)
     for (const failure of line.failures || []) {
-      console.log(`      ${line.error ? 'reported' : 'expected'} ${STATUS[failure.status]}: ${failure.name}`)
+      console.log(`      ${failure.expected ? 'expected' : 'reported'} ${STATUS[failure.status]}: ${failure.name}`)
     }
   }
-  console.log(`\n${summary.length} pages, ${totalFailed} unexpected failures.`)
+  console.log(`${isAgent ? 'WPT: ' : '\n'}${summary.length} pages, ${totalFailed} unexpected failures` +
+    `${isAgent && expectedFailures ? ` (${expectedFailures} expected failures)` : ''}.`)
   if (totalFailed > 0) process.exitCode = 1
 }
 
