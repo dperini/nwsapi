@@ -1762,3 +1762,16 @@ ASTs for identifier stability and constant placement, alongside result behavior.
 ```sh
 node scripts/repo/bench/preparation.mts first-batch.cjs second-batch.cjs assets/repo/bench/preparation-2026-10-01.json
 ```
+
+## Reuse the `:has()` existence buffer
+
+Relative plans compile existence-only resolvers that stop after the first
+matching candidate. The outer `:has()` loop previously passed a new empty result
+array for every candidate root. A failed probe therefore allocated an array
+that could contain no result. It now clears and reuses one local result buffer
+for each `:has()` call. The resolver and candidate ordering are unchanged, and
+the buffer cannot escape the call. This removes per-root result-array creation
+when a relative selector spans several candidate roots. The change has a
+focused correctness check. The full unit suite passes 1,006 tests; type
+checking, configured lint, formatting, and build also pass. No wall-time
+improvement is claimed without a dedicated benchmark.
