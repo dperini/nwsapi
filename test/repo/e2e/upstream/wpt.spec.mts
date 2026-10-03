@@ -306,7 +306,7 @@ for (const entry of manifest) {
 
     for (const t of results.tests) {
       const key = `${entry.path}::${t.name}`
-      if (t.status !== 0) {
+      if (t.status === 1) {
         failingKeys.push(key)
       }
       if (!filter.matches(t.name)) {
@@ -320,7 +320,7 @@ for (const entry of manifest) {
         } else {
           counts.pass += 1
         }
-      } else if (expectations[key]) {
+      } else if (t.status === 1 && expectations[key]) {
         counts.expectedFail += 1
         expectedFails.push(
           `${statusName(t.status)} ${t.name}${t.message ? ` — ${t.message}` : ''}`,
@@ -336,7 +336,7 @@ for (const entry of manifest) {
     const harnessKey = `${entry.path}::${HARNESS_KEY}`
     if (results.harness.status !== 0) {
       failingKeys.push(harnessKey)
-      if (expectations[harnessKey]) {
+      if (results.harness.status === 1 && expectations[harnessKey]) {
         expectedFails.push(`harness status ${results.harness.status}`)
       } else {
         failures.push(
@@ -365,7 +365,7 @@ for (const entry of manifest) {
         expectedFailures: expectedFails,
         knownFailures: results.tests
           .filter(
-            t => t.status !== 0 && expectations[`${entry.path}::${t.name}`],
+            t => t.status === 1 && expectations[`${entry.path}::${t.name}`],
           )
           .map(t => ({
             name: t.name,
