@@ -85,3 +85,17 @@ test('sparse has marks are scoped to each query and refresh after moving witness
   witness.remove()
   expect(engine.select(selector, fragment)).toEqual([])
 })
+
+test('pure guards reject before relational work and remove exact duplicate reads', t => {
+  const { window } = new JSDOM('<div class="card" data-a="one"><i></i></div>')
+  t.onTestFinished(() => window.close())
+  const engine = factory(window)
+  const element = window.document.querySelector('div')!
+  const attributes = vi.spyOn(element, 'hasAttribute')
+  const children = vi.spyOn(element, 'firstElementChild', 'get')
+  expect(engine.match('.missing[data-a]:has(> i)', element)).toBe(false)
+  expect(attributes).not.toHaveBeenCalled()
+  expect(children).not.toHaveBeenCalled()
+  expect(engine.match('.card.card[data-a][data-a]', element)).toBe(true)
+  expect(attributes).toHaveBeenCalledTimes(1)
+})

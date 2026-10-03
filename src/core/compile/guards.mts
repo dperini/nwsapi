@@ -2,7 +2,11 @@ import { parsePure, pureCompiler, pureCompound, pureSelector } from './pure.mts'
 import type { EngineState } from '../state/types.mts'
 
 export function orderGuards(engine: EngineState, selector: string) {
-  if (!pureCompiler(engine)) {
+  if (
+    !pureCompiler(engine) ||
+    selector.length > 512 ||
+    !/[\[:]/.test(selector)
+  ) {
     return selector
   }
   const parts = parsePure(selector)

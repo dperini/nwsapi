@@ -1,4 +1,4 @@
-import { pureCompiler, pureSelector } from './pure.mts'
+import { pureCompiler, pureCompound, pureSelector } from './pure.mts'
 import { nextCompileIdentifier } from './state.mts'
 import type { CompileState } from './state.mts'
 
@@ -11,6 +11,12 @@ export function inlineLogical(
     return false
   }
   const branches = state.engine.splitList(argument)
+  if (
+    (branches.length === 1 && pureCompound(branches[0]!)) ||
+    (!negate && branches.every(branch => /^[a-z][a-z0-9-]*$/.test(branch)))
+  ) {
+    return false
+  }
   if (branches.length > 8 || !branches.every(pureSelector)) {
     return false
   }

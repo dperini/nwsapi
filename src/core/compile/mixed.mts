@@ -4,7 +4,12 @@ import { nextCompileIdentifier } from './state.mts'
 import type { CompileState } from './state.mts'
 
 export function compileMixed(state: CompileState): string | null {
-  if (!state.compiler || state.callback || !pureCompiler(state.engine)) {
+  if (
+    !state.compiler ||
+    state.callback ||
+    !pureCompiler(state.engine) ||
+    !/[>+]/.test(state.selector)
+  ) {
     return null
   }
   const chain = parsePure(state.selector)
