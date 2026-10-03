@@ -1886,3 +1886,19 @@ node scripts/repo/run.mts scripts/repo/bench/port/run.mts before.cjs dist/nwsapi
 node scripts/repo/run.mts scripts/repo/bench/port/browser.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-browser-2026-10-03.json
 node scripts/repo/run.mts scripts/repo/bench/port/memory.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-memory-2026-10-03.json
 ```
+
+
+## 2026-10-03: Small trained planner evaluation
+
+The [trained planner report](trained-planner.md) records the first executed
+CPU model experiment. A cost-sensitive tree trained on 96 observations from
+Chromium and `jsdom` chose between exact type-union routes. Separate evaluation
+on 48 held-out cases per host measured 1.020× and 0.995× geometric mean speed
+ratios respectively. The worst `jsdom` case took 1.279× the existing-rule time.
+The model missed the predeclared gate, so runtime routing stays unchanged.
+
+Delivered reusable training and evaluation scripts, frozen fixture inputs,
+raw round summaries, a guarded generated model, and an
+[HTML bar-chart report](../../../assets/repo/bench/survey-2026-10-03/planner.html).
+Measurements ran on battery. The next model experiment should label forward
+versus inverse `:has()` execution and include witness-fetch costs.

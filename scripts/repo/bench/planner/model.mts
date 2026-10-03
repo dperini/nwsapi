@@ -18,11 +18,11 @@ export type Tree =
   | { feature: number; threshold: number; left: Tree; right: Tree }
 
 function leaf(rows: Observation[]) {
-  const costs = [0, 0]
+  const costs: [number, number] = [0, 0]
   for (const row of rows) {
     const best = Math.min(...row.costs)
-    costs[0]! += row.costs[0] / best
-    costs[1]! += row.costs[1] / best
+    costs[0] += row.costs[0] / best
+    costs[1] += row.costs[1] / best
   }
   return { tree: { broad: costs[1]! < costs[0]! }, loss: Math.min(...costs) }
 }

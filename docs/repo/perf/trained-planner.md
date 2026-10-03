@@ -1,5 +1,37 @@
 # Small trained planner
 
+## Recorded outcome: keep the current rule
+
+The shared model trained on 96 observations across Chromium 154.0.8037.0 and
+`jsdom` 30.0.1. It pruned to one split: use broad scanning above approximately
+39.4% candidate density, versus the existing rule's 33.3%. It has two leaves
+and needs no inference library.
+
+Separate evaluation measured the actual guarded expression against the
+unchanged runtime on 48 held-out cases per host:
+
+| Host | Geometric mean rule/tree speed ratio | Worst tree/rule time | Gate |
+| --- | --- | --- | --- |
+| Chromium | 1.020× | 1.018× | Missed minimum improvement |
+| `jsdom` | 0.995× | 1.279× | Missed improvement and worst-case limits |
+
+The model changed the selected route for only two held-out cases, both in
+the clustered 128-node family at 40% requested density. In the two-tag
+`jsdom` case, median query time increased from 27.01µs to 34.55µs. The same
+count features do not identify host costs or tag arrangement, so a learned
+density boundary alone did not transfer reliably. This is evidence against
+shipping this model, not a conclusion about all learned planning.
+
+Measurements ran on an Apple M1 Max on battery. Timing variability, the
+synthetic family selection, and the narrow supported domain limit the claim.
+No production runtime code changed, and no new compatibility suite was run.
+Benchmark identity and route-reachability checks completed successfully.
+
+The [HTML report with bar charts](../../../assets/repo/bench/survey-2026-10-03/planner.html)
+and [summary JSON](../../../assets/repo/bench/planner-2026-10-03/summary.json)
+record the outcome. The [model artifact](../../../assets/repo/bench/planner-2026-10-03/shared-model.json)
+includes training-input hashes, bounds, tree, and generated expression.
+
 ## Experiment contract
 
 The first experiment trains a tiny CPU decision tree to choose the exact
@@ -91,6 +123,19 @@ The same method can label forward versus inverse `:has` routes or another
 eligible exact plan. Each decision needs its own admissible features,
 measurement labels, and held-out evaluation. Reusing a model across those
 decisions without retraining would be unsupported.
+
+Next, collect labels for the existing forward versus inverse `:has()`
+routes. Anchor and witness counts are candidate features where already
+available. Keep the witness-fetch cost inside the timed path and retain the
+small-anchor early exit. Before another promotion attempt, add real DOM
+families and a confirmation run on AC power. Do not add a topology scan to
+repair this model's feature blind spot without measuring its full cost.
+
+Completed: route-reachability checks, frozen fixtures, cost-sensitive training,
+one shared generated model, separate held-out execution, guarded fallback,
+bar-chart report, and recorded rejection. Remaining: `:has()` labels and
+model evaluation, real-application validation, and any production integration
+that subsequently earns its cost.
 
 Packing DOM snapshots and GPU batching remain later research. This first
 experiment establishes whether trained routing beats simple rules before
