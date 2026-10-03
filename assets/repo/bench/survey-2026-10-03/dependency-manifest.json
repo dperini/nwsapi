@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@asamuzakjp/dom-selector": "^9.2.4",
+    "jsdom": "^30.1.1"
+  }
+}

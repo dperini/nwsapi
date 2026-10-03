@@ -1,0 +1,99 @@
+{
+  "timestamp": "2026-10-03T18:41:33.608Z",
+  "candidateSha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+  "method": "Exploratory instrumented probe. Seven fresh documents per mode, fixed mode order, setup excluded. Counts are stronger evidence than timings. CSS subject extraction prototype handles only exact simple class selectors. All other subjects stay wildcard.",
+  "results": [
+    {
+      "mode": "baseline",
+      "jsdom": "30.1.1",
+      "competitor": "9.2.4",
+      "hostOptionKeys": [
+        "idlUtils"
+      ],
+      "rules": 241,
+      "elements": 24,
+      "styleMilliseconds": [
+        124.763958,
+        45.38758300000006,
+        41.687584000000015,
+        39.21891699999992,
+        40.257375000000025,
+        39.277375000000006,
+        38.79995799999995
+      ],
+      "medianMilliseconds": 40.257375000000025,
+      "checkCalls": [
+        9477,
+        9477,
+        9477,
+        9477,
+        9477,
+        9477,
+        9477
+      ],
+      "selectorTextMutation": {
+        "before": "rgb(0, 0, 0)",
+        "after": "rgb(1, 2, 3)",
+        "expected": "rgb(1, 2, 3)"
+      }
+    },
+    {
+      "mode": "subjects",
+      "jsdom": "30.1.1",
+      "competitor": "9.2.4",
+      "hostOptionKeys": [
+        "idlUtils"
+      ],
+      "rules": 241,
+      "elements": 24,
+      "styleMilliseconds": [
+        66.71058299999999,
+        15.558375000000012,
+        10.467957999999953,
+        9.39183399999996,
+        9.263834000000031,
+        9.449124999999981,
+        8.480666999999983
+      ],
+      "medianMilliseconds": 9.449124999999981,
+      "checkCalls": [
+        2994,
+        2994,
+        2994,
+        2994,
+        2994,
+        2994,
+        2994
+      ],
+      "selectorTextMutation": {
+        "before": "rgb(0, 0, 0)",
+        "after": "rgb(0, 0, 0)",
+        "expected": "rgb(1, 2, 3)"
+      }
+    },
+    {
+      "mode": "stock",
+      "jsdom": "30.1.1",
+      "competitor": "9.2.4",
+      "hostOptionKeys": [],
+      "rules": 241,
+      "elements": 24,
+      "styleMilliseconds": [
+        43.27104200000002,
+        10.132959000000028,
+        8.716209000000049,
+        5.834666999999968,
+        5.656166999999982,
+        7.776749999999993,
+        5.36766700000004
+      ],
+      "medianMilliseconds": 7.776749999999993,
+      "checkCalls": null,
+      "selectorTextMutation": {
+        "before": "rgb(0, 0, 0)",
+        "after": "rgb(0, 0, 0)",
+        "expected": "rgb(1, 2, 3)"
+      }
+    }
+  ]
+}

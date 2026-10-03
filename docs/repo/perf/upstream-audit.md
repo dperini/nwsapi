@@ -1,5 +1,7 @@
 # Upstream selector audit completion
 
+The [October 3 v3 follow-up](survey-2026-10-03.md) audits `jsdom` 30.1.1 and `@asamuzakjp/dom-selector` 9.2.4. It records newly measured compiler opportunities, a stylesheet subject-cache invalidation prerequisite, and updated comparison charts. The completion record below describes the earlier audit's scope.
+
 The local audit of `@asamuzakjp/dom-selector` and the linked `jsdom` migration concerns is complete through `eca95b8`. [Remote CI](https://github.com/dperini/nwsapi/actions/runs/34431950887) passes for that implementation. The scope includes the recorded issue discussions, all 1697 commit messages searched for performance leads, and the inventory of 308 open and closed PRs. Selected relevant patches were inspected. This is not a claim that every historical diff was reviewed or that every CSS feature is supported.
 
 | Finding | Final outcome |
