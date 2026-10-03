@@ -151,10 +151,6 @@
   qsInvalid = ' is not a valid selector',
   errors = 0,
 
-  // detect structural pseudo-classes in selectors
-  reNthElem = RegExp('(:nth(?:-last)?-child)', 'i'),
-  reNthType = RegExp('(:nth(?:-last)?-of-type)', 'i'),
-
   // placeholder for global regexp
   reOptimizer,
   reValidator,
@@ -233,14 +229,16 @@
       return list;
     },
 
-  // caching limit for compiled resolver functions
+  // Entry and estimated byte budgets for plans. UTF-16 keys, generated code,
+  // bound subplans and metadata are charged; VM object/code overhead varies.
   CACHE_LIMIT = 1000,
+  CACHE_BYTES = 2 * 1024 * 1024,
 
   // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
   // never DOM result sets. A prefixed dictionary avoids user-key collisions
   // and a doubly linked list keeps the least-recently-used entry at the head.
-  createCache = function(limit) {
-    var cache = { }, head = null, tail = null, size = 0,
+  createCache = function(limit, byteLimit) {
+    var cache = { }, head = null, tail = null, size = 0, bytes = 0,
       prefix = '\x01', has = function(key) {
         return Object.prototype.hasOwnProperty.call(cache, prefix + key);
       }, unlink = function(entry) {
@@ -260,18 +258,21 @@
         unlink(entry);
         delete cache[entry.key];
         --size;
+        bytes -= entry.bytes;
       };
 
     limit || (limit = CACHE_LIMIT);
+    byteLimit || (byteLimit = CACHE_BYTES);
 
     return {
       clear: function() {
         cache = { };
         head = tail = null;
-        size = 0;
+        size = bytes = 0;
       },
       get: function(key) {
         var entry;
+        if (tail && tail.key === prefix + key) { return tail.value; }
         if (!has(key)) return undefined;
         entry = cache[prefix + key];
         promote(entry);
@@ -280,24 +281,40 @@
       has: function(key) {
         return has(key);
       },
-      set: function(key, value) {
-        var entry, entryKey = prefix + key;
+      set: function(key, value, weight) {
+        var entry, entryKey = prefix + key, cost = entryKey.length * 2 + (weight || value && value.cacheSize || 64);
+
+        if (cost > byteLimit) {
+          if (has(key)) { remove(cache[entryKey]); }
+          return value;
+        }
 
         if (has(key)) {
           entry = cache[entryKey];
+          bytes -= entry.bytes;
           entry.value = value;
+          entry.bytes = cost;
+          bytes += cost;
           promote(entry);
         } else {
           size >= limit && remove(head);
-          entry = { key: entryKey, value: value, prev: null, next: null };
+          entry = { key: entryKey, value: value, bytes: cost, prev: null, next: null };
           cache[entryKey] = entry;
           link(entry);
           ++size;
+          bytes += cost;
         }
+        while (bytes > byteLimit) { remove(head); }
         return value;
       },
       size: function() {
         return size;
+      },
+      bytes: function() {
+        return bytes;
+      },
+      byteLimit: function() {
+        return byteLimit;
       }
     };
   },
@@ -370,9 +387,10 @@
 
   switchContext =
     function(context, force) {
-      var oldDoc = doc;
+      var oldDoc = doc, oldHTML = HTML_DOCUMENT, oldQuirks = QUIRKS_MODE,
+        oldNamespace = NAMESPACE, oldPrefix = root && root.prefix;
       doc = context.ownerDocument || context;
-      if (force || oldDoc !== doc) {
+      if (force || oldDoc !== doc || root !== doc.documentElement) {
         // force a new check for each document change
         // performed before the next select operation
         root = doc.documentElement;
@@ -382,8 +400,37 @@
         NAMESPACE = root && root.namespaceURI;
         Snapshot.doc = doc;
         Snapshot.root = root;
+        // Compiled guards capture document modes and namespace resolution.
+        // Plans can be shared across documents only while those facts agree.
+        if (!force && (oldHTML !== HTML_DOCUMENT || oldQuirks !== QUIRKS_MODE ||
+          oldNamespace !== NAMESPACE || oldPrefix !== (root && root.prefix))) {
+          clearResolverCaches();
+        }
       }
       return (Snapshot.from = context);
+    },
+
+  queryDepth = 0,
+
+  enterContext =
+    function(context) {
+      var previous = queryDepth ? Snapshot.from : null;
+      ++queryDepth;
+      if (lastContext !== context || root !== (context.ownerDocument || context).documentElement) {
+        lastContext = switchContext(context);
+      }
+      return previous;
+    },
+
+  leaveContext =
+    function(previous) {
+      --queryDepth;
+      if (previous) {
+        if (doc !== (previous.ownerDocument || previous) || root !== doc.documentElement) {
+          switchContext(previous);
+        } else { Snapshot.from = previous; }
+        lastContext = previous;
+      }
     },
 
   // convert single codepoint to UTF-16 encoding
@@ -453,7 +500,7 @@
               // javascript strings are UTF-16 encoded
               REX.HexNumbers.test(p1) ? stringFromCodePoint(parseInt(p1, 16)) :
               // \' \"
-              REX.EscOrQuote.test(p1) ? substring :
+              REX.EscOrQuote.test(p1) ? p1 :
               // \g \h \. \# etc
               p1;
           }
@@ -520,9 +567,12 @@
   // Validate logical arguments even when the query has no candidates.
   validateLogical =
     function(argument, relative) {
+      var key = (relative ? '1:' : '0:') + argument;
+      if (logicalValidators.get(key)) { return true; }
       var previousErrors = errors, selectVars = S_VARS,
         matchVars = M_VARS, nodeVars = N_VARS,
-        list = splitList(argument), parsed, i, j;
+        list = splitList(argument), parsed, i, j, previousCompilation = compilation;
+      compilation = null;
       S_VARS = [];
       M_VARS = [];
       N_VARS = [];
@@ -537,14 +587,21 @@
             return false;
           }
           for (j = 0; j < parsed.length; ++j) {
-            compileSelector(parsed[j], '', relative, false);
+            if (!selectorInfo(parsed[j]).pure) {
+              compileSelector(parsed[j], '', relative, false);
+            }
           }
         }
-        return errors == previousErrors;
+        if (errors == previousErrors) {
+          logicalValidators.set(key, true);
+          return true;
+        }
+        return false;
       } finally {
         S_VARS = selectVars;
         M_VARS = matchVars;
         N_VARS = nodeVars;
+        compilation = previousCompilation;
       }
     },
 
@@ -665,23 +722,28 @@
   },
 
   // context agnostic getElementsByTagName
+  tagCollection =
+    function(context, tag) {
+      return !HTML_DOCUMENT && context.getElementsByTagNameNS ?
+        context.getElementsByTagNameNS('*', tag) : context.getElementsByTagName(tag);
+    },
+
   byTag =
     function(tag, context) {
       var e, nodes, api = method['*'];
       // DOCUMENT_NODE (9) & ELEMENT_NODE (1)
       if (api in context) {
-        return slice.call(context[api](tag));
+        return slice.call(tagCollection(context, tag));
       } else {
-        tag = tag.toLowerCase();
         // DOCUMENT_FRAGMENT_NODE (11)
         if ((e = context.firstElementChild)) {
-          if (!(e.nextElementSibling || tag == '*' || e.localName == tag)) {
-            return slice.call(e[api](tag));
+          if (!(e.nextElementSibling || tag == '*' || tagMatches(e, tag))) {
+            return slice.call(tagCollection(e, tag));
           } else {
             nodes = [ ];
             do {
-              if (tag == '*' || e.localName == tag) nodes[nodes.length] = e;
-              concatList(nodes, e[api](tag));
+              if (tag == '*' || tagMatches(e, tag)) nodes[nodes.length] = e;
+              concatList(nodes, tagCollection(e, tag));
             } while ((e = e.nextElementSibling));
           }
         } else nodes = none;
@@ -728,7 +790,12 @@
   // Match one standards-mode class token without a per-candidate RegExp.
   hasClass =
     function(e, name) {
-      var value = classOf(e), offset = -1, before, after;
+      return hasClassValue(classOf(e), name);
+    },
+
+  hasClassValue =
+    function(value, name) {
+      var offset = -1, before, after;
       if (!name || /[\t\n\f\r ]/.test(name)) return false;
       while ((offset = value.indexOf(name, offset + 1)) >= 0) {
         before = offset ? value.charCodeAt(offset - 1) : 32;
@@ -760,91 +827,85 @@
     },
 
   // fast resolver for the :nth-child() and :nth-last-child() pseudo-classes
-  nthElement = (function() {
-    var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
-    return function(element, dir) {
-      // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) {
-        idx = 0; len = 0; set = 0; nodes.length = 0;
-        parents.length = 0; parent = undefined;
-        return -1;
-      }
-      var e, i, j, k, l;
-      if (parent === element.parentElement) {
-        i = set; j = idx; l = len;
-      } else {
-        l = parents.length;
-        parent = element.parentElement;
-        for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
-          if (parents[j] === parent) { i = j; break; }
-          if (parents[k] === parent) { i = k; break; }
-        }
-        if (i < 0) {
-          parents[i = l] = parent;
-          l = 0; nodes[i] = Array();
-          e = parent && parent.firstElementChild || element;
-          while (e) { nodes[i][l] = e; if (e === element) j = l; e = e.nextElementSibling; ++l; }
-          set = i; idx = 0; len = l;
-          if (l < 2) return l;
-        } else {
-          l = nodes[i].length;
-          set = i;
-        }
-      }
-      if (element !== nodes[i][j] && element !== nodes[i][j = 0]) {
-        for (j = 0, e = nodes[i], k = l - 1; l > j; ++j, --k) {
-          if (e[j] === element) { break; }
-          if (e[k] === element) { j = k; break; }
-        }
-      }
-      idx = j + 1; len = l;
-      return dir ? l - j : idx;
-    };
-  })(),
+  nthNeedsCache =
+    function(formula) {
+      formula = formula.replace(/\s/g, '').toLowerCase();
+      return formula != 'n' && !(/^[+-]?\d+$/.test(formula) && +formula <= 8);
+    },
 
-  // fast resolver for the :nth-of-type() and :nth-last-of-type() pseudo-classes
-  nthOfType = (function() {
-    var idx = 0, len = 0, set = 0, parent = undefined, parents = Array(), nodes = Array();
-    return function(element, dir) {
-      // ensure caches are emptied after each run, invoking with dir = 2
-      if (dir == 2) {
-        idx = 0; len = 0; set = 0; nodes.length = 0;
-        parents.length = 0; parent = undefined;
+  // Small fixed positions stop as soon as the position is impossible. They
+  // need no sibling arrays, parent cache, or query cleanup.
+  nthWithin =
+    function(element, last, typed, limit) {
+      var count = 1, node = element, step = last ? 'nextElementSibling' : 'previousElementSibling';
+      while ((node = node[step])) {
+        if (!typed || node.localName === element.localName && node.namespaceURI === element.namespaceURI) {
+          if (++count > limit) { break; }
+        }
+      }
+      return count;
+    },
+
+  // Stream each parent's siblings once per direction. Typed scans maintain
+  // namespace/local-name counters together, so interleaved element types do
+  // not restart the walk. Weak maps make irregular lookups constant-time.
+  createNthCache =
+    function(typed) {
+      var parents, lastParent, lastEntry;
+      return function(element, direction) {
+        if (direction == 2) {
+          parents = lastParent = lastEntry = null;
+          return -1;
+        }
+        if (Snapshot.nthUncachedDepth) { parents = lastParent = lastEntry = null; }
+        var parent = element.parentNode || element, entry, stream, node, key,
+          backward = !!direction, step = backward ? 'previousElementSibling' : 'nextElementSibling', position;
+        if (lastParent === parent) { entry = lastEntry; }
+        else {
+          parents || (parents = new WeakMap());
+          entry = parents.get(parent);
+          if (!entry) { entry = { forward: null, backward: null }; parents.set(parent, entry); }
+          lastParent = parent; lastEntry = entry;
+        }
+        key = backward ? 'backward' : 'forward';
+        stream = entry[key];
+        if (!stream) {
+          stream = entry[key] = { next: element.parentNode ? parent[backward ? 'lastElementChild' : 'firstElementChild'] : element,
+            positions: new WeakMap(), counts: Object.create(null), count: 0, last: null, position: 0 };
+        }
+        if (stream.last === element) { return stream.position; }
+        if (stream.next !== element) {
+          position = stream.positions.get(element);
+          if (position !== undefined) { return position; }
+        }
+        while ((node = stream.next)) {
+          stream.next = node[step];
+          if (typed) {
+            key = (node.namespaceURI || '') + '\x00' + node.localName;
+            position = stream.counts[key] = (stream.counts[key] || 0) + 1;
+          } else { position = ++stream.count; }
+          stream.positions.set(node, position);
+          stream.last = node; stream.position = position;
+          if (node === element) { return position; }
+        }
         return -1;
-      }
-      var e, i, j, k, l, name = element.localName;
-      if (nodes[set] && nodes[set][name] && parent === element.parentElement) {
-        i = set; j = idx; l = len;
-      } else {
-        l = parents.length;
-        parent = element.parentElement;
-        for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
-          if (parents[j] === parent) { i = j; break; }
-          if (parents[k] === parent) { i = k; break; }
-        }
-        if (i < 0 || !nodes[i][name]) {
-          parents[i = l] = parent;
-          nodes[i] || (nodes[i] = Object());
-          l = 0; nodes[i][name] = Array();
-          e = parent && parent.firstElementChild || element;
-          while (e) { if (e === element) j = l; if (e.localName == name) { nodes[i][name][l] = e; ++l; } e = e.nextElementSibling; }
-          set = i; idx = j; len = l;
-          if (l < 2) return l;
-        } else {
-          l = nodes[i][name].length;
-          set = i;
-        }
-      }
-      if (element !== nodes[i][name][j] && element !== nodes[i][name][j = 0]) {
-        for (j = 0, e = nodes[i][name], k = l - 1; l > j; ++j, --k) {
-          if (e[j] === element) { break; }
-          if (e[k] === element) { j = k; break; }
-        }
-      }
-      idx = j + 1; len = l;
-      return dir ? l - j : idx;
-    };
-  })(),
+      };
+    },
+
+  nthElement = createNthCache(false),
+  nthOfType = createNthCache(true),
+
+  clearNth =
+    function() {
+      nthElement(null, 2);
+      nthOfType(null, 2);
+    },
+
+  checkValidity =
+    function(element) {
+      try { return element.checkValidity(); }
+      finally { clearNth(); }
+    },
 
   // check if the document type is HTML
   isHTML =
@@ -1045,6 +1106,20 @@
         !!(parent && parent.currentTime > 0 && !parent.paused && !parent.ended && parent.readyState > 2));
     },
 
+  clearResolverCaches =
+    function() {
+      matchLambdas.clear();
+      selectLambdas.clear();
+      matchResolvers.clear();
+      selectResolvers.clear();
+      hasResolvers.clear();
+      firstResolvers.clear();
+      forgivingResolvers.clear();
+      selectorInfos.clear();
+      logicalValidators.clear();
+      parsedSelectors.clear();
+    },
+
   // configure the engine to use special handling
   configure =
     function(option, clear) {
@@ -1058,12 +1133,7 @@
         Config[i] = !!option[i];
       }
       // clear lambda cache
-      if (clear) {
-        matchLambdas.clear();
-        selectLambdas.clear();
-        matchResolvers.clear();
-        selectResolvers.clear();
-      }
+      if (clear) { clearResolverCaches(); }
       setIdentifierSyntax();
       return true;
     },
@@ -1147,7 +1217,7 @@
             '(?:' + attrparser + ')' +
           ')?' +
           // attribute case sensitivity
-          '(?:' + WSP + '?\\b(i))?' + WSP + '?' +
+          '(?:' + WSP + '?\\b([iIsS]))?' + WSP + '?' +
         '(?:\\]|$)',
 
       attrmatcher = attributes.replace(attrparser, attrvalues),
@@ -1228,7 +1298,7 @@
 
   S_HEAD = 'var e,n,o,j=r.length-1,k=-1',
   M_HEAD = 'var e,n,o',
-  N_HEAD = 'var e,n,o',
+  N_HEAD = 'var e,n,o,j=r.length-1,k=-1',
 
   S_LOOP = 'main:while((e=c[++k]))',
   M_LOOP = 'e=c;',
@@ -1240,7 +1310,7 @@
 
   S_TAIL = 'continue main;',
   M_TAIL = 'r=true;',
-  N_TAIL = 'r=true;',
+  N_TAIL = 'continue main;',
 
   S_TEST = 'if(f(c[k])){break main;}',
   M_TEST = 'f(c);',
@@ -1250,14 +1320,493 @@
   M_VARS = [ ],
   N_VARS = [ ],
 
+  // Skip a CSS escape, including the optional terminator of a hex escape.
+  escapeEnd =
+    function(text, index) {
+      var start = ++index;
+      while (index < text.length && index - start < 6 && /[0-9a-f]/i.test(text[index])) { ++index; }
+      if (index == start) { return Math.min(index + 1, text.length); }
+      if (/[\x20\t\r\n\f]/.test(text[index] || '')) {
+        if (text[index++] == '\r' && text[index] == '\n') { ++index; }
+      }
+      return index;
+    },
+
+  // Normalize syntax only. Quoted values and complete CSS escapes are opaque.
+  normalizeSelector =
+    function(text) {
+      var output = '', quote = '', bracket = 0, space = false, i = 0, end, c;
+      while (i < text.length) {
+        c = text[i];
+        if (c == '\\') {
+          if (space && output && !/[>+~,(]$/.test(output)) { output += ' '; }
+          space = false;
+          end = escapeEnd(text, i);
+          output += text.slice(i, end); i = end;
+          continue;
+        }
+        ++i;
+        if (quote) {
+          output += c;
+          if (c == quote) { quote = ''; }
+          continue;
+        }
+        if (/[\x20\t\r\n\f]/.test(c)) { space = true; continue; }
+        if (space && output && (bracket || !/[>+~,)]/.test(c)) &&
+          !/[>+~,(]$/.test(output)) { output += ' '; }
+        space = false;
+        output += c;
+        if (c == '"' || c == "'") { quote = c; }
+        else if (c == '[') { ++bracket; }
+        else if (c == ']') { --bracket; }
+      }
+      return output;
+    },
+
+  asciiLower =
+    function(value) {
+      return value.replace(/[A-Z]/g, function(c) { return c.toLowerCase(); });
+    },
+
+  tagGuard =
+    function(name) {
+      var exact = 'e.localName===' + JSON.stringify(name), lower = asciiLower(name);
+      return HTML_DOCUMENT && lower != name ? '(' + exact +
+        '||(e.namespaceURI==="http://www.w3.org/1999/xhtml"&&e.localName===' + JSON.stringify(lower) + '))' : '(' + exact + ')';
+    },
+
+  idGuard =
+    function(name) {
+      return QUIRKS_MODE ? 's.asciiLower(e.getAttribute("id")||"")===' + JSON.stringify(asciiLower(name)) :
+        'e.getAttribute("id")===' + JSON.stringify(name);
+    },
+
+  tagMatches =
+    function(element, name) {
+      return element.localName === name || HTML_DOCUMENT &&
+        element.namespaceURI === 'http://www.w3.org/1999/xhtml' && element.localName === asciiLower(name);
+    },
+
+  attributeValueTest =
+    function(actual, operator, expected) {
+      if (actual === null) { return false; }
+      switch (operator) {
+        case '=': return actual === expected;
+        case '^=': return !!expected && actual.indexOf(expected) === 0;
+        case '$=': return !!expected && actual.slice(-expected.length) === expected;
+        case '*=': return !!expected && actual.indexOf(expected) !== -1;
+        case '|=': return actual === expected || actual.indexOf(expected + '-') === 0;
+        case '~=': return !!expected && !/[\t\n\f\r ]/.test(expected) && hasClassValue(actual, expected);
+      }
+      return false;
+    },
+
+  attributeGuard =
+    function(value, operator, expected) {
+      var literal = JSON.stringify(expected), condition;
+      if ((operator == '^=' || operator == '$=' || operator == '*=' || operator == '~=') && !expected ||
+        operator == '~=' && /[\t\n\f\r ]/.test(expected)) { return 'false'; }
+      switch (operator) {
+        case '=': return value + '===' + literal;
+        case '^=': condition = value + '.indexOf(' + literal + ')===0'; break;
+        case '$=': condition = value + '.slice(-' + expected.length + ')===' + literal; break;
+        case '*=': condition = value + '.indexOf(' + literal + ')!==-1'; break;
+        case '|=': condition = '(' + value + '===' + literal + '||' + value + '.indexOf(' + JSON.stringify(expected + '-') + ')===0)'; break;
+        case '~=': condition = 's.hasClassValue(' + value + ',' + literal + ')'; break;
+      }
+      return '(' + value + '!==null&&' + condition + ')';
+    },
+
+  attributeMatches =
+    function(element, name, operator, expected, folding) {
+      var value = element.getAttribute(name);
+      if (value !== null && (folding === 1 || folding === 2 && element.namespaceURI === 'http://www.w3.org/1999/xhtml')) {
+        value = asciiLower(value); expected = asciiLower(expected);
+      }
+      return attributeValueTest(value, operator, expected);
+    },
+
+  // A small IR for pure compounds, structural predicates and logical lists.
+  // Unknown constructs stay opaque and use the full compiler below. The
+  // inlining budget bounds both recursive analysis and generated source size.
+  readCompound =
+    function(text, budget) {
+      var result = { tag: null, ids: [], classes: [], attributes: [], logical: [], states: [] },
+        match, symbol, name, list, branches, branch, i, flag;
+      if (!text || budget.depth > 8) { return null; }
+      while (text) {
+        if (--budget.left < 0) { return null; }
+        symbol = text[0];
+        if (symbol == '*') { match = text.match(Patterns.universal); }
+        else if (symbol == '#' || symbol == '.') {
+          match = text.match(symbol == '#' ? Patterns.id : Patterns.className);
+          if (!match) { return null; }
+          result[symbol == '#' ? 'ids' : 'classes'].push(unescapeIdentifier(match[1]));
+        } else if (symbol == '[') {
+          match = text.match(Patterns.attribute);
+          if (!match || STD.namespaces.test(match[0]) || match[2] && !ATTR_STD_OPS[match[2]]) { return null; }
+          name = unescapeIdentifier(match[1]);
+          flag = (match[5] || '').toLowerCase();
+          result.attributes.push({ name: name, operator: match[2] || '',
+            value: unescapeIdentifier(match[4] || ''),
+            folding: flag == 'i' ? 1 : flag != 's' && HTML_DOCUMENT && HTML_TABLE[name.toLowerCase()] ? 2 : 0 });
+        } else if (symbol == ':' && (match = text.match(Patterns.structural))) {
+          result.states.push({ name: match[1].toLowerCase() });
+        } else if (symbol == ':' && (match = text.match(Patterns.treestruct))) {
+          result.states.push({ name: match[1].toLowerCase(), formula: match[2].replace(/\s/g, '').toLowerCase() });
+        } else if (symbol == ':' && (match = matchLogical(text, /^:(is|where|matches|not)\(/i))) {
+          list = splitList(match[2]); branches = [];
+          ++budget.depth;
+          for (i = 0; i < list.length; ++i) {
+            branch = readCompound(list[i], budget);
+            if (!branch) { --budget.depth; return null; }
+            branches.push(branch);
+          }
+          --budget.depth;
+          result.logical.push({ negative: match[1].toLowerCase() == 'not', branches: branches });
+        } else if (/[_a-z\\-]/i.test(symbol) && result.tag === null) {
+          match = text.match(Patterns.tagName);
+          if (!match) { return null; }
+          result.tag = unescapeIdentifier(match[1]);
+        } else { return null; }
+        text = match[match.length - 1];
+      }
+      return result;
+    },
+
+  selectorInfo =
+    function(text) {
+      var key = text, cached = selectorInfos.get(text);
+      if (cached) { return cached; }
+      var info = { compounds: [], relations: [], leading: '', pure: true,
+        effects: false, extension: false, contextual: false, nthElement: false, nthType: false },
+        quote = '', depth = 0, start = 0, i = 0, c, piece, compound, match,
+        relation, normalized = normalizeSelector(text);
+      if (/^[\x20\t]/.test(text)) { info.leading = ' '; }
+      text = normalized;
+      for (; i < text.length; ++i) {
+        c = text[i];
+        if (c == '\\') { i = escapeEnd(text, i) - 1; continue; }
+        if (quote) { if (c == quote) { quote = ''; } continue; }
+        if (c == '"' || c == "'") { quote = c; continue; }
+        if (c == '[') {
+          match = text.slice(i).match(Patterns.attribute);
+          if (match && match[2] && !ATTR_STD_OPS[match[2]]) { info.extension = info.effects = true; }
+        }
+        if (!depth && c in Combinators) { info.extension = info.effects = true; }
+        if (c == '[' || c == '(') { ++depth; }
+        else if (c == ']' || c == ')') { --depth; }
+        if (c == ':' && (match = /^:([-\w]+)/.exec(text.slice(i)))) {
+          piece = match[1].toLowerCase();
+          if (piece == 'scope' || piece == 'root') { info.contextual = true; }
+          if (/^nth/.test(piece)) {
+            match = text.slice(i).match(Patterns.treestruct);
+            if (!match || nthNeedsCache(match[2])) {
+              if (/^nth(?:-last)?-child$/.test(piece)) { info.nthElement = true; }
+              if (/^nth(?:-last)?-of-type$/.test(piece)) { info.nthType = true; }
+            }
+          }
+          if (/^(valid|invalid)$/.test(piece)) { info.effects = true; }
+          if (!/^(?:is|where|matches|not|has|nth(?:-last)?-(?:child|of-type)|scope|root|empty|(?:first|last|only)-(?:child|of-type)|dir|lang|any-link|link|visited|target|defined|hover|active|focus(?:-within|-visible)?|enabled|disabled|read-only|read-write|placeholder-shown|default|autofill|-webkit-autofill|checked|indeterminate|required|optional|valid|invalid|in-range|out-of-range|playing|paused|seeking|buffering|stalled|muted|volume-locked|open|closed|modal|fullscreen|picture-in-picture|popover-open|popover)$/.test(piece)) {
+            info.extension = info.effects = true;
+          }
+        }
+        if (!depth && /[ >+~]/.test(c)) {
+          piece = text.slice(start, i);
+          relation = c;
+          if (!piece && !info.compounds.length) { info.leading = relation; }
+          else { info.compounds.push(piece); info.relations.push(relation); }
+          start = i + 1;
+        }
+      }
+      info.compounds.push(text.slice(start));
+      for (i = 0; i < info.compounds.length; ++i) {
+        piece = info.compounds[i];
+        compound = readCompound(piece, { left: 64, depth: 0 });
+        info.compounds[i] = { text: piece, simple: compound };
+        if (!compound) { info.pure = false; }
+      }
+      // Custom operators/combinators and escaped pseudo names are opaque.
+      if (!info.pure && text.indexOf('\\') > -1) {
+        info.extension = info.effects = true;
+      }
+      info.cacheSize = text.length * 6 + info.compounds.length * 160;
+      selectorInfos.set(key, info);
+      return info;
+    },
+
+  stateExpression =
+    function(item) {
+      var name = item.name, typed, last, formula, match, a, b, position;
+      switch (name) {
+        case 'scope': return 'e===(s.from.nodeType===9?s.root:s.from)';
+        case 'root': return 'e===s.root';
+        case 'empty': return 's.isEmpty(e)';
+        case 'first-child': return '!e.previousElementSibling';
+        case 'last-child': return '!e.nextElementSibling';
+        case 'only-child': return '(!e.previousElementSibling&&!e.nextElementSibling)';
+        case 'first-of-type': return 's.nthWithin(e,false,true,1)===1';
+        case 'last-of-type': return 's.nthWithin(e,true,true,1)===1';
+        case 'only-of-type': return '(s.nthWithin(e,false,true,1)===1&&s.nthWithin(e,true,true,1)===1)';
+      }
+      formula = item.formula;
+      typed = name.indexOf('of-type') > -1; last = name.indexOf('last') > -1;
+      if (formula == 'n') { return 'true'; }
+      if (/^[+-]?\d+$/.test(formula)) {
+        b = +formula;
+        if (b <= 0) { return 'false'; }
+        return (b <= 8 ? 's.nthWithin(e,' + last + ',' + typed + ',' + b + ')' :
+          's.nth' + (typed ? 'OfType' : 'Element') + '(e,' + last + ')') + '===' + b;
+      }
+      formula = formula == 'even' ? '2n' : formula == 'odd' ? '2n+1' : formula;
+      match = /^([+-]?\d*)n([+-]?\d+)?$/.exec(formula);
+      if (!match) { return 'false'; }
+      a = match[1] == '' || match[1] == '+' ? 1 : match[1] == '-' ? -1 : +match[1];
+      b = +(match[2] || 0);
+      position = 's.nth' + (typed ? 'OfType' : 'Element') + '(e,' + last + ')';
+      if (!a) { return b > 0 ? position + '===' + b : 'false'; }
+      return 's.nthFormula(' + position + ',' + a + ',' + b + ')';
+    },
+
+  nthFormula =
+    function(position, a, b) {
+      return position > 0 && (a > 0 ? position >= b : position <= b) && (position - b) % a === 0;
+    },
+
+  isEmpty =
+    function(element) {
+      var node = element.firstChild;
+      while (node && node.nodeType != 1 && node.nodeType != 3 && node.nodeType != 4) { node = node.nextSibling; }
+      return !node;
+    },
+
+  compoundExpression =
+    function(compound, state, inherited) {
+      var tests = [], classes = [], facts = Object.create(inherited || null), attrs = Object.create(null),
+        i, j, key, item, group, variable, value, expression, branches, exact, folding, checks;
+      if (compound.tag !== null) { tests.push(tagGuard(compound.tag)); }
+      for (i = 0; i < compound.ids.length; ++i) {
+        tests.push(idGuard(compound.ids[i]));
+      }
+      for (i = 0; i < compound.attributes.length; ++i) {
+        item = compound.attributes[i];
+        if (!item.operator) {
+          for (j = 0; j < compound.attributes.length; ++j) {
+            if (compound.attributes[j].name == item.name && compound.attributes[j].operator) { break; }
+          }
+          if (j == compound.attributes.length) {
+            tests.push('e.hasAttribute(' + JSON.stringify(item.name) + ')');
+          }
+        }
+      }
+      for (i = 0; i < compound.classes.length; ++i) {
+        value = compound.classes[i];
+        if (!value || /[\t\n\f\r ]/.test(value)) { return 'false'; }
+        if (QUIRKS_MODE) { value = asciiLower(value); }
+        key = '.' + value;
+        if (!facts[key]) { classes.push(value); facts[key] = true; }
+      }
+      if (classes.length == 1 && !QUIRKS_MODE && !facts[':class']) {
+        tests.push('s.hasClass(e,' + JSON.stringify(classes[0]) + ')');
+      } else if (classes.length) {
+        variable = facts[':class'];
+        expression = '';
+        if (!variable) {
+          variable = 'q' + state.next++;
+          state.vars.push(variable);
+          expression = '(' + variable + '=' + (QUIRKS_MODE ? 's.asciiLower(s.classOf(e))' : 's.classOf(e)') + '),';
+          facts[':class'] = variable;
+        }
+        checks = [];
+        for (i = 0; i < classes.length; ++i) {
+          checks.push('s.hasClassValue(' + variable + ',' + JSON.stringify(classes[i]) + ')');
+        }
+        // The load is deferred until preceding tag/ID guards have passed.
+        tests.push('(' + expression + checks.join('&&') + ')');
+      }
+      for (i = 0; i < compound.attributes.length; ++i) {
+        item = compound.attributes[i]; key = '$' + item.name;
+        if (!item.operator) { continue; }
+        if (!Object.prototype.hasOwnProperty.call(attrs, key)) { attrs[key] = []; }
+        attrs[key].push(item);
+      }
+      for (key in attrs) {
+        group = attrs[key]; variable = 'v' + state.next++; state.vars.push(variable);
+        expression = '(' + variable + '=e.getAttribute(' + JSON.stringify(group[0].name) + ')),';
+        checks = [];
+        for (i = 0; i < group.length; ++i) {
+          item = group[i];
+          if (!item.operator) { checks.push(variable + '!==null'); }
+          else {
+            exact = null;
+            for (j = 0; j < group.length; ++j) {
+              if (group[j].operator == '=' && group[j].folding == item.folding && j != i) { exact = group[j]; break; }
+            }
+            if (exact && item.operator != '=' && (!item.folding || item.folding == 1)) {
+              value = attributeValueTest(item.folding ? asciiLower(exact.value) : exact.value,
+                item.operator, item.folding ? asciiLower(item.value) : item.value) ? 'true' : 'false';
+            } else {
+              value = attributeGuard(variable, item.operator, item.value);
+              if (value == 'false') { return 'false'; }
+              if (item.folding) {
+                folding = attributeGuard('s.asciiLower(' + variable + ')', item.operator, asciiLower(item.value));
+                value = '(' + variable + '!==null&&' + (item.folding == 1 ? folding :
+                  '(e.namespaceURI==="http://www.w3.org/1999/xhtml"?' + folding + ':' + value + ')') + ')';
+              }
+            }
+            if (value == 'false') { return 'false'; }
+            if (value != 'true') { checks.push(value); }
+          }
+        }
+        tests.push('(' + expression + (checks.join('&&') || 'true') + ')');
+      }
+      for (i = 0; i < compound.logical.length; ++i) {
+        item = compound.logical[i]; branches = [];
+        for (j = 0; j < item.branches.length; ++j) {
+          branches.push(compoundExpression(item.branches[j], state, facts));
+        }
+        if (branches.indexOf('true') > -1) {
+          if (item.negative) { return 'false'; }
+          continue;
+        }
+        branches = branches.filter(function(branch) { return branch != 'false'; });
+        if (!branches.length) {
+          if (!item.negative) { return 'false'; }
+          continue;
+        }
+        tests.push((item.negative ? '!' : '') + '(' + branches.join('||') + ')');
+      }
+      for (i = 0; i < compound.states.length; ++i) {
+        expression = stateExpression(compound.states[i]);
+        if (expression == 'false') { return 'false'; }
+        if (expression != 'true') { tests.push('(' + expression + ')'); }
+      }
+      return tests.length ? '(' + tests.join('&&') + ')' : 'true';
+    },
+
+  compileSimple =
+    function(info, source, callback, seed) {
+      if (!info.pure || info.leading) { return null; }
+      var parts = info.compounds, relation = info.relations[0], i, step, code,
+        state = { next: 0, vars: [] }, facts = Object.create(null);
+      if (seed && seed.kind == '.') {
+        seed.name.split(' ').forEach(function(name) { facts['.' + (QUIRKS_MODE ? asciiLower(name) : name)] = true; });
+      }
+      if (parts.length > 1) {
+        if (callback) { return null; }
+        if (relation != ' ' && relation != '~') { return compileMixed(info, source, callback, seed); }
+        for (i = 1; i < info.relations.length; ++i) {
+          if (info.relations[i] != relation) { return compileMixed(info, source, callback, seed); }
+        }
+      }
+      var condition = compoundExpression(parts[parts.length - 1].simple, state, facts);
+      if (condition == 'false') { return ''; }
+      code = condition == 'true' ? '' : 'if(' + condition + '){';
+      if (parts.length > 1) {
+        step = relation == ' ' ? 'parentElement' : 'previousElementSibling';
+        code += 'chain:{';
+        for (i = parts.length - 2; i >= 0; --i) {
+          code += 'e=e.' + step + ';while(e&&!(' + compoundExpression(parts[i].simple, state) + ')){e=e.' + step + ';}if(!e)break chain;';
+        }
+        code += source + '}';
+      } else { code += source; }
+      return (state.vars.length ? 'var ' + state.vars.join(',') + ';' : '') + code + (condition == 'true' ? '' : '}');
+    },
+
+  // Memoize failed and successful suffix states only during this invocation.
+  // Mixed descendant/child paths otherwise revisit the same ancestors through
+  // different backtracking paths. Small fixed paths keep the compact compiler.
+  compileMixed =
+    function(info, source, callback, seed) {
+      var parts = info.compounds, count = 0, i, relation, step, condition, code,
+        state, prefix, declarations = '', greedy, saved;
+      if (!compilation || callback || parts.length < 4) { return null; }
+      for (i = 0; i < info.relations.length; ++i) {
+        if (info.relations[i] == ' ' || info.relations[i] == '~') { ++count; }
+      }
+      if (count < 2) { return null; }
+      prefix = 'p' + compilation.prelude.length + '_';
+      for (i = 0; i < parts.length; ++i) {
+        state = { next: 0, vars: [] };
+        condition = compoundExpression(parts[i].simple, state);
+        // Most hits finish before revisiting a state. Delay map allocation
+        // until this invocation has performed enough work to amortize it.
+        code = 'var original=e,map=m[' + (i + 1) + '],r;' +
+          'if(map){r=map.get(e);if(r!==undefined)return r;}' +
+          'else if(++m[0]>64){map=m[' + (i + 1) + ']=new WeakMap();}r=false;';
+        if (state.vars.length) { code += 'var ' + state.vars.join(',') + ';'; }
+        code += 'if(' + condition + '){';
+        if (!i) { code += 'r=true;'; }
+        else {
+          relation = info.relations[i - 1];
+          step = relation == ' ' || relation == '>' ? 'parentElement' : 'previousElementSibling';
+          code += 'e=e.' + step + ';';
+          code += relation == '>' || relation == '+' ?
+            'r=!!e&&' + prefix + (i - 1) + '(e,m);' :
+            'while(e){if(' + prefix + (i - 1) + '(e,m)){r=true;break;}e=e.' + step + ';}';
+        }
+        declarations += 'function ' + prefix + i + '(e,m){' + code + '}if(map)map.set(original,r);return r;}';
+      }
+      compilation.prelude.push(declarations);
+      compilation.memo = true;
+      // A successful nearest-ancestor path needs no backtracking or maps.
+      // Failure only rejects this speculative path, then the full matcher
+      // retries every legal alternative with query-local memoization.
+      state = { next: 0, vars: [] }; saved = prefix + 'saved';
+      greedy = 'var ' + saved + '=e;greedy:{if(!(' + compoundExpression(parts[parts.length - 1].simple, state) + '))break greedy;';
+      for (i = parts.length - 2; i >= 0; --i) {
+        relation = info.relations[i];
+        step = relation == ' ' || relation == '>' ? 'parentElement' : 'previousElementSibling';
+        condition = compoundExpression(parts[i].simple, state);
+        greedy += 'e=e.' + step + ';';
+        if (relation == ' ' || relation == '~') { greedy += 'while(e&&!(' + condition + ')){e=e.' + step + ';}'; }
+        else { greedy += 'if(e&&!(' + condition + '))break greedy;'; }
+        greedy += 'if(!e)break greedy;';
+      }
+      greedy += source + '}e=' + saved + ';';
+      return (state.vars.length ? 'var ' + state.vars.join(',') + ';' : '') + greedy +
+        'if(' + prefix + (parts.length - 1) + '(e,memo||(memo=[0]))){' + source + '}';
+    },
+
+  compilation = null,
+
+  // Bind pure complex logical branches once. Opaque extensions retain their
+  // lazy/forgiving contract and are never speculatively compiled here.
+  logicalCall =
+    function(argument, forgiving) {
+      var list = splitList(argument), i, factories = [], size = 0, index,
+        selectVars = S_VARS, matchVars = M_VARS, nodeVars = N_VARS;
+      if (compilation && compilation.allowBindings) {
+        for (i = 0; i < list.length; ++i) {
+          if (!selectorInfo(list[i]).pure || selectorInfo(list[i]).leading) { break; }
+        }
+        if (i == list.length) {
+          S_VARS = []; M_VARS = []; N_VARS = [];
+          try {
+            for (i = 0; i < list.length; ++i) {
+              factories.push(compile(list[i], false));
+              size += factories[i].cacheSize;
+            }
+          } finally { S_VARS = selectVars; M_VARS = matchVars; N_VARS = nodeVars; }
+          index = compilation.bindings.length;
+          compilation.bindings.push(function(element) { return match_assert(factories, element, null); });
+          compilation.bytes += size;
+          return 'b[' + index + '](e)';
+        }
+      }
+      return 's.' + (forgiving ? 'matchForgiving' : 'match') + '(' + JSON.stringify(argument) + ',e)';
+    },
+
   // compile groups or single selector strings into
   // executable functions for matching or selecting
   compile =
-    function(selector, mode, callback, relative) {
-      var cacheKey = (relative ? 'relative:' : 'selector:') + selector;
-      var factory, head = '', loop = '', macro = '', source = '', vars = '';
+    function(selector, mode, callback, relative, seed) {
+      var cacheKey = mode + ':' + (callback ? 1 : 0) + ':' +
+        (relative ? 1 : 0) + ':' + JSON.stringify(seed || null) + ':' + selector;
+      var factory, head = '', loop = '', macro = '', source = '', vars = '',
+        enter = '', cleanup = '', info, previousCompilation, current;
 
-      // 'mode' can be boolean or null
+      // Internal modes 1/2 find a boolean/node; 3 retains extension macros.
       // true = select / false = match
       // null to use collection.item()
       switch (mode) {
@@ -1269,9 +1818,23 @@
           break;
         case false:
           if ((factory = matchLambdas.get(cacheKey))) { return factory; }
-          macro = M_BODY + (callback ? M_TEST : '') + M_TAIL;
+          macro = M_BODY + (callback ? M_TEST + M_TAIL : 'r=true;break matched;');
           head = M_HEAD;
-          loop = M_LOOP;
+          loop = callback ? M_LOOP : 'matched:{' + M_LOOP;
+          break;
+        case 1:
+        case 2:
+          // Early-exit queries need neither a result array nor a callback.
+          if ((factory = selectLambdas.get(cacheKey))) { return factory; }
+          macro = (mode === 1 ? 'r=true;' : 'r=c[k];') + 'break main;';
+          head = 'var e,n,o,k=-1';
+          loop = S_LOOP;
+          break;
+        case 3:
+          if ((factory = selectLambdas.get(cacheKey))) { return factory; }
+          macro = S_BODY + 'if(r.length){break main;}' + S_TAIL;
+          head = S_HEAD;
+          loop = S_LOOP;
           break;
         case null:
           if ((factory = selectLambdas.get(cacheKey))) { return factory; }
@@ -1283,46 +1846,83 @@
           break;
       }
 
-      source = compileSelector(
-        relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
-        relative ? 'if(e===s.anchor){' + macro + '}' : macro,
-        mode, callback);
+      previousCompilation = compilation;
+      info = selectorInfo(selector);
+      current = compilation = { bindings: [], prelude: [], bytes: 0, memo: false, allowBindings: !info.extension };
+      try {
+        source = compileSelector(
+          relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
+          relative ? 'if(e===s.anchor){' + macro + '}' : macro,
+          mode === 3 ? true : mode, callback, seed);
 
-      loop += mode || mode === null ? '{' + source + '}' : source;
+        loop += mode || mode === null ? '{' + source + '}' : source;
+        if (mode === false && !callback) { loop += '}'; }
 
-      if (mode || mode === null && selector.includes(':nth')) {
-        loop += reNthElem.test(selector) ? 's.nthElement(null, 2);' : '';
-        loop += reNthType.test(selector) ? 's.nthOfType(null, 2);' : '';
-      }
+        // Nested logical queries share nth positions for the outer query's
+        // lifetime. Standalone matches and early exits still release them.
+        // Constant formulas use sibling checks and need no cache management.
+        if (info.effects || callback) {
+          enter += '++s.nthUncachedDepth;';
+          cleanup += '--s.nthUncachedDepth;s.clearNth();';
+        }
+        if (info.nthElement || info.extension && source.indexOf('s.nthElement(') > -1) {
+          enter += '++s.nthElementDepth;';
+          cleanup += 'if(!--s.nthElementDepth)s.nthElement(null,2);';
+        }
+        if (info.nthType || info.extension && source.indexOf('s.nthOfType(') > -1) {
+          enter += '++s.nthTypeDepth;';
+          cleanup += 'if(!--s.nthTypeDepth)s.nthOfType(null,2);';
+        }
 
-      if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
-        vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0]);
-        S_VARS.length = 0;
-        M_VARS.length = 0;
-        N_VARS.length = 0;
-      }
+        if (S_VARS[0] || M_VARS[0] || N_VARS[0]) {
+          vars = ',' + (S_VARS.join(',') || M_VARS.join(',') || N_VARS[0]);
+          S_VARS.length = 0;
+          M_VARS.length = 0;
+          N_VARS.length = 0;
+        }
 
-      factory = Function('s', F_INIT + '{' + head + vars + ';' + loop + 'return r;}')(Snapshot);
+        loop += 'return r;';
+        if (cleanup) { loop = enter + 'try{' + loop + '}finally{' + cleanup + '}'; }
+        source = source || '';
+        var generated = current.prelude.join('') + F_INIT + '{' + head + vars + ';' +
+          (current.memo ? 'var memo;' : '') + loop + '}';
+        factory = Function('s', 'b', generated)(Snapshot, current.bindings);
+        factory.empty = source === '';
+        factory.cacheSize = generated.length * 2 + current.bytes + 128;
 
-      if (mode || mode === null) {
-        selectLambdas.set(cacheKey, factory);
-      } else {
-        matchLambdas.set(cacheKey, factory);
-      }
+        if (mode || mode === null) {
+          selectLambdas.set(cacheKey, factory);
+        } else {
+          matchLambdas.set(cacheKey, factory);
+        }
 
-      return factory;
+        return factory;
+      } finally { compilation = previousCompilation; }
+    },
+
+  // Cheap guards dominate the costly checks in the same compound selector.
+  // Three cost buckets avoid a sort and merge guards into one short circuit.
+  compileGuards =
+    function(source, guards) {
+      if (!guards[0].length && !guards[1].length && !guards[2].length) { return source; }
+      var tests = guards[0].concat(guards[1], guards[2]);
+      guards[0].length = guards[1].length = guards[2].length = 0;
+      return tests.length ? 'if(' + tests.join('&&') + '){' + source + '}' : source;
     },
 
   // build conditional code to check components of selector strings
   compileSelector =
-    function(expression, source, mode, callback) {
+    function(expression, source, mode, callback, seed) {
 
       var a, b, n, f, k = 0, compat, name,
       NS, expr, match, result, status, symbol,
-      test, type, selector = expression, vars;
+      test, type, selector = expression, vars, guards = [[], [], []],
+      simple = compileSimple(selectorInfo(expression), source, callback, seed);
+
+      if (simple !== null) { return simple; }
 
       // isolate selector combinators
-      selector = selector.replace(STD.combinator, '$1');
+      selector = (/^[\x20\t]/.test(selector) ? ' ' : '') + normalizeSelector(selector);
 
       // javascript needs a label to break
       // out of the while loops processing
@@ -1335,6 +1935,12 @@
         // get namespace prefix if present or get first char of selector
         symbol = STD.apimethods.test(selector) ? '|' : selector[0];
 
+        // A combinator changes e. Never move a guard across that change or
+        // across an extension whose code may observe or replace the node.
+        if (' >+~\x09'.indexOf(symbol) > -1 || symbol in Combinators) {
+          source = compileGuards(source, guards);
+        }
+
         switch (symbol) {
 
           // universal resolver
@@ -1345,7 +1951,7 @@
           // id resolver
           case '#':
             match = selector.match(Patterns.id);
-            source = 'if((/^' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '$/.test(e.getAttribute("id")))){' + source + '}';
+            guards[1].push('(' + idGuard(unescapeIdentifier(match[1])) + ')');
             break;
 
           // class name resolver
@@ -1353,27 +1959,27 @@
             match = selector.match(Patterns.className);
             if (QUIRKS_MODE) {
               compat = 'i.test(e.getAttribute("class"))';
-              source = 'if((/(^|\\s)' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '(\\s|$)/' + compat + ')){' + source + '}';
+              guards[2].push('(/(^|\\s)' + escapeIdentifier(match[1]).replace(REX.RegExpChar, '\\$&') + '(\\s|$)/' + compat + ')');
             } else {
-              source = 'if(s.hasClass(e,' + JSON.stringify(unescapeIdentifier(match[1])) + ')){' + source + '}';
+              guards[2].push('s.hasClass(e,' + JSON.stringify(unescapeIdentifier(match[1])) + ')');
             }
             break;
 
           // tag name resolver
           case (/[_a-z]/i.test(symbol) ? symbol : undefined):
             match = selector.match(Patterns.tagName);
-            source = 'if((e.localName=="' + match[1] + '")){' + source + '}';
+            guards[0].push(tagGuard(unescapeIdentifier(match[1])));
             break;
 
           // namespace resolver
           case '|':
             match = selector.match(Patterns.namespace);
             if (match[1] == '*') {
-              source = 'if(true){' + source + '}';
+              // The wildcard adds no runtime condition.
             } else if (!match[1]) {
-              source = 'if((!e.namespaceURI)){' + source + '}';
+              guards[0].push('(!e.namespaceURI)');
             } else if (typeof match[1] == 'string' && root.prefix == match[1]) {
-              source = 'if((e.namespaceURI=="' + NAMESPACE + '")){' + source + '}';
+              guards[0].push('(e.namespaceURI=="' + NAMESPACE + '")');
             } else {
               emit('\'' + expression + '\'' + qsInvalid);
             }
@@ -1391,6 +1997,13 @@
               emit('\'' + expression + '\'' + qsInvalid);
               return '';
             }
+            if (match[2] && ATTR_STD_OPS[match[2]] && !NS) {
+              type = (match[5] || '').toLowerCase();
+              type = type == 'i' ? 1 : type != 's' && HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()] ? 2 : 0;
+              guards[2].push('s.attributeMatches(e,' + JSON.stringify(unescapeIdentifier(name)) + ',' +
+                JSON.stringify(match[2]) + ',' + JSON.stringify(unescapeIdentifier(match[4] || '')) + ',' + type + ')');
+              break;
+            }
             if (match[4] === '') {
               test = match[2] == '~=' ?
                 { p1: '^\\s', p2: '+$', p3: 'true' } :
@@ -1403,11 +2016,17 @@
               match[4] = escapeIdentifier(match[4]).replace(REX.RegExpChar, '\\$&');
             }
             type = match[5] == 'i' || (HTML_DOCUMENT && HTML_TABLE[expr.toLowerCase()]) ? 'i' : '';
-            source = 'if((' +
+            test = '(' +
               (!match[2] ? (NS ? 's.hasAttributeNS(e,"' + name + '")' : 'e.hasAttribute&&e.hasAttribute("' + name + '")') :
               !match[4] && ATTR_STD_OPS[match[2]] && match[2] != '~=' ? 'e.getAttribute&&e.getAttribute("' + name + '")==""' :
               '(/' + test.p1 + match[4] + test.p2 + '/' + type + ').test(e.getAttribute&&e.getAttribute("' + name + '"))==' + test.p3) +
-              ')){' + source + '}';
+              ')';
+            if (!match[2] || ATTR_STD_OPS[match[2]]) {
+              guards[match[2] ? 2 : 1].push(test);
+            } else {
+              source = compileGuards(source, guards);
+              source = 'if(' + test + '){' + source + '}';
+            }
             break;
 
           // *** General sibling combinator
@@ -1480,15 +2099,9 @@
                 // *** typed child-indexed pseudo-classes
                 // :only-of-type, :last-of-type, :first-of-type
                 case 'only-of-type':
-                  source = 'o=e.localName;' +
-                    'n=e;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' +
-                    'n=e;while((n=n.previousElementSibling)&&n.localName!=o);}if(!n){' + source + '}';
-                  break;
                 case 'last-of-type':
-                  source = 'n=e;o=e.localName;while((n=n.nextElementSibling)&&n.localName!=o);if(!n){' + source + '}';
-                  break;
                 case 'first-of-type':
-                  source = 'n=e;o=e.localName;while((n=n.previousElementSibling)&&n.localName!=o);if(!n){' + source + '}';
+                  source = 'if(' + stateExpression({ name: match[1] }) + '){' + source + '}';
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1508,14 +2121,21 @@
                   expr = /-of-type/i.test(match[1]);
                   if (match[1] && match[2]) {
                     type = /last/i.test(match[1]);
+                    match[2] = match[2].replace(/\s/g, '').toLowerCase();
                     if (match[2] == 'n') {
-                      source = 'if(true){' + source + '}';
+                      // Every element satisfies this formula.
+                      break;
+                    } else if (/^[+-]?\d+$/.test(match[2]) && +match[2] <= 0) {
+                      source = '';
                       break;
                     } else if (match[2] == '1') {
                       test = type ? 'next' : 'previous';
                       source = expr ? 'n=e;o=e.localName;' +
-                        'while((n=n.' + test + 'ElementSibling)&&n.localName!=o);if(!n){' + source + '}' :
+                        'while((n=n.' + test + 'ElementSibling)&&(n.localName!=o||n.namespaceURI!==e.namespaceURI));if(!n){' + source + '}' :
                         'if(!e.' + test + 'ElementSibling){' + source + '}';
+                      break;
+                    } else if (/^[+-]?\d+$/.test(match[2]) && +match[2] <= 8) {
+                      source = 'if(s.nthWithin(e,' + type + ',' + expr + ',' + (+match[2]) + ')===' + (+match[2]) + '){' + source + '}';
                       break;
                     } else if (match[2] == 'even' || match[2] == '2n0' || match[2] == '2n+0' || match[2] == '2n') {
                       test = 'n%2==0';
@@ -1553,31 +2173,30 @@
             // :where( s1, [ s2, ... ]), :matches( s1, [ s2, ... ]),
             else if ((match = matchLogical(selector))) {
               match[1] = match[1].toLowerCase();
-              expr = match[2].replace(/\x22/g, '\\"');
               switch (match[1]) {
                 case 'is':
                 case 'where':
+                  if (match[2] == '*') { break; }
                   if (Config.FORGIVING) {
-                    source = 'if(s.matchForgiving(' +
-                      JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
+                    source = 'if(' + logicalCall(match[2], true) + '){' + source + '}';
                   } else {
                     if (!validateLogical(match[2], false)) {
                       return '';
                     }
-                    source = 'if(s.match("' + expr + '",e)){' + source + '}';
+                    source = 'if(' + logicalCall(match[2], false) + '){' + source + '}';
                   }
                   break;
                 case 'matches':
                   if (!validateLogical(match[2], false)) {
                     return '';
                   }
-                  source = 'if(s.match("' + expr + '",e)){' + source + '}';
+                  source = 'if(' + logicalCall(match[2], false) + '){' + source + '}';
                   break;
                 case 'not':
                   if (!validateLogical(match[2], false)) {
                     return '';
                   }
-                  source = 'if(!s.match("' + expr + '",e)){' + source + '}';
+                  source = 'if(!' + logicalCall(match[2], false) + '){' + source + '}';
                   break;
                 case 'has':
                   match[2] = prepareHas(match[2]);
@@ -1588,7 +2207,13 @@
                   if (!validateLogical(match[2], true)) {
                     return '';
                   }
-                  source = 'if(s.has(' + JSON.stringify(splitList(match[2])) + ',e)){' + source + '}';
+                  if (/^(?:>\s*)?\*$/.test(match[2])) {
+                    source = 'if(e.firstElementChild){' + source + '}';
+                  } else if (/^[+~]\s*\*$/.test(match[2])) {
+                    source = 'if(e.nextElementSibling){' + source + '}';
+                  } else {
+                    source = 'if(s.has(' + JSON.stringify(match[2]) + ',e)){' + source + '}';
+                  }
                   break;
                 default:
                   emit('\'' + expression + '\'' + qsInvalid);
@@ -1775,7 +2400,7 @@
                   source =
                     'if(((' +
                       '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
-                      '(e.willValidate&&!e.formNoValidate))&&!e.checkValidity())||' +
+                      '(e.willValidate&&!e.formNoValidate))&&!s.checkValidity(e))||' +
                       '(/^fieldset$/i.test(e.localName)&&s.first(":invalid",e))' +
                     '){' + source + '}';
                   break;
@@ -1783,7 +2408,7 @@
                   source =
                     'if(((' +
                       '(/^form$/i.test(e.localName)&&!e.noValidate)||' +
-                      '(e.willValidate&&!e.formNoValidate))&&e.checkValidity())||' +
+                      '(e.willValidate&&!e.formNoValidate))&&s.checkValidity(e))||' +
                       '(/^fieldset$/i.test(e.localName)&&!s.first(":invalid",e))' +
                     '){' + source + '}';
                   break;
@@ -1873,6 +2498,7 @@
             // :after, :before, :first-letter, :first-line
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_sng))) {
+              source = compileGuards(source, guards);
               source = 'if(e.element&&e.type.toLowerCase()=="' +
                 ':' + match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
@@ -1882,11 +2508,14 @@
             // ::inactive-selection, ::-webkit-<foo-bar>
             // assert: e.type is in double-colon format, like ::after
             else if ((match = selector.match(Patterns.pseudo_dbl))) {
+              source = compileGuards(source, guards);
               source = 'if(e.element&&e.type.toLowerCase()=="' +
                 match[0].toLowerCase() + '"){e=e.element;' + source + '}';
             }
 
             else {
+
+              source = compileGuards(source, guards);
 
               // reset
               expr = false;
@@ -1956,7 +2585,7 @@
       }
       // end of while selector
 
-      return source;
+      return compileGuards(source, guards);
     },
 
   // replace :scope context element as a
@@ -2000,9 +2629,14 @@
 
   match_collect =
     function(selectors, callback) {
-      for (var i = 0, l = selectors.length, f = [ ]; l > i; ++i)
+      var i, l = selectors.length, f = [], size = 64, info, independent = true;
+      for (i = 0; l > i; ++i) {
         f[i] = compile(selectors[i], false, callback);
-      return { factory: f };
+        size += f[i].cacheSize;
+        info = selectorInfo(selectors[i]);
+        independent = independent && info.pure && !info.contextual;
+      }
+      return { factory: f, callback: !!callback, cacheSize: size, independent: independent };
     },
 
   // Consume string continuations before whitespace normalization. Preserve
@@ -2084,7 +2718,7 @@
   parse =
     function(selectors, type) {
 
-      var parsed;
+      var parsed, key, cached, previousErrors = errors;
 
       // arguments validation
       if (arguments.length === 0) {
@@ -2102,6 +2736,9 @@
       if (typeof selectors != 'string') {
         selectors = '' + selectors;
       }
+      key = selectors;
+      cached = parsedSelectors.get(key);
+      if (cached) { return cached; }
 
       selectors = stringContinuations(selectors);
       if (!validBlocks(selectors)) {
@@ -2110,13 +2747,7 @@
       }
 
       // normalize input string
-      parsed = selectors.
-        replace(/\x00|\\$/g, '\ufffd').
-        replace(REX.CombineWSP, '\x20').
-        replace(REX.PseudosWSP, '$1').
-        replace(REX.TabCharWSP, '\t').
-        replace(REX.CommaGroup, ',').
-        replace(REX.TrimSpaces, '');
+      parsed = normalizeSelector(selectors.replace(/\x00|\\$/g, '\ufffd'));
 
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
@@ -2147,16 +2778,38 @@
         }
       }
 
+      if (selectors && errors == previousErrors) { parsedSelectors.set(key, selectors, parsed.length * 4 + 64); }
       return selectors;
     },
 
   // equivalent of w3c 'matches' method
   match =
     function _matches(selectors, element, callback) {
+      var context = element && (element.element || element) || doc,
+        previous = Snapshot.from, resolver = (context.ownerDocument || context) === doc && matchResolvers.get(selectors);
+      // Pure cached predicates do not observe query scope or document roots.
+      // Same-document guards already capture its immutable parsing mode, so
+      // they need no context push/pop. Root/scope and extensions use the frame.
+      if (resolver && !callback && !resolver.callback && resolver.independent) {
+        return match_assert(resolver.factory, element, null);
+      }
+      if (root !== doc.documentElement) { resolver = null; }
+      enterContext(context);
+      try {
+        return resolver && resolver.callback === !!callback ? match_assert(resolver.factory, element, callback) :
+          matchInner(selectors, element, callback);
+      }
+      finally { leaveContext(previous); }
+    },
+
+  // Logical branches inherit the enclosing query's :scope and document.
+  matchInner =
+    function(selectors, element, callback) {
 
       var resolver;
 
-      if (element && (resolver = matchResolvers.get(selectors))) {
+      if (element && (resolver = matchResolvers.get(selectors)) &&
+        resolver.callback === !!callback) {
         return match_assert(resolver.factory, element, callback);
       }
 
@@ -2169,10 +2822,34 @@
   // Invalid items do not discard the remaining forgiving selectors.
   matchForgiving =
     function(list, element) {
-      for (var i = 0, l = list.length; l > i; ++i) {
-        try {
-          if (match(list[i], element)) { return true; }
-        } catch (e) { }
+      var argument = typeof list == 'string' ? list : list.join(','),
+        plan = forgivingResolvers.get(argument), factories, i, j, l, resolver,
+        previousErrors;
+      if (!plan) {
+        plan = { list: splitList(argument), factory: [], cacheSize: argument.length * 4 + 128 };
+        forgivingResolvers.set(argument, plan);
+      }
+      for (i = 0, l = plan.list.length; l > i; ++i) {
+        factories = plan.factory[i];
+        if (!factories) {
+          // Forgiving lists do not require validation of unreachable
+          // branches. Compile each one only when matching reaches it.
+          factories = [];
+          previousErrors = errors;
+          try {
+            resolver = match_collect(parse(plan.list[i], false), null);
+            // Quiet parse/compile errors also discard the entire branch.
+            if (errors == previousErrors) { factories = resolver.factory; }
+          } catch (e) { }
+          plan.factory[i] = factories;
+          for (j = 0; j < factories.length; ++j) { plan.cacheSize += factories[j].cacheSize; }
+          forgivingResolvers.set(argument, plan);
+        }
+        for (j = 0; j < factories.length; ++j) {
+          try {
+            if (factories[j](element, null, null, false)) { return true; }
+          } catch (e) { }
+        }
       }
       return false;
     },
@@ -2180,42 +2857,302 @@
   // true if element matches the selector
   has =
     function(list, anchor) {
-      var context, found = false, i = 0, length = list.length,
+      var argument = typeof list == 'string' ? list : list.join(','),
+        plans = hasResolvers.get(argument), context, candidates, plan,
+        i = 0, length, previousErrors = errors,
         previous = Snapshot.anchor;
-      Snapshot.anchor = anchor;
-      try {
-        for (; i < length; ++i) {
+      if (!plans) {
+        // Prepare every branch before any runtime bailout. Invalid later
+        // branches must still throw when an earlier branch would match.
+        list = splitList(argument);
+        plans = [];
+        for (length = list.length; i < length; ++i) {
           if (!list[i]) {
             emit(qsInvalid);
             return false;
           }
-          context = /^[+~]/.test(list[i]) ? anchor.parentElement : anchor;
-          // Validate root sibling selectors even when they have no candidates.
-          if (collect(parse('* ' + list[i], true).map(function(selector) {
-            return selector.slice(1).replace(/^\s+/, '');
-          }), context || anchor, undefined, true).results.length && context) {
-            found = true;
-          }
+          plans[i] = hasPlan(list[i]);
+          if (!plans[i]) { return false; }
         }
-        return found;
+        if (errors != previousErrors) { return false; }
+        plans.cacheSize = 64;
+        for (i = 0; i < plans.length; ++i) { plans.cacheSize += plans[i].cacheSize; }
+        hasResolvers.set(argument, plans);
+      }
+      Snapshot.anchor = anchor;
+      try {
+        for (i = 0, length = plans.length; i < length; ++i) {
+          plan = plans[i];
+          if (plan.bounded) {
+            if (plan.factory(anchor)) { return true; }
+            continue;
+          }
+          if (plan.sibling) {
+            if (!anchor.nextElementSibling) { continue; }
+            context = anchor.parentNode;
+            if (!context) { continue; }
+          } else {
+            if (!anchor.firstElementChild) { continue; }
+            context = anchor;
+          }
+          // Consume native collections directly when matching cannot run
+          // extension code or dispatch form validation events.
+          candidates = planCandidates(plan, context);
+          if (plan.factory(candidates, null, context, false)) { return true; }
+        }
+        return false;
       } finally {
         Snapshot.anchor = previous;
       }
     },
 
+  hasPlan =
+    function(selector) {
+      var parsed = parse('* ' + selector, true);
+      if (!parsed || !parsed.length) { return null; }
+      selector = parsed[0].slice(1).replace(/^\s+/, '');
+      var info = selectorInfo(selector), bounded = compileRelative(info);
+      if (bounded) { return { bounded: true, factory: bounded, cacheSize: bounded.cacheSize || 128 }; }
+      return compilePlan(selector, 1, true);
+    },
+
+  // Fixed child/sibling paths walk forward from their anchor. They never
+  // create a descendant collection or visit an unrelated sibling subtree.
+  compileRelative =
+    function(info) {
+      if (!info.pure || !/^[>+~]$/.test(info.leading)) { return null; }
+      var i, state = { next: 0, vars: [] }, code = 'return true;', node, parent, relation, condition;
+      for (i = 0; i < info.relations.length; ++i) {
+        if (!/^[>+~]$/.test(info.relations[i])) { return null; }
+      }
+      if (info.leading == '~' && info.relations.every(function(relation) { return relation == '~'; })) {
+        code = 'e=anchor;';
+        for (i = 0; i < info.compounds.length; ++i) {
+          condition = compoundExpression(info.compounds[i].simple, state);
+          code += 'e=e.nextElementSibling;while(e&&!(' + condition + ')){e=e.nextElementSibling;}if(!e)return false;';
+        }
+        code += 'return true;';
+      } else {
+        for (i = info.compounds.length - 1; i >= 0; --i) {
+          node = 'b' + i; parent = i ? 'b' + (i - 1) : 'anchor';
+          relation = i ? info.relations[i - 1] : info.leading;
+          condition = compoundExpression(info.compounds[i].simple, state);
+          if (condition == 'false') { return function() { return false; }; }
+          code = 'e=' + node + ';if(' + condition + '){' + code + '}';
+          code = relation == '+' ? 'var ' + node + '=' + parent + '.nextElementSibling;if(' + node + '){' + code + '}' :
+            'for(var ' + node + '=' + parent + (relation == '>' ? '.firstElementChild' : '.nextElementSibling') +
+            ';' + node + ';' + node + '=' + node + '.nextElementSibling){' + code + '}';
+        }
+      }
+      code = '"use strict";return function Relative(anchor){var e' +
+        (state.vars.length ? ',' + state.vars.join(',') : '') + ';' + code + 'return false;}';
+      var factory = Function('s', code)(Snapshot);
+      factory.cacheSize = code.length * 2 + 128;
+      return factory;
+    },
+
+  candidatePlan =
+    function(selector) {
+      var info = selectorInfo(selector), part = info.compounds[info.compounds.length - 1].simple,
+        names = [], i, token, kind = '*', name = '*', optimized = selector, seed;
+      if (part && part.classes.length) {
+        for (i = 0; i < part.classes.length; ++i) {
+          if (!part.classes[i] || /[\t\n\f\r ]/.test(part.classes[i])) { names = []; break; }
+          if (names.indexOf(part.classes[i]) < 0) { names.push(part.classes[i]); }
+        }
+      }
+      if (names.length) {
+        kind = '.'; name = names.join(' '); seed = { kind: kind, name: name };
+      } else {
+        token = selector.match(reOptimizer);
+        if (token && token[1] != ':' && !(QUIRKS_MODE && token[1] == '#') && selector.indexOf('\\') < 0) {
+          token[1] || (token[1] = '*');
+          kind = token[1]; name = unescapeIdentifier(token[2]);
+          optimized = optimize(selector, token);
+        }
+      }
+      return { kind: kind, name: name, selector: optimized, seed: seed,
+        sibling: /^[+~]/.test(selector), api: kind == '#' || kind == '*' && !HTML_DOCUMENT ? '' : method[kind],
+        snapshot: info.effects, extension: info.extension };
+    },
+
+  compilePlan =
+    function(selector, mode, relative) {
+      var plan = candidatePlan(selector), factory;
+      // Extensions can rewrite S_BODY and use candidate/result indexes.
+      // Retain that compiler contract even for an internal early exit.
+      factory = compile(plan.selector, plan.extension ? 3 : mode, null, relative, plan.seed);
+      plan.empty = factory.empty;
+      plan.cacheSize = factory.cacheSize + plan.selector.length * 2 + 128;
+      if (plan.extension) {
+        factory = (function(resolve) {
+          return function(candidates, callback, context) {
+            var nodes = resolve(candidates, null, context, []);
+            return mode === 1 ? nodes.length > 0 : nodes[0] || null;
+          };
+        })(factory);
+      }
+      plan.factory = factory;
+      return plan;
+    },
+
+  planCandidates =
+    function(plan, context) {
+      return plan.empty ? none : !plan.snapshot && plan.api in context ?
+        context[plan.api](plan.name) : compat[plan.kind](context, plan.name)();
+    },
+
   // equivalent of w3c 'querySelector' method
   first =
     function _querySelector(selectors, context, callback) {
-      return select(selectors, context,
-        typeof callback == 'function' ?
-        function firstMatch(element) {
-          callback(element);
-          return false;
-        } :
-        function firstMatch() {
-          return false;
+      context || (context = doc);
+      var previous = enterContext(context), resolver, parsed, plans, plan, node,
+        firstNode = null, i, fallback = false;
+      try {
+        resolver = firstResolvers.get(selectors);
+        if (!resolver) {
+          parsed = parse(selectors, true);
+          plans = [];
+          for (i = 0; parsed && i < parsed.length; ++i) {
+            plan = compilePlan(parsed[i], 2, false);
+            plans.push(plan);
+            fallback = fallback || plan.snapshot;
+          }
+          // Validate every branch before touching candidates. Effectful lists
+          // retain full selection order and extension callback semantics.
+          resolver = { plans: plans, fallback: plans.length > 1 && fallback, cacheSize: 64 };
+          resolver.groups = !resolver.fallback && sharedPlans(parsed || [], plans);
+          for (i = 0; i < plans.length; ++i) { resolver.cacheSize += plans[i].cacheSize; }
+          if (resolver.groups) { resolver.cacheSize += resolver.groups.cacheSize; }
+          firstResolvers.set(selectors, resolver);
         }
-      )[0] || null;
+        if (resolver.fallback) {
+          firstNode = select(selectors, context)[0] || null;
+        } else {
+          plans = resolver.groups || resolver.plans;
+          for (i = 0; i < plans.length; ++i) {
+            plan = plans[i];
+            node = plan.matchers ? sharedScan(plan, context, true) :
+              plan.factory(planCandidates(plan, context), null, context, null);
+            if (node && (!firstNode || node.compareDocumentPosition(firstNode) & 4)) { firstNode = node; }
+          }
+        }
+        if (firstNode && typeof callback == 'function') { callback(firstNode); }
+        return firstNode;
+      } finally { leaveContext(previous); }
+    },
+
+  // A union with the same candidate seed needs one collection and one scan.
+  // Only pure branches participate, so reordering cannot dispatch events or
+  // run extension code. Callback queries keep their original branch behavior.
+  sharedPlans =
+    function(selectors, plans) {
+      var groups = [], indexes = Object.create(null), i, j, key, group, plan,
+        shared = false, info, factory, size = 0;
+      for (i = 0; i < plans.length; ++i) {
+        plan = plans[i]; info = selectorInfo(selectors[i]);
+        if (plan.snapshot || plan.extension) { return null; }
+        key = JSON.stringify([plan.kind, plan.name]);
+        j = info.pure && indexes[key];
+        if (j === undefined || !info.pure) {
+          if (info.pure) { indexes[key] = groups.length; }
+          groups.push({ plans: [plan], pure: info.pure });
+        } else { groups[j].plans.push(plan); shared = true; }
+      }
+      if (!shared) { return null; }
+      for (i = 0; i < groups.length; ++i) {
+        group = groups[i]; plan = group.plans[0];
+        if (group.plans.length == 1) { groups[i] = plan; continue; }
+        group.kind = plan.kind; group.name = plan.name; group.api = plan.api;
+        group.matchers = [];
+        for (j = 0; j < group.plans.length; ++j) {
+          plan = group.plans[j];
+          factory = compile(plan.selector, false, null, false, plan.seed);
+          group.matchers.push(factory); size += factory.cacheSize;
+        }
+        delete group.plans;
+      }
+      groups.cacheSize = size;
+      return groups;
+    },
+
+  sharedScan =
+    function(plan, context, firstOnly, results) {
+      var candidates = planCandidates(plan, context), i, element;
+      // Bound logical matchers can share streamed nth positions for this scan.
+      ++Snapshot.nthElementDepth; ++Snapshot.nthTypeDepth;
+      try {
+        for (i = 0; (element = candidates[i]); ++i) {
+          if (match_assert(plan.matchers, element, null)) {
+            if (firstOnly) { return element; }
+            results.push(element);
+          }
+        }
+        return null;
+      } finally {
+        if (!--Snapshot.nthElementDepth) { nthElement(null, 2); }
+        if (!--Snapshot.nthTypeDepth) { nthOfType(null, 2); }
+      }
+    },
+
+  // Bulk descendant :has can invert the search: find witnesses once, then
+  // mark their ancestors. Eligibility is deliberately narrow and effect-free.
+  bulkHasPlan =
+    function(selector) {
+      var info = selectorInfo(selector), i = 0, depth = 0, quote = '', c, logical,
+        argument, outer, anchor, witness;
+      if (info.effects || info.compounds.length != 1) { return null; }
+      for (; i < selector.length; ++i) {
+        c = selector[i];
+        if (c == '\\') { i = escapeEnd(selector, i) - 1; continue; }
+        if (quote) { if (c == quote) { quote = ''; } continue; }
+        if (c == '"' || c == "'") { quote = c; continue; }
+        if (!depth && c == ':' && (logical = matchLogical(selector.slice(i), /^:(has)\(/i))) { break; }
+        if (c == '[' || c == '(') { ++depth; }
+        else if (c == ']' || c == ')') { --depth; }
+      }
+      if (!logical) { return null; }
+      argument = logical[2];
+      info = selectorInfo(argument);
+      // Scope/state dependencies and child/sibling paths stay with their
+      // existing bounded plans. No live results survive this query.
+      if (!info.pure || info.leading || info.compounds.length != 1 || argument.indexOf(':') > -1) { return null; }
+      outer = selector.slice(0, i) + logical[3] || '*';
+      if (!selectorInfo(outer).pure) { return null; }
+      anchor = candidatePlan(outer); witness = candidatePlan(argument);
+      if (witness.kind == '*' && witness.name == '*') { return null; }
+      anchor.matcher = compile(anchor.selector, false, null, false, anchor.seed);
+      witness.matcher = compile(witness.selector, false, null, false, witness.seed);
+      return { anchor: anchor, witness: witness,
+        cacheSize: anchor.matcher.cacheSize + witness.matcher.cacheSize + selector.length * 4 + 256 };
+    },
+
+  bulkHasScan =
+    function(plan, context, results) {
+      var anchors = planCandidates(plan.anchor, context), witnesses, marked, i, node;
+      if (anchors.length < 32) { return false; }
+      witnesses = planCandidates(plan.witness, context);
+      // Dense witnesses favor the existing first-hit search per anchor.
+      if (witnesses.length > anchors.length * 2) { return false; }
+      if (!witnesses.length) { return true; }
+      marked = new WeakSet();
+      ++Snapshot.nthElementDepth; ++Snapshot.nthTypeDepth;
+      try {
+        for (i = 0; (node = witnesses[i]); ++i) {
+          if (!plan.witness.matcher(node, null, null, false)) { continue; }
+          node = node.parentElement;
+          while (node && node !== context && !marked.has(node)) {
+            marked.add(node); node = node.parentElement;
+          }
+        }
+        for (i = 0; (node = anchors[i]); ++i) {
+          if (marked.has(node) && plan.anchor.matcher(node, null, null, false)) { results.push(node); }
+        }
+        return true;
+      } finally {
+        if (!--Snapshot.nthElementDepth) { nthElement(null, 2); }
+        if (!--Snapshot.nthTypeDepth) { nthOfType(null, 2); }
+      }
     },
 
   // Read the small selector grammar that can use a one-pass general-sibling
@@ -2285,96 +3222,40 @@
   // equivalent of w3c 'querySelectorAll' method
   select =
     function _querySelectorAll(selectors, context, callback) {
-
-      var nodes = [ ], resolver, parsed, chain, siblingNodes;
-
-      arguments.length == 0 &&
-        emit(qsNotArgs, TypeError);
-
+      arguments.length == 0 && emit(qsNotArgs, TypeError);
       context || (context = doc);
-        lastContext !== context &&
-          (lastContext = switchContext(context));
-
-      if (selectors) {
-        if (
-          !callback &&
-          typeof selectors == 'string' &&
-          selectors.indexOf('~') > -1 &&
-          HTML_DOCUMENT &&
-          !QUIRKS_MODE &&
-          context.nodeType == 9
-        ) {
+      var previous = enterContext(context), nodes = [], resolver, parsed,
+        i, plan, plans, siblingNodes;
+      try {
+        resolver = selectResolvers.get(selectors);
+        if (!resolver) {
           parsed = parse(selectors, true);
-          if (
-            parsed &&
-            parsed.length == 1 &&
-            (chain = parseSiblingChain(parsed[0]))
-          ) {
-            siblingNodes = siblingChain(chain, context);
-            if (siblingNodes !== null) {
-              return !Config.NODE_LIST
-                ? siblingNodes
-                : isInstanceof(siblingNodes)
-                  ? siblingNodes
-                  : toNodeList(siblingNodes);
-            }
+          resolver = collect(parsed || []);
+          resolver.chain = parsed && parsed.length == 1 ? parseSiblingChain(parsed[0]) : null;
+          selectResolvers.set(selectors, resolver);
+        }
+        if (!callback && resolver.chain && HTML_DOCUMENT && !QUIRKS_MODE && context.nodeType == 9) {
+          siblingNodes = siblingChain(resolver.chain, context);
+          if (siblingNodes !== null) { nodes = siblingNodes; }
+        }
+        if (siblingNodes === undefined || siblingNodes === null) {
+          plans = !callback && resolver.groups || resolver.plans;
+          for (i = 0; i < plans.length; ++i) {
+            plan = plans[i];
+            if (plan.empty) { continue; }
+            if (plan.matchers) { sharedScan(plan, context, false, nodes); continue; }
+            if (!callback && plan.bulk && bulkHasScan(plan.bulk, context, nodes)) { continue; }
+            // Selection preserves a snapshot for extensions and callbacks.
+            plan.factory(compat[plan.kind](context, plan.name)(), callback, context, nodes);
+          }
+          if (resolver.plans.length > 1 && nodes.length > 1) {
+            nodes.sort(documentOrder);
+            hasDupes && (nodes = unique(nodes));
           }
         }
-        if ((resolver = selectResolvers.get(selectors))) {
-          if (resolver.context === context &&
-            resolver.callback === callback) {
-            var i, l, list,
-              f = resolver.factory,
-              h = resolver.htmlset,
-              n = resolver.nodeset;
-            if (n.length > 1) {
-              for (i = 0, l = n.length; l > i; ++i) {
-                list = compat[n[i][0]](context, n[i].slice(1))();
-                if (f[i] !== null) {
-                  f[i](list, callback, context, nodes);
-                } else {
-                  nodes = nodes.concat(list);
-                }
-              }
-              if (l > 1 && nodes.length > 1) {
-                nodes.sort(documentOrder);
-                hasDupes && (nodes = unique(nodes));
-              }
-            } else {
-              if (f[0]) {
-                nodes = f[0](h[0](), callback, context, nodes);
-              } else {
-                nodes = h[0]();
-              }
-            }
-            if (typeof callback == 'function') {
-              nodes = concatCall(nodes, callback);
-            }
-            return !Config.NODE_LIST ?
-              nodes : isInstanceOf(nodes) ?
-              nodes : toNodeList(nodes);
-          }
-        }
-      }
-
-      // save/reuse factory and closure collection
-      selectResolvers.set(
-        selectors,
-        collect(
-          parsed === undefined ? parse(selectors, true) : parsed,
-          context,
-          callback
-        )
-      );
-
-      nodes = selectResolvers.get(selectors).results;
-
-      if (typeof callback == 'function') {
-        nodes = concatCall(nodes, callback);
-      }
-      return !Config.NODE_LIST ?
-        nodes : isInstanceOf(nodes) ?
-        nodes : toNodeList(nodes);
+        if (typeof callback == 'function') { nodes = concatCall(nodes, callback); }
+        return !Config.NODE_LIST ? nodes : isInstanceOf(nodes) ? nodes : toNodeList(nodes);
+      } finally { leaveContext(previous); }
     },
 
   // optimize selectors avoiding duplicated checks
@@ -2388,49 +3269,30 @@
           '*' : '') : '') + selector.slice(index + length - (token[1] == '*' ? 1 : 0));
     },
 
-  // prepare factory resolvers and closure collections
+  // Plans contain no result arrays, document contexts or context closures.
   collect =
-    function(selectors, context, callback, relative) {
-
-      var i, l, seen = { }, token = ['', '*', '*'], optimized = selectors,
-      factory = [ ], htmlset = [ ], nodeset = [ ], results = [ ], type;
-
-      for (i = 0, l = selectors.length; l > i; ++i) {
-
-        if (!seen[selectors[i]] && (seen[selectors[i]] = true)) {
-          type = selectors[i].match(reOptimizer);
-          if (type && type[1] != ':' && selectors[i].indexOf('\\') < 0 && (token = type)) {
-            token[1] || (token[1] = '*');
-            optimized[i] = optimize(optimized[i], token);
-          } else {
-            token = ['', '*', '*'];
-          }
-        }
-
-        nodeset[i] = token[1] + token[2];
-        token[2] = unescapeIdentifier(token[2]);
-        htmlset[i] = compat[token[1]](context, token[2]);
-        factory[i] = compile(optimized[i], true, null, relative);
-
-        factory[i] ?
-          factory[i](htmlset[i](), callback, context, results) :
-          results.concat(htmlset[i]());
+    function(selectors, relative) {
+      var i, selector, plan, plans = [], seen = Object.create(null), factory = [], nodeset = [],
+        kept = [], size = 64, groups;
+      for (i = 0; i < selectors.length; ++i) {
+        selector = selectors[i];
+        if (seen[selector]) { continue; }
+        seen[selector] = true;
+        plan = candidatePlan(selector);
+        plan.factory = compile(plan.selector, true, null, relative, plan.seed);
+        plan.empty = plan.factory.empty;
+        plan.cacheSize = plan.factory.cacheSize + plan.selector.length * 2 + 128;
+        plan.bulk = bulkHasPlan(selector);
+        if (plan.bulk) { plan.cacheSize += plan.bulk.cacheSize; }
+        size += plan.cacheSize;
+        plans.push(plan);
+        kept.push(selector);
+        factory.push(plan.factory);
+        nodeset.push(plan.kind + plan.name);
       }
-
-      if (l > 1) {
-        results.sort(documentOrder);
-        hasDupes && (results = unique(results));
-      }
-
-      return {
-        callback: callback,
-        context: context,
-        factory: factory,
-        htmlset: htmlset,
-        nodeset: nodeset,
-        results: results
-      };
-
+      groups = sharedPlans(kept, plans);
+      return { plans: plans, factory: factory, nodeset: nodeset, groups: groups,
+        cacheSize: size + (groups ? groups.cacheSize : 0) };
     },
 
   // handlers needed for the :hover pseudo-class
@@ -2559,6 +3421,14 @@
   matchResolvers = createCache(),
   selectResolvers = createCache(),
 
+  // Relative existence plans contain code and tokens, never DOM results.
+  hasResolvers = createCache(),
+  firstResolvers = createCache(),
+  forgivingResolvers = createCache(),
+  selectorInfos = createCache(),
+  logicalValidators = createCache(),
+  parsedSelectors = createCache(),
+
   // passed to resolvers
   Snapshot = {
 
@@ -2569,10 +3439,14 @@
 
     byTag: byTag,
     hasClass: hasClass,
+    hasClassValue: hasClassValue,
+    classOf: classOf,
+    asciiLower: asciiLower,
+    attributeMatches: attributeMatches,
 
     has: has,
     first: first,
-    match: match,
+    match: matchInner,
     matchForgiving: matchForgiving,
     select: select,
 
@@ -2580,6 +3454,14 @@
 
     nthOfType: nthOfType,
     nthElement: nthElement,
+    nthWithin: nthWithin,
+    nthFormula: nthFormula,
+    isEmpty: isEmpty,
+    clearNth: clearNth,
+    checkValidity: checkValidity,
+    nthElementDepth: 0,
+    nthTypeDepth: 0,
+    nthUncachedDepth: 0,
 
     isDefined: isDefined,
     matchesNative: matchesNative,
@@ -2662,6 +3544,7 @@
           CFG.combinators = CFG.combinators.replace('](', symbol + '](');
           CFG.combinators = CFG.combinators.replace('])', symbol + '])');
           Combinators[combinator] = resolver;
+          clearResolverCaches();
           setIdentifierSyntax();
         } else {
           console.warn('Warning: the \'' + combinator + '\' combinator is already registered.');
@@ -2681,6 +3564,7 @@
         if (CFG.operators.indexOf(symbol) < 0 && !Operators[operator]) {
           CFG.operators = CFG.operators.replace(']=', symbol + ']=');
           Operators[operator] = resolver;
+          clearResolverCaches();
           setIdentifierSyntax();
         } else {
           console.warn('Warning: the \'' + operator + '\' operator is already registered.');
@@ -2690,10 +3574,11 @@
     // register a new selector symbol and its related function resolver
     registerSelector:
       function(name, rexp, func) {
-        Selectors[name] || (Selectors[name] = {
-          Expression: rexp,
-          Callback: func
-        });
+        if (!Selectors[name]) {
+          Selectors[name] = { Expression: rexp, Callback: func };
+          // A previously invalid forgiving branch may now be supported.
+          clearResolverCaches();
+        }
       }
   };
 
