@@ -35,14 +35,30 @@ function compile(source: string): Factory {
   return module.exports as Factory
 }
 
-export function assertRoutes(entries: Fixture[]) {
-  const factory = compile(probeSource()) as Factory & { probes(): number }
+export function assertRoutes(entries: Fixture[], source = probeSource()) {
+  const factory = compile(source) as Factory & {
+    probes(): number
+    features?(): Features
+  }
   for (const entry of entries) {
     const { window } = new JSDOM(entry.html)
     try {
       const before = factory.probes()
-      factory(window).select(entry.selector, window.document)
-      assert.ok(factory.probes() > before, 'Planner bypassed: ' + entry.id)
+      const engine = factory(window)
+      engine.select(entry.selector, window.document)
+      engine.select(entry.selector, window.document)
+      if (entry.skipProbe) {
+        assert.equal(
+          factory.probes(),
+          before,
+          'Early exit bypassed: ' + entry.id,
+        )
+      } else {
+        assert.ok(factory.probes() > before, 'Planner bypassed: ' + entry.id)
+        if (factory.features) {
+          assert.deepEqual(factory.features(), entry.plannerFeatures, entry.id)
+        }
+      }
     } finally {
       window.close()
     }
@@ -92,7 +108,9 @@ export async function measureJsdom(entries: Fixture[], sources: string[]) {
         family: entry.family,
         split: entry.split,
         fixtureSha256: sha256(entry.html),
-        features: features(instances[0]!.window.document, entry.tags),
+        features:
+          entry.plannerFeatures ||
+          features(instances[0]!.window.document, entry.tags),
         samples,
         calls: result.map(rounds => rounds.map(round => round.calls)),
         costs: samples.map(median),
@@ -225,12 +243,9 @@ async function nativeRow(page: Page, fixture: Fixture) {
         return {
           samples,
           calls,
-          features: [
-            count,
-            total,
-            entry.tags.length,
-            count / total,
-          ] as Features,
+          features:
+            entry.plannerFeatures ||
+            ([count, total, entry.tags.length, count / total] as Features),
           consumed,
         }
       } finally {

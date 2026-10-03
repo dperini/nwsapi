@@ -1,3 +1,5 @@
+import type { Features } from './model.mts'
+
 export interface Fixture {
   id: string
   family: string
@@ -5,6 +7,8 @@ export interface Fixture {
   html: string
   selector: string
   tags: string[]
+  plannerFeatures?: Features
+  skipProbe?: boolean
 }
 
 // Families are assigned before timing. Runtime features never include labels.

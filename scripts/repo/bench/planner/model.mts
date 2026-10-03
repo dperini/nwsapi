@@ -69,12 +69,15 @@ export function train(rows: Observation[], depth = 3): Tree {
   }
 }
 
-export function expression(tree: Tree): string {
+export function expression(
+  tree: Tree,
+  names = ['count', 'total', 'arity', '(count / total)'],
+): string {
   if ('broad' in tree) {
     return String(tree.broad)
   }
-  const name = ['count', 'total', 'arity', '(count / total)'][tree.feature]!
-  return `(${name} <= ${tree.threshold} ? ${expression(tree.left)} : ${expression(tree.right)})`
+  const name = names[tree.feature]!
+  return `(${name} <= ${tree.threshold} ? ${expression(tree.left, names)} : ${expression(tree.right, names)})`
 }
 
 export function decide(tree: Tree, features: Features): boolean {
