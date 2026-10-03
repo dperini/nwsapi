@@ -44,6 +44,7 @@ export interface NwsapiEngine {
     has?(key: string): boolean
     set(key: string, value: unknown): unknown
     size(): number
+    bytes?(): number
   }
   S_BODY: string
   M_BODY: string

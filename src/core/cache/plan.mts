@@ -1,9 +1,15 @@
 import type { EngineState, PlanCache } from '../state/types.mts'
+import { createWeightedCache } from './weighted.mts'
+import type { CacheBudget } from './weighted.mts'
 
 export function createCache<Value>(
   engine: EngineState,
   limit?: number,
+  budget?: CacheBudget<Value>,
 ): PlanCache<Value> {
+  if (budget) {
+    return createWeightedCache(engine, limit || engine.CACHE_LIMIT, budget)
+  }
   var young: Map<string, Value> | undefined,
     old: Map<string, Value> | undefined,
     half: number

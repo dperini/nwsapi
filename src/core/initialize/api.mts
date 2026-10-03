@@ -1,4 +1,11 @@
 import { hasChild } from '../match/child.mts'
+import {
+  PLAN_BYTES,
+  forgivingWeight,
+  queryWeight,
+  resolverListWeight,
+  resolverWeight,
+} from '../cache/weight.mts'
 import { firstPosition } from '../compile/position/first.mts'
 import { match, matchForgiving, matchPublic } from '../match/selector.mts'
 import { parse } from '../parser/selector.mts'
@@ -102,14 +109,30 @@ export function initializeApi(engine: EngineState) {
   engine.install = install.bind(null, engine) as EngineState['install']
   engine.uninstall = uninstall.bind(null, engine) as EngineState['uninstall']
   engine.none = Array<never>()
-  engine.matchLambdas = engine.createCache<CompiledResolver | null>()
-  engine.selectLambdas = engine.createCache<CompiledResolver | null>()
-  engine.matchResolvers = engine.createCache<CompiledResolver[]>()
-  engine.forgivingResolvers =
-    engine.createCache<Array<CompiledResolver[] | null>>()
+  engine.matchLambdas = engine.createCache<CompiledResolver | null>(undefined, {
+    bytes: PLAN_BYTES,
+    weight: resolverWeight,
+  })
+  engine.selectLambdas = engine.createCache<CompiledResolver | null>(
+    undefined,
+    { bytes: PLAN_BYTES, weight: resolverWeight },
+  )
+  engine.matchResolvers = engine.createCache<CompiledResolver[]>(undefined, {
+    bytes: PLAN_BYTES,
+    weight: resolverListWeight,
+  })
+  engine.forgivingResolvers = engine.createCache<
+    Array<CompiledResolver[] | null>
+  >(undefined, { bytes: PLAN_BYTES, weight: forgivingWeight })
   engine.selectorGeneration = 0
-  engine.selectResolvers = engine.createCache<QueryPlan>()
-  engine.firstResolvers = engine.createCache<QueryPlan>()
+  engine.selectResolvers = engine.createCache<QueryPlan>(undefined, {
+    bytes: PLAN_BYTES,
+    weight: queryWeight,
+  })
+  engine.firstResolvers = engine.createCache<QueryPlan>(undefined, {
+    bytes: PLAN_BYTES,
+    weight: queryWeight,
+  })
   engine.Snapshot = {
     doc: engine.doc,
     from: engine.doc,

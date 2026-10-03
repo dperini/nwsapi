@@ -1,3 +1,4 @@
+import { PLAN_BYTES, relativeWeight } from '../cache/weight.mts'
 import type {
   EngineState,
   EngineContext,
@@ -53,7 +54,10 @@ export function has(
         : 'a:' + JSON.stringify(argument),
     plans = (
       engine.hasPlans ||
-      (engine.hasPlans = engine.createCache<RelativePlan[]>())
+      (engine.hasPlans = engine.createCache<RelativePlan[]>(undefined, {
+        bytes: PLAN_BYTES,
+        weight: relativeWeight,
+      }))
     ).get(key),
     list,
     parsed,

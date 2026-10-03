@@ -74,6 +74,7 @@ export interface PrefixSnapshot {
 }
 
 export interface CompiledResolver {
+  cacheSize?: number
   filtered?: boolean
   position?: boolean
   (
@@ -140,6 +141,7 @@ export interface SelectorExtension {
 }
 
 export interface PlanCache<Value> {
+  bytes?(): number
   clear(): void
   get(key: string): Value | undefined
   set(key: string, value: Value): Value

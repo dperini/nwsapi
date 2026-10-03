@@ -41,5 +41,7 @@ export function bindResolver(
       cache.units += source.length
     }
   }
-  return factory(engine.Snapshot, filter)
+  const resolver = factory(engine.Snapshot, filter)
+  resolver.cacheSize = source.length * 2 + 64
+  return resolver
 }
