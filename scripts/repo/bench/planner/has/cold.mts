@@ -8,6 +8,7 @@ import { ENGINE_BUILD_PATH } from '../../../lib/paths.mts'
 import { median, provenance, sha256 } from '../../footprint/shared.mts'
 import type { Fixture } from '../fixtures.mts'
 import type { NwsapiEngine } from '../../../../../.config/runtime.d.ts'
+import { checkedPower } from './power.mts'
 
 const [baseline, directory] = process.argv.slice(2)
 if (!baseline || !directory) {
@@ -24,6 +25,8 @@ const entries = JSON.parse(
   gunzipSync(readFileSync(path.join(directory, 'fixtures.json.gz'))).toString(),
 ) as Fixture[]
 const rows = []
+const power = checkedPower()
+const startedAt = new Date().toISOString()
 for (const entry of entries.filter(
   item => item.family === 'flat' && [0, 4].includes(item.plannerFeatures![3]),
 )) {
@@ -60,6 +63,10 @@ writeFileSync(
     {
       metadata: {
         ...provenance(),
+        power,
+        powerAfter: checkedPower(),
+        startedAt,
+        finishedAt: new Date().toISOString(),
         variants: files.map(file => sha256(readFileSync(file))),
         rounds: 25,
         scope:

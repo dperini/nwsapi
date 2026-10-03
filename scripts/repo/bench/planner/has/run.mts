@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { gzipSync, gunzipSync } from 'node:zlib'
@@ -12,6 +11,7 @@ import {
 import type { Fixture } from '../fixtures.mts'
 import { fixtures } from './fixtures.mts'
 import { fit } from './fit.mts'
+import { checkedPower } from './power.mts'
 import {
   baselinePath,
   confirmationVariants,
@@ -55,12 +55,7 @@ const metadata = {
   settings,
   pass: pass || 'initial',
   fixtureSha256: sha256(readFileSync(fixtureFile)),
-  power:
-    process.platform === 'darwin'
-      ? execFileSync('/usr/bin/pmset', ['-g', 'batt'], {
-          encoding: 'utf8',
-        }).trim()
-      : 'unknown',
+  power: checkedPower(),
   featureNames: [
     'anchorCount',
     'witnessCount',
@@ -106,6 +101,11 @@ if (pass) {
   selected = selected.toReversed()
 }
 for (const host of ['chromium', 'jsdom']) {
+  const power = checkedPower()
+  const startedAt = new Date().toISOString()
+  console.log(
+    `${host}: ${phase}${pass ? ' ' + pass : ''} (${selected.length} cases)`,
+  )
   const result =
     host === 'chromium'
       ? await measureBrowser(selected, sources)
@@ -113,6 +113,10 @@ for (const host of ['chromium', 'jsdom']) {
   const data = {
     metadata: {
       ...metadata,
+      power,
+      powerAfter: checkedPower(),
+      startedAt,
+      finishedAt: new Date().toISOString(),
       host,
       version: result.version,
       variants: sources.map(sha256),
