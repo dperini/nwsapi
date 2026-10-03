@@ -24,9 +24,9 @@
 </tr>
 <tr>
 <td>2</td>
-<td>Make current <code>jsdom</code> implementation-node traversal available</td>
+<td>Add optional <code>jsdom</code> implementation-node traversal</td>
 <td>The latest host supplies only <code>idlUtils</code>. The adapter&#39;s optional <code>domSymbolTree</code> readers are never installed through that constructor.</td>
-<td>Probe implementation <code>parentElement</code>, <code>nextElementSibling</code> and <code>previousElementSibling</code> through the supplied utilities. Add <code>firstOf</code> only if measuring it justifies extending the reader contract. Keep the portable fallback and verify wrapper identity across realms, detached trees, fragments and adoption.</td>
+<td>Treat this as a capability-detected enhancement. Missing, throwing or incompatible probes must leave ordinary DOM traversal working. Enable readers independently, preserve wrapper identity, and fall back for unsupported nodes. Require the graceful fallback contract below before landing.</td>
 </tr>
 <tr>
 <td>3</td>
@@ -60,7 +60,7 @@
 </tr>
 </tbody></table></div>
 <p>The first three are the recommended next implementation batch. The read counts are measurements of current work, not promised speedup factors. The type-position fixture shows approximately quadratic traversal growth. A replacement still needs timing, allocation, mutation and namespace evidence before landing.</p>
-<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/src/core/compile/factory.mts">factory cache</a>.</p>
+<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/src/core/compile/factory.mts">factory cache</a>.</p>
 <p>The audit distinguishes these gaps from existing optimizations. v3 already has cheap pure guard ordering, exact-token deduplication, grouped candidate scans, ancestor tag masks, bounded relative existence paths, sparse inverse <code>:has()</code> marking, mixed-chain memoization and byte-budgeted compiled caches. Adding a second generic cache or Bloom filter would duplicate some of that work.</p>
 <h2 id="latest-upstream-host-audit">Latest upstream host audit</h2>
 <p>Downloaded the latest <code>jsdom</code> Git source and resolved the npm <code>latest</code> tags into an isolated installation. The repository dependencies remain pinned. Exact revisions, npm integrity values and the isolated dependency lock are recorded in <a href="upstreams.json">upstreams.json</a> and <a href="dependency-lock.json">dependency-lock.json</a>.</p>
@@ -88,9 +88,19 @@
 <p>The host&#39;s <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/nodes/Document-impl.js">Document constructor path</a> lazily creates the selector engine and supplies <code>idlUtils</code>. The current adapter already uses those utilities for attribute reads. Keep that lazy boundary. Creating an engine for every document at construction would discard an upstream optimization.</p>
 <p>The host now owns <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/helpers/dom-tree.js">DOM tree links</a>. Prefer probing implementation-node getters obtained through the supplied utilities over importing that private tree module or reading <code>_links</code> directly. This also avoids a dependency on the removed <code>domSymbolTree</code> constructor option. A more ambitious implementation-node execution mode could unwrap the candidate once and wrap only final results. That requires a distinct adapter backend and careful auditing of every pseudo-class. It is not a small reader substitution.</p>
 <p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/nodes/Node-impl.js">Node implementation</a> has versioned collection invalidation and lazy memoized collection queries. A supported host mutation-epoch hook could reduce observer bookkeeping for collection snapshots. Its invalidation domain must be explicit. A tree version does not by itself certify focus, validity, language, hover or other dynamic selector results. Continue caching plans rather than complete query answers.</p>
+<h3>Required graceful fallback contract</h3>
+<p>Implementation-node traversal is an optional enhancement. The portable DOM path remains the baseline for every supported host. These are acceptance requirements for the proposed implementation, not claims that the new readers have already landed.</p>
+<ul>
+<li>Probe lazily, once per adapter capability setup, using detached nodes and the host-supplied utilities. Check parent and sibling identities, element-only behavior around text/comment nodes, and wrapper round trips. Feature detection decides eligibility, not a <code>jsdom</code> version string.</li>
+<li>A missing utility, unavailable getter, thrown capability probe or unexpected probe result disables only the affected enhancement. Adapter construction and ordinary queries must continue. Successful attribute readers can remain enabled when traversal readers are unavailable.</li>
+<li>Nodes that cannot be unwrapped by this host, including foreign-realm or adopted nodes, use their public DOM getters. Treat an unsupported conversion separately from a valid <code>null</code> parent or sibling. Never turn a failed conversion into an empty match result.</li>
+<li>Keep optimized reads behind stable dispatch functions. A detected capability failure can disable that reader and retry the individual pure read through the public getter. Do not replay a whole query after callbacks may have run. Do not blanket-catch selector syntax errors, callback errors or errors from the public DOM operation.</li>
+<li>Do setup checks outside candidate loops and avoid repeated exception-driven probes on unsupported hosts. Measure the enabled path and disabled path. The fallback must preserve both semantics and inexpensive startup.</li>
+<li>Before shipping, cover absent, partial, throwing and incompatible utilities, non-<code>jsdom</code> hosts, multiple installed host copies, detached trees, document fragments, shadow roots, adoption, HTML/XML and mutations. Compare ordered element identities and callback behavior with the portable path. Add <code>firstOf</code> only after its separate probe and measurement justify it.</li>
+</ul>
 <h3>Stylesheet subject filtering: useful, currently unsafe to enable generally</h3>
 <p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/css/helpers/computed-style.js">computed-style matcher</a> calls <code>extractSubjects(selector, caseSensitive)</code> and caches its output on the rule. It checks ID, class and tag keys before invoking <code>check()</code>. Our adapter returns a wildcard subject, so every rule remains eligible.</p>
-<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/897aa7388200fcea664bbe3888cf186d4e8f93cb/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
+<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/5b1abf5c1e3f4d3367019aa6850f0ae1af7c69a5/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
 <thead>
 <tr>
@@ -135,41 +145,59 @@
 <h2 id="webgpu-and-an-embedded-model">WebGPU and an embedded model</h2>
 <p><code>gpu-lexer</code> is a useful architecture reference. Its <a href="https://github.com/vercel-labs/gpu-lexer/blob/07f3e56c69f3141c1bcdb9a732aac14889ca5c74/MODEL_CARD.md">model card</a> describes 41,321 deployed int6 weights and 83.02% agreement with normalized syntax-color labels. It explicitly excludes compilation and parsing from intended uses. Those labels cannot safely replace CSS parsing or selector matching.</p>
 <p>Its <a href="https://github.com/vercel-labs/gpu-lexer/blob/07f3e56c69f3141c1bcdb9a732aac14889ca5c74/architecture.md">runtime design</a> provides transferable ideas: compact features, resident resources, compact output and batching. It also accounts for preparation, dispatch and readback. That overhead matters for the microsecond query paths in this report. No GPU benchmark was run in this survey, so no device-specific crossover is claimed.</p>
+<h3>Ranked by expected payoff for the effort</h3>
+<p>The first investment should be a reusable CPU cost planner. It can improve several existing exact execution paths with a small integration surface. The rankings below are engineering judgments about benefit, implementation cost, reuse and compatibility. No learned-model, SIMD or GPU speedup has been measured here. The measured sibling traversal fix remains ahead of these research projects in the overall v3 queue.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
 <thead>
 <tr>
-<th>Idea</th>
-<th>Assessment</th>
-<th>Experiment that could justify it</th>
+<th>Rank</th>
+<th>Investment</th>
+<th>Scenarios sharing the work</th>
+<th>Expected payoff and promotion requirement</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Neural CSS lexer or matcher</td>
-<td>Reject for the exact synchronous API. Approximate labels can create false matches, missed matches or invalid syntax acceptance.</td>
-<td>None needed for replacing correctness decisions.</td>
+<td>1</td>
+<td>One cost planner, initially rules, optionally an offline-trained decision tree</td>
+<td>Sparse versus dense <code>:has()</code>, tag-union merging versus broad scans, eligible traversal direction, and whether a reused selector merits a larger compiled plan. Plan choices can serve all-results, first-result and element-match APIs where each route preserves that API&#39;s semantics.</td>
+<td>Highest expected return per unit of effort. Reuse existing exact routes and already available counts. Compare fixed rules with a compact CPU model on held-out DOMs. Include feature extraction, cold initialization and worst-case poor choices. Ship the model only if it adds a repeatable gain over the rule baseline.</td>
 </tr>
 <tr>
-<td>Tiny learned cost model</td>
-<td>Plausible as a planner. Output only a choice among semantically equivalent exact routes. Start with a small CPU decision tree, trained offline.</td>
-<td>Compare it with hand-written thresholds on held-out DOMs. Include feature extraction, initialization, bundle size and worst-case route regret. Keep the model out of per-element work.</td>
+<td>2</td>
+<td>A shared packed snapshot and exact CPU bitset backend</td>
+<td>Many selectors over one immutable DOM, necessary-condition filtering for stylesheet rules, repeated DOM analysis, and batched existence queries.</td>
+<td>High reuse for genuinely batched work, with a larger implementation cost. One topology/ID/class/tag representation can later feed SIMD or GPU execution. Measure snapshot construction, index memory and reuse count. Live stylesheet use remains gated on the host invalidation fix.</td>
 </tr>
 <tr>
-<td>GPU planning advice</td>
-<td>Low priority. Planning features are tiny and CPU-resident. Dispatch is additional work.</td>
-<td>Show a real batched planning workload that beats the CPU model end to end.</td>
+<td>3</td>
+<td>WASM SIMD for the same packed batches</td>
+<td>The same batch-query and rule-filter workloads as rank 2, with CPU execution and no GPU device requirement.</td>
+<td>Incremental experiment after rank 2. Keep the data layout stable so the backend can change without rebuilding the planner. Retain JavaScript when WASM startup, copying or small batches erase the gain.</td>
 </tr>
 <tr>
-<td>Exact GPU batch queries on an immutable DOM snapshot</td>
-<td>Separate asynchronous API experiment. Encode topology and interned attributes once. Evaluate many selectors against the same snapshot, then resolve node indices on the CPU.</td>
-<td>Include snapshot creation, transfer, shader compilation, synchronization and ordered result reconstruction. Compare CPU bitsets and WASM SIMD before a neural model. Pin snapshot generation so mutation cannot silently change semantics.</td>
+<td>4</td>
+<td>Exact WebGPU execution over the same snapshot</td>
+<td>Large repeated batches, large DOM-analysis jobs, and broad rule-candidate filtering with enough work to amortize transfers.</td>
+<td>Higher ceiling but lower near-term return. Requires an optional asynchronous API. Measure upload, pipeline startup, dispatch, readback and ordered reconstruction together. Promote only beyond a demonstrated end-to-end crossover against the CPU and SIMD backends.</td>
 </tr>
 <tr>
-<td>CPU bitsets for stylesheet batches</td>
-<td>More promising near-term research than GPU matching. ID/class/tag postings can reject many rule-element pairs together.</td>
-<td>Benchmark thousands of rules on repeated style passes. Account for index maintenance and retained memory. Integrate with a supported host invalidation contract.</td>
+<td>5</td>
+<td>GPU inference for planning</td>
+<td>Very large offline batches of plan-selection decisions, if such a workload emerges.</td>
+<td>Lowest expected return for ordinary selector calls. Reconsider only if the rank-1 CPU model becomes a measured bottleneck and GPU batching pays for synchronization.</td>
 </tr>
 </tbody></table></div>
-<p>For v3, prioritize the measured sibling traversal problem and adapter read costs. If a model experiment follows, use it to choose work, with deterministic matching responsible for every returned element. Keep any GPU snapshot package optional so Node usage, synchronous APIs and portable browser operation retain their current contract.</p>
+<p>Approximate neural lexing or matching is excluded from execution decisions about correctness. A model may choose which eligible exact algorithm to run. It may not accept invalid syntax, drop candidates based on a prediction, or decide that an element matches.</p>
+<h3>Make the first investment useful across scenarios</h3>
+<p>Build a small shared descriptor from the existing pure-selector analysis: API mode, host capabilities, relation shape, required guards, candidate count when already available, and observed witness density when cheaply sampled. Each planning decision exposes only its eligible exact alternatives and a default route. Do not scan the DOM merely to populate model features. Unsupported syntax or unavailable features immediately use the existing default.</p>
+<p>Use that descriptor for separate decisions under one planner interface. First-result queries value early exit, all-results queries also pay for ordering and materialization, and element matching starts from one supplied node. Keep these objectives explicit. A single model need not make every decision if small specialized rules are cheaper. Share descriptors, measurement records and fallback policy before adding model complexity.</p>
+<p>Start with the <code>:has()</code> density decision and sparse type unions because both already have alternative routes and observable counts. Then evaluate traversal direction and compilation promotion. Collect bounded query-level samples only after reuse. Train offline on separate DOM/application families, and include cold, tiny, empty-result, mutation-heavy and adversarial cases. An offline-trained tree can be emitted as ordinary JavaScript branches with no model download, GPU initialization or inference framework.</p>
+<h3>Share the representation before adding more backends</h3>
+<p>If batch workloads justify rank 2, use one immutable snapshot representation for CPU, SIMD and GPU experiments. Include node order, parent/sibling topology, interned names and the attributes required by the batch. Necessary-condition bitsets can reject impossible candidates exactly, with the existing matcher responsible for the remaining supported semantics. Dynamic state must either be captured by an explicit snapshot contract or make the batch ineligible.</p>
+<p>Keep the planner and packed representation separable. Ordinary synchronous queries can use the planner without paying for a snapshot. Batched callers can amortize one snapshot across query sets, rule filtering and DOM analysis. This gives multiple scenarios a shared investment while allowing an unprofitable backend to be removed independently.</p>
+<h3>Graceful enhancement and stop conditions</h3>
+<p>Every planning choice retains an exact CPU default. Load optional WASM/GPU resources only after workload eligibility and capability checks succeed. Missing WebGPU, adapter/device acquisition failure, shader failure or device loss routes an asynchronous batch to its CPU backend over the same valid snapshot. Never silently answer against a different live DOM generation. Discard incomplete accelerated output before returning CPU results.</p>
+<p>Adopt a stage only when its end-to-end gain exceeds measurement variability and its initialization, bundle and memory costs fit the targeted workload. Stop at the CPU planner if that captures the useful benefit. Stop at CPU bitsets or SIMD if GPU setup and synchronization do not pay back. Multi-scenario reuse is a promotion criterion, alongside exact result identities, ordering and safe fallback.</p>
 <h2 id="competition-charts">Competition charts</h2>
 <p>Open the <a href="atlas/index.html">offline performance atlas</a>. It contains nine standalone SVG charts, category/search filters, exact timings, raw round samples and fingerprints. The generator renders recorded data without rerunning measurements and preserves failed or slower cases when present.</p>
 <details>
