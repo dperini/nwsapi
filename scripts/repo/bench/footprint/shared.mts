@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import os from 'node:os'
-import { ENGINE_BUILD_PATH } from '../../lib/paths.mts'
+import { ENGINE_BUILD_PATH, REPO_ROOT } from '../../lib/paths.mts'
+import path from 'node:path'
 export { positiveInteger } from '../../lib/positive-integer.mts'
 
 export const require = createRequire(import.meta.url)
@@ -19,12 +20,13 @@ export function provenance() {
     platform: `${process.platform}/${process.arch}`,
     cpu: os.cpus()[0]?.model,
     jsdom: require('jsdom/package.json').version as string,
-    candidateVersion: require('../../../package.json').version as string,
+    candidateVersion: require(path.join(REPO_ROOT, 'package.json'))
+      .version as string,
     candidateSha256: sha256(readFileSync(ENGINE_BUILD_PATH)),
     competitorVersion: require('@asamuzakjp/dom-selector/package.json')
       .version as string,
     lockfileSha256: sha256(
-      readFileSync(new URL('../../../pnpm-lock.yaml', import.meta.url)),
+      readFileSync(path.join(REPO_ROOT, 'pnpm-lock.yaml')),
     ),
   }
 }
