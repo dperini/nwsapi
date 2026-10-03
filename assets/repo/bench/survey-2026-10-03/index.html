@@ -5,7 +5,7 @@
 <body><a class="skip" href="#report">Skip to report</a><div class="topbar"><a class="brand" href="#">NWSAPI <span>/ v3 research</span></a><div><a href="atlas/index.html">Explore charts ↗</a><button onclick="window.print()">Print / PDF</button></div></div>
 <div class="layout"><aside><p class="eyebrow">October 3, 2026</p><nav aria-label="Report sections"><a href="#findings-to-act-on">Findings to act on</a><a href="#latest-upstream-host-audit">Latest upstream host audit</a><a href="#compiler-and-jit-directions">Compiler and JIT directions</a><a href="#webgpu-and-an-embedded-model">WebGPU and an embedded model</a><a href="#small-trained-model-executed">Small trained model: executed</a><a href="#competition-charts">Competition charts</a><a href="#delivered-and-remaining">Delivered and remaining</a></nav><div class="sidebar-note">Recorded evidence<br>Prioritized experiments<br>Exact selector semantics</div></aside>
 <main id="report"><div class="eyebrow">Performance engineering / research report</div><div class="summary"><div><b>07</b><span>ranked opportunities</span></div><div><b>36</b><span>comparison cases</span></div><div><b>03</b><span>recommended next steps</span></div></div><article><h1>Further v3 performance opportunities</h1>
-<p>Audited <code>prerelease/3.0.0</code> at <code>e988a9a</code> on October 3, 2026. The package manifest still labels this development build <code>2.3.0-prerelease</code>. The charts preserve that actual version and identify the bundle by SHA-256. This follow-up adds measurement and chart tooling. It does not change the selector runtime.</p>
+<p>Audited <code>prerelease/3.0.0</code> at <code>e988a9a</code> on October 3, 2026. The package manifest still labels this development build <code>2.3.0-prerelease</code>. The charts preserve that actual version and identify the bundle by SHA-256. The original survey added measurement and chart tooling. The subsequent guarded <code>:has()</code> implementation is documented below. Competition charts retain their original measured build.</p>
 <h2 id="findings-to-act-on">Findings to act on</h2>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
 <thead>
@@ -60,7 +60,7 @@
 </tr>
 </tbody></table></div>
 <p>The first three are the recommended next implementation batch. The read counts are measurements of current work, not promised speedup factors. The type-position fixture shows approximately quadratic traversal growth. A replacement still needs timing, allocation, mutation and namespace evidence before landing.</p>
-<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/src/core/compile/factory.mts">factory cache</a>.</p>
+<p>Relevant implementation: <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/position/nth-of-type.mts">type positions</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/position/route.mts">position routing</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/adapter/jsdom.mts">host readers</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/attribute/compile.mts">attribute compilation</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/guards.mts">guard ordering</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/lookup/tag.mts">type unions</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/mixed.mts">mixed chains</a>, <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/src/core/compile/factory.mts">factory cache</a>.</p>
 <p>The audit distinguishes these gaps from existing optimizations. v3 already has cheap pure guard ordering, exact-token deduplication, grouped candidate scans, ancestor tag masks, bounded relative existence paths, sparse inverse <code>:has()</code> marking, mixed-chain memoization and byte-budgeted compiled caches. Adding a second generic cache or Bloom filter would duplicate some of that work.</p>
 <h2 id="latest-upstream-host-audit">Latest upstream host audit</h2>
 <p>Downloaded the latest <code>jsdom</code> Git source and resolved the npm <code>latest</code> tags into an isolated installation. The repository dependencies remain pinned. Exact revisions, npm integrity values and the isolated dependency lock are recorded in <a href="upstreams.json">upstreams.json</a> and <a href="dependency-lock.json">dependency-lock.json</a>.</p>
@@ -100,7 +100,7 @@
 </ul>
 <h3>Stylesheet subject filtering: useful, currently unsafe to enable generally</h3>
 <p>The latest <a href="https://github.com/jsdom/jsdom/blob/0a117f4581b067800fdb3287e22e7cec82221a3c/lib/jsdom/living/css/helpers/computed-style.js">computed-style matcher</a> calls <code>extractSubjects(selector, caseSensitive)</code> and caches its output on the rule. It checks ID, class and tag keys before invoking <code>check()</code>. Our adapter returns a wildcard subject, so every rule remains eligible.</p>
-<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/2c4259126d4946348823e5afa3e9d5caa3f92760/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
+<p>The exploratory probe handles only selectors consisting of one simple class. All other rules retain wildcard subjects. It records seven fresh documents for each mode, with setup excluded. The source is <a href="https://github.com/dperini/nwsapi/blob/e4a09e161eb16efa805e7d5a1b130762515011e0/scripts/repo/bench/survey/hooks.mts">survey/hooks.mts</a>, and the complete observations are <a href="hooks.json">hooks.json</a>.</p>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Report comparison table"><table>
 <thead>
 <tr>
@@ -208,8 +208,22 @@ guarded model produced a 1.020× geometric mean speed ratio in Chromium and
 0.995× in <code>jsdom</code>. One <code>jsdom</code> case took 1.279× the existing-rule time.
 It missed the predeclared promotion gate, so the production rule stays in
 place. These are synthetic warm-query measurements on battery, not release
-performance claims. The next candidate for the same training tools is
-forward versus inverse <code>:has()</code> routing.</p>
+performance claims.</p>
+<h3>Guarded <code>:has()</code> implementation</h3>
+<p>The <a href="trained-has-planner.md">follow-up experiment</a> trained a model for forward
+versus inverse witness traversal. Its recommendation was distilled into a
+small guarded runtime rule for plain class compounds. Attribute-filtered
+compounds keep the original density rule after a training-case regression.
+An exact zero-witness preflight skips map allocation and the anchor loop.</p>
+<p>The actual build&#39;s longer confirmation, reversing fixture order, measured
+1.295× Chromium and 1.256× <code>jsdom</code> geometric mean speed ratios over 100 cases
+per host. The 52 held-out cases measured 1.276× and 1.256×. The first pass&#39;s
+noisy <code>jsdom</code> outlier and the complete repeat are retained in the report.
+Cold-query behavior was approximately unchanged in the separate <code>jsdom</code>
+probe. The gzip increase is 80bytes. Open the
+<a href="has-implementation.html">implementation bar charts</a>.
+These remain synthetic battery measurements, with broader compatibility and
+real-application evidence still outstanding.</p>
 <h2 id="competition-charts">Competition charts</h2>
 <p>Open the <a href="atlas/index.html">offline performance atlas</a>. It contains nine standalone SVG charts, category/search filters, exact timings, raw round samples and fingerprints. The generator renders recorded data without rerunning measurements and preserves failed or slower cases when present.</p>
 <details>
