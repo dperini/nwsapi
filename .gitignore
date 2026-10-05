@@ -21,6 +21,8 @@
 !/.config/**/*.json
 !/.config/**/*.md
 !/.config/**/*.mts
+!/.config/model-training/**/*.toml
+!/.config/model-training/**/uv.lock
 !/.config/security/**/*.toml
 !/.config/security/**/uv.lock
 !/.config/**/*.ts
@@ -31,10 +33,14 @@
 !/assets/**/*.json
 !/assets/**/*.svg
 !/assets/repo/bench/compilation-report.html
+!/assets/repo/bench/planner-neural-2026-10-04/model.mjs
+!/assets/repo/bench/survey-2026-10-03/neural-planner.html
+!/assets/repo/bench/survey-2026-10-03/tiny-model-training.html
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md
 !/scripts/**/*.mts
+!/scripts/**/*.py
 !/src/**/*.mts
 !/src/**/*.d.ts
 !/test/**/*.LICENSE

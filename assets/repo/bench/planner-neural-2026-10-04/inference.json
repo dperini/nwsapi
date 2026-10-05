@@ -1,0 +1,30 @@
+{
+  "runtime": "v26.9.0",
+  "platform": "darwin/arm64",
+  "callsPerRound": 100000,
+  "rounds": 9,
+  "modelBytes": 2943,
+  "results": {
+    "in-domain": {
+      "model": {
+        "medianNsPerCall": 356.58000000000015,
+        "checksum": 910000
+      },
+      "rule": {
+        "medianNsPerCall": 9.885419999999954,
+        "checksum": 910000
+      }
+    },
+    "fallback-small": {
+      "model": {
+        "medianNsPerCall": 43.5445900000002,
+        "checksum": 0
+      },
+      "rule": {
+        "medianNsPerCall": 38.06124999999952,
+        "checksum": 0
+      }
+    }
+  },
+  "note": "Decision overhead only; DOM traversal and query costs are not included."
+}

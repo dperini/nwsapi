@@ -465,6 +465,13 @@
           "binary": "zizmor.exe"
         }
       }
+    },
+    "pytorch": {
+      "origin": "python-project",
+      "package": "torch",
+      "version": "2.14.1",
+      "python": "3.12",
+      "project": ".config/model-training"
     }
   }
 }

@@ -3,7 +3,7 @@ import { ENGINE_BUILD_PATH } from '../../../lib/paths.mts'
 import { expression } from '../model.mts'
 import type { Features, Tree } from '../model.mts'
 
-const preparation = 'anchor: plan(engine, parts[1], context),'
+const preparation = 'anchor: anchor,'
 const attributeMask =
   '(parts[1].indexOf("[") < 0 ? 0 : 2) + (parts[2].indexOf("[") < 0 ? 0 : 1)'
 

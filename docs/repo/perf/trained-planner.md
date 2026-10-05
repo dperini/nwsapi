@@ -31,6 +31,8 @@ The [HTML report with bar charts](../../../assets/repo/bench/survey-2026-10-03/p
 and [summary JSON](../../../assets/repo/bench/planner-2026-10-03/summary.json)
 record the outcome. The [model artifact](../../../assets/repo/bench/planner-2026-10-03/shared-model.json)
 includes training-input hashes, bounds, tree, and generated expression.
+For a junior-developer walkthrough of the training and the separate `:has()`
+decision, open the [tiny model guide](../../../assets/repo/bench/survey-2026-10-03/tiny-model-training.html).
 
 ## Experiment contract
 

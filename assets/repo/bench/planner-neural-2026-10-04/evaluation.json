@@ -1,0 +1,200 @@
+{
+  "model": "6-input, 8-hidden-unit tanh route-cost regressor",
+  "trainingFramework": "PyTorch 2.14.1",
+  "device": "cpu",
+  "seed": 20261004,
+  "selectedEpochs": 1000,
+  "trainingRows": 96,
+  "validationFamily": "nested",
+  "validationRows": 32,
+  "heldOutFamilies": [
+    "clustered",
+    "mixed",
+    "ragged",
+    "small"
+  ],
+  "heldOutRows": 104,
+  "inputs": {
+    "directory": "assets/repo/bench/planner-has-neural-2026-10-04",
+    "candidateSha256": "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+    "fixtureSha256": "49ab5239cb775619335ea2287c2fb13489602576c0e453059b67010634cd3240",
+    "powerByHost": {
+      "chromium": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:46 remaining present: true",
+      "jsdom": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:36 remaining present: true"
+    },
+    "inputs": [
+      {
+        "host": "chromium",
+        "filename": "chromium-training.json",
+        "sha256": "b7de277b94c132fda2d471504e5df92be103e55fac8e639128a5304dec84ddc7"
+      },
+      {
+        "host": "jsdom",
+        "filename": "jsdom-training.json",
+        "sha256": "cbc1e6fe379a5b0f724964bc9824460a42611c4753bc9925f72b1137675f3cb7"
+      }
+    ]
+  },
+  "results": {
+    "chromium": {
+      "cases": 52,
+      "routeAccuracy": 0.5192307692307693,
+      "routeAccuracyInModelDomain": 0.5416666666666666,
+      "speedupVsAlwaysForward": 1.4041110573390256,
+      "speedupVsAlwaysInverse": 0.9963218904629141,
+      "speedupVsProductionRule": 0.9970639147295008,
+      "speedupProductionVsAlwaysForward": 0.7101033137785181,
+      "speedupProductionVsAlwaysInverse": 1.000744763588645,
+      "oracleRegret": 1.0093818008525193,
+      "worstSlowdownVsProductionRule": 1.1029926907187968,
+      "inverseChoices": 32,
+      "modelApplications": 48,
+      "fallbackApplications": 4,
+      "families": {
+        "clustered": {
+          "cases": 16,
+          "routeAccuracy": 0.5625,
+          "routeAccuracyInModelDomain": 0.5625,
+          "speedupVsAlwaysForward": 1.5161213596441145,
+          "speedupVsAlwaysInverse": 0.9971111785804961,
+          "speedupVsProductionRule": 0.9971111785804961,
+          "speedupProductionVsAlwaysForward": 0.6576724034905439,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.0053075619503877,
+          "worstSlowdownVsProductionRule": 1.0143113421897094,
+          "inverseChoices": 10,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "mixed": {
+          "cases": 16,
+          "routeAccuracy": 0.5625,
+          "routeAccuracyInModelDomain": 0.5625,
+          "speedupVsAlwaysForward": 1.4410032614595347,
+          "speedupVsAlwaysInverse": 0.9997124444023205,
+          "speedupVsProductionRule": 0.9997124444023205,
+          "speedupProductionVsAlwaysForward": 0.6937614030031769,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.0074947419251188,
+          "worstSlowdownVsProductionRule": 1.0244814590465958,
+          "inverseChoices": 10,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "ragged": {
+          "cases": 16,
+          "routeAccuracy": 0.5,
+          "routeAccuracyInModelDomain": 0.5,
+          "speedupVsAlwaysForward": 1.379115057297824,
+          "speedupVsAlwaysInverse": 0.9936445677261071,
+          "speedupVsProductionRule": 0.9936445677261071,
+          "speedupProductionVsAlwaysForward": 0.7204943216797368,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.0148128560041367,
+          "worstSlowdownVsProductionRule": 1.1029926907187968,
+          "inverseChoices": 10,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "small": {
+          "cases": 4,
+          "routeAccuracy": 0.25,
+          "routeAccuracyInModelDomain": 0.0,
+          "speedupVsAlwaysForward": 1.0005095804985211,
+          "speedupVsAlwaysInverse": 0.9903683611706663,
+          "speedupVsProductionRule": 1.0,
+          "speedupProductionVsAlwaysForward": 0.9994906790415068,
+          "speedupProductionVsAlwaysInverse": 1.009725309497921,
+          "oracleRegret": 1.0116034922477501,
+          "worstSlowdownVsProductionRule": 1.0,
+          "inverseChoices": 2,
+          "modelApplications": 0,
+          "fallbackApplications": 4
+        }
+      }
+    },
+    "jsdom": {
+      "cases": 52,
+      "routeAccuracy": 0.6346153846153846,
+      "routeAccuracyInModelDomain": 0.6875,
+      "speedupVsAlwaysForward": 1.5357026673238716,
+      "speedupVsAlwaysInverse": 0.9834558746202812,
+      "speedupVsProductionRule": 0.9836715267188126,
+      "speedupProductionVsAlwaysForward": 0.6405351424133208,
+      "speedupProductionVsAlwaysInverse": 1.0002192798925673,
+      "oracleRegret": 1.0205065663587676,
+      "worstSlowdownVsProductionRule": 1.493133256616801,
+      "inverseChoices": 35,
+      "modelApplications": 48,
+      "fallbackApplications": 4,
+      "families": {
+        "clustered": {
+          "cases": 16,
+          "routeAccuracy": 0.6875,
+          "routeAccuracyInModelDomain": 0.6875,
+          "speedupVsAlwaysForward": 1.6775354013977897,
+          "speedupVsAlwaysInverse": 0.9815369484093536,
+          "speedupVsProductionRule": 0.9815369484093536,
+          "speedupProductionVsAlwaysForward": 0.5851065483276822,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.0218547453890383,
+          "worstSlowdownVsProductionRule": 1.372181405689726,
+          "inverseChoices": 11,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "mixed": {
+          "cases": 16,
+          "routeAccuracy": 0.875,
+          "routeAccuracyInModelDomain": 0.875,
+          "speedupVsAlwaysForward": 1.5819453269209256,
+          "speedupVsAlwaysInverse": 0.9886167996330191,
+          "speedupVsProductionRule": 0.9886167996330191,
+          "speedupProductionVsAlwaysForward": 0.6249374000536718,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.015106513228235,
+          "worstSlowdownVsProductionRule": 1.2365271098022876,
+          "inverseChoices": 11,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "ragged": {
+          "cases": 16,
+          "routeAccuracy": 0.5,
+          "routeAccuracyInModelDomain": 0.5,
+          "speedupVsAlwaysForward": 1.5195077373290313,
+          "speedupVsAlwaysInverse": 0.9768506907101268,
+          "speedupVsProductionRule": 0.9768506907101268,
+          "speedupProductionVsAlwaysForward": 0.6428731270741804,
+          "speedupProductionVsAlwaysInverse": 1.0,
+          "oracleRegret": 1.0289001519707526,
+          "worstSlowdownVsProductionRule": 1.493133256616801,
+          "inverseChoices": 11,
+          "modelApplications": 16,
+          "fallbackApplications": 0
+        },
+        "small": {
+          "cases": 4,
+          "routeAccuracy": 0.0,
+          "routeAccuracyInModelDomain": 0.0,
+          "speedupVsAlwaysForward": 0.9993750038502921,
+          "speedupVsAlwaysInverse": 0.9971537322174953,
+          "speedupVsProductionRule": 1.0,
+          "speedupProductionVsAlwaysForward": 1.000625387014184,
+          "speedupProductionVsAlwaysInverse": 1.0028543921469113,
+          "oracleRegret": 1.003481564260877,
+          "worstSlowdownVsProductionRule": 1.0,
+          "inverseChoices": 2,
+          "modelApplications": 0,
+          "fallbackApplications": 4
+        }
+      }
+    }
+  },
+  "artifact": "model.mjs",
+  "limitations": [
+    "Synthetic DOM and selector families only.",
+    "Training measurements record the host power state in the dataset provenance.",
+    "Offline JavaScript artifact only; not wired into nwsapi runtime."
+  ]
+}

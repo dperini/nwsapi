@@ -47,11 +47,11 @@ export function assertRoutes(entries: Fixture[], source = probeSource()) {
       const engine = factory(window)
       engine.select(entry.selector, window.document)
       engine.select(entry.selector, window.document)
-      if (entry.skipProbe) {
+      if (entry.skipProbe || entry.plannerFeatures?.[1] === 0) {
         assert.equal(
           factory.probes(),
           before,
-          'Early exit bypassed: ' + entry.id,
+          'Expected the preflight or small-query exit: ' + entry.id,
         )
       } else {
         assert.ok(factory.probes() > before, 'Planner bypassed: ' + entry.id)

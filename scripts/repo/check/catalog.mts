@@ -39,6 +39,30 @@ export function checkCatalog(root = REPO_ROOT) {
   ) {
     throw new Error('AgentShield catalog and external-tool pins differ.')
   }
+  const trainingProject = path.join(root, manifest.tools.pytorch.project)
+  const trainingManifest = readFileSync(
+    path.join(trainingProject, 'pyproject.toml'),
+    'utf8',
+  )
+  const torchRequirement = new RegExp(
+    `"torch==${manifest.tools.pytorch.version.replaceAll('.', '\\.')}"`,
+  )
+  if (!trainingManifest.match(torchRequirement)) {
+    throw new Error(
+      'PyTorch project dependency differs from external-tools.json.',
+    )
+  }
+  const trainingLock = readFileSync(
+    path.join(trainingProject, 'uv.lock'),
+    'utf8',
+  )
+  if (
+    !trainingLock.includes(
+      `name = "torch"\nversion = "${manifest.tools.pytorch.version}"`,
+    )
+  ) {
+    throw new Error('PyTorch lockfile differs from external-tools.json.')
+  }
   const documents = parseAllDocuments(
     readFileSync(path.join(root, 'pnpm-lock.yaml'), 'utf8'),
   )

@@ -52,6 +52,12 @@ export interface ExternalTools {
       platforms: Record<string, { asset: string; integrity: string }>
     }
     skillspector: ToolPin & { repository: string; project: string }
+    pytorch: ToolPin & {
+      origin: string
+      package: string
+      python: string
+      project: string
+    }
     npm: ToolPin & AssetPin & { repository: string }
   }
 }
@@ -169,6 +175,14 @@ export function checkExternalTools(data: ExternalTools = manifest) {
   parseIntegrity(data.tools.agentshield.integrity)
   for (const pin of Object.values(data.tools['skill-scanner'].platforms)) {
     parseIntegrity(pin.integrity)
+  }
+  if (
+    data.tools.pytorch.origin !== 'python-project' ||
+    data.tools.pytorch.package !== 'torch' ||
+    data.tools.pytorch.python !== '3.12' ||
+    data.tools.pytorch.project !== '.config/model-training'
+  ) {
+    throw new Error('Invalid PyTorch development-tool pin.')
   }
   for (const name of GITHUB_TOOLS) {
     if (!Object.keys(data.tools[name].platforms).length) {

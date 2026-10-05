@@ -1,0 +1,81 @@
+{
+  "model": {
+    "broad": true
+  },
+  "min": [
+    32,
+    0,
+    0,
+    0
+  ],
+  "max": [
+    192,
+    768,
+    3,
+    4
+  ],
+  "baseline": {
+    "timestamp": "2026-10-05T02:51:22.790Z",
+    "node": "v26.9.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M1 Max",
+    "jsdom": "30.0.1",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+    "competitorVersion": "9.1.1",
+    "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+    "scenario": "has",
+    "settings": {
+      "rounds": 7,
+      "milliseconds": 12,
+      "batch": 16
+    },
+    "pass": "initial",
+    "fixtureSha256": "49ab5239cb775619335ea2287c2fb13489602576c0e453059b67010634cd3240",
+    "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:46 remaining present: true",
+    "featureNames": [
+      "anchorCount",
+      "witnessCount",
+      "attributeMask",
+      "witnessRatio"
+    ],
+    "routeLabels": [
+      "rule",
+      "forward",
+      "inverse"
+    ],
+    "powerAfter": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:36 remaining present: true",
+    "startedAt": "2026-10-05T02:51:24.115Z",
+    "finishedAt": "2026-10-05T02:51:52.114Z",
+    "host": "chromium",
+    "version": "154.0.8037.0",
+    "variants": [
+      "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+      "2679bfc06a2152e71c472dc226613ec76292ad1184c70a3b30ca5f3eb8ee193a",
+      "fda287101922948fea4521d8b9f5cdc8b2b6013c4b3f1e2a4af0126706be983c"
+    ]
+  },
+  "observations": 96,
+  "routeLabels": [
+    "forward",
+    "inverse"
+  ],
+  "featureNames": [
+    "anchors",
+    "witnesses",
+    "attributes",
+    "(witnesses / anchors)"
+  ],
+  "inputs": [
+    {
+      "filename": "chromium-training.json",
+      "sha256": "b7de277b94c132fda2d471504e5df92be103e55fac8e639128a5304dec84ddc7"
+    },
+    {
+      "filename": "jsdom-training.json",
+      "sha256": "cbc1e6fe379a5b0f724964bc9824460a42611c4753bc9925f72b1137675f3cb7"
+    }
+  ],
+  "expression": "true",
+  "guardedExpression": "((attributes === 0 || attributes === 3) && anchors >= 32 && anchors <= 192 && witnesses >= 0 && witnesses <= 768 && (witnesses / anchors) >= 0 && (witnesses / anchors) <= 4) ? true : (witnesses <= anchors * 2)"
+}

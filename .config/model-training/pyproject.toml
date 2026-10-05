@@ -1,0 +1,6 @@
+[project]
+name = "nwsapi-model-training"
+version = "0.0.0"
+description = "Development-only PyTorch environment for nwsapi route-planner experiments."
+requires-python = ">=3.12,<3.13"
+dependencies = ["numpy>=2.0,<3", "torch==2.14.1"]

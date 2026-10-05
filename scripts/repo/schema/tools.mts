@@ -120,6 +120,16 @@ export const ToolsSchema = Type.Object(
           },
           { additionalProperties: false },
         ),
+        pytorch: Type.Object(
+          {
+            origin: Type.Literal('python-project'),
+            package: Type.Literal('torch'),
+            version: Type.String({ pattern: VERSION }),
+            python: Type.Literal('3.12'),
+            project: Type.Literal('.config/model-training'),
+          },
+          { additionalProperties: false },
+        ),
       },
       { additionalProperties: false },
     ),

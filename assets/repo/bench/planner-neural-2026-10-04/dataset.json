@@ -1,0 +1,3234 @@
+{
+  "format": 1,
+  "scenario": "css-has-forward-versus-inverse-route",
+  "labelMeaning": "costsNs are [forward, inverse] median query times",
+  "features": [
+    "anchorCount",
+    "witnessCount",
+    "attributeMask",
+    "witnessRatio"
+  ],
+  "source": {
+    "directory": "assets/repo/bench/planner-has-neural-2026-10-04",
+    "candidateSha256": "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+    "fixtureSha256": "49ab5239cb775619335ea2287c2fb13489602576c0e453059b67010634cd3240",
+    "powerByHost": {
+      "chromium": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:46 remaining present: true",
+      "jsdom": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t87%; discharging; 9:36 remaining present: true"
+    },
+    "inputs": [
+      {
+        "host": "chromium",
+        "filename": "chromium-training.json",
+        "sha256": "b7de277b94c132fda2d471504e5df92be103e55fac8e639128a5304dec84ddc7"
+      },
+      {
+        "host": "jsdom",
+        "filename": "jsdom-training.json",
+        "sha256": "cbc1e6fe379a5b0f724964bc9824460a42611c4753bc9925f72b1137675f3cb7"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "flat-32-0-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        396.8253968253968,
+        388.76295345473477
+      ]
+    },
+    {
+      "id": "flat-32-0-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        452.07956600361666,
+        461.1631838768519
+      ]
+    },
+    {
+      "id": "flat-32-0.125-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        1331.4494681511576,
+        1368.6131386861314
+      ]
+    },
+    {
+      "id": "flat-32-0.125-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        6990.740739705938,
+        1278.7478703059878
+      ]
+    },
+    {
+      "id": "flat-32-1-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        5594.907407821329,
+        5925.196849953706
+      ]
+    },
+    {
+      "id": "flat-32-1-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        9032.738095681581,
+        5714.962121353231
+      ]
+    },
+    {
+      "id": "flat-32-4-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        8048.537236816705,
+        8838.23529652813
+      ]
+    },
+    {
+      "id": "flat-32-4-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        11406.250001693314,
+        13642.04545759342
+      ]
+    },
+    {
+      "id": "flat-192-0-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        522.284122562674,
+        508.68644047591647
+      ]
+    },
+    {
+      "id": "flat-192-0-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        530.6311879080458,
+        513.347022587269
+      ]
+    },
+    {
+      "id": "flat-192-0.125-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        5099.239866123409,
+        5390.625001330461
+      ]
+    },
+    {
+      "id": "flat-192-0.125-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        47441.406233701855,
+        5724.431819875132
+      ]
+    },
+    {
+      "id": "flat-192-1-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        18452.743897441684,
+        20658.78377824619
+      ]
+    },
+    {
+      "id": "flat-192-1-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        53794.64284383825,
+        27477.678576750415
+      ]
+    },
+    {
+      "id": "flat-192-4-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        43472.222233605054,
+        49394.531233701855
+      ]
+    },
+    {
+      "id": "flat-192-4-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        68835.22724224762,
+        76093.74998137355
+      ]
+    },
+    {
+      "id": "nested-32-0-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        525.0612317478223,
+        516.8849069607168
+      ]
+    },
+    {
+      "id": "nested-32-0-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        530.4101838755304,
+        521.195274496178
+      ]
+    },
+    {
+      "id": "nested-32-0.125-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        1545.138888965541,
+        1543.8528810033706
+      ]
+    },
+    {
+      "id": "nested-32-0.125-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        8811.773255813954,
+        1686.0955059946923
+      ]
+    },
+    {
+      "id": "nested-32-1-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        3421.875000507994,
+        3516.3551399257976
+      ]
+    },
+    {
+      "id": "nested-32-1-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        12407.786884635198,
+        5301.496476380968
+      ]
+    },
+    {
+      "id": "nested-32-4-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        6147.540983606557,
+        6239.669420563978
+      ]
+    },
+    {
+      "id": "nested-32-4-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        12796.61016759731,
+        11277.985077962947
+      ]
+    },
+    {
+      "id": "nested-192-0-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        528.0172414972823,
+        523.0125523012553
+      ]
+    },
+    {
+      "id": "nested-192-0-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        523.7430167597765,
+        536.0972122944961
+      ]
+    },
+    {
+      "id": "nested-192-0.125-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        6633.771930641511,
+        6926.6055035618465
+      ]
+    },
+    {
+      "id": "nested-192-0.125-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        51083.33332464099,
+        7148.809522567761
+      ]
+    },
+    {
+      "id": "nested-192-1-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        19786.184212486995,
+        20115.1315735555
+      ]
+    },
+    {
+      "id": "nested-192-1-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        72244.3181598051,
+        31927.08334730317
+      ]
+    },
+    {
+      "id": "nested-192-4-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        36860.11906358458,
+        37687.499984167516
+      ]
+    },
+    {
+      "id": "nested-192-4-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        77249.99999627471,
+        69375.00000507994
+      ]
+    },
+    {
+      "id": "external-32-0-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        534.5687811831789,
+        513.6986301369863
+      ]
+    },
+    {
+      "id": "external-32-0-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        521.557719054242,
+        512.6452494873547
+      ]
+    },
+    {
+      "id": "external-32-0.125-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        989.8581790263546,
+        970.2457956015523
+      ]
+    },
+    {
+      "id": "external-32-0.125-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        7890.625003104408,
+        1105.025773442766
+      ]
+    },
+    {
+      "id": "external-32-1-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        1606.6648825859488,
+        1566.4144053604134
+      ]
+    },
+    {
+      "id": "external-32-1-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        7854.817706781129,
+        2485.5132446013736
+      ]
+    },
+    {
+      "id": "external-32-4-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        3840.880100235191,
+        3736.007462871905
+      ]
+    },
+    {
+      "id": "external-32-4-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        7571.875001303852,
+        7447.400992496474
+      ]
+    },
+    {
+      "id": "external-192-0-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        523.37752965806,
+        514.2649075857697
+      ]
+    },
+    {
+      "id": "external-192-0-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        528.5412262156448,
+        525.0612317478223
+      ]
+    },
+    {
+      "id": "external-192-0.125-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        2232.01038509342,
+        2220.78402466058
+      ]
+    },
+    {
+      "id": "external-192-0.125-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        44797.794126412446,
+        2917.8779074099175
+      ]
+    },
+    {
+      "id": "external-192-1-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        6157.78688310844,
+        6078.629029704438
+      ]
+    },
+    {
+      "id": "external-192-1-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        47148.43750116415,
+        11510.416667795542
+      ]
+    },
+    {
+      "id": "external-192-4-plain",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        19607.371805856626,
+        19366.987180919983
+      ]
+    },
+    {
+      "id": "external-192-4-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        44705.88236718493,
+        41546.052640402006
+      ]
+    },
+    {
+      "id": "ragged-32-0-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        522.8658537753576,
+        522.8658534508548
+      ]
+    },
+    {
+      "id": "ragged-32-0-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        529.287226534933,
+        511.2474437627812
+      ]
+    },
+    {
+      "id": "ragged-32-0.125-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        1423.1499051233397,
+        1392.0454548564715
+      ]
+    },
+    {
+      "id": "ragged-32-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        7992.021273821592,
+        1348.1822262787305
+      ]
+    },
+    {
+      "id": "ragged-32-1-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        4168.402776122093,
+        4301.7857149243355
+      ]
+    },
+    {
+      "id": "ragged-32-1-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        10244.932434697812,
+        5400.179855177085
+      ]
+    },
+    {
+      "id": "ragged-32-4-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        7317.961166495258,
+        7250.60096458317
+      ]
+    },
+    {
+      "id": "ragged-32-4-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        13316.885960337362,
+        12073.412700186645
+      ]
+    },
+    {
+      "id": "ragged-192-0-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        520.1109570041609,
+        510.2040816326531
+      ]
+    },
+    {
+      "id": "ragged-192-0-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        527.2751227701875,
+        523.5956037457348
+      ]
+    },
+    {
+      "id": "ragged-192-0.125-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        6403.60169680947,
+        6603.618417948223
+      ]
+    },
+    {
+      "id": "ragged-192-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        49414.062494179234,
+        6696.428571428572
+      ]
+    },
+    {
+      "id": "ragged-192-1-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        20667.229728722894,
+        21464.285720139742
+      ]
+    },
+    {
+      "id": "ragged-192-1-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        60360.57692164412,
+        31549.47917209938
+      ]
+    },
+    {
+      "id": "ragged-192-4-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        40542.76316769813,
+        41909.72222325703
+      ]
+    },
+    {
+      "id": "ragged-192-4-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        80156.25001862645,
+        71051.13637887618
+      ]
+    },
+    {
+      "id": "clustered-32-0-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        519.7505197505197,
+        513.347022587269
+      ]
+    },
+    {
+      "id": "clustered-32-0-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        523.37752965806,
+        515.6786942732907
+      ]
+    },
+    {
+      "id": "clustered-32-0.125-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        1079.5863311764576,
+        1066.228692996612
+      ]
+    },
+    {
+      "id": "clustered-32-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        7754.510306974047,
+        1207.729468599034
+      ]
+    },
+    {
+      "id": "clustered-32-1-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        2161.383285302594,
+        2133.3451705603775
+      ]
+    },
+    {
+      "id": "clustered-32-1-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        8416.666669978036,
+        3100.4648767257772
+      ]
+    },
+    {
+      "id": "clustered-32-4-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        6408.89830192772,
+        6395.65678123953
+      ]
+    },
+    {
+      "id": "clustered-32-4-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        10546.874998706497,
+        10607.39436357374
+      ]
+    },
+    {
+      "id": "clustered-192-0-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        516.5289256198347,
+        511.2474437627812
+      ]
+    },
+    {
+      "id": "clustered-192-0-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        521.0503470152617,
+        513.6986301369863
+      ]
+    },
+    {
+      "id": "clustered-192-0.125-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        2559.523809333744,
+        2632.675439184695
+      ]
+    },
+    {
+      "id": "clustered-192-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        46323.52941724307,
+        3310.848017210871
+      ]
+    },
+    {
+      "id": "clustered-192-1-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        9784.902597160695,
+        9775.641022059015
+      ]
+    },
+    {
+      "id": "clustered-192-1-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        49921.87500465661,
+        16050.531915289925
+      ]
+    },
+    {
+      "id": "clustered-192-4-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        36235.11903874931,
+        36398.80951405281
+      ]
+    },
+    {
+      "id": "clustered-192-4-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        64531.25000310441,
+        62524.0384386136
+      ]
+    },
+    {
+      "id": "mixed-32-0-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        521.557719054242,
+        519.6069942534465
+      ]
+    },
+    {
+      "id": "mixed-32-0-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        525.9467040673212,
+        519.9670822605522
+      ]
+    },
+    {
+      "id": "mixed-32-0.125-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        1267.419763010096,
+        1262.079831212759
+      ]
+    },
+    {
+      "id": "mixed-32-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        7967.105262765759,
+        1086.9565217391305
+      ]
+    },
+    {
+      "id": "mixed-32-1-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        3301.8092089741117,
+        3222.907725481772
+      ]
+    },
+    {
+      "id": "mixed-32-1-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        8915.441176470587,
+        4049.0591412870795
+      ]
+    },
+    {
+      "id": "mixed-32-4-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        7265.624997671694,
+        7414.2156826222645
+      ]
+    },
+    {
+      "id": "mixed-32-4-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        11249.999995273885,
+        11429.924242706462
+      ]
+    },
+    {
+      "id": "mixed-192-0-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        526.3157894736842,
+        516.8849069607168
+      ]
+    },
+    {
+      "id": "mixed-192-0-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        534.79151796292,
+        537.6344086021505
+      ]
+    },
+    {
+      "id": "mixed-192-0.125-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        3756.2499986961484,
+        3854.1666661890654
+      ]
+    },
+    {
+      "id": "mixed-192-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        46525.73529850034,
+        4435.661763829344
+      ]
+    },
+    {
+      "id": "mixed-192-1-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        18914.062494877726,
+        19117.187499068677
+      ]
+    },
+    {
+      "id": "mixed-192-1-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        54174.10713354392,
+        25041.666673496366
+      ]
+    },
+    {
+      "id": "mixed-192-4-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        39736.84212388961,
+        40180.921039887166
+      ]
+    },
+    {
+      "id": "mixed-192-4-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        65442.7083209157,
+        67161.45831160247
+      ]
+    },
+    {
+      "id": "small-1-0-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        595.0138780076431,
+        589.4049490712003
+      ]
+    },
+    {
+      "id": "small-1-4-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        1,
+        4,
+        0,
+        4
+      ],
+      "costsNs": [
+        738.9162561576354,
+        712.9277566539924
+      ]
+    },
+    {
+      "id": "small-8-0-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        8,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        2626.7482508364674,
+        2646.346830657985
+      ]
+    },
+    {
+      "id": "small-8-4-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "chromium",
+      "features": [
+        8,
+        32,
+        0,
+        4
+      ],
+      "costsNs": [
+        3655.946601037551,
+        3645.327670083752
+      ]
+    },
+    {
+      "id": "flat-32-0-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1122.375,
+        1132.8125
+      ]
+    },
+    {
+      "id": "flat-32-0-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1177.0625,
+        1182.25
+      ]
+    },
+    {
+      "id": "flat-32-0.125-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        3505.25,
+        3531.25
+      ]
+    },
+    {
+      "id": "flat-32-0.125-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        26187.5,
+        3505.1875
+      ]
+    },
+    {
+      "id": "flat-32-1-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        12281.25,
+        12445.3125
+      ]
+    },
+    {
+      "id": "flat-32-1-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        31049.4375,
+        14622.375
+      ]
+    },
+    {
+      "id": "flat-32-4-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        21854.1875,
+        23013
+      ]
+    },
+    {
+      "id": "flat-32-4-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        43614.625,
+        37593.75
+      ]
+    },
+    {
+      "id": "flat-192-0-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1242.1875,
+        1260.375
+      ]
+    },
+    {
+      "id": "flat-192-0-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1273.4375,
+        1255.1875
+      ]
+    },
+    {
+      "id": "flat-192-0.125-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        11479.187499761581,
+        11114.625000238419
+      ]
+    },
+    {
+      "id": "flat-192-0.125-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        153150.99999976158,
+        12643.250000238419
+      ]
+    },
+    {
+      "id": "flat-192-1-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        49979.1875,
+        49523.43749976158
+      ]
+    },
+    {
+      "id": "flat-192-1-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        184112,
+        71924.5
+      ]
+    },
+    {
+      "id": "flat-192-4-plain",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        124177.0625,
+        124377.5625
+      ]
+    },
+    {
+      "id": "flat-192-4-filtered",
+      "family": "flat",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        253562.5,
+        210625
+      ]
+    },
+    {
+      "id": "nested-32-0-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1250,
+        1250
+      ]
+    },
+    {
+      "id": "nested-32-0-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1239.5625,
+        1252.625
+      ]
+    },
+    {
+      "id": "nested-32-0.125-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        3796.875,
+        3755.25
+      ]
+    },
+    {
+      "id": "nested-32-0.125-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        28726.5625,
+        4244.8125
+      ]
+    },
+    {
+      "id": "nested-32-1-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        7502.625,
+        7601.5625
+      ]
+    },
+    {
+      "id": "nested-32-1-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        43710.9375,
+        12619.8125
+      ]
+    },
+    {
+      "id": "nested-32-4-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        15966.1875,
+        15401.0625
+      ]
+    },
+    {
+      "id": "nested-32-4-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        36450.5625,
+        31622.4375
+      ]
+    },
+    {
+      "id": "nested-192-0-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1273.4375,
+        1281.25
+      ]
+    },
+    {
+      "id": "nested-192-0-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1265.625,
+        1263
+      ]
+    },
+    {
+      "id": "nested-192-0.125-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        14312.5,
+        13903.625
+      ]
+    },
+    {
+      "id": "nested-192-0.125-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        166796.875,
+        17286.4375
+      ]
+    },
+    {
+      "id": "nested-192-1-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        48664.0625,
+        45882.8125
+      ]
+    },
+    {
+      "id": "nested-192-1-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        268546.875,
+        83552.0625
+      ]
+    },
+    {
+      "id": "nested-192-4-plain",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        98354.1875,
+        98479.1875
+      ]
+    },
+    {
+      "id": "nested-192-4-filtered",
+      "family": "nested",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        215906.25,
+        178351.5625
+      ]
+    },
+    {
+      "id": "external-32-0-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1257.8125,
+        1270.875
+      ]
+    },
+    {
+      "id": "external-32-0-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1250,
+        1255.1875
+      ]
+    },
+    {
+      "id": "external-32-0.125-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        2557.3125,
+        2575.5625
+      ]
+    },
+    {
+      "id": "external-32-0.125-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        24992.1875,
+        2843.75
+      ]
+    },
+    {
+      "id": "external-32-1-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        3242.1875,
+        3234.375
+      ]
+    },
+    {
+      "id": "external-32-1-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        23934.875,
+        5934.9375
+      ]
+    },
+    {
+      "id": "external-32-4-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        9835.9375,
+        9830.6875
+      ]
+    },
+    {
+      "id": "external-32-4-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        23981.75,
+        23877.625
+      ]
+    },
+    {
+      "id": "external-192-0-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1273.4375,
+        1270.8125
+      ]
+    },
+    {
+      "id": "external-192-0-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1252.625,
+        1260.4375
+      ]
+    },
+    {
+      "id": "external-192-0.125-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        4072.9375,
+        4044.3125
+      ]
+    },
+    {
+      "id": "external-192-0.125-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        147583.3125,
+        5416.6875
+      ]
+    },
+    {
+      "id": "external-192-1-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        16330.6875,
+        15924.4375
+      ]
+    },
+    {
+      "id": "external-192-1-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        144544.25,
+        33036.4375
+      ]
+    },
+    {
+      "id": "external-192-4-plain",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        61419.25,
+        62317.75
+      ]
+    },
+    {
+      "id": "external-192-4-filtered",
+      "family": "external",
+      "split": "train",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        145453.125,
+        122942.75
+      ]
+    },
+    {
+      "id": "ragged-32-0-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1239.625,
+        1250
+      ]
+    },
+    {
+      "id": "ragged-32-0-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1244.75,
+        1255.25
+      ]
+    },
+    {
+      "id": "ragged-32-0.125-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        3572.9375,
+        3578.125
+      ]
+    },
+    {
+      "id": "ragged-32-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        26419.25,
+        3369.8125
+      ]
+    },
+    {
+      "id": "ragged-32-1-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        9349,
+        9447.9375
+      ]
+    },
+    {
+      "id": "ragged-32-1-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        34807.3125,
+        13872.375
+      ]
+    },
+    {
+      "id": "ragged-32-4-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        18200.5,
+        18151.0625
+      ]
+    },
+    {
+      "id": "ragged-32-4-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        50684.875,
+        33945.3125
+      ]
+    },
+    {
+      "id": "ragged-192-0-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1250,
+        1255.1875
+      ]
+    },
+    {
+      "id": "ragged-192-0-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1260.4375,
+        1281.25
+      ]
+    },
+    {
+      "id": "ragged-192-0.125-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        13809.875,
+        14065.125
+      ]
+    },
+    {
+      "id": "ragged-192-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        155369.8125,
+        15367.1875
+      ]
+    },
+    {
+      "id": "ragged-192-1-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        50643.25,
+        50661.5
+      ]
+    },
+    {
+      "id": "ragged-192-1-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        204825.5,
+        80398.4375
+      ]
+    },
+    {
+      "id": "ragged-192-4-plain",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        106052.0625,
+        107460.9375
+      ]
+    },
+    {
+      "id": "ragged-192-4-filtered",
+      "family": "ragged",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        308710.9375,
+        183804.6875
+      ]
+    },
+    {
+      "id": "clustered-32-0-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1252.5625,
+        1260.4375
+      ]
+    },
+    {
+      "id": "clustered-32-0-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1257.8125,
+        1265.625
+      ]
+    },
+    {
+      "id": "clustered-32-0.125-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        2820.3125,
+        2828.125
+      ]
+    },
+    {
+      "id": "clustered-32-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        25705.75,
+        3132.8125
+      ]
+    },
+    {
+      "id": "clustered-32-1-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        4710.9375,
+        4599
+      ]
+    },
+    {
+      "id": "clustered-32-1-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        27346.375,
+        7466.125
+      ]
+    },
+    {
+      "id": "clustered-32-4-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        16200.5,
+        16093.75
+      ]
+    },
+    {
+      "id": "clustered-32-4-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        41544.25,
+        30276.0625
+      ]
+    },
+    {
+      "id": "clustered-192-0-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1270.8125,
+        1281.25
+      ]
+    },
+    {
+      "id": "clustered-192-0-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1250,
+        1263.0625
+      ]
+    },
+    {
+      "id": "clustered-192-0.125-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        5062.5,
+        4895.8125
+      ]
+    },
+    {
+      "id": "clustered-192-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        147106.8125,
+        6315.125
+      ]
+    },
+    {
+      "id": "clustered-192-1-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        26447.875,
+        26401.0625
+      ]
+    },
+    {
+      "id": "clustered-192-1-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        170026,
+        45424.5
+      ]
+    },
+    {
+      "id": "clustered-192-4-plain",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        100739.625,
+        102153.625
+      ]
+    },
+    {
+      "id": "clustered-192-4-filtered",
+      "family": "clustered",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        237875,
+        164356.8125
+      ]
+    },
+    {
+      "id": "mixed-32-0-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1257.8125,
+        1265.625
+      ]
+    },
+    {
+      "id": "mixed-32-0-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1257.8125,
+        1255.25
+      ]
+    },
+    {
+      "id": "mixed-32-0.125-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        3213.5,
+        3203.125
+      ]
+    },
+    {
+      "id": "mixed-32-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        4,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        27320.3125,
+        2984.375
+      ]
+    },
+    {
+      "id": "mixed-32-1-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        0,
+        1
+      ],
+      "costsNs": [
+        7325.5,
+        7140.625
+      ]
+    },
+    {
+      "id": "mixed-32-1-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        32,
+        3,
+        1
+      ],
+      "costsNs": [
+        29737,
+        10036.4375
+      ]
+    },
+    {
+      "id": "mixed-32-4-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        0,
+        4
+      ],
+      "costsNs": [
+        19093.75,
+        19174.4375
+      ]
+    },
+    {
+      "id": "mixed-32-4-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        32,
+        128,
+        3,
+        4
+      ],
+      "costsNs": [
+        40992.1875,
+        33151.0625
+      ]
+    },
+    {
+      "id": "mixed-192-0-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        1244.7500004768372,
+        1257.8125004768372
+      ]
+    },
+    {
+      "id": "mixed-192-0-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        0,
+        3,
+        0
+      ],
+      "costsNs": [
+        1247.4375,
+        1257.8125
+      ]
+    },
+    {
+      "id": "mixed-192-0.125-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        0,
+        0.125
+      ],
+      "costsNs": [
+        9536.437500476837,
+        9375.000000476837
+      ]
+    },
+    {
+      "id": "mixed-192-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        24,
+        3,
+        0.125
+      ],
+      "costsNs": [
+        151393.18750095367,
+        9729.125000476837
+      ]
+    },
+    {
+      "id": "mixed-192-1-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        0,
+        1
+      ],
+      "costsNs": [
+        46268.187500953674,
+        47562.5
+      ]
+    },
+    {
+      "id": "mixed-192-1-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        192,
+        3,
+        1
+      ],
+      "costsNs": [
+        186265.62499952316,
+        68523.43750047684
+      ]
+    },
+    {
+      "id": "mixed-192-4-plain",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        0,
+        4
+      ],
+      "costsNs": [
+        102070.31249952316,
+        100945.3125
+      ]
+    },
+    {
+      "id": "mixed-192-4-filtered",
+      "family": "mixed",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        192,
+        768,
+        3,
+        4
+      ],
+      "costsNs": [
+        244247.4375,
+        187966.125
+      ]
+    },
+    {
+      "id": "small-1-0-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        2044.3125,
+        2044.3125
+      ]
+    },
+    {
+      "id": "small-1-4-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        1,
+        4,
+        0,
+        4
+      ],
+      "costsNs": [
+        2726.5625,
+        2716.125
+      ]
+    },
+    {
+      "id": "small-8-0-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        8,
+        0,
+        0,
+        0
+      ],
+      "costsNs": [
+        9385.375,
+        9408.875
+      ]
+    },
+    {
+      "id": "small-8-4-plain",
+      "family": "small",
+      "split": "holdout",
+      "host": "jsdom",
+      "features": [
+        8,
+        32,
+        0,
+        4
+      ],
+      "costsNs": [
+        14859.375,
+        14747.375
+      ]
+    }
+  ]
+}

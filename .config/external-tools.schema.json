@@ -21,7 +21,8 @@
         "trufflehog",
         "agentshield",
         "skill-scanner",
-        "skillspector"
+        "skillspector",
+        "pytorch"
       ],
       "properties": {
         "node": {
@@ -699,6 +700,18 @@
               "type": "string",
               "const": ".config/security/skillspector"
             }
+          },
+          "additionalProperties": false
+        },
+        "pytorch": {
+          "type": "object",
+          "required": ["origin", "package", "version", "python", "project"],
+          "properties": {
+            "origin": { "type": "string", "const": "python-project" },
+            "package": { "type": "string", "const": "torch" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "python": { "type": "string", "const": "3.12" },
+            "project": { "type": "string", "const": ".config/model-training" }
           },
           "additionalProperties": false
         }
