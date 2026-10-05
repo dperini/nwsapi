@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setupRelease } from './publish/setup.mjs'
+import { ensurePhp } from './php.mjs'
 
 function runQuiet(command, args, options = {}) {
   try {
@@ -16,6 +17,7 @@ function runQuiet(command, args, options = {}) {
 }
 
 setupRelease()
+ensurePhp()
 const root = fileURLToPath(new URL('../', import.meta.url))
 const env = Object.fromEntries(Object.entries({ ...process.env, GIT_TERMINAL_PROMPT: '0' })
   .filter(([name]) => !/^npm_config_python$/i.test(name)))
