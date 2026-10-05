@@ -1,6 +1,7 @@
 import { nextCompileIdentifier } from '../state.mts'
 import { inlineLogical } from '../logical.mts'
 import { inlineRelative } from '../relative.mts'
+import { typeUnionCondition } from './type-union.mts'
 import type { CompileState } from '../state.mts'
 
 export function compilePseudoLogical(
@@ -98,21 +99,7 @@ export function compilePseudoLogical(
       // keep the matchesTag fallback for foreign and legacy names.
       state.source =
         'if(' +
-        state.engine
-          .splitList(state.match![2]!)
-          .map(function (tag, index: number) {
-            var read = index ? 'n' : '(n=' + state.read.tag('e') + ')'
-            return state.engine.HTML_DOCUMENT
-              ? '(' +
-                  read +
-                  '==' +
-                  JSON.stringify(state.engine.asciiLower(tag)) +
-                  '||s.matchesTag(e,' +
-                  JSON.stringify(tag) +
-                  '))'
-              : read + '==' + JSON.stringify(tag)
-          })
-          .join('||') +
+        typeUnionCondition(state, state.engine.splitList(state.match![2]!)) +
         '){' +
         state.source +
         '}'

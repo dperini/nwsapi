@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
@@ -10,6 +10,8 @@ import { nativePage, nativeSources } from '../native/host.mts'
 import { nativeTiming } from '../native/timing.mts'
 import { positiveInteger, provenance, sha256 } from '../footprint/shared.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
+import { checkedPower } from '../planner/has/power.mts'
+import { expandedCases } from './coverage.mts'
 
 const { values } = parseArgs({
   options: {
@@ -20,18 +22,23 @@ const { values } = parseArgs({
     },
     rounds: { type: 'string', default: '9' },
     power: { type: 'string', default: 'not recorded' },
+    expanded: { type: 'boolean', default: false },
     help: { type: 'boolean' },
   },
 })
 if (values.help) {
   console.log(
-    'Usage: survey/run.mts [--dependencies installation-directory] [--output results.json] [--rounds 9] [--power battery|AC]',
+    'Usage: survey/run.mts [--dependencies installation-directory] [--output results.json] [--rounds 9] [--power battery|AC] [--expanded]',
   )
 } else {
   await run()
 }
 
 async function run() {
+  if (existsSync(path.resolve(values.output))) {
+    throw new Error('Use a new survey output path to preserve measurements.')
+  }
+  const powerBefore = checkedPower()
   const load = createRequire(
     path.join(
       values.dependencies ? path.resolve(values.dependencies) : REPO_ROOT,
@@ -48,7 +55,9 @@ async function run() {
   const rows = []
   const fixtures = []
   try {
-    for (const [fixture, categories] of Object.entries(cases)) {
+    for (const [fixture, categories] of Object.entries(
+      values.expanded ? expandedCases : cases,
+    )) {
       const html = DOCUMENTS[fixture as keyof typeof DOCUMENTS].html()
       const page = await nativePage(browser, sources)
       try {
@@ -97,6 +106,9 @@ async function run() {
             host: 'Native browser DOM, direct library APIs',
             queryState: 'Warm, all results',
             power: values.power,
+            powerBefore,
+            powerAfter: checkedPower(),
+            expanded: values.expanded,
             rounds,
             iterations: 16,
             minRoundMs: 30,

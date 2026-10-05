@@ -66,7 +66,10 @@ export function byTags(
       i < collectionsLength;
       ++i
     ) {
-      list = engine.sliceCall(collections[i]!)
+      if (!collections[i]!.length) {
+        continue
+      }
+      list = engine.collectionCopy(collections[i]!, context)
       if (!nodes.length) {
         nodes = list as Element[]
         continue

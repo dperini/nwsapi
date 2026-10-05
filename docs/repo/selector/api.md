@@ -36,7 +36,7 @@ Find elements directly by class, ID, or tag name.
 | --- | --- |
 | [`byClass(cls, context)`](../../../src/core/lookup/class.mts#L4) | Returns elements with the class name. |
 | [`byId(id, context)`](../../../src/core/lookup/id.mts#L32) | Returns elements with the ID. Duplicate IDs are allowed by default. |
-| [`byTag(tag, context)`](../../../src/core/lookup/tag.mts#L210) | Returns elements with the tag name. Use `*` for all elements. |
+| [`byTag(tag, context)`](../../../src/core/lookup/tag.mts#L213) | Returns elements with the tag name. Use `*` for all elements. |
 
 ### Configure the engine
 

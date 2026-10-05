@@ -361,13 +361,19 @@ the cause for this case.
 The reports and frozen bundles are in
 `assets/repo/bench/selector-union-2026-10-05-r2/` and
 `assets/repo/bench/selector-union-2026-10-05-r3/`. The `r4` run added an
-empty-collection preflight. Chromium completed on AC power, but the Mac was
-on battery when `jsdom` was about to start. The run did not save a `jsdom`
-report, so `r4` is incomplete. Its combined bundle hash is
+empty-collection preflight and repeated 86 cases in Chromium on AC power. Its
+combined geometric speed ratio was 1.220×. The slowest case had a baseline to
+candidate ratio of 0.964×, which means the candidate took about 3.7% longer.
+The no-match selector `:is(missing, absent)` measured 1.314× faster in this
+Chromium run, unlike the earlier `jsdom` results.
+
+The Mac switched to battery before the `jsdom` pass. The run did not save a
+`jsdom` report, so these results do not confirm the candidate in both hosts.
+The combined bundle hash is
 `5c0574fa563a169690af487217286f1726821c719dcb68ef52a861d51a477bd9`.
-After AC power is restored, repeat both hosts with the same candidate in a
-new output directory. Do not treat the Chromium-only `r4` data as a
-two-host result.
+The candidate is included on the v3 prerelease branch for evaluation. Repeat
+the `jsdom` pass on AC power in a new output directory before describing the
+change as a verified two-host improvement or closing task A.
 
 ### A3. Understand the collection change
 
@@ -1086,9 +1092,10 @@ declared completion criteria. Do not force-push or delete another worktree.
 - [x] Save the 86-case Chromium ablation pilot.
 - [x] Complete the two-host `r2` run and save both result files.
 - [x] Complete the reversed-order `r3` repeat on both hosts.
-- [ ] A: repeat the empty-collection preflight on AC power in both hosts; then
-      finish cold, mutation, and retention checks and decide whether to keep each
-      change.
+- [x] A: implement and land the empty-collection preflight candidate; record
+      the Chromium AC repeat and its limits.
+- [ ] A: repeat `jsdom` on AC power; finish cold, mutation, and retention
+      checks and decide whether to keep each change.
 - [ ] B: measure and improve query-local parent lookup for typed positions.
 - [ ] C: measure and prototype exact scoped terminal-union execution.
 - [ ] D: qualify ancestor-result reuse with a narrow pure logical suffix.
@@ -1096,5 +1103,5 @@ declared completion criteria. Do not force-push or delete another worktree.
 - [ ] F: collect and train only on useful remaining multi-family decisions.
 - [ ] G: publish the complete gap report and final qualification results.
 
-**Next action:** repeat the refined candidate on AC power in Chromium and
-`jsdom`. Record the task A decision before starting task B.
+**Next action:** repeat the refined candidate in `jsdom` on AC power. Record
+the task A decision before starting task B.
