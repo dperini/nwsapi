@@ -1,5 +1,12 @@
 import { ancestor } from '../ancestor/closest.mts'
-import { match_assert, match_collect } from '../match/selector.mts'
+import {
+  match_assert,
+  match_collect,
+  matchPreparedForgiving,
+  forgivingKey,
+  matchForgivingKey,
+  prepareForgiving,
+} from '../match/selector.mts'
 import { selectorComments } from '../parser/comments.mts'
 import { stringContinuations } from '../parser/string.mts'
 import {
@@ -71,6 +78,7 @@ export function initializeMatching(engine: EngineState) {
   engine.lastMaskNode = null
   engine.lastMaskValue = 0
   engine.tagBits = engine.primordials.ObjectCreate(null)
+  engine.tagBitCount = 0
   engine.tagBit = tagBit.bind(null, engine) as EngineState['tagBit']
   engine.ancestorMask = ancestorMask.bind(
     null,
@@ -150,7 +158,7 @@ export function initializeMatching(engine: EngineState) {
     'relative:null:false:',
     'relative:null:true:',
   ]
-  engine.F_INIT = '"use strict";return function Resolver(c,f,x,r,v)'
+  engine.F_INIT = '"use strict";return function Resolver(c,f,x,r,v,p)'
   engine.S_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length'
   engine.M_HEAD = 'var e,n,o'
   engine.N_HEAD = 'var e,n,o,j=r.length-1,k=-1,l=c.length'
@@ -250,6 +258,22 @@ export function initializeMatching(engine: EngineState) {
     null,
     engine,
   ) as EngineState['match_collect']
+  engine.prepareForgiving = prepareForgiving.bind(
+    null,
+    engine,
+  ) as EngineState['prepareForgiving']
+  engine.matchPreparedForgiving = matchPreparedForgiving.bind(
+    null,
+    engine,
+  ) as EngineState['matchPreparedForgiving']
+  engine.forgivingKey = forgivingKey.bind(
+    null,
+    engine,
+  ) as EngineState['forgivingKey']
+  engine.matchForgivingKey = matchForgivingKey.bind(
+    null,
+    engine,
+  ) as EngineState['matchForgivingKey']
   engine.selectorComments = selectorComments.bind(
     null,
     engine,

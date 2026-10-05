@@ -1,3 +1,4 @@
+import { nextCompileIdentifier } from './state.mts'
 import type { CompileState } from './state.mts'
 
 export function compileSibling(
@@ -19,7 +20,7 @@ export function compileSibling(
     !state.firstChildOnly &&
     !state.engine.Config.LEGACY
   ) {
-    state.flag = '_sw' + state.engine.notFlag++
+    state.flag = nextCompileIdentifier(state, '_sw')
     state.engine.S_VARS.push(state.flag + '=s.createWeakMap()')
     memo = 'if(' + state.flag + '.get(e)!==false){'
   }

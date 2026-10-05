@@ -44,15 +44,15 @@ export function compileClass(state: CompileState): string | false | undefined {
             '(\\s|$)/' +
             (state.engine.QUIRKS_MODE ? 'i' : ''),
     )
-    if (state.ancestry.classes && !scan) {
+    if (state.compiler && !scan) {
       // These expressions have no stateful flags. Create them once
       // per query instead of once for every candidate or ancestor.
-      state.classIndex = state.ancestry.classes.indexOf(
+      state.classIndex = state.compiler.classes.indexOf(
         state.classTests[state.classTests.length - 1]!,
       )
       if (state.classIndex < 0) {
-        state.classIndex = state.ancestry.classes.length
-        state.ancestry.classes.push(
+        state.classIndex = state.compiler.classes.length
+        state.compiler.classes.push(
           state.classTests[state.classTests.length - 1]!,
         )
       }

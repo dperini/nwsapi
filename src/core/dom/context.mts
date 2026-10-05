@@ -13,6 +13,10 @@ export function switchContext(
   engine.descentDeclined.clear()
   engine.siblingDeclined.clear()
   engine.doc = (context.ownerDocument || context) as Document
+  // Only document-switching engines retain unbound code for later rebinding.
+  if (oldDoc && oldDoc !== engine.doc && engine.codeFactories === undefined) {
+    engine.codeFactories = null
+  }
   if (force || oldDoc !== engine.doc) {
     // force a new check for each document change
     // performed before the next select operation
@@ -21,6 +25,7 @@ export function switchContext(
     engine.matchLambdas.clear()
     engine.selectLambdas.clear()
     engine.matchResolvers.clear()
+    engine.forgivingResolvers.clear()
     engine.selectResolvers.clear()
     engine.firstResolvers.clear()
     engine.hasPlans = undefined

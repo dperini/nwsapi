@@ -1,0 +1,855 @@
+{
+  "revision": "f04f47f8bb8cc4a86df33c41c141ace83d5ca963",
+  "node": "v26.10.0",
+  "v8": "14.6.202.34-node.34",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "probes": {
+    "invalidForgiving": {
+      "selector": "div:is(.missing,:audit-unknown)",
+      "candidates": 256,
+      "result": 0,
+      "cold": {
+        "parse": 258,
+        "compileSelector": 258,
+        "emit": 256
+      },
+      "warm": {
+        "parse": 256,
+        "compileSelector": 256,
+        "emit": 256
+      },
+      "source": "function Resolver(c,f,x,r,v){var e,n,o,j=r.length-1,k=-1,l=c.length;main:while(++k<l&&(e=c[k])!==undefined){if(e.localName==\"div\"||s.matchesTag(e,\"div\")){if(s.matchForgiving([\".missing\",\":audit-unknown\"],e)){r[++j]=c[k];continue main;}}}return r;}"
+    },
+    "tagBits": {
+      "sizes": [
+        {
+          "compiled": 2500,
+          "tagNames": 2501,
+          "selectLambdas": 2500
+        },
+        {
+          "compiled": 5000,
+          "tagNames": 5001,
+          "selectLambdas": 2952
+        },
+        {
+          "compiled": 7500,
+          "tagNames": 7501,
+          "selectLambdas": 3404
+        },
+        {
+          "compiled": 10000,
+          "tagNames": 10001,
+          "selectLambdas": 3856
+        }
+      ],
+      "afterClear": {
+        "tagNames": 10001,
+        "selectLambdas": 0
+      }
+    },
+    "lazyHas": {
+      "afterCompile": {
+        "parse": 1,
+        "compileSelector": 2,
+        "generated": 1
+      },
+      "noPredicateReach": {
+        "parse": 1,
+        "compileSelector": 2,
+        "generated": 1
+      },
+      "afterExecute": {
+        "parse": 2,
+        "compileSelector": 3,
+        "generated": 2
+      },
+      "source": "function Resolver(c,f,x,r,v){var e,n,o,j=r.length-1,k=-1,l=c.length;main:while(++k<l&&(e=c[k])!==undefined){if(e.localName==\"div\"||s.matchesTag(e,\"div\")){if(s.has(\"[data-hit]\",e)){r[++j]=c[k];continue main;}}}return r;}"
+    },
+    "nameStability": {
+      "same": false,
+      "first": "function Resolver(c,f,x,r,v){var e,n,o,j=r.length-1,k=-1,l=c.length;main:while(++k<l&&(e=c[k])!==undefined){if(e.localName==\"div\"||s.matchesTag(e,\"div\")){var _n0=false;if(/(^|\\s)a(\\s|$)/.test(s.classOf(e))){_n0=true;}if(!_n0){r[++j]=c[k];continue main;}}}return r;}",
+      "second": "function Resolver(c,f,x,r,v){var e,n,o,j=r.length-1,k=-1,l=c.length;main:while(++k<l&&(e=c[k])!==undefined){if(e.localName==\"div\"||s.matchesTag(e,\"div\")){var _n1=false;if(/(^|\\s)a(\\s|$)/.test(s.classOf(e))){_n1=true;}if(!_n1){r[++j]=c[k];continue main;}}}return r;}",
+      "notFlag": 2
+    },
+    "chainPlanning": {
+      "queries": 100,
+      "parseCalls": 100
+    },
+    "hasCopy": {
+      "children": 1000,
+      "hit": "first child",
+      "match": true,
+      "indexedReads": 1000,
+      "lengthReads": 2,
+      "snapshotsDisabled": true
+    },
+    "logicalTiming": {
+      "selector": "div:is(.missing,[data-hit])",
+      "candidateCount": 256,
+      "mode": "raw precompiled resolver, fixed candidates",
+      "callsPerSample": 1000,
+      "rounds": 9,
+      "samplesMs": {
+        "current": [
+          0.12166541599999994,
+          0.12112,
+          0.12100654199999986,
+          0.12060412500000006,
+          0.12126491699999997,
+          0.12122783400000003,
+          0.12130429200000004,
+          0.12115212499999985,
+          0.12083562499999971
+        ],
+        "prebound": [
+          0.04601787500000001,
+          0.045736458999999965,
+          0.045608625000000076,
+          0.045270459000000075,
+          0.045488250000000105,
+          0.0455815419999999,
+          0.04596020900000008,
+          0.045217167000000016,
+          0.04570058299999982
+        ]
+      },
+      "medianMs": {
+        "current": 0.12115212499999985,
+        "prebound": 0.045608625000000076
+      },
+      "sink": 4608000,
+      "limitation": "Diagnostic helper substitution only. Outer emitted list literal is unchanged. No implementation candidate or browser measurement."
+    },
+    "foreignScan": {
+      "selector": ".card",
+      "matches": 1000,
+      "warmLocalNameReads": 0,
+      "afterChildMutationLocalNameReads": 1005,
+      "bypassLocalNameReads": 0,
+      "sameIdentities": true,
+      "limitation": "Bypass is a diagnostic on this all-HTML class-only fixture, not a proposed general bypass."
+    },
+    "documentSwitch": {
+      "queries": 20,
+      "compileSelectorCalls": 20
+    },
+    "closest": {
+      "calls": 100,
+      "parseCalls": 100
+    },
+    "languageCache": {
+      "ranges": 1000,
+      "initialSplits": 1000,
+      "splitsAfterClearAndReplay": 1000,
+      "splitsAfterNewEngine": 1000
+    },
+    "firstNth": {
+      "selector": "i[data-hit]:nth-child(2n)",
+      "result": "no match",
+      "samples": [
+        {
+          "siblings": 128,
+          "firstResult": null,
+          "allCount": 0,
+          "firstPreviousSiblingReads": 8256,
+          "allPreviousSiblingReads": 129
+        },
+        {
+          "siblings": 256,
+          "firstResult": null,
+          "allCount": 0,
+          "firstPreviousSiblingReads": 32896,
+          "allPreviousSiblingReads": 257
+        },
+        {
+          "siblings": 512,
+          "firstResult": null,
+          "allCount": 0,
+          "firstPreviousSiblingReads": 131328,
+          "allPreviousSiblingReads": 513
+        }
+      ]
+    }
+  },
+  "method": "Direct Node imports of current TypeScript source. The checked-in UMD loader was type-stripped and its two build placeholders were bound to source modules. The factory initializer sequence was preserved, exposing EngineState for instrumentation. This is not the bundled/minified release artifact.",
+  "date": "2026-10-01",
+  "sourceRoot": "/Users/jdalton/projects/nwsapi",
+  "sourceHashes": {
+    "src/adapter/dom-selector.mts": "dd203886a80a41326cb63ee1055564af91fb2fbd1bd3840561d6ba5d2e8789a5",
+    "src/adapter/jsdom.mts": "6d37e50f17867bef1b07f6cd1884bb6ca4560a84af61551a020bfeae661d7bd9",
+    "src/bin/nwsapi.mts": "d9bb36020ecf19135efdc05ff6d3ea1f7e2652a90e5ee5bed9bc878849c866cf",
+    "src/core/ancestor/closest.mts": "3613545a60acc51e19da654666b2f02b9bd56b2ba02a0d4d48927333917e1473",
+    "src/core/ancestor/mask.mts": "1949737dca45aecadce15ff309412e63d1c0cd4e58b587870a2f7ea4d488e011",
+    "src/core/ancestor/reuse.mts": "b78774cd6e411c5a5f4504bb40c21d0f984ae995e60c78262abd15cadab03d2e",
+    "src/core/ancestor/token-pattern.mts": "eb36fc33b72f1770909e02e5312f22aeee1e5c291f125a2af02a707f1849d66b",
+    "src/core/cache/plan.mts": "c4536de420398c6f02e3ea895e4efa0b240ebf447cf9b33082b42dcd373fae9a",
+    "src/core/cache/weak-map.mts": "b3c23e1eb23c3bfabd7dc33343e37605d700c56d60b0bf678c38cea97bb34ec3",
+    "src/core/collection/append.mts": "28753bf24b69b7bf65567c91623b39d71339e62cce6b9343c43863c5a456f837",
+    "src/core/collection/copy.mts": "b3bd16fffc5e837c76a90e359c48196f7cd707f1b6209733638b212752da04e7",
+    "src/core/collection/node-list.mts": "2c0eb0eb18191ac82bfda07f63e0ee51cfb5fe8d553a9b78e5939e8f24b04716",
+    "src/core/collection/order.mts": "fa06eb0071a998415dff1d53b9ad2f15ce84a3d63acd1b605c9214bf325a2376",
+    "src/core/collection/snapshot/get.mts": "27358d7d8d0aaa68651088e9184ebef8a799f8fe5652b2d36a61a3ee71606b98",
+    "src/core/collection/snapshot/skip.mts": "998a355e8173a31283046dad5dfdb0aacb2b3c51f3e1feb4916c3a75013d2075",
+    "src/core/compile/adjacent.mts": "c5e33b25b6dbdf2879f30edc37c2fb4bd18947617c943f4a149b9e97816ae2d9",
+    "src/core/compile/ancestor.mts": "82db014a07084850db8a77cedafb6fd4b6fabf8ad2932de5ce0656578c3a29c9",
+    "src/core/compile/attribute/compile.mts": "59e1b537adc95430b0ef508126bdb91381b6abf208449b38019f95575dbc6615",
+    "src/core/compile/attribute/condition.mts": "7f274ed63df6b107a4dc34ea24cb048a1c39df2fcfa25942deac794be74e7d6c",
+    "src/core/compile/cache-key.mts": "f732b4f43ee9745473e21fe87992ac457f9c614c0caa5be5b04cacd70d83cee7",
+    "src/core/compile/child.mts": "41b50aaddb18f5de4444b6febdbfacd3a6f97d8fe0f58d3695719e363b2691e1",
+    "src/core/compile/class.mts": "a0e35b1c33d825345050193d0fdd7f3618aafd4c3e86fbbf3447533ed6a707d0",
+    "src/core/compile/extension.mts": "cc16435750f76da8fbf829ee6361486a30e566073dcfc1c1bac0c7622331eded",
+    "src/core/compile/id.mts": "648b012d681402a8162677dff2a54868b8c5fc7f7cb25e6f1954826072bd105b",
+    "src/core/compile/namespace.mts": "c4b9d228a513add0402d8124182e080bfaabb092f21e40d319004b5ff4e1b7b6",
+    "src/core/compile/optimize.mts": "673bed77cdd8aeb6ba87dbdfb43e2729976f8e704b39e2c91ad7a775e69c9522",
+    "src/core/compile/position/condition.mts": "ac2418f3955301f6c95635fa5d94b92833bd1cd9d7ca43a7c30f2156e3cd9820",
+    "src/core/compile/position/constant.mts": "05b7aba849f2e8cb5d8d2a6a1484a10e3c0ee728d69c6f73ab06b7872f6aa9a5",
+    "src/core/compile/position/dense.mts": "bbcec034c57efa33e5366284123dac3b1641ffbd8a5bb8d68fd7a51bfc22a4ec",
+    "src/core/compile/position/expression.mts": "a3deb683379e56bab569071f3b78599c46940cd7d42bfd2b4538ddf792123268",
+    "src/core/compile/position/filtered.mts": "300574ce3ed48911ba2c119a635d66d6c8105ffd6a59faaca780a302cdb8f1b4",
+    "src/core/compile/position/formula.mts": "8624ead360678d8c150bbca0a5e938c474f4d6844842f20b8318b39f0e284759",
+    "src/core/compile/position/match.mts": "b8fe0412943c1c2b53e536fa3bed1a2bce7a39d07892e3b9d9ebb4975079a1d8",
+    "src/core/compile/position/nth-element.mts": "eb0a49ca7f7df34dc1ad173df3e5d3a290b0a76873f9a43c69adf64779e543d0",
+    "src/core/compile/position/nth-of-type.mts": "0dad8c08dfc1b3bea604633874f3f088f261aa3349f1138d66c749ff72addea1",
+    "src/core/compile/position/ordered.mts": "b78eeef2cf3d1e9cf34a62b25763af7ad27eb62e9765c15390e378b31a8920f9",
+    "src/core/compile/position/route.mts": "07b4e9abc1127767284bfee04e7df2131b18f8790a04aebdec894e2c86dde5a5",
+    "src/core/compile/position/shared.mts": "6ca9b18ec64e612a02a432ff22e992a13fe92560f985b1ad999d28dde21ed1ac",
+    "src/core/compile/position/simple.mts": "8719c6d5bcec77cbcba7d1013d4a02e9a226166660fa3d30425ecac6f9695e0e",
+    "src/core/compile/pseudo/action.mts": "85cb578dbdcb4661cf307893dde0f0448fb30492cfb3aa1e5604c2f293e6373f",
+    "src/core/compile/pseudo/class.mts": "1fc2cab487560c1f275e9d9b1203773436db267bd58946aedb6626d169a589a4",
+    "src/core/compile/pseudo/dispatch.mts": "1495c6aa646234cad54db022762c2dd5d985818a689f8e86aa1b7e22464def39",
+    "src/core/compile/pseudo/display.mts": "dbea8c11cfbc83c5c3ce5a40b3c0e72955eb1468665ce48a509195ecaeb73426",
+    "src/core/compile/pseudo/extension.mts": "d3c1803dc2674ffdbccf9a8e94a6911f920c7acc53fa5c07bbc64912b8a18c82",
+    "src/core/compile/pseudo/heading.mts": "7cd78362159721379e0f77fe4f889a85a241890bbbae87d09f81f5e307df089e",
+    "src/core/compile/pseudo/input/state.mts": "571ad9142563b148eb97b5c7a0bdefa3990246385a2d3cbe6e60b4cc4c0b3145",
+    "src/core/compile/pseudo/input/value.mts": "ca8828ab344526f7b9bfc6c1d004616922669ac0e36381656b57d12a760f7d59",
+    "src/core/compile/pseudo/linguistic.mts": "1bde748cc5ef198302cd0fcd56eb1a40e84e3b2b4600eb8f9ff7104449127615",
+    "src/core/compile/pseudo/location.mts": "f47b0e7dba22d1dd29e9407abf7e163f4fa63141a65335e8b6652910c6160068",
+    "src/core/compile/pseudo/logical.mts": "16c3fb8582c8a87fcb031796f2d77b30f80272b09bf031f42465e5f16ec4fe0d",
+    "src/core/compile/pseudo/modern.mts": "97ac391d46e78e218d5477f664e6d9077f7d04e5527b3aa3ed1edef446cf191a",
+    "src/core/compile/pseudo/position.mts": "f65394b7d0ac6d92fcf13f01ed14fe753b6313b0b91ad89489f400d8025870da",
+    "src/core/compile/pseudo/resource.mts": "96dfc2f53976fffe7a2ccc9b1f1647e12e1f3c142ab0c1f93d73c149ed4ca9c9",
+    "src/core/compile/pseudo/structural.mts": "bb2c3e6bd83e997fdaccd87b078d12311ae75428ae27c93e1e86fdcb0803a9b5",
+    "src/core/compile/pseudo/time.mts": "6ee403800f830fe1bdda40e388c54c951e16b88f65ea6aa43937f85a2c33d2f3",
+    "src/core/compile/resolver.mts": "2432c4282723e627c3611b17864fe68ab330b2f7aa9dccb8547a526354bc4cdf",
+    "src/core/compile/selector.mts": "d62360332ccf811f25947eb05098709ca5aec37d795938fc675138b25537f5fa",
+    "src/core/compile/sibling.mts": "78c5237d8b482ff39b7a3702e0fe6ca2df55affeb7d4dcf01ed128b91f864bbe",
+    "src/core/compile/state.mts": "2420dd6cc6cbb480fb1df79ee3d6c006f4ce959cbc8a33728d13d9e0d19a65c3",
+    "src/core/compile/token.mts": "212650ae9bb41a2cb4fef99e76a90b93aa3b0ec951f1365b7c68d143d6f217d0",
+    "src/core/compile/type.mts": "381cc1f08f8374ba1ceb7824d120d3b8eb91630563643f6d851f896ce4d7c88d",
+    "src/core/compile/universal.mts": "f7048824c93230f23d8e627139d9440c0c6f655c2b09830e9b0859d5eb9b8669",
+    "src/core/compile/unknown.mts": "c6641d4cebf03c77be6a8bcfd79f0ec032b9f156415ea9fcbaf0290e4d168eab",
+    "src/core/dom/attribute.mts": "5e1c6d11006e636bc38454299f2eb7e87cd96034e82924fd2135bb0ce1765719",
+    "src/core/dom/context.mts": "bc04f4b954503e6518e077795ddaeae991217c86c4dd658a379f4c2b656dd13a",
+    "src/core/dom/hover.mts": "c79fa6ad571b5ba85a8e2ecb86b87ae308a059616e6584833cbbcd025fd1abc6",
+    "src/core/dom/install.mts": "4b7eedb3648f751689fd18b0f4b4ae65885ec7b4a89f87dc8f560670c718a9f9",
+    "src/core/dom/readers.mts": "15f9520b6d91eb24cefaf68aea3ef4ab679e7c39defca553eba3a19bb3b8f586",
+    "src/core/first/candidates.mts": "c1027fda9d2af11acb9963bbce1b01b5d12e965ae2741b9fc179219c215b3e4c",
+    "src/core/first/class.mts": "270e8d3dbfcea87f6948a51a5326b151b52408fcfc77de69cd673056ba7e1825",
+    "src/core/first/select.mts": "60aacc60aa7816b261931e2dba22e3ab2b27755b15584b2a0e9f3fdb0e03b4eb",
+    "src/core/first/simple.mts": "308661d95df581806582ed9ef4b911f00813e1ae92823fc495f63be757c4aa67",
+    "src/core/initialize/api.mts": "6338a3f9906b5a5dd891a20aa86dafd3cfa5739863210b364463d77db1d20ae0",
+    "src/core/initialize/configure.mts": "5ba70f9e888c8245c37431b70cb478ffe3cee4778cb0d94592968395e0e6e796",
+    "src/core/initialize/document.mts": "917204801d6ff03c3c91a9dfb84db526e81d6cf8cc013c38d3bf494b811ec3a9",
+    "src/core/initialize/factory.mts": "f200b5b190b3451b32874dac6b01a329121c6eac3472828da07228f9b619f21c",
+    "src/core/initialize/load.mts": "c9aeebda15b44b964b47972732207f5ea07c2632c3e8085ffd6e283891365084",
+    "src/core/initialize/matching.mts": "23d1565c37c05f69b4dedc9d82cc9ce6982f6a8991958061b69890029718e3bc",
+    "src/core/initialize/runtime.mts": "f163dc5c5fde44026de4dfdb3ab4f2cd525e95ac69b5b5712851a9e7096bf6e2",
+    "src/core/initialize/syntax.mts": "c2b3749c9b7419cc404b64118355c84a4c70d24124fb11077ccbd3f653f8713a",
+    "src/core/lookup/class.mts": "6f50cb98c88e30ce0c0e3e9a9757606e784a1c73d4e5d1615aefc720c06b2c76",
+    "src/core/lookup/id.mts": "f81ccbd9a20ce0f738fafbddc0a9b3201f0e7002e0394e0ebc43a14c74fd08bc",
+    "src/core/lookup/namespace.mts": "a308a8b01b29b96e1e097d0f427795752267caabc6c5eea9ee3d2ad72ef42e1b",
+    "src/core/lookup/tag.mts": "7e614cf3e2a866cfcf0a80e610f85098cea757353ae6f582eacefbc5d62a6f00",
+    "src/core/match/child.mts": "bfc31a1d36942581fa5cea58708903dbd912150fc290110d04a934d57768b999",
+    "src/core/match/direction.mts": "b3ba64f4aac48a5d0ab4c68280b7fd7a95584293a94eb0b7e889f848f147f654",
+    "src/core/match/language/match.mts": "475302157b5c9a113b6a94e804cc373320529d292046740ff7a14554f6800ccc",
+    "src/core/match/language/parent.mts": "c0f8748de6b7710c99048bd6f160ae9e60645a4a1e028e27190be948ad4b2658",
+    "src/core/match/native.mts": "9c44b0c8c147f212c2c43129860218a566e2a6227d48f4826733cf58bc07ef43",
+    "src/core/match/relative.mts": "e2c7904ee5348181a4c217a53493fa08604ab4623eba1b19bb26e03c2630ed04",
+    "src/core/match/selector.mts": "27296cb2764ab0908db1f131204559a455ed376b53167e328a0367ab21488038",
+    "src/core/match/slot.mts": "f71e8c4b92c579c45465b5acfaa6ae0c2a1526e08edd8d24979753f3195e0522",
+    "src/core/parser/combinator.mts": "32a5a2314f09eae90abf988ee8a2817b953a94795cc9c4e12a6fb6f237934ad2",
+    "src/core/parser/comments.mts": "74d03fcb04da2f8c7fd5a720183b20bb2c71bb122f7705c9420fee2dec6a1621",
+    "src/core/parser/identifier.mts": "87c626fa4dfc99fe186d613f72d57e4d6df3044d73276f85ed4c16388c126ca7",
+    "src/core/parser/list.mts": "37b38814c2aa65783a2e6c89d96ffd1c3fd60d947a8a5ce9c27258032a19fbf8",
+    "src/core/parser/logical.mts": "95e5a7bc96562e4445008159f6cbdfb82248afb213d46a5b811905c6568c3a9a",
+    "src/core/parser/selector.mts": "a80188734f331e643d496abdab8c366ec14e547b4325cd95752a89fba8b070f7",
+    "src/core/parser/string.mts": "60e25670451ab995c7168214b098b6f007f4a4c0f29bd0080a38261fe936ac3c",
+    "src/core/parser/token-boundary.mts": "985a7c8f759cfed052d644387287708bd47b5802b3f0b4a81b3751dc41359606",
+    "src/core/predicate/compound/match.mts": "ec3b6e866af01054caf5f75579452e174537665c52dc738ce0a8c0a497138cf1",
+    "src/core/predicate/compound/separator.mts": "f71a9a732fd932ed8712040a31ecca096cef16bb52f3db86ec4cbf3bc0954450",
+    "src/core/predicate/content-editable.mts": "6ec1dcffd1fe048f036b0eaf537a0b6965bccefb8fc1cb9db8b0aa8740595f87",
+    "src/core/predicate/css-whitespace.mts": "25a6ef928b84499482169f39090a23390e27a0c0547ea6ba077d82b979422771",
+    "src/core/predicate/display.mts": "0ab9a0eb77dd0325e88533d2fa1b5f2255d0f02b80a64fb54803a6706bbe65a7",
+    "src/core/predicate/element.mts": "4c44c4c57a70a6a423fa63737ae3d98a4792d68e65433c00430db4d457153910",
+    "src/core/predicate/form.mts": "197dba0fe720b7a9df2cf10c0769e18f752f53912e86875d70a5187072acba5c",
+    "src/core/predicate/link.mts": "5fdb5941a1ba3242eebcccca0ec49dcf75727222d02e7eb4dc0d6efce2fe4541",
+    "src/core/predicate/logical-compound.mts": "2c2637cc4366624ce0b10a053c58876e749a101c6d74415b47bf5708ef2cf1f8",
+    "src/core/predicate/media.mts": "5a0d9e329c9e8f5802aa9572038d7fa3490d7f580ce827d3227ca88a796a16df",
+    "src/core/predicate/parsed-pseudo-element.mts": "17f55afc11d5601c0a64527c5f8b967cec6cf6d6d1987a4998504721dfa682b1",
+    "src/core/predicate/picker-transition.mts": "b5bac96409a9334334a3c1e86441b10ceeb8da6369d9e4f8aef0226a455f795d",
+    "src/core/predicate/string-quote.mts": "534e79a0140d066fef63c1802c3778c38d81e46d4ef7484f6cc73ce20e4e2182",
+    "src/core/predicate/top-level-combinator.mts": "db0d3c0a53efa3dac5c2016eb0fa5946c0d1bb3bea89aa5ca75b78f950ca83f8",
+    "src/core/select/all.mts": "2b689dd392e2dc4c67d35614636f0aaa2abd55d856d4ab8d340991900dfa46b1",
+    "src/core/select/chain.mts": "62c4e20a6630ba61786ddbea3fc1ae7445b7423cbd5bc1b220b0b8afdc7a9266",
+    "src/core/select/collect.mts": "1b43511cfd338c42d017fa8d179afbd18b3c12b155aae2da633eec8b8abe5f4f",
+    "src/core/state/create.mts": "b189b30b25489f5470feef7a9dacd2a51a837a0cc46599f6dc7a858a4ddb2be4",
+    "src/core/state/legacy.mts": "abdccedc4bdf1c6b12b13b13bad9e9468e51d4acd560803087e13660d6d66e5d",
+    "src/core/state/public.mts": "bc63d1a3f2dd5d125c1edd5ac460c9436b977cd520591ace305baf031f37830d",
+    "src/core/state/query.mts": "db0455b72685f354728fa824283f8e942ead7c8dc2ee36fac1c70b1e03bf948c",
+    "src/core/state/runtime.mts": "b65eb5f8a6405b9bd16d5168b5cb796081b22b32543d57d846b886fc9d2eab80",
+    "src/core/state/types.mts": "2909c1ca885965b40a6e4a17fd184dc69473aa4815d61fdac7195d9dee3f2244",
+    "src/core/unicode/code-point.mts": "751cdb1bb0b590ac1ebe45cffdfe76927a8d92696b4b47edf84579aa762a933a",
+    "src/core/unicode/direction.mts": "d1516b858fe3933dcc1d76f3fe30d74609b91e93489be7e52b27301a10adcb70",
+    "src/core/unicode/dom.mts": "41acae7766a40e697bcc637e668bc6e5c83cf86afe190925c8d4db90f4aeca9e",
+    "src/core/unicode/text-direction.mts": "4aadf89e39dc059ad7289382cc80c4c0361a29896d66f7730c510a4006b03095",
+    "src/core/validation/blocks.mts": "6cf351dd013e4d0e37495392e7e5559270a507bc70b76665f9bdf9811b921ff8",
+    "src/core/validation/error.mts": "745d59623a7fbbcefc6a8cc2f05875bea4d7cebdb66020a103fa80f3068639d6",
+    "src/core/validation/logical.mts": "346e72c52dc5e98eda909fa7807d6a417e5a842c7fe2835cb9edc8f8153c24fd",
+    "src/core/validation/pseudo/control.mts": "9e6264beea936274451c0869b9f79b7d4ded6f884110cd7757b9f9a5e5732193",
+    "src/core/validation/pseudo/host-argument.mts": "3c2e164e9b1280730032c3f3710ff34765ca7af2978943d869edfcccab15d2f9",
+    "src/core/validation/pseudo/shadow.mts": "42332c548607e58fefe4e7bc9e83de406841cbcd779eb0c509695580bc4978e4",
+    "src/core/validation/pseudo/states.mts": "029c3dd9a4c836f05c703cc3124ac4748ffae4b5ea039a8ee0db015769ee61fb",
+    "src/core/validation/pseudo/transition.mts": "74780c974f324e37cfe569864bb706259f46baf59ed32a32499c31e8dbea78fd",
+    "src/extension/jquery/register.mts": "e55c6971eed4a4115484c30d89999053b9eaeb0898915a9deafffb42d1a82baa",
+    "src/extension/legacy/attributes.mts": "4de31960b7c58c288870de3a46c78dafde6c636b91e7f1eeef27df6d859d0cf6",
+    "src/extension/legacy/register.mts": "a825af3471b6cc7a6ea68b6b3d041755441137ac3218216ab97a16b665f3a909",
+    "src/extension/traversal/register.mts": "6155cdbf2bc830443e49e6569ce7bfa64068138c60dcd4b77549b51ecf3eccd9",
+    "src/external/unicode.d.ts": "1fcea398e909a46e1e0632db08ab44398c675e01b1f9d1130278624304d4d654",
+    "src/external/unicode.js": "84912d286a1b6f66da30869365619d7adfed527e528248a2298202ff864726eb"
+  },
+  "harnessSources": {
+    "load.mjs": "import { readFileSync } from 'node:fs';\nimport { stripTypeScriptTypes } from 'node:module';\nimport { createState } from '/Users/jdalton/projects/nwsapi/src/core/state/create.mts';\nimport { initializeRuntime } from '/Users/jdalton/projects/nwsapi/src/core/initialize/runtime.mts';\nimport { initializeMatching } from '/Users/jdalton/projects/nwsapi/src/core/initialize/matching.mts';\nimport { initializeApi } from '/Users/jdalton/projects/nwsapi/src/core/initialize/api.mts';\nimport * as direction from '/Users/jdalton/projects/nwsapi/src/core/unicode/direction.mts';\nimport { JSDOM } from 'jsdom';\n\nconst source = stripTypeScriptTypes(readFileSync('/Users/jdalton/projects/nwsapi/src/core/initialize/load.mts', 'utf8'))\n  .replace('/* @bundle:core */ {}', 'core')\n  .replace('/* @bundle:direction */ {}', 'direction');\nconst module = { exports: {} };\nlet latest;\nconst core = { createEngine(global, Factory) {\n  const engine = createState(global, Factory);\n  initializeRuntime(engine);\n  initializeMatching(engine);\n  initializeApi(engine);\n  engine.initialize(engine.doc);\n  latest = engine;\n  return engine.Dom;\n} };\nFunction('module', 'exports', 'core', 'direction', source)(module, module.exports, core, direction);\nexport function setup(html = '<!doctype html><body><div class=\"a\" data-x=\"yes\"></div>') {\n  const window = new JSDOM(html).window;\n  const api = module.exports(window);\n  return { window, api, state: latest, document: window.document };\n}\n",
+    "probe.mjs": "import { setup } from './load.mjs';\nimport { writeFileSync } from 'node:fs';\nimport { execFileSync } from 'node:child_process';\nimport os from 'node:os';\nconst report = { revision: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: '/Users/jdalton/projects/nwsapi', encoding: 'utf8' }).trim(), node: process.version, v8: process.versions.v8, cpu: os.cpus()[0].model, jsdom: '30.0.1', probes: {} };\nconst html = '<!doctype html><body>' + '<div class=\"card\" data-hit=\"yes\"><span></span></div>'.repeat(256);\n{\n  const {api,state,document,window} = setup(html);\n  const selector = 'div:is(.missing,:audit-unknown)';\n  const counts = {parse: 0, compileSelector: 0, emit: 0};\n  for (const key of Object.keys(counts)) {\n    const orig = state[key]; state[key] = (...args) => { counts[key]++; return orig(...args); };\n  }\n  api.select(selector, document);\n  const cold = {...counts};\n  for (const key in counts) counts[key] = 0;\n  const result = api.select(selector, document);\n  report.probes.invalidForgiving = {selector,candidates:256,result:result.length,cold,warm:{...counts},source:api.compile(selector,true).toString()};\n  window.close();\n}\n{\n  const {api,state,window} = setup();\n  const sizes = [];\n  for (let i=0;i<10000;i++) {\n    api.compile(`x-audit-${i} section span`,true);\n    if ((i+1)%2500===0) sizes.push({compiled:i+1,tagNames:Object.keys(state.tagBits).length,selectLambdas:state.selectLambdas.size()});\n  }\n  api.configure({},true);\n  report.probes.tagBits = {sizes,afterClear:{tagNames:Object.keys(state.tagBits).length,selectLambdas:state.selectLambdas.size()}};\n  window.close();\n}\n{\n  const {api,state,document,window} = setup(html);\n  const count = {parse:0,compileSelector:0,generated:0};\n  for (const key of ['parse','compileSelector']) { const orig=state[key];state[key]=(...args)=>{count[key]++;return orig(...args);}; }\n  const originalFunction=globalThis.Function;\n  globalThis.Function=new Proxy(originalFunction,{apply(target,self,args){count.generated++;return Reflect.apply(target,self,args);}});\n  const fn=api.compile('div:has([data-hit])',true);\n  const afterCompile={...count};\n  fn([document.body],null,document,[]);\n  const noPredicateReach={...count};\n  fn([...document.getElementsByTagName('div')],null,document,[]);\n  report.probes.lazyHas = {afterCompile,noPredicateReach,afterExecute:{...count},source:fn.toString()};\n  globalThis.Function=originalFunction;\n  const a=api.compile('div:not(.a)',true).toString();\n  api.configure({},true);\n  const b=api.compile('div:not(.a)',true).toString();\n  report.probes.nameStability={same:a===b,first:a,second:b,notFlag:state.notFlag};\n  window.close();\n}\n{\n  const {api,state,document,window} = setup('<!doctype html><body><article><div><span></span></div></article>');\n  api.select('article div span');\n  let calls=0;\n  const parse=state.parseChain;state.parseChain=(...args)=>{calls++;return parse(...args);};\n  for(let i=0;i<100;i++) api.select('article div span',document);\n  report.probes.chainPlanning={queries:100,parseCalls:calls};\n  window.close();\n}\n{\n  const {api,state,document,window} = setup('<!doctype html><body><main>'+'<i></i>'.repeat(1000)+'</main>');\n  const main=document.getElementsByTagName('main')[0];main.firstElementChild.setAttribute('data-hit','yes');\n  let indexedReads=0, lengthReads=0;\n  const get=main.getElementsByTagName.bind(main);\n  main.getElementsByTagName=(name)=>new Proxy(get(name),{get(target,property){if(typeof property==='string'&&/^\\d+$/.test(property))indexedReads++;if(property==='length')lengthReads++;return Reflect.get(target,property,target);}});\n  state.primordials.WeakRefCtor=undefined;\n  const fn=api.compile(':has([data-hit])',false);\n  const match=fn(main,null,document,false);\n  report.probes.hasCopy={children:1000,hit:'first child',match,indexedReads,lengthReads,snapshotsDisabled:true};\n  window.close();\n}\nfunction median(values){return [...values].sort((a,b)=>a-b)[values.length>>1];}\n{\n  const {api,state,document,window} = setup(html);\n  const candidates=[...document.getElementsByTagName('div')];\n  const fn=api.compile('div:is(.missing,[data-hit])',true);\n  const original=api.Snapshot.matchForgiving;\n  const branches=['.missing','[data-hit]'].map(x=>api.compile(x,false));\n  const prebound=(_list,e)=>branches.some(f=>f(e,undefined,null,false));\n  const variants={current:original,prebound};\n  for(const helper of Object.values(variants)){api.Snapshot.matchForgiving=helper;const result=fn(candidates,null,document,[]);if(result.length!==256||result.some((e,i)=>e!==candidates[i]))throw Error('identity mismatch');for(let i=0;i<1000;i++)fn(candidates,null,document,[]);}\n  const samples={current:[],prebound:[]};let sink=0;\n  for(let round=0;round<9;round++)for(const key of round%2?['prebound','current']:['current','prebound']){api.Snapshot.matchForgiving=variants[key];const start=performance.now();for(let i=0;i<1000;i++)sink+=fn(candidates,null,document,[]).length;samples[key].push((performance.now()-start)/1000);}\n  report.probes.logicalTiming={selector:'div:is(.missing,[data-hit])',candidateCount:256,mode:'raw precompiled resolver, fixed candidates',callsPerSample:1000,rounds:9,samplesMs:samples,medianMs:{current:median(samples.current),prebound:median(samples.prebound)},sink,limitation:'Diagnostic helper substitution only. Outer emitted list literal is unchanged. No implementation candidate or browser measurement.'};\n  window.close();\n}\nwriteFileSync('/private/tmp/nwsapi-compilation-audit/results.json',JSON.stringify(report,null,2)+'\\n');\nconsole.log(JSON.stringify(report,null,2));\n",
+    "extra.mjs": "import {setup} from './load.mjs';\nimport {readFileSync,writeFileSync} from 'node:fs';\nconst extra={};\n{\n  const {api,state,document,window}=setup('<!doctype html><body><main>'+'<i class=\"card\"></i>'.repeat(1000)+'</main>');\n  api.select('.card',document);\n  const descriptor=Object.getOwnPropertyDescriptor(window.Element.prototype,'localName');\n  let reads=0;\n  Object.defineProperty(window.Element.prototype,'localName',{...descriptor,get(){reads++;return descriptor.get.call(this);}});\n  api.select('.card',document);\n  const warm=reads;reads=0;\n  document.body.appendChild(document.createElement('aside'));\n  const result=api.select('.card',document);\n  const mutated=reads;\n  const original=state.hasForeignTypes;\n  state.hasForeignTypes=()=>false;\n  document.body.appendChild(document.createElement('aside'));\n  reads=0;\n  const bypass=api.select('.card',document);\n  extra.foreignScan={selector:'.card',matches:result.length,warmLocalNameReads:warm,afterChildMutationLocalNameReads:mutated,bypassLocalNameReads:reads,sameIdentities:result.length===bypass.length&&result.every((e,i)=>e===bypass[i]),limitation:'Bypass is a diagnostic on this all-HTML class-only fixture, not a proposed general bypass.'};\n  state.hasForeignTypes=original;\n  Object.defineProperty(window.Element.prototype,'localName',descriptor);\n  window.close();\n}\n{\n  const {api,state,document,window}=setup('<!doctype html><body><section><div class=\"card\" data-hit=\"yes\"></div></section>');\n  const second=document.implementation.createHTMLDocument('second');second.body.innerHTML='<div class=\"card\" data-hit=\"yes\"></div>';\n  let calls=0;\n  const compile=state.compileSelector;state.compileSelector=(...args)=>{calls++;return compile(...args);};\n  for(let i=0;i<20;i++)api.select('.card[data-hit]',i%2?second:document);\n  extra.documentSwitch={queries:20,compileSelectorCalls:calls};\n  let parseCalls=0;const parse=state.parse;state.parse=(...args)=>{parseCalls++;return parse(...args);};\n  const node=document.getElementsByTagName('div')[0];api.closest('section',node);parseCalls=0;\n  for(let i=0;i<100;i++)api.closest('section',node);\n  extra.closest={calls:100,parseCalls};\n  window.close();\n}\n{\n  const {api,state,document,window}=setup('<!doctype html><body lang=\"en\"><i></i>');\n  let splits=0;\n  const split=String.prototype.split;\n  String.prototype.split=function(...args){if(String(this).startsWith('x-audit-'))splits++;return Reflect.apply(split,this,args);};\n  const node=document.getElementsByTagName('i')[0];\n  for(let i=0;i<1000;i++)api.match(`:lang(x-audit-${i})`,node);\n  const initial=splits;\n  api.configure({},true);\n  for(let i=0;i<1000;i++)api.match(`:lang(x-audit-${i})`,node);\n  const afterClear=splits;\n  window.close();\n  const next=setup('<!doctype html><body lang=\"en\"><i></i>');\n  next.api.match(':lang(x-audit-0)',next.document.getElementsByTagName('i')[0]);\n  extra.languageCache={ranges:1000,initialSplits:initial,splitsAfterClearAndReplay:afterClear,splitsAfterNewEngine:splits};\n  String.prototype.split=split;next.window.close();\n}\nconst report=JSON.parse(readFileSync('/private/tmp/nwsapi-compilation-audit/results.json','utf8'));\nObject.assign(report.probes,extra);\nwriteFileSync('/private/tmp/nwsapi-compilation-audit/results.json',JSON.stringify(report,null,2)+'\\n');\nconsole.log(JSON.stringify(extra,null,2));\n",
+    "nth.mjs": "import {setup} from './load.mjs';\nimport {readFileSync,writeFileSync} from 'node:fs';\nconst results=[];\nfor(const n of [128,256,512]) {\n  const {api,document,window}=setup('<!doctype html><body><main>'+'<i></i>'.repeat(n)+'</main>');\n  const descriptors=[['previousElementSibling',window.Element.prototype],['previousSibling',window.Node.prototype]];\n  let reads=0;\n  const restore=descriptors.map(([name,proto])=>{const descriptor=Object.getOwnPropertyDescriptor(proto,name);Object.defineProperty(proto,name,{...descriptor,get(){reads++;return descriptor.get.call(this);}});return()=>Object.defineProperty(proto,name,descriptor);});\n  const selector='i[data-hit]:nth-child(2n)';\n  const first=api.first(selector,document);const firstReads=reads;reads=0;\n  const all=api.select(selector,document);const allReads=reads;\n  results.push({siblings:n,firstResult:first,allCount:all.length,firstPreviousSiblingReads:firstReads,allPreviousSiblingReads:allReads});\n  restore.forEach(f=>f());window.close();\n}\nconst report=JSON.parse(readFileSync('/private/tmp/nwsapi-compilation-audit/results.json','utf8'));\nreport.probes.firstNth={selector:'i[data-hit]:nth-child(2n)',result:'no match',samples:results};\nwriteFileSync('/private/tmp/nwsapi-compilation-audit/results.json',JSON.stringify(report,null,2)+'\\n');\nconsole.log(JSON.stringify(report.probes.firstNth,null,2));\n"
+  },
+  "reproduction": [
+    "Extract harnessSources into /private/tmp/nwsapi-compilation-audit. Replace sourceRoot in harness source if checkout location differs.",
+    "npm install --prefix /private/tmp/nwsapi-compilation-audit --ignore-scripts --no-audit --no-fund jsdom@30.0.1 @unicode/unicode-17.0.0",
+    "NODE_PATH=/private/tmp/nwsapi-compilation-audit/node_modules node /private/tmp/nwsapi-compilation-audit/probe.mjs",
+    "NODE_PATH=/private/tmp/nwsapi-compilation-audit/node_modules node /private/tmp/nwsapi-compilation-audit/extra.mjs",
+    "NODE_PATH=/private/tmp/nwsapi-compilation-audit/node_modules node /private/tmp/nwsapi-compilation-audit/nth.mjs"
+  ],
+  "dependencies": {
+    "name": "nwsapi-compilation-audit",
+    "lockfileVersion": 3,
+    "requires": true,
+    "packages": {
+      "": {
+        "dependencies": {
+          "@unicode/unicode-17.0.0": "^2.0.7",
+          "jsdom": "^30.0.1"
+        }
+      },
+      "node_modules/@asamuzakjp/css-color": {
+        "version": "6.0.7",
+        "resolved": "https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-6.0.7.tgz",
+        "integrity": "sha512-vC/bk1Lz7Tn/EfU9/apOTBk80/8dyGyWMowPoV1tJ52muDGsDqt2HPT2klrFUiY60MQmQv9q8yIht15JnBgDGw==",
+        "license": "MIT",
+        "dependencies": {
+          "@csstools/css-calc": "^3.3.0",
+          "@csstools/css-color-parser": "^4.1.10",
+          "@csstools/css-parser-algorithms": "^4.0.0",
+          "@csstools/css-tokenizer": "^4.0.0",
+          "lru-cache": "^11.5.2"
+        },
+        "engines": {
+          "node": "^22.13.0 || >=24.0.0"
+        }
+      },
+      "node_modules/@asamuzakjp/dom-selector": {
+        "version": "8.3.2",
+        "resolved": "https://registry.npmjs.org/@asamuzakjp/dom-selector/-/dom-selector-8.3.2.tgz",
+        "integrity": "sha512-93Z1N+BQNXysodoicpOIyNh2drHfz/CTf9nnT0FEx72GJcIiwgydD7tGAr78j41LsYn3hlRn+LdGPuBLn1Bl8Q==",
+        "license": "MIT",
+        "dependencies": {
+          "bidi-js": "^1.0.3",
+          "css-tree": "^3.2.1",
+          "is-potential-custom-element-name": "^1.0.1",
+          "lru-cache": "^11.5.2"
+        },
+        "engines": {
+          "node": "^22.13.0 || >=24.0.0"
+        }
+      },
+      "node_modules/@bramus/specificity": {
+        "version": "2.4.2",
+        "resolved": "https://registry.npmjs.org/@bramus/specificity/-/specificity-2.4.2.tgz",
+        "integrity": "sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==",
+        "license": "MIT",
+        "dependencies": {
+          "css-tree": "^3.0.0"
+        },
+        "bin": {
+          "specificity": "bin/cli.js"
+        }
+      },
+      "node_modules/@csstools/color-helpers": {
+        "version": "6.1.2",
+        "resolved": "https://registry.npmjs.org/@csstools/color-helpers/-/color-helpers-6.1.2.tgz",
+        "integrity": "sha512-grhRy3OKmniaAEKXMjua5z/EODX0MSqBGjunw8+j/3HQjOnahs2AGhvEOIYVUWcU6ScApbhLhVrQTX8XqrMrow==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT-0",
+        "engines": {
+          "node": ">=20.19.0"
+        }
+      },
+      "node_modules/@csstools/css-calc": {
+        "version": "3.4.2",
+        "resolved": "https://registry.npmjs.org/@csstools/css-calc/-/css-calc-3.4.2.tgz",
+        "integrity": "sha512-tL6LRF844sHjAKO7jt2w+uHo8Tocqpb9+KPUvIQETpR4RU87IaUzDuOV0QyzuQ37jmzFgwPHLLtLu/PDuH5qgg==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT",
+        "engines": {
+          "node": ">=20.19.0"
+        },
+        "peerDependencies": {
+          "@csstools/css-parser-algorithms": "^4.0.2",
+          "@csstools/css-tokenizer": "^4.0.2"
+        }
+      },
+      "node_modules/@csstools/css-color-parser": {
+        "version": "4.2.5",
+        "resolved": "https://registry.npmjs.org/@csstools/css-color-parser/-/css-color-parser-4.2.5.tgz",
+        "integrity": "sha512-Qqbp5pjbMwoaErP2t5qne5QDVDr3G5243oNW8ev5zfyyoqbzrQKbYDpKP/cuo3xBkzwqZqpP/rChrJhBdyTX7g==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT",
+        "dependencies": {
+          "@csstools/color-helpers": "^6.1.2",
+          "@csstools/css-calc": "^3.4.2"
+        },
+        "engines": {
+          "node": ">=20.19.0"
+        },
+        "peerDependencies": {
+          "@csstools/css-parser-algorithms": "^4.0.2",
+          "@csstools/css-tokenizer": "^4.0.2"
+        }
+      },
+      "node_modules/@csstools/css-parser-algorithms": {
+        "version": "4.0.2",
+        "resolved": "https://registry.npmjs.org/@csstools/css-parser-algorithms/-/css-parser-algorithms-4.0.2.tgz",
+        "integrity": "sha512-40cSKyMvK+tq4qz6Awrlye2WGuOKt3FwPgtGg6KTfbHOWNw+Rk1rzbAtZnZ6IBhsY491HLRnDXwoyBAijmmILA==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT",
+        "engines": {
+          "node": ">=20.19.0"
+        },
+        "peerDependencies": {
+          "@csstools/css-tokenizer": "^4.0.2"
+        }
+      },
+      "node_modules/@csstools/css-syntax-patches-for-csstree": {
+        "version": "1.1.15",
+        "resolved": "https://registry.npmjs.org/@csstools/css-syntax-patches-for-csstree/-/css-syntax-patches-for-csstree-1.1.15.tgz",
+        "integrity": "sha512-J0u7HkVl2nzSlhsiTOp4AmwcUQ3D+mGEEKfBy/7To5/y7F2OHwyLrXfrhR0SMgr4p5Lo+eaMVSeai24zUcBIxA==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT-0",
+        "peerDependencies": {
+          "css-tree": "^3.2.1"
+        },
+        "peerDependenciesMeta": {
+          "css-tree": {
+            "optional": true
+          }
+        }
+      },
+      "node_modules/@csstools/css-tokenizer": {
+        "version": "4.0.2",
+        "resolved": "https://registry.npmjs.org/@csstools/css-tokenizer/-/css-tokenizer-4.0.2.tgz",
+        "integrity": "sha512-OoKoR0f76dCY666JlcbhmVTs2drYj1GUXZTYTcbUgJjh9Nv41aFfZ21bPQTERm5+L5cBDo466NltB2lplS5GBw==",
+        "funding": [
+          {
+            "type": "github",
+            "url": "https://github.com/sponsors/csstools"
+          },
+          {
+            "type": "opencollective",
+            "url": "https://opencollective.com/csstools"
+          }
+        ],
+        "license": "MIT",
+        "engines": {
+          "node": ">=20.19.0"
+        }
+      },
+      "node_modules/@exodus/bytes": {
+        "version": "1.16.0",
+        "resolved": "https://registry.npmjs.org/@exodus/bytes/-/bytes-1.16.0.tgz",
+        "integrity": "sha512-IcpW84uEn3N7ETtNZMlxKhfl6Pec8rUNGOTBtWbK1FKhJxIFAptZyVrvVRVBimAJxJCgc3PxepxkdWWG4DVzfA==",
+        "license": "MIT",
+        "engines": {
+          "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+        },
+        "peerDependencies": {
+          "@noble/hashes": "^1.8.0 || ^2.0.0"
+        },
+        "peerDependenciesMeta": {
+          "@noble/hashes": {
+            "optional": true
+          }
+        }
+      },
+      "node_modules/@unicode/unicode-17.0.0": {
+        "version": "2.0.7",
+        "resolved": "https://registry.npmjs.org/@unicode/unicode-17.0.0/-/unicode-17.0.0-2.0.7.tgz",
+        "integrity": "sha512-XdCUsw7exiSD8QICrzwb99xx9O/e7qMx/Oew1e8MBQGavCIIR0VO6vID7OSH/wQjUjogcfydqmsuRLkGM6LfLA==",
+        "license": "MIT"
+      },
+      "node_modules/bidi-js": {
+        "version": "1.1.0",
+        "resolved": "https://registry.npmjs.org/bidi-js/-/bidi-js-1.1.0.tgz",
+        "integrity": "sha512-fX1Onk0tdVPC7obPWB5EbJ1z7NVhLq4m2xZLq2YXBkxzMXIGRpNMU88n0EPgWseKl12J7zXs7qrDxPK4sRs2fg==",
+        "license": "MIT",
+        "dependencies": {
+          "require-from-string": "^2.0.2"
+        }
+      },
+      "node_modules/css-tree": {
+        "version": "3.2.1",
+        "resolved": "https://registry.npmjs.org/css-tree/-/css-tree-3.2.1.tgz",
+        "integrity": "sha512-X7sjQzceUhu1u7Y/ylrRZFU2FS6LRiFVp6rKLPg23y3x3c3DOKAwuXGDp+PAGjh6CSnCjYeAul8pcT8bAl+lSA==",
+        "license": "MIT",
+        "dependencies": {
+          "mdn-data": "2.27.1",
+          "source-map-js": "^1.2.1"
+        },
+        "engines": {
+          "node": "^10 || ^12.20.0 || ^14.13.0 || >=15.0.0"
+        }
+      },
+      "node_modules/data-urls": {
+        "version": "7.0.0",
+        "resolved": "https://registry.npmjs.org/data-urls/-/data-urls-7.0.0.tgz",
+        "integrity": "sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==",
+        "license": "MIT",
+        "dependencies": {
+          "whatwg-mimetype": "^5.0.0",
+          "whatwg-url": "^16.0.0"
+        },
+        "engines": {
+          "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+        }
+      },
+      "node_modules/data-urls/node_modules/whatwg-url": {
+        "version": "16.0.1",
+        "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-16.0.1.tgz",
+        "integrity": "sha512-1to4zXBxmXHV3IiSSEInrreIlu02vUOvrhxJJH5vcxYTBDAx51cqZiKdyTxlecdKNSjj8EcxGBxNf6Vg+945gw==",
+        "license": "MIT",
+        "dependencies": {
+          "@exodus/bytes": "^1.11.0",
+          "tr46": "^6.0.0",
+          "webidl-conversions": "^8.0.1"
+        },
+        "engines": {
+          "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+        }
+      },
+      "node_modules/decimal.js": {
+        "version": "10.6.0",
+        "resolved": "https://registry.npmjs.org/decimal.js/-/decimal.js-10.6.0.tgz",
+        "integrity": "sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==",
+        "license": "MIT"
+      },
+      "node_modules/entities": {
+        "version": "8.1.0",
+        "resolved": "https://registry.npmjs.org/entities/-/entities-8.1.0.tgz",
+        "integrity": "sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==",
+        "license": "BSD-2-Clause",
+        "engines": {
+          "node": ">=20.19.0"
+        },
+        "funding": {
+          "url": "https://github.com/fb55/entities?sponsor=1"
+        }
+      },
+      "node_modules/html-encoding-sniffer": {
+        "version": "6.0.0",
+        "resolved": "https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-6.0.0.tgz",
+        "integrity": "sha512-CV9TW3Y3f8/wT0BRFc1/KAVQ3TUHiXmaAb6VW9vtiMFf7SLoMd1PdAc4W3KFOFETBJUb90KatHqlsZMWV+R9Gg==",
+        "license": "MIT",
+        "dependencies": {
+          "@exodus/bytes": "^1.6.0"
+        },
+        "engines": {
+          "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+        }
+      },
+      "node_modules/is-potential-custom-element-name": {
+        "version": "1.0.1",
+        "resolved": "https://registry.npmjs.org/is-potential-custom-element-name/-/is-potential-custom-element-name-1.0.1.tgz",
+        "integrity": "sha512-bCYeRA2rVibKZd+s2625gGnGF/t7DSqDs4dP7CrLA1m7jKWz6pps0LpYLJN8Q64HtmPKJ1hrN3nzPNKFEKOUiQ==",
+        "license": "MIT"
+      },
+      "node_modules/jsdom": {
+        "version": "30.0.1",
+        "resolved": "https://registry.npmjs.org/jsdom/-/jsdom-30.0.1.tgz",
+        "integrity": "sha512-52v7mUVUfNQVYYqE1lcdaymWL0njO7lTLUog6ZvW2U5KsbiLk/GnZlVJ+qx0xfNJZ6Gn+KSpPNE52vurbxZwrA==",
+        "license": "MIT",
+        "dependencies": {
+          "@asamuzakjp/css-color": "^6.0.5",
+          "@asamuzakjp/dom-selector": "^8.3.0",
+          "@bramus/specificity": "^2.4.2",
+          "@csstools/css-syntax-patches-for-csstree": "^1.1.7",
+          "@exodus/bytes": "^1.15.1",
+          "css-tree": "^3.2.1",
+          "data-urls": "^7.0.0",
+          "decimal.js": "^10.6.0",
+          "html-encoding-sniffer": "^6.0.0",
+          "is-potential-custom-element-name": "^1.0.1",
+          "lru-cache": "^11.5.2",
+          "parse5": "^8.0.1",
+          "saxes": "^6.0.0",
+          "symbol-tree": "^3.2.4",
+          "tough-cookie": "^6.0.2",
+          "undici": "^8.9.0",
+          "w3c-xmlserializer": "^5.0.0",
+          "webidl-conversions": "^8.0.1",
+          "whatwg-mimetype": "^5.0.0",
+          "whatwg-url": "^17.1.0",
+          "xml-name-validator": "^5.0.0"
+        },
+        "engines": {
+          "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+        },
+        "peerDependencies": {
+          "canvas": "^3.2.3"
+        },
+        "peerDependenciesMeta": {
+          "canvas": {
+            "optional": true
+          }
+        }
+      },
+      "node_modules/lru-cache": {
+        "version": "11.5.3",
+        "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.3.tgz",
+        "integrity": "sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==",
+        "license": "BlueOak-1.0.0",
+        "engines": {
+          "node": "20 || >=22"
+        }
+      },
+      "node_modules/mdn-data": {
+        "version": "2.27.1",
+        "resolved": "https://registry.npmjs.org/mdn-data/-/mdn-data-2.27.1.tgz",
+        "integrity": "sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==",
+        "license": "CC0-1.0"
+      },
+      "node_modules/parse5": {
+        "version": "8.0.1",
+        "resolved": "https://registry.npmjs.org/parse5/-/parse5-8.0.1.tgz",
+        "integrity": "sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==",
+        "license": "MIT",
+        "dependencies": {
+          "entities": "^8.0.0"
+        },
+        "funding": {
+          "url": "https://github.com/inikulin/parse5?sponsor=1"
+        }
+      },
+      "node_modules/punycode": {
+        "version": "2.3.1",
+        "resolved": "https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz",
+        "integrity": "sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==",
+        "license": "MIT",
+        "engines": {
+          "node": ">=6"
+        }
+      },
+      "node_modules/require-from-string": {
+        "version": "2.0.2",
+        "resolved": "https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz",
+        "integrity": "sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==",
+        "license": "MIT",
+        "engines": {
+          "node": ">=0.10.0"
+        }
+      },
+      "node_modules/saxes": {
+        "version": "6.0.0",
+        "resolved": "https://registry.npmjs.org/saxes/-/saxes-6.0.0.tgz",
+        "integrity": "sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==",
+        "license": "ISC",
+        "dependencies": {
+          "xmlchars": "^2.2.0"
+        },
+        "engines": {
+          "node": ">=v12.22.7"
+        }
+      },
+      "node_modules/source-map-js": {
+        "version": "1.2.2",
+        "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
+        "integrity": "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==",
+        "license": "BSD-3-Clause",
+        "engines": {
+          "node": ">=0.10.0"
+        }
+      },
+      "node_modules/symbol-tree": {
+        "version": "3.2.4",
+        "resolved": "https://registry.npmjs.org/symbol-tree/-/symbol-tree-3.2.4.tgz",
+        "integrity": "sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==",
+        "license": "MIT"
+      },
+      "node_modules/tldts": {
+        "version": "7.4.16",
+        "resolved": "https://registry.npmjs.org/tldts/-/tldts-7.4.16.tgz",
+        "integrity": "sha512-QwBER5KMR86IIjpIiO7H/Z3IMJPsZ1A6RKPAqzTTgOyUQUSt9FdnKcqhTaJmkY6HVrgouZHZR0ncK5QxvmnQeg==",
+        "license": "MIT",
+        "dependencies": {
+          "tldts-core": "^7.4.16"
+        },
+        "bin": {
+          "tldts": "bin/cli.js"
+        }
+      },
+      "node_modules/tldts-core": {
+        "version": "7.4.16",
+        "resolved": "https://registry.npmjs.org/tldts-core/-/tldts-core-7.4.16.tgz",
+        "integrity": "sha512-MDolfaSJtlSK5Y0A1xl3277ekubZwobpBjugknDizI9O5Rm60a1m8k4ICK+MRsCDzPygT81mp3BBf5RKDlFRfA==",
+        "license": "MIT"
+      },
+      "node_modules/tough-cookie": {
+        "version": "6.0.2",
+        "resolved": "https://registry.npmjs.org/tough-cookie/-/tough-cookie-6.0.2.tgz",
+        "integrity": "sha512-exgYmnmL/sJpR3upZfXG5PoatXQii55xAiXGXzY+sROLZ/Y+SLcp9PgJNI9Vz37HpQ74WvDcLT8eqm+kV3FzrA==",
+        "license": "BSD-3-Clause",
+        "dependencies": {
+          "tldts": "^7.0.5"
+        },
+        "engines": {
+          "node": ">=16"
+        }
+      },
+      "node_modules/tr46": {
+        "version": "6.0.0",
+        "resolved": "https://registry.npmjs.org/tr46/-/tr46-6.0.0.tgz",
+        "integrity": "sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==",
+        "license": "MIT",
+        "dependencies": {
+          "punycode": "^2.3.1"
+        },
+        "engines": {
+          "node": ">=20"
+        }
+      },
+      "node_modules/undici": {
+        "version": "8.11.2",
+        "resolved": "https://registry.npmjs.org/undici/-/undici-8.11.2.tgz",
+        "integrity": "sha512-u4UB2/IrKdU6lFxumHmmo1a3fCQO5tzQllRorfoRS63txhrB7xTpSn1PftwC4qEHkOaqP95fCWW4lJzwErwzhQ==",
+        "license": "MIT",
+        "engines": {
+          "node": ">=22.19.0"
+        }
+      },
+      "node_modules/w3c-xmlserializer": {
+        "version": "5.0.0",
+        "resolved": "https://registry.npmjs.org/w3c-xmlserializer/-/w3c-xmlserializer-5.0.0.tgz",
+        "integrity": "sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==",
+        "license": "MIT",
+        "dependencies": {
+          "xml-name-validator": "^5.0.0"
+        },
+        "engines": {
+          "node": ">=18"
+        }
+      },
+      "node_modules/webidl-conversions": {
+        "version": "8.0.1",
+        "resolved": "https://registry.npmjs.org/webidl-conversions/-/webidl-conversions-8.0.1.tgz",
+        "integrity": "sha512-BMhLD/Sw+GbJC21C/UgyaZX41nPt8bUTg+jWyDeg7e7YN4xOM05YPSIXceACnXVtqyEw/LMClUQMtMZ+PGGpqQ==",
+        "license": "BSD-2-Clause",
+        "engines": {
+          "node": ">=20"
+        }
+      },
+      "node_modules/whatwg-mimetype": {
+        "version": "5.0.0",
+        "resolved": "https://registry.npmjs.org/whatwg-mimetype/-/whatwg-mimetype-5.0.0.tgz",
+        "integrity": "sha512-sXcNcHOC51uPGF0P/D4NVtrkjSU2fNsm9iog4ZvZJsL3rjoDAzXZhkm2MWt1y+PUdggKAYVoMAIYcs78wJ51Cw==",
+        "license": "MIT",
+        "engines": {
+          "node": ">=20"
+        }
+      },
+      "node_modules/whatwg-url": {
+        "version": "17.1.2",
+        "resolved": "https://registry.npmjs.org/whatwg-url/-/whatwg-url-17.1.2.tgz",
+        "integrity": "sha512-TEZA+Zqxin7Jjsm2cjRohCmen5awh+hT6Zi3VZdqZlNRk7zvOI/9WpBFg/DWlA56bWnzwm6DuB8NS0EsxQH9uQ==",
+        "license": "MIT",
+        "dependencies": {
+          "@exodus/bytes": "^1.15.1",
+          "tr46": "^6.0.0",
+          "webidl-conversions": "^8.0.1"
+        },
+        "engines": {
+          "node": "^22.14.0 || >=24.0.0"
+        }
+      },
+      "node_modules/xml-name-validator": {
+        "version": "5.0.0",
+        "resolved": "https://registry.npmjs.org/xml-name-validator/-/xml-name-validator-5.0.0.tgz",
+        "integrity": "sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==",
+        "license": "Apache-2.0",
+        "engines": {
+          "node": ">=18"
+        }
+      },
+      "node_modules/xmlchars": {
+        "version": "2.2.0",
+        "resolved": "https://registry.npmjs.org/xmlchars/-/xmlchars-2.2.0.tgz",
+        "integrity": "sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==",
+        "license": "MIT"
+      }
+    }
+  }
+}

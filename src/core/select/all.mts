@@ -4,6 +4,7 @@ import type {
   EngineContext,
   PlanCache,
 } from '../state/types.mts'
+import { selectCandidates } from './candidates.mts'
 
 export function select(
   engine: EngineState,
@@ -80,6 +81,10 @@ function selectByDescent(
     callback === undefined &&
     selectors &&
     typeof selectors == 'string' &&
+    !engine.Config.LEGACY &&
+    engine.HTML_DOCUMENT &&
+    context.nodeType == 9 &&
+    hasChainRoute(engine, selectors) &&
     !engine.hasForeignTypes(context)
   ) {
     descended =
@@ -153,14 +158,21 @@ function selectDirectChildren(
     callback === undefined &&
     !engine.Config.LEGACY &&
     engine.HTML_DOCUMENT &&
-    !engine.hasForeignTypes(context) &&
     context.nodeType == 9 &&
+    engine.reChildRoute.test(selectors) &&
+    !engine.hasForeignTypes(context) &&
     (descended = engine.selectChildren(selectors, context))
   ) {
     return engine.Config.NODE_LIST ? engine.toNodeList(descended) : descended
   }
 
   return undefined
+}
+
+function hasChainRoute(engine: EngineState, selectors: string) {
+  return (
+    engine.reTagChain.test(selectors) || engine.reSiblingChain.test(selectors)
+  )
 }
 
 function runCachedResolvers(
@@ -182,7 +194,7 @@ function runCachedResolvers(
     if (n.length > 1) {
       for (i = 0, l = n.length; l > i; ++i) {
         start = nodes.length
-        list = engine.fetch[n[i]![0]!]!(n[i]!.slice(1), context!)
+        list = selectCandidates(engine, n[i]!, context!, f[i] !== null)
         if (f[i] !== null) {
           f[i]!(list, callback, context!, nodes)
         } else {
@@ -200,7 +212,7 @@ function runCachedResolvers(
         nodes = engine.mergeResults(nodes, ends)
       }
     } else if (n.length) {
-      list = engine.fetch[n[0]![0]!]!(n[0]!.slice(1), context!)
+      list = selectCandidates(engine, n[0]!, context!, f[0] !== null)
       nodes = f[0] ? f[0](list, callback, context!, nodes) : (list as Element[])
     }
     if (typeof callback == 'function') {

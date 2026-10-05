@@ -1,3 +1,4 @@
+import type { CodeFactoryCache } from '../compile/factory.mts'
 import type {
   EngineContext,
   EngineElement,
@@ -9,10 +10,13 @@ import type {
   QueryPlan,
   RelativePlan,
   FilteredNthState,
+  FirstPositionState,
   PlanCache,
   CompilerAncestry,
+  CompilerContext,
 } from './types.mts'
 export interface QueryState {
+  codeFactories: CodeFactoryCache | null | undefined
   nthElement: (element: Element | null, dir: number) => number
   nthFiltered: (
     element: Element,
@@ -25,6 +29,7 @@ export interface QueryState {
   lastMaskNode: Element | null
   lastMaskValue: number
   tagBits: Record<string, number>
+  tagBitCount: number
   tagBit: (name: string) => number
   ancestorMask: (node: EngineElement) => number
   FILTER_SAMPLE: number
@@ -146,6 +151,7 @@ export interface QueryState {
     mode: boolean | null,
     callback: boolean | ElementCallback,
     ancestry?: CompilerAncestry,
+    compiler?: CompilerContext,
   ) => string
   ancestor: (
     selectors: string,
@@ -161,6 +167,13 @@ export interface QueryState {
     selectors: string[],
     callback: ((element: Element) => unknown) | undefined,
   ) => CompiledResolver[]
+  prepareForgiving: (selectors: string[]) => Array<CompiledResolver[] | null>
+  forgivingKey: (selectors: string[]) => string
+  matchForgivingKey: (key: string, element: Element) => boolean
+  matchPreparedForgiving: (
+    resolvers: Array<CompiledResolver[] | null>,
+    element: Element,
+  ) => boolean
   selectorComments: (text: string) => string
   stringContinuations: (selectors: string) => string
   parse: (
@@ -178,6 +191,8 @@ export interface QueryState {
     callback?: (element: Element) => unknown,
   ) => boolean
   matchForgiving: (list: string[], element: Element) => boolean
+  forgivingResolvers: PlanCache<Array<CompiledResolver[] | null>>
+  selectorGeneration: number
   hasChild: (element: Element, tag: string) => boolean
   hasCandidates: (
     token: string,
@@ -195,6 +210,7 @@ export interface QueryState {
     tag?: string | null | undefined,
     resolver?: CompiledResolver | null | undefined,
     filtered?: Record<string, FilteredNthState>,
+    position?: FirstPositionState,
   ) => Element | null
   first: (
     selectors: string,
@@ -212,6 +228,9 @@ export interface QueryState {
     cls: string
     tags: string[]
   } | null>
+  chainPlans: PlanCache<
+    Array<{ tag: string | undefined; cls: string | undefined }>
+  >
   selectChildren: (
     selectors: string,
     context: EngineContext,
@@ -219,6 +238,7 @@ export interface QueryState {
   partCounts: PlanCache<number>
   reTagChain: RegExp
   reSiblingChain: RegExp
+  reChildRoute: RegExp
   reChainPart: RegExp
   fetchLevel: (
     part: { cls: string | undefined; tag: string | undefined },

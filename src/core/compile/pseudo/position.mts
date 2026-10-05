@@ -1,6 +1,7 @@
 import { compilePositionRoute } from '../position/route.mts'
 import { compilePositionSimple } from '../position/simple.mts'
 import { compilePositionTest } from '../position/condition.mts'
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 
 export function compilePseudoPosition(
@@ -28,7 +29,7 @@ export function compilePseudoPosition(
         }
         compilePositionTest(state)
         if (nthFilter !== undefined) {
-          state.flag = '_f' + state.engine.notFlag++
+          state.flag = nextCompileIdentifier(state, '_f')
           state.engine.S_VARS.push(state.flag)
           state.source =
             'n=s.nthFiltered(e,' +

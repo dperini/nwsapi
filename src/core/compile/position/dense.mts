@@ -1,3 +1,4 @@
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 export function compilePositionDense(state: CompileState) {
   // Dense selections usually visit siblings together.
@@ -5,7 +6,7 @@ export function compilePositionDense(state: CompileState) {
   // compare identities. Locals live for this invocation
   // only, so mutations and reentrant calls cannot reuse
   // an earlier query's position.
-  state.flag = '_p' + state.engine.notFlag++
+  state.flag = nextCompileIdentifier(state, '_p')
   state.engine.S_VARS.push(state.flag, state.flag + 'v')
   state.source =
     'o=e.parentNode;if(o===' +

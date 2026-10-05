@@ -1,4 +1,5 @@
 import { hasChild } from '../match/child.mts'
+import { firstPosition } from '../compile/position/first.mts'
 import { match, matchForgiving, matchPublic } from '../match/selector.mts'
 import { parse } from '../parser/selector.mts'
 import { argsWith, install, uninstall } from '../dom/install.mts'
@@ -57,6 +58,7 @@ export function initializeApi(engine: EngineState) {
     cls: string
     tags: string[]
   } | null>()
+  engine.chainPlans = engine.createCache(256)
   engine.selectChildren = selectChildren.bind(
     null,
     engine,
@@ -66,6 +68,8 @@ export function initializeApi(engine: EngineState) {
     /^[.A-Za-z][-\w]*(?:\.[-\w]+)?(?:\x20[.A-Za-z][-\w]*(?:\.[-\w]+)?)+$/
   engine.reSiblingChain =
     /^[.A-Za-z][-\w.]*(?:[\t\n\f\r ]*~[\t\n\f\r ]*[.A-Za-z][-\w.]*)+$/
+  engine.reChildRoute =
+    /^([a-z][a-z0-9-]*)?\.([_a-zA-Z][-\w]*)([\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*(?:[\t\n\f\r ]*>[\t\n\f\r ]*[a-z][a-z0-9-]*)*)$/
   engine.reChainPart = /^([A-Za-z][-\w]*)?(?:\.([-\w]+))?$/
   engine.fetchLevel = fetchLevel.bind(null, engine) as EngineState['fetchLevel']
   engine.countPart = countPart.bind(null, engine) as EngineState['countPart']
@@ -101,6 +105,9 @@ export function initializeApi(engine: EngineState) {
   engine.matchLambdas = engine.createCache<CompiledResolver | null>()
   engine.selectLambdas = engine.createCache<CompiledResolver | null>()
   engine.matchResolvers = engine.createCache<CompiledResolver[]>()
+  engine.forgivingResolvers =
+    engine.createCache<Array<CompiledResolver[] | null>>()
+  engine.selectorGeneration = 0
   engine.selectResolvers = engine.createCache<QueryPlan>()
   engine.firstResolvers = engine.createCache<QueryPlan>()
   engine.Snapshot = {
@@ -140,6 +147,7 @@ export function initializeApi(engine: EngineState) {
 
     nthOfType: engine.nthOfType,
     nthElement: engine.nthElement,
+    firstPosition: firstPosition,
     nthFiltered: engine.nthFiltered,
 
     isDirection: engine.isDirection,
@@ -164,6 +172,7 @@ export function initializeApi(engine: EngineState) {
     hasAttributeNS: engine.hasAttributeNS,
     attributeValueNS: engine.attributeValueNS,
     isMediaState: engine.isMediaState,
+    matchForgivingKey: engine.matchForgivingKey,
   }
   engine.Dom = {
     // exported cache objects
@@ -231,12 +240,14 @@ export function initializeApi(engine: EngineState) {
         engine.createCache = engine.legacyHooks.createCache
         engine.typeRoutes = engine.createCache()
         engine.childPlans = engine.createCache()
+        engine.chainPlans = engine.createCache(256)
         engine.partCounts = engine.createCache()
         engine.descentDeclined = engine.createCache()
         engine.hasPlans = undefined
         engine.Dom.matchLambdas = engine.matchLambdas = engine.createCache()
         engine.Dom.selectLambdas = engine.selectLambdas = engine.createCache()
         engine.Dom.matchResolvers = engine.matchResolvers = engine.createCache()
+        engine.forgivingResolvers = engine.createCache()
         engine.Dom.selectResolvers = engine.selectResolvers =
           engine.createCache()
         engine.firstResolvers = engine.createCache()
@@ -271,6 +282,8 @@ export function initializeApi(engine: EngineState) {
         )
         engine.Combinators[combinator] = resolver
         engine.setIdentifierSyntax()
+        engine.selectorGeneration++
+        engine.configure({}, true)
       } else {
         console.warn(
           "Warning: the '" + combinator + "' combinator is already registered.",
@@ -296,6 +309,8 @@ export function initializeApi(engine: EngineState) {
         engine.CFG.operators = engine.CFG.operators.replace(']=', symbol + ']=')
         engine.Operators[operator] = resolver
         engine.setIdentifierSyntax()
+        engine.selectorGeneration++
+        engine.configure({}, true)
       } else {
         console.warn(
           "Warning: the '" + operator + "' operator is already registered.",
@@ -309,11 +324,14 @@ export function initializeApi(engine: EngineState) {
       rexp: RegExp,
       func: SelectorExtension['Callback'],
     ) {
-      engine.Selectors[name] ||
-        (engine.Selectors[name] = {
+      if (!engine.Selectors[name]) {
+        engine.Selectors[name] = {
           Expression: rexp,
           Callback: func,
-        })
+        }
+        engine.selectorGeneration++
+        engine.configure({}, true)
+      }
     },
   }
 }

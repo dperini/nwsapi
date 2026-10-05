@@ -1,8 +1,10 @@
 import { compileCacheKey } from './cache-key.mts'
+import { bindResolver } from './factory.mts'
 import type {
   EngineState,
   CompiledResolver,
   CompilerAncestry,
+  CompilerContext,
   ElementCallback,
 } from '../state/types.mts'
 
@@ -30,6 +32,7 @@ export function compile(
     filter,
     filtered,
     ancestry: CompilerAncestry,
+    compiler: CompilerContext,
     factory,
     head = '',
     loop = '',
@@ -47,6 +50,7 @@ export function compile(
   }
 
   ancestry = { required: [], pending: [], walk: false }
+  compiler = { nextIdentifier: 0, classes: [] }
   prepareAncestry()
 
   source = engine.compileSelector(
@@ -55,6 +59,7 @@ export function compile(
     mode,
     callback,
     ancestry,
+    compiler,
   )
 
   if ((mode || mode === null) && !callback && source === macro) {
@@ -80,16 +85,13 @@ export function compile(
 
   finalizeVariables()
 
-  // oxlint-disable-next-line typescript/no-implied-eval -- Selectors compile to resolver functions.
-  factory = Function(
-    's',
-    'a',
+  factory = bindResolver(
+    engine,
     engine.F_INIT + '{' + head + vars + ';' + loop + 'return r;}',
-  )(engine.Snapshot, filter)
+    filter,
+  )
 
-  if (filtered) {
-    factory.filtered = true
-  }
+  annotateResolver(factory, filtered, ancestry.position)
 
   if (mode || mode === null) {
     engine.selectLambdas.set(cacheKey, factory)
@@ -148,7 +150,7 @@ export function compile(
   function prepareAncestry() {
     // Cache hits need no parser state or helper-alias bookkeeping.
     if ((mode || mode === null) && !engine.Config.LEGACY) {
-      ancestry.classes = []
+      ancestry.classes = compiler.classes
     }
     if (
       (mode || mode === null) &&
@@ -216,13 +218,13 @@ export function compile(
     if (ancestry.reuse) {
       vars += ',_pStart=null,_pResult=false'
     }
-    if (ancestry.classes) {
+    if (compiler.classes.length) {
       for (
-        var classesLength = ancestry.classes.length, i = 0;
+        var classesLength = compiler.classes.length, i = 0;
         i < classesLength;
         ++i
       ) {
-        vars += ',_c' + i + '=' + ancestry.classes[i]
+        vars += ',_c' + i + '=' + compiler.classes[i]
       }
     }
     if (engine.Config.LEGACY) {
@@ -230,5 +232,18 @@ export function compile(
       loop = rewritten.source
       vars += rewritten.variables
     }
+  }
+}
+
+function annotateResolver(
+  resolver: CompiledResolver,
+  filtered: boolean | undefined,
+  position: boolean | undefined,
+) {
+  if (filtered) {
+    resolver.filtered = true
+  }
+  if (position) {
+    resolver.position = true
   }
 }

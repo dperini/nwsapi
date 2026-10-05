@@ -78,6 +78,31 @@ describe('a descendant chain of tags answered by descending', () => {
     )
   })
 
+  test('simple selectors skip foreign-type scans after unrelated mutations', () => {
+    const { window, document, NW } = build(
+      '<!doctype html><main><p class="card" data-kind="x"></p></main>',
+    )
+    const descriptor = Object.getOwnPropertyDescriptor(
+      window.Element.prototype,
+      'localName',
+    )!
+    let reads = 0
+    Object.defineProperty(window.Element.prototype, 'localName', {
+      ...descriptor,
+      get() {
+        reads++
+        return descriptor.get!.call(this)
+      },
+    })
+    for (const selector of ['.card', '[data-kind="x"]']) {
+      assert.equal(NW.select(selector, document).length, 1)
+      document.body!.append(document.createElement('aside'))
+      reads = 0
+      assert.equal(NW.select(selector, document).length, 1)
+      assert.equal(reads, 0, `${selector} should not inspect element types`)
+    }
+  })
+
   test('XML preserves case while HTML foreign types follow browser folding', () => {
     const { window } = new JSDOM(
       '<root><Parent><Child id="c" class="x"/></Parent></root>',

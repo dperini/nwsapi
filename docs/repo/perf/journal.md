@@ -1615,3 +1615,150 @@ The [display-state investigation](../selector/display-state.md) traces commit `2
 ## Separate native parity from selector extensions
 
 The same 200 comparison cases now report 185 native-parity cases and 15 reviewed extensions. `nwsapi` agrees with Chrome on all 185 native-parity cases. `@asamuzakjp/dom-selector` agrees on 129. This changes the reporting scope, not either engine's measured results. All 200 raw outcomes remain available. The 15 extensions count as neither passes nor failures and return to the native pool when Chrome accepts their syntax.
+
+## Prepare forgiving predicates and reuse first-match positions
+
+The [compilation review](compilation-review-2026-10-01.md) identified four concrete
+sources of repeated work or unbounded memoization. The follow-up implements
+invocation-local forward sibling positions for `first()`, prepared fallback
+`:is()` and `:where()` branches, 256-entry bounds on tag and language memo tables,
+and selector-shape checks before foreign-type tree inspection. The hypothesis
+was that these changes would reduce late or missing first-match work, nested
+logical dispatch, and mutation-followed query latency while preserving early
+matches and simple matching throughput.
+
+The [recorded comparison](../../../assets/repo/bench/compilation-followup-2026-10-01.json)
+uses the bundled build of `f04f47f8bb8cc4a86df33c41c141ace83d5ca963` as its
+baseline. Both builds ran sequentially in one Node.js v26.10.0 process on an Apple
+M1 Max with `jsdom` v30.0.1. Seven rounds rotate execution order, using Mitata,
+30ms minimum CPU time, and batches of eight calls. Each variant owns an equivalent
+document. Setup and identity checks occur outside timing. Source hashes, fixture
+markup, settings, and all samples are recorded. Tests and other benchmarks did
+not run during measurement.
+
+The table reports the median of seven round medians. Ranges show the minimum and
+maximum round medians for the patched build. Both-build ranges remain in the raw
+report. Speedup is baseline time divided by patched time.
+
+| Operation | Baseline | Patched | Patched range | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| `first()`, missing positional match, 512 siblings | 8.5683ms | 0.1496ms | 0.1441–0.1552ms | 57.27× |
+| `first()`, last positional match, 512 siblings | 8.3709ms | 0.1566ms | 0.1491–0.1582ms | 53.45× |
+| `first()`, early positional match | 0.001016ms | 0.000979ms | 0.000953–0.001146ms | 1.04× |
+| `select()`, valid logical branches, 256 candidates | 0.09129ms | 0.03905ms | 0.03779–0.03987ms | 2.34× |
+| `select()`, invalid logical branch, 256 candidates | 2.5699ms | 0.02439ms | 0.02372–0.02476ms | 105.39× |
+| Raw resolver, valid logical branches, 256 candidates | 0.11237ms | 0.05588ms | 0.05557–0.07113ms | 2.01× |
+| Raw resolver, invalid logical branch, 256 candidates | 2.6051ms | 0.03010ms | 0.02957–0.03036ms | 86.55× |
+| Warm `.card`, 1,000 candidates | 0.000938ms | 0.000604ms | 0.000594–0.000636ms | 1.55× |
+| Mutation and `.card` query, 1,000 candidates | 0.7743ms | 0.2760ms | 0.2574–0.2863ms | 2.81× |
+| Warm `[data-hit]`, 1,000 candidates | 0.10483ms | 0.10158ms | 0.10049–0.10220ms | 1.03× |
+| Mutation and `[data-hit]` query, 1,000 candidates | 0.8601ms | 0.3725ms | 0.3458–0.5863ms | 2.31× |
+| Simple single-element match control | 0.000370ms | 0.000359ms | 0.000354–0.000370ms | 1.03× |
+| Language matching control, 256 candidates | 0.23251ms | 0.23506ms | 0.22727–0.24916ms | 0.99× |
+
+The positional fixture tests `div[data-hit]:nth-child(2n)` with no hit or a hit
+on the last sibling. The early control uses `div:nth-child(2n)`. Logical fixtures
+use `div:is(.missing,[data-hit])` and `div:is(.missing,:audit-unknown)`. Invalid
+branches previously parsed and threw for each candidate, explaining their large
+stress-case gains. Raw resolvers receive a fixed candidate array. Mutation rows
+include appending an unrelated element, querying, and removing it. Controls
+within a few percent have overlapping round ranges and do not establish a
+meaningful regression or improvement.
+
+Keep all four changes. Unit regressions cover sibling traversal bounds, nested
+queries, extension mutation, cache clearing, extension registration, quiet and
+strict validation, HTML/XML, memo turnover, and startup intrinsics. The combined
+unit run passed 985 tests, followed by six focused logical tests after adding
+the saved-resolver cache-clearing case. Five relevant integration suites passed
+62 tests. Six Chromium suites passed eight tests against pinned Chrome for
+Testing 154.0.8037.0, including logical and positional results after mutation and
+movement into a detached fragment. Type checking, configured lint, naming checks,
+and whitespace checks passed.
+
+These measurements cover warm queries and saved resolver execution. Cold
+compilation now prepares fallback logical dependencies eagerly and was not timed
+here. Cache limits are verified by behavior and entry counts, not retained heap
+bytes. The new dependency cache also has a bounded memory cost. No browser timing,
+allocation-rate, application-wide, or standalone precompilation gain is claimed.
+The remaining review proposals are separate follow-up work.
+
+To reproduce, save the baseline and patched readable builds, then run:
+
+```sh
+node scripts/repo/bench/compilation-followup.mts before.cjs after.cjs assets/repo/bench/compilation-followup-2026-10-01.json
+```
+
+## Reuse private candidates and deterministic code factories
+
+The second implementation batch, `e602507`, addresses the next concrete audit
+opportunities. Filtered queries borrow internal collection snapshots while
+identity queries preserve fresh public arrays. A 256-entry cache retains parsed
+chain syntax independently of document-shape decisions. `closest()` prepares
+matchers once per walk. Each resolver compilation owns deterministic identifiers
+and shared class-regex constants for inline logical predicates.
+
+Engines that switch documents also enable a small unbound factory cache. It
+retains at most 64 entries and 32,768 UTF-16 source units, excluding any source
+over 8,192 units. It reuses generated code while binding fresh execution state.
+The initial design would have enabled this extra retention for every engine.
+We narrowed it before timing so single-document engines do not allocate it.
+A regression observes two `Function()` calls across ten alternating-document
+matches, including the first uncached compilation and the first switched one.
+Subsequent calls reuse the factory. Bound plans still invalidate normally.
+
+The hypothesis was lower copy allocation, less repeated chain and ancestor
+preparation, and better generated-code reuse after bound caches are cleared.
+The [recorded comparison](../../../assets/repo/bench/preparation-2026-10-01.json)
+uses the already-optimized first batch (`64abc81`) as baseline, not the original
+audit commit. It ran on Node.js v26.10.0, V8 14.6.202.34-node.34, `jsdom` v30.0.1,
+and an Apple M1 Max. Seven rotating Mitata rounds used 30ms minimum CPU time and
+batches of eight calls. Equivalent independent documents and identity checks
+before and after timing kept setup and validation outside the measured operation.
+All agents and tests had finished before timing. Source hashes, full samples,
+fixture markup, and settings are recorded.
+
+| Operation | First batch | Second batch | Second-batch range | Speedup |
+| --- | ---: | ---: | ---: | ---: |
+| Filtered class snapshot | 0.034068ms | 0.033177ms | 0.032588–0.034469ms | 1.03× |
+| Filtered tag snapshot | 0.039172ms | 0.038344ms | 0.038010–0.039109ms | 1.02× |
+| Missing filtered class | 0.039729ms | 0.040880ms | 0.039630–0.041323ms | 0.97× |
+| Identity class control | 0.000453ms | 0.000438ms | 0.000427–0.000484ms | 1.04× |
+| Descendant syntax reuse | 0.001182ms | 0.001109ms | 0.001089–0.001172ms | 1.07× |
+| Sibling syntax reuse | 0.037963ms | 0.037667ms | 0.037312–0.038823ms | 1.01× |
+| Deep `closest()` hit | 0.013729ms | 0.010516ms | 0.010479–0.010828ms | 1.31× |
+| Deep `closest()` miss | 0.019542ms | 0.014453ms | 0.014380–0.015083ms | 1.35× |
+| Early `closest()` control | 0.000604ms | 0.000255ms | 0.000250–0.000266ms | 2.37× |
+| Raw nested class predicates | 0.082073ms | 0.079354ms | 0.079219–0.082208ms | 1.03× |
+| Cross-document matching | 0.023339ms | 0.004339ms | 0.004245–0.005000ms | 5.38× |
+| Recompile after cache clear | 0.024979ms | 0.008969ms | 0.008760–0.012755ms | 2.79× |
+| Distinct cold compilation control | 0.014927ms | 0.013604ms | 0.013167–0.015286ms | 1.10× |
+
+Values are medians of seven round medians, with the second build's minimum and
+maximum round medians shown as ranges. Snapshot and raw fixtures use 512
+candidates. Deep ancestor walks have 64 wrapper elements. The descendant fixture
+has one relevant span and 256 unrelated spans. Sibling matching uses 64 groups.
+Cross-document matching alternates two HTML documents. Recompilation includes
+`configure({}, true)` and compilation. The cold control generates distinct class
+names. These operations measure the complete batch, not isolated contributions
+from each individual change, and speedups from the two batches must not be added.
+
+Keep the changes. The copy and nested-class timings remain within about 4% of
+baseline, including the 0.97× no-match row. Their justification is removal of
+redundant copies and stable prepared code, not a large measured throughput gain.
+The code and entry limits are verified, but this run does not measure retained
+heap or allocation bytes. Generated class regexes are hoisted per resolver
+invocation, not globally. No standalone AOT format or broad AST rewrite was added.
+General `:has()` early probing and the other conditional audit proposals remain
+future work.
+
+Validation passed 1,006 unit tests in 142 suites, followed by a focused four-test
+candidate run after extending the extension opt-out regression. Twelve combined
+integration and Chromium suites passed 30 tests. They cover saved compilation,
+package output, adapter behavior, namespace and legacy rules, mutated private
+candidates, starting scope, and HTML/XML document switches. Type checking,
+configured lint, naming, and whitespace checks passed. Tests compare generated
+ASTs for identifier stability and constant placement, alongside result behavior.
+
+```sh
+node scripts/repo/bench/preparation.mts first-batch.cjs second-batch.cjs assets/repo/bench/preparation-2026-10-01.json
+```

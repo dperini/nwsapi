@@ -3,6 +3,7 @@ import { compileToken } from './token.mts'
 import type {
   EngineState,
   CompilerAncestry,
+  CompilerContext,
   ElementCallback,
 } from '../state/types.mts'
 
@@ -13,6 +14,7 @@ export function compileSelector(
   mode: boolean | null,
   callback: boolean | ElementCallback,
   ancestry?: CompilerAncestry,
+  compiler?: CompilerContext,
 ) {
   const state = {
     engine,
@@ -21,6 +23,7 @@ export function compileSelector(
     mode,
     callback,
     ancestry,
+    compiler,
   } as CompileState
   state.k = 0
   state.previousErrors = state.engine.errors

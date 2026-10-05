@@ -1,7 +1,8 @@
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 export function compilePositionMatch(state: CompileState) {
   if (state.expr) {
-    state.flag = '_t' + state.engine.notFlag++
+    state.flag = nextCompileIdentifier(state, '_t')
     state.engine.S_VARS.push(state.flag, state.flag + 's')
     state.source =
       state.flag +
@@ -29,13 +30,29 @@ export function compilePositionMatch(state: CompileState) {
       '}'
     return
   }
-  state.source =
+  var count =
     'n=1;o=e;while((o=o.' +
     (state.type ? 'next' : 'previous') +
-    'ElementSibling))++n;if((' +
-    (state.test as string) +
-    ')){' +
-    state.source +
-    '}'
+    'ElementSibling))++n;'
+  if (!state.type && !state.callback && canSharePosition(state)) {
+    state.ancestry.position = true
+    count = 'if(p){n=s.firstPosition(e,p);}else{' + count + '}'
+  }
+  state.source =
+    count + 'if((' + (state.test as string) + ')){' + state.source + '}'
   return
+}
+
+function canSharePosition(state: CompileState) {
+  for (var name in state.engine.Selectors) {
+    if (state.engine.Selectors[name]) {
+      return false
+    }
+  }
+  for (name in state.engine.Combinators) {
+    if (state.engine.Combinators[name]) {
+      return false
+    }
+  }
+  return true
 }

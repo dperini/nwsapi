@@ -1,8 +1,9 @@
+import { nextCompileIdentifier } from '../state.mts'
 import type { CompileState } from '../state.mts'
 export function compilePositionOrdered(state: CompileState) {
   // Ordered, nearby candidates can carry their sibling
   // position forward. Sparse runs switch to the shared index.
-  state.flag = '_i' + state.engine.notFlag++
+  state.flag = nextCompileIdentifier(state, '_i')
   state.engine.S_VARS.push(
     state.flag,
     state.flag + 'n',

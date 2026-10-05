@@ -7,6 +7,7 @@ import type {
   CompiledResolver,
   QueryPlan,
   FilteredNthState,
+  FirstPositionState,
   SelectorExtension,
   PlanCache,
   AttributeOperator,
@@ -60,6 +61,7 @@ export interface PublicState {
       callback?: (element: Element) => unknown,
     ) => boolean
     matchForgiving: (list: string[], element: Element) => boolean
+    matchForgivingKey: (key: string, element: Element) => boolean
     select: (
       selectors: string,
       context: EngineContext | null | undefined,
@@ -76,6 +78,7 @@ export interface PublicState {
       stable?: boolean,
     ) => number
     nthElement: (element: Element | null, dir: number) => number
+    firstPosition: (element: Element, state: FirstPositionState) => number
     nthFiltered: (
       element: Element,
       selector: string,
@@ -239,6 +242,7 @@ export interface PublicState {
         callback?: (element: Element) => unknown,
       ) => boolean
       matchForgiving: (list: string[], element: Element) => boolean
+      matchForgivingKey: (key: string, element: Element) => boolean
       select: (
         selectors: string,
         context: EngineContext | null | undefined,
@@ -255,6 +259,7 @@ export interface PublicState {
         stable?: boolean,
       ) => number
       nthElement: (element: Element | null, dir: number) => number
+      firstPosition: (element: Element, state: FirstPositionState) => number
       nthFiltered: (
         element: Element,
         selector: string,

@@ -75,12 +75,14 @@ export interface PrefixSnapshot {
 
 export interface CompiledResolver {
   filtered?: boolean
+  position?: boolean
   (
     candidate: Element,
     callback: ElementCallback,
     context: EngineContext | null,
     result: false,
     filtered?: Record<string, FilteredNthState>,
+    position?: FirstPositionState,
   ): boolean
   (
     candidates: ArrayLike<Element>,
@@ -111,6 +113,11 @@ export interface FilteredNthState {
   siblings?: FilteredSiblings
 }
 
+export interface FirstPositionState {
+  element: Element | null
+  index: number
+}
+
 export interface SelectorExtension {
   Expression: RegExp
   Callback(
@@ -134,11 +141,17 @@ export interface PlanCache<Value> {
 }
 
 export interface CompilerAncestry {
+  position?: boolean
   classes?: string[]
   reuse?: string
   required: string[]
   pending: string[]
   walk: boolean
+}
+
+export interface CompilerContext {
+  nextIdentifier: number
+  classes: string[]
 }
 
 export interface IdentifierSyntax {

@@ -30,6 +30,7 @@
 !/assets/**/*.LICENSE
 !/assets/**/*.json
 !/assets/**/*.svg
+!/assets/repo/bench/compilation-report.html
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md

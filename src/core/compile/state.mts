@@ -3,6 +3,7 @@ import type {
   EngineState,
   AttributeOperator,
   CompilerAncestry,
+  CompilerContext,
   ElementCallback,
 } from '../state/types.mts'
 
@@ -13,6 +14,7 @@ export interface CompileState {
   mode: boolean | null
   callback: boolean | ElementCallback
   ancestry: CompilerAncestry
+  compiler: CompilerContext | undefined
   a: number
   b: number
   n: string[]
@@ -54,4 +56,11 @@ export interface CompileState {
     attr: (v: string, name: string) => string
     has: (v: string, name: string) => string
   }
+}
+
+export function nextCompileIdentifier(state: CompileState, prefix: string) {
+  if (state.compiler) {
+    return prefix + state.compiler.nextIdentifier++
+  }
+  return prefix + state.engine.notFlag++
 }
