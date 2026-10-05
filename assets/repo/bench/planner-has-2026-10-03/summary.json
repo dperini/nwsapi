@@ -1,0 +1,21 @@
+{
+  "decision": "eligible for further validation",
+  "gate": {
+    "minimumGeomeanSpeedup": 1.05,
+    "maximumCaseSlowdown": 1.15
+  },
+  "hosts": [
+    {
+      "host": "chromium",
+      "speedup": 1.088273036957783,
+      "worst": 1.06055788396275,
+      "passes": true
+    },
+    {
+      "host": "jsdom",
+      "speedup": 1.1926571954434415,
+      "worst": 1.0347188723570868,
+      "passes": true
+    }
+  ]
+}

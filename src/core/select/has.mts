@@ -18,9 +18,16 @@ export function prepareBulkHas(
   if (!parts || !pureCompound(parts[1]!) || !pureCompound(parts[2]!)) {
     return undefined
   }
+  const anchor = plan(engine, parts[1]!, context)
+  const witness = plan(engine, parts[2]!, context)
   return {
-    anchor: plan(engine, parts[1]!, context),
-    witness: plan(engine, parts[2]!, context),
+    anchor,
+    witness,
+    denseInverse:
+      parts[1]![0] === '.' &&
+      parts[2]![0] === '.' &&
+      parts[1] === anchor.nodeset[0] &&
+      parts[2] === witness.nodeset[0],
   }
 }
 
@@ -43,7 +50,17 @@ export function selectBulkHas(
     return null
   }
   const witnesses = engine.hasCandidates(plan.witness.nodeset[0]!, context)
-  if (witnesses.length > anchors.length * 2) {
+  if (!witnesses.length) {
+    return []
+  }
+  // Training favored inverse marking here. Filtered compounds retain
+  // the old rule because dense flat fixtures showed regressions.
+  if (
+    witnesses.length > anchors.length * 2 &&
+    (!plan.denseInverse ||
+      anchors.length > 192 ||
+      witnesses.length > anchors.length * 4)
+  ) {
     return null
   }
   const marks = engine.createWeakMap<Element, boolean>()

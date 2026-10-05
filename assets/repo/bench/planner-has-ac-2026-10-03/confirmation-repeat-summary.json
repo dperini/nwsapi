@@ -1,0 +1,21 @@
+{
+  "decision": "retain guarded runtime implementation",
+  "gate": {
+    "minimumGeomeanSpeedup": 1.05,
+    "maximumCaseSlowdown": 1.15
+  },
+  "hosts": [
+    {
+      "host": "chromium",
+      "speedup": 1.289257052525719,
+      "worst": 1.1172766852801523,
+      "passes": true
+    },
+    {
+      "host": "jsdom",
+      "speedup": 1.2563575272692975,
+      "worst": 1.043382007975604,
+      "passes": true
+    }
+  ]
+}

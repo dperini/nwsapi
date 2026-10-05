@@ -1,0 +1,21 @@
+{
+  "decision": "retain existing runtime rule",
+  "gate": {
+    "minimumGeomeanSpeedup": 1.05,
+    "maximumCaseSlowdown": 1.15
+  },
+  "hosts": [
+    {
+      "host": "chromium",
+      "speedup": 1.0199158889483029,
+      "worst": 1.017967329048458,
+      "passes": false
+    },
+    {
+      "host": "jsdom",
+      "speedup": 0.9949801440667966,
+      "worst": 1.2790224126840148,
+      "passes": false
+    }
+  ]
+}

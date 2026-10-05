@@ -1,0 +1,77 @@
+{
+  "model": {
+    "broad": true
+  },
+  "min": [
+    32,
+    0,
+    0,
+    0
+  ],
+  "max": [
+    192,
+    768,
+    3,
+    4
+  ],
+  "baseline": {
+    "timestamp": "2026-10-03T21:12:54.299Z",
+    "node": "v26.10.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M1 Max",
+    "jsdom": "30.0.1",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+    "competitorVersion": "9.1.1",
+    "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+    "scenario": "has",
+    "settings": {
+      "rounds": 7,
+      "milliseconds": 12,
+      "batch": 16
+    },
+    "fixtureSha256": "49ab5239cb775619335ea2287c2fb13489602576c0e453059b67010634cd3240",
+    "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t70%; discharging; 8:17 remaining present: true",
+    "featureNames": [
+      "anchorCount",
+      "witnessCount",
+      "attributeMask",
+      "witnessRatio"
+    ],
+    "routeLabels": [
+      "rule",
+      "forward",
+      "inverse"
+    ],
+    "host": "chromium",
+    "version": "154.0.8037.0",
+    "variants": [
+      "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+      "4ef5a85eec440ca0db80ff680f7f62d9f648341aee82d692095e765520db1fd8",
+      "fef134fbf465d1d05963cdd1b528ec9c261789c3e811bcca5edc975241314960"
+    ]
+  },
+  "observations": 96,
+  "routeLabels": [
+    "forward",
+    "inverse"
+  ],
+  "featureNames": [
+    "anchors",
+    "witnesses",
+    "attributes",
+    "(witnesses / anchors)"
+  ],
+  "inputs": [
+    {
+      "filename": "chromium-training.json",
+      "sha256": "da39808850c6c277bab2b13896a6019462fa19a6dbec5d9d6b40a474dbcd0641"
+    },
+    {
+      "filename": "jsdom-training.json",
+      "sha256": "2ef75f383da42099b16a026b251f6f05711b747ff20cfa1cf6c38f8a7a05c779"
+    }
+  ],
+  "expression": "true",
+  "guardedExpression": "((attributes === 0 || attributes === 3) && anchors >= 32 && anchors <= 192 && witnesses >= 0 && witnesses <= 768 && (witnesses / anchors) >= 0 && (witnesses / anchors) <= 4) ? true : (witnesses <= anchors * 2)"
+}

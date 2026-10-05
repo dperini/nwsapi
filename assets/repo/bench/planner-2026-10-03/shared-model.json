@@ -1,0 +1,68 @@
+{
+  "inputs": [
+    {
+      "filename": "chromium-training.json",
+      "sha256": "aa2db280023c5a6866b18b26abcdf064bcb98347139ae5eca69ab2d3016cc6f4"
+    },
+    {
+      "filename": "jsdom-training.json",
+      "sha256": "c05cf200db47e3f7b30827e23e185a58722835e8c9d2bfa54b409276312b18de"
+    }
+  ],
+  "observations": 96,
+  "baseline": {
+    "timestamp": "2026-10-03T20:47:06.018Z",
+    "node": "v26.10.0",
+    "platform": "darwin/arm64",
+    "cpu": "Apple M1 Max",
+    "jsdom": "30.0.1",
+    "candidateVersion": "2.3.0-prerelease",
+    "candidateSha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+    "competitorVersion": "9.1.1",
+    "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+    "settings": {
+      "rounds": 7,
+      "milliseconds": 12,
+      "batch": 16
+    },
+    "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=38207587)\t74%; discharging; 9:07 remaining present: true",
+    "fixtureGeneratorSha256": "b95f1588323689e3837e3e55ca18b23258bae88f11db8cbad90a7ff8dc5a96be",
+    "host": "chromium",
+    "version": "154.0.8037.0",
+    "variants": [
+      "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+      "58059580d78d1bdc9a3da71336357c174222621b4e86fcd1638e7ae4413a5d10",
+      "945d87a9d1af3972edb72ea9d458cf0aec8cb37726098c4c801951e66ceefb9b"
+    ]
+  },
+  "model": {
+    "feature": 3,
+    "threshold": 0.3937801496985959,
+    "left": {
+      "broad": false
+    },
+    "right": {
+      "broad": true
+    }
+  },
+  "domain": {
+    "min": [
+      2,
+      131,
+      2,
+      0.013605442176870748
+    ],
+    "max": [
+      819,
+      1155,
+      6,
+      0.7974683544303798
+    ],
+    "arities": [
+      2,
+      6
+    ]
+  },
+  "expression": "((count / total) <= 0.3937801496985959 ? false : true)",
+  "guardedExpression": "((arity === 2 || arity === 6) && total >= 131 && total <= 1155 && count >= 2 && count <= 819 && (count / total) >= 0.013605442176870748 && (count / total) <= 0.7974683544303798) ? ((count / total) <= 0.3937801496985959 ? false : true) : (count > 0 && count * 3 > total)"
+}
