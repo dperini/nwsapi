@@ -1,3 +1,4 @@
+import { PLAN_BYTES, relativeWeight } from '../cache/weight.mts'
 import type {
   EngineState,
   EngineContext,
@@ -53,7 +54,10 @@ export function has(
         : 'a:' + JSON.stringify(argument),
     plans = (
       engine.hasPlans ||
-      (engine.hasPlans = engine.createCache<RelativePlan[]>())
+      (engine.hasPlans = engine.createCache<RelativePlan[]>(undefined, {
+        bytes: PLAN_BYTES,
+        weight: relativeWeight,
+      }))
     ).get(key),
     list,
     parsed,
@@ -63,6 +67,7 @@ export function has(
     context,
     root,
     candidates,
+    matched: Element[] = [],
     resolver,
     token,
     i: number,
@@ -95,11 +100,7 @@ export function has(
             resolver = plans[i]!.factory[j]
             candidates = engine.hasCandidates(token, root)
             // Keep the original scope while narrowing only the lookup root.
-            if (
-              resolver
-                ? resolver(candidates, null, context, []).length
-                : candidates.length
-            ) {
+            if (hasMatch(resolver, candidates, context, matched)) {
               return true
             }
           }
@@ -168,6 +169,21 @@ export function has(
       engine.hasPlans!.set(key, plans)
     }
   }
+}
+
+function hasMatch(
+  resolver: RelativePlan['factory'][number] | undefined,
+  candidates: ArrayLike<Element>,
+  context: EngineContext,
+  matched: Element[],
+) {
+  if (!resolver) {
+    return candidates.length > 0
+  }
+  // Existence-only resolvers stop at their first match. Reuse one result
+  // buffer across candidate roots instead of allocating for every failed probe.
+  matched.length = 0
+  return resolver(candidates, null, context, matched).length > 0
 }
 
 export function firstMatch(_engine: EngineState) {

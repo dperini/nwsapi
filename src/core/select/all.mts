@@ -3,8 +3,11 @@ import type {
   ElementCallback,
   EngineContext,
   PlanCache,
+  QueryPlan,
 } from '../state/types.mts'
 import { selectCandidates } from './candidates.mts'
+import { groupSelectors } from './group.mts'
+import { prepareBulkHas, selectBulkHas } from './has.mts'
 
 export function select(
   engine: EngineState,
@@ -32,8 +35,9 @@ export function select(
     }
   }
 
+  const parsed = engine.parse(selectors, true) as string[]
   resolver = engine.collect(
-    engine.parse(selectors, true) as string[],
+    callback === undefined && parsed ? groupSelectors(engine, parsed) : parsed,
     context,
     callback,
   )
@@ -45,9 +49,11 @@ export function select(
   // selector stayed in the cache. What is kept here is context-free,
   // which also lets a plan be reused across contexts instead of only for
   // the one it was built against.
+  const bulkHas = prepareBulkHas(engine, selectors, context)
   engine.selectResolvers.set(selectors, {
     factory: resolver.factory,
     nodeset: resolver.nodeset,
+    ...(bulkHas ? { bulkHas } : {}),
   })
 
   if (typeof callback == 'function') {
@@ -212,8 +218,7 @@ function runCachedResolvers(
         nodes = engine.mergeResults(nodes, ends)
       }
     } else if (n.length) {
-      list = selectCandidates(engine, n[0]!, context!, f[0] !== null)
-      nodes = f[0] ? f[0](list, callback, context!, nodes) : (list as Element[])
+      nodes = runSingle(engine, resolver, context, callback)
     }
     if (typeof callback == 'function') {
       nodes = engine.concatCall(nodes, callback)
@@ -225,4 +230,30 @@ function runCachedResolvers(
         : engine.toNodeList(nodes)
   }
   return undefined
+}
+
+function runSingle(
+  engine: EngineState,
+  plan: QueryPlan,
+  context: EngineContext,
+  callback: ElementCallback,
+) {
+  const factory = plan.factory[0]
+  const list = selectCandidates(
+    engine,
+    plan.nodeset[0]!,
+    context,
+    factory !== null,
+  )
+  if (
+    callback === undefined &&
+    plan.bulkHas &&
+    plan.nodeset[0] === plan.bulkHas.anchor.nodeset[0]
+  ) {
+    const bulk = selectBulkHas(engine, plan.bulkHas, context, list)
+    if (bulk) {
+      return bulk
+    }
+  }
+  return factory ? factory(list, callback, context, []) : (list as Element[])
 }

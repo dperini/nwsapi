@@ -23,10 +23,10 @@ Select descendants, test a match, or find the nearest matching ancestor.
 
 | Method | Result |
 | --- | --- |
-| [`closest(selectors, element, callback)`](../../../src/core/ancestor/closest.mts#L2) | Returns the nearest match, starting with the element, or `null`. |
-| [`first(selectors, context, callback)`](../../../src/core/first/select.mts#L11) | Returns the first matching descendant, or `null`. |
+| [`closest(selectors, element, callback)`](../../../src/core/ancestor/closest.mts#L3) | Returns the nearest match, starting with the element, or `null`. |
+| [`first(selectors, context, callback)`](../../../src/core/first/select.mts#L12) | Returns the first matching descendant, or `null`. |
 | [`match(selectors, element, callback)`](../../../src/core/match/selector.mts#L68) | Returns whether the element matches. |
-| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L8) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
+| [`select(selectors, context, callback)`](../../../src/core/select/all.mts#L12) | Returns matching descendants. Results are arrays by default. `NODE_LIST` can enable static NodeList results. |
 
 ### Look up elements
 
@@ -46,7 +46,7 @@ Change engine options and error handling.
 | --- | --- |
 | [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L2) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
 | [`emit(message, proto)`](../../../src/core/validation/error.mts#L2) | Reports an error using the configured error policy. |
-| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L217) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
+| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L249) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
 
 ### Compile and extend selectors
 
@@ -54,10 +54,10 @@ Advanced APIs for compiled resolvers and trusted selector extensions.
 
 | Method | Result |
 | --- | --- |
-| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L9) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L250) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L282) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L307) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L11) | Compiles a selector into a resolver function. This is an advanced API. |
+| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L284) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L318) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L345) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
 
 ### Override browser DOM methods
 
@@ -111,19 +111,19 @@ These exports support extensions and debugging. Prefer query methods and `config
 | --- | --- |
 | [`CFG`](../../../src/core/initialize/runtime.mts#L51) | Contains the compiler syntax settings. |
 | [`Config`](../../../src/core/initialize/runtime.mts#L106) | Contains the active options. Use `configure()` to change them. |
-| [`M_BODY`](../../../src/core/initialize/matching.mts#L161) | Contains the matching resolver body template. |
-| [`M_TEST`](../../../src/core/initialize/matching.mts#L167) | Contains the matching resolver test template. |
-| [`matchLambdas`](../../../src/core/initialize/api.mts#L237) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../../../src/core/initialize/api.mts#L239) | Caches matching plans, not DOM results. |
-| [`N_BODY`](../../../src/core/initialize/matching.mts#L161) | Exposes the matching resolver body template. |
-| [`N_TEST`](../../../src/core/initialize/matching.mts#L168) | Contains the alternate resolver test template. |
+| [`M_BODY`](../../../src/core/initialize/matching.mts#L169) | Contains the matching resolver body template. |
+| [`M_TEST`](../../../src/core/initialize/matching.mts#L175) | Contains the matching resolver test template. |
+| [`matchLambdas`](../../../src/core/initialize/api.mts#L270) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../../../src/core/initialize/api.mts#L272) | Caches matching plans, not DOM results. |
+| [`N_BODY`](../../../src/core/initialize/matching.mts#L169) | Exposes the matching resolver body template. |
+| [`N_TEST`](../../../src/core/initialize/matching.mts#L176) | Contains the alternate resolver test template. |
 | [`Operators`](../../../src/core/initialize/runtime.mts#L177) | Contains registered attribute operators. |
-| [`S_BODY`](../../../src/core/initialize/matching.mts#L160) | Contains the selection resolver body template. |
-| [`S_TEST`](../../../src/core/initialize/matching.mts#L166) | Contains the selection resolver test template. |
-| [`selectLambdas`](../../../src/core/initialize/api.mts#L238) | Caches compiled selection functions, not DOM results. |
+| [`S_BODY`](../../../src/core/initialize/matching.mts#L168) | Contains the selection resolver body template. |
+| [`S_TEST`](../../../src/core/initialize/matching.mts#L174) | Contains the selection resolver test template. |
+| [`selectLambdas`](../../../src/core/initialize/api.mts#L271) | Caches compiled selection functions, not DOM results. |
 | [`Selectors`](../../../src/core/initialize/runtime.mts#L176) | Contains registered selector extensions. |
-| [`selectResolvers`](../../../src/core/initialize/api.mts#L241) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../../../src/core/initialize/api.mts#L106) | Contains the document state and helpers used by compiled selectors. |
+| [`selectResolvers`](../../../src/core/initialize/api.mts#L275) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../../../src/core/initialize/api.mts#L136) | Contains the document state and helpers used by compiled selectors. |
 | [`Version`](../../../src/core/initialize/runtime.mts#L41) | Contains the engine version string. |
 
 </details>

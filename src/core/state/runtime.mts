@@ -1,3 +1,4 @@
+import type { CacheBudget } from '../cache/weighted.mts'
 import type {
   LegacyHooks,
   LegacyReaders,
@@ -78,7 +79,10 @@ export interface RuntimeState {
   ) => Element[]
   concatList: (list: Element[], nodes: ArrayLike<Element>) => Element[]
   CACHE_LIMIT: number
-  createCache: <Value>(limit?: number) => PlanCache<Value>
+  createCache: <Value>(
+    limit?: number,
+    budget?: CacheBudget<Value>,
+  ) => PlanCache<Value>
   toNodeList: (
     nodeArray: Element[] | NodeListOf<Element>,
   ) => Element[] | NodeListOf<Element>

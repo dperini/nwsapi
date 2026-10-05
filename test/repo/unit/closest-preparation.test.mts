@@ -118,10 +118,8 @@ test('closest validates selectors even when the element is null', t => {
   t.onTestFinished(() => window.close())
   const engine = factory(window)
 
-  const closest = engine.closest as unknown as (
-    selector: string,
-    element: Element | null,
-  ) => Element | null
+  const closest = (selector: string, element: Element | null): Element | null =>
+    engine.closest(selector, element as Element)
   expect(closest(':scope', null)).toBeNull()
   expect(() => closest('??', null)).toThrow(window.DOMException)
   expect(closest(':unknown', null)).toBeNull()

@@ -14,6 +14,13 @@ below preserve the original audit observations. Standalone build-time output,
 early probing for general `:has()`, and broader compiler representations remain
 proposals.
 
+The [v2 compiler port](journal.md#port-the-v2-compiler-work-to-v3) subsequently
+adds conservative pure-selector analysis, shared scans, inline relative and
+logical paths, mixed-path memoization, sparse descendant witness inversion, and
+estimated source-byte budgets. It records warm-query gains alongside cold
+compilation and bundle-size costs. The original findings below remain a record
+of the reviewed revision.
+
 The public selection path validates and normalizes selector text, separates groups, chooses terminal tag/class/ID candidates, strips the candidate token when safe, and generates nested JavaScript conditions. Wrapping the previously generated continuation makes matching proceed from the candidate back through its relationships. The compiler delays type guards so they run before the other tests in a compound.
 
 [The resolver builder](../../../src/core/compile/resolver.mts#L9) puts that source into array, `item()`, or single-element execution macros and calls `Function('s', 'a', ...)`. The returned resolver closes over `Snapshot` and optional ancestor-filter feedback. Selection can cache `null` when candidate acquisition already answers the selector. Cache keys distinguish mode, callback presence, relative matching, and existence-only matching.

@@ -697,9 +697,11 @@ const ABORT = Object.freeze({
     }),
   ]),
 })
-const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$')
+const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$')
 const _re4 = __ataSafeRe('^sha512-[A-Za-z0-9+/]{86}==$')
-const _re6 = __ataSafeRe('^nwsapi-3\\.[A-Za-z0-9.-]+\\.tgz$')
+const _re6 = __ataSafeRe(
+  '^nwsapi-3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*\\.tgz$',
+)
 const _fn = function (d) {
   if (typeof d !== 'object' || d === null || Array.isArray(d)) return false
   if (typeof d['name'] !== 'string') return false
@@ -755,9 +757,11 @@ const errFn = function (d, _all) {
     for (const _ of s) n++
     return n
   }
-  const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$')
+  const _re1 = __ataSafeRe('^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$')
   const _re2 = __ataSafeRe('^sha512-[A-Za-z0-9+/]{86}==$')
-  const _re3 = __ataSafeRe('^nwsapi-3\\.[A-Za-z0-9.-]+\\.tgz$')
+  const _re3 = __ataSafeRe(
+    '^nwsapi-3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*\\.tgz$',
+  )
   if (!(typeof d === 'object' && d !== null && !Array.isArray(d))) {
     _e.push({
       code: 'ATA1001',
@@ -958,8 +962,8 @@ const errFn = function (d, _all) {
         keyword: 'pattern',
         instancePath: '/version',
         schemaPath: '#/properties/version/pattern',
-        params: { pattern: '^3\\.\\d+\\.\\d+(?:-[A-Za-z0-9.-]+)?$' },
-        message: 'must match pattern "^3\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$"',
+        params: { pattern: '^3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*$' },
+        message: 'must match pattern "^3\.\d+\.\d+-prerelease(?:\.\d+)*$"',
         docUrl: 'https://ata-validator.com/e/ATA2013',
         _o: 15,
       })
@@ -1109,8 +1113,11 @@ const errFn = function (d, _all) {
         keyword: 'pattern',
         instancePath: '/filename',
         schemaPath: '#/properties/filename/pattern',
-        params: { pattern: '^nwsapi-3\\.[A-Za-z0-9.-]+\\.tgz$' },
-        message: 'must match pattern "^nwsapi-3\.[A-Za-z0-9.-]+\.tgz$"',
+        params: {
+          pattern: '^nwsapi-3\\.\\d+\\.\\d+-prerelease(?:\\.\\d+)*\\.tgz$',
+        },
+        message:
+          'must match pattern "^nwsapi-3\.\d+\.\d+-prerelease(?:\.\d+)*\.tgz$"',
         docUrl: 'https://ata-validator.com/e/ATA2013',
         _o: 27,
       })
@@ -1125,6 +1132,6 @@ function isValid(data) {
 function validate(data) {
   return _fn(data) ? VALID : { valid: false, errors: errFn(data, true).errors }
 }
-const schemaHash = 'df823297c98a8d42'
+const schemaHash = 'e4c38a71c21ebd92'
 export { validate, isValid, schemaHash }
 export default { validate, isValid, schemaHash }

@@ -90,7 +90,7 @@ describe(':not() with a compound argument', () => {
       Array.from(NW.select('p:not(.a, .b)', document)).map(e => e.id),
       ['p3'],
     )
-    assert.ok(calls > 0, 'selector lists retain the general matcher')
+    assert.equal(calls, 0, 'pure selector lists also avoid matcher delegation')
   })
 
   test('an argument the engine cannot read is a syntax error', () => {

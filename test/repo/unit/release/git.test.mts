@@ -64,7 +64,7 @@ test('prepare defaults to a plan and refuses previously consumed versions', asyn
   expect(
     JSON.parse(readFileSync(path.join(fixture.root, 'package.json'), 'utf8'))
       .version,
-  ).toBe('2.3.0-prerelease')
+  ).toBe('3.0.0-prerelease')
   expect(run.mock.calls.some(([, args]) => args[0] === 'push')).toBe(false)
   await expect(
     prepareRelease(VERSION, false, fixture.root, gitRunner, registryResponse()),
@@ -124,5 +124,5 @@ test('preparation refuses unqualified source and local-only version reservations
   expect(
     JSON.parse(readFileSync(path.join(fixture.root, 'package.json'), 'utf8'))
       .version,
-  ).toBe('2.3.0-prerelease')
+  ).toBe('3.0.0-prerelease')
 })

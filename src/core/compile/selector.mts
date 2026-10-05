@@ -1,5 +1,7 @@
 import type { CompileState } from './state.mts'
 import { compileToken } from './token.mts'
+import { compileMixed } from './mixed.mts'
+import { orderGuards } from './guards.mts'
 import type {
   EngineState,
   CompilerAncestry,
@@ -40,6 +42,11 @@ export function compileSelector(
   state.selector = state.engine.selectorComments(state.selector)
   state.ancestry = state.ancestry || { required: [], pending: [], walk: false }
   state.selector = state.engine.normalizeCombinators(state.selector)
+  state.selector = orderGuards(engine, state.selector)
+  const mixed = compileMixed(state)
+  if (mixed !== null) {
+    return mixed
+  }
   if (state.ancestry.reuse && !state.engine.canReuseAncestor(state.selector)) {
     state.ancestry.reuse = ''
   }

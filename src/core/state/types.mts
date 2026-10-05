@@ -74,6 +74,7 @@ export interface PrefixSnapshot {
 }
 
 export interface CompiledResolver {
+  cacheSize?: number
   filtered?: boolean
   position?: boolean
   (
@@ -95,6 +96,12 @@ export interface CompiledResolver {
 export interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
+  bulkHas?: BulkHasPlan | undefined
+}
+
+export interface BulkHasPlan {
+  anchor: QueryPlan
+  witness: QueryPlan
 }
 
 export interface RelativePlan extends QueryPlan {
@@ -134,6 +141,7 @@ export interface SelectorExtension {
 }
 
 export interface PlanCache<Value> {
+  bytes?(): number
   clear(): void
   get(key: string): Value | undefined
   set(key: string, value: Value): Value
@@ -152,6 +160,8 @@ export interface CompilerAncestry {
 export interface CompilerContext {
   nextIdentifier: number
   classes: string[]
+  prelude?: string[]
+  variables?: string[]
 }
 
 export interface IdentifierSyntax {
