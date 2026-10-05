@@ -1,5 +1,8 @@
 # Selector benchmarks and footprint
 
+New to benchmark reports? Read the [performance work guide](guide.md) first.
+It explains how to read ratios and why each chart names its host and workload.
+
 `nwsapi` v2.3.0-prerelease and `@asamuzakjp/dom-selector` run as standalone libraries on native Chromium DOMs.
 **Every chart on this page compares library to library, without `jsdom`.**
 The separate [public `jsdom` benchmark](jsdom.md) compares `jsdom` using the same pinned comparison-library version with the `nwsapi` override and its `css-tree` peer.

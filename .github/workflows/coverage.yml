@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   coverage:
     if: github.ref == 'refs/heads/prerelease/3.0.0'
@@ -52,3 +56,10 @@ jobs:
         run: pnpm run cover
       - name: Check the generated coverage asset
         run: git diff --exit-code -- assets/repo/coverage.svg
+      - name: Preserve coverage output on failure
+        if: failure()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: coverage-failure-${{ github.run_attempt }}
+          path: coverage/
+          if-no-files-found: ignore

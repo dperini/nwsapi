@@ -1,5 +1,8 @@
 # Compare engine builds with `mitata`
 
+New to these measurements? Start with the [performance work guide](guide.md)
+for the meaning of baseline, candidate build, warm query, and memory mode.
+
 Use the harnesses in `scripts/repo/bench/compare/` to compare two saved engine builds. Both variants use the same fixture, measurement code, and installed dependencies within each runtime. Node uses `jsdom`. Chromium uses its native DOM. Compare variants within a runtime, and report Node and browser results separately.
 
 The repository pins `mitata` through the dependency catalog. Existing selector and cache benchmarks already use it. The earlier `result-arrays` experiments used custom timing loops. Their records remain useful historical evidence, but their measurement settings differ from these harnesses.
@@ -17,16 +20,16 @@ node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --
 
 Run these commands serially. Timing and memory probes belong in separate processes because heap reads, forced collections, and allocation sampling change the workload. Browser memory mode enables exposed GC and precise heap information only for that run. All browser resources are served through local Playwright routes, without fetching a benchmark dependency from a CDN.
 
-| Option | Purpose | Default |
-| --- | --- | --- |
-| `--scenario` | Select `grouped`, `ancestor`, `has`, or `sibling` queries. | `grouped` |
-| `--candidate` | Select the changed build. | `dist/nwsapi.js` |
-| `--groups` | Set the number of interleaved selector groups. | `4` |
-| `--matches` | Choose comma-separated match counts. | `0,1,16,256` |
-| `--layout` | Use `adjacent`, `separated`, or `nested` elements. | `adjacent` |
-| `--rounds` | Rotate baseline and candidate order across rounds. | `5` |
-| `--milliseconds` | Set the requested minimum measured time per timing round. | `50` |
-| `--batch` | Set the number of queries in each timed sample. | `64` |
+| Option           | Purpose                                                    | Default          |
+| ---------------- | ---------------------------------------------------------- | ---------------- |
+| `--scenario`     | Select `grouped`, `ancestor`, `has`, or `sibling` queries. | `grouped`        |
+| `--candidate`    | Select the changed build.                                  | `dist/nwsapi.js` |
+| `--groups`       | Set the number of interleaved selector groups.             | `4`              |
+| `--matches`      | Choose comma-separated match counts.                       | `0,1,16,256`     |
+| `--layout`       | Use `adjacent`, `separated`, or `nested` elements.         | `adjacent`       |
+| `--rounds`       | Rotate baseline and candidate order across rounds.         | `5`              |
+| `--milliseconds` | Set the requested minimum measured time per timing round.  | `50`             |
+| `--batch`        | Set the number of queries in each timed sample.            | `64`             |
 
 The grouped fixture has 256 `p` elements. The separated layout places text and comments between elements. The nested layout gives each element a separate parent. Each match count includes a single-class control and a grouped selector that returns the same ordered nodes. Correctness is checked before and after measurement. A wrong identity, order, or duplicate fails the run.
 
@@ -59,11 +62,11 @@ All samples are retained without trimming. `mitata` returns them in sorted order
 
 Memory mode records three different measurements. They answer different questions.
 
-| Measurement | What it tells us | Limit |
-| --- | --- | --- |
-| `mitata` heap deltas | How much the observed JavaScript heap grows across a query batch. | Negative deltas are excluded, and collections during a batch can change the estimate. |
-| V8 allocation sampling | An estimate of allocation traffic over 2000 calls, including objects later collected. | Sampling is approximate and does not include all native DOM storage. |
-| Heap after forced GC | How whole-process or whole-page JavaScript heap usage changes after repeated calls. | It is not a per-object retention graph or proof that detached nodes are released. |
+| Measurement            | What it tells us                                                                      | Limit                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `mitata` heap deltas   | How much the observed JavaScript heap grows across a query batch.                     | Negative deltas are excluded, and collections during a batch can change the estimate. |
+| V8 allocation sampling | An estimate of allocation traffic over 2000 calls, including objects later collected. | Sampling is approximate and does not include all native DOM storage.                  |
+| Heap after forced GC   | How whole-process or whole-page JavaScript heap usage changes after repeated calls.   | It is not a per-object retention graph or proof that detached nodes are released.     |
 
 `mitata` memory probes use 12 samples per round and force GC before and after batches. Node provides `v8.getHeapStatistics().used_heap_size`. Chromium provides `performance.memory.usedJSHeapSize` with precise memory information enabled. The [measurement implementation](https://github.com/evanwashere/mitata/blob/master/src/lib.mjs) explains why heap growth estimates exclude negative deltas. Do not label these estimates as total bytes allocated or retained bytes.
 

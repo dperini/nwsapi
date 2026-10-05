@@ -1,5 +1,13 @@
 # Neural planner implementation outcome
 
+## In brief
+
+The trained model added work to every measured query and did not make the
+workload faster. Keep its code and weights in development tools only. The
+table below reports time relative to the current engine: `100%` is the
+baseline, and a value above `100%` took longer. See the [performance work guide](guide.md)
+for more help reading ratios.
+
 October 5, 2026. Worktree: `/tmp/nwsapi-v3-compiler-land`.
 Branch: `prerelease/3.0.0`.
 
@@ -10,10 +18,10 @@ Keep it in development tooling. No neural model or adaptive prefix path is
 added to the distributed selector engine. The earlier empty-witness preflight
 and guarded inverse routing remain in place.
 
-| Host | Current v3 query time | Simple prefix rule | Trained continuation model |
-| --- | --- | --- | --- |
-| Chromium | 100% | 155.1% | 141.5% |
-| `jsdom` | 100% | 213.8% | 170.7% |
+| Host     | Current v3 query time | Simple prefix rule | Trained continuation model |
+| -------- | --------------------- | ------------------ | -------------------------- |
+| Chromium | 100%                  | 155.1%             | 141.5%                     |
+| `jsdom`  | 100%                  | 213.8%             | 170.7%                     |
 
 Lower percentages are faster. These are geometric relative times across 112
 known development queries per host, with 11 rotating rounds of at least

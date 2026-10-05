@@ -1,5 +1,10 @@
 # Performance review - 2026-09-07
 
+This is a dated review of an earlier engine version. Its measurements explain
+why later work started; they do not describe current performance. See the
+[performance work guide](guide.md) before comparing its ratios with newer
+reports.
+
 This review describes commit `2ddfba2` and the measurements available on 2026-09-07.
 See [common query fast paths](query-fast-paths.md) for the first changes that followed this review.
 See [the benchmark guide](benchmarks.md) for later results.
@@ -63,14 +68,13 @@ Repeated runs were needed to determine whether those small differences were mean
 These historical measurements use milliseconds per query.
 
 | Priority | Query                    |  NWSAPI | `@asamuzakjp/dom-selector` | Assessment                 |
-| -------- | ------------------------ | ------: | -----------: | -------------------------- |
-| 1        | `div.example > p > a`    | 1.11820 |      0.14155 | NWSAPI takes 7.90× as long |
-| 2        | `div:nth-last-child(3)`  | 0.16390 |      0.08035 | 2.04× as long              |
-| 2        | `div:nth-child(2n)`      | 0.13904 |      0.08624 | 1.61× as long              |
-| 3        | `:where(.card) > button` | 0.15388 |      0.12025 | 1.28× as long              |
-| 4        | `div > button`           | 0.12548 |      0.11819 | 1.06× as long              |
-| 4        | `div button`             | 0.12666 |      0.11999 | 1.06× as long              |
-
+| -------- | ------------------------ | ------: | -------------------------: | -------------------------- |
+| 1        | `div.example > p > a`    | 1.11820 |                    0.14155 | NWSAPI takes 7.90× as long |
+| 2        | `div:nth-last-child(3)`  | 0.16390 |                    0.08035 | 2.04× as long              |
+| 2        | `div:nth-child(2n)`      | 0.13904 |                    0.08624 | 1.61× as long              |
+| 3        | `:where(.card) > button` | 0.15388 |                    0.12025 | 1.28× as long              |
+| 4        | `div > button`           | 0.12548 |                    0.11819 | 1.06× as long              |
+| 4        | `div button`             | 0.12666 |                    0.11999 | 1.06× as long              |
 
 These were all six queries where NWSAPI was slower.
 Use the recorded values to compare small differences, because chart labels round the values.

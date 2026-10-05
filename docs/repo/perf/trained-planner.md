@@ -1,5 +1,13 @@
 # Small trained planner
 
+## In brief
+
+The learned threshold changed the result for only two held-out cases. It
+missed the improvement target in Chromium and regressed in `jsdom`, so we did
+not ship it. A simple threshold is not useful unless it makes full queries
+faster across the supported cases. See the [performance work guide](guide.md)
+for _held-out case_ and speed ratios.
+
 ## Recorded outcome: keep the current rule
 
 The shared model trained on 96 observations across Chromium 154.0.8037.0 and
@@ -10,10 +18,10 @@ and needs no inference library.
 Separate evaluation measured the actual guarded expression against the
 unchanged runtime on 48 held-out cases per host:
 
-| Host | Geometric mean rule/tree speed ratio | Worst tree/rule time | Gate |
-| --- | --- | --- | --- |
-| Chromium | 1.020× | 1.018× | Missed minimum improvement |
-| `jsdom` | 0.995× | 1.279× | Missed improvement and worst-case limits |
+| Host     | Geometric mean rule/tree speed ratio | Worst tree/rule time | Gate                                     |
+| -------- | ------------------------------------ | -------------------- | ---------------------------------------- |
+| Chromium | 1.020×                               | 1.018×               | Missed minimum improvement               |
+| `jsdom`  | 0.995×                               | 1.279×               | Missed improvement and worst-case limits |
 
 The model changed the selected route for only two held-out cases, both in
 the clustered 128-node family at 40% requested density. In the two-tag

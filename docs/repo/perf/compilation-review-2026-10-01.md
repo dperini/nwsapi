@@ -1,5 +1,13 @@
 # Compilation and memory review — 2026-10-01
 
+## In brief
+
+This review looked for repeated work in selector compilation and matching.
+It found four main opportunities. Later changes addressed those findings;
+this file keeps the original measurements and explains what the review saw
+at that time. Read the [performance work guide](guide.md) for terms such as
+_candidate_, _resolver_, and _cold query_.
+
 Reviewed local `v3` at `f04f47f8bb8cc4a86df33c41c141ace83d5ca963`. The strongest opportunities are avoiding quadratic positional work in `first()`, preparing nested logical predicates once, bounding two overlooked memo tables, and avoiding tree inspection for selectors that cannot use the inspected route. These deserve attention before a parser rewrite or broad additional caching.
 
 This review records the original engine behavior. Its four high-priority findings now have implementations and a [measured follow-up](journal.md#prepare-forgiving-predicates-and-reuse-first-match-positions). Additional completed work is listed in the implementation status below. [Recorded evidence](../../../assets/repo/bench/compilation-review-2026-10-01.json) includes probe outputs, generated functions, timing samples, source hashes, dependency lock data, and the complete diagnostic harness. The probes used Node.js v26.10.0, V8 14.6.202.34-node.34, `jsdom` v30.0.1, and an Apple M1 Max. They loaded the reviewed TypeScript modules directly using the existing loader and factory initialization sequence. They did not measure the bundled release, Chromium, a full application, or retained heap bytes.
@@ -29,25 +37,25 @@ The public selection path validates and normalizes selector text, separates grou
 
 There are three different meanings of compiled work here:
 
-| Usage | Work still performed |
-| --- | --- |
-| Warm `select()`, `first()`, `match()` | Public dispatch, relevant scope checks, plan lookup, candidate acquisition where applicable, matching, and result assembly. |
-| A saved `compile()` resolver | Candidate iteration and matching. Some nested selectors still perform cache lookup or lazy compilation. Caller supplies the correct candidates, context, and result arguments. |
-| Build-time precompilation | No complete self-contained deployment format exists in this tree. The inspection CLI prints resolver source that can refer to captured `s` and `a`. It does not emit a complete query plan or recursively prepared dependencies. |
+| Usage                                 | Work still performed                                                                                                                                                                                                             |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Warm `select()`, `first()`, `match()` | Public dispatch, relevant scope checks, plan lookup, candidate acquisition where applicable, matching, and result assembly.                                                                                                      |
+| A saved `compile()` resolver          | Candidate iteration and matching. Some nested selectors still perform cache lookup or lazy compilation. Caller supplies the correct candidates, context, and result arguments.                                                   |
+| Build-time precompilation             | No complete self-contained deployment format exists in this tree. The inspection CLI prints resolver source that can refer to captured `s` and `a`. It does not emit a complete query plan or recursively prepared dependencies. |
 
 **Prioritized findings**
 
-| Priority | Opportunity | Evidence | Primary benefit |
-| --- | --- | --- | --- |
-| High | Give `first()` a positional strategy for scanning many candidates | Reproduced quadratic sibling-read growth | Late-match and no-match latency |
-| High | Compile forgiving logical branches once | Repeated parsing/errors reproduced; diagnostic timing improvement | Warm execution, allocation, predictable precompilation |
-| High | Bound ancestor-tag and language-range memo tables | Tag growth reproduced; language reuse survives engine replacement | Long-lived process memory |
-| High | Check route syntax before inspecting foreign element types | Full-tree reads reproduced for `.card` after mutation | Cold and mutation-followed query latency |
-| Medium | Separate internal candidates from public result copies | Source-confirmed copies; `:has()` read count reproduced | Allocation and early-exit effectiveness |
-| Medium | Cache successful chain syntax and `closest()` preparation | Repeated parsing reproduced | Warm public API overhead |
-| Medium | Make compiler constants and generated identifiers local to a compilation | Generated source inspected | Compilation reuse and resolver allocation |
-| Medium, architectural | Separate reusable code artifacts from bound engines and nested execution state | Lazy compilation and document-switch churn reproduced | Precompilation, document-heavy workloads |
-| Conditional | Improve fallback sibling indexes, type-union merging, and state helpers | Source inspection and historical profiles | Specific broad/deep workloads |
+| Priority              | Opportunity                                                                    | Evidence                                                          | Primary benefit                                        |
+| --------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------ |
+| High                  | Give `first()` a positional strategy for scanning many candidates              | Reproduced quadratic sibling-read growth                          | Late-match and no-match latency                        |
+| High                  | Compile forgiving logical branches once                                        | Repeated parsing/errors reproduced; diagnostic timing improvement | Warm execution, allocation, predictable precompilation |
+| High                  | Bound ancestor-tag and language-range memo tables                              | Tag growth reproduced; language reuse survives engine replacement | Long-lived process memory                              |
+| High                  | Check route syntax before inspecting foreign element types                     | Full-tree reads reproduced for `.card` after mutation             | Cold and mutation-followed query latency               |
+| Medium                | Separate internal candidates from public result copies                         | Source-confirmed copies; `:has()` read count reproduced           | Allocation and early-exit effectiveness                |
+| Medium                | Cache successful chain syntax and `closest()` preparation                      | Repeated parsing reproduced                                       | Warm public API overhead                               |
+| Medium                | Make compiler constants and generated identifiers local to a compilation       | Generated source inspected                                        | Compilation reuse and resolver allocation              |
+| Medium, architectural | Separate reusable code artifacts from bound engines and nested execution state | Lazy compilation and document-switch churn reproduced             | Precompilation, document-heavy workloads               |
+| Conditional           | Improve fallback sibling indexes, type-union merging, and state helpers        | Source inspection and historical profiles                         | Specific broad/deep workloads                          |
 
 **1. `first()` can turn a linear sibling query into quadratic work.**
 
@@ -56,10 +64,10 @@ There are three different meanings of compiled work here:
 For `i[data-hit]:nth-child(2n)` with no matching attributes:
 
 | Siblings | `first()` sibling reads | `select()` sibling reads |
-| ---: | ---: | ---: |
-| 128 | 8,256 | 129 |
-| 256 | 32,896 | 257 |
-| 512 | 131,328 | 513 |
+| -------: | ----------------------: | -----------------------: |
+|      128 |                   8,256 |                      129 |
+|      256 |                  32,896 |                      257 |
+|      512 |                 131,328 |                      513 |
 
 These counts include `previousSibling` and `previousElementSibling` getters. Both operations returned no match. They establish repeated traversal, not an elapsed-time speedup. The emitted positional test runs before the attribute test for this selector, making the missing attribute unable to avoid the recount.
 

@@ -1,77 +1,94 @@
-# Neural planner implementation guide for Luna low
+# Neural planner implementation guide
 
-This document is an executable handoff for a Luna model running at low reasoning
-effort. It explains how to repair the current experiment, train a useful small
-PyTorch model, compile its inference into cheap JavaScript, and evaluate an
-adaptive query strategy. Follow the phases in order. Each phase specifies its
-files, behavior, validation, and completion criteria.
+## In brief
 
-The objective is lower total query time with exact selector results. A trained
-model is a means to that objective. Completing the investigation can legitimately
-produce a measured rejection of a candidate. Do not describe an unmeasured
-candidate, a route-only estimate, or a failed promotion gate as a runtime win.
+This guide describes an experiment that uses a small trained model to choose
+between exact query strategies. The model does not decide which elements
+match CSS. The measured model made queries slower, so it remains a development
+experiment. Use the [performance work guide](guide.md) for the terms _route_,
+_feature_, and _complete query time_ before following the detailed plan.
 
-This is a plan, written on October 5, 2026 against commit `7e4a6e7` on
-`prerelease/3.0.0`. The implementation described below is **not complete**.
-The companion [task list](neural-planner-task-list.md) contains the resumption
-checklist and the prompt to give the implementing agent.
+This document is a detailed implementation plan. It explains how to repair the
+experiment, test whether a small PyTorch model can choose a faster query
+method, and turn that model into JavaScript without adding an ML package to the
+runtime. Start with the summary and terms. Then follow the phases in order.
+Each phase names the files, behavior, checks, and evidence it needs.
 
-**Execution update:** the repaired measurements, scalar exporter, four-anchor
-adaptive prototype, and new PyTorch trainer are implemented. The actual-query
-pilot fails the performance gate. See the [outcome](neural-planner-outcome.md)
-for measured costs and the task list for completed and deferred phases.
-The broader workload and release-qualification plan below remains a plan.
+The goal is to reduce complete query time and return exactly the same elements
+in the same order. The model is only one possible way to reach that goal. The
+investigation can end by rejecting the model. Do not call an unmeasured
+candidate, a route-only result, or a failed promotion a runtime win.
+
+**Current status:** the repaired measurement tools, scalar exporter,
+four-anchor prototype, and PyTorch trainer are implemented. The query-time
+pilot is slower than the current engine, so no model enters the runtime. The
+[outcome](neural-planner-outcome.md) gives the measurements. The
+[task list](neural-planner-task-list.md) shows which work is complete and
+which work remains. Broader workload and release checks are still planned.
 
 ## Start here
 
-1. Read this document, the task list, and the checkout's `AGENTS.md`.
-2. Find the actual worktree using `git worktree list`. At the time of writing,
-   the v3 checkout is `/tmp/nwsapi-v3-compiler-land`. The user's default checkout
-   at `/Users/jdalton/projects/nwsapi` is a separate worktree.
-3. Inspect branch, status, and recent commits before editing. Preserve unrelated
-   changes. The user has already requested logical commits and pushes to
-   `prerelease/3.0.0`. Use an isolated branch if the target checkout is occupied,
-   then integrate normally. Do not force-push or remove someone else's worktree.
-4. Complete phases 0–4 before drawing another conclusion about model quality.
-5. Complete phase 5 independently of whether new training wins. It measures
-   avoidable inference overhead and provides a correct exporter.
-6. Complete phases 6–8 as experiments. Apply the explicit gates before adding
-   runtime behavior or escalating to phase 9.
-7. Finish with actual build confirmation, reports, and an honest status for
-   every task. An experimental candidate that fails its gate stays offline.
+1. Read this guide, the task list, and the checkout's `AGENTS.md`.
+2. Run `git worktree list` to find the checkout you will use. Do not assume the
+   current directory is the v3 worktree.
+3. Check the branch, worktree status, and recent commits before editing.
+   Preserve unrelated changes. Use an isolated worktree if the target checkout
+   is busy. Do not force-push or remove another person's worktree.
+4. Complete phases 0–4 before drawing a new conclusion about model quality.
+5. Complete phase 5 even if training does not win. It measures inference cost
+   and provides a correct exporter.
+6. Treat phases 6–8 as experiments. Apply their gates before adding runtime
+   behavior or starting phase 9.
+7. Finish with a build check, reports, and the real status of every task. Keep
+   a candidate out of the runtime when it fails a gate.
 
-Use the pinned repository tooling. `pnpm run setup:model-training` already sets
-up `uv`, Python, NumPy, and PyTorch. Pins are in `.config/external-tools.json`,
-`.config/model-training/pyproject.toml`, and `.config/model-training/uv.lock`.
-At this revision, the manifest selects Python 3.12 and PyTorch 2.14.1.
-Do not install another global Python environment or add a runtime ML package.
+Use the repository's pinned tools. `pnpm run setup:model-training` installs
+the project's Python tools: `uv`, Python, NumPy, and PyTorch. Version pins live
+in `.config/external-tools.json`,
+`.config/model-training/pyproject.toml`, and
+`.config/model-training/uv.lock`. The manifest selects Python 3.12 and PyTorch
+2.14.1. Use this environment. Do not install a second global Python
+environment or add a machine-learning package to the runtime.
 
-## What the words mean
+## Terms used in this guide
 
-For `.card:has(.badge)`, an **anchor** is a candidate `.card`. A **witness** is a
-candidate `.badge` that could establish a match. Both may still need additional
-attribute checks in a more complex compound selector.
+For `.card:has(.badge)`, an **anchor** is a possible `.card` match. A
+**witness** is a possible `.badge` match inside the card. A more complex
+selector may need extra attribute checks before either element matches.
 
-The **forward route** checks anchors and searches their descendants until each
-anchor has a qualifying witness or its search finishes. The **inverse route**
-finds witnesses, marks their ancestors, and filters anchors using those marks.
-The inverse route can share ancestor work. The forward route can stop early
-within each anchor. Both must return the same ordered element identities.
+The **forward route** checks each anchor and searches below it for a witness.
+It can stop searching that anchor after it finds a witness. The **inverse
+route** finds witnesses first, marks their ancestors, and then checks which
+anchors have a mark. The inverse route can share work between anchors. Both
+routes must return the same elements in the same order.
 
-**Inference** means evaluating the trained weights. **Training** means changing
-the weights offline using measured examples. **Regret** means time wasted by a
-chosen strategy relative to the cheapest measured eligible strategy. An
-**oracle** chooses using information unavailable during a real query and is
-only an optimistic diagnostic. A **holdout** is a collection of applications
-or fixture groups reserved for final evaluation.
+| Term              | Meaning                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Training          | Change a model's weights offline using recorded examples.                                                                                      |
+| Inference         | Run the trained model to choose a query method. Count this time as part of the query.                                                          |
+| Feature           | A fact the model can read, such as an anchor count. The code must get this fact before the decision.                                           |
+| Label             | The measured method that was faster for one training example.                                                                                  |
+| Regret            | Extra time used because the chosen method was slower than another allowed method.                                                              |
+| Oracle            | A diagnostic that picks the fastest measured method after seeing all results. A real query cannot use this future information.                 |
+| Holdout           | Applications or fixtures kept out of training and tuning. Use them once to check the frozen model.                                             |
+| Route-only timing | Time for a method after its inputs are already available. It leaves out decision and input-collection costs.                                   |
+| Integrated timing | Time for the complete query, including input collection, model decision, and result creation. Use this to decide whether a change helps users. |
+| AST               | An abstract syntax tree: a structured version of source code. The benchmark uses it to change the exact route condition safely.                |
+| Weak map          | A map keyed by objects that does not keep those objects alive. The inverse route uses it to mark ancestors.                                    |
+| Normalize         | Rescale model inputs using values learned from the training data. Keep those values fixed for validation and testing.                          |
+| Logit             | A model score before it is turned into a probability. The runtime can compare the score directly with a fixed threshold.                       |
+| Validation set    | Examples used to choose model settings. Do not use them to update the model weights.                                                           |
+| Test set          | New examples used once to check the final frozen model. Do not tune the model after viewing these results.                                     |
+| Hidden layer      | The part of a neural network that transforms inputs before the model makes a choice.                                                           |
+| ReLU              | A function that changes negative values to zero and keeps positive values.                                                                     |
+| Epoch             | One training pass over all selected examples.                                                                                                  |
+| Checkpoint        | A saved copy of the model weights at one point in training.                                                                                    |
+| Scalar JavaScript | Generated code that uses individual numbers instead of temporary arrays.                                                                       |
 
-**Route-only timing** excludes the cost of making a learned decision.
-**Integrated timing** runs the decision inside the actual query. Only the
-latter can justify a shipped runtime performance claim.
+## Problems to fix before trusting the model results
 
-## Findings that motivate the repair
-
-These are source findings, not new performance measurements.
+The following findings come from reading the source and measurement tools.
+They are not new performance measurements.
 
 ### The forward benchmark can execute the inverse route
 
@@ -144,39 +161,43 @@ Paths below are relative to the v3 checkout. “New” means a proposed file.
 Keep helpers short and give entrypoints `isMainModule` guards and `--help`.
 Follow the existing naming, complexity, formatting, and test-tier conventions.
 
-| File | Responsibility |
-| --- | --- |
-| `src/core/select/has.mts` | Current bulk preparation, routing, marking |
-| `src/core/select/all.mts` | `runSingle` invokes bulk path and normal fallback |
-| `src/core/match/relative.mts` | Existing witness collection and exact existence search |
-| `src/core/compile/guards.mts` | Existing fixed predicate ordering |
-| `src/core/compile/resolver.mts` | Resolver compilation and cache integration |
-| `src/core/state/types.mts` | `BulkHasPlan` and query plan types |
-| `scripts/repo/bench/planner/has/variants.mts` | Benchmark bundle modification |
-| `scripts/repo/bench/planner/has/run.mts` | Collection orchestration and provenance |
-| `scripts/repo/bench/planner/has/fixtures.mts` | Existing synthetic and page fixtures |
-| `scripts/repo/bench/planner/measure.mts` | Shared browser and `jsdom` timing |
-| `scripts/repo/bench/planner/compare.mts` | New pure evaluation math, if needed |
-| `scripts/repo/bench/planner/has/contract.mts` | New benchmark route contract and vectors |
-| `scripts/repo/bench/planner/has/instrument.mts` | New AST edits and untimed route evidence |
-| `scripts/repo/bench/planner/neural/export.mts` | Measurement to training dataset conversion |
-| `scripts/repo/bench/planner/neural/train.py` | PyTorch training entrypoint |
-| `scripts/repo/bench/planner/neural/data.py` | New loading, splitting, and feature encoding |
-| `scripts/repo/bench/planner/neural/model.py` | New network, losses, and scalar export |
-| `scripts/repo/bench/planner/neural/evaluate.py` | New metrics and model selection helpers |
-| `scripts/repo/bench/planner/neural/oracle.mts` | New diagnostics using recorded measurements |
-| `scripts/repo/bench/planner/neural/parity.mts` | New Python reference versus JS parity check |
-| `scripts/repo/bench/planner/neural/inference.mts` | Standalone decision overhead diagnostic |
-| `scripts/repo/bench/planner/neural/confirm.mts` | New integrated candidate confirmation |
-| `scripts/repo/bench/planner/neural/report.mts` | Generated HTML from recorded results |
-| `scripts/repo/bench/planner/adaptive/` | New experimental continuation code and collection |
-| `docs/repo/perf/journal.md` | Commands, outcomes, limitations, commit references |
+| File                                              | Responsibility                                         |
+| ------------------------------------------------- | ------------------------------------------------------ |
+| `src/core/select/has.mts`                         | Current bulk preparation, routing, marking             |
+| `src/core/select/all.mts`                         | `runSingle` invokes bulk path and normal fallback      |
+| `src/core/match/relative.mts`                     | Existing witness collection and exact existence search |
+| `src/core/compile/guards.mts`                     | Existing fixed predicate ordering                      |
+| `src/core/compile/resolver.mts`                   | Resolver compilation and cache integration             |
+| `src/core/state/types.mts`                        | `BulkHasPlan` and query plan types                     |
+| `scripts/repo/bench/planner/has/variants.mts`     | Benchmark bundle modification                          |
+| `scripts/repo/bench/planner/has/run.mts`          | Collection orchestration and provenance                |
+| `scripts/repo/bench/planner/has/fixtures.mts`     | Existing synthetic and page fixtures                   |
+| `scripts/repo/bench/planner/measure.mts`          | Shared browser and `jsdom` timing                      |
+| `scripts/repo/bench/planner/compare.mts`          | New pure evaluation math, if needed                    |
+| `scripts/repo/bench/planner/has/contract.mts`     | New benchmark route contract and vectors               |
+| `scripts/repo/bench/planner/has/instrument.mts`   | New AST edits and untimed route evidence               |
+| `scripts/repo/bench/planner/neural/export.mts`    | Measurement to training dataset conversion             |
+| `scripts/repo/bench/planner/neural/train.py`      | PyTorch training entrypoint                            |
+| `scripts/repo/bench/planner/neural/data.py`       | New loading, splitting, and feature encoding           |
+| `scripts/repo/bench/planner/neural/model.py`      | New network, losses, and scalar export                 |
+| `scripts/repo/bench/planner/neural/evaluate.py`   | New metrics and model selection helpers                |
+| `scripts/repo/bench/planner/neural/oracle.mts`    | New diagnostics using recorded measurements            |
+| `scripts/repo/bench/planner/neural/parity.mts`    | New Python reference versus JS parity check            |
+| `scripts/repo/bench/planner/neural/inference.mts` | Standalone decision overhead diagnostic                |
+| `scripts/repo/bench/planner/neural/confirm.mts`   | New integrated candidate confirmation                  |
+| `scripts/repo/bench/planner/neural/report.mts`    | Generated HTML from recorded results                   |
+| `scripts/repo/bench/planner/adaptive/`            | New experimental continuation code and collection      |
+| `docs/repo/perf/journal.md`                       | Commands, outcomes, limitations, commit references     |
 
 Do not create every proposed file immediately. Create each when its owning
 phase needs it. In particular, split the existing long Python trainer by
 responsibility while changing it, rather than growing one large entrypoint.
 
-## Phase 0 Preserve history and mark the invalid experiment
+## Phase 0: Keep the old evidence and label its limits
+
+This phase protects the old files and prevents the new trainer from using
+measurements with incorrect route labels. Keep the old data for reference.
+Do not present it as valid training data.
 
 Files: this guide's companion status, `trained-has-planner.md`, the neural
 report generator, its generated HTML, and the existing training guide HTML.
@@ -202,7 +223,10 @@ report generator, its generated HTML, and the existing training guide HTML.
 Acceptance: the old result is clearly marked, old raw inputs are unchanged,
 and the corrected pipeline cannot accidentally consume them as valid labels.
 
-## Phase 1 Define one route contract
+## Phase 1: Define one shared route rule
+
+Python, generated JavaScript, and the runtime must agree on when each route
+is allowed. Write the rule once in clear terms, then test its boundary values.
 
 Create `has/contract.mts`. It is a development helper, not a new runtime import.
 Export named types, a reference decision, and deterministic boundary vectors.
@@ -268,7 +292,12 @@ Acceptance: JS reference, Python fallback, generated model fallback, and
 observed runtime behavior agree on eligible boundary vectors. Cases that exit
 before the planner are explicitly classified and never treated as inference.
 
-## Phase 2 Force whole routes and prove the route executed
+## Phase 2: Make the benchmark run the route it names
+
+The benchmark must prove that its forward variant ran forward and its inverse
+variant ran inverse. Matching results alone cannot prove that. Add evidence
+outside the timed code and reject a benchmark edit when the source shape is
+ambiguous.
 
 Change `has/variants.mts`; add `has/instrument.mts` if needed.
 Use the existing pinned `acorn` parser, or the repository's existing compatible
@@ -283,11 +312,11 @@ guess at another occurrence or edit only the first comparison again.
 
 Produce these variants from the same immutable baseline bytes:
 
-| Variant | Behavior |
-| --- | --- |
-| `baseline` | Original build, byte-for-byte unchanged |
+| Variant                   | Behavior                                                                                     |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `baseline`                | Original build, byte-for-byte unchanged                                                      |
 | `forward-after-preflight` | Preserve small-anchor and empty-witness exits; reject inverse at the complete routing branch |
-| `inverse-after-preflight` | Preserve the same exits and capability fallback; bypass the complete cost rejection branch |
+| `inverse-after-preflight` | Preserve the same exits and capability fallback; bypass the complete cost rejection branch   |
 
 The route label intentionally says `after-preflight`. Both forced routes still
 pay for the global witness lookup that precedes the branch. They cannot answer
@@ -333,7 +362,11 @@ Acceptance: route evidence proves the two strategies differ when eligible,
 all variants preserve exact results, and a deliberate ambiguous AST match
 fails loudly. Freeze the variant hashes before any measurement collection.
 
-## Phase 3 Record an auditable versioned dataset
+## Phase 3: Save each measurement with its context
+
+Save the selector, fixture, host, build hashes, input facts, route evidence,
+and every timing round together. This lets another developer check where a
+number came from and prevents old data from entering a new experiment.
 
 Change `measure.mts`, `has/run.mts`, and `neural/export.mts`. The generic measure
 helper also supports other planners. Preserve their feature computation and
@@ -433,7 +466,12 @@ October 4 directories. Update the entrypoint documentation with the final CLI.
 Acceptance: one small pilot can be reproduced from its manifest, route
 evidence and identity checks pass, and no old artifact has been overwritten.
 
-## Phase 4 Measure what a better decision could save
+## Phase 4: Check whether a decision could save enough time
+
+Before training, compare each exact route and estimate the best possible
+saving. Include the cost of collecting inputs and running the decision. If
+even a perfect decision cannot meet the frozen target, do not spend time
+searching for a larger model.
 
 Create `neural/oracle.mts`. Use training/development rows for this diagnostic.
 The already examined October 4 holdout is development history now. New final
@@ -523,7 +561,11 @@ Acceptance: `oracle.json` and its report distinguish mathematical hindsight,
 observable input limitations, and integrated evidence. A hand-calculated
 two-case fixture verifies metric direction, grouping, and baseline identity.
 
-## Phase 5 Compile the existing neural network efficiently
+## Phase 5: Make model decisions cheaper
+
+This phase keeps the existing weights fixed and tests less costly JavaScript
+for the same decision. A faster decision microbenchmark does not count as a
+query improvement; measure complete queries too.
 
 This phase isolates export overhead. It does not retrain the model or claim
 that its old route labels were correct. Keep the old generic evaluator as a
@@ -608,7 +650,11 @@ no per-decision feature/output arrays, and both overhead and whole-query costs
 are recorded. A slower scalar candidate is retained only as evidence, not
 selected for runtime use.
 
-## Phase 6 Build informative training and evaluation workloads
+## Phase 6: Add useful test pages and selector cases
+
+The training set must include pages where the best route changes for a known
+reason. Keep related cases together when splitting data, so a near-copy of a
+training page does not leak into the final test.
 
 Extend fixtures in a has-specific module and save a manifest. The objective
 is to cover changes in relative route cost while keeping the input facts
@@ -692,7 +738,12 @@ Acceptance: there are conflicting-structure pairs, realistic page sequences,
 untouched application groups, and an explicit availability/cost description
 for every feature.
 
-## Phase 7 Train a model for the decision we actually need
+## Phase 7: Train a model to choose between query methods
+
+Train only after the allowed methods, inputs, and dataset are defined. This is
+supervised learning: the trainer learns from examples that contain inputs and
+measured costs. Select a model by query time on validation pages, not by how
+often it guesses the training labels.
 
 Use PyTorch in the existing locked environment. Start with a small supervised
 policy. All available actions can be measured offline, so this stage does not
@@ -717,10 +768,10 @@ state and training includes it.
 
 ### Network and search budget
 
-Start with one hidden ReLU layer and one output logit. A logit is an unbounded
-score. Positive values favor the alternative strategy; zero is undecided.
-Training can use sigmoid; runtime decisions compare the logit to a frozen
-threshold and need no exponential or sigmoid operation.
+Use one hidden layer with ReLU and one output logit. A logit is a score with no
+fixed upper or lower bound. Positive values can favor the alternative method;
+zero is undecided. Training can use sigmoid. At runtime, compare the logit
+with a fixed threshold and skip the extra exponential calculation.
 
 Use hidden sizes `[2, 4, 8]` and seeds `[20261005, 20261006, 20261007]`.
 Use AdamW, initial learning rate `0.01`, weight decay `0.01`, at most 1000
@@ -742,8 +793,9 @@ cost measured for that alternative. Where costs are only route measurements,
 add a separately documented development overhead estimate for training and
 label the result estimated. Final acceptance still uses integrated timing.
 
-Train a cost-sensitive binary preference with a stable binary-cross-entropy
-implementation that accepts logits:
+Train a binary preference that gives more weight to expensive mistakes. Use
+PyTorch's stable `BCEWithLogits` loss. It measures how far the model's score
+is from the measured preferred method:
 
 ```text
 winner = 1 if C1 < C0 else 0
@@ -811,7 +863,12 @@ Acceptance: the complete training run is reproducible, fallback is identical
 across languages, and model selection is based on query cost including known
 decision work. The report states whether the model qualifies for confirmation.
 
-## Phase 8 Learn when to continue or change strategy
+## Phase 8: Test whether a query can change methods midway
+
+This experiment checks whether the engine can do a little exact forward work
+first, then continue forward or switch to inverse search. It may save the
+early cost of collecting all witnesses. The prefix, observations, decision,
+and remaining work all count toward the query time.
 
 This is the main new research hypothesis. The current two-route experiment
 starts after a global witness lookup. A model that decides earlier may avoid
@@ -959,13 +1016,13 @@ return before any prefix work retains the original fallback meaning.
 For each fixture and fixed prefix setting, execute complete comparable
 pipelines in independent equivalent DOM instances:
 
-| Action | Timed pipeline |
-| --- | --- |
-| Original | Unmodified production build |
-| Prefix continue | Prefix, observations, forward suffix |
-| Prefix switch | Same prefix and observations, witness lookup, marks, inverse suffix |
-| Fixed guard | Prefix, observations, simple count or prefix-hit rule, selected suffix |
-| Neural | Prefix, observations, real scalar inference, selected suffix |
+| Action          | Timed pipeline                                                         |
+| --------------- | ---------------------------------------------------------------------- |
+| Original        | Unmodified production build                                            |
+| Prefix continue | Prefix, observations, forward suffix                                   |
+| Prefix switch   | Same prefix and observations, witness lookup, marks, inverse suffix    |
+| Fixed guard     | Prefix, observations, simple count or prefix-hit rule, selected suffix |
+| Neural          | Prefix, observations, real scalar inference, selected suffix           |
 
 The forced prefix actions produce training labels. The prefix observations
 must agree across them. A mismatch means the shared work differed and the row
@@ -1002,7 +1059,11 @@ prefix work is reused, observation and inference cost are included, and an
 integrated candidate beats its simple controls and the original gate. If it
 does not, record the failed hypothesis and keep the prototype offline.
 
-## Phase 9 Reuse planning decisions across repeated calls
+## Phase 9: Reuse a route choice only when repeat queries repay its cost
+
+Cache only a hint about which exact method to use. Never cache matches or a
+claim that a witness is absent. A stale hint may be slower; a stale answer can
+be wrong.
 
 This phase is conditional. Implement it only if phase 8 or a compile-time
 model has a measured useful decision whose repeated cost is material. If the
@@ -1048,7 +1109,12 @@ Acceptance: plan hints never affect result truth, mutation/control tests pass,
 memory stays bounded, and measured sequences show a net gain including cache
 maintenance. Otherwise omit the cache from any runtime candidate.
 
-## Phase 10 Confirm the actual candidate and integrate only a winner
+## Phase 10: Test the exact build that could ship
+
+Freeze one candidate and compare its built bytes with the unchanged baseline.
+Include warm, cold, mutation, and fallback cases. Keep runtime changes out of
+the package unless the full candidate passes the frozen correctness and
+performance gates.
 
 Create `neural/confirm.mts` to compare immutable baseline bytes and actual
 candidate bytes. Keep experimental source, emitted code, weights, build
@@ -1120,7 +1186,11 @@ can inline differently from the maintained source build, so its timing is not
 automatically transferable. If final integration fails the gate, keep the
 runtime change out and retain the research artifacts.
 
-## Phase 11 Publish a report the user can interpret
+## Phase 11: Publish a report developers can understand
+
+Show query time with a clear direction label, explain each chart below the
+chart, and include both regressions and wins. Give the user enough context to
+repeat the measurement.
 
 Update the maintained Markdown report, performance journal, model training
 guide, and the generated HTML served through the existing Portless site.
@@ -1197,23 +1267,23 @@ qualifies, say that clearly and identify which hypothesis failed.
 
 ## Troubleshooting and forbidden shortcuts
 
-| Symptom | Required response |
-| --- | --- |
-| Same route reached by both forced variants | Repair AST edit and route evidence before timing |
-| Python and emitted JS disagree | Fix encoding, normalization, margins, and fallback; do not average decisions |
-| Apparent gain only from changing the baseline formula | Use directly measured baseline bytes and costs |
-| Model wins labels but loses query time | Select by integrated time; reject if overhead exceeds savings |
-| Model needs DOM depth or subtree size | Measure how it is obtained, or keep it diagnostic-only |
-| Extra epochs improve training loss but not validation time | Keep the best validation checkpoint and stop at the fixed budget |
-| One final test family determines a change | It is now development data; obtain new independent confirmation |
-| Prefix sees only easy anchors | Keep adversarial prefix cases, measure regret, and reject unsafe performance scope |
-| Prefix strategy starts the whole query again | Implement exact suffix continuation and charge all duplicate work until fixed |
-| Cache gets faster by returning stale results | Remove result reuse; hints may select exact routes only |
-| Browser timing estimated using Node inference | Label it an estimate and collect integrated browser measurements |
-| Run interrupted | Resume only with matching manifest/hashes and recorded completed IDs |
-| AC unavailable | Complete independent coding/parity work; leave AC measurements pending |
-| Candidate is faster only in one host | Keep host scope explicit; generic two-host gate has not passed |
-| No candidate passes | Finish the evidence/report and keep production behavior as the measured baseline |
+| Symptom                                                    | Required response                                                                  |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Same route reached by both forced variants                 | Repair AST edit and route evidence before timing                                   |
+| Python and emitted JS disagree                             | Fix encoding, normalization, margins, and fallback; do not average decisions       |
+| Apparent gain only from changing the baseline formula      | Use directly measured baseline bytes and costs                                     |
+| Model wins labels but loses query time                     | Select by integrated time; reject if overhead exceeds savings                      |
+| Model needs DOM depth or subtree size                      | Measure how it is obtained, or keep it diagnostic-only                             |
+| Extra epochs improve training loss but not validation time | Keep the best validation checkpoint and stop at the fixed budget                   |
+| One final test family determines a change                  | It is now development data; obtain new independent confirmation                    |
+| Prefix sees only easy anchors                              | Keep adversarial prefix cases, measure regret, and reject unsafe performance scope |
+| Prefix strategy starts the whole query again               | Implement exact suffix continuation and charge all duplicate work until fixed      |
+| Cache gets faster by returning stale results               | Remove result reuse; hints may select exact routes only                            |
+| Browser timing estimated using Node inference              | Label it an estimate and collect integrated browser measurements                   |
+| Run interrupted                                            | Resume only with matching manifest/hashes and recorded completed IDs               |
+| AC unavailable                                             | Complete independent coding/parity work; leave AC measurements pending             |
+| Candidate is faster only in one host                       | Keep host scope explicit; generic two-host gate has not passed                     |
+| No candidate passes                                        | Finish the evidence/report and keep production behavior as the measured baseline   |
 
 ## Why these choices are reasonable
 

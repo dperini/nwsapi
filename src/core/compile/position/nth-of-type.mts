@@ -37,7 +37,9 @@ export function createNthOfType(engine: EngineState) {
       dir,
       stable,
     )
-    if (adjacent !== undefined) {return adjacent}
+    if (adjacent !== undefined) {
+      return adjacent
+    }
 
     const target = element!
     const local = engine.Config.LEGACY ? engine.tagOf(target) : target.localName
@@ -82,7 +84,9 @@ function stablePosition(
   dir: number,
   stable?: boolean,
 ) {
-  if (!stable || !current) {return undefined}
+  if (!stable || !current) {
+    return undefined
+  }
   if (current[index] === element) {
     ++index
     return dir ? length - index + 1 : index
@@ -100,7 +104,9 @@ function getParentSnapshot(
   target: Element,
 ) {
   for (let i = 0, length = snapshots.length; i < length; ++i) {
-    if (snapshots[i]!.parent === parent) {return snapshots[i]!}
+    if (snapshots[i]!.parent === parent) {
+      return snapshots[i]!
+    }
   }
   const snapshot: ParentPositions = {
     parent,
@@ -110,7 +116,9 @@ function getParentSnapshot(
     >,
   }
   snapshots[snapshots.length] = snapshot
-  if (!engine.Config.LEGACY) {buildSnapshot(snapshot, engine, target)}
+  if (!engine.Config.LEGACY) {
+    buildSnapshot(snapshot, engine, target)
+  }
   return snapshot
 }
 
@@ -123,7 +131,9 @@ function getTypePositions(
   namespace: string | null,
 ) {
   let type = snapshot.types[name]
-  if (type || !engine.Config.LEGACY) {return type}
+  if (type || !engine.Config.LEGACY) {
+    return type
+  }
 
   const parent = snapshot.parent
   const start = parent ? engine.firstOf(parent) || target : target
@@ -185,7 +195,9 @@ function scanPosition(
     const sibling = node as Element
     if (sibling.localName === local && sibling.namespaceURI === namespace) {
       ++total
-      if (sibling === target) {index = total}
+      if (sibling === target) {
+        index = total
+      }
     }
     node = sibling.nextElementSibling
   }
@@ -205,7 +217,9 @@ function typeName(
 
 function findPosition(nodes: Element[], target: Element) {
   for (let i = 0, length = nodes.length; i < length; ++i) {
-    if (nodes[i] === target) {return i + 1}
+    if (nodes[i] === target) {
+      return i + 1
+    }
   }
   return 1
 }

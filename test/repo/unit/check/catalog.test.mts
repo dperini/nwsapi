@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import {
   copyFileSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -21,6 +22,18 @@ test('dependency pins agree with the tool manifest and reject Socket library dep
       'pnpm-lock.yaml',
     ]) {
       copyFileSync(path.join(REPO_ROOT, file), path.join(root, file))
+    }
+    const externalTools = JSON.parse(
+      readFileSync(path.join(REPO_ROOT, '.config/external-tools.json'), 'utf8'),
+    ) as { tools: { pytorch: { project: string } } }
+    const project = externalTools.tools.pytorch.project
+    const projectDir = path.join(root, project)
+    mkdirSync(projectDir, { recursive: true })
+    for (const file of ['pyproject.toml', 'uv.lock']) {
+      copyFileSync(
+        path.join(REPO_ROOT, project, file),
+        path.join(projectDir, file),
+      )
     }
     const file = path.join(root, 'package.json')
     const pkg = JSON.parse(readFileSync(file, 'utf8'))

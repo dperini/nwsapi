@@ -1,5 +1,12 @@
 # Performance journal
 
+## How to use this journal
+
+This is a record of past experiments, so some entries describe ideas that
+were later changed or rejected. Read the date, build revision, and result
+before applying an old finding to current code. The [performance work
+guide](guide.md) explains common measurement terms.
+
 This journal records performance hypotheses, measurements, decisions, and correctness constraints for `nwsapi`. Entries are organized by the behavior being optimized. The [compiler design](design.md) explains the implementation, the [benchmark report](benchmarks.md) covers package comparisons, and the [generated memory report](../../../assets/repo/bench/memory-performance.json) summarizes comparisons. The [recorded observations](../../../assets/repo/bench/memory-observations.json) preserve raw samples, runtime versions, and engine hashes.
 
 Follow the [shared performance practices](../../fleet/perf/practices.md) when designing new experiments.
@@ -14,16 +21,16 @@ The initial 227-field state object used V8 dictionary properties. A constructor 
 
 The saved baseline is commit `8e2e9d5`. The [Node timing samples](../../../assets/repo/bench/module-node-timing.json), [browser timing samples](../../../assets/repo/bench/module-browser-timing.json), and [Node allocation samples](../../../assets/repo/bench/module-node-memory.json) record both built engine hashes. Timing covers eight existing all-results queries: a class selector and a four-group selector at zero, one, 16, and 256 matches. Node uses five alternating rounds on `jsdom`. The browser uses seven rounds on its native DOM with 1,024 calls per batch. These are focused refactor comparisons, not a replacement for the broader package benchmark.
 
-| Matches | Selector | Node baseline → split | Browser baseline → split |
-| --- | --- | --- | --- |
-| 0 | `.hit` | 650ns → 676ns | 127ns → 146ns |
-| 0 | Four groups | 2,664ns → 2,655ns | 308ns → 347ns |
-| 1 | `.hit` | 827ns → 867ns | 132ns → 151ns |
-| 1 | Four groups | 2,871ns → 3,070ns | 361ns → 361ns |
-| 16 | `.hit` | 215ns → 259ns | 195ns → 200ns |
-| 16 | Four groups | 12,822ns → 13,085ns | 2,002ns → 2,095ns |
-| 256 | `.hit` | 255ns → 292ns | 220ns → 229ns |
-| 256 | Four groups | 149,794ns → 149,993ns | 85,054ns → 85,977ns |
+| Matches | Selector    | Node baseline → split | Browser baseline → split |
+| ------- | ----------- | --------------------- | ------------------------ |
+| 0       | `.hit`      | 650ns → 676ns         | 127ns → 146ns            |
+| 0       | Four groups | 2,664ns → 2,655ns     | 308ns → 347ns            |
+| 1       | `.hit`      | 827ns → 867ns         | 132ns → 151ns            |
+| 1       | Four groups | 2,871ns → 3,070ns     | 361ns → 361ns            |
+| 16      | `.hit`      | 215ns → 259ns         | 195ns → 200ns            |
+| 16      | Four groups | 12,822ns → 13,085ns   | 2,002ns → 2,095ns        |
+| 256     | `.hit`      | 255ns → 292ns         | 220ns → 229ns            |
+| 256     | Four groups | 149,794ns → 149,993ns | 85,054ns → 85,977ns      |
 
 Values are medians of round medians, rounded to nanoseconds. Most cases are slower. Small Node class queries add about 25–44ns, with relative increases up to 20.3%. Node grouped queries range from 0.3% faster to 6.9% slower. Browser increases range from zero to 15.4%. An earlier Node run overlapped cached WPT analysis and was replaced with a run after that work finished. These observations do not establish significance or predict other workloads.
 
@@ -272,19 +279,19 @@ pnpm run gen:bench
 
 </details>
 
-| Artifact measurement | Before | After |
-| -------------------- | -----: | ----: |
-| Readable core | 160,699 bytes | 191,617 bytes |
-| Core with gzip | 44,520 bytes | 37,702 bytes |
-| Core with Brotli | 36,247 bytes | 30,321 bytes |
-| Packed npm package | 123,902 bytes | 58,869 bytes |
+| Artifact measurement |        Before |         After |
+| -------------------- | ------------: | ------------: |
+| Readable core        | 160,699 bytes | 191,617 bytes |
+| Core with gzip       |  44,520 bytes |  37,702 bytes |
+| Core with Brotli     |  36,247 bytes |  30,321 bytes |
+| Packed npm package   | 123,902 bytes |  58,869 bytes |
 
 The core is 15.3% smaller with gzip and 16.3% smaller with Brotli. Its uncompressed size increases by 19.2%, mainly because the ES5 printer adds indentation and line breaks. The optional legacy module adds 4,653 bytes with gzip or 4,072 bytes with Brotli. Adding those separate transfers still stays below the previous core for either compression format. The package is 52.5% smaller, including the legacy module. That result also reflects removing the duplicated engine and minified artifact.
 
 | Retained heap per engine | Previous record | Current record |
-| ----------------------- | --------------: | -------------: |
-| Idle | 10.37KiB | 9.11KiB |
-| After 100 queries | 74.96KiB | 73.62KiB |
+| ------------------------ | --------------: | -------------: |
+| Idle                     |        10.37KiB |        9.11KiB |
+| After 100 queries        |        74.96KiB |       73.62KiB |
 
 These are incremental JavaScript heap measurements on native Chromium documents. They exclude shared module data, document allocation, and native browser memory. In the same refreshed workload, `@asamuzakjp/dom-selector` 8.3.2 retains 550.30KiB after querying. The core uses about 86.6% less retained heap for these cases. Query timing charts retain their separately recorded inputs and hashes.
 
@@ -313,12 +320,12 @@ pnpm run report:build --baseline f7f821e
 
 </details>
 
-| Artifact measurement | Before | After |
-| -------------------- | -----: | ----: |
-| Readable core | 191,617 bytes | 152,639 bytes |
-| Core with gzip | 37,702 bytes | 37,090 bytes |
-| Core with Brotli | 30,321 bytes | 30,045 bytes |
-| Packed npm package | 58,869 bytes | 57,802 bytes |
+| Artifact measurement |        Before |         After |
+| -------------------- | ------------: | ------------: |
+| Readable core        | 191,617 bytes | 152,639 bytes |
+| Core with gzip       |  37,702 bytes |  37,090 bytes |
+| Core with Brotli     |  30,321 bytes |  30,045 bytes |
+| Packed npm package   |  58,869 bytes |  57,802 bytes |
 
 The core is 20.3% smaller before compression, 1.6% smaller with gzip, and 0.9% smaller with Brotli. The optional legacy module is 15,560 bytes before compression, 4,439 bytes with gzip, and 3,857 bytes with Brotli. The packed package is 1.8% smaller. These measurements cover the generated files and package contents.
 
@@ -339,7 +346,6 @@ The core is 20.3% smaller before compression, 1.6% smaller with gzip, and 0.9% s
 **Lookup strategy.** Ordinary HTML trees retain native tag lookup. A weak cache records whether broader candidates are needed. Mutation records and observer delivery invalidate that classification. XML queries continue to use namespace-aware lookup. Compiled tag predicates keep direct property comparisons for ordinary lowercase HTML names.
 
 **Validation.** Selector regression tests cover the selector-layer examples from all 19 issues listed in jsdom's engine-switch PR. Rendering, event-library selector generation, Range mutation performance, and application feedback are separate concerns. Unit, integration, selected WPT, package-install, and browser comparison checks protect this change. Cumulative coverage retains the existing thresholds.
-
 
 ## Host workload and adapter classification
 
@@ -368,14 +374,14 @@ node scripts/repo/bench/jsdom/workload.mts \
 
 </details>
 
-| Median measurement | `@asamuzakjp/dom-selector` 9.0.1 | `nwsapi` candidate |
-| --- | ---: | ---: |
-| Range page | 2087.67ms | 2135.10ms |
-| Construct one document | 3.57ms | 3.90ms |
-| First query per document | 1.32ms | 0.74ms |
-| Repeated query | 0.0310ms | 0.0315ms |
-| Retained heap after queries, per document | 2055.02kB | 1799.71kB |
-| Residual heap after close, per document | 36.23kB | 29.83kB |
+| Median measurement                        | `@asamuzakjp/dom-selector` 9.0.1 | `nwsapi` candidate |
+| ----------------------------------------- | -------------------------------: | -----------------: |
+| Range page                                |                        2087.67ms |          2135.10ms |
+| Construct one document                    |                           3.57ms |             3.90ms |
+| First query per document                  |                           1.32ms |             0.74ms |
+| Repeated query                            |                         0.0310ms |           0.0315ms |
+| Retained heap after queries, per document |                        2055.02kB |          1799.71kB |
+| Residual heap after close, per document   |                          36.23kB |            29.83kB |
 
 These values cover the host workloads described above. The Range timing ranges overlap, and their sample standard deviations are about 235ms and 295ms. This run does not establish a Range speedup or a clear regression. Construction samples also overlap. Repeated-query times are close, while first-query medians and queried heap favor the candidate. Separate profiles place selector-related stacks below 2% of sampled Range time for both engines. DOM insertion, live-range bookkeeping, stack creation, and garbage collection account for prominent costs.
 
@@ -398,14 +404,14 @@ Measurements used Node 26.5.0 and `jsdom` 30.0.1 on macOS with an Apple M3 Max. 
 
 </details>
 
-| Warm query | Baseline | Candidate |
-| --- | ---: | ---: |
-| Document `[id="target"]` | 385.135µs | 0.309µs |
-| Shadow root `[id="target"]` | 1009.643µs | 62.235µs |
-| Document `[id="target"]:not(p)` | 294.203µs | 286.047µs |
-| Document `.target` | 0.345µs | 0.365µs |
-| Element `#missing` | 0.391µs | 0.353µs |
-| Shadow root `#missing` | 0.388µs | 61.929µs |
+| Warm query                      |   Baseline | Candidate |
+| ------------------------------- | ---------: | --------: |
+| Document `[id="target"]`        |  385.135µs |   0.309µs |
+| Shadow root `[id="target"]`     | 1009.643µs |  62.235µs |
+| Document `[id="target"]:not(p)` |  294.203µs | 286.047µs |
+| Document `.target`              |    0.345µs |   0.365µs |
+| Element `#missing`              |    0.391µs |   0.353µs |
+| Shadow root `#missing`          |    0.388µs |  61.929µs |
 
 The exact-attribute cases benefit from avoiding a full candidate scan and compiled matcher. The shadow lookup itself still walks the host tree, so it is not a constant-time lookup in this host. Compound and class controls remain close to the baseline. The shadow miss is slower because the old result came from the incorrect outer-document rejection. An existing shadow ID returned no result in the baseline. It now returns the expected node in 63.111µs. Light-DOM misses retain their cheap document-map rejection.
 
@@ -434,13 +440,13 @@ Separate CPU profiles sample 1,000 wide complex host queries. These are selector
 
 </details>
 
-| Warm document query | `nwsapi` before | `nwsapi` after | Host baseline after |
-| --- | ---: | ---: | ---: |
-| Original complex fixture | 122.9µs | 119.2µs | 61.9µs |
-| Wide complex fixture | 511.5µs | 259.5µs | 243.7µs |
-| Deep complex fixture | 134.5µs | 126.1µs | 51.6µs |
-| Mixed-sibling complex fixture | 84.9µs | 69.3µs | 51.8µs |
-| Wide plain descendant control | 120.2µs | 119.4µs | 171.0µs |
+| Warm document query           | `nwsapi` before | `nwsapi` after | Host baseline after |
+| ----------------------------- | --------------: | -------------: | ------------------: |
+| Original complex fixture      |         122.9µs |        119.2µs |              61.9µs |
+| Wide complex fixture          |         511.5µs |        259.5µs |             243.7µs |
+| Deep complex fixture          |         134.5µs |        126.1µs |              51.6µs |
+| Mixed-sibling complex fixture |          84.9µs |         69.3µs |              51.8µs |
+| Wide plain descendant control |         120.2µs |        119.4µs |             171.0µs |
 
 These values use public `jsdom` queries. The wide fixture has 64 boxes with four content nodes each. The deep and mixed fixtures have 16 boxes with four content nodes each. Deep fixtures add eight ancestors inside each box. The wide complex query improves by about 49%, while the plain control stays close to its previous result. The original and deep complex cases still favor the pinned host baseline. Direct-engine measurements show the same broad gap, so this is not solely adapter overhead.
 
@@ -465,26 +471,26 @@ The [traversal report](../../../assets/repo/bench/complex-selectors-class-reads.
 
 </details>
 
-| Warm `select()` case | Before | After |
-| --- | ---: | ---: |
-| Many matching descendants | 73.09µs | 10.16µs |
-| Last descendant matches | 56.39µs | 36.26µs |
-| No descendant matches | 59.14µs | 35.96µs |
-| Matching branch followed by a miss | 131.99µs | 10.43µs |
+| Warm `select()` case                       |    Before |     After |
+| ------------------------------------------ | --------: | --------: |
+| Many matching descendants                  |   73.09µs |   10.16µs |
+| Last descendant matches                    |   56.39µs |   36.26µs |
+| No descendant matches                      |   59.14µs |   35.96µs |
+| Matching branch followed by a miss         |  131.99µs |   10.43µs |
 | Adjacent section with matching descendants | 6910.35µs | 3716.00µs |
-| Twentieth child matches | 96.01µs | 61.49µs |
-| Existing direct-child type shortcut | 4.96µs | 5.20µs |
+| Twentieth child matches                    |   96.01µs |   61.49µs |
+| Existing direct-child type shortcut        |    4.96µs |    5.20µs |
 
 The many-hit case benefits from both plan reuse and early exit. Late hits and misses still inspect their candidate lists, but avoid repeated parsing and plan construction. The sibling case still searches a broad parent context and remains much more expensive. The direct-child control follows its existing shortcut and stays close to its prior time. These fixtures do not establish a universal `:has()` speedup.
 
 Warm `first()` for the many-hit case fell from 4.27µs to 1.12µs. Its cold first query stayed close, at 196.77µs before and 199.64µs after. Cold all-result selection for the same fixture fell from 322.91µs to 250.02µs. The separate baseline CPU profile sampled parsing and collection work prominently. The candidate profile contains only seven samples over the same query count, so it is too short to rank its remaining costs reliably.
 
-| Warm host traversal | Before | After | Pinned host baseline after |
-| --- | ---: | ---: | ---: |
-| Original complex fixture | 119.23µs | 122.31µs | 61.49µs |
-| Wide complex fixture | 259.47µs | 247.97µs | 233.80µs |
-| Deep complex fixture | 126.15µs | 127.11µs | 51.80µs |
-| Mixed complex fixture | 69.35µs | 67.73µs | 51.30µs |
+| Warm host traversal      |   Before |    After | Pinned host baseline after |
+| ------------------------ | -------: | -------: | -------------------------: |
+| Original complex fixture | 119.23µs | 122.31µs |                    61.49µs |
+| Wide complex fixture     | 259.47µs | 247.97µs |                   233.80µs |
+| Deep complex fixture     | 126.15µs | 127.11µs |                    51.80µs |
+| Mixed complex fixture    |  69.35µs |  67.73µs |                    51.30µs |
 
 These public-host measurements show no reliable improvement in the original or deep fixture. Their profiles still contain repeated resolver, parent-element, and class-access work. Sharing adjacent class reads reduces measured property reads but does not solve repeated ancestor traversal. The small wide and mixed timing differences should not be treated as proof that the remaining traversal gap is closed.
 
@@ -511,25 +517,25 @@ Allocation sampling runs separately before cache churn. It covers 10000 warmed e
 
 </details>
 
-| Warm selection | Before | After |
-| --- | ---: | ---: |
-| Adjacent sibling with matching descendants | 3196.03µs | 14.19µs |
-| General sibling with matching descendants | 4640.88µs | 13.53µs |
-| General sibling with only a final late match | 597.23µs | 341.53µs |
-| Descendant with a late match | 35.51µs | 35.73µs |
-| Descendant miss | 34.78µs | 33.66µs |
-| Twentieth-child positional control | 58.97µs | 58.58µs |
-| Direct-child type control | 5.55µs | 5.26µs |
+| Warm selection                               |    Before |    After |
+| -------------------------------------------- | --------: | -------: |
+| Adjacent sibling with matching descendants   | 3196.03µs |  14.19µs |
+| General sibling with matching descendants    | 4640.88µs |  13.53µs |
+| General sibling with only a final late match |  597.23µs | 341.53µs |
+| Descendant with a late match                 |   35.51µs |  35.73µs |
+| Descendant miss                              |   34.78µs |  33.66µs |
+| Twentieth-child positional control           |   58.97µs |  58.58µs |
+| Direct-child type control                    |    5.55µs |   5.26µs |
 
 The early sibling matches avoid looking through unrelated subtrees. The late general-sibling case still visits many following subtrees, so its gain is smaller. Descendant and positional controls stay close to their earlier times. These results apply to the eligible shapes and fixtures. They do not establish the same gain for every relative selector.
 
-| Median memory measurement | Before | After |
-| --- | ---: | ---: |
-| Estimated allocation across 10000 warm checks | 2.58MB | 1.55MB |
-| Retained growth after 512 distinct plans | 1.69MB | 1.70MB |
-| Retained growth after saturation | 7.12MB | 7.13MB |
+| Median memory measurement                     |   Before |    After |
+| --------------------------------------------- | -------: | -------: |
+| Estimated allocation across 10000 warm checks |   2.58MB |   1.55MB |
+| Retained growth after 512 distinct plans      |   1.69MB |   1.70MB |
+| Retained growth after saturation              |   7.12MB |   7.13MB |
 | Further retained growth after 8192 more plans | -0.002MB | -0.003MB |
-| Removed anchor or child still reachable | 0 | 0 |
+| Removed anchor or child still reachable       |        0 |        0 |
 
 The warm allocation estimate falls by about 40%. The before profile attributes sampled allocation to candidate copying, while the after profile records none under that helper. The retained measurements show a plateau after cache saturation rather than growth with every new selector. The cache is bounded, but thousands of distinct compiled selectors still retain several megabytes. Explicit clearing releases about 6.78MB from the candidate page. Some warmed runtime state remains, so clearing does not return the whole page to its initial byte count. Both removed nodes were collected before clearing in every round.
 
@@ -552,14 +558,14 @@ These are compiled-resolver measurements. They are not public-host timings and c
 
 </details>
 
-| Warm compiled resolver | Existing | Always cache | Depth gate |
-| --- | ---: | ---: | ---: |
-| Original complex fixture | 88.95µs | 73.20µs | 86.97µs |
-| Original plain control | 47.33µs | 54.07µs | 48.31µs |
-| Wide complex fixture | 204.54µs | 193.49µs | 201.28µs |
-| Wide plain control | 105.97µs | 139.73µs | 104.78µs |
-| Deep complex fixture | 130.73µs | 90.29µs | 96.26µs |
-| Deep plain control | 101.90µs | 73.91µs | 80.02µs |
+| Warm compiled resolver   | Existing | Always cache | Depth gate |
+| ------------------------ | -------: | -----------: | ---------: |
+| Original complex fixture |  88.95µs |      73.20µs |    86.97µs |
+| Original plain control   |  47.33µs |      54.07µs |    48.31µs |
+| Wide complex fixture     | 204.54µs |     193.49µs |   201.28µs |
+| Wide plain control       | 105.97µs |     139.73µs |   104.78µs |
+| Deep complex fixture     | 130.73µs |      90.29µs |    96.26µs |
+| Deep plain control       | 101.90µs |      73.91µs |    80.02µs |
 
 The original fixture has 125 content candidates, the wide fixture has 256, and the deep fixture has 64. The deep tree adds eight wrapper ancestors inside each box. Always-on caching improves the deep complex fixture by about 31%, but slows the wide plain control by about 32%. Fewer DOM reads do not guarantee a faster query because the map and records also require work.
 
@@ -582,16 +588,16 @@ Allocation sampling covers 2000 calls per variant and includes objects collected
 
 </details>
 
-| Browser compiled resolver | Existing | Always cache | Depth gate |
-| --- | ---: | ---: | ---: |
-| Shallow complex | 14.1µs | 18.7µs | 14.2µs |
-| Shallow plain | 9.4µs | 13.7µs | 9.7µs |
-| Deep complex | 32.7µs | 34.1µs | 35.0µs |
-| Deep plain | 20.6µs | 26.3µs | 26.6µs |
-| Mixed shallow-first complex | 25.0µs | 26.3µs | 25.0µs |
-| Mixed shallow-first plain | 15.3µs | 19.9µs | 15.1µs |
-| Mixed deep-first complex | 24.1µs | 25.7µs | 25.7µs |
-| Mixed deep-first plain | 15.1µs | 19.5µs | 19.7µs |
+| Browser compiled resolver   | Existing | Always cache | Depth gate |
+| --------------------------- | -------: | -----------: | ---------: |
+| Shallow complex             |   14.1µs |       18.7µs |     14.2µs |
+| Shallow plain               |    9.4µs |       13.7µs |      9.7µs |
+| Deep complex                |   32.7µs |       34.1µs |     35.0µs |
+| Deep plain                  |   20.6µs |       26.3µs |     26.6µs |
+| Mixed shallow-first complex |   25.0µs |       26.3µs |     25.0µs |
+| Mixed shallow-first plain   |   15.3µs |       19.9µs |     15.1µs |
+| Mixed deep-first complex    |   24.1µs |       25.7µs |     25.7µs |
+| Mixed deep-first plain      |   15.1µs |       19.5µs |     19.7µs |
 
 The complex selector combines sibling positions with descendant classes. The plain control only uses descendant classes and a child relationship. Both use preselected candidates. In the deep browser fixture, the gate slows the complex resolver by about 7% and the plain resolver by about 29%. A shallow first candidate skips caching for the entire mixed tree. A deep first candidate enables it, including for shallow candidates. Reversing candidate order preserves results, but the gate still bases its decision on a single candidate.
 
@@ -615,13 +621,13 @@ Whole-process heap readings include the profiler and accumulated report data. Sm
 </details>
 
 | Node allocation across 2000 queries | Existing | Depth gate | Change |
-| --- | ---: | ---: | ---: |
-| Deep complex | 187.27MB | 207.32MB | +10.7% |
-| Deep plain | 145.39MB | 173.04MB | +19.0% |
-| Mixed shallow first complex | 142.46MB | 142.34MB | -0.1% |
-| Mixed shallow first plain | 99.44MB | 99.60MB | +0.2% |
-| Mixed deep first complex | 142.16MB | 169.65MB | +19.3% |
-| Mixed deep first plain | 99.71MB | 135.15MB | +35.5% |
+| ----------------------------------- | -------: | ---------: | -----: |
+| Deep complex                        | 187.27MB |   207.32MB | +10.7% |
+| Deep plain                          | 145.39MB |   173.04MB | +19.0% |
+| Mixed shallow first complex         | 142.46MB |   142.34MB |  -0.1% |
+| Mixed shallow first plain           |  99.44MB |    99.60MB |  +0.2% |
+| Mixed deep first complex            | 142.16MB |   169.65MB | +19.3% |
+| Mixed deep first plain              |  99.71MB |   135.15MB | +35.5% |
 
 These are median sampled allocations across three rounds on Node 26.5.0 with `jsdom` 30.0.1. Deep and mixed fixtures contain 64 candidates. The complex selector combines sibling positions with descendant classes. The plain selector uses descendant classes and a child relationship. The depth gate increases allocation by about 11% and 19% in the deep cases. It skips the cache when the mixed tree starts shallow. With a deep first candidate, mixed-case allocation rises by about 19% and 36%.
 
@@ -648,12 +654,12 @@ The different DOM implementations help explain the browser and Node results. In 
 
 Every cache hit still adds a helper call, a weak-map lookup, and, for the gated version, a conditional branch. Misses also insert an entry. The browser regressions show that the saved reads do not repay that work in these fixtures. This is an explanation supported by source inspection and allocation measurements, not a CPU-profile attribution of the slowdown to a single operation. Less allocation alone does not guarantee less runtime.
 
-| Class-value gate | Existing allocation | Gate allocation | Allocation change | Time change |
-| --- | ---: | ---: | ---: | ---: |
-| Node deep complex | 187.64MB | 183.01MB | -2.5% | +7.9% |
-| Node deep plain | 145.25MB | 148.58MB | +2.3% | +13.9% |
-| Browser deep complex | 46.62MB | 63.57MB | +36.4% | +22.9% |
-| Browser deep plain | 41.42MB | 58.14MB | +40.4% | +36.5% |
+| Class-value gate     | Existing allocation | Gate allocation | Allocation change | Time change |
+| -------------------- | ------------------: | --------------: | ----------------: | ----------: |
+| Node deep complex    |            187.64MB |        183.01MB |             -2.5% |       +7.9% |
+| Node deep plain      |            145.25MB |        148.58MB |             +2.3% |      +13.9% |
+| Browser deep complex |             46.62MB |         63.57MB |            +36.4% |      +22.9% |
+| Browser deep plain   |             41.42MB |         58.14MB |            +40.4% |      +36.5% |
 
 The allocation columns cover 2000 compiled queries. Positive time changes mean slower queries. Node timings come from a separate fresh process with no inspector profiling, recorded in [ancestor-node-classes-timing.json](../../../assets/repo/bench/ancestor-node-classes-timing.json). Reproduce it with `node scripts/repo/bench/ancestor/reads.mts --classes --output assets/repo/bench/ancestor-node-classes-timing.json`. Timing fields in a Node memory report can be affected by profiler activity from earlier fixtures, so use the separate timing report for this comparison. Browser timers run before profiling on each fresh page.
 
@@ -678,31 +684,31 @@ This is a fixed-selector benchmark, not a general compiler transformation. It do
 
 </details>
 
-| Prefix-cache timing | Existing | Cached prefix | Change |
-| --- | ---: | ---: | ---: |
-| Node wide complex | 196.60µs | 342.03µs | +74.0% |
-| Node wide plain | 105.71µs | 112.79µs | +6.7% |
-| Node deep complex | 130.26µs | 91.49µs | -29.8% |
-| Node deep plain | 96.75µs | 64.00µs | -33.8% |
-| Browser shallow complex | 13.80µs | 16.90µs | +22.5% |
-| Browser shallow plain | 8.50µs | 11.00µs | +29.4% |
-| Browser deep complex | 31.90µs | 29.50µs | -7.5% |
-| Browser deep plain | 20.40µs | 17.60µs | -13.7% |
+| Prefix-cache timing     | Existing | Cached prefix | Change |
+| ----------------------- | -------: | ------------: | -----: |
+| Node wide complex       | 196.60µs |      342.03µs | +74.0% |
+| Node wide plain         | 105.71µs |      112.79µs |  +6.7% |
+| Node deep complex       | 130.26µs |       91.49µs | -29.8% |
+| Node deep plain         |  96.75µs |       64.00µs | -33.8% |
+| Browser shallow complex |  13.80µs |       16.90µs | +22.5% |
+| Browser shallow plain   |   8.50µs |       11.00µs | +29.4% |
+| Browser deep complex    |  31.90µs |       29.50µs |  -7.5% |
+| Browser deep plain      |  20.40µs |       17.60µs | -13.7% |
 
 These are median times for precompiled resolvers over preselected candidates. Deep cases have 64 candidates beneath eight extra wrappers. The wide Node case has 256 candidates across 64 boxes. The shallow browser case has 64 candidates. Negative changes mean faster queries. The complex selector includes sibling positions, while the plain control uses descendant classes and a child relationship. Both mixed-depth orders improve in these runs, without choosing a caching policy from the first candidate.
 
 The wide complex regression exposes a limitation of this prototype. Splitting the prefix uses the engine's single-element matcher, whose positional check scans siblings independently. The unchanged collection resolver shares positional state across candidates. Caching the ancestor result cuts repeated prefix calls but does not recover that shared positional work. The uncached split control is even slower, so splitting alone is not an optimization.
 
 | Allocation across 2000 queries | Existing | Cached prefix | Change |
-| --- | ---: | ---: | ---: |
-| Node wide complex | 391.29MB | 638.46MB | +63.2% |
-| Node wide plain | 223.24MB | 239.30MB | +7.2% |
-| Node deep complex | 186.83MB | 133.06MB | -28.8% |
-| Node deep plain | 144.90MB | 106.18MB | -26.7% |
-| Browser shallow complex | 22.41MB | 21.31MB | -4.9% |
-| Browser shallow plain | 16.48MB | 21.95MB | +33.2% |
-| Browser deep complex | 46.84MB | 39.96MB | -14.7% |
-| Browser deep plain | 40.84MB | 40.40MB | -1.1% |
+| ------------------------------ | -------: | ------------: | -----: |
+| Node wide complex              | 391.29MB |      638.46MB | +63.2% |
+| Node wide plain                | 223.24MB |      239.30MB |  +7.2% |
+| Node deep complex              | 186.83MB |      133.06MB | -28.8% |
+| Node deep plain                | 144.90MB |      106.18MB | -26.7% |
+| Browser shallow complex        |  22.41MB |       21.31MB |  -4.9% |
+| Browser shallow plain          |  16.48MB |       21.95MB | +33.2% |
+| Browser deep complex           |  46.84MB |       39.96MB | -14.7% |
+| Browser deep plain             |  40.84MB |       40.40MB |  -1.1% |
 
 These are sampled allocations, including objects collected during the batch. Node values are medians across three rotating rounds. Browser values come from one allocation sample per variant on a fresh fixture page. The deep Node cases allocate about 27–29% less, and both mixed-depth orders allocate about 21–26% less. The wide positional case instead allocates 63% more. The browser deep complex case allocates about 15% less, while the deep plain case stays close to baseline. Shallow browser queries still expose cache overhead.
 
@@ -734,15 +740,15 @@ The final experimental variant puts the previous-result check directly into the 
 Use `--inline` instead of `--shared` to reproduce this version. The tracked reports are [Node timing](../../../assets/repo/bench/ancestor-inline-timing.json), [Node memory](../../../assets/repo/bench/ancestor-inline-memory.json), and [browser timing and memory](../../../assets/repo/bench/ancestor-inline-browser.json). Add `--single` for the no-reuse controls, recorded in [Node](../../../assets/repo/bench/ancestor-inline-single-timing.json) and [browser](../../../assets/repo/bench/ancestor-inline-single-browser.json) reports. The inline rewrite checks fixed compiler markers and remains confined to these benchmark selectors.
 
 | Inline previous-result reuse | Existing time | Inline time | Time change | Allocation change |
-| --- | ---: | ---: | ---: | ---: |
-| Node wide complex | 195.10µs | 139.75µs | -28.4% | -32.4% |
-| Node wide plain | 107.48µs | 88.35µs | -17.8% | -20.1% |
-| Node deep complex | 128.65µs | 77.60µs | -39.7% | -40.7% |
-| Node deep plain | 97.78µs | 61.44µs | -37.2% | -39.0% |
-| Browser shallow complex | 14.40µs | 10.20µs | -29.2% | -28.0% |
-| Browser shallow plain | 9.20µs | 7.90µs | -14.1% | -19.1% |
-| Browser deep complex | 34.10µs | 20.50µs | -39.9% | -38.8% |
-| Browser deep plain | 23.20µs | 14.70µs | -36.6% | -37.7% |
+| ---------------------------- | ------------: | ----------: | ----------: | ----------------: |
+| Node wide complex            |      195.10µs |    139.75µs |      -28.4% |            -32.4% |
+| Node wide plain              |      107.48µs |     88.35µs |      -17.8% |            -20.1% |
+| Node deep complex            |      128.65µs |     77.60µs |      -39.7% |            -40.7% |
+| Node deep plain              |       97.78µs |     61.44µs |      -37.2% |            -39.0% |
+| Browser shallow complex      |       14.40µs |     10.20µs |      -29.2% |            -28.0% |
+| Browser shallow plain        |        9.20µs |      7.90µs |      -14.1% |            -19.1% |
+| Browser deep complex         |       34.10µs |     20.50µs |      -39.9% |            -38.8% |
+| Browser deep plain           |       23.20µs |     14.70µs |      -36.6% |            -37.7% |
 
 These are warm compiled-resolver measurements over preselected candidates. The wide Node fixture has 256 candidates, and the deep fixtures have 64 candidates beneath eight extra wrappers. Shallow browser fixtures have 64 candidates. Timing uses seven rotating rounds. Node allocation uses median estimates from three rotating rounds, while browser allocation uses one sample per variant. Each allocation sample covers 2000 calls. Negative changes mean less time or allocation. Both mixed-depth orders also improve in the recorded runs.
 
@@ -769,25 +775,25 @@ The public-query runs are separate measurements rather than a guarantee of a fix
 
 </details>
 
-| Public document query | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Original complex | 120.91µs | 56.61µs | -53.2% |
-| Original plain | 57.10µs | 39.27µs | -31.2% |
-| Wide complex | 242.98µs | 166.84µs | -31.3% |
-| Wide plain | 114.65µs | 95.02µs | -17.1% |
-| Deep complex | 126.38µs | 81.38µs | -35.6% |
-| Deep plain | 98.79µs | 61.11µs | -38.1% |
-| Mixed complex | 68.05µs | 47.17µs | -30.7% |
-| Mixed plain | 32.43µs | 26.17µs | -19.3% |
+| Public document query |   Before |    After | Change |
+| --------------------- | -------: | -------: | -----: |
+| Original complex      | 120.91µs |  56.61µs | -53.2% |
+| Original plain        |  57.10µs |  39.27µs | -31.2% |
+| Wide complex          | 242.98µs | 166.84µs | -31.3% |
+| Wide plain            | 114.65µs |  95.02µs | -17.1% |
+| Deep complex          | 126.38µs |  81.38µs | -35.6% |
+| Deep plain            |  98.79µs |  61.11µs | -38.1% |
+| Mixed complex         |  68.05µs |  47.17µs | -30.7% |
+| Mixed plain           |  32.43µs |  26.17µs | -19.3% |
 
 These are warm public document queries through `jsdom`, including candidate lookup. The original fixture has 125 candidates, the wide fixture has 256, and the deep fixture has 64. Negative changes mean faster queries. The reports retain element-scope results and cold samples separately. All candidate-build mutation checks pass, including changes made without an explicit cache-clear notification.
 
-| Node sampled allocation | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Wide complex | 391.42MB | 264.68MB | -32.4% |
-| Wide plain | 223.15MB | 178.03MB | -20.2% |
-| Deep complex | 187.99MB | 111.09MB | -40.9% |
-| Deep plain | 145.12MB | 88.43MB | -39.1% |
+| Node sampled allocation |   Before |    After | Change |
+| ----------------------- | -------: | -------: | -----: |
+| Wide complex            | 391.42MB | 264.68MB | -32.4% |
+| Wide plain              | 223.15MB | 178.03MB | -20.2% |
+| Deep complex            | 187.99MB | 111.09MB | -40.9% |
+| Deep plain              | 145.12MB |  88.43MB | -39.1% |
 
 These allocation estimates cover 2000 warm compiled-resolver calls over preselected candidates. They are medians from three rotating Node sampling rounds. They measure allocation traffic, rather than retained or peak memory. Reusing the ancestor result avoids repeated DOM getter and resolver work while preserving positional caches shared across the candidate collection.
 
@@ -814,18 +820,18 @@ Run `node scripts/repo/bench/candidate-memory.mts assets/repo/bench/candidate-me
 
 Without reuse opportunities, Node timing changes range from 3.2% faster to 1.1% slower. Shallow browser cases are 2.3–2.7% slower in the first run and equal to baseline in the fresh confirmation. Deep and mixed browser cases are equal or faster in both runs. This does not establish a consistent shallow regression or a general speedup without reuse. It supports retaining the current narrow eligibility rather than adding another runtime depth gate.
 
-| Uncached compilation, confirmation | Before | After | Added time |
-| --- | ---: | ---: | ---: |
-| Plain ancestor | 13.88µs | 16.08µs | 2.20µs |
-| Positional ancestor | 20.97µs | 25.45µs | 4.48µs |
-| Two descendant walks, excluded | 15.28µs | 16.07µs | 0.80µs |
+| Uncached compilation, confirmation |  Before |   After | Added time |
+| ---------------------------------- | ------: | ------: | ---------: |
+| Plain ancestor                     | 13.88µs | 16.08µs |     2.20µs |
+| Positional ancestor                | 20.97µs | 25.45µs |     4.48µs |
+| Two descendant walks, excluded     | 15.28µs | 16.07µs |     0.80µs |
 
 These medians measure unique selectors on warm Node engines. Eligible plain and positional cases add about 16% and 21% to compilation time. The first run also shows about 2µs and 4µs of additional work. The eligibility scan and larger generated function both contribute to the measured path, so this benchmark cannot attribute all of the increase to the scan. Cached queries avoid this compilation cost. Other excluded selectors have smaller, less consistent changes.
 
 | Node sampled allocation, 2000 calls | Compiled | Public selection | Class lookup only |
-| --- | ---: | ---: | ---: |
-| Simple class | 59.20MB | 5.55MB | 4.73MB |
-| Ancestor class query | 127.11MB | 88.10MB | 4.71MB |
+| ----------------------------------- | -------: | ---------------: | ----------------: |
+| Simple class                        |  59.20MB |           5.55MB |            4.73MB |
+| Ancestor class query                | 127.11MB |          88.10MB |            4.71MB |
 
 These are median allocation estimates, not retained heap. Public selection can remove a terminal class check after fetching candidates by that class, so it allocates less than compiling the complete selector against a supplied array. In the ancestor query's public path, sampled resolver work and class-name getters dominate. Class lookup accounts for about 5% of its total allocation. The `byClass` allocation site contributes about 4.2MB in the middle round, consistent with copying a 256-element array on each call. Sampling and inlining prevent exact source-level attribution.
 
@@ -844,10 +850,10 @@ A separate run with `node --cpu-prof --cpu-prof-dir=/path/to/temporary/directory
 
 </details>
 
-| Uncached compilation, confirmation | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Plain ancestor | 16.31µs | 15.32µs | -6.1% |
-| Positional ancestor | 25.90µs | 24.57µs | -5.1% |
+| Uncached compilation, confirmation |  Before |   After | Change |
+| ---------------------------------- | ------: | ------: | -----: |
+| Plain ancestor                     | 16.31µs | 15.32µs |  -6.1% |
+| Positional ancestor                | 25.90µs | 24.57µs |  -5.1% |
 
 These are median times for unique selectors on warm engines. The first run improves the plain case by 4.6% and the positional case by 4.2%. Across both runs, the saving is about 0.7–1.3µs per compilation. This recovers part of the earlier eligibility overhead. Other cases vary, including one nested logical case that is 16.8% slower in the first run and about equal in the confirmation. The results support the narrow normalization change rather than a claim that every selector compiles faster.
 
@@ -869,9 +875,9 @@ The [candidate patch](../../../assets/repo/bench/ancestor-token-candidate.patch)
 </details>
 
 | Uncached compilation | First run before | First run candidate | Confirmation before | Confirmation candidate |
-| --- | ---: | ---: | ---: | ---: |
-| Plain ancestor | 15.50µs | 15.23µs | 15.61µs | 15.53µs |
-| Positional ancestor | 25.45µs | 25.76µs | 25.87µs | 23.77µs |
+| -------------------- | ---------------: | ------------------: | ------------------: | ---------------------: |
+| Plain ancestor       |          15.50µs |             15.23µs |             15.61µs |                15.53µs |
+| Positional ancestor  |          25.45µs |             25.76µs |             25.87µs |                23.77µs |
 
 These medians come from two fresh processes. Plain compilation improves by 1.7% and 0.5%. Positional compilation is 1.2% slower in the first run and 8.2% faster in the confirmation. Earlier development measurements looked more promising, but the final build does not establish a stable saving. The readable core grows by 457bytes, gzip at level 9 grows by 68bytes, and Brotli at quality 11 grows by 43bytes.
 
@@ -894,12 +900,12 @@ The [Node timing](../../../assets/repo/bench/class-regex-node.json), [Node memor
 
 </details>
 
-| Node sampled allocation | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Wide complex | 264.54MB | 121.49MB | -54.1% |
-| Wide plain | 178.03MB | 63.88MB | -64.1% |
-| Deep complex | 111.24MB | 47.12MB | -57.6% |
-| Deep plain | 88.35MB | 31.42MB | -64.4% |
+| Node sampled allocation |   Before |    After | Change |
+| ----------------------- | -------: | -------: | -----: |
+| Wide complex            | 264.54MB | 121.49MB | -54.1% |
+| Wide plain              | 178.03MB |  63.88MB | -64.1% |
+| Deep complex            | 111.24MB |  47.12MB | -57.6% |
+| Deep plain              |  88.35MB |  31.42MB | -64.4% |
 
 These estimates cover 2000 warm compiled queries over preselected candidates. Wide fixtures have 256 candidates. Deep fixtures have 64 candidates beneath eight extra wrappers. The savings measure allocation traffic rather than retained heap or peak memory. Across all Node fixtures, sampled allocation falls by 54–66%. The remaining class-name getter allocations are consistent with `jsdom` performing custom-element reaction bookkeeping for those reads.
 
@@ -909,12 +915,12 @@ The browser confirmation records 89–96% less allocation across the fixtures. N
 
 Deep complex Node retained-heap changes after two batches are 2208bytes, 0bytes, and 1384bytes across the three rounds. Deep plain changes are -112bytes, 0bytes, and 0bytes. All observed browser fixture nodes are collected after detachment. These short measurements are useful checks, not proof that every workload is leak-free.
 
-| Browser timing, confirmation | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Shallow complex | 10.40µs | 9.60µs | -7.7% |
-| Shallow plain | 7.30µs | 7.00µs | -4.1% |
-| Deep complex | 20.00µs | 19.20µs | -4.0% |
-| Deep plain | 13.90µs | 13.00µs | -6.5% |
+| Browser timing, confirmation |  Before |   After | Change |
+| ---------------------------- | ------: | ------: | -----: |
+| Shallow complex              | 10.40µs |  9.60µs |  -7.7% |
+| Shallow plain                |  7.30µs |  7.00µs |  -4.1% |
+| Deep complex                 | 20.00µs | 19.20µs |  -4.0% |
+| Deep plain                   | 13.90µs | 13.00µs |  -6.5% |
 
 These native Chromium timings use 64 preselected candidates and seven rotating rounds. Deep fixtures add eight wrapper ancestors. The [browser confirmation](../../../assets/repo/bench/class-regex-browser-confirmation.json) improves all recorded cases by 2–8%. The initial browser run has one mixed-depth plain case that is 3.7% slower. Both records remain available. Compilation and candidate lookup are excluded from these timings.
 
@@ -930,7 +936,6 @@ The production change passes 669 unit tests, 148 integration tests, and all 141 
 
 The per-query class-expression optimization landed in `1236413`. The next experiment targets the remaining class-name getter allocations. It compares the existing reader with `getAttribute('class') || ''` through a benchmark-only snapshot override, leaving production behavior unchanged until Node and browser results support a decision.
 
-
 ## Compare class getters with attribute reads
 
 The next experiment replaces only the benchmark candidate's `Snapshot.classOf` reader with `element.getAttribute('class') || ''`. Both engines use the same production build. The empty-string fallback preserves the class getter's result when the attribute is absent. There is no DOM-value cache, and the production reader remains unchanged.
@@ -945,11 +950,11 @@ The [Node timing](../../../assets/repo/bench/class-attribute-node.json), [Node m
 </details>
 
 | Node sampled allocation | Class getter | Attribute reader | Increase |
-| --- | ---: | ---: | ---: |
-| Wide complex | 121.18MB | 595.80MB | 391.7% |
-| Wide plain | 63.84MB | 420.05MB | 557.9% |
-| Deep complex | 46.75MB | 284.99MB | 509.6% |
-| Deep plain | 31.57MB | 239.51MB | 658.7% |
+| ----------------------- | -----------: | ---------------: | -------: |
+| Wide complex            |     121.18MB |         595.80MB |   391.7% |
+| Wide plain              |      63.84MB |         420.05MB |   557.9% |
+| Deep complex            |      46.75MB |         284.99MB |   509.6% |
+| Deep plain              |      31.57MB |         239.51MB |   658.7% |
 
 These estimates cover 2000 calls. Wide fixtures have 256 candidates, and deep fixtures have 64 candidates beneath eight extra wrappers. Across all Node cases, the attribute reader allocates about 5–8 times as much. Most sampled allocation is attributed to the override and `getAttribute` implementation. The installed `jsdom` wrapper constructs an argument array and performs Web IDL string conversion for this method. Avoiding class-getter reaction bookkeeping therefore does not avoid allocation overall. Sampling and inlining limit exact attribution to individual statements.
 
@@ -973,11 +978,11 @@ The [baseline profile](../../../assets/repo/bench/result-arrays-profile.json), [
 </details>
 
 | Grouped query matches | Node time change | Chromium time change | Node allocation before | Node allocation after |
-| --- | ---: | ---: | ---: | ---: |
-| 0 | -0.4% | -10.3% | 4.83MB | 4.60MB |
-| 1 | -9.5% | -28.8% | 5.22MB | 5.10MB |
-| 16 | -1.3% | -13.6% | 59.30MB | 58.36MB |
-| 256 | +3.1% | +0.5% | 872.89MB | 876.89MB |
+| --------------------- | ---------------: | -------------------: | ---------------------: | --------------------: |
+| 0                     |            -0.4% |               -10.3% |                 4.83MB |                4.60MB |
+| 1                     |            -9.5% |               -28.8% |                 5.22MB |                5.10MB |
+| 16                    |            -1.3% |               -13.6% |                59.30MB |               58.36MB |
+| 256                   |            +3.1% |                +0.5% |               872.89MB |              876.89MB |
 
 These grouped queries combine four disjoint class lists whose nodes interleave in document order. Allocation figures cover 2000 calls and are medians from three samples. Negative timing changes mean faster queries. Single-class controls vary too, so small differences should not be treated as universal gains. The strongest timing improvements occur with one match and with sparse browser results. Dense queries are slightly slower and show no aggregate allocation saving. Appending still grows the result array, and removing intermediate arrays does not remove sorting costs.
 
@@ -1018,14 +1023,14 @@ The Node records are [adjacent](../../../assets/repo/bench/sibling-sort-node.jso
 
 </details>
 
-| Layout | Grouped matches | Node time change | Chromium time change |
-| --- | ---: | ---: | ---: |
-| Adjacent | 16 | -9.6% | -5.4% |
-| Adjacent | 256 | -10.9% | -27.9% |
-| Separated | 16 | +9.7% | +16.2% |
-| Separated | 256 | +19.1% | +1.9% |
-| Nested | 16 | +6.4% | +13.3% |
-| Nested | 256 | +8.9% | +2.3% |
+| Layout    | Grouped matches | Node time change | Chromium time change |
+| --------- | --------------: | ---------------: | -------------------: |
+| Adjacent  |              16 |            -9.6% |                -5.4% |
+| Adjacent  |             256 |           -10.9% |               -27.9% |
+| Separated |              16 |            +9.7% |               +16.2% |
+| Separated |             256 |           +19.1% |                +1.9% |
+| Nested    |              16 |            +6.4% |               +13.3% |
+| Nested    |             256 |            +8.9% |                +2.3% |
 
 These are warm public grouped-query medians in Node and native Chromium. Negative changes mean faster queries. The shortcut avoids some expensive comparisons when matching elements are adjacent. Text separators and separate parents prevent that shortcut from succeeding, leaving extra DOM reads before the original comparison. Single-class controls vary by up to 3.2%. Empty and single-result grouped controls also vary, even though they do not sort, so small changes need caution. The larger repeated regressions are enough to reject this change without claiming a precise penalty for every document.
 
@@ -1058,16 +1063,16 @@ The [sequential prototype patch](../../../assets/repo/bench/group-merge-sequenti
 
 </details>
 
-| Layout | Groups | Matches | Node time change | Chromium time change |
-| --- | ---: | ---: | ---: | ---: |
-| Adjacent | 4 | 16 | -26.4% | -34.3% |
-| Adjacent | 4 | 256 | -34.4% | -48.2% |
-| Separated | 4 | 16 | -27.8% | -44.0% |
-| Separated | 4 | 256 | -33.6% | -50.1% |
-| Nested | 4 | 16 | -28.7% | -34.5% |
-| Nested | 4 | 256 | -34.3% | -47.8% |
-| Adjacent | 64 | 16 | +10.0% | +7.1% |
-| Adjacent | 64 | 256 | +1.6% | -43.9% |
+| Layout    | Groups | Matches | Node time change | Chromium time change |
+| --------- | -----: | ------: | ---------------: | -------------------: |
+| Adjacent  |      4 |      16 |           -26.4% |               -34.3% |
+| Adjacent  |      4 |     256 |           -34.4% |               -48.2% |
+| Separated |      4 |      16 |           -27.8% |               -44.0% |
+| Separated |      4 |     256 |           -33.6% |               -50.1% |
+| Nested    |      4 |      16 |           -28.7% |               -34.5% |
+| Nested    |      4 |     256 |           -34.3% |               -47.8% |
+| Adjacent  |     64 |      16 |           +10.0% |                +7.1% |
+| Adjacent  |     64 |     256 |            +1.6% |               -43.9% |
 
 These warm public-query results compare the final merge path with native array sorting. Negative changes mean faster queries. Four-group queries with 16 or 256 matches improve in all three layouts. With 64 groups and only 16 matches, Node is 10.0% slower and Chromium is 7.1% slower. Dense 64-group Node timing is 1.6% slower, while Chromium improves by 43.9%. Balanced merging avoids the sequential prototype's severe regression, but it does not improve every workload.
 
@@ -1107,16 +1112,16 @@ Reports are tracked under `assets/repo/bench/group-order-*.json`. Memory runs sa
 
 </details>
 
-| Layout | Groups | Matches | Node time change | Chromium time change |
-| --- | ---: | ---: | ---: | ---: |
-| Adjacent | 64 | 16 | -10.1% | -10.2% |
-| Adjacent | 64 | 256 | +1.2% | +0.2% |
-| Adjacent | 4 | 16 | +2.0% | +3.0% |
-| Adjacent | 4 | 256 | +0.5% | +0.2% |
-| Separated | 4 | 16 | +0.6% | +2.7% |
-| Separated | 4 | 256 | +1.0% | +0.2% |
-| Nested | 4 | 16 | -0.6% | +3.0% |
-| Nested | 4 | 256 | -0.4% | +0.5% |
+| Layout    | Groups | Matches | Node time change | Chromium time change |
+| --------- | -----: | ------: | ---------------: | -------------------: |
+| Adjacent  |     64 |      16 |           -10.1% |               -10.2% |
+| Adjacent  |     64 |     256 |            +1.2% |                +0.2% |
+| Adjacent  |      4 |      16 |            +2.0% |                +3.0% |
+| Adjacent  |      4 |     256 |            +0.5% |                +0.2% |
+| Separated |      4 |      16 |            +0.6% |                +2.7% |
+| Separated |      4 |     256 |            +1.0% |                +0.2% |
+| Nested    |      4 |      16 |            -0.6% |                +3.0% |
+| Nested    |      4 |     256 |            -0.4% |                +0.5% |
 
 These are warm public-query comparisons against the balanced-merge implementation in `f1811c7`. Negative changes mean faster queries. The ordered sparse case improves by about 10% in both runtimes. Dense four-group cases remain within about 1% across layouts. The boundary check adds a comparison before interleaved results are merged, and four-group cases with 16 matches are up to 3.0% slower. Empty and single-result timings range from a 7.2% improvement to a 4.6% regression even though those cases return before the new check. Single-class controls also vary by up to 5.4%. These control results limit claims about small timing changes.
 
@@ -1154,30 +1159,30 @@ The generated reports are tracked under `assets/repo/bench/group-boundaries-*.js
 </details>
 
 | Groups | Matches | Node timing range | Chromium timing range |
-| --- | ---: | ---: | ---: |
-| 4 | 0 | -2.8% to +9.9% | -3.4% to -0.2% |
-| 4 | 1 | -6.2% to +0.0% | -2.7% to -1.0% |
-| 4 | 16 | -1.1% to +0.4% | -0.5% to +0.7% |
-| 4 | 256 | +0.1% to +0.6% | -0.4% to +0.3% |
-| 64 | 0 | +0.5% to +1.3% | +0.4% to +6.4% |
-| 64 | 1 | -1.3% to +3.1% | -2.6% to +2.0% |
-| 64 | 16 | -1.1% to +2.1% | -3.0% to +0.9% |
-| 64 | 256 | -1.5% to -0.2% | -0.1% to +1.0% |
+| ------ | ------: | ----------------: | --------------------: |
+| 4      |       0 |    -2.8% to +9.9% |        -3.4% to -0.2% |
+| 4      |       1 |    -6.2% to +0.0% |        -2.7% to -1.0% |
+| 4      |      16 |    -1.1% to +0.4% |        -0.5% to +0.7% |
+| 4      |     256 |    +0.1% to +0.6% |        -0.4% to +0.3% |
+| 64     |       0 |    +0.5% to +1.3% |        +0.4% to +6.4% |
+| 64     |       1 |    -1.3% to +3.1% |        -2.6% to +2.0% |
+| 64     |      16 |    -1.1% to +2.1% |        -3.0% to +0.9% |
+| 64     |     256 |    -1.5% to -0.2% |        -0.1% to +1.0% |
 
 Each range covers the adjacent, separated, and nested layouts for warm grouped queries. Negative changes mean faster queries. Dense results stay within 1.5% of the baseline across the full matrix. Four-group single-match queries improve or remain near parity, while long selector lists show small mixed changes. The initial empty four-group Node case is 9.9% slower, and the empty 64-group Chromium case is 6.4% slower. These results remain in the report. This experiment does not establish a general timing improvement.
 
 The [empty Node confirmation](../../../assets/repo/bench/group-boundaries-empty-node-confirmation.json) is 0.4% faster, so it does not reproduce the initial 9.9% regression. The [64-group browser confirmation](../../../assets/repo/bench/group-boundaries-many-browser-confirmation.json) is 0.8% slower for empty results, compared with the initial 6.4%. Other grouped cases in that browser confirmation range from a 0.3% improvement to a 2.7% regression. Its unchanged single-class controls vary by up to 6.0%. Both initial and confirmation records remain available.
 
 | Groups | Matches | Node allocation before | Node allocation after | Change |
-| --- | ---: | ---: | ---: | ---: |
-| 4 | 0 | 4.64MB | 4.62MB | -0.4% |
-| 4 | 1 | 5.48MB | 5.10MB | -6.9% |
-| 4 | 16 | 39.66MB | 40.08MB | +1.0% |
-| 4 | 256 | 588.87MB | 588.13MB | -0.1% |
-| 64 | 0 | 66.74MB | 66.70MB | -0.1% |
-| 64 | 1 | 67.91MB | 67.24MB | -1.0% |
-| 64 | 16 | 86.37MB | 86.61MB | +0.3% |
-| 64 | 256 | 1607.96MB | 1607.72MB | -0.0% |
+| ------ | ------: | ---------------------: | --------------------: | -----: |
+| 4      |       0 |                 4.64MB |                4.62MB |  -0.4% |
+| 4      |       1 |                 5.48MB |                5.10MB |  -6.9% |
+| 4      |      16 |                39.66MB |               40.08MB |  +1.0% |
+| 4      |     256 |               588.87MB |              588.13MB |  -0.1% |
+| 64     |       0 |                66.74MB |               66.70MB |  -0.1% |
+| 64     |       1 |                67.91MB |               67.24MB |  -1.0% |
+| 64     |      16 |                86.37MB |               86.61MB |  +0.3% |
+| 64     |     256 |              1607.96MB |             1607.72MB |  -0.0% |
 
 These medians cover 2000 warm public calls in the adjacent layout. The [four-group profile](../../../assets/repo/bench/group-boundaries-4-memory.json) shows 6.9% less sampled allocation for one match, where exactly one group contributes a result. The [64-group profile](../../../assets/repo/bench/group-boundaries-64-memory.json) shows a smaller 1.0% decrease for one match. Empty-query allocation is effectively unchanged. Sparse and dense cases with multiple populated groups remain within 1.1% of the baseline. These measurements support a narrow allocation benefit rather than a general reduction in query cost.
 
@@ -1210,11 +1215,11 @@ node scripts/repo/bench/compare/browser/timing.mts --baseline /tmp/before.cjs --
 </details>
 
 | Grouped matches | Node timing change | Chromium timing change |
-| --- | ---: | ---: |
-| 0 | +0.5% | 0.0% |
-| 1 | +0.2% | 0.0% |
-| 16 | -1.3% | 0.0% |
-| 256 | -0.8% | -0.4% |
+| --------------- | -----------------: | ---------------------: |
+| 0               |              +0.5% |                   0.0% |
+| 1               |              +0.2% |                   0.0% |
+| 16              |              -1.3% |                   0.0% |
+| 256             |              -0.8% |                  -0.4% |
 
 These changes compare medians of the three per-round medians for four interleaved selector groups. Negative changes mean faster queries. Dense performance is essentially unchanged in this sample. Small-query results remain mixed. The Node and browser harnesses use different DOM implementations, so their absolute times are not directly comparable. Their reports share the same `mitata` version and implementation hash. Browser timer isolation and the measurement algorithm differ from the earlier custom-loop harnesses.
 
@@ -1252,45 +1257,45 @@ The percentage tables below compare medians of per-round medians. The generated 
 </details>
 
 | Ancestor fixture | Matches | Node timing change | Chromium timing change |
-| --- | ---: | ---: | ---: |
-| Shallow | 16 | -22.6% to -15.9% | -28.8% to -25.6% |
-| Shallow | 256 | -30.5% to -24.2% | -40.1% to -39.9% |
-| Deep | 16 | -75.0% to -72.5% | -73.8% to -71.8% |
-| Deep | 256 | -84.2% to -79.2% | -84.1% to -81.4% |
+| ---------------- | ------: | -----------------: | ---------------------: |
+| Shallow          |      16 |   -22.6% to -15.9% |       -28.8% to -25.6% |
+| Shallow          |     256 |   -30.5% to -24.2% |       -40.1% to -39.9% |
+| Deep             |      16 |   -75.0% to -72.5% |       -73.8% to -71.8% |
+| Deep             |     256 |   -84.2% to -79.2% |       -84.1% to -81.4% |
 
 Each range covers a plain ancestor selector and a positional ancestor selector. The deep fixture adds eight wrappers. These public queries include candidate lookup. The [Node deep report](../../../assets/repo/bench/validation-ancestor-nested-node-timing.json) and [Chromium deep report](../../../assets/repo/bench/validation-ancestor-nested-browser-timing.json) preserve their samples. Negative changes mean lower query costs.
 
-| Class-regex case | Node allocation before | Node allocation after | Chromium allocation before | Chromium allocation after |
-| --- | ---: | ---: | ---: | ---: |
-| Deep plain ancestor | 66.85MB | 37.36MB | 22.14MB | 9.40MB |
-| Deep positional ancestor | 68.67MB | 39.38MB | 22.25MB | 9.67MB |
+| Class-regex case         | Node allocation before | Node allocation after | Chromium allocation before | Chromium allocation after |
+| ------------------------ | ---------------------: | --------------------: | -------------------------: | ------------------------: |
+| Deep plain ancestor      |                66.85MB |               37.36MB |                    22.14MB |                    9.40MB |
+| Deep positional ancestor |                68.67MB |               39.38MB |                    22.25MB |                    9.67MB |
 
 These medians cover 2000 public queries with 256 matches. The [Node profile](../../../assets/repo/bench/validation-class-node-memory.json) shows 43–44% less allocation. The [Chromium profile](../../../assets/repo/bench/validation-class-browser-memory.json) shows 56.6–57.5% less allocation. The timing effects of this later change are smaller and mixed. Allocation savings support keeping the change without claiming that every query becomes faster.
 
 | Grouped matches | Initial Node change | Fresh Node confirmation | Chromium change |
-| --- | ---: | ---: | ---: |
-| 16 | +1.7% | -0.2% | -3.8% |
-| 256 | +3.5% | +2.0% | -43.8% |
+| --------------- | ------------------: | ----------------------: | --------------: |
+| 16              |               +1.7% |                   -0.2% |           -3.8% |
+| 256             |               +3.5% |                   +2.0% |          -43.8% |
 
 These cases use 64 interleaved groups. The [fresh Node confirmation](../../../assets/repo/bench/validation-sparse-confirmation-node-timing.json) does not reproduce the sparse regression. The small dense Node cost repeats. Identical-build grouped controls vary by up to 0.7% in Node and 2.3% in Chromium. Sparse allocation changes are -1.5% in Node and -0.3% in Chromium. Node allocation remains concentrated in class lookup, collection access, and document-order comparisons. This evidence supports keeping the browser gain while retaining the dense Node cost in the decision.
 
 | `:has()` case with 16 matches | Node timing change | Chromium timing change | Node allocation change | Chromium allocation change |
-| --- | ---: | ---: | ---: | ---: |
-| Descendant | +18.5% | +7.3% | +8.0% | +25.4% |
-| Child then descendant | +20.0% | +14.7% | +10.1% | +36.8% |
-| Class-led adjacent sibling | +5.9% | +5.1% | +4.8% | +24.2% |
-| Class-led general sibling | +22.2% | +5.4% | +4.8% | +23.9% |
+| ----------------------------- | -----------------: | ---------------------: | ---------------------: | -------------------------: |
+| Descendant                    |             +18.5% |                  +7.3% |                  +8.0% |                     +25.4% |
+| Child then descendant         |             +20.0% |                 +14.7% |                 +10.1% |                     +36.8% |
+| Class-led adjacent sibling    |              +5.9% |                  +5.1% |                  +4.8% |                     +24.2% |
+| Class-led general sibling     |             +22.2% |                  +5.4% |                  +4.8% |                     +23.9% |
 
 These fixtures have 256 cards and short descendant lists. Their sibling selectors do not qualify for narrowed lookup. The [Node reports](../../../assets/repo/bench/validation-has-node-memory.json) and [Chromium reports](../../../assets/repo/bench/validation-has-browser-memory.json) show allocation traffic, not retained memory. Node control changes stay within 1.5%. Chromium controls stay within 1.0%. Comparing the intermediate `458d6a9` build with the current build produces much smaller differences. This points to the earlier sibling and snapshot work as the main period where this cost appeared. It does not isolate a single helper as the cause.
 
 The type-led sibling fixture adds 16 empty following siblings under each parent. Adjacent-sibling queries improve, but general-sibling queries initially regress by 643% in Node and 192% in Chromium. Each empty sibling triggers a separate collection lookup. The engine now skips those lookups when a narrowed root has no element children. A descendant selector cannot match under that root. The regression test fails before this guard and passes after it. Existing mutation checks keep the result live when descendants change.
 
-| Guard comparison | Before | After | Change |
-| --- | ---: | ---: | ---: |
-| Node adjacent sibling | 480.17µs | 494.69µs | +3.0% |
-| Node general sibling | 4455.04µs | 805.45µs | -81.9% |
-| Chromium adjacent sibling | 69.06µs | 73.20µs | +6.0% |
-| Chromium general sibling | 420.78µs | 125.86µs | -70.1% |
+| Guard comparison          |    Before |    After | Change |
+| ------------------------- | --------: | -------: | -----: |
+| Node adjacent sibling     |  480.17µs | 494.69µs |  +3.0% |
+| Node general sibling      | 4455.04µs | 805.45µs | -81.9% |
+| Chromium adjacent sibling |   69.06µs |  73.20µs |  +6.0% |
+| Chromium general sibling  |  420.78µs | 125.86µs | -70.1% |
 
 The [Node confirmation](../../../assets/repo/bench/validation-sibling-guard-node-timing.json) and [Chromium confirmation](../../../assets/repo/bench/validation-sibling-guard-browser-timing.json) compare the saved current build directly with the guard. Both use five rotating rounds and batches of 64. The general-sibling saving is about 3.65ms per Node query and 295µs per Chromium query. The added adjacent-sibling cost is about 15µs and 4µs. The guard is kept for this large reduction in repeated empty-root work. The nonempty adjacent-sibling cost remains part of that decision.
 
@@ -1338,12 +1343,12 @@ Timing uses `mitata`, 1000 warmup calls, and 64-call batches. Allocation samplin
 
 The baseline CPU samples attribute 15–30% of self samples in these cases to `collectionCopy`. Source inspection shows that `hasCandidates` checks the snapshot, then asks `collectionCopy` to check it again. The candidate passes the already checked collection to the copy helper. It preserves copied candidates, cached snapshots, synchronous mutation checks, and legacy behavior. It adds no cache or persistent node reference. No second candidate was needed.
 
-| Selector | Node timing | Chromium timing | Node allocation | Chromium allocation |
-| --- | ---: | ---: | ---: | ---: |
-| `.card:has([data-hit])` | -14.8% | -4.2% | -4.8% | -0.4% |
-| `.card:has(> .target [data-hit])` | -14.8% | -5.4% | -4.6% | -0.0% |
-| `.card:has(+ .target [data-hit])` | -9.0% | -1.6% | -2.5% | +0.2% |
-| `.card:has(~ .target [data-hit])` | -9.0% | -2.1% | -2.5% | -0.4% |
+| Selector                          | Node timing | Chromium timing | Node allocation | Chromium allocation |
+| --------------------------------- | ----------: | --------------: | --------------: | ------------------: |
+| `.card:has([data-hit])`           |      -14.8% |           -4.2% |           -4.8% |               -0.4% |
+| `.card:has(> .target [data-hit])` |      -14.8% |           -5.4% |           -4.6% |               -0.0% |
+| `.card:has(+ .target [data-hit])` |       -9.0% |           -1.6% |           -2.5% |               +0.2% |
+| `.card:has(~ .target [data-hit])` |       -9.0% |           -2.1% |           -2.5% |               -0.4% |
 
 These are the four recorded fixtures with 256 cards and 16 matching cards. Negative values mean lower cost. Timing compares medians of per-round medians from the [Node confirmation](../../../assets/repo/bench/bounded-has-node-confirmation.json) and [Chromium confirmation](../../../assets/repo/bench/bounded-has-browser-confirmation.json). Allocation compares median sampled bytes from the separate memory reports. The [initial Node](../../../assets/repo/bench/bounded-has-node-timing.json) and [initial Chromium](../../../assets/repo/bench/bounded-has-browser-timing.json) runs remain available. Both timing passes favor the candidate, while the smaller browser differences deserve caution.
 
@@ -1357,14 +1362,14 @@ The final 64-group comparison is +0.4% in Node and effectively unchanged in Chro
 
 ### Repeated state checks
 
-| Query | Median Node cost |
-| --- | ---: |
-| `input:dir(ltr)` | 36.756ms |
-| `input:valid` | 0.920ms |
-| `input:invalid` | 0.912ms |
-| `input:lang(en)` | 0.880ms |
-| `input:disabled` | 0.386ms |
-| `input` | 0.001ms |
+| Query            | Median Node cost |
+| ---------------- | ---------------: |
+| `input:dir(ltr)` |         36.756ms |
+| `input:valid`    |          0.920ms |
+| `input:invalid`  |          0.912ms |
+| `input:lang(en)` |          0.880ms |
+| `input:disabled` |          0.386ms |
+| `input`          |          0.001ms |
 
 These are warm public queries over 256 populated required inputs under eight wrappers, with inherited English language and left-to-right direction. The fieldset is disabled for the disabled and inheritance probes and enabled for validity probes. `input:invalid` returns no matches. The other state queries return 256. This ranking describes this Node/`jsdom` fixture only. There is no corresponding application-frequency claim.
 
@@ -1384,12 +1389,12 @@ The bounded follow-up is complete. The older local audit reports now mark comple
 
 The repeat uses the same baseline and candidate hashes as the bounded follow-up. `pmset -g batt` confirmed AC power and a fully charged battery before the run. Timing runs first with five rotating rounds and 64-call batches. The separate memory run uses three rounds and the same 2000-call allocation sampling. No engine code changes are included. The previous run did not record its power source, so this is a reproducibility check, not a controlled battery-versus-AC comparison.
 
-| Case | Node timing change | Node allocation change |
-| --- | ---: | ---: |
-| `.card:has([data-hit])` | -15.5% | -5.0% |
-| `.card:has(> .target [data-hit])` | -15.0% | -4.8% |
-| `.card:has(+ .target [data-hit])` | -10.0% | -2.6% |
-| `.card:has(~ .target [data-hit])` | -9.6% | -2.4% |
+| Case                              | Node timing change | Node allocation change |
+| --------------------------------- | -----------------: | ---------------------: |
+| `.card:has([data-hit])`           |             -15.5% |                  -5.0% |
+| `.card:has(> .target [data-hit])` |             -15.0% |                  -4.8% |
+| `.card:has(+ .target [data-hit])` |             -10.0% |                  -2.6% |
+| `.card:has(~ .target [data-hit])` |              -9.6% |                  -2.4% |
 
 These are the same four fixtures with 256 cards and 16 matches. Negative changes mean lower cost. The [AC timing report](../../../assets/repo/bench/bounded-has-node-ac-timing.json) and [AC memory report](../../../assets/repo/bench/bounded-has-node-ac-memory.json) preserve the samples. Allocation is sampled traffic, not retained heap. This repeat supports the earlier decision to retain the duplicate snapshot-check removal.
 
@@ -1406,14 +1411,14 @@ The [recorded report](../../../assets/repo/bench/attribute-mutation.json) contai
 
 </details>
 
-| Route | Selector and context | Warm query | Mutation plus one query | Mutation plus four queries |
-| --- | --- | ---: | ---: | ---: |
-| core | `[data-testid]`, document | 0.241ms | 0.855ms | 1.633ms |
-| core | `[data-testid="btn-150"]`, document | 0.289ms | 0.891ms | 1.790ms |
-| core | `[data-testid]`, element | 0.261ms | 0.869ms | 1.690ms |
-| adapter | `[data-testid]`, document | 0.253ms | 0.887ms | 1.659ms |
-| adapter | `[data-testid="btn-150"]`, document | 0.311ms | 0.962ms | 1.941ms |
-| adapter | `[data-testid]`, element | 0.251ms | 0.893ms | 1.682ms |
+| Route   | Selector and context                | Warm query | Mutation plus one query | Mutation plus four queries |
+| ------- | ----------------------------------- | ---------: | ----------------------: | -------------------------: |
+| core    | `[data-testid]`, document           |    0.241ms |                 0.855ms |                    1.633ms |
+| core    | `[data-testid="btn-150"]`, document |    0.289ms |                 0.891ms |                    1.790ms |
+| core    | `[data-testid]`, element            |    0.261ms |                 0.869ms |                    1.690ms |
+| adapter | `[data-testid]`, document           |    0.253ms |                 0.887ms |                    1.659ms |
+| adapter | `[data-testid="btn-150"]`, document |    0.311ms |                 0.962ms |                    1.941ms |
+| adapter | `[data-testid]`, element            |    0.251ms |                 0.893ms |                    1.682ms |
 
 These medians describe whole cycles, so the four-query column must not be read as the cost of one query. Both routes show the same pattern. An unrelated mutation adds substantial work to the next query. Several queries per mutation amortize some of that cost. The adapter does not show a distinct large overhead in this fixture.
 
@@ -1438,14 +1443,14 @@ The [initial report](../../../assets/repo/bench/attribute-identity.json) and [co
 
 </details>
 
-| Route and context | Warm query change | Mutation plus one query change | Mutation plus four queries change |
-| --- | ---: | ---: | ---: |
-| Core, document presence | +1.0% | -43.1% | -24.8% |
-| Core, document equality | -1.6% | -42.9% | -28.9% |
-| Core, element presence | -0.6% | -46.3% | -23.4% |
-| Adapter, document presence | -0.5% | -45.5% | -25.4% |
-| Adapter, document equality | -2.4% | -42.9% | -24.2% |
-| Adapter, element presence | -1.4% | -41.6% | -22.9% |
+| Route and context          | Warm query change | Mutation plus one query change | Mutation plus four queries change |
+| -------------------------- | ----------------: | -----------------------------: | --------------------------------: |
+| Core, document presence    |             +1.0% |                         -43.1% |                            -24.8% |
+| Core, document equality    |             -1.6% |                         -42.9% |                            -28.9% |
+| Core, element presence     |             -0.6% |                         -46.3% |                            -23.4% |
+| Adapter, document presence |             -0.5% |                         -45.5% |                            -25.4% |
+| Adapter, document equality |             -2.4% |                         -42.9% |                            -24.2% |
+| Adapter, element presence  |             -1.4% |                         -41.6% |                            -22.9% |
 
 Negative changes mean lower cycle cost. Presence uses `[data-testid]`. Equality uses `[data-testid="btn-150"]`. The initial run also improves every mutation case, with 43.0–47.2% lower one-query cycle cost and 19.2–25.9% lower four-query cycle cost. Warm changes in that run range from -2.7% to +2.2%. The repeat supports retaining the change without a material warm-query regression.
 
@@ -1486,14 +1491,14 @@ Both runs use Node v26.5.0, `jsdom` 30.0.1, and `mitata` 1.0.34. The [initial re
 
 </details>
 
-| Confirmation case | Public getter | Internal getter | Time change |
-| --- | ---: | ---: | ---: |
-| `[data-testid="btn-150"]`, warm | 215.21µs | 137.23µs | -36.2% |
-| `[data-testid="btn-150"]`, mutation plus query | 391.50µs | 317.52µs | -18.9% |
-| `[data-testid]`, document, warm | 179.68µs | 181.59µs | +1.1% |
-| `[data-testid]`, document, mutation plus query | 356.38µs | 353.14µs | -0.9% |
-| `[data-testid]`, element, warm | 177.80µs | 177.82µs | approximately zero |
-| `[data-testid]`, element, mutation plus query | 351.86µs | 354.28µs | +0.7% |
+| Confirmation case                              | Public getter | Internal getter |        Time change |
+| ---------------------------------------------- | ------------: | --------------: | -----------------: |
+| `[data-testid="btn-150"]`, warm                |      215.21µs |        137.23µs |             -36.2% |
+| `[data-testid="btn-150"]`, mutation plus query |      391.50µs |        317.52µs |             -18.9% |
+| `[data-testid]`, document, warm                |      179.68µs |        181.59µs |              +1.1% |
+| `[data-testid]`, document, mutation plus query |      356.38µs |        353.14µs |              -0.9% |
+| `[data-testid]`, element, warm                 |      177.80µs |        177.82µs | approximately zero |
+| `[data-testid]`, element, mutation plus query  |      351.86µs |        354.28µs |              +0.7% |
 
 Equality returns one element. Presence returns the fixture's elements carrying the test-ID attribute. Presence selectors use `hasAttribute()` and do not call the changed reader, so those rows are controls rather than evidence of an attribute-presence optimization. The first run lowers equality time by 38.2% warm and 22.6% after mutation. The confirmation supports a repeatable equality gain despite the extra callback and wrapper-to-implementation lookup.
 
@@ -1516,20 +1521,20 @@ The [screening report](../../../assets/repo/bench/jsdom-readers.json) overlaps i
 
 </details>
 
-| Confirmation workload | Attribute readers only | Attribute and tree readers |
-| --- | ---: | ---: |
-| Attribute presence, warm | -30.7% | -29.3% |
-| Attribute presence, mutation plus query | -16.8% | -16.6% |
-| Exact attribute equality, warm | -25.9% | -27.2% |
-| Exact attribute equality, mutation plus query | -18.4% | -19.0% |
-| Shallow ancestors, plain | +1.4% | -25.7% |
-| Shallow ancestors, positional | approximately zero | -26.0% |
-| Deep ancestors, plain | +3.7% | -40.5% |
-| Deep ancestors, positional | -2.7% | -41.9% |
-| `:has()` descendant | -9.1% | -8.4% |
-| `:has()` child subtree | -8.3% | -8.6% |
-| `:has()` adjacent sibling subtree | -12.2% | -13.3% |
-| `:has()` following sibling subtrees | -10.4% | -11.4% |
+| Confirmation workload                         | Attribute readers only | Attribute and tree readers |
+| --------------------------------------------- | ---------------------: | -------------------------: |
+| Attribute presence, warm                      |                 -30.7% |                     -29.3% |
+| Attribute presence, mutation plus query       |                 -16.8% |                     -16.6% |
+| Exact attribute equality, warm                |                 -25.9% |                     -27.2% |
+| Exact attribute equality, mutation plus query |                 -18.4% |                     -19.0% |
+| Shallow ancestors, plain                      |                  +1.4% |                     -25.7% |
+| Shallow ancestors, positional                 |     approximately zero |                     -26.0% |
+| Deep ancestors, plain                         |                  +3.7% |                     -40.5% |
+| Deep ancestors, positional                    |                  -2.7% |                     -41.9% |
+| `:has()` descendant                           |                  -9.1% |                      -8.4% |
+| `:has()` child subtree                        |                  -8.3% |                      -8.6% |
+| `:has()` adjacent sibling subtree             |                 -12.2% |                     -13.3% |
+| `:has()` following sibling subtrees           |                 -10.4% |                     -11.4% |
 
 Negative changes mean lower elapsed time. Attribute cases use the existing 300-card component document. Ancestor cases have 256 matches, with eight extra wrappers in the deep layout. The four `:has()` cases have 256 cards and 16 matches. Attribute-only controls leave ancestor costs roughly unchanged. Tree readers provide the repeatable ancestor improvement, while attribute readers explain most of the `:has()` gain. The combined adapter is retained for these supported paths.
 
@@ -1546,7 +1551,6 @@ The [retention report](../../../assets/repo/bench/jsdom-readers-retention.json) 
 Reproduce with `node --expose-gc scripts/repo/bench/jsdom/reader/retention.mts "$baselineDirectory"`. The check performs attribute mutations and internal tree queries, releases the public query scope, and then forces collection across four separate tasks. It covers these observed nodes rather than every possible ownership path.
 
 The readable browser core grows by 765bytes to 168059bytes. Gzip grows by 128bytes to 40558bytes, and Brotli grows by 88bytes to 32880bytes. The size chart and generated references are refreshed. The adapter is a separate artifact excluded from that core-size comparison. Broad runtime charts retain their prior measurements.
-
 
 ## Simplify form-state predicates and compare real jsdom installations
 
@@ -1640,21 +1644,21 @@ The table reports the median of seven round medians. Ranges show the minimum and
 maximum round medians for the patched build. Both-build ranges remain in the raw
 report. Speedup is baseline time divided by patched time.
 
-| Operation | Baseline | Patched | Patched range | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| `first()`, missing positional match, 512 siblings | 8.5683ms | 0.1496ms | 0.1441–0.1552ms | 57.27× |
-| `first()`, last positional match, 512 siblings | 8.3709ms | 0.1566ms | 0.1491–0.1582ms | 53.45× |
-| `first()`, early positional match | 0.001016ms | 0.000979ms | 0.000953–0.001146ms | 1.04× |
-| `select()`, valid logical branches, 256 candidates | 0.09129ms | 0.03905ms | 0.03779–0.03987ms | 2.34× |
-| `select()`, invalid logical branch, 256 candidates | 2.5699ms | 0.02439ms | 0.02372–0.02476ms | 105.39× |
-| Raw resolver, valid logical branches, 256 candidates | 0.11237ms | 0.05588ms | 0.05557–0.07113ms | 2.01× |
-| Raw resolver, invalid logical branch, 256 candidates | 2.6051ms | 0.03010ms | 0.02957–0.03036ms | 86.55× |
-| Warm `.card`, 1,000 candidates | 0.000938ms | 0.000604ms | 0.000594–0.000636ms | 1.55× |
-| Mutation and `.card` query, 1,000 candidates | 0.7743ms | 0.2760ms | 0.2574–0.2863ms | 2.81× |
-| Warm `[data-hit]`, 1,000 candidates | 0.10483ms | 0.10158ms | 0.10049–0.10220ms | 1.03× |
-| Mutation and `[data-hit]` query, 1,000 candidates | 0.8601ms | 0.3725ms | 0.3458–0.5863ms | 2.31× |
-| Simple single-element match control | 0.000370ms | 0.000359ms | 0.000354–0.000370ms | 1.03× |
-| Language matching control, 256 candidates | 0.23251ms | 0.23506ms | 0.22727–0.24916ms | 0.99× |
+| Operation                                            |   Baseline |    Patched |       Patched range | Speedup |
+| ---------------------------------------------------- | ---------: | ---------: | ------------------: | ------: |
+| `first()`, missing positional match, 512 siblings    |   8.5683ms |   0.1496ms |     0.1441–0.1552ms |  57.27× |
+| `first()`, last positional match, 512 siblings       |   8.3709ms |   0.1566ms |     0.1491–0.1582ms |  53.45× |
+| `first()`, early positional match                    | 0.001016ms | 0.000979ms | 0.000953–0.001146ms |   1.04× |
+| `select()`, valid logical branches, 256 candidates   |  0.09129ms |  0.03905ms |   0.03779–0.03987ms |   2.34× |
+| `select()`, invalid logical branch, 256 candidates   |   2.5699ms |  0.02439ms |   0.02372–0.02476ms | 105.39× |
+| Raw resolver, valid logical branches, 256 candidates |  0.11237ms |  0.05588ms |   0.05557–0.07113ms |   2.01× |
+| Raw resolver, invalid logical branch, 256 candidates |   2.6051ms |  0.03010ms |   0.02957–0.03036ms |  86.55× |
+| Warm `.card`, 1,000 candidates                       | 0.000938ms | 0.000604ms | 0.000594–0.000636ms |   1.55× |
+| Mutation and `.card` query, 1,000 candidates         |   0.7743ms |   0.2760ms |     0.2574–0.2863ms |   2.81× |
+| Warm `[data-hit]`, 1,000 candidates                  |  0.10483ms |  0.10158ms |   0.10049–0.10220ms |   1.03× |
+| Mutation and `[data-hit]` query, 1,000 candidates    |   0.8601ms |   0.3725ms |     0.3458–0.5863ms |   2.31× |
+| Simple single-element match control                  | 0.000370ms | 0.000359ms | 0.000354–0.000370ms |   1.03× |
+| Language matching control, 256 candidates            |  0.23251ms |  0.23506ms |   0.22727–0.24916ms |   0.99× |
 
 The positional fixture tests `div[data-hit]:nth-child(2n)` with no hit or a hit
 on the last sibling. The early control uses `div:nth-child(2n)`. Logical fixtures
@@ -1717,21 +1721,21 @@ before and after timing kept setup and validation outside the measured operation
 All agents and tests had finished before timing. Source hashes, full samples,
 fixture markup, and settings are recorded.
 
-| Operation | First batch | Second batch | Second-batch range | Speedup |
-| --- | ---: | ---: | ---: | ---: |
-| Filtered class snapshot | 0.034068ms | 0.033177ms | 0.032588–0.034469ms | 1.03× |
-| Filtered tag snapshot | 0.039172ms | 0.038344ms | 0.038010–0.039109ms | 1.02× |
-| Missing filtered class | 0.039729ms | 0.040880ms | 0.039630–0.041323ms | 0.97× |
-| Identity class control | 0.000453ms | 0.000438ms | 0.000427–0.000484ms | 1.04× |
-| Descendant syntax reuse | 0.001182ms | 0.001109ms | 0.001089–0.001172ms | 1.07× |
-| Sibling syntax reuse | 0.037963ms | 0.037667ms | 0.037312–0.038823ms | 1.01× |
-| Deep `closest()` hit | 0.013729ms | 0.010516ms | 0.010479–0.010828ms | 1.31× |
-| Deep `closest()` miss | 0.019542ms | 0.014453ms | 0.014380–0.015083ms | 1.35× |
-| Early `closest()` control | 0.000604ms | 0.000255ms | 0.000250–0.000266ms | 2.37× |
-| Raw nested class predicates | 0.082073ms | 0.079354ms | 0.079219–0.082208ms | 1.03× |
-| Cross-document matching | 0.023339ms | 0.004339ms | 0.004245–0.005000ms | 5.38× |
-| Recompile after cache clear | 0.024979ms | 0.008969ms | 0.008760–0.012755ms | 2.79× |
-| Distinct cold compilation control | 0.014927ms | 0.013604ms | 0.013167–0.015286ms | 1.10× |
+| Operation                         | First batch | Second batch |  Second-batch range | Speedup |
+| --------------------------------- | ----------: | -----------: | ------------------: | ------: |
+| Filtered class snapshot           |  0.034068ms |   0.033177ms | 0.032588–0.034469ms |   1.03× |
+| Filtered tag snapshot             |  0.039172ms |   0.038344ms | 0.038010–0.039109ms |   1.02× |
+| Missing filtered class            |  0.039729ms |   0.040880ms | 0.039630–0.041323ms |   0.97× |
+| Identity class control            |  0.000453ms |   0.000438ms | 0.000427–0.000484ms |   1.04× |
+| Descendant syntax reuse           |  0.001182ms |   0.001109ms | 0.001089–0.001172ms |   1.07× |
+| Sibling syntax reuse              |  0.037963ms |   0.037667ms | 0.037312–0.038823ms |   1.01× |
+| Deep `closest()` hit              |  0.013729ms |   0.010516ms | 0.010479–0.010828ms |   1.31× |
+| Deep `closest()` miss             |  0.019542ms |   0.014453ms | 0.014380–0.015083ms |   1.35× |
+| Early `closest()` control         |  0.000604ms |   0.000255ms | 0.000250–0.000266ms |   2.37× |
+| Raw nested class predicates       |  0.082073ms |   0.079354ms | 0.079219–0.082208ms |   1.03× |
+| Cross-document matching           |  0.023339ms |   0.004339ms | 0.004245–0.005000ms |   5.38× |
+| Recompile after cache clear       |  0.024979ms |   0.008969ms | 0.008760–0.012755ms |   2.79× |
+| Distinct cold compilation control |  0.014927ms |   0.013604ms | 0.013167–0.015286ms |   1.10× |
 
 Values are medians of seven round medians, with the second build's minimum and
 maximum round medians shown as ranges. Snapshot and raw fixtures use 512
@@ -1789,17 +1793,17 @@ and relative result-buffer reuse. It adapts the three local v2 commits
 `dde098c`, `f09f3c8`, and `5058b09` to the TypeScript compiler. The runtime changes
 are in `d8c93a2`, `32ec301`, and `9e993f8`. The v2 commits remain on local `master`.
 
-| v2 opportunity | v3 decision |
-| --- | --- |
-| Cheap compound guards and repeated facts | Keep conservative analysis of plain tags, IDs, classes, and attributes. Put cheap guards before attributes and eligible logical, relative, or positional work. Eliminate exact duplicate simple selectors. Unsupported syntax keeps the existing compiler. |
-| Direct complex logical execution | Inline pure `:is()`, `:where()`, and `:not()` branches, with at most eight branches and 512 characters. Restore the original element after an early traversal exit. Keep compact existing single-compound and type-union forms. |
-| Shared selector-list scans | Fuse pure alternatives with the same candidate seed into one compiled scan. Effectful selectors and callback planning retain their existing routes. |
-| Mixed-combinator backtracking | First try the nearest legal path. On failure, memoize suffix results during this invocation. Eligibility requires at least four compounds, two unbounded steps, and a child or adjacent-sibling step. Weak maps are deferred until 64 states have been visited. |
-| Bounded relative `:has()` | Emit forward child and sibling walks for eligible pure paths. They stop at the first witness and allocate no result arrays or descendant collections. Paths with more than one general-sibling step keep the ordinary relative plan. |
-| Sparse bulk descendant `:has()` | Warm single-compound queries can find witnesses once and mark ancestors. Require at least 32 anchor candidates and no more than twice as many witness candidates. Reuse the ordinary candidate list so small-query fallback does not fetch it twice. Marks live only for one query. |
-| Compiled cache byte limits | Keep the two-generation policy and add estimated source-byte budgets to the seven compiled resolver and plan caches. Each retains at most 2MiB of charged data, with at most 1MiB in either generation. Larger individual entries bypass retention. Other small memo tables keep their existing policies. |
-| WPT expected failures | Agent output was already concise. Require assertion-failure status as well as the named expectation so a timeout cannot consume an expected assertion failure. |
-| Audit tooling | Add shared port fixtures and Node, Chromium, and cache-retention runners under `scripts/repo/bench/port/`. Use v3's existing comparison and browser setup tools. |
+| v2 opportunity                           | v3 decision                                                                                                                                                                                                                                                                                               |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cheap compound guards and repeated facts | Keep conservative analysis of plain tags, IDs, classes, and attributes. Put cheap guards before attributes and eligible logical, relative, or positional work. Eliminate exact duplicate simple selectors. Unsupported syntax keeps the existing compiler.                                                |
+| Direct complex logical execution         | Inline pure `:is()`, `:where()`, and `:not()` branches, with at most eight branches and 512 characters. Restore the original element after an early traversal exit. Keep compact existing single-compound and type-union forms.                                                                           |
+| Shared selector-list scans               | Fuse pure alternatives with the same candidate seed into one compiled scan. Effectful selectors and callback planning retain their existing routes.                                                                                                                                                       |
+| Mixed-combinator backtracking            | First try the nearest legal path. On failure, memoize suffix results during this invocation. Eligibility requires at least four compounds, two unbounded steps, and a child or adjacent-sibling step. Weak maps are deferred until 64 states have been visited.                                           |
+| Bounded relative `:has()`                | Emit forward child and sibling walks for eligible pure paths. They stop at the first witness and allocate no result arrays or descendant collections. Paths with more than one general-sibling step keep the ordinary relative plan.                                                                      |
+| Sparse bulk descendant `:has()`          | Warm single-compound queries can find witnesses once and mark ancestors. Require at least 32 anchor candidates and no more than twice as many witness candidates. Reuse the ordinary candidate list so small-query fallback does not fetch it twice. Marks live only for one query.                       |
+| Compiled cache byte limits               | Keep the two-generation policy and add estimated source-byte budgets to the seven compiled resolver and plan caches. Each retains at most 2MiB of charged data, with at most 1MiB in either generation. Larger individual entries bypass retention. Other small memo tables keep their existing policies. |
+| WPT expected failures                    | Agent output was already concise. Require assertion-failure status as well as the named expectation so a timeout cannot consume an expected assertion failure.                                                                                                                                            |
+| Audit tooling                            | Add shared port fixtures and Node, Chromium, and cache-retention runners under `scripts/repo/bench/port/`. Use v3's existing comparison and browser setup tools.                                                                                                                                          |
 
 The byte charges include UTF-16 keys, generated source, and estimated metadata.
 Plans charge their referenced resolvers and nested bulk plans. Shared functions
@@ -1833,20 +1837,20 @@ Node stores full samples in the referenced gzip archive and retains round summar
 in JSON. Chromium retains every round timing. Node and Chromium use different
 hosts and measurement loops and must be interpreted separately.
 
-| Workload | Node speedup | Chromium speedup |
-| --- | ---: | ---: |
-| Shared class candidates | 4.60× | 9.57× |
-| Shared tag candidates | 5.11× | 12.03× |
-| Complex logical branches | 1.07× | 1.15× |
-| Deep mixed-combinator miss | 22.45× | 23.76× |
-| Deep mixed-combinator hit | 1752.67× | 1293.89× |
-| Sparse overlapping descendant `:has()` | 32.80× | 17.88× |
-| Missing descendant witness | 49.34× | 21.31× |
-| Dense flat descendant `:has()` | 5.03× | 4.06× |
-| Small descendant `:has()` control | 1.00× | 0.98× |
-| Cheap class rejection before attributes | 1.52× | 1.22× |
-| Identity selection control | 1.01× | 0.98× |
-| Simple matching control | 1.00× | 0.99× |
+| Workload                                | Node speedup | Chromium speedup |
+| --------------------------------------- | -----------: | ---------------: |
+| Shared class candidates                 |        4.60× |            9.57× |
+| Shared tag candidates                   |        5.11× |           12.03× |
+| Complex logical branches                |        1.07× |            1.15× |
+| Deep mixed-combinator miss              |       22.45× |           23.76× |
+| Deep mixed-combinator hit               |     1752.67× |         1293.89× |
+| Sparse overlapping descendant `:has()`  |       32.80× |           17.88× |
+| Missing descendant witness              |       49.34× |           21.31× |
+| Dense flat descendant `:has()`          |        5.03× |            4.06× |
+| Small descendant `:has()` control       |        1.00× |            0.98× |
+| Cheap class rejection before attributes |        1.52× |            1.22× |
+| Identity selection control              |        1.01× |            0.98× |
+| Simple matching control                 |        1.00× |            0.99× |
 
 The broad fixture contains 256 sections. The deep fixture contains 100 nested
 anchors and one witness. The very large mixed-path hit ratio reflects repeated
@@ -1887,7 +1891,6 @@ node scripts/repo/run.mts scripts/repo/bench/port/browser.mts before.cjs dist/nw
 node scripts/repo/run.mts scripts/repo/bench/port/memory.mts before.cjs dist/nwsapi.js assets/repo/bench/compiler-port-memory-2026-10-03.json
 ```
 
-
 ## 2026-10-03: Small trained planner evaluation
 
 The [trained planner report](trained-planner.md) records the first executed
@@ -1902,7 +1905,6 @@ raw round summaries, a guarded generated model, and an
 [HTML bar-chart report](../../../assets/repo/bench/survey-2026-10-03/planner.html).
 Measurements ran on battery. The next model experiment should label forward
 versus inverse `:has()` execution and include witness-fetch costs.
-
 
 ## 2026-10-03: Guarded `:has()` routing from offline training
 
@@ -1919,7 +1921,6 @@ The initial pass contained a noisy 1.176× `jsdom` outlier that measured 1.018×
 in the repeat. Both passes remain recorded. Cold-query behavior was roughly
 unchanged in the separate Node probe. Gzip increases by 80bytes. Measurements
 ran on battery, and broader compatibility suites were not rerun.
-
 
 ## 2026-10-03: AC-powered confirmation of guarded `:has()` routing
 
@@ -1938,7 +1939,6 @@ Full compatibility suites were not rerun. A new `NWSAPI_REQUIRE_AC=1` guard
 checks power before and after each host measurement and records timestamps.
 These are boundary checks. Independent battery and AC runs do not isolate
 the effect of power source.
-
 
 ## 2026-10-04: Higher-repeat AC training for the neural `:has()` planner
 

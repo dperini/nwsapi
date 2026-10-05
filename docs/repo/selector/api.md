@@ -54,7 +54,7 @@ Advanced APIs for compiled resolvers and trusted selector extensions.
 
 | Method | Result |
 | --- | --- |
-| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L11) | Compiles a selector into a resolver function. This is an advanced API. |
+| [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L12) | Compiles a selector into a resolver function. This is an advanced API. |
 | [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L284) | Adds a relationship between elements using trusted resolver code. |
 | [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L318) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
 | [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L345) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |

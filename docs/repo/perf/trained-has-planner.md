@@ -1,5 +1,13 @@
 # Trained `:has()` route planner
 
+## In brief
+
+A small model was tested to choose how `:has()` finds a matching descendant.
+The model reduced to one simple rule. We kept that rule only for a narrow,
+measured set of selectors and candidate counts. Other selectors keep the
+existing behavior. The [performance work guide](guide.md) explains _route_
+and _candidate_.
+
 The October 5 neural continuation experiment is documented in the
 [implementation outcome](neural-planner-outcome.md) and
 [current HTML report](../../../assets/repo/bench/survey-2026-10-03/neural-planner-2026-10-05.html).
@@ -40,10 +48,10 @@ on all 100 fixtures per host, including training cases and small-query
 controls. The second pass reverses fixture order and increases the budget
 to 11 rounds of at least 24ms per variant and case.
 
-| Host | First pass speed ratio | Longer repeat speed ratio | Repeat worst candidate/baseline time |
-| --- | --- | --- | --- |
-| Chromium 154.0.8037.0 | 1.300× | 1.295× | 1.113× |
-| `jsdom` 30.0.1 | 1.251× | 1.256× | 1.072× |
+| Host                  | First pass speed ratio | Longer repeat speed ratio | Repeat worst candidate/baseline time |
+| --------------------- | ---------------------- | ------------------------- | ------------------------------------ |
+| Chromium 154.0.8037.0 | 1.300×                 | 1.295×                    | 1.113×                               |
+| `jsdom` 30.0.1        | 1.251×                 | 1.256×                    | 1.072×                               |
 
 On only the 52 held-out cases, the repeat ratios are 1.276× and 1.256×.
 The first `jsdom` pass had one 1.176× outlier, exceeding the limit. Its rounds
@@ -81,10 +89,10 @@ The October 3 AC measurements retain both optimizations. Lower query time
 is better. Percentages below are reductions in geometric mean query time
 relative to the original rule in each independent run.
 
-| Host | Battery repeat, 100 cases | AC first pass, 100 cases | AC repeat, 100 cases | Worst AC repeat slowdown |
-| --- | --- | --- | --- | --- |
-| Chromium | 22.8% less time | 23.3% less time | 22.4% less time | 11.7% more time |
-| `jsdom` | 20.4% less time | 21.1% less time | 20.4% less time | 4.3% more time |
+| Host     | Battery repeat, 100 cases | AC first pass, 100 cases | AC repeat, 100 cases | Worst AC repeat slowdown |
+| -------- | ------------------------- | ------------------------ | -------------------- | ------------------------ |
+| Chromium | 22.8% less time           | 23.3% less time          | 22.4% less time      | 11.7% more time          |
+| `jsdom`  | 20.4% less time           | 21.1% less time          | 20.4% less time      | 4.3% more time           |
 
 Both AC passes meet the preset gate. On the matching 52 held-out cases,
 the shortcut alone saves 15.0% in Chromium and 8.3% in `jsdom`. Both changes

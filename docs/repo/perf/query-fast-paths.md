@@ -1,5 +1,9 @@
 # Common query fast paths
 
+This page explains shortcuts for common selectors. Each shortcut avoids
+some work while keeping the same matching rules. The [performance work guide](guide.md)
+defines _candidate_ and _resolver_.
+
 A **fast path** handles a common query with fewer steps than the general query code.
 Commits `0b3840b` and `b68e020` added the first changes described here.
 They followed the [performance review](review.md).
@@ -87,12 +91,11 @@ The table shows microseconds per query.
 “Updated build” identifies the changed engine from that run.
 
 | Query            | Previous master | Updated build | jsdom default |
-| ---------------- | --------------: | ------: | ------------: |
-| `.card`          |          39.654 |   0.284 |         1.291 |
-| `button`         |          44.265 |   0.269 |         1.576 |
-| `button.primary` |          54.259 |   0.361 |         1.920 |
-| `input.input`    |          51.284 |   0.354 |         2.971 |
-
+| ---------------- | --------------: | ------------: | ------------: |
+| `.card`          |          39.654 |         0.284 |         1.291 |
+| `button`         |          44.265 |         0.269 |         1.576 |
+| `button.primary` |          54.259 |         0.361 |         1.920 |
+| `input.input`    |          51.284 |         0.354 |         2.971 |
 
 For these four queries, the updated build was about **140–165× faster than the baseline**.
 It was **4.5–8.4× faster than the default `jsdom` query path**.

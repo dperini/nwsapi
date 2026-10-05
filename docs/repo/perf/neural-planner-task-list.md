@@ -1,5 +1,9 @@
 # Neural planner implementation tasks
 
+This checklist tracks one model experiment. It records completed work and
+the evidence needed for open tasks. The [performance work guide](guide.md)
+explains the measurement terms used below.
+
 Read the [implementation guide](neural-planner-implementation.md) before
 working on a phase. This checklist records execution state, not aspirations.
 The user requested implementation on October 5, 2026 after reviewing the plan.
@@ -22,27 +26,27 @@ justifies them, and record the decision when a phase is inapplicable.
 - [x] Write detailed implementation guide and task list.
 - [x] Phase 0: mark the October 4 neural comparison as superseded.
 - [x] Phase 1: implement the TypeScript route contract and boundary vectors.
-  Historical Python routing is retired. The adaptive policy has separate
-  Python/JavaScript decision parity. A Python port of the reference route
-  contract was not needed by this pilot and remains unimplemented.
+      Historical Python routing is retired. The adaptive policy has separate
+      Python/JavaScript decision parity. A Python port of the reference route
+      contract was not needed by this pilot and remains unimplemented.
 - [x] Phase 2: force complete routes and verify actual execution in both hosts.
 - [x] Phase 3: preserve measured baseline in a versioned dataset.
 - [x] Phase 4: report development hindsight headroom and input limitations.
 - [x] Phase 5: export scalar inference and check cross-language decisions.
-  Full-query integration of the old network is not justified by route headroom.
+      Full-query integration of the old network is not justified by route headroom.
 - [ ] Phase 6: broader application corpus, structural probes, and sequences.
-  The grouped 112-case development pilot is complete. Broader collection is
-  deferred after its integrated-cost failure, not claimed as completed.
+      The grouped 112-case development pilot is complete. Broader collection is
+      deferred after its integrated-cost failure, not claimed as completed.
 - [x] Phase 7: train and export a cost-sensitive development policy.
-  This is a pilot with known fixture families, not independent validation.
+      This is a pilot with known fixture families, not independent validation.
 - [x] Phase 8: implement exact continuation and evaluate the four-anchor pilot.
-  It fails the performance gate. K=2/K=8 measurements and full compatibility
-  qualification remain deferred. No adaptive code enters the runtime.
+      It fails the performance gate. K=2/K=8 measurements and full compatibility
+      qualification remain deferred. No adaptive code enters the runtime.
 - [x] Phase 9: record the conditional decision. Route hint reuse is not
-  justified by these measurements. Static host folding is implemented.
+      justified by these measurements. Static host folding is implemented.
 - [x] Phase 10: measure the emitted model inside actual queries and reject it.
-  Independent release confirmation, cold-query timings, mutation timings,
-  and full compatibility qualification are deferred because it fails.
+      Independent release confirmation, cold-query timings, mutation timings,
+      and full compatibility qualification are deferred because it fails.
 - [x] Phase 11: publish understandable charts, raw inputs, and limitations.
 
 ## Run record
@@ -115,10 +119,10 @@ The final model has zero decision mismatches on 10,216 parity inputs.
 actual emitted model with all prefix, feature, inference, and completion work
 included. AC power was recorded before and after both hosts.
 
-| Host | Baseline/model speed ratio | Extra model query time | Worst time ratio | Gate |
-| --- | --- | --- | --- | --- |
-| Chromium | 0.706732× | 41.5% | 14.533× | Fail |
-| `jsdom` | 0.585947× | 70.7% | 32.197× | Fail |
+| Host     | Baseline/model speed ratio | Extra model query time | Worst time ratio | Gate |
+| -------- | -------------------------- | ---------------------- | ---------------- | ---- |
+| Chromium | 0.706732×                  | 41.5%                  | 14.533×          | Fail |
+| `jsdom`  | 0.585947×                  | 70.7%                  | 32.197×          | Fail |
 
 Each host has 112 known development cases and 11 rotating rounds of at least
 20ms. The model improves on the experimental prefix rule by speed ratios of

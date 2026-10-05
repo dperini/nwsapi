@@ -2,6 +2,10 @@
 
 See [shared performance practices](../../fleet/perf/practices.md) for experiment design and interpretation.
 
+New to selector engines? This page describes how `nwsapi` turns selector
+text into checks on elements. The [performance work guide](guide.md) defines
+the terms used here and explains how to read timing results.
+
 NWSAPI reads CSS selectors and creates JavaScript functions that test elements.
 It saves these functions so later queries can reuse them.
 A matching function is called a **resolver**.
@@ -193,15 +197,15 @@ Different DOM implementations, selectors, or V8 versions can produce different c
 
 ## Which changes we kept
 
-| Experiment | Decision |
-| --- | --- |
-| Compile first-match plans. | We kept this change. Repeated calls reuse parsing and planning work. The engine stops after finding the required result. |
-| Count siblings in the required direction. | We kept this change for single-element matching. It skips siblings that cannot affect the answer. |
-| Use `charCodeAt()` in three selector scans. | We kept this project preference. Comments identify the character for each number. The corrected cold-compilation comparison ranged from about the same speed to a 6% improvement. |
-| Copy collection entries by index. | A later update kept this method for large tag collections. It creates a result array with the required size. The earlier experiment had mixed results across complete queries. |
-| Pass live collections to all-results resolvers. | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots performed better. |
-| Reuse progress through adjacent siblings. | We revised and kept this method for forward `an+b` position formulas. Candidates far apart, callbacks, reverse searches, and older DOM implementations use the existing helpers. |
-| Call `item()` while finding the first match. | We rejected this change. The call cost more than the collection-length read it avoided. A limited search by index performed better. |
+| Experiment                                      | Decision                                                                                                                                                                          |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Compile first-match plans.                      | We kept this change. Repeated calls reuse parsing and planning work. The engine stops after finding the required result.                                                          |
+| Count siblings in the required direction.       | We kept this change for single-element matching. It skips siblings that cannot affect the answer.                                                                                 |
+| Use `charCodeAt()` in three selector scans.     | We kept this project preference. Comments identify the character for each number. The corrected cold-compilation comparison ranged from about the same speed to a 6% improvement. |
+| Copy collection entries by index.               | A later update kept this method for large tag collections. It creates a result array with the required size. The earlier experiment had mixed results across complete queries.    |
+| Pass live collections to all-results resolvers. | We rejected this change. Many common filtered queries became about 20–30% slower in the exploratory run. Arrays without empty slots performed better.                             |
+| Reuse progress through adjacent siblings.       | We revised and kept this method for forward `an+b` position formulas. Candidates far apart, callbacks, reverse searches, and older DOM implementations use the existing helpers.  |
+| Call `item()` while finding the first match.    | We rejected this change. The call cost more than the collection-length read it avoided. A limited search by index performed better.                                               |
 
 The compiler also uses numeric ASCII checks to choose how to process selector tokens.
 A **token** is a part of a selector, such as a name or operator.

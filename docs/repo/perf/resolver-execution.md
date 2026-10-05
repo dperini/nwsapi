@@ -1,5 +1,12 @@
 # Resolver execution
 
+## In brief
+
+These changes remove copying, extra function calls, and unnecessary element
+checks from compiled queries. They also keep cached plans separate when
+callbacks or result formats differ. The [performance work guide](guide.md)
+explains _resolver_ and _candidate_.
+
 This extraction preserves execution work from #167 without its parser,
 legacy-DOM, attribute-equality, or ancestor-filter changes.
 
