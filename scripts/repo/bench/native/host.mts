@@ -32,9 +32,9 @@ export interface NativeGlobals {
   __retained?: NativeContext[]
 }
 
-export async function nativeSources() {
+export async function nativeSources(entry = competitorEntry) {
   const bundle = await rolldown({
-    input: competitorEntry,
+    input: entry,
     platform: 'browser',
     treeshake: false,
   })

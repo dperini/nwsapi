@@ -1776,6 +1776,12 @@ focused correctness check. The full unit suite passes 1,006 tests; type
 checking, configured lint, formatting, and build also pass. No wall-time
 improvement is claimed without a dedicated benchmark.
 
+## Further v3 performance survey, October 3
+
+The [follow-up report](survey-2026-10-03.md) records a latest-source `jsdom` audit, current competitor measurements, compiler operation counts, and an assessment of GPU and learned planning approaches. The [offline atlas](../../../assets/repo/bench/survey-2026-10-03/atlas/index.html) renders all 36 existing comparison cases with raw round ranges and provenance.
+
+The strongest new compiler finding is quadratic sibling traversal for mixed-type `:nth-of-type(2n)` queries. A stylesheet subject prototype removes 68.4% of matcher calls, but selective subject caching is blocked by a reproduced host invalidation defect. These are proposed runtime changes. The survey lands scripts, evidence and reports. Static repository checks pass, benchmark identities agree, and the generated report was visually inspected at desktop and mobile widths.
+
 ## Port the v2 compiler work to v3
 
 The port starts at v3 commit `bcbf77b`, including its existing compilation work

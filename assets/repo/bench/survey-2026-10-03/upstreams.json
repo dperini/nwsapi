@@ -1,0 +1,26 @@
+{
+  "retrievedAt": "2026-10-03T18:49:05.049536+00:00",
+  "candidateCommit": "e988a9ad6c810bf778e00a847d0a381c0141fd4a",
+  "jsdom": {
+    "repository": "https://github.com/jsdom/jsdom",
+    "commit": "0a117f4581b067800fdb3287e22e7cec82221a3c",
+    "npm": {
+      "version": "30.1.1",
+      "gitHead": "0a117f4581b067800fdb3287e22e7cec82221a3c",
+      "tarball": "https://registry.npmjs.org/jsdom/-/jsdom-30.1.1.tgz",
+      "integrity": "sha512-FahmoPK5vbPc+jxV1iErMHmAZypCZ942NHF4+qqaWAuvaKKTBZxawnmAtrbGWLU7MtlxfqIP0qw6aSI+aWGtLg=="
+    }
+  },
+  "gpuLexer": {
+    "repository": "https://github.com/vercel-labs/gpu-lexer",
+    "commit": "07f3e56c69f3141c1bcdb9a732aac14889ca5c74"
+  },
+  "domSelector": {
+    "npm": {
+      "version": "9.2.4",
+      "gitHead": "d8b0e1f5d8235364474fb825a8d118be199349db",
+      "tarball": "https://registry.npmjs.org/@asamuzakjp/dom-selector/-/dom-selector-9.2.4.tgz",
+      "integrity": "sha512-YnVzxDxLaqL0t7Q4wfcgHZjg55Wm6y5EaO7Bhu3q9J7wq/8iw3PhsnWiOQhYekx4VexnbkgWpTT6n+QIV7kczw=="
+    }
+  }
+}

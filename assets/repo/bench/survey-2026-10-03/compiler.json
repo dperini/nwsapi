@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-10-03T18:45:11.540Z",
+  "candidateSha256": "6f0e4fb103d2052ab6016509d71d2e417b2774bf7de456c3d795b6bd3da6b296",
+  "host": "jsdom 30.0.1",
+  "method": "Operation counts on warm calls. Attribute host hooks and nextElementSibling getter instrumented. Ordered identities checked against the host selector engine. No performance timings.",
+  "attributes": [
+    {
+      "selector": "[data-value^=\"foo\"][data-value$=\"bar\"]",
+      "attributeReads": 2,
+      "presenceReads": 0
+    },
+    {
+      "selector": "[data-value=\"foobar\"][data-value]",
+      "attributeReads": 1,
+      "presenceReads": 1
+    },
+    {
+      "selector": "[data-value=\"foobar\"][data-value=\"foobar\"]",
+      "attributeReads": 1,
+      "presenceReads": 0
+    }
+  ],
+  "siblingReads": [
+    {
+      "selector": "main > :nth-of-type(2n)",
+      "siblings": 64,
+      "types": 4,
+      "reads": 4102,
+      "matches": 32
+    },
+    {
+      "selector": "main > :nth-of-type(2n)",
+      "siblings": 128,
+      "types": 4,
+      "reads": 16390,
+      "matches": 64
+    },
+    {
+      "selector": "main > :nth-of-type(2n)",
+      "siblings": 256,
+      "types": 1,
+      "reads": 262,
+      "matches": 128
+    },
+    {
+      "selector": "main > :nth-of-type(2n)",
+      "siblings": 256,
+      "types": 4,
+      "reads": 65542,
+      "matches": 128
+    },
+    {
+      "selector": "main > :nth-of-type(2n)",
+      "siblings": 256,
+      "types": 16,
+      "reads": 65542,
+      "matches": 128
+    }
+  ]
+}
