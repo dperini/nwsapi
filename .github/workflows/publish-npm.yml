@@ -51,7 +51,7 @@ jobs:
     needs: request
     if: needs.request.outputs.enabled == 'true'
     runs-on: ubuntu-latest
-    environment: publish-npm-v3
+    environment: publish-npm
     permissions:
       contents: write
       actions: read

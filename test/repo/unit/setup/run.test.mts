@@ -25,8 +25,8 @@ test('setup verifies WPT and installs browser and Node runtimes', () => {
   expect(calls).toEqual([
     [TOOL_SETUP_PATH, []],
     [path.join(REPO_ROOT, 'scripts/repo/setup/security.mts'), []],
-    [UPSTREAM_HELPER_PATH, ['clone']],
-    [UPSTREAM_HELPER_PATH, ['verify']],
+    [UPSTREAM_HELPER_PATH, ['clone', 'upstream/wpt']],
+    [UPSTREAM_HELPER_PATH, ['verify', 'upstream/wpt']],
     [WPT_CANDIDATES_PATH, []],
     [BROWSER_SETUP_PATH, []],
   ])

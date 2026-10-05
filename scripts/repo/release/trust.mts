@@ -62,14 +62,14 @@ export function isV3Publisher(publisher: Publisher) {
   return (
     publisher.type === 'github' &&
     publisher.claims.repository === RELEASE.repository &&
-    publisher.claims.environment === RELEASE.environment
+    publisher.claims.environment === RELEASE.environment &&
+    publisher.claims.workflow_ref?.file === RELEASE.workflow
   )
 }
 
 export function matchesPublisher(publisher: Publisher) {
   return (
     isV3Publisher(publisher) &&
-    publisher.claims.workflow_ref?.file === RELEASE.workflow &&
     publisher.permissions.length === 1 &&
     publisher.permissions[0] === 'createStagedPackage'
   )
@@ -109,18 +109,18 @@ export function environmentPlan(environment: unknown, policies: unknown) {
       current.deployment_branch_policy.protected_branches !== false)
   ) {
     throw new Error(
-      'The existing publish-npm-v3 environment has an unexpected branch policy. Preserve its review rules and restrict it to the v3 branch before continuing.',
+      'The existing publish-npm environment needs custom branch policies. Preserve its review rules and add the v3 branch before continuing.',
     )
   }
   const rows = branches?.branch_policies ?? []
-  if (rows.some(row => row.name !== RELEASE.branch || row.type !== 'branch')) {
+  if (rows.some(row => row.type !== 'branch' || /[*!?\[\]]/.test(row.name))) {
     throw new Error(
-      'The v3 publishing environment permits another ref. Remove that policy before continuing.',
+      'The publishing environment has a broad or non-branch policy. Review it before continuing.',
     )
   }
   return {
     create: !current,
-    addBranch: rows.length === 0,
+    addBranch: !rows.some(row => row.name === RELEASE.branch),
     branch: RELEASE.branch,
   }
 }

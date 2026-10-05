@@ -104,9 +104,9 @@
     "npm": {
       "origin": "npm",
       "repository": "npm:npm",
-      "version": "12.0.2",
-      "asset": "npm-12.0.2.tgz",
-      "integrity": "sha512-uIXokLlBj6FpNUTQX1PmT5pz7BlIN9QlixX+zdaSNHsd0qUXsbDLr50xzY6Sw7cJVr0uzHKDOle0swmPW/p5Qw==",
+      "version": "12.1.0",
+      "asset": "npm-12.1.0.tgz",
+      "integrity": "sha512-Fyhu62pNx70YCs/5+dEmJQTFVmSKwvo5CA0qvBkGDRpob42MJ6G2RQ2tdxeKM4nYnIZDqkYAxEgqtoejn9QGtQ==",
       "binary": "package/bin/npm-cli.js"
     },
     "nub": {
@@ -196,47 +196,47 @@
     "pnpm": {
       "origin": "gh-asset",
       "repository": "github:pnpm/pnpm",
-      "version": "12.4.2",
-      "tag": "v12.4.2",
+      "version": "12.7.0",
+      "tag": "v12.7.0",
       "platforms": {
         "darwin-arm64": {
           "asset": "pnpm-darwin-arm64.tar.gz",
-          "integrity": "sha512-OHNpC2HJAQjV1W3FRo1mGCVSJFap22fg9meUNXlidX8XvvsNuXQY14SVPnngYLgODqhwFg/T4x9QDlfDqwfyLg==",
+          "integrity": "sha512-ADJmeFWGKets1fRLhPFo9alu79jvtqiKf24Vq68pVmcbDLMkGUJAVa9nVz2/4IjcdxkHo4twV0FiG0D+RkJCwg==",
           "binary": "pnpm"
         },
         "darwin-x64": {
           "asset": "pnpm-darwin-x64.tar.gz",
-          "integrity": "sha512-XUE5mbN1jFDQRYWQNitrDrr+oQDWWBxkp65LIS6+2JK4c7dag9+HZ5c/yqAfIdDeT3mx/zMyraZatjoHKNlqiA==",
+          "integrity": "sha512-oooRttqm2f8/2zIFpT9/HMcjzj5gV54n2/Mspsk7Fmt871VKHRaOSQS+6bY0lXCzyDP5L7xfELFsF39hd5/eDg==",
           "binary": "pnpm"
         },
         "linux-arm64": {
           "asset": "pnpm-linux-arm64.tar.gz",
-          "integrity": "sha512-TAIJEqjtBBTbeoBBV9xMLBPTfqUO1sQNrD6MWG6T4MoaPDMmf5Ajw9PT3dVb8Mr7I+aQ5pqfohVLjMsNE5Ctxg==",
+          "integrity": "sha512-3iwwsAjkEOZvaa7CT3UTDpPDUPrGcv/y1r5CQe7lo4VChPUR8vABQ4emEBBl/yJClsBGhvYAWcycTf+ZZFkR9w==",
           "binary": "pnpm"
         },
         "linux-arm64-musl": {
           "asset": "pnpm-linux-arm64-musl.tar.gz",
-          "integrity": "sha512-P5IRV4ZP0msSzsxnTAppD+bMWisy/HnCkzbBTypJFUNVbxrj33WnXjqeNlAfe5EU/AsJ2lSXEGcG0hE9/Zg6iw==",
+          "integrity": "sha512-yei2zp+lRQe8SMOGr4U+Pq2l49bo0hRhAuaW4zo77ot9EY/gKBlXTkjxLSdxu21/D3n53DcTyUHzYXAx+pdB1g==",
           "binary": "pnpm"
         },
         "linux-x64": {
           "asset": "pnpm-linux-x64.tar.gz",
-          "integrity": "sha512-CzdNUx27xott5V1wQK6XmiMcTt2NXs3BdMOL71my8j/FF8NRfyM+QCBjXkvb3izCdBf9AFsoQ4wzua4jbfAVzQ==",
+          "integrity": "sha512-Lm8h2XCvj+lqsY9hGdEFT2H6O9b0hcRCa/Z8nteQJmz//KD78SHw3JTX3AF36wfH9gzkX/6QU9gYjAfpGRng/g==",
           "binary": "pnpm"
         },
         "linux-x64-musl": {
           "asset": "pnpm-linux-x64-musl.tar.gz",
-          "integrity": "sha512-1/WgpsoZJkbUSAWNKwIOIZ7w5yQ+8KOed8vhlQSJ2EgVUqqY0g/WhTlfUWTJp0IOna6nket/0TXJUdlyrW6TQw==",
+          "integrity": "sha512-TPfNfSO6mrvwiOoWGmxTa/5cSInrWZ5lOC8ZggvrgYOa0I5j8iagdnetcavWhhoWR09MAR//UK5Md2eJv06rZg==",
           "binary": "pnpm"
         },
         "win32-arm64": {
           "asset": "pnpm-win32-arm64.zip",
-          "integrity": "sha512-SYdquF7ZGVX1ztzLpHZNxaOQt/yO8UZaZMvc1loDVNMY5jdvKJbjqNxzJHC4em4K5RNklbEMOmSQdm6sYWsUFQ==",
+          "integrity": "sha512-qeOv6f1FRoykUhM66pcvOoW5olELNisw6n4eOZ/EhnfQS6m5BpFgm/xG4tIjuXnflc3IFMVrV4D35NNRZIIuWw==",
           "binary": "pnpm.exe"
         },
         "win32-x64": {
           "asset": "pnpm-win32-x64.zip",
-          "integrity": "sha512-/+vikx8ZMcvZT12+KdCAUDi93Urbee75fiUeJxSnowq3QEP6tpU3F9u58+fk9ymd2Y+xI7hKU8NYtJRi7gCx2Q==",
+          "integrity": "sha512-crCg/+9uSP5vev/Q1ymk8HnLNnWRUkZPX4PBS5NGMxLeV5Qe+HiE1D1LTBTfqnNa3ArnvdzKYciHmhpjkVmB8w==",
           "binary": "pnpm.exe"
         }
       }

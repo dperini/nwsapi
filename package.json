@@ -82,7 +82,9 @@
     "setup:browser": "node scripts/repo/run.mts scripts/repo/browser.mts",
     "setup:tools": "node scripts/repo/setup/tools.mts",
     "setup:node": "node scripts/repo/run.mts scripts/repo/node.mts",
-    "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts",
+    "setup": "node scripts/repo/run.mts scripts/repo/setup/run.mts",
+    "wpt:setup": "node scripts/repo/run.mts scripts/repo/setup/wpt.mts",
+    "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts && node scripts/repo/run.mts scripts/repo/build/run.mts",
     "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/node.js.yml --quiet --pause-on-failure --github-token",
     "clean": "node scripts/repo/run.mts scripts/repo/clean.mts",
     "lint": "node scripts/repo/run.mts scripts/repo/lint.mts",
@@ -125,6 +127,12 @@
     "package": "pnpm run build && node scripts/repo/run.mts scripts/repo/build/package.mts",
     "gen:compliance": "node scripts/repo/run.mts scripts/repo/gen/compliance-charts.mts",
     "release": "node scripts/repo/run.mts scripts/repo/release/run.mts",
+    "npm:publish": "node scripts/repo/run.mts scripts/repo/release/run.mts prepare",
+    "npm:staged": "node scripts/repo/run.mts scripts/repo/release/run.mts status",
+    "npm:verify": "node scripts/repo/run.mts scripts/repo/release/run.mts verify",
+    "npm:approve": "node scripts/repo/run.mts scripts/repo/release/run.mts approve",
+    "npm:trust": "node scripts/repo/run.mts scripts/repo/release/run.mts trust",
+    "npm:login": "node scripts/repo/run.mts scripts/repo/release/run.mts login",
     "setup:security": "node scripts/repo/run.mts scripts/repo/setup/security.mts",
     "security": "node scripts/repo/run.mts scripts/repo/security/run.mts",
     "gen:schemas": "node scripts/repo/run.mts scripts/repo/schema/run.mts",
@@ -204,7 +212,7 @@
     "packageManager": [
       {
         "name": "pnpm",
-        "version": "12.4.2",
+        "version": "12.7.0",
         "onFail": "error"
       }
     ]
@@ -218,7 +226,7 @@
       "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
   ],
-  "packageManager": "pnpm@12.4.2",
+  "packageManager": "pnpm@12.7.0",
   "exports": {
     ".": "./dist/nwsapi.js",
     "./package.json": "./package.json",
