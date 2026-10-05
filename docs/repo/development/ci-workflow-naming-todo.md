@@ -14,15 +14,16 @@
   and use a matching `ci:` prefix for coverage.
 - [x] Add a short `run-name` suffix only when an event needs context, such as a
   release channel or dispatched revision.
-- [ ] Confirm the new names appear as expected on the Actions page after the
-  branch workflows run. The CI name is `ci: gates` on both branches; v3
-  coverage is `ci: coverage`; v2 and v3 releases use `publish: npm`, with the
-  release channel in `run-name`.
+- [x] Confirm the new names appear on workflow runs for both branches. The CI
+  name is `ci: gates` on both branches; v3 coverage is `ci: coverage`; v2 and
+  v3 releases use `publish: npm`, with the release channel in `run-name`.
+  GitHub's stale, unreferenced `Coverage` workflow entry was disabled after
+  moving the file to `ci-coverage.yml`.
 
-The workflow files are `.github/workflows/node.js.yml` and
-`.github/workflows/ci.yml` for CI, `.github/workflows/coverage.yml` for v3
-coverage, and `.github/workflows/publish-npm.yml` for both release flows.
-Keep filenames descriptive and workflow names focused on the task.
+The primary CI file is `.github/workflows/ci.yml` on both branches. V3
+coverage uses `.github/workflows/ci-coverage.yml`; both release flows use
+`.github/workflows/publish-npm.yml`. The descriptive filenames now match
+across branches where the workflow has the same purpose.
 
 SocketDev's [`socket-lib` workflows](https://github.com/SocketDev/socket-lib/tree/main/.github/workflows)
 use short category-and-task names, including `ci: gates`, `ci: fix`,
