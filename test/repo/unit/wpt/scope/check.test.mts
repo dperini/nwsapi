@@ -54,7 +54,11 @@ test('follows literal imports and rejects dependencies that cannot be inspected'
     'fixture.js',
     true,
   )
-  expect(result.imports).toEqual(['./shared.js', './helper.js', './lazy.js'])
+  expect(result.imports).toEqual([
+    './shared.js',
+    '../../check/wpt/helper.js',
+    './lazy.js',
+  ])
   expect(result.issues.map(issue => issue.reason)).toEqual([
     'Dynamic module paths cannot be inspected.',
     'Use a static script dependency so the scope check can inspect it.',

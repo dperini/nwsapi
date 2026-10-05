@@ -52,7 +52,9 @@ export function select(
   engine.selectResolvers.set(selectors, {
     factory: resolver.factory,
     nodeset: resolver.nodeset,
-    ...(selectors.includes(':has(') ? { bulkHasSelector: selectors } : {}),
+    ...(typeof selectors == 'string' && engine.includes(selectors, ':has(')
+      ? { bulkHasSelector: selectors }
+      : {}),
   })
 
   if (typeof callback == 'function') {
