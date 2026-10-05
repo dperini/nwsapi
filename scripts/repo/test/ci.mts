@@ -75,7 +75,7 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       file.startsWith('scripts/repo/setup/') ||
       file === 'scripts/repo/external-tools.mts' ||
       file === '.config/external-tools.json' ||
-      file === '.github/workflows/coverage.yml' ||
+      file === '.github/workflows/ci-coverage.yml' ||
       file === '.config/node-interop.json' ||
       file === '.github/workflows/ci.yml' ||
       file === 'test/repo/e2e/jsdom-adapter-package.mts' ||

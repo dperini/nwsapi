@@ -82,13 +82,16 @@ export function assertQualified(
   root = REPO_ROOT,
   run: CommandRunner = execute,
 ) {
-  for (const workflow of ['ci.yml', 'coverage.yml']) {
+  for (const [workflow, event] of [
+    ['ci.yml', 'push'],
+    ['ci-coverage.yml', 'workflow_dispatch'],
+  ]) {
     const response = JSON.parse(
       checked(
         'gh',
         [
           'api',
-          `repos/${RELEASE.repository}/actions/workflows/${workflow}/runs?head_sha=${commit}&branch=${RELEASE.branch}&event=push&per_page=1`,
+          `repos/${RELEASE.repository}/actions/workflows/${workflow}/runs?head_sha=${commit}&branch=${RELEASE.branch}&event=${event}&per_page=1`,
         ],
         { cwd: root },
         run,

@@ -104,7 +104,7 @@ test('Node provisioning and consumer changes run package interoperability', () =
     'scripts/repo/setup/download.mts',
     'scripts/repo/external-tools.mts',
     '.config/external-tools.json',
-    '.github/workflows/coverage.yml',
+    '.github/workflows/ci-coverage.yml',
     'test/repo/e2e/fixture/node-interop.mts',
   ]) {
     assert.equal(planCiTests([file]).package, true, file)

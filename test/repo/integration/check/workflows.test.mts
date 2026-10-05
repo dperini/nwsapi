@@ -68,11 +68,18 @@ test.skipIf(process.platform === 'win32')(
         git('commit', '-qm', value)
         commits.push(git('rev-parse', 'HEAD'))
       }
-      for (const name of ['ci.yml', 'coverage.yml']) {
+      for (const [name, event] of [
+        ['ci.yml', 'push'],
+        ['ci-coverage.yml', 'workflow_dispatch'],
+      ] as const) {
         const workflow = parse(
           readFileSync(path.join(REPO_ROOT, '.github/workflows', name), 'utf8'),
         )
-        expect(workflow.on.push.branches).toEqual(['prerelease/3.0.0'])
+        if (event === 'push') {
+          expect(workflow.on.push.branches).toEqual(['prerelease/3.0.0'])
+        } else {
+          expect(workflow.on.workflow_dispatch).toBeDefined()
+        }
         const job = Object.values(workflow.jobs)[0] as {
           steps: Array<{ name?: string; run?: string }>
         }
