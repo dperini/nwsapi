@@ -1,0 +1,1723 @@
+{
+  "format": 2,
+  "torch": "2.14.1",
+  "datasetSha256": "5b7930a8ead07e74ef14e16da4b046fc523a237a44db9b72de2e593304966d70",
+  "trainerSha256": "a8e47a9a0d5b77ee3ef453879b3f0a42b0953fc64410b5377f9f66f03c41b678",
+  "search": {
+    "hiddenSizes": [
+      0,
+      2,
+      4,
+      8
+    ],
+    "seeds": [
+      20261005,
+      20261006,
+      20261007
+    ],
+    "thresholds": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      1,
+      1.5,
+      2,
+      3,
+      4,
+      6
+    ],
+    "maxEpochs": 500,
+    "patience": 40,
+    "rawFeatures": [
+      "anchors",
+      "witnesses",
+      "attributes",
+      "dense",
+      "ratio"
+    ],
+    "modelFeatures": [
+      "anchors",
+      "witnesses",
+      "(attributes >> 1)",
+      "(attributes & 1)",
+      "dense",
+      "ratio"
+    ],
+    "evaluationUsedForSelection": false
+  },
+  "decisionBudgetNs": 25,
+  "budgetMeaning": "Unmeasured estimate; complete-query confirmation required.",
+  "scope": "Synthetic family splits. Prior fixtures constrain checkpoint selection as safety controls. Evaluation families not used for training or selection.",
+  "safetyGate": {
+    "worstTimeRatio": 1.1,
+    "minimumTotalTimeSpeedRatio": 0.99
+  },
+  "policy": "forward-only with exact observed categorical-pair guards",
+  "loss": "Paired-bootstrap resolved comparisons. Combined log-relative and absolute-time regret. Inverse decisions receive no gradient weight. Errors above 15% receive four times the weight.",
+  "results": {
+    "chromium": {
+      "status": "validation-passed",
+      "chosen": {
+        "rank": [
+          false,
+          0,
+          0,
+          false,
+          0,
+          -1.5849154420917386,
+          -1.5119908519498049,
+          30,
+          4
+        ],
+        "epoch": 141,
+        "threshold": 3,
+        "metrics": {
+          "geometricSpeedRatio": 1.5119908519498049,
+          "totalTimeSpeedRatio": 1.5849154420917386,
+          "worstTimeRatio": 1.0059281437106353,
+          "overrides": 30,
+          "passesGate": true
+        },
+        "safetyMetrics": {
+          "geometricSpeedRatio": 0.9944370791584501,
+          "totalTimeSpeedRatio": 0.998992970687677,
+          "worstTimeRatio": 1.0254,
+          "overrides": 0,
+          "passesGate": false
+        },
+        "categoricalPairs": [
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            3.0,
+            0.0
+          ]
+        ],
+        "hidden": 4,
+        "seed": 20261005,
+        "unresolvedTrainingPairs": 0,
+        "weightedTrainingRows": 72,
+        "forwardOnlyProof": {
+          "proved": true,
+          "enforcedByGuard": true,
+          "meaning": "The exported policy explicitly declines every existing inverse route. The same restriction is applied during checkpoint selection."
+        },
+        "compilation": {
+          "removedInactiveUnits": [],
+          "removedReluChecks": [],
+          "bounds": "Guarded feature intervals with a numerical margin. No approximate weight pruning."
+        }
+      },
+      "candidates": [
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5194236411908053,
+            -1.4162863715250131,
+            24,
+            0
+          ],
+          "epoch": 41,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.4162863715250131,
+            "totalTimeSpeedRatio": 1.5194236411908053,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 24,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5307130605434787,
+            -1.4507619348377814,
+            26,
+            0
+          ],
+          "epoch": 34,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.4507619348377814,
+            "totalTimeSpeedRatio": 1.5307130605434787,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 26,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5716054515370161,
+            -1.4822281295745985,
+            28,
+            0
+          ],
+          "epoch": 131,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.4822281295745985,
+            "totalTimeSpeedRatio": 1.5716054515370161,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 28,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.4690995826345599,
+            -1.414532602357514,
+            24,
+            2
+          ],
+          "epoch": 122,
+          "threshold": 1,
+          "metrics": {
+            "geometricSpeedRatio": 1.414532602357514,
+            "totalTimeSpeedRatio": 1.4690995826345599,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 24,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5076681649437143,
+            -1.4456721409411277,
+            26,
+            2
+          ],
+          "epoch": 115,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.4456721409411277,
+            "totalTimeSpeedRatio": 1.5076681649437143,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 26,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.126199422205339,
+            -1.0593942442253896,
+            4,
+            2
+          ],
+          "epoch": 8,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.0593942442253896,
+            "totalTimeSpeedRatio": 1.126199422205339,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 4,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            4
+          ],
+          "epoch": 141,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72,
+          "forwardOnlyProof": {
+            "proved": true,
+            "enforcedByGuard": true,
+            "meaning": "The exported policy explicitly declines every existing inverse route. The same restriction is applied during checkpoint selection."
+          },
+          "compilation": {
+            "removedInactiveUnits": [],
+            "removedReluChecks": [],
+            "bounds": "Guarded feature intervals with a numerical margin. No approximate weight pruning."
+          }
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            4
+          ],
+          "epoch": 141,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            4
+          ],
+          "epoch": 85,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            8
+          ],
+          "epoch": 122,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            8
+          ],
+          "epoch": 77,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.5849154420917386,
+            -1.5119908519498049,
+            30,
+            8
+          ],
+          "epoch": 121,
+          "threshold": 3,
+          "metrics": {
+            "geometricSpeedRatio": 1.5119908519498049,
+            "totalTimeSpeedRatio": 1.5849154420917386,
+            "worstTimeRatio": 1.0059281437106353,
+            "overrides": 30,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 0.9944370791584501,
+            "totalTimeSpeedRatio": 0.998992970687677,
+            "worstTimeRatio": 1.0254,
+            "overrides": 0,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 0,
+          "weightedTrainingRows": 72
+        }
+      ],
+      "simpleRule": {
+        "policies": [
+          [
+            1.0,
+            192,
+            4
+          ],
+          [
+            2.0,
+            192,
+            4
+          ],
+          [
+            3.0,
+            192,
+            2.5
+          ]
+        ],
+        "metrics": {
+          "geometricSpeedRatio": 1.5119908519498049,
+          "totalTimeSpeedRatio": 1.5849154420917386,
+          "worstTimeRatio": 1.0059281437106353,
+          "overrides": 30,
+          "passesGate": true
+        },
+        "safetyMetrics": {
+          "geometricSpeedRatio": 0.9944370791584501,
+          "totalTimeSpeedRatio": 0.998992970687677,
+          "worstTimeRatio": 1.0254,
+          "overrides": 0,
+          "passesGate": false
+        },
+        "selection": "Per-mask validation ranking with training total cost as the final tie breaker, with per-mask and combined old-control safety checks. No evaluation timing used.",
+        "search": {
+          "anchorCaps": [
+            128,
+            192,
+            256
+          ],
+          "ratioThresholds": [
+            2.5,
+            4,
+            8
+          ],
+          "includesKeepBaseline": true
+        },
+        "forwardOnly": true
+      },
+      "trainingRows": 96,
+      "validationRows": 48,
+      "trainingHeadroom": {
+        "freeChooser": {
+          "geometricSpeedRatio": 1.4176645311312526,
+          "totalTimeSpeedRatio": 1.4698850856070758,
+          "worstTimeRatio": 1.0,
+          "overrides": 66,
+          "passesGate": true
+        },
+        "budgetedChooser": {
+          "geometricSpeedRatio": 1.4150072494927957,
+          "totalTimeSpeedRatio": 1.4683647565239157,
+          "worstTimeRatio": 1.0067566216923756,
+          "overrides": 66,
+          "passesGate": true
+        },
+        "observableChooser": {
+          "geometricSpeedRatio": 1.4090510347595115,
+          "totalTimeSpeedRatio": 1.4579722499247267,
+          "worstTimeRatio": 1.12944958643391,
+          "overrides": 72,
+          "passesGate": true
+        },
+        "safeForwardOnlyObservableChooser": {
+          "geometricSpeedRatio": 1.4015499043380704,
+          "totalTimeSpeedRatio": 1.441151649807464,
+          "worstTimeRatio": 1.0860955656523121,
+          "overrides": 64,
+          "passesGate": true
+        },
+        "conflictingInputGroups": [
+          {
+            "inputs": [
+              32,
+              128,
+              3,
+              0,
+              4
+            ],
+            "cases": 4,
+            "minimumAlternativeTimeRatio": 0.7895713465255303,
+            "maximumAlternativeTimeRatio": 1.0860955656523121
+          },
+          {
+            "inputs": [
+              96,
+              384,
+              3,
+              0,
+              4
+            ],
+            "cases": 4,
+            "minimumAlternativeTimeRatio": 0.8062745752466228,
+            "maximumAlternativeTimeRatio": 1.1272603108230557
+          },
+          {
+            "inputs": [
+              192,
+              768,
+              3,
+              0,
+              4
+            ],
+            "cases": 4,
+            "minimumAlternativeTimeRatio": 0.8025077625166067,
+            "maximumAlternativeTimeRatio": 1.12944958643391
+          }
+        ],
+        "featureGroups": 24,
+        "note": "Hindsight diagnostics; independent measurements and model integration required."
+      },
+      "validationHeadroom": {
+        "freeChooser": {
+          "geometricSpeedRatio": 1.5339086165789935,
+          "totalTimeSpeedRatio": 1.6152478516142574,
+          "worstTimeRatio": 1.0,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "budgetedChooser": {
+          "geometricSpeedRatio": 1.5310264342094009,
+          "totalTimeSpeedRatio": 1.6135543399382186,
+          "worstTimeRatio": 1.0059281437106353,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "observableChooser": {
+          "geometricSpeedRatio": 1.5310264342094009,
+          "totalTimeSpeedRatio": 1.6135543399382186,
+          "worstTimeRatio": 1.0059281437106353,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "safeForwardOnlyObservableChooser": {
+          "geometricSpeedRatio": 1.5310264342094009,
+          "totalTimeSpeedRatio": 1.6135543399382186,
+          "worstTimeRatio": 1.0059281437106353,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "conflictingInputGroups": [],
+        "featureGroups": 24,
+        "note": "Hindsight diagnostics; independent measurements and model integration required."
+      },
+      "developmentEstimate": {
+        "geometricSpeedRatio": 0.9944370791584501,
+        "totalTimeSpeedRatio": 0.998992970687677,
+        "worstTimeRatio": 1.0254,
+        "overrides": 0,
+        "passesGate": false
+      },
+      "modelSha256": "1c0ec055d1625a871c6a419f5474c01ad633766eb2575838991e46d7acb480cb",
+      "ruleSha256": "7d938bdee9360c188ce937d03b3dbe651ea3e3953292b4b14010812933e8161b"
+    },
+    "jsdom": {
+      "status": "validation-passed",
+      "chosen": {
+        "rank": [
+          false,
+          0,
+          0,
+          false,
+          0,
+          -1.9392477807153619,
+          -1.7487500121282409,
+          36,
+          0
+        ],
+        "epoch": 186,
+        "threshold": 0,
+        "metrics": {
+          "geometricSpeedRatio": 1.7487500121282409,
+          "totalTimeSpeedRatio": 1.9392477807153619,
+          "worstTimeRatio": 1.002014687068731,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "safetyMetrics": {
+          "geometricSpeedRatio": 1.0357114707110315,
+          "totalTimeSpeedRatio": 1.0802064539708154,
+          "worstTimeRatio": 1.010536715654708,
+          "overrides": 12,
+          "passesGate": false
+        },
+        "categoricalPairs": [
+          [
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0
+          ],
+          [
+            2.0,
+            0.0
+          ],
+          [
+            3.0,
+            0.0
+          ]
+        ],
+        "hidden": 0,
+        "seed": 20261007,
+        "unresolvedTrainingPairs": 1,
+        "weightedTrainingRows": 71,
+        "forwardOnlyProof": {
+          "proved": true,
+          "enforcedByGuard": true,
+          "meaning": "The exported policy explicitly declines every existing inverse route. The same restriction is applied during checkpoint selection."
+        },
+        "compilation": {
+          "removedInactiveUnits": [],
+          "removedReluChecks": [],
+          "bounds": "Guarded feature intervals with a numerical margin. No approximate weight pruning."
+        }
+      },
+      "candidates": [
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9317348799743284,
+            -1.7352086747563544,
+            34,
+            0
+          ],
+          "epoch": 135,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7352086747563544,
+            "totalTimeSpeedRatio": 1.9317348799743284,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 34,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0197464167268122,
+            "totalTimeSpeedRatio": 1.0715084987031203,
+            "worstTimeRatio": 1.0082757479207183,
+            "overrides": 6,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9317348799743284,
+            -1.7352086747563544,
+            34,
+            0
+          ],
+          "epoch": 90,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7352086747563544,
+            "totalTimeSpeedRatio": 1.9317348799743284,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 34,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0197464167268122,
+            "totalTimeSpeedRatio": 1.0715084987031203,
+            "worstTimeRatio": 1.0082757479207183,
+            "overrides": 6,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            0
+          ],
+          "epoch": 186,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 0,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71,
+          "forwardOnlyProof": {
+            "proved": true,
+            "enforcedByGuard": true,
+            "meaning": "The exported policy explicitly declines every existing inverse route. The same restriction is applied during checkpoint selection."
+          },
+          "compilation": {
+            "removedInactiveUnits": [],
+            "removedReluChecks": [],
+            "bounds": "Guarded feature intervals with a numerical margin. No approximate weight pruning."
+          }
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            2
+          ],
+          "epoch": 1,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            2
+          ],
+          "epoch": 1,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            2
+          ],
+          "epoch": 60,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 2,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            4
+          ],
+          "epoch": 1,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            4
+          ],
+          "epoch": 16,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            4
+          ],
+          "epoch": 11,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 4,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            8
+          ],
+          "epoch": 6,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261005,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            8
+          ],
+          "epoch": 1,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261006,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        },
+        {
+          "rank": [
+            false,
+            0,
+            0,
+            false,
+            0,
+            -1.9392477807153619,
+            -1.7487500121282409,
+            36,
+            8
+          ],
+          "epoch": 32,
+          "threshold": 0,
+          "metrics": {
+            "geometricSpeedRatio": 1.7487500121282409,
+            "totalTimeSpeedRatio": 1.9392477807153619,
+            "worstTimeRatio": 1.002014687068731,
+            "overrides": 36,
+            "passesGate": true
+          },
+          "safetyMetrics": {
+            "geometricSpeedRatio": 1.0357114707110315,
+            "totalTimeSpeedRatio": 1.0802064539708154,
+            "worstTimeRatio": 1.010536715654708,
+            "overrides": 12,
+            "passesGate": false
+          },
+          "categoricalPairs": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              3.0,
+              0.0
+            ]
+          ],
+          "hidden": 8,
+          "seed": 20261007,
+          "unresolvedTrainingPairs": 1,
+          "weightedTrainingRows": 71
+        }
+      ],
+      "simpleRule": {
+        "policies": [
+          [
+            1.0,
+            192,
+            4
+          ],
+          [
+            2.0,
+            192,
+            4
+          ],
+          [
+            3.0,
+            192,
+            4
+          ]
+        ],
+        "metrics": {
+          "geometricSpeedRatio": 1.7487500121282409,
+          "totalTimeSpeedRatio": 1.9392477807153619,
+          "worstTimeRatio": 1.002014687068731,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "safetyMetrics": {
+          "geometricSpeedRatio": 1.0357114707110315,
+          "totalTimeSpeedRatio": 1.0802064539708154,
+          "worstTimeRatio": 1.010536715654708,
+          "overrides": 12,
+          "passesGate": false
+        },
+        "selection": "Per-mask validation ranking with training total cost as the final tie breaker, with per-mask and combined old-control safety checks. No evaluation timing used.",
+        "search": {
+          "anchorCaps": [
+            128,
+            192,
+            256
+          ],
+          "ratioThresholds": [
+            2.5,
+            4,
+            8
+          ],
+          "includesKeepBaseline": true
+        },
+        "forwardOnly": true
+      },
+      "trainingRows": 96,
+      "validationRows": 48,
+      "trainingHeadroom": {
+        "freeChooser": {
+          "geometricSpeedRatio": 1.7252666213233068,
+          "totalTimeSpeedRatio": 1.8972215212052954,
+          "worstTimeRatio": 1.0,
+          "overrides": 72,
+          "passesGate": true
+        },
+        "budgetedChooser": {
+          "geometricSpeedRatio": 1.7242188188206684,
+          "totalTimeSpeedRatio": 1.8965898986964225,
+          "worstTimeRatio": 1.0022781248754151,
+          "overrides": 72,
+          "passesGate": true
+        },
+        "observableChooser": {
+          "geometricSpeedRatio": 1.7242188188206684,
+          "totalTimeSpeedRatio": 1.8965898986964225,
+          "worstTimeRatio": 1.0022781248754151,
+          "overrides": 72,
+          "passesGate": true
+        },
+        "safeForwardOnlyObservableChooser": {
+          "geometricSpeedRatio": 1.7242188188206684,
+          "totalTimeSpeedRatio": 1.8965898986964225,
+          "worstTimeRatio": 1.0022781248754151,
+          "overrides": 72,
+          "passesGate": true
+        },
+        "conflictingInputGroups": [],
+        "featureGroups": 24,
+        "note": "Hindsight diagnostics; independent measurements and model integration required."
+      },
+      "validationHeadroom": {
+        "freeChooser": {
+          "geometricSpeedRatio": 1.7498103969347136,
+          "totalTimeSpeedRatio": 1.939894226989331,
+          "worstTimeRatio": 1.0,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "budgetedChooser": {
+          "geometricSpeedRatio": 1.7487500121282409,
+          "totalTimeSpeedRatio": 1.9392477807153619,
+          "worstTimeRatio": 1.002014687068731,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "observableChooser": {
+          "geometricSpeedRatio": 1.7487500121282409,
+          "totalTimeSpeedRatio": 1.9392477807153619,
+          "worstTimeRatio": 1.002014687068731,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "safeForwardOnlyObservableChooser": {
+          "geometricSpeedRatio": 1.7487500121282409,
+          "totalTimeSpeedRatio": 1.9392477807153619,
+          "worstTimeRatio": 1.002014687068731,
+          "overrides": 36,
+          "passesGate": true
+        },
+        "conflictingInputGroups": [],
+        "featureGroups": 24,
+        "note": "Hindsight diagnostics; independent measurements and model integration required."
+      },
+      "developmentEstimate": {
+        "geometricSpeedRatio": 1.0357114707110315,
+        "totalTimeSpeedRatio": 1.0802064539708154,
+        "worstTimeRatio": 1.010536715654708,
+        "overrides": 12,
+        "passesGate": false
+      },
+      "modelSha256": "2c3d793f992b1778ced3ce6da9c0b4e113f333f43b9c9738ce8a567f3beb2f40",
+      "ruleSha256": "e491032dfd89028c52406f6018b8c69dea12abb2dbffec17c20ec0af25c4949e"
+    }
+  }
+}

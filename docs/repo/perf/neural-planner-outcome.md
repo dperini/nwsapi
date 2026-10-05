@@ -93,6 +93,11 @@ selection policy has been implemented or would win.
 
 ## Reproduction
 
+The [complete-route follow-up](neural-dispatch-outcome.md) removes the
+four-anchor profiling step and compares a newly trained PyTorch policy with
+a guarded simple rule. Its measured scope and qualification decision are
+recorded separately from this prefix experiment.
+
 Use a new output directory for each collection, training run, and confirmation.
 The checked-in artifacts preserve the completed run. Python, PyTorch, and
 `uv` use the existing pins in `.config/external-tools.json` and

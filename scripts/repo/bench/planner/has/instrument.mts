@@ -13,6 +13,8 @@ interface Edit {
   text: string
 }
 export interface Trace {
+  cacheHits?: number
+  inferences?: number
   entries: number
   decisions: number
   inverse: number
@@ -102,6 +104,15 @@ function applyEdits(source: string, edits: Edit[]) {
     previous = edit.start
   }
   return source
+}
+
+export function functionSource(source: string, name: string) {
+  const ast = parse(source, {
+    ecmaVersion: 'latest',
+    sourceType: 'script',
+  }) as unknown as Ast
+  const fn = namedFunction(ast, name)
+  return source.slice(fn.start, fn.end)
 }
 
 export function replaceFunction(

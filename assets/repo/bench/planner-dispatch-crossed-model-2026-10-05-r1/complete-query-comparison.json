@@ -1,0 +1,340 @@
+{
+  "format": 1,
+  "first": "assets/repo/bench/planner-dispatch-crossed-integrated-2026-10-05-r1",
+  "repeat": "assets/repo/bench/planner-dispatch-crossed-integrated-2026-10-05-r2",
+  "scope": "Saved complete-query measurements. Identical routes do not establish better learned decisions. Timing differences can reflect emitted code and measurement variation.",
+  "hosts": {
+    "chromium": {
+      "evaluationSlices": {
+        "anchors-32": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 69.21567699182498,
+            "ruleTimePercentOfBaseline": 69.79977741232052,
+            "modelTimePercentOfRule": 99.16317724475657
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 69.9319686735269,
+            "ruleTimePercentOfBaseline": 69.83925018662933,
+            "modelTimePercentOfRule": 100.13275985445118
+          }
+        },
+        "anchors-96": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 66.93869743015455,
+            "ruleTimePercentOfBaseline": 67.07848064298729,
+            "modelTimePercentOfRule": 99.79161243443079
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 69.04679859348172,
+            "ruleTimePercentOfBaseline": 69.27132666769688,
+            "modelTimePercentOfRule": 99.67587155463
+          }
+        },
+        "anchors-192": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 67.05554594408069,
+            "ruleTimePercentOfBaseline": 67.22112993280676,
+            "modelTimePercentOfRule": 99.75367270843026
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 70.092430563356,
+            "ruleTimePercentOfBaseline": 70.06087944693462,
+            "modelTimePercentOfRule": 100.04503385722596
+          }
+        },
+        "filters-0": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 99.8297095471747,
+            "ruleTimePercentOfBaseline": 99.44977248682936,
+            "modelTimePercentOfRule": 100.38203914483128
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 104.53682595858398,
+            "ruleTimePercentOfBaseline": 104.46949124424691,
+            "modelTimePercentOfRule": 100.0644539506559
+          }
+        },
+        "filters-1": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 53.18079236222532,
+            "ruleTimePercentOfBaseline": 53.03984948006794,
+            "modelTimePercentOfRule": 100.26573016993635
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 54.822381472921414,
+            "ruleTimePercentOfBaseline": 54.240460957666706,
+            "modelTimePercentOfRule": 101.07285318926193
+          }
+        },
+        "filters-2": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 49.03034568063088,
+            "ruleTimePercentOfBaseline": 49.6304539258566,
+            "modelTimePercentOfRule": 98.79084675283801
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 49.626545575250844,
+            "ruleTimePercentOfBaseline": 49.78545977968642,
+            "modelTimePercentOfRule": 99.68080197483602
+          }
+        },
+        "filters-3": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 80.83678041804576,
+            "ruleTimePercentOfBaseline": 81.77798900113248,
+            "modelTimePercentOfRule": 98.84906856406839
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 82.93018662799285,
+            "ruleTimePercentOfBaseline": 83.77019055088547,
+            "modelTimePercentOfRule": 98.9972519850216
+          }
+        }
+      },
+      "groups": {
+        "evaluation": {
+          "first": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 67.7286070363075,
+            "ruleTimePercentOfBaseline": 68.02173227589903,
+            "modelTimePercentOfRule": 99.5690711927144
+          },
+          "repeat": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 69.6888782292654,
+            "ruleTimePercentOfBaseline": 69.7230247003335,
+            "modelTimePercentOfRule": 99.95102554541366
+          }
+        },
+        "development": {
+          "first": {
+            "cases": 112,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 99.90274496942763,
+            "ruleTimePercentOfBaseline": 100.03465827534018,
+            "modelTimePercentOfRule": 99.86813239712436
+          },
+          "repeat": {
+            "cases": 112,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 100.08129500451555,
+            "ruleTimePercentOfBaseline": 100.3605604336214,
+            "modelTimePercentOfRule": 99.72173787402215
+          }
+        },
+        "validation": {
+          "first": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 65.73153704115221,
+            "ruleTimePercentOfBaseline": 66.49353997034699,
+            "modelTimePercentOfRule": 98.85401960922131
+          },
+          "repeat": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 65.35008332802587,
+            "ruleTimePercentOfBaseline": 66.13046518850842,
+            "modelTimePercentOfRule": 98.81993592777849
+          }
+        }
+      }
+    },
+    "jsdom": {
+      "evaluationSlices": {
+        "anchors-32": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 61.26929111794275,
+            "ruleTimePercentOfBaseline": 61.30077531022886,
+            "modelTimePercentOfRule": 99.94863981389018
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 62.285726905703285,
+            "ruleTimePercentOfBaseline": 62.63643728761551,
+            "modelTimePercentOfRule": 99.44008567999835
+          }
+        },
+        "anchors-96": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 59.25694948677508,
+            "ruleTimePercentOfBaseline": 59.78275503539465,
+            "modelTimePercentOfRule": 99.1204728716362
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 60.60798454819826,
+            "ruleTimePercentOfBaseline": 61.01344470940078,
+            "modelTimePercentOfRule": 99.33545767964148
+          }
+        },
+        "anchors-192": {
+          "first": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 59.235209892255284,
+            "ruleTimePercentOfBaseline": 59.60144980912522,
+            "modelTimePercentOfRule": 99.38551844285192
+          },
+          "repeat": {
+            "cases": 16,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 60.685054934236504,
+            "ruleTimePercentOfBaseline": 60.71655312689857,
+            "modelTimePercentOfRule": 99.94812256124578
+          }
+        },
+        "filters-0": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 99.18165292200855,
+            "ruleTimePercentOfBaseline": 99.34603262977711,
+            "modelTimePercentOfRule": 99.83453822622073
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 101.49610605626245,
+            "ruleTimePercentOfBaseline": 102.01248985511661,
+            "modelTimePercentOfRule": 99.49380335722856
+          }
+        },
+        "filters-1": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 45.605257289314544,
+            "ruleTimePercentOfBaseline": 45.88446970362846,
+            "modelTimePercentOfRule": 99.39148819607733
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 47.15535270518477,
+            "ruleTimePercentOfBaseline": 47.44670683281591,
+            "modelTimePercentOfRule": 99.38593393076202
+          }
+        },
+        "filters-2": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 42.176910367987446,
+            "ruleTimePercentOfBaseline": 42.62481636425365,
+            "modelTimePercentOfRule": 98.94918961658725
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 42.444689421961165,
+            "ruleTimePercentOfBaseline": 42.55464416428926,
+            "modelTimePercentOfRule": 99.74161517623413
+          }
+        },
+        "filters-3": {
+          "first": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 67.54010875585283,
+            "ruleTimePercentOfBaseline": 67.69961353120647,
+            "modelTimePercentOfRule": 99.76439337385567
+          },
+          "repeat": {
+            "cases": 12,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 69.00222584374873,
+            "ruleTimePercentOfBaseline": 69.22663413233336,
+            "modelTimePercentOfRule": 99.67583533217052
+          }
+        }
+      },
+      "groups": {
+        "evaluation": {
+          "first": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 59.91294843161739,
+            "ruleTimePercentOfBaseline": 60.22353427435409,
+            "modelTimePercentOfRule": 99.48427828675447
+          },
+          "repeat": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 61.18806363016657,
+            "ruleTimePercentOfBaseline": 61.449718882953974,
+            "modelTimePercentOfRule": 99.574196176087
+          }
+        },
+        "development": {
+          "first": {
+            "cases": 112,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 97.1639183157118,
+            "ruleTimePercentOfBaseline": 97.55652125866555,
+            "modelTimePercentOfRule": 99.5975636093944
+          },
+          "repeat": {
+            "cases": 112,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 97.3240583708011,
+            "ruleTimePercentOfBaseline": 98.32322462697725,
+            "modelTimePercentOfRule": 98.9837942561721
+          }
+        },
+        "validation": {
+          "first": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 57.6558841404953,
+            "ruleTimePercentOfBaseline": 58.136427782528834,
+            "modelTimePercentOfRule": 99.17342076153851
+          },
+          "repeat": {
+            "cases": 48,
+            "differentRouteCases": [],
+            "modelTimePercentOfBaseline": 59.07288879627609,
+            "ruleTimePercentOfBaseline": 59.36108915830722,
+            "modelTimePercentOfRule": 99.51449616892553
+          }
+        }
+      }
+    }
+  }
+}

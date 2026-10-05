@@ -4,6 +4,7 @@ import { isMainModule } from '../../../lib/run-node.mts'
 import { REPO_ROOT } from '../../../lib/paths.mts'
 import { sha256 } from '../../footprint/shared.mts'
 import type { Evidence } from '../has/evidence.mts'
+import type { Trace } from '../has/instrument.mts'
 import { verifyEvidence } from '../has/evidence.mts'
 import type { Route, RouteFacts } from '../has/contract.mts'
 
@@ -50,6 +51,19 @@ export interface TrainingRow {
 }
 
 const hosts = ['chromium', 'jsdom'] as const
+
+function verifyInputs(
+  features: number[],
+  trace: Trace,
+  host: string,
+  id: string,
+) {
+  if (trace.decisions > 0 && features.join('|') !== trace.features?.join('|')) {
+    throw new Error(
+      `Declared inputs differ from observed inputs for ${host}/${id}.`,
+    )
+  }
+}
 
 export function exportDataset(inputDirectory: string, outputDirectory: string) {
   const sources = hosts.map(host => {
@@ -122,6 +136,7 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
           `Invalid route measurements for ${source.host}/${row.id}.`,
         )
       }
+      verifyInputs(features, baselineTrace, source.host, row.id)
       rows.push({
         id: row.id,
         family: row.family,

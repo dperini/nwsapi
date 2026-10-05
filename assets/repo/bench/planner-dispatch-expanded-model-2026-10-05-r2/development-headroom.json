@@ -1,0 +1,47 @@
+{
+  "sourceDatasetSha256": "258314b582e6c3075e9227748ec7a7cd4c01ec2868c5213b33791ba6f7fe2549",
+  "scope": "Previously examined development controls only.",
+  "method": "Optimistic hindsight choices from saved median route costs. No decision overhead. Every case chooses independently, even when inputs are identical. This is a diagnostic, not a measured implementation.",
+  "results": {
+    "chromium": {
+      "anyRoute": {
+        "cases": 112,
+        "changedCases": 12,
+        "geometricTimePercent": 97.26453827865065,
+        "totalTimePercent": 83.98720957233772
+      },
+      "forwardOnly": {
+        "cases": 112,
+        "changedCases": 12,
+        "geometricTimePercent": 97.26453827865065,
+        "totalTimePercent": 83.98720957233772
+      },
+      "supportedForwardOnly": {
+        "cases": 112,
+        "changedCases": 5,
+        "geometricTimePercent": 99.70824581276861,
+        "totalTimePercent": 98.95669977534264
+      }
+    },
+    "jsdom": {
+      "anyRoute": {
+        "cases": 112,
+        "changedCases": 14,
+        "geometricTimePercent": 95.04910342503213,
+        "totalTimePercent": 74.06428915151695
+      },
+      "forwardOnly": {
+        "cases": 112,
+        "changedCases": 14,
+        "geometricTimePercent": 95.04910342503213,
+        "totalTimePercent": 74.06428915151695
+      },
+      "supportedForwardOnly": {
+        "cases": 112,
+        "changedCases": 6,
+        "geometricTimePercent": 98.6492224202849,
+        "totalTimePercent": 94.44569330432826
+      }
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "chromium": {
+    "validation": {
+      "model": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.5213397480328736,
+        "totalTimeSpeedRatio": 1.5943804667717099,
+        "worstTimeRatio": 1.0495275397414852,
+        "passesGate": true
+      },
+      "simpleRule": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.5039054928432949,
+        "totalTimeSpeedRatio": 1.5713611961653806,
+        "worstTimeRatio": 1.0477635083227885,
+        "passesGate": true
+      }
+    },
+    "development": {
+      "model": {
+        "cases": 112,
+        "geometricSpeedRatio": 1.000973497080607,
+        "totalTimeSpeedRatio": 1.003670532781036,
+        "worstTimeRatio": 1.0277508802670356,
+        "passesGate": false
+      },
+      "simpleRule": {
+        "cases": 112,
+        "geometricSpeedRatio": 0.9996535373245863,
+        "totalTimeSpeedRatio": 0.9993485224088455,
+        "worstTimeRatio": 1.063957639174122,
+        "passesGate": false
+      }
+    },
+    "evaluation": {
+      "model": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.4764809786563702,
+        "totalTimeSpeedRatio": 1.5202544465663674,
+        "worstTimeRatio": 1.0296895488405375,
+        "passesGate": true
+      },
+      "simpleRule": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.4701183967852476,
+        "totalTimeSpeedRatio": 1.5158498244227017,
+        "worstTimeRatio": 1.033149700928591,
+        "passesGate": true
+      }
+    }
+  },
+  "jsdom": {
+    "validation": {
+      "model": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.7344283500417923,
+        "totalTimeSpeedRatio": 1.9276395937601474,
+        "worstTimeRatio": 1.031600507829031,
+        "passesGate": true
+      },
+      "simpleRule": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.7200919253943565,
+        "totalTimeSpeedRatio": 1.9069570594543837,
+        "worstTimeRatio": 1.0112873465933137,
+        "passesGate": true
+      }
+    },
+    "development": {
+      "model": {
+        "cases": 112,
+        "geometricSpeedRatio": 1.0291886302389845,
+        "totalTimeSpeedRatio": 1.0607748057746798,
+        "worstTimeRatio": 1.0507362037598544,
+        "passesGate": false
+      },
+      "simpleRule": {
+        "cases": 112,
+        "geometricSpeedRatio": 1.0250468006629276,
+        "totalTimeSpeedRatio": 1.0638587516784839,
+        "worstTimeRatio": 1.0715585203153426,
+        "passesGate": false
+      }
+    },
+    "evaluation": {
+      "model": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.6690882792079018,
+        "totalTimeSpeedRatio": 1.7742049057642983,
+        "worstTimeRatio": 1.0191616766467066,
+        "passesGate": true
+      },
+      "simpleRule": {
+        "cases": 48,
+        "geometricSpeedRatio": 1.6604804285387902,
+        "totalTimeSpeedRatio": 1.7633060756235337,
+        "worstTimeRatio": 1.0231520958083833,
+        "passesGate": true
+      }
+    }
+  }
+}

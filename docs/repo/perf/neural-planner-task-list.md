@@ -1,5 +1,10 @@
 # Neural planner implementation tasks
 
+The [complete-route follow-up](neural-dispatch-outcome.md) implements the next
+model experiment without the four-anchor prefix. It has separate training,
+validation, synthetic evaluation, development controls, and saved measurements.
+The checklist below records the earlier continuation experiment.
+
 This checklist tracks one model experiment. It records completed work and
 the evidence needed for open tasks. The [performance work guide](guide.md)
 explains the measurement terms used below.

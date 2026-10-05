@@ -1,0 +1,1244 @@
+{
+  "timestamp": "2026-10-05T15:14:03.179Z",
+  "node": "v26.9.0",
+  "platform": "darwin/arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "candidateVersion": "2.3.0-prerelease",
+  "candidateSha256": "d4d68a73f1a1b3328a2a274f83d0fa4715d7dc805cdda81fb0d58eeea29bb544",
+  "competitorVersion": "9.1.1",
+  "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+  "format": 2,
+  "contractVersion": 2,
+  "scenario": "has",
+  "fixtureSha256": "29d4c800900bd22219dc1c53b8e2112b20a39cb53c79387d6a0acaa787abe3bc",
+  "settings": {
+    "rounds": 11,
+    "milliseconds": 20,
+    "batch": 16
+  },
+  "featureNames": [
+    "anchorCount",
+    "witnessCount",
+    "attributeMask",
+    "witnessRatio"
+  ],
+  "routeLabels": [
+    "baseline",
+    "forward-after-preflight",
+    "inverse-after-preflight"
+  ],
+  "variants": [
+    "d4d68a73f1a1b3328a2a274f83d0fa4715d7dc805cdda81fb0d58eeea29bb544",
+    "7c6dbcddbf978195a2ef2027184b5e17d1ae414d701bf1b0c51d8ec96de7ee26",
+    "5c5c7e5b80c16bedab02e5864f6f96bb756509d6fdfa7e976bf7acbfed412a2b"
+  ],
+  "scope": "Expanded synthetic layouts with separate filters and intermediate counts. Previous fixtures are safety controls.",
+  "featureStage": "After existing witness preflight; no anchor profiling or additional DOM scan.",
+  "gate": {
+    "geometricSpeedRatio": 1.05,
+    "worstTimeRatio": 1.15
+  },
+  "split": [
+    {
+      "id": "flat-32-0-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-0-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-0.125-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-0.125-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-1-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-1-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-4-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-32-4-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-0-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-0-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-0.125-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-0.125-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-1-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-1-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-4-plain",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "flat-192-4-filtered",
+      "family": "flat",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-0-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-0-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-0.125-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-0.125-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-1-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-1-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-4-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-32-4-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-0-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-0-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-0.125-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-0.125-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-1-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-1-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-4-plain",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "nested-192-4-filtered",
+      "family": "nested",
+      "split": "development"
+    },
+    {
+      "id": "external-32-0-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-0-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-0.125-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-0.125-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-1-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-1-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-4-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-32-4-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-0-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-0-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-0.125-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-0.125-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-1-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-1-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-4-plain",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "external-192-4-filtered",
+      "family": "external",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-0-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-0-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-0.125-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-0.125-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-1-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-1-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-4-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-32-4-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-0-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-0-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-0.125-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-0.125-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-1-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-1-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-4-plain",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "ragged-192-4-filtered",
+      "family": "ragged",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-0-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-0-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-0.125-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-0.125-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-1-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-1-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-4-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-32-4-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-0-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-0-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-0.125-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-0.125-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-1-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-1-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-4-plain",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "clustered-192-4-filtered",
+      "family": "clustered",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-0-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-0-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-0.125-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-0.125-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-1-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-1-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-4-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-32-4-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-0-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-0-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-0.125-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-0.125-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-1-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-1-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-4-plain",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "mixed-192-4-filtered",
+      "family": "mixed",
+      "split": "development"
+    },
+    {
+      "id": "small-1-0-plain",
+      "family": "small",
+      "split": "development"
+    },
+    {
+      "id": "small-1-4-plain",
+      "family": "small",
+      "split": "development"
+    },
+    {
+      "id": "small-8-0-plain",
+      "family": "small",
+      "split": "development"
+    },
+    {
+      "id": "small-8-4-plain",
+      "family": "small",
+      "split": "development"
+    },
+    {
+      "id": "page-documentation-li-has-a-",
+      "family": "page-documentation",
+      "split": "development"
+    },
+    {
+      "id": "page-documentation-div-has-p-",
+      "family": "page-documentation",
+      "split": "development"
+    },
+    {
+      "id": "page-components--card-has-badge-",
+      "family": "page-components",
+      "split": "development"
+    },
+    {
+      "id": "page-components--card-has-link-",
+      "family": "page-components",
+      "split": "development"
+    },
+    {
+      "id": "page-components--card-has-primary-",
+      "family": "page-components",
+      "split": "development"
+    },
+    {
+      "id": "page-components--card-has-surface-",
+      "family": "page-components",
+      "split": "development"
+    },
+    {
+      "id": "page-components--card-has-row-",
+      "family": "page-components",
+      "split": "development"
+    },
+    {
+      "id": "page-atomic--card-has-badge-",
+      "family": "page-atomic",
+      "split": "development"
+    },
+    {
+      "id": "page-atomic--card-has-link-",
+      "family": "page-atomic",
+      "split": "development"
+    },
+    {
+      "id": "page-atomic--card-has-primary-",
+      "family": "page-atomic",
+      "split": "development"
+    },
+    {
+      "id": "page-atomic--card-has-surface-",
+      "family": "page-atomic",
+      "split": "development"
+    },
+    {
+      "id": "page-atomic--card-has-row-",
+      "family": "page-atomic",
+      "split": "development"
+    },
+    {
+      "id": "expanded-0-64-0.25-0",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-64-2.5-1",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-64-4-2",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-64-8-3",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-128-0.25-1",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-128-2.5-2",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-128-4-3",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-128-8-0",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-192-0.25-2",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-192-2.5-3",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-192-4-0",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-192-8-1",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-256-0.25-3",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-256-2.5-0",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-256-4-1",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-0-256-8-2",
+      "family": "dispatch-expanded-0",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-64-0.25-1",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-64-2.5-2",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-64-4-3",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-64-8-0",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-128-0.25-2",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-128-2.5-3",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-128-4-0",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-128-8-1",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-192-0.25-3",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-192-2.5-0",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-192-4-1",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-192-8-2",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-256-0.25-0",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-256-2.5-1",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-256-4-2",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-1-256-8-3",
+      "family": "dispatch-expanded-1",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-64-0.25-2",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-64-2.5-3",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-64-4-0",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-64-8-1",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-128-0.25-3",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-128-2.5-0",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-128-4-1",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-128-8-2",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-192-0.25-0",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-192-2.5-1",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-192-4-2",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-192-8-3",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-256-0.25-1",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-256-2.5-2",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-256-4-3",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-2-256-8-0",
+      "family": "dispatch-expanded-2",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-64-0.25-3",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-64-2.5-0",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-64-4-1",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-64-8-2",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-128-0.25-0",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-128-2.5-1",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-128-4-2",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-128-8-3",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-192-0.25-1",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-192-2.5-2",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-192-4-3",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-192-8-0",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-256-0.25-2",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-256-2.5-3",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-256-4-0",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-3-256-8-1",
+      "family": "dispatch-expanded-3",
+      "split": "train"
+    },
+    {
+      "id": "expanded-4-64-0.25-0",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-64-2.5-1",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-64-4-2",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-64-8-3",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-128-0.25-1",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-128-2.5-2",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-128-4-3",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-128-8-0",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-192-0.25-2",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-192-2.5-3",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-192-4-0",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-192-8-1",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-256-0.25-3",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-256-2.5-0",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-256-4-1",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-4-256-8-2",
+      "family": "dispatch-expanded-4",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-64-0.25-1",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-64-2.5-2",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-64-4-3",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-64-8-0",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-128-0.25-2",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-128-2.5-3",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-128-4-0",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-128-8-1",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-192-0.25-3",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-192-2.5-0",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-192-4-1",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-192-8-2",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-256-0.25-0",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-256-2.5-1",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-256-4-2",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-5-256-8-3",
+      "family": "dispatch-expanded-5",
+      "split": "validation"
+    },
+    {
+      "id": "expanded-6-64-0.25-2",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-64-2.5-3",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-64-4-0",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-64-8-1",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-128-0.25-3",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-128-2.5-0",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-128-4-1",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-128-8-2",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-192-0.25-0",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-192-2.5-1",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-192-4-2",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-192-8-3",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-256-0.25-1",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-256-2.5-2",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-256-4-3",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-6-256-8-0",
+      "family": "dispatch-expanded-6",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-64-0.25-3",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-64-2.5-0",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-64-4-1",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-64-8-2",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-128-0.25-0",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-128-2.5-1",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-128-4-2",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-128-8-3",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-192-0.25-1",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-192-2.5-2",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-192-4-3",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-192-8-0",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-256-0.25-2",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-256-2.5-3",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-256-4-0",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    },
+    {
+      "id": "expanded-7-256-8-1",
+      "family": "dispatch-expanded-7",
+      "split": "evaluation"
+    }
+  ]
+}

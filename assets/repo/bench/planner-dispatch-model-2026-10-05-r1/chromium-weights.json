@@ -1,0 +1,74 @@
+{
+  "weights": {
+    "0.weight": [
+      [
+        0.05705539137125015,
+        0.10566120594739914,
+        -0.07235205173492432,
+        -0.31531381607055664,
+        0.5815651416778564
+      ]
+    ],
+    "0.bias": [
+      -0.07032360136508942
+    ]
+  },
+  "mean": [
+    152.0,
+    313.5,
+    1.5,
+    0.5,
+    2.0625
+  ],
+  "scale": [
+    104.0,
+    416.3445087904967,
+    1.5,
+    0.5,
+    1.9375
+  ],
+  "domain": [
+    [
+      48.0,
+      6.0,
+      0.0,
+      0.0,
+      0.125
+    ],
+    [
+      256.0,
+      1024.0,
+      3.0,
+      1.0,
+      4.0
+    ]
+  ],
+  "chosen": {
+    "rank": [
+      false,
+      0,
+      -1.417400410108768,
+      -1.127141343628176,
+      6,
+      0
+    ],
+    "epoch": 34,
+    "threshold": 0.5,
+    "metrics": {
+      "geometricSpeedRatio": 1.127141343628176,
+      "totalTimeSpeedRatio": 1.417400410108768,
+      "worstTimeRatio": 1.0212040969266731,
+      "overrides": 6,
+      "passesGate": true
+    },
+    "hidden": 0,
+    "seed": 20261006,
+    "unresolvedTrainingPairs": 0,
+    "forwardOnlyProof": {
+      "proved": true,
+      "maximumInverseRouteLogitBound": 0.40601344008471246,
+      "threshold": 0.5,
+      "meaning": "Conservative linear interval bound using witnesses = anchors * ratio. Default inverse routes cannot trigger an override inside the training domain."
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "weights": {
+    "0.weight": [
+      [
+        0.2009466290473938,
+        -0.5124097466468811,
+        -0.2741726338863373,
+        -0.008733191527426243,
+        0.0954381600022316,
+        -0.6145362854003906
+      ]
+    ],
+    "0.bias": [
+      0.17875909805297852
+    ]
+  },
+  "mean": [
+    163.90243902439025,
+    825.7560975609756,
+    0.5609756097560976,
+    0.5609756097560976,
+    0.14634146341463414,
+    5.085365853658536
+  ],
+  "scale": [
+    73.51515685036716,
+    553.7251576980206,
+    0.49626804754575143,
+    0.49626804754575143,
+    0.35344821332169346,
+    2.4040170625190687
+  ],
+  "domain": [
+    [
+      64.0,
+      16.0,
+      0.0,
+      0.0,
+      0.25
+    ],
+    [
+      256.0,
+      2048.0,
+      3.0,
+      1.0,
+      8.0
+    ]
+  ],
+  "chosen": {
+    "rank": [
+      false,
+      0,
+      0,
+      false,
+      0,
+      -1.6358451804139171,
+      -1.3865951245730863,
+      14,
+      0
+    ],
+    "epoch": 43,
+    "threshold": 0,
+    "metrics": {
+      "geometricSpeedRatio": 1.3865951245730863,
+      "totalTimeSpeedRatio": 1.6358451804139171,
+      "worstTimeRatio": 1.004310716438237,
+      "overrides": 14,
+      "passesGate": true
+    },
+    "safetyMetrics": {
+      "geometricSpeedRatio": 1.0167958300580549,
+      "totalTimeSpeedRatio": 1.0590859159123807,
+      "worstTimeRatio": 1.0080402010050251,
+      "overrides": 6,
+      "passesGate": false
+    },
+    "categoricalPairs": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        1.0,
+        0.0
+      ],
+      [
+        2.0,
+        0.0
+      ],
+      [
+        3.0,
+        0.0
+      ]
+    ],
+    "hidden": 0,
+    "seed": 20261005,
+    "unresolvedTrainingPairs": 1,
+    "weightedTrainingRows": 41,
+    "forwardOnlyProof": {
+      "proved": true,
+      "enforcedByGuard": true,
+      "meaning": "The exported policy explicitly declines every existing inverse route. The same restriction is applied during checkpoint selection."
+    },
+    "compilation": {
+      "removedInactiveUnits": [],
+      "removedReluChecks": [],
+      "bounds": "Guarded feature intervals with a numerical margin. No approximate weight pruning."
+    }
+  }
+}

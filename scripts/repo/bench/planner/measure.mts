@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { compileFunction } from 'node:vm'
 import { createRequire } from 'node:module'
+import { setImmediate } from 'node:timers/promises'
 import { JSDOM } from 'jsdom'
 import { chromium } from '@playwright/test'
 import type { Page } from '@playwright/test'
@@ -123,6 +124,8 @@ export async function measureJsdom(entries: Fixture[], sources: string[]) {
         instance.window.close()
       }
     }
+    // Closing a window queues cleanup. Let it run between measured cases.
+    await setImmediate()
     console.log(`jsdom ${entry.id}`)
   }
   return rows

@@ -52,7 +52,12 @@ export function verifyEvidence(row: Evidence) {
   assert.deepEqual(inverse.features, baseline.features, row.id)
 }
 
-export function jsdomEvidence(entries: Fixture[], sources: string[]) {
+export function jsdomEvidence(
+  entries: Fixture[],
+  sources: string[],
+  verify = verifyEvidence,
+  warmCount = 1,
+) {
   const factories = sources.map(compileProbe)
   return entries.map(entry => {
     const traces = factories.map(factory => {
@@ -61,7 +66,9 @@ export function jsdomEvidence(entries: Fixture[], sources: string[]) {
         const doc = window.document
         const engine = factory(window)
         const expected = Array.from(doc.querySelectorAll(entry.selector))
-        engine.select(entry.selector, doc)
+        for (let warm = 0; warm < warmCount; ++warm) {
+          engine.select(entry.selector, doc)
+        }
         factory.resetTrace()
         assert.deepEqual(
           Array.from(engine.select(entry.selector, doc)),
@@ -74,12 +81,17 @@ export function jsdomEvidence(entries: Fixture[], sources: string[]) {
       }
     })
     const result = { id: entry.id, traces }
-    verifyEvidence(result)
+    verify(result)
     return result
   })
 }
 
-export async function browserEvidence(entries: Fixture[], sources: string[]) {
+export async function browserEvidence(
+  entries: Fixture[],
+  sources: string[],
+  verify = verifyEvidence,
+  warmCount = 1,
+) {
   const browser = await chromium.launch(browserLaunchOptions())
   try {
     const page = await browser.newPage()
@@ -92,37 +104,44 @@ export async function browserEvidence(entries: Fixture[], sources: string[]) {
     }
     const result: Evidence[] = []
     for (const entry of entries) {
-      const traces = await page.evaluate(fixture => {
-        const factories = (
-          globalThis as unknown as { probeFactories: Factory[] }
-        ).probeFactories
-        return factories.map(factory => {
-          const frame = document.createElement('iframe')
-          document.body.append(frame)
-          try {
-            const doc = frame.contentDocument!
-            doc.open()
-            doc.write(fixture.html)
-            doc.close()
-            const engine = factory(frame.contentWindow)
-            const expected = Array.from(doc.querySelectorAll(fixture.selector))
-            engine.select(fixture.selector, doc)
-            factory.resetTrace()
-            const actual = Array.from(engine.select(fixture.selector, doc))
-            if (
-              actual.length !== expected.length ||
-              actual.some((e, i) => e !== expected[i])
-            ) {
-              throw new Error(`Probe identity mismatch: ${fixture.id}`)
+      const traces = await page.evaluate(
+        ({ fixture, warmCount: iterations }) => {
+          const factories = (
+            globalThis as unknown as { probeFactories: Factory[] }
+          ).probeFactories
+          return factories.map(factory => {
+            const frame = document.createElement('iframe')
+            document.body.append(frame)
+            try {
+              const doc = frame.contentDocument!
+              doc.open()
+              doc.write(fixture.html)
+              doc.close()
+              const engine = factory(frame.contentWindow)
+              const expected = Array.from(
+                doc.querySelectorAll(fixture.selector),
+              )
+              for (let warm = 0; warm < iterations; ++warm) {
+                engine.select(fixture.selector, doc)
+              }
+              factory.resetTrace()
+              const actual = Array.from(engine.select(fixture.selector, doc))
+              if (
+                actual.length !== expected.length ||
+                actual.some((e, i) => e !== expected[i])
+              ) {
+                throw new Error(`Probe identity mismatch: ${fixture.id}`)
+              }
+              return structuredClone(factory.trace())
+            } finally {
+              frame.remove()
             }
-            return structuredClone(factory.trace())
-          } finally {
-            frame.remove()
-          }
-        })
-      }, entry)
+          })
+        },
+        { fixture: entry, warmCount },
+      )
       const row = { id: entry.id, traces }
-      verifyEvidence(row)
+      verify(row)
       result.push(row)
     }
     return result

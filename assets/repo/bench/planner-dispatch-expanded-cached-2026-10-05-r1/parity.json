@@ -1,0 +1,11 @@
+{
+  "cases": {
+    "chromium": 10214,
+    "jsdom": 10214
+  },
+  "ruleCases": {
+    "chromium": 10214,
+    "jsdom": 10214
+  },
+  "mismatches": 0
+}

@@ -1,0 +1,176 @@
+2026-10-05T17:09:26.028Z pw:browser [pid=68930][out] [marking 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.028Z pw:browser [pid=68930][out] [compiling method 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:26.028Z pw:browser [pid=68930][out] Begin compiling method markAncestors_baseline using Maglev
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] Finished compiling method markAncestors_baseline using Maglev
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] [completed compiling 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target MAGLEV) - took 0.000, 0.749, 0.010 ms]
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)>, 0x01280101f47d <Code MAGLEV>, opt id 2, bytecode offset 0, deopt exit 10, FP to SP delta 64, caller SP 0x00016b6e6f98, pc 0x000170030ce8]
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x02a20120fbdd <JSFunction engine.upOf (sfi = 0x2a20125b231)>, 0x01280101ee3d <Code MAGLEV>, opt id 1, bytecode offset 0, deopt exit 0, FP to SP delta 32, caller SP 0x00016b6e6f00, pc 0x00017003070c]
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] [marking 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] [compiling method 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] Begin compiling method markAncestors_baseline using Maglev
+2026-10-05T17:09:26.029Z pw:browser [pid=68930][out] Finished compiling method markAncestors_baseline using Maglev
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] [completed compiling 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target MAGLEV) - took 0.000, 0.126, 0.004 ms]
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] [marking 0x02a201207209 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] [compiling method 0x02a201207209 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target MAGLEV) OSR, mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] Begin compiling method selectBulkHas_baseline using Maglev
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] Finished compiling method selectBulkHas_baseline using Maglev
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] [completed compiling 0x02a201207209 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target MAGLEV) OSR - took 0.000, 0.248, 0.006 ms]
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] [compiling method 0x02a201207209 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] Begin compiling method selectBulkHas_baseline using Maglev
+2026-10-05T17:09:26.030Z pw:browser [pid=68930][out] Finished compiling method selectBulkHas_baseline using Maglev
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] [completed compiling 0x02a201207209 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target MAGLEV) - took 0.000, 0.383, 0.007 ms]
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] [marking 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] [compiling method 0x02a201207229 <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] [marking 0x02a2014021f5 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] [compiling method 0x02a2014021f5 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019c58d8 {0x02a20125b231 <SharedFunctionInfo engine.upOf>} into 0x11c019c54a8 {0x02a2012541b5 <SharedFunctionInfo markAncestors_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019cd4d0 {0x02a201311265 <SharedFunctionInfo engine.createWeakMap>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019cd5f0 {0x02a201312e01 <SharedFunctionInfo Resolver>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Considering 0x11c019ce0f0 {0x02a2012541b5 <SharedFunctionInfo markAncestors_baseline>} for inlining with 0x11c01a53340 {0x02a201314915 <FeedbackVector[16]>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019cd5f0 {0x02a201312e01 <SharedFunctionInfo Resolver>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019c58d8 {0x02a20125b231 <SharedFunctionInfo engine.upOf>} into 0x11c019c54a8 {0x02a2012541b5 <SharedFunctionInfo markAncestors_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out]   - target: 0x11c019ce0f0 {0x02a2012541b5 <SharedFunctionInfo markAncestors_baseline>}, bytecode size: 64, existing opt code's inlined bytecode size: 15
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c019ce0f0 {0x02a2012541b5 <SharedFunctionInfo markAncestors_baseline>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c01a55f10 {0x02a20125b231 <SharedFunctionInfo engine.upOf>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.035Z pw:browser [pid=68930][out] Inlining 0x11c01a55f10 {0x02a20125b231 <SharedFunctionInfo engine.upOf>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.036Z pw:browser [pid=68930][out] Inlining 0x11c01a51f70 {0x02a201254659 <SharedFunctionInfo hasCandidates>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.036Z pw:browser [pid=68930][out] Inlining 0x11c01849038 {0x02a201254bd9 <SharedFunctionInfo collectionSnapshot>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.036Z pw:browser [pid=68930][out] Inlining 0x11c018604b8 {0x02a201254c39 <SharedFunctionInfo reuseCollectionSnapshot>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.036Z pw:browser [pid=68930][out] Inlining 0x11c01860580 {0x02a201254ba9 <SharedFunctionInfo skipsCollectionSnapshot>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.037Z pw:browser [pid=68930][out] Inlining 0x11c018603d8 {0x02a201254b79 <SharedFunctionInfo collectionCopy>} into 0x11c019ccca8 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}
+2026-10-05T17:09:26.041Z pw:browser [pid=68930][out] [completed compiling 0x02a201316c0d <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target TURBOFAN_JS) - took 0.184, 8.313, 0.016 ms]
+2026-10-05T17:09:26.041Z pw:browser [pid=68930][out] [completed optimizing 0x02a201316c0d <JSFunction markAncestors_baseline (sfi = 0x2a2012541b5)> (target TURBOFAN_JS)]
+2026-10-05T17:09:26.043Z pw:browser [pid=68930][out] [marking 0x02a201317519 <JSFunction runSingle_baseline (sfi = 0x2a201254305)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:26.043Z pw:browser [pid=68930][out] [compiling method 0x02a201317519 <JSFunction runSingle_baseline (sfi = 0x2a201254305)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:26.043Z pw:browser [pid=68930][out] Begin compiling method runSingle_baseline using Maglev
+2026-10-05T17:09:26.044Z pw:browser [pid=68930][out] Finished compiling method runSingle_baseline using Maglev
+2026-10-05T17:09:26.044Z pw:browser [pid=68930][out] [completed compiling 0x02a201317519 <JSFunction runSingle_baseline (sfi = 0x2a201254305)> (target MAGLEV) - took 0.000, 0.128, 0.005 ms]
+2026-10-05T17:09:26.058Z pw:browser [pid=68930][out] [completed compiling 0x02a2013174b1 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target TURBOFAN_JS) - took 0.003, 9.872, 0.040 ms]
+2026-10-05T17:09:26.058Z pw:browser [pid=68930][out] [completed optimizing 0x02a2013174b1 <JSFunction selectBulkHas_baseline (sfi = 0x2a201254185)> (target TURBOFAN_JS)]
+2026-10-05T17:09:26.091Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: prepare for on stack replacement (OSR)): begin. deoptimizing 0x02a201317661 <JSFunction (sfi = 0x2a2013078cd)>, 0x012801027e15 <Code MAGLEV>, opt id 19, bytecode offset 79, deopt exit 14, FP to SP delta 144, caller SP 0x00016b6e73b0, pc 0x00017003a4e4]
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out] Considering 0x11c01b00d10 {0x02a201254305 <SharedFunctionInfo runSingle_baseline>} for inlining with 0x11c01a7a528 {0x02a2013151b1 <FeedbackVector[25]>}
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out]   - target: 0x11c01b00d10 {0x02a201254305 <SharedFunctionInfo runSingle_baseline>}, bytecode size: 138, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out]   - target: 0x11c01b00d10 {0x02a201254305 <SharedFunctionInfo runSingle_baseline>}, bytecode size: 138, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out] Inlining 0x11c01b00d10 {0x02a201254305 <SharedFunctionInfo runSingle_baseline>} into 0x11c01b004a8 {0x02a2012542d5 <SharedFunctionInfo runCachedResolvers>}
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out] Considering 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>} for inlining with 0x11c01a7e660 {0x02a2013149c1 <FeedbackVector[54]>}
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out]   - target: 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out]   - target: 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:26.320Z pw:browser [pid=68930][out]   - target: 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:26.321Z pw:browser [pid=68930][out]   - target: 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:26.321Z pw:browser [pid=68930][out]   - target: 0x11c01a7cd30 {0x02a201254185 <SharedFunctionInfo selectBulkHas_baseline>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:27.247Z pw:browser [pid=68930][out] [marking 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.247Z pw:browser [pid=68930][out] [compiling method 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:27.247Z pw:browser [pid=68930][out] Begin compiling method markAncestors_model using Maglev
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] Finished compiling method markAncestors_model using Maglev
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [completed compiling 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target MAGLEV) - took 0.000, 0.189, 0.006 ms]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)>, 0x01170101f545 <Code MAGLEV>, opt id 2, bytecode offset 0, deopt exit 10, FP to SP delta 64, caller SP 0x00016d466f88, pc 0x000155670ce8]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x29260120fbe1 <JSFunction engine.upOf (sfi = 0x29260125b359)>, 0x01170101ef05 <Code MAGLEV>, opt id 1, bytecode offset 0, deopt exit 0, FP to SP delta 32, caller SP 0x00016d466ef0, pc 0x00015567070c]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [marking 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [compiling method 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] Begin compiling method markAncestors_model using Maglev
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] Finished compiling method markAncestors_model using Maglev
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [completed compiling 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target MAGLEV) - took 0.000, 0.098, 0.005 ms]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [marking 0x29260120720d <JSFunction selectBulkHas_model (sfi = 0x292601254269)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] [compiling method 0x29260120720d <JSFunction selectBulkHas_model (sfi = 0x292601254269)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] Begin compiling method selectBulkHas_model using Maglev
+2026-10-05T17:09:27.248Z pw:browser [pid=68930][out] Finished compiling method selectBulkHas_model using Maglev
+2026-10-05T17:09:27.249Z pw:browser [pid=68930][out] [completed compiling 0x29260120720d <JSFunction selectBulkHas_model (sfi = 0x292601254269)> (target MAGLEV) - took 0.000, 0.379, 0.008 ms]
+2026-10-05T17:09:27.249Z pw:browser [pid=68930][out] [marking 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.249Z pw:browser [pid=68930][out] [compiling method 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:27.249Z pw:browser [pid=68930][out] Inlining 0x124019058d8 {0x29260125b359 <SharedFunctionInfo engine.upOf>} into 0x124019054a8 {0x292601254299 <SharedFunctionInfo markAncestors_model>}
+2026-10-05T17:09:27.251Z pw:browser [pid=68930][out] Inlining 0x124019058d8 {0x29260125b359 <SharedFunctionInfo engine.upOf>} into 0x124019054a8 {0x292601254299 <SharedFunctionInfo markAncestors_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] [completed compiling 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target TURBOFAN_JS) - took 0.005, 1.124, 0.010 ms]
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] [completed optimizing 0x29260120722d <JSFunction markAncestors_model (sfi = 0x292601254299)> (target TURBOFAN_JS)]
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] [marking 0x2926014021f5 <JSFunction selectBulkHas_model (sfi = 0x292601254269)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] [compiling method 0x2926014021f5 <JSFunction selectBulkHas_model (sfi = 0x292601254269)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12400bcecf0 {0x292601311375 <SharedFunctionInfo engine.createWeakMap>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12400bcf810 {0x292601312f3d <SharedFunctionInfo Resolver>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Considering 0x12400bcf910 {0x292601254299 <SharedFunctionInfo markAncestors_model>} for inlining with 0x12401943660 {0x292601314af9 <FeedbackVector[16]>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12400bcf810 {0x292601312f3d <SharedFunctionInfo Resolver>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out]   - target: 0x12400bcf910 {0x292601254299 <SharedFunctionInfo markAncestors_model>}, bytecode size: 64, existing opt code's inlined bytecode size: 10
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12400bcf910 {0x292601254299 <SharedFunctionInfo markAncestors_model>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x124018de280 {0x29260125b359 <SharedFunctionInfo engine.upOf>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x124018de280 {0x29260125b359 <SharedFunctionInfo engine.upOf>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12401942210 {0x29260125473d <SharedFunctionInfo hasCandidates>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x124018e7350 {0x292601254cbd <SharedFunctionInfo collectionSnapshot>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x124015765d0 {0x292601254c8d <SharedFunctionInfo skipsCollectionSnapshot>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.252Z pw:browser [pid=68930][out] Inlining 0x12401576508 {0x292601254d1d <SharedFunctionInfo reuseCollectionSnapshot>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.254Z pw:browser [pid=68930][out] Inlining 0x12401576428 {0x292601254c5d <SharedFunctionInfo collectionCopy>} into 0x12400bce4a8 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] [completed compiling 0x2926013176b1 <JSFunction selectBulkHas_model (sfi = 0x292601254269)> (target TURBOFAN_JS) - took 0.002, 7.345, 0.055 ms]
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] [completed optimizing 0x2926013176b1 <JSFunction selectBulkHas_model (sfi = 0x292601254269)> (target TURBOFAN_JS)]
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] [marking 0x29260131771d <JSFunction runSingle_model (sfi = 0x2926012543e9)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] [compiling method 0x29260131771d <JSFunction runSingle_model (sfi = 0x2926012543e9)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] Begin compiling method runSingle_model using Maglev
+2026-10-05T17:09:27.260Z pw:browser [pid=68930][out] Finished compiling method runSingle_model using Maglev
+2026-10-05T17:09:27.261Z pw:browser [pid=68930][out] [completed compiling 0x29260131771d <JSFunction runSingle_model (sfi = 0x2926012543e9)> (target MAGLEV) - took 0.000, 0.138, 0.006 ms]
+2026-10-05T17:09:27.312Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: prepare for on stack replacement (OSR)): begin. deoptimizing 0x292601317865 <JSFunction (sfi = 0x2926013079dd)>, 0x011701027725 <Code MAGLEV>, opt id 18, bytecode offset 79, deopt exit 14, FP to SP delta 144, caller SP 0x00016d4673b0, pc 0x000155679a84]
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out] Considering 0x12401c70d10 {0x2926012543e9 <SharedFunctionInfo runSingle_model>} for inlining with 0x1240195e528 {0x2926013153a9 <FeedbackVector[25]>}
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out]   - target: 0x12401c70d10 {0x2926012543e9 <SharedFunctionInfo runSingle_model>}, bytecode size: 138, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out]   - target: 0x12401c70d10 {0x2926012543e9 <SharedFunctionInfo runSingle_model>}, bytecode size: 138, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out] Inlining 0x12401c70d10 {0x2926012543e9 <SharedFunctionInfo runSingle_model>} into 0x12401c704a8 {0x2926012543b9 <SharedFunctionInfo runCachedResolvers>}
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out] Considering 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>} for inlining with 0x12401962660 {0x292601314ba5 <FeedbackVector[61]>}
+2026-10-05T17:09:27.559Z pw:browser [pid=68930][out]   - target: 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}, bytecode size: 346, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:27.560Z pw:browser [pid=68930][out]   - target: 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}, bytecode size: 346, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:27.560Z pw:browser [pid=68930][out]   - target: 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}, bytecode size: 346, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:27.560Z pw:browser [pid=68930][out]   - target: 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}, bytecode size: 346, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:27.560Z pw:browser [pid=68930][out]   - target: 0x12401960d30 {0x292601254269 <SharedFunctionInfo selectBulkHas_model>}, bytecode size: 346, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:28.536Z pw:browser [pid=68930][out] [marking 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.536Z pw:browser [pid=68930][out] [compiling method 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:28.536Z pw:browser [pid=68930][out] Begin compiling method markAncestors_split using Maglev
+2026-10-05T17:09:28.536Z pw:browser [pid=68930][out] Finished compiling method markAncestors_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [completed compiling 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target MAGLEV) - took 0.000, 0.204, 0.006 ms]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)>, 0x01080101f561 <Code MAGLEV>, opt id 2, bytecode offset 0, deopt exit 10, FP to SP delta 64, caller SP 0x00016b072f98, pc 0x000170030ce8]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: wrong map): begin. deoptimizing 0x37210120fc09 <JSFunction engine.upOf (sfi = 0x37210125b42d)>, 0x01080101ef21 <Code MAGLEV>, opt id 1, bytecode offset 0, deopt exit 0, FP to SP delta 32, caller SP 0x00016b072f00, pc 0x00017003070c]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [marking 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [compiling method 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Begin compiling method markAncestors_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Finished compiling method markAncestors_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [completed compiling 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target MAGLEV) - took 0.000, 0.123, 0.005 ms]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [marking 0x372101207215 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [compiling method 0x372101207215 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target MAGLEV) OSR, mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Begin compiling method selectBulkHas_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Finished compiling method selectBulkHas_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [completed compiling 0x372101207215 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target MAGLEV) OSR - took 0.000, 0.213, 0.005 ms]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] [compiling method 0x372101207215 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Begin compiling method selectBulkHas_split using Maglev
+2026-10-05T17:09:28.537Z pw:browser [pid=68930][out] Finished compiling method selectBulkHas_split using Maglev
+2026-10-05T17:09:28.538Z pw:browser [pid=68930][out] [completed compiling 0x372101207215 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target MAGLEV) - took 0.000, 0.296, 0.006 ms]
+2026-10-05T17:09:28.538Z pw:browser [pid=68930][out] [marking 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.538Z pw:browser [pid=68930][out] [compiling method 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:28.538Z pw:browser [pid=68930][out] Inlining 0x13c019058d8 {0x37210125b42d <SharedFunctionInfo engine.upOf>} into 0x13c019054a8 {0x37210125435d <SharedFunctionInfo markAncestors_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c019058d8 {0x37210125b42d <SharedFunctionInfo engine.upOf>} into 0x13c019054a8 {0x37210125435d <SharedFunctionInfo markAncestors_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] [completed compiling 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target TURBOFAN_JS) - took 0.006, 1.150, 0.009 ms]
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] [completed optimizing 0x372101207255 <JSFunction markAncestors_split (sfi = 0x37210125435d)> (target TURBOFAN_JS)]
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] [marking 0x3721014021f9 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> for optimization to TURBOFAN_JS, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] [compiling method 0x3721014021f9 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target TURBOFAN_JS), mode: ConcurrencyMode::kConcurrent]
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c00bcecd0 {0x372101311455 <SharedFunctionInfo engine.createWeakMap>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c00bcedf0 {0x37210131301d <SharedFunctionInfo Resolver>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Considering 0x13c00bcf8f0 {0x37210125435d <SharedFunctionInfo markAncestors_split>} for inlining with 0x13c01943350 {0x372101314bd1 <FeedbackVector[16]>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c00bcedf0 {0x37210131301d <SharedFunctionInfo Resolver>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out]   - target: 0x13c00bcf8f0 {0x37210125435d <SharedFunctionInfo markAncestors_split>}, bytecode size: 64, existing opt code's inlined bytecode size: 10
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c00bcf8f0 {0x37210125435d <SharedFunctionInfo markAncestors_split>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c01945f20 {0x37210125b42d <SharedFunctionInfo engine.upOf>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c01945f20 {0x37210125b42d <SharedFunctionInfo engine.upOf>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c01941f80 {0x372101254801 <SharedFunctionInfo hasCandidates>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.540Z pw:browser [pid=68930][out] Inlining 0x13c018dd028 {0x372101254d81 <SharedFunctionInfo collectionSnapshot>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.541Z pw:browser [pid=68930][out] Inlining 0x13c01576580 {0x372101254d51 <SharedFunctionInfo skipsCollectionSnapshot>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.541Z pw:browser [pid=68930][out] Inlining 0x13c015764b8 {0x372101254de1 <SharedFunctionInfo reuseCollectionSnapshot>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.543Z pw:browser [pid=68930][out] Inlining 0x13c015763d8 {0x372101254d21 <SharedFunctionInfo collectionCopy>} into 0x13c00bce4a8 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}
+2026-10-05T17:09:28.548Z pw:browser [pid=68930][out] [completed compiling 0x372101317789 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target TURBOFAN_JS) - took 0.002, 6.881, 0.037 ms]
+2026-10-05T17:09:28.548Z pw:browser [pid=68930][out] [completed optimizing 0x372101317789 <JSFunction selectBulkHas_split (sfi = 0x3721012542fd)> (target TURBOFAN_JS)]
+2026-10-05T17:09:28.548Z pw:browser [pid=68930][out] [marking 0x3721013177f5 <JSFunction runSingle_split (sfi = 0x3721012544ad)> for optimization to MAGLEV, ConcurrencyMode::kConcurrent, reason: hot and stable]
+2026-10-05T17:09:28.549Z pw:browser [pid=68930][out] [compiling method 0x3721013177f5 <JSFunction runSingle_split (sfi = 0x3721012544ad)> (target MAGLEV), mode: ConcurrencyMode::kSynchronous]
+2026-10-05T17:09:28.549Z pw:browser [pid=68930][out] Begin compiling method runSingle_split using Maglev
+2026-10-05T17:09:28.549Z pw:browser [pid=68930][out] Finished compiling method runSingle_split using Maglev
+2026-10-05T17:09:28.549Z pw:browser [pid=68930][out] [completed compiling 0x3721013177f5 <JSFunction runSingle_split (sfi = 0x3721012544ad)> (target MAGLEV) - took 0.000, 0.134, 0.005 ms]
+2026-10-05T17:09:28.595Z pw:browser [pid=68930][out] [bailout (kind: deopt-eager, reason: prepare for on stack replacement (OSR)): begin. deoptimizing 0x37210131793d <JSFunction (sfi = 0x372101307abd)>, 0x010801027f79 <Code MAGLEV>, opt id 19, bytecode offset 79, deopt exit 14, FP to SP delta 144, caller SP 0x00016b0733b0, pc 0x00017003a5c4]
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out] Considering 0x13c01ca0d10 {0x3721012544ad <SharedFunctionInfo runSingle_split>} for inlining with 0x13c0195e528 {0x37210131546d <FeedbackVector[29]>}
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01ca0d10 {0x3721012544ad <SharedFunctionInfo runSingle_split>}, bytecode size: 181, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01ca0d10 {0x3721012544ad <SharedFunctionInfo runSingle_split>}, bytecode size: 181, existing opt code's inlined bytecode size: 70
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out] Inlining 0x13c01ca0d10 {0x3721012544ad <SharedFunctionInfo runSingle_split>} into 0x13c01ca04a8 {0x37210125447d <SharedFunctionInfo runCachedResolvers>}
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out] Considering 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>} for inlining with 0x13c01962b28 {0x372101314c7d <FeedbackVector[54]>}
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}, bytecode size: 298, existing opt code's inlined bytecode size: 852
+2026-10-05T17:09:28.820Z pw:browser [pid=68930][out]   - target: 0x13c01960d40 {0x3721012542fd <SharedFunctionInfo selectBulkHas_split>}, bytecode size: 298, existing opt code's inlined bytecode size: 852

@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-05T17:17:54.339Z",
+  "node": "v26.9.0",
+  "platform": "darwin/arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "candidateVersion": "2.3.0-prerelease",
+  "candidateSha256": "d4d68a73f1a1b3328a2a274f83d0fa4715d7dc805cdda81fb0d58eeea29bb544",
+  "competitorVersion": "9.1.1",
+  "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+  "model": "assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1",
+  "fixture": "96 fresh cases followed by crossed-7-192-4-0",
+  "callsPerFixture": 2000,
+  "flags": [
+    "--trace-opt",
+    "--trace-deopt",
+    "--trace-turbo-inlining"
+  ],
+  "scope": "Three pages with variant-labelled function names and fresh iframes per fixture. JIT diagnostics only. Logging and renaming change execution. Query counts differ from the timing workload.",
+  "logSha256": "92e8d43155978e230d93373714cdf3d69bf9c448a15830e74de6c92e64ca871e"
+}
