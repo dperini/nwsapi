@@ -1,162 +1,211 @@
 import type { EngineState } from '../../state/types.mts'
+
+interface TypePositions {
+  nodes: Element[]
+  positions?: WeakMap<Element, number>
+}
+
+interface ParentPositions {
+  parent: ParentNode | null
+  types: Record<string, TypePositions>
+}
+
 export function createNthOfType(engine: EngineState) {
-  var idx = 0,
-    len = 0,
-    set = 0,
-    current: Element[] | undefined,
-    parent: ParentNode | null | undefined = undefined,
-    parents = Array<ParentNode | null>(),
-    nodes = Array<Record<string, Element[]>>()
+  var current: Element[] | undefined,
+    currentIndex = 0,
+    currentLength = 0,
+    snapshots = Array<ParentPositions>()
+
   return function (
     element: Element | null,
     dir: number,
     stable?: boolean,
   ): number {
-    var loadTypeSiblingSetDone = false
-    var loadTypeSiblingSetValue!: number
-
-    // ensure caches are emptied after each run, invoking with dir = 2
     if (dir == 2) {
-      idx = 0
-      len = 0
-      set = 0
-      nodes.length = 0
-      parents.length = 0
-      parent = undefined
+      snapshots.length = 0
       current = undefined
+      currentIndex = 0
+      currentLength = 0
       return -1
     }
-    // Adjacent candidates already identify their type and parent. Reuse
-    // that identity before paying for three more DOM property reads.
-    const previous = stablePosition()
-    if (previous !== undefined) {
-      return previous
-    }
-    current = undefined
-    var e: Element | Element[] | null,
-      i!: number,
-      j!: number,
-      k: number,
-      l!: number,
-      local = engine.Config.LEGACY
-        ? engine.tagOf(element!)
-        : element!.localName,
-      namespace = element!.namespaceURI,
-      name =
-        namespace == engine.NAMESPACE
-          ? local
-          : (namespace || '') + '\x00' + local
-    if (resolveSiblingSet()) {
-      return loadTypeSiblingSetValue
-    }
-    if (
-      element !== nodes[i]![name]![j] &&
-      element !== nodes[i]![name]![(j = 0)]
-    ) {
-      for (j = 0, e = nodes[i]![name]!, k = l - 1; l > j; ++j, --k) {
-        if ((e as Element[])[j] === element) {
-          break
-        }
-        if ((e as Element[])[k] === element) {
-          j = k
-          break
-        }
-      }
-    }
-    current = nodes[i]![name]
-    idx = j + 1
-    len = l
-    return dir ? l - j : idx
 
-    function stablePosition() {
-      if (stable && current) {
-        if (current[idx] === element) {
-          ++idx
-          return dir ? len - idx + 1 : idx
-        }
-        if (current[idx - 1] === element) {
-          return dir ? len - idx + 1 : idx
-        }
-      }
+    const adjacent = stablePosition(
+      current,
+      currentIndex,
+      currentLength,
+      element,
+      dir,
+      stable,
+    )
+    if (adjacent !== undefined) {return adjacent}
 
-      return undefined
+    const target = element!
+    const local = engine.Config.LEGACY ? engine.tagOf(target) : target.localName
+    const namespace = target.namespaceURI
+    const name = typeName(engine, namespace, local)
+    const parent = target.parentNode
+
+    // Callback queries can mutate siblings while candidates are visited.
+    // Recompute those positions instead of retaining a parent snapshot.
+    if (stable === false && !engine.Config.LEGACY) {
+      return scanPosition(engine, parent, target, local, namespace, dir)
     }
 
-    function resolveSiblingSet() {
-      if (nodes[set]! && nodes[set]![name]! && parent === element!.parentNode) {
-        i = set
-        j = idx
-        l = len
-      } else {
-        l = parents.length
-        parent = element!.parentNode
-        for (i = -1, j = 0, k = l - 1; l > j; ++j, --k) {
-          if (parents[j] === parent) {
-            i = j
-            break
-          }
-          if (parents[k] === parent) {
-            i = k
-            break
-          }
-        }
-        {
-          loadTypeSiblingSet()
-          if (loadTypeSiblingSetDone) {
-            return true
-          }
-        }
-      }
-
-      return false
+    const snapshot = getParentSnapshot(snapshots, parent, engine, target)
+    const type = getTypePositions(
+      engine,
+      snapshot,
+      target,
+      name,
+      local,
+      namespace,
+    )
+    if (!type) {
+      current = undefined
+      return 1
     }
 
-    function loadTypeSiblingSet() {
-      if (i < 0 || !nodes[i]![name]!) {
-        parents[(i = l)] = parent!
-        nodes[i]! || (nodes[i] = engine.primordials.ObjectCreate(null))
-        l = 0
-        nodes[i]![name] = Array<Element>()
-        e = parent ? engine.firstOf(parent) || element : element
-        if (engine.Config.LEGACY) {
-          var siblings = engine.legacyHooks!.siblings(
-            e as Element | null,
-            element!,
-            local,
-            namespace,
-          )
-          nodes[i]![name] = siblings.nodes
-          j = siblings.index
-          l = siblings.nodes.length
-        } else {
-          while (e) {
-            if (e === element) {
-              j = l
-            }
-            if (
-              (e as Element).localName == local &&
-              (e as Element).namespaceURI == namespace
-            ) {
-              nodes[i]![name]![l] = e as Element
-              ++l
-            }
-            e = (e as Element).nextElementSibling
-          }
-        }
-        set = i
-        idx = j
-        len = l
-        if (l < 2) {
-          {
-            loadTypeSiblingSetValue = l
-            loadTypeSiblingSetDone = true
-            return
-          }
-        }
-      } else {
-        l = nodes[i]![name]!.length
-        set = i
-      }
+    current = type.nodes
+    currentLength = type.nodes.length
+    currentIndex = type.positions
+      ? type.positions.get(target) || 1
+      : findPosition(type.nodes, target)
+    return dir ? currentLength - currentIndex + 1 : currentIndex
+  }
+}
+
+function stablePosition(
+  current: Element[] | undefined,
+  index: number,
+  length: number,
+  element: Element | null,
+  dir: number,
+  stable?: boolean,
+) {
+  if (!stable || !current) {return undefined}
+  if (current[index] === element) {
+    ++index
+    return dir ? length - index + 1 : index
+  }
+  if (current[index - 1] === element) {
+    return dir ? length - index + 1 : index
+  }
+  return undefined
+}
+
+function getParentSnapshot(
+  snapshots: ParentPositions[],
+  parent: ParentNode | null,
+  engine: EngineState,
+  target: Element,
+) {
+  for (let i = 0, length = snapshots.length; i < length; ++i) {
+    if (snapshots[i]!.parent === parent) {return snapshots[i]!}
+  }
+  const snapshot: ParentPositions = {
+    parent,
+    types: engine.primordials.ObjectCreate(null) as Record<
+      string,
+      TypePositions
+    >,
+  }
+  snapshots[snapshots.length] = snapshot
+  if (!engine.Config.LEGACY) {buildSnapshot(snapshot, engine, target)}
+  return snapshot
+}
+
+function getTypePositions(
+  engine: EngineState,
+  snapshot: ParentPositions,
+  target: Element,
+  name: string,
+  local: string,
+  namespace: string | null,
+) {
+  let type = snapshot.types[name]
+  if (type || !engine.Config.LEGACY) {return type}
+
+  const parent = snapshot.parent
+  const start = parent ? engine.firstOf(parent) || target : target
+  const siblings = engine.legacyHooks!.siblings(
+    start as Element,
+    target,
+    local,
+    namespace,
+  )
+  type = { nodes: siblings.nodes }
+  addPositions(engine, type)
+  snapshot.types[name] = type
+  return type
+}
+
+function buildSnapshot(
+  snapshot: ParentPositions,
+  engine: EngineState,
+  target: Element,
+) {
+  let node = snapshot.parent ? engine.firstOf(snapshot.parent) : target
+  while (node) {
+    const sibling = node as Element
+    const name = typeName(engine, sibling.namespaceURI, sibling.localName)
+    let type = snapshot.types[name]
+    if (!type) {
+      type = { nodes: [] }
+      addPositions(engine, type)
+      snapshot.types[name] = type
+    }
+    type.nodes[type.nodes.length] = sibling
+    type.positions?.set(sibling, type.nodes.length)
+    node = sibling.nextElementSibling
+  }
+}
+
+function addPositions(engine: EngineState, type: TypePositions) {
+  const WeakMapCtor = engine.primordials.WeakMapCtor
+  if (WeakMapCtor) {
+    type.positions = new WeakMapCtor<Element, number>()
+    for (let i = 0, length = type.nodes.length; i < length; ++i) {
+      type.positions.set(type.nodes[i]!, i + 1)
     }
   }
+}
+
+function scanPosition(
+  engine: EngineState,
+  parent: ParentNode | null,
+  target: Element,
+  local: string,
+  namespace: string | null,
+  dir: number,
+) {
+  let node = parent ? engine.firstOf(parent) : target
+  let index = 0
+  let total = 0
+  while (node) {
+    const sibling = node as Element
+    if (sibling.localName === local && sibling.namespaceURI === namespace) {
+      ++total
+      if (sibling === target) {index = total}
+    }
+    node = sibling.nextElementSibling
+  }
+  const position = index || 1
+  return dir ? total - position + 1 : position
+}
+
+function typeName(
+  engine: EngineState,
+  namespace: string | null,
+  local: string,
+) {
+  return namespace == engine.NAMESPACE
+    ? local
+    : (namespace || '') + '\x00' + local
+}
+
+function findPosition(nodes: Element[], target: Element) {
+  for (let i = 0, length = nodes.length; i < length; ++i) {
+    if (nodes[i] === target) {return i + 1}
+  }
+  return 1
 }

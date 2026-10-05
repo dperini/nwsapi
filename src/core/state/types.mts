@@ -161,6 +161,7 @@ export interface CompilerAncestry {
 export interface CompilerContext {
   nextIdentifier: number
   classes: string[]
+  sharedAttributes?: Record<string, string>
   prelude?: string[]
   variables?: string[]
 }

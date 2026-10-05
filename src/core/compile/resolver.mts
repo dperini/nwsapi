@@ -1,5 +1,6 @@
 import { compileCacheKey } from './cache-key.mts'
 import { bindResolver } from './factory.mts'
+import { parsePure } from './pure.mts'
 import type {
   EngineState,
   CompiledResolver,
@@ -52,6 +53,8 @@ export function compile(
   ancestry = { required: [], pending: [], walk: false }
   compiler = { nextIdentifier: 0, classes: [] }
   prepareAncestry()
+
+  collectSharedAttributes(selector, compiler)
 
   source = engine.compileSelector(
     relative && !/^[>+~]/.test(selector) ? ' ' + selector : selector,
@@ -155,6 +158,42 @@ export function compile(
         break
     }
   }
+
+  function collectSharedAttributes(selector: string, context: CompilerContext) {
+    if (engine.Config.LEGACY || callback) {
+      return
+    }
+    const parsed = parsePure(selector)
+    if (!parsed) {
+      return
+    }
+    for (
+      let compoundIndex = 0, compoundCount = parsed.compounds.length;
+      compoundIndex < compoundCount;
+      ++compoundIndex
+    ) {
+      const compound = parsed.compounds[compoundIndex]!
+      const counts: Record<string, number> =
+        engine.primordials.ObjectCreate(null)
+      const seen: Record<string, boolean> =
+        engine.primordials.ObjectCreate(null)
+      const attributes = attributeSelectors(compound)
+      for (let i = 0, length = attributes.length; i < length; ++i) {
+        const token = attributes[i]!
+        const name = /^\[[\t\n\f\r ]*([_a-zA-Z][\w-]*)/.exec(token)?.[1]
+        if (name && !seen[token]) {
+          seen[token] = true
+          counts[name] = (counts[name] || 0) + 1
+        }
+      }
+      for (const name in counts) {
+        if (counts[name]! > 1) {
+          context.sharedAttributes ||= engine.primordials.ObjectCreate(null)
+          context.sharedAttributes![name] = ''
+        }
+      }
+    }
+  }
   function prepareAncestry() {
     // Cache hits need no parser state or helper-alias bookkeeping.
     if ((mode || mode === null) && !engine.Config.LEGACY) {
@@ -244,6 +283,37 @@ export function compile(
       vars += rewritten.variables
     }
   }
+}
+
+function attributeSelectors(compound: string) {
+  const attributes: string[] = []
+  const length = compound.length
+  for (let i = 0; i < length; ++i) {
+    if (compound[i] !== '[') {
+      continue
+    }
+    const start = i
+    let quote = ''
+    let escaped = false
+    for (++i; i < length; ++i) {
+      const character = compound[i]!
+      if (escaped) {
+        escaped = false
+      } else if (character === '\\') {
+        escaped = true
+      } else if (quote) {
+        if (character === quote) {
+          quote = ''
+        }
+      } else if (character === '"' || character === "'") {
+        quote = character
+      } else if (character === ']') {
+        attributes[attributes.length] = compound.slice(start, i + 1)
+        break
+      }
+    }
+  }
+  return attributes
 }
 
 function annotateResolver(

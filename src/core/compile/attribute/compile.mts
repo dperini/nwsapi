@@ -30,6 +30,7 @@ export function compileAttribute(
     state.attributeSource = 'n'
     state.attributeGuard = 'n=s.attributeValueNS(e,"' + state.name + '");'
   }
+  cacheSharedAttribute(state)
   if (
     state.match![2]! &&
     !(state.test = state.engine.Operators[state.match![2]!])
@@ -116,4 +117,34 @@ export function compileAttribute(
       })
     }
   }
+}
+
+function cacheSharedAttribute(state: CompileState) {
+  if (
+    state.NS ||
+    state.attributeGuard ||
+    !state.compiler?.sharedAttributes ||
+    !(state.name in state.compiler.sharedAttributes)
+  ) {
+    return
+  }
+  var slot = state.compiler.sharedAttributes[state.name]!
+  if (!slot) {
+    slot = '_a' + state.compiler.nextIdentifier++
+    state.compiler.sharedAttributes[state.name] = slot
+    state.compiler.variables ||= []
+    state.compiler.variables.push(slot + '=null', '_v' + slot.slice(2))
+  }
+  state.attributeSource =
+    '(' +
+    slot +
+    '===e?_v' +
+    slot.slice(2) +
+    ':(' +
+    slot +
+    '=e,_v' +
+    slot.slice(2) +
+    '=' +
+    state.attributeSource +
+    '))'
 }
