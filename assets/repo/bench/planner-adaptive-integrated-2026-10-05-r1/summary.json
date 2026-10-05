@@ -1,0 +1,20 @@
+{
+  "chromium": {
+    "prefixCeilingSpeedRatio": 0.7865856675838246,
+    "integrated": {
+      "geometricSpeedRatio": 0.7067323836075987,
+      "worstTimeRatio": 14.533185516467695,
+      "speedRatioVsPrefixRule": 1.096374860225136,
+      "passesGate": false
+    }
+  },
+  "jsdom": {
+    "prefixCeilingSpeedRatio": 0.6785175947034208,
+    "integrated": {
+      "geometricSpeedRatio": 0.5859466704392879,
+      "worstTimeRatio": 32.1972891566265,
+      "speedRatioVsPrefixRule": 1.2528585383621471,
+      "passesGate": false
+    }
+  }
+}

@@ -1,27 +1,27 @@
 {
-  "runtime": "v26.9.0",
+  "runtime": "v26.10.0",
   "platform": "darwin/arm64",
   "callsPerRound": 100000,
   "rounds": 9,
-  "modelBytes": 2943,
+  "modelBytes": 2039,
   "results": {
     "in-domain": {
       "model": {
-        "medianNsPerCall": 356.58000000000015,
+        "medianNsPerCall": 225.535,
         "checksum": 910000
       },
       "rule": {
-        "medianNsPerCall": 9.885419999999954,
+        "medianNsPerCall": 9.862090000000023,
         "checksum": 910000
       }
     },
     "fallback-small": {
       "model": {
-        "medianNsPerCall": 43.5445900000002,
+        "medianNsPerCall": 43.578749999999786,
         "checksum": 0
       },
       "rule": {
-        "medianNsPerCall": 38.06124999999952,
+        "medianNsPerCall": 38.40417000000002,
         "checksum": 0
       }
     }

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { ENGINE_BUILD_PATH } from '../../../lib/paths.mts'
 import { expression } from '../model.mts'
 import type { Features, Tree } from '../model.mts'
+import { routeBundle } from './instrument.mts'
 
 const preparation = 'anchor: anchor,'
 const attributeMask =
@@ -43,14 +44,13 @@ export function guarded(model: Fitted) {
 }
 
 export function probeSource() {
-  const probe =
-    '(++plannerProbes, plannerFeatures = [anchors.length, witnesses.length, plan.attributeMask, witnesses.length / anchors.length], ' +
-    marker +
-    ')'
-  return (
-    'var plannerProbes = 0, plannerFeatures;\n' +
-    annotate(source()).replace(marker, probe) +
-    '\n;module.exports.probes = function(){return plannerProbes;}; module.exports.features = function(){return plannerFeatures;};'
+  return routeBundle(annotate(source()), 'baseline', true)
+}
+
+export function instrumentedVariants() {
+  const original = annotate(source())
+  return (['baseline', 'forward', 'inverse'] as const).map(choice =>
+    routeBundle(original, choice, true),
   )
 }
 
@@ -59,12 +59,15 @@ export function variants(model?: Fitted) {
   if (!model) {
     return [
       original,
-      annotate(original).replace(marker, 'true'),
-      annotate(original).replace(marker, 'false'),
+      routeBundle(annotate(original), 'forward'),
+      routeBundle(annotate(original), 'inverse'),
     ]
   }
   const call = `(function(anchors, witnesses, attributes){ return ${guarded(model)}; })(anchors.length, witnesses.length, plan.attributeMask)`
-  return [original, annotate(original).replace(marker, `!(${call})`)]
+  return [
+    original,
+    routeBundle(annotate(original), 'baseline', false, `!(${call})`),
+  ]
 }
 
 function annotate(code: string) {

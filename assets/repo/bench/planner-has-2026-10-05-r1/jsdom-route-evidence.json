@@ -1,0 +1,7504 @@
+[
+  {
+    "id": "flat-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "flat-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "flat-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "flat-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "flat-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "flat-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "nested-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "nested-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "nested-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "nested-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nested-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "external-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "external-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "external-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "external-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "external-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ragged-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "clustered-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 4,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          4,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 32,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          32,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-32-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 32,
+          "witnesses": 128,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          32,
+          128,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-0-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 0,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-0.125-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          0,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-0.125-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 24,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          24,
+          3,
+          0.125
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-1-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-1-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 192,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          192,
+          3,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          0,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mixed-192-4-filtered",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 192,
+          "witnesses": 768,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          192,
+          768,
+          3,
+          4
+        ]
+      }
+    ]
+  },
+  {
+    "id": "small-1-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "small-1-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 1,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "small-8-0-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "small-8-4-plain",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 8,
+          "witnesses": null,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "page-documentation-li-has-a-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 745,
+          "witnesses": 2370,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          745,
+          2370,
+          0,
+          3.1812080536912752
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 745,
+          "witnesses": 2370,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          745,
+          2370,
+          0,
+          3.1812080536912752
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 745,
+          "witnesses": 2370,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          745,
+          2370,
+          0,
+          3.1812080536912752
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-documentation-div-has-p-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 94,
+          "witnesses": 406,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          94,
+          406,
+          0,
+          4.319148936170213
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 94,
+          "witnesses": 406,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          94,
+          406,
+          0,
+          4.319148936170213
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 94,
+          "witnesses": 406,
+          "denseInverse": false,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          94,
+          406,
+          0,
+          4.319148936170213
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-components--card-has-badge-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-components--card-has-link-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-components--card-has-primary-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 300,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          300,
+          300,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-components--card-has-surface-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "page-components--card-has-row-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      },
+      {
+        "entries": 1,
+        "decisions": 0,
+        "inverse": 0,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 1,
+        "facts": {
+          "eligible": true,
+          "anchors": 300,
+          "witnesses": 0,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "empty",
+        "features": null
+      }
+    ]
+  },
+  {
+    "id": "page-atomic--card-has-badge-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-atomic--card-has-link-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 430,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          430,
+          0,
+          1.075
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 430,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          430,
+          0,
+          1.075
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 430,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          430,
+          0,
+          1.075
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-atomic--card-has-primary-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-atomic--card-has-surface-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 400,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          400,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "id": "page-atomic--card-has-row-",
+    "traces": [
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 830,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          830,
+          0,
+          2.075
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 0,
+        "forward": 1,
+        "resolver": 1,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 830,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "forward",
+        "features": [
+          400,
+          830,
+          0,
+          2.075
+        ]
+      },
+      {
+        "entries": 1,
+        "decisions": 1,
+        "inverse": 1,
+        "forward": 0,
+        "resolver": 0,
+        "empty": 0,
+        "facts": {
+          "eligible": true,
+          "anchors": 400,
+          "witnesses": 830,
+          "denseInverse": true,
+          "weakMapAvailable": true
+        },
+        "route": "inverse",
+        "features": [
+          400,
+          830,
+          0,
+          2.075
+        ]
+      }
+    ]
+  }
+]

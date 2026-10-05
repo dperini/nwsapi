@@ -1,0 +1,612 @@
+{
+  "format": 1,
+  "scenario": "adaptive-has",
+  "purpose": "development",
+  "timestamp": "2026-10-05T04:49:04.181Z",
+  "node": "v26.10.0",
+  "platform": "darwin/arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "candidateVersion": "2.3.0-prerelease",
+  "candidateSha256": "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+  "competitorVersion": "9.1.1",
+  "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+  "prefix": 4,
+  "settings": {
+    "rounds": 11,
+    "milliseconds": 20,
+    "batch": 16
+  },
+  "labels": [
+    "baseline",
+    "forward",
+    "inverse",
+    "prefix-continue",
+    "prefix-switch",
+    "prefix-rule"
+  ],
+  "variants": [
+    "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+    "bc3984dc369e75ffe2e7fef61df59dad2d001a7e8042fc6105a473d2946c07da",
+    "5708c03065a3358a830371253a5c4d9d371fc26c98f5de52b360419711596776",
+    "cd9706b813eb08cb2adb9387601e7ff93829cc06b213917c38423bb099717494",
+    "e23f8f9b769c729348f87b74c243de053ceab640c11ad7d4dd1c9fbc096fab19",
+    "052741469c927f90e23eafae0d1d179d829126148b818b77344723dc9b5bfc8c"
+  ],
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=38207587)\t100%; charged; 0:00 remaining present: true",
+  "features": [
+    "anchors",
+    "processed",
+    "passed",
+    "hits",
+    "candidates",
+    "denseInverse"
+  ],
+  "gate": {
+    "geometricSpeedRatio": 1.05,
+    "worstTimeRatio": 1.15
+  },
+  "split": [
+    {
+      "id": "flat-32-0-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0.125-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0.125-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-1-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-1-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-4-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-4-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0.125-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0.125-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-1-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-1-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-4-plain",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-4-filtered",
+      "group": "flat",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0.125-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0.125-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-1-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-1-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-4-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-4-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0.125-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0.125-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-1-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-1-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-4-plain",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-4-filtered",
+      "group": "nested",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0.125-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0.125-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-1-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-1-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-4-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-4-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0.125-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0.125-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-1-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-1-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-4-plain",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-4-filtered",
+      "group": "external",
+      "split": "train"
+    },
+    {
+      "id": "ragged-32-0-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0.125-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0.125-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-1-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-1-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-4-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-4-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0.125-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0.125-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-1-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-1-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-4-plain",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-4-filtered",
+      "group": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0.125-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0.125-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-1-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-1-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-4-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-4-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0.125-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0.125-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-1-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-1-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-4-plain",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-4-filtered",
+      "group": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0.125-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0.125-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-1-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-1-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-4-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-4-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0.125-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0.125-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-1-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-1-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-4-plain",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-4-filtered",
+      "group": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "small-1-0-plain",
+      "group": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-1-4-plain",
+      "group": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-8-0-plain",
+      "group": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-8-4-plain",
+      "group": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "page-documentation-li-has-a-",
+      "group": "page-documentation",
+      "split": "train"
+    },
+    {
+      "id": "page-documentation-div-has-p-",
+      "group": "page-documentation",
+      "split": "train"
+    },
+    {
+      "id": "page-components--card-has-badge-",
+      "group": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-link-",
+      "group": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-primary-",
+      "group": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-surface-",
+      "group": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-row-",
+      "group": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-badge-",
+      "group": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-link-",
+      "group": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-primary-",
+      "group": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-surface-",
+      "group": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-row-",
+      "group": "page-atomic",
+      "split": "holdout"
+    }
+  ],
+  "note": "Known fixture families used for development. No final holdout claim."
+}

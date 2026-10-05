@@ -1,0 +1,2274 @@
+{
+  "format": 2,
+  "datasetSha256": "a7cd09c535327fe1453913527bc1d13acda5f51ce03ab46a20fe3512c1a539f5",
+  "scope": "Development diagnostics. Hindsight fits observed cases and cannot establish generalization.",
+  "aliases": "Conservative oracle treats the baseline route as exactly baseline, eliminating same-route timing wins.",
+  "results": {
+    "chromium": {
+      "cases": 112,
+      "decisions": 82,
+      "featureGroups": 27,
+      "singletonGroups": 8,
+      "optimisticSpeedRatio": 1.0309036431370475,
+      "conservativeSpeedRatio": 1.0278542697489457,
+      "currentInputEmpiricalSpeedRatio": 1.0243797669678447,
+      "equalFamilyConservativeSpeedRatio": 1.1098251013143459,
+      "casesWithOver200nsHeadroom": 10,
+      "details": [
+        {
+          "id": "flat-32-0-plain",
+          "group": "flat",
+          "baselineNs": 387.2366790582404,
+          "optimisticNs": 387.2366790582404,
+          "conservativeNs": 387.2366790582404,
+          "currentInputOracleNs": 387.2366790582404,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-32-0-filtered",
+          "group": "flat",
+          "baselineNs": 450.888027467594,
+          "optimisticNs": 450.888027467594,
+          "conservativeNs": 450.888027467594,
+          "currentInputOracleNs": 450.888027467594,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-32-0.125-plain",
+          "group": "flat",
+          "baselineNs": 1351.6891893704196,
+          "optimisticNs": 1323.0820107594054,
+          "conservativeNs": 1351.6891893704196,
+          "currentInputOracleNs": 1351.6891893704196,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-0.125-filtered",
+          "group": "flat",
+          "baselineNs": 1291.3223140495868,
+          "optimisticNs": 1286.3297326827553,
+          "conservativeNs": 1291.3223140495868,
+          "currentInputOracleNs": 1291.3223140495868,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-1-plain",
+          "group": "flat",
+          "baselineNs": 5705.965909344906,
+          "optimisticNs": 5705.965909344906,
+          "conservativeNs": 5705.965909344906,
+          "currentInputOracleNs": 5705.965909344906,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-1-filtered",
+          "group": "flat",
+          "baselineNs": 5668.83484002759,
+          "optimisticNs": 5629.204036125019,
+          "conservativeNs": 5668.83484002759,
+          "currentInputOracleNs": 5668.83484002759,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-4-plain",
+          "group": "flat",
+          "baselineNs": 9153.740874824733,
+          "optimisticNs": 9153.740874824733,
+          "conservativeNs": 9153.740874824733,
+          "currentInputOracleNs": 9153.740874824733,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-4-filtered",
+          "group": "flat",
+          "baselineNs": 11147.676991809785,
+          "optimisticNs": 11117.256637992321,
+          "conservativeNs": 11147.676991809785,
+          "currentInputOracleNs": 11147.676991809785,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-0-plain",
+          "group": "flat",
+          "baselineNs": 520.8333333333334,
+          "optimisticNs": 520.8333333333334,
+          "conservativeNs": 520.8333333333334,
+          "currentInputOracleNs": 520.8333333333334,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-192-0-filtered",
+          "group": "flat",
+          "baselineNs": 519.8804574501613,
+          "optimisticNs": 519.8804574501613,
+          "conservativeNs": 519.8804574501613,
+          "currentInputOracleNs": 519.8804574501613,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-192-0.125-plain",
+          "group": "flat",
+          "baselineNs": 5375.536482445416,
+          "optimisticNs": 5375.536482445416,
+          "conservativeNs": 5375.536482445416,
+          "currentInputOracleNs": 5375.536482445416,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-0.125-filtered",
+          "group": "flat",
+          "baselineNs": 5745.41284378037,
+          "optimisticNs": 5700.284092348407,
+          "conservativeNs": 5745.41284378037,
+          "currentInputOracleNs": 5745.41284378037,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-1-plain",
+          "group": "flat",
+          "baselineNs": 20206.65322760901,
+          "optimisticNs": 20206.65322760901,
+          "conservativeNs": 20206.65322760901,
+          "currentInputOracleNs": 20206.65322760901,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-1-filtered",
+          "group": "flat",
+          "baselineNs": 27527.17392033209,
+          "optimisticNs": 27527.17392033209,
+          "conservativeNs": 27527.17392033209,
+          "currentInputOracleNs": 27527.17392033209,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-4-plain",
+          "group": "flat",
+          "baselineNs": 48341.34615241335,
+          "optimisticNs": 48341.34615241335,
+          "conservativeNs": 48341.34615241335,
+          "currentInputOracleNs": 48341.34615241335,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-4-filtered",
+          "group": "flat",
+          "baselineNs": 67516.44736351936,
+          "optimisticNs": 67516.44736351936,
+          "conservativeNs": 67516.44736351936,
+          "currentInputOracleNs": 76966.91177347128,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-0-plain",
+          "group": "nested",
+          "baselineNs": 524.5488879563576,
+          "optimisticNs": 524.5488879563576,
+          "conservativeNs": 524.5488879563576,
+          "currentInputOracleNs": 524.5488879563576,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-32-0-filtered",
+          "group": "nested",
+          "baselineNs": 526.6691237160812,
+          "optimisticNs": 526.6691237160812,
+          "conservativeNs": 526.6691237160812,
+          "currentInputOracleNs": 526.6691237160812,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-32-0.125-plain",
+          "group": "nested",
+          "baselineNs": 1552.419355092917,
+          "optimisticNs": 1552.419355092917,
+          "conservativeNs": 1552.419355092917,
+          "currentInputOracleNs": 1552.419355092917,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-0.125-filtered",
+          "group": "nested",
+          "baselineNs": 1676.8599196209825,
+          "optimisticNs": 1661.6865866390833,
+          "conservativeNs": 1676.8599196209825,
+          "currentInputOracleNs": 1676.8599196209825,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-1-plain",
+          "group": "nested",
+          "baselineNs": 3464.335179694224,
+          "optimisticNs": 3464.335179694224,
+          "conservativeNs": 3464.335179694224,
+          "currentInputOracleNs": 3464.335179694224,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-1-filtered",
+          "group": "nested",
+          "baselineNs": 5174.328511473069,
+          "optimisticNs": 5174.328511473069,
+          "conservativeNs": 5174.328511473069,
+          "currentInputOracleNs": 5174.328511473069,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-4-plain",
+          "group": "nested",
+          "baselineNs": 6333.64899149823,
+          "optimisticNs": 6333.64899149823,
+          "conservativeNs": 6333.64899149823,
+          "currentInputOracleNs": 6333.64899149823,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-4-filtered",
+          "group": "nested",
+          "baselineNs": 12565.625002607703,
+          "optimisticNs": 11614.5833335058,
+          "conservativeNs": 11614.5833335058,
+          "currentInputOracleNs": 12565.625002607703,
+          "maximumAddedWorkNs": 951.0416691019036,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-0-plain",
+          "group": "nested",
+          "baselineNs": 509.7879282218597,
+          "optimisticNs": 509.7879282218597,
+          "conservativeNs": 509.7879282218597,
+          "currentInputOracleNs": 509.7879282218597,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-192-0-filtered",
+          "group": "nested",
+          "baselineNs": 512.2950819672132,
+          "optimisticNs": 512.2950819672132,
+          "conservativeNs": 512.2950819672132,
+          "currentInputOracleNs": 512.2950819672132,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-192-0.125-plain",
+          "group": "nested",
+          "baselineNs": 6815.557064407546,
+          "optimisticNs": 6815.557064407546,
+          "conservativeNs": 6815.557064407546,
+          "currentInputOracleNs": 6815.557064407546,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-0.125-filtered",
+          "group": "nested",
+          "baselineNs": 7041.783707760525,
+          "optimisticNs": 7041.783707760525,
+          "conservativeNs": 7041.783707760525,
+          "currentInputOracleNs": 7041.783707760525,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-1-plain",
+          "group": "nested",
+          "baselineNs": 19365.384608793716,
+          "optimisticNs": 19365.384608793716,
+          "conservativeNs": 19365.384608793716,
+          "currentInputOracleNs": 19365.384608793716,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-1-filtered",
+          "group": "nested",
+          "baselineNs": 31609.375006519258,
+          "optimisticNs": 31021.341465686153,
+          "conservativeNs": 31609.375006519258,
+          "currentInputOracleNs": 31609.375006519258,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-4-plain",
+          "group": "nested",
+          "baselineNs": 37150.73529576116,
+          "optimisticNs": 37150.73529576116,
+          "conservativeNs": 37150.73529576116,
+          "currentInputOracleNs": 37150.73529576116,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-4-filtered",
+          "group": "nested",
+          "baselineNs": 75312.49999780866,
+          "optimisticNs": 66414.47367636781,
+          "conservativeNs": 66414.47367636781,
+          "currentInputOracleNs": 66414.47367636781,
+          "maximumAddedWorkNs": 8898.026321440848,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-0-plain",
+          "group": "external",
+          "baselineNs": 518.0273518441774,
+          "optimisticNs": 518.0273518441774,
+          "conservativeNs": 518.0273518441774,
+          "currentInputOracleNs": 518.0273518441774,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-32-0-filtered",
+          "group": "external",
+          "baselineNs": 520.1831044527673,
+          "optimisticNs": 520.1831044527673,
+          "conservativeNs": 520.1831044527673,
+          "currentInputOracleNs": 520.1831044527673,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-32-0.125-plain",
+          "group": "external",
+          "baselineNs": 986.2973185091599,
+          "optimisticNs": 979.3461236253836,
+          "conservativeNs": 986.2973185091599,
+          "currentInputOracleNs": 986.2973185091599,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-0.125-filtered",
+          "group": "external",
+          "baselineNs": 1108.433067524502,
+          "optimisticNs": 1108.433067524502,
+          "conservativeNs": 1108.433067524502,
+          "currentInputOracleNs": 1108.433067524502,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-1-plain",
+          "group": "external",
+          "baselineNs": 1606.2259309433773,
+          "optimisticNs": 1595.9821425245277,
+          "conservativeNs": 1606.2259309433773,
+          "currentInputOracleNs": 1606.2259309433773,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-1-filtered",
+          "group": "external",
+          "baselineNs": 2527.777778191699,
+          "optimisticNs": 2527.777778191699,
+          "conservativeNs": 2527.777778191699,
+          "currentInputOracleNs": 2527.777778191699,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-4-plain",
+          "group": "external",
+          "baselineNs": 3818.597560805246,
+          "optimisticNs": 3818.597560805246,
+          "conservativeNs": 3818.597560805246,
+          "currentInputOracleNs": 3818.597560805246,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-4-filtered",
+          "group": "external",
+          "baselineNs": 7646.7225629064005,
+          "optimisticNs": 7573.418675484248,
+          "conservativeNs": 7573.418675484248,
+          "currentInputOracleNs": 7646.7225629064005,
+          "maximumAddedWorkNs": 73.30388742215291,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-0-plain",
+          "group": "external",
+          "baselineNs": 520.3996669442132,
+          "optimisticNs": 520.3996669442132,
+          "conservativeNs": 520.3996669442132,
+          "currentInputOracleNs": 520.3996669442132,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-192-0-filtered",
+          "group": "external",
+          "baselineNs": 516.3604458586353,
+          "optimisticNs": 516.3604458586353,
+          "conservativeNs": 516.3604458586353,
+          "currentInputOracleNs": 516.3604458586353,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-192-0.125-plain",
+          "group": "external",
+          "baselineNs": 2233.258928338598,
+          "optimisticNs": 2233.258928338598,
+          "conservativeNs": 2233.258928338598,
+          "currentInputOracleNs": 2233.258928338598,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-0.125-filtered",
+          "group": "external",
+          "baselineNs": 2918.123543297216,
+          "optimisticNs": 2916.666667144268,
+          "conservativeNs": 2918.123543297216,
+          "currentInputOracleNs": 2918.123543297216,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-1-plain",
+          "group": "external",
+          "baselineNs": 6156.556372183795,
+          "optimisticNs": 6156.556372183795,
+          "conservativeNs": 6156.556372183795,
+          "currentInputOracleNs": 6156.556372183795,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-1-filtered",
+          "group": "external",
+          "baselineNs": 11539.564220183487,
+          "optimisticNs": 11539.564220183487,
+          "conservativeNs": 11539.564220183487,
+          "currentInputOracleNs": 11539.564220183487,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-4-plain",
+          "group": "external",
+          "baselineNs": 20084.325401555925,
+          "optimisticNs": 19721.67968779104,
+          "conservativeNs": 20084.325401555925,
+          "currentInputOracleNs": 20084.325401555925,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-4-filtered",
+          "group": "external",
+          "baselineNs": 44944.196423914815,
+          "optimisticNs": 41802.08332836628,
+          "conservativeNs": 41802.08332836628,
+          "currentInputOracleNs": 41802.08332836628,
+          "maximumAddedWorkNs": 3142.113095548535,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-0-plain",
+          "group": "ragged",
+          "baselineNs": 522.5752508361204,
+          "optimisticNs": 522.5752508361204,
+          "conservativeNs": 522.5752508361204,
+          "currentInputOracleNs": 522.5752508361204,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-32-0-filtered",
+          "group": "ragged",
+          "baselineNs": 517.9422119726498,
+          "optimisticNs": 517.9422119726498,
+          "conservativeNs": 517.9422119726498,
+          "currentInputOracleNs": 517.9422119726498,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-32-0.125-plain",
+          "group": "ragged",
+          "baselineNs": 1413.8418081411198,
+          "optimisticNs": 1413.8418081411198,
+          "conservativeNs": 1413.8418081411198,
+          "currentInputOracleNs": 1413.8418081411198,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-0.125-filtered",
+          "group": "ragged",
+          "baselineNs": 1325.9778012881886,
+          "optimisticNs": 1318.565400843882,
+          "conservativeNs": 1325.9778012881886,
+          "currentInputOracleNs": 1325.9778012881886,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-1-plain",
+          "group": "ragged",
+          "baselineNs": 4163.205979447626,
+          "optimisticNs": 4163.205979447626,
+          "conservativeNs": 4163.205979447626,
+          "currentInputOracleNs": 4163.205979447626,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-1-filtered",
+          "group": "ragged",
+          "baselineNs": 5462.609170468353,
+          "optimisticNs": 5359.241452354651,
+          "conservativeNs": 5462.609170468353,
+          "currentInputOracleNs": 5462.609170468353,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-4-plain",
+          "group": "ragged",
+          "baselineNs": 7300.145347429396,
+          "optimisticNs": 7300.145347429396,
+          "conservativeNs": 7300.145347429396,
+          "currentInputOracleNs": 7300.145347429396,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-4-filtered",
+          "group": "ragged",
+          "baselineNs": 13617.527170066276,
+          "optimisticNs": 11728.971961572348,
+          "conservativeNs": 11728.971961572348,
+          "currentInputOracleNs": 13617.527170066276,
+          "maximumAddedWorkNs": 1888.5552084939281,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-0-plain",
+          "group": "ragged",
+          "baselineNs": 516.9561621174524,
+          "optimisticNs": 516.9561621174524,
+          "conservativeNs": 516.9561621174524,
+          "currentInputOracleNs": 516.9561621174524,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-192-0-filtered",
+          "group": "ragged",
+          "baselineNs": 511.4566284779051,
+          "optimisticNs": 511.4566284779051,
+          "conservativeNs": 511.4566284779051,
+          "currentInputOracleNs": 511.4566284779051,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-192-0.125-plain",
+          "group": "ragged",
+          "baselineNs": 6483.1606228232695,
+          "optimisticNs": 6475.515464397589,
+          "conservativeNs": 6483.1606228232695,
+          "currentInputOracleNs": 6483.1606228232695,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-0.125-filtered",
+          "group": "ragged",
+          "baselineNs": 6429.487180251342,
+          "optimisticNs": 6391.900510774279,
+          "conservativeNs": 6429.487180251342,
+          "currentInputOracleNs": 6429.487180251342,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-1-plain",
+          "group": "ragged",
+          "baselineNs": 20074.404761313446,
+          "optimisticNs": 20074.404761313446,
+          "conservativeNs": 20074.404761313446,
+          "currentInputOracleNs": 20074.404761313446,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-1-filtered",
+          "group": "ragged",
+          "baselineNs": 30838.414629149,
+          "optimisticNs": 30746.951222238018,
+          "conservativeNs": 30838.414629149,
+          "currentInputOracleNs": 30838.414629149,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-4-plain",
+          "group": "ragged",
+          "baselineNs": 40977.822571632365,
+          "optimisticNs": 40856.854839911386,
+          "conservativeNs": 40977.822571632365,
+          "currentInputOracleNs": 40977.822571632365,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-4-filtered",
+          "group": "ragged",
+          "baselineNs": 79863.28125116415,
+          "optimisticNs": 69583.33333022892,
+          "conservativeNs": 69583.33333022892,
+          "currentInputOracleNs": 69583.33333022892,
+          "maximumAddedWorkNs": 10279.947920935228,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-0-plain",
+          "group": "clustered",
+          "baselineNs": 516.7424555601489,
+          "optimisticNs": 516.7424555601489,
+          "conservativeNs": 516.7424555601489,
+          "currentInputOracleNs": 516.7424555601489,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-32-0-filtered",
+          "group": "clustered",
+          "baselineNs": 522.3568742164647,
+          "optimisticNs": 522.3568742164647,
+          "conservativeNs": 522.3568742164647,
+          "currentInputOracleNs": 522.3568742164647,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-32-0.125-plain",
+          "group": "clustered",
+          "baselineNs": 1085.6119790534851,
+          "optimisticNs": 1085.6119790534851,
+          "conservativeNs": 1085.6119790534851,
+          "currentInputOracleNs": 1085.6119790534851,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-0.125-filtered",
+          "group": "clustered",
+          "baselineNs": 1195.9249522344674,
+          "optimisticNs": 1187.6780625542401,
+          "conservativeNs": 1195.9249522344674,
+          "currentInputOracleNs": 1195.9249522344674,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-1-plain",
+          "group": "clustered",
+          "baselineNs": 2147.766323024055,
+          "optimisticNs": 2141.4811649576645,
+          "conservativeNs": 2147.766323024055,
+          "currentInputOracleNs": 2147.766323024055,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-1-filtered",
+          "group": "clustered",
+          "baselineNs": 3164.5569620253164,
+          "optimisticNs": 3136.748120067338,
+          "conservativeNs": 3164.5569620253164,
+          "currentInputOracleNs": 3164.5569620253164,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-4-plain",
+          "group": "clustered",
+          "baselineNs": 6262.499999720603,
+          "optimisticNs": 6251.554725348801,
+          "conservativeNs": 6262.499999720603,
+          "currentInputOracleNs": 6262.499999720603,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-4-filtered",
+          "group": "clustered",
+          "baselineNs": 10582.983192494687,
+          "optimisticNs": 10471.354164959243,
+          "conservativeNs": 10471.354164959243,
+          "currentInputOracleNs": 10582.983192494687,
+          "maximumAddedWorkNs": 111.62902753544404,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-0-plain",
+          "group": "clustered",
+          "baselineNs": 512.2950819672132,
+          "optimisticNs": 512.2950819672132,
+          "conservativeNs": 512.2950819672132,
+          "currentInputOracleNs": 512.2950819672132,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-192-0-filtered",
+          "group": "clustered",
+          "baselineNs": 521.5283569097643,
+          "optimisticNs": 521.5283569097643,
+          "conservativeNs": 521.5283569097643,
+          "currentInputOracleNs": 521.5283569097643,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-192-0.125-plain",
+          "group": "clustered",
+          "baselineNs": 2603.950103833931,
+          "optimisticNs": 2603.950103833931,
+          "conservativeNs": 2603.950103833931,
+          "currentInputOracleNs": 2603.950103833931,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-0.125-filtered",
+          "group": "clustered",
+          "baselineNs": 3344.752673896398,
+          "optimisticNs": 3344.752673896398,
+          "conservativeNs": 3344.752673896398,
+          "currentInputOracleNs": 3344.752673896398,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-1-plain",
+          "group": "clustered",
+          "baselineNs": 9582.53816836549,
+          "optimisticNs": 9582.53816836549,
+          "conservativeNs": 9582.53816836549,
+          "currentInputOracleNs": 9582.53816836549,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-1-filtered",
+          "group": "clustered",
+          "baselineNs": 16496.710522149348,
+          "optimisticNs": 16266.233765508061,
+          "conservativeNs": 16496.710522149348,
+          "currentInputOracleNs": 16496.710522149348,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-4-plain",
+          "group": "clustered",
+          "baselineNs": 36196.42856397799,
+          "optimisticNs": 35633.68055296855,
+          "conservativeNs": 36196.42856397799,
+          "currentInputOracleNs": 36196.42856397799,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-4-filtered",
+          "group": "clustered",
+          "baselineNs": 63515.625009313226,
+          "optimisticNs": 62749.999994412065,
+          "conservativeNs": 62781.25001117587,
+          "currentInputOracleNs": 62781.25001117587,
+          "maximumAddedWorkNs": 734.3749981373549,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-0-plain",
+          "group": "mixed",
+          "baselineNs": 514.615067929189,
+          "optimisticNs": 514.615067929189,
+          "conservativeNs": 514.615067929189,
+          "currentInputOracleNs": 514.615067929189,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-32-0-filtered",
+          "group": "mixed",
+          "baselineNs": 518.1568587516113,
+          "optimisticNs": 518.1568587516113,
+          "conservativeNs": 518.1568587516113,
+          "currentInputOracleNs": 518.1568587516113,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-32-0.125-plain",
+          "group": "mixed",
+          "baselineNs": 1236.7087044190287,
+          "optimisticNs": 1231.8349755346187,
+          "conservativeNs": 1236.7087044190287,
+          "currentInputOracleNs": 1236.7087044190287,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-0.125-filtered",
+          "group": "mixed",
+          "baselineNs": 1061.3858231765507,
+          "optimisticNs": 1061.3858231765507,
+          "conservativeNs": 1061.3858231765507,
+          "currentInputOracleNs": 1061.3858231765507,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-1-plain",
+          "group": "mixed",
+          "baselineNs": 3207.5320513775714,
+          "optimisticNs": 3170.8860758079004,
+          "conservativeNs": 3207.5320513775714,
+          "currentInputOracleNs": 3207.5320513775714,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-1-filtered",
+          "group": "mixed",
+          "baselineNs": 4073.6970679792016,
+          "optimisticNs": 4002.5958455146883,
+          "conservativeNs": 4073.6970679792016,
+          "currentInputOracleNs": 4073.6970679792016,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-4-plain",
+          "group": "mixed",
+          "baselineNs": 7263.367053530465,
+          "optimisticNs": 7263.367053530465,
+          "conservativeNs": 7263.367053530465,
+          "currentInputOracleNs": 7263.367053530465,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-4-filtered",
+          "group": "mixed",
+          "baselineNs": 11264.076573891683,
+          "optimisticNs": 11250.000002161998,
+          "conservativeNs": 11264.076573891683,
+          "currentInputOracleNs": 11264.076573891683,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-0-plain",
+          "group": "mixed",
+          "baselineNs": 516.444650847574,
+          "optimisticNs": 516.444650847574,
+          "conservativeNs": 516.444650847574,
+          "currentInputOracleNs": 516.444650847574,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-192-0-filtered",
+          "group": "mixed",
+          "baselineNs": 521.3541665580124,
+          "optimisticNs": 521.3541665580124,
+          "conservativeNs": 521.3541665580124,
+          "currentInputOracleNs": 521.3541665580124,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-192-0.125-plain",
+          "group": "mixed",
+          "baselineNs": 3797.348485695142,
+          "optimisticNs": 3751.8712569273516,
+          "conservativeNs": 3797.348485695142,
+          "currentInputOracleNs": 3797.348485695142,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-0.125-filtered",
+          "group": "mixed",
+          "baselineNs": 4365.200347198946,
+          "optimisticNs": 4348.9583347561875,
+          "conservativeNs": 4365.200347198946,
+          "currentInputOracleNs": 4365.200347198946,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-1-plain",
+          "group": "mixed",
+          "baselineNs": 18351.449273472677,
+          "optimisticNs": 18351.449273472677,
+          "conservativeNs": 18351.449273472677,
+          "currentInputOracleNs": 18351.449273472677,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-1-filtered",
+          "group": "mixed",
+          "baselineNs": 24969.36274509804,
+          "optimisticNs": 24681.372549750056,
+          "conservativeNs": 24969.36274509804,
+          "currentInputOracleNs": 24969.36274509804,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-4-plain",
+          "group": "mixed",
+          "baselineNs": 38929.92424185981,
+          "optimisticNs": 38929.92424185981,
+          "conservativeNs": 38929.92424185981,
+          "currentInputOracleNs": 38929.92424185981,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-4-filtered",
+          "group": "mixed",
+          "baselineNs": 66430.92102910343,
+          "optimisticNs": 65406.24999906868,
+          "conservativeNs": 65421.87500745058,
+          "currentInputOracleNs": 65421.87500745058,
+          "maximumAddedWorkNs": 1009.0460216528445,
+          "decisionReached": true
+        },
+        {
+          "id": "small-1-0-plain",
+          "group": "small",
+          "baselineNs": 589.900896649363,
+          "optimisticNs": 589.900896649363,
+          "conservativeNs": 589.900896649363,
+          "currentInputOracleNs": 589.900896649363,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-1-4-plain",
+          "group": "small",
+          "baselineNs": 722.4870016577786,
+          "optimisticNs": 722.4870016577786,
+          "conservativeNs": 722.4870016577786,
+          "currentInputOracleNs": 722.4870016577786,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-8-0-plain",
+          "group": "small",
+          "baselineNs": 2678.6670236343743,
+          "optimisticNs": 2678.6670236343743,
+          "conservativeNs": 2678.6670236343743,
+          "currentInputOracleNs": 2678.6670236343743,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-8-4-plain",
+          "group": "small",
+          "baselineNs": 3715.689911697756,
+          "optimisticNs": 3715.689911697756,
+          "conservativeNs": 3715.689911697756,
+          "currentInputOracleNs": 3715.689911697756,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-documentation-li-has-a-",
+          "group": "page-documentation",
+          "baselineNs": 363437.4999674037,
+          "optimisticNs": 192053.57140994497,
+          "conservativeNs": 192053.57140994497,
+          "currentInputOracleNs": 192053.57140994497,
+          "maximumAddedWorkNs": 171383.92855745874,
+          "decisionReached": true
+        },
+        {
+          "id": "page-documentation-div-has-p-",
+          "group": "page-documentation",
+          "baselineNs": 46620.370371750105,
+          "optimisticNs": 16081.73076946957,
+          "conservativeNs": 16081.73076946957,
+          "currentInputOracleNs": 16081.73076946957,
+          "maximumAddedWorkNs": 30538.639602280535,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-badge-",
+          "group": "page-components",
+          "baselineNs": 27972.222223050063,
+          "optimisticNs": 27972.222223050063,
+          "conservativeNs": 27972.222223050063,
+          "currentInputOracleNs": 27972.222223050063,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-link-",
+          "group": "page-components",
+          "baselineNs": 29019.886363213034,
+          "optimisticNs": 28208.333336644704,
+          "conservativeNs": 29019.886363213034,
+          "currentInputOracleNs": 29019.886363213034,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-primary-",
+          "group": "page-components",
+          "baselineNs": 29142.441856133384,
+          "optimisticNs": 28607.954546301204,
+          "conservativeNs": 29142.441856133384,
+          "currentInputOracleNs": 29142.441856133384,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-surface-",
+          "group": "page-components",
+          "baselineNs": 516.0183655394044,
+          "optimisticNs": 516.0183655394044,
+          "conservativeNs": 516.0183655394044,
+          "currentInputOracleNs": 516.0183655394044,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-components--card-has-row-",
+          "group": "page-components",
+          "baselineNs": 510.00916866620526,
+          "optimisticNs": 510.00916866620526,
+          "conservativeNs": 510.00916866620526,
+          "currentInputOracleNs": 510.00916866620526,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-atomic--card-has-badge-",
+          "group": "page-atomic",
+          "baselineNs": 73402.77777984738,
+          "optimisticNs": 73402.77777984738,
+          "conservativeNs": 73402.77777984738,
+          "currentInputOracleNs": 73402.77777984738,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-link-",
+          "group": "page-atomic",
+          "baselineNs": 79902.34377211891,
+          "optimisticNs": 79902.34377211891,
+          "conservativeNs": 79902.34377211891,
+          "currentInputOracleNs": 79902.34377211891,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-primary-",
+          "group": "page-atomic",
+          "baselineNs": 77922.79411874274,
+          "optimisticNs": 77389.7058713962,
+          "conservativeNs": 77922.79411874274,
+          "currentInputOracleNs": 77922.79411874274,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-surface-",
+          "group": "page-atomic",
+          "baselineNs": 12478.341583605155,
+          "optimisticNs": 12172.330098534094,
+          "conservativeNs": 12478.341583605155,
+          "currentInputOracleNs": 12478.341583605155,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-row-",
+          "group": "page-atomic",
+          "baselineNs": 146840.2777488033,
+          "optimisticNs": 68421.05262177555,
+          "conservativeNs": 68421.05262177555,
+          "currentInputOracleNs": 68421.05262177555,
+          "maximumAddedWorkNs": 78419.22512702773,
+          "decisionReached": true
+        }
+      ]
+    },
+    "jsdom": {
+      "cases": 112,
+      "decisions": 82,
+      "featureGroups": 27,
+      "singletonGroups": 8,
+      "optimisticSpeedRatio": 1.0574353025538212,
+      "conservativeSpeedRatio": 1.053251344184938,
+      "currentInputEmpiricalSpeedRatio": 1.0525354304518566,
+      "equalFamilyConservativeSpeedRatio": 1.1492825585499133,
+      "casesWithOver200nsHeadroom": 13,
+      "details": [
+        {
+          "id": "flat-32-0-plain",
+          "group": "flat",
+          "baselineNs": 1283.875,
+          "optimisticNs": 1283.875,
+          "conservativeNs": 1283.875,
+          "currentInputOracleNs": 1283.875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-32-0-filtered",
+          "group": "flat",
+          "baselineNs": 1348.9375,
+          "optimisticNs": 1348.9375,
+          "conservativeNs": 1348.9375,
+          "currentInputOracleNs": 1348.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-32-0.125-plain",
+          "group": "flat",
+          "baselineNs": 4416.6875,
+          "optimisticNs": 4416.6875,
+          "conservativeNs": 4416.6875,
+          "currentInputOracleNs": 4416.6875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-0.125-filtered",
+          "group": "flat",
+          "baselineNs": 4406.25,
+          "optimisticNs": 4406.25,
+          "conservativeNs": 4406.25,
+          "currentInputOracleNs": 4406.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-1-plain",
+          "group": "flat",
+          "baselineNs": 16987,
+          "optimisticNs": 16731.75,
+          "conservativeNs": 16987,
+          "currentInputOracleNs": 16987,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-1-filtered",
+          "group": "flat",
+          "baselineNs": 18583.3125,
+          "optimisticNs": 18317.6875,
+          "conservativeNs": 18583.3125,
+          "currentInputOracleNs": 18583.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-4-plain",
+          "group": "flat",
+          "baselineNs": 29838.5625,
+          "optimisticNs": 29500,
+          "conservativeNs": 29838.5625,
+          "currentInputOracleNs": 29838.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-32-4-filtered",
+          "group": "flat",
+          "baselineNs": 51700.5,
+          "optimisticNs": 44500,
+          "conservativeNs": 44500,
+          "currentInputOracleNs": 44500,
+          "maximumAddedWorkNs": 7200.5,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-0-plain",
+          "group": "flat",
+          "baselineNs": 1460.9375,
+          "optimisticNs": 1460.9375,
+          "conservativeNs": 1460.9375,
+          "currentInputOracleNs": 1460.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-192-0-filtered",
+          "group": "flat",
+          "baselineNs": 1455.75,
+          "optimisticNs": 1455.75,
+          "conservativeNs": 1455.75,
+          "currentInputOracleNs": 1455.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "flat-192-0.125-plain",
+          "group": "flat",
+          "baselineNs": 14411.4375,
+          "optimisticNs": 14406.25,
+          "conservativeNs": 14411.4375,
+          "currentInputOracleNs": 14411.4375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-0.125-filtered",
+          "group": "flat",
+          "baselineNs": 16460.9375,
+          "optimisticNs": 16216.1875,
+          "conservativeNs": 16460.9375,
+          "currentInputOracleNs": 16460.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-1-plain",
+          "group": "flat",
+          "baselineNs": 64057.25,
+          "optimisticNs": 63768.25,
+          "conservativeNs": 64057.25,
+          "currentInputOracleNs": 64057.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-1-filtered",
+          "group": "flat",
+          "baselineNs": 88111.9375,
+          "optimisticNs": 88111.9375,
+          "conservativeNs": 88111.9375,
+          "currentInputOracleNs": 88111.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-4-plain",
+          "group": "flat",
+          "baselineNs": 157341.125,
+          "optimisticNs": 157341.125,
+          "conservativeNs": 157341.125,
+          "currentInputOracleNs": 157341.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "flat-192-4-filtered",
+          "group": "flat",
+          "baselineNs": 301919.25,
+          "optimisticNs": 251671.875,
+          "conservativeNs": 251671.875,
+          "currentInputOracleNs": 251671.875,
+          "maximumAddedWorkNs": 50247.375,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-0-plain",
+          "group": "nested",
+          "baselineNs": 1445.3125,
+          "optimisticNs": 1445.3125,
+          "conservativeNs": 1445.3125,
+          "currentInputOracleNs": 1445.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-32-0-filtered",
+          "group": "nested",
+          "baselineNs": 1442.6875,
+          "optimisticNs": 1442.6875,
+          "conservativeNs": 1442.6875,
+          "currentInputOracleNs": 1442.6875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-32-0.125-plain",
+          "group": "nested",
+          "baselineNs": 4968.75,
+          "optimisticNs": 4872.4375,
+          "conservativeNs": 4968.75,
+          "currentInputOracleNs": 4968.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-0.125-filtered",
+          "group": "nested",
+          "baselineNs": 5369.8125,
+          "optimisticNs": 5338.5625,
+          "conservativeNs": 5369.8125,
+          "currentInputOracleNs": 5369.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-1-plain",
+          "group": "nested",
+          "baselineNs": 9710.9375,
+          "optimisticNs": 9593.75,
+          "conservativeNs": 9710.9375,
+          "currentInputOracleNs": 9710.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-1-filtered",
+          "group": "nested",
+          "baselineNs": 16210.9375,
+          "optimisticNs": 16210.9375,
+          "conservativeNs": 16210.9375,
+          "currentInputOracleNs": 16210.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-4-plain",
+          "group": "nested",
+          "baselineNs": 20307.3125,
+          "optimisticNs": 20192.6875,
+          "conservativeNs": 20307.3125,
+          "currentInputOracleNs": 20307.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-32-4-filtered",
+          "group": "nested",
+          "baselineNs": 43281.25,
+          "optimisticNs": 38609.375,
+          "conservativeNs": 38609.375,
+          "currentInputOracleNs": 38609.375,
+          "maximumAddedWorkNs": 4671.875,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-0-plain",
+          "group": "nested",
+          "baselineNs": 1453.125,
+          "optimisticNs": 1453.125,
+          "conservativeNs": 1453.125,
+          "currentInputOracleNs": 1453.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-192-0-filtered",
+          "group": "nested",
+          "baselineNs": 1531.25,
+          "optimisticNs": 1531.25,
+          "conservativeNs": 1531.25,
+          "currentInputOracleNs": 1531.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "nested-192-0.125-plain",
+          "group": "nested",
+          "baselineNs": 17619.8125,
+          "optimisticNs": 17505.1875,
+          "conservativeNs": 17619.8125,
+          "currentInputOracleNs": 17619.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-0.125-filtered",
+          "group": "nested",
+          "baselineNs": 21013.0625,
+          "optimisticNs": 21013.0625,
+          "conservativeNs": 21013.0625,
+          "currentInputOracleNs": 21013.0625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-1-plain",
+          "group": "nested",
+          "baselineNs": 58583.3125,
+          "optimisticNs": 58583.3125,
+          "conservativeNs": 58583.3125,
+          "currentInputOracleNs": 58583.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-1-filtered",
+          "group": "nested",
+          "baselineNs": 99114.625,
+          "optimisticNs": 98734.375,
+          "conservativeNs": 99114.625,
+          "currentInputOracleNs": 99114.625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-4-plain",
+          "group": "nested",
+          "baselineNs": 123135.375,
+          "optimisticNs": 121697.9375,
+          "conservativeNs": 123135.375,
+          "currentInputOracleNs": 123135.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "nested-192-4-filtered",
+          "group": "nested",
+          "baselineNs": 262651,
+          "optimisticNs": 224046.875,
+          "conservativeNs": 224046.875,
+          "currentInputOracleNs": 224046.875,
+          "maximumAddedWorkNs": 38604.125,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-0-plain",
+          "group": "external",
+          "baselineNs": 1463.5625,
+          "optimisticNs": 1463.5625,
+          "conservativeNs": 1463.5625,
+          "currentInputOracleNs": 1463.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-32-0-filtered",
+          "group": "external",
+          "baselineNs": 1445.3125,
+          "optimisticNs": 1445.3125,
+          "conservativeNs": 1445.3125,
+          "currentInputOracleNs": 1445.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-32-0.125-plain",
+          "group": "external",
+          "baselineNs": 3229.125,
+          "optimisticNs": 3229.125,
+          "conservativeNs": 3229.125,
+          "currentInputOracleNs": 3229.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-0.125-filtered",
+          "group": "external",
+          "baselineNs": 3593.75,
+          "optimisticNs": 3591.125,
+          "conservativeNs": 3593.75,
+          "currentInputOracleNs": 3593.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-1-plain",
+          "group": "external",
+          "baselineNs": 4382.8125,
+          "optimisticNs": 4346.375,
+          "conservativeNs": 4382.8125,
+          "currentInputOracleNs": 4382.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-1-filtered",
+          "group": "external",
+          "baselineNs": 7528.6875,
+          "optimisticNs": 7513.0625,
+          "conservativeNs": 7528.6875,
+          "currentInputOracleNs": 7528.6875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-4-plain",
+          "group": "external",
+          "baselineNs": 13281.25,
+          "optimisticNs": 13281.25,
+          "conservativeNs": 13281.25,
+          "currentInputOracleNs": 13281.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-32-4-filtered",
+          "group": "external",
+          "baselineNs": 26888.0625,
+          "optimisticNs": 26783.8125,
+          "conservativeNs": 26888.0625,
+          "currentInputOracleNs": 28580.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-0-plain",
+          "group": "external",
+          "baselineNs": 1442.6875,
+          "optimisticNs": 1442.6875,
+          "conservativeNs": 1442.6875,
+          "currentInputOracleNs": 1442.6875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-192-0-filtered",
+          "group": "external",
+          "baselineNs": 1460.9375,
+          "optimisticNs": 1460.9375,
+          "conservativeNs": 1460.9375,
+          "currentInputOracleNs": 1460.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "external-192-0.125-plain",
+          "group": "external",
+          "baselineNs": 5000,
+          "optimisticNs": 4992.1875,
+          "conservativeNs": 5000,
+          "currentInputOracleNs": 5000,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-0.125-filtered",
+          "group": "external",
+          "baselineNs": 6908.8125,
+          "optimisticNs": 6908.8125,
+          "conservativeNs": 6908.8125,
+          "currentInputOracleNs": 6908.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-1-plain",
+          "group": "external",
+          "baselineNs": 20979.1875,
+          "optimisticNs": 20979.1875,
+          "conservativeNs": 20979.1875,
+          "currentInputOracleNs": 20979.1875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-1-filtered",
+          "group": "external",
+          "baselineNs": 41898.437499046326,
+          "optimisticNs": 41768.187500953674,
+          "conservativeNs": 41898.437499046326,
+          "currentInputOracleNs": 41898.437499046326,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-4-plain",
+          "group": "external",
+          "baselineNs": 78687.49999904633,
+          "optimisticNs": 78687.49999904633,
+          "conservativeNs": 78687.49999904633,
+          "currentInputOracleNs": 78687.49999904633,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "external-192-4-filtered",
+          "group": "external",
+          "baselineNs": 162226.56250095367,
+          "optimisticNs": 160705.75000095367,
+          "conservativeNs": 162226.56250095367,
+          "currentInputOracleNs": 164695.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-0-plain",
+          "group": "ragged",
+          "baselineNs": 1440.1249990463257,
+          "optimisticNs": 1440.1249990463257,
+          "conservativeNs": 1440.1249990463257,
+          "currentInputOracleNs": 1440.1249990463257,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-32-0-filtered",
+          "group": "ragged",
+          "baselineNs": 1471.3125,
+          "optimisticNs": 1471.3125,
+          "conservativeNs": 1471.3125,
+          "currentInputOracleNs": 1471.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-32-0.125-plain",
+          "group": "ragged",
+          "baselineNs": 4627.625001907349,
+          "optimisticNs": 4549.437500953674,
+          "conservativeNs": 4627.625001907349,
+          "currentInputOracleNs": 4627.625001907349,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-0.125-filtered",
+          "group": "ragged",
+          "baselineNs": 4190.125000953674,
+          "optimisticNs": 4161.437500953674,
+          "conservativeNs": 4190.125000953674,
+          "currentInputOracleNs": 4190.125000953674,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-1-plain",
+          "group": "ragged",
+          "baselineNs": 11849,
+          "optimisticNs": 11849,
+          "conservativeNs": 11849,
+          "currentInputOracleNs": 11849,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-1-filtered",
+          "group": "ragged",
+          "baselineNs": 17078.125,
+          "optimisticNs": 16997.375,
+          "conservativeNs": 17078.125,
+          "currentInputOracleNs": 17078.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-4-plain",
+          "group": "ragged",
+          "baselineNs": 23609.375,
+          "optimisticNs": 23609.375,
+          "conservativeNs": 23609.375,
+          "currentInputOracleNs": 23609.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-32-4-filtered",
+          "group": "ragged",
+          "baselineNs": 61955.75,
+          "optimisticNs": 40729.1875,
+          "conservativeNs": 40729.1875,
+          "currentInputOracleNs": 40729.1875,
+          "maximumAddedWorkNs": 21226.5625,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-0-plain",
+          "group": "ragged",
+          "baselineNs": 1447.9375,
+          "optimisticNs": 1447.9375,
+          "conservativeNs": 1447.9375,
+          "currentInputOracleNs": 1447.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-192-0-filtered",
+          "group": "ragged",
+          "baselineNs": 1455.75,
+          "optimisticNs": 1455.75,
+          "conservativeNs": 1455.75,
+          "currentInputOracleNs": 1455.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "ragged-192-0.125-plain",
+          "group": "ragged",
+          "baselineNs": 17401.0625,
+          "optimisticNs": 17401.0625,
+          "conservativeNs": 17401.0625,
+          "currentInputOracleNs": 17401.0625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-0.125-filtered",
+          "group": "ragged",
+          "baselineNs": 18971.375,
+          "optimisticNs": 18578.125,
+          "conservativeNs": 18971.375,
+          "currentInputOracleNs": 18971.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-1-plain",
+          "group": "ragged",
+          "baselineNs": 61416.625,
+          "optimisticNs": 61416.625,
+          "conservativeNs": 61416.625,
+          "currentInputOracleNs": 61416.625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-1-filtered",
+          "group": "ragged",
+          "baselineNs": 98122.375,
+          "optimisticNs": 97635.4375,
+          "conservativeNs": 98122.375,
+          "currentInputOracleNs": 98122.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-4-plain",
+          "group": "ragged",
+          "baselineNs": 132914.0625,
+          "optimisticNs": 131817.75,
+          "conservativeNs": 132914.0625,
+          "currentInputOracleNs": 132914.0625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "ragged-192-4-filtered",
+          "group": "ragged",
+          "baselineNs": 371703.125,
+          "optimisticNs": 230997.4375,
+          "conservativeNs": 230997.4375,
+          "currentInputOracleNs": 230997.4375,
+          "maximumAddedWorkNs": 140705.6875,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-0-plain",
+          "group": "clustered",
+          "baselineNs": 1479.125,
+          "optimisticNs": 1479.125,
+          "conservativeNs": 1479.125,
+          "currentInputOracleNs": 1479.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-32-0-filtered",
+          "group": "clustered",
+          "baselineNs": 1466.125,
+          "optimisticNs": 1466.125,
+          "conservativeNs": 1466.125,
+          "currentInputOracleNs": 1466.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-32-0.125-plain",
+          "group": "clustered",
+          "baselineNs": 3570.3125,
+          "optimisticNs": 3515.625,
+          "conservativeNs": 3570.3125,
+          "currentInputOracleNs": 3570.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-0.125-filtered",
+          "group": "clustered",
+          "baselineNs": 3890.625,
+          "optimisticNs": 3877.5625,
+          "conservativeNs": 3890.625,
+          "currentInputOracleNs": 3890.625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-1-plain",
+          "group": "clustered",
+          "baselineNs": 5979.1875,
+          "optimisticNs": 5911.4375,
+          "conservativeNs": 5979.1875,
+          "currentInputOracleNs": 5979.1875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-1-filtered",
+          "group": "clustered",
+          "baselineNs": 9320.3125,
+          "optimisticNs": 9320.3125,
+          "conservativeNs": 9320.3125,
+          "currentInputOracleNs": 9320.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-4-plain",
+          "group": "clustered",
+          "baselineNs": 21523.4375,
+          "optimisticNs": 21328.125,
+          "conservativeNs": 21523.4375,
+          "currentInputOracleNs": 21523.4375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-32-4-filtered",
+          "group": "clustered",
+          "baselineNs": 46919.25,
+          "optimisticNs": 36492.1875,
+          "conservativeNs": 36492.1875,
+          "currentInputOracleNs": 36492.1875,
+          "maximumAddedWorkNs": 10427.0625,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-0-plain",
+          "group": "clustered",
+          "baselineNs": 1476.5625,
+          "optimisticNs": 1476.5625,
+          "conservativeNs": 1476.5625,
+          "currentInputOracleNs": 1476.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-192-0-filtered",
+          "group": "clustered",
+          "baselineNs": 1463.5625,
+          "optimisticNs": 1463.5625,
+          "conservativeNs": 1463.5625,
+          "currentInputOracleNs": 1463.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "clustered-192-0.125-plain",
+          "group": "clustered",
+          "baselineNs": 6062.5,
+          "optimisticNs": 6062.5,
+          "conservativeNs": 6062.5,
+          "currentInputOracleNs": 6062.5,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-0.125-filtered",
+          "group": "clustered",
+          "baselineNs": 7906.25,
+          "optimisticNs": 7906.25,
+          "conservativeNs": 7906.25,
+          "currentInputOracleNs": 7906.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-1-plain",
+          "group": "clustered",
+          "baselineNs": 32697.9375,
+          "optimisticNs": 32697.9375,
+          "conservativeNs": 32697.9375,
+          "currentInputOracleNs": 32697.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-1-filtered",
+          "group": "clustered",
+          "baselineNs": 53776.0625,
+          "optimisticNs": 53776.0625,
+          "conservativeNs": 53776.0625,
+          "currentInputOracleNs": 53776.0625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-4-plain",
+          "group": "clustered",
+          "baselineNs": 124296.875,
+          "optimisticNs": 124296.875,
+          "conservativeNs": 124296.875,
+          "currentInputOracleNs": 124296.875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "clustered-192-4-filtered",
+          "group": "clustered",
+          "baselineNs": 317421.875,
+          "optimisticNs": 204601.5625,
+          "conservativeNs": 204601.5625,
+          "currentInputOracleNs": 204601.5625,
+          "maximumAddedWorkNs": 112820.3125,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-0-plain",
+          "group": "mixed",
+          "baselineNs": 1440.125,
+          "optimisticNs": 1440.125,
+          "conservativeNs": 1440.125,
+          "currentInputOracleNs": 1440.125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-32-0-filtered",
+          "group": "mixed",
+          "baselineNs": 1447.9375,
+          "optimisticNs": 1447.9375,
+          "conservativeNs": 1447.9375,
+          "currentInputOracleNs": 1447.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-32-0.125-plain",
+          "group": "mixed",
+          "baselineNs": 4046.875,
+          "optimisticNs": 4028.6875,
+          "conservativeNs": 4046.875,
+          "currentInputOracleNs": 4046.875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-0.125-filtered",
+          "group": "mixed",
+          "baselineNs": 3463.5625,
+          "optimisticNs": 3434.9375,
+          "conservativeNs": 3463.5625,
+          "currentInputOracleNs": 3463.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-1-plain",
+          "group": "mixed",
+          "baselineNs": 9450.5625,
+          "optimisticNs": 9450.5625,
+          "conservativeNs": 9450.5625,
+          "currentInputOracleNs": 9450.5625,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-1-filtered",
+          "group": "mixed",
+          "baselineNs": 12708.375,
+          "optimisticNs": 12546.875,
+          "conservativeNs": 12708.375,
+          "currentInputOracleNs": 12708.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-4-plain",
+          "group": "mixed",
+          "baselineNs": 24406.25,
+          "optimisticNs": 24135.375,
+          "conservativeNs": 24406.25,
+          "currentInputOracleNs": 24406.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-32-4-filtered",
+          "group": "mixed",
+          "baselineNs": 49557.3125,
+          "optimisticNs": 39489.5625,
+          "conservativeNs": 39489.5625,
+          "currentInputOracleNs": 39489.5625,
+          "maximumAddedWorkNs": 10067.75,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-0-plain",
+          "group": "mixed",
+          "baselineNs": 1481.75,
+          "optimisticNs": 1481.75,
+          "conservativeNs": 1481.75,
+          "currentInputOracleNs": 1481.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-192-0-filtered",
+          "group": "mixed",
+          "baselineNs": 1447.9375,
+          "optimisticNs": 1447.9375,
+          "conservativeNs": 1447.9375,
+          "currentInputOracleNs": 1447.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "mixed-192-0.125-plain",
+          "group": "mixed",
+          "baselineNs": 9820.3125,
+          "optimisticNs": 9406.25,
+          "conservativeNs": 9820.3125,
+          "currentInputOracleNs": 9820.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-0.125-filtered",
+          "group": "mixed",
+          "baselineNs": 12109.375,
+          "optimisticNs": 12109.375,
+          "conservativeNs": 12109.375,
+          "currentInputOracleNs": 12109.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-1-plain",
+          "group": "mixed",
+          "baselineNs": 58158.8125,
+          "optimisticNs": 58158.8125,
+          "conservativeNs": 58158.8125,
+          "currentInputOracleNs": 58158.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-1-filtered",
+          "group": "mixed",
+          "baselineNs": 81934.875,
+          "optimisticNs": 80338.5625,
+          "conservativeNs": 81934.875,
+          "currentInputOracleNs": 81934.875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-4-plain",
+          "group": "mixed",
+          "baselineNs": 130804.6875,
+          "optimisticNs": 130075.5,
+          "conservativeNs": 130804.6875,
+          "currentInputOracleNs": 130804.6875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "mixed-192-4-filtered",
+          "group": "mixed",
+          "baselineNs": 286924.5,
+          "optimisticNs": 216682.25,
+          "conservativeNs": 216682.25,
+          "currentInputOracleNs": 216682.25,
+          "maximumAddedWorkNs": 70242.25,
+          "decisionReached": true
+        },
+        {
+          "id": "small-1-0-plain",
+          "group": "small",
+          "baselineNs": 2325.5,
+          "optimisticNs": 2325.5,
+          "conservativeNs": 2325.5,
+          "currentInputOracleNs": 2325.5,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-1-4-plain",
+          "group": "small",
+          "baselineNs": 3231.8125,
+          "optimisticNs": 3231.8125,
+          "conservativeNs": 3231.8125,
+          "currentInputOracleNs": 3231.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-8-0-plain",
+          "group": "small",
+          "baselineNs": 10710.9375,
+          "optimisticNs": 10710.9375,
+          "conservativeNs": 10710.9375,
+          "currentInputOracleNs": 10710.9375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "small-8-4-plain",
+          "group": "small",
+          "baselineNs": 18119.75,
+          "optimisticNs": 18119.75,
+          "conservativeNs": 18119.75,
+          "currentInputOracleNs": 18119.75,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-documentation-li-has-a-",
+          "group": "page-documentation",
+          "baselineNs": 1524627.625,
+          "optimisticNs": 561424.5,
+          "conservativeNs": 561424.5,
+          "currentInputOracleNs": 561424.5,
+          "maximumAddedWorkNs": 963203.125,
+          "decisionReached": true
+        },
+        {
+          "id": "page-documentation-div-has-p-",
+          "group": "page-documentation",
+          "baselineNs": 154468.75,
+          "optimisticNs": 56713.5,
+          "conservativeNs": 56713.5,
+          "currentInputOracleNs": 56713.5,
+          "maximumAddedWorkNs": 97755.25,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-badge-",
+          "group": "page-components",
+          "baselineNs": 77596.375,
+          "optimisticNs": 75934.9375,
+          "conservativeNs": 77596.375,
+          "currentInputOracleNs": 77596.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-link-",
+          "group": "page-components",
+          "baselineNs": 74372.375,
+          "optimisticNs": 74372.375,
+          "conservativeNs": 74372.375,
+          "currentInputOracleNs": 74372.375,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-primary-",
+          "group": "page-components",
+          "baselineNs": 77033.875,
+          "optimisticNs": 76380.1875,
+          "conservativeNs": 77033.875,
+          "currentInputOracleNs": 77033.875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-components--card-has-surface-",
+          "group": "page-components",
+          "baselineNs": 1419.3125,
+          "optimisticNs": 1419.3125,
+          "conservativeNs": 1419.3125,
+          "currentInputOracleNs": 1419.3125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-components--card-has-row-",
+          "group": "page-components",
+          "baselineNs": 1406.25,
+          "optimisticNs": 1406.25,
+          "conservativeNs": 1406.25,
+          "currentInputOracleNs": 1406.25,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": false
+        },
+        {
+          "id": "page-atomic--card-has-badge-",
+          "group": "page-atomic",
+          "baselineNs": 218856.8125,
+          "optimisticNs": 218856.8125,
+          "conservativeNs": 218856.8125,
+          "currentInputOracleNs": 218856.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-link-",
+          "group": "page-atomic",
+          "baselineNs": 231632.8125,
+          "optimisticNs": 226986.9375,
+          "conservativeNs": 231632.8125,
+          "currentInputOracleNs": 231632.8125,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-primary-",
+          "group": "page-atomic",
+          "baselineNs": 219255.1875,
+          "optimisticNs": 215513,
+          "conservativeNs": 219255.1875,
+          "currentInputOracleNs": 219255.1875,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-surface-",
+          "group": "page-atomic",
+          "baselineNs": 45049.5,
+          "optimisticNs": 44429.6875,
+          "conservativeNs": 45049.5,
+          "currentInputOracleNs": 45049.5,
+          "maximumAddedWorkNs": 0,
+          "decisionReached": true
+        },
+        {
+          "id": "page-atomic--card-has-row-",
+          "group": "page-atomic",
+          "baselineNs": 673481.75,
+          "optimisticNs": 221726.5625,
+          "conservativeNs": 221726.5625,
+          "currentInputOracleNs": 221726.5625,
+          "maximumAddedWorkNs": 451755.1875,
+          "decisionReached": true
+        }
+      ]
+    }
+  }
+}

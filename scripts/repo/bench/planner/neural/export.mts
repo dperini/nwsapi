@@ -3,6 +3,9 @@ import path from 'node:path'
 import { isMainModule } from '../../../lib/run-node.mts'
 import { REPO_ROOT } from '../../../lib/paths.mts'
 import { sha256 } from '../../footprint/shared.mts'
+import type { Evidence } from '../has/evidence.mts'
+import { verifyEvidence } from '../has/evidence.mts'
+import type { Route, RouteFacts } from '../has/contract.mts'
 
 interface MeasurementRow {
   id: string
@@ -11,26 +14,39 @@ interface MeasurementRow {
   fixtureSha256: string
   features: number[]
   costs: number[]
+  samples: number[][]
+  calls: number[][]
+  routeEvidence: Evidence
 }
 
 interface MeasurementFile {
   metadata: {
+    format: number
+    contractVersion: number
     candidateSha256: string
     fixtureSha256: string
     power: string
     host: string
     featureNames: string[]
+    routeLabels: string[]
   }
   rows: MeasurementRow[]
 }
 
-interface TrainingRow {
+export interface TrainingRow {
   id: string
   family: string
   split: 'train' | 'holdout'
   host: 'chromium' | 'jsdom'
   features: [number, number, number, number]
   costsNs: [number, number]
+  costSamplesNs: [number[], number[]]
+  baselineCostNs: number
+  baselineSamplesNs: number[]
+  groupId: string
+  decisionReached: boolean
+  baselineRoute: Route
+  routeFacts: RouteFacts | null
 }
 
 const hosts = ['chromium', 'jsdom'] as const
@@ -50,6 +66,19 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
   if (
     sources.some(
       source =>
+        source.data.metadata.format !== 2 ||
+        source.data.metadata.contractVersion !== 2 ||
+        source.data.metadata.routeLabels.join('|') !==
+          'baseline|forward-after-preflight|inverse-after-preflight',
+    )
+  ) {
+    throw new Error(
+      'Expected version 2 measurements with proved routes. Recollect old data.',
+    )
+  }
+  if (
+    sources.some(
+      source =>
         source.data.metadata.candidateSha256 !== reference.candidateSha256 ||
         source.data.metadata.fixtureSha256 !== reference.fixtureSha256 ||
         source.data.metadata.featureNames.join('|') !==
@@ -66,12 +95,28 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
       throw new Error(`Duplicate ${source.host} planner measurement rows.`)
     }
     for (const row of source.data.rows) {
+      verifyEvidence(row.routeEvidence)
+      const baselineTrace = row.routeEvidence.traces[0]!
+      if (row.routeEvidence.id !== row.id) {
+        throw new Error('Route evidence belongs to another case: ' + row.id)
+      }
       const features = row.features
       const costsNs = [row.costs[1], row.costs[2]]
+      const costSamplesNs = [
+        row.samples[1]!,
+        row.samples[2]!,
+      ] as TrainingRow['costSamplesNs']
       if (
         features.length !== 4 ||
         features.some(value => !Number.isFinite(value) || value < 0) ||
-        costsNs.some(value => !Number.isFinite(value) || value! <= 0)
+        row.costs.length !== 3 ||
+        row.costs.some(value => !Number.isFinite(value) || value <= 0) ||
+        row.samples.length !== 3 ||
+        row.samples.some(
+          samples =>
+            samples.length < 3 ||
+            samples.some(value => !Number.isFinite(value) || value <= 0),
+        )
       ) {
         throw new Error(
           `Invalid route measurements for ${source.host}/${row.id}.`,
@@ -84,6 +129,13 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
         host: source.host,
         features: features as TrainingRow['features'],
         costsNs: costsNs as TrainingRow['costsNs'],
+        costSamplesNs,
+        baselineCostNs: row.costs[0]!,
+        baselineSamplesNs: row.samples[0]!,
+        groupId: row.family,
+        decisionReached: baselineTrace.decisions > 0,
+        baselineRoute: baselineTrace.route,
+        routeFacts: baselineTrace.facts,
       })
     }
   }
@@ -109,7 +161,10 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
   }
 
   const dataset = {
-    format: 1,
+    format: 2,
+    contractVersion: 2,
+    evaluationPurpose:
+      'development; these fixture families have been examined before',
     scenario: 'css-has-forward-versus-inverse-route',
     labelMeaning: 'costsNs are [forward, inverse] median query times',
     features: reference.featureNames,
@@ -125,6 +180,9 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
         filename,
         sha256: digest,
       })),
+      experimentSha256: sha256(
+        readFileSync(path.join(inputDirectory, 'experiment.json')),
+      ),
     },
     rows,
   }
@@ -136,9 +194,14 @@ export function exportDataset(inputDirectory: string, outputDirectory: string) {
 }
 
 if (isMainModule(import.meta.url)) {
-  const [
-    input = 'assets/repo/bench/planner-has-neural-2026-10-04',
-    output = 'assets/repo/bench/planner-neural-2026-10-04',
-  ] = process.argv.slice(2)
-  console.log(exportDataset(input, output))
+  const [input, output] = process.argv.slice(2)
+  if (process.argv.includes('--help')) {
+    console.log(
+      'Usage: neural/export.mts measurements-directory new-output-directory',
+    )
+  } else if (!input || !output) {
+    throw new Error('Explicit measurement and output directories are required.')
+  } else {
+    console.log(exportDataset(input, output))
+  }
 }

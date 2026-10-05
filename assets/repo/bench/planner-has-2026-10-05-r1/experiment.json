@@ -1,0 +1,606 @@
+{
+  "format": 2,
+  "contractVersion": 2,
+  "timestamp": "2026-10-05T04:34:45.672Z",
+  "node": "v26.10.0",
+  "platform": "darwin/arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "30.0.1",
+  "candidateVersion": "2.3.0-prerelease",
+  "candidateSha256": "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+  "competitorVersion": "9.1.1",
+  "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+  "scenario": "has",
+  "settings": {
+    "rounds": 11,
+    "milliseconds": 20,
+    "batch": 16
+  },
+  "pass": "initial",
+  "fixtureSha256": "b08f1da1817fdfdf21b6b1a737fca17a1ac19454158a21f7ad65ab64a3f2d79e",
+  "power": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=38207587)\t100%; charged; 0:00 remaining present: true",
+  "featureNames": [
+    "anchorCount",
+    "witnessCount",
+    "attributeMask",
+    "witnessRatio"
+  ],
+  "routeLabels": [
+    "baseline",
+    "forward-after-preflight",
+    "inverse-after-preflight"
+  ],
+  "variants": [
+    "a9f16f10b9ef545ef204795444041c5c01c2a619bf4154572a26122b8ac263c1",
+    "9e3b80a00d570dc7b3e7b6e45f577ebf3b3c07d4f6246655dfba004bd188dfcc",
+    "78a1605d91205edc76afa5dba90f216abdf26ac924a41e5ce21a91f1838fbfcc"
+  ],
+  "gate": {
+    "geometricSpeedRatio": 1.05,
+    "worstTimeRatio": 1.15
+  },
+  "baseline": "Unmodified build, measured directly as variant zero",
+  "scope": "Warm all-results queries; forced routes retain witness preflight",
+  "split": [
+    {
+      "id": "flat-32-0-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0.125-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-0.125-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-1-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-1-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-4-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-32-4-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0.125-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-0.125-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-1-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-1-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-4-plain",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "flat-192-4-filtered",
+      "family": "flat",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0.125-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-0.125-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-1-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-1-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-4-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-32-4-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0.125-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-0.125-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-1-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-1-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-4-plain",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "nested-192-4-filtered",
+      "family": "nested",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0.125-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-0.125-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-1-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-1-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-4-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-32-4-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0.125-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-0.125-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-1-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-1-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-4-plain",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "external-192-4-filtered",
+      "family": "external",
+      "split": "train"
+    },
+    {
+      "id": "ragged-32-0-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0.125-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-1-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-1-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-4-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-32-4-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0.125-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-0.125-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-1-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-1-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-4-plain",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "ragged-192-4-filtered",
+      "family": "ragged",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0.125-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-1-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-1-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-4-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-32-4-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0.125-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-0.125-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-1-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-1-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-4-plain",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "clustered-192-4-filtered",
+      "family": "clustered",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0.125-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-1-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-1-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-4-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-32-4-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0.125-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-0.125-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-1-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-1-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-4-plain",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "mixed-192-4-filtered",
+      "family": "mixed",
+      "split": "holdout"
+    },
+    {
+      "id": "small-1-0-plain",
+      "family": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-1-4-plain",
+      "family": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-8-0-plain",
+      "family": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "small-8-4-plain",
+      "family": "small",
+      "split": "holdout"
+    },
+    {
+      "id": "page-documentation-li-has-a-",
+      "family": "page-documentation",
+      "split": "train"
+    },
+    {
+      "id": "page-documentation-div-has-p-",
+      "family": "page-documentation",
+      "split": "train"
+    },
+    {
+      "id": "page-components--card-has-badge-",
+      "family": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-link-",
+      "family": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-primary-",
+      "family": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-surface-",
+      "family": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-components--card-has-row-",
+      "family": "page-components",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-badge-",
+      "family": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-link-",
+      "family": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-primary-",
+      "family": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-surface-",
+      "family": "page-atomic",
+      "split": "holdout"
+    },
+    {
+      "id": "page-atomic--card-has-row-",
+      "family": "page-atomic",
+      "split": "holdout"
+    }
+  ]
+}

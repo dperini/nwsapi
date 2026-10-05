@@ -1,4 +1,6 @@
+import { JSDOM } from 'jsdom'
 import type { Fixture } from '../fixtures.mts'
+import { DOCUMENTS } from '../../documents.mts'
 
 const families = ['flat', 'nested', 'external', 'ragged', 'clustered', 'mixed']
 
@@ -24,6 +26,53 @@ export function fixtures(): Fixture[] {
   for (const anchors of [1, 8]) {
     for (const ratio of [0, 4]) {
       result.push(fixture('small', 'holdout', anchors, ratio, false))
+    }
+  }
+  // Repository workload pages add realistic component and content structure.
+  // They are public benchmark fixtures, not collected user application data.
+  for (const [index, name] of [
+    'documentation',
+    'components',
+    'atomic',
+  ].entries()) {
+    const html = DOCUMENTS[name as keyof typeof DOCUMENTS].html()
+    const family = `page-${name}`
+    const split = index === 0 ? 'train' : 'holdout'
+    const selectors =
+      name === 'documentation'
+        ? [
+            ['li', 'a'],
+            ['div', 'p'],
+          ]
+        : [
+            ['.card', '.badge'],
+            ['.card', '.link'],
+            ['.card', '.primary'],
+            ['.card', '.surface'],
+            ['.card', '.row'],
+          ]
+    for (const selector of selectors) {
+      const [anchorSelector, witnessSelector] = selector as [string, string]
+      const query = `${anchorSelector}:has(${witnessSelector})`
+      const { window } = new JSDOM(html)
+      const anchors = window.document.querySelectorAll(anchorSelector).length
+      const witnesses = window.document.querySelectorAll(witnessSelector).length
+      window.close()
+      result.push({
+        id: `${family}-${query.replace(/[^a-z0-9]+/gi, '-')}`,
+        family,
+        split,
+        html,
+        selector: query,
+        tags: [],
+        plannerFeatures: [
+          anchors,
+          witnesses,
+          0,
+          anchors ? witnesses / anchors : 0,
+        ],
+        ...(anchors < 32 || witnesses === 0 ? { skipProbe: true } : {}),
+      })
     }
   }
   return result

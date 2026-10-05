@@ -1938,3 +1938,68 @@ Full compatibility suites were not rerun. A new `NWSAPI_REQUIRE_AC=1` guard
 checks power before and after each host measurement and records timestamps.
 These are boundary checks. Independent battery and AC runs do not isolate
 the effect of power source.
+
+
+## 2026-10-04: Higher-repeat AC training for the neural `:has()` planner
+
+**Superseded:** the October 5 audit found incomplete route forcing,
+reconstructed baseline differences, and inconsistent Python/JavaScript
+fallbacks. The exact neural percentages below cannot establish a win or
+regression. The historical artifacts remain preserved. The next entry
+records corrected measurements and actual-query integration.
+
+The offline training pipeline now uses 112 controlled and repository-page
+fixtures, 11 rotating 20ms timing rounds, grouped family validation, early
+stopping against route regret, a small model/seed search, and a one-number
+ratio-rule baseline. AC power was recorded before and after both hosts. The
+final holdout contains 124 rows across six synthetic and checked-in page
+families.
+
+Route-only model selection was 1.013× in Chromium and 1.018× in `jsdom`, with
+the gains concentrated in five selectors from the atomic-CSS page fixture.
+A 4.0 witness/anchor ratio cutoff captured almost all of that route-only
+change without inference. Both remain below the preset 1.05× promotion gate.
+The measured Node inference cost was 225.5ns versus 9.9ns for the current
+guard. Adding it to the selected route estimates 10.1% more query time in
+Chromium and 2.7% more in `jsdom`. Neither candidate changes production code.
+
+The [updated neural report](../../../assets/repo/bench/survey-2026-10-03/neural-planner.html)
+shows route-only and inference-adjusted bars, timing-round bootstrap
+intervals, the ratio-rule comparison, AC provenance, and the reason to keep
+both candidates out of the runtime. The complete generated measurements and
+trainer remain reproducible from the recorded fixture and build hashes.
+
+## 2026-10-05: Corrected neural measurements and adaptive continuation
+
+Complete AST route forcing and instrumented execution evidence repair the
+neural benchmark. Format-2 records preserve measured baseline costs. On the
+corrected 112-case development suite, a conservative free-choice oracle gives
+1.027854× Chromium and 1.053251× `jsdom` speed ratios. This rejects further
+search over only the original two routes under the two-host 1.05× gate.
+
+The old network's scalar exporter lowers Node decision-only cost from 164.7ns
+to 63.1ns after folding, against a 13.7ns guard. JavaScript and Python parity
+checks pass. This measures avoidable inference overhead, not a query speedup.
+
+A separate adaptive prototype performs four useful anchor checks, then
+continues forward or finishes through inverse ancestor marking. It reuses
+prefix results and observations. Six complete pipelines were collected in
+both hosts. A new cost-sensitive PyTorch model selects a two-unit ReLU network
+at epoch 49, with zero Python/JavaScript decision differences on 10,216 cases.
+
+The actual emitted model was measured inside complete queries. It takes
+41.5% more Chromium time and 70.7% more `jsdom` time than current v3, with
+worst-case ratios of 14.533× and 32.197×. The model improves on the simple
+prefix rule but fails both promotion gates. Even free, perfect choice after
+the prefix costs 27.1% and 47.4% more, so more training of this universal-prefix
+design cannot repair the sunk work on this suite.
+
+The [outcome and commands](neural-planner-outcome.md) and
+[HTML report](../../../assets/repo/bench/survey-2026-10-03/neural-planner-2026-10-05.html)
+include all inputs and separate overhead from whole-query costs. Collections
+use 112 known development cases per host and 11 rotating rounds of at least
+20ms, with AC recorded at host boundaries. These are warm queries. Broader
+application workloads, other prefix lengths, caching, cold/mutation timings,
+and release qualification are deferred after the failed pilot. No production
+runtime change is made. Earlier October 3 actual-build confirmations remain
+separate valid evidence for the existing guarded optimizations.

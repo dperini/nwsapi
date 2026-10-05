@@ -55,7 +55,7 @@ export function assertRoutes(entries: Fixture[], source = probeSource()) {
         )
       } else {
         assert.ok(factory.probes() > before, 'Planner bypassed: ' + entry.id)
-        if (factory.features) {
+        if (factory.features && entry.plannerFeatures) {
           assert.deepEqual(factory.features(), entry.plannerFeatures, entry.id)
         }
       }

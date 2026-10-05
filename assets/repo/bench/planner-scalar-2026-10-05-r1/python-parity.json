@@ -1,0 +1,6 @@
+{
+  "cases": 10084,
+  "maximumScoreError": 1.4755332955473932e-07,
+  "decisionDisagreements": 0,
+  "torch": "2.14.1"
+}

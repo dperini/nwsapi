@@ -1,5 +1,11 @@
 # Trained `:has()` route planner
 
+The October 5 neural continuation experiment is documented in the
+[implementation outcome](neural-planner-outcome.md) and
+[current HTML report](../../../assets/repo/bench/survey-2026-10-03/neural-planner-2026-10-05.html).
+Its measured regressions keep it offline. The earlier guarded implementation
+and actual-build confirmations described below remain in place.
+
 ## Implemented outcome
 
 The model trained on 96 observations across Chromium and `jsdom`. It pruned
@@ -128,6 +134,47 @@ node scripts/repo/run.mts scripts/repo/bench/planner/report.mts "$ac_output" ass
 ```
 
 </details>
+
+## Neural planner comparison (2026-10-04)
+
+**Superseded for performance conclusions on October 5.** The neural benchmark
+did not always force its labeled forward route. Its reconstructed baseline
+also differed from production, and Python and emitted JavaScript used different
+fallback rules. The raw results below are preserved as history. Fresh collection
+with proved route identities is required. See the
+[repair and implementation guide](neural-planner-implementation.md). This
+correction concerns the October 4 neural experiment, not the separate October 3
+comparisons of actual baseline and candidate builds.
+
+A separate PyTorch experiment compared a two-hidden-unit route-cost model and
+a one-number witness-to-anchor ratio rule against the current runtime rule.
+It used 112 fixtures (controlled synthetic cases plus selectors over the
+repository documentation, component, and atomic-CSS pages), measured on
+Chromium and `jsdom` with 11 alternating rounds of 20ms each. AC power was
+recorded before and after both host runs.
+
+The grouped trainer used 100 rows, selected model size and training duration
+using two training families, and kept 124 rows from six families untouched for
+final evaluation. The 2-unit model trained for 25 epochs. Its route-only
+geometric mean was 1.013× in Chromium and 1.018× in `jsdom`; timing-only 95%
+bootstrap intervals were 1.011–1.015× and 1.012–1.025×. Most of the gain came
+from five selectors on the held-out atomic-CSS fixture. A ratio cutoff of 4.0
+matched almost all of the route-only result without neural inference.
+
+This gain is below the 1.05× promotion threshold and is concentrated in one
+page family. JavaScript inference took about 226ns per decision versus 9.9ns
+for the current guard. Adding the measured Node decision overhead to each
+model-handled route estimates 10.1% more query time in Chromium and 2.7% more
+in `jsdom`; this is an estimate, not an end-to-end runtime measurement. The
+neural artifact and wider ratio rule remain offline. No production runtime
+change was made.
+
+The [updated report](../../../assets/repo/bench/survey-2026-10-03/neural-planner.html)
+includes the held-out charts, ratio-rule comparison, timing uncertainty,
+training provenance, and inference-adjusted estimate. Reproduce the AC data
+with `NWSAPI_REQUIRE_AC=1 NWSAPI_PLANNER_ROUNDS=11
+NWSAPI_PLANNER_MILLISECONDS=20 pnpm run bench:planner:neural:collect`, then
+run `pnpm run bench:planner:neural` to retrain and regenerate the report.
 
 ## Experiment contract
 

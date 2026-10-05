@@ -1,0 +1,2015 @@
+{
+  "version": 2,
+  "vectors": [
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 0,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 2,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 2,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 2,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 2,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 3,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 3,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 3,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 3,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 4,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 4,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 4,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 4,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 5,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 5,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 5,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 1,
+        "witnesses": 5,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 61,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 61,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 61,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 61,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 62,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 62,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 62,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 62,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 63,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 63,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 63,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 63,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 124,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 124,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 124,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 124,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 125,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 125,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 125,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 31,
+        "witnesses": 125,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 63,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 63,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 63,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 63,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 64,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 64,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 64,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 64,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 65,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 65,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 65,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 65,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 128,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 128,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 128,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 128,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 129,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 129,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 129,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 32,
+        "witnesses": 129,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 65,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 65,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 65,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 65,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 66,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 66,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 66,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 66,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 67,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 67,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 67,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 67,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 132,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 132,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 132,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 132,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 133,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 133,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 133,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 33,
+        "witnesses": 133,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 381,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 381,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 381,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 381,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 382,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 382,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 382,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 382,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 383,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 383,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 383,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 383,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 764,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 764,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 764,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 764,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 765,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 765,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 765,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 191,
+        "witnesses": 765,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 383,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 383,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 383,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 383,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 384,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 384,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 384,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 384,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 385,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 385,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 385,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 385,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 768,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 768,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 768,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 768,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 769,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 769,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 769,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 192,
+        "witnesses": 769,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 0,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 0,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "empty"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 1,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 1,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 385,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 385,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 385,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 385,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 386,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 386,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 386,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 386,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "inverse"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 387,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 387,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 387,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 387,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 772,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 772,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 772,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 772,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 773,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 773,
+        "denseInverse": false,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 773,
+        "denseInverse": true,
+        "weakMapAvailable": false
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": true,
+        "anchors": 193,
+        "witnesses": 773,
+        "denseInverse": true,
+        "weakMapAvailable": true
+      },
+      "route": "forward"
+    },
+    {
+      "facts": {
+        "eligible": false,
+        "anchors": 0,
+        "witnesses": null,
+        "denseInverse": false,
+        "weakMapAvailable": false
+      },
+      "route": "ineligible"
+    }
+  ]
+}

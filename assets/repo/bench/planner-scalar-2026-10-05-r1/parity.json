@@ -1,0 +1,11 @@
+{
+  "cases": 10096,
+  "decisionDisagreements": 0,
+  "maximumScoreErrors": {
+    "reference": 0,
+    "scalar": 0,
+    "folded": 3.3306690738754696e-16,
+    "chromium": 3.3306690738754696e-16,
+    "jsdom": 3.3306690738754696e-16
+  }
+}
