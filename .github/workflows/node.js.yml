@@ -1,4 +1,5 @@
-name: nwsapi maintenance
+name: 'ci: gates'
+run-name: 'ci: gates'
 
 on:
   push:

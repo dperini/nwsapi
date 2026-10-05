@@ -1,5 +1,5 @@
-name: Stage npm v2 release
-run-name: Stage npm v2 (${{ inputs.release-as }}, dry-run=${{ inputs.dry-run }})
+name: 'publish: npm'
+run-name: 'publish: npm (v2 ${{ inputs.release-as }}, dry-run=${{ inputs.dry-run }})'
 
 on:
   workflow_dispatch:
