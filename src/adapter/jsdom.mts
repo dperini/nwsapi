@@ -41,13 +41,13 @@ export function createHostReaders(
   // Prefer implementation-node getters, then fill unsupported directions
   // from the older host-supplied tree helper when it is available.
   const direct = probeDirectTraversal(document, probe, implementation, utils)
-  if (direct?.up) {
+  if (direct && direct.up) {
     readers.upOf = direct.up
   }
-  if (direct?.next) {
+  if (direct && direct.next) {
     readers.nextOf = direct.next
   }
-  if (direct?.prev) {
+  if (direct && direct.prev) {
     readers.prevOf = direct.prev
   }
 

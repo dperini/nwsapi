@@ -1,5 +1,5 @@
-name: Coverage
-run-name: Coverage prerelease/3.0.0
+name: 'ci: coverage'
+run-name: 'ci: coverage'
 
 on:
   push:
