@@ -10,20 +10,20 @@ export const CORE_SOURCE_DIR = path.join(SOURCE_DIR, 'core')
 export const REPO_SCRIPT_DIR = path.join(REPO_ROOT, 'scripts/repo')
 export const NAMING_CHECK_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/naming.mts',
+  'scripts/repo/naming/check.mts',
 )
 export const IMPORTANT_ICON_REL_PATH = 'assets/repo/important.svg'
 export const SVG_CHECK_SCRIPT_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/svgs-are-optimized.mts',
+  'scripts/repo/svg/check.mts',
 )
 export const UNICODE_ES5_CHECK_SCRIPT_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/unicode-es5.mts',
+  'scripts/repo/unicode-es5/check.mts',
 )
 export const SCRIPT_ENTRYPOINT_CHECK_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/script-entrypoints.mts',
+  'scripts/repo/script-entrypoints/check.mts',
 )
 export const API_DOC_PATH = path.join(REPO_ROOT, 'docs/repo/selector/api.md')
 export const API_SCRIPT_PATH = path.join(
@@ -57,7 +57,7 @@ export const TRAVERSAL_SOURCE_PATH = path.join(
 )
 export const WPT_CANDIDATES_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/check/wpt/candidates.mts',
+  'scripts/repo/wpt/candidates/check.mts',
 )
 export const UPSTREAM_HELPER_PATH = path.join(
   REPO_ROOT,

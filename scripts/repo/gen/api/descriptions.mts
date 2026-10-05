@@ -17,6 +17,10 @@ export const descriptions: Record<string, string> = {
   install:
     'Replaces native selector methods. `querySelectorAll()` returns static NodeList-compatible snapshots. The `all` flag enables legacy iframe-load handling.',
   uninstall: 'Restores the native methods saved by `install()`.',
+  useNeuralPlanner:
+    'Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback.',
+  registerBulkHasPlanner:
+    'Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared.',
   registerLegacyHooks:
     'Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered.',
   registerCombinator:
@@ -69,6 +73,8 @@ export const adapterDescriptions: Record<string, string> = {
 }
 
 export const optionDescriptions: Record<string, string> = {
+  NEURAL_PLANNER:
+    'Uses the selected model for eligible :has() queries. Enabled by default. Unsupported queries keep the existing route.',
   FORGIVING:
     'Allows invalid items in forgiving lists such as `:is()` and `:where()`.',
   IDS_DUPES: 'Allows duplicate IDs when finding elements.',

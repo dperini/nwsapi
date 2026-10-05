@@ -170,6 +170,7 @@ class DOMSelector {
         hostReaders: this.state.hostReaders,
         DOMException: this.window.DOMException,
       })
+      engine.useNeuralPlanner('jsdom')
       configureEngine(engine, {
         LOGERRORS: false,
         ...this.state.options,

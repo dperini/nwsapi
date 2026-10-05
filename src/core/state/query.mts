@@ -1,5 +1,6 @@
 import type { CodeFactoryCache } from '../compile/factory.mts'
 import type {
+  BulkHasPlanner,
   EngineContext,
   EngineElement,
   ElementCallback,
@@ -16,6 +17,7 @@ import type {
   CompilerContext,
 } from './types.mts'
 export interface QueryState {
+  bulkHasPlanner?: BulkHasPlanner | undefined
   codeFactories: CodeFactoryCache | null | undefined
   nthElement: (element: Element | null, dir: number) => number
   nthFiltered: (

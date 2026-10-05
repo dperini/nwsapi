@@ -1,3 +1,6 @@
+import { neuralPlannerPolicy } from '../select/neural-planner.mts'
+import type { NeuralPlannerHost } from '../select/neural-planner.mts'
+import type { BulkHasPlanner } from '../state/types.mts'
 import { hasChild } from '../match/child.mts'
 import {
   PLAN_BYTES,
@@ -244,6 +247,20 @@ export function initializeApi(engine: EngineState) {
 
     Operators: engine.Operators,
     Selectors: engine.Selectors,
+
+    useNeuralPlanner: function (host: NeuralPlannerHost | null) {
+      engine.bulkHasPlanner =
+        host === null ? undefined : neuralPlannerPolicy(host)
+      engine.configure({ NEURAL_PLANNER: host !== null }, true)
+    },
+
+    registerBulkHasPlanner: function (planner: BulkHasPlanner | null) {
+      if (planner !== null && typeof planner !== 'function') {
+        throw new TypeError('Expected a bulk :has() planner function or null')
+      }
+      engine.bulkHasPlanner = planner || undefined
+      engine.configure({}, true)
+    },
 
     // Register the optional module once. Each engine owns its hook state.
     registerLegacyHooks: function (factory: LegacyHookFactory): boolean {

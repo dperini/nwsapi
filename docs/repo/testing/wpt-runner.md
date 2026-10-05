@@ -57,7 +57,7 @@ Run the check without launching a browser:
 pnpm run check:wpt-scope
 ```
 
-[`scripts/repo/check/wpt/scope.mts`](../../../scripts/repo/check/wpt/scope.mts)
+[`scripts/repo/wpt/scope/check.mts`](../../../scripts/repo/wpt/scope/check.mts)
 also runs through Playwright's global setup. It uses `jsdom` to parse HTML
 or XHTML and `acorn` to parse JavaScript. TypeScript helpers are stripped
 the same way as the test server. Comments and string contents are not

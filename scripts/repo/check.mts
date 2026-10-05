@@ -1,46 +1,10 @@
-import { checkNativeContract } from './check/wpt/native/contract.mts'
-import {
-  API_SCRIPT_PATH,
-  SVG_CHECK_SCRIPT_PATH,
-  UNICODE_ES5_CHECK_SCRIPT_PATH,
-  SCRIPT_ENTRYPOINT_CHECK_PATH,
-  FORMAT_SCRIPT_PATH,
-  NAMING_CHECK_PATH,
-  LINT_SCRIPT_PATH,
-  TSC_CLI_PATH,
-  TSC_CONFIG_PATH,
-} from './lib/paths.mts'
+import { checkCode } from './check/run.mts'
 import { isMainModule, runNode } from './lib/run-node.mts'
-import { checkExternalTools } from './external-tools.mts'
-import { checkSoak } from './soak.mts'
-import { checkInlineWorkflows } from './check/workflows.mts'
-import { checkCatalog } from './check/catalog.mts'
-import { generateAgentFavicon } from './gen/agent-favicon.mts'
-import { generateSchemas } from './schema/run.mts'
-import { checkPackageManifest } from './build/manifest.mts'
-
-export function checkCode(run = runNode) {
-  checkNativeContract()
-  checkExternalTools()
-  checkCatalog()
-  checkPackageManifest()
-  generateSchemas(true)
-  generateAgentFavicon(true)
-  checkSoak()
-  checkInlineWorkflows()
-  run(API_SCRIPT_PATH, ['--check'])
-  run(SVG_CHECK_SCRIPT_PATH, [])
-  run(UNICODE_ES5_CHECK_SCRIPT_PATH, [])
-  run(SCRIPT_ENTRYPOINT_CHECK_PATH, ['--check'])
-  run(NAMING_CHECK_PATH, [])
-  run(FORMAT_SCRIPT_PATH, ['--check'])
-  run(LINT_SCRIPT_PATH, [])
-  run(TSC_CLI_PATH, ['--noEmit', '-p', TSC_CONFIG_PATH])
-}
-
+import { fileURLToPath } from 'node:url'
+export { checkCode }
 if (isMainModule(import.meta.url)) {
-  if (process.argv.slice(2).some(arg => arg !== '--all')) {
-    throw new Error('Usage: pnpm run check [--all]')
-  }
-  checkCode()
+  runNode(
+    fileURLToPath(new URL('./check/run.mts', import.meta.url)),
+    process.argv.slice(2),
+  )
 }

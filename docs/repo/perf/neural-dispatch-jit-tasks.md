@@ -42,3 +42,10 @@ Prioritize these by the work they can remove:
    context applicability checks explicit before runtime integration.
 
 These follow-up experiments are not implemented or qualified yet.
+
+## Built-in runtime planner
+
+The [integration guide](neural-planner-integration.md) describes the default-enabled
+`.mts` policies bundled into the main JavaScript file. Runtime qualification remains
+open. Add route instrumentation that records the enabled callback decision
+before measuring the planner.

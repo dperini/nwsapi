@@ -1,33 +1,17 @@
-import { beforeEach, expect, test, vi } from 'vitest'
-import { checkNativeContract } from '../../../scripts/repo/check/wpt/native/contract.mts'
-import { generateSchemas } from '../../../scripts/repo/schema/run.mts'
-
-vi.mock('../../../scripts/repo/check/wpt/native/contract.mts', () => ({
-  checkNativeContract: vi.fn(),
-}))
-vi.mock('../../../scripts/repo/schema/run.mts', () => ({
-  generateSchemas: vi.fn(),
-}))
-
-beforeEach(() => vi.clearAllMocks())
+import { expect, test } from 'vitest'
+import { discoverTasks } from '../../../scripts/repo/lib/task.mts'
 import { checkCode } from '../../../scripts/repo/check.mts'
 import { fixCode } from '../../../scripts/repo/fix.mts'
 import {
   updateArgs,
   updateDependencies,
-} from '../../../scripts/repo/update.mts'
+} from '../../../scripts/repo/dependency/update.mts'
 import { collectPackumentFailures } from '../../../scripts/repo/lib/taze-output.mts'
 import {
-  API_SCRIPT_PATH,
   SVG_CHECK_SCRIPT_PATH,
-  UNICODE_ES5_CHECK_SCRIPT_PATH,
-  SCRIPT_ENTRYPOINT_CHECK_PATH,
   FORMAT_SCRIPT_PATH,
-  NAMING_CHECK_PATH,
   LINT_SCRIPT_PATH,
   TAZE_CLI_PATH,
-  TSC_CLI_PATH,
-  TSC_CONFIG_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
 
 function recorder() {
@@ -57,18 +41,9 @@ test('registry lookup failures cannot appear as a successful update', () => {
 test('check runs formatting, lint, and types without fix flags', () => {
   const { calls, run } = recorder()
   checkCode(run)
-  expect(checkNativeContract).toHaveBeenCalledOnce()
-  expect(generateSchemas).toHaveBeenCalledWith(true)
-  expect(calls).toEqual([
-    [API_SCRIPT_PATH, ['--check']],
-    [SVG_CHECK_SCRIPT_PATH, []],
-    [UNICODE_ES5_CHECK_SCRIPT_PATH, []],
-    [SCRIPT_ENTRYPOINT_CHECK_PATH, ['--check']],
-    [NAMING_CHECK_PATH, []],
-    [FORMAT_SCRIPT_PATH, ['--check']],
-    [LINT_SCRIPT_PATH, []],
-    [TSC_CLI_PATH, ['--noEmit', '-p', TSC_CONFIG_PATH]],
-  ])
+  expect(calls).toEqual(
+    discoverTasks('check').map(task => [task.entry, task.args]),
+  )
 })
 
 test('fix formats after lint fixes and verifies the result', () => {
@@ -82,16 +57,17 @@ test('fix formats after lint fixes and verifies the result', () => {
   expect(calls[0]).toEqual([LINT_SCRIPT_PATH, ['--fix']])
   expect(calls[1]).toEqual([FORMAT_SCRIPT_PATH, []])
   expect(calls).toContainEqual([SVG_CHECK_SCRIPT_PATH, ['--fix']])
-  expect(calls.at(-1)).toEqual([
-    TSC_CLI_PATH,
-    ['--noEmit', '-p', TSC_CONFIG_PATH],
-  ])
+  const last = discoverTasks('check').at(-1)!
+  expect(calls.at(-1)).toEqual([last.entry, last.args])
 })
 
 test('fix does not hide a failed final check', () => {
   expect(() =>
-    fixCode((entry, args = []) => {
-      if (entry === LINT_SCRIPT_PATH && !args.length) {
+    fixCode(entry => {
+      if (
+        entry ===
+        discoverTasks('check').find(task => task.name === 'lint:check')!.entry
+      ) {
         throw new Error('unfixed lint error')
       }
     }),

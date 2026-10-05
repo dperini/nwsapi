@@ -120,7 +120,13 @@ export function renderApiMarkdown(
     ],
     [
       'Configure the engine',
-      ['configure', 'emit', 'registerLegacyHooks'],
+      [
+        'configure',
+        'emit',
+        'registerLegacyHooks',
+        'useNeuralPlanner',
+        'registerBulkHasPlanner',
+      ],
       'Change engine options and error handling.',
     ],
     [

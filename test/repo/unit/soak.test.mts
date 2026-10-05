@@ -6,7 +6,7 @@ import {
   soakPolicy,
   syncNpmSoak,
 } from '../../../scripts/repo/soak.mts'
-import { updateDependencies } from '../../../scripts/repo/update.mts'
+import { updateDependencies } from '../../../scripts/repo/dependency/update.mts'
 
 const workspace =
   '# policy\nminimumReleaseAge: 1440\ncatalog:\n  example: 1.0.0\n'

@@ -97,9 +97,20 @@ export interface QueryPlan {
   factory: Array<CompiledResolver | null>
   nodeset: string[]
   bulkHas?: BulkHasPlan | undefined
+  bulkHasSelector?: string | undefined
+  bulkHasAttempted?: boolean | undefined
 }
 
+export type BulkHasPlanner = (
+  anchors: number,
+  witnesses: number,
+  attributes: number,
+  dense: number,
+  ratio: number,
+) => boolean
+
 export interface BulkHasPlan {
+  plannerMask?: number | undefined
   anchor: QueryPlan
   witness: QueryPlan
   denseInverse: boolean

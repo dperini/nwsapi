@@ -280,7 +280,11 @@ function createDirectParentReader(utils: IdlUtils) {
         return node.parentElement
       }
       const parent = implementation.parentNode
-      if (!parent) {
+      if (parent === undefined) {
+        enabled = false
+        return node.parentElement
+      }
+      if (parent === null) {
         return null
       }
       const wrapper = utils.wrapperForImpl(parent)

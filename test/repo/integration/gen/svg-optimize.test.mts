@@ -13,7 +13,7 @@ import {
   checkSvgs,
   findUnoptimizedSvgs,
   optimiseRepoSvg,
-} from '../../../../scripts/repo/check/svgs-are-optimized.mts'
+} from '../../../../scripts/repo/svg/check.mts'
 import { coverageBadgeSvg } from '../../../../scripts/repo/lib/coverage/badge.mts'
 import {
   IMPORTANT_ICON_REL_PATH,

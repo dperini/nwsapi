@@ -1,4 +1,6 @@
+import type { NeuralPlannerHost } from '../select/neural-planner.mts'
 import type {
+  BulkHasPlanner,
   LegacyHookFactory,
   LegacyReaders,
   EngineContext,
@@ -306,6 +308,8 @@ export interface PublicState {
     uninstall: () => void
     Operators: Record<string, AttributeOperator>
     Selectors: Record<string, SelectorExtension>
+    useNeuralPlanner: (host: NeuralPlannerHost | null) => void
+    registerBulkHasPlanner: (planner: BulkHasPlanner | null) => void
     registerLegacyHooks: (factory: LegacyHookFactory) => boolean
     registerCombinator: (
       combinator: string,

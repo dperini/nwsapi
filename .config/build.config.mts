@@ -93,6 +93,8 @@ export const outputs = packageFiles.map(({ output }) => output)
 
 // These former generated files must never be used as an accidental fallback.
 export const obsoleteOutputs = [
+  'dist/modules/nwsapi-planner.js',
+  'dist/modules/nwsapi-neural-planner.js',
   'bin/nwsapi.js',
   'src/nwsapi.js',
   'src/dom-selector.js',

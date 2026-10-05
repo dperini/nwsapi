@@ -9,7 +9,7 @@ import {
   externalEntries,
 } from '../../../.config/build.config.mts'
 import { externalLoaderPlugin } from '../../../.config/repo/rolldown/external-loaders.mts'
-import { checkUnicodeEs5 } from '../check/unicode-es5.mts'
+import { checkUnicodeEs5 } from '../unicode-es5/check.mts'
 import { bundleEngine } from '../rolldown/engine.mts'
 import { postBuild } from './post.mts'
 import { lowerToEs5 } from './post/es5.mts'

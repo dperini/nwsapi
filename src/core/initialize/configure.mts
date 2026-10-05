@@ -11,9 +11,9 @@ export function configure(
     return engine.Config
   }
   for (var i in option) {
-    // Resolvers capture forgiving mode and quiet validation failures.
+    // Resolvers capture validation modes and optional planner eligibility.
     if (
-      (i == 'FORGIVING' || i == 'VERBOSITY') &&
+      (i == 'FORGIVING' || i == 'VERBOSITY' || i == 'NEURAL_PLANNER') &&
       engine.Config[i] !== !!option[i]
     ) {
       clear = true

@@ -49,11 +49,10 @@ export function select(
   // selector stayed in the cache. What is kept here is context-free,
   // which also lets a plan be reused across contexts instead of only for
   // the one it was built against.
-  const bulkHas = prepareBulkHas(engine, selectors, context)
   engine.selectResolvers.set(selectors, {
     factory: resolver.factory,
     nodeset: resolver.nodeset,
-    ...(bulkHas ? { bulkHas } : {}),
+    ...(selectors.includes(':has(') ? { bulkHasSelector: selectors } : {}),
   })
 
   if (typeof callback == 'function') {
@@ -245,14 +244,16 @@ function runSingle(
     context,
     factory !== null,
   )
-  if (
-    callback === undefined &&
-    plan.bulkHas &&
-    plan.nodeset[0] === plan.bulkHas.anchor.nodeset[0]
-  ) {
-    const bulk = selectBulkHas(engine, plan.bulkHas, context, list)
-    if (bulk) {
-      return bulk
+  if (callback === undefined && list.length >= 32) {
+    if (!plan.bulkHas && !plan.bulkHasAttempted && plan.bulkHasSelector) {
+      plan.bulkHasAttempted = true
+      plan.bulkHas = prepareBulkHas(engine, plan.bulkHasSelector, context)
+    }
+    if (plan.bulkHas && plan.nodeset[0] === plan.bulkHas.anchor.nodeset[0]) {
+      const bulk = selectBulkHas(engine, plan.bulkHas, context, list)
+      if (bulk) {
+        return bulk
+      }
     }
   }
   return factory ? factory(list, callback, context, []) : (list as Element[])

@@ -23,6 +23,7 @@ export function prepareBulkHas(
   return {
     anchor,
     witness,
+    plannerMask: plannerMask(engine, parts[1]!, parts[2]!),
     denseInverse:
       parts[1]![0] === '.' &&
       parts[2]![0] === '.' &&
@@ -53,27 +54,25 @@ export function selectBulkHas(
   if (!witnesses.length) {
     return []
   }
-  // Training favored inverse marking here. Filtered compounds retain
-  // the old rule because dense flat fixtures showed regressions.
   if (
     witnesses.length > anchors.length * 2 &&
     (!plan.denseInverse ||
       anchors.length > 192 ||
       witnesses.length > anchors.length * 4)
   ) {
-    return null
+    if (
+      !engine.Config.NEURAL_PLANNER ||
+      !engine.bulkHasPlanner ||
+      !plannerOverride(engine, plan, context, anchors.length, witnesses.length)
+    ) {
+      return null
+    }
   }
   const marks = engine.createWeakMap<Element, boolean>()
   if (!marks) {
     return null
   }
-  const witness = plan.witness.factory[0]
-  for (let i = 0, length = witnesses.length; i < length; ++i) {
-    const element = witnesses[i]!
-    if (!witness || witness(element, null, context, false)) {
-      markAncestors(engine, element, context, marks)
-    }
-  }
+  markWitnesses(engine, plan, context, witnesses, marks)
   const results: Element[] = []
   const anchor = plan.anchor.factory[0]
   for (let i = 0, length = anchors.length; i < length; ++i) {
@@ -98,5 +97,77 @@ function markAncestors(
   while (node && node !== context && !marks.has(node)) {
     marks.set(node, true)
     node = engine.upOf(node)
+  }
+}
+
+function plannerMask(
+  engine: EngineState,
+  anchor: string,
+  witness: string,
+): number | undefined {
+  if (!engine.Config.NEURAL_PLANNER || !engine.bulkHasPlanner) {
+    return undefined
+  }
+  // Qualification used simple class seeds with the measured data-ok equality filter.
+  const supported = /^\.[A-Za-z_][A-Za-z0-9_-]*(?:\[data-ok=(?:"1"|'1')\])?$/
+  if (!supported.test(anchor) || !supported.test(witness)) {
+    return undefined
+  }
+  return (anchor.indexOf('[') < 0 ? 0 : 2) + (witness.indexOf('[') < 0 ? 0 : 1)
+}
+
+function plannerOverride(
+  engine: EngineState,
+  plan: BulkHasPlan,
+  context: EngineContext,
+  anchors: number,
+  witnesses: number,
+): boolean {
+  if (
+    plan.plannerMask === undefined ||
+    plan.plannerMask === 0 ||
+    !engine.Config.NEURAL_PLANNER ||
+    !engine.bulkHasPlanner
+  ) {
+    return false
+  }
+  // Plans can be reused with another context. Check current eligibility.
+  if (
+    context.nodeType !== 9 ||
+    engine.QUIRKS_MODE ||
+    !engine.HTML_DOCUMENT ||
+    !pureCompiler(engine)
+  ) {
+    return false
+  }
+  // A failed optional planner keeps the existing matching route.
+  try {
+    return (
+      engine.bulkHasPlanner(
+        anchors,
+        witnesses,
+        plan.plannerMask,
+        +plan.denseInverse,
+        witnesses / anchors,
+      ) === true
+    )
+  } catch {
+    return false
+  }
+}
+
+function markWitnesses(
+  engine: EngineState,
+  plan: BulkHasPlan,
+  context: EngineContext,
+  witnesses: ArrayLike<Element>,
+  marks: WeakMap<Element, boolean>,
+) {
+  const witness = plan.witness.factory[0]
+  for (let i = 0, length = witnesses.length; i < length; ++i) {
+    const element = witnesses[i]!
+    if (!witness || witness(element, null, context, false)) {
+      markAncestors(engine, element, context, marks)
+    }
   }
 }

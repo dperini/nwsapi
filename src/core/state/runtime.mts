@@ -52,6 +52,7 @@ export interface RuntimeState {
   reSimpleId: RegExp
   reValidator: RegExp
   Config: {
+    NEURAL_PLANNER: boolean
     [key: string]: boolean
     IDS_DUPES: boolean
     FORGIVING: boolean

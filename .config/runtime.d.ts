@@ -1,9 +1,13 @@
+import type { NeuralPlannerHost } from '../src/core/select/neural-planner.mts'
+import type { BulkHasPlanner } from '../src/core/state/types.mts'
 import type { LegacyHookFactory } from '../src/core/state/legacy.mts'
 export type NwsapiCollection = Element[] | NodeListOf<Element>
 export type NwsapiContext = Document | DocumentFragment | Element
 
 export interface NwsapiEngine {
   Config: Record<string, boolean>
+  useNeuralPlanner(host: NeuralPlannerHost | null): void
+  registerBulkHasPlanner(planner: BulkHasPlanner | null): void
   Version: string
   Snapshot: {
     doc: Document

@@ -1026,7 +1026,7 @@ Static checks, outside timing windows:
 ```sh
 node node_modules/typescript/bin/tsc --project .config/tsconfig.check.json --noEmit
 node scripts/repo/run.mts scripts/repo/lint.mts
-node scripts/repo/run.mts scripts/repo/check/script-entrypoints.mts
+node scripts/repo/run.mts scripts/repo/script-entrypoints/check.mts
 git diff --check
 ```
 
