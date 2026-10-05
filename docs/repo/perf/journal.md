@@ -2003,3 +2003,27 @@ application workloads, other prefix lengths, caching, cold/mutation timings,
 and release qualification are deferred after the failed pilot. No production
 runtime change is made. Earlier October 3 actual-build confirmations remain
 separate valid evidence for the existing guarded optimizations.
+
+## 2026-10-05: Refreshed v3 browser benchmarks and charts
+
+The v3 branch's browser comparison, first-match chart, retained-memory report,
+file-size report, README summary and chart links were regenerated from current
+measurements. This is a new comparison series: the lockfile now pins
+`@asamuzakjp/dom-selector` 9.1.1, and the measured `nwsapi` build has SHA-256
+`e53cfcce`. Do not compare it directly with earlier charts made from the older
+lockfile or candidate build.
+
+The nine-round Chromium 154.0.8037.0 run on an Apple M1 Max compared 36
+correctness-checked selectors and reports a 4.68× geometric-mean speed ratio
+for warm all-results queries. The five-round retained-memory run measured
+74.78 KiB for `nwsapi` and 549.33 KiB for the comparison library after 100
+queries. The current readable browser core is 46.45 KiB with Brotli quality 11;
+the complete comparison bundle is 109.59 KiB. AC power was checked before
+measurement. These results describe the recorded fixtures and machine, not all
+applications or selectors.
+
+The [benchmark guide](benchmarks.md) explains each result and links to the
+updated SVGs and raw reports. The timing harness used Node.js 26.9.0 and its
+default nine rounds, 1,000-call batches and minimum 50ms samples. The raw files
+preserve per-round timings, build and lockfile hashes, fixture hashes and
+compression inputs.
