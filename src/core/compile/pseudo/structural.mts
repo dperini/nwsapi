@@ -21,9 +21,10 @@ export function compilePseudoStructural(
         '}'
       break
     case 'empty':
-      // matches elements that don't contain elements or text nodes
+      // Content is an element, text or CDATA child; numeric compares
+      // stay correct where a string regex would misread the digits.
       state.source =
-        'n=e.firstChild;while(n&&!(/1|3/).test(n.nodeType)){n=n.nextSibling}if(!n){' +
+        'n=e.firstChild;while(n&&n.nodeType!=1&&n.nodeType!=3&&n.nodeType!=4){n=n.nextSibling}if(!n){' +
         state.source +
         '}'
       break
@@ -45,24 +46,35 @@ export function compilePseudoStructural(
       break
 
     // *** typed child-indexed pseudo-classes
-    // :only-of-type, :last-of-type, :first-of-type
+    // :only-of-type, :last-of-type, :first-of-type. The namespace of
+    // the candidate is invariant across the sibling scans, so it is
+    // read once into a per-query temp instead of once per sibling.
     case 'only-of-type':
+      if (state.engine.S_VARS.indexOf('_u') < 0) {
+        state.engine.S_VARS.push('_u')
+      }
       state.source =
-        'o=e.localName;' +
-        'n=e;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
-        'n=e;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));}if(!n){' +
+        'o=e.localName;_u=e.namespaceURI;' +
+        'n=e;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=_u));if(!n){' +
+        'n=e;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=_u));}if(!n){' +
         state.source +
         '}'
       break
     case 'last-of-type':
+      if (state.engine.S_VARS.indexOf('_u') < 0) {
+        state.engine.S_VARS.push('_u')
+      }
       state.source =
-        'n=e;o=e.localName;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
+        'n=e;o=e.localName;_u=e.namespaceURI;while((n=n.nextElementSibling)&&(n.localName!=o||n.namespaceURI!=_u));if(!n){' +
         state.source +
         '}'
       break
     case 'first-of-type':
+      if (state.engine.S_VARS.indexOf('_u') < 0) {
+        state.engine.S_VARS.push('_u')
+      }
       state.source =
-        'n=e;o=e.localName;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
+        'n=e;o=e.localName;_u=e.namespaceURI;while((n=n.previousElementSibling)&&(n.localName!=o||n.namespaceURI!=_u));if(!n){' +
         state.source +
         '}'
       break

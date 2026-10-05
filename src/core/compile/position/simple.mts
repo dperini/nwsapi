@@ -8,11 +8,14 @@ export function compilePositionSimple(
     return true
   } else if (state.match![2] == '1' && nthFilter === undefined) {
     state.test = state.type ? 'next' : 'previous'
+    if (state.engine.S_VARS.indexOf('_u') < 0) {
+      state.engine.S_VARS.push('_u')
+    }
     state.source = state.expr
-      ? 'n=e;o=e.localName;' +
+      ? 'n=e;o=e.localName;_u=e.namespaceURI;' +
         'while((n=n.' +
         (state.test as string) +
-        'ElementSibling)&&(n.localName!=o||n.namespaceURI!=e.namespaceURI));if(!n){' +
+        'ElementSibling)&&(n.localName!=o||n.namespaceURI!=_u));if(!n){' +
         state.source +
         '}'
       : 'if(!e.' + state.test + 'ElementSibling){' + state.source + '}'

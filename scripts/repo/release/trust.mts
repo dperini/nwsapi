@@ -113,7 +113,7 @@ export function environmentPlan(environment: unknown, policies: unknown) {
     )
   }
   const rows = branches?.branch_policies ?? []
-  if (rows.some(row => row.type !== 'branch' || /[*!?\[\]]/.test(row.name))) {
+  if (rows.some(row => row.type !== 'branch' || /[*!?[\]]/.test(row.name))) {
     throw new Error(
       'The publishing environment has a broad or non-branch policy. Review it before continuing.',
     )

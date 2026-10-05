@@ -118,12 +118,15 @@ export function byId(
             l > i;
             ++i
           ) {
+            // One item read serves the three accesses; each index
+            // read on a legacy collection is a host call.
+            var candidate = (e as ArrayLike<Element>)[i]!
             if (
-              (e as ArrayLike<Element>)[i]! &&
-              (e as ArrayLike<Element>)[i]!.nodeType == 1 &&
-              engine.idOf((e as ArrayLike<Element>)[i]!) == id
+              candidate &&
+              candidate.nodeType == 1 &&
+              engine.idOf(candidate) == id
             ) {
-              nodes[nodes.length] = (e as ArrayLike<Element>)[i]!
+              nodes[nodes.length] = candidate
             }
           }
           {

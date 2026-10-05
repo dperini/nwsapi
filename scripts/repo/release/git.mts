@@ -82,7 +82,7 @@ export function assertQualified(
   root = REPO_ROOT,
   run: CommandRunner = execute,
 ) {
-  for (const workflow of ['node.js.yml', 'coverage.yml']) {
+  for (const workflow of ['ci.yml', 'coverage.yml']) {
     const response = JSON.parse(
       checked(
         'gh',

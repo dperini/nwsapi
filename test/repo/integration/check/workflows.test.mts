@@ -68,7 +68,7 @@ test.skipIf(process.platform === 'win32')(
         git('commit', '-qm', value)
         commits.push(git('rev-parse', 'HEAD'))
       }
-      for (const name of ['node.js.yml', 'coverage.yml']) {
+      for (const name of ['ci.yml', 'coverage.yml']) {
         const workflow = parse(
           readFileSync(path.join(REPO_ROOT, '.github/workflows', name), 'utf8'),
         )

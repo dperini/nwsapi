@@ -22,7 +22,7 @@ test('local CI selects the workflow explicitly on feature branches', () => {
   const args = pkg.scripts['ci:local'].split(' ')
   const workflowIndex = args.indexOf('--workflow')
   expect(workflowIndex).toBeGreaterThan(0)
-  expect(args[workflowIndex + 1]).toBe('.github/workflows/node.js.yml')
+  expect(args[workflowIndex + 1]).toBe('.github/workflows/ci.yml')
   expect(existsSync(path.join(REPO_ROOT, args[workflowIndex + 1]))).toBe(true)
 })
 

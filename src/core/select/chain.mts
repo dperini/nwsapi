@@ -180,3 +180,144 @@ export function parseChain(engine: EngineState, selectors: string) {
     cls: string | undefined
   }>
 }
+
+export function parseSiblingChain(engine: EngineState, selectors: string) {
+  var i: number,
+    l: number,
+    match: RegExpMatchArray | null,
+    out: Array<{ tag: string | undefined; cls: string | undefined }> = [],
+    parts = selectors.split('~'),
+    raw: string
+
+  for (i = 0, l = parts.length; l > i; ++i) {
+    raw = parts[i]!.replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '')
+    // A part carrying inner whitespace hides a descendant combinator,
+    // which the chain cannot express.
+    if (!raw || /[\t\n\f\r ]/.test(raw)) {
+      return null
+    }
+    match = engine.reChainPart.exec(raw)
+    if (!match || (match[1] === undefined && match[2] === undefined)) {
+      return null
+    }
+    out[out.length] = { tag: match[1]!, cls: match[2]! }
+  }
+
+  return out
+}
+
+function matchesPart(
+  engine: EngineState,
+  element: Element,
+  part: { cls: string | undefined; tag: string | undefined },
+) {
+  if (part.tag !== undefined && !engine.matchesTag(element, part.tag)) {
+    return false
+  }
+  if (
+    part.cls !== undefined &&
+    !engine.hasClass(engine.classOf(element), part.cls)
+  ) {
+    return false
+  }
+  return true
+}
+
+function isSeen(seen: WeakMap<object, boolean> | Element[], parent: Element) {
+  return Array.isArray(seen) ? seen.indexOf(parent) >= 0 : !!seen.get(parent)
+}
+
+function markSeen(seen: WeakMap<object, boolean> | Element[], parent: Element) {
+  if (Array.isArray(seen)) {
+    seen[seen.length] = parent
+  } else {
+    seen.set(parent, true)
+  }
+}
+
+export function siblingChain(
+  engine: EngineState,
+  chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+  context: EngineContext,
+) {
+  var i: number,
+    l: number,
+    last = chain.length - 1,
+    lastWalked: Element | null = null,
+    level: Element[],
+    node: Element,
+    parent: Element | null,
+    results: Element[] = [],
+    // Candidate parents can be nested, so a parent already walked is
+    // remembered and its remaining candidates are skipped; the flag
+    // marks answers that a nested walk emitted out of order.
+    seen: WeakMap<object, boolean> | Element[] =
+      engine.createWeakMap<object, boolean>() || [],
+    unordered = false
+
+  // The scan reads class tokens itself, so it needs the standards
+  // tokenization the ordinary walk would get from a host lookup.
+  if (
+    engine.Config.LEGACY ||
+    !engine.HTML_DOCUMENT ||
+    engine.QUIRKS_MODE ||
+    context.nodeType != 9 ||
+    !context.getElementsByClassName ||
+    !context.getElementsByTagName
+  ) {
+    return null
+  }
+
+  level = engine.fetchLevel(chain[last]!, context, [])
+
+  // One pass over each candidate parent's children runs a greedy
+  // subsequence match: a child either advances the chain or, at the
+  // last part, qualifies as an answer. Every sibling is visited once
+  // per query instead of once per later candidate.
+  for (i = 0, l = level.length; i < l; ++i) {
+    node = level[i]!
+    parent = node.parentElement
+    if (parent && isSeen(seen, parent)) {
+      // A run of candidates sharing one parent is one batch; only a
+      // parent seen again after another intervened walked out of turn.
+      if (parent !== lastWalked) {
+        unordered = true
+      }
+      continue
+    }
+    if (parent) {
+      markSeen(seen, parent)
+      lastWalked = parent
+      scanParent(engine, chain, parent, results)
+    }
+  }
+
+  // Batches are in document order within a parent, but a nested
+  // candidate parent splits its own parent's run around the subtree.
+  if (unordered && results.length > 1) {
+    results.sort(engine.documentOrder)
+  }
+
+  return results
+}
+
+function scanParent(
+  engine: EngineState,
+  chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+  parent: Element,
+  results: Element[],
+) {
+  var child = parent.firstElementChild,
+    last = chain.length - 1,
+    matched = 0
+  while (child) {
+    if (matched == last) {
+      if (matchesPart(engine, child, chain[last]!)) {
+        results[results.length] = child
+      }
+    } else if (matchesPart(engine, child, chain[matched]!)) {
+      ++matched
+    }
+    child = child.nextElementSibling
+  }
+}

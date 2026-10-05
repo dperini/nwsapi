@@ -8,15 +8,17 @@ export function compilePseudoInput(
     case 'enabled':
       // the complement of ':disabled' over the same elements
       state.source =
-        'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
-        '"disabled" in e&&!s.isDisabled(e))||(e.localName.indexOf("-")>=0&&s.matchesNative(e,":enabled"))){' +
+        'n=e.localName;' +
+        'if((("form" in e||("optgroup"==n||/^optgroup$/i.test(n)))&&' +
+        '"disabled" in e&&!s.isDisabled(e))||(n.indexOf("-")>=0&&s.matchesNative(e,":enabled"))){' +
         state.source +
         '}'
       break
     case 'disabled':
       state.source =
-        'if((("form" in e||/^optgroup$/i.test(e.localName))&&' +
-        '"disabled" in e&&s.isDisabled(e))||(e.localName.indexOf("-")>=0&&s.matchesNative(e,":disabled"))){' +
+        'n=e.localName;' +
+        'if((("form" in e||("optgroup"==n||/^optgroup$/i.test(n)))&&' +
+        '"disabled" in e&&s.isDisabled(e))||(n.indexOf("-")>=0&&s.matchesNative(e,":disabled"))){' +
         state.source +
         '}'
       break
@@ -29,9 +31,9 @@ export function compilePseudoInput(
       state.source =
         'n=e.localName;if(' +
         (state.match![1]!.indexOf('read-only') >= 0 ? '!' : '') +
-        '(/^input$/i.test(n)?' +
+        '(("input"==n||/^input$/i.test(n))?' +
         '((e.namespaceURI=="http://www.w3.org/1999/xhtml"&&!e.hasAttribute("type")||s.includes("|date|datetime-local|email|month|number|password|search|tel|text|time|url|week|","|"+e.type+"|"))&&!e.readOnly&&!s.isDisabled(e)):' +
-        '/^textarea$/i.test(n)?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
+        '("textarea"==n||/^textarea$/i.test(n))?!e.readOnly&&!s.isDisabled(e):s.isContentEditable(e))' +
         '){' +
         state.source +
         '}'
@@ -45,8 +47,8 @@ export function compilePseudoInput(
       break
     case 'placeholder-shown':
       state.source =
-        'if((' +
-        '(/^(?:input|textarea)$/i.test(e.localName))&&e.hasAttribute("placeholder")&&' +
+        'n=e.localName;if((' +
+        '(("input"==n||"textarea"==n)||/^(?:input|textarea)$/i.test(n))&&e.hasAttribute("placeholder")&&' +
         '(s.includes("|textarea|password|number|search|email|text|tel|url|","|"+e.type+"|"))&&' +
         'e.value==""' +
         ')){' +
@@ -54,21 +56,34 @@ export function compilePseudoInput(
         '}'
       break
     case 'default':
+      // Reads are hoisted per candidate; the scan index gets its own
+      // slot because reusing the resolver's context parameter would
+      // hand later tests a number instead of the context.
+      if (state.engine.S_VARS.indexOf('_t') < 0) {
+        state.engine.S_VARS.push('_t')
+      }
+      if (state.engine.S_VARS.indexOf('_u') < 0) {
+        state.engine.S_VARS.push('_u')
+      }
+      if (state.engine.S_VARS.indexOf('_d') < 0) {
+        state.engine.S_VARS.push('_d=0')
+      }
       state.source =
-        'if(("form" in e && e.form)){' +
-        'var x=0;n=[];' +
-        'if(e.type=="image")n=e.form.getElementsByTagName("input");' +
-        'if(e.type=="submit")n=e.form.elements;' +
-        'while(n[x]&&e!==n[x]){' +
-        'if(n[x].type=="image")break;' +
-        'if(n[x].type=="submit")break;' +
-        'x++;' +
+        '_u=e.localName;_t=e.type;' +
+        'if(("form" in e&&(o=e.form))){' +
+        '_d=0;n=null;' +
+        'if(_t=="image")n=o.getElementsByTagName("input");' +
+        '_t=="submit"&&(n=o.elements);' +
+        'while(n&&n[_d]&&e!==n[_d]){' +
+        'if(n[_d].type=="image")break;' +
+        'if(n[_d].type=="submit")break;' +
+        '_d++;' +
         '}' +
         '}' +
-        'if((e.form&&(e===n[x]&&s.includes("|image|submit|","|"+e.type+"|"))||' +
-        '((/^option$/i.test(e.localName))&&e.defaultSelected)||' +
-        '((s.includes("|radio|checkbox|","|"+e.type+"|"))&&e.defaultChecked)' +
-        ')){' +
+        'if((o=e.form)&&((n&&e===n[_d])&&s.includes("|image|submit|","|"+_t+"|"))||' +
+        '(("option"==_u||/^option$/i.test(_u))&&e.defaultSelected)||' +
+        '((s.includes("|radio|checkbox|","|"+_t+"|"))&&e.defaultChecked)' +
+        '){' +
         state.source +
         '}'
       break

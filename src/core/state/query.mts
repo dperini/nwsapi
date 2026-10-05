@@ -218,6 +218,7 @@ export interface QueryState {
   ) => Element[] | null
   partCounts: PlanCache<number>
   reTagChain: RegExp
+  reSiblingChain: RegExp
   reChainPart: RegExp
   fetchLevel: (
     part: { cls: string | undefined; tag: string | undefined },
@@ -235,7 +236,15 @@ export interface QueryState {
   parseChain: (
     selectors: string,
   ) => Array<{ tag: string | undefined; cls: string | undefined }> | null
+  siblingChain: (
+    chain: Array<{ cls: string | undefined; tag: string | undefined }>,
+    context: EngineContext,
+  ) => Element[] | null
+  parseSiblingChain: (
+    selectors: string,
+  ) => Array<{ tag: string | undefined; cls: string | undefined }> | null
   descentDeclined: PlanCache<unknown>
+  siblingDeclined: PlanCache<unknown>
   select: (
     selectors: string,
     context: EngineContext | null | undefined,

@@ -8,6 +8,10 @@ export function switchContext(
   var oldDoc = engine.doc
   engine.partCounts.clear()
   engine.typeRoutes.clear()
+  // Chain declines are decisions about a document's shape and have no
+  // authority over another document.
+  engine.descentDeclined.clear()
+  engine.siblingDeclined.clear()
   engine.doc = (context.ownerDocument || context) as Document
   if (force || oldDoc !== engine.doc) {
     // force a new check for each document change

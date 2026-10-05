@@ -74,7 +74,7 @@ jobs:
         if: steps.test-plan.outputs.package == 'true'
         run: pnpm run test:package
       - name: Install Chrome system dependencies
-        if: steps.test-plan.outputs.browser == 'true'
+        if: steps.test-plan.outputs.browser == 'true' || steps.test-plan.outputs.upstream == 'true'
         run: |
           # Setup installs pinned Chrome for Testing. A stale system-Chrome index
           # must not block installation of Ubuntu's browser dependencies.
@@ -88,3 +88,6 @@ jobs:
       - name: Test native browser behavior
         if: steps.test-plan.outputs.browser == 'true'
         run: pnpm run test:browser
+      - name: Test upstream WPT selectors
+        if: steps.test-plan.outputs.upstream == 'true'
+        run: pnpm run test:wpt

@@ -5,8 +5,10 @@ export function hasSlotted(
   argument: string | null,
 ) {
   if (
-    element.namespaceURI != 'http://www.w3.org/1999/xhtml' ||
-    element.localName != 'slot'
+    // The local name discriminates almost every element, so it is
+    // tested before the longer namespace comparison.
+    element.localName != 'slot' ||
+    element.namespaceURI != 'http://www.w3.org/1999/xhtml'
   ) {
     return false
   }

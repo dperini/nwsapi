@@ -2,6 +2,7 @@ import type {
   EngineState,
   ElementCallback,
   EngineContext,
+  PlanCache,
 } from '../state/types.mts'
 
 export function select(
@@ -70,19 +71,30 @@ function selectByDescent(
     return children
   }
   // A plain descendant chain of tags is answered by descending, when the
-  // shape of the document makes that the cheaper direction. No callback:
-  // the ordinary path is what applies one, and this returns the answer
-  // rather than a candidate list.
+  // shape of the document makes that the cheaper direction, and a chain
+  // of simple parts joined by general siblings is answered by one pass
+  // over each candidate parent. No callback: the ordinary path is what
+  // applies one, and both routes return the answer rather than a
+  // candidate list.
   if (
+    callback === undefined &&
     selectors &&
     typeof selectors == 'string' &&
-    callback === undefined &&
-    engine.descentDeclined.get(selectors) === undefined &&
-    engine.reTagChain.test(selectors) &&
-    !engine.hasForeignTypes(context) &&
-    (descended = engine.parseChain(selectors))
+    !engine.hasForeignTypes(context)
   ) {
-    descended = engine.descendChain(descended, context)
+    descended =
+      chainByParts(selectors, context, {
+        declined: engine.descentDeclined,
+        grammar: engine.reTagChain,
+        parse: engine.parseChain,
+        answer: engine.descendChain,
+      }) ||
+      chainByParts(selectors, context, {
+        declined: engine.siblingDeclined,
+        grammar: engine.reSiblingChain,
+        parse: engine.parseSiblingChain,
+        answer: engine.siblingChain,
+      })
     if (descended) {
       return !engine.Config.NODE_LIST
         ? descended
@@ -90,9 +102,40 @@ function selectByDescent(
           ? descended
           : engine.toNodeList(descended)
     }
-    engine.descentDeclined.set(selectors, true)
   }
 
+  return undefined
+}
+
+function chainByParts(
+  selectors: string,
+  context: EngineContext,
+  chain: {
+    declined: PlanCache<unknown>
+    grammar: RegExp
+    parse: (
+      selectors: string,
+    ) => Array<{ tag: string | undefined; cls: string | undefined }> | null
+    answer: (
+      parts: Array<{ cls: string | undefined; tag: string | undefined }>,
+      context: EngineContext,
+    ) => Element[] | null
+  },
+) {
+  let descended
+  if (
+    chain.declined.get(selectors) === undefined &&
+    chain.grammar.test(selectors) &&
+    (descended = chain.parse(selectors))
+  ) {
+    descended = chain.answer(descended, context)
+    if (descended) {
+      return descended
+    }
+    // A declined answer is a decision about document shape, which the
+    // selector remembers the way the descendant route does.
+    chain.declined.set(selectors, true)
+  }
   return undefined
 }
 

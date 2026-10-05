@@ -101,20 +101,24 @@ export function compilePseudoLogical(
         state.match![2]!,
       )
     ) {
+      // The local name is invariant across the union, so it is read
+      // once into the shared temp instead of once per member. Hosts
+      // keep the matchesTag fallback for foreign and legacy names.
       state.source =
         'if(' +
         state.engine
           .splitList(state.match![2]!)
-          .map(function (tag) {
+          .map(function (tag, index: number) {
+            var read = index ? 'n' : '(n=' + state.read.tag('e') + ')'
             return state.engine.HTML_DOCUMENT
               ? '(' +
-                  state.read.tag('e') +
+                  read +
                   '==' +
                   JSON.stringify(state.engine.asciiLower(tag)) +
                   '||s.matchesTag(e,' +
                   JSON.stringify(tag) +
                   '))'
-              : state.read.tag('e') + '=="' + tag + '"'
+              : read + '==' + JSON.stringify(tag)
           })
           .join('||') +
         '){' +
