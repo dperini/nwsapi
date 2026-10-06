@@ -7,11 +7,11 @@ The reported ratio combines 36 selectors, with one selector counted as one
 case. It does not measure browser performance or application startup. See the
 [performance work guide](guide.md) for help reading the ratio.
 
-This comparison measures `document.querySelectorAll()` in two real installations of the same `jsdom` version. This run uses `jsdom` 30.0.1. The comparison installation pins `@asamuzakjp/dom-selector` 9.1.1 with an override. The other installation overrides that dependency with the packed `nwsapi` 2.3.0-prerelease build and installs its `css-tree` peer. The benchmark verifies the resolved package names before measuring. This matches the comparison-library version used by the standalone browser benchmark. It does not replace the module cache or call selector engines directly.
+This comparison measures `document.querySelectorAll()` in two real installations of the same `jsdom` version. This run uses `jsdom` 30.0.1. The comparison installation pins `@asamuzakjp/dom-selector` 9.2.4 with an override. The other installation overrides that dependency with the packed `nwsapi` 2.3.0-prerelease build and installs its `css-tree` peer. The benchmark verifies the resolved package names before measuring. This matches the comparison-library version used by the standalone browser benchmark. It does not replace the module cache or call selector engines directly.
 
 <!-- jsdom-summary:start -->
 
-The `nwsapi` override is **5.57× faster** across 36 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
+The `nwsapi` override is **5.11× faster** across 36 selectors, using the geometric mean of their speed ratios. Each selector has equal weight. These timings measure repeated queries and exclude application startup.
 
 <!-- jsdom-summary:end -->
 
@@ -60,7 +60,7 @@ dom.window.close()
 
 The benchmark uses a `file:` override pointing to the freshly packed checkout because the measured build may not yet be published. It exercises the package's published file layout and peer resolution. For pnpm, put the same override under `overrides` in `pnpm-workspace.yaml`, as shown in the [installation instructions](../../../README.md#in-jsdom).
 
-The comparison consumer keeps the same dependencies and uses `"@asamuzakjp/dom-selector": "9.1.1"` as its override. Neither library is patched. The 36 timing selectors do not include `#null` or `.null`, which are affected by [PR #344](https://github.com/asamuzaK/domSelector/pull/344). Missing-attribute behavior remains covered by the correctness suite.
+The comparison consumer keeps the same dependencies and uses `"@asamuzakjp/dom-selector": "9.2.4"` as its override. Neither library is patched. The 36 timing selectors do not include `#null` or `.null`, which are affected by [PR #344](https://github.com/asamuzaK/domSelector/pull/344). Missing-attribute behavior remains covered by the correctness suite.
 
 ## Duplicate IDs and host helpers
 

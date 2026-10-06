@@ -11,7 +11,7 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=af4a85f6b515)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
 
 This summary compares the standalone browser libraries across query time, retained JavaScript heap, and compressed file size.
 

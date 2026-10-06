@@ -2004,26 +2004,37 @@ and release qualification are deferred after the failed pilot. No production
 runtime change is made. Earlier October 3 actual-build confirmations remain
 separate valid evidence for the existing guarded optimizations.
 
-## 2026-10-05: Refreshed v3 browser benchmarks and charts
+## 2026-10-06: Refreshed production performance benchmarks
 
-The v3 branch's browser comparison, first-match chart, retained-memory report,
-file-size report, README summary and chart links were regenerated from current
-measurements. This is a new comparison series: the lockfile now pins
-`@asamuzakjp/dom-selector` 9.1.1, and the measured `nwsapi` build has SHA-256
-`e53cfcce`. Do not compare it directly with earlier charts made from the older
-lockfile or candidate build.
+The browser comparison, first-match chart, retained-memory report, file-size
+report, public `jsdom` comparison, README summary and chart references were
+regenerated from production-built `nwsapi` output. This starts a new comparison
+series: the lockfile pins `@asamuzakjp/dom-selector` 9.2.4, and the measured
+`nwsapi` build has SHA-256 `ed06b546`. Do not compare it directly with charts
+made from the earlier lockfile or candidate build.
 
 The nine-round Chromium 154.0.8037.0 run on an Apple M1 Max compared 36
-correctness-checked selectors and reports a 4.68× geometric-mean speed ratio
+correctness-checked selectors and reports a 5.01× geometric-mean speed ratio
 for warm all-results queries. The five-round retained-memory run measured
-74.78 KiB for `nwsapi` and 549.33 KiB for the comparison library after 100
-queries. The current readable browser core is 46.45 KiB with Brotli quality 11;
-the complete comparison bundle is 109.59 KiB. AC power was checked before
-measurement. These results describe the recorded fixtures and machine, not all
-applications or selectors.
+74.93 KiB for `nwsapi` and 545.93 KiB for the comparison library after 100
+queries. The readable browser core is 46.55 KiB with Brotli quality 11; the
+complete comparison bundle is 78.09 KiB. The separate nine-round public
+`jsdom` comparison reports a 5.11× geometric-mean speed ratio across the same
+36 selectors. These results describe the recorded fixtures and machine, not
+all applications or selectors.
 
-The [benchmark guide](benchmarks.md) explains each result and links to the
-updated SVGs and raw reports. The timing harness used Node.js 26.9.0 and its
+The [benchmark guide](benchmarks.md) explains the browser results and links to
+the updated SVGs and raw reports. The [public `jsdom` report](jsdom.md) records
+its own method and limitations. The timing harness used Node.js 26.10.0 and its
 default nine rounds, 1,000-call batches and minimum 50ms samples. The raw files
 preserve per-round timings, build and lockfile hashes, fixture hashes and
 compression inputs.
+
+The learned `:has()` policy experiments remain separate from these general
+benchmarks. The corrected route study found limited headroom for choosing
+between the two existing routes. The PyTorch adaptive-prefix model lost to
+current v3 on complete queries, and even a free perfect choice could not repay
+the prefix work. Keep the learned model offline; see the [corrected neural
+measurements](neural-planner-outcome.md) and [complete-route
+measurements](neural-dispatch-outcome.md) for the training and promotion
+evidence.

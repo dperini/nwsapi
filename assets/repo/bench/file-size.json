@@ -1,14 +1,14 @@
 {
   "metadata": {
-    "timestamp": "2026-10-05T21:55:43.066Z",
-    "node": "v26.9.0",
+    "timestamp": "2026-10-06T18:01:55.856Z",
+    "node": "v26.10.0",
     "platform": "darwin/arm64",
     "cpu": "Apple M1 Max",
     "jsdom": "30.0.1",
     "candidateVersion": "2.3.0-prerelease",
-    "candidateSha256": "e53cfcce1031c781cbd8d389061098d7d8b442e83827c157eb5acab2750a7f5f",
-    "competitorVersion": "9.1.1",
-    "lockfileSha256": "a9f1a3b35ed70ba3e23255ffa29cf41201d555cf4c68448bdf51b239d6689295",
+    "candidateSha256": "ed06b546de823c979ac78411a1b96e4592daa9be5d6359ba741841aad467ec4f",
+    "competitorVersion": "9.2.4",
+    "lockfileSha256": "d2c9f315d4ba23303ce1622aa86e118cfac4479b259432ebfa72daa99a35be31",
     "rolldown": "1.2.7",
     "method": "Readable nwsapi core browser file versus a full readable dom-selector ESM bundle, including runtime dependencies; no minification; full competitor exports; gzip level 9; Brotli quality 11. Excludes jsdom, nwsapi CLI, adapter, optional legacy module and css-tree peer."
   },
@@ -16,56 +16,56 @@
     {
       "engine": "NWSAPI",
       "artifact": "dist/nwsapi.js (readable core browser file)",
-      "bytes": 262249,
-      "gzip": 59191,
-      "brotli": 47561,
-      "sha256": "e53cfcce1031c781cbd8d389061098d7d8b442e83827c157eb5acab2750a7f5f"
+      "bytes": 263595,
+      "gzip": 59328,
+      "brotli": 47663,
+      "sha256": "ed06b546de823c979ac78411a1b96e4592daa9be5d6359ba741841aad467ec4f"
     },
     {
       "engine": "@asamuzakjp/dom-selector",
       "artifact": "Full readable runtime bundle",
-      "bytes": 600265,
-      "gzip": 133869,
-      "brotli": 112218,
-      "sha256": "1f5823dac833a5cc3c71b14c19d1f07bd3048720b66d992d877992d3a4d29678"
+      "bytes": 433029,
+      "gzip": 95286,
+      "brotli": 79962,
+      "sha256": "29482f29bfd4af6aff8036518046b7aa353f1b54fd5539ea3f61b867ead5ddd0"
     }
   ],
   "competitorModules": [
     {
       "file": "@asamuzakjp/dom-selector/src/index.js",
-      "sha256": "92c339612f36e22589433957633dcabef87ad58b1958233f936e2127a35133f9"
+      "sha256": "1b1e0b0900d8b620c2f64b91341e1a5ebf7b973531c6cae868027356b8c6ce6d"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/constant.js",
-      "sha256": "f4064aa5024e16e09fbe52655437d8fcb9ae9fba2789845308cb6f2ab7c12176"
+      "sha256": "53374d0ff5af9753c63ed388681447bf00d76a79cdb5cc0dbea1adebdfb95b94"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/evaluator.js",
-      "sha256": "ae062d14f7d017c4fc51dbfa62547bed11cf98fd97ec837d80eb9e5e4601f18f"
+      "sha256": "e63936c42681d02a69148f84449d1c07c3487637931ab77c199cf4a110e6a320"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/event.js",
-      "sha256": "d23ac78dfc9c299270ec36e6ca984685cf6b98551112245dbe9f719083b041de"
+      "sha256": "e899ed720709e0b25a4117d3d29fd3bed0ff99169bad7b996139013d4e9cb53d"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/finder.js",
-      "sha256": "d236928d343b78a59fe9dfcbb6fcd5b12da56ae9e5570a4290425f490f13cf89"
+      "sha256": "b51b5319186e10d1a6b33f63534c449caa4b1fd55ee6357c8d8a7245aa888bd0"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/mapper.js",
-      "sha256": "9e5091fe6a6328ee7b3c0c35329ca8267494d6e7cf8018d7d7743d9b822159e0"
+      "sha256": "b1d80bd0466da63688d60f831c1d472e9372ee715d9eec5c85aeee8d54afaf54"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/matcher.js",
-      "sha256": "6bab3d5734fbcc983ca0b9953bc63e6091fa695e008a6c7f3f14669c2322f62f"
+      "sha256": "02699acc2aef41cc4cb588d135fc4ae9071082ad77096e85cdeeab2dfea5a5d0"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/nwsapi.js",
-      "sha256": "598edb18158157e7cf80bc962259fac0513168f76e0cf8ee548535d8eeb197a6"
+      "sha256": "41030ee24c3a0b549e0ed2d7567fa8ef91183df562994a4536ffd9149c8aa691"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/parser.js",
-      "sha256": "b62a68225f73c2e592058aa0dcbbed8277b6ea9a77dd26eaf44e2685484da468"
+      "sha256": "5b3f17d8c5c0c816f29a17644efa36fa34c067e9bc4be69f20b07b7abc961060"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/processor.js",
@@ -73,11 +73,11 @@
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/pseudo-class.js",
-      "sha256": "8f7d5ee89a3c0453538a2e69bbf116b300a39a1777d293aa954806c5044e94f1"
+      "sha256": "50c4df681209a7ed7b441267763636a9090753c96a42b5fe9aa2a844b52a2117"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/selector.js",
-      "sha256": "5c9cf1c8f0b5e5f56091ce449c2729de4f68803ce6ccecda7572411b32aaef40"
+      "sha256": "c37e782d9d51cebb465a9f4448fe6b762adde32ec97fd7a69b93cae6f882f579"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/shadow.js",
@@ -85,55 +85,31 @@
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/traverser.js",
-      "sha256": "7639aa8245bb2351d9e6f46050d236d9023dd70e3b94fc2a21a91cea01f0cc9c"
+      "sha256": "987c14e001b3ddde3512927755ea4414eccd60b8e5c823d7e183de043c250738"
     },
     {
       "file": "@asamuzakjp/dom-selector/src/js/utility.js",
-      "sha256": "23c4aede8e8af4099c4453b306ade40e695eddba2661b8d17b5f350cb2024ab8"
+      "sha256": "280581efb6e70503c88eb6b2be6676d390bc3a0c3d90b8ac0963ad5cc29f8eb0"
     },
     {
       "file": "bidi-js/dist/bidi.mjs",
-      "sha256": "faa1dadce0131fc131d3c6e905af3de38ef5f0000ce0991a490318cdf0dec65d"
-    },
-    {
-      "file": "css-tree/dist/data.js",
-      "sha256": "b0fd864760415cd6b8cf5cf1d87b4b7e326b3e5e7ce3e07a8cb9792b4181acdb"
-    },
-    {
-      "file": "css-tree/dist/version.js",
-      "sha256": "84162fb3f322ba881ce5997d0c9b8184ae137efd059b6588be5804c86585868c"
+      "sha256": "59599182ffb089498d0eb4272c1e535a2f6932a4b2589e356f9302fe095bff0b"
     },
     {
       "file": "css-tree/lib/convertor/create.js",
       "sha256": "5362ff474f863e16995f1f920a78a86252316bba425def986d01fd521b821a21"
     },
     {
-      "file": "css-tree/lib/definition-syntax/SyntaxError.js",
-      "sha256": "a8b72a0d0a092d87e2d71b35d9bdb074800dfa4973daf378f5d791ff996c31a9"
-    },
-    {
-      "file": "css-tree/lib/definition-syntax/generate.js",
-      "sha256": "8219bdc7bbdcd9a35dd022d0f0b6aebb8b6927574a0a66f6f9ff2dc98c6548d7"
-    },
-    {
-      "file": "css-tree/lib/definition-syntax/index.js",
-      "sha256": "7d8f396bc462f16e1a941d452c08c211edd43576f8520019da4271f16ba44e7f"
-    },
-    {
-      "file": "css-tree/lib/definition-syntax/parse.js",
-      "sha256": "1314a5458f65204a04c20dafeb0a6e8e24d7fe37bb9e0da5133c6d59ab72ae63"
-    },
-    {
-      "file": "css-tree/lib/definition-syntax/scanner.js",
-      "sha256": "4ae252555ea0f5e79cdd09163991e4f8310b31cf1eb9cc77357b2f6e5bb1f383"
-    },
-    {
-      "file": "css-tree/lib/definition-syntax/walk.js",
-      "sha256": "342d693c25a42c74ac3f66090043fcf5646b1a90438207c389dab6e8028879fc"
+      "file": "css-tree/lib/convertor/index.js",
+      "sha256": "e2a5dc9dc60f1dc2475167f7ae9e9b98e523e26551addb4106b7adc50ba715b3"
     },
     {
       "file": "css-tree/lib/generator/create.js",
       "sha256": "2e4112898f61442bfa9aebc808e6e5e1dd28b267955fffdef5a87f32ca248ec0"
+    },
+    {
+      "file": "css-tree/lib/generator/index.js",
+      "sha256": "b6d86373c6e6c7dac2bec7065bf94b83d4c681f5db643c077dc467936a60ed33"
     },
     {
       "file": "css-tree/lib/generator/sourceMap.js",
@@ -144,62 +120,6 @@
       "sha256": "1896ece52083a5209f887474a50826f8ce60af68135dd1c547bb1c2bc33c72f3"
     },
     {
-      "file": "css-tree/lib/index.js",
-      "sha256": "8e8e4179971e7edc1e3fd04c14ec7efe84ecf51deb12d5d052ecc59cdc89b5dc"
-    },
-    {
-      "file": "css-tree/lib/lexer/Lexer.js",
-      "sha256": "818e6d0d35dbfa8d1f4c9a34634c7f1d73dbcef9fc97ec25e599b55ee68e71af"
-    },
-    {
-      "file": "css-tree/lib/lexer/error.js",
-      "sha256": "cbb0e395106f5c3d4da276bdc27d8199da3eb95cbc8e65d1583ba2c9bacafd5b"
-    },
-    {
-      "file": "css-tree/lib/lexer/generic-an-plus-b.js",
-      "sha256": "e73105323a180175b51dfdf81f5833a5a5d4e36ba235d17ff0589ee8929a36fd"
-    },
-    {
-      "file": "css-tree/lib/lexer/generic-const.js",
-      "sha256": "72896ada1af386326bbc053bc1302c51739c928e90f7e57d2024b9cee72c5e2b"
-    },
-    {
-      "file": "css-tree/lib/lexer/generic-urange.js",
-      "sha256": "01256dbcdb627bb4bd9966863b414eb9372ceef67e984d9a89bd521020636393"
-    },
-    {
-      "file": "css-tree/lib/lexer/generic.js",
-      "sha256": "d3e66172510a6057879885aaf4ffd77944e598f9262aab369216de7bfd222daf"
-    },
-    {
-      "file": "css-tree/lib/lexer/match-graph.js",
-      "sha256": "862b1e04494b93d337cde872c680731a242b8b8a715655ba65887049edbea6c6"
-    },
-    {
-      "file": "css-tree/lib/lexer/match.js",
-      "sha256": "d1aa43eee2383b47e63ce180ea285d197d452e6402e609637bb3846378f0cea1"
-    },
-    {
-      "file": "css-tree/lib/lexer/prepare-tokens.js",
-      "sha256": "e25ecabc4a78c35903e603a25f094fa074b763060c6842aae55d049a2f999675"
-    },
-    {
-      "file": "css-tree/lib/lexer/search.js",
-      "sha256": "7805cd906f66272b98321307c6fe5d1efd0a8f177a5e89b25463b405eeb4783e"
-    },
-    {
-      "file": "css-tree/lib/lexer/structure.js",
-      "sha256": "11fe95b505a401e752636ddf6eaae75ac51963feefe44100e1c769ab575ca4df"
-    },
-    {
-      "file": "css-tree/lib/lexer/trace.js",
-      "sha256": "616c3897a9fe65f595ccbbebe130e3d71525edf98a1441ecc9042d012c27fa3b"
-    },
-    {
-      "file": "css-tree/lib/lexer/units.js",
-      "sha256": "25f99b405f14194f8e1a4d3432a8d1d3f59e814dd93bc703db2d6332d397b1f1"
-    },
-    {
       "file": "css-tree/lib/parser/SyntaxError.js",
       "sha256": "db9c79b67c9766cd6f0376aadc85ae25b1694a613b34fcf7407b9351487821e0"
     },
@@ -208,72 +128,24 @@
       "sha256": "b884e64b00eb8b63d398fe395a29f6b40a43a29220364864717cbba9dd670334"
     },
     {
+      "file": "css-tree/lib/parser/parse-selector.js",
+      "sha256": "6204db431ba82dd355f9852546672f91031f022c58a2a77805fd8099a67c9a72"
+    },
+    {
       "file": "css-tree/lib/parser/sequence.js",
       "sha256": "c3930235086e8342b1c0d0808cf4bf3790114ecd7af96c851fa7c05a55517b86"
     },
     {
-      "file": "css-tree/lib/syntax/atrule/container.js",
-      "sha256": "8a5e4a0553fd30c76c34a25da3faf43400130b986e75f016f1f259659a3feeb9"
+      "file": "css-tree/lib/syntax/config/generator.js",
+      "sha256": "c0825b0d14ab545fd3c0a6893ad6121f6a96d7abf573a04d0ae62edf74c0796d"
     },
     {
-      "file": "css-tree/lib/syntax/atrule/font-face.js",
-      "sha256": "e8577c256cb18011d3cc005722e4af5f6df289cc7e3820b9bd52e0e617f4bbe3"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/import.js",
-      "sha256": "d1a544786ac26f55d8856c3fc9e2b408be46eba1d21ff5daf4b5aeadd396da3c"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/index.js",
-      "sha256": "69ccce383380e212bf1e8ed1f693c65702ed6ca92076a399f4ea4d4f082b8aa8"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/layer.js",
-      "sha256": "b5ab72fd51afc067c458618977f4e7c5bb0a770937b81f5b55b309b346deea35"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/media.js",
-      "sha256": "e04fa163e347946fbcafd54c1500a396041931cad8a1923fded62805e51c6a06"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/nest.js",
-      "sha256": "ee141ed45c843703242e32b9988bb7620f72caeae06c15fd14293bd8279973a8"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/page.js",
-      "sha256": "ee141ed45c843703242e32b9988bb7620f72caeae06c15fd14293bd8279973a8"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/scope.js",
-      "sha256": "67e42f8220965cdd89497465f0eaae540177db75e18cfaa8e47ef1a63af36893"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/starting-style.js",
-      "sha256": "477a913ceff8ad5516e580b2c7d3b92a757bb1f2aac194c218c74e83f8a76d25"
-    },
-    {
-      "file": "css-tree/lib/syntax/atrule/supports.js",
-      "sha256": "771ec140c95baaf05e49f07d8db828d06aea771ab1ad84d9611bd494d8e284a9"
-    },
-    {
-      "file": "css-tree/lib/syntax/config/lexer.js",
-      "sha256": "9070d8711d1c8fd2540299f272b8c307b48d060b55a77746be8c1ce99779bb7a"
-    },
-    {
-      "file": "css-tree/lib/syntax/config/mix.js",
-      "sha256": "60e42b08af1a9fc72864f4fb04dbc49b53a122c715a089e0f1dacba2da3c2a5d"
-    },
-    {
-      "file": "css-tree/lib/syntax/config/parser.js",
-      "sha256": "81f0e01cffe0f898df7d0732cb181bdecc4d89ac8ff85b3519e57b8ae39d5c0f"
+      "file": "css-tree/lib/syntax/config/parser-selector.js",
+      "sha256": "059d7a4655f31147e195b29d0a33fff3c7c7e3f4e17e411ba6ce9854716e5ccf"
     },
     {
       "file": "css-tree/lib/syntax/config/walker.js",
       "sha256": "130ec32c1207d4578698afa275666729fde45b49cb9a99de22de70a7c6bac619"
-    },
-    {
-      "file": "css-tree/lib/syntax/create.js",
-      "sha256": "6b17b6b6f894e565124a378788928db01661067059c1a34a0daf929d53019dae"
     },
     {
       "file": "css-tree/lib/syntax/function/expression.js",
@@ -282,10 +154,6 @@
     {
       "file": "css-tree/lib/syntax/function/var.js",
       "sha256": "e56be12d3341d1d4538119c0963fcb7d6dfb1692f63133983800d09026c0f48b"
-    },
-    {
-      "file": "css-tree/lib/syntax/index.js",
-      "sha256": "a419605b5daf916d5afc872603d1d63e843baa42317d5d7378fc97358dc45712"
     },
     {
       "file": "css-tree/lib/syntax/node/AnPlusB.js",
@@ -484,8 +352,12 @@
       "sha256": "b1648391876a49698683a96141c1b3c6f37cf175fee7b7315cf64a7958d8b16c"
     },
     {
-      "file": "css-tree/lib/syntax/node/index-parse.js",
-      "sha256": "9942360e65b1944f39d69279e7b67e6786258864c98eba1c7e508dade7c54fc7"
+      "file": "css-tree/lib/syntax/node/index-generate.js",
+      "sha256": "3e27abc0ea887fa7a0700b47009b3eede402fb901dec9c2fd75d77c4854e8094"
+    },
+    {
+      "file": "css-tree/lib/syntax/node/index-parse-selector.js",
+      "sha256": "b1afe770974e087bef8b0b47b69e64b197b58fed547173ad6ddc1022b49ee108"
     },
     {
       "file": "css-tree/lib/syntax/node/index.js",
@@ -568,6 +440,10 @@
       "sha256": "6e0e3d9ad14c2491d6f5f6d5caed0aca99becdb72f6eb3e80245c2dc1f4a9bf4"
     },
     {
+      "file": "css-tree/lib/utils/index.js",
+      "sha256": "c336d2da88128f77f43a673915d9472957b461cea7a131023bc177420fc41cac"
+    },
+    {
       "file": "css-tree/lib/utils/names.js",
       "sha256": "53e7d8b7a84f5d437be9b18b33b4d28412d83dab3de53659cdc624c54a4b56b9"
     },
@@ -582,6 +458,10 @@
     {
       "file": "css-tree/lib/walker/create.js",
       "sha256": "aa632d55bec88636a4a2f964e7dfb075993c1e0589eeebffa0b0327351af0f84"
+    },
+    {
+      "file": "css-tree/lib/walker/index.js",
+      "sha256": "3748b2f25341b73ad353ba2cab4c553cba6d7c071c55326f67426e8054d84146"
     },
     {
       "file": "is-potential-custom-element-name/index.js",
