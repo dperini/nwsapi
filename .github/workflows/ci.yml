@@ -17,6 +17,8 @@ concurrency:
 jobs:
   node:
     runs-on: ubuntu-26.04
+    env:
+      pnpm_config_store_dir: ${{ github.workspace }}/.cache/pnpm-store
     steps:
       - name: Bootstrap checkout
         shell: bash

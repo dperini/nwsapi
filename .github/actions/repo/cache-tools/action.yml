@@ -4,13 +4,6 @@ description: Restore verified tool downloads and the pnpm content-addressed stor
 runs:
   using: composite
   steps:
-    - name: Pin pnpm store inside the workspace
-      shell: bash
-      run: |
-        set -euo pipefail
-        store_path="${GITHUB_WORKSPACE}/.cache/pnpm-store"
-        mkdir -p "${store_path}"
-        echo "pnpm_config_store_dir=${store_path}" >> "${GITHUB_ENV}"
     - name: Restore tool and package caches
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:

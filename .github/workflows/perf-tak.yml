@@ -11,6 +11,8 @@ permissions:
 jobs:
   measure:
     runs-on: ubuntu-26.04
+    env:
+      pnpm_config_store_dir: ${{ github.workspace }}/.cache/pnpm-store
     outputs:
       measurement: ${{ steps.export.outputs.measurement }}
     steps:
