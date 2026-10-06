@@ -11,6 +11,8 @@ permissions:
 jobs:
   measure:
     runs-on: ubuntu-26.04
+    outputs:
+      measurement: ${{ steps.export.outputs.measurement }}
     steps:
       - name: Bootstrap checkout
         shell: bash
@@ -42,20 +44,27 @@ jobs:
           pnpm run build
           .cache/bin/tak --runner github-ubuntu-26.04-x64 run --bench node_selectors --record
           .cache/bin/tak artifact export --output "${RUNNER_TEMP}/tak-measurement.json" --rev "${GITHUB_SHA}"
-      - name: Upload measurement for the trusted publisher
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: tak-measurement-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/tak-measurement.json
-          if-no-files-found: error
-          retention-days: 1
+      - name: Export the measured result to the publisher job
+        id: export
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="${RUNNER_TEMP}/tak-measurement.json"
+          size="$(wc -c < "${result}")"
+          if [ "${size}" -gt 700000 ]; then
+            echo "::error::Tak result is too large for a workflow output (${size} bytes)."
+            exit 1
+          fi
+          encoded="$(base64 --wrap=0 "${result}")"
+          echo "measurement=${encoded}" >> "${GITHUB_OUTPUT}"
 
   publish:
     needs: measure
     runs-on: ubuntu-26.04
     permissions:
-      actions: read
       contents: write
+    env:
+      TAK_MEASUREMENT: ${{ needs.measure.outputs.measurement }}
     steps:
       - name: Bootstrap checkout
         shell: bash
@@ -75,11 +84,6 @@ jobs:
           export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
           git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
           git checkout -q --detach "${TRIGGER_SHA}"
-      - name: Download measured result
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: tak-measurement-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/tak-measurement
       - name: Install the pinned tak release
         shell: bash
         run: |
@@ -96,6 +100,10 @@ jobs:
           tar -xzf "${archive}" -C "${extract_dir}"
           install -m 755 "${extract_dir}/tak" "${RUNNER_TEMP}/tak"
           "${RUNNER_TEMP}/tak" --version
+          mkdir -p "${RUNNER_TEMP}/tak-measurement"
+          printf '%s' "${TAK_MEASUREMENT}" | base64 --decode \
+            > "${RUNNER_TEMP}/tak-measurement/tak-measurement.json"
+          test -s "${RUNNER_TEMP}/tak-measurement/tak-measurement.json"
       - name: Publish Git note for this commit
         shell: bash
         env:
