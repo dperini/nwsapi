@@ -466,6 +466,24 @@
         }
       }
     },
+    "mold": {
+      "origin": "gh-asset",
+      "repository": "github:rui314/mold",
+      "version": "3.0.0",
+      "tag": "v3.0.0",
+      "platforms": {
+        "linux-arm64": {
+          "asset": "mold-3.0.0-aarch64-linux.tar.gz",
+          "integrity": "sha256-UsdZ02ibq66kxCry8xBip0q4Phf/tagJAjJTTGe3BXc=",
+          "binary": "mold-3.0.0-aarch64-linux/bin/mold"
+        },
+        "linux-x64": {
+          "asset": "mold-3.0.0-x86_64-linux.tar.gz",
+          "integrity": "sha256-bJDUpHTHwECd+1db4DpTRYeKwU/boY3otA+ljGASEYk=",
+          "binary": "mold-3.0.0-x86_64-linux/bin/mold"
+        }
+      }
+    },
     "pytorch": {
       "origin": "python-project",
       "package": "torch",
