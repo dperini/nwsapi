@@ -3282,7 +3282,9 @@
         plan.factory = compile(plan.selector, true, null, relative, plan.seed);
         plan.empty = plan.factory.empty;
         plan.cacheSize = plan.factory.cacheSize + plan.selector.length * 2 + 128;
-        plan.bulk = bulkHasPlan(selector);
+        // Most selectors cannot use bulk :has planning. Avoid parsing every
+        // selector with selectorInfo before checking this cheap prefix.
+        plan.bulk = /:has\(/i.test(selector) ? bulkHasPlan(selector) : null;
         if (plan.bulk) { plan.cacheSize += plan.bulk.cacheSize; }
         size += plan.cacheSize;
         plans.push(plan);
