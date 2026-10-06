@@ -7,5 +7,5 @@ export function collectPackumentFailures(output: string): string[] {
   for (const match of output.matchAll(PACKUMENT_FAILURE_PATTERN)) {
     failed.add((match[1] ?? match[2])!)
   }
-  return [...failed].toSorted()
+  return [...failed].toSorted((left, right) => left.localeCompare(right))
 }
