@@ -4,6 +4,7 @@ import { isMainModule } from '../../../lib/run-node.mts'
 import { sha256 } from '../../footprint/shared.mts'
 import type { TrainingRow } from '../neural/export.mts'
 import { split } from './fixtures.mts'
+import { weightsPath } from './paths.mts'
 
 interface Bounds {
   domain: number[][]
@@ -61,8 +62,9 @@ export function audit(collection: string, model: string, output: string) {
     throw new Error('Model and collection use different datasets.')
   }
   const { rows } = JSON.parse(blob.toString()) as { rows: TrainingRow[] }
+  const hosts = ['chromium', 'jsdom'] as const
   const results = Object.fromEntries(
-    ['chromium', 'jsdom'].map(host => {
+    hosts.map(host => {
       const controls = rows.filter(
         row => row.host === host && split(row.family) === 'development',
       )
@@ -70,7 +72,7 @@ export function audit(collection: string, model: string, output: string) {
         throw new Error('Missing development controls for ' + host)
       }
       const bounds = JSON.parse(
-        readFileSync(path.join(model, `${host}-weights.json`), 'utf8'),
+        readFileSync(weightsPath(model, host), 'utf8'),
       ) as Bounds
       return [
         host,

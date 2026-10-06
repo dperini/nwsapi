@@ -12,12 +12,26 @@ qualification.
 ## Build the planner
 
 Run `pnpm run build` from the repository. The build compiles
-`src/core/select/neural-planner.mts` into the main `dist/nwsapi.js` bundle.
+`src/core/select/has/policy.mts` into the main `dist/nwsapi.js` bundle.
 There is no separate planner file, import or network request.
 
-The model weights are numbers in the `.mts` source. They come from the
-frozen crossed experiment in
-`assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1/`.
+The committed PyTorch model assets live in `assets/repo/pytorch/model/`.
+`model.txt` pins their model ID. The generated files are:
+
+- `assets/repo/pytorch/model/chromium.generated.pt`
+- `assets/repo/pytorch/model/chromium-weights.generated.json`
+- `assets/repo/pytorch/model/chromium.generated.mjs`
+- `assets/repo/pytorch/model/jsdom.generated.pt`
+- `assets/repo/pytorch/model/jsdom-weights.generated.json`
+- `assets/repo/pytorch/model/jsdom.generated.mjs`
+
+The JavaScript export headers identify
+`scripts/repo/pytorch/dispatch_train.py` as their generator. The TypeScript
+entry point `scripts/repo/pytorch/dispatch-train.mts` invokes that PyTorch
+trainer through the pinned Python environment. Run
+`pnpm run gen:has-route-decision` to emit
+`src/core/select/has/route-decision.generated.mts`. The runtime imports that
+module directly, so it never scans for or selects a latest model directory.
 The Chromium policy has four hidden units. The jsdom policy is linear.
 No training is needed to build these saved policies.
 

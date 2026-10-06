@@ -7,7 +7,7 @@ import type {
 } from '../state/types.mts'
 import { selectCandidates } from './candidates.mts'
 import { groupSelectors } from './group.mts'
-import { prepareBulkHas, selectBulkHas } from './has.mts'
+import { prepareBulkHas, selectBulkHas } from './has/match.mts'
 
 export function select(
   engine: EngineState,

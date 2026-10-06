@@ -1,4 +1,4 @@
-import type { NeuralPlannerHost } from '../select/neural-planner.mts'
+import type { NeuralPlannerHost } from '../select/has/policy.mts'
 import type {
   BulkHasPlanner,
   LegacyHookFactory,

@@ -38,6 +38,10 @@
 !/assets/repo/bench/planner-neural-2026-10-04/model.mjs
 !/assets/repo/bench/survey-2026-10-03/neural-planner.html
 !/assets/repo/bench/survey-2026-10-03/tiny-model-training.html
+!/assets/repo/pytorch/model/*.generated.mjs
+!/assets/repo/pytorch/model/*.generated.pt
+!/assets/repo/pytorch/model/*-weights.generated.json
+!/assets/repo/pytorch/model/model.txt
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md

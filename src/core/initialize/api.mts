@@ -1,5 +1,5 @@
-import { neuralPlannerPolicy } from '../select/neural-planner.mts'
-import type { NeuralPlannerHost } from '../select/neural-planner.mts'
+import { neuralPlannerPolicy } from '../select/has/policy.mts'
+import type { NeuralPlannerHost } from '../select/has/policy.mts'
 import type { BulkHasPlanner } from '../state/types.mts'
 import { hasChild } from '../match/child.mts'
 import {

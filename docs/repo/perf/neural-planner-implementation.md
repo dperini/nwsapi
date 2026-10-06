@@ -163,7 +163,7 @@ Follow the existing naming, complexity, formatting, and test-tier conventions.
 
 | File                                              | Responsibility                                         |
 | ------------------------------------------------- | ------------------------------------------------------ |
-| `src/core/select/has.mts`                         | Current bulk preparation, routing, marking             |
+| `src/core/select/has/match.mts`                   | Current bulk preparation, routing, marking             |
 | `src/core/select/all.mts`                         | `runSingle` invokes bulk path and normal fallback      |
 | `src/core/match/relative.mts`                     | Existing witness collection and exact existence search |
 | `src/core/compile/guards.mts`                     | Existing fixed predicate ordering                      |
@@ -177,16 +177,17 @@ Follow the existing naming, complexity, formatting, and test-tier conventions.
 | `scripts/repo/bench/planner/has/contract.mts`     | New benchmark route contract and vectors               |
 | `scripts/repo/bench/planner/has/instrument.mts`   | New AST edits and untimed route evidence               |
 | `scripts/repo/bench/planner/neural/export.mts`    | Measurement to training dataset conversion             |
-| `scripts/repo/bench/planner/neural/train.py`      | PyTorch training entrypoint                            |
-| `scripts/repo/bench/planner/neural/data.py`       | New loading, splitting, and feature encoding           |
-| `scripts/repo/bench/planner/neural/model.py`      | New network, losses, and scalar export                 |
+| `scripts/repo/pytorch/neural_train.py`     | Retired PyTorch training entrypoint                    |
+| `scripts/repo/pytorch/adaptive_data.py`    | Training data loading and feature encoding             |
+| `scripts/repo/pytorch/adaptive_policy.py`  | PyTorch model and JavaScript export                    |
 | `scripts/repo/bench/planner/neural/evaluate.py`   | New metrics and model selection helpers                |
 | `scripts/repo/bench/planner/neural/oracle.mts`    | New diagnostics using recorded measurements            |
-| `scripts/repo/bench/planner/neural/parity.mts`    | New Python reference versus JS parity check            |
+| `scripts/repo/pytorch/neural_parity.py`   | PyTorch versus JavaScript parity check                 |
+| `scripts/repo/bench/planner/neural/parity.mts`    | JavaScript parity check                                |
 | `scripts/repo/bench/planner/neural/inference.mts` | Standalone decision overhead diagnostic                |
 | `scripts/repo/bench/planner/neural/confirm.mts`   | New integrated candidate confirmation                  |
 | `scripts/repo/bench/planner/neural/report.mts`    | Generated HTML from recorded results                   |
-| `scripts/repo/bench/planner/adaptive/`            | New experimental continuation code and collection      |
+| `scripts/repo/bench/planner/adaptive/`            | Experimental continuation collection and evaluation  |
 | `docs/repo/perf/journal.md`                       | Commands, outcomes, limitations, commit references     |
 
 Do not create every proposed file immediately. Create each when its owning
@@ -908,9 +909,9 @@ predicates is not part of the experiment.
 Build a helper that can process anchors `[start, end)` and append matches to
 one result array. Test the anchor predicate and then use the existing exact
 witness existence semantics. Process candidate anchors in their existing
-document order. Match-only compiled predicates use the existing invocation
-contract shown in `select/has.mts`; do not confuse them with collection
-resolvers in `select/all.mts`.
+document order. Match-only compiled predicates use the matcher callback
+signature in `src/core/select/has/match.mts`; collection resolvers in
+`src/core/select/all.mts` use a different calling convention.
 
 Before adding a model, compare this helper against the unmodified forward
 resolver. If it introduces substantial overhead, improve or reject the helper

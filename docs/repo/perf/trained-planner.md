@@ -109,6 +109,9 @@ The compressed fixture manifest preserves the exact input HTML. Evaluation
 reads this frozen manifest. `planner/fit.mts` can retrain from the recorded
 route costs without rerunning timing, and writes `shared-model.mjs` alongside
 the model JSON. The production runtime never imports that experimental file.
+`pnpm run gen:type-union-route-decision` emits it as a typed candidate at
+`src/core/lookup/type-union-route-decision.generated.mts`. It remains
+unimported because the recorded evaluation failed the promotion gate.
 
 Measurements use seven rounds with rotating variant order. Chromium uses
 isolated high-resolution timers and batches of 16 calls for at least 12ms

@@ -17,7 +17,7 @@ def main():
     parser.parse_args()
     raise SystemExit(
         "The historical trainer used inconsistent route labels and fallback rules. "
-        "Run scripts/repo/bench/planner/adaptive/train.py --help."
+        "Run scripts/repo/pytorch/adaptive_train.py --help."
     )
 
 
