@@ -1,11 +1,7 @@
-export function packageManagerNotice(version, userAgent) {
-  const manager = userAgent?.split(/[ /]/, 1)[0]
-  if (!manager) return undefined
+export function requireNpm(userAgent) {
+  if (!userAgent || userAgent.trim().startsWith('npm/')) return
 
-  const expected = /-prerelease(?:\.|$)/i.test(version) ? 'pnpm' : 'npm'
-  if (manager === expected) return undefined
-
-  return expected === 'npm'
-    ? 'Non-npm package manager detected: run `npm install`.'
-    : 'This prerelease branch is maintained with pnpm. Run `pnpm install`.'
+  const error = new Error('Non-npm package manager detected: run `npm install`.')
+  error.code = 'ERR_NON_NPM_PACKAGE_MANAGER'
+  throw error
 }

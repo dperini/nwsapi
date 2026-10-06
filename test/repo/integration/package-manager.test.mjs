@@ -1,30 +1,21 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { packageManagerNotice } from '../../../scripts/lib/package-manager.mjs'
+import { requireNpm } from '../../../scripts/lib/package-manager.mjs'
 
-test('stable v2 recommends npm and prerelease recommends pnpm', () => {
-  assert.ok(
-    packageManagerNotice('2.2.28', 'pnpm/12.6.0 npm/? node/v26.10.0'),
-  )
-  assert.ok(
-    packageManagerNotice('2.3.0-prerelease', 'npm/10.9.2 node/v26.10.0'),
-  )
+test('accepts npm and direct script execution', () => {
+  assert.doesNotThrow(() => requireNpm('npm/10.9.2 node/v26.10.0'))
+  assert.doesNotThrow(() => requireNpm(undefined))
 })
 
-test('the preferred manager is quiet and other managers are detected', () => {
-  assert.equal(
-    packageManagerNotice('2.2.28', 'npm/10.9.2 node/v26.10.0'),
-    undefined,
-  )
-  assert.equal(
-    packageManagerNotice('2.3.0-prerelease', 'pnpm/12.7.0 npm/? node/v26.10.0'),
-    undefined,
-  )
-  assert.ok(
-    packageManagerNotice('2.2.28', 'yarn/1.22.22 node/v26.10.0'),
-  )
-  assert.ok(
-    packageManagerNotice('2.2.28', 'bun/1.2.0'),
-  )
-  assert.equal(packageManagerNotice('2.2.28', undefined), undefined)
+test('rejects non-npm managers with a stable error code', () => {
+  for (const userAgent of [
+    'pnpm/12.6.0 npm/? node/v26.10.0',
+    'yarn/1.22.22 node/v26.10.0',
+    'bun/1.2.0',
+  ]) {
+    assert.throws(() => requireNpm(userAgent), error => {
+      assert.equal(error.code, 'ERR_NON_NPM_PACKAGE_MANAGER')
+      return true
+    })
+  }
 })
