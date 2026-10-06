@@ -164,7 +164,7 @@ export function scanInventory(sourceRoot: string) {
   return { revision, scanned, candidates }
 }
 
-export function checkInventory() {
+export function checkInventory(options: { quiet?: boolean | undefined } = {}) {
   const report = JSON.parse(readFileSync(inventoryPath, 'utf8')) as {
     revision: string
     scanned: number
@@ -175,9 +175,11 @@ export function checkInventory() {
       'The WPT pin changed. Rebuild the full-tree selector inventory and review new parsing and matching candidates before accepting the update.',
     )
   }
-  console.log(
-    `Full WPT inventory: ${report.scanned} source files, ${report.candidates.length} discovery candidates at the pinned revision.`,
-  )
+  if (!options.quiet) {
+    console.log(
+      `Full WPT inventory: ${report.scanned} source files, ${report.candidates.length} discovery candidates at the pinned revision.`,
+    )
+  }
   return report
 }
 

@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import {
   inspectScript,
   inspectWptScope,
@@ -125,6 +125,23 @@ test('rejects reftests, testdriver dependencies, and pages without selector call
     'No testharness dependency was found.',
     'No selector API calls were found in the page or its helpers.',
   ])
+})
+
+test('ignores irrelevant CSS parse warnings while preserving the scope audit', t => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-wpt-scope-'))
+  t.onTestFinished(() => rmSync(root, { recursive: true }))
+  mkdirSync(path.join(root, 'upstream/wpt'), { recursive: true })
+  writeFileSync(
+    path.join(root, 'upstream/wpt/page.html'),
+    '<style>????</style><script src="/resources/testharness.js"></script><script>document.querySelector("p")</script>',
+  )
+  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+  const result = inspectWptScope(
+    [{ path: '/page.html', note: 'CSS is outside this audit.' }],
+    root,
+  )
+  expect(result.issues).toEqual([])
+  expect(error).not.toHaveBeenCalled()
 })
 
 test('restricts resource paths and refuses unreviewed window-script metadata', () => {
