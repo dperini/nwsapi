@@ -186,7 +186,9 @@ describe('what the selector cache holds on to', () => {
   async function collectGarbage(gc: () => void) {
     for (let i = 0; i < 5; ++i) {
       gc()
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 0)
+      })
     }
   }
 

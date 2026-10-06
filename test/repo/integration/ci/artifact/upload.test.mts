@@ -44,11 +44,7 @@ test('artifact upload creates, transfers, and finalizes the ZIP with its digest'
       if (init?.method === 'PUT') {
         expect(init.headers).not.toHaveProperty('Authorization')
         expect(url).toBe('https://blob.example/archive?signature=private')
-        const chunks: Buffer[] = []
-        for await (const chunk of init.body as unknown as AsyncIterable<Buffer>) {
-          chunks.push(chunk)
-        }
-        archive = Buffer.concat(chunks)
+        archive = Buffer.from(await new Response(init.body).arrayBuffer())
         expect(new Headers(init.headers).get('content-length')).toBe(
           String(archive.length),
         )
