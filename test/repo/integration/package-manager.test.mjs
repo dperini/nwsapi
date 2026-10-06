@@ -5,7 +5,7 @@ import { packageManagerNotice } from '../../../scripts/lib/package-manager.mjs'
 test('stable v2 recommends npm and prerelease recommends pnpm', () => {
   assert.match(
     packageManagerNotice('2.2.28', 'pnpm/12.6.0 npm/? node/v26.10.0'),
-    /npm for stable v2 installs.*npm install/,
+    /Non-npm package manager detected: run `npm install`\./,
   )
   assert.match(
     packageManagerNotice('2.3.0-prerelease', 'npm/10.9.2 node/v26.10.0'),
@@ -24,11 +24,11 @@ test('the preferred manager is quiet and every other manager gets a hint', () =>
   )
   assert.match(
     packageManagerNotice('2.2.28', 'yarn/1.22.22 node/v26.10.0'),
-    /npm for stable v2 installs.*npm install/,
+    /Non-npm package manager detected: run `npm install`\./,
   )
   assert.match(
     packageManagerNotice('2.2.28', 'bun/1.2.0'),
-    /npm for stable v2 installs.*npm install/,
+    /Non-npm package manager detected: run `npm install`\./,
   )
   assert.equal(packageManagerNotice('2.2.28', undefined), undefined)
 })

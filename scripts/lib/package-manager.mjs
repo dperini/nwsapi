@@ -6,6 +6,6 @@ export function packageManagerNotice(version, userAgent) {
   if (manager === expected) return undefined
 
   return expected === 'npm'
-    ? 'Use npm for stable v2 installs. Run `npm install`.'
+    ? 'Non-npm package manager detected: run `npm install`.'
     : 'This prerelease branch is maintained with pnpm. Run `pnpm install`.'
 }
