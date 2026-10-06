@@ -158,7 +158,7 @@ Run `pnpm run test:watch` to repeat Node tests while you edit files.
 
 Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
-CI uses one Node.js 26 job. The package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
+The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 
 </details>
 
