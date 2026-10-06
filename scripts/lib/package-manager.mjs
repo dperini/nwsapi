@@ -5,7 +5,7 @@ export function invokedByNonNpm(env = process.env) {
 
 export function nonNpmPackageManagerMessage() {
   return (
-    'Non-npm package manager detected: this repository uses npm tooling.\n' +
-    'Use `npm install` to preserve the package lockfile and install policies.'
+    'This repository uses npm-compatible tooling; a non-npm package manager invoked this script.\n' +
+    'Use `npm install` to preserve the workspace catalog, lockfile, and install policies.'
   )
 }
