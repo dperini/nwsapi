@@ -13,7 +13,7 @@ test('stable v2 recommends npm and prerelease recommends pnpm', () => {
   )
 })
 
-test('the preferred package manager and other tools do not produce a notice', () => {
+test('the preferred manager is quiet and every other manager gets a hint', () => {
   assert.equal(
     packageManagerNotice('2.2.28', 'npm/10.9.2 node/v26.10.0'),
     undefined,
@@ -22,5 +22,13 @@ test('the preferred package manager and other tools do not produce a notice', ()
     packageManagerNotice('2.3.0-prerelease', 'pnpm/12.7.0 npm/? node/v26.10.0'),
     undefined,
   )
-  assert.equal(packageManagerNotice('2.2.28', 'bun/1.2.0'), undefined)
+  assert.match(
+    packageManagerNotice('2.2.28', 'yarn/1.22.22 node/v26.10.0'),
+    /stable v2 branch.*npm install/,
+  )
+  assert.match(
+    packageManagerNotice('2.2.28', 'bun/1.2.0'),
+    /stable v2 branch.*npm install/,
+  )
+  assert.equal(packageManagerNotice('2.2.28', undefined), undefined)
 })
