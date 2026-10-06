@@ -196,17 +196,19 @@ export function discoverScriptEntrypoints(root = REPO_ROOT) {
     files.add(file)
   }
   const entrypoints: ScriptEntrypoint[] = []
-  for (const file of [...files].toSorted()) {
+  for (const file of [...files].toSorted((a, b) => a.localeCompare(b))) {
     const inspected = inspectEntrypointSource(
       readFileSync(path.join(root, file), 'utf8'),
     )
     entrypoints.push({
       file,
-      packageScripts: (commands.get(file) || []).toSorted(),
+      packageScripts: (commands.get(file) || []).toSorted((a, b) =>
+        a.localeCompare(b),
+      ),
       ...inspected,
     })
   }
-  return { entrypoints, errors: errors.toSorted() }
+  return { entrypoints, errors: errors.toSorted((a, b) => a.localeCompare(b)) }
 }
 
 export function checkScriptEntrypoints(root = REPO_ROOT) {

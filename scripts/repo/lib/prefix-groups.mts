@@ -95,11 +95,11 @@ export function findFilenamePrefixGroups(
       )
       return {
         ...group,
-        files: group.files.toSorted(),
-        modules: group.modules.toSorted(),
+        files: group.files.toSorted((a, b) => a.localeCompare(b)),
+        modules: group.modules.toSorted((a, b) => a.localeCompare(b)),
         collisions: [group.suggestedDirectory, ...targets]
           .filter(target => normalizedFiles.has(target))
-          .toSorted(),
+          .toSorted((a, b) => a.localeCompare(b)),
       }
     })
     .toSorted((left, right) =>

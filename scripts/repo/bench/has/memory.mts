@@ -54,7 +54,10 @@ try {
           // Separate tasks release WeakRef keep-alive roots before each GC.
           for (let pass = 0; pass < 4; ++pass) {
             await page.evaluate(
-              () => new Promise(resolve => setTimeout(resolve, 0)),
+              () =>
+                new Promise<void>(resolve => {
+                  globalThis.setTimeout(() => resolve(), 0)
+                }),
             )
             await session.send('HeapProfiler.collectGarbage')
           }
