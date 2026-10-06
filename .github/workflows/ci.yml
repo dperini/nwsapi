@@ -40,6 +40,7 @@ jobs:
           # Full ancestry lets the affected-test planner verify its comparison.
           git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
           git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
       - name: Install integrity-verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
       - name: Verify the pinned Mold linker
@@ -54,7 +55,7 @@ jobs:
           mold -run cc "${RUNNER_TEMP}/mold-smoke.c" -o "${RUNNER_TEMP}/mold-smoke"
           readelf -p .comment "${RUNNER_TEMP}/mold-smoke" | grep -F mold
       # Use real Git for upstream setup, not the local runner's checkout shim.
-      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
+      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
       - run: pnpm run check
       - name: Audit workflows and agent configuration
         run: pnpm run security

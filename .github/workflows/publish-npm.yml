@@ -75,10 +75,11 @@ jobs:
           export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
           git fetch --tags origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
           git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
       - name: Install verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
       - name: Install dependencies and security tools
-        run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
+        run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
       - name: Validate source and security
         run: |
           pnpm run check

@@ -26,6 +26,26 @@ counts because a Node.js workload includes V8 startup and JIT compilation.
 Wall-clock results are informational and do not fail CI. Check an apparent
 change with the selector and browser benchmarks before drawing conclusions.
 
+## GitHub Actions
+
+The `perf: tak` workflow runs these workloads after each push to
+`prerelease/3.0.0`. The measurement job has read-only repository access. A
+separate job checks the exported result against the pushed commit and publishes
+it to `refs/notes/tak`. The publisher uses the pinned tak release binary and
+does not run package scripts. This keeps write access away from the benchmark
+process.
+
+The workflow reports measurements; it does not reject a commit for a timing
+change. GitHub Actions runners can vary, so use the trend to spot changes and
+rerun the repository's more detailed benchmarks before making performance
+claims.
+
+CI restores `.cache/external-tools`, `.cache/nub`, and the pnpm content-
+addressed store through `.github/actions/repo/cache-tools`. The cache key
+includes the operating system, architecture, lockfile, and external-tool
+manifest. `node_modules` is not cached; pnpm still installs and links the
+locked dependency graph on every run.
+
 ## Run and save measurements
 
 Use the pinned `tak` binary and build the package before running:

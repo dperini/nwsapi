@@ -38,9 +38,10 @@ jobs:
           # Full ancestry lets the affected-test planner verify its comparison.
           git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
           git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
       - name: Install integrity-verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
-      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile
+      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
       - name: Install Chrome system dependencies
         run: |
           for source in /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.sources; do

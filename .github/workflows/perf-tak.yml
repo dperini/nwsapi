@@ -1,0 +1,114 @@
+name: 'perf: tak'
+run-name: 'perf: tak · ${{ github.sha }}'
+
+on:
+  push:
+    branches: [prerelease/3.0.0]
+
+permissions:
+  contents: read
+
+jobs:
+  measure:
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
+      - name: Install integrity-verified contributor tools
+        run: node scripts/repo/setup/tools.mts --github-path
+      - name: Install dependencies
+        run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
+      - name: Install pinned tak
+        run: pnpm run setup:tak
+      - name: Build and measure selector workloads
+        run: |
+          pnpm run build
+          .cache/bin/tak --runner github-ubuntu-26.04-x64 run --bench node_selectors --record
+          .cache/bin/tak artifact export --output "${RUNNER_TEMP}/tak-measurement.json" --rev "${GITHUB_SHA}"
+      - name: Upload measurement for the trusted publisher
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tak-measurement-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tak-measurement.json
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: measure
+    runs-on: ubuntu-26.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - name: Download measured result
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: tak-measurement-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/tak-measurement
+      - name: Install the pinned tak release
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="${RUNNER_TEMP}/tak.tar.gz"
+          extract_dir="${RUNNER_TEMP}/tak-extract"
+          curl --fail --location --silent --show-error \
+            https://github.com/jdx/tak/releases/download/v0.0.14/tak-x86_64-unknown-linux-gnu.tar.gz \
+            --output "${archive}"
+          printf '%s  %s\n' \
+            1822955f2a101508ddfb524aea64f924a01bf4f0f14660c5f94ab0f8275971e0 \
+            "${archive}" | sha256sum --check --status
+          mkdir -p "${extract_dir}"
+          tar -xzf "${archive}" -C "${extract_dir}"
+          install -m 755 "${extract_dir}/tak" "${RUNNER_TEMP}/tak"
+          "${RUNNER_TEMP}/tak" --version
+      - name: Publish Git note for this commit
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          "${RUNNER_TEMP}/tak" artifact publish \
+            "${RUNNER_TEMP}/tak-measurement/tak-measurement.json" \
+            --expect "${REVISION}" \
+            --remote origin
