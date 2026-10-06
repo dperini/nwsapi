@@ -220,7 +220,9 @@ if (values.worker) {
   worlds.length = 0
   const closeMs = (performance.now() - start) / count
   // Let queued observer and window cleanup work finish before collecting.
-  await new Promise<void>(resolve => setImmediate(resolve))
+  await new Promise<void>(resolve => {
+    setImmediate(() => resolve())
+  })
   global.gc!()
   const afterCloseHeapBytes =
     (process.memoryUsage().heapUsed - heapBefore) / count
