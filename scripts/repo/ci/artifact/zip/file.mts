@@ -131,7 +131,7 @@ export async function writeZipFileEntry(
     const output = new Writable({
       write(chunk: Buffer, encoding, callback) {
         void encoding
-        writeZipBytes(archive, chunk, position).then(() => {
+        void writeZipBytes(archive, chunk, position).then(() => {
           position += chunk.length
           callback()
         }, callback)

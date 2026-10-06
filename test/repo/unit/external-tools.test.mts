@@ -11,7 +11,7 @@ import {
 
 test('every declared platform has a pinned release URL and integrity', () => {
   checkExternalTools()
-  for (const name of ['pnpm', 'nub', 'sfw'] as const) {
+  for (const name of ['pnpm', 'nub', 'sfw', 'mold'] as const) {
     for (const platform of Object.keys(manifest.tools[name].platforms)) {
       const plan = toolPlan(name, platform)
       expect(plan.url).toBe(
@@ -25,6 +25,11 @@ test('every declared platform has a pinned release URL and integrity', () => {
       manifest.tools.npm.version +
       '.tgz',
   )
+  expect(toolPlan('mold', 'linux-x64')).toMatchObject({
+    version: '3.0.0',
+    asset: 'mold-3.0.0-x86_64-linux.tar.gz',
+    binary: 'mold-3.0.0-x86_64-linux/bin/mold',
+  })
 })
 
 test('exact versions and valid sources are required', () => {

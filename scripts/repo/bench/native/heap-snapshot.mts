@@ -69,7 +69,12 @@ try {
   const measurements: Record<string, number> = {}
   async function capture(name: string) {
     for (let pass = 0; pass < 4; pass++) {
-      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)))
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            globalThis.setTimeout(() => resolve(), 0)
+          }),
+      )
       await session.send('HeapProfiler.collectGarbage')
     }
     const { metrics } = await session.send('Performance.getMetrics')

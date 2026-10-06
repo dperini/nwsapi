@@ -68,7 +68,9 @@ const engines: Array<ReturnType<typeof factoryType>> = []
 const measurements: Record<string, number> = {}
 async function capture(name: string) {
   for (let pass = 0; pass < 4; pass++) {
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise<void>(resolve => {
+      setTimeout(() => resolve(), 0)
+    })
     await session.post('HeapProfiler.collectGarbage')
   }
   measurements[name] = process.memoryUsage().heapUsed

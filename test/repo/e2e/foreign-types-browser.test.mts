@@ -94,7 +94,9 @@ test.skipIf(!process.env['NWSAPI_BROWSER'])(
         main.append(element)
       }
       check(document)
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 0)
+      })
       check(main)
       const fragment = document.createDocumentFragment()
       fragment.append(main)

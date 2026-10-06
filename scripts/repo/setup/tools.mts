@@ -16,6 +16,7 @@ import {
   checkExternalTools,
   TOOL_BIN,
   toolPlan,
+  toolPlatform,
   toolVersions,
 } from '../external-tools.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
@@ -72,6 +73,19 @@ export async function setupTools() {
     ...new Set([versions['node']!, ...NODE_INTEROP_VERSIONS]),
   ])
   const node = realpathSync(resolveNodeRuntime(versions['node']!))
+  const moldPlatform = toolPlatform()
+  if (moldPlatform === 'linux-x64' || moldPlatform === 'linux-arm64') {
+    const mold = await installTool(toolPlan('mold', moldPlatform))
+    const actual = execFileSync(mold, ['--version'], {
+      cwd: REPO_ROOT,
+      env: nodeInteropEnvironment(),
+      encoding: 'utf8',
+    }).trim()
+    if (!actual.includes(`mold ${versions['mold']}`)) {
+      throw new Error(`Expected mold ${versions['mold']}, received ${actual}`)
+    }
+    activateTool('mold', mold)
+  }
   const env = nodeInteropEnvironment()
   for (const name of ['nub', 'pnpm', 'npm', 'sfw'] as const) {
     const command = name === 'npm' ? node : executables[name]

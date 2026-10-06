@@ -59,7 +59,7 @@ export function checkSvgs(fix = false, root = REPO_ROOT) {
         .split('\0')
         .filter(Boolean),
     ),
-  ].toSorted()
+  ].toSorted((a, b) => a.localeCompare(b))
   const entries = files.map(file => ({
     path: file,
     content: readFileSync(path.join(root, file), 'utf8'),

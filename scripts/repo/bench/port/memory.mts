@@ -18,7 +18,9 @@ if (baseline === '--worker') {
   const engine = factory(window)
   const heap = async () => {
     for (let i = 0; i < 4; ++i) {
-      await new Promise(resolve => setImmediate(resolve))
+      await new Promise<void>(resolve => {
+        setImmediate(() => resolve())
+      })
       global.gc!()
     }
     return process.memoryUsage().heapUsed

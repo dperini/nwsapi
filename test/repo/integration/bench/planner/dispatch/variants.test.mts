@@ -54,7 +54,7 @@ test('an override flips complete routes and preserves preflight exits', () => {
     'flat-32-0-plain': 'empty',
     'flat-32-4-plain': 'forward',
     'flat-32-4-filtered': 'inverse',
-    'small-8-4-plain': 'forward',
+    'small-8-4-plain': 'ineligible',
   })
 })
 

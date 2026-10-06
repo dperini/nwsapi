@@ -81,6 +81,7 @@ export const ToolsSchema = Type.Object(
         opengrep: GithubToolSchema,
         trivy: GithubToolSchema,
         trufflehog: GithubToolSchema,
+        mold: GithubToolSchema,
         agentshield: Type.Object(
           {
             origin: Type.Literal('catalog'),

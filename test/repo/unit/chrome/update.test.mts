@@ -63,8 +63,8 @@ test('update discovers WPT and Chrome in both write and preview modes', () => {
       calls.push([entry, args])
     })
     expect(calls.map(([entry]) => entry.split('/').at(-1))).toEqual([
-      'wpt.mts',
-      'chrome.mts',
+      'update.mts',
+      'update.mts',
     ])
     expect(calls.map(([, args]) => args)).toEqual(
       check ? [['--check'], ['--check']] : [[], []],

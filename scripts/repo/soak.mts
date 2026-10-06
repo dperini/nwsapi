@@ -138,10 +138,11 @@ export function checkSoak(
   const age = /^min-release-age=(\d+)$/m.exec(npmrc)?.[1]
   const excludes = [...npmrc.matchAll(/^min-release-age-exclude\[\]=(.*)$/gm)]
     .map(match => match[1]!)
-    .toSorted()
+    .toSorted((a, b) => a.localeCompare(b))
   if (
     Number(age) !== policy.days ||
-    JSON.stringify(excludes) !== JSON.stringify(policy.excludes.toSorted())
+    JSON.stringify(excludes) !==
+      JSON.stringify(policy.excludes.toSorted((a, b) => a.localeCompare(b)))
   ) {
     throw new Error(
       'npm and pnpm soak policies differ. Run pnpm run update to synchronize them.',
