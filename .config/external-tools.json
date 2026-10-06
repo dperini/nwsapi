@@ -398,37 +398,37 @@
     "uv": {
       "origin": "gh-asset",
       "repository": "github:astral-sh/uv",
-      "version": "0.12.15",
-      "tag": "0.12.15",
+      "version": "0.12.23",
+      "tag": "0.12.23",
       "platforms": {
         "darwin-arm64": {
           "asset": "uv-aarch64-apple-darwin.tar.gz",
-          "integrity": "sha512-y7xj4+kxiyA66dzmrddriihGl077SM74Q2/XwlI4Kw8jO7yh0pOe3IR/YyVyCfCEq0ccpwVLMOgo5YY2BVd0lw==",
+          "integrity": "sha256-UEh65WXM2W5JkFa0Z01Dj0xTFwICYXtMdZ3v4MahtUQ=",
           "binary": "uv-aarch64-apple-darwin/uv"
         },
         "darwin-x64": {
           "asset": "uv-x86_64-apple-darwin.tar.gz",
-          "integrity": "sha512-r59SZFSWLGcmda5b7rq2yO2sI6SsDKdBE+qvC8KHeoRLV7zCCm1m3s5GwTUCP9O8kx4A7D2GUiV0gPdj2Vkraw==",
+          "integrity": "sha256-lg2kTLS3NoUgbd0lCxngoRf6QQlXEMEDjwgfXLYT77Q=",
           "binary": "uv-x86_64-apple-darwin/uv"
         },
         "linux-arm64": {
           "asset": "uv-aarch64-unknown-linux-gnu.tar.gz",
-          "integrity": "sha512-wtjxaDy/A91/eSUbn927LdJEsQy9JRpFfmaXqOxiSafoi+wHEFaNWvjxOpqwoMAky7UrBd0icT6PCttBpagKvA==",
+          "integrity": "sha256-ZSS9M4F37VDQNdOTVOElRemTu+ui7L3fBIDFs6gdMT8=",
           "binary": "uv-aarch64-unknown-linux-gnu/uv"
         },
         "linux-x64": {
           "asset": "uv-x86_64-unknown-linux-gnu.tar.gz",
-          "integrity": "sha512-HnyqtvfbH/vq3MTydIYAbCr6hS8kC8kuZpXxrGJ/Nr2dac/wJQA3Z6S9bx95TYCTBdOZ1kPbDjtrzfIgwi4xDw==",
+          "integrity": "sha256-kWfXKzMZZ0tjA8TL4HGFS7oT6989drGny9wXVHH7ZtY=",
           "binary": "uv-x86_64-unknown-linux-gnu/uv"
         },
         "win32-arm64": {
           "asset": "uv-aarch64-pc-windows-msvc.zip",
-          "integrity": "sha512-+YD0ZEuCcztbfQcd+rCkRgP4YcUXzZIxyDOcYJzya2Bm16z42RVq5/9sPS8rcNmXf9m7B8ZK08CVLzTXAqGitA==",
+          "integrity": "sha256-EylOIy7Oy+cJwGt05s7QbyoiXqVZFHZoU2LyK+VqUNU=",
           "binary": "uv.exe"
         },
         "win32-x64": {
           "asset": "uv-x86_64-pc-windows-msvc.zip",
-          "integrity": "sha512-sSjnNsmzOB+6d6yvegbwumNJhOSsdEM8ZT8qxnDoUpp4CLym3t00OrImSCCW8dyqh6IUPs6uB7NKY+F1A4D3dQ==",
+          "integrity": "sha256-ddBd5nYneMMe4YM5jefdFQk/rQ7ZCx8jbYIF6l7ADJA=",
           "binary": "uv.exe"
         }
       }
