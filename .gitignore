@@ -13,6 +13,7 @@
 !/README.md
 !/THANKS.md
 !/package.json
+!/tak.toml
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
 !/vitest.config.mts

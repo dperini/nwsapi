@@ -36,6 +36,7 @@ export const GITHUB_TOOLS = [
   'trivy',
   'trufflehog',
   'mold',
+  'tak',
 ] as const
 
 export type GithubTool = (typeof GITHUB_TOOLS)[number]

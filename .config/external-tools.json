@@ -484,6 +484,49 @@
         }
       }
     },
+    "tak": {
+      "origin": "gh-asset",
+      "repository": "github:jdx/tak",
+      "version": "0.0.14",
+      "tag": "v0.0.14",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "tak-aarch64-apple-darwin.tar.gz",
+          "integrity": "sha256-5o0wjz7Mai66Qtakh2iAmjSJhQMZbg+4v7BoWStX3ro=",
+          "binary": "tak"
+        },
+        "linux-arm64": {
+          "asset": "tak-aarch64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha256-n2fvSJblInQ+MSkJ/QkLclUj4vv45DvtnF7yFfndCbk=",
+          "binary": "tak"
+        },
+        "linux-arm64-musl": {
+          "asset": "tak-aarch64-unknown-linux-musl.tar.gz",
+          "integrity": "sha256-sHKsLXHIni+TSj0+plBrB/zshASt0+kFN0coyoZbdTU=",
+          "binary": "tak"
+        },
+        "linux-x64": {
+          "asset": "tak-x86_64-unknown-linux-gnu.tar.gz",
+          "integrity": "sha256-GCKVXyoQFQjd+1JK6mT5JKAb9PDxRmDF+Uqw+CdZceA=",
+          "binary": "tak"
+        },
+        "linux-x64-musl": {
+          "asset": "tak-x86_64-unknown-linux-musl.tar.gz",
+          "integrity": "sha256-mVxx9FyAkTbenUS+wF+cJ2Pu5jZzRU6CSUVvZlyKszk=",
+          "binary": "tak"
+        },
+        "win32-arm64": {
+          "asset": "tak-aarch64-pc-windows-msvc.zip",
+          "integrity": "sha256-G8dC+BumkUJPr4nfgctTZaDDUp++zr8qLkBOr7oMTU4=",
+          "binary": "tak.exe"
+        },
+        "win32-x64": {
+          "asset": "tak-x86_64-pc-windows-msvc.zip",
+          "integrity": "sha256-Lc7YeWtAKOY32sXCBscKTCWJqwnQs/9Nc9qWk+Gkmz8=",
+          "binary": "tak.exe"
+        }
+      }
+    },
     "pytorch": {
       "origin": "python-project",
       "package": "torch",

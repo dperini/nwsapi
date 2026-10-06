@@ -1,0 +1,24 @@
+#:schema https://tak.jdx.dev/schema/tak.json
+
+[defaults]
+runs = 12
+warmup = 2
+version_cmd = ["node", "--version"]
+
+[gate]
+allow_empty = true
+
+[bench.node_selectors]
+gate = { enabled = false }
+
+[bench.node_selectors.subject.simple]
+cmd = ["node", "scripts/repo/run.mts", "scripts/repo/bench/tak/workload.mts", "simple"]
+counters = false
+
+[bench.node_selectors.subject.descendant]
+cmd = ["node", "scripts/repo/run.mts", "scripts/repo/bench/tak/workload.mts", "descendant"]
+counters = false
+
+[bench.node_selectors.subject.has]
+cmd = ["node", "scripts/repo/run.mts", "scripts/repo/bench/tak/workload.mts", "has"]
+counters = false
