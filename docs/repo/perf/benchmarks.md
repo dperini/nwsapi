@@ -11,15 +11,15 @@ The saved reports identify the browser version, CPU, library versions, source ha
 
 ## Latest results
 
-The latest full comparison ran on October 5, 2026, on AC power, using an Apple M1 Max, Node.js 26.9.0 and Chromium 154.0.8037.0. It measured the current v3 prerelease source (`nwsapi` 2.3.0-prerelease, SHA-256 `e53cfcce`) against `@asamuzakjp/dom-selector` 9.1.1.
+The latest full comparison ran on October 6, 2026, using an Apple M1 Max, Node.js 26.10.0 and Chromium 154.0.8037.0. It measured the production build of the current v3 prerelease source (`nwsapi` 2.3.0-prerelease, SHA-256 `ed06b546`) against `@asamuzakjp/dom-selector` 9.2.4.
 
 | Measure | Result | How to read it |
 | --- | --- | --- |
-| Warm query time across 36 selectors | 4.68× faster geometric mean | The average ratio favors `nwsapi`; individual selectors vary. |
-| Retained heap after 100 queries | 74.78 KiB vs. 549.33 KiB | `nwsapi` retained 86.4% less JavaScript heap. |
-| Brotli-compressed browser JavaScript | 46.45 KiB vs. 109.59 KiB | The `nwsapi` core was 57.6% smaller. |
+| Warm query time across 36 selectors | 5.01× faster geometric mean | The average ratio favors `nwsapi`; individual selectors vary. |
+| Retained heap after 100 queries | 74.93 KiB vs. 545.93 KiB | `nwsapi` retained 86.3% less JavaScript heap. |
+| Brotli-compressed browser JavaScript | 46.55 KiB vs. 78.09 KiB | The `nwsapi` core was 40.4% smaller. |
 
-Lower time, memory and file size are better. The query result is an equal-weight geometric mean over the listed fixtures; it does not mean every selector is 4.68× faster. These numbers describe the saved workloads, not every application. The [query data](../../../assets/repo/bench/results.json), [memory data](../../../assets/repo/bench/memory-footprint.json) and [file-size data](../../../assets/repo/bench/file-size.json) include the run metadata and samples.
+Lower time, memory and file size are better. The query result is an equal-weight geometric mean over the listed fixtures; it does not mean every selector is 5.01× faster. These numbers describe the saved workloads, not every application. The [query data](../../../assets/repo/bench/results.json), [memory data](../../../assets/repo/bench/memory-footprint.json) and [file-size data](../../../assets/repo/bench/file-size.json) include the run metadata and samples.
 
 The [README summary](../../../README.md#performance) uses the geometric mean of the ratios of comparison-library time to `nwsapi` time across 36 different CSS selectors, each called repeatedly to return every matching element.
 Each query has equal weight. Its memory and file size figures use the retained heap after 100 queries and Brotli bytes reported below.
@@ -106,7 +106,7 @@ The memory diagnostics enable explicit garbage collection.
 
 ## Component queries
 
-![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/components-1.svg?v=39db6c4df13a)
+![Component queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/components-1.svg?v=856f91d4d55a)
 
 These queries find controls inside repeated cards by combining classes, attributes and parent-child relationships.
 The cases include primary buttons, cards containing inputs, alternatives grouped with `:is()`, and inputs filtered with `:not()`.
@@ -115,7 +115,7 @@ Both engines return every matching control in document order.
 
 ## Documentation queries
 
-![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/documentation/documentation-1.svg?v=85fdb910647c)
+![Documentation queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/documentation/documentation-1.svg?v=2f9f7a1274ef)
 
 These queries find content within a large documentation fixture, including list links, definition-description links and table cells.
 The example-content case follows a direct-child path from an example container through a paragraph to an anchor.
@@ -124,7 +124,7 @@ It measures selector execution against the existing document, with parsing and d
 
 ## Utility-class queries
 
-![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/atomic/atomic-1.svg?v=2d0aefcef5cc)
+![Utility-class queries](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/atomic/atomic-1.svg?v=89944f16f651)
 
 These queries follow class-based paths through nested navigation and card content.
 The cases locate sidebar links, links within card rows, badges within content cards, and anchors reached through a chain of direct children.
@@ -133,7 +133,7 @@ The fixture contains static HTML, so the timings exclude framework rendering and
 
 ## Basic selectors
 
-![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/identifiers-1.svg?v=5cbe15c70239)
+![Basic selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/identifiers-1.svg?v=ecdfdf704a95)
 
 These cases query an ID, a class, a tag and a combined tag/class selector in the component fixture.
 The result sets range from one targeted input to collections of cards or buttons.
@@ -142,7 +142,7 @@ Compare the engines within each query, since different queries return different 
 
 ## Attribute selectors
 
-![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/attributes-1.svg?v=ce3fc78d8e5c)
+![Attribute selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/attributes-1.svg?v=6244ee3d7696)
 
 These cases test attribute presence, exact values, value prefixes and whitespace-separated tokens.
 The test-ID queries distinguish finding a specific control from matching a broader set of similarly named controls.
@@ -151,7 +151,7 @@ Together, they compare attribute filtering across several matching rules on the 
 
 ## Relationships
 
-![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/relationships-1.svg?v=7afa935bc28b)
+![Relationships](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/relationships-1.svg?v=3e28a1964ecd)
 
 These queries find elements through descendant, direct-child, adjacent-sibling and general-sibling relationships.
 The descendant and child cases select buttons beneath `div` elements, with different restrictions on nesting depth.
@@ -160,7 +160,7 @@ The comparison measures these traversal patterns while requiring both engines to
 
 ## Position selectors
 
-![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/positional-1.svg?v=aa7f1bc86dd3)
+![Position selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/positional-1.svg?v=b83da128096d)
 
 These queries select `div` elements by their positions among element siblings.
 The cases cover the first child, last child, even-numbered children and the third child counted from the end.
@@ -169,7 +169,7 @@ The comparison measures positional filtering in the component fixture, with expe
 
 ## Logical selectors
 
-![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/logical-1.svg?v=e4c38410a566)
+![Logical selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/logical-1.svg?v=aae166c7a6a4)
 
 These queries combine exclusion, selector alternatives and relational conditions through `:not()`, `:is()`, `:where()` and `:has()`.
 The cases exclude buttons with a particular class, select buttons or inputs, and find buttons beneath matching cards.
@@ -177,7 +177,7 @@ The relational case selects a parent based on whether it contains a matching dir
 
 ## Form state selectors
 
-![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/forms-1.svg?v=4ebcbd15922f)
+![Form state selectors](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/forms-1.svg?v=060c1f783fc0)
 
 These queries select enabled, optional and read-write inputs, along with disabled buttons.
 They exercise form-state pseudo-classes using the native controls in the component fixture.
@@ -186,7 +186,7 @@ The comparison measures queries against those existing states, with no user inte
 
 ## First matches
 
-![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/first-matches.svg?v=a0a5a187af52)
+![Direct library cold and warm first-match times](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/first-matches.svg?v=cc532cc4964c)
 
 This chart compares direct `first()` and `querySelector()` calls with cold and warm engines.
 Each library receives its own native document containing identical HTML, and initialization happens before timing starts.
@@ -196,7 +196,7 @@ The [raw report](../../../assets/repo/bench/first-query-states.json) retains all
 
 ## Memory footprint
 
-![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/memory-footprint.svg?v=69df7638cabc)
+![Standalone engine retained memory](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/memory-footprint.svg?v=7255fbb13f4b)
 
 This comparison measures **additional retained JavaScript heap per engine**, not total browser or DOM memory.
 It preallocates 40 native iframe documents and loads both library modules before the baseline reading.
@@ -212,7 +212,7 @@ Claims of lower memory apply to this workload and the listed library versions.
 
 ## File size
 
-![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/file-size.svg?v=c1ec3c18fecb)
+![Readable and compressed browser file sizes](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/file-size.svg?v=17aa40155947)
 
 This is a file size report, not a timing benchmark.
 `nwsapi` uses its readable `dist/nwsapi.js` core browser file.

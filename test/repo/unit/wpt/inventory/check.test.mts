@@ -1,5 +1,8 @@
-import { expect, test } from 'vitest'
-import { inspectSelectorCalls } from '../../../../../scripts/repo/wpt/inventory/check.mts'
+import { expect, test, vi } from 'vitest'
+import {
+  checkInventory,
+  inspectSelectorCalls,
+} from '../../../../../scripts/repo/wpt/inventory/check.mts'
 import {
   adaptSupports,
   scriptPage,
@@ -8,6 +11,12 @@ import {
 } from '../../../../../scripts/repo/check/wpt/source/inspect.mts'
 import { inspectScript } from '../../../../../scripts/repo/wpt/scope/check.mts'
 import { JSDOM } from 'jsdom'
+
+test('inventory can validate silently when another audit reports its summary', () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  checkInventory({ quiet: true })
+  expect(log).not.toHaveBeenCalled()
+})
 
 test('inventory counts AST calls and flags assertions without treating strings as code', () => {
   const report = inspectSelectorCalls(

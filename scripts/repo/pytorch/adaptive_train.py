@@ -10,8 +10,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from data import alternative_cost, default_switch, features, load_rows, pair_weights
-from policy import Policy, save_model, score
+from adaptive_data import alternative_cost, default_switch, features, load_rows, pair_weights
+from adaptive_policy import Policy, save_model, score
 
 THRESHOLDS = [math.log(p / (1 - p)) for p in (0.5, 0.6, 0.7, 0.8, 0.9, 0.95)]
 

@@ -1,10 +1,10 @@
-import { pureCompiler, pureCompound } from '../compile/pure.mts'
+import { pureCompiler, pureCompound } from '../../compile/pure.mts'
 import type {
   BulkHasPlan,
   EngineContext,
   EngineState,
   QueryPlan,
-} from '../state/types.mts'
+} from '../../state/types.mts'
 
 export function prepareBulkHas(
   engine: EngineState,

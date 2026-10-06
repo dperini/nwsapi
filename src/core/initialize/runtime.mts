@@ -1,4 +1,4 @@
-import { neuralPlannerPolicy } from '../select/neural-planner.mts'
+import { neuralPlannerPolicy } from '../select/has/policy.mts'
 import { attributeValueNS, hasAttributeNS } from '../dom/attribute.mts'
 import {
   attrNamesOf,

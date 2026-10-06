@@ -1,0 +1,3 @@
+model-id: planner-dispatch-crossed-2026-10-05-r1
+source-artifact: assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1
+runtime-source: src/core/select/has/route-decision.generated.mts

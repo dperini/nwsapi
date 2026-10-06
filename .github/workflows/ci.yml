@@ -81,13 +81,6 @@ jobs:
         id: fuzz
         env:
           FUZZ_TIME_MS: '15000'
-      - uses: ./.github/actions/repo/upload-artifact
-        if: always() && steps.test-plan.outputs.fuzz == 'true' && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
-        with:
-          name: fuzz-corpus-${{ github.run_id }}
-          path: .vitiate/
-          if-no-files-found: warn
-          retention-days: 14
       - name: Test package interoperability on nub-managed Node versions
         if: steps.test-plan.outputs.package == 'true'
         run: pnpm run test:package
@@ -109,3 +102,11 @@ jobs:
       - name: Test upstream WPT selectors
         if: steps.test-plan.outputs.upstream == 'true'
         run: pnpm run test:wpt
+      - name: Upload fuzz corpus
+        if: always() && steps.test-plan.outputs.fuzz == 'true' && (steps.fuzz.outcome != 'skipped' || steps.fuzz-replay.outcome == 'failure')
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: fuzz-corpus-${{ github.run_id }}
+          path: .vitiate/
+          if-no-files-found: warn
+          retention-days: 14

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { parse } from 'acorn'
 import type { AnyNode } from 'acorn'
-import { JSDOM } from 'jsdom'
+import { JSDOM, VirtualConsole } from 'jsdom'
 import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import type { WptEntry } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import {
@@ -67,6 +67,10 @@ const harnessScripts = new Set([
   '/resources/testharness.js',
   '/resources/testharnessreport.js',
 ])
+
+const virtualConsole = new VirtualConsole().forwardTo(console, {
+  jsdomErrors: ['not-implemented', 'resource-loading', 'unhandled-exception'],
+})
 
 export function staticName(node: AnyNode): string | undefined {
   if (node.type === 'Identifier') {
@@ -246,7 +250,10 @@ export function inspectWptScope(
     }
     // oxlint-disable-next-line eslint/complexity -- Keep scripts, handlers, and nested fixtures under the same page context.
     const inspectHtml = (source: string, url: string, fixture = false) => {
-      const dom = new JSDOM(source, { contentType: pageContentType(url) })
+      const dom = new JSDOM(source, {
+        contentType: pageContentType(url),
+        virtualConsole,
+      })
       try {
         const document = dom.window.document
         if (!fixture) {

@@ -11,7 +11,7 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=af4a85f6b515)](docs/repo/perf/benchmarks.md)
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
 
 This summary compares the standalone browser libraries across query time, retained JavaScript heap, and compressed file size.
 
@@ -158,7 +158,7 @@ Run `pnpm run test:watch` to repeat Node tests while you edit files.
 
 Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
-CI uses one Node.js 26 job. The package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
+The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 
 </details>
 

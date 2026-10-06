@@ -86,7 +86,7 @@ export function auditCandidates(root = REPO_ROOT) {
 }
 
 export function checkCandidates(write = false) {
-  checkInventory()
+  checkInventory({ quiet: true })
   const report = auditCandidates()
   const filename = path.join(
     REPO_ROOT,

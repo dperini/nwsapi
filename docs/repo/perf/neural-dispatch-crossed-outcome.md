@@ -174,7 +174,7 @@ Use new output directories when collecting or training again.
 ```sh
 PATH="$PWD/.cache/bin:$PATH" .cache/bin/uv run \
   --project .config/model-training --locked python \
-  scripts/repo/bench/planner/dispatch/train.py \
+  scripts/repo/pytorch/dispatch_train.py \
   --input assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1 \
   --output assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1
 

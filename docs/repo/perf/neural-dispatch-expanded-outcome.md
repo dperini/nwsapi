@@ -216,7 +216,7 @@ PATH="$PWD/.cache/bin:$PATH" NWSAPI_REQUIRE_AC=1 node scripts/repo/run.mts \
 
 PATH="$PWD/.cache/bin:$PATH" .cache/bin/uv run \
   --project .config/model-training --locked python \
-  scripts/repo/bench/planner/dispatch/train.py \
+  scripts/repo/pytorch/dispatch_train.py \
   --input assets/repo/bench/planner-dispatch-expanded-2026-10-05-r1 \
   --output assets/repo/bench/planner-dispatch-expanded-model-2026-10-05-r2
 
