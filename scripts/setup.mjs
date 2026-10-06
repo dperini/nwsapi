@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setupRelease } from './publish/setup.mjs'
 import { ensurePhp } from './php.mjs'
+import { npmInvocation } from './lib/npm.mjs'
 
 function runQuiet(command, args, options = {}) {
   try {
@@ -32,15 +33,12 @@ try {
     '--globalconfig', globalConfig,
     '--', 'playwright', 'install', 'chromium',
   ]
-  if (process.env.npm_execpath) {
-    runQuiet(process.execPath, [process.env.npm_execpath, ...npmArgs], { cwd: root, env })
-  } else {
-    runQuiet(process.platform === 'win32' ? 'npm.cmd' : 'npm', npmArgs, {
-      cwd: root,
-      env,
-      shell: process.platform === 'win32',
-    })
-  }
+  const invocation = npmInvocation(npmArgs)
+  runQuiet(invocation.command, invocation.args, {
+    cwd: root,
+    env,
+    shell: invocation.shell,
+  })
 } finally {
   rmSync(configDirectory, { recursive: true, force: true })
 }

@@ -38,6 +38,7 @@
     "url": "https://github.com/dperini/nwsapi.git"
   },
   "scripts": {
+    "preinstall": "node scripts/package-manager.mjs",
     "clean": "node scripts/clean.mts",
     "lint": "eslint ./src/nwsapi.js",
     "npm:approve": "node scripts/publish/npm/approve.mjs",

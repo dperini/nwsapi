@@ -3,6 +3,7 @@ import { existsSync, readdirSync, rmSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { npmInvocation } from './lib/npm.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const directories = ['node_modules', 'coverage', '.nyc_output', '.cache', 'test-results', 'playwright-report']
@@ -32,13 +33,10 @@ const playwrightCache = process.env.PLAYWRIGHT_BROWSERS_PATH
 if (playwrightCache) rmSync(playwrightCache, { recursive: true, force: true })
 
 const npmArgs = ['cache', 'clean', '--force']
-if (process.env.npm_execpath) {
-  execFileSync(process.execPath, [process.env.npm_execpath, ...npmArgs], { stdio: 'inherit' })
-} else {
-  execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', npmArgs, {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
-  })
-}
+const invocation = npmInvocation(npmArgs)
+execFileSync(invocation.command, invocation.args, {
+  stdio: 'inherit',
+  shell: invocation.shell,
+})
 
 console.log('Removed repository build and test caches, Playwright browsers, and the npm cache.')
