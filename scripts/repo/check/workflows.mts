@@ -3,6 +3,10 @@ import path from 'node:path'
 import { parse } from 'yaml'
 import { REPO_ROOT } from '../lib/paths.mts'
 
+const PINNED_EXTERNAL_ACTIONS = new Map([
+  ['actions/cache', '55cc8345863c7cc4c66a329aec7e433d2d1c52a9'],
+])
+
 export function actionReferences(value: unknown): string[] {
   if (!value || typeof value !== 'object') {
     return []
@@ -20,12 +24,23 @@ export function checkInlineWorkflows(root = REPO_ROOT) {
   for (const file of files) {
     const data = parse(readFileSync(path.join(root, file), 'utf8'))
     for (const reference of actionReferences(data)) {
+      const [action, revision, ...extra] = reference.split('@')
+      if (
+        action &&
+        revision &&
+        !extra.length &&
+        PINNED_EXTERNAL_ACTIONS.get(action) === revision
+      ) {
+        continue
+      }
       const directory = path.resolve(root, reference)
       if (
         !reference.startsWith('./.github/actions/') ||
         !directory.startsWith(actions)
       ) {
-        throw new Error(`${file}: ${reference} must use a local action.`)
+        throw new Error(
+          `${file}: ${reference} must use a local action or an approved immutable pin.`,
+        )
       }
       if (
         !['action.yml', 'action.yaml'].some(name =>

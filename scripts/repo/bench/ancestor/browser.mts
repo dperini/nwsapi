@@ -375,7 +375,8 @@ try {
         const heap = async () => {
           for (let i = 0; i < 4; ++i) {
             await page.evaluate(
-              () => new Promise(resolve => setTimeout(resolve, 0)),
+              () =>
+                new Promise<void>(resolve => setTimeout(() => resolve(), 0)),
             )
             await session.send('HeapProfiler.collectGarbage')
           }

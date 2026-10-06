@@ -11,7 +11,7 @@ import {
 
 test('every declared platform has a pinned release URL and integrity', () => {
   checkExternalTools()
-  for (const name of ['pnpm', 'nub', 'sfw', 'mold'] as const) {
+  for (const name of ['pnpm', 'nub', 'sfw', 'mold', 'tak'] as const) {
     for (const platform of Object.keys(manifest.tools[name].platforms)) {
       const plan = toolPlan(name, platform)
       expect(plan.url).toBe(

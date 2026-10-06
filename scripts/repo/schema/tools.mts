@@ -82,6 +82,7 @@ export const ToolsSchema = Type.Object(
         trivy: GithubToolSchema,
         trufflehog: GithubToolSchema,
         mold: GithubToolSchema,
+        tak: GithubToolSchema,
         agentshield: Type.Object(
           {
             origin: Type.Literal('catalog'),
