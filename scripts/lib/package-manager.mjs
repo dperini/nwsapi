@@ -1,7 +1,11 @@
-export function requireNpm(userAgent) {
-  if (!userAgent || userAgent.trim().startsWith('npm/')) return
+export function invokedByNonNpm(env = process.env) {
+  const agent = env['npm_config_user_agent']?.trim()
+  return Boolean(agent && !agent.startsWith('npm/'))
+}
 
-  const error = new Error('Non-npm package manager detected: run `npm install`.')
-  error.code = 'ERR_NON_NPM_PACKAGE_MANAGER'
-  throw error
+export function nonNpmPackageManagerMessage() {
+  return (
+    'Non-npm package manager detected: this repository uses npm tooling.\n' +
+    'Use `npm install` to preserve the package lockfile and install policies.'
+  )
 }

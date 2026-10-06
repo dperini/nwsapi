@@ -1,3 +1,9 @@
-import { requireNpm } from './lib/package-manager.mjs'
+import {
+  invokedByNonNpm,
+  nonNpmPackageManagerMessage,
+} from './lib/package-manager.mjs'
 
-requireNpm(process.env['npm_config_user_agent'])
+if (invokedByNonNpm()) {
+  console.error(nonNpmPackageManagerMessage())
+  process.exit(1)
+}
