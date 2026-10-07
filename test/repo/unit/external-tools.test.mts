@@ -40,11 +40,11 @@ test('invalid source origins, missing tools, and non-string versions reject', ()
 })
 
 test('default Linux platform selection reads libc from the runtime report', () => {
-  vi.spyOn(process.report, 'getReport').mockReturnValue({
+  const report = vi.spyOn(process.report, 'getReport').mockReturnValue({
     header: { glibcVersionRuntime: '2.36' },
   } as unknown as ReturnType<typeof process.report.getReport>)
   expect(toolPlatform('linux', 'x64')).toBe('linux-x64')
-  vi.mocked(process.report.getReport).mockReturnValue({
+  report.mockReturnValue({
     header: {},
   } as unknown as ReturnType<typeof process.report.getReport>)
   expect(toolPlatform('linux', 'x64')).toBe('linux-x64-musl')

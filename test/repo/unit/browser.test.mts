@@ -63,12 +63,12 @@ test.each(['--help', '-h'])('CLI %s skips installation', async option => {
   process.argv = [args[0]!, '/browser.mts', option]
   state.main = true
   vi.spyOn(console, 'log').mockImplementation(() => {})
-  vi.spyOn(process, 'exit').mockImplementation(() => {
+  const exit = vi.spyOn(process, 'exit').mockImplementation(() => {
     throw new Error('exit')
   })
   try {
     await expect(import('../../../scripts/repo/browser.mts')).rejects.toThrow()
-    expect(process.exit).toHaveBeenCalledWith(0)
+    expect(exit).toHaveBeenCalledWith(0)
     expect(state.install).not.toHaveBeenCalled()
   } finally {
     process.argv = args
