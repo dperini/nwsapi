@@ -141,7 +141,10 @@ export async function uploadArtifact(
   }
 }
 
-export async function runUpload(args = process.argv.slice(2)) {
+export async function runUpload(
+  args = process.argv.slice(2),
+  request: typeof fetch = fetch,
+) {
   const { values } = parseArgs({
     args,
     options: {
@@ -174,6 +177,8 @@ export async function runUpload(args = process.argv.slice(2)) {
     values.name,
     entries,
     Number(values['retention-days']),
+    process.env,
+    request,
   )
   console.log(`Artifact uploaded: ${values.name} (id ${id})`)
 }

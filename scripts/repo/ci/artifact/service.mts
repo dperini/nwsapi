@@ -74,7 +74,7 @@ export async function artifactPost(
     `/twirp/github.actions.results.api.v1.ArtifactService/${method}`,
     requireHttps(config.url),
   )
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; ; attempt += 1) {
     let response: Response
     try {
       response = await request(url, {
@@ -113,5 +113,4 @@ export async function artifactPost(
     }
     return result as Record<string, unknown>
   }
-  throw new Error(`Artifact ${method} request failed.`)
 }

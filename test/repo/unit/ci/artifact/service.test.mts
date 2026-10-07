@@ -1,4 +1,6 @@
 import { expect, test, vi } from 'vitest'
+import nock from 'nock'
+vi.mock('node:timers/promises', () => ({ setTimeout: async () => {} }))
 import {
   artifactExpiration,
   artifactPost,
@@ -86,4 +88,51 @@ test('protocol calls authenticate, require acknowledgment, and redact service fa
       async () => new Response('{"ok":false}'),
     ),
   ).rejects.toThrow('not acknowledged')
+})
+
+test.each(['network', 'server'])(
+  'transient %s errors stop after three attempts',
+  async mode => {
+    const interceptor = nock('https://results.example')
+      .post(
+        '/twirp/github.actions.results.api.v1.ArtifactService/CreateArtifact',
+      )
+      .times(3)
+    const service =
+      mode === 'network'
+        ? interceptor.replyWithError('private address')
+        : interceptor.reply(503)
+    await expect(
+      artifactPost(readArtifactService(env), 'CreateArtifact', {}),
+    ).rejects.toThrow()
+    expect(service.isDone()).toBe(true)
+  },
+)
+test('a transient server error can recover on its next attempt', async () => {
+  const endpoint =
+    '/twirp/github.actions.results.api.v1.ArtifactService/CreateArtifact'
+  const service = nock('https://results.example')
+    .post(endpoint)
+    .reply(503)
+    .post(endpoint)
+    .reply(200, { ok: true })
+  expect(
+    await artifactPost(readArtifactService(env), 'CreateArtifact', {}),
+  ).toEqual({ ok: true })
+  expect(service.isDone()).toBe(true)
+})
+test('invalid scope and absent credentials fail before contacting the service', () => {
+  const invalid = Buffer.from(JSON.stringify({ scp: 'other' })).toString(
+    'base64url',
+  )
+  expect(() =>
+    readArtifactService({
+      ...env,
+      ACTIONS_RUNTIME_TOKEN: `header.${invalid}.signature`,
+    }),
+  ).toThrow()
+  expect(() =>
+    readArtifactService({ ACTIONS_RESULTS_URL: env.ACTIONS_RESULTS_URL }),
+  ).toThrow()
+  expect(() => readArtifactService({})).toThrow()
 })
