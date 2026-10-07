@@ -140,23 +140,23 @@ npm test
 
 `npm run setup` and `pnpm run setup` select this branch's pinned `pnpm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm`, uses `mise` with `nub` to provision Node, installs dependencies, and sets up WPT and Chromium. Versions and integrity hashes live in `.config/external-tools.json`. Tools stay in the checkout's ignored `.cache/` directory. Setup needs Git, archive extraction tools, and network access.
 
-Scripts started with another package manager automatically use the local `pnpm` runtime. For dependency installation, use `npm run setup` rather than `npm install`, which cannot read this branch's workspace catalog. After setup, you can prepend `.cache/bin` to `PATH` to use the pinned tools directly.
+Tests, builds, and checks started with another package manager automatically use the local `pnpm` runtime. For dependency installation, use `npm run setup` rather than `npm install`, which cannot read this branch's workspace catalog. To use the pinned tools directly, run `export PATH="$PWD/.cache/bin:$PATH"` in a POSIX shell or `$env:PATH = "$PWD\.cache\bin;$env:PATH"` in PowerShell.
 Node tests do not use the browser or WPT checkout.
 
 <details>
 <summary>Check changes before a push</summary>
 
 ```sh
-pnpm run check
-pnpm run test:package
-pnpm run test:fuzz        # Bounded coverage-guided pass
-pnpm run test:fuzz:replay # Replay saved inputs and crashes
+npm run check
+npm run test:package
+npm run test:fuzz        # Bounded coverage-guided pass
+npm run test:fuzz:replay # Replay saved inputs and crashes
 ```
 
-Run `pnpm run fix` to apply lint fixes, format files, and check the result.
-Run `pnpm run test:watch` to repeat Node tests while you edit files.
+Run `npm run fix` to apply lint fixes, format files, and check the result.
+Run `npm run test:watch` to repeat Node tests while you edit files.
 
-Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
+Run `npm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
 The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 
@@ -166,9 +166,9 @@ The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ES
 <summary>Run browser tests and measure coverage</summary>
 
 ```sh
-pnpm run test:browser # Browser regressions and media states
-pnpm run test:wpt     # Web Platform Tests
-pnpm run cover        # Node + WPT coverage
+npm run test:browser # Browser regressions and media states
+npm run test:wpt     # Web Platform Tests
+npm run cover        # Node + WPT coverage
 ```
 
 Coverage combines Node tests and WPT in Chromium. All four aggregate metrics exceed 95%.
@@ -184,7 +184,7 @@ CI also creates HTML reports. Known WPT failures remain visible in test results.
 <summary>Build the package and update dependencies</summary>
 
 Rolldown builds readable JavaScript from the `.mts` source files. The browser distribution is `dist/nwsapi.js`. The build does not minify JavaScript.
-Run `pnpm run build` to build the files. Run `pnpm run clean` to remove build outputs, dependencies, and local tool/test/browser caches; it also prunes unreferenced packages from the pnpm store. Re-run the tool bootstrap and `pnpm install` to restore the checkout.
+Run `npm run build` to build the files. Run `npm run clean` to remove build outputs, dependencies, and local tool/test/browser caches; it also prunes unreferenced packages from the pnpm store. Re-run `npm run setup` to restore the checkout.
 
 Run `pnpm run package` to build and create a tarball in `dist/`.
 Packaging uses an operating-system temporary directory to preserve the published `src/` paths, CommonJS API, browser and AMD support, and extension modules.
