@@ -3,34 +3,34 @@
   "tools": {
     "actionlint": {
       "origin": "gh-asset",
-      "repository": "github:rhysd/actionlint",
-      "version": "1.7.12",
-      "tag": "v1.7.12",
+      "repository": "github:jdx/jactionlint",
+      "version": "1.8.2",
+      "tag": "v1.8.2",
       "platforms": {
         "darwin-arm64": {
-          "asset": "actionlint_1.7.12_darwin_arm64.tar.gz",
-          "integrity": "sha512-JcjNckK6f2k4XiRij3CCrU3IhT0gwrmhycfb5VPphAA9+OWIuXrZBFVipDg4nOF+wOLWNbmTMeWYutbarzJyUw==",
-          "binary": "actionlint"
+          "asset": "jactionlint_1.8.2_darwin_arm64.tar.gz",
+          "integrity": "sha256-3p6wWvPN5AncCzf+L9aiG4daV1N057JsAtRacIZkXCg=",
+          "binary": "jactionlint"
         },
         "darwin-x64": {
-          "asset": "actionlint_1.7.12_darwin_amd64.tar.gz",
-          "integrity": "sha512-O31uSGqPSkyAnEFPvVAH+nVnZGXsnsiFr7PxvwBnYaIsPdxtyngc9sX1QbvHvI606cn27HAejgmXHwHTpqhlNg==",
-          "binary": "actionlint"
+          "asset": "jactionlint_1.8.2_darwin_amd64.tar.gz",
+          "integrity": "sha256-QnkLJWV1m39KgWlvuQNLIGD5f1UdLO1Uz3Isnemr5rI=",
+          "binary": "jactionlint"
         },
         "linux-arm64": {
-          "asset": "actionlint_1.7.12_linux_arm64.tar.gz",
-          "integrity": "sha512-aGKynUObYrl9Op2V4VCJDuX1oZ5hXCxHw6P6g2fDHGVShXOAEwy6mdERxFzdTBV2dlBGbHemsvi6H3TKr58uMw==",
-          "binary": "actionlint"
+          "asset": "jactionlint_1.8.2_linux_arm64.tar.gz",
+          "integrity": "sha256-fWGHSdvd12KhS9SR6pe8T2WZYm+DChHtxsZSLq2LzQU=",
+          "binary": "jactionlint"
         },
         "linux-x64": {
-          "asset": "actionlint_1.7.12_linux_amd64.tar.gz",
-          "integrity": "sha512-xHa4UKU6d3eRHqKf2J4rTKqJ8i81/7HBHFquM9VEqJ4rlQULSR723PBXLYoKFaAfYdyiKHnqqlin2W8vwO9hHw==",
-          "binary": "actionlint"
+          "asset": "jactionlint_1.8.2_linux_amd64.tar.gz",
+          "integrity": "sha256-ZTO9gEf8ASo/ZiONhPZcrNrGadoAufbPBCwXNMJSvJM=",
+          "binary": "jactionlint"
         },
         "win32-x64": {
-          "asset": "actionlint_1.7.12_windows_amd64.zip",
-          "integrity": "sha512-uODDGiHpqlIkrP+JYYuCe6CSG9q0s4VlGGDmizpXDTAH6AVcTjX04Cj1Ktw/DOfwHTw4viKDjR7VZvl4GD+cRg==",
-          "binary": "actionlint.exe"
+          "asset": "jactionlint_1.8.2_windows_amd64.zip",
+          "integrity": "sha256-/XvlOc0ydtUXj4XvFAwbtSOVsewfWbFYUFDhvjsLGUs=",
+          "binary": "jactionlint.exe"
         }
       }
     },
