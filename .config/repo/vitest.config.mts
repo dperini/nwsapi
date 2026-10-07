@@ -37,10 +37,10 @@ export default defineConfig({
     // Execute the published CommonJS bytes consistently for import and require.
     server: { deps: { external: [/\/dist\/.*\.js$/] } },
     pool: process.env['NWSAPI_TEST_TIER'] === 'unit' ? 'threads' : 'forks',
-    // Unit fixtures own their DOM instances; subprocess suites stay isolated.
-    isolate: process.env['NWSAPI_TEST_TIER'] !== 'unit',
+    // Each suite owns its module mocks, including filesystem and subprocess stubs.
+    isolate: true,
     // Four coverage workers reduced measured unit time by about 45%.
-    // Ordinary unit runs keep two shared workers to amortize jsdom startup.
+    // Ordinary unit runs keep two workers to limit concurrent jsdom startup.
     maxWorkers:
       process.env['NWSAPI_TEST_TIER'] === 'unit' &&
       !process.argv.includes('--coverage')
