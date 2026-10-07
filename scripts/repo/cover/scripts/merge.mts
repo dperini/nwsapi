@@ -50,7 +50,6 @@ const functionIdentity = (fn: FunctionMapping) =>
 const branchIdentity = (branch: BranchMapping) =>
   coverageLocationKey({
     type: branch.type,
-    start: branch.loc.start,
     paths: branch.locations.map(location => location.start),
   })
 

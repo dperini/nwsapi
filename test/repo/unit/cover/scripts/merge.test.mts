@@ -68,6 +68,21 @@ test('a never-executed native process cannot dilute fully exercised unit branche
   })
 })
 
+test('parenthesized expression envelopes preserve the same branch execution paths', () => {
+  const coverage = libCoverage.createCoverageMap(report(12, 1))
+  const incoming = report(15, 0)
+  incoming['/fixture.mts']!.branchMap['0']!.loc.start.column = 1
+  mergeScriptCoverage(coverage, incoming)
+  expect(
+    Object.keys(coverage.fileCoverageFor('/fixture.mts').branchMap),
+  ).toHaveLength(1)
+  expect(coverage.getCoverageSummary().branches).toMatchObject({
+    total: 2,
+    covered: 2,
+    pct: 100,
+  })
+})
+
 test('branches with different entry paths retain independent counts', () => {
   const coverage = libCoverage.createCoverageMap(report(12, 1))
   const incoming = report(15, 0)
