@@ -1,0 +1,11 @@
+[package]
+name = "nwsapi-perf-video"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dev-dependencies]
+fframes = { version = "=1.2.0", features = ["cli"] }
+
+[lib]
+path = "lib.rs"
