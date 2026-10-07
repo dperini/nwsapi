@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { test } from 'vitest'
 import { exportDataset } from '../../../../../../scripts/repo/bench/planner/neural/export.mts'
+import { missingMainArguments } from '../../main-module.mts'
 
 const trace = {
   entries: 1,
@@ -53,7 +54,7 @@ const metadata = {
   ],
 }
 
-test('route export preserves proved baseline costs, host provenance and training family grouping', () => {
+test('route export preserves proved baseline costs, host provenance and training family grouping', async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-route-export-'))
   const output = path.join(directory, 'dataset')
   const noDecision = {
@@ -112,6 +113,11 @@ test('route export preserves proved baseline costs, host provenance and training
     assert.equal(
       spawnSync(process.execPath, [script, directory, output]).status,
       0,
+    )
+    await missingMainArguments(
+      () =>
+        import('../../../../../../scripts/repo/bench/planner/neural/export.mts'),
+      [[], [directory]],
     )
     const invalidMetadata = [
       { ...metadata, format: 1 },

@@ -1,11 +1,6 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import {
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { test } from 'vitest'
@@ -15,6 +10,7 @@ import {
   scoreSource,
 } from '../../../../../../scripts/repo/bench/planner/neural/scalar.mts'
 import type { Weights } from '../../../../../../scripts/repo/bench/planner/neural/scalar.mts'
+import { missingMainArguments } from '../../main-module.mts'
 
 const weights: Weights = {
   MEAN: [1, 2, 0, 1, 0, 0],
@@ -142,6 +138,11 @@ test('scalar exports persist provenance and guarded choices alongside reference 
     assert.equal(
       spawnSync(process.execPath, [script, directory, output]).status,
       0,
+    )
+    await missingMainArguments(
+      () =>
+        import('../../../../../../scripts/repo/bench/planner/neural/scalar.mts'),
+      [[], [directory]],
     )
   } finally {
     rmSync(directory, { recursive: true, force: true })

@@ -12,8 +12,9 @@ import path from 'node:path'
 import { test } from 'vitest'
 import { sha256 } from '../../../../../../scripts/repo/bench/footprint/shared.mts'
 import { audit } from '../../../../../../scripts/repo/bench/planner/dispatch/headroom.mts'
+import { missingMainArguments } from '../../main-module.mts'
 
-test('headroom audits only supported development controls and rejects mismatched provenance', () => {
+test('headroom audits only supported development controls and rejects mismatched provenance', async () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-headroom-'))
   const output = path.join(directory, 'report.json')
   const rows = ['chromium', 'jsdom'].flatMap(host => [
@@ -138,6 +139,11 @@ test('headroom audits only supported development controls and rejects mismatched
       JSON.stringify({ datasetSha256: 'wrong' }),
     )
     assert.throws(() => audit(directory, directory, output))
+    await missingMainArguments(
+      () =>
+        import('../../../../../../scripts/repo/bench/planner/dispatch/headroom.mts'),
+      [[], [directory], [directory, directory]],
+    )
     const missingHost = Buffer.from(
       JSON.stringify({ rows: rows.filter(row => row.host === 'chromium') }),
     )
