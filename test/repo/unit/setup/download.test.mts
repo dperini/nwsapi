@@ -9,6 +9,7 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, expect, test, vi } from 'vitest'
+import nock from 'nock'
 import {
   downloadArchive,
   parseIntegrity,
@@ -98,5 +99,47 @@ test('malformed integrity and failed HTTP requests fail before caching', async (
   await expect(downloadArchive(url, integrity, cache, request)).rejects.toThrow(
     'HTTP 404',
   )
+  expect(readdirSync(cache)).toEqual([])
+})
+
+test('SHA256 verification rejects noncanonical base64 and insecure source URLs', async () => {
+  const pin = 'sha256-' + createHash('sha256').update(bytes).digest('base64')
+  expect(() => verifyIntegrity(bytes, pin)).not.toThrow()
+  expect(() =>
+    parseIntegrity(
+      'sha256-' + Buffer.alloc(32).toString('base64').slice(0, -1),
+    ),
+  ).toThrow()
+  await expect(
+    downloadArchive('http://example.test/archive', pin, fixture()),
+  ).rejects.toThrow()
+})
+test('native download verifies bytes using the mocked HTTPS service', async () => {
+  const service = nock('https://github.com')
+    .get('/example/tool/releases/download/v1.0.0/tool.tgz')
+    .reply(200, bytes)
+  expect(await downloadArchive(url, integrity, fixture())).toEqual(bytes)
+  expect(service.isDone()).toBe(true)
+})
+test('redirects to HTTP are rejected before cache promotion', async () => {
+  const source = nock('https://github.com')
+    .get('/example/tool/releases/download/v1.0.0/tool.tgz')
+    .reply(302, '', { Location: 'http://redirect.example/tool.tgz' })
+  const destination = nock('http://redirect.example')
+    .get('/tool.tgz')
+    .reply(200, bytes)
+  const cache = fixture()
+  // Explicit redirect handling avoids Node's native redirect cancellation under nock.
+  const request: typeof fetch = async (input, options) => {
+    const response = await fetch(input, { ...options, redirect: 'manual' })
+    await response.arrayBuffer()
+    const redirected = await fetch(response.headers.get('location')!, options)
+    await redirected.arrayBuffer()
+    return redirected
+  }
+  await expect(
+    downloadArchive(url, integrity, cache, request),
+  ).rejects.toThrow()
+  expect(source.isDone() && destination.isDone()).toBe(true)
   expect(readdirSync(cache)).toEqual([])
 })

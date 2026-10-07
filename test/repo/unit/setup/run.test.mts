@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { setupUpstream } from '../../../../scripts/repo/setup/run.mts'
 import {
   BROWSER_SETUP_PATH,
@@ -43,4 +43,19 @@ test('setup stops if checkout verification fails', () => {
     }),
   ).toThrow()
   expect(calls).toHaveLength(4)
+})
+
+test('CLI performs the same ordered setup through the default runner', async () => {
+  vi.resetModules()
+  const run = vi.fn()
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: (url: string) => url.endsWith('/setup/run.mts'),
+    runNode: run,
+  }))
+  try {
+    await import('../../../../scripts/repo/setup/run.mts')
+    expect(run).toHaveBeenCalledTimes(6)
+  } finally {
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+  }
 })
