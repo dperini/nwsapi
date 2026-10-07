@@ -27,6 +27,7 @@ export interface GithubToolPin extends ToolPin {
 export const GITHUB_TOOLS = [
   'pnpm',
   'nub',
+  'mise',
   'sfw',
   'uv',
   'zizmor',
@@ -73,6 +74,20 @@ export interface ToolPlan extends AssetPin {
 
 export const TOOL_CACHE = path.join(REPO_ROOT, '.cache', 'external-tools')
 export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
+export const TOOLCHAIN_STATE = toolchainStatePath()
+
+export function toolchainStatePath(directory = TOOL_BIN) {
+  return path.join(directory, 'toolchain.json')
+}
+
+export function toolchainState() {
+  const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+  return JSON.stringify({
+    manager: 'pnpm',
+    node: toolVersions()['node'],
+    tools: names.map(name => toolPlan(name)),
+  })
+}
 
 export function toolVersions(data: ExternalTools = manifest) {
   const versions: Record<string, string> = Object.create(null)
@@ -168,8 +183,11 @@ export function toolExecutable(name: DownloadTool) {
 export function checkExternalTools(data: ExternalTools = manifest) {
   const result = validate(data)
   if (!result.valid) {
-    throw new Error(
-      `Invalid external tool configuration: ${JSON.stringify(result.errors)}`,
+    throw Object.assign(
+      new Error(
+        `Invalid external tool configuration: ${JSON.stringify(result.errors)}`,
+      ),
+      { code: 'ERR_TOOL_CONFIG' },
     )
   }
   toolVersions(data)

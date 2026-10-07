@@ -73,6 +73,7 @@ export const ToolsSchema = Type.Object(
         ),
         pnpm: GithubToolSchema,
         nub: GithubToolSchema,
+        mise: GithubToolSchema,
         sfw: GithubToolSchema,
         uv: GithubToolSchema,
         zizmor: GithubToolSchema,

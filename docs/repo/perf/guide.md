@@ -15,10 +15,11 @@ the same order.
 Start with the [current optimization plan](selector-optimization-luna-plan.md)
 to see the work in progress. Read the [journal](journal.md) for past attempts
 and results. Read the [benchmark guide](benchmarks.md) before comparing
-numbers. The [neural planner outcome](neural-planner-outcome.md) explains why
-the first trained model remains outside the runtime.
-The [complete-route experiment](neural-dispatch-outcome.md) explains the next
-approach, which chooses a route before paying for anchor profiling.
+numbers. For a plain-language introduction to PyTorch and the experimental
+`:has()` route planner, see the [beginner's guide](pytorch-for-beginners.md)
+and its [animated walkthrough](pytorch-has-routing.html). The
+[latest dispatch results](neural-dispatch-jit-outcome.md) explain the
+performance evidence and its limits.
 
 ## Terms used in the reports
 

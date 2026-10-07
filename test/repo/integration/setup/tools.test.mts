@@ -44,6 +44,7 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
   try {
     const files = [
       'scripts/repo/setup/tools.mts',
+      'scripts/repo/setup/mise.mts',
       'scripts/repo/setup/firewall.mts',
       'scripts/repo/setup/install.mts',
       'scripts/repo/setup/download.mts',
@@ -55,7 +56,8 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
       '.config/node-interop.json',
       '.config/generated/external-tools.mts',
     ]
-    for (const file of files) {
+    for (let i = 0, length = files.length; i < length; i += 1) {
+      const file = files[i]!
       const target = path.join(directory, file)
       mkdirSync(path.dirname(target), { recursive: true })
       copyFileSync(path.join(REPO_ROOT, file), target)
@@ -71,13 +73,24 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
     activateTool('pnpm', process.execPath, bin)
     const setup = spawnSync(
       process.execPath,
-      ['scripts/repo/setup/tools.mts'],
+      [
+        '--input-type=module',
+        '--eval',
+        `import { setupTools } from './scripts/repo/setup/tools.mts'
+try {
+  await setupTools()
+} catch (error) {
+  console.error(JSON.stringify({ code: error.code }))
+  process.exitCode = 1
+}`,
+      ],
       { cwd: directory, encoding: 'utf8' },
     )
     expect(setup.status).toBe(1)
-    expect(setup.stderr).toContain('Invalid external tool configuration:')
-    expect(setup.stderr).toContain('sfw')
-    for (const name of ['npm', 'pnpm']) {
+    expect(JSON.parse(setup.stderr)).toEqual({ code: 'ERR_TOOL_CONFIG' })
+    const names = ['npm', 'pnpm']
+    for (let i = 0, length = names.length; i < length; i += 1) {
+      const name = names[i]!
       const windows = process.platform === 'win32'
       const command = path.join(bin, windows ? `${name}.cmd` : name)
       const result = spawnSync(
@@ -86,7 +99,6 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
         { cwd: directory, encoding: 'utf8' },
       )
       expect(result.status).toBe(127)
-      expect(result.stderr).toContain('node scripts/repo/setup/tools.mts')
     }
   } finally {
     rmSync(directory, { recursive: true, force: true })

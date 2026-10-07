@@ -1,5 +1,9 @@
 # What the dispatch experiment measured
 
+New to the terminology? Start with the [beginner's guide to PyTorch and
+`:has()` routing](pytorch-for-beginners.md) and its
+[animated walkthrough](pytorch-has-routing.html).
+
 The split matcher remains an opt-in experiment. Its first speed gain on
 queries without attribute filters did not repeat. Production `nwsapi` code
 and the trained model weights are unchanged.

@@ -1,10 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
-import {
-  foreignPackageManagerMessage,
-  invokedByForeignPackageManager,
-  invokingPackageManager,
-} from './lib/package-manager.mts'
+import { invokedByForeignPackageManager } from './lib/package-manager.mts'
+import { handoff } from './setup/manager.mts'
 import {
   COMPILE_CACHE_DIR,
   COVERAGE_SCRIPT_PATH,
@@ -18,15 +15,6 @@ if (request.help) {
   process.exit(0)
 }
 const { args, entry } = request
-if (invokedByForeignPackageManager()) {
-  console.error(
-    foreignPackageManagerMessage(
-      invokingPackageManager()!,
-      process.env['npm_lifecycle_event'],
-    ),
-  )
-  process.exit(1)
-}
 // Node reads these at startup; descendants inherit the same cache and opt-out.
 const filename = path.resolve(REPO_ROOT, entry)
 process.env['NODE_COMPILE_CACHE'] ||= COMPILE_CACHE_DIR
@@ -42,11 +30,13 @@ const coverage =
 if (coverage) {
   process.env['NODE_DISABLE_COMPILE_CACHE'] = '1'
 }
-const child = spawnSync(process.execPath, [filename, ...args], {
-  cwd: REPO_ROOT,
-  env: process.env,
-  stdio: 'inherit',
-})
+const child = invokedByForeignPackageManager()
+  ? await handoff(filename, args)
+  : spawnSync(process.execPath, [filename, ...args], {
+      cwd: REPO_ROOT,
+      env: process.env,
+      stdio: 'inherit',
+    })
 if (child.error) {
   throw child.error
 }

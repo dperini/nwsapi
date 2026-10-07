@@ -36,6 +36,7 @@ beforeAll(() => {
       'src/external/*.js',
       'src/**/*.d.ts',
       'scripts/**/*.mts',
+      'docs/**/*.mts',
       'test/repo/**/*.mts',
       '.config/*.mts',
       '.config/generated/*.mts',
@@ -47,7 +48,8 @@ beforeAll(() => {
     ],
     { cwd: REPO_ROOT },
   )
-  for (const file of files) {
+  for (let i = 0, length = files.length; i < length; i += 1) {
+    const file = files[i]!
     const destination = path.join(root, file)
     mkdirSync(path.dirname(destination), { recursive: true })
     copyFileSync(path.join(REPO_ROOT, file), destination)

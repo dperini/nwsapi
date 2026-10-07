@@ -71,10 +71,10 @@ test('handles direct Node invocation, whitespace, casing, and unknown managers',
 })
 
 for (const name of ['npm', 'yarn', 'bun', 'vlt', 'cnpm'] as const) {
-  test(`the launcher rejects ${name} before loading an entry`, () => {
+  test(`the launcher hands ${name} scripts to the managed pnpm runtime`, () => {
     const result = spawnSync(
       process.execPath,
-      ['scripts/repo/run.mts', 'missing-entry.mts'],
+      ['scripts/repo/run.mts', TSRS_CLI_PATH, '--version'],
       {
         cwd: REPO_ROOT,
         encoding: 'utf8',
@@ -88,8 +88,7 @@ for (const name of ['npm', 'yarn', 'bun', 'vlt', 'cnpm'] as const) {
         ),
       },
     )
-    expect(result.status).toBe(1)
-    expect(result.stderr).toContain('pnpm run build')
-    expect(result.stderr).not.toContain('ERR_MODULE_NOT_FOUND')
+    expect(result.status).toBe(0)
+    expect(result.stdout).toContain('Version')
   })
 }

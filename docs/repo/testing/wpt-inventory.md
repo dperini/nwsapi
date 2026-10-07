@@ -12,7 +12,7 @@ The native support pool records the selector and parser assertions that pass in 
 
 <!-- native-summary:start -->
 
-The finalized classification contains 14,734 selector-related cases across 571 URLs. It accounts for all 1,267,698 qualified native passes, with no unresolved cases. These are requirements inferred from native results, not engine compliance results.
+The finalized classification contains 14,734 selector-related cases across 571 URLs. It accounts for all 1,267,060 qualified native passes, with no unresolved cases. These are requirements inferred from native results, not engine compliance results.
 
 Choose the timing for the operation you need. These estimates cover the native qualification stage. Dependency updates, installation, and other checks have their own costs.
 
@@ -21,14 +21,14 @@ Choose the timing for the operation you need. These estimates cover the native q
 | Check unchanged inputs | Verify the committed contract. No discovery or browser tests run. | Under 1 second in local measurements. |
 | Replay saved results with unchanged pins | Rescan discovery and classify recorded results. Chrome stays closed. | About 1 minute in local measurements. |
 | Resume after discovery adds candidates with unchanged pins | Run only URLs absent from the saved execution plans, then classify the combined results. | Replay time plus browser time for the added URLs. |
-| Refresh after a Chrome or WPT pin change, or when required cached results are missing | Qualify the full candidate pool. | About 33 minutes for browser work at this pool size, plus preparation and classification. |
+| Refresh after a Chrome or WPT pin change, or when required cached results are missing | Qualify the full candidate pool. | About 31 minutes for browser work at this pool size, plus preparation and classification. |
 
 Normal setup and checks use the committed pool. Missing temporary reports alone do not trigger a browser run. Regeneration needs matching saved reports or a full qualification run. The updater checks for this after dependency installation. A changed browser or WPT pin requires full qualification even when older reports remain cached.
 
 <details>
 <summary>Full qualification timing reference</summary>
 
-The browser execution reference covers 11,278 URLs and totals 32 minutes 13 seconds with 4 workers on macOS ARM. It excludes checkout, browser installation, and classification. Use it for the full browser phase. It is not the duration of a routine check or cached replay. Hardware, load, candidate count, and timeout-heavy tests affect elapsed time.
+The browser execution reference covers 11,013 URLs and totals 30 minutes 12 seconds with 4 workers on macOS ARM. It excludes checkout, browser installation, and classification. Use it for the full browser phase. It is not the duration of a routine check or cached replay. Hardware, load, candidate count, and timeout-heavy tests affect elapsed time.
 
 </details>
 
@@ -37,9 +37,9 @@ The browser execution reference covers 11,278 URLs and totals 32 minutes 13 seco
 | Selector matching | 11,865 | Retain the selector assertions. |
 | Selector parsing | 1,786 | Retain syntax assertions. |
 | Mixed selector callbacks | 1,083 | Extract selector assertions from the other checks. |
-| Rendering | 78,267 | Exclude rendering assertions. |
-| CSS property values and CSSOM | 32,711 | Exclude assertions outside selector parsing and matching. |
-| Other APIs and fixture setup | 1,141,986 | Exclude assertions that do not test selector results. |
+| Rendering | 78,088 | Exclude rendering assertions. |
+| CSS property values and CSSOM | 32,710 | Exclude assertions outside selector parsing and matching. |
+| Other APIs and fixture setup | 1,141,528 | Exclude assertions that do not test selector results. |
 
 <!-- native-summary:end -->
 

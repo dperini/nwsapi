@@ -13,6 +13,7 @@ const PINNED_TOOLCHAIN = [
   '@oxlint/*',
   '@rolldown/*',
   '@swc/*',
+  'gpu-lexer',
   'oxfmt',
   'oxlint',
   'oxlint-tsgolint',

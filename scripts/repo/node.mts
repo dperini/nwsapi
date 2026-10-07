@@ -4,9 +4,9 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import manifest from '../../.config/node-interop.json' with { type: 'json' }
-import { REPO_ROOT } from './lib/paths.mts'
 import { toolExecutable } from './external-tools.mts'
 import { isMainModule } from './lib/run-node.mts'
+import { miseEnvironment, nubRequest, MISE_ROOT } from './setup/mise.mts'
 
 export function nodeInteropVersions(versions = manifest.versions) {
   if (
@@ -31,9 +31,10 @@ export function nodeInteropEnvironment(env = process.env) {
 }
 
 export function installNodeVersions(versions = NODE_INTEROP_VERSIONS) {
-  execFileSync(toolExecutable('nub'), ['node', 'install', ...versions], {
-    cwd: REPO_ROOT,
-    env: nodeInteropEnvironment(),
+  const request = nubRequest(['node', 'install', ...versions])
+  execFileSync(request.command, request.args, {
+    cwd: MISE_ROOT,
+    env: miseEnvironment(),
     stdio: 'inherit',
   })
 }
