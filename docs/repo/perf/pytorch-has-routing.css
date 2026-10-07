@@ -1084,12 +1084,30 @@ footer a {
   margin: 24px 0;
 }
 .prediction-label {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.85rem;
+}
+.prediction-controls {
+  display: flex;
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: 12px;
-  font-size: 0.85rem;
-  margin: 0 10px 12px 0;
+  max-width: 620px;
+  margin-top: 20px;
+}
+.prediction-controls > button {
+  min-height: 44px;
+}
+.prediction-controls .guide-select-trigger {
+  min-height: 44px;
+}
+#challenge-feedback {
+  margin: 14px 0 0;
+  font-size: 0.88rem;
 }
 .comparison-grid {
   display: grid;
