@@ -1,15 +1,9 @@
 import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { expect, test } from 'vitest'
-
-const require = createRequire(import.meta.url)
-const compiler = path.join(
-  path.dirname(require.resolve('typescript/package.json')),
-  'bin/tsc',
-)
+import { TSRS_CLI_PATH } from '../../../scripts/repo/lib/paths.mts'
 
 test('type checks reject changed ambient declarations after successful runs', t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-typecheck-'))
@@ -35,11 +29,15 @@ test('type checks reject changed ambient declarations after successful runs', t 
     'declare const engine: Engine; export const nodes: Element[] = engine.select();',
   )
   const check = () =>
-    spawnSync(process.execPath, [compiler, '--noEmit', '-p', configuration], {
-      cwd: directory,
-      encoding: 'utf8',
-      timeout: 15_000,
-    })
+    spawnSync(
+      process.execPath,
+      [TSRS_CLI_PATH, '--noEmit', '-p', configuration],
+      {
+        cwd: directory,
+        encoding: 'utf8',
+        timeout: 15_000,
+      },
+    )
   expect(check().status).toBe(0)
   expect(check().status).toBe(0)
   writeFileSync(

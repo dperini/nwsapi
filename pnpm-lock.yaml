@@ -167,6 +167,9 @@ catalogs:
     '@asamuzakjp/dom-selector':
       specifier: 9.2.4
       version: 9.2.4
+    '@maschwenk/tsrs':
+      specifier: 0.8.0-ts7.1.0-dev.20260929
+      version: 0.8.0-ts7.1.0-dev.20260929
     '@playwright/test':
       specifier: 1.63.0
       version: 1.63.0
@@ -269,9 +272,6 @@ catalogs:
     typebox:
       specifier: 1.3.35
       version: 1.3.35
-    typescript:
-      specifier: 7.1.0-dev.20260901.1
-      version: 7.1.0-dev.20260901.1
     vitest:
       specifier: 5.0.3
       version: 5.0.3
@@ -295,6 +295,9 @@ importers:
       '@asamuzakjp/dom-selector':
         specifier: 'catalog:'
         version: 9.2.4
+      '@maschwenk/tsrs':
+        specifier: 'catalog:'
+        version: 0.8.0-ts7.1.0-dev.20260929
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.63.0
@@ -339,7 +342,7 @@ importers:
         version: 5.0.3(vitest@5.0.3)
       '@vitiate/core':
         specifier: 'catalog:'
-        version: 0.3.1(typescript@7.1.0-dev.20260901.1)(vite@8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.3)
+        version: 0.3.1(vite@8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.3)
       acorn:
         specifier: 'catalog:'
         version: 8.18.0
@@ -403,9 +406,6 @@ importers:
       typebox:
         specifier: 'catalog:'
         version: 1.3.35
-      typescript:
-        specifier: 'catalog:'
-        version: 7.1.0-dev.20260901.1
       vite:
         specifier: 8.2.2
         version: 8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1)
@@ -668,6 +668,31 @@ packages:
 
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
+
+  '@maschwenk/tsrs-darwin-arm64@0.8.0-ts7.1.0-dev.20260929':
+    resolution: {integrity: sha512-BIZc7FZsk3XnCM4nFxgJ/NpRx5XRCkft5XNvcnj8oqtN1ZVj+qQ0IuuK5f/dLgISnQyx+o3fr5luZa/tl2VYFQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@maschwenk/tsrs-linux-arm64@0.8.0-ts7.1.0-dev.20260929':
+    resolution: {integrity: sha512-XIiTzKyirS4qU5v18TPd09i3HFNbnhjXKybSEB5fG225834ygclLXOduGPXlh6YeDVwmKQ7jvyna3q+6zAt+Uw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@maschwenk/tsrs-linux-x64@0.8.0-ts7.1.0-dev.20260929':
+    resolution: {integrity: sha512-wYAcedXixCmUP6q6i+d8A6UcJf9MNoaI/4u7/fKDvqWUIU3w4PAuj3sDrqC0XKzpf9Wt7zeo/KUYFTJtQcAmFA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@maschwenk/tsrs@0.8.0-ts7.1.0-dev.20260929':
+    resolution: {integrity: sha512-uWwr6RQewdeiK5HhN8CwPJhedmKFkyeUk+MawSW4ctGSWkWJD1jUT/x843kSLv0kUlj7wf0VALYBGijFm3x/KA==}
+    engines: {node: '>=16.20.0'}
+    hasBin: true
 
   '@mdn/browser-compat-data@5.7.6':
     resolution: {integrity: sha512-7xdrMX0Wk7grrTZQwAoy1GkvPMFoizStUoL+VmtUkAxegbCCec+3FKwOM6yc/uGU5+BEczQHXAlWiqvM8JeENg==}
@@ -1254,48 +1279,6 @@ packages:
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
-
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-2vhjvcF8hshvIT4dPN8bfA6KI81CsZPpMvA0YrCkGan42n46DSIz0T2Jp/hSv4CdHoihhIYViTx0gR8a/CGhQQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-UhzELABon1ezC9+RsOIioZL3ztx8se+9MYOBUGmo2UqeNVMTPvGuhbtZ3RdJ3idrwpDsavRc1tygCStnnxg/jg==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-BQa5kgwYdwWmtm3UyWLmHedC6V0UMHHwogAy+IettGBpimKhBoyeUF02cgGI7ITLv39JIy+NOfrwwN1JX3rTAA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/typescript-linux-arm@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-WZt0gZLqSkqqSfnr0mOiqF7fqjy+J3JSj5nHRugvBTG2lseV73RppGfjwOl+RtEy8zRb2KpKbMr37OPNvhplEQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm]
-    os: [linux]
-
-  '@typescript/typescript-linux-x64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-0ObxW8yMFlfhVuUcV0A4pBq1IHf9iQgoKUkukTaxCMJDrlYSfzYKSzBzFjFSyh4t3Ctf9+VGp2IryntamYtUsw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [linux]
-
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-8MKD/h5KE1niyFCQNrNzm18vtUL3zMbIuRj0tycC0FJZGVJUqC+r0t3rUbW0udYADr/235Lz3COB0tcCQ3SW5Q==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/typescript-win32-x64@7.1.0-dev.20260901.1':
-    resolution: {integrity: sha512-D0mY2AZd20cLR3FPLRWcivt2mu1qJc9a7LfO8JRcX97fo3CCHHMDqu1Ez5ffycoZzpSk48OZIwxMPALMLa8Iiw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
 
   '@ultrathink/acorn.rs.wasm@0.2.0':
     resolution: {integrity: sha512-8uiXGQnwnN631SaXOeAM+Y+WOu2ms2UQf5rQcH56/9/jD1mEoYqUcYDZjE3AqPgZCsfbNT8jRRUTn5ib/cPvAA==}
@@ -2596,11 +2579,6 @@ packages:
   typebox@1.3.35:
     resolution: {integrity: sha512-gNcaAKuh/4JpDHHyo9AfXOtwlpVUMIHhhdJBEY+1x6rnRFB9usGGo6QfnwAadVbO7J6AptAZwGsi1ZMEObIS3g==}
 
-  typescript@7.1.0-dev.20260901.1:
-    resolution: {integrity: sha512-EdwHzF3udir04ubeFHOL05NbldTcukHk6v+LWHcX8VU6xy564y9n9JY/2swf4YMbWFt3rptVCGnQSX9bxjc+vQ==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
   ufo@1.6.4:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
@@ -3058,6 +3036,21 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
+  '@maschwenk/tsrs-darwin-arm64@0.8.0-ts7.1.0-dev.20260929':
+    optional: true
+
+  '@maschwenk/tsrs-linux-arm64@0.8.0-ts7.1.0-dev.20260929':
+    optional: true
+
+  '@maschwenk/tsrs-linux-x64@0.8.0-ts7.1.0-dev.20260929':
+    optional: true
+
+  '@maschwenk/tsrs@0.8.0-ts7.1.0-dev.20260929':
+    optionalDependencies:
+      '@maschwenk/tsrs-darwin-arm64': 0.8.0-ts7.1.0-dev.20260929
+      '@maschwenk/tsrs-linux-arm64': 0.8.0-ts7.1.0-dev.20260929
+      '@maschwenk/tsrs-linux-x64': 0.8.0-ts7.1.0-dev.20260929
+
   '@mdn/browser-compat-data@5.7.6': {}
 
   '@mdn/browser-compat-data@6.1.5': {}
@@ -3406,27 +3399,6 @@ snapshots:
 
   '@types/tough-cookie@4.0.5': {}
 
-  '@typescript/typescript-darwin-arm64@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-darwin-x64@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-linux-arm64@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-linux-arm@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-linux-x64@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-win32-arm64@7.1.0-dev.20260901.1':
-    optional: true
-
-  '@typescript/typescript-win32-x64@7.1.0-dev.20260901.1':
-    optional: true
-
   '@ultrathink/acorn.rs.wasm@0.2.0': {}
 
   '@unicode/unicode-17.0.0@2.0.7': {}
@@ -3460,7 +3432,7 @@ snapshots:
 
   '@vitest/spy@5.0.3': {}
 
-  '@vitiate/core@0.3.1(typescript@7.1.0-dev.20260901.1)(vite@8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.3)':
+  '@vitiate/core@0.3.1(vite@8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1))(vitest@5.0.3)':
     dependencies:
       '@optique/core': 1.1.0
       '@optique/run': 1.1.0
@@ -3471,7 +3443,7 @@ snapshots:
       escape-string-regexp: 5.0.0
       ipaddr.js: 2.5.0
       magic-string: 0.30.21
-      valibot: 1.4.2(typescript@7.1.0-dev.20260901.1)
+      valibot: 1.4.2
       vite: 8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1)
       vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(jsdom@30.0.1)(vite@8.2.2(@types/node@26.6.4)(jiti@2.7.0)(yaml@2.9.1))
     transitivePeerDependencies:
@@ -4754,16 +4726,6 @@ snapshots:
 
   typebox@1.3.35: {}
 
-  typescript@7.1.0-dev.20260901.1:
-    optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.1.0-dev.20260901.1
-      '@typescript/typescript-darwin-x64': 7.1.0-dev.20260901.1
-      '@typescript/typescript-linux-arm': 7.1.0-dev.20260901.1
-      '@typescript/typescript-linux-arm64': 7.1.0-dev.20260901.1
-      '@typescript/typescript-linux-x64': 7.1.0-dev.20260901.1
-      '@typescript/typescript-win32-arm64': 7.1.0-dev.20260901.1
-      '@typescript/typescript-win32-x64': 7.1.0-dev.20260901.1
-
   ufo@1.6.4: {}
 
   unconfig-core@7.5.0:
@@ -4801,9 +4763,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  valibot@1.4.2(typescript@7.1.0-dev.20260901.1):
-    optionalDependencies:
-      typescript: 7.1.0-dev.20260901.1
+  valibot@1.4.2: {}
 
   verkit@0.5.0: {}
 

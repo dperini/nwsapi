@@ -20,6 +20,8 @@ Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the
 Unit tests use shared thread workers. Keep DOM state local to each fixture and restore spies and environment changes. Tests that replace CommonJS module exports run in isolated integration processes. Direct Vitest invocations are useful for debugging but do not install the external watchdog; use the package scripts for budget enforcement.
 
 `pnpm run type` checks the engine, adapters, CLI, repository scripts, and tests.
+It runs the pinned `@maschwenk/tsrs` compiler through the same entry point as
+`pnpm run type:check`.
 The local TypeScript configuration uses the same strict checks as Wheelhouse.
 These checks require explicit handling of missing array entries, nullable DOM results, and optional properties.
 They also reject implicit `any` types and unused declarations.

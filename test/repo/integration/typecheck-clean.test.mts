@@ -13,7 +13,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
+import { REPO_ROOT, TSRS_CLI_PATH } from '../../../scripts/repo/lib/paths.mts'
 
 test('local CI selects the workflow explicitly on feature branches', () => {
   const pkg = JSON.parse(
@@ -71,7 +71,7 @@ test('type checks pass without build outputs or an incremental cache', () => {
   execFileSync(
     process.execPath,
     [
-      path.join(REPO_ROOT, 'node_modules/typescript/bin/tsc'),
+      TSRS_CLI_PATH,
       '--noEmit',
       '--incremental',
       'false',

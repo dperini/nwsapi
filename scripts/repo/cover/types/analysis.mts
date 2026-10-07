@@ -1,11 +1,11 @@
 import path from 'node:path'
-import { createScanner } from 'typescript/unstable/ast/scanner'
+import { createScanner } from '@maschwenk/tsrs/unstable/ast/scanner'
 import {
   API,
   DiagnosticCategory,
   SymbolFlags,
   TypeFlags,
-} from 'typescript/unstable/sync'
+} from '@maschwenk/tsrs/unstable/sync'
 import {
   isBindingElement,
   isIdentifier,
@@ -15,9 +15,9 @@ import {
   isQualifiedName,
   isTypeReferenceNode,
   SyntaxKind,
-} from 'typescript/unstable/ast'
-import type { Checker, Project, Type } from 'typescript/unstable/sync'
-import type { Expression, Node, SourceFile } from 'typescript/unstable/ast'
+} from '@maschwenk/tsrs/unstable/ast'
+import type { Checker, Project, Type } from '@maschwenk/tsrs/unstable/sync'
+import type { Expression, Node, SourceFile } from '@maschwenk/tsrs/unstable/ast'
 
 export interface UntypedIdentifier {
   name: string
@@ -30,7 +30,7 @@ export interface NativeTypeCoverageResult {
   pct: number
   files: number
   strict: boolean
-  engine: 'typescript-7-native'
+  engine: 'tsrs'
 }
 
 function requireCoverageType(type: Type | undefined): Type {
@@ -173,9 +173,9 @@ export function measureNativeTypeCoverage(
   const config = path.resolve(projectFile)
   const api = new API({ cwd: path.dirname(config) })
   try {
-    const snapshot = api.updateSnapshot({ openProjects: [config] })
+    const snapshot = api.createSnapshot({ openProjects: [config] })
     try {
-      const project = snapshot.getProject(config)
+      const project = snapshot.getConfiguredProject(config)
       if (!project) {
         throw new Error(
           `Type coverage failed: no project loaded from ${config}.`,
@@ -238,7 +238,7 @@ export function measureNativeTypeCoverage(
         pct: Math.floor((10_000 * covered) / total) / 100,
         files,
         strict: false,
-        engine: 'typescript-7-native',
+        engine: 'tsrs',
       }
     } finally {
       snapshot.dispose()

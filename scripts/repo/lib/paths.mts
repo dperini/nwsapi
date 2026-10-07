@@ -81,11 +81,11 @@ export const FORMAT_SCRIPT_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/format.mts',
 )
-export const TSC_CLI_PATH = path.join(
+export const TSRS_CLI_PATH = path.join(
   REPO_ROOT,
-  'node_modules/typescript/bin/tsc',
+  'node_modules/@maschwenk/tsrs/bin/tsrs',
 )
-export const TSC_CONFIG_PATH = path.join(
+export const TYPECHECK_CONFIG_PATH = path.join(
   REPO_ROOT,
   '.config/tsconfig.check.json',
 )
