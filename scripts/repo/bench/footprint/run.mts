@@ -39,9 +39,7 @@ if (values.help) {
     fixtureSha256: string
   }
   const samples: Sample[][] = [[], []]
-  const worker = fileURLToPath(
-    new URL('./footprint-worker.mts', import.meta.url),
-  )
+  const worker = fileURLToPath(new URL('./worker.mts', import.meta.url))
   for (let round = 0; round < rounds; round++) {
     for (let turn = 0; turn < 2; turn++) {
       const index = (round + turn) % 2

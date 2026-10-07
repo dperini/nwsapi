@@ -5,12 +5,8 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 import { chromium } from '@playwright/test'
 import { createPrefixVariants, createSharedPrefixVariants } from './prefix.mts'
-
-type Probe = {
-  run(index: number, count: number): void
-  detach(): void
-  refs: Array<WeakRef<Element>>
-}
+import { positiveInteger } from '../footprint/shared.mts'
+import type { Match, Probe } from './browser/types.mts'
 const { values } = parseArgs({
   options: {
     'attribute-classes': { type: 'boolean', default: false },
@@ -20,12 +16,22 @@ const { values } = parseArgs({
     shared: { type: 'boolean', default: false },
     prefix: { type: 'boolean', default: false },
     classes: { type: 'boolean', default: false },
+    iterations: { type: 'string', default: '1000' },
+    warmups: { type: 'string', default: '100' },
+    'profile-iterations': { type: 'string', default: '2000' },
     output: {
       type: 'string',
       default: 'assets/repo/bench/ancestor-browser.json',
     },
   },
 })
+const iterations = positiveInteger(values.iterations, 'iterations', 100_000)
+const warmups = positiveInteger(values.warmups, 'warmups', 100_000)
+const profileIterations = positiveInteger(
+  values['profile-iterations'],
+  'profile-iterations',
+  100_000,
+)
 if (values['attribute-classes'] && !values.baseline) {
   throw new Error(
     '--attribute-classes requires --baseline for the control engine',
@@ -78,6 +84,8 @@ try {
             inlineMode,
             productionComparison,
             attributeClasses,
+            iterations: measuredIterations,
+            warmups: measuredWarmups,
           }) => {
             const host = window as unknown as {
               NW: {
@@ -181,12 +189,6 @@ try {
                 if (!selector.endsWith(suffixText)) {
                   throw new Error('Unexpected experimental suffix')
                 }
-                type Match = (
-                  element: Element,
-                  callback: null,
-                  context: Document,
-                  result: boolean,
-                ) => boolean
                 const prefixMatch = engine.compile(
                   selector.slice(0, -suffixText.length),
                   false,
@@ -284,7 +286,7 @@ try {
             }
             for (let index = 0; index < variants.length; ++index) {
               verify(query(index), expected)
-              for (let i = 0; i < 100; ++i) {
+              for (let i = 0; i < measuredWarmups; i += 1) {
                 query(index)
               }
             }
@@ -293,10 +295,12 @@ try {
               for (let offset = 0; offset < variants.length; ++offset) {
                 const index = (round + offset) % variants.length
                 const start = performance.now()
-                for (let i = 0; i < 1000; ++i) {
+                for (let i = 0; i < measuredIterations; i += 1) {
                   query(index)
                 }
-                samples[index]!.push((performance.now() - start) / 1000)
+                samples[index]!.push(
+                  (performance.now() - start) / measuredIterations,
+                )
               }
             }
             const changed = nodes[0]!.parentElement!
@@ -369,6 +373,8 @@ try {
             productionComparison: !!values.baseline,
             attributeClasses: values['attribute-classes'],
             single: values.single,
+            iterations,
+            warmups,
           },
         )
         const session = await page.context().newCDPSession(page)
@@ -391,12 +397,12 @@ try {
             includeObjectsCollectedByMinorGC: true,
           })
           await page.evaluate(
-            variantIndex =>
+            ({ variantIndex, count }) =>
               (window as unknown as { probe: Probe }).probe.run(
                 variantIndex,
-                2000,
+                count,
               ),
-            index,
+            { variantIndex: index, count: profileIterations },
           )
           const { profile } = await session.send('HeapProfiler.stopSampling')
           const total = (node: typeof profile.head): number =>
@@ -449,6 +455,9 @@ try {
     JSON.stringify(
       {
         browser: browser.version(),
+        iterations,
+        warmups,
+        profileIterations,
         node: process.version,
         candidatesPerOuter: values.single ? 1 : 2,
         platform: process.platform,
@@ -472,7 +481,7 @@ try {
                     ? 'Class value only. Parent reads remain direct.'
                     : 'Parent and class record.',
         methodology:
-          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds of 1000 calls after 100 warmups. Candidate lookup and compilation excluded. Allocation sampling covers 2000 separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. Public-host timing and rendering are outside this benchmark.',
+          'Fixed compiled-resolver experiments in native browser DOM. Sixteen boxes contain two outer elements each. The candidatesPerOuter field records the candidate count per outer element. Depth patterns repeat across boxes. Seven rotating rounds use the recorded iterations and warmups. Candidate lookup and compilation excluded. Allocation sampling covers profileIterations separate calls per variant and includes collected objects. Four GCs precede retained-heap measurements. Variant allocation order is fixed and each fixture gets a fresh page. Estimated allocation and whole-page retained heap are distinct. Mutation and reversed candidate order checked outside timers. WeakRefs checked after removing fixtures. Public-host timing and rendering are outside this benchmark.',
         rows,
       },
       null,

@@ -162,12 +162,12 @@ const READS = {
 
 const CLASS_RE = /(^|\s)example(\s|$)/
 
-function classOf(e: Element) {
+export function classOf(e: Element) {
   const value = e.className
   return typeof value == 'string' ? value : e.getAttribute('class')
 }
 
-function scanClass(value: string, name: string) {
+export function scanClass(value: string, name: string) {
   if (!value) {
     return false
   }

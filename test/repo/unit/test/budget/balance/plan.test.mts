@@ -22,6 +22,15 @@ function report() {
 }
 
 describe('test budget recovery', () => {
+  test('equal duration work uses stable file identity to decide shard order', () => {
+    const files = readCompletedFiles(report())
+    const equal = files.map(file => ({ ...file, durationMs: 3 })).toReversed()
+    const shards = planRecoveryShards(equal, 2)
+    expect(shards.flatMap(shard => shard.files.map(file => file.name))).toEqual(
+      ['test-0.mts', 'test-2.mts', 'test-1.mts'],
+    )
+    expect(shards.map(shard => shard.fileTimeMs)).toEqual([6, 3])
+  })
   test('balances measured work and retains every file and test without mutating input', () => {
     const files = readCompletedFiles(report())
     const original = files.map(file => ({ ...file }))

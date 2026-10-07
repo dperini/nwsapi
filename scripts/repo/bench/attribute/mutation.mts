@@ -80,7 +80,7 @@ for (const route of ['core', 'adapter']) {
             function: node.callFrame.functionName,
             file: node.callFrame.url.replaceAll(process.cwd(), '<repo>'),
             line: node.callFrame.lineNumber + 1,
-            percent: (100 * (node.hitCount || 0)) / samples,
+            percent: (100 * node.hitCount!) / samples,
           }))
           .toSorted((a, b) => b.percent - a.percent)
           .slice(0, 15)
