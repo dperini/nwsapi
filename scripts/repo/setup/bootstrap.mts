@@ -27,7 +27,7 @@ export async function main(
   log = console.log,
 ) {
   const { values } = parseArgs({
-    args,
+    args: args[0] === '--' ? args.slice(1) : args,
     options: {
       help: { type: 'boolean', short: 'h' },
       'tools-only': { type: 'boolean' },

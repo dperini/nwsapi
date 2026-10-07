@@ -77,6 +77,7 @@ test('the CLI passes the tools-only flag to setup and returns its status', async
     .mockResolvedValue({ status: 7, signal: null })
   expect((await main(['--tools-only'], run, vi.fn())).status).toBe(7)
   expect(run).toHaveBeenCalledWith(true)
+  expect((await main(['--', '--tools-only'], run, vi.fn())).status).toBe(7)
   expect(() => setupNotice('npm/12')).not.toThrow()
   expect(() => setupNotice('pnpm/12')).not.toThrow()
   expect(() => setupNotice('')).not.toThrow()

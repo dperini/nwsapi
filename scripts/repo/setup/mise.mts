@@ -29,6 +29,8 @@ export function miseEnvironment(
   return {
     ...result,
     MISE_NO_CONFIG: '1',
+    // nub is already verified and linked. Avoid GitHub lookups and rate limits.
+    MISE_OFFLINE: '1',
     MISE_DATA_DIR: path.join(directory, 'data'),
     MISE_CACHE_DIR: path.join(directory, 'cache'),
     MISE_CONFIG_DIR: path.join(directory, 'config'),
