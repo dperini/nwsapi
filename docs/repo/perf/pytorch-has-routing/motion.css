@@ -1,0 +1,114 @@
+.film-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.film-grid article {
+  padding: 20px;
+  min-width: 0;
+}
+.film-grid article + article {
+  border-left: 1px solid var(--line);
+}
+.film-grid h4 {
+  margin: 0 0 12px;
+}
+.film-grid h4 span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+.film-scene {
+  background: #102029;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  aspect-ratio: 440 / 310;
+}
+.film-scene svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.film-scene[data-complete='true'] {
+  border-color: var(--mint);
+}
+.film-links path {
+  fill: none;
+  stroke: #415c6a;
+  stroke-width: 1;
+}
+.film-node circle {
+  fill: #1b313c;
+  stroke: #65818f;
+}
+.film-node text {
+  fill: #c8d9e0;
+  font:
+    10px ui-monospace,
+    monospace;
+}
+.film-warning circle,
+.film-node[data-current='true'] circle {
+  fill: #493d28;
+  stroke: var(--amber);
+}
+.film-node[data-marked='true'] circle {
+  stroke: #9db6fa;
+  stroke-dasharray: 2 2;
+}
+.film-node[data-match='true'] circle {
+  fill: #1c362c;
+  stroke: var(--mint);
+  stroke-width: 2;
+}
+.film-cursor {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 2;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+.film-work {
+  color: var(--amber);
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+.film-caption {
+  color: var(--muted);
+  font-size: 0.78rem;
+  min-height: 4.5em;
+}
+.film-controls {
+  border-top: 1px solid var(--line);
+  padding: 20px;
+}
+.film-controls label {
+  display: block;
+  margin-top: 18px;
+  font-size: 0.8rem;
+}
+.film-controls input {
+  width: 100%;
+  margin: 12px 0;
+}
+.film-controls > span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.film-controls p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 0;
+}
+@media (width < 600px) {
+  .film-grid {
+    grid-template-columns: 1fr;
+  }
+  .film-grid article + article {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}

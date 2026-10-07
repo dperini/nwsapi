@@ -7,6 +7,7 @@ import {
 } from './dom.mts'
 import type { SearchRoute, ToyNode } from './dom.mts'
 import { element, escapeHtml, input, text } from './ui.mts'
+import { initializeMotion, renderMotion } from './motion.mts'
 
 const counts = [1, 0, 1, 0]
 let outside = true
@@ -144,6 +145,7 @@ function render() {
   }
   comparison()
   showStep()
+  renderMotion(nodes)
 }
 
 function next() {
@@ -288,6 +290,7 @@ function handleClick(event: MouseEvent) {
 }
 
 export function initializeSearch() {
+  initializeMotion()
   render()
   document.addEventListener('click', handleClick)
   element('step-next').addEventListener('click', () => {

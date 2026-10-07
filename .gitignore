@@ -49,6 +49,7 @@
 !/docs/repo/perf/pytorch-has-routing.css
 !/docs/repo/perf/pytorch-has-routing.mts
 !/docs/repo/perf/pytorch-has-routing/*.mts
+!/docs/repo/perf/pytorch-has-routing/*.css
 !/scripts/**/*.mts
 !/scripts/**/*.py
 !/src/**/*.mts

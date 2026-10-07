@@ -943,5 +943,6 @@ button[aria-pressed='true'] {
   *::before,
   *::after {
     transition: none !important;
+    animation: none !important;
   }
 }

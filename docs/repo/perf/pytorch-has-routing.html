@@ -10,6 +10,7 @@
     <title>From :has() to a tiny learned decision · NWSAPI</title>
     <link id="guide-favicon" rel="icon" type="image/svg+xml" />
     <link rel="stylesheet" href="./pytorch-has-routing.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/motion.css" />
     <script type="module" src="./pytorch-has-routing.mts"></script>
   </head>
   <body>
@@ -137,6 +138,62 @@
           skipped below 32 anchor candidates. Steps here illustrate the search
           order, not measured query time. Inverse matching also checks witness
           filters, marks ancestors, and filters anchors in document order.
+        </p>
+        <div class="lab route-film" id="motion">
+          <div class="lab-header">
+            <div>
+              <span class="badge">Watch the work happen</span>
+              <h3>Two searches. The same DOM. The same matches.</h3>
+              <p>
+                The moving ring shows the node being examined. Green cards are
+                confirmed matches. Blue cards have been marked for a later
+                check.
+              </p>
+            </div>
+          </div>
+          <div class="film-grid">
+            <article>
+              <h4>Forward <span>card → inside</span></h4>
+              <div id="film-forward" class="film-scene"></div>
+              <p id="film-forward-work" class="film-work mono"></p>
+              <p id="film-forward-result"></p>
+              <p id="film-forward-caption" class="film-caption"></p>
+            </article>
+            <article>
+              <h4>Inverse <span>warning → upward</span></h4>
+              <div id="film-inverse" class="film-scene"></div>
+              <p id="film-inverse-work" class="film-work mono"></p>
+              <p id="film-inverse-result"></p>
+              <p id="film-inverse-caption" class="film-caption"></p>
+            </article>
+          </div>
+          <div class="film-controls">
+            <div class="step-controls">
+              <button id="film-play" class="primary" aria-pressed="false">
+                Play both routes</button
+              ><button id="film-next">Next step</button
+              ><button id="film-reset">Reset</button>
+            </div>
+            <label for="film-timeline">Playback timeline</label>
+            <span id="film-beat" class="mono"></span>
+            <input
+              id="film-timeline"
+              type="range"
+              min="0"
+              max="1"
+              value="0"
+              aria-describedby="film-beat"
+            />
+            <p id="film-status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+        <p class="context">
+          Each beat advances one teaching step in each route. One operation is a
+          visit or a parent link, not a fixed amount of time. Finishing earlier
+          in this animation does not establish a real speedup. The four-card
+          example does not call the model. Change the DOM above to see both
+          searches change together. Reduced motion keeps the same steps without
+          moving the ring.
         </p>
         <div class="lab discovery">
           <p class="eyebrow">Try a prediction</p>
