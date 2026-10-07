@@ -1,42 +1,51 @@
+import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
-import { beforeEach, expect, test, vi } from 'vitest'
-const state = vi.hoisted(() => ({ write: vi.fn() }))
-vi.mock('node:fs', () => ({ writeFileSync: state.write }))
+import { test } from 'vitest'
 import { writeTimingReport } from '../../../../../scripts/repo/bench/port/report.mts'
-beforeEach(() => {
-  vi.clearAllMocks()
-})
-test('timing reports preserve compressed samples and expose compact statistics', () => {
-  writeTimingReport('/reports/port.json', {
-    host: 'fixture',
-    rows: [
-      {
-        name: 'selection',
-        samples: [
-          [
-            { samplesNs: [1, 2, 3], p50Ns: 2 },
-            { samplesNs: [], p50Ns: 0 },
+
+test('timing report archives raw rounds and retains compact sample ranges with matching fingerprints', () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-port-report-'))
+  const output = path.join(directory, 'timing.json')
+  try {
+    const input = {
+      host: 'fixture',
+      rows: [
+        {
+          name: 'case',
+          matches: 2,
+          samples: [
+            [
+              { round: 0, p50Ns: 3, samplesNs: [1, 3, 8] },
+              { round: 1, p50Ns: 0, samplesNs: [] },
+            ],
           ],
-        ],
-      },
-    ],
-  })
-  const archive = state.write.mock.calls[0]![1] as Buffer
-  expect(state.write.mock.calls[0]![0]).toBe('/reports/port.samples.json.gz')
-  expect(JSON.parse(gunzipSync(archive).toString())).toEqual([
-    { name: 'selection', samples: [[[1, 2, 3], []]] },
-  ])
-  const compact = JSON.parse(state.write.mock.calls[1]![1] as string)
-  expect(compact.rawSamples).toEqual({
-    file: 'port.samples.json.gz',
-    sha256: createHash('sha256').update(archive).digest('hex'),
-  })
-  expect(compact.rows[0].samples[0][0]).toEqual({
-    p50Ns: 2,
-    sampleCount: 3,
-    minNs: 1,
-    maxNs: 3,
-  })
-  expect(compact.rows[0].samples[0][1]).toEqual({ p50Ns: 0, sampleCount: 0 })
+        },
+      ],
+    }
+    writeTimingReport(output, input)
+    const report = JSON.parse(readFileSync(output, 'utf8'))
+    const archive = readFileSync(path.join(directory, report.rawSamples.file))
+    assert.deepEqual(JSON.parse(gunzipSync(archive).toString()), [
+      { name: 'case', samples: [[[1, 3, 8], []]] },
+    ])
+    assert.equal(
+      report.rawSamples.sha256,
+      createHash('sha256').update(archive).digest('hex'),
+    )
+    assert.deepEqual(report.rows[0].samples, [
+      [
+        { round: 0, p50Ns: 3, sampleCount: 3, minNs: 1, maxNs: 8 },
+        { round: 1, p50Ns: 0, sampleCount: 0 },
+      ],
+    ])
+    assert.equal(report.host, 'fixture')
+    assert.equal(report.rows[0].matches, 2)
+    assert.deepEqual(input.rows[0]!.samples[0]![0]!.samplesNs, [1, 3, 8])
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
 })
