@@ -48,18 +48,21 @@
     10px ui-monospace,
     monospace;
 }
-.film-warning circle,
-.film-node[data-current='true'] circle {
+.film-warning circle {
   fill: #493d28;
   stroke: var(--amber);
+}
+.film-node[data-current='true'] circle {
+  fill: var(--theme-highlight);
+  stroke: var(--theme-highlight-edge);
 }
 .film-node[data-marked='true'] circle {
   stroke: #9db6fa;
   stroke-dasharray: 2 2;
 }
 .film-node[data-match='true'] circle {
-  fill: #1c362c;
-  stroke: var(--mint);
+  fill: var(--theme-highlight);
+  stroke: var(--theme-highlight-edge);
   stroke-width: 2;
   stroke-dasharray: none;
 }
