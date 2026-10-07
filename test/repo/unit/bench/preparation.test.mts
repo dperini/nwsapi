@@ -33,7 +33,7 @@ test('preparation compares equivalent DOM operations and records measured ratios
     const { prepare } =
       await import('../../../../scripts/repo/bench/preparation.mts')
     const invalid = prepare(
-      (() => ({})) as Parameters<typeof prepare>[0],
+      (() => ({})) as unknown as Parameters<typeof prepare>[0],
       {
         name: 'invalid',
         selector: 'div',
