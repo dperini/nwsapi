@@ -28,6 +28,14 @@ function updateActiveTheme() {
   active?.classList.remove('is-active')
   selected.classList.add('is-active')
   document.body.dataset['theme'] = selected.dataset['scrollTheme']
+  document.querySelectorAll<HTMLAnchorElement>('.chapters a').forEach(link => {
+    const current = link.hash === `#${selected.id}`
+    if (current) {
+      link.setAttribute('aria-current', 'location')
+    } else {
+      link.removeAttribute('aria-current')
+    }
+  })
   active = selected
 }
 

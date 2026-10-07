@@ -410,14 +410,34 @@ h1 em {
   z-index: 2;
 }
 .chapters a {
+  --nav-accent: var(--topic-what);
   padding: 10px 16px;
   text-decoration: none;
-  color: #c3d2d9;
+  color: color-mix(in srgb, var(--nav-accent) 65%, #e7eff2);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition:
+    color 400ms ease,
+    background-color 400ms ease,
+    border-color 400ms ease;
   font-size: 0.82rem;
 }
 .chapters a:hover {
-  background: #21353f;
-  border-radius: 6px;
+  background: color-mix(in srgb, var(--nav-accent) 12%, #14252e);
+}
+.chapters a[href='#search'] {
+  --nav-accent: var(--topic-why);
+}
+.chapters a[href='#policy'] {
+  --nav-accent: var(--topic-when);
+}
+.chapters a[href='#source'] {
+  --nav-accent: var(--topic-where);
+}
+.chapters a[aria-current='location'] {
+  color: var(--nav-accent);
+  background: color-mix(in srgb, var(--nav-accent) 18%, #14252e);
+  border-color: color-mix(in srgb, var(--nav-accent) 55%, var(--line));
 }
 .chapter {
   padding-top: 76px;
