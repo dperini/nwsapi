@@ -163,6 +163,35 @@ h1 em {
   padding-left: 16px;
   border-left: 2px solid var(--line);
 }
+.route-overview {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1040px;
+  gap: 12px;
+}
+.route-overview a {
+  display: grid;
+  gap: 8px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.route-overview a:hover {
+  border-color: #608675;
+  background: #14252e;
+}
+.route-overview strong {
+  color: var(--mint);
+}
+.route-overview span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
 .primary {
   color: #14241a;
   background: var(--mint);
@@ -460,6 +489,48 @@ input[type='range'] {
 }
 .policy-readout {
   padding: 28px;
+}
+.route-outcomes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.route-outcomes article {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #101f27;
+}
+.route-outcomes .planner-outcome {
+  border-color: #608675;
+  background: #1a3028;
+}
+.route-outcomes h3 {
+  margin: 10px 0 6px;
+}
+.route-outcomes p {
+  margin-bottom: 0;
+}
+.route-teaching-note {
+  padding: 10px 12px;
+  border-left: 2px solid var(--amber);
+  background: #1c282b;
+}
+.route-consequence {
+  padding: 14px;
+  border-left: 2px solid var(--mint);
+  background: #101f27;
+  font-size: 0.84rem;
+}
+.route-consequence em {
+  color: #e7eff2;
+  font-style: normal;
+  font-weight: 650;
+}
+.route-consequence a {
+  display: inline-block;
+  margin-left: 8px;
 }
 .query-block {
   display: block;
@@ -871,7 +942,8 @@ button[aria-pressed='true'] {
     padding-top: 36px;
   }
   .orientation,
-  .definition-grid {
+  .definition-grid,
+  .route-overview {
     grid-template-columns: 1fr;
     gap: 4px;
   }
@@ -891,6 +963,9 @@ button[aria-pressed='true'] {
     grid-template-columns: 1fr;
   }
   .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+  .route-outcomes {
     grid-template-columns: 1fr;
   }
   .unit-grid {

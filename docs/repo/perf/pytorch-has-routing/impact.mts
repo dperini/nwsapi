@@ -46,8 +46,8 @@ export function renderImpact(
   const fallbackTime = cost(base.visits, base.ascents)
   const plannedTime =
     cost(planned.visits, planned.ascents) + (reached ? callCost : 0)
-  text('impact-fallback-route', `Ordinary rule → ${fallback}`)
-  text('impact-policy-route', `With saved policy → ${selected}`)
+  text('impact-fallback-route', `Traditional rule → ${fallback}`)
+  text('impact-policy-route', `With planner → ${selected}`)
   text('impact-fallback-steps', `${base.visits + base.ascents} traversal steps`)
   text(
     'impact-policy-steps',

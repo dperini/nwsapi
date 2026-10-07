@@ -20,41 +20,55 @@
     </header>
     <main id="start">
       <section class="intro">
-        <p class="eyebrow">Machine learning, one small decision at a time</p>
+        <p class="eyebrow">Supervised learning · not generative AI</p>
         <h1>The same matches.<br /><em>A different way to find them.</em></h1>
         <p class="lede">
-          By default, <code>nwsapi</code> uses a simple rule to choose which
-          direction to search a <code>:has()</code> query. An optional small
-          model trained with PyTorch can recommend a direction for some queries.
-          Let’s walk through the two different approaches.
+          The existing count rule chooses how to search a <code>:has()</code>
+          query. An optional model trained with PyTorch can recommend a
+          different direction for some queries. Both routes use the same exact
+          matcher and return the same elements.
         </p>
-        <div class="orientation">
-          <p>
-            <strong>What you already know</strong><br />JavaScript, functions,
-            and a little HTML.
-          </p>
-          <p>
-            <strong>What you’ll understand</strong><br />The search, the learned
-            numbers, and the code that runs.
-          </p>
-          <p>
-            <strong>What kind of AI?</strong><br />Supervised machine learning.
-            Its output is one route choice.
-          </p>
+        <p class="eyebrow">At a glance</p>
+        <div class="orientation route-overview" aria-label="Model overview">
+          <a href="#policy">
+            <strong>What</strong>
+            <span
+              >A learned function recommends a route; JavaScript still checks
+              exact matches.</span
+            >
+          </a>
+          <a href="#search">
+            <strong>Why</strong>
+            <span
+              >Forward and inverse searches can do different amounts of
+              work.</span
+            >
+          </a>
+          <a href="#policy">
+            <strong>When</strong>
+            <span>Only eligible forward queries can be reconsidered.</span>
+          </a>
+          <a href="#source">
+            <strong>Where</strong>
+            <span
+              >Python trains it; a generated function is bundled with the
+              engine.</span
+            >
+          </a>
         </div>
         <a class="primary link-button" href="#search"
           >Start with a tiny DOM <span aria-hidden="true">↓</span></a
         >
       </section>
       <nav class="chapters" aria-label="Guide chapters">
-        <a href="#search">01 · The search</a
-        ><a href="#policy">02 · The decision</a
-        ><a href="#training">03 · The learning</a
-        ><a href="#source">04 · The source</a>
+        <a href="#search">01 · Understand :has()</a
+        ><a href="#policy">02 · Choose a route</a
+        ><a href="#training">03 · Train the model</a
+        ><a href="#source">04 · Follow the code</a>
       </nav>
       <section id="search" class="chapter">
-        <p class="eyebrow">01 / Understand the job first</p>
-        <h2>Which cards contain a warning?</h2>
+        <p class="eyebrow">01 / Discover what :has() asks</p>
+        <h2>Find the cards that contain a warning.</h2>
         <p class="section-intro">
           <code>.card:has(.warning)</code> asks for cards with a warning
           somewhere inside them. The card is the <strong>anchor</strong>. A
@@ -87,7 +101,7 @@
             </div>
             <div class="trace-panel">
               <fieldset class="route-control">
-                <legend>Choose a direction</legend>
+                <legend>Trace one search direction</legend>
                 <label
                   ><input
                     id="route-forward"
@@ -107,6 +121,11 @@
                   Inverse <small>warning → upward</small></label
                 >
               </fieldset>
+              <p class="small route-teaching-note">
+                This control only chooses which search to demonstrate. The model
+                is skipped here because this toy example has fewer than 32
+                anchors.
+              </p>
               <p id="route-explanation"></p>
               <div class="step-controls">
                 <button id="step-back">Back</button
@@ -142,8 +161,8 @@
         <div class="lab route-film" id="motion">
           <div class="lab-header">
             <div>
-              <span class="badge">Watch the work happen</span>
-              <h3>Two searches. The same DOM. The same matches.</h3>
+              <span class="badge">Two exact search routes</span>
+              <h3>Follow both routes through the same DOM.</h3>
               <p>
                 The moving ring shows the node being examined. Green cards are
                 confirmed matches. Blue cards have been marked for a later
@@ -265,8 +284,8 @@
           </p>
         </details>
         <div class="lab discovery" id="bridge">
-          <p class="eyebrow">From four cards to a real model input</p>
-          <h3>The small example skips the model. Let’s count a larger one.</h3>
+          <p class="eyebrow">Bridge to the route decision</p>
+          <h3>Now see when a larger query reaches the planner.</h3>
           <p>
             Use the starter pattern: A and C contain warnings, B and D do not.
             Repeat it 16 times, give each matching card six warnings, and add
@@ -291,12 +310,13 @@
         </div>
       </section>
       <section id="policy" class="chapter">
-        <p class="eyebrow">02 / Run the actual saved function</p>
-        <h2>Does this query reach the model?</h2>
+        <p class="eyebrow">02 / Compare the route choices</p>
+        <h2>Traditional rule vs optional model planner.</h2>
         <p class="section-intro">
-          Most queries already have a route. The model gets a narrow opportunity
-          to replace a forward decision with inverse matching. Try the guards
-          below: a skipped model is an expected outcome.
+          The traditional count rule chooses the default route. For a narrower
+          set of queries, the saved model can recommend switching from forward
+          to inverse. Either route still runs the same exact selector checks and
+          returns the same matches.
         </p>
         <div class="lab policy-layout">
           <form id="policy-controls" class="controls">
@@ -362,12 +382,30 @@
               Assumes an HTML document in standards mode, document context, pure
               compiler, and WeakMap support.
             </p>
-            <ol id="guard-list" class="guard-list"></ol>
-            <div class="decision" role="status" aria-live="polite">
-              <span class="eyebrow" id="decision-label"></span>
-              <h3 id="decision-title"></h3>
-              <p id="decision-detail"></p>
+            <div
+              class="route-outcomes"
+              aria-label="Route choice comparison"
+              role="status"
+              aria-live="polite"
+            >
+              <article>
+                <span class="eyebrow">Traditional count rule</span>
+                <h3 id="traditional-choice">Forward</h3>
+                <p id="traditional-detail" class="small"></p>
+              </article>
+              <article class="planner-outcome">
+                <span class="eyebrow">Optional model planner</span>
+                <h3 id="decision-title">Not evaluated</h3>
+                <p id="decision-detail" class="small"></p>
+              </article>
             </div>
+            <ol id="guard-list" class="guard-list"></ol>
+            <p class="route-consequence">
+              Route choice changes <em>how the engine searches</em>. The exact
+              matcher still decides which elements match and keeps document
+              order.
+              <a href="#motion">Watch both searches above ↑</a>
+            </p>
             <details>
               <summary>See the function inputs</summary>
               <pre id="policy-inputs"></pre>
@@ -388,9 +426,9 @@
         </p>
         <div class="lab discovery" id="impact">
           <p class="eyebrow">
-            Performance demonstration · estimated, not measured
+            Why the route can matter · estimated, not measured
           </p>
-          <h3>Ordinary routing versus the saved policy</h3>
+          <h3>Traditional route vs planner route</h3>
           <p>
             Use the actual route choice above on an imaginary DOM. Count the
             illustrated traversal work, then assign a cost to each operation.
@@ -656,7 +694,7 @@ override = score > savedThreshold</pre>
         </details>
       </section>
       <section id="training" class="chapter">
-        <p class="eyebrow">03 / Where the numbers come from</p>
+        <p class="eyebrow">03 / How the model learns</p>
         <h2>Measure. Learn. Export. Repeat deliberately.</h2>
         <p class="section-intro">
           During development, we run both exact routes on benchmark fixtures.
@@ -777,7 +815,7 @@ override = score > savedThreshold</pre>
         </p>
       </section>
       <section id="source" class="chapter">
-        <p class="eyebrow">04 / Follow it through the repository</p>
+        <p class="eyebrow">04 / Where the runtime code lives</p>
         <h2>From Python to the JavaScript bundle.</h2>
         <p class="section-intro">
           PyTorch saves a checkpoint. Repository code writes the JavaScript
