@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import type { MockInstance } from 'vitest'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import path from 'node:path'
 import { parse } from 'acorn'
@@ -16,6 +17,7 @@ const state = vi.hoisted(() => ({
   error: undefined as ((error: NodeJS.ErrnoException) => void) | undefined,
   listen: vi.fn(),
 }))
+let exit: MockInstance
 vi.mock('node:fs', async importOriginal => ({
   ...(await importOriginal()),
   existsSync: state.exists,
@@ -55,7 +57,7 @@ beforeEach(() => {
   vi.stubEnv('PORT', '')
   vi.spyOn(console, 'log').mockImplementation(() => {})
   vi.spyOn(console, 'error').mockImplementation(() => {})
-  vi.spyOn(process, 'exit').mockImplementation(() => {
+  exit = vi.spyOn(process, 'exit').mockImplementation(() => {
     throw Object.assign(new Error('exit fixture'), { code: 'ERR_TEST_EXIT' })
   })
 })
@@ -174,6 +176,6 @@ test.each(['EADDRINUSE', 'EACCES'])(
     expect(() =>
       state.error!(Object.assign(new Error('fixture'), { code })),
     ).toThrow(expect.objectContaining({ code: 'ERR_TEST_EXIT' }))
-    expect(process.exit).toHaveBeenCalledWith(1)
+    expect(exit).toHaveBeenCalledWith(1)
   },
 )

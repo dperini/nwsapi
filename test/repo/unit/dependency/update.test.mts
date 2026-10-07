@@ -19,7 +19,8 @@ vi.mock('node:child_process', () => ({
   execFileSync: state.execute,
 }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
-  isMainModule: () => state.main,
+  isMainModule: (url: string) =>
+    state.main && url.endsWith('/dependency/update.mts'),
   runNode: state.runNode,
 }))
 vi.mock('../../../../scripts/repo/lib/taze-output.mts', () => ({
@@ -131,4 +132,33 @@ test('losing manager information during updates prevents an accidental install',
     }),
   ).toThrow(Error)
   expect(state.execute).not.toHaveBeenCalled()
+})
+
+test('CLI check updates dependencies without re-running upstream tasks', async () => {
+  vi.resetModules()
+  state.main = true
+  const original = process.argv
+  process.argv = ['node', 'update.mts', '--check']
+  try {
+    await import('../../../../scripts/repo/dependency/update.mts')
+    expect(state.spawn).toHaveBeenCalledOnce()
+    expect(state.runNode).not.toHaveBeenCalled()
+  } finally {
+    process.argv = original
+  }
+})
+
+test('CLI rejects unsupported flags before policy preparation', async () => {
+  vi.resetModules()
+  state.main = true
+  const original = process.argv
+  process.argv = ['node', 'update.mts', '--unknown']
+  try {
+    await expect(
+      import('../../../../scripts/repo/dependency/update.mts'),
+    ).rejects.toBeInstanceOf(Error)
+    expect(state.check).not.toHaveBeenCalled()
+  } finally {
+    process.argv = original
+  }
 })

@@ -104,13 +104,13 @@ test.each(['--help', '-h'])(
   async flag => {
     state.argv.push(flag)
     vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(process, 'exit').mockImplementation(() => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => {
       throw Object.assign(new Error('exit fixture'), { code: 'ERR_TEST_EXIT' })
     })
     await expect(
       import('../../../scripts/repo/test.mts'),
     ).rejects.toMatchObject({ code: 'ERR_TEST_EXIT' })
-    expect(process.exit).toHaveBeenCalledWith(0)
+    expect(exit).toHaveBeenCalledWith(0)
     expect(state.run).not.toHaveBeenCalled()
   },
 )
