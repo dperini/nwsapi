@@ -45,6 +45,10 @@
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md
+!/docs/repo/perf/pytorch-has-routing.html
+!/docs/repo/perf/pytorch-has-routing.css
+!/docs/repo/perf/pytorch-has-routing.mts
+!/docs/repo/perf/pytorch-has-routing/*.mts
 !/scripts/**/*.mts
 !/scripts/**/*.py
 !/src/**/*.mts
