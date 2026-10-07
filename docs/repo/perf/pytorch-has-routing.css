@@ -922,8 +922,20 @@ input[type='range'] {
   margin-top: 0;
 }
 .source-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.75rem;
   color: var(--mint);
+}
+.source-arrow {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .recorded-example {
   padding-top: 20px;
