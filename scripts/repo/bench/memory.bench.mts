@@ -26,6 +26,7 @@ import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
 
 import { JSDOM } from 'jsdom'
+import { do_not_optimize } from 'mitata'
 
 import nwsapiFactory from '../../../dist/nwsapi.js'
 
@@ -73,9 +74,7 @@ function retainedPer(count: number, make: (index: number) => unknown) {
   }
   const after = settle()
   // Touch the array afterwards so it cannot be optimized away.
-  if (kept.length !== count) {
-    throw new Error('unreachable')
-  }
+  do_not_optimize(kept)
   return (after - before) / count
 }
 
@@ -149,9 +148,8 @@ function measure(label: string, factory: typeof nwsapiFactory, count: number) {
     const after = settle()
     results.perCachedSelector = (after - before) / count
     // Keep both alive past the reading.
-    if (!NW || !dom) {
-      throw new Error('unreachable')
-    }
+    do_not_optimize(NW)
+    do_not_optimize(dom)
   }
 
   // 4. DOM retention. Build a heavy subtree, optionally query it, then
@@ -188,9 +186,8 @@ function measure(label: string, factory: typeof nwsapiFactory, count: number) {
       })()
       const after = settle()
       // Both must outlive the reading, or there is nothing to retain with.
-      if (!NW || !dom) {
-        throw new Error('unreachable')
-      }
+      do_not_optimize(NW)
+      do_not_optimize(dom)
       return after
     }
 

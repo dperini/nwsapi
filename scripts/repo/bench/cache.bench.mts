@@ -175,9 +175,7 @@ async function main() {
         NW.select(selector, engineDom.window.document)
       }
       const after = settle()
-      if (!NW) {
-        throw new Error('unreachable')
-      }
+      do_not_optimize(NW)
       return { limit, full: after - before, perEntry: (after - before) / limit }
     })
 
