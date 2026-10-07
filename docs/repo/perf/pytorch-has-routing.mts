@@ -21,6 +21,7 @@ import {
   initializeImpact,
   renderImpact,
 } from './pytorch-has-routing/impact.mts'
+import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -346,6 +347,7 @@ async function loadSamples() {
 
 function initialize() {
   ;(element('guide-favicon') as HTMLLinkElement).href = guideFavicon
+  initializeSectionThemes()
   element('pipeline').innerHTML = stages
     .map(
       (stage, index) =>

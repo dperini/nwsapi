@@ -7,6 +7,10 @@
   --line: #304550;
   --mint: #b4ebc9;
   --amber: #ffcf86;
+  --topic-what: #99b9cc;
+  --topic-why: #d9a38f;
+  --topic-when: #ceb978;
+  --topic-where: #b4a8d2;
 }
 * {
   box-sizing: border-box;
@@ -17,6 +21,68 @@ html {
 }
 body {
   margin: 0;
+  --scroll-accent: var(--topic-what);
+  --scroll-wash: rgb(153 185 204 / 38%);
+  --scroll-x: 8vw;
+  --scroll-y: 0vh;
+  --scroll-scale: 1;
+  --scroll-radius: 57% 43% 65% 35% / 58% 44% 56% 42%;
+}
+body[data-theme='why'] {
+  --scroll-accent: var(--topic-why);
+  --scroll-wash: rgb(217 163 143 / 38%);
+  --scroll-x: 56vw;
+  --scroll-y: 18vh;
+  --scroll-scale: 0.9;
+  --scroll-radius: 41% 59% 38% 62% / 54% 36% 64% 46%;
+}
+body[data-theme='when'] {
+  --scroll-accent: var(--topic-when);
+  --scroll-wash: rgb(206 185 120 / 38%);
+  --scroll-x: 8vw;
+  --scroll-y: 47vh;
+  --scroll-scale: 1.08;
+  --scroll-radius: 63% 37% 43% 57% / 40% 62% 38% 60%;
+}
+body[data-theme='where'] {
+  --scroll-accent: var(--topic-where);
+  --scroll-wash: rgb(180 168 210 / 38%);
+  --scroll-x: 54vw;
+  --scroll-y: 40vh;
+  --scroll-scale: 0.94;
+  --scroll-radius: 38% 62% 59% 41% / 57% 39% 61% 43%;
+}
+.scroll-morph {
+  position: fixed;
+  z-index: 0;
+  top: -28vmax;
+  left: -22vmax;
+  width: min(72vmax, 900px);
+  aspect-ratio: 1;
+  border-radius: var(--scroll-radius);
+  background-color: var(--scroll-wash);
+  filter: blur(105px);
+  opacity: 0.24;
+  pointer-events: none;
+  transform: translate3d(var(--scroll-x), var(--scroll-y), 0)
+    scale(var(--scroll-scale));
+  transition:
+    background-color 900ms ease,
+    border-radius 1000ms ease,
+    transform 1200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.topbar,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+.topbar {
+  transition: border-color 700ms ease;
+}
+body[data-theme] .topbar,
+body[data-theme] .chapters {
+  border-color: color-mix(in srgb, var(--scroll-accent) 28%, var(--line));
 }
 a {
   color: var(--mint);
@@ -169,7 +235,7 @@ h1 em {
   gap: 12px;
 }
 .route-overview a {
-  --topic-color: #99b9cc;
+  --topic-color: var(--topic-what);
 
   display: grid;
   gap: 8px;
@@ -185,13 +251,13 @@ h1 em {
     background 0.15s;
 }
 .route-overview a[data-topic='why'] {
-  --topic-color: #d9a38f;
+  --topic-color: var(--topic-why);
 }
 .route-overview a[data-topic='when'] {
-  --topic-color: #ceb978;
+  --topic-color: var(--topic-when);
 }
 .route-overview a[data-topic='where'] {
-  --topic-color: #b4a8d2;
+  --topic-color: var(--topic-where);
 }
 .route-overview a:hover {
   border-color: color-mix(in srgb, var(--topic-color) 65%, var(--line));
@@ -250,6 +316,31 @@ h1 em {
 .section-intro {
   max-width: 730px;
   margin-bottom: 28px;
+  padding-left: 14px;
+  border-left: 2px solid transparent;
+  transition: border-color 700ms ease;
+}
+[data-scroll-theme] {
+  --section-accent: var(--topic-what);
+}
+[data-scroll-theme='why'] {
+  --section-accent: var(--topic-why);
+}
+[data-scroll-theme='when'] {
+  --section-accent: var(--topic-when);
+}
+[data-scroll-theme='where'] {
+  --section-accent: var(--topic-where);
+}
+[data-scroll-theme] > .eyebrow {
+  color: color-mix(in srgb, var(--section-accent) 65%, var(--muted));
+  transition: color 700ms ease;
+}
+[data-scroll-theme].is-active > .eyebrow {
+  color: var(--section-accent);
+}
+[data-scroll-theme].is-active > .section-intro {
+  border-left-color: var(--section-accent);
 }
 .lab {
   border: 1px solid var(--line);
@@ -1026,6 +1117,9 @@ button[aria-pressed='true'] {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .scroll-morph {
+    display: none;
   }
   *,
   *::before,

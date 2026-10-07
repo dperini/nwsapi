@@ -13,13 +13,14 @@
     <link rel="stylesheet" href="./pytorch-has-routing/motion.css" />
     <script type="module" src="./pytorch-has-routing.mts"></script>
   </head>
-  <body>
+  <body data-theme="what">
+    <div class="scroll-morph" aria-hidden="true"></div>
     <header class="topbar">
       <a href="#start" class="brand">NWSAPI <span>/ MODEL GUIDE</span></a
       ><span class="status">Experimental routing</span>
     </header>
     <main id="start">
-      <section class="intro">
+      <section class="intro" data-scroll-theme="what">
         <p class="eyebrow">Supervised learning · not generative AI</p>
         <h1>The same matches.<br /><em>A learned choice of direction.</em></h1>
         <p class="lede">
@@ -66,7 +67,7 @@
         ><a href="#training">03 · Train the model</a
         ><a href="#source">04 · Follow the code</a>
       </nav>
-      <section id="search" class="chapter">
+      <section id="search" class="chapter" data-scroll-theme="why">
         <p class="eyebrow">01 / Discover what :has() asks</p>
         <h2>Find the cards that contain a warning.</h2>
         <p class="section-intro">
@@ -309,7 +310,7 @@
           </p>
         </div>
       </section>
-      <section id="policy" class="chapter">
+      <section id="policy" class="chapter" data-scroll-theme="when">
         <p class="eyebrow">02 / Compare the route choices</p>
         <h2>Traditional rule vs optional model planner.</h2>
         <p class="section-intro">
@@ -693,7 +694,7 @@ override = score > savedThreshold</pre>
           </button>
         </details>
       </section>
-      <section id="training" class="chapter">
+      <section id="training" class="chapter" data-scroll-theme="where">
         <p class="eyebrow">03 / How the model learns</p>
         <h2>Measure. Learn. Export. Repeat deliberately.</h2>
         <p class="section-intro">
@@ -814,7 +815,7 @@ override = score > savedThreshold</pre>
           weights require a deliberate training run, review, export, and build.
         </p>
       </section>
-      <section id="source" class="chapter">
+      <section id="source" class="chapter" data-scroll-theme="where">
         <p class="eyebrow">04 / Where the runtime code lives</p>
         <h2>From Python to the JavaScript bundle.</h2>
         <p class="section-intro">
