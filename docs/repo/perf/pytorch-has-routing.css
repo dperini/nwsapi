@@ -1050,10 +1050,12 @@ td code {
   overflow-wrap: anywhere;
 }
 .closing {
+  --mint: var(--topic-where);
   margin: 64px 0 50px;
   padding: 28px;
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--topic-where) 35%, var(--line));
   border-radius: 14px;
+  background: color-mix(in srgb, var(--topic-where) 9%, #14252e);
 }
 .closing p {
   max-width: 760px;
