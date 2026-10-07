@@ -118,6 +118,7 @@ test('route export preserves proved baseline costs, host provenance and training
       () =>
         import('../../../../../../scripts/repo/bench/planner/neural/export.mts'),
       [[], [directory]],
+      '/planner/neural/export.mts',
     )
     const invalidMetadata = [
       { ...metadata, format: 1 },

@@ -32,6 +32,9 @@ vi.mock('node:fs', async importOriginal => ({
   writeFileSync: state.write,
 }))
 vi.mock('@playwright/test', () => ({ chromium: { launch: state.launch } }))
+vi.mock('../../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: () => ({ executablePath: '/fixture/chrome' }),
+}))
 vi.mock('../../../../../scripts/repo/bench/documents.mts', () => ({
   DOCUMENTS: {
     components: { html: () => '<body><i></i></body>' },

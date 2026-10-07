@@ -143,6 +143,7 @@ test('scalar exports persist provenance and guarded choices alongside reference 
       () =>
         import('../../../../../../scripts/repo/bench/planner/neural/scalar.mts'),
       [[], [directory]],
+      '/planner/neural/scalar.mts',
     )
   } finally {
     rmSync(directory, { recursive: true, force: true })

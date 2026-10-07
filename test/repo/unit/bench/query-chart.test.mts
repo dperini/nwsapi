@@ -9,6 +9,9 @@ const browser = vi.hoisted(() => ({
   evaluate: vi.fn(),
 }))
 vi.mock('@playwright/test', () => ({ chromium: { launch: browser.launch } }))
+vi.mock('../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: () => ({ executablePath: '/fixture/chrome' }),
+}))
 import {
   queryChart,
   wrapQueryNotes,

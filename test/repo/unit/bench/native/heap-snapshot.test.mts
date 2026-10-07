@@ -29,6 +29,9 @@ vi.mock('node:fs', async importOriginal => ({
   mkdtempSync: state.temporary,
 }))
 vi.mock('@playwright/test', () => ({ chromium: { launch: state.launch } }))
+vi.mock('../../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: () => ({ executablePath: '/fixture/chrome' }),
+}))
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.clearAllMocks()

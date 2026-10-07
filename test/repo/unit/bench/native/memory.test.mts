@@ -31,6 +31,9 @@ vi.mock('node:fs', async importOriginal => ({
   mkdirSync: state.mkdir,
 }))
 vi.mock('@playwright/test', () => ({ chromium: { launch: state.launch } }))
+vi.mock('../../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: () => ({ executablePath: '/fixture/chrome' }),
+}))
 vi.mock('../../../../../scripts/repo/bench/native/host.mts', () => ({
   nativeSources: async () => ({ competitorBundleSha256: 'bundle' }),
   nativePage: state.page,

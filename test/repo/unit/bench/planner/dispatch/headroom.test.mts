@@ -143,6 +143,7 @@ test('headroom audits only supported development controls and rejects mismatched
       () =>
         import('../../../../../../scripts/repo/bench/planner/dispatch/headroom.mts'),
       [[], [directory], [directory, directory]],
+      '/planner/dispatch/headroom.mts',
     )
     const missingHost = Buffer.from(
       JSON.stringify({ rows: rows.filter(row => row.host === 'chromium') }),
