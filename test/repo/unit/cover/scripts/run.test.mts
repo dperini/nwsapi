@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
+  main: false,
   execute: vi.fn(),
   mkdir: vi.fn(),
   remove: vi.fn(),
@@ -21,7 +22,7 @@ const state = vi.hoisted(() => ({
 vi.mock('node:child_process', () => ({ execFileSync: state.execute }))
 vi.mock('node:fs', () => ({ mkdirSync: state.mkdir, rmSync: state.remove }))
 vi.mock('../../../../../scripts/repo/lib/run-node.mts', () => ({
-  isMainModule: () => false,
+  isMainModule: () => state.main,
 }))
 vi.mock('../../../../../scripts/repo/cover/scripts/report.mts', () => ({
   collectScriptCoverage: state.collect,
@@ -111,4 +112,26 @@ test('unknown options and failed test commands cannot produce a passing report',
     expect.objectContaining({ code: 'ERR_TEST_FIXTURE' }),
   )
   expect(execute).toHaveBeenCalledOnce()
+})
+
+test('the command entrypoint performs both language checks after collecting test tiers', async () => {
+  vi.stubGlobal(
+    'process',
+    new Proxy(process, {
+      get(target, property) {
+        return property === 'argv'
+          ? ['node', 'run.mts']
+          : Reflect.get(target, property)
+      },
+    }),
+  )
+  state.main = true
+  vi.resetModules()
+  try {
+    await import('../../../../../scripts/repo/cover/scripts/run.mts')
+    expect(state.execute).toHaveBeenCalledTimes(2)
+    expect(state.checkPython).toHaveBeenCalledOnce()
+  } finally {
+    state.main = false
+  }
 })
