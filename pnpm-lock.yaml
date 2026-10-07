@@ -227,6 +227,9 @@ catalogs:
     eslint-plugin-compat:
       specifier: 7.0.2
       version: 7.0.2
+    gpu-lexer:
+      specifier: 0.0.3
+      version: 0.0.3
     istanbul-lib-coverage:
       specifier: 3.2.2
       version: 3.2.2
@@ -358,6 +361,9 @@ importers:
       eslint-plugin-compat:
         specifier: 'catalog:'
         version: 7.0.2(eslint@10.10.0(jiti@2.7.0)(supports-color@7.2.0))
+      gpu-lexer:
+        specifier: 'catalog:'
+        version: 0.0.3
       istanbul-lib-coverage:
         specifier: 'catalog:'
         version: 3.2.2
@@ -1873,6 +1879,9 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
+
+  gpu-lexer@0.0.3:
+    resolution: {integrity: sha512-uwiRoB6AoWVMlyeo2bKo9w4UaqHMsFMuHXUdOeGj69T4EpxHrj32VVaHEhdRTHCta7ZUVSoLK0H8OJXP3/dq0A==}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -4015,6 +4024,8 @@ snapshots:
   globals@15.15.0: {}
 
   gopd@1.2.0: {}
+
+  gpu-lexer@0.0.3: {}
 
   has-flag@4.0.0: {}
 

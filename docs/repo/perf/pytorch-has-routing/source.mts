@@ -51,7 +51,7 @@ export const sources = {
     role: 'Python · PyTorch',
     explanation:
       'The six encoded inputs feed a linear model or a small neural network. Training adjusts weights with AdamW. Validation selects the checkpoint and threshold.',
-    code: excerpt(trainerSource, 'def fit(', '\ndef export('),
+    code: excerpt(trainerSource, 'def weights(', '\ndef export('),
   },
   entry: {
     title: 'Start the pinned Python environment',

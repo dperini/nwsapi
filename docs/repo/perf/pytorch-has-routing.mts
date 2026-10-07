@@ -6,121 +6,21 @@ import {
 } from '../../../src/core/select/has/route-decision.generated.mts'
 import { sources, stages } from './pytorch-has-routing/source.mts'
 import type { SourceId } from './pytorch-has-routing/source.mts'
-
-function element(id: string): HTMLElement {
-  const found = document.getElementById(id)
-  if (!found) {
-    throw new Error(`Missing guide element: ${id}`)
-  }
-  return found
-}
-
-function text(id: string, value: string) {
-  element(id).textContent = value
-}
-
-function input(id: string) {
-  return element(id) as HTMLInputElement
-}
-
-const cardNames = ['A', 'B', 'C', 'D']
-const warnings = [true, false, true, false]
-let route = 'forward'
-let step = 0
-let trace: Array<{ target: string; description: string }> = []
-const fixture = document.createElement('main')
-
-function renderFixture() {
-  fixture.innerHTML =
-    cardNames
-      .map(
-        (name, index) =>
-          `<article class="card" id="card-${name}"><span>Card ${name}</span>${warnings[index] ? `<span class="warning" id="warning-${name}">Warning</span>` : ''}</article>`,
-      )
-      .join('') +
-    '<span class="warning" id="outside-warning">Outside warning</span>'
-}
-
-function exactResults() {
-  const cards = Array.from(fixture.querySelectorAll<HTMLElement>('.card'))
-  const forward = cards.filter(card => card.querySelector('.warning'))
-  const marked = new Set(
-    Array.from(fixture.querySelectorAll('.warning')).map(witness =>
-      witness.closest('.card'),
-    ),
-  )
-  const inverse = cards.filter(card => marked.has(card))
-  if (
-    forward.map(card => card.id).join() !== inverse.map(card => card.id).join()
-  ) {
-    throw new Error('The two illustrated routes disagree')
-  }
-  return forward.map(card => card.id.replace('card-', ''))
-}
-
-function buildTrace() {
-  if (route === 'forward') {
-    trace = cardNames.map((name, index) => ({
-      target: `card-${name}`,
-      description: `Start with card ${name}. Search its descendants. ${warnings[index] ? `A warning is present, so keep card ${name}.` : `No warning is present, so skip card ${name}.`}`,
-    }))
-    return
-  }
-  trace = cardNames
-    .filter((_, index) => warnings[index])
-    .map(name => ({
-      target: `card-${name}`,
-      description: `Start with the warning inside card ${name}. Walk upward and mark its ancestors. Card ${name} is among those ancestors.`,
-    }))
-  trace.push({
-    target: 'outside-node',
-    description:
-      'Visit the outside warning. None of its ancestors is a card. It adds no matching card.',
-  })
-  trace.push({
-    target: '',
-    description: `Visit the anchor candidates in document order and retain the marked cards. Return ${exactResults().join(', ') || 'an empty list'}.`,
-  })
-}
-
-function showStep() {
-  const current = trace[step - 1]
-  document.querySelectorAll<HTMLElement>('[data-current]').forEach(node => {
-    node.dataset['current'] = String(node.id === current?.target)
-  })
-  text('step-count', `STEP ${step} OF ${trace.length}`)
-  text(
-    'trace-description',
-    current?.description || 'Ready. Press “Next step” to start the search.',
-  )
-  ;(element('step-next') as HTMLButtonElement).disabled = step >= trace.length
-}
-
-function renderSearch() {
-  renderFixture()
-  const matches = exactResults()
-  element('dom-cards').innerHTML = cardNames
-    .map(
-      (name, index) =>
-        `<article class="dom-card" id="card-${name}" data-current="false" data-match="${matches.includes(name)}"><h3>Card ${name}</h3><code>&lt;article class="card"&gt;</code><button type="button" data-warning="${index}" aria-pressed="${warnings[index]}" aria-label="Toggle warning in card ${name}"><span class="warning-node">${warnings[index] ? '● .warning' : '+ Add .warning'}</span></button></article>`,
-    )
-    .join('')
-  text(
-    'match-result',
-    matches.length
-      ? matches.map(name => `Card ${name}`).join(' · ')
-      : 'No matching cards',
-  )
-  text(
-    'route-explanation',
-    route === 'forward'
-      ? 'Start at each possible card. Look inside it for a warning.'
-      : 'Start at the warnings. Walk upward to mark ancestors, then keep matching cards in document order.',
-  )
-  step = 0
-  buildTrace()
-  showStep()
-}
+import guideFavicon from '../../../assets/repo/model-guide-favicon.svg?url'
+import { element, input, text } from './pytorch-has-routing/ui.mts'
+import { initializeSearch } from './pytorch-has-routing/search.mts'
+import {
+  code,
+  initializeHighlighting,
+} from './pytorch-has-routing/highlight.mts'
+import {
+  initializeCalculation,
+  renderCalculation,
+} from './pytorch-has-routing/calculation.mts'
+import {
+  initializeImpact,
+  renderImpact,
+} from './pytorch-has-routing/impact.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -259,11 +159,13 @@ function renderPolicy() {
       inRange,
     ),
   ].join('')
-  text(
+  code(
     'policy-inputs',
     `${reached ? 'Called' : 'Not called'}: ${host}Policy(\n  ${anchors}, // anchors\n  ${witnesses}, // witnesses\n  ${attributes}, // attribute mask: card=2, warning=1\n  ${dense}, // dense: both selectors are plain class seeds\n  ${ratio.toFixed(3)}, // witnesses / anchors\n)${reached ? `\nReturns: ${override}` : ''}\n\nModel ID: ${hasRouteDecisionModelId}`,
   )
   showPolicyDecision(state, override)
+  renderCalculation(state, host, reached && inRange, override)
+  renderImpact(state, reached, override)
 }
 
 const presets: Record<string, [number, number, boolean, boolean]> = {
@@ -292,7 +194,7 @@ function showSource(id: SourceId) {
   text('source-role', source.role)
   text('source-title', source.title)
   text('source-explanation', source.explanation)
-  text('source-code', source.code)
+  code('source-code', source.code)
   const link = element('source-link') as HTMLAnchorElement
   link.href = `https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/${source.path}`
   document
@@ -313,7 +215,7 @@ function showStage(index: number) {
   )
   text('pipeline-title', stage.title)
   text('pipeline-description', stage.description)
-  text('pipeline-example', stage.example)
+  code('pipeline-example', stage.example)
   document
     .querySelectorAll<HTMLButtonElement>('[data-stage]')
     .forEach(button => {
@@ -341,9 +243,13 @@ type TrainingRow = {
   baselineRoute: string
   features: number[]
   costsNs: number[]
+  baselineCostNs: number
+  routeFacts: { denseInverse: boolean }
 }
 let trainingRows: TrainingRow[] = []
 let sampleIndex = 0
+let sampleStage = 0
+let decisionBudgetNs = 0
 
 function selectedRows() {
   const host = (element('sample-host') as HTMLSelectElement).value
@@ -358,6 +264,20 @@ function showSample() {
   sampleIndex = (sampleIndex + rows.length) % rows.length
   const row = rows[sampleIndex]!
   const maximum = Math.max(...row.costsNs)
+  code(
+    'sample-facts',
+    `// These facts describe candidates, not matching results.
+cardCandidates = ${row.features[0]}
+warningCandidates = ${row.features[1]}
+cardFilter = ${row.features[2]! >> 1}
+warningFilter = ${row.features[2]! & 1}
+dense = ${Number(row.routeFacts.denseInverse)}
+warningsPerCard = ${row.features[3]}
+currentRoute = '${row.baselineRoute}'`,
+  )
+  element('sample-facts').hidden = sampleStage !== 0
+  element('sample-bars').hidden = sampleStage === 0
+  element('sample-learning').hidden = sampleStage !== 2
   text('sample-name', `${row.id} · ${sampleIndex + 1} of ${rows.length}`)
   element('sample-bars').innerHTML = ['Forward', 'Inverse']
     .map((name, index) => {
@@ -369,6 +289,11 @@ function showSample() {
     'sample-context',
     `Lower is faster. Archived median costs of the forward and inverse query variants for one ${row.host} fixture, recorded October 5, 2026. ${row.features[0]} anchor candidates, ${row.features[1]} witness candidates, attribute mask ${row.features[2]}. Family: ${row.family}. These are development examples, not a new measurement or independent qualification of the current runtime. Source: assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1/dataset/dataset.json.`,
   )
+  const inverse = row.costsNs[1]!
+  text(
+    'sample-label',
+    `For this recorded row, baseline forward costs ${(row.baselineCostNs / 1000).toFixed(2)}µs. Inverse plus the trainer’s estimated ${decisionBudgetNs}ns decision budget costs ${((inverse + decisionBudgetNs) / 1000).toFixed(2)}µs. The timing-derived target is ${inverse + decisionBudgetNs < row.baselineCostNs ? 'override with inverse (1)' : 'keep forward (0)'}. This is a training label, not the saved model’s prediction. The full repeated samples determine whether this comparison receives nonzero weight.`,
+  )
 }
 
 async function loadSamples() {
@@ -377,8 +302,11 @@ async function loadSamples() {
   }
   try {
     text('sample-name', 'Loading saved measurements…')
-    const dataset =
-      await import('../../../assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1/dataset/dataset.json')
+    const [dataset, report] = await Promise.all([
+      import('../../../assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1/dataset/dataset.json'),
+      import('../../../assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1/evaluation.json'),
+    ])
+    decisionBudgetNs = report.default.decisionBudgetNs
     trainingRows = (dataset.default.rows as TrainingRow[]).filter(
       row =>
         row.family.startsWith('dispatch-crossed-') &&
@@ -396,6 +324,7 @@ async function loadSamples() {
 }
 
 function initialize() {
+  ;(element('guide-favicon') as HTMLLinkElement).href = guideFavicon
   element('pipeline').innerHTML = stages
     .map(
       (stage, index) =>
@@ -408,7 +337,10 @@ function initialize() {
         `<button type="button" data-file="${id}" aria-pressed="false">${source.title}<small>${source.path}</small></button>`,
     )
     .join('')
-  renderSearch()
+  initializeSearch()
+  initializeCalculation()
+  initializeImpact(renderPolicy)
+  initializeHighlighting()
   renderPolicy()
   showStage(0)
   showSource('match')
@@ -422,11 +354,6 @@ function handleClick(event: MouseEvent) {
     return
   }
   const data = target.dataset
-  if (data['warning'] !== undefined) {
-    const index = Number(data['warning'])
-    warnings[index] = !warnings[index]
-    renderSearch()
-  }
   if (data['preset']) {
     applyPreset(data['preset'])
   }
@@ -439,26 +366,19 @@ function handleClick(event: MouseEvent) {
   if (data['source']) {
     jumpToSource(data['source'] as SourceId)
   }
+  if (data['sampleStage'] !== undefined) {
+    sampleStage = Number(data['sampleStage'])
+    document
+      .querySelectorAll<HTMLButtonElement>('[data-sample-stage]')
+      .forEach(button => {
+        button.setAttribute('aria-pressed', String(button === target))
+      })
+    showSample()
+  }
 }
 
 initialize()
 document.addEventListener('click', handleClick)
-element('step-next').addEventListener('click', () => {
-  step += 1
-  showStep()
-})
-element('step-reset').addEventListener('click', () => {
-  step = 0
-  showStep()
-})
-document
-  .querySelectorAll<HTMLInputElement>('input[name="route"]')
-  .forEach(radio => {
-    radio.addEventListener('change', () => {
-      route = radio.value
-      renderSearch()
-    })
-  })
 element('policy-controls').addEventListener('input', renderPolicy)
 element('policy-controls').addEventListener('submit', event =>
   event.preventDefault(),

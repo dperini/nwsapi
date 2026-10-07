@@ -238,6 +238,7 @@
     "ata-validator": "catalog:",
     "ecc-agentshield": "catalog:",
     "eslint-plugin-compat": "catalog:",
+    "gpu-lexer": "catalog:",
     "istanbul-lib-coverage": "catalog:",
     "istanbul-lib-report": "catalog:",
     "istanbul-reports": "catalog:",

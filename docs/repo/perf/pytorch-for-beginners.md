@@ -1,8 +1,15 @@
 # PyTorch and the `:has()` route planner, for beginners
 
 [Explore the interactive walkthrough](pytorch-has-routing.html). Edit a small
-DOM, step through both search routes, run the saved policy, and follow training
-into the source code.
+DOM, watch results accumulate along both routes, try prediction challenges,
+and follow the saved policy through its arithmetic into the source code.
+
+The performance demonstration compares the ordinary route with the saved
+policy’s choice. Its step counts describe an illustrated DOM. Its timing
+estimates use editable teaching assumptions, including model overhead.
+Changing the warning position can show either a gain or a slowdown without
+changing the facts available to the model. These estimates are separate from
+the archived training measurements.
 
 To serve the guide locally from the repository root:
 
@@ -14,6 +21,16 @@ Open `/pytorch-has-routing.html` on the URL printed by Portless. Vite serves
 the guide and its TypeScript modules. The policy explorer imports the committed
 runtime policy, source excerpts come from the owning files, and the timing
 examples load recorded benchmark inputs.
+
+To build the walkthrough into `.cache/model-guide-build/`:
+
+```sh
+node node_modules/vite/bin/vite.js build --config .config/model-guide.mts
+```
+
+Code panels use the pinned `gpu-lexer` dev dependency for syntax coloring.
+Its separate WebGPU model runs only in the guide. Without WebGPU, the source
+remains readable as plain text.
 
 ## The short version
 
