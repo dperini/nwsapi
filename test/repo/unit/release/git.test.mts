@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import {
   assertClean,
@@ -126,3 +126,85 @@ test('preparation refuses unqualified source and local-only version reservations
       .version,
   ).toBe('3.0.0-prerelease')
 })
+
+test.each(['head', 'remote', 'burned', 'manifest'])(
+  'reserved release rejects %s drift',
+  mode => {
+    const fixture = releaseFixture()
+    cleanups.push(fixture.cleanup)
+    if (mode === 'manifest') {
+      writeFileSync(
+        path.join(fixture.root, 'package.json'),
+        JSON.stringify({ name: 'other', version: VERSION }),
+      )
+    }
+    const run: CommandRunner = (command, args, options) => {
+      if (mode === 'head' && args[0] === 'rev-parse' && args[1] === 'HEAD') {
+        return { status: 0, stdout: 'b'.repeat(40), stderr: '' }
+      }
+      if (
+        mode === 'remote' &&
+        args[0] === 'ls-remote' &&
+        args[2]?.endsWith('^{}')
+      ) {
+        return { status: 0, stdout: 'b'.repeat(40), stderr: '' }
+      }
+      if (
+        mode === 'burned' &&
+        args[0] === 'ls-remote' &&
+        args[2]?.includes('/burned/')
+      ) {
+        return { status: 0, stdout: COMMIT, stderr: '' }
+      }
+      return gitRunner(command, args, options)
+    }
+    expect(() => assertReserved(VERSION, fixture.root, run)).toThrow()
+  },
+)
+test.each([COMMIT, 'b'.repeat(40)])(
+  'GitHub signature verification still requires source commit %s',
+  sha => {
+    const fixture = releaseFixture()
+    cleanups.push(fixture.cleanup)
+    const run: CommandRunner = (command, args, options) => {
+      if (args[0] === 'verify-tag') {
+        return { status: 1, stdout: '', stderr: 'missing local key' }
+      }
+      if (command === 'gh') {
+        return {
+          status: 0,
+          stdout: JSON.stringify({
+            verification: { verified: true },
+            object: { sha },
+          }),
+          stderr: '',
+        }
+      }
+      return gitRunner(command, args, options)
+    }
+    if (sha === COMMIT) {
+      expect(assertReserved(VERSION, fixture.root, run)).toBe(COMMIT)
+    } else {
+      expect(() => assertReserved(VERSION, fixture.root, run)).toThrow()
+    }
+  },
+)
+test.each(['branch', 'remote'])(
+  'preparation rejects unpublished source %s',
+  async mode => {
+    const fixture = releaseFixture(null)
+    cleanups.push(fixture.cleanup)
+    const run: CommandRunner = (command, args, options) => {
+      if (mode === 'branch' && args[0] === 'branch') {
+        return { status: 0, stdout: 'master', stderr: '' }
+      }
+      if (mode === 'remote' && args[0] === 'ls-remote') {
+        return { status: 0, stdout: 'b'.repeat(40), stderr: '' }
+      }
+      return gitRunner(command, args, options)
+    }
+    await expect(
+      prepareRelease(VERSION, false, fixture.root, run, registryResponse()),
+    ).rejects.toThrow()
+  },
+)

@@ -5,6 +5,7 @@ import {
   environmentPlan,
   isV3Publisher,
   matchesPublisher,
+  parsePublisher,
   parsePublishers,
   setupEnvironment,
   trustArguments,
@@ -198,3 +199,86 @@ test('npm 12 separate flattened JSON objects normalize to registry publisher cla
   expect(parsePublishers('')).toEqual([])
   expect(() => parsePublishers('not json')).toThrow()
 })
+
+test('publisher parser rejects primitive rows and malformed claims', () => {
+  expect(() => parsePublisher(null)).toThrow()
+  expect(() => parsePublisher({ ...publisher, claims: 'invalid' })).toThrow()
+})
+test.each([true, false])(
+  'new environment creation verifies observed branch state %s',
+  verify => {
+    let created = false
+    const branchRows: {
+      branch_policies: Array<{ name: string; type: string }>
+    } = { branch_policies: [] }
+    const run = vi.fn<CommandRunner>((_command, args) => {
+      if (args.includes('PUT')) {
+        created = true
+        return { status: 0, stdout: '{}', stderr: '' }
+      }
+      if (args.includes('POST')) {
+        if (verify) {
+          branchRows.branch_policies.push({
+            name: RELEASE.branch,
+            type: 'branch',
+          })
+        }
+        return { status: 0, stdout: '{}', stderr: '' }
+      }
+      if (!created) {
+        return { status: 1, stdout: '', stderr: 'HTTP 404' }
+      }
+      return {
+        status: 0,
+        stdout: JSON.stringify(
+          args[1]?.endsWith('deployment-branch-policies')
+            ? branchRows
+            : environment,
+        ),
+        stderr: '',
+      }
+    })
+    if (verify) {
+      expect(setupEnvironment(true, '/tmp', run)).toMatchObject({
+        create: true,
+        addBranch: true,
+      })
+    } else {
+      expect(() => setupEnvironment(true, '/tmp', run)).toThrow()
+    }
+  },
+)
+test.each(['duplicate', 'final-empty', 'final-wrong', 'current'])(
+  'trust migration handles %s publishers',
+  mode => {
+    let reads = 0
+    const run: CommandRunner = (command, args) => {
+      if (command === 'gh') {
+        return {
+          status: 0,
+          stdout: JSON.stringify(
+            args[1]?.endsWith('deployment-branch-policies')
+              ? policies
+              : environment,
+          ),
+          stderr: '',
+        }
+      }
+      reads += 1
+      const rows =
+        mode === 'duplicate'
+          ? [publisher, { ...publisher, id: 'duplicate' }]
+          : reads === 1 || mode === 'current'
+            ? [publisher]
+            : mode === 'final-wrong'
+              ? [{ ...publisher, permissions: ['createPackage'] }]
+              : []
+      return { status: 0, stdout: JSON.stringify(rows), stderr: '' }
+    }
+    if (mode === 'current') {
+      expect(configureTrust(false, '/tmp', run).matches).toBe(true)
+    } else {
+      expect(() => configureTrust(true, '/tmp', run)).toThrow()
+    }
+  },
+)

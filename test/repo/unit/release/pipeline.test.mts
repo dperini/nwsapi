@@ -1,8 +1,11 @@
 import { afterEach, expect, test, vi } from 'vitest'
+import { statSync } from 'node:fs'
+import path from 'node:path'
 import {
   approveRelease,
   burnRelease,
   stageRelease,
+  reserveBurn,
   STAGE_OPERATIONS,
 } from '../../../../scripts/repo/release/pipeline.mts'
 import type { CommandRunner } from '../../../../scripts/repo/lib/command.mts'
@@ -204,3 +207,98 @@ test('a recorded burn can retry npm rejection without creating or replacing tags
     run.mock.calls.some(([, args]) => ['tag', 'push'].includes(args[0]!)),
   ).toBe(false)
 })
+
+test.each(['none', 'published', 'summary'])(
+  'staging enforces request and reports $mode',
+  async mode => {
+    const fixture = releaseFixture(mode === 'none' ? null : VERSION)
+    cleanups.push(fixture.cleanup)
+    const operations: typeof STAGE_OPERATIONS = {
+      ...STAGE_OPERATIONS,
+      setupEnvironment: () => ({
+        create: false,
+        addBranch: false,
+        branch: 'prerelease/3.0.0',
+      }),
+      publishedVersion: async () =>
+        mode === 'published' ? { version: VERSION } : undefined,
+      packRelease: async () => ({
+        directory: fixture.root,
+        tarball: 'candidate.tgz',
+        receipt: RECEIPT,
+      }),
+      reserveGithubRelease: () => {},
+      uploadStage: () => STAGE,
+    }
+    const summary = path.join(fixture.root, 'summary.md')
+    if (mode === 'summary') {
+      expect(
+        await stageRelease(
+          fixture.root,
+          gitRunner,
+          { ...TRUSTED_ENV, GITHUB_STEP_SUMMARY: summary },
+          operations,
+        ),
+      ).toMatchObject({ stageId: STAGE })
+      expect(statSync(summary).size).toBeGreaterThan(0)
+    } else {
+      await expect(
+        stageRelease(fixture.root, gitRunner, TRUSTED_ENV, operations),
+      ).rejects.toThrow()
+    }
+  },
+)
+test('a burn without stage consumes the version without npm rejection', async () => {
+  const fixture = releaseFixture()
+  cleanups.push(fixture.cleanup)
+  const run = vi.fn<CommandRunner>(gitRunner)
+  expect(
+    await burnRelease(
+      VERSION,
+      undefined,
+      true,
+      fixture.root,
+      run,
+      registryResponse(),
+    ),
+  ).toMatchObject({ burned: true })
+  expect(run.mock.calls.some(([, args]) => args.includes('reject'))).toBe(false)
+})
+test.each(['remote-conflict', 'local-conflict', 'local-valid'])(
+  'existing burn identity $mode',
+  mode => {
+    const fixture = releaseFixture()
+    cleanups.push(fixture.cleanup)
+    const tag = `burned/v${VERSION}`
+    const run = vi.fn<CommandRunner>((command, args, options) => {
+      if (args[0] === 'ls-remote' && args[2]?.includes('burned')) {
+        return {
+          status: 0,
+          stdout: mode === 'remote-conflict' ? 'b'.repeat(40) : '',
+          stderr: '',
+        }
+      }
+      if (args[0] === 'tag' && args[1] === '--list') {
+        return { status: 0, stdout: tag, stderr: '' }
+      }
+      if (args[0] === 'rev-parse' && args[1] === `${tag}^{commit}`) {
+        return {
+          status: 0,
+          stdout: mode === 'local-conflict' ? 'b'.repeat(40) : COMMIT,
+          stderr: '',
+        }
+      }
+      return gitRunner(command, args, options)
+    })
+    if (mode === 'local-valid') {
+      reserveBurn(tag, COMMIT, VERSION, fixture.root, run)
+      expect(run.mock.calls.some(([, args]) => args[0] === 'verify-tag')).toBe(
+        true,
+      )
+    } else {
+      expect(() =>
+        reserveBurn(tag, COMMIT, VERSION, fixture.root, run),
+      ).toThrow()
+    }
+  },
+)
