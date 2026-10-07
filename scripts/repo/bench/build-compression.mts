@@ -73,10 +73,12 @@ function measureInitialization(script: vm.Script, count: number) {
   for (const context of contexts) {
     script.runInContext(context)
   }
-  const milliseconds = (performance.now() - start) / count
+  const elapsed = performance.now() - start
+  const milliseconds = elapsed / count
   global.gc!()
   global.gc!()
-  const retainedBytes = (process.memoryUsage().heapUsed - before) / count
+  const retained = process.memoryUsage().heapUsed - before
+  const retainedBytes = retained / count
   for (const context of contexts) {
     if (typeof context['module'].exports !== 'function') {
       throw new Error('Module initialization did not export an engine factory')
@@ -266,7 +268,8 @@ if (!global.gc) {
     ]
     for (let round = 0; round < rounds; round++) {
       for (let turn = 0; turn < scripts.length; turn++) {
-        const index = (round + turn) % scripts.length
+        const rotation = round + turn
+        const index = rotation % scripts.length
         samples[index]!.push(measureInitialization(scripts[index]!, count))
       }
     }

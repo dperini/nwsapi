@@ -35,7 +35,8 @@ export async function compareTiming(
   try {
     for (let round = 0; round < settings.rounds; ++round) {
       for (let offset = 0; offset < queries.length; ++offset) {
-        const index = (round + offset) % queries.length
+        const rotation = round + offset
+        const index = rotation % queries.length
         const stats = await measure(
           () => {
             let result: unknown
@@ -54,7 +55,9 @@ export async function compareTiming(
             samples_threshold: Infinity,
           },
         )
-        const scale = (value: number) => value / settings.batch
+        function scale(value: number) {
+          return value / settings.batch
+        }
         results[index]!.push({
           round,
           calls: stats.ticks * settings.batch,
