@@ -23,7 +23,9 @@ export function parseGitmodules(filePath: PathOrFileDescriptor) {
   const entries: RawEntry[] = []
   let pendingHeader: { label: string; sha256: string } | null = null
   let current: RawEntry | null = null
-  for (const rawLine of readFileSync(filePath, 'utf8').split(/\r?\n/)) {
+  const lines = readFileSync(filePath, 'utf8').split(/\r?\n/)
+  for (let index = 0, length = lines.length; index < length; index += 1) {
+    const rawLine = lines[index]!
     const line = rawLine.trim()
     if (line === '') {
       continue
@@ -75,7 +77,13 @@ export function parseGitmodules(filePath: PathOrFileDescriptor) {
         .filter(Boolean),
       verifyCommand: keys['verify'] ?? null,
     }
-    for (const required of ['url', 'ref'] as const) {
+    const requiredKeys = ['url', 'ref'] as const
+    for (
+      let index = 0, length = requiredKeys.length;
+      index < length;
+      index += 1
+    ) {
+      const required = requiredKeys[index]!
       if (!normalized[required]) {
         throw new Error(
           `.gitmodules entry "${entry.name}" is missing required key "${required}"`,
@@ -119,7 +127,9 @@ function validateEntry(entry: Entry) {
       `path must resolve strictly inside the repository root, got "${entry.path}"`,
     )
   }
-  for (const pattern of entry.sparsePatterns) {
+  const patterns = entry.sparsePatterns
+  for (let index = 0, length = patterns.length; index < length; index += 1) {
+    const pattern = patterns[index]!
     if (pattern.startsWith('-')) {
       fail(`sparse-checkout pattern must not start with "-", got "${pattern}"`)
     }
@@ -132,7 +142,12 @@ export function selectEntries(entries: Entry[], requestedPaths: string[]) {
   }
   const normalize = (p: string) => p.replace(/\/+$/, '')
   const selected = []
-  for (const requested of requestedPaths) {
+  for (
+    let index = 0, length = requestedPaths.length;
+    index < length;
+    index += 1
+  ) {
+    const requested = requestedPaths[index]!
     const want = normalize(requested)
     const found = entries.find(
       entry => normalize(entry.path) === want || entry.name === want,
