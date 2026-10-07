@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { checked, execute } from '../../../../scripts/repo/lib/command.mts'
 
 test('commands run without shell interpolation and preserve status and stderr', () => {
@@ -25,4 +25,37 @@ test('commands run without shell interpolation and preserve status and stderr', 
   expect(() =>
     execute('/missing-nwsapi-executable', [], { cwd: process.cwd() }),
   ).toThrow()
+})
+
+test('interactive commands tolerate missing captured output and signaled status', async () => {
+  const spawn = vi.fn(() => ({ status: null, stdout: null, stderr: null }))
+  vi.doMock('node:child_process', () => ({ spawnSync: spawn }))
+  vi.resetModules()
+  try {
+    const { execute: run, checked: check } =
+      await import('../../../../scripts/repo/lib/command.mts')
+    expect(
+      run('example', [], {
+        cwd: '/repo',
+        interactive: true,
+        env: { FIXTURE: 'yes' },
+      }),
+    ).toEqual({ status: 1, stdout: '', stderr: '' })
+    expect(spawn).toHaveBeenCalledWith(
+      'example',
+      [],
+      expect.objectContaining({ stdio: 'inherit', env: { FIXTURE: 'yes' } }),
+    )
+    expect(() => check('example', [], { cwd: '/repo' })).toThrow()
+    expect(() =>
+      check('example', [], { cwd: '/repo' }, () => ({
+        status: 2,
+        stdout: 'output',
+        stderr: '',
+      })),
+    ).toThrow()
+  } finally {
+    vi.doUnmock('node:child_process')
+    vi.resetModules()
+  }
 })

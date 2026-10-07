@@ -9,17 +9,123 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
-import { test, type TestContext } from 'vitest'
+import { afterEach, expect, test, type TestContext } from 'vitest'
 import { makeCoverageBadge } from '../../../../../scripts/repo/gen/coverage-badge.mts'
 import {
   badgeColor,
   coverageBadgeSvg,
   readCoveragePct,
+  svgWidth,
+  badgeImgTag,
+  coverageBadgeRef,
+  readmeBadgeForm,
+  hasUnrecognizedCoverageBadge,
+  migrateReadmeBadge,
+  parseBadgeSvgValue,
+  coverageScriptName,
 } from '../../../../../scripts/repo/lib/coverage/badge.mts'
 
-function fixture(t: TestContext) {
+test('badge geometry and accessible values can be read independently', () => {
+  expect(svgWidth(coverageBadgeSvg(84))).toBeDefined()
+  expect(svgWidth('<svg height="20"/>')).toBeUndefined()
+  expect(parseBadgeSvgValue(coverageBadgeSvg(84))).toBe('84%')
+  expect(parseBadgeSvgValue('<svg/>')).toBeUndefined()
+  const { window } = new JSDOM(badgeImgTag('/badge.svg', 'Coverage'))
+  expect(window.document.querySelector('img')?.height).toBe(20)
+  window.close()
+})
+
+test.each([
+  [
+    'img',
+    '<img src="https://raw.githubusercontent.com/owner/repo/main/assets/repo/coverage.svg" alt="Coverage" />',
+  ],
+  ['relative-img', '<img src="assets/repo/coverage.svg" alt="Coverage" />'],
+  ['markdown', '![Coverage](assets/repo/coverage.svg)'],
+  ['legacy-asset', '<img src="assets/coverage.svg" alt="Coverage" />'],
+  [
+    'legacy-asset',
+    '<img src="assets/repo/badges/coverage.svg" alt="Coverage" />',
+  ],
+  ['shields', '![Coverage](https://img.shields.io/badge/coverage-90%25-green)'],
+  [
+    'shields',
+    '<img alt="Coverage" src="https://img.shields.io/badge/coverage-90%25-green">',
+  ],
+])(
+  'migrates the %s protocol to the current badge reference',
+  (form, markup) => {
+    const svg = coverageBadgeSvg(81)
+    expect(readmeBadgeForm(markup)).toBe(form)
+    expect(hasUnrecognizedCoverageBadge(markup)).toBe(false)
+    const migrated = migrateReadmeBadge(markup, undefined, svg)
+    expect(migrated).toBe(coverageBadgeRef(undefined, svg))
+  },
+)
+
+test('unrecognized badge references differ from a document without a badge', () => {
+  expect(
+    hasUnrecognizedCoverageBadge('<img src="/other.svg" alt="Coverage" />'),
+  ).toBe(true)
+  expect(hasUnrecognizedCoverageBadge('no image')).toBe(false)
+  expect(readmeBadgeForm('no image')).toBeUndefined()
+})
+
+test.each([
+  null,
+  12,
+  {},
+  { total: null },
+  { total: 12 },
+  { total: {} },
+  { total: { lines: null } },
+  { total: { lines: 12 } },
+])('invalid coverage summary structure returns no percentage %#', value => {
+  const { repoRoot } = fixture()
+  writeFileSync(
+    path.join(repoRoot, 'coverage/coverage-summary.json'),
+    JSON.stringify(value),
+  )
+  expect(readCoveragePct(repoRoot)).toBeUndefined()
+})
+
+test('coverage commands use their declared priority and tolerate malformed manifests', t => {
+  const { repoRoot } = fixture(t)
+  const file = path.join(repoRoot, 'package.json')
+  rmSync(file)
+  expect(coverageScriptName(repoRoot)).toBeUndefined()
+  for (const value of [
+    '{',
+    'null',
+    '12',
+    '{}',
+    '{"scripts":null}',
+    '{"scripts":12}',
+    '{"scripts":{}}',
+  ]) {
+    writeFileSync(file, value)
+    expect(coverageScriptName(repoRoot)).toBeUndefined()
+  }
+  for (const name of ['test:coverage', 'cover', 'coverage', 'test:cover']) {
+    writeFileSync(file, JSON.stringify({ scripts: { [name]: 'node cover' } }))
+    expect(coverageScriptName(repoRoot)).toBe(name)
+  }
+})
+
+const directories: string[] = []
+afterEach(() => {
+  directories.forEach(directory =>
+    rmSync(directory, { recursive: true, force: true }),
+  )
+  directories.length = 0
+})
+function fixture(t?: TestContext) {
   const repoRoot = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-coverage-'))
-  t.onTestFinished(() => rmSync(repoRoot, { recursive: true, force: true }))
+  if (t) {
+    t.onTestFinished(() => rmSync(repoRoot, { recursive: true, force: true }))
+  } else {
+    directories.push(repoRoot)
+  }
   mkdirSync(path.join(repoRoot, 'coverage'))
   writeFileSync(
     path.join(repoRoot, 'package.json'),
