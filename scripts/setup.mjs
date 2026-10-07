@@ -48,7 +48,9 @@ if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
+  const args = process.argv.slice(2)
   const { values } = parseArgs({
+    args: args[0] === '--' ? args.slice(1) : args,
     options: {
       help: { type: 'boolean', short: 'h' },
       'tools-only': { type: 'boolean' },

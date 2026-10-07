@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import { test } from 'node:test'
 import { bootstrap } from '../../../scripts/setup.mjs'
 import { managedEnvironment } from '../../../scripts/lib/tools/setup.mjs'
@@ -7,9 +8,22 @@ import {
   toolPlan,
   toolVersion,
   toolchainState,
+  REPO_ROOT,
 } from '../../../scripts/lib/external-tools.mjs'
 
 const tools = { node: '/pinned/node', npm: '/pinned/npm-cli.js' }
+
+test('setup help accepts either package manager argument separator', () => {
+  const inputs = [['--help'], ['--', '--help']]
+  for (let i = 0, length = inputs.length; i < length; i += 1) {
+    const result = spawnSync(
+      process.execPath,
+      ['scripts/setup.mjs', ...inputs[i]],
+      { cwd: REPO_ROOT, encoding: 'utf8' },
+    )
+    assert.equal(result.status, 0)
+  }
+})
 
 test('setup installs with npm before completing repository preparation', async () => {
   const calls = []
