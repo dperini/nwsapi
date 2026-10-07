@@ -3,52 +3,36 @@
   "browser": "154.0.8037.0",
   "revision": "fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9",
   "finalized": true,
-  "inference": "cc4c58d90e1d0560d3563983299c477e6778036fca390a6f8da7548a4014f402",
-  "durationMs": 1933305,
-  "runs": 3,
+  "inference": "e324fcb3ff9fb33f8e3623dad579e43bcb972278487f347475ee73f976d10aae",
+  "durationMs": 1812161,
+  "runs": 1,
   "processes": 4,
   "platform": "mac",
   "arch": "arm",
-  "planned": 11278,
-  "observed": 11278,
+  "planned": 11013,
+  "observed": 11013,
   "disabled": 0,
-  "nativePassing": 1267698,
+  "nativePassing": 1267060,
   "selected": 14734,
   "selectedPages": 571,
   "totals": {
-    "other-api": 1141986,
+    "other-api": 1141528,
     "selector-matching": 11865,
-    "css-values": 32711,
-    "rendering": 78267,
+    "css-values": 32710,
+    "rendering": 78088,
     "mixed-selector": 1083,
     "selector-parsing": 1786
   },
   "supportSha256": "c756d1ecf38198577ebdd144d211138bf26c8edb6c983aab86ce29dd31500d8d",
-  "categoriesSha256": "01b80e2e50e1f8b80f2e004338a9725a63fb8a1250edc9903f0522d59147434c",
+  "categoriesSha256": "836b4b758473e3361ff6eaf9ae0d723d24894e0b36ddf25f7aaa5cee59e39743",
   "inputs": [
     {
-      "file": "plan-2.json",
-      "sha256": "66002b2e1f8969ba35a47a3b7f4fcd363a298ce5a925a0f57b6e66315e1c2f5a"
-    },
-    {
-      "file": "report-2.json",
-      "sha256": "1062cf3449d77f85c41d3a3e8f54091d9230c326e2741c4db206133d2ca2ba72"
-    },
-    {
-      "file": "plan-3.json",
-      "sha256": "b58010cebe1f9920eea4f29b605251b5d51814601f21a1b2a418b6464d1ee4f1"
-    },
-    {
-      "file": "report-3.json",
-      "sha256": "f0212324c5d3e175acbf8b815681295e56237cc022e1ce430e1f55863b700f2c"
-    },
-    {
       "file": "plan.json",
-      "sha256": "aa45e2248ca353cb70497b4c300af8c25f769f23eb124b977eff06d72f9a0bc3"
+      "sha256": "52ef7d0f92df40ffc61292ba9aff8a228b7324684eb635b77359be38e857e85b"
     },
     {
       "file": "report.json",
-      "sha256": "2a5499451d7d978e57d9f2f9cd9b965c195158797ed0de50f0c167bb913bf42f"
+      "sha256": "59660c1f6bd4b23f86a22c7b68443cc52eb334067728783866f0785b4652f676"
     },
     {
       "file": "discovery.json",
