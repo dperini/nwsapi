@@ -121,7 +121,7 @@ const summary = {
   expectations: 'test/repo/e2e/upstream/expectations.json',
   groups,
   pages: pages
-    .toSorted((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
+    .toSorted((a, b) => (a.path < b.path ? -1 : 1))
     .map(page => ({
       path: page.path,
       origin: page.origin,

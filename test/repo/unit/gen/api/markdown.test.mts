@@ -190,3 +190,21 @@ test.each([{ args: [] }, { args: ['--invalid'] }])(
     }
   },
 )
+
+test('resolving external or unbound members preserves their parsed definitions', () => {
+  const definitions = engineDefinitions([
+    {
+      file: 'fixture.mts',
+      text: 'engine.Dom={external:other.method,missing:engine.missing,bound:unknown.bind(null)}',
+    },
+  ])
+  const entries = definitions.object('Dom')
+  for (let i = 0, length = entries.length; i < length; i += 1) {
+    const entry = entries[i]!
+    const value = { ...entry, node: entry.node.value }
+    expect(definitions.resolve(value)).toBe(value)
+  }
+  expect(() =>
+    renderApiMarkdown(engine, adapter, 'D.down=missing'),
+  ).not.toThrow()
+})

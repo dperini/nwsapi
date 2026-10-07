@@ -126,3 +126,20 @@ test.each([
   ).rejects.toThrow()
   expect(mocks.write).not.toHaveBeenCalled()
 })
+
+test('rejects reports without final result attachments', async () => {
+  await expect(
+    run({
+      stats: {},
+      suites: [{ specs: [{ tests: [{ status: 'expected', results: [] }] }] }],
+    }),
+  ).rejects.toThrow()
+})
+test('orders pages regardless of execution order', async () => {
+  await run(report([page('/a'), page('/b')]))
+  expect(
+    JSON.parse(mocks.write.mock.calls[0]![1]).pages.map(
+      (entry: { path: string }) => entry.path,
+    ),
+  ).toEqual(['/a', '/b'])
+})

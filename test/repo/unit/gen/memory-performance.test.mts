@@ -111,3 +111,23 @@ test('check compares the entire derived report without writing', async () => {
     import('../../../../scripts/repo/gen/memory-performance.mts'),
   ).rejects.toThrow()
 })
+
+test.each([undefined, 'custom-query'])(
+  'supports browser heap measurements with method %s',
+  async method => {
+    const browserProfile = {
+      ...heap(),
+      node: undefined,
+      browser: 'Chromium',
+      method,
+    }
+    const result = await run({
+      browser: experiment(browserProfile, {
+        ...browserProfile,
+        measurements: { baseline: 10, instances: 20, cached: 30 },
+      }),
+    })
+    expect(result.comparisons[0].baselineRuntime).toBe('Chromium')
+    expect(result.comparisons[0].candidateRuntime).toBe('Chromium')
+  },
+)

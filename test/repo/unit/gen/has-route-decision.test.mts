@@ -188,3 +188,30 @@ test('CLI rejects formatting failures before publishing generated policy', async
     vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
   }
 })
+
+test('rejects incomplete helper declarations returned by the parser', async () => {
+  vi.resetModules()
+  const actual = await vi.importActual<{
+    parse: (source: string, options: unknown) => unknown
+  }>('@ultrathink/acorn.rs.wasm')
+  vi.doMock('@ultrathink/acorn.rs.wasm', () => ({
+    parse: (source: string, options: unknown) => {
+      const ast = actual.parse(source, options) as { body: unknown[] }
+      ast.body.push({
+        type: 'FunctionDeclaration',
+        id: { type: 'Identifier', name: 'extra', start: 0, end: 0 },
+        start: 0,
+        end: 0,
+      })
+      ast.body.push(null)
+      return ast
+    },
+  }))
+  try {
+    const { renderHasRouteDecision: renderMalformedPolicy } =
+      await import('../../../../scripts/repo/gen/has-route-decision.mts')
+    await expect(renderMalformedPolicy()).rejects.toThrow()
+  } finally {
+    vi.doUnmock('@ultrathink/acorn.rs.wasm')
+  }
+})

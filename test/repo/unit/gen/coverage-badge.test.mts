@@ -77,3 +77,26 @@ test.each([
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('refreshes only the asset when the README reference is already current', t => {
+  const repoRoot = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-badge-refresh-'))
+  t.onTestFinished(() => rmSync(repoRoot, { recursive: true, force: true }))
+  mkdirSync(path.join(repoRoot, 'coverage'))
+  writeFileSync(
+    path.join(repoRoot, 'package.json'),
+    JSON.stringify({ private: true }),
+  )
+  writeFileSync(
+    path.join(repoRoot, 'README.md'),
+    '![Coverage](assets/repo/coverage.svg)',
+  )
+  const summary = path.join(repoRoot, 'coverage/coverage-summary.json')
+  writeFileSync(summary, JSON.stringify({ total: { lines: { pct: 99 } } }))
+  vi.spyOn(console, 'log').mockImplementation(() => {})
+  expect(makeCoverageBadge({ repoRoot })).toBe(0)
+  const readme = path.join(repoRoot, 'README.md')
+  const before = readFileSync(readme, 'utf8')
+  writeFileSync(path.join(repoRoot, 'assets/repo/coverage.svg'), '<svg/>')
+  expect(makeCoverageBadge({ repoRoot })).toBe(0)
+  expect(readFileSync(readme, 'utf8')).toBe(before)
+})
