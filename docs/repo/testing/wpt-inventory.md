@@ -133,7 +133,7 @@ The first command downloads the pinned archive under `os.tmpdir()`, scans it, an
 pnpm run check:wpt-inventory --source /path/to/full/wpt --write
 ```
 
-Review the inventory diff, new helper calls, unparsed scripts, and changed candidate assertions. Update the manifest or document exclusions. Update sparse paths in `.gitmodules` when admitted pages need new directories. For an existing checkout, apply them with `node scripts/repo/git-partial-submodule.mts restore-sparse upstream/wpt`. For a missing checkout, run `pnpm run upstream:clone`. Run modern and legacy WPT and regenerate the tracked summary as described in [upstream testing](upstream.md).
+Review the inventory diff, new helper calls, unparsed scripts, and changed candidate assertions. Update the manifest or document exclusions. Update sparse paths in `.gitmodules` when admitted pages need new directories. For an existing checkout, apply them with `node scripts/repo/git/partial/submodule.mts restore-sparse upstream/wpt`. For a missing checkout, run `pnpm run upstream:clone`. Run modern and legacy WPT and regenerate the tracked summary as described in [upstream testing](upstream.md).
 
 Normal setup only checks the recorded revision and sparse candidate inventory. It does not download or parse the full WPT tree on every install. A new pin fails that check until the full inventory is regenerated and reviewed.
 

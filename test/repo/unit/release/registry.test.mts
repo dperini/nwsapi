@@ -1,7 +1,11 @@
 import { expect, test, vi } from 'vitest'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import type * as Command from '../../../../scripts/repo/lib/command.mts'
 import {
   npmCommand,
+  npmRead,
   parseStage,
   publishedVersion,
   uploadStage,
@@ -73,8 +77,6 @@ test('trusted npm runs isolate config and stage without approval or lifecycle sc
 })
 
 test('proof of presence for a read retries through an interactive terminal without mutating registry state', async () => {
-  const { npmRead } =
-    await import('../../../../scripts/repo/release/registry.mts')
   let authenticated = false
   const run = vi.fn<CommandRunner>((_command, args, options) => {
     expect(args.slice(1, 3)).toEqual(['trust', 'list'])
@@ -91,4 +93,84 @@ test('proof of presence for a read retries through an interactive terminal witho
     true,
     false,
   ])
+})
+
+test('trusted npm strips only npm overrides and preserves caller directories', t => {
+  const cwd = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-registry-config-'))
+  t.onTestFinished(() => rmSync(cwd, { recursive: true, force: true }))
+  const run = vi.fn<CommandRunner>((_command, _args, options) => {
+    expect(options.env!['npm_config_registry']).toBeUndefined()
+    expect(options.env!['OTHER']).toBe('retained')
+    return { status: 0, stdout: 'ok', stderr: '' }
+  })
+  expect(
+    npmCommand(['view'], {
+      cwd,
+      run,
+      trusted: true,
+      env: { npm_config_registry: 'other', OTHER: 'retained' },
+    }),
+  ).toBe('ok')
+  expect(existsSync(cwd)).toBe(true)
+})
+test('stage validation accepts alternate ID field and rejects missing details', () => {
+  expect(
+    parseStage(
+      { stageId: STAGE, packageName: 'nwsapi', version: VERSION, tag: 'next' },
+      VERSION,
+    ).id,
+  ).toBe(STAGE)
+  expect(() => parseStage(null, VERSION)).toThrow()
+  expect(() =>
+    parseStage(
+      { packageName: 'nwsapi', version: VERSION, tag: 'next' },
+      VERSION,
+    ),
+  ).toThrow()
+  expect(() =>
+    parseStage(
+      { id: STAGE, packageName: 'nwsapi', version: VERSION, tag: 'next' },
+      VERSION,
+      'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    ),
+  ).toThrow()
+  expect(() =>
+    uploadStage('candidate.tgz', {
+      run: () => ({ status: 0, stdout: '{}', stderr: '' }),
+    }),
+  ).toThrow()
+})
+test.each([new Error('denied'), 'non-error'])(
+  'read retries only proof-of-presence failures',
+  error => {
+    expect(() =>
+      npmRead(['view'], {
+        run: () => {
+          throw error
+        },
+      }),
+    ).toThrow()
+  },
+)
+test('default command runner is injectable without launching npm', async () => {
+  vi.resetModules()
+  const actual = await vi.importActual<typeof Command>(
+    '../../../../scripts/repo/lib/command.mts',
+  )
+  const execute = vi.fn<CommandRunner>(() => ({
+    status: 0,
+    stdout: 'ok',
+    stderr: '',
+  }))
+  vi.doMock('../../../../scripts/repo/lib/command.mts', () => ({
+    ...actual,
+    execute,
+  }))
+  try {
+    const module = await import('../../../../scripts/repo/release/registry.mts')
+    expect(module.npmCommand(['view'])).toBe('ok')
+    expect(execute).toHaveBeenCalledOnce()
+  } finally {
+    vi.doUnmock('../../../../scripts/repo/lib/command.mts')
+  }
 })

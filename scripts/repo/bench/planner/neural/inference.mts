@@ -21,7 +21,7 @@ const cases: Array<{
 const calls = 100_000
 const rounds = 9
 
-function production(features: [number, number, number, number]) {
+export function production(features: [number, number, number, number]) {
   const [anchors, witnesses, attributes, ratio] = features
   const inDomain =
     (attributes === 0 || attributes === 3) &&

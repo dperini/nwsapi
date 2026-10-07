@@ -35,3 +35,18 @@ test('runtime credentials are masked before being exported with independent deli
     rmSync(directory, { recursive: true, force: true })
   }
 })
+
+test('default workflow output masks the supplied token', t => {
+  const directory = mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-runtime-output-'),
+  )
+  t.onTestFinished(() => rmSync(directory, { recursive: true, force: true }))
+  const write = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+  exposeRuntime({
+    GITHUB_ENV: path.join(directory, 'env'),
+    ACTIONS_RESULTS_URL: 'https://results.example/',
+    ACTIONS_RUNTIME_TOKEN: 'sample',
+  })
+  expect(write).toHaveBeenCalledWith('::add-mask::sample\n')
+  write.mockRestore()
+})

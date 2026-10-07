@@ -6,6 +6,7 @@ import { expect, test } from 'vitest'
 import {
   chartBaseUrl,
   chartReference,
+  refreshChartReferences,
 } from '../../../../scripts/repo/gen/chart-references.mts'
 
 test('chart references use artifact hashes and preserve the same target across document locations', () => {
@@ -53,6 +54,32 @@ test('chart references use artifact hashes and preserve the same target across d
     expect(
       chartReference('assets/repo/bench/perf-hero.svg', readme, root),
     ).not.toBe(first)
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('refresh updates asset revisions once and leaves other image references intact', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'nwsapi-chart-refresh-'))
+  try {
+    const asset = path.join(root, 'assets/repo/bench/chart.svg')
+    fs.mkdirSync(path.dirname(asset), { recursive: true })
+    fs.writeFileSync(asset, '<svg/>')
+    const document = path.join(root, 'README.md')
+    fs.writeFileSync(
+      document,
+      '![chart](assets/repo/bench/chart.svg)\n![other](https://example.test/chart.svg)',
+    )
+    refreshChartReferences(root)
+    // Markdown image destinations are the updater's public document interface.
+    const destinations = [
+      ...fs.readFileSync(document, 'utf8').matchAll(/\]\(([^)]+)\)/g),
+    ].map(match => new URL(match[1]!))
+    expect(destinations[0]!.searchParams.get('v')).toMatch(/^[a-f0-9]{12}$/)
+    expect(destinations[1]!.origin).toBe('https://example.test')
+    const firstStat = fs.statSync(document).mtimeMs
+    refreshChartReferences(root)
+    expect(fs.statSync(document).mtimeMs).toBe(firstStat)
   } finally {
     fs.rmSync(root, { recursive: true, force: true })
   }

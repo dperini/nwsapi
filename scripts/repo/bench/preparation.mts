@@ -181,7 +181,7 @@ writeFileSync(
   ) + '\n',
 )
 
-function prepare(factory: (host: unknown) => NwsapiEngine, entry: Case) {
+export function prepare(factory: (host: unknown) => NwsapiEngine, entry: Case) {
   const first = new JSDOM(entry.markup)
   const second = entry.operation === 'switch' ? new JSDOM(entry.markup) : null
   const document = first.window.document

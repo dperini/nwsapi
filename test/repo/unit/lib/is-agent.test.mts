@@ -62,6 +62,14 @@ test('a normal terminal, CI, or empty agent flag does not imply an agent', async
   expect(isAgent()).toBe(false)
 })
 
+test('missing path, editor and terminal signatures do not imply an agent', async () => {
+  vi.stubEnv('PATH', undefined)
+  vi.stubEnv('EDITOR', undefined)
+  vi.stubEnv('TERM_PROGRAM', undefined)
+  const { isAgent } = await import('../../../../scripts/repo/lib/is-agent.mts')
+  expect(isAgent()).toBe(false)
+})
+
 for (const key of agentKeys) {
   test(`detects ${key}`, async () => {
     vi.stubEnv(key, '1')

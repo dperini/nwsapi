@@ -13,7 +13,7 @@ import {
   parseGitmodules,
   requireCleanCheckout,
   selectEntries,
-} from './git-partial-checkout.mts'
+} from './checkout.mts'
 
 /**
  * The root is the nearest directory at or above cwd containing .gitmodules.
@@ -59,10 +59,10 @@ export interface RawEntry {
 // 512 MiB; the ls-tree manifest of a large upstream can run to many MB.
 const MAX_BUFFER = 512 * 1024 * 1024
 
-const HELP = `git-partial-submodule.mts — pristine upstream checkouts pinned in .gitmodules
+const HELP = `git/partial/submodule.mts — pristine upstream checkouts pinned in .gitmodules
 
 Usage:
-  node scripts/repo/git-partial-submodule.mts <clone|verify|restore-sparse> [path...] [--deep] [--help]
+  node scripts/repo/git/partial/submodule.mts <clone|verify|restore-sparse> [path...] [--deep] [--help]
 
 Subcommands:
   clone [path...]           Materialize each entry as a sparse (cone),
@@ -186,9 +186,7 @@ function verifyEntry(entry: Entry) {
       .map(line => line.trim())
       .filter(Boolean)
       .toSorted()
-    const declared = [...entry.sparsePatterns].toSorted(
-      (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0),
-    )
+    const declared = entry.sparsePatterns.toSorted()
     const sparseOk =
       listed.length === declared.length &&
       listed.every((pattern, i) => pattern === declared[i])
@@ -260,13 +258,15 @@ function verifyEntry(entry: Entry) {
       skipped.push('shallow')
     }
     skipped.push('manifest sha256')
-    for (const name of skipped) {
+    for (let index = 0, length = skipped.length; index < length; index += 1) {
+      const name = skipped[index]!
       record(name, false, 'skipped: checkout missing')
     }
   }
 
   console.log(`${entry.path} (${entry.label ?? entry.name})`)
-  for (const check of checks) {
+  for (let index = 0, length = checks.length; index < length; index += 1) {
+    const check = checks[index]!
     const status = check.ok ? 'PASS' : 'FAIL'
     console.log(`  ${status}  ${check.name.padEnd(16)} ${check.detail}`)
   }
@@ -340,14 +340,16 @@ function main() {
 
   switch (command) {
     case 'clone': {
-      for (const entry of entries) {
+      for (let index = 0, length = entries.length; index < length; index += 1) {
+        const entry = entries[index]!
         cloneEntry(entry)
       }
       break
     }
     case 'verify': {
       let allOk = true
-      for (const entry of entries) {
+      for (let index = 0, length = entries.length; index < length; index += 1) {
+        const entry = entries[index]!
         let ok = verifyEntry(entry)
         if (ok && values.deep) {
           ok = deepVerifyEntry(entry)
@@ -363,7 +365,8 @@ function main() {
       break
     }
     case 'restore-sparse': {
-      for (const entry of entries) {
+      for (let index = 0, length = entries.length; index < length; index += 1) {
+        const entry = entries[index]!
         restoreSparseEntry(entry)
       }
       break
@@ -378,7 +381,7 @@ try {
   main()
 } catch (error) {
   console.error(
-    `git-partial-submodule: ${error instanceof Error ? error.message : String(error)}`,
+    `git partial submodule: ${error instanceof Error ? error.message : String(error)}`,
   )
   process.exitCode = 1
 }

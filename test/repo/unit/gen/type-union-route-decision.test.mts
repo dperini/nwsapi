@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -110,4 +110,22 @@ test('generation rejects model data without a guarded route expression', async (
   await expect(renderTypeUnionRouteDecision(fixture)).rejects.toThrow(
     'missing its guarded expression',
   )
+})
+
+test('CLI rejects invalid formatting without writing an output', async () => {
+  vi.resetModules()
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: () => true,
+  }))
+  vi.doMock('oxfmt', () => ({
+    format: async () => ({ errors: [{ message: 'invalid output' }], code: '' }),
+  }))
+  try {
+    await expect(
+      import('../../../../scripts/repo/gen/type-union-route-decision.mts'),
+    ).rejects.toThrow()
+  } finally {
+    vi.doUnmock('oxfmt')
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+  }
 })

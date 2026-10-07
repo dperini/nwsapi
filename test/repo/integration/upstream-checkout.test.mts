@@ -25,7 +25,7 @@ const path = require('node:path') as typeof NodePath
 
 const helper = path.resolve(
   __dirname,
-  '../../../scripts/repo/git-partial-submodule.mts',
+  '../../../scripts/repo/git/partial/submodule.mts',
 )
 const pin = '1234567890123456789012345678901234567890'
 const fixtureEnv = {

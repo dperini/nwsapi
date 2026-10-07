@@ -103,3 +103,59 @@ test('a changed stage fails before rebuilt content can be approved', async () =>
     verifyStage(VERSION, STAGE, fixture.root, altered, pack),
   ).rejects.toThrow('integrity')
 })
+
+test('download refuses a different version even when its receipt is valid', () => {
+  const fixture = releaseFixture()
+  cleanups.push(fixture.cleanup)
+  const version = '3.0.0-prerelease.999'
+  const runner: CommandRunner = (command, args, options) => {
+    const result = artifactRunner(command, args, options)
+    if (command === 'gh' && args[1] === 'download') {
+      const directory = args[args.indexOf('--dir') + 1]!
+      writeFileSync(
+        path.join(directory, 'release.json'),
+        JSON.stringify({
+          ...RECEIPT,
+          version,
+          filename: `nwsapi-${version}.tgz`,
+        }),
+      )
+    }
+    return result
+  }
+  expect(() =>
+    downloadRelease(VERSION, fixture.root, fixture.root, runner),
+  ).toThrow()
+})
+test.each([0, 2])(
+  'download requires exactly one new stage tarball, not %s',
+  count => {
+    const fixture = releaseFixture()
+    cleanups.push(fixture.cleanup)
+    const runner: CommandRunner = (_command, _args, options) => {
+      for (let i = 0; i < count; i += 1) {
+        writeFileSync(path.join(options.cwd, `stage-${i}.tgz`), BYTES)
+      }
+      return { status: 0, stdout: '', stderr: '' }
+    }
+    expect(() => downloadStage(STAGE, fixture.root, RECEIPT, runner)).toThrow()
+  },
+)
+test('receipt commit must agree with the signed source before reading a stage', async () => {
+  const fixture = releaseFixture()
+  cleanups.push(fixture.cleanup)
+  const runner: CommandRunner = (command, args, options) => {
+    const result = artifactRunner(command, args, options)
+    if (command === 'gh' && args[1] === 'download') {
+      const directory = args[args.indexOf('--dir') + 1]!
+      writeFileSync(
+        path.join(directory, 'release.json'),
+        JSON.stringify({ ...RECEIPT, commit: 'b'.repeat(40) }),
+      )
+    }
+    return result
+  }
+  await expect(
+    verifyStage(VERSION, STAGE, fixture.root, runner, pack),
+  ).rejects.toThrow()
+})

@@ -3,6 +3,24 @@ import { describe, expect, test } from 'vitest'
 import { findFilenamePrefixGroups } from '../../../../scripts/repo/lib/prefix-groups.mts'
 
 describe('findFilenamePrefixGroups', () => {
+  test('ignores test and malformed filenames and sorts multiple collisions', () => {
+    const groups = findFilenamePrefixGroups([
+      'src/z-a.mts',
+      'src/z-b.mts',
+      'src/z-c.mts',
+      'src/a-a.mts',
+      'src/a-b.mts',
+      'src/a-c.mts',
+      'src/a/a.mts',
+      'src/a/b.mts',
+      'src/other.test.mts',
+      'src/other.spec.mts',
+      'src/-invalid.mts',
+      'src/invalid-.mts',
+    ])
+    expect(groups.map(group => group.prefix)).toEqual(['a', 'z'])
+    expect(groups[0]?.collisions).toEqual(['src/a/a.mts', 'src/a/b.mts'])
+  })
   test('finds three related sibling modules', () => {
     const groups = findFilenamePrefixGroups([
       'src/core/compile-class.mts',

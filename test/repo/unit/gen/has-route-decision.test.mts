@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import {
   copyFileSync,
   mkdirSync,
@@ -169,4 +169,49 @@ test('generation rejects missing model identity and incompatible policy exports'
   await expect(renderHasRouteDecision(directory)).rejects.toThrow(
     'Unexpected chromium policy parameter',
   )
+})
+
+test('CLI rejects formatting failures before publishing generated policy', async () => {
+  vi.resetModules()
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: () => true,
+  }))
+  vi.doMock('oxfmt', () => ({
+    format: async () => ({ errors: [{ message: 'invalid output' }], code: '' }),
+  }))
+  try {
+    await expect(
+      import('../../../../scripts/repo/gen/has-route-decision.mts'),
+    ).rejects.toThrow()
+  } finally {
+    vi.doUnmock('oxfmt')
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+  }
+})
+
+test('rejects incomplete helper declarations returned by the parser', async () => {
+  vi.resetModules()
+  const actual = await vi.importActual<{
+    parse: (source: string, options: unknown) => unknown
+  }>('@ultrathink/acorn.rs.wasm')
+  vi.doMock('@ultrathink/acorn.rs.wasm', () => ({
+    parse: (source: string, options: unknown) => {
+      const ast = actual.parse(source, options) as { body: unknown[] }
+      ast.body.push({
+        type: 'FunctionDeclaration',
+        id: { type: 'Identifier', name: 'extra', start: 0, end: 0 },
+        start: 0,
+        end: 0,
+      })
+      ast.body.push(null)
+      return ast
+    },
+  }))
+  try {
+    const { renderHasRouteDecision: renderMalformedPolicy } =
+      await import('../../../../scripts/repo/gen/has-route-decision.mts')
+    await expect(renderMalformedPolicy()).rejects.toThrow()
+  } finally {
+    vi.doUnmock('@ultrathink/acorn.rs.wasm')
+  }
 })

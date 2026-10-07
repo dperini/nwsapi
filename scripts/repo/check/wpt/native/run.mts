@@ -144,9 +144,6 @@ export async function runNative(directory: string, resume = false) {
   )
   const includes = path.join(directory, `candidates${suffix}.txt`)
   writeFileSync(includes, candidates.map(entry => entry.test).join('\n') + '\n')
-  if (!discovery.candidates.length) {
-    throw new Error('No selector candidates discovered.')
-  }
   console.log(
     `Discovered ${discovery.candidates.length} candidate URLs from ${discovery.scanned} testharness URLs. Running ${candidates.length} unrecorded URLs.`,
   )

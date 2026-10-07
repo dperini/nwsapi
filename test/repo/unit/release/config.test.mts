@@ -65,8 +65,10 @@ test('release request and receipt validation reject unknown fields and identity 
     { version: '3.0.0-beta.1' },
     { distTag: 'latest' },
     { filename: '../release.tgz' },
+    { filename: 'nwsapi-3.0.0-prerelease.999.tgz' },
     { commit: 'short' },
     { extra: true },
+    { integrity: 'sha512-invalid' },
   ]) {
     expect(() => parseReceipt({ ...RECEIPT, ...replacement })).toThrow()
   }

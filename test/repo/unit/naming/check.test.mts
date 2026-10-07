@@ -1,6 +1,54 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import path from 'node:path'
+import type * as RepoPaths from '../../../../scripts/repo/lib/paths.mts'
+import type * as NodeRunner from '../../../../scripts/repo/lib/run-node.mts'
 
 import { checkNaming } from '../../../../scripts/repo/naming/check.mts'
+
+const state = vi.hoisted(() => ({
+  root: '/tmp/nwsapi-naming-test-' + process.pid,
+  main: false,
+}))
+vi.mock('../../../../scripts/repo/lib/paths.mts', async importOriginal => ({
+  ...(await importOriginal<typeof RepoPaths>()),
+  REPO_ROOT: state.root,
+  SOURCE_DIR: path.join(state.root, 'src'),
+  REPO_SCRIPT_DIR: path.join(state.root, 'scripts/repo'),
+}))
+vi.mock('../../../../scripts/repo/lib/run-node.mts', async importOriginal => ({
+  ...(await importOriginal<typeof NodeRunner>()),
+  isMainModule: (url: string) =>
+    state.main && url.endsWith('/naming/check.mts'),
+}))
+
+test('default naming discovery visits nested source and script trees and ignores symlinks', async t => {
+  t.onTestFinished(() => rmSync(state.root, { recursive: true, force: true }))
+  mkdirSync(path.join(state.root, 'src/core/compile'), { recursive: true })
+  mkdirSync(path.join(state.root, 'scripts/repo/tool'), { recursive: true })
+  writeFileSync(path.join(state.root, 'src/core/compile/display.mts'), '')
+  writeFileSync(path.join(state.root, 'scripts/repo/tool/run.mts'), '')
+  symlinkSync('core', path.join(state.root, 'src/ignored'))
+  expect(() => checkNaming()).not.toThrow()
+  state.main = true
+  try {
+    vi.resetModules()
+    await import('../../../../scripts/repo/naming/check.mts')
+  } finally {
+    state.main = false
+  }
+})
+
+test('naming review detects prefix families whose destination already exists', () => {
+  expect(() =>
+    checkNaming([
+      'src/core/compile-class.mts',
+      'src/core/compile-id.mts',
+      'src/core/compile-token.mts',
+      'src/core/compile/class.mts',
+    ]),
+  ).toThrow()
+})
 
 test('accepts grouped source modules', () => {
   expect(() =>

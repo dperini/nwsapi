@@ -29,7 +29,7 @@ def estimated_metrics(rows, logits, domain, threshold, overhead):
     apply = in_domain(values, domain)
     swaps = apply & (logits > threshold + 1e-5)
     selected = np.array([alternative_cost(row) if swap else row["costs"][5]
-                         for row, swap in zip(rows, swaps)])
+                         for row, swap in zip(rows, swaps)], dtype=float)
     selected += overhead
     baseline = np.array([row["costs"][0] for row in rows])
     rule = np.array([row["costs"][5] for row in rows])

@@ -5,6 +5,7 @@ const state = vi.hoisted(() => ({
   platform: 'darwin' as NodeJS.Platform,
   moldPlatform: 'darwin-arm64',
   invalid: '',
+  main: false,
   versions: {
     node: '26.11.0',
     nub: '0.9.6',
@@ -44,7 +45,7 @@ vi.mock('node:child_process', () => ({
   },
 }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
-  isMainModule: () => false,
+  isMainModule: (url: string) => state.main && url.endsWith('/setup/tools.mts'),
 }))
 vi.mock('../../../../scripts/repo/external-tools.mts', () => ({
   TOOL_BIN: '/tools/bin',
@@ -71,7 +72,10 @@ vi.mock('../../../../scripts/repo/setup/mise.mts', () => ({
   registerNub: state.register,
 }))
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  state.main = false
+  vi.unstubAllGlobals()
+})
 
 async function fixture() {
   vi.resetModules()
@@ -93,6 +97,20 @@ async function fixture() {
   vi.spyOn(console, 'log').mockImplementation(() => {})
   return import('../../../../scripts/repo/setup/tools.mts')
 }
+
+test('direct invocation provisions the pinned tools', async () => {
+  const args = process.argv
+  process.argv = [args[0]!, '/setup/tools.mts']
+  state.main = true
+  state.platform = 'darwin'
+  state.moldPlatform = 'darwin-arm64'
+  try {
+    await fixture()
+    expect(state.install).toHaveBeenCalled()
+  } finally {
+    process.argv = args
+  }
+})
 
 test('setup verifies all tools before writing the ready-state marker', async () => {
   state.platform = 'darwin'
