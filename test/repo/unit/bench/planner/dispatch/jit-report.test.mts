@@ -67,6 +67,7 @@ test('diagnostic report preserves both passes, encoded labels and recorded confi
   assert.ok(
     document.querySelector('.bar')!.getAttribute('style')!.includes('width:'),
   )
+  jitReport('/fixture/repeat', '/fixture/first', '/fixture/reversed.html')
   let reads = 0
   state.read.mockImplementation(() => {
     reads += 1
