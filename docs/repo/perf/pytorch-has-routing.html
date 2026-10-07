@@ -21,34 +21,34 @@
     <main id="start">
       <section class="intro">
         <p class="eyebrow">Supervised learning · not generative AI</p>
-        <h1>The same matches.<br /><em>A different way to find them.</em></h1>
+        <h1>The same matches.<br /><em>A learned choice of direction.</em></h1>
         <p class="lede">
           The existing count rule chooses how to search a <code>:has()</code>
           query. An optional model trained with PyTorch can recommend a
-          different direction for some queries. Both routes use the same exact
-          matcher and return the same elements.
+          different direction for some queries. Both routes use exact selector
+          checks and return the same elements.
         </p>
         <p class="eyebrow">At a glance</p>
         <div class="orientation route-overview" aria-label="Model overview">
-          <a href="#policy">
+          <a href="#policy" data-topic="what">
             <strong>What</strong>
             <span
               >A learned function recommends a route; JavaScript still checks
               exact matches.</span
             >
           </a>
-          <a href="#search">
+          <a href="#search" data-topic="why">
             <strong>Why</strong>
             <span
               >Forward and inverse searches can do different amounts of
               work.</span
             >
           </a>
-          <a href="#policy">
+          <a href="#policy" data-topic="when">
             <strong>When</strong>
             <span>Only eligible forward queries can be reconsidered.</span>
           </a>
-          <a href="#source">
+          <a href="#source" data-topic="where">
             <strong>Where</strong>
             <span
               >Python trains it; a generated function is bundled with the
