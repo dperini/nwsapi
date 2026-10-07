@@ -8,6 +8,7 @@ import { JSDOM } from 'jsdom'
 import type factory from '../../../../dist/nwsapi.js'
 import { profileAncestorMemory } from '../ancestor/memory.mts'
 import { median } from '../timing.mts'
+import { positiveInteger } from '../footprint/shared.mts'
 
 const { values } = parseArgs({
   options: {
@@ -17,8 +18,12 @@ const { values } = parseArgs({
     memory: { type: 'boolean', default: false },
     matches: { type: 'string' },
     output: { type: 'string' },
+    warmups: { type: 'string', default: '1000' },
+    batch: { type: 'string', default: '1000' },
   },
 })
+const warmups = positiveInteger(values.warmups, 'warmups', 100_000)
+const batch = positiveInteger(values.batch, 'batch', 100_000)
 if (!values.output) {
   throw new Error(
     'Use --output <report.json> [--baseline engine.cjs] [--memory] [--layout adjacent|separated|nested] [--groups 4] [--matches 256]',
@@ -77,7 +82,7 @@ for (const matches of counts) {
       }
       for (let i = 0; i < engines.length; ++i) {
         check(i)
-        for (let warmup = 0; warmup < 1000; ++warmup) {
+        for (let warmup = 0; warmup < warmups; warmup += 1) {
           query(i)
         }
       }
@@ -88,10 +93,10 @@ for (const matches of counts) {
           const start = performance.now()
           let calls = 0
           do {
-            for (let i = 0; i < 1000; ++i) {
+            for (let i = 0; i < batch; i += 1) {
               query(index)
             }
-            calls += 1000
+            calls += batch
           } while (performance.now() - start < 50)
           samples[index]!.push((performance.now() - start) / calls)
           check(index)
@@ -121,11 +126,13 @@ writeFileSync(
       node: process.version,
       layout,
       groups,
+      warmups,
+      batch,
       hashes: paths.map(p =>
         createHash('sha256').update(readFileSync(p)).digest('hex'),
       ),
       methodology:
-        'Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Each row records its match count. The default counts are 0, 1, 16, and 256. Single-class control and the requested disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms in batches of 1000 calls after 1000 warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
+        'Warm public select calls on jsdom fixtures with 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Each row records its match count. The default counts are 0, 1, 16, and 256. Single-class control and the requested disjoint selector groups return the same ordered nodes. Nine rotating timing rounds run for at least 50ms using the recorded batch and warmups. Optional allocation profiling uses three rotating rounds of 2000 calls, includes collected objects, and records retained heap separately. Setup and compilation are outside timing and allocation samples. Use a separate process without --memory for timing conclusions.',
       rows,
     },
     null,
