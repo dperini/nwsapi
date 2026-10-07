@@ -35,7 +35,11 @@ test('follows local script dependencies, handles cycles and reviews missing reso
         items: {
           testharness: {
             css: {
-              'page.html': ['hash', ['/css/page.html', {}]],
+              'page.html': [
+                'hash',
+                ['/css/page.html', {}],
+                ['/css/page.html?variant', {}],
+              ],
               'plain.html': ['hash', ['/css/plain.html', {}]],
             },
           },
@@ -55,9 +59,9 @@ test('follows local script dependencies, handles cycles and reviews missing reso
       '<script>const plain = true</script>',
     )
     const result = discoverNative(root, 'revision')
-    expect(result.scanned).toBe(2)
+    expect(result.scanned).toBe(3)
     expect(result.filesRead).toBe(3)
-    expect(result.candidates).toHaveLength(1)
+    expect(result.candidates).toHaveLength(2)
     expect(result.candidates[0]).toMatchObject({
       test: '/css/page.html',
       file: 'css/page.html',

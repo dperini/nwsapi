@@ -65,7 +65,12 @@ test('pool classification resolves helpers and caches page variants without exec
     'rendering.html':
       '<script>test(() => assert_equals(getComputedStyle(node).color, "red"), "render"); test(() => assert_equals(node.textContent, "text"), "text")</script>',
     'unnamed.html':
-      '<title>Named by page</title><script>test(() => assert_true(node.matches("div")))</script>',
+      '<title>Named by page</title><script>test(() => assert_true(node.matches("div"))); test(() => assert_true(node.matches("p")))</script>',
+    'plain.html': '<script>const value = 1</script>',
+    'mixed.html':
+      '<script>test(() => assert_true(node.matches("div")), "selector"); test(() => assert_equals(node.textContent, "text"), "text")</script>',
+    'parsing.html':
+      '<script>test(() => assert_throws_dom("SyntaxError", () => document.querySelector(":bad")), "syntax")</script>',
     'removed.html':
       '<script src="/resources/WebIDLParser.js"></script><script>test(() => assert_true(node.matches("div")), "selector")</script>',
   }
@@ -90,8 +95,13 @@ test('pool classification resolves helpers and caches page variants without exec
     ['invalid.html', null],
     ['rendering.html', null],
     ['unnamed.html', 'Named by page'],
+    ['unnamed.html', 'Named by page 1'],
     ['removed.html', 'selector'],
     ['single.html', null],
+    ['plain.html', null],
+    ['mixed.html', null],
+    ['parsing.html', 'syntax'],
+    ['unmanifested.html', null],
   ] as const
   const pool: ReturnType<typeof passingUniverse> = {
     browser: 'browser',
@@ -108,10 +118,11 @@ test('pool classification resolves helpers and caches page variants without exec
     })),
   }
   const result = classifyPool(pool, checkout)
-  expect(result.selected.cases).toHaveLength(5)
+  expect(result.selected.cases).toHaveLength(7)
   expect(result.totals).toEqual({
-    'selector-matching': 5,
-    unresolved: 3,
+    'selector-matching': 6,
+    'selector-parsing': 1,
+    unresolved: 6,
     'other-api': 1,
   })
   expect(result.finalized).toBe(false)

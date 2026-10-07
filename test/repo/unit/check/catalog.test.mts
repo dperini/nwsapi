@@ -41,6 +41,7 @@ test('dependency pins agree with the tool manifest and reject Socket library dep
     for (const dependencies of [
       { ...pkg.devDependencies, typebox: '^1.0.0' },
       { ...pkg.devDependencies, '@socketsecurity/lib': 'catalog:' },
+      { ...pkg.devDependencies, 'missing-package': 'catalog:' },
     ]) {
       writeFileSync(
         file,
@@ -75,6 +76,8 @@ test('dependency pins agree with the tool manifest and reject Socket library dep
     expect(() => checkCatalog(root)).toThrow()
     writeFileSync(path.join(root, 'pnpm-lock.yaml'), 'packages: {}\n')
     expect(() => checkCatalog(root)).toThrow('integrity')
+    writeFileSync(path.join(root, 'pnpm-lock.yaml'), '{}\n')
+    expect(() => checkCatalog(root)).toThrow()
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

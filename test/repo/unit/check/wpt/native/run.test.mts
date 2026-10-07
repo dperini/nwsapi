@@ -221,6 +221,12 @@ test('native runner CLI enforces replay arguments and routes ordinary and saved 
     vi.resetModules()
     await import('../../../../../../scripts/repo/check/wpt/native/run.mts')
     expect(writeNativeContract).toHaveBeenCalled()
+    process.argv = ['node', 'run.mts']
+    vi.resetModules()
+    await import('../../../../../../scripts/repo/check/wpt/native/run.mts')
+    const temporary = vi.mocked(writeNativeContract).mock.lastCall![0]
+    expect(readNativeRuns(temporary)).toHaveLength(1)
+    rmSync(temporary, { recursive: true, force: true })
   } finally {
     process.argv = argv
     cli.active = false

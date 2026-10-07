@@ -153,6 +153,17 @@ test('adapts a selector support condition with nested functions and rejects chan
     adaptSupports('<script>CSS.supports(value)</script>', 1),
   ).toThrow()
   expect(() => adaptSupports('<script>const a = 1</script>', 1)).toThrow()
+  expect(
+    parse(
+      scriptSource(
+        adaptSupports(
+          '<script>CSS.supports("selector(div)"); CSS.supports("selector(p)")</script>',
+          2,
+        ),
+      ),
+      { ecmaVersion: 'latest' },
+    ).body,
+  ).toHaveLength(2)
 })
 
 test('defined-state adaptation requires the known assertion callback shape', () => {
@@ -186,6 +197,7 @@ test('DOM adapters remove only the reviewed rendering statements', () => {
   expect(
     dynamicDirectionEdit(statement('assert_equals(other.direction, "rtl")')),
   ).toBeUndefined()
+  expect(dynamicDirectionEdit(statement('other()'))).toBeUndefined()
   expect(inertEdit(statement('color = "red"'))).toBeDefined()
   expect(inertEdit(statement('other = "red"'))).toBeUndefined()
   expect(formValidityEdit(statement('function getBGColor() {}'))).toBeDefined()
@@ -264,4 +276,11 @@ test('DOM-only adaptation checks edit counts and retains selector assertions', (
   expect(() => adaptDomOnly('<script>const x = 1</script>', 'inert')).toThrow()
   expect(pageContentType('/page.xhtml')).toBe('application/xhtml+xml')
   expect(pageContentType('/page.html')).toBe('text/html')
+  const dynamic = adaptDomOnly(
+    '<script>const acs = getComputedStyle(e); assert_equals(acs.direction, "rtl"); assert_equals(acs.color, "red"); test(() => {}, "selector")</script>',
+    'dynamic-direction',
+  )
+  expect(
+    parse(scriptSource(dynamic), { ecmaVersion: 'latest' }).body,
+  ).toHaveLength(1)
 })

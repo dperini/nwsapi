@@ -87,3 +87,23 @@ test('manifest variants default to their source paths and discard nonvariant ent
     ['/alternate', 'page.html'],
   ])
 })
+
+test('metadata handles empty XML fields, ignored data scripts and templated server values', () => {
+  expect(
+    pageMetadata(
+      '<html xmlns="http://www.w3.org/1999/xhtml"><head><title/><link rel="help"/><script/></head></html>',
+      'empty.xhtml',
+    ),
+  ).toMatchObject({ title: '', help: [''], scripts: [''] })
+  const metadata = pageMetadata(
+    '<meta name="flags"><script type="application/json">{}</script><script>const script = document.createElement("script"); script.text = value; script.textContent = `hello ${value}`; script.innerHTML = ``; const files = ["a.js", 1]; const server = {{value}};</script>',
+    'empty.html',
+  )
+  expect(metadata.flags).toEqual([''])
+  expect(metadata.scripts).toHaveLength(2)
+  expect(metadata.scripts[1]).toBe('')
+  expect(metadata.dependencies).toEqual([])
+  expect(parseNativeScript('const value = {{server_value}}').body).toHaveLength(
+    1,
+  )
+})
