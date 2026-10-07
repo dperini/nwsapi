@@ -59,7 +59,9 @@ export function auditCandidates(root = REPO_ROOT) {
         ],
         root,
       )
-      reasons = [...new Set(result.issues.map(issue => issue.reason))].toSorted()
+      reasons = [
+        ...new Set(result.issues.map(issue => issue.reason)),
+      ].toSorted()
     } catch (error) {
       reasons = [String(error).replaceAll(root + path.sep, '')]
     }

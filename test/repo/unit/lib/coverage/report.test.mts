@@ -93,6 +93,26 @@ test('HTML reports are generated only in CI', () => {
   ])
 })
 
+test('missing metric percentages cannot pass the coverage gate', () => {
+  const summary = {
+    statements: { pct: 100 },
+    branches: { pct: 100 },
+    functions: { pct: 100 },
+    lines: { pct: undefined },
+  }
+  expect(() =>
+    checkCoverageThresholds(
+      summary as unknown as Parameters<typeof checkCoverageThresholds>[0],
+    ),
+  ).toThrow()
+  const { lines: _lines, ...missing } = summary
+  expect(() =>
+    checkCoverageThresholds(
+      missing as unknown as Parameters<typeof checkCoverageThresholds>[0],
+    ),
+  ).toThrow()
+})
+
 test('in-memory browser endpoints merge with JSON-serialized Node endpoints exactly once', () => {
   const browser = covered(engine, 0)
   browser[engine]!.statementMap[0].end.column = Infinity
