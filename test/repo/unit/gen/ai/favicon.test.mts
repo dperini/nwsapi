@@ -9,7 +9,7 @@ import {
   faviconPreview,
   generateAgentFavicon,
   main,
-} from '../../../../scripts/repo/gen/agent-favicon.mts'
+} from '../../../../../scripts/repo/gen/ai/favicon.mts'
 
 const roots: string[] = []
 afterEach(() => {
@@ -83,18 +83,18 @@ test('CLI generates in its repository root and help avoids generation', async ()
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-favicon-cli-'))
   roots.push(root)
   vi.resetModules()
-  vi.doMock('../../../../scripts/repo/lib/paths.mts', () => ({
+  vi.doMock('../../../../../scripts/repo/lib/paths.mts', () => ({
     REPO_ROOT: root,
   }))
-  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+  vi.doMock('../../../../../scripts/repo/lib/run-node.mts', () => ({
     isMainModule: () => true,
   }))
   const argv = process.argv
-  process.argv = ['node', 'agent-favicon.mts']
+  process.argv = ['node', 'favicon.mts']
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
   try {
     const module =
-      await import('../../../../scripts/repo/gen/agent-favicon.mts')
+      await import('../../../../../scripts/repo/gen/ai/favicon.mts')
     expect(
       new JSDOM(
         readFileSync(path.join(root, 'assets/repo/agent-favicon.svg'), 'utf8'),
@@ -105,7 +105,7 @@ test('CLI generates in its repository root and help avoids generation', async ()
     expect(log).toHaveBeenCalledTimes(2)
   } finally {
     process.argv = argv
-    vi.doUnmock('../../../../scripts/repo/lib/paths.mts')
-    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+    vi.doUnmock('../../../../../scripts/repo/lib/paths.mts')
+    vi.doUnmock('../../../../../scripts/repo/lib/run-node.mts')
   }
 })

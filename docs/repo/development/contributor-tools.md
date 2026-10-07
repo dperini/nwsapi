@@ -31,8 +31,8 @@ The check command detects generated-file drift and inconsistent tool, package-ma
 ## Agent browser favicon
 
 ```sh
-pnpm run gen:agent-favicon --preview
-pnpm run gen:agent-favicon --check
+pnpm run gen:ai:favicon --preview
+pnpm run gen:ai:favicon --check
 python3 -m http.server 8765 --bind 127.0.0.1 --directory .cache/favicon-preview
 pnpm run browser:agent http://127.0.0.1:8765/
 ```

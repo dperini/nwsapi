@@ -7,8 +7,8 @@ import {
   type PathOrFileDescriptor,
 } from 'node:fs'
 import path from 'node:path'
-import type { Entry, RawEntry } from './git-partial-submodule.mts'
-import { ROOT, git, tryGitText } from './git-partial-submodule.mts'
+import type { Entry, RawEntry } from './submodule.mts'
+import { ROOT, git, tryGitText } from './submodule.mts'
 
 /**
  * Parse .gitmodules, tolerating comment lines and tab/space indentation.

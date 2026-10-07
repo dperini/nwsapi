@@ -10,7 +10,31 @@ const state = vi.hoisted(() => ({
   main: true,
   entry: '',
   run: vi.fn(),
+  task: vi.fn(),
+  exists: true,
   argv: ['node', 'fixture.mts'],
+}))
+vi.mock('node:fs', async importOriginal => ({
+  ...(await importOriginal()),
+  existsSync: () => state.exists,
+}))
+vi.mock('../../../scripts/repo/gen/ai/favicon.mts', () => ({
+  generateAgentFavicon: (check: boolean) => state.task('ai/favicon', check),
+}))
+vi.mock('../../../scripts/repo/build/manifest.mts', () => ({
+  checkPackageManifest: () => state.task('build'),
+}))
+vi.mock('../../../scripts/repo/check/catalog.mts', () => ({
+  checkCatalog: () => state.task('catalog'),
+}))
+vi.mock('../../../scripts/repo/external-tools.mts', () => ({
+  checkExternalTools: () => state.task('external-tools'),
+}))
+vi.mock('../../../scripts/repo/schema/run.mts', () => ({
+  generateSchemas: (check: boolean) => state.task('schema', check),
+}))
+vi.mock('../../../scripts/repo/check/workflows.mts', () => ({
+  checkInlineWorkflows: () => state.task('workflows'),
 }))
 vi.mock('../../../scripts/repo/lib/run-node.mts', () => ({
   isMainModule: (url: string) =>
@@ -34,6 +58,7 @@ beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
   state.main = true
+  state.exists = true
   state.argv = ['node', 'fixture.mts']
   vi.spyOn(console, 'log').mockImplementation(() => {})
   vi.stubGlobal(
@@ -44,6 +69,55 @@ beforeEach(() => {
       },
     }),
   )
+})
+
+const direct = [
+  ['ai/favicon', true],
+  ['build'],
+  ['catalog'],
+  ['external-tools'],
+  ['schema', true],
+  ['workflows'],
+] as const
+for (let i = 0, length = direct.length; i < length; i += 1) {
+  const [name, check] = direct[i]!
+  test(`${name} runs its owning validation operation`, async () => {
+    state.entry = `/scripts/repo/${name}/check.mts`
+    const entry = `../../../scripts/repo/${name}/check.mts`
+    await import(entry)
+    expect(state.task).toHaveBeenCalledExactlyOnceWith(
+      ...(check === undefined ? [name] : [name, check]),
+    )
+  })
+  test(`${name} help and imports avoid validation side effects`, async () => {
+    state.entry = `/scripts/repo/${name}/check.mts`
+    state.argv.push('--help')
+    const entry = `../../../scripts/repo/${name}/check.mts`
+    await import(entry)
+    vi.resetModules()
+    state.main = false
+    state.argv.pop()
+    await import(entry)
+    expect(state.task).not.toHaveBeenCalled()
+  })
+}
+
+test('coverage checks only run when execution evidence exists', async () => {
+  state.entry = '/scripts/repo/coverage/check.mts'
+  state.exists = false
+  await import('../../../scripts/repo/coverage/check.mts')
+  expect(state.run).not.toHaveBeenCalled()
+  vi.resetModules()
+  state.exists = true
+  await import('../../../scripts/repo/coverage/check.mts')
+  expect(state.run).toHaveBeenCalledExactlyOnceWith(
+    path.join(REPO_ROOT, 'scripts/repo/gen/coverage-badge.mts'),
+    ['--check'],
+  )
+  vi.resetModules()
+  state.argv.push('--help')
+  await import('../../../scripts/repo/coverage/check.mts')
+  expect(state.run).toHaveBeenCalledOnce()
 })
 afterEach(() => vi.unstubAllGlobals())
 

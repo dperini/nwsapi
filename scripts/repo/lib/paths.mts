@@ -61,7 +61,7 @@ export const WPT_CANDIDATES_PATH = path.join(
 )
 export const UPSTREAM_HELPER_PATH = path.join(
   REPO_ROOT,
-  'scripts/repo/git-partial-submodule.mts',
+  'scripts/repo/git/partial/submodule.mts',
 )
 export const BROWSER_SETUP_PATH = path.join(
   REPO_ROOT,

@@ -1,8 +1,8 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { REPO_ROOT } from '../lib/paths.mts'
-import { isMainModule } from '../lib/run-node.mts'
-import { optimiseSvg } from './svg-optimize.mts'
+import { REPO_ROOT } from '../../lib/paths.mts'
+import { isMainModule } from '../../lib/run-node.mts'
+import { optimiseSvg } from '../svg-optimize.mts'
 
 export const NWBOX_COLORS = Object.freeze({
   yellow: '#ffe600',
@@ -54,7 +54,7 @@ export function generateAgentFavicon(
   const target = path.join(root, 'assets/repo/agent-favicon.svg')
   if (check) {
     if (readFileSync(target, 'utf8') !== source) {
-      throw new Error('Agent favicon is stale. Run pnpm run gen:agent-favicon.')
+      throw new Error('Agent favicon is stale. Run pnpm run gen:ai:favicon.')
     }
   } else {
     mkdirSync(path.dirname(target), { recursive: true })
@@ -72,11 +72,11 @@ export function generateAgentFavicon(
 
 export function main(args = process.argv.slice(2)) {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: pnpm run gen:agent-favicon [--check] [--preview]')
+    console.log('Usage: pnpm run gen:ai:favicon [--check] [--preview]')
     return
   }
   if (args.some(arg => !['--check', '--preview'].includes(arg))) {
-    throw new Error('Usage: pnpm run gen:agent-favicon [--check] [--preview]')
+    throw new Error('Usage: pnpm run gen:ai:favicon [--check] [--preview]')
   }
   console.log(
     generateAgentFavicon(args.includes('--check'), args.includes('--preview')),

@@ -13,7 +13,7 @@ import {
   parseGitmodules,
   requireCleanCheckout,
   selectEntries,
-} from './git-partial-checkout.mts'
+} from './checkout.mts'
 
 /**
  * The root is the nearest directory at or above cwd containing .gitmodules.
@@ -59,10 +59,10 @@ export interface RawEntry {
 // 512 MiB; the ls-tree manifest of a large upstream can run to many MB.
 const MAX_BUFFER = 512 * 1024 * 1024
 
-const HELP = `git-partial-submodule.mts — pristine upstream checkouts pinned in .gitmodules
+const HELP = `git/partial/submodule.mts — pristine upstream checkouts pinned in .gitmodules
 
 Usage:
-  node scripts/repo/git-partial-submodule.mts <clone|verify|restore-sparse> [path...] [--deep] [--help]
+  node scripts/repo/git/partial/submodule.mts <clone|verify|restore-sparse> [path...] [--deep] [--help]
 
 Subcommands:
   clone [path...]           Materialize each entry as a sparse (cone),
@@ -378,7 +378,7 @@ try {
   main()
 } catch (error) {
   console.error(
-    `git-partial-submodule: ${error instanceof Error ? error.message : String(error)}`,
+    `git partial submodule: ${error instanceof Error ? error.message : String(error)}`,
   )
   process.exitCode = 1
 }
