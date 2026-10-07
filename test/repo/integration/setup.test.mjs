@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { test } from 'node:test'
 import { bootstrap } from '../../../scripts/setup.mjs'
 import { managedEnvironment } from '../../../scripts/lib/tools/setup.mjs'
+import { miseEnvironment } from '../../../scripts/lib/tools/mise.mjs'
 import {
   manifest,
   toolPlan,
@@ -12,6 +13,12 @@ import {
 } from '../../../scripts/lib/external-tools.mjs'
 
 const tools = { node: '/pinned/node', npm: '/pinned/npm-cli.js' }
+
+test('mise selects linked tools without remote version lookups', () => {
+  const env = miseEnvironment({ MISE_OFFLINE: '0', CUSTOM: 'keep' })
+  assert.equal(env.MISE_OFFLINE, '1')
+  assert.equal(env.CUSTOM, 'keep')
+})
 
 test('setup help accepts either package manager argument separator', () => {
   const inputs = [['--help'], ['--', '--help']]
