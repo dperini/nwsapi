@@ -3,18 +3,18 @@
 Run the bootstrap from the checkout root with Node 22.18 or newer. It imports only Node built-ins and tracked `.mts` and JSON files, so it works before `node_modules` exists.
 
 ```sh
-node scripts/repo/setup/tools.mts
-export PATH="$PWD/.cache/bin:$PATH"
-pnpm install
+npm run setup
 ```
 
-In PowerShell, prepend the same directory with `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. The prerelease workflows run the bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`. The [workflow guide](workflows.md) describes the local checkout and artifact actions.
+Either `npm run setup` or `pnpm run setup` selects the manager pinned for this branch and installs dependencies with its frozen lockfile. No shell configuration is required. `node scripts/repo/setup/bootstrap.mts` also works before a package manager is installed. Add `--tools-only` to provision tools without installing dependencies. Other scripts launched by a foreign package manager hand their entry point and arguments to the managed `pnpm` runtime.
+
+To use the pinned tools directly, prepend `.cache/bin` to `PATH`. In PowerShell, use `$env:PATH = "$PWD\.cache\bin;$env:PATH"`. The prerelease workflows run the tools bootstrap with `--github-path`, which adds this checkout's tool directory to subsequent steps. CI uses the exact contributor Node version from `.config/external-tools.json`. The [workflow guide](workflows.md) describes the local checkout and artifact actions.
 
 The manifest pins platform-specific GitHub release archives for `nub` and `pnpm` and standalone Socket Firewall Free (`sfw`) binaries, including distinct Linux glibc and musl assets. `npm` has one platform-independent registry archive with its pinned SHA-512 integrity. GitHub asset SHA-256 and SHA-512 pins come from the release API's digests or the shared Wheelhouse manifest. No registry wrapper or global package-manager installation is needed.
 
 The installer rejects missing platform entries, invalid integrity strings, failed downloads, and mismatched bytes. It verifies a download before extraction and rechecks cached archives on every setup. It compares installed executables and sidecars with a fresh extraction of the verified archive, repairing altered installed files. A corrupt archive stops setup. Remove the affected file under `.cache/external-tools/archives/` and rerun setup to download it again.
 
-`nub` provisions the pinned contributor and interoperability Node versions using its Node distribution checksum verification. The harness checks the resolved executable's exact version and runs stock Node. The [package test guide](../testing/commands.md#test-the-testing-library-consumer-path) describes the interoperability cases.
+Setup also verifies the pinned `mise` release. It registers the verified `nub` installation with `mise link`, then runs the exact `nub` version through `mise exec` to provision contributor and interoperability Node versions. `nub` verifies Node distribution checksums. All `mise` state stays under `.cache/mise/`, with an isolated configuration that does not read or change global tool selections. The harness checks the resolved executable's exact version and runs stock Node. The [package test guide](../testing/commands.md#test-the-testing-library-consumer-path) describes the interoperability cases.
 
 `pnpm install` runs the same bootstrap in `prepare`. `pnpm run setup:tools` repeats it explicitly. Tools and launchers stay under this checkout's ignored `.cache/` directory. Setup does not edit shell configuration or install global shims.
 

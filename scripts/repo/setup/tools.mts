@@ -15,6 +15,8 @@ import { parseArgs } from 'node:util'
 import {
   checkExternalTools,
   TOOL_BIN,
+  TOOLCHAIN_STATE,
+  toolchainState,
   toolPlan,
   toolPlatform,
   toolVersions,
@@ -29,6 +31,7 @@ import {
 } from '../node.mts'
 import { installTool } from './install.mts'
 import { writeFirewallShim } from './firewall.mts'
+import { registerNub } from './mise.mts'
 
 export function activateTool(
   name: string,
@@ -58,17 +61,21 @@ export function activateTool(
 }
 
 export async function setupTools() {
+  rmSync(TOOLCHAIN_STATE, { force: true })
   writeFirewallShim('npm')
   writeFirewallShim('pnpm')
   checkExternalTools()
   const versions = toolVersions()
   const executables = Object.create(null) as Record<
-    'nub' | 'pnpm' | 'npm' | 'sfw',
+    'nub' | 'pnpm' | 'npm' | 'sfw' | 'mise',
     string
   >
-  for (const name of ['nub', 'pnpm', 'npm', 'sfw'] as const) {
+  const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+  for (let i = 0, length = names.length; i < length; i += 1) {
+    const name = names[i]!
     executables[name] = await installTool(toolPlan(name))
   }
+  registerNub()
   installNodeVersions([
     ...new Set([versions['node']!, ...NODE_INTEROP_VERSIONS]),
   ])
@@ -87,7 +94,8 @@ export async function setupTools() {
     activateTool('mold', mold)
   }
   const env = nodeInteropEnvironment()
-  for (const name of ['nub', 'pnpm', 'npm', 'sfw'] as const) {
+  for (let i = 0, length = names.length; i < length; i += 1) {
+    const name = names[i]!
     const command = name === 'npm' ? node : executables[name]
     const args = name === 'npm' ? [executables.npm, '--version'] : ['--version']
     const actual = execFileSync(command, args, {
@@ -96,7 +104,7 @@ export async function setupTools() {
       encoding: 'utf8',
     }).trim()
     const version =
-      name === 'sfw'
+      name === 'sfw' || name === 'mise'
         ? actual.match(/\b\d+\.\d+\.\d+\b/)?.[0]
         : actual.replace(/^v/, '')
     if (version !== versions[name]) {
@@ -105,12 +113,14 @@ export async function setupTools() {
   }
   activateTool('node', node)
   activateTool('nub', executables.nub)
+  activateTool('mise', executables.mise)
   activateTool('sfw', executables.sfw)
   writeFirewallShim('pnpm', executables.sfw, { executable: executables.pnpm })
   writeFirewallShim('npm', executables.sfw, {
     executable: node,
     args: [executables.npm],
   })
+  writeFileSync(TOOLCHAIN_STATE, toolchainState())
   return TOOL_BIN
 }
 

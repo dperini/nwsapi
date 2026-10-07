@@ -55,6 +55,8 @@ overrides:
   rolldown: '1.2.7'
   vite: '8.2.2'
 pmOnFail: error
+# Setup must provision tools before a package manager attempts installation.
+verifyDepsBeforeRun: false
 saveExact: true
 strictDepBuilds: true
 trustPolicy: no-downgrade

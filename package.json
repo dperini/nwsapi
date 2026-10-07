@@ -121,7 +121,7 @@
     "setup:tools": "node scripts/repo/setup/tools.mts",
     "setup:tak": "node scripts/repo/setup/tak.mts",
     "setup:node": "node scripts/repo/run.mts scripts/repo/node.mts",
-    "setup": "node scripts/repo/run.mts scripts/repo/setup/run.mts",
+    "setup": "node scripts/repo/setup/bootstrap.mts",
     "wpt:setup": "node scripts/repo/run.mts scripts/repo/setup/wpt.mts",
     "prepare": "node scripts/repo/run.mts scripts/repo/setup/run.mts && node scripts/repo/run.mts scripts/repo/build/run.mts",
     "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/ci.yml --quiet --pause-on-failure --github-token",
@@ -278,12 +278,12 @@
     "packageManager": [
       {
         "name": "pnpm",
-        "version": "12.7.0",
-        "onFail": "error"
+        "version": "12.10.1",
+        "onFail": "ignore"
       }
     ]
   },
-  "packageManager": "pnpm@12.7.0",
+  "packageManager": "pnpm@12.10.1",
   "allowScripts": {
     "fsevents": false
   },

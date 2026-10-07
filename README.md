@@ -134,13 +134,13 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 Use Node.js 22.18 or newer to bootstrap the pinned contributor toolchain.
 
 ```sh
-node scripts/repo/setup/tools.mts
-export PATH="$PWD/.cache/bin:$PATH"
-pnpm install
-pnpm test
+npm run setup
+npm test
 ```
 
-The bootstrap downloads the pinned `nub` and `pnpm` GitHub release archives and the `npm` registry archive. It verifies their committed integrity hashes before extraction, then uses `nub` to provision Node. `pnpm install` repeats tool verification and sets up WPT and Chromium. Setup needs Git, archive extraction tools, and network access.
+`npm run setup` and `pnpm run setup` select this branch's pinned `pnpm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm`, uses `mise` with `nub` to provision Node, installs dependencies, and sets up WPT and Chromium. Versions and integrity hashes live in `.config/external-tools.json`. Tools stay in the checkout's ignored `.cache/` directory. Setup needs Git, archive extraction tools, and network access.
+
+Scripts started with another package manager automatically use the local `pnpm` runtime. For dependency installation, use `npm run setup` rather than `npm install`, which cannot read this branch's workspace catalog. After setup, you can prepend `.cache/bin` to `PATH` to use the pinned tools directly.
 Node tests do not use the browser or WPT checkout.
 
 <details>
