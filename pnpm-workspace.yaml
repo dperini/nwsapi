@@ -41,7 +41,7 @@ catalog:
   'oxlint': '1.81.0'
   'oxlint-tsgolint': '7.0.2001'
   'parse5': '8.0.1'
-  'rolldown': '1.2.7'
+  'rolldown': '1.2.13'
   'taze': '21.3.0'
   'svgo': '4.1.0'
   'run-local-ci': '0.18.1'
@@ -53,7 +53,7 @@ minimumReleaseAge: 1440
 overrides:
   # Vitiate 0.3.1's WASM instrumentation uses this SWC plugin ABI.
   '@swc/core': '1.15.41'
-  rolldown: '1.2.7'
+  rolldown: '1.2.13'
   vite: '8.2.2'
 pmOnFail: error
 # Setup must provision tools before a package manager attempts installation.
@@ -62,6 +62,23 @@ saveExact: true
 strictDepBuilds: true
 trustPolicy: no-downgrade
 minimumReleaseAgeExclude:
+  # Rolldown 1.2.13 and its platform bindings were published 2026-10-07.
+  - '@rolldown/binding-android-arm-eabi@1.2.13'
+  - '@rolldown/binding-android-arm64@1.2.13'
+  - '@rolldown/binding-darwin-arm64@1.2.13'
+  - '@rolldown/binding-darwin-x64@1.2.13'
+  - '@rolldown/binding-freebsd-x64@1.2.13'
+  - '@rolldown/binding-linux-arm-gnueabihf@1.2.13'
+  - '@rolldown/binding-linux-arm64-gnu@1.2.13'
+  - '@rolldown/binding-linux-arm64-musl@1.2.13'
+  - '@rolldown/binding-linux-ppc64-gnu@1.2.13'
+  - '@rolldown/binding-linux-s390x-gnu@1.2.13'
+  - '@rolldown/binding-linux-x64-gnu@1.2.13'
+  - '@rolldown/binding-linux-x64-musl@1.2.13'
+  - '@rolldown/binding-openharmony-arm64@1.2.13'
+  - '@rolldown/binding-win32-arm64-msvc@1.2.13'
+  - '@rolldown/binding-win32-x64-msvc@1.2.13'
+  - 'rolldown@1.2.13'
   # published: 2026-10-07T16:38:45.718Z | removable: 2026-10-08T16:38:45.718Z
   - '@maschwenk/tsrs@0.8.0-ts7.1.0-dev.20260929'
   # published: 2026-10-07T16:33:19.525Z | removable: 2026-10-08T16:33:19.525Z
