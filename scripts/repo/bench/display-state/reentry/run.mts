@@ -2,7 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
-import { REPO_ROOT } from '../../../lib/paths.mts'
+import { ENGINE_BUILD_PATH, REPO_ROOT } from '../../../lib/paths.mts'
 
 const baseline = '24cdab6aa6b6e0a483197d30b09bfeed892256ef'
 const parent = execFileSync('git', ['show', `${baseline}^:src/nwsapi.js`], {
@@ -13,13 +13,8 @@ const before = execFileSync('git', ['show', `${baseline}:src/nwsapi.js`], {
   cwd: REPO_ROOT,
   encoding: 'utf8',
 })
-const after = readFileSync(
-  new URL('../../../dist/nwsapi.js', import.meta.url),
-  'utf8',
-)
-const worker = fileURLToPath(
-  new URL('./display-state-reentry-worker.mts', import.meta.url),
-)
+const after = readFileSync(ENGINE_BUILD_PATH, 'utf8')
+const worker = fileURLToPath(new URL('./worker.mts', import.meta.url))
 const rows = []
 for (const [name, source] of [
   ['before-change', parent],
@@ -60,7 +55,7 @@ const report = {
 }
 writeFileSync(
   new URL(
-    '../../../assets/repo/bench/display-state-reentry.json',
+    '../../../../../assets/repo/bench/display-state-reentry.json',
     import.meta.url,
   ),
   JSON.stringify(report, null, 2) + '\n',
