@@ -37,7 +37,7 @@ vi.mock('@playwright/test', () => ({
           addScriptTag: async () => {
             const engine = factory(dom.window)
             if (state.mode) {
-                const original = engine.select.bind(undefined)
+              const original = engine.select.bind(undefined)
               vi.spyOn(engine, 'select').mockImplementation(
                 (selector, context, callback) => {
                   const selected = original(selector, context, callback)
