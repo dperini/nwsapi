@@ -851,7 +851,7 @@ input[type='range'] {
   display: grid;
   place-items: center;
   color: var(--mint);
-  background: #234634;
+  background: var(--theme-highlight);
 }
 .guard-mark[data-pass='false'] {
   color: var(--amber);
