@@ -1,8 +1,10 @@
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import type { TestProject } from 'vitest/node'
+import { markTransformedProcess } from '../../scripts/fleet/cover/process.mts'
 
 export default function setup(project: TestProject) {
+  markTransformedProcess(process.env['NWSAPI_SCRIPT_COVERAGE_TRANSFORMED'])
   const build = () => {
     execFileSync(process.execPath, ['scripts/repo/build/run.mts'], {
       cwd: new URL('../../', import.meta.url),

@@ -8,6 +8,14 @@ import {
   unitNetworkEnvironment,
 } from '../../../../scripts/repo/test/network.mts'
 
+const importRequest = fetch('https://unmocked.invalid/import').catch(
+  error => error,
+)
+
+test('the network guard is active while unit modules are imported', async () => {
+  expect(await importRequest).toMatchObject({ cause: { code: 'ENETUNREACH' } })
+})
+
 test('unmocked HTTP and fetch calls are blocked before opening a connection', async () => {
   await expect(fetch('https://unmocked.invalid/')).rejects.toMatchObject({
     cause: { code: 'ENETUNREACH' },

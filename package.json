@@ -145,6 +145,7 @@
     "test:e2e": "pnpm run test:browser && pnpm run test:package && pnpm run test:wpt",
     "test:watch": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs --watch --config .config/repo/vitest.config.mts",
     "cover": "node scripts/repo/run.mts scripts/repo/cover.mts",
+    "cover:scripts": "node scripts/repo/run.mts scripts/repo/cover/scripts/run.mts",
     "gen:coverage": "node scripts/repo/run.mts scripts/repo/gen/coverage-badge.mts",
     "check:coverage": "pnpm run coverage:check",
     "test:package": "node scripts/repo/run.mts scripts/repo/build/run.mts && node scripts/repo/run.mts test/repo/e2e/jsdom-adapter-package.mts",

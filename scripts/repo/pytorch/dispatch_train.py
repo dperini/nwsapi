@@ -55,7 +55,7 @@ def metrics(rows, swaps, overhead=0):
         return {"geometricSpeedRatio": 1.0, "totalTimeSpeedRatio": 1.0,
                 "worstTimeRatio": 1.0, "overrides": 0, "passesGate": False}
     base = np.array([costs(row)[0] for row in rows])
-    selected = np.array([costs(row)[int(swap)] for row, swap in zip(rows, swaps)])
+    selected = np.array([costs(row)[int(swap)] for row, swap in zip(rows, swaps)], dtype=float)
     selected += np.array([overhead if row["decisionReached"] else 0 for row in rows])
     ratios = selected / base
     speed = float(np.exp(-np.log(ratios).mean()))
