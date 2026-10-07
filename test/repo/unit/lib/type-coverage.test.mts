@@ -15,7 +15,7 @@ const metric = {
   pct: 66.66,
   files: 1,
   strict: false,
-  engine: 'typescript-7-native' as const,
+  engine: 'tsrs' as const,
 }
 
 test('type identifiers remain separate from execution counts', () => {
@@ -27,7 +27,7 @@ test('type identifiers remain separate from execution counts', () => {
   expect(execution.lines.total).toBe(100)
 })
 
-test('uses native TS7 and the maintained-source config', () => {
+test('uses the maintained-source config for type coverage', () => {
   const measure = vi.fn(() => metric)
   expect(runTypeCoverage('/fixture', measure)).toEqual(metric)
   expect(measure).toHaveBeenCalledWith(

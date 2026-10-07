@@ -8,7 +8,11 @@ The recorded run measures 98.06% statements, 95.11% branches, 99.64% functions, 
 
 The executable `dist/bin/nwsapi.js`, published as `bin/nwsapi.js`, has a separate 100% assertion for every execution metric. Raw V8 coverage comes from real processes. Those processes exercise the shebang, arguments, standard output, error output, and exit status from a foreign working directory. Compiler mode and flag permutations run in process to keep the integration tier short.
 
-The latest TypeScript identifier check measures 96.27%. The accumulated report keeps type coverage and execution coverage in separate totals with their own denominators. The report does not average their percentages.
+`pnpm run cover:types` measures TypeScript identifier coverage through the
+pinned `@maschwenk/tsrs` API and enforces the independent 99% floor. The
+accumulated report keeps type coverage and execution coverage in separate
+totals with their own denominators. The report does not average their
+percentages.
 
 Coverage merging uses the shared [report normalization practices](../../fleet/testing/practices.md#check-coverage-data-before-trusting-the-percentage). Regression tests protect repeated merges and input immutability.
 

@@ -8,16 +8,15 @@ import { checkSoak, refreshSoak, soakPolicy } from '../soak.mts'
 
 // Toolchain versions need a separate compatibility review.
 const PINNED_TOOLCHAIN = [
+  '@maschwenk/tsrs*',
   '@oxfmt/*',
   '@oxlint/*',
   '@rolldown/*',
   '@swc/*',
-  '@typescript/*',
   'oxfmt',
   'oxlint',
   'oxlint-tsgolint',
   'rolldown',
-  'typescript',
   'vite',
 ]
 

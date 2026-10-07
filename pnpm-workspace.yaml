@@ -43,10 +43,10 @@ catalog:
   'taze': '21.3.0'
   'svgo': '4.1.0'
   'run-local-ci': '0.18.1'
-  'typescript': '7.1.0-dev.20260901.1'
   'vite': '8.2.2'
   'vitest': '5.0.3'
   'yaml': '2.9.1'
+  '@maschwenk/tsrs': 0.8.0-ts7.1.0-dev.20260929
 minimumReleaseAge: 1440
 overrides:
   # Vitiate 0.3.1's WASM instrumentation uses this SWC plugin ABI.
@@ -57,3 +57,12 @@ pmOnFail: error
 saveExact: true
 strictDepBuilds: true
 trustPolicy: no-downgrade
+minimumReleaseAgeExclude:
+  # published: 2026-10-07T16:38:45.718Z | removable: 2026-10-08T16:38:45.718Z
+  - '@maschwenk/tsrs@0.8.0-ts7.1.0-dev.20260929'
+  # published: 2026-10-07T16:33:19.525Z | removable: 2026-10-08T16:33:19.525Z
+  - '@maschwenk/tsrs-darwin-arm64@0.8.0-ts7.1.0-dev.20260929'
+  # published: 2026-10-07T16:35:35.101Z | removable: 2026-10-08T16:35:35.101Z
+  - '@maschwenk/tsrs-linux-arm64@0.8.0-ts7.1.0-dev.20260929'
+  # published: 2026-10-07T16:40:50.756Z | removable: 2026-10-08T16:40:50.756Z
+  - '@maschwenk/tsrs-linux-x64@0.8.0-ts7.1.0-dev.20260929'

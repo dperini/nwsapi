@@ -5,7 +5,10 @@ import {
   invokedByForeignPackageManager,
   invokingPackageManager,
 } from '../../../../scripts/repo/lib/package-manager.mts'
-import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
+import {
+  REPO_ROOT,
+  TSRS_CLI_PATH,
+} from '../../../../scripts/repo/lib/paths.mts'
 
 for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0'] as const) {
   test(`the launcher permits ${agent ?? 'direct Node invocation'}`, () => {
@@ -20,7 +23,7 @@ for (const agent of [undefined, 'pnpm/12.3.4', 'aube/1.0.0'] as const) {
     }
     const result = spawnSync(
       process.execPath,
-      ['scripts/repo/run.mts', 'node_modules/typescript/bin/tsc', '--version'],
+      ['scripts/repo/run.mts', TSRS_CLI_PATH, '--version'],
       {
         cwd: REPO_ROOT,
         encoding: 'utf8',
