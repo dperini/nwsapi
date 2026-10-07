@@ -782,13 +782,13 @@ input[type='range'] {
 }
 .route-outcomes article {
   padding: 16px;
-  border: 1px solid var(--line);
+  border: 1px solid color-mix(in srgb, var(--section-accent) 30%, var(--line));
   border-radius: 10px;
-  background: #101f27;
+  background: color-mix(in srgb, var(--section-accent) 5%, #101b22);
 }
 .route-outcomes .planner-outcome {
-  border-color: #608675;
-  background: #1a3028;
+  border-color: color-mix(in srgb, var(--section-accent) 60%, var(--line));
+  background: color-mix(in srgb, var(--section-accent) 13%, #101b22);
 }
 .route-outcomes h3 {
   margin: 10px 0 6px;
@@ -859,14 +859,14 @@ input[type='range'] {
 }
 .decision {
   padding: 18px;
-  border: 1px solid #608675;
+  border: 1px solid var(--theme-highlight-edge);
   border-radius: 10px;
-  background: #1a3028;
+  background: var(--theme-highlight);
 }
 .decision p {
   margin-bottom: 0;
   font-size: 0.83rem;
-  color: #c0d5c9;
+  color: #d1dfe6;
 }
 .definition-grid {
   display: grid;
