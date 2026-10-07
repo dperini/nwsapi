@@ -7,6 +7,7 @@ import { parseIntegrity } from './tools/download.mjs'
 export const REPO_ROOT = fileURLToPath(new URL('../../', import.meta.url))
 export const TOOL_CACHE = path.join(REPO_ROOT, '.cache', 'external-tools')
 export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
+export const TOOLCHAIN_STATE = path.join(TOOL_BIN, 'toolchain.json')
 export const manifest = JSON.parse(
   readFileSync(
     new URL('../../.config/external-tools.json', import.meta.url),
@@ -28,6 +29,14 @@ export function toolVersions(data = manifest) {
   return Object.fromEntries(
     Object.keys(data.tools).map(name => [name, toolVersion(name, data)]),
   )
+}
+
+export function toolchainState(names = ['nub', 'npm', 'pnpm', 'mise']) {
+  return JSON.stringify({
+    manager: 'npm',
+    node: toolVersion('node'),
+    tools: names.map(name => toolPlan(name)),
+  })
 }
 
 export function toolPlatform(platform = process.platform, arch = process.arch) {

@@ -12,10 +12,12 @@ import os from 'node:os'
 import path from 'node:path'
 import {
   TOOL_BIN,
+  TOOLCHAIN_STATE,
   REPO_ROOT,
   toolExecutable,
   toolPlan,
   toolVersion,
+  toolchainState,
 } from '../external-tools.mjs'
 import { installTool } from './install.mjs'
 import { registerNub, nubRequest, miseEnvironment, MISE_ROOT } from './mise.mjs'
@@ -83,6 +85,7 @@ export function activateTool(name, executable, directory = TOOL_BIN) {
 }
 
 export async function setupTools() {
+  rmSync(TOOLCHAIN_STATE, { force: true })
   const executables = Object.create(null)
   const names = ['nub', 'npm', 'pnpm', 'mise']
   for (let i = 0, length = names.length; i < length; i += 1) {
@@ -135,5 +138,6 @@ export async function setupTools() {
       : `#!/bin/sh\nexec ${quote(node)} ${quote(executables.npm)} "$@"\n`,
     { mode: 0o755 },
   )
+  writeFileSync(TOOLCHAIN_STATE, toolchainState(names))
   return { node, npm: executables.npm, pnpm: executables.pnpm }
 }

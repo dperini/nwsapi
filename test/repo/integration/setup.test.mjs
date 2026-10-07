@@ -6,6 +6,7 @@ import {
   manifest,
   toolPlan,
   toolVersion,
+  toolchainState,
 } from '../../../scripts/lib/external-tools.mjs'
 
 const tools = { node: '/pinned/node', npm: '/pinned/npm-cli.js' }
@@ -121,4 +122,15 @@ test('invalid versions and traversal paths report a stable error code', () => {
   assert.throws(() => toolPlan('npm', 'universal', data), {
     code: 'ERR_TOOL_PIN',
   })
+})
+
+test('toolchain state identifies this branch and its complete pinned assets', () => {
+  const state = JSON.parse(toolchainState())
+  assert.equal(state.manager, 'npm')
+  assert.equal(state.node, toolVersion('node'))
+  assert.deepEqual(
+    state.tools.map(tool => tool.name),
+    ['nub', 'npm', 'pnpm', 'mise'],
+  )
+  assert.ok(state.tools.every(tool => tool.integrity && tool.version))
 })
