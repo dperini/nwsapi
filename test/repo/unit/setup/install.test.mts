@@ -74,7 +74,7 @@ test.each(['directory', 'escape'])(
         lstatSync: (file: string) => {
           const stat = actual.lstatSync(file)
           return invalid === 'directory' && file.endsWith('/sfw')
-            ? { ...stat, isFile: () => false }
+            ? { isFile: () => false }
             : stat
         },
         realpathSync: (file: string) =>
