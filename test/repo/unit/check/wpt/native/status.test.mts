@@ -1,8 +1,49 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { nativeStatus } from '../../../../../../scripts/repo/check/wpt/native/status.mts'
+import type * as NodeRunner from '../../../../../../scripts/repo/lib/run-node.mts'
+
+const cli = vi.hoisted(() => ({ active: false }))
+vi.mock(
+  '../../../../../../scripts/repo/lib/run-node.mts',
+  async importOriginal => ({
+    ...(await importOriginal<typeof NodeRunner>()),
+    isMainModule: (url: string) => cli.active && url.endsWith('/status.mts'),
+  }),
+)
+
+test('status CLI requires an artifact directory and publishes parsed progress', async t => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-status-'))
+  t.onTestFinished(() => rmSync(directory, { recursive: true }))
+  writeFileSync(
+    path.join(directory, 'plan.json'),
+    JSON.stringify({ browser: '154', revision: 'pinned', tests: [] }),
+  )
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  const argv = process.argv
+  cli.active = true
+  try {
+    process.argv = ['node', 'status.mts']
+    vi.resetModules()
+    await expect(
+      import('../../../../../../scripts/repo/check/wpt/native/status.mts'),
+    ).rejects.toThrow()
+    process.argv = ['node', 'status.mts', '--directory', directory]
+    vi.resetModules()
+    await import('../../../../../../scripts/repo/check/wpt/native/status.mts')
+    expect(JSON.parse(log.mock.calls[0]![0])).toMatchObject({
+      browser: '154',
+      completed: 0,
+      planned: 0,
+      provisional: true,
+    })
+  } finally {
+    process.argv = argv
+    cli.active = false
+  }
+})
 
 test('status includes resumed plans and does not treat the first completed run as final', async t => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-status-'))

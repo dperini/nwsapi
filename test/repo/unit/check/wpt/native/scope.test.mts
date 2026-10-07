@@ -1,4 +1,10 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { expect, test, vi } from 'vitest'
@@ -7,6 +13,25 @@ import {
   classifyScript,
 } from '../../../../../../scripts/repo/check/wpt/native/scope.mts'
 import type { passingUniverse } from '../../../../../../scripts/repo/check/wpt/native/pool.mts'
+import type * as NodeRunner from '../../../../../../scripts/repo/lib/run-node.mts'
+import type * as NativePool from '../../../../../../scripts/repo/check/wpt/native/pool.mts'
+
+const cli = vi.hoisted(() => ({ active: false }))
+vi.mock(
+  '../../../../../../scripts/repo/lib/run-node.mts',
+  async importOriginal => ({
+    ...(await importOriginal<typeof NodeRunner>()),
+    isMainModule: (url: string) =>
+      cli.active && url.endsWith('/native/scope.mts'),
+  }),
+)
+vi.mock(
+  '../../../../../../scripts/repo/check/wpt/native/pool.mts',
+  async importOriginal => ({
+    ...(await importOriginal<typeof NativePool>()),
+    nativePins: () => ({ browser: 'browser', revision: 'revision' }),
+  }),
+)
 
 vi.mock('node:child_process', () => ({
   execFileSync: vi.fn((_command: string, args: string[]) =>
@@ -23,14 +48,17 @@ test('script classification keeps explicit selector registrations and ignores ot
   expect(result.get('selector')?.kind).toBe('selector-matching')
 })
 
-test('pool classification resolves helpers and caches page variants without executing tests', t => {
+test('pool classification resolves helpers and caches page variants without executing tests', async t => {
   const checkout = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-scope-'))
   t.onTestFinished(() => rmSync(checkout, { recursive: true, force: true }))
   mkdirSync(path.join(checkout, 'css'))
   const sources: Record<string, string> = {
     'matching.html':
-      '<title>Unnamed selector</title><script src="/resources/testharness.js"></script><script src="helper.js"></script><script>test(() => check(document), "selector"); test(() => check(document), "selector two")</script>',
-    'helper.js': 'function check(node) { assert_true(node.matches("div")) }',
+      '<title>Unnamed selector</title><script src="/resources/testharness.js"></script><script src="helper.js?{{token}}"></script><script>test(() => check(document), "selector"); test(() => check(document), "selector two")</script>',
+    'helper.js':
+      '// META: script=helper.js\nfunction check(node) { assert_true(node.matches("div")) }',
+    'single.html':
+      '<script>test(() => assert_true(node.matches("div")), "single")</script>',
     'missing.html': '<script src="missing.js"></script>',
     'external.html': '<script src="https://example.test/helper.js"></script>',
     'invalid.html': '<script>const =</script>',
@@ -63,6 +91,7 @@ test('pool classification resolves helpers and caches page variants without exec
     ['rendering.html', null],
     ['unnamed.html', 'Named by page'],
     ['removed.html', 'selector'],
+    ['single.html', null],
   ] as const
   const pool: ReturnType<typeof passingUniverse> = {
     browser: 'browser',
@@ -79,9 +108,9 @@ test('pool classification resolves helpers and caches page variants without exec
     })),
   }
   const result = classifyPool(pool, checkout)
-  expect(result.selected.cases).toHaveLength(4)
+  expect(result.selected.cases).toHaveLength(5)
   expect(result.totals).toEqual({
-    'selector-matching': 4,
+    'selector-matching': 5,
     unresolved: 3,
     'other-api': 1,
   })
@@ -89,4 +118,41 @@ test('pool classification resolves helpers and caches page variants without exec
   expect(
     result.pages.find(page => page.test === '/css/matching.html')?.counts,
   ).toEqual({ 'selector-matching': 2 })
+  const poolFile = path.join(checkout, 'pool.json')
+  const output = path.join(checkout, 'scope.json')
+  writeFileSync(poolFile, JSON.stringify(pool))
+  vi.spyOn(console, 'log').mockImplementation(() => {})
+  const argv = process.argv
+  cli.active = true
+  try {
+    process.argv = ['node', 'scope.mts']
+    vi.resetModules()
+    await expect(
+      import('../../../../../../scripts/repo/check/wpt/native/scope.mts'),
+    ).rejects.toThrow()
+    process.argv = [
+      'node',
+      'scope.mts',
+      '--pool',
+      poolFile,
+      '--checkout',
+      checkout,
+      '--output',
+      output,
+    ]
+    vi.resetModules()
+    await import('../../../../../../scripts/repo/check/wpt/native/scope.mts')
+    expect(JSON.parse(readFileSync(output, 'utf8'))).toMatchObject({
+      finalized: false,
+      totals: result.totals,
+    })
+    writeFileSync(poolFile, JSON.stringify({ ...pool, browser: 'different' }))
+    vi.resetModules()
+    await expect(
+      import('../../../../../../scripts/repo/check/wpt/native/scope.mts'),
+    ).rejects.toThrow()
+  } finally {
+    process.argv = argv
+    cli.active = false
+  }
 })
