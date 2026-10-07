@@ -36,6 +36,7 @@ catalog:
   'jquery': '4.0.0'
   'jsdom': '30.0.1'
   'mitata': '1.0.34'
+  'nock': '15.0.1'
   'oxfmt': '0.66.0'
   'oxlint': '1.81.0'
   'oxlint-tsgolint': '7.0.2001'
