@@ -6,6 +6,7 @@ import reports from 'istanbul-reports'
 import type { CoverageMap, CoverageMapData } from 'istanbul-lib-coverage'
 import { scriptInventory } from './inventory.mts'
 import { nativeScriptCoverage, unexecutedScriptCoverage } from './native.mts'
+import { mergeScriptCoverage } from './merge.mts'
 
 export const SCRIPT_COVERAGE_MINIMUM = 98
 const metrics = ['lines', 'statements', 'functions', 'branches'] as const
@@ -14,7 +15,8 @@ export async function collectScriptCoverage(root: string, directory: string) {
   const coverage = libCoverage.createCoverageMap({})
   const tiers = ['unit', 'integration']
   for (let i = 0, length = tiers.length; i < length; i += 1) {
-    coverage.merge(
+    mergeScriptCoverage(
+      coverage,
       JSON.parse(
         readFileSync(
           path.join(directory, tiers[i]!, 'coverage-final.json'),
@@ -23,7 +25,8 @@ export async function collectScriptCoverage(root: string, directory: string) {
       ) as CoverageMapData,
     )
   }
-  coverage.merge(
+  mergeScriptCoverage(
+    coverage,
     await nativeScriptCoverage(
       root,
       path.join(directory, 'raw'),
