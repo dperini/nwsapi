@@ -36,3 +36,63 @@ test('status includes resumed plans and does not treat the first completed run a
     provisional: true,
   })
 })
+
+test('requires a plan and ignores unrelated plan names and unavailable events', async t => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-status-'))
+  t.onTestFinished(() => rmSync(directory, { recursive: true }))
+  writeFileSync(path.join(directory, 'planner.json'), '{}')
+  await expect(nativeStatus(directory)).rejects.toThrow()
+  writeFileSync(
+    path.join(directory, 'plan.json'),
+    JSON.stringify({ browser: '154', revision: 'pinned', tests: [] }),
+  )
+  expect(await nativeStatus(directory)).toMatchObject({
+    planned: 0,
+    completed: 0,
+    finished: false,
+    statuses: {},
+    subtests: {},
+  })
+})
+
+test('counts subtest outcomes while deduplicating completed tests by subsuite', async t => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-native-status-'))
+  t.onTestFinished(() => rmSync(directory, { recursive: true }))
+  writeFileSync(
+    path.join(directory, 'plan.json'),
+    JSON.stringify({
+      browser: '154',
+      revision: 'pinned',
+      tests: [{ test: '/case' }],
+    }),
+  )
+  const events = [
+    { action: 'test_status', status: 'PASS' },
+    { action: 'test_status', status: 'PASS' },
+    { action: 'test_status', status: 'FAIL' },
+    {
+      action: 'test_end',
+      test: '/case',
+      subsuite: 'experimental',
+      status: 'OK',
+    },
+    {
+      action: 'test_end',
+      test: '/case',
+      subsuite: 'experimental',
+      status: 'OK',
+    },
+    { action: 'log', message: 'ignored' },
+    { action: 'suite_end' },
+  ]
+  writeFileSync(
+    path.join(directory, 'events.jsonl'),
+    events.map(event => JSON.stringify(event)).join('\n'),
+  )
+  expect(await nativeStatus(directory)).toMatchObject({
+    completed: 1,
+    finished: true,
+    statuses: { OK: 2 },
+    subtests: { PASS: 2, FAIL: 1 },
+  })
+})
