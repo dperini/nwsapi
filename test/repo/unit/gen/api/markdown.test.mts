@@ -2,7 +2,8 @@ import { JSDOM } from 'jsdom'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
+import type * as Paths from '../../../../../scripts/repo/lib/paths.mts'
 import {
   engineDefinitions,
   engineSignature,
@@ -114,3 +115,78 @@ test('check mode detects missing or stale docs without writing', t => {
   writeApiMarkdown('new', file)
   expect(() => writeApiMarkdown('new', file, true)).not.toThrow()
 })
+
+test('requires expected AST structures for engine, adapter and traversal', () => {
+  expect(() => renderApiMarkdown('', adapter, traversal)).toThrow()
+  expect(() => renderApiMarkdown(engine, '', traversal)).toThrow()
+  expect(() =>
+    renderApiMarkdown(
+      engine,
+      "class DOMSelector { ['querySelector']() {} }",
+      traversal,
+    ),
+  ).toThrow()
+  expect(() =>
+    renderApiMarkdown(engine, adapter, 'D.down = function() {}'),
+  ).toThrow()
+  expect(() =>
+    renderApiMarkdown(engine, adapter, traversal, [
+      { file: 'fixture.mts', text: 'engine.Dom={select:function(){}}' },
+    ]),
+  ).toThrow()
+  expect(() =>
+    renderApiMarkdown(engine, adapter, traversal, [
+      ...readEngineSources(),
+      {
+        file: 'src/core/initialize/fixture.mts',
+        text: 'engine.Config={UNKNOWN:true}',
+      },
+    ]),
+  ).toThrow()
+  const methods = engineDefinitions(readEngineSources())
+    .object('Dom')
+    .map(member => member.node.key.name)
+  const text = `engine.Dom={${methods.map(name => `${name}:function(){}`).join(',')}}`
+  expect(() =>
+    renderApiMarkdown(engine, adapter, traversal, [
+      { file: 'fixture.mts', text },
+    ]),
+  ).toThrow()
+})
+
+test.each([{ args: [] }, { args: ['--invalid'] }])(
+  'CLI enforces supported arguments %j',
+  async ({ args }) => {
+    vi.resetModules()
+    vi.doMock('../../../../../scripts/repo/lib/run-node.mts', () => ({
+      isMainModule: () => true,
+    }))
+    const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-api-cli-'))
+    const actual = await vi.importActual<typeof Paths>(
+      '../../../../../scripts/repo/lib/paths.mts',
+    )
+    vi.doMock('../../../../../scripts/repo/lib/paths.mts', () => ({
+      ...actual,
+      API_DOC_PATH: path.join(directory, 'api.md'),
+    }))
+    const argv = process.argv
+    process.argv = ['node', 'markdown.mts', ...args]
+    try {
+      if (args.length) {
+        await expect(
+          import('../../../../../scripts/repo/gen/api/markdown.mts'),
+        ).rejects.toThrow()
+      } else {
+        await import('../../../../../scripts/repo/gen/api/markdown.mts')
+        expect(
+          readFileSync(path.join(directory, 'api.md'), 'utf8').length,
+        ).toBeGreaterThan(100)
+      }
+    } finally {
+      process.argv = argv
+      rmSync(directory, { recursive: true, force: true })
+      vi.doUnmock('../../../../../scripts/repo/lib/run-node.mts')
+      vi.doUnmock('../../../../../scripts/repo/lib/paths.mts')
+    }
+  },
+)

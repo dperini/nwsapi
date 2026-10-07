@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -77,4 +77,35 @@ test('generation checks drift and creates a preview at real favicon sizes', () =
     renderAgentFavicon({ ...NWBOX_COLORS, orange: 'invalid' }),
   ).toThrow('hexadecimal')
   expect(() => main(['--invalid'])).toThrow('Usage')
+})
+
+test('CLI generates in its repository root and help avoids generation', async () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-favicon-cli-'))
+  roots.push(root)
+  vi.resetModules()
+  vi.doMock('../../../../scripts/repo/lib/paths.mts', () => ({
+    REPO_ROOT: root,
+  }))
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: () => true,
+  }))
+  const argv = process.argv
+  process.argv = ['node', 'agent-favicon.mts']
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  try {
+    const module =
+      await import('../../../../scripts/repo/gen/agent-favicon.mts')
+    expect(
+      new JSDOM(
+        readFileSync(path.join(root, 'assets/repo/agent-favicon.svg'), 'utf8'),
+        { contentType: 'image/svg+xml' },
+      ).window.document.documentElement.localName,
+    ).toBe('svg')
+    module.main(['--help'])
+    expect(log).toHaveBeenCalledTimes(2)
+  } finally {
+    process.argv = argv
+    vi.doUnmock('../../../../scripts/repo/lib/paths.mts')
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+  }
 })

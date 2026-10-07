@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import {
   copyFileSync,
   mkdirSync,
@@ -169,4 +169,22 @@ test('generation rejects missing model identity and incompatible policy exports'
   await expect(renderHasRouteDecision(directory)).rejects.toThrow(
     'Unexpected chromium policy parameter',
   )
+})
+
+test('CLI rejects formatting failures before publishing generated policy', async () => {
+  vi.resetModules()
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: () => true,
+  }))
+  vi.doMock('oxfmt', () => ({
+    format: async () => ({ errors: [{ message: 'invalid output' }], code: '' }),
+  }))
+  try {
+    await expect(
+      import('../../../../scripts/repo/gen/has-route-decision.mts'),
+    ).rejects.toThrow()
+  } finally {
+    vi.doUnmock('oxfmt')
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+  }
 })

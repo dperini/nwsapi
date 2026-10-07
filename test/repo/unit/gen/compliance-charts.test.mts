@@ -1,4 +1,5 @@
-import { expect, test } from 'vitest'
+import { JSDOM } from 'jsdom'
+import { expect, test, vi } from 'vitest'
 import { summarizeCompliance } from '../../../../scripts/repo/gen/compliance-charts.mts'
 
 function fixture() {
@@ -48,6 +49,75 @@ function fixture() {
     },
   }
 }
+
+test.each(['valid', 'stale', 'boundaries'])(
+  'publishing checks %s evidence and writes parsed charts',
+  async mode => {
+    vi.resetModules()
+    const { comparison, wpt } = fixture()
+    const write = vi.fn()
+    vi.doMock('node:fs', () => ({
+      readFileSync: (file: string) => {
+        if (file.endsWith('selector-compatibility.json')) {
+          return JSON.stringify(comparison)
+        }
+        if (file.endsWith('wpt-summary.json')) {
+          return JSON.stringify(wpt)
+        }
+        if (file.endsWith('.md')) {
+          return mode === 'boundaries'
+            ? ''
+            : '<!-- compliance-summary:start --><!-- compliance-summary:end -->'
+        }
+        return 'compiled engine'
+      },
+      writeFileSync: write,
+    }))
+    vi.doMock('node:crypto', () => ({
+      createHash: () => ({
+        update: () => ({
+          digest: () => (mode === 'stale' ? 'other-build' : 'same-build'),
+        }),
+      }),
+    }))
+    vi.doMock('../../../../scripts/repo/gen/chart-references.mts', () => ({
+      refreshChartReferences: vi.fn(),
+    }))
+    vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+      isMainModule: () => mode === 'valid',
+    }))
+    vi.doMock('../../../../scripts/repo/browser.mts', () => ({
+      CHROME_VERSION: '154.0.8037.0',
+    }))
+    const { writeComplianceCharts } =
+      await import('../../../../scripts/repo/gen/compliance-charts.mts')
+    if (mode !== 'valid') {
+      expect(writeComplianceCharts).toThrow()
+      expect(write).toHaveBeenCalledTimes(mode === 'stale' ? 0 : 3)
+    } else {
+      expect(write).toHaveBeenCalledTimes(4)
+      const report = JSON.parse(write.mock.calls[0]![1])
+      expect(report.native.total).toBe(5)
+      for (let i = 1; i < 3; i += 1) {
+        const dom = new JSDOM(write.mock.calls[i]![1], {
+          contentType: 'image/svg+xml',
+        })
+        expect(dom.window.document.documentElement.getAttribute('role')).toBe(
+          'img',
+        )
+        expect(
+          dom.window.document.querySelectorAll('rect[height="6"]'),
+        ).toHaveLength(4)
+        dom.window.close()
+      }
+    }
+    vi.doUnmock('node:fs')
+    vi.doUnmock('node:crypto')
+    vi.doUnmock('../../../../scripts/repo/gen/chart-references.mts')
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+    vi.doUnmock('../../../../scripts/repo/browser.mts')
+  },
+)
 
 test('counts each comparison context and preserves ordered-result disagreements', () => {
   const { comparison, wpt } = fixture()
