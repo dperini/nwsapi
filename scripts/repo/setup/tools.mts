@@ -124,16 +124,26 @@ export async function setupTools() {
   return TOOL_BIN
 }
 
-if (isMainModule(import.meta.url)) {
+export async function main(
+  args = process.argv.slice(2),
+  setup = setupTools,
+  log = console.log,
+  env = process.env,
+) {
   const { values } = parseArgs({
+    args,
     options: { 'github-path': { type: 'boolean' } },
   })
-  if (values['github-path'] && !process.env['GITHUB_PATH']) {
+  if (values['github-path'] && !env['GITHUB_PATH']) {
     throw new Error('GITHUB_PATH is required with --github-path.')
   }
-  const bin = await setupTools()
+  const bin = await setup()
   if (values['github-path']) {
-    appendFileSync(process.env['GITHUB_PATH']!, bin + '\n')
+    appendFileSync(env['GITHUB_PATH']!, bin + '\n')
   }
-  console.log(`Toolchain ready. Prepend ${bin} to PATH.`)
+  log(`Toolchain ready. Prepend ${bin} to PATH.`)
+}
+
+if (isMainModule(import.meta.url)) {
+  await main()
 }
