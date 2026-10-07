@@ -15,6 +15,95 @@ const classify = (source: string, title: string) =>
   inferCase(title, inferScripts([{ source, file: '/case.js' }]).profiles)
     ?.category
 
+test('registration inference resolves callable aliases and skips unresolved callbacks', () => {
+  const result = inferScripts([
+    {
+      file: '/callbacks.js',
+      source:
+        'const callback = () => assert_true(node.matches("div")); test(callback, "alias"); test(missing, "missing"); test(123, "literal"); (() => {})(); node[0]()',
+    },
+  ])
+  expect(result.profiles.map(profile => profile.parts)).toEqual([['alias']])
+  expect(result.profiles[0]?.category).toBe('selector-matching')
+})
+
+test('callback-free async registrations resolve chained and named deferred callbacks', () => {
+  const result = inferScripts([
+    {
+      file: '/async.js',
+      source:
+        'const callback = () => assert_true(node.matches("div")); async_test("chained").step(callback); async_test().step(() => assert_true(node.matches("p"))); const t = async_test("named"); t.step(callback); t.step(missing); t.other(callback); t[0](); other.step(callback); const { value } = async_test("destructured");',
+    },
+  ])
+  expect(inferCase('chained', result.profiles)?.category).toBe(
+    'selector-matching',
+  )
+  expect(inferCase('named', result.profiles)?.category).toBe(
+    'selector-matching',
+  )
+  expect(result.profiles.some(profile => profile.unnamed)).toBe(true)
+})
+
+test('standard parsing helpers override CSSOM signals and anonymous owners remain ordinary callbacks', () => {
+  const parser = inferScripts([
+    {
+      file: '/css/support/parsing-testcommon.js',
+      source:
+        'function test_valid_selector(selector) { test(() => assert_equals(sheet.cssRules.length, 1), "valid") } function other() { test(() => assert_true(true), "other") } test(() => assert_true(true), "top")',
+    },
+  ])
+  expect(inferCase('valid', parser.profiles)?.category).toBe('selector-parsing')
+  expect(inferCase('other', parser.profiles)?.category).toBe('other-api')
+  const anonymous = inferScripts([
+    {
+      file: '/anonymous.mjs',
+      source:
+        'export default function() { test(() => assert_true(node.matches("div")), "anonymous") }',
+    },
+  ])
+  expect(inferCase('anonymous', anonymous.profiles)?.category).toBe(
+    'selector-matching',
+  )
+  expect(
+    classify(
+      'test(() => { assert_true(node.matches("div")); getComputedStyle(node) }, "mixed")',
+      'mixed',
+    ),
+  ).toBe('mixed-selector')
+})
+
+test('forwarded selector messages upgrade only callbacks that assert message data', () => {
+  const result = inferScripts([
+    {
+      file: '/messages.js',
+      source:
+        'postMessage(node.matches("div")); test(() => assert_equals(event.data, true), "message"); test(() => assert_equals(node.textContent, "text"), "text")',
+    },
+  ])
+  expect(inferCase('message', result.profiles)?.category).toBe(
+    'selector-matching',
+  )
+  expect(inferCase('text', result.profiles)?.category).toBe('other-api')
+  expect(
+    inferScripts([{ file: '', source: 'assert_true(true)' }]).fallback?.file,
+  ).toBe('')
+})
+
+test('ambiguous generated titles merge compatible categories and reject mixed scope', () => {
+  const profiles = (source: string) =>
+    inferScripts([{ file: '/titles.js', source }]).profiles
+  const selectors = profiles(
+    'test(() => assert_true(node.matches("div")), "same"); test(() => assert_throws_dom("SyntaxError", () => node.matches(":bad")), "same")',
+  )
+  expect(inferCase('same', selectors)?.category).toBe('selector-matching')
+  const other = profiles(
+    'test(() => assert_equals(getComputedStyle(node).color, "red"), "same"); test(() => assert_equals(sheet.cssRules.length, 1), "same"); test(() => assert_equals(node.textContent, "text"), "same")',
+  )
+  expect(inferCase('same', other)?.category).toBe('other-api')
+  expect(inferCase('missing', other)).toBeUndefined()
+  expect(inferCase('same', [...selectors, ...other])).toBeUndefined()
+})
+
 test('generated titles preserve fixed text and allow dynamic values', () => {
   const ast = parse('`case ${name}: ${selector}`', { ecmaVersion: 'latest' })
   const statement = ast.body[0]!
