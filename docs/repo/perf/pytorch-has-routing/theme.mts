@@ -28,6 +28,10 @@ function updateActiveTheme() {
   active?.classList.remove('is-active')
   selected.classList.add('is-active')
   document.body.dataset['theme'] = selected.dataset['scrollTheme']
+  document.documentElement.style.setProperty(
+    '--page-scrollbar-accent',
+    getComputedStyle(selected).getPropertyValue('--section-accent'),
+  )
   document.querySelectorAll<HTMLAnchorElement>('.chapters a').forEach(link => {
     const current = link.hash === `#${selected.id}`
     if (current) {

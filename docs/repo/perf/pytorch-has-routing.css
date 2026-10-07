@@ -18,6 +18,19 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 90px;
+  --page-scrollbar-accent: var(--topic-what);
+  scrollbar-color: var(--page-scrollbar-accent) #0c171e;
+}
+html::-webkit-scrollbar {
+  width: 12px;
+}
+html::-webkit-scrollbar-track {
+  background: #0c171e;
+}
+html::-webkit-scrollbar-thumb {
+  background: var(--page-scrollbar-accent);
+  border: 3px solid #0c171e;
+  border-radius: 12px;
 }
 body {
   margin: 0;
