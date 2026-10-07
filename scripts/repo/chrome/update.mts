@@ -19,7 +19,9 @@ export function chromePin(data: ChromeChannels) {
   if (!Number.isFinite(Date.parse(data.timestamp))) {
     throw new Error('Chrome channel metadata has no valid timestamp.')
   }
-  for (const name of ['Stable', 'Beta'] as const) {
+  const names = ['Stable', 'Beta'] as const
+  for (let i = 0, length = names.length; i < length; i += 1) {
+    const name = names[i]!
     const channel = data.channels?.[name]
     if (
       channel?.channel !== name ||
@@ -27,7 +29,9 @@ export function chromePin(data: ChromeChannels) {
     ) {
       throw new Error(`Missing or invalid Chrome ${name} version.`)
     }
-    for (const platform of ['linux64', 'mac-arm64', 'mac-x64', 'win64']) {
+    const platforms = ['linux64', 'mac-arm64', 'mac-x64', 'win64']
+    for (let j = 0, size = platforms.length; j < size; j += 1) {
+      const platform = platforms[j]!
       const expected = `https://storage.googleapis.com/chrome-for-testing-public/${channel.version}/${platform}/chrome-${platform}.zip`
       if (
         !channel.downloads?.chrome?.some(

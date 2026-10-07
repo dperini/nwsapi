@@ -3,6 +3,7 @@ import type * as NodeFs from 'node:fs'
 
 const state = vi.hoisted(() => ({
   target: '',
+  coverage: false,
   node: vi.fn(),
   tasks: vi.fn(),
   tool: vi.fn(),
@@ -30,6 +31,7 @@ vi.mock('../../../scripts/repo/dependency/update.mts', () => ({
 vi.mock('node:fs', async importOriginal => ({
   ...(await importOriginal<typeof NodeFs>()),
   globSync: () => ['.config/fixture.json'],
+  existsSync: () => state.coverage,
 }))
 
 function argv(args: string[]) {
@@ -49,6 +51,7 @@ beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
   state.target = ''
+  state.coverage = false
   vi.spyOn(console, 'log').mockImplementation(() => {})
 })
 afterEach(() => vi.unstubAllGlobals())
@@ -145,4 +148,41 @@ test('fix accepts its compatibility flag and rejects unrelated command options',
   await expect(import('../../../scripts/repo/fix.mts')).rejects.toBeInstanceOf(
     Error,
   )
+})
+
+test('type checking shows help without launching the compiler and otherwise forwards its pinned configuration', async () => {
+  await import('../../../scripts/repo/type/check.mts')
+  const inputs = [['--help'], []]
+  for (let i = 0, length = inputs.length; i < length; i += 1) {
+    vi.resetModules()
+    state.target = new URL(
+      '../../../scripts/repo/type/check.mts',
+      import.meta.url,
+    ).href
+    argv(inputs[i]!)
+    await import('../../../scripts/repo/type/check.mts')
+  }
+  expect(state.node).toHaveBeenCalledOnce()
+  expect(state.node).toHaveBeenCalledWith(expect.any(String), [
+    '--noEmit',
+    '-p',
+    expect.any(String),
+  ])
+})
+
+test('coverage badge validation launches only when a saved report exists', async () => {
+  await import('../../../scripts/repo/coverage/check.mts')
+  const inputs = [['--help'], [], []]
+  for (let i = 0, length = inputs.length; i < length; i += 1) {
+    vi.resetModules()
+    state.target = new URL(
+      '../../../scripts/repo/coverage/check.mts',
+      import.meta.url,
+    ).href
+    state.coverage = i === 2
+    argv(inputs[i]!)
+    await import('../../../scripts/repo/coverage/check.mts')
+  }
+  expect(state.node).toHaveBeenCalledOnce()
+  expect(state.node).toHaveBeenCalledWith(expect.any(String), ['--check'])
 })

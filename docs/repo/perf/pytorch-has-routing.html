@@ -227,17 +227,19 @@
             Pick a situation above. Predict the result before following the
             search.
           </p>
-          <label class="prediction-label"
-            >My prediction
-            <select id="challenge-prediction">
-              <option value="">Choose the result…</option>
-              <option value="A,C">A and C</option>
-              <option value="C">Only C</option>
-              <option value="A,A,C">A, A, and C</option>
-              <option value="none">No cards</option>
-            </select>
-          </label>
-          <button id="challenge-reveal">Reveal and explain</button>
+          <div class="prediction-controls">
+            <label class="prediction-label"
+              >My prediction
+              <select id="challenge-prediction" class="theme-select">
+                <option value="">Choose the result…</option>
+                <option value="A,C">A and C</option>
+                <option value="C">Only C</option>
+                <option value="A,A,C">A, A, and C</option>
+                <option value="none">No cards</option>
+              </select>
+            </label>
+            <button id="challenge-reveal">Reveal and explain</button>
+          </div>
           <p id="challenge-feedback" role="status" aria-live="polite">
             No scoring. Follow the DOM to find the answer.
           </p>
@@ -323,7 +325,7 @@
           <form id="policy-controls" class="controls">
             <label
               >Host
-              <select id="host">
+              <select id="host" class="theme-select">
                 <option value="chromium">Chromium · 4 hidden units</option>
                 <option value="jsdom">jsdom · linear model</option>
               </select></label
@@ -729,7 +731,7 @@ override = score > savedThreshold</pre>
           <div class="recorded-example">
             <label
               >Host
-              <select id="sample-host">
+              <select id="sample-host" class="theme-select">
                 <option value="chromium">Chromium</option>
                 <option value="jsdom">jsdom</option>
               </select></label

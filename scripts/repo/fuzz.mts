@@ -9,12 +9,14 @@ export function fuzzInvocation(args: string[], env = process.env) {
     VITIATE_FUZZ: replay ? '0' : '1',
   }
   if (replay) {
-    for (const key of [
+    const keys = [
       'VITIATE_OPTIMIZE',
       'VITIATE_CLI_IPC',
       'VITIATE_SUPERVISOR',
       'VITIATE_SHMEM',
-    ]) {
+    ]
+    for (let i = 0, length = keys.length; i < length; i += 1) {
+      const key = keys[i]!
       delete childEnv[key]
     }
   }

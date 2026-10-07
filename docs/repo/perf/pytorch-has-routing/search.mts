@@ -59,7 +59,12 @@ function comparison() {
       `${direction}-counts`,
       `${progress.visits} candidate/descendant visits + ${progress.ascents} ancestor steps`,
     )
-    text(`${direction}-matches`, resultNames(progress.matches))
+    text(
+      `${direction}-matches`,
+      progress.matches.length
+        ? resultNames(progress.matches)
+        : 'No matching cards',
+    )
     return progress
   })
   const forwardWork = results[0]!.visits + results[0]!.ascents
@@ -91,7 +96,12 @@ function showStep() {
     progress.current?.description ||
       'Ready. Choose a route, then press Next step. The result starts empty.',
   )
-  text('match-result', resultNames(progress.matches))
+  text(
+    'match-result',
+    progress.matches.length || position < steps.length
+      ? resultNames(progress.matches)
+      : 'No matching cards',
+  )
   text(
     'search-work',
     `${progress.visits} visits · ${progress.ascents} ancestor steps`,
@@ -146,6 +156,7 @@ function render() {
   comparison()
   showStep()
   renderMotion(nodes)
+  document.dispatchEvent(new Event('guide-controls-sync'))
 }
 
 function next() {

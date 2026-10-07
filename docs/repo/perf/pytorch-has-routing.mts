@@ -22,6 +22,7 @@ import {
   renderImpact,
 } from './pytorch-has-routing/impact.mts'
 import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
+import { initializeGuideControls } from './pytorch-has-routing/select.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -137,6 +138,7 @@ function canCallPolicy(state: ReturnType<typeof policyState>) {
 }
 
 function renderPolicy() {
+  document.dispatchEvent(new Event('guide-controls-sync'))
   const state = policyState()
   const {
     anchors,
@@ -367,6 +369,7 @@ function initialize() {
   renderPolicy()
   showStage(0)
   showSource('match')
+  initializeGuideControls()
 }
 
 function handleClick(event: MouseEvent) {

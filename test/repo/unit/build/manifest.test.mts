@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import {
   assertPackageFiles,
   assertPackageManifest,
@@ -37,6 +37,24 @@ test('published exports preserve deep imports and point only to allowed files', 
     'dist/external/unicode.js',
     'dist/external/unicode.d.ts',
   ])
+})
+
+test('CommonJS metadata and direct manifest verification are supported', async () => {
+  expect(() =>
+    assertPackageManifest({ ...packageLayout('output'), type: 'commonjs' }),
+  ).not.toThrow()
+  vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
+    isMainModule: (url: string) => url.endsWith('/build/manifest.mts'),
+  }))
+  vi.resetModules()
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  try {
+    await import('../../../../scripts/repo/build/manifest.mts')
+    expect(log).toHaveBeenCalledOnce()
+  } finally {
+    vi.doUnmock('../../../../scripts/repo/lib/run-node.mts')
+    vi.resetModules()
+  }
 })
 
 test('staging drops contributor scripts and dependencies without changing its input', () => {
