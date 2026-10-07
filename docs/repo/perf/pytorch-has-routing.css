@@ -7,10 +7,10 @@
   --line: #304550;
   --mint: #b4ebc9;
   --amber: #ffcf86;
-  --topic-what: #99b9cc;
-  --topic-why: #d9a38f;
-  --topic-when: #ceb978;
-  --topic-where: #b4a8d2;
+  --topic-what: #86b4ef;
+  --topic-why: #6dcbbd;
+  --topic-when: #e2bf64;
+  --topic-where: #baa0ee;
 }
 * {
   box-sizing: border-box;
@@ -22,7 +22,7 @@ html {
 body {
   margin: 0;
   --scroll-accent: var(--topic-what);
-  --scroll-wash: rgb(153 185 204 / 38%);
+  --scroll-wash: rgb(102 157 230 / 55%);
   --scroll-x: 8vw;
   --scroll-y: 0vh;
   --scroll-scale: 1;
@@ -40,15 +40,15 @@ body {
 }
 body[data-theme='why'] {
   --scroll-accent: var(--topic-why);
-  --scroll-wash: rgb(217 163 143 / 38%);
-  --scroll-x: 56vw;
+  --scroll-wash: rgb(65 183 166 / 60%);
+  --scroll-x: 12vw;
   --scroll-y: 18vh;
-  --scroll-scale: 0.9;
+  --scroll-scale: 1.18;
   --scroll-radius: 41% 59% 38% 62% / 54% 36% 64% 46%;
 }
 body[data-theme='when'] {
   --scroll-accent: var(--topic-when);
-  --scroll-wash: rgb(206 185 120 / 38%);
+  --scroll-wash: rgb(215 172 64 / 55%);
   --scroll-x: 8vw;
   --scroll-y: 47vh;
   --scroll-scale: 1.08;
@@ -56,10 +56,10 @@ body[data-theme='when'] {
 }
 body[data-theme='where'] {
   --scroll-accent: var(--topic-where);
-  --scroll-wash: rgb(180 168 210 / 38%);
-  --scroll-x: 54vw;
-  --scroll-y: 40vh;
-  --scroll-scale: 0.94;
+  --scroll-wash: rgb(174 144 232 / 65%);
+  --scroll-x: 30vw;
+  --scroll-y: 25vh;
+  --scroll-scale: 1.2;
   --scroll-radius: 38% 62% 59% 41% / 57% 39% 61% 43%;
 }
 .scroll-morph {
@@ -72,7 +72,7 @@ body[data-theme='where'] {
   border-radius: var(--scroll-radius);
   background-color: var(--scroll-wash);
   filter: blur(105px);
-  opacity: 0.24;
+  opacity: 0.55;
   pointer-events: none;
   transform: translate3d(var(--scroll-x), var(--scroll-y), 0)
     scale(var(--scroll-scale));
@@ -80,6 +80,9 @@ body[data-theme='where'] {
     background-color 900ms ease,
     border-radius 1000ms ease,
     transform 1200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+body[data-theme='where'] .scroll-morph {
+  opacity: 0.72;
 }
 .topbar,
 main,
