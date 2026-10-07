@@ -84,8 +84,8 @@ try {
     }
     measurements[name] = heap
     const file = openSync(path.join(output, `${name}.heapsnapshot`), 'w')
-    const onChunk = ({ chunk }: { chunk: string }) => {
-      writeSync(file, chunk)
+    function onChunk(event: { chunk: string }) {
+      writeSync(file, event.chunk)
     }
     session.on('HeapProfiler.addHeapSnapshotChunk', onChunk)
     try {
@@ -160,31 +160,28 @@ try {
     })
   })
   await capture('detached')
-  const retainedDetachedNodes = await page.evaluate(
-    () =>
-      (window as unknown as HeapHost).__weakNodes.filter(ref => ref.deref())
-        .length,
-  )
+  const retainedDetachedNodes = await page.evaluate(() => {
+    const host = window as unknown as HeapHost
+    return host.__weakNodes.filter(ref => ref.deref()).length
+  })
   await page.evaluate(() => {
     ;(window as unknown as HeapHost).__engines.length = 0
   })
   await capture('released-engines')
-  const retainedEngines = await page.evaluate(
-    () =>
-      (window as unknown as HeapHost).__weakEngines.filter(ref => ref.deref())
-        .length,
-  )
+  const retainedEngines = await page.evaluate(() => {
+    const host = window as unknown as HeapHost
+    return host.__weakEngines.filter(ref => ref.deref()).length
+  })
   await page.evaluate(() => {
     const host = window as unknown as HeapHost
     host.__frames.forEach(frame => frame.remove())
     host.__frames.length = 0
   })
   await capture('released-documents')
-  const retainedDocuments = await page.evaluate(
-    () =>
-      (window as unknown as HeapHost).__weakDocuments.filter(ref => ref.deref())
-        .length,
-  )
+  const retainedDocuments = await page.evaluate(() => {
+    const host = window as unknown as HeapHost
+    return host.__weakDocuments.filter(ref => ref.deref()).length
+  })
   const summary = {
     output,
     count,
