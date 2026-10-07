@@ -9,7 +9,7 @@
   --amber: #ffcf86;
   --topic-what: #aecdf5;
   --topic-why: #a0ded3;
-  --topic-when: #ffc19a;
+  --topic-when: #ffac80;
   --topic-where: #d0baf2;
 }
 * {
@@ -48,7 +48,7 @@ body[data-theme='why'] {
 }
 body[data-theme='when'] {
   --scroll-accent: var(--topic-when);
-  --scroll-wash: color-mix(in srgb, var(--topic-when) 55%, transparent);
+  --scroll-wash: rgb(244 119 51 / 55%);
   --scroll-x: 8vw;
   --scroll-y: 47vh;
   --scroll-scale: 1.08;
