@@ -3,12 +3,12 @@ import { JSDOM } from 'jsdom'
 import { toyNodes } from '../../../../../docs/repo/perf/pytorch-has-routing/dom.mts'
 
 afterEach(() => {
+  vi.clearAllTimers()
   vi.useRealTimers()
   vi.unstubAllGlobals()
 })
 
 async function fixture(reducedMotion = false) {
-  vi.useFakeTimers()
   vi.resetModules()
   const dom = new JSDOM('<main></main>')
   const document = dom.window.document
@@ -51,6 +51,7 @@ async function fixture(reducedMotion = false) {
   vi.stubGlobal('matchMedia', () => media)
   const motion =
     await import('../../../../../docs/repo/perf/pytorch-has-routing/motion.mts')
+  vi.useFakeTimers()
   motion.initializeMotion()
   motion.renderMotion(toyNodes([2, 0, 1, 0], true))
   const click = (id: string) => document.getElementById(id)!.click()
@@ -77,6 +78,19 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   expect(scenes.length).toBe(2)
   const matches = view.document.querySelectorAll('[data-match="true"]')
   expect(matches.length).toBe(4)
+  expect(
+    view.document.querySelectorAll('.film-element[data-marked="true"]').length,
+  ).toBe(0)
+  expect(view.document.getElementById('film-status')!.dataset['playback']).toBe(
+    'complete',
+  )
+  view.timeline.value = '2'
+  view.timeline.dispatchEvent(new view.dom.window.Event('input'))
+  expect(view.document.getElementById('film-status')!.dataset['playback']).toBe(
+    'paused',
+  )
+  view.timeline.value = view.timeline.max
+  view.timeline.dispatchEvent(new view.dom.window.Event('input'))
   expect(
     (view.document.getElementById('film-next') as HTMLButtonElement).disabled,
   ).toBe(true)

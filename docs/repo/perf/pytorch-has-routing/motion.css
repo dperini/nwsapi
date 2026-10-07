@@ -61,6 +61,7 @@
   fill: #1c362c;
   stroke: var(--mint);
   stroke-width: 2;
+  stroke-dasharray: none;
 }
 .film-cursor {
   fill: none;

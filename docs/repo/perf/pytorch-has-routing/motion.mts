@@ -10,6 +10,11 @@ let total = 0
 let timer: ReturnType<typeof setInterval> | undefined
 const reduced = matchMedia('(prefers-reduced-motion: reduce)')
 
+function status(state: string, message: string) {
+  element('film-status').dataset['playback'] = state
+  text('film-status', message)
+}
+
 function graphic() {
   const points = new Map(nodes.map(node => [node.id, motionPoint(node)]))
   const links = nodes
@@ -31,6 +36,7 @@ function stop() {
   timer = undefined
   text('film-play', 'Play both routes')
   element('film-play').setAttribute('aria-pressed', 'false')
+  status('paused', 'Paused. Use Next step or drag the timeline to continue.')
 }
 
 function moveCursor(scene: HTMLElement, current: string | undefined) {
@@ -63,7 +69,9 @@ function drawRoute(route: SearchRoute) {
     const dot = dots[i]!
     const node = nodes.find(item => item.id === dot.dataset['motionNode'])!
     dot.dataset['current'] = String(node.id === frame.current?.current)
-    dot.dataset['marked'] = String(frame.marked.has(node.card!))
+    dot.dataset['marked'] = String(
+      node.kind === 'card' && frame.marked.has(node.card!),
+    )
     dot.dataset['match'] = String(
       node.kind === 'card' && frame.matches.includes(node.card!),
     )
@@ -89,10 +97,7 @@ function draw() {
   ;(element('film-next') as HTMLButtonElement).disabled = beat === total
   if (beat === total) {
     stop()
-    text(
-      'film-status',
-      'Both searches are complete. Their exact matches agree.',
-    )
+    status('complete', 'Both searches are complete. Their exact matches agree.')
   }
 }
 
@@ -105,7 +110,7 @@ export function renderMotion(fixture: ToyNode[]) {
     element(`film-${routes[i]}`).innerHTML = graphic()
   }
   input('film-timeline').max = String(total)
-  text('film-status', 'Ready. Both routes use the editable DOM above.')
+  status('ready', 'Ready. Both routes use the editable DOM above.')
   draw()
 }
 
@@ -125,7 +130,7 @@ function play() {
   }
   text('film-play', 'Pause both routes')
   element('film-play').setAttribute('aria-pressed', 'true')
-  text('film-status', 'Playing. Pause or scrub the timeline at any time.')
+  status('playing', 'Playing. Pause or scrub the timeline at any time.')
   timer = setInterval(next, 1200)
 }
 
