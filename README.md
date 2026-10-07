@@ -133,6 +133,21 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
   })(this));
 ```
 
+## Development setup
+
+Use Node.js 22.18 or newer to start setup:
+
+```sh
+npm run setup
+npm test
+```
+
+Either `npm run setup` or `pnpm run setup` selects this branch's pinned `npm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm` from the versions and integrity hashes in `.config/external-tools.json`, uses `mise` with `nub` to provision Node, installs dependencies from `package-lock.json`, and prepares WPT and Chromium. Tools and isolated `mise` state stay in the checkout's ignored `.cache/` directory. No global installation or shell configuration is required.
+
+If neither package manager is installed, run `node scripts/setup.mjs`. Add `--tools-only` to provision tools without installing dependencies. After switching branches, rerun setup to replace dependencies and restore the tools for that checkout. Setup needs Git, archive extraction tools, and network access.
+
+The v3 prerelease uses the same setup commands and selects `pnpm`. For direct dependency installation, use `npm install` on master and `pnpm install` on v3. The common setup command avoids needing to remember that distinction.
+
 ## 💖 Support & Sponsoring
 
 **NWSAPI** powers millions of builds, web scrapers, and testing suites every single day—including key infrastructure like [jsdom](https://github.com/jsdom/jsdom).

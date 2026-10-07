@@ -1,44 +1,73 @@
-import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import os from 'node:os'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
+import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
-import { setupRelease } from './publish/setup.mjs'
-import { ensurePhp } from './php.mjs'
-import { npmInvocation } from './lib/npm.mjs'
+import { REPO_ROOT, toolVersion } from './lib/external-tools.mjs'
+import { managedEnvironment, setupTools } from './lib/tools/setup.mjs'
 
-function runQuiet(command, args, options = {}) {
-  try {
-    execFileSync(command, args, { ...options, encoding: 'utf8', stdio: 'pipe' })
-  } catch (error) {
-    if (error.stdout) process.stderr.write(error.stdout)
-    if (error.stderr) process.stderr.write(error.stderr)
-    throw error
+export async function bootstrap(
+  { toolsOnly = false, prepare = false } = {},
+  setup = setupTools,
+  run = spawnSync,
+) {
+  const tools = await setup()
+  if (toolsOnly) {
+    return { status: 0, signal: null }
   }
+  const options = {
+    cwd: REPO_ROOT,
+    env: managedEnvironment(),
+    stdio: 'inherit',
+  }
+  if (!prepare) {
+    // Complete the install before running setup, avoiding a nested install hook.
+    const result = run(
+      tools.node,
+      [tools.npm, 'ci', '--ignore-scripts'],
+      options,
+    )
+    if (result.error) {
+      throw result.error
+    }
+    if (result.status !== 0 || result.signal) {
+      return result
+    }
+  }
+  const result = run(
+    tools.node,
+    [path.join(REPO_ROOT, 'scripts/setup/run.mjs')],
+    options,
+  )
+  if (result.error) {
+    throw result.error
+  }
+  return result
 }
 
-setupRelease()
-ensurePhp()
-const root = fileURLToPath(new URL('../', import.meta.url))
-const env = Object.fromEntries(Object.entries({ ...process.env, GIT_TERMINAL_PROMPT: '0' })
-  .filter(([name]) => !/^npm_config_python$/i.test(name)))
-runQuiet(process.execPath, [fileURLToPath(new URL('../test/wpt/wpt-launcher.mjs', import.meta.url)), 'setup'], { cwd: root, env })
-
-const configDirectory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-config-'))
-const globalConfig = path.join(configDirectory, 'global.npmrc')
-writeFileSync(globalConfig, '')
-try {
-  const npmArgs = [
-    'exec', '--yes', '--silent',
-    '--globalconfig', globalConfig,
-    '--', 'playwright', 'install', 'chromium',
-  ]
-  const invocation = npmInvocation(npmArgs)
-  runQuiet(invocation.command, invocation.args, {
-    cwd: root,
-    env,
-    shell: invocation.shell,
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
+  const { values } = parseArgs({
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      'tools-only': { type: 'boolean' },
+    },
   })
-} finally {
-  rmSync(configDirectory, { recursive: true, force: true })
+  if (values.help) {
+    console.log(
+      'Usage: npm run setup [-- --tools-only]\nInstalls the pinned local tools and sets up this checkout with npm.\n-h, --help  Show help.\n--tools-only  Provision tools without installing dependencies.',
+    )
+  } else {
+    console.log(`Setting up this checkout with npm ${toolVersion('npm')}.`)
+    const result = await bootstrap({
+      toolsOnly: values['tools-only'],
+      prepare: process.env.npm_lifecycle_event === 'prepare',
+    })
+    if (result.signal) {
+      process.kill(process.pid, result.signal)
+    } else {
+      process.exitCode = result.status ?? 1
+    }
+  }
 }

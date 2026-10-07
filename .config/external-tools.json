@@ -1,0 +1,160 @@
+{
+  "tools": {
+    "node": {
+      "origin": "nub",
+      "version": "26.11.0"
+    },
+    "npm": {
+      "origin": "npm",
+      "repository": "npm:npm",
+      "version": "12.2.0",
+      "asset": "npm-12.2.0.tgz",
+      "integrity": "sha512-ZsJjKpTnlmSXOLLXiU1xDCzC4Wlok4IwZmh/aw2KUuXytU7q6qMv/cUT7MoeSf95Slwuw/lRXYefGzGCspHPNQ==",
+      "binary": "package/bin/npm-cli.js"
+    },
+    "pnpm": {
+      "origin": "gh-asset",
+      "repository": "github:pnpm/pnpm",
+      "version": "12.10.1",
+      "tag": "v12.10.1",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "pnpm-darwin-arm64.tar.gz",
+          "integrity": "sha256-pheualXIs81JTGEa2ojWXLfDz214KOkbL0S0vtG+4hc=",
+          "binary": "pnpm"
+        },
+        "darwin-x64": {
+          "asset": "pnpm-darwin-x64.tar.gz",
+          "integrity": "sha256-vnit7mYSMCZng23N5aNExuwDwjHeNAkYaObycqZIT+Y=",
+          "binary": "pnpm"
+        },
+        "linux-arm64": {
+          "asset": "pnpm-linux-arm64.tar.gz",
+          "integrity": "sha256-GNuxGN4dvvDkUWwXv4R9buIG/E3v+yu0iOyOHSgU4Hg=",
+          "binary": "pnpm"
+        },
+        "linux-arm64-musl": {
+          "asset": "pnpm-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-kGJZBFqu83o/5hRfq9wcwxldpSOniJAIdb+XvjtAMz4=",
+          "binary": "pnpm"
+        },
+        "linux-x64": {
+          "asset": "pnpm-linux-x64.tar.gz",
+          "integrity": "sha256-UConWYSkzQHlV5rHIEmiQQkcrFEY5Evs+ElREww+B54=",
+          "binary": "pnpm"
+        },
+        "linux-x64-musl": {
+          "asset": "pnpm-linux-x64-musl.tar.gz",
+          "integrity": "sha256-8q0FCnBatDPmwcT9V9WERiiWBisEjp0pqQVIrW2R+Rs=",
+          "binary": "pnpm"
+        },
+        "win32-arm64": {
+          "asset": "pnpm-win32-arm64.zip",
+          "integrity": "sha256-Z8CYDCIj0vibRs7tsJyqo3v6sHXYMZ0OZR62WdAMZuk=",
+          "binary": "pnpm.exe"
+        },
+        "win32-x64": {
+          "asset": "pnpm-win32-x64.zip",
+          "integrity": "sha256-KZAJMXVUuCkFkn+Ol4LsXwr7COt7XMXrKxWpI8saVu8=",
+          "binary": "pnpm.exe"
+        }
+      }
+    },
+    "nub": {
+      "origin": "gh-asset",
+      "repository": "github:nubjs/nub",
+      "version": "0.9.6",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "nub-darwin-arm64.tar.gz",
+          "integrity": "sha256-0lJq+GC3mBjBDmn+dfgYhnAkepZsFEHTNSaxVneytQg=",
+          "binary": "bin/nub"
+        },
+        "darwin-x64": {
+          "asset": "nub-darwin-x64.tar.gz",
+          "integrity": "sha256-ZTyBpblwBCHMs+kbfLhMvLe9wC9zzZzFpewiHQS55p8=",
+          "binary": "bin/nub"
+        },
+        "linux-arm64": {
+          "asset": "nub-linux-arm64.tar.gz",
+          "integrity": "sha256-2CI/YAcmqXEI5H+OiXMPuJPQxqZA9gbIVOw/45WR6vc=",
+          "binary": "bin/nub"
+        },
+        "linux-arm64-musl": {
+          "asset": "nub-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-6gAmscfy9dFN6ScBml+u/HFh40EqxFygNTRpVTIrCPo=",
+          "binary": "bin/nub"
+        },
+        "linux-x64": {
+          "asset": "nub-linux-x64.tar.gz",
+          "integrity": "sha256-dyINxt62672wooLGG4ChV+MgFuCI82Mtj7S/dKkx5M4=",
+          "binary": "bin/nub"
+        },
+        "linux-x64-musl": {
+          "asset": "nub-linux-x64-musl.tar.gz",
+          "integrity": "sha256-UGtZq8x0edFcq+fE0EmxPKpqn/3je1aRUGN5Sdrk6CI=",
+          "binary": "bin/nub"
+        },
+        "win32-arm64": {
+          "asset": "nub-win32-arm64.zip",
+          "integrity": "sha256-KOZB1Jw68OZcIk7AzONhrnoTwp4aYNp2jIra4hRysTc=",
+          "binary": "bin/nub.exe"
+        },
+        "win32-x64": {
+          "asset": "nub-win32-x64.zip",
+          "integrity": "sha256-fd2xaXU1TXPhbA5xaMxFNzi7LBwD9qjWaQMm5GbtfGo=",
+          "binary": "bin/nub.exe"
+        }
+      },
+      "tag": "v0.9.6"
+    },
+    "mise": {
+      "origin": "gh-asset",
+      "repository": "github:jdx/mise",
+      "version": "2026.10.4",
+      "tag": "v2026.10.4",
+      "platforms": {
+        "darwin-arm64": {
+          "asset": "mise-v2026.10.4-macos-arm64.tar.gz",
+          "integrity": "sha256-dErkX5t8KkQ636Yd9IOXkw6IsTxUGDS3vSLKMdTfz80=",
+          "binary": "mise/bin/mise"
+        },
+        "darwin-x64": {
+          "asset": "mise-v2026.10.4-macos-x64.tar.gz",
+          "integrity": "sha256-O/Zc/bVD9paFr9466czQuBm49epdEsZ8c0h78qGxa/Q=",
+          "binary": "mise/bin/mise"
+        },
+        "linux-arm64": {
+          "asset": "mise-v2026.10.4-linux-arm64.tar.gz",
+          "integrity": "sha256-h2CEHNv5ZOz5kCpQyUcWx3GFqZr3+OtVycUexz7NiIA=",
+          "binary": "mise/bin/mise"
+        },
+        "linux-x64": {
+          "asset": "mise-v2026.10.4-linux-x64.tar.gz",
+          "integrity": "sha256-L8eTAgtELQgWNgNAAjayxpP4zt6BDH5DL8dyIObJ6KE=",
+          "binary": "mise/bin/mise"
+        },
+        "linux-arm64-musl": {
+          "asset": "mise-v2026.10.4-linux-arm64-musl.tar.gz",
+          "integrity": "sha256-MkiJXPX2RFWApoh+r31XR2vH06/OPIzyE7fUq5quiog=",
+          "binary": "mise/bin/mise"
+        },
+        "linux-x64-musl": {
+          "asset": "mise-v2026.10.4-linux-x64-musl.tar.gz",
+          "integrity": "sha256-WT1X6qC2wbjTu56qOhwWsIHOoQWZJ2zmm+0q1dvnw2E=",
+          "binary": "mise/bin/mise"
+        },
+        "win32-x64": {
+          "asset": "mise-v2026.10.4-windows-x64.zip",
+          "integrity": "sha256-rmzPr3PKIlqQLzu7L1u/C+ZNsVYGDrXdxxQG1vye4vk=",
+          "binary": "mise/bin/mise.exe"
+        },
+        "win32-arm64": {
+          "asset": "mise-v2026.10.4-windows-arm64.zip",
+          "integrity": "sha256-1orQ7N8weIhx/33SXh6dSTQlpnU8GysTcNQYd4Meo1I=",
+          "binary": "mise/bin/mise.exe"
+        }
+      }
+    }
+  }
+}
