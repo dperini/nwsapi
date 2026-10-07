@@ -1,5 +1,23 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { checkUnicodeEs5 } from '../../../../scripts/repo/unicode-es5/check.mts'
+import type * as NodeRunner from '../../../../scripts/repo/lib/run-node.mts'
+
+const state = vi.hoisted(() => ({ main: false }))
+vi.mock('../../../../scripts/repo/lib/run-node.mts', async importOriginal => ({
+  ...(await importOriginal<typeof NodeRunner>()),
+  isMainModule: (url: string) =>
+    state.main && url.endsWith('/unicode-es5/check.mts'),
+}))
+
+test('the Unicode checker can execute as a direct repository command', async () => {
+  state.main = true
+  try {
+    vi.resetModules()
+    await import('../../../../scripts/repo/unicode-es5/check.mts')
+  } finally {
+    state.main = false
+  }
+})
 
 test('the Unicode tables imported by direction matching support ES5', () => {
   expect(() => checkUnicodeEs5()).not.toThrow()
