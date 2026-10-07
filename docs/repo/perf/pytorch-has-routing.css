@@ -403,7 +403,7 @@ h1 em {
   top: 0;
   display: flex;
   gap: 8px;
-  padding: 13px 0;
+  padding: 16px 14px;
   background: #0c171ef5;
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
