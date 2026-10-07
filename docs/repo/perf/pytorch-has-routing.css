@@ -351,7 +351,9 @@ h1 em {
   border-top: 3px solid var(--topic-color);
   border-radius: 9px;
   color: inherit;
-  background: color-mix(in srgb, var(--topic-color) 5%, #0c171e);
+  background: color-mix(in srgb, var(--topic-color) 9%, #0c171e);
+  border-color: color-mix(in srgb, var(--topic-color) 42%, var(--line));
+  border-top-color: var(--topic-color);
   text-decoration: none;
   transition:
     border-color 0.15s,
@@ -371,10 +373,10 @@ h1 em {
   background: color-mix(in srgb, var(--topic-color) 20%, #26363c);
 }
 .route-overview strong {
-  color: var(--topic-color);
+  color: color-mix(in srgb, var(--topic-color) 85%, white);
 }
 .route-overview span {
-  color: var(--muted);
+  color: #d1dfe6;
   font-size: 0.8rem;
   line-height: 1.5;
 }
