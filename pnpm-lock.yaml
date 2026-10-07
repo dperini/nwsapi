@@ -176,6 +176,12 @@ catalogs:
     '@puppeteer/browsers':
       specifier: 3.2.2
       version: 3.2.2
+    '@radix-ui/react-checkbox':
+      specifier: 1.3.12
+      version: 1.3.12
+    '@radix-ui/react-select':
+      specifier: 2.3.8
+      version: 2.3.8
     '@testing-library/dom':
       specifier: 10.4.2
       version: 10.4.2
@@ -263,6 +269,12 @@ catalogs:
     parse5:
       specifier: 8.0.1
       version: 8.0.1
+    react:
+      specifier: 19.3.0
+      version: 19.3.0
+    react-dom:
+      specifier: 19.3.0
+      version: 19.3.0
     run-local-ci:
       specifier: 0.18.1
       version: 0.18.1
@@ -311,10 +323,10 @@ importers:
         specifier: 'catalog:'
         version: 3.2.2
       '@radix-ui/react-checkbox':
-        specifier: 1.3.12
+        specifier: 'catalog:'
         version: 1.3.12(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@radix-ui/react-select':
-        specifier: 2.3.8
+        specifier: 'catalog:'
         version: 2.3.8(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@swc/core':
         specifier: 1.15.41
@@ -407,10 +419,10 @@ importers:
         specifier: 'catalog:'
         version: 8.0.1
       react:
-        specifier: 19.3.0
+        specifier: 'catalog:'
         version: 19.3.0
       react-dom:
-        specifier: 19.3.0
+        specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
       rolldown:
         specifier: 1.2.13
