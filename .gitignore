@@ -24,6 +24,9 @@
 !/.config/**/*.mts
 !/.config/model-training/**/*.toml
 !/.config/model-training/**/uv.lock
+!/.config/perf-video/Cargo.toml
+!/.config/perf-video/Cargo.lock
+!/.config/perf-video/*.rs
 !/.config/security/**/*.toml
 !/.config/security/**/uv.lock
 !/.config/**/*.ts

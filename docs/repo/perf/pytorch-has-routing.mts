@@ -21,6 +21,7 @@ import {
   initializeImpact,
   renderImpact,
 } from './pytorch-has-routing/impact.mts'
+import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -57,51 +58,72 @@ function policyState() {
   }
 }
 
+function routeSummary(state: ReturnType<typeof policyState>) {
+  if (state.anchors < 32) {
+    return {
+      title: 'Generic selector path',
+      detail: 'Fewer than 32 anchors, so the bulk route is skipped.',
+    }
+  }
+  if (state.witnesses === 0) {
+    return {
+      title: 'No witness search',
+      detail: 'There are no witness candidates, so the exact result is empty.',
+    }
+  }
+  const direction = state.forward ? 'forward' : 'inverse'
+  return {
+    title: `${direction[0]!.toUpperCase()}${direction.slice(1)} route`,
+    detail: `The existing count rule selects ${direction} matching.`,
+  }
+}
+
+function plannerSummary(
+  state: ReturnType<typeof policyState>,
+  override: boolean,
+) {
+  if (state.anchors < 32 || state.witnesses === 0) {
+    return ['Not called', 'The ordinary selector path handles this query']
+  }
+  if (!state.forward) {
+    return [
+      'Not called · inverse stays',
+      'The existing rule already chose inverse. The planner only considers replacing forward.',
+    ]
+  }
+  if (!state.enabled) {
+    return ['Disabled · forward stays', 'The optional planner is switched off.']
+  }
+  if (state.attributes === 0) {
+    return [
+      'Not eligible · forward stays',
+      'This query has no supported attribute filter.',
+    ]
+  }
+  if (!state.inRange) {
+    return [
+      'Range guard · forward stays',
+      'The saved function rejects inputs outside its training range.',
+    ]
+  }
+  return override
+    ? [
+        'Recommend inverse',
+        'The model changes the route. Exact selector checks still produce the matches.',
+      ]
+    : ['Keep forward', 'The model leaves the traditional route in place.']
+}
+
 function showPolicyDecision(
   state: ReturnType<typeof policyState>,
   override: boolean,
 ) {
-  const { anchors, witnesses, attributes, enabled, forward, inRange } = state
-  const blockers = [
-    [!enabled, 'Planner disabled. The current route is retained.'],
-    [
-      anchors < 32,
-      'Fewer than 32 anchors. The bulk route and model are skipped.',
-    ],
-    [
-      witnesses === 0,
-      'No witness candidates. The exact result is empty. No model call is needed.',
-    ],
-    [
-      !forward,
-      'The existing routing rule already chooses inverse matching. The model cannot replace that decision.',
-    ],
-    [
-      attributes === 0,
-      'This query has no supported attribute filter. The runtime does not call the model.',
-    ],
-    [
-      !inRange,
-      'The saved policy declines inputs outside its supported range. Keep forward matching.',
-    ],
-  ] as const
-  const blocker = blockers.find(([blocked]) => blocked)
-  text('decision-label', blocker ? 'Guard outcome' : 'Saved policy outcome')
-  text(
-    'decision-title',
-    blocker
-      ? 'Keep the existing behavior'
-      : override
-        ? 'Override → inverse'
-        : 'Keep → forward',
-  )
-  text(
-    'decision-detail',
-    blocker?.[1] ||
-      (override
-        ? 'The saved function returns true. The engine uses inverse marking and its ordinary exact checks. This recommendation is not a measured speedup.'
-        : 'The saved function returns false. The engine keeps forward matching. This is a route recommendation, not a match result.'),
-  )
+  const traditional = routeSummary(state)
+  const planner = plannerSummary(state, override)
+  text('traditional-choice', traditional.title)
+  text('traditional-detail', traditional.detail)
+  text('decision-title', planner[0]!)
+  text('decision-detail', planner[1]!)
 }
 
 function canCallPolicy(state: ReturnType<typeof policyState>) {
@@ -144,7 +166,7 @@ function renderPolicy() {
       anchors >= 32 && witnesses > 0,
     ),
     guard(
-      'The current route is forward',
+      'Planner can consider this route',
       `The existing count rule selects ${forward ? 'forward' : 'inverse'}. An existing inverse decision stays inverse.`,
       forward,
     ),
@@ -325,6 +347,7 @@ async function loadSamples() {
 
 function initialize() {
   ;(element('guide-favicon') as HTMLLinkElement).href = guideFavicon
+  initializeSectionThemes()
   element('pipeline').innerHTML = stages
     .map(
       (stage, index) =>
