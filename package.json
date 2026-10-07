@@ -245,6 +245,7 @@
     "jquery": "catalog:",
     "jsdom": "catalog:",
     "mitata": "catalog:",
+    "nock": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
