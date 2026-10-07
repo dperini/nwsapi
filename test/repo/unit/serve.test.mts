@@ -16,8 +16,20 @@ const state = vi.hoisted(() => ({
     | undefined,
   error: undefined as ((error: NodeJS.ErrnoException) => void) | undefined,
   listen: vi.fn(),
+  escape: false,
 }))
 let exit: MockInstance
+vi.mock('node:path', async original => {
+  const actual = await original<{ default: typeof path }>()
+  return {
+    ...actual,
+    default: {
+      ...actual.default,
+      resolve: (...parts: string[]) =>
+        state.escape ? '/outside' : actual.default.resolve(...parts),
+    },
+  }
+})
 vi.mock('node:fs', async importOriginal => ({
   ...(await importOriginal()),
   existsSync: state.exists,
@@ -47,6 +59,7 @@ vi.mock('node:http', async importOriginal => ({
 beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
+  state.escape = false
   state.exists.mockReturnValue(true)
   state.real.mockImplementation(async (file: string) => file)
   state.stat.mockResolvedValue({ isDirectory: () => false, size: 12 })
@@ -74,12 +87,34 @@ async function request(url: string | undefined, method = 'GET') {
 }
 
 test('server binds only loopback and default port', async () => {
+  vi.stubEnv('PORT', undefined)
   await import('../../../scripts/repo/serve.mts')
   expect(state.listen).toHaveBeenCalledWith(
     8000,
     '127.0.0.1',
     expect.any(Function),
   )
+})
+test('missing URLs and containment failures return controlled responses', async () => {
+  await import('../../../scripts/repo/serve.mts')
+  expect((await request(undefined)).writeHead.mock.calls[0]![0]).toBe(200)
+  state.escape = true
+  expect((await request('/page.html')).writeHead.mock.calls[0]![0]).toBe(403)
+})
+test('unexpected response failures destroy the connection', async () => {
+  await import('../../../scripts/repo/serve.mts')
+  const response = {
+    writeHead: vi.fn(() => {
+      throw new Error('response failed')
+    }),
+    end: vi.fn(),
+    destroy: vi.fn(),
+  }
+  state.handler!(
+    { url: '/page.html', method: 'POST' } as IncomingMessage,
+    response as unknown as ServerResponse,
+  )
+  await vi.waitFor(() => expect(response.destroy).toHaveBeenCalledOnce())
 })
 test('explicit zero permits an ephemeral listener', async () => {
   vi.stubEnv('PORT', '0')
