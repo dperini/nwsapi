@@ -56,7 +56,13 @@ try {
   run('scripts/repo/test.mts', testArgs)
   const coverage = createCoverageMap({})
   const engine = path.join(REPO_ROOT, 'dist/nwsapi.js')
-  for (const mode of ['modern', 'legacy']) {
+  const modes = ['modern', 'legacy']
+  for (
+    let modeIndex = 0, length = modes.length;
+    modeIndex < length;
+    modeIndex += 1
+  ) {
+    const mode = modes[modeIndex]!
     const directory = path.join(raw, mode)
     mkdirSync(directory)
     run('scripts/repo/test.mts', ['upstream'], {
@@ -64,14 +70,19 @@ try {
       NWSAPI_LEGACY: mode === 'legacy' ? '1' : '0',
       WPT_COVERAGE_DIR: directory,
     })
-    for (let i = 0; i < manifest.length; i++) {
+    for (let i = 0, size = manifest.length; i < size; i += 1) {
       const entries = JSON.parse(
         readFileSync(path.join(directory, `${i}.json`), 'utf8'),
       )
       if (!entries.length) {
         throw new Error(`Missing WPT coverage: ${manifest[i]!.path}`)
       }
-      for (const entry of entries) {
+      for (
+        let entryIndex = 0, count = entries.length;
+        entryIndex < count;
+        entryIndex += 1
+      ) {
+        const entry = entries[entryIndex]
         coverage.merge(
           await convert({
             code: entry.source,
@@ -87,7 +98,13 @@ try {
     }
   }
   const node = createCoverageMap({})
-  for (const tier of ['unit', 'integration']) {
+  const tiers = ['unit', 'integration']
+  for (
+    let tierIndex = 0, length = tiers.length;
+    tierIndex < length;
+    tierIndex += 1
+  ) {
+    const tier = tiers[tierIndex]!
     node.merge(
       JSON.parse(
         readFileSync(
@@ -102,7 +119,13 @@ try {
     dir: path.join(REPO_ROOT, 'coverage'),
     coverageMap: combined,
   })
-  for (const name of coverageReporters()) {
+  const reporters = coverageReporters()
+  for (
+    let reportIndex = 0, length = reporters.length;
+    reportIndex < length;
+    reportIndex += 1
+  ) {
+    const name = reporters[reportIndex]!
     reports.create(name).execute(context)
   }
   const execution = combined.getCoverageSummary()
