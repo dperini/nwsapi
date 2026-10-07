@@ -16,6 +16,29 @@ const row = (selector = 'a'): Measurement => ({
   errors: [null, null],
 })
 describe('benchmark charts', () => {
+  test('distinguishes package series, missing measurements and submillisecond times', () => {
+    const svg = chart(
+      'timing',
+      ['@asamuzakjp/dom-selector', 'nwsapi prerelease', 'other'],
+      [{ ...row(), milliseconds: [null, 0.01, 1], errors: [null, null, null] }],
+      'fixture',
+    )
+    const dom = new JSDOM(svg, { contentType: 'image/svg+xml' })
+    try {
+      expect(dom.window.document.querySelectorAll('rect.bar')).toHaveLength(2)
+      const titles = Array.from(
+        dom.window.document.querySelectorAll('g title'),
+        node => node.textContent,
+      )
+      expect(titles).toEqual([
+        '@asamuzakjp/dom-selector: a. not measured',
+        'nwsapi prerelease: a. 10.00μs',
+        'other: a. 1.00ms',
+      ])
+    } finally {
+      dom.window.close()
+    }
+  })
   test('summary weights every query equally and rejects incomplete results', () => {
     const measurements = [
       { ...row(), milliseconds: [1, 4] },
