@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { setImmediate } from 'node:timers/promises'
 import { JSDOM } from 'jsdom'
 import factory from '../../../../dist/nwsapi.js'
@@ -75,9 +76,8 @@ async function measure(engine: string, count: number, queries: number) {
     }
     const queried = await heap()
     // Explicitly consume retained objects after the reading.
-    if (retained.some(instance => !instance) || all.length !== count) {
-      throw new Error('Lost measurement roots.')
-    }
+    assert.equal(retained.filter(Boolean).length, count)
+    assert.equal(all.length, count)
     return {
       initialized: (initialized - before) / count,
       queried: (queried - before) / count,
