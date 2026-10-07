@@ -22,7 +22,7 @@ html {
 body {
   margin: 0;
   --scroll-accent: var(--topic-what);
-  --scroll-wash: rgb(102 157 230 / 55%);
+  --scroll-wash: color-mix(in srgb, var(--topic-what) 55%, transparent);
   --scroll-x: 8vw;
   --scroll-y: 0vh;
   --scroll-scale: 1;
@@ -40,7 +40,7 @@ body {
 }
 body[data-theme='why'] {
   --scroll-accent: var(--topic-why);
-  --scroll-wash: rgb(65 183 166 / 60%);
+  --scroll-wash: color-mix(in srgb, var(--topic-why) 60%, transparent);
   --scroll-x: 12vw;
   --scroll-y: 18vh;
   --scroll-scale: 1.18;
@@ -48,7 +48,7 @@ body[data-theme='why'] {
 }
 body[data-theme='when'] {
   --scroll-accent: var(--topic-when);
-  --scroll-wash: rgb(235 116 44 / 55%);
+  --scroll-wash: color-mix(in srgb, var(--topic-when) 55%, transparent);
   --scroll-x: 8vw;
   --scroll-y: 47vh;
   --scroll-scale: 1.08;
@@ -56,7 +56,7 @@ body[data-theme='when'] {
 }
 body[data-theme='where'] {
   --scroll-accent: var(--topic-where);
-  --scroll-wash: rgb(174 144 232 / 65%);
+  --scroll-wash: color-mix(in srgb, var(--topic-where) 65%, transparent);
   --scroll-x: 30vw;
   --scroll-y: 25vh;
   --scroll-scale: 1.2;
@@ -477,6 +477,28 @@ h1 em {
 [data-scroll-theme] .callout {
   background: color-mix(in srgb, var(--section-accent) 10%, #14252e);
   border-left-color: var(--section-accent);
+}
+[data-scroll-theme] details {
+  background: color-mix(in srgb, var(--section-accent) 6%, #111f27);
+  border-color: color-mix(in srgb, var(--section-accent) 30%, var(--line));
+}
+[data-scroll-theme] button:not(.primary, .guide-checkbox) {
+  background: color-mix(in srgb, var(--section-accent) 8%, #21353f);
+  border-color: color-mix(in srgb, var(--section-accent) 35%, var(--line));
+}
+[data-scroll-theme] button:not(.primary, .guide-checkbox):hover {
+  background: var(--theme-highlight);
+  border-color: var(--theme-highlight-edge);
+}
+[data-scroll-theme] button[aria-pressed='true'] {
+  background: var(--theme-highlight);
+  border-color: var(--theme-highlight-edge);
+  color: var(--theme-soft-text);
+}
+[data-scroll-theme] .mini-card[data-match='true'],
+[data-scroll-theme] .tree-card[data-match='true'] {
+  background: var(--theme-highlight);
+  border-color: var(--theme-highlight-edge);
 }
 .lab {
   min-width: 0;
