@@ -58,18 +58,142 @@
           </a>
         </div>
         <a class="primary link-button" href="#search"
-          >Start with a tiny DOM <span aria-hidden="true">↓</span></a
+          >Try the search lab <span aria-hidden="true">↓</span></a
         >
       </section>
       <nav class="chapters" aria-label="Guide chapters">
-        <a href="#search">01 · Understand :has()</a
-        ><a href="#policy">02 · Choose a route</a
-        ><a href="#training">03 · Train the model</a
-        ><a href="#source">04 · Follow the code</a>
+        <a href="#training">01 · What the model learns</a
+        ><a href="#search">02 · Why the route matters</a
+        ><a href="#policy">03 · When the model helps</a
+        ><a href="#source">04 · Where the code lives</a>
       </nav>
+      <section id="training" class="chapter" data-scroll-theme="what">
+        <p class="eyebrow">01 / What the model learns</p>
+        <h2>What is the model?</h2>
+        <p class="section-intro">
+          A small numeric function trained with PyTorch recommends a search
+          direction. It is machine learning, without generated text or selector
+          results. JavaScript still checks every match using the chosen route.
+          During development, we run both exact routes on benchmark fixtures.
+          Their timings provide examples for training. PyTorch adjusts weights
+          to recommend the cheaper alternative, with checks intended to limit
+          regressions.
+        </p>
+        <div class="lab">
+          <div
+            class="pipeline"
+            id="pipeline"
+            role="group"
+            aria-label="Training pipeline"
+          ></div>
+          <div class="pipeline-detail">
+            <div>
+              <span id="pipeline-stage" class="eyebrow"></span>
+              <h3 id="pipeline-title"></h3>
+              <p id="pipeline-description"></p>
+            </div>
+            <div>
+              <pre id="pipeline-example"></pre>
+              <button id="pipeline-source" class="source-jump">
+                View owning source ↓
+              </button>
+            </div>
+          </div>
+        </div>
+        <details id="training-examples">
+          <summary>Explore a recorded training example</summary>
+          <div class="recorded-example">
+            <label
+              >Host
+              <select id="sample-host" class="theme-select">
+                <option value="chromium">Chromium</option>
+                <option value="jsdom">jsdom</option>
+              </select></label
+            >
+            <div class="step-controls">
+              <button id="sample-previous">Previous example</button
+              ><button id="sample-next">Next example</button>
+            </div>
+            <p id="sample-name" class="mono"></p>
+            <div class="step-controls">
+              <button data-sample-stage="0" aria-pressed="true">
+                1. See the facts</button
+              ><button data-sample-stage="1" aria-pressed="false">
+                2. Reveal measurements</button
+              ><button data-sample-stage="2" aria-pressed="false">
+                3. Explain learning
+              </button>
+            </div>
+            <pre id="sample-facts"></pre>
+            <div id="sample-bars" aria-label="Recorded route timings"></div>
+            <p id="sample-context" class="context"></p>
+            <div id="sample-learning" hidden>
+              <p id="sample-label"></p>
+              <p>
+                During training, the model predicts from the query facts. The
+                trainer compares that prediction with the timing-derived label,
+                calculates a weighted loss, and adjusts weights using AdamW. One
+                example contributes an update alongside other examples. It does
+                not become an <code>if</code> statement.
+              </p>
+              <p>
+                Close timings need repeated samples. The trainer uses paired
+                bootstrap intervals to detect uncertain comparisons and can give
+                them zero weight. Large regressions receive a larger penalty. It
+                also includes an estimated decision budget.
+              </p>
+              <p>
+                The same inputs can occur in differently shaped DOMs with
+                different route costs. A model cannot distinguish cases using
+                facts it never receives. Validation helps choose a checkpoint
+                and threshold, then reserved evaluation and full-query
+                measurements assess it.
+              </p>
+              <button class="source-jump" data-source="train">
+                Read the loss and optimizer code ↓
+              </button>
+            </div>
+            <p class="small">
+              The trainer also considers the existing route, decision overhead,
+              timing uncertainty, and regression costs. Close or uncertain
+              timings can get zero training weight. Choosing the lower bar alone
+              is not the full training algorithm.
+            </p>
+          </div>
+        </details>
+        <div class="definition-grid">
+          <article>
+            <h3>Training examples</h3>
+            <p>
+              Used to adjust weights. Each example combines query facts with
+              measured route costs.
+            </p>
+          </article>
+          <article>
+            <h3>Validation examples</h3>
+            <p>
+              Used to select the checkpoint and threshold. The weights are
+              evaluated on fixtures outside the training families.
+            </p>
+          </article>
+          <article>
+            <h3>Evaluation examples</h3>
+            <p>
+              Reserved to assess the selected model. Further independent
+              full-query measurements are needed to qualify a shipped runtime
+              change.
+            </p>
+          </article>
+        </div>
+        <p class="callout">
+          <strong>Learning happens offline.</strong> Your page never becomes a
+          training example. The model does not update while queries run. New
+          weights require a deliberate training run, review, export, and build.
+        </p>
+      </section>
       <section id="search" class="chapter" data-scroll-theme="why">
-        <p class="eyebrow">01 / Discover what :has() asks</p>
-        <h2>Find the cards that contain a warning.</h2>
+        <p class="eyebrow">02 / Why the search route matters</p>
+        <h2>Why can a different search route help?</h2>
         <p class="section-intro">
           <code>.card:has(.warning)</code> asks for cards with a warning
           somewhere inside them. The card is the <strong>anchor</strong>. A
@@ -313,8 +437,8 @@
         </div>
       </section>
       <section id="policy" class="chapter" data-scroll-theme="when">
-        <p class="eyebrow">02 / Compare the route choices</p>
-        <h2>Traditional rule vs optional model planner.</h2>
+        <p class="eyebrow">03 / When the model can change the route</p>
+        <h2>When does the model get a say?</h2>
         <p class="section-intro">
           The traditional count rule chooses the default route. For a narrower
           set of queries, the saved model can recommend switching from forward
@@ -696,130 +820,9 @@ override = score > savedThreshold</pre>
           </button>
         </details>
       </section>
-      <section id="training" class="chapter" data-scroll-theme="what">
-        <p class="eyebrow">03 / How the model learns</p>
-        <h2>Measure. Learn. Export. Repeat deliberately.</h2>
-        <p class="section-intro">
-          During development, we run both exact routes on benchmark fixtures.
-          Their timings provide examples for training. PyTorch adjusts weights
-          to recommend the cheaper alternative, with checks intended to limit
-          regressions.
-        </p>
-        <div class="lab">
-          <div
-            class="pipeline"
-            id="pipeline"
-            role="group"
-            aria-label="Training pipeline"
-          ></div>
-          <div class="pipeline-detail">
-            <div>
-              <span id="pipeline-stage" class="eyebrow"></span>
-              <h3 id="pipeline-title"></h3>
-              <p id="pipeline-description"></p>
-            </div>
-            <div>
-              <pre id="pipeline-example"></pre>
-              <button id="pipeline-source" class="source-jump">
-                View owning source ↓
-              </button>
-            </div>
-          </div>
-        </div>
-        <details id="training-examples">
-          <summary>Explore a recorded training example</summary>
-          <div class="recorded-example">
-            <label
-              >Host
-              <select id="sample-host" class="theme-select">
-                <option value="chromium">Chromium</option>
-                <option value="jsdom">jsdom</option>
-              </select></label
-            >
-            <div class="step-controls">
-              <button id="sample-previous">Previous example</button
-              ><button id="sample-next">Next example</button>
-            </div>
-            <p id="sample-name" class="mono"></p>
-            <div class="step-controls">
-              <button data-sample-stage="0" aria-pressed="true">
-                1. See the facts</button
-              ><button data-sample-stage="1" aria-pressed="false">
-                2. Reveal measurements</button
-              ><button data-sample-stage="2" aria-pressed="false">
-                3. Explain learning
-              </button>
-            </div>
-            <pre id="sample-facts"></pre>
-            <div id="sample-bars" aria-label="Recorded route timings"></div>
-            <p id="sample-context" class="context"></p>
-            <div id="sample-learning" hidden>
-              <p id="sample-label"></p>
-              <p>
-                During training, the model predicts from the query facts. The
-                trainer compares that prediction with the timing-derived label,
-                calculates a weighted loss, and adjusts weights using AdamW. One
-                example contributes an update alongside other examples. It does
-                not become an <code>if</code> statement.
-              </p>
-              <p>
-                Close timings need repeated samples. The trainer uses paired
-                bootstrap intervals to detect uncertain comparisons and can give
-                them zero weight. Large regressions receive a larger penalty. It
-                also includes an estimated decision budget.
-              </p>
-              <p>
-                The same inputs can occur in differently shaped DOMs with
-                different route costs. A model cannot distinguish cases using
-                facts it never receives. Validation helps choose a checkpoint
-                and threshold, then reserved evaluation and full-query
-                measurements assess it.
-              </p>
-              <button class="source-jump" data-source="train">
-                Read the loss and optimizer code ↓
-              </button>
-            </div>
-            <p class="small">
-              The trainer also considers the existing route, decision overhead,
-              timing uncertainty, and regression costs. Close or uncertain
-              timings can get zero training weight. Choosing the lower bar alone
-              is not the full training algorithm.
-            </p>
-          </div>
-        </details>
-        <div class="definition-grid">
-          <article>
-            <h3>Training examples</h3>
-            <p>
-              Used to adjust weights. Each example combines query facts with
-              measured route costs.
-            </p>
-          </article>
-          <article>
-            <h3>Validation examples</h3>
-            <p>
-              Used to select the checkpoint and threshold. The weights are
-              evaluated on fixtures outside the training families.
-            </p>
-          </article>
-          <article>
-            <h3>Evaluation examples</h3>
-            <p>
-              Reserved to assess the selected model. Further independent
-              full-query measurements are needed to qualify a shipped runtime
-              change.
-            </p>
-          </article>
-        </div>
-        <p class="callout">
-          <strong>Learning happens offline.</strong> Your page never becomes a
-          training example. The model does not update while queries run. New
-          weights require a deliberate training run, review, export, and build.
-        </p>
-      </section>
       <section id="source" class="chapter" data-scroll-theme="where">
         <p class="eyebrow">04 / Where the runtime code lives</p>
-        <h2>From Python to the JavaScript bundle.</h2>
+        <h2>Where does the model run?</h2>
         <p class="section-intro">
           PyTorch saves a checkpoint. Repository code writes the JavaScript
           export and generates the typed module. The runtime imports a fixed
