@@ -103,6 +103,26 @@ test('headroom audits only supported development controls and rejects mismatched
     assert.equal(report.results.chromium.forwardOnly.changedCases, 2)
     assert.equal(report.results.chromium.supportedForwardOnly.changedCases, 1)
     assert.deepEqual(report.results.jsdom, report.results.chromium)
+    const boundaryRows = ['chromium', 'jsdom'].flatMap(host => [
+      { ...rows[0], host, features: [1, 144, 0, 3] },
+      { ...rows[0], host, features: [48, 1001, 0, 3] },
+      { ...rows[0], host, routeFacts: null },
+      { ...rows[0], host, routeFacts: { denseInverse: true } },
+      { ...rows[0], host, costsNs: [100, 150] },
+    ])
+    const boundaryDataset = Buffer.from(JSON.stringify({ rows: boundaryRows }))
+    writeFileSync(path.join(directory, 'dataset/dataset.json'), boundaryDataset)
+    writeFileSync(
+      path.join(directory, 'evaluation.json'),
+      JSON.stringify({ datasetSha256: sha256(boundaryDataset) }),
+    )
+    audit(directory, directory, output)
+    const boundaries = JSON.parse(readFileSync(output, 'utf8'))
+    assert.equal(boundaries.results.chromium.anyRoute.changedCases, 4)
+    assert.equal(
+      boundaries.results.chromium.supportedForwardOnly.changedCases,
+      0,
+    )
     const script = path.resolve(
       'scripts/repo/bench/planner/dispatch/headroom.mts',
     )
