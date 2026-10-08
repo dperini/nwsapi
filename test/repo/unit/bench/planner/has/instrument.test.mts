@@ -92,3 +92,21 @@ test('rejects overlapping edits created by nested return expressions', () => {
   }function runSingle(){return 'resolver'}module.exports={};`
   expect(() => routeBundle(nested, 'baseline', true)).toThrow(Error)
 })
+test.each([
+  'witnesses.length === anchors.length * 2',
+  'other.length > anchors.length * 2',
+  'witnesses.size > anchors.length * 2',
+  'witnesses.length > 2',
+  'witnesses.length > anchors.length + 2',
+  'witnesses.length > other.length * 2',
+  'witnesses.length > anchors.size * 2',
+  'witnesses.length > anchors * 2',
+])('rejects an unsupported ratio expression %s', expression => {
+  const candidate = `function selectBulkHas(engine,plan,context,anchors){
+    if(!anchors.length){return []}
+    var witnesses=engine.witnesses;
+    if(${expression}){return 'forward'}
+    return 'inverse';
+  }function runSingle(){return 'resolver'}module.exports={};`
+  expect(() => routeBundle(candidate, 'baseline', true)).toThrow(Error)
+})
