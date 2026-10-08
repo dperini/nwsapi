@@ -24,7 +24,7 @@ html:has(.reader) {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
-  font-size: 0.8125rem;
+  font-size: var(--text-support);
 }
 .reader-back svg,
 .reading-related svg {
@@ -70,7 +70,7 @@ html:has(.reader) {
 }
 #reading-time {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-support);
   white-space: nowrap;
 }
 .reading-prose {
@@ -147,7 +147,7 @@ html:has(.reader) {
 .reading-prose pre {
   margin: 24px 0;
   max-inline-size: 100%;
-  font-size: 0.78rem;
+  font-size: var(--text-support);
 }
 .reading-prose .code-sample {
   margin: 24px 0;
@@ -182,7 +182,7 @@ html:has(.reader) {
 }
 .reading-prose table {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--text-support);
   line-height: 1.55;
 }
 .reading-prose :is(th, td) {
@@ -228,7 +228,7 @@ html:has(.reader) {
 }
 .reading-sidebar summary {
   color: var(--section-accent);
-  font-size: 0.6875rem;
+  font-size: var(--text-support);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.13em;
@@ -250,13 +250,13 @@ html:has(.reader) {
   border-left: 2px solid transparent;
   border-radius: 4px;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-support);
   line-height: 1.5;
   text-decoration: none;
 }
 #reading-contents li[data-depth='3'] a {
   padding-left: 24px;
-  font-size: 0.72rem;
+  font-size: var(--text-support);
 }
 #reading-contents a[aria-current='location'] {
   border-color: var(--section-accent);

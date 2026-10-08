@@ -8,21 +8,34 @@ function connectCopy(
   code: HTMLElement,
 ) {
   let reset: ReturnType<typeof setTimeout> | undefined
-  button.addEventListener('click', async () => {
+  const toolbar = button.parentElement!
+  const restore = () => {
+    button.innerHTML = iconMarkup('copy')
+    button.setAttribute('aria-label', 'Copy code')
+    button.title = 'Copy code'
+    status.replaceChildren()
+    delete toolbar.dataset['copyState']
+  }
+  const copy = async () => {
     clearTimeout(reset)
+    restore()
     try {
       await navigator.clipboard.writeText(code.textContent ?? '')
       button.innerHTML = iconMarkup('check')
       button.setAttribute('aria-label', 'Code copied')
-      status.textContent = 'Copied'
+      button.title = 'Code copied'
+      const message = document.createElement('span')
+      message.className = 'code-copy-message'
+      message.textContent = 'Copied'
+      status.replaceChildren(message)
+      toolbar.dataset['copyState'] = 'copied'
     } catch {
       status.textContent = 'Select the code to copy it manually.'
     }
-    reset = setTimeout(() => {
-      button.innerHTML = iconMarkup('copy')
-      button.setAttribute('aria-label', 'Copy code')
-      status.textContent = ''
-    }, 2400)
+    reset = setTimeout(restore, 2400)
+  }
+  button.addEventListener('click', () => {
+    void copy()
   })
 }
 

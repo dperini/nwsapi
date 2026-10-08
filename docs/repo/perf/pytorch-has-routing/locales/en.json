@@ -36,5 +36,7 @@
   "diagramPending": "Awaiting final check",
   "diagramResult": "Confirmed result",
   "diagramExcluded": "Excluded card",
-  "diagramStateHelp": "The blue outline follows the current node. Result markers appear when it arrives. Finding a warning can confirm its containing card. A ! labels a warning already in the DOM, not a selected result."
+  "diagramStateHelp": "The blue outline follows the current node. Result markers appear when it arrives. Finding a warning can confirm its containing card. A ! labels a warning already in the DOM, not a selected result.",
+  "useLightMode": "Switch to light mode",
+  "useDarkMode": "Switch to dark mode"
 }

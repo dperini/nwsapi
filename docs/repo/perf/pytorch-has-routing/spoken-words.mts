@@ -1,3 +1,4 @@
+import { isReadingMode } from './reading-mode.mts'
 import { escapeHtml } from './ui.mts'
 
 type WordCue = { text: string; start: number; end: number }
@@ -60,6 +61,11 @@ export function attachWordHighlight(
     }
   }
   const follow = () => {
+    if (isReadingMode()) {
+      words.forEach(word => word.classList.remove('is-speaking', 'is-pausing'))
+      active = -1
+      return
+    }
     update()
     if (!audio.paused && !audio.ended) {
       frame = requestAnimationFrame(follow)
@@ -79,5 +85,6 @@ export function attachWordHighlight(
   ]) {
     audio.addEventListener(event, refresh)
   }
-  update()
+  window.addEventListener('guide-reading-mode-change', refresh)
+  refresh()
 }

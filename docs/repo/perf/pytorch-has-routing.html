@@ -46,18 +46,31 @@
             <option value="it">it</option>
           </select>
         </span>
-        <button
-          type="button"
-          class="reading-mode-toggle"
-          data-reading-toggle
-          aria-pressed="false"
-          aria-label="Reading mode"
-          title="Reading mode"
-          data-i18n-aria="readingMode"
-          data-i18n-title="readingMode"
-        >
-          <!-- guide-reading-symbol -->
-        </button>
+        <span class="appearance-controls">
+          <button
+            type="button"
+            class="color-mode-toggle"
+            data-color-toggle
+            data-light-label="Switch to light mode"
+            data-dark-label="Switch to dark mode"
+            aria-label="Switch to light mode"
+            title="Switch to light mode"
+          >
+            <!-- guide-color-symbol -->
+          </button>
+          <button
+            type="button"
+            class="reading-mode-toggle"
+            data-reading-toggle
+            aria-pressed="false"
+            aria-label="Reading mode"
+            title="Reading mode"
+            data-i18n-aria="readingMode"
+            data-i18n-title="readingMode"
+          >
+            <!-- guide-reading-symbol -->
+          </button>
+        </span>
       </div>
     </header>
     <main id="start">
@@ -181,17 +194,16 @@
                 Shown timings are archived measurements on one fixture, not a
                 benchmark running here.
               </p>
-              <button id="pipeline-source" class="source-jump">
+              <a href="#source" id="pipeline-source" class="source-jump">
                 Read this step’s source
                 <svg
                   class="source-arrow"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <path class="source-arrow-stem" d="M12 3v12m-5-5 5 5 5-5" />
-                  <path d="M5 20h14" />
+                  <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
                 </svg>
-              </button>
+              </a>
             </div>
           </div>
           <div class="story-navigation">
@@ -269,9 +281,16 @@
                 Validation selects the saved model and threshold. Separate
                 evaluation examples and complete query timings check the result.
               </p>
-              <button class="source-jump" data-source="train">
-                Read the loss and optimizer code ↓
-              </button>
+              <a href="#source" class="source-jump" data-source="train">
+                Read the loss and optimizer code
+                <svg
+                  class="source-arrow"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+                </svg>
+              </a>
             </div>
             <p class="small">
               The shorter timing bar is only part of the training signal. The
@@ -409,15 +428,8 @@
           </ul>
           <div class="film-grid">
             <article>
-              <h4>
-                <button
-                  type="button"
-                  class="film-route-toggle"
-                  data-film-route="forward"
-                  aria-pressed="false"
-                >
-                  Search down <span>Forward · card ↓ warning</span>
-                </button>
+              <h4 class="film-route-heading">
+                Search down <span>Forward · card ↓ warning</span>
               </h4>
               <div id="film-forward" class="film-scene"></div>
               <p id="film-forward-work" class="film-work mono"></p>
@@ -425,15 +437,8 @@
               <p id="film-forward-caption" class="film-caption"></p>
             </article>
             <article>
-              <h4>
-                <button
-                  type="button"
-                  class="film-route-toggle"
-                  data-film-route="inverse"
-                  aria-pressed="false"
-                >
-                  Search up <span>Inverse · warning ↑ card</span>
-                </button>
+              <h4 class="film-route-heading">
+                Search up <span>Inverse · warning ↑ card</span>
               </h4>
               <div id="film-inverse" class="film-scene"></div>
               <p id="film-inverse-work" class="film-work mono"></p>
@@ -525,8 +530,7 @@
               </div>
             </div>
             <div class="result-strip">
-              <strong>Result so far</strong><span id="match-result"></span
-              ><span class="badge" id="result-status">Building the result</span>
+              <strong>Result so far</strong><span id="match-result"></span>
             </div>
           </div>
           <p class="context">
@@ -548,17 +552,25 @@
             search.
           </p>
           <div class="prediction-controls">
-            <label class="prediction-label"
-              >Which cards match?
-              <select id="challenge-prediction" class="theme-select">
-                <option value="">Choose the result…</option>
-                <option value="A,C">A and C</option>
-                <option value="C">Only C</option>
-                <option value="A,A,C">A, A, and C</option>
-                <option value="none">No cards</option>
-              </select>
-            </label>
-            <button id="challenge-reveal">Reveal and explain</button>
+            <div class="prediction-label">
+              <label for="challenge-prediction">Which cards match?</label>
+              <div class="prediction-field">
+                <span class="qa-marker" aria-hidden="true" translate="no"
+                  >Q</span
+                >
+                <select id="challenge-prediction" class="theme-select">
+                  <option value="">Choose the result…</option>
+                  <option value="A,C">A and C</option>
+                  <option value="C">Only C</option>
+                  <option value="A,A,C">A, A, and C</option>
+                  <option value="none">No cards</option>
+                </select>
+              </div>
+            </div>
+            <div class="prediction-answer">
+              <span class="qa-marker" aria-hidden="true" translate="no">A</span>
+              <button id="challenge-reveal">Reveal and explain</button>
+            </div>
           </div>
           <p id="challenge-feedback" role="status" aria-live="polite">
             Choose a result, then reveal the explanation.
@@ -622,12 +634,11 @@
             The four-card lesson has fewer than 32 anchors, so the runtime never
             needs a model call.
           </p>
-          <a href="#policy">See how the model uses these counts ↓</a>
-          <p class="context">
-            This constructed example introduces the eligibility guards. It is
-            not a training example or a measured speedup. The colored tiles
-            represent the exact matching cards.
+          <p>
+            The tiles show matching cards. This constructed example illustrates
+            eligibility checks without training data or timing measurements.
           </p>
+          <a href="#policy">See how the model uses these counts ↓</a>
         </div>
       </section>
       <section
@@ -858,7 +869,23 @@
               role="status"
               aria-live="polite"
             ></p>
-            <p id="impact-formula" class="mono small"></p>
+            <div id="impact-formula" aria-labelledby="impact-formula-title">
+              <h4 id="impact-formula-title">Estimated time with model</h4>
+              <dl class="impact-cost-terms">
+                <div>
+                  <dt>Visits</dt>
+                  <dd id="impact-visit-term"></dd>
+                </div>
+                <div>
+                  <dt>Ancestor steps</dt>
+                  <dd id="impact-ancestor-term"></dd>
+                </div>
+                <div>
+                  <dt>Model overhead</dt>
+                  <dd id="impact-model-term"></dd>
+                </div>
+              </dl>
+            </div>
           </div>
           <p class="context">
             The estimate multiplies visit and ancestor counts by your assumed
@@ -943,9 +970,12 @@
             inputs. Displayed values are rounded. The route recommendation comes
             from the generated function.
           </p>
-          <button class="source-jump" data-source="generated">
-            Compare with the generated JavaScript ↓
-          </button>
+          <a href="#source" class="source-jump" data-source="generated">
+            Compare with the generated JavaScript
+            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+            </svg>
+          </a>
         </details>
         <p class="callout">
           <strong>What if the model picks the slower route?</strong> A poor
@@ -965,9 +995,12 @@
             inputs and callback failures. A valid recommendation that turns out
             to be slower still runs the recommended route.
           </p>
-          <button class="source-jump" data-source="match">
-            See the guards and exact matching code ↓
-          </button>
+          <a href="#source" class="source-jump" data-source="match">
+            See the guards and exact matching code
+            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+            </svg>
+          </a>
         </details>
         <details>
           <summary>Model terms and arithmetic</summary>
@@ -1012,9 +1045,12 @@ override = score > savedThreshold</pre>
             whether an element matches or express a probability. Queries run in
             JavaScript without Python, a GPU, or a remote model.
           </p>
-          <button class="source-jump" data-source="generated">
-            Open the actual generated function ↓
-          </button>
+          <a href="#source" class="source-jump" data-source="generated">
+            Open the actual generated function
+            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+            </svg>
+          </a>
         </details>
       </section>
       <section

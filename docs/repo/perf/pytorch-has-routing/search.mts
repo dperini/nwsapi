@@ -1,3 +1,4 @@
+import { allowsMotion, isReadingMode } from './reading-mode.mts'
 import {
   names,
   resultNames,
@@ -119,12 +120,6 @@ function showStep() {
         ? 'Search down through descendants'
         : 'Search up and mark ancestors',
   )
-  text(
-    'result-status',
-    position === steps.length
-      ? 'Complete · both routes agree'
-      : 'Building the result',
-  )
   ;(element('step-next') as HTMLButtonElement).disabled =
     position >= steps.length
   ;(element('step-back') as HTMLButtonElement).disabled = position === 0
@@ -177,6 +172,9 @@ function next() {
 }
 
 function play() {
+  if (isReadingMode()) {
+    return
+  }
   if (playing !== undefined) {
     stop()
     return
@@ -312,15 +310,18 @@ function handleClick(event: MouseEvent) {
     const radio = input(`route-${route}`)
     radio.closest('fieldset')!.scrollIntoView({
       block: 'center',
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-        ? 'instant'
-        : 'smooth',
+      behavior: !allowsMotion() ? 'instant' : 'smooth',
     })
     radio.focus({ preventScroll: true })
   }
 }
 
 export function initializeSearch() {
+  window.addEventListener('guide-reading-mode-change', () => {
+    if (isReadingMode()) {
+      stop()
+    }
+  })
   initializeMotion()
   render()
   document.addEventListener('click', handleClick)

@@ -40,18 +40,31 @@
             <option value="it">it</option>
           </select>
         </span>
-        <button
-          type="button"
-          class="reading-mode-toggle"
-          data-reading-toggle
-          aria-pressed="false"
-          aria-label="Reading mode"
-          title="Reading mode"
-          data-i18n-aria="readingMode"
-          data-i18n-title="readingMode"
-        >
-          <!-- guide-reading-symbol -->
-        </button>
+        <span class="appearance-controls">
+          <button
+            type="button"
+            class="color-mode-toggle"
+            data-color-toggle
+            data-light-label="Switch to light mode"
+            data-dark-label="Switch to dark mode"
+            aria-label="Switch to light mode"
+            title="Switch to light mode"
+          >
+            <!-- guide-color-symbol -->
+          </button>
+          <button
+            type="button"
+            class="reading-mode-toggle"
+            data-reading-toggle
+            aria-pressed="false"
+            aria-label="Reading mode"
+            title="Reading mode"
+            data-i18n-aria="readingMode"
+            data-i18n-title="readingMode"
+          >
+            <!-- guide-reading-symbol -->
+          </button>
+        </span>
       </div>
       <a class="reader-back" href="./pytorch-has-routing.html#source">
         <svg viewBox="0 0 24 24" aria-hidden="true">

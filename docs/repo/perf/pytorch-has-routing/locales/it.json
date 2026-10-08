@@ -36,5 +36,7 @@
   "diagramPending": "In attesa della verifica finale",
   "diagramResult": "Risultato confermato",
   "diagramExcluded": "Scheda esclusa",
-  "diagramStateHelp": "Il contorno blu segue il nodo corrente. Gli indicatori dei risultati compaiono al suo arrivo. Trovare un avviso può confermare la scheda che lo contiene. Il simbolo ! indica un avviso già presente nel DOM, non un risultato selezionato."
+  "diagramStateHelp": "Il contorno blu segue il nodo corrente. Gli indicatori dei risultati compaiono al suo arrivo. Trovare un avviso può confermare la scheda che lo contiene. Il simbolo ! indica un avviso già presente nel DOM, non un risultato selezionato.",
+  "useLightMode": "Passa alla modalità chiara",
+  "useDarkMode": "Passa alla modalità scura"
 }

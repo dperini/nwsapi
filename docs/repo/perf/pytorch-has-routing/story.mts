@@ -78,6 +78,7 @@ export function renderStory(index: number, fallback: string): StoryReadout {
     number,
   ]
   const chosen = selector(mask)
+  const host = query.host === 'chromium' ? 'Chromium' : query.host
   const target = query.costsNs[1]! + budget < query.baselineCostNs
   const policy = query.host === 'chromium' ? chromiumPolicy : jsdomPolicy
   const override = policy(
@@ -93,12 +94,12 @@ export function renderStory(index: number, fallback: string): StoryReadout {
     `The recorded upward search plus the trainer’s ${budget}ns model budget costs ${microseconds(query.costsNs[1]! + budget)}. Downward search costs ${microseconds(query.baselineCostNs)}. A simple comparison favors ${target ? 'switching to upward search' : 'keeping the downward search'}. Training also considers uncertainty and slowdown penalties across many examples.`,
     'PyTorch saves the learned weights in a checkpoint. The repository exporter writes JavaScript arithmetic using those weights. Many selectors share this function. There is no model file for each selector.',
     'The generator creates a typed module from the saved JavaScript export. The build bundles that module into nwsapi. Neither Python nor a training run is needed to execute a query.',
-    `The committed ${query.host} model returns ${override} for these inputs. An eligible query would ${override ? 'switch to upward search' : 'keep searching down'}. The ${routeDirections[route]}ward search still checks the selector exactly and returns matches in document order. This recommendation could be slower on another DOM with the same inputs.`,
+    `The committed ${host} model returns ${override} for these inputs. An eligible query would ${override ? 'switch to upward search' : 'keep searching down'}. The ${routeDirections[route]}ward search still checks the selector exactly and returns matches in document order. This recommendation could be slower on another DOM with the same inputs.`,
   ]
   explain(explanations[index]!, index === 0 ? chosen : undefined)
   text(
     'story-context',
-    `Source: ${query.host} fixture ${query.id}, recorded October 5, 2026. Timings are archived medians. The steps explain the training process without retraining the model or running a benchmark. The final step calls the committed function with this example’s inputs.`,
+    `Source: ${host} fixture ${query.id}, recorded October 5, 2026. Timings are archived medians. The steps explain the training process without retraining the model or running a benchmark. The final step calls the committed function with this example’s inputs.`,
   )
   const examples: StoryReadout[] = [
     {

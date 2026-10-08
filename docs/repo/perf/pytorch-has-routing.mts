@@ -24,7 +24,6 @@ import {
 import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
 import {
   showSource,
-  jumpToSource,
   revealSourceChoice,
 } from './pytorch-has-routing/source-view.mts'
 import { initializePanelShimmer } from './pytorch-has-routing/panel-shimmer.mts'
@@ -409,8 +408,8 @@ function initialize() {
 }
 
 function handleClick(event: MouseEvent) {
-  const target = (event.target as HTMLElement).closest<HTMLButtonElement>(
-    'button',
+  const target = (event.target as HTMLElement).closest<HTMLElement>(
+    'button, a[data-source]',
   )
   if (!target) {
     return
@@ -426,7 +425,7 @@ function handleClick(event: MouseEvent) {
     showSource(data['file'] as SourceId)
   }
   if (data['source']) {
-    jumpToSource(data['source'] as SourceId)
+    showSource(data['source'] as SourceId)
   }
   if (data['sampleStage'] !== undefined) {
     sampleStage = Number(data['sampleStage'])
@@ -457,7 +456,7 @@ element('policy-controls').addEventListener('submit', event =>
   event.preventDefault(),
 )
 element('pipeline-source').addEventListener('click', () =>
-  jumpToSource(stages[stageIndex]!.source),
+  showSource(stages[stageIndex]!.source),
 )
 element('training-examples').addEventListener('toggle', () => {
   if ((element('training-examples') as HTMLDetailsElement).open) {

@@ -58,7 +58,7 @@ function GuideSelect({
   const accent = control.hasAttribute('data-language-select')
     ? 'var(--scroll-accent, var(--topic-what))'
     : section
-      ? getComputedStyle(section).getPropertyValue('--section-accent')
+      ? `var(--topic-${section.dataset['scrollTheme']})`
       : 'var(--topic-where)'
   const theme: CSSProperties & { '--section-accent': string } = {
     '--section-accent': accent,

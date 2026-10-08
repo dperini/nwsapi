@@ -1,3 +1,4 @@
+import { allowsMotion } from './reading-mode.mts'
 import { sources } from './source.mts'
 import type { SourceId } from './source.mts'
 import { element, text } from './ui.mts'
@@ -35,8 +36,6 @@ export function jumpToSource(id: SourceId) {
   showSource(id)
   highlightLinkedArea(element('source-code'))
   element('source').scrollIntoView({
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? 'instant'
-      : 'smooth',
+    behavior: !allowsMotion() ? 'instant' : 'smooth',
   })
 }

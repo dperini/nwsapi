@@ -1,3 +1,4 @@
+import { isReadingMode } from './reading-mode.mts'
 import { initializeRangePulses } from './range.mts'
 
 let active: HTMLElement | undefined
@@ -77,7 +78,9 @@ function updateActiveTheme() {
   updateChapterVisibility()
   const sections = document.querySelectorAll<HTMLElement>('[data-scroll-theme]')
   const center = window.innerHeight / 2
-  updateSpotlight(sections, center)
+  if (!isReadingMode()) {
+    updateSpotlight(sections, center)
+  }
   let nearest = Number.POSITIVE_INFINITY
   let selected: HTMLElement | undefined
 
@@ -174,5 +177,6 @@ export function initializeSectionThemes() {
   initializeChapterShimmer()
   window.addEventListener('scroll', scheduleThemeUpdate, { passive: true })
   window.addEventListener('resize', scheduleThemeUpdate)
+  window.addEventListener('guide-reading-mode-change', scheduleThemeUpdate)
   updateActiveTheme()
 }
