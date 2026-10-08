@@ -459,12 +459,20 @@ h1 em {
   padding-top: 76px;
 }
 .section-intro {
-  color: #f0f4f7;
-  text-shadow: 0 1px 3px #0008;
+  color: #dce7ed;
+  font-size: 0.98rem;
+  line-height: 1.65;
   max-width: 730px;
   margin-bottom: 28px;
-  padding-left: 14px;
-  border-left: 2px solid transparent;
+  padding: 20px 24px;
+  background: linear-gradient(
+    115deg,
+    color-mix(in srgb, var(--section-accent) 8%, #14212c),
+    #14212c
+  );
+  border: 1px solid color-mix(in srgb, var(--section-accent) 25%, var(--line));
+  border-left: 3px solid var(--section-accent);
+  border-radius: 12px;
   transition: border-color 700ms ease;
 }
 [data-scroll-theme] {
@@ -723,6 +731,13 @@ input[type='checkbox'] {
 .context {
   color: #f0f4f7;
   text-shadow: 0 1px 3px #0008;
+  padding: 12px 16px;
+  background: color-mix(
+    in srgb,
+    var(--section-accent, var(--topic-what)) 5%,
+    #14212c
+  );
+  border-radius: 8px;
   font-size: 0.8rem;
   max-width: 940px;
 }
@@ -895,12 +910,15 @@ input[type='range'] {
   margin: 28px 0;
 }
 .definition-grid article {
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--section-accent) 30%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--section-accent) 6%, #14212c);
 }
 .definition-grid p {
   font-size: 0.85rem;
   margin-top: 8px;
+  color: #d1dfe6;
 }
 .pipeline {
   display: grid;
