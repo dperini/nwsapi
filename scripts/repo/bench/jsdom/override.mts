@@ -131,9 +131,11 @@ try {
           ),
       )
       for (const selector of Object.values(categories).flat()) {
-        const queries = contexts.map(
-          context => () => context.window.document.querySelectorAll(selector),
-        )
+        const queries = contexts.map(context => {
+          return () => {
+            return context.window.document.querySelectorAll(selector)
+          }
+        })
         const positions = queries.map((query, index) =>
           Array.from(query(), node => indexes[index]!.get(node)),
         )
