@@ -28,10 +28,10 @@ This command has no workload options.
 }
 
 const require = createRequire(import.meta.url)
-const jsdomVersion = (require('jsdom/package.json') as { version: string })
-  .version
-const peerVersion = (require('css-tree/package.json') as { version: string })
-  .version
+const jsdomPackage: { version: string } = require('jsdom/package.json')
+const peerPackage: { version: string } = require('css-tree/package.json')
+const jsdomVersion = jsdomPackage.version
+const peerVersion = peerPackage.version
 const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-jsdom-benchmark-'))
 const metadata = {
   ...provenance(),
@@ -117,9 +117,9 @@ try {
   })
   for (const [fixture, categories] of Object.entries(cases)) {
     const html = DOCUMENTS[fixture as keyof typeof DOCUMENTS].html()
-    const contexts = installations.map(
-      installation => new installation.JSDOM(html),
-    )
+    const contexts = installations.map(installation => {
+      return new installation.JSDOM(html)
+    })
     try {
       const indexes = contexts.map(
         context =>
