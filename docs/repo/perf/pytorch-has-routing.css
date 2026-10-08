@@ -61,7 +61,7 @@ body[data-theme='why'] {
 }
 body[data-theme='when'] {
   --scroll-accent: var(--topic-when);
-  --scroll-wash: rgb(244 119 51 / 55%);
+  --scroll-wash: rgb(255 193 153 / 80%);
   --scroll-x: 8vw;
   --scroll-y: 47vh;
   --scroll-scale: 1.08;
@@ -96,6 +96,9 @@ body[data-theme='where'] {
 }
 body[data-theme='where'] .scroll-morph {
   opacity: 0.72;
+}
+body[data-theme='when'] .scroll-morph {
+  opacity: 0.75;
 }
 .topbar,
 main,
