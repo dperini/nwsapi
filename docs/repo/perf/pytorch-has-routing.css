@@ -459,6 +459,8 @@ h1 em {
   padding-top: 76px;
 }
 .section-intro {
+  color: #f0f4f7;
+  text-shadow: 0 1px 3px #0008;
   max-width: 730px;
   margin-bottom: 28px;
   padding-left: 14px;
@@ -719,6 +721,8 @@ input[type='checkbox'] {
   margin-left: auto;
 }
 .context {
+  color: #f0f4f7;
+  text-shadow: 0 1px 3px #0008;
   font-size: 0.8rem;
   max-width: 940px;
 }
