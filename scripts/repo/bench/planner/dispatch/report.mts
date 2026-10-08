@@ -151,7 +151,9 @@ if (isMainModule(import.meta.url)) {
     console.log(
       'Usage: dispatch/report.mts confirmation output.html [scope-note]',
     )
-  } else if (!confirmation || !output) {
+  } else if (!confirmation) {
+    throw new Error('Confirmation directory and HTML output required.')
+  } else if (!output) {
     throw new Error('Confirmation directory and HTML output required.')
   } else {
     report(confirmation, output, scopeNote)

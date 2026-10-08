@@ -7,6 +7,7 @@ import type Adapter from '../../../../../dist/adapter/dom-selector.js'
 import { components } from '../../documents.mts'
 import { fixture, selectors, checkResults } from '../../compare/fixture.mts'
 import { compareTiming } from '../../compare/timing.mts'
+import { ADAPTER_BUILD_PATH, ENGINE_BUILD_PATH } from '../../../lib/paths.mts'
 
 const require = createRequire(import.meta.url)
 const baseline = path.resolve(process.argv[2]!)
@@ -18,8 +19,8 @@ const {
 } = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),
-  require('../../../dist/adapter/dom-selector.js'),
-  require('../../../dist/adapter/dom-selector.js'),
+  require(ADAPTER_BUILD_PATH),
+  require(ADAPTER_BUILD_PATH),
 ]
 const cases = [
   ...['[data-testid]', '[data-testid="btn-150"]'].flatMap(selector =>
@@ -99,9 +100,9 @@ writeFileSync(
       variants: ['baseline', 'attributes', 'attributes-and-tree'],
       hashes: [
         path.join(baseline, 'nwsapi.js'),
-        'dist/nwsapi.js',
+        ENGINE_BUILD_PATH,
         path.join(baseline, 'dom-selector.js'),
-        'dist/adapter/dom-selector.js',
+        ADAPTER_BUILD_PATH,
       ].map(file =>
         createHash('sha256').update(readFileSync(file)).digest('hex'),
       ),

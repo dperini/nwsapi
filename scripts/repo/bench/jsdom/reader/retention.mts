@@ -6,6 +6,7 @@ import { setImmediate } from 'node:timers/promises'
 import path from 'node:path'
 import { JSDOM } from 'jsdom'
 import type Adapter from '../../../../../dist/adapter/dom-selector.js'
+import { ADAPTER_BUILD_PATH, ENGINE_BUILD_PATH } from '../../../lib/paths.mts'
 
 assert.equal(typeof global.gc, 'function', 'Run with --expose-gc')
 const require = createRequire(import.meta.url)
@@ -18,42 +19,47 @@ const {
 } = require('jsdom/lib/jsdom/living/helpers/internal-constants.js')
 const factories: Array<typeof Adapter> = [
   require(path.join(baseline, 'dom-selector.js')),
-  require('../../../dist/adapter/dom-selector.js'),
+  require(ADAPTER_BUILD_PATH),
 ]
 const rows = []
 function populate(Constructor: typeof Adapter) {
   const { window } = new JSDOM('<body></body>')
-  const document = window.document
-  const adapter = new Constructor(window, idlUtils.implForWrapper(document), {
-    idlUtils,
-    domSymbolTree,
-  })
-  const refs: Array<WeakRef<Node>> = []
-  for (let i = 0; i < 40; ++i) {
-    const root = document.createElement('main')
-    root.innerHTML =
-      '<section><i data-hit="yes"></i>text<b></b></section>'.repeat(32)
-    document.body.appendChild(root)
-    const impl = idlUtils.implForWrapper(root)
-    assert.equal(
-      adapter.querySelectorAll('main section > i[data-hit="yes"] + b', impl)
-        .length,
-      32,
-    )
-    root.firstElementChild!.firstElementChild!.setAttribute('data-hit', 'no')
-    assert.equal(
-      adapter.querySelectorAll('main section > i[data-hit="yes"] + b', impl)
-        .length,
-      31,
-    )
-    refs.push(
-      new WeakRef(root),
-      new WeakRef(root.firstElementChild!.firstElementChild!),
-    )
-    root.remove()
+  try {
+    const document = window.document
+    const adapter = new Constructor(window, idlUtils.implForWrapper(document), {
+      idlUtils,
+      domSymbolTree,
+    })
+    const refs: Array<WeakRef<Node>> = []
+    for (let i = 0; i < 40; ++i) {
+      const root = document.createElement('main')
+      root.innerHTML =
+        '<section><i data-hit="yes"></i>text<b></b></section>'.repeat(32)
+      document.body.appendChild(root)
+      const impl = idlUtils.implForWrapper(root)
+      assert.equal(
+        adapter.querySelectorAll('main section > i[data-hit="yes"] + b', impl)
+          .length,
+        32,
+      )
+      root.firstElementChild!.firstElementChild!.setAttribute('data-hit', 'no')
+      assert.equal(
+        adapter.querySelectorAll('main section > i[data-hit="yes"] + b', impl)
+          .length,
+        31,
+      )
+      refs.push(
+        new WeakRef(root),
+        new WeakRef(root.firstElementChild!.firstElementChild!),
+      )
+      root.remove()
+    }
+    adapter.querySelectorAll('body', idlUtils.implForWrapper(document))
+    return { window, adapter, refs }
+  } catch (error) {
+    window.close()
+    throw error
   }
-  adapter.querySelectorAll('body', idlUtils.implForWrapper(document))
-  return { window, adapter, refs }
 }
 for (let round = 0; round < 3; ++round) {
   for (let offset = 0; offset < 2; ++offset) {
@@ -85,9 +91,9 @@ writeFileSync(
       node: process.version,
       hashes: [
         path.join(baseline, 'nwsapi.js'),
-        'dist/nwsapi.js',
+        ENGINE_BUILD_PATH,
         path.join(baseline, 'dom-selector.js'),
-        'dist/adapter/dom-selector.js',
+        ADAPTER_BUILD_PATH,
       ].map(file =>
         createHash('sha256').update(readFileSync(file)).digest('hex'),
       ),

@@ -9,7 +9,7 @@ import type { NwsapiEngine } from '../../../.config/runtime.d.ts'
 import { compareTiming } from './compare/timing.mts'
 import { median, timingEngine } from './timing.mts'
 
-type Case = {
+export type Case = {
   name: string
   selector: string
   operation: 'first' | 'select' | 'raw' | 'match'
@@ -163,7 +163,7 @@ writeFileSync(
   ) + '\n',
 )
 
-function prepare(
+export function prepare(
   factory: (global: unknown) => NwsapiEngine,
   markup: string,
   entry: Case,

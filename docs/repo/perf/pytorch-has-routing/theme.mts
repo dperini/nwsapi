@@ -1,3 +1,5 @@
+import { initializeRangePulses } from './range.mts'
+
 let active: HTMLElement | undefined
 let pending = false
 const spotlightPositions = new Map<string, { x: string; y: string }>()
@@ -12,9 +14,70 @@ function initializeSpotlightPositions() {
   }
 }
 
+function blendSpotlight(
+  first: HTMLElement,
+  second: HTMLElement,
+  progress: number,
+) {
+  const from = first.dataset['scrollTheme']!
+  const to = second.dataset['scrollTheme']!
+  const percent = Math.round((1 - progress) * 100)
+  const color = `color-mix(in srgb, var(--topic-${from}) ${percent}%, var(--topic-${to}))`
+  document.body.style.setProperty('--scroll-accent', color)
+  document.documentElement.style.setProperty('--page-scrollbar-accent', color)
+  document.body.style.setProperty(
+    '--scroll-wash',
+    `color-mix(in srgb, ${color} 70%, transparent)`,
+  )
+  const start = spotlightPositions.get(from)!
+  const end = spotlightPositions.get(to)!
+  const x =
+    parseFloat(start.x) + (parseFloat(end.x) - parseFloat(start.x)) * progress
+  const y =
+    parseFloat(start.y) + (parseFloat(end.y) - parseFloat(start.y)) * progress
+  document.body.style.setProperty('--scroll-x', `${x}vw`)
+  document.body.style.setProperty('--scroll-y', `${y}vh`)
+}
+
+function updateSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
+  if (!sections.length) {
+    return
+  }
+  const width = window.innerHeight * 0.6
+  for (let i = 0, length = sections.length - 1; i < length; i += 1) {
+    const first = sections[i]!
+    const second = sections[i + 1]!
+    const boundary =
+      (first.getBoundingClientRect().bottom +
+        second.getBoundingClientRect().top) /
+      2
+    if (center <= boundary + width / 2) {
+      const progress = Math.max(
+        0,
+        Math.min(1, (center - boundary + width / 2) / width),
+      )
+      blendSpotlight(first, second, progress)
+      return
+    }
+  }
+  const last = sections[sections.length - 1]!
+  blendSpotlight(last, last, 0)
+}
+
+function updateChapterVisibility() {
+  const chapters = document.querySelector<HTMLElement>('.chapters')
+  const overview = document.querySelector<HTMLElement>('.route-overview')
+  chapters?.toggleAttribute(
+    'data-visible',
+    !overview || overview.getBoundingClientRect().bottom <= 0,
+  )
+}
+
 function updateActiveTheme() {
+  updateChapterVisibility()
   const sections = document.querySelectorAll<HTMLElement>('[data-scroll-theme]')
   const center = window.innerHeight / 2
+  updateSpotlight(sections, center)
   let nearest = Number.POSITIVE_INFINITY
   let selected: HTMLElement | undefined
 
@@ -39,22 +102,35 @@ function updateActiveTheme() {
   active?.classList.remove('is-active')
   selected.classList.add('is-active')
   document.body.dataset['theme'] = selected.dataset['scrollTheme']
-  const position = spotlightPositions.get(selected.dataset['scrollTheme']!)!
-  document.body.style.setProperty('--scroll-x', position.x)
-  document.body.style.setProperty('--scroll-y', position.y)
-  document.documentElement.style.setProperty(
-    '--page-scrollbar-accent',
-    getComputedStyle(selected).getPropertyValue('--section-accent'),
-  )
   document.querySelectorAll<HTMLAnchorElement>('.chapters a').forEach(link => {
     const current = link.hash === `#${selected.id}`
     if (current) {
       link.setAttribute('aria-current', 'location')
+      randomizeChapterShimmer(link)
     } else {
       link.removeAttribute('aria-current')
     }
   })
   active = selected
+}
+
+function randomizeChapterShimmer(link: HTMLAnchorElement) {
+  const leftToRight = Math.random() < 0.5
+  link.style.setProperty('--shimmer-start', leftToRight ? '100%' : '0%')
+  link.style.setProperty('--shimmer-end', leftToRight ? '0%' : '100%')
+}
+
+function initializeChapterShimmer() {
+  document
+    .querySelector<HTMLElement>('.chapters')
+    ?.addEventListener('animationiteration', event => {
+      if (
+        event.animationName === 'chapter-border-shimmer' &&
+        event.target instanceof HTMLAnchorElement
+      ) {
+        randomizeChapterShimmer(event.target)
+      }
+    })
 }
 
 function scheduleThemeUpdate() {
@@ -68,8 +144,34 @@ function scheduleThemeUpdate() {
   })
 }
 
+function initializePanelHighlights() {
+  if (typeof IntersectionObserver === 'undefined') {
+    return
+  }
+  const observer = new IntersectionObserver(
+    entries => {
+      for (let i = 0, length = entries.length; i < length; i += 1) {
+        const entry = entries[i]!
+        entry.target.toggleAttribute('data-panel-active', entry.isIntersecting)
+      }
+    },
+    { rootMargin: '-80px 0px -80px 0px', threshold: 0 },
+  )
+  const panels = document.querySelectorAll<HTMLElement>(
+    '.section-intro, .callout, .story-explanation, .route-consequence, .route-teaching-note, .trace-description',
+  )
+  for (let i = 0, length = panels.length; i < length; i += 1) {
+    const panel = panels[i]!
+    panel.setAttribute('data-panel-highlight', '')
+    observer.observe(panel)
+  }
+}
+
 export function initializeSectionThemes() {
+  initializeRangePulses()
   initializeSpotlightPositions()
+  initializePanelHighlights()
+  initializeChapterShimmer()
   window.addEventListener('scroll', scheduleThemeUpdate, { passive: true })
   window.addEventListener('resize', scheduleThemeUpdate)
   updateActiveTheme()

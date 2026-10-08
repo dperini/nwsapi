@@ -57,10 +57,11 @@ function unique<T>(items: T[], description: string): T {
 function namedFunction(ast: Ast, name: string) {
   const matches: Ast[] = []
   nodes(ast, node => {
-    if (
-      node.type === 'FunctionDeclaration' &&
-      (node['id'] as Ast)?.['name'] === name
-    ) {
+    if (node.type !== 'FunctionDeclaration') {
+      return
+    }
+    const id = node['id'] as Ast
+    if (id?.['name'] === name) {
       matches.push(node)
     }
   })
@@ -68,28 +69,41 @@ function namedFunction(ast: Ast, name: string) {
 }
 
 function isLength(node: Ast, name: string) {
-  return (
-    node?.type === 'MemberExpression' &&
-    (node['object'] as Ast)?.['name'] === name &&
-    (node['property'] as Ast)?.['name'] === 'length'
-  )
+  if (node?.type !== 'MemberExpression') {
+    return false
+  }
+  const object = node['object'] as Ast
+  if (object?.['name'] !== name) {
+    return false
+  }
+  const property = node['property'] as Ast
+  return property?.['name'] === 'length'
 }
 
 function hasRatioCheck(value: Ast) {
   let matched = false
   nodes(value, node => {
     const right = node['right'] as Ast
-    if (
-      node.type === 'BinaryExpression' &&
-      node['operator'] === '>' &&
-      isLength(node['left'] as Ast, 'witnesses') &&
-      right?.type === 'BinaryExpression' &&
-      right['operator'] === '*' &&
-      isLength(right['left'] as Ast, 'anchors') &&
-      (right['right'] as Ast)?.['value'] === 2
-    ) {
-      matched = true
+    if (node.type !== 'BinaryExpression') {
+      return
     }
+    if (node['operator'] !== '>') {
+      return
+    }
+    if (!isLength(node['left'] as Ast, 'witnesses')) {
+      return
+    }
+    if (right?.type !== 'BinaryExpression') {
+      return
+    }
+    if (right['operator'] !== '*') {
+      return
+    }
+    if (!isLength(right['left'] as Ast, 'anchors')) {
+      return
+    }
+    const multiplier = right['right'] as Ast
+    matched ||= multiplier?.['value'] === 2
   })
   return matched
 }

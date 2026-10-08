@@ -60,11 +60,14 @@ test('browser route evidence warms isolated frames and removes them after identi
     const defaults = await browserEvidence([entry], [source, source, source])
     assert.equal(defaults[0]!.id, 'fixture')
     const bad = [
-      'module.exports=()=>({select:()=>[]});',
-      'module.exports=()=>({select:(s,d)=>Array.from(d.querySelectorAll(s),node=>node.cloneNode())});',
+      'function factory(){return{select:()=>[]}}factory.resetTrace=()=>{};module.exports=factory;',
+      'function factory(){return{select:(s,d)=>Array.from(d.querySelectorAll(s),node=>node.cloneNode())}}factory.resetTrace=()=>{};module.exports=factory;',
     ]
     for (let index = 0, length = bad.length; index < length; index += 1) {
-      await assert.rejects(browserEvidence([entry], [bad[index]!], () => {}, 0))
+      await assert.rejects(
+        browserEvidence([entry], [bad[index]!], () => {}, 0),
+        { code: 'ERR_PLANNER_PROBE_IDENTITY' },
+      )
       assert.equal(document.querySelectorAll('iframe').length, 0)
     }
     await assert.rejects(

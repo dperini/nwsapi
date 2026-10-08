@@ -99,6 +99,7 @@ test('dispatch reports render reserved groups and cached decision comparisons se
     )
     assert.equal(spawnSync(process.execPath, [script, '--help']).status, 0)
     assert.equal(spawnSync(process.execPath, [script]).status, 1)
+    assert.equal(spawnSync(process.execPath, [script, directory]).status, 1)
     assert.equal(
       spawnSync(process.execPath, [script, directory, output]).status,
       0,

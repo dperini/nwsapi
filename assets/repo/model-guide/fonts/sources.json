@@ -1,0 +1,9 @@
+{
+  "source": "Google Fonts Latin subsets",
+  "files": {
+    "inter.woff2": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+    "jetbrains-mono.woff2": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2",
+    "inter-license.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/OFL.txt",
+    "jetbrains-mono-license.txt": "https://raw.githubusercontent.com/google/fonts/main/ofl/jetbrainsmono/OFL.txt"
+  }
+}

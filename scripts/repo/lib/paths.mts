@@ -35,6 +35,10 @@ export const ENGINE_SOURCE_PATH = path.join(
   'src/core/initialize/load.mts',
 )
 export const ENGINE_BUILD_PATH = path.join(REPO_ROOT, 'dist/nwsapi.js')
+export const ADAPTER_BUILD_PATH = path.join(
+  REPO_ROOT,
+  'dist/adapter/dom-selector.js',
+)
 export const BENCHMARK_CACHE_PATH = path.join(
   REPO_ROOT,
   'scripts/repo/bench/cache.bench.mts',

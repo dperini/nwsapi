@@ -24,11 +24,15 @@ async function fixture(reducedMotion = false) {
     'film-inverse-work',
     'film-forward-result',
     'film-inverse-result',
+    'film-forward-summary',
+    'film-inverse-summary',
     'film-forward-caption',
     'film-inverse-caption',
   ]
   for (let i = 0, length = ids.length; i < length; i += 1) {
-    const element = document.createElement('button')
+    const element = document.createElement(
+      ids[i] === 'film-forward' || ids[i] === 'film-inverse' ? 'div' : 'button',
+    )
     element.id = ids[i]!
     document.body.append(element)
   }
@@ -38,6 +42,9 @@ async function fixture(reducedMotion = false) {
   timeline.min = '0'
   document.body.append(timeline)
   const animate = vi.fn()
+  Object.assign(dom.window.HTMLElement.prototype, {
+    setPointerCapture: vi.fn(),
+  })
   const cancel = vi.fn()
   Object.assign(dom.window.SVGElement.prototype, {
     animate,
@@ -60,7 +67,14 @@ async function fixture(reducedMotion = false) {
 
 test('scrubbing and playback produce the same exact matches for both routes', async () => {
   const view = await fixture()
+  expect(view.document.querySelectorAll('.film-element rect').length).toBe(16)
+  expect(
+    view.document.querySelector('.film-warning rect')!.getAttribute('width'),
+  ).toBe('79')
   expect(view.timeline.value).toBe('0')
+  expect(
+    view.document.getElementById('film-forward-summary')!.textContent,
+  ).toBe('0 operations · No cards yet')
   expect(vi.getTimerCount()).toBe(0)
   view.click('film-next')
   view.click('film-next')
@@ -102,6 +116,56 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   expect(view.timeline.value).toBe('0')
 })
 
+test('each diagram toggles playback and scrubs independently in both directions', async () => {
+  const view = await fixture()
+  const scene = view.document.getElementById('film-forward')!
+  const pointer = (type: string, clientX: number) => {
+    const event = new view.dom.window.Event(type)
+    Object.assign(event, { button: 0, pointerId: 1, clientX })
+    scene.dispatchEvent(event)
+    if (type === 'pointerup') {
+      scene.dispatchEvent(
+        new view.dom.window.MouseEvent('click', { detail: 1 }),
+      )
+    }
+  }
+  pointer('pointerdown', 100)
+  pointer('pointerup', 100)
+  expect(vi.getTimerCount()).toBe(1)
+  vi.advanceTimersByTime(2400)
+  expect(view.timeline.value).toBe('2')
+  expect(view.document.getElementById('film-inverse-work')!.textContent).toBe(
+    '0 operations',
+  )
+  expect(
+    view.document.getElementById('film-inverse-summary')!.textContent,
+  ).toBe('0 operations · No cards yet')
+  pointer('pointerdown', 100)
+  pointer('pointerup', 100)
+  expect(vi.getTimerCount()).toBe(0)
+  pointer('pointerdown', 100)
+  pointer('pointermove', 180)
+  pointer('pointerup', 180)
+  expect(view.timeline.value).toBe('6')
+  expect(vi.getTimerCount()).toBe(0)
+  pointer('pointerdown', 180)
+  pointer('pointermove', 100)
+  pointer('pointerup', 100)
+  expect(view.timeline.value).toBe('2')
+  pointer('pointerdown', 100)
+  pointer('pointermove', -1000)
+  pointer('pointerup', -1000)
+  expect(view.timeline.value).toBe('0')
+  scene.dispatchEvent(
+    new view.dom.window.KeyboardEvent('keydown', { key: 'Enter' }),
+  )
+  expect(vi.getTimerCount()).toBe(1)
+  scene.dispatchEvent(
+    new view.dom.window.KeyboardEvent('keydown', { key: ' ' }),
+  )
+  expect(vi.getTimerCount()).toBe(0)
+})
+
 test('reduced motion keeps the complete timeline without moving search cursors', async () => {
   const view = await fixture(true)
   view.click('film-next')
@@ -111,6 +175,58 @@ test('reduced motion keeps the complete timeline without moving search cursors',
   const callback = view.media.addEventListener.mock.calls[0]![1] as () => void
   callback()
   expect(vi.getTimerCount()).toBe(0)
+})
+
+test('keyboard scrubbing advances one route and cancels playback', async () => {
+  const view = await fixture()
+  const scene = view.document.getElementById('film-forward')!
+  const key = (value: string) =>
+    scene.dispatchEvent(
+      new view.dom.window.KeyboardEvent('keydown', {
+        key: value,
+        cancelable: true,
+      }),
+    )
+  view.click('film-play')
+  expect(key('ArrowRight')).toBe(false)
+  expect(vi.getTimerCount()).toBe(0)
+  expect(view.timeline.value).toBe('1')
+  expect(view.document.getElementById('film-inverse-work')!.textContent).toBe(
+    '0 operations',
+  )
+  key('End')
+  expect(scene.dataset['complete']).toBe('true')
+  key('Home')
+  expect(view.timeline.value).toBe('0')
+  key('ArrowLeft')
+  expect(view.timeline.value).toBe('0')
+  expect(key('Escape')).toBe(true)
+})
+
+test('lost pointer capture prevents a stale drag from starting playback', async () => {
+  const view = await fixture()
+  const scene = view.document.getElementById('film-forward')!
+  const down = new view.dom.window.Event('pointerdown')
+  Object.assign(down, { button: 0, pointerId: 1, clientX: 10 })
+  scene.dispatchEvent(down)
+  scene.dispatchEvent(new view.dom.window.Event('lostpointercapture'))
+  scene.dispatchEvent(new view.dom.window.Event('pointerup'))
+  scene.dispatchEvent(new view.dom.window.MouseEvent('click', { detail: 1 }))
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('assistive virtual clicks toggle route playback without pointer events', async () => {
+  const view = await fixture()
+  const scene = view.document.querySelector<HTMLButtonElement>(
+    '#film-forward .film-scene-control',
+  )!
+  scene.click()
+  expect(vi.getTimerCount()).toBe(1)
+  expect(scene.textContent).toBe('Pause')
+  expect(scene.getAttribute('aria-label')).toContain('Pause forward')
+  scene.click()
+  expect(vi.getTimerCount()).toBe(0)
+  expect(scene.textContent).toBe('Play')
 })
 
 test('hidden tabs pause playback and edits reset both traces', async () => {

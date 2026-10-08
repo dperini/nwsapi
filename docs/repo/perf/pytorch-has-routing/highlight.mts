@@ -1,11 +1,13 @@
-import { element } from './ui.mts'
+import { element, writeUnitText } from './ui.mts'
 import type { parse } from 'gpu-lexer'
+import { highlightSelector } from './selector.mts'
 
 let parser: Promise<{ parse: typeof parse }> | undefined
 let queue = Promise.resolve()
 const pending = new WeakMap<HTMLElement, string>()
 const finished = new WeakMap<HTMLElement, string>()
 const observed = new Set<HTMLElement>()
+let unavailable = false
 const kinds = new Set([
   'plain',
   'comment',
@@ -19,10 +21,21 @@ const kinds = new Set([
 ])
 
 async function highlight(node: HTMLElement, source: string) {
+  let timeout: ReturnType<typeof setTimeout> | undefined
   try {
+    if (unavailable) {
+      return
+    }
     parser ??= import('gpu-lexer')
-    const { parse } = await parser
-    const spans = await parse(source)
+    const spans = await Promise.race([
+      parser.then(({ parse }) => parse(source)),
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error('Highlighting timed out')),
+          8000,
+        )
+      }),
+    ])
     if (node.textContent !== source) {
       return
     }
@@ -42,7 +55,7 @@ async function highlight(node: HTMLElement, source: string) {
       }
       const token = document.createElement('span')
       token.className = `syntax-${span.type}`
-      token.textContent = source.slice(span.start, span.end)
+      writeUnitText(token, source, span.start, span.end)
       fragment.append(token)
       cursor = span.end
     }
@@ -53,8 +66,22 @@ async function highlight(node: HTMLElement, source: string) {
     node.dataset['highlight'] = 'gpu-lexer'
     finished.set(node, source)
   } catch {
-    node.dataset['highlight'] = 'plain'
+    unavailable = true
+    if (node.textContent === source) {
+      node.dataset['highlight'] = 'plain'
+    }
   } finally {
+    clearTimeout(timeout)
+    if (node.textContent === source) {
+      if (node.dataset['highlight'] === 'pending') {
+        node.dataset['highlight'] = 'plain'
+      }
+      if (node.dataset['highlight'] === 'plain') {
+        writeUnitText(node, source)
+      }
+      finished.set(node, source)
+      node.removeAttribute('aria-busy')
+    }
     if (pending.get(node) === source) {
       pending.delete(node)
     }
@@ -71,6 +98,8 @@ function schedule(node: HTMLElement) {
     return
   }
   pending.set(node, source)
+  node.dataset['highlight'] = 'pending'
+  node.setAttribute('aria-busy', 'true')
   queue = queue.then(() => highlight(node, source))
 }
 
@@ -83,7 +112,10 @@ const observer = new IntersectionObserver(entries => {
 })
 
 function observe(node: HTMLElement) {
+  node.tabIndex = 0
   if (!observed.has(node)) {
+    node.dataset['highlight'] = 'pending'
+    node.setAttribute('aria-busy', 'true')
     observed.add(node)
     observer.observe(node)
   }
@@ -95,11 +127,28 @@ function observe(node: HTMLElement) {
 
 export function code(id: string, source: string) {
   const node = element(id)
+  if (node.textContent === source) {
+    observe(node)
+    return
+  }
+  const height = node.getBoundingClientRect().height
+  if (height > 0) {
+    node.style.minHeight = `${height}px`
+  }
+  node.dataset['highlight'] = 'pending'
+  node.setAttribute('aria-busy', 'true')
+  finished.delete(node)
   node.textContent = source
   observe(node)
 }
 
 export function initializeHighlighting() {
+  document.querySelectorAll<HTMLElement>('code:not(pre code)').forEach(node => {
+    const source = node.textContent ?? ''
+    if (/^[.#:][\w-]+/.test(source)) {
+      highlightSelector(node, source)
+    }
+  })
   document.querySelectorAll<HTMLElement>('pre').forEach(observe)
   document.querySelectorAll<HTMLDetailsElement>('details').forEach(details => {
     details.addEventListener('toggle', () => {
