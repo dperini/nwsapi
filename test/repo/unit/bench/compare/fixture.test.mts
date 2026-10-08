@@ -15,6 +15,15 @@ test('comparison fixtures preserve matches across layouts and reject bad results
     'text/html',
   )
   assert.equal(baseline.querySelectorAll('p').length, 256)
+  const flat = new window.DOMParser().parseFromString(
+    fixture(4, 4, 'adjacent', 'ancestor', 8),
+    'text/html',
+  )
+  assert.equal(flat.querySelectorAll('main > section > p.hit').length, 4)
+  checkResults(
+    flat.querySelectorAll(selectors(4, 'ancestor')[0]!),
+    Array.from(flat.querySelectorAll('p.hit')),
+  )
   for (const scenario of ['ancestor', 'has', 'sibling'] as const) {
     for (const matches of [0, 1, 8]) {
       const doc = new window.DOMParser().parseFromString(

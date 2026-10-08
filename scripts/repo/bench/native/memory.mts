@@ -101,13 +101,10 @@ if (values.help) {
               if (engineIndex === 0) {
                 const instance = host.__nwsapiFactory(inner)
                 context.all = selector => instance.select(selector, doc)
-                context.first = selector => instance.first(selector, doc)
               } else {
                 const instance = new host.__competitor.DOMSelector(inner, doc)
                 context.all = selector =>
                   instance.querySelectorAll(selector, doc)
-                context.first = selector =>
-                  instance.querySelector(selector, doc)
               }
             }
           }, index)

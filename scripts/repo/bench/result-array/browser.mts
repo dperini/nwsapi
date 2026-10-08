@@ -3,9 +3,19 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import type factory from '../../../../dist/nwsapi.js'
+import { parseArgs } from 'node:util'
+import { positiveInteger } from '../footprint/shared.mts'
 
-const [baseline, output, layout = 'adjacent', groupsArg = '4'] =
-  process.argv.slice(2)
+const { positionals, values } = parseArgs({
+  allowPositionals: true,
+  options: {
+    warmups: { type: 'string', default: '1000' },
+    batch: { type: 'string', default: '3000' },
+  },
+})
+const [baseline, output, layout = 'adjacent', groupsArg = '4'] = positionals
+const warmups = positiveInteger(values.warmups, 'warmups', 100_000)
+const batch = positiveInteger(values.batch, 'batch', 100_000)
 if (!baseline || !output) {
   throw new Error(
     'Usage: result-arrays-browser.mts <baseline.cjs> <output.json> [adjacent|separated|nested] [groups]',
@@ -50,7 +60,7 @@ try {
       await page.addScriptTag({ content: code[1]! })
       rows.push(
         ...(await page.evaluate(
-          ({ matchCount, groupCount }) => {
+          ({ matchCount, groupCount, warmupCount, batchSize }) => {
             const host = window as unknown as Host
             const engines = [host.before, host.NW.Dom]
             return [
@@ -72,7 +82,7 @@ try {
               }
               for (let index = 0; index < 2; ++index) {
                 check(index)
-                for (let i = 0; i < 1000; ++i) {
+                for (let i = 0; i < warmupCount; i += 1) {
                   query(index)
                 }
               }
@@ -82,10 +92,10 @@ try {
                   const start = performance.now()
                   let calls = 0
                   do {
-                    for (let i = 0; i < 3000; ++i) {
+                    for (let i = 0; i < batchSize; i += 1) {
                       query(index)
                     }
-                    calls += 3000
+                    calls += batchSize
                   } while (performance.now() - start < 50)
                   samples[index]!.push((performance.now() - start) / calls)
                   check(index)
@@ -94,7 +104,12 @@ try {
               return { matches: matchCount, selector, samplesMs: samples }
             })
           },
-          { matchCount: matches, groupCount: groups },
+          {
+            matchCount: matches,
+            groupCount: groups,
+            warmupCount: warmups,
+            batchSize: batch,
+          },
         )),
       )
     } finally {
@@ -108,11 +123,13 @@ try {
         browser: browser.version(),
         layout,
         groups,
+        warmups,
+        batch,
         hashes: code.map(text =>
           createHash('sha256').update(text).digest('hex'),
         ),
         methodology:
-          'Native Chromium warm public queries. Each fixture has 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Queries return 0, 1, 16, or 256 matches. Baseline and candidate rotate across nine rounds of at least 50ms in batches of 3000 calls after 1000 warmups. Ordered identity is checked outside timing. No rendering, compilation, retained-memory or allocation measurements. samplesMs lists baseline then candidate.',
+          'Native Chromium warm public queries. Each fixture has 256 p elements. The layout field selects adjacent elements, text and comment separators, or a separate section wrapper per element. Queries return 0, 1, 16, or 256 matches. Baseline and candidate rotate across nine rounds of at least 50ms using the recorded batch and warmups. Ordered identity is checked outside timing. No rendering, compilation, retained-memory or allocation measurements. samplesMs lists baseline then candidate.',
         rows,
       },
       null,
