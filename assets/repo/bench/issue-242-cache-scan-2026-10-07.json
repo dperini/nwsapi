@@ -1,0 +1,317 @@
+{
+  "issue": "https://github.com/dperini/nwsapi/issues/242",
+  "node": "v26.11.0",
+  "jsdom": "30.0.1",
+  "revisions": {
+    "master": "f31684deb8a6ba0d85da7a38b6d150b9bb5d0c99",
+    "v3": "4091c821cbe38a6d5b0cb8615b9389879e77d9c9"
+  },
+  "passes": 10,
+  "results": [
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 1000,
+      "matches": 10000,
+      "misses": 0,
+      "hitRate": 1,
+      "missesByPass": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "lambdaInsertions": 0,
+      "retained": 1000,
+      "retainedBytes": 463560
+    },
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 1001,
+      "matches": 10010,
+      "misses": 10010,
+      "hitRate": 0,
+      "missesByPass": [
+        1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001
+      ],
+      "lambdaInsertions": 10010,
+      "retained": 1000,
+      "retainedBytes": 463572
+    },
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 2300,
+      "matches": 23000,
+      "misses": 23000,
+      "hitRate": 0,
+      "missesByPass": [
+        2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300
+      ],
+      "lambdaInsertions": 23000,
+      "retained": 1000,
+      "retainedBytes": 468000
+    },
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 4096,
+      "matches": 40960,
+      "misses": 40960,
+      "hitRate": 0,
+      "missesByPass": [
+        4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096, 4096
+      ],
+      "lambdaInsertions": 40960,
+      "retained": 1000,
+      "retainedBytes": 468000
+    },
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 4097,
+      "matches": 40970,
+      "misses": 40970,
+      "hitRate": 0,
+      "missesByPass": [
+        4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097
+      ],
+      "lambdaInsertions": 40970,
+      "retained": 1000,
+      "retainedBytes": 468000
+    },
+    {
+      "branch": "master",
+      "shape": "class",
+      "selectors": 5000,
+      "matches": 50000,
+      "misses": 50000,
+      "hitRate": 0,
+      "missesByPass": [
+        5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000
+      ],
+      "lambdaInsertions": 50000,
+      "retained": 1000,
+      "retainedBytes": 468000
+    },
+    {
+      "branch": "master",
+      "shape": "antd-like",
+      "selectors": 1000,
+      "matches": 10000,
+      "misses": 0,
+      "hitRate": 1,
+      "missesByPass": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "lambdaInsertions": 0,
+      "retained": 1000,
+      "retainedBytes": 1551560
+    },
+    {
+      "branch": "master",
+      "shape": "antd-like",
+      "selectors": 1001,
+      "matches": 10010,
+      "misses": 10010,
+      "hitRate": 0,
+      "missesByPass": [
+        1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001, 1001
+      ],
+      "lambdaInsertions": 10010,
+      "retained": 1000,
+      "retainedBytes": 1551572
+    },
+    {
+      "branch": "master",
+      "shape": "antd-like",
+      "selectors": 1254,
+      "matches": 12540,
+      "misses": 12540,
+      "hitRate": 0,
+      "missesByPass": [
+        1254, 1254, 1254, 1254, 1254, 1254, 1254, 1254, 1254, 1254
+      ],
+      "lambdaInsertions": 12540,
+      "retained": 1000,
+      "retainedBytes": 1553016
+    },
+    {
+      "branch": "master",
+      "shape": "antd-like",
+      "selectors": 2300,
+      "matches": 23000,
+      "misses": 23000,
+      "hitRate": 0,
+      "missesByPass": [
+        2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300
+      ],
+      "lambdaInsertions": 23000,
+      "retained": 1000,
+      "retainedBytes": 1556000
+    },
+    {
+      "branch": "master",
+      "shape": "antd-like",
+      "selectors": 4097,
+      "matches": 40970,
+      "misses": 40970,
+      "hitRate": 0,
+      "missesByPass": [
+        4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097
+      ],
+      "lambdaInsertions": 40970,
+      "retained": 1000,
+      "retainedBytes": 1556000
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 1000,
+      "matches": 10000,
+      "misses": 0,
+      "hitRate": 1,
+      "missesByPass": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "lambdaInsertions": 0,
+      "retained": 1000,
+      "retainedBytes": 473560
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 1001,
+      "matches": 10010,
+      "misses": 0,
+      "hitRate": 1,
+      "missesByPass": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "lambdaInsertions": 0,
+      "retained": 1001,
+      "retainedBytes": 474038
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 2300,
+      "matches": 23000,
+      "misses": 2761,
+      "hitRate": 0.8799565217391304,
+      "missesByPass": [251, 251, 251, 251, 251, 251, 251, 470, 283, 251],
+      "lambdaInsertions": 244,
+      "retained": 2300,
+      "retainedBytes": 1094960
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 4096,
+      "matches": 40960,
+      "misses": 40940,
+      "hitRate": 0.00048828125,
+      "missesByPass": [
+        4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094
+      ],
+      "lambdaInsertions": 40883,
+      "retained": 4096,
+      "retainedBytes": 1953448
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 4097,
+      "matches": 40970,
+      "misses": 40970,
+      "hitRate": 0,
+      "missesByPass": [
+        4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097
+      ],
+      "lambdaInsertions": 40970,
+      "retained": 2059,
+      "retainedBytes": 984202
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "class",
+      "selectors": 5000,
+      "matches": 50000,
+      "misses": 50000,
+      "hitRate": 0,
+      "missesByPass": [
+        5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000
+      ],
+      "lambdaInsertions": 50000,
+      "retained": 3800,
+      "retainedBytes": 1816400
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "antd-like",
+      "selectors": 1000,
+      "matches": 10000,
+      "misses": 3224,
+      "hitRate": 0.6776,
+      "missesByPass": [248, 248, 492, 252, 248, 488, 256, 248, 484, 260],
+      "lambdaInsertions": 969,
+      "retained": 1000,
+      "retainedBytes": 1395560
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "antd-like",
+      "selectors": 1001,
+      "matches": 10010,
+      "misses": 3237,
+      "hitRate": 0.6766233766233766,
+      "missesByPass": [249, 249, 497, 250, 249, 496, 251, 249, 495, 252],
+      "lambdaInsertions": 976,
+      "retained": 1001,
+      "retainedBytes": 1396960
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "antd-like",
+      "selectors": 1254,
+      "matches": 12540,
+      "misses": 8327,
+      "hitRate": 0.33596491228070174,
+      "missesByPass": [758, 759, 996, 768, 759, 986, 778, 759, 976, 788],
+      "lambdaInsertions": 4017,
+      "retained": 1037,
+      "retainedBytes": 1448668
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "antd-like",
+      "selectors": 2300,
+      "matches": 23000,
+      "misses": 23000,
+      "hitRate": 0,
+      "missesByPass": [
+        2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300, 2300
+      ],
+      "lambdaInsertions": 23000,
+      "retained": 1319,
+      "retainedBytes": 1846524
+    },
+    {
+      "branch": "prerelease/3.0.0",
+      "shape": "antd-like",
+      "selectors": 4097,
+      "matches": 40970,
+      "misses": 40970,
+      "hitRate": 0,
+      "missesByPass": [
+        4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097, 4097
+      ],
+      "lambdaInsertions": 40970,
+      "retained": 886,
+      "retainedBytes": 1240400
+    }
+  ],
+  "date": "2026-10-07",
+  "method": {
+    "warmup": "One complete scan in selector order before counting.",
+    "measurement": "Ten complete scans in the same order against one paragraph element.",
+    "cacheMisses": "Wrap matchResolvers.get and observe actual lookups during match, without making extra cache reads.",
+    "lambdaInsertions": "Wrap matchLambdas.set after warmup to count newly cached compiled functions.",
+    "timing": "No elapsed-time comparison or application timeout measurement.",
+    "selectors": {
+      "class": ".c${i}",
+      "antd-like": ":where(.css-x).ant-btn-${i}:not(:disabled):not(.ant-btn-disabled):hover"
+    }
+  },
+  "reproducerSource": "import { createRequire } from 'node:module'\nimport { writeFileSync } from 'node:fs'\nimport { execFileSync } from 'node:child_process'\nimport { JSDOM } from 'jsdom'\nconst require = createRequire(import.meta.url)\nconst master = require('./master.cjs')\nconst v3 = require('../../dist/nwsapi.js')\nconst root = process.cwd()\nconst cases = [\n  ...[1000, 1001, 2300, 4096, 4097, 5000].map(count => ({ shape: 'class', count })),\n  ...[1000, 1001, 1254, 2300, 4097].map(count => ({ shape: 'antd-like', count })),\n]\nconst results = []\nfor (const [branch, factory] of [['master', master], ['prerelease/3.0.0', v3]]) {\n  for (const { shape, count } of cases) {\n    const { window } = new JSDOM('<!doctype html><p class=\"c0\">')\n    const element = window.document.querySelector('p')\n    const engine = factory({ document: window.document, DOMException: window.DOMException })\n    const selectors = Array.from({ length: count }, (_, i) => shape === 'class' ? `.c${i}` : `:where(.css-x).ant-btn-${i}:not(:disabled):not(.ant-btn-disabled):hover`)\n    selectors.forEach(selector => engine.match(selector, element))\n    const cache = engine.matchResolvers\n    const get = cache.get.bind(cache)\n    let found = false\n    cache.get = key => {\n      const value = get(key)\n      found ||= value !== undefined\n      return value\n    }\n    let compiles = 0\n    const setLambda = engine.matchLambdas.set.bind(engine.matchLambdas)\n    engine.matchLambdas.set = (...args) => {\n      compiles++\n      return setLambda(...args)\n    }\n    const missesByPass = []\n    for (let pass = 0; pass < 10; pass++) {\n      let misses = 0\n      for (const selector of selectors) {\n        found = false\n        engine.match(selector, element)\n        misses += !found\n      }\n      missesByPass.push(misses)\n    }\n    const misses = missesByPass.reduce((total, value) => total + value, 0)\n    const row = { branch, shape, selectors: count, matches: count * 10, misses, hitRate: (count * 10 - misses) / (count * 10), missesByPass, lambdaInsertions: compiles, retained: cache.size(), retainedBytes: cache.bytes?.() }\n    results.push(row)\n    console.log(JSON.stringify(row))\n    window.close()\n  }\n}\nconst git = ref => execFileSync('git', ['rev-parse', ref], { cwd: root, encoding: 'utf8' }).trim()\nwriteFileSync('.cache/issue-242/results.json', JSON.stringify({ issue: 'https://github.com/dperini/nwsapi/issues/242', node: process.version, jsdom: require('jsdom/package.json').version, revisions: { master: git('origin/master'), v3: git('origin/prerelease/3.0.0') }, passes: 10, results }, null, 2) + '\\n')\n"
+}
