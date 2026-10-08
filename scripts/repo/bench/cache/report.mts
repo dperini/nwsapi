@@ -64,8 +64,8 @@ const lines = [
   'Both default variants use 4,096 entries and 2MiB per compiled-plan cache. The expanded variant uses `CACHE_LIMIT: 8192` and `CACHE_BYTES: 8 * 1024 * 1024`. These limits apply per cache, not to the whole engine or process.',
   '',
   '```sh',
-  'node scripts/repo/bench/cache/scan.mts before.cjs dist/nwsapi.js assets/repo/bench/issue-242-cache-mitigation-2026-10-08.json',
-  'node scripts/repo/bench/cache/report.mts assets/repo/bench/issue-242-cache-mitigation-2026-10-08.json docs/repo/perf/selector-cache-mitigation-outcome.md',
+  'node scripts/repo/run.mts scripts/repo/bench/cache/scan.mts before.cjs dist/nwsapi.js assets/repo/bench/issue-242-cache-mitigation-2026-10-08.json',
+  'node scripts/repo/run.mts scripts/repo/bench/cache/report.mts assets/repo/bench/issue-242-cache-mitigation-2026-10-08.json docs/repo/perf/selector-cache-mitigation-outcome.md',
   '```',
   '',
   'Build `before.cjs` from the baseline revision using the repository build command. Build the candidate before running the comparison. The collector starts workers with `--expose-gc`.',
@@ -88,6 +88,8 @@ lines.push(
   '',
   'Class cases scan simple class selectors. The complex case scans 2,300 selectors shaped like `:where(.css-x).ant-btn-N:not(:disabled):not(.ant-btn-disabled):hover`. The small warm case makes 64,000 calls. Other steady scans make ten passes. The mixed case alternates 32 frequently reused selectors with one-off selectors. The changed case replaces the original 2,300 selectors and makes twenty passes over the new set.',
   '',
+  'The mixed workload keeps a 100% hit rate for its frequently reused subset in both versions. The changed-stylesheet case produces more Function constructions during the transition with sampled admission. Small warm timings can also be higher. These tradeoffs accompany the large reductions for oversized steady scans, rather than demonstrating a universal speedup.',
+  '',
   '## Larger host-selected budgets and memory',
   '',
   '| Case | Expanded hits | Expanded runtime | Heap delta before | Heap delta after | Heap delta expanded |',
@@ -101,7 +103,7 @@ for (const { name } of data.cases) {
 }
 lines.push(
   '',
-  'Expanded budgets can hold both the simple and complex steady scans. The changed workload includes its first cold pass, so an aggregate hit rate below 100% does not imply continuing misses. One-off selectors cannot produce hits. Heap deltas depend on garbage collection and VM code retention and should be interpreted alongside the recorded per-cache estimated byte counts.',
+  'Expanded budgets can hold both the simple and complex steady scans. The changed workload includes its first cold pass, so an aggregate hit rate below 100% does not imply continuing misses. One-off selectors cannot produce hits. Heap deltas depend on garbage collection and VM code retention and should be interpreted alongside the recorded per-cache estimated byte counts. The new policy can retain more entries within the same bounds, so it can use more heap than the rotating generations on some workloads.',
   '',
   '## Configuration contract',
   '',
@@ -110,7 +112,7 @@ lines.push(
   '- Configure the host’s actual engine. The V3 `DOMSelector` adapter accepts these numeric settings before its first use.',
   '- The no-`Map` fallback uses the same compiled-plan policy and limits. Fixed-size helper caches retain their own bounds.',
   '',
-  'The separate V2 change exposes configuration with its existing defaults and LRU policy. It is a mitigation when a stylesheet fits the host-selected bounds, rather than the V3 admission-policy change.',
+  'The separate [V2 draft PR](https://github.com/dperini/nwsapi/pull/243) exposes configuration with its existing defaults and LRU policy. It is a mitigation when a stylesheet fits the host-selected bounds, rather than the V3 admission-policy change.',
   '',
 )
 writeFileSync(output, lines.join('\n'))

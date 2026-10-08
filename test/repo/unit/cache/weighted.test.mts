@@ -45,47 +45,53 @@ test('large selector churn bounds compiled caches without changing retained reso
 })
 
 for (const MapCtor of [Map, undefined]) {
-  test(`cyclic scans retain useful entries with Map=${!!MapCtor}`, () => {
-    const engine = {
-      primordials: { MapCtor },
-      Config: { CACHE_LIMIT: 64, CACHE_BYTES: 8192 },
-    } as EngineState
-    const cache = createWeightedCache(engine, undefined, { weight: () => 8 })
-    for (let i = 0; i < 65; ++i) {
-      cache.set(String(i), i)
-    }
-    let hits = 0
-    for (let pass = 0; pass < 10; ++pass) {
+  test.each([
+    { limit: 64, bytes: 8192, minimumHits: 500 },
+    { limit: 4096, bytes: 4096, minimumHits: 250 },
+  ])(
+    `cyclic scans retain useful entries with Map=${!!MapCtor} and $bytes bytes`,
+    ({ limit, bytes, minimumHits }) => {
+      const engine = {
+        primordials: { MapCtor },
+        Config: { CACHE_LIMIT: limit, CACHE_BYTES: bytes },
+      } as EngineState
+      const cache = createWeightedCache(engine, undefined, { weight: () => 8 })
       for (let i = 0; i < 65; ++i) {
-        const key = String(i)
-        const value = cache.get(key)
-        if (value === undefined) {
-          cache.set(key, i)
-        } else {
-          expect(value).toBe(i)
-          ++hits
-        }
-        expect(cache.size()).toBeLessThanOrEqual(64)
-        expect(cache.bytes!()).toBeLessThanOrEqual(8192)
+        cache.set(String(i), i)
       }
-    }
-    expect(hits).toBeGreaterThan(500)
-    for (let pass = 0; pass < 100; ++pass) {
+      let hits = 0
+      for (let pass = 0; pass < 10; ++pass) {
+        for (let i = 0; i < 65; ++i) {
+          const key = String(i)
+          const value = cache.get(key)
+          if (value === undefined) {
+            cache.set(key, i)
+          } else {
+            expect(value).toBe(i)
+            ++hits
+          }
+          expect(cache.size()).toBeLessThanOrEqual(limit)
+          expect(cache.bytes!()).toBeLessThanOrEqual(bytes)
+        }
+      }
+      expect(hits).toBeGreaterThan(minimumHits)
+      for (let pass = 0; pass < 100; ++pass) {
+        for (let i = 100; i < 116; ++i) {
+          if (cache.get(String(i)) === undefined) {
+            cache.set(String(i), i)
+          }
+        }
+      }
       for (let i = 100; i < 116; ++i) {
-        if (cache.get(String(i)) === undefined) {
-          cache.set(String(i), i)
-        }
+        expect(cache.get(String(i))).toBe(i)
       }
-    }
-    for (let i = 100; i < 116; ++i) {
-      expect(cache.get(String(i))).toBe(i)
-    }
-    cache.clear()
-    for (const key of ['__proto__', 'constructor', 'toString', '\x01key']) {
-      cache.set(key, 42)
-      expect(cache.get(key)).toBe(42)
-    }
-  })
+      cache.clear()
+      for (const key of ['__proto__', 'constructor', 'toString', '\x01key']) {
+        cache.set(key, 42)
+        expect(cache.get(key)).toBe(42)
+      }
+    },
+  )
 }
 
 test('replacing entries accounts bytes exactly and rejects oversized replacements', () => {
