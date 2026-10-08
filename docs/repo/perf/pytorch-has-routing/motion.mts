@@ -124,7 +124,9 @@ function commitFrame(
   for (let i = 0, length = dots.length; i < length; i += 1) {
     const dot = dots[i]!
     const node = nodes.find(item => item.id === dot.dataset['motionNode'])!
-    dot.dataset['current'] = String(node.id === frame.current?.current)
+    dot.dataset['current'] = String(
+      !frame.complete && node.id === frame.current?.current,
+    )
     dot.dataset['visited'] = String(frame.visitedNodes.has(node.id))
     dot.dataset['rejected'] = String(
       node.kind === 'card' && frame.rejected.has(node.card!),
@@ -163,7 +165,9 @@ function drawRoute(route: SearchRoute) {
   const revision = ++revisions[route]
   const frame = motionFrame(nodes, route, positions[route])
   const scene = element(`film-${route}`)
-  scene.dataset['complete'] = 'false'
+  if (!frame.complete) {
+    scene.dataset['complete'] = 'false'
+  }
   const animation = moveCursor(scene, frame.current?.current)
   if (!animation) {
     commitFrame(route, frame)
