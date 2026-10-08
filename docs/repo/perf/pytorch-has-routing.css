@@ -285,6 +285,20 @@ button,
 .guide-select-check {
   color: var(--section-accent);
 }
+.language-select-content {
+  box-sizing: border-box;
+  width: var(--radix-select-trigger-width);
+  min-width: var(--radix-select-trigger-width);
+  padding: 4px;
+  font-size: 0.78rem;
+}
+.language-select-content .guide-select-item {
+  gap: 4px;
+  padding: 9px 5px;
+}
+.language-select-content .guide-select-check {
+  font-size: 0.75rem;
+}
 .guide-checkbox-mount {
   display: inline-flex;
   align-items: center;
@@ -393,6 +407,21 @@ pre {
   border-radius: 8px;
   padding-inline-end: 76px;
   scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--section-accent, var(--topic-what))
+    var(--surface-inset, var(--reading-inset, #101f27));
+}
+.code-sample > pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.code-sample > pre::-webkit-scrollbar-track {
+  background: var(--surface-inset, var(--reading-inset, #101f27));
+}
+.code-sample > pre::-webkit-scrollbar-thumb {
+  background: var(--section-accent, var(--topic-what));
+  border: 2px solid var(--surface-inset, var(--reading-inset, #101f27));
+  border-radius: 8px;
 }
 .code-toolbar {
   position: absolute;

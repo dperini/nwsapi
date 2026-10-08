@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { createElement as h, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -5,6 +6,7 @@ import { flushSync } from 'react-dom'
 import * as Select from '@radix-ui/react-select'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { selectorTokens } from './selector.mts'
+import languageIcon from '../../../../assets/repo/model-guide/icons/language.svg?raw'
 
 function selectorLabel(source: string) {
   return h(
@@ -82,6 +84,13 @@ function GuideSelect({
               ? 'Your selector'
               : 'Environment'),
       },
+      control.hasAttribute('data-language-select')
+        ? h('span', {
+            className: 'language-trigger-icon',
+            'aria-hidden': true,
+            dangerouslySetInnerHTML: { __html: languageIcon },
+          })
+        : null,
       h(
         Select.Value,
         { placeholder },
@@ -103,7 +112,9 @@ function GuideSelect({
       h(
         Select.Content,
         {
-          className: 'guide-select-content',
+          className: control.hasAttribute('data-language-select')
+            ? 'guide-select-content language-select-content'
+            : 'guide-select-content',
           position: 'popper',
           sideOffset: 6,
           style: theme,
@@ -205,4 +216,5 @@ export function initializeLanguageSelect() {
     createRoot(mount).render(h(GuideSelect, { control, label: 'Language' }))
   })
   control.hidden = true
+  control.parentElement?.setAttribute('data-language-enhanced', '')
 }

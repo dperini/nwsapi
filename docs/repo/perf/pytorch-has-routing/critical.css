@@ -40,16 +40,17 @@ body {
   border-bottom: 1px solid var(--line);
 }
 .language-picker {
+  --language-control-width: 56px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   margin-left: auto;
   color: var(--muted);
   font-size: 0.75rem;
 }
 .language-symbol {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 .reading-mode-toggle {
@@ -59,7 +60,7 @@ body {
   flex-shrink: 0;
   width: 34px;
   height: 34px;
-  padding: 7px;
+  padding: 6px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -80,50 +81,101 @@ html[data-reading-mode] .reading-mode-toggle {
 .reading-symbol {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 [hidden] {
   display: none !important;
 }
 .language-select-mount {
   display: inline-flex;
-  width: 68px;
+  width: var(--language-control-width);
+}
+.language-select-shell {
+  position: relative;
+  display: inline-flex;
+  width: var(--language-control-width);
+  height: 34px;
+}
+.language-select-shell > .language-symbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.language-select-shell > select {
+  opacity: 0;
+  cursor: pointer;
+}
+.language-select-shell:has(> select:focus-visible) {
+  outline: 1.5px solid var(--section-accent);
+  outline-offset: -1px;
+  border-radius: 8px;
+}
+.language-select-shell[data-language-enhanced] > .language-symbol {
+  display: none;
 }
 .language-picker :is(select, .guide-select-trigger) {
   box-sizing: border-box;
-  width: 68px;
-  min-width: 68px;
+  width: var(--language-control-width);
+  min-width: var(--language-control-width);
   height: 34px;
   margin: 0;
-  border: 1px solid color-mix(in srgb, var(--section-accent) 45%, var(--line));
+  border: 1px solid transparent;
   border-radius: 8px;
+  background-color: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+.language-picker .guide-select-trigger[data-state='open'] {
+  border-color: color-mix(in srgb, var(--section-accent) 45%, var(--line));
   background-color: color-mix(
     in srgb,
     var(--section-accent) 8%,
     var(--reading-surface, #14252e)
   );
   color: var(--reading-ink, #eef5f7);
-  font: inherit;
-  font-size: 0.78rem;
-  line-height: 1.4;
 }
 .language-picker select {
   appearance: none;
-  padding: 7px 30px 7px 13px;
-  background-image:
-    linear-gradient(45deg, transparent 50%, currentColor 50%),
-    linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position:
-    calc(100% - 16px) 50%,
-    calc(100% - 12px) 50%;
-  background-size: 4px 4px;
-  background-repeat: no-repeat;
+  padding: 7px 26px 7px 9px;
+  background-image: none;
+  text-align: left;
 }
-.language-select-mount .guide-select-trigger {
+.language-picker .guide-select-trigger:hover {
+  color: var(--section-accent);
+}
+.language-picker .guide-select-trigger[data-state='closed'] {
+  border-color: transparent;
+  background: transparent;
+}
+.language-picker
+  .guide-select-trigger[data-state='closed']
+  > :not(.language-trigger-icon) {
+  visibility: hidden;
+}
+.language-trigger-icon {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 7px 10px;
+  pointer-events: none;
+}
+.language-picker
+  .guide-select-trigger[data-state='open']
+  .language-trigger-icon {
+  visibility: hidden;
+}
+.language-select-mount .guide-select-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 6px;
 }
 .guide-select-trigger:focus-visible,
 .theme-select:focus-visible {
