@@ -21,26 +21,25 @@ async function invoke() {
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
   const gc = vi.fn()
   vi.stubGlobal('gc', gc)
-  const original = Reflect.get(WeakRef.prototype, 'deref') as (
-    this: WeakRef<object>,
-  ) => object | undefined
-  vi.spyOn(WeakRef.prototype, 'deref').mockImplementation(
-    function (this: WeakRef<object>) {
-      const target = Reflect.apply(original, this, []) as
-        | { nodeType?: number }
-        | undefined
-      if (!target) {
-        return undefined
+  // Keep targets reachable so natural GC cannot change simulated retention.
+  vi.stubGlobal(
+    'WeakRef',
+    class {
+      target: { nodeType?: number }
+      constructor(target: object) {
+        this.target = target
       }
-      return state.retention === 'nodes'
-        ? target.nodeType === 1
-          ? target
-          : undefined
-        : state.retention === 'observers'
-          ? target.nodeType === undefined
-            ? target
+      deref() {
+        return state.retention === 'nodes'
+          ? this.target.nodeType === 1
+            ? this.target
             : undefined
-          : undefined
+          : state.retention === 'observers'
+            ? this.target.nodeType === undefined
+              ? this.target
+              : undefined
+            : undefined
+      }
     },
   )
   try {
