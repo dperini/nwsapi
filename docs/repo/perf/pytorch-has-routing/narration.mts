@@ -1,3 +1,6 @@
+import italianTranscript from '../../../../assets/repo/model-guide/locales/narration.it.json'
+import { currentLocale, translate } from './locale.mts'
+import italianTimings from '../../../../assets/repo/model-guide/narration/timings.it.generated.json'
 import transcript from '../../../../assets/repo/model-guide/narration/transcript.json'
 import timings from '../../../../assets/repo/model-guide/narration/timings.generated.json'
 import type { ImportGlobFunction } from 'vite'
@@ -34,7 +37,7 @@ function attachPlayer(
   let request = 0
   const update = () => {
     const active = !audio.paused
-    label.textContent = active ? 'Pause' : 'Listen'
+    label.textContent = translate(active ? 'pause' : 'listen')
     icon.setAttribute(
       'd',
       active ? 'M7 5h4v14H7ZM14 5h4v14h-4Z' : 'm9 5 10 7-10 7Z',
@@ -42,7 +45,10 @@ function attachPlayer(
     button.setAttribute('aria-pressed', String(active))
     button.setAttribute(
       'aria-label',
-      `${active ? 'Pause' : 'Listen to'} narration: ${title}`,
+      translate(active ? 'pauseNarration' : 'listenNarration').replace(
+        '{title}',
+        title,
+      ),
     )
     panel.classList.toggle('is-playing', active)
     time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`
@@ -51,7 +57,9 @@ function attachPlayer(
     seek.disabled = !Number.isFinite(audio.duration)
     seek.setAttribute(
       'aria-valuetext',
-      `${formatTime(audio.currentTime)} of ${formatTime(audio.duration)}`,
+      translate('narrationProgress')
+        .replace('{current}', formatTime(audio.currentTime))
+        .replace('{duration}', formatTime(audio.duration)),
     )
     const progress =
       audio.duration > 0 ? (audio.currentTime / audio.duration) * 100 : 0
@@ -70,7 +78,10 @@ function attachPlayer(
     audio.currentTime = Number(seek.value)
     update()
   })
-  seek.setAttribute('aria-label', `Seek narration: ${title}`)
+  seek.setAttribute(
+    'aria-label',
+    translate('seekNarration').replace('{title}', title),
+  )
   button.addEventListener('click', () => {
     request += 1
     if (!audio.paused) {
@@ -87,10 +98,10 @@ function attachPlayer(
       audio.pause()
       playing = undefined
       update()
-      label.textContent = 'Audio unavailable'
+      label.textContent = translate('audioUnavailable')
       button.setAttribute(
         'aria-label',
-        `Audio unavailable. Retry narration: ${title}`,
+        translate('retryNarration').replace('{title}', title),
       )
       panel.setAttribute('role', 'status')
     })
@@ -99,27 +110,47 @@ function attachPlayer(
 }
 
 export function initializeNarration() {
-  window.addEventListener('pagehide', () => {
-    playing?.pause()
-    playing = undefined
-  })
+  playing?.pause()
+  playing = undefined
+  document.querySelectorAll('.narration').forEach(panel => panel.remove())
   for (let i = 0, length = transcript.sections.length; i < length; i += 1) {
     const section = transcript.sections[i]!
+    const italian = currentLocale() === 'it'
+    const file = italian ? `${section.id}.it.generated.mp3` : section.file
     const audio = new Audio(
-      clips[`../../../../assets/repo/model-guide/narration/${section.file}`],
+      clips[`../../../../assets/repo/model-guide/narration/${file}`],
     )
     audio.preload = 'metadata'
     const panel = document.createElement('div')
     panel.className = 'narration'
-    const written = transcriptMarkup(section.text)
+    panel.setAttribute('data-locale-content', '')
+    const text = italian
+      ? italianTranscript[section.id as keyof typeof italianTranscript]
+      : section.text
+    const written = transcriptMarkup(text)
     panel.innerHTML = `<button type="button" class="narration-play" aria-pressed="false" aria-label="Play section narration"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>Listen</span></button><input class="narration-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek section narration" disabled><span class="narration-time mono"></span><details><summary>Transcript</summary><p>${written}</p></details>`
     const chapter = element(section.id)
     chapter.querySelector('.section-intro')!.after(panel)
-    const title = chapter.querySelector('h2')?.textContent?.trim() || section.id
+    panel.querySelector('summary')!.textContent = translate('transcript')
+    panel.querySelector('p')!.lang = currentLocale()
+    const titles = {
+      training: 'narrationTraining',
+      search: 'narrationSearch',
+      policy: 'narrationPolicy',
+      source: 'narrationSource',
+    } as const
+    const title = translate(titles[section.id as keyof typeof titles])
     attachPlayer(audio, panel, title)
-    const aligned = timings.sections.find(entry => entry.id === section.id)
+    const aligned = (italian ? italianTimings : timings).sections.find(
+      entry => entry.id === section.id,
+    )
     if (aligned) {
       attachWordHighlight(audio, panel, aligned.words)
     }
   }
 }
+
+window.addEventListener('guide-locale-change', initializeNarration)
+window.addEventListener('pagehide', () => {
+  playing?.pause()
+})

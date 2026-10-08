@@ -1,6 +1,7 @@
 import { element, writeUnitText } from './ui.mts'
 import type { parse } from 'gpu-lexer'
 import { highlightSelector } from './selector.mts'
+import { attachCodeCopy } from './code-copy.mts'
 
 let parser: Promise<{ parse: typeof parse }> | undefined
 let queue = Promise.resolve()
@@ -112,6 +113,7 @@ const observer = new IntersectionObserver(entries => {
 })
 
 function observe(node: HTMLElement) {
+  attachCodeCopy(node)
   node.tabIndex = 0
   if (!observed.has(node)) {
     node.dataset['highlight'] = 'pending'

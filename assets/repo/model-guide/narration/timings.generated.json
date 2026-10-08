@@ -5,7 +5,7 @@
   "sections": [
     {
       "id": "training",
-      "duration": 41.510000000000005,
+      "duration": 86.53999999999999,
       "words": [
         {
           "text": "Let's",
@@ -128,280 +128,620 @@
           "end": 11.217
         },
         {
-          "text": "To",
-          "start": 12.851,
-          "end": 12.931
+          "text": "First,",
+          "start": 12.89,
+          "end": 13.211
         },
         {
-          "text": "teach",
-          "start": 13.031,
-          "end": 13.272
+          "text": "collect.mts,",
+          "start": 13.371,
+          "end": 15.033
         },
         {
-          "text": "it,",
-          "start": 13.392,
-          "end": 13.432
+          "text": "in",
+          "start": 15.513,
+          "end": 15.553
         },
         {
-          "text": "we",
-          "start": 13.833,
-          "end": 13.913
+          "text": "the",
+          "start": 15.613,
+          "end": 15.674
         },
         {
-          "text": "time",
-          "start": 13.993,
-          "end": 14.274
+          "text": "repository's",
+          "start": 15.714,
+          "end": 16.374
+        },
+        {
+          "text": "planner",
+          "start": 16.474,
+          "end": 16.735
+        },
+        {
+          "text": "benchmarks,",
+          "start": 16.795,
+          "end": 17.435
+        },
+        {
+          "text": "times",
+          "start": 17.956,
+          "end": 18.276
         },
         {
           "text": "both",
-          "start": 14.414,
-          "end": 14.635
+          "start": 18.377,
+          "end": 18.597
+        },
+        {
+          "text": "search",
+          "start": 18.697,
+          "end": 18.957
         },
         {
           "text": "routes",
-          "start": 14.755,
-          "end": 15.036
+          "start": 19.057,
+          "end": 19.358
         },
         {
           "text": "on",
-          "start": 15.316,
-          "end": 15.356
+          "start": 19.718,
+          "end": 19.758
         },
         {
           "text": "the",
-          "start": 15.416,
-          "end": 15.517
+          "start": 19.818,
+          "end": 19.898
         },
         {
           "text": "same",
-          "start": 15.557,
-          "end": 15.797
+          "start": 19.958,
+          "end": 20.179
         },
         {
           "text": "documents.",
-          "start": 15.857,
-          "end": 16.359
+          "start": 20.259,
+          "end": 20.759
         },
         {
-          "text": "PyTorch",
-          "start": 17.721,
-          "end": 18.383
+          "text": "It",
+          "start": 22.141,
+          "end": 22.201
         },
         {
-          "text": "uses",
-          "start": 18.844,
-          "end": 19.085
-        },
-        {
-          "text": "those",
-          "start": 19.185,
-          "end": 19.406
-        },
-        {
-          "text": "examples",
-          "start": 19.506,
-          "end": 20.047
-        },
-        {
-          "text": "to",
-          "start": 20.268,
-          "end": 20.368
-        },
-        {
-          "text": "adjust",
-          "start": 20.449,
-          "end": 20.83
-        },
-        {
-          "text": "a",
-          "start": 21.231,
-          "end": 21.251
-        },
-        {
-          "text": "set",
-          "start": 21.331,
-          "end": 21.492
-        },
-        {
-          "text": "of",
-          "start": 21.552,
-          "end": 21.592
-        },
-        {
-          "text": "numbers.",
-          "start": 21.672,
-          "end": 22.033
-        },
-        {
-          "text": "Separate",
-          "start": 23.667,
-          "end": 23.989
-        },
-        {
-          "text": "examples",
-          "start": 24.069,
-          "end": 24.632
-        },
-        {
-          "text": "help",
-          "start": 25.015,
-          "end": 25.176
-        },
-        {
-          "text": "check",
-          "start": 25.296,
-          "end": 25.477
+          "text": "records",
+          "start": 22.261,
+          "end": 22.703
         },
         {
           "text": "the",
-          "start": 25.578,
-          "end": 25.638
+          "start": 22.783,
+          "end": 22.863
         },
         {
-          "text": "result.",
-          "start": 25.679,
-          "end": 26.081
+          "text": "selectors,",
+          "start": 22.923,
+          "end": 23.505
         },
         {
-          "text": "Repository",
-          "start": 27.486,
-          "end": 28.067
+          "text": "candidate",
+          "start": 23.906,
+          "end": 24.428
         },
         {
-          "text": "scripts",
-          "start": 28.167,
-          "end": 28.528
-        },
-        {
-          "text": "then",
-          "start": 28.989,
-          "end": 29.109
-        },
-        {
-          "text": "export",
-          "start": 29.249,
-          "end": 29.63
-        },
-        {
-          "text": "a",
-          "start": 29.73,
-          "end": 29.751
-        },
-        {
-          "text": "small",
-          "start": 29.831,
-          "end": 30.191
-        },
-        {
-          "text": "JavaScript",
-          "start": 30.332,
-          "end": 31.053
-        },
-        {
-          "text": "function",
-          "start": 31.154,
-          "end": 31.514
-        },
-        {
-          "text": "that",
-          "start": 31.975,
-          "end": 32.096
-        },
-        {
-          "text": "recommends",
-          "start": 32.156,
-          "end": 32.637
-        },
-        {
-          "text": "where",
-          "start": 32.717,
-          "end": 32.897
-        },
-        {
-          "text": "to",
-          "start": 32.957,
-          "end": 33.018
-        },
-        {
-          "text": "start.",
-          "start": 33.098,
-          "end": 33.458
-        },
-        {
-          "text": "Choose",
-          "start": 35.09,
-          "end": 35.371
-        },
-        {
-          "text": "a",
-          "start": 35.451,
-          "end": 35.471
-        },
-        {
-          "text": "selector",
-          "start": 35.571,
-          "end": 35.992
-        },
-        {
-          "text": "below,",
-          "start": 36.072,
-          "end": 36.373
+          "text": "counts,",
+          "start": 24.528,
+          "end": 24.889
         },
         {
           "text": "and",
-          "start": 36.873,
-          "end": 36.954
+          "start": 25.21,
+          "end": 25.29
         },
         {
-          "text": "follow",
-          "start": 37.054,
-          "end": 37.334
+          "text": "measured",
+          "start": 25.371,
+          "end": 25.672
         },
         {
-          "text": "the",
-          "start": 37.434,
-          "end": 37.514
+          "text": "costs.",
+          "start": 25.752,
+          "end": 26.173
         },
         {
-          "text": "steps",
-          "start": 37.575,
-          "end": 37.895
+          "text": "PyTorch",
+          "start": 27.746,
+          "end": 28.407
         },
         {
-          "text": "from",
-          "start": 37.955,
-          "end": 38.095
+          "text": "uses",
+          "start": 28.848,
+          "end": 29.088
         },
         {
-          "text": "measurements",
-          "start": 38.196,
-          "end": 38.676
+          "text": "those",
+          "start": 29.168,
+          "end": 29.409
+        },
+        {
+          "text": "examples",
+          "start": 29.509,
+          "end": 30.09
         },
         {
           "text": "to",
-          "start": 38.997,
-          "end": 39.097
+          "start": 30.371,
+          "end": 30.451
+        },
+        {
+          "text": "adjust",
+          "start": 30.551,
+          "end": 30.932
         },
         {
           "text": "the",
-          "start": 39.157,
-          "end": 39.217
+          "start": 31.112,
+          "end": 31.192
+        },
+        {
+          "text": "model's",
+          "start": 31.232,
+          "end": 31.533
+        },
+        {
+          "text": "weights.",
+          "start": 31.633,
+          "end": 31.934
+        },
+        {
+          "text": "Separate",
+          "start": 33.356,
+          "end": 33.677
+        },
+        {
+          "text": "validation",
+          "start": 33.717,
+          "end": 34.298
+        },
+        {
+          "text": "examples",
+          "start": 34.418,
+          "end": 34.96
+        },
+        {
+          "text": "help",
+          "start": 35.321,
+          "end": 35.501
+        },
+        {
+          "text": "choose",
+          "start": 35.621,
+          "end": 35.902
+        },
+        {
+          "text": "the",
+          "start": 35.982,
+          "end": 36.063
+        },
+        {
+          "text": "model",
+          "start": 36.103,
+          "end": 36.343
+        },
+        {
+          "text": "and",
+          "start": 36.825,
+          "end": 36.885
+        },
+        {
+          "text": "its",
+          "start": 36.945,
+          "end": 37.065
+        },
+        {
+          "text": "decision",
+          "start": 37.145,
+          "end": 37.606
+        },
+        {
+          "text": "threshold.",
+          "start": 37.827,
+          "end": 38.368
+        },
+        {
+          "text": "Evaluation",
+          "start": 39.75,
+          "end": 40.431
+        },
+        {
+          "text": "examples",
+          "start": 40.631,
+          "end": 41.191
+        },
+        {
+          "text": "measure",
+          "start": 41.672,
+          "end": 41.972
+        },
+        {
+          "text": "the",
+          "start": 42.032,
+          "end": 42.092
+        },
+        {
+          "text": "chosen",
+          "start": 42.212,
+          "end": 42.613
+        },
+        {
+          "text": "model",
+          "start": 42.713,
+          "end": 42.953
+        },
+        {
+          "text": "on",
+          "start": 43.373,
+          "end": 43.433
+        },
+        {
+          "text": "other",
+          "start": 43.593,
+          "end": 43.754
+        },
+        {
+          "text": "document",
+          "start": 43.834,
+          "end": 44.234
+        },
+        {
+          "text": "layouts.",
+          "start": 44.294,
+          "end": 44.774
+        },
+        {
+          "text": "Next,",
+          "start": 46.426,
+          "end": 46.706
+        },
+        {
+          "text": "the",
+          "start": 46.907,
+          "end": 46.987
+        },
+        {
+          "text": "nwsapi",
+          "start": 47.107,
+          "end": 48.009
+        },
+        {
+          "text": "repository",
+          "start": 48.11,
+          "end": 48.691
+        },
+        {
+          "text": "script",
+          "start": 48.791,
+          "end": 49.092
+        },
+        {
+          "text": "dispatch_train.py",
+          "start": 49.272,
+          "end": 50.776
+        },
+        {
+          "text": "exports",
+          "start": 51.317,
+          "end": 51.738
+        },
+        {
+          "text": "the",
+          "start": 51.818,
+          "end": 51.898
+        },
+        {
+          "text": "learned",
+          "start": 51.959,
+          "end": 52.259
+        },
+        {
+          "text": "weights",
+          "start": 52.339,
+          "end": 52.64
+        },
+        {
+          "text": "as",
+          "start": 53.081,
+          "end": 53.121
+        },
+        {
+          "text": "JavaScript.",
+          "start": 53.242,
+          "end": 54.023
+        },
+        {
+          "text": "Then",
+          "start": 55.405,
+          "end": 55.545
+        },
+        {
+          "text": "has-route-decision.mts",
+          "start": 55.625,
+          "end": 58.167
+        },
+        {
+          "text": "generates",
+          "start": 58.688,
+          "end": 59.208
+        },
+        {
+          "text": "the",
+          "start": 59.288,
+          "end": 59.368
+        },
+        {
+          "text": "typed",
+          "start": 59.448,
+          "end": 59.749
+        },
+        {
+          "text": "runtime",
+          "start": 59.869,
+          "end": 60.369
+        },
+        {
+          "text": "module.",
+          "start": 60.469,
+          "end": 60.789
+        },
+        {
+          "text": "Finally,",
+          "start": 62.401,
+          "end": 62.821
+        },
+        {
+          "text": "the",
+          "start": 63.082,
+          "end": 63.162
+        },
+        {
+          "text": "build",
+          "start": 63.222,
+          "end": 63.443
+        },
+        {
+          "text": "includes",
+          "start": 63.543,
+          "end": 63.964
+        },
+        {
+          "text": "that",
+          "start": 64.044,
+          "end": 64.184
+        },
+        {
+          "text": "function",
+          "start": 64.305,
+          "end": 64.685
+        },
+        {
+          "text": "in",
+          "start": 65.126,
+          "end": 65.166
+        },
+        {
+          "text": "nwsapi.",
+          "start": 65.367,
+          "end": 66.289
+        },
+        {
+          "text": "It",
+          "start": 67.691,
+          "end": 67.731
+        },
+        {
+          "text": "recommends",
+          "start": 67.791,
+          "end": 68.332
+        },
+        {
+          "text": "a",
+          "start": 68.453,
+          "end": 68.473
+        },
+        {
+          "text": "search",
+          "start": 68.573,
+          "end": 68.874
+        },
+        {
+          "text": "direction,",
+          "start": 68.974,
+          "end": 69.475
+        },
+        {
+          "text": "and",
+          "start": 70.016,
+          "end": 70.077
+        },
+        {
+          "text": "the",
+          "start": 70.117,
+          "end": 70.177
+        },
+        {
+          "text": "selector",
+          "start": 70.237,
+          "end": 70.678
+        },
+        {
+          "text": "engine",
+          "start": 70.838,
+          "end": 71.119
+        },
+        {
+          "text": "checks",
+          "start": 71.46,
+          "end": 71.701
+        },
+        {
+          "text": "the",
+          "start": 71.801,
+          "end": 71.881
+        },
+        {
+          "text": "exact",
+          "start": 71.961,
+          "end": 72.282
+        },
+        {
+          "text": "matches.",
+          "start": 72.402,
+          "end": 72.823
+        },
+        {
+          "text": "Choose",
+          "start": 74.475,
+          "end": 74.775
+        },
+        {
+          "text": "a",
+          "start": 74.856,
+          "end": 74.876
+        },
+        {
+          "text": "selector",
+          "start": 74.956,
+          "end": 75.376
+        },
+        {
+          "text": "below,",
+          "start": 75.456,
+          "end": 75.756
+        },
+        {
+          "text": "and",
+          "start": 76.257,
+          "end": 76.337
+        },
+        {
+          "text": "follow",
+          "start": 76.417,
+          "end": 76.717
+        },
+        {
+          "text": "the",
+          "start": 76.817,
+          "end": 76.897
+        },
+        {
+          "text": "steps",
+          "start": 76.957,
+          "end": 77.298
+        },
+        {
+          "text": "from",
+          "start": 77.358,
+          "end": 77.498
+        },
+        {
+          "text": "measurements",
+          "start": 77.598,
+          "end": 78.078
+        },
+        {
+          "text": "to",
+          "start": 78.438,
+          "end": 78.519
+        },
+        {
+          "text": "the",
+          "start": 78.579,
+          "end": 78.659
         },
         {
           "text": "finished",
-          "start": 39.297,
-          "end": 39.658
+          "start": 78.759,
+          "end": 79.119
         },
         {
           "text": "function.",
-          "start": 39.758,
-          "end": 40.139
+          "start": 79.219,
+          "end": 79.699
+        },
+        {
+          "text": "Each",
+          "start": 81.061,
+          "end": 81.201
+        },
+        {
+          "text": "step",
+          "start": 81.261,
+          "end": 81.501
+        },
+        {
+          "text": "links",
+          "start": 81.762,
+          "end": 81.982
+        },
+        {
+          "text": "to",
+          "start": 82.043,
+          "end": 82.123
+        },
+        {
+          "text": "the",
+          "start": 82.183,
+          "end": 82.263
+        },
+        {
+          "text": "source",
+          "start": 82.323,
+          "end": 82.624
+        },
+        {
+          "text": "file",
+          "start": 82.664,
+          "end": 83.004
+        },
+        {
+          "text": "that",
+          "start": 83.405,
+          "end": 83.505
+        },
+        {
+          "text": "performs",
+          "start": 83.565,
+          "end": 84.046
+        },
+        {
+          "text": "that",
+          "start": 84.147,
+          "end": 84.307
+        },
+        {
+          "text": "part",
+          "start": 84.407,
+          "end": 84.648
+        },
+        {
+          "text": "of",
+          "start": 84.708,
+          "end": 84.748
+        },
+        {
+          "text": "the",
+          "start": 84.808,
+          "end": 84.868
+        },
+        {
+          "text": "work.",
+          "start": 84.928,
+          "end": 85.169
         }
       ]
     },
     {
       "id": "search",
-      "duration": 56.1,
+      "duration": 95.085,
       "words": [
         {
           "text": "There",
@@ -454,450 +794,825 @@
           "end": 3.288
         },
         {
-          "text": "Search",
-          "start": 4.671,
-          "end": 4.931
-        },
-        {
-          "text": "down",
-          "start": 5.052,
-          "end": 5.272
-        },
-        {
-          "text": "from",
-          "start": 5.373,
-          "end": 5.493
-        },
-        {
-          "text": "each",
-          "start": 5.653,
-          "end": 5.794
-        },
-        {
-          "text": "card",
-          "start": 5.894,
-          "end": 6.235
-        },
-        {
-          "text": "into",
-          "start": 6.596,
-          "end": 6.756
-        },
-        {
-          "text": "its",
-          "start": 6.856,
-          "end": 6.977
-        },
-        {
-          "text": "descendants.",
-          "start": 7.037,
-          "end": 7.698
-        },
-        {
-          "text": "That's",
-          "start": 9.023,
-          "end": 9.245
-        },
-        {
-          "text": "the",
-          "start": 9.325,
-          "end": 9.406
-        },
-        {
-          "text": "forward",
-          "start": 9.527,
-          "end": 9.911
-        },
-        {
-          "text": "route.",
-          "start": 10.012,
-          "end": 10.355
-        },
-        {
-          "text": "Or",
-          "start": 11.911,
-          "end": 11.972
-        },
-        {
-          "text": "start",
-          "start": 12.072,
-          "end": 12.394
+          "text": "Start",
+          "start": 4.69,
+          "end": 4.951
         },
         {
           "text": "at",
-          "start": 12.494,
-          "end": 12.534
+          "start": 5.011,
+          "end": 5.071
         },
         {
           "text": "each",
-          "start": 12.615,
-          "end": 12.755
+          "start": 5.151,
+          "end": 5.291
         },
         {
-          "text": "warning",
-          "start": 12.876,
-          "end": 13.257
+          "text": "card",
+          "start": 5.391,
+          "end": 5.712
         },
         {
           "text": "and",
-          "start": 13.679,
-          "end": 13.76
+          "start": 6.172,
+          "end": 6.252
         },
         {
-          "text": "walk",
-          "start": 13.8,
-          "end": 13.961
+          "text": "search",
+          "start": 6.332,
+          "end": 6.593
         },
         {
-          "text": "up",
-          "start": 14.061,
-          "end": 14.121
+          "text": "down",
+          "start": 6.693,
+          "end": 6.913
         },
         {
           "text": "through",
-          "start": 14.202,
-          "end": 14.423
+          "start": 7.033,
+          "end": 7.253
         },
         {
           "text": "its",
-          "start": 14.483,
-          "end": 14.583
+          "start": 7.313,
+          "end": 7.433
         },
         {
-          "text": "ancestors.",
-          "start": 14.764,
-          "end": 15.427
+          "text": "descendants.",
+          "start": 7.514,
+          "end": 8.174
         },
         {
           "text": "That's",
-          "start": 16.791,
-          "end": 17.011
+          "start": 9.498,
+          "end": 9.72
         },
         {
           "text": "the",
-          "start": 17.091,
-          "end": 17.191
+          "start": 9.8,
+          "end": 9.881
         },
         {
-          "text": "inverse",
-          "start": 17.312,
-          "end": 17.853
+          "text": "forward",
+          "start": 10.002,
+          "end": 10.386
         },
         {
           "text": "route.",
-          "start": 18.013,
-          "end": 18.274
+          "start": 10.487,
+          "end": 10.83
         },
         {
-          "text": "Then",
-          "start": 19.656,
-          "end": 19.777
+          "text": "Each",
+          "start": 12.156,
+          "end": 12.316
         },
         {
-          "text": "check",
-          "start": 19.917,
-          "end": 20.098
+          "text": "card",
+          "start": 12.436,
+          "end": 12.737
         },
         {
-          "text": "the",
-          "start": 20.219,
-          "end": 20.279
+          "text": "can",
+          "start": 12.817,
+          "end": 12.937
         },
         {
-          "text": "cards",
-          "start": 20.339,
-          "end": 20.801
+          "text": "stop",
+          "start": 13.078,
+          "end": 13.358
         },
         {
-          "text": "in",
-          "start": 21.183,
-          "end": 21.223
-        },
-        {
-          "text": "document",
-          "start": 21.343,
-          "end": 21.825
-        },
-        {
-          "text": "order.",
-          "start": 22.026,
-          "end": 22.348
-        },
-        {
-          "text": "Picture",
-          "start": 23.861,
-          "end": 24.223
-        },
-        {
-          "text": "event",
-          "start": 24.303,
-          "end": 24.564
-        },
-        {
-          "text": "capture",
-          "start": 24.825,
-          "end": 25.187
-        },
-        {
-          "text": "going",
-          "start": 25.247,
-          "end": 25.488
-        },
-        {
-          "text": "down,",
-          "start": 25.569,
-          "end": 25.87
-        },
-        {
-          "text": "and",
-          "start": 26.312,
-          "end": 26.392
-        },
-        {
-          "text": "bubbling",
-          "start": 26.513,
-          "end": 26.874
-        },
-        {
-          "text": "coming",
-          "start": 26.995,
-          "end": 27.276
-        },
-        {
-          "text": "up.",
-          "start": 27.437,
-          "end": 27.477
-        },
-        {
-          "text": "Here,",
-          "start": 28.902,
-          "end": 29.123
-        },
-        {
-          "text": "we're",
-          "start": 29.385,
-          "end": 29.587
-        },
-        {
-          "text": "searching",
-          "start": 29.647,
-          "end": 30.009
-        },
-        {
-          "text": "the",
-          "start": 30.15,
-          "end": 30.231
-        },
-        {
-          "text": "DOM.",
-          "start": 30.291,
-          "end": 30.875
-        },
-        {
-          "text": "No",
-          "start": 32.342,
-          "end": 32.503
-        },
-        {
-          "text": "events",
-          "start": 32.665,
-          "end": 33.007
-        },
-        {
-          "text": "are",
-          "start": 33.349,
-          "end": 33.43
-        },
-        {
-          "text": "dispatched.",
-          "start": 33.491,
-          "end": 34.216
-        },
-        {
-          "text": "Both",
-          "start": 35.77,
-          "end": 35.991
-        },
-        {
-          "text": "routes",
-          "start": 36.131,
-          "end": 36.411
-        },
-        {
-          "text": "return",
-          "start": 36.552,
-          "end": 36.912
-        },
-        {
-          "text": "the",
-          "start": 37.072,
-          "end": 37.153
-        },
-        {
-          "text": "same",
-          "start": 37.213,
-          "end": 37.433
-        },
-        {
-          "text": "cards.",
-          "start": 37.573,
-          "end": 38.054
-        },
-        {
-          "text": "Starting",
-          "start": 39.417,
-          "end": 39.839
-        },
-        {
-          "text": "with",
-          "start": 39.879,
-          "end": 40
+          "text": "once",
+          "start": 13.839,
+          "end": 13.979
         },
         {
           "text": "a",
-          "start": 40.06,
-          "end": 40.08
-        },
-        {
-          "text": "few",
-          "start": 40.161,
-          "end": 40.302
-        },
-        {
-          "text": "warnings",
-          "start": 40.402,
-          "end": 40.865
-        },
-        {
-          "text": "may",
-          "start": 41.227,
-          "end": 41.347
-        },
-        {
-          "text": "save",
-          "start": 41.468,
-          "end": 41.689
-        },
-        {
-          "text": "work.",
-          "start": 41.79,
-          "end": 42.031
-        },
-        {
-          "text": "Play",
-          "start": 43.416,
-          "end": 43.577
-        },
-        {
-          "text": "both",
-          "start": 43.677,
-          "end": 43.878
-        },
-        {
-          "text": "searches,",
-          "start": 43.998,
-          "end": 44.48
-        },
-        {
-          "text": "then",
-          "start": 44.962,
-          "end": 45.062
-        },
-        {
-          "text": "change",
-          "start": 45.203,
-          "end": 45.464
-        },
-        {
-          "text": "a",
-          "start": 45.544,
-          "end": 45.564
+          "start": 14.059,
+          "end": 14.08
         },
         {
           "text": "warning",
-          "start": 45.645,
-          "end": 46.026
+          "start": 14.18,
+          "end": 14.54
         },
         {
-          "text": "in",
-          "start": 46.327,
-          "end": 46.367
+          "text": "satisfies",
+          "start": 14.721,
+          "end": 15.402
         },
         {
           "text": "the",
-          "start": 46.428,
-          "end": 46.488
+          "start": 15.502,
+          "end": 15.583
         },
         {
-          "text": "DOM",
-          "start": 46.548,
-          "end": 47.09
+          "text": "selector.",
+          "start": 15.643,
+          "end": 16.224
         },
         {
-          "text": "editor.",
-          "start": 47.311,
-          "end": 47.753
+          "text": "Or",
+          "start": 17.756,
+          "end": 17.817
         },
         {
-          "text": "The",
-          "start": 49.037,
-          "end": 49.097
+          "text": "start",
+          "start": 17.917,
+          "end": 18.239
         },
         {
-          "text": "counters",
-          "start": 49.177,
-          "end": 49.741
+          "text": "at",
+          "start": 18.339,
+          "end": 18.379
         },
         {
-          "text": "show",
-          "start": 50.022,
-          "end": 50.224
+          "text": "each",
+          "start": 18.46,
+          "end": 18.6
         },
         {
-          "text": "steps.",
-          "start": 50.344,
-          "end": 50.706
+          "text": "warning",
+          "start": 18.721,
+          "end": 19.102
         },
         {
-          "text": "Timing",
-          "start": 52.032,
-          "end": 52.373
+          "text": "and",
+          "start": 19.524,
+          "end": 19.605
         },
         {
-          "text": "queries",
-          "start": 52.454,
-          "end": 52.836
+          "text": "walk",
+          "start": 19.645,
+          "end": 19.806
         },
         {
-          "text": "shows",
-          "start": 53.258,
-          "end": 53.499
+          "text": "up",
+          "start": 19.906,
+          "end": 19.966
         },
         {
-          "text": "which",
-          "start": 53.6,
-          "end": 53.741
+          "text": "through",
+          "start": 20.047,
+          "end": 20.268
         },
         {
-          "text": "route",
-          "start": 53.882,
-          "end": 54.083
+          "text": "its",
+          "start": 20.328,
+          "end": 20.428
+        },
+        {
+          "text": "ancestors.",
+          "start": 20.609,
+          "end": 21.272
+        },
+        {
+          "text": "That's",
+          "start": 22.636,
+          "end": 22.856
+        },
+        {
+          "text": "the",
+          "start": 22.936,
+          "end": 23.036
+        },
+        {
+          "text": "inverse",
+          "start": 23.157,
+          "end": 23.698
+        },
+        {
+          "text": "route.",
+          "start": 23.858,
+          "end": 24.119
+        },
+        {
+          "text": "A",
+          "start": 25.521,
+          "end": 25.541
+        },
+        {
+          "text": "warning",
+          "start": 25.622,
+          "end": 26.023
         },
         {
           "text": "is",
-          "start": 54.223,
-          "end": 54.284
+          "start": 26.264,
+          "end": 26.324
         },
         {
-          "text": "faster.",
-          "start": 54.364,
-          "end": 54.907
+          "text": "a",
+          "start": 26.404,
+          "end": 26.424
+        },
+        {
+          "text": "witness:",
+          "start": 26.505,
+          "end": 26.906
+        },
+        {
+          "text": "evidence",
+          "start": 27.488,
+          "end": 27.87
+        },
+        {
+          "text": "that",
+          "start": 28.091,
+          "end": 28.211
+        },
+        {
+          "text": "a",
+          "start": 28.271,
+          "end": 28.311
+        },
+        {
+          "text": "containing",
+          "start": 28.351,
+          "end": 28.853
+        },
+        {
+          "text": "card",
+          "start": 28.994,
+          "end": 29.295
+        },
+        {
+          "text": "might",
+          "start": 29.415,
+          "end": 29.616
+        },
+        {
+          "text": "match.",
+          "start": 29.716,
+          "end": 30.018
+        },
+        {
+          "text": "Several",
+          "start": 31.67,
+          "end": 31.991
+        },
+        {
+          "text": "warnings",
+          "start": 32.091,
+          "end": 32.572
+        },
+        {
+          "text": "can",
+          "start": 32.932,
+          "end": 33.052
+        },
+        {
+          "text": "lead",
+          "start": 33.152,
+          "end": 33.413
+        },
+        {
+          "text": "to",
+          "start": 33.573,
+          "end": 33.653
+        },
+        {
+          "text": "the",
+          "start": 33.713,
+          "end": 33.793
+        },
+        {
+          "text": "same",
+          "start": 33.873,
+          "end": 34.114
+        },
+        {
+          "text": "card.",
+          "start": 34.234,
+          "end": 34.574
+        },
+        {
+          "text": "The",
+          "start": 35.995,
+          "end": 36.075
+        },
+        {
+          "text": "engine",
+          "start": 36.195,
+          "end": 36.496
+        },
+        {
+          "text": "keeps",
+          "start": 36.596,
+          "end": 36.856
+        },
+        {
+          "text": "each",
+          "start": 37.096,
+          "end": 37.257
+        },
+        {
+          "text": "matching",
+          "start": 37.377,
+          "end": 37.737
+        },
+        {
+          "text": "card",
+          "start": 37.857,
+          "end": 38.117
+        },
+        {
+          "text": "once,",
+          "start": 38.378,
+          "end": 38.538
+        },
+        {
+          "text": "in",
+          "start": 39.038,
+          "end": 39.098
+        },
+        {
+          "text": "document",
+          "start": 39.178,
+          "end": 39.599
+        },
+        {
+          "text": "order.",
+          "start": 39.819,
+          "end": 40.119
+        },
+        {
+          "text": "Both",
+          "start": 41.44,
+          "end": 41.661
+        },
+        {
+          "text": "search",
+          "start": 41.781,
+          "end": 42.021
+        },
+        {
+          "text": "directions",
+          "start": 42.141,
+          "end": 42.742
+        },
+        {
+          "text": "return",
+          "start": 43.142,
+          "end": 43.503
+        },
+        {
+          "text": "the",
+          "start": 43.643,
+          "end": 43.723
+        },
+        {
+          "text": "same",
+          "start": 43.783,
+          "end": 44.023
+        },
+        {
+          "text": "cards.",
+          "start": 44.144,
+          "end": 44.584
+        },
+        {
+          "text": "Picture",
+          "start": 46.196,
+          "end": 46.558
+        },
+        {
+          "text": "event",
+          "start": 46.638,
+          "end": 46.899
+        },
+        {
+          "text": "capture",
+          "start": 47.16,
+          "end": 47.522
+        },
+        {
+          "text": "going",
+          "start": 47.582,
+          "end": 47.823
+        },
+        {
+          "text": "down,",
+          "start": 47.904,
+          "end": 48.205
+        },
+        {
+          "text": "and",
+          "start": 48.647,
+          "end": 48.727
+        },
+        {
+          "text": "bubbling",
+          "start": 48.848,
+          "end": 49.209
+        },
+        {
+          "text": "coming",
+          "start": 49.33,
+          "end": 49.611
+        },
+        {
+          "text": "up.",
+          "start": 49.772,
+          "end": 49.812
+        },
+        {
+          "text": "Here,",
+          "start": 51.235,
+          "end": 51.456
+        },
+        {
+          "text": "those",
+          "start": 51.696,
+          "end": 51.876
+        },
+        {
+          "text": "directions",
+          "start": 51.956,
+          "end": 52.537
+        },
+        {
+          "text": "describe",
+          "start": 52.797,
+          "end": 53.317
+        },
+        {
+          "text": "how",
+          "start": 53.558,
+          "end": 53.658
+        },
+        {
+          "text": "we",
+          "start": 53.738,
+          "end": 53.818
+        },
+        {
+          "text": "search",
+          "start": 53.918,
+          "end": 54.178
+        },
+        {
+          "text": "the",
+          "start": 54.298,
+          "end": 54.379
+        },
+        {
+          "text": "DOM.",
+          "start": 54.459,
+          "end": 55.099
+        },
+        {
+          "text": "No",
+          "start": 56.502,
+          "end": 56.663
+        },
+        {
+          "text": "events",
+          "start": 56.825,
+          "end": 57.167
+        },
+        {
+          "text": "are",
+          "start": 57.509,
+          "end": 57.59
+        },
+        {
+          "text": "dispatched.",
+          "start": 57.651,
+          "end": 58.376
+        },
+        {
+          "text": "The",
+          "start": 59.91,
+          "end": 59.99
+        },
+        {
+          "text": "amount",
+          "start": 60.051,
+          "end": 60.371
+        },
+        {
+          "text": "of",
+          "start": 60.451,
+          "end": 60.491
+        },
+        {
+          "text": "work",
+          "start": 60.611,
+          "end": 60.872
+        },
+        {
+          "text": "depends",
+          "start": 61.252,
+          "end": 61.693
+        },
+        {
+          "text": "on",
+          "start": 61.773,
+          "end": 61.813
+        },
+        {
+          "text": "the",
+          "start": 61.873,
+          "end": 61.933
+        },
+        {
+          "text": "document.",
+          "start": 62.013,
+          "end": 62.574
+        },
+        {
+          "text": "A",
+          "start": 63.995,
+          "end": 64.015
+        },
+        {
+          "text": "card",
+          "start": 64.095,
+          "end": 64.456
+        },
+        {
+          "text": "with",
+          "start": 64.556,
+          "end": 64.676
+        },
+        {
+          "text": "an",
+          "start": 64.736,
+          "end": 64.776
+        },
+        {
+          "text": "early",
+          "start": 64.936,
+          "end": 65.156
+        },
+        {
+          "text": "warning",
+          "start": 65.257,
+          "end": 65.597
+        },
+        {
+          "text": "may",
+          "start": 66.037,
+          "end": 66.137
+        },
+        {
+          "text": "need",
+          "start": 66.197,
+          "end": 66.338
+        },
+        {
+          "text": "only",
+          "start": 66.558,
+          "end": 66.758
+        },
+        {
+          "text": "a",
+          "start": 66.838,
+          "end": 66.858
+        },
+        {
+          "text": "short",
+          "start": 66.978,
+          "end": 67.198
+        },
+        {
+          "text": "downward",
+          "start": 67.339,
+          "end": 67.719
+        },
+        {
+          "text": "search.",
+          "start": 67.799,
+          "end": 68.139
+        },
+        {
+          "text": "A",
+          "start": 69.54,
+          "end": 69.56
+        },
+        {
+          "text": "few",
+          "start": 69.64,
+          "end": 69.801
+        },
+        {
+          "text": "warnings",
+          "start": 69.941,
+          "end": 70.381
+        },
+        {
+          "text": "among",
+          "start": 70.641,
+          "end": 70.822
+        },
+        {
+          "text": "many",
+          "start": 70.902,
+          "end": 71.082
+        },
+        {
+          "text": "cards",
+          "start": 71.202,
+          "end": 71.622
+        },
+        {
+          "text": "may",
+          "start": 72.023,
+          "end": 72.103
+        },
+        {
+          "text": "make",
+          "start": 72.163,
+          "end": 72.283
+        },
+        {
+          "text": "upward",
+          "start": 72.403,
+          "end": 72.663
+        },
+        {
+          "text": "search",
+          "start": 72.744,
+          "end": 73.024
+        },
+        {
+          "text": "useful.",
+          "start": 73.224,
+          "end": 73.604
+        },
+        {
+          "text": "Play",
+          "start": 75.176,
+          "end": 75.336
+        },
+        {
+          "text": "both",
+          "start": 75.436,
+          "end": 75.636
+        },
+        {
+          "text": "searches,",
+          "start": 75.757,
+          "end": 76.258
+        },
+        {
+          "text": "then",
+          "start": 76.739,
+          "end": 76.859
+        },
+        {
+          "text": "change",
+          "start": 76.979,
+          "end": 77.26
+        },
+        {
+          "text": "a",
+          "start": 77.32,
+          "end": 77.34
+        },
+        {
+          "text": "warning",
+          "start": 77.44,
+          "end": 77.821
+        },
+        {
+          "text": "in",
+          "start": 78.101,
+          "end": 78.141
+        },
+        {
+          "text": "the",
+          "start": 78.201,
+          "end": 78.261
+        },
+        {
+          "text": "DOM",
+          "start": 78.342,
+          "end": 78.903
+        },
+        {
+          "text": "editor.",
+          "start": 79.103,
+          "end": 79.544
+        },
+        {
+          "text": "Watch",
+          "start": 80.866,
+          "end": 81.067
+        },
+        {
+          "text": "the",
+          "start": 81.167,
+          "end": 81.228
+        },
+        {
+          "text": "visits",
+          "start": 81.288,
+          "end": 81.649
+        },
+        {
+          "text": "and",
+          "start": 82.071,
+          "end": 82.131
+        },
+        {
+          "text": "ancestor",
+          "start": 82.292,
+          "end": 82.814
+        },
+        {
+          "text": "steps",
+          "start": 82.894,
+          "end": 83.195
+        },
+        {
+          "text": "change.",
+          "start": 83.316,
+          "end": 83.737
+        },
+        {
+          "text": "These",
+          "start": 85.16,
+          "end": 85.321
+        },
+        {
+          "text": "counters",
+          "start": 85.401,
+          "end": 85.862
+        },
+        {
+          "text": "explain",
+          "start": 86.062,
+          "end": 86.463
+        },
+        {
+          "text": "the",
+          "start": 86.583,
+          "end": 86.643
+        },
+        {
+          "text": "search.",
+          "start": 86.743,
+          "end": 87.063
+        },
+        {
+          "text": "collect.mts",
+          "start": 87.684,
+          "end": 89.467
+        },
+        {
+          "text": "measures",
+          "start": 89.567,
+          "end": 89.948
+        },
+        {
+          "text": "actual",
+          "start": 90.268,
+          "end": 90.569
+        },
+        {
+          "text": "query",
+          "start": 90.689,
+          "end": 90.99
+        },
+        {
+          "text": "time",
+          "start": 91.11,
+          "end": 91.43
+        },
+        {
+          "text": "when",
+          "start": 91.831,
+          "end": 91.951
+        },
+        {
+          "text": "preparing",
+          "start": 92.031,
+          "end": 92.512
+        },
+        {
+          "text": "the",
+          "start": 92.612,
+          "end": 92.672
+        },
+        {
+          "text": "training",
+          "start": 92.732,
+          "end": 93.093
+        },
+        {
+          "text": "examples.",
+          "start": 93.173,
+          "end": 93.734
         }
       ]
     },
     {
       "id": "policy",
-      "duration": 41.375,
+      "duration": 87.63000000000001,
       "words": [
         {
           "text": "So,",
@@ -1035,700 +1750,1630 @@
           "end": 12.589
         },
         {
-          "text": "The",
-          "start": 14.24,
-          "end": 14.3
+          "text": "In",
+          "start": 14.241,
+          "end": 14.281
         },
         {
-          "text": "model",
-          "start": 14.36,
-          "end": 14.6
+          "text": "match.mts,",
+          "start": 14.401,
+          "end": 16.024
         },
         {
-          "text": "can",
-          "start": 14.721,
-          "end": 14.841
+          "text": "the",
+          "start": 16.545,
+          "end": 16.625
         },
         {
-          "text": "choose",
-          "start": 14.941,
-          "end": 15.221
+          "text": "engine",
+          "start": 16.766,
+          "end": 17.066
         },
         {
-          "text": "a",
-          "start": 15.381,
-          "end": 15.401
+          "text": "checks",
+          "start": 17.186,
+          "end": 17.447
         },
         {
-          "text": "slower",
-          "start": 15.521,
-          "end": 15.881
+          "text": "the",
+          "start": 17.507,
+          "end": 17.587
         },
         {
-          "text": "route.",
-          "start": 15.982,
-          "end": 16.202
+          "text": "document",
+          "start": 17.647,
+          "end": 18.028
         },
         {
-          "text": "nwsapi",
-          "start": 16.762,
-          "end": 17.663
-        },
-        {
-          "text": "doesn't",
-          "start": 17.783,
-          "end": 18.003
-        },
-        {
-          "text": "time",
-          "start": 18.063,
-          "end": 18.323
-        },
-        {
-          "text": "that",
-          "start": 18.423,
-          "end": 18.543
-        },
-        {
-          "text": "query",
-          "start": 18.664,
-          "end": 19.024
+          "text": "context",
+          "start": 18.108,
+          "end": 18.629
         },
         {
           "text": "and",
-          "start": 19.244,
-          "end": 19.324
-        },
-        {
-          "text": "retry.",
-          "start": 19.384,
-          "end": 19.844
-        },
-        {
-          "text": "Exact",
-          "start": 21.326,
-          "end": 21.668
-        },
-        {
-          "text": "matching",
-          "start": 21.788,
-          "end": 22.19
-        },
-        {
-          "text": "still",
-          "start": 22.491,
-          "end": 22.752
-        },
-        {
-          "text": "finds",
-          "start": 22.892,
-          "end": 23.274
+          "start": 19.13,
+          "end": 19.19
         },
         {
           "text": "the",
-          "start": 23.374,
-          "end": 23.454
+          "start": 19.23,
+          "end": 19.311
         },
         {
-          "text": "right",
-          "start": 23.515,
-          "end": 23.716
+          "text": "supported",
+          "start": 19.351,
+          "end": 19.792
         },
         {
-          "text": "elements,",
-          "start": 23.856,
-          "end": 24.238
+          "text": "selector",
+          "start": 19.892,
+          "end": 20.333
         },
         {
-          "text": "in",
-          "start": 24.699,
-          "end": 24.739
-        },
-        {
-          "text": "the",
-          "start": 24.8,
-          "end": 24.86
-        },
-        {
-          "text": "right",
-          "start": 24.92,
-          "end": 25.121
-        },
-        {
-          "text": "order.",
-          "start": 25.302,
-          "end": 25.603
+          "text": "filters.",
+          "start": 20.393,
+          "end": 20.814
         },
         {
           "text": "The",
-          "start": 27.096,
-          "end": 27.176
+          "start": 22.215,
+          "end": 22.295
         },
         {
-          "text": "time",
-          "start": 27.257,
-          "end": 27.558
+          "text": "generated",
+          "start": 22.395,
+          "end": 22.976
         },
         {
-          "text": "estimates",
-          "start": 27.779,
-          "end": 28.22
+          "text": "policy",
+          "start": 23.096,
+          "end": 23.496
         },
         {
-          "text": "help",
-          "start": 28.602,
-          "end": 28.742
+          "text": "also",
+          "start": 23.917,
+          "end": 24.177
         },
         {
-          "text": "you",
-          "start": 28.823,
-          "end": 28.903
+          "text": "checks",
+          "start": 24.317,
+          "end": 24.637
         },
         {
-          "text": "explore",
-          "start": 29.003,
-          "end": 29.385
+          "text": "whether",
+          "start": 24.957,
+          "end": 25.177
         },
         {
-          "text": "that",
-          "start": 29.465,
-          "end": 29.605
+          "text": "its",
+          "start": 25.238,
+          "end": 25.358
         },
         {
-          "text": "trade-off.",
-          "start": 29.706,
-          "end": 30.148
+          "text": "inputs",
+          "start": 25.458,
+          "end": 25.798
+        },
+        {
+          "text": "fall",
+          "start": 25.918,
+          "end": 26.198
+        },
+        {
+          "text": "within",
+          "start": 26.519,
+          "end": 26.719
+        },
+        {
+          "text": "the",
+          "start": 26.779,
+          "end": 26.839
+        },
+        {
+          "text": "measured",
+          "start": 26.919,
+          "end": 27.279
+        },
+        {
+          "text": "range.",
+          "start": 27.359,
+          "end": 27.739
+        },
+        {
+          "text": "The",
+          "start": 29.41,
+          "end": 29.49
+        },
+        {
+          "text": "inputs",
+          "start": 29.57,
+          "end": 29.931
+        },
+        {
+          "text": "describe",
+          "start": 30.011,
+          "end": 30.491
+        },
+        {
+          "text": "candidate",
+          "start": 30.631,
+          "end": 31.171
+        },
+        {
+          "text": "counts,",
+          "start": 31.272,
+          "end": 31.612
+        },
+        {
+          "text": "filter",
+          "start": 32.072,
+          "end": 32.392
+        },
+        {
+          "text": "choices,",
+          "start": 32.472,
+          "end": 32.933
+        },
+        {
+          "text": "and",
+          "start": 33.433,
+          "end": 33.513
+        },
+        {
+          "text": "the",
+          "start": 33.553,
+          "end": 33.613
+        },
+        {
+          "text": "ratio",
+          "start": 33.673,
+          "end": 34.073
+        },
+        {
+          "text": "of",
+          "start": 34.194,
+          "end": 34.234
+        },
+        {
+          "text": "warnings",
+          "start": 34.374,
+          "end": 34.834
+        },
+        {
+          "text": "to",
+          "start": 34.914,
+          "end": 34.994
+        },
+        {
+          "text": "cards.",
+          "start": 35.074,
+          "end": 35.535
         },
         {
           "text": "A",
-          "start": 31.531,
-          "end": 31.551
+          "start": 36.976,
+          "end": 36.996
         },
         {
-          "text": "full",
-          "start": 31.672,
-          "end": 31.893
+          "text": "true",
+          "start": 37.056,
+          "end": 37.256
+        },
+        {
+          "text": "result",
+          "start": 37.316,
+          "end": 37.677
+        },
+        {
+          "text": "switches",
+          "start": 38.038,
+          "end": 38.399
+        },
+        {
+          "text": "an",
+          "start": 38.519,
+          "end": 38.559
+        },
+        {
+          "text": "eligible",
+          "start": 38.719,
+          "end": 39.14
         },
         {
           "text": "query",
-          "start": 32.014,
-          "end": 32.315
+          "start": 39.26,
+          "end": 39.581
         },
         {
-          "text": "measurement",
-          "start": 32.416,
-          "end": 32.797
+          "text": "to",
+          "start": 39.842,
+          "end": 39.922
         },
         {
-          "text": "includes",
-          "start": 33.179,
-          "end": 33.621
+          "text": "upward",
+          "start": 40.062,
+          "end": 40.323
+        },
+        {
+          "text": "search.",
+          "start": 40.423,
+          "end": 40.744
+        },
+        {
+          "text": "A",
+          "start": 42.127,
+          "end": 42.147
+        },
+        {
+          "text": "false",
+          "start": 42.247,
+          "end": 42.509
+        },
+        {
+          "text": "result",
+          "start": 42.589,
+          "end": 43.012
+        },
+        {
+          "text": "keeps",
+          "start": 43.374,
+          "end": 43.615
         },
         {
           "text": "the",
-          "start": 33.701,
-          "end": 33.782
+          "start": 43.695,
+          "end": 43.796
         },
         {
-          "text": "model's",
-          "start": 33.842,
-          "end": 34.204
+          "text": "existing",
+          "start": 43.876,
+          "end": 44.359
         },
         {
-          "text": "own",
-          "start": 34.405,
-          "end": 34.505
+          "text": "route.",
+          "start": 44.48,
+          "end": 44.802
         },
         {
-          "text": "work.",
-          "start": 34.626,
-          "end": 34.827
-        },
-        {
-          "text": "Switch",
-          "start": 36.271,
-          "end": 36.532
-        },
-        {
-          "text": "the",
-          "start": 36.632,
-          "end": 36.692
+          "text": "The",
+          "start": 46.376,
+          "end": 46.436
         },
         {
           "text": "model",
-          "start": 36.753,
-          "end": 36.973
+          "start": 46.496,
+          "end": 46.737
         },
         {
-          "text": "off",
-          "start": 37.174,
-          "end": 37.294
+          "text": "can",
+          "start": 46.857,
+          "end": 46.977
+        },
+        {
+          "text": "choose",
+          "start": 47.077,
+          "end": 47.358
+        },
+        {
+          "text": "a",
+          "start": 47.518,
+          "end": 47.538
+        },
+        {
+          "text": "slower",
+          "start": 47.639,
+          "end": 47.979
+        },
+        {
+          "text": "route.",
+          "start": 48.08,
+          "end": 48.32
+        },
+        {
+          "text": "nwsapi",
+          "start": 48.881,
+          "end": 49.783
+        },
+        {
+          "text": "doesn't",
+          "start": 49.884,
+          "end": 50.124
+        },
+        {
+          "text": "time",
+          "start": 50.184,
+          "end": 50.445
+        },
+        {
+          "text": "that",
+          "start": 50.525,
+          "end": 50.665
+        },
+        {
+          "text": "query",
+          "start": 50.786,
+          "end": 51.147
         },
         {
           "text": "and",
-          "start": 37.455,
-          "end": 37.555
+          "start": 51.367,
+          "end": 51.447
         },
         {
-          "text": "on,",
-          "start": 37.736,
-          "end": 37.816
+          "text": "retry.",
+          "start": 51.507,
+          "end": 51.968
         },
         {
-          "text": "and",
-          "start": 38.317,
-          "end": 38.398
+          "text": "Exact",
+          "start": 53.411,
+          "end": 53.752
         },
         {
-          "text": "watch",
-          "start": 38.458,
-          "end": 38.659
+          "text": "matching",
+          "start": 53.872,
+          "end": 54.273
         },
         {
-          "text": "how",
-          "start": 38.719,
-          "end": 38.879
+          "text": "still",
+          "start": 54.574,
+          "end": 54.855
+        },
+        {
+          "text": "finds",
+          "start": 54.976,
+          "end": 55.357
         },
         {
           "text": "the",
-          "start": 38.98,
-          "end": 39.06
+          "start": 55.477,
+          "end": 55.537
         },
         {
-          "text": "choice",
-          "start": 39.12,
-          "end": 39.421
+          "text": "right",
+          "start": 55.597,
+          "end": 55.798
+        },
+        {
+          "text": "elements,",
+          "start": 55.938,
+          "end": 56.319
+        },
+        {
+          "text": "in",
+          "start": 56.781,
+          "end": 56.821
+        },
+        {
+          "text": "the",
+          "start": 56.881,
+          "end": 56.941
+        },
+        {
+          "text": "right",
+          "start": 57.001,
+          "end": 57.202
+        },
+        {
+          "text": "order.",
+          "start": 57.383,
+          "end": 57.663
+        },
+        {
+          "text": "The",
+          "start": 59.195,
+          "end": 59.275
+        },
+        {
+          "text": "estimates",
+          "start": 59.415,
+          "end": 59.816
+        },
+        {
+          "text": "below",
+          "start": 59.876,
+          "end": 60.136
+        },
+        {
+          "text": "let",
+          "start": 60.236,
+          "end": 60.356
+        },
+        {
+          "text": "you",
+          "start": 60.416,
+          "end": 60.496
+        },
+        {
+          "text": "explore",
+          "start": 60.576,
+          "end": 60.977
+        },
+        {
+          "text": "visits,",
+          "start": 61.037,
+          "end": 61.397
+        },
+        {
+          "text": "ancestor",
+          "start": 61.917,
+          "end": 62.438
+        },
+        {
+          "text": "steps,",
+          "start": 62.538,
+          "end": 62.858
+        },
+        {
+          "text": "and",
+          "start": 63.338,
+          "end": 63.398
+        },
+        {
+          "text": "the",
+          "start": 63.438,
+          "end": 63.518
+        },
+        {
+          "text": "cost",
+          "start": 63.578,
+          "end": 63.879
+        },
+        {
+          "text": "of",
+          "start": 64.239,
+          "end": 64.279
+        },
+        {
+          "text": "calling",
+          "start": 64.419,
+          "end": 64.739
+        },
+        {
+          "text": "the",
+          "start": 64.819,
+          "end": 64.879
+        },
+        {
+          "text": "model.",
+          "start": 64.919,
+          "end": 65.14
+        },
+        {
+          "text": "A",
+          "start": 66.541,
+          "end": 66.561
+        },
+        {
+          "text": "full",
+          "start": 66.681,
+          "end": 66.882
+        },
+        {
+          "text": "query",
+          "start": 67.022,
+          "end": 67.323
+        },
+        {
+          "text": "measurement",
+          "start": 67.423,
+          "end": 67.764
+        },
+        {
+          "text": "includes",
+          "start": 68.145,
+          "end": 68.566
+        },
+        {
+          "text": "all",
+          "start": 68.866,
+          "end": 68.987
+        },
+        {
+          "text": "of",
+          "start": 69.047,
+          "end": 69.087
+        },
+        {
+          "text": "that",
+          "start": 69.167,
+          "end": 69.307
+        },
+        {
+          "text": "work.",
+          "start": 69.428,
+          "end": 69.668
+        },
+        {
+          "text": "The",
+          "start": 71.09,
+          "end": 71.15
+        },
+        {
+          "text": "model",
+          "start": 71.21,
+          "end": 71.451
+        },
+        {
+          "text": "must",
+          "start": 71.591,
+          "end": 71.771
+        },
+        {
+          "text": "save",
+          "start": 71.871,
+          "end": 72.131
+        },
+        {
+          "text": "enough",
+          "start": 72.212,
+          "end": 72.432
+        },
+        {
+          "text": "searching",
+          "start": 72.512,
+          "end": 72.952
+        },
+        {
+          "text": "to",
+          "start": 73.313,
+          "end": 73.393
+        },
+        {
+          "text": "cover",
+          "start": 73.453,
+          "end": 73.713
+        },
+        {
+          "text": "its",
+          "start": 73.813,
+          "end": 73.933
+        },
+        {
+          "text": "own",
+          "start": 74.074,
+          "end": 74.194
+        },
+        {
+          "text": "cost.",
+          "start": 74.314,
+          "end": 74.634
+        },
+        {
+          "text": "Switch",
+          "start": 76.306,
+          "end": 76.546
+        },
+        {
+          "text": "the",
+          "start": 76.667,
+          "end": 76.727
+        },
+        {
+          "text": "model",
+          "start": 76.787,
+          "end": 77.007
+        },
+        {
+          "text": "off",
+          "start": 77.188,
+          "end": 77.308
+        },
+        {
+          "text": "and",
+          "start": 77.449,
+          "end": 77.529
+        },
+        {
+          "text": "on,",
+          "start": 77.709,
+          "end": 77.789
+        },
+        {
+          "text": "then",
+          "start": 78.25,
+          "end": 78.371
+        },
+        {
+          "text": "change",
+          "start": 78.531,
+          "end": 78.852
+        },
+        {
+          "text": "the",
+          "start": 78.952,
+          "end": 79.032
+        },
+        {
+          "text": "counts.",
+          "start": 79.113,
+          "end": 79.473
+        },
+        {
+          "text": "Watch",
+          "start": 80.875,
+          "end": 81.115
+        },
+        {
+          "text": "which",
+          "start": 81.236,
+          "end": 81.396
+        },
+        {
+          "text": "checks",
+          "start": 81.516,
+          "end": 81.776
+        },
+        {
+          "text": "pass,",
+          "start": 81.876,
+          "end": 82.196
+        },
+        {
+          "text": "whether",
+          "start": 82.657,
+          "end": 82.877
+        },
+        {
+          "text": "the",
+          "start": 82.937,
+          "end": 83.017
+        },
+        {
+          "text": "model",
+          "start": 83.077,
+          "end": 83.317
+        },
+        {
+          "text": "is",
+          "start": 83.417,
+          "end": 83.477
+        },
+        {
+          "text": "called,",
+          "start": 83.557,
+          "end": 83.898
+        },
+        {
+          "text": "and",
+          "start": 84.338,
+          "end": 84.418
+        },
+        {
+          "text": "how",
+          "start": 84.478,
+          "end": 84.598
+        },
+        {
+          "text": "the",
+          "start": 84.678,
+          "end": 84.758
+        },
+        {
+          "text": "recommended",
+          "start": 84.838,
+          "end": 85.419
+        },
+        {
+          "text": "route",
+          "start": 85.519,
+          "end": 85.699
         },
         {
           "text": "changes.",
-          "start": 39.521,
-          "end": 40.103
+          "start": 85.779,
+          "end": 86.34
         }
       ]
     },
     {
       "id": "source",
-      "duration": 44.58500000000001,
+      "duration": 113.325,
       "words": [
         {
           "text": "Let's",
           "start": 0.301,
-          "end": 0.522
+          "end": 0.502
         },
         {
           "text": "follow",
-          "start": 0.583,
+          "start": 0.563,
           "end": 0.824
         },
         {
           "text": "the",
-          "start": 0.924,
-          "end": 0.984
+          "start": 0.925,
+          "end": 1.025
         },
         {
-          "text": "code",
-          "start": 1.065,
-          "end": 1.386
+          "text": "actual",
+          "start": 1.146,
+          "end": 1.447
+        },
+        {
+          "text": "files",
+          "start": 1.568,
+          "end": 1.97
         },
         {
           "text": "for",
-          "start": 1.687,
-          "end": 1.788
+          "start": 2.311,
+          "end": 2.412
         },
         {
           "text": "our",
-          "start": 1.848,
-          "end": 1.928
+          "start": 2.472,
+          "end": 2.552
         },
         {
           "text": "warning",
-          "start": 1.968,
-          "end": 2.29
+          "start": 2.613,
+          "end": 2.914
         },
         {
           "text": "cards.",
-          "start": 2.39,
-          "end": 2.812
+          "start": 3.035,
+          "end": 3.437
         },
         {
-          "text": "PyTorch",
-          "start": 4.175,
-          "end": 4.756
+          "text": "First,",
+          "start": 4.84,
+          "end": 5.161
         },
         {
-          "text": "trains",
-          "start": 4.876,
-          "end": 5.236
+          "text": "collect.mts",
+          "start": 5.401,
+          "end": 6.983
         },
         {
-          "text": "the",
-          "start": 5.336,
-          "end": 5.416
+          "text": "measures",
+          "start": 7.063,
+          "end": 7.424
         },
         {
-          "text": "model",
-          "start": 5.476,
-          "end": 5.716
+          "text": "both",
+          "start": 7.824,
+          "end": 8.025
         },
         {
-          "text": "during",
-          "start": 5.796,
-          "end": 6.056
-        },
-        {
-          "text": "development",
-          "start": 6.136,
-          "end": 6.677
+          "text": "routes",
+          "start": 8.145,
+          "end": 8.445
         },
         {
           "text": "and",
-          "start": 7.117,
-          "end": 7.217
+          "start": 8.946,
+          "end": 9.026
         },
         {
           "text": "saves",
-          "start": 7.317,
-          "end": 7.677
-        },
-        {
-          "text": "a",
-          "start": 7.777,
-          "end": 7.797
-        },
-        {
-          "text": "checkpoint:",
-          "start": 7.918,
-          "end": 8.438
-        },
-        {
-          "text": "a",
-          "start": 9.058,
-          "end": 9.078
-        },
-        {
-          "text": "file",
-          "start": 9.178,
-          "end": 9.519
-        },
-        {
-          "text": "holding",
-          "start": 9.859,
-          "end": 10.199
+          "start": 9.106,
+          "end": 9.447
         },
         {
           "text": "the",
-          "start": 10.299,
-          "end": 10.359
+          "start": 9.547,
+          "end": 9.647
         },
         {
-          "text": "learned",
-          "start": 10.419,
-          "end": 10.699
+          "text": "examples",
+          "start": 9.727,
+          "end": 10.268
         },
         {
-          "text": "numbers.",
-          "start": 10.779,
-          "end": 11.12
+          "text": "used",
+          "start": 10.428,
+          "end": 10.568
         },
         {
-          "text": "Repository",
-          "start": 12.771,
-          "end": 13.372
+          "text": "for",
+          "start": 10.628,
+          "end": 10.728
         },
         {
-          "text": "scripts",
-          "start": 13.432,
-          "end": 13.773
+          "text": "training.",
+          "start": 10.789,
+          "end": 11.169
         },
         {
-          "text": "turn",
-          "start": 14.014,
-          "end": 14.174
+          "text": "Next,",
+          "start": 12.84,
+          "end": 13.121
         },
         {
-          "text": "the",
-          "start": 14.274,
-          "end": 14.334
+          "text": "dispatch-train.mts",
+          "start": 13.321,
+          "end": 15.464
         },
         {
-          "text": "numbers",
-          "start": 14.395,
-          "end": 14.715
-        },
-        {
-          "text": "into",
-          "start": 14.996,
-          "end": 15.136
-        },
-        {
-          "text": "JavaScript.",
-          "start": 15.257,
-          "end": 16.058
-        },
-        {
-          "text": "The",
-          "start": 17.44,
-          "end": 17.5
-        },
-        {
-          "text": "generator",
-          "start": 17.6,
-          "end": 18.181
-        },
-        {
-          "text": "adds",
-          "start": 18.481,
-          "end": 18.641
-        },
-        {
-          "text": "types,",
-          "start": 18.781,
-          "end": 19.122
-        },
-        {
-          "text": "and",
-          "start": 19.622,
-          "end": 19.702
+          "text": "starts",
+          "start": 15.965,
+          "end": 16.285
         },
         {
           "text": "the",
-          "start": 19.722,
-          "end": 19.802
+          "start": 16.346,
+          "end": 16.426
         },
         {
-          "text": "build",
-          "start": 19.842,
-          "end": 20.102
+          "text": "repository's",
+          "start": 16.486,
+          "end": 17.127
         },
         {
-          "text": "includes",
-          "start": 20.202,
-          "end": 20.643
-        },
-        {
-          "text": "the",
-          "start": 20.723,
-          "end": 20.803
-        },
-        {
-          "text": "function",
-          "start": 20.903,
-          "end": 21.263
-        },
-        {
-          "text": "in",
-          "start": 21.644,
-          "end": 21.684
-        },
-        {
-          "text": "nwsapi.",
-          "start": 21.864,
-          "end": 22.804
-        },
-        {
-          "text": "On",
-          "start": 24.436,
-          "end": 24.476
-        },
-        {
-          "text": "your",
-          "start": 24.536,
-          "end": 24.697
-        },
-        {
-          "text": "page,",
-          "start": 24.777,
-          "end": 25.138
-        },
-        {
-          "text": "JavaScript",
-          "start": 25.64,
-          "end": 26.383
-        },
-        {
-          "text": "runs",
-          "start": 26.543,
-          "end": 26.824
-        },
-        {
-          "text": "the",
-          "start": 26.904,
-          "end": 26.985
-        },
-        {
-          "text": "saved",
-          "start": 27.065,
-          "end": 27.386
-        },
-        {
-          "text": "function.",
-          "start": 27.506,
-          "end": 27.888
-        },
-        {
-          "text": "There",
-          "start": 29.311,
-          "end": 29.472
-        },
-        {
-          "text": "is",
-          "start": 29.532,
-          "end": 29.612
-        },
-        {
-          "text": "no",
-          "start": 29.672,
-          "end": 29.793
+          "text": "pinned",
+          "start": 17.247,
+          "end": 17.527
         },
         {
           "text": "Python",
-          "start": 29.973,
-          "end": 30.334
+          "start": 17.707,
+          "end": 18.068
         },
         {
-          "text": "process,",
-          "start": 30.435,
-          "end": 30.956
+          "text": "environment.",
+          "start": 18.148,
+          "end": 18.789
         },
         {
-          "text": "no",
-          "start": 31.458,
-          "end": 31.558
+          "text": "It",
+          "start": 20.21,
+          "end": 20.25
         },
         {
-          "text": "remote",
-          "start": 31.699,
-          "end": 32.02
+          "text": "launches",
+          "start": 20.31,
+          "end": 20.751
         },
         {
-          "text": "model",
-          "start": 32.14,
-          "end": 32.361
+          "text": "dispatch_train.py,",
+          "start": 20.851,
+          "end": 22.452
         },
         {
-          "text": "call,",
-          "start": 32.482,
-          "end": 32.742
+          "text": "which",
+          "start": 22.952,
+          "end": 23.072
         },
         {
-          "text": "and",
-          "start": 33.164,
-          "end": 33.244
+          "text": "uses",
+          "start": 23.192,
+          "end": 23.413
         },
         {
-          "text": "no",
-          "start": 33.284,
-          "end": 33.385
+          "text": "PyTorch",
+          "start": 23.533,
+          "end": 24.153
         },
         {
-          "text": "model",
-          "start": 33.525,
-          "end": 33.766
+          "text": "to",
+          "start": 24.253,
+          "end": 24.313
         },
         {
-          "text": "download.",
-          "start": 33.846,
-          "end": 34.328
-        },
-        {
-          "text": "Select",
-          "start": 35.961,
-          "end": 36.281
-        },
-        {
-          "text": "a",
-          "start": 36.341,
-          "end": 36.361
-        },
-        {
-          "text": "file",
-          "start": 36.481,
-          "end": 36.782
-        },
-        {
-          "text": "below,",
-          "start": 36.882,
-          "end": 37.203
+          "text": "train",
+          "start": 24.413,
+          "end": 24.713
         },
         {
           "text": "and",
-          "start": 37.724,
-          "end": 37.804
+          "start": 25.214,
+          "end": 25.294
         },
         {
-          "text": "follow",
-          "start": 37.904,
-          "end": 38.165
+          "text": "validate",
+          "start": 25.374,
+          "end": 25.834
         },
         {
           "text": "the",
-          "start": 38.265,
-          "end": 38.325
+          "start": 25.914,
+          "end": 25.974
         },
         {
-          "text": "trail",
-          "start": 38.405,
-          "end": 38.665
+          "text": "model.",
+          "start": 26.014,
+          "end": 26.235
         },
         {
-          "text": "from",
-          "start": 38.766,
-          "end": 38.886
+          "text": "That",
+          "start": 27.845,
+          "end": 27.965
         },
         {
-          "text": "measurements",
-          "start": 38.986,
-          "end": 39.407
+          "text": "Python",
+          "start": 28.045,
+          "end": 28.426
         },
         {
-          "text": "to",
-          "start": 39.828,
-          "end": 39.908
+          "text": "script",
+          "start": 28.546,
+          "end": 28.906
+        },
+        {
+          "text": "saves",
+          "start": 29.307,
+          "end": 29.587
         },
         {
           "text": "a",
-          "start": 39.988,
-          "end": 40.008
+          "start": 29.667,
+          "end": 29.687
+        },
+        {
+          "text": "checkpoint",
+          "start": 29.807,
+          "end": 30.328
+        },
+        {
+          "text": "containing",
+          "start": 30.588,
+          "end": 31.068
+        },
+        {
+          "text": "the",
+          "start": 31.129,
+          "end": 31.189
+        },
+        {
+          "text": "learned",
+          "start": 31.269,
+          "end": 31.549
+        },
+        {
+          "text": "weights.",
+          "start": 31.629,
+          "end": 31.909
+        },
+        {
+          "text": "It",
+          "start": 33.331,
+          "end": 33.371
+        },
+        {
+          "text": "also",
+          "start": 33.471,
+          "end": 33.732
+        },
+        {
+          "text": "writes",
+          "start": 33.852,
+          "end": 34.113
+        },
+        {
+          "text": "the",
+          "start": 34.193,
+          "end": 34.273
+        },
+        {
+          "text": "weights",
+          "start": 34.334,
+          "end": 34.614
+        },
+        {
+          "text": "as",
+          "start": 35.035,
+          "end": 35.096
+        },
+        {
+          "text": "JSON",
+          "start": 35.216,
+          "end": 35.818
+        },
+        {
+          "text": "and",
+          "start": 36.399,
+          "end": 36.459
+        },
+        {
+          "text": "exports",
+          "start": 36.58,
+          "end": 36.961
+        },
+        {
+          "text": "a",
+          "start": 37.041,
+          "end": 37.061
         },
         {
           "text": "small",
-          "start": 40.108,
-          "end": 40.389
+          "start": 37.161,
+          "end": 37.482
+        },
+        {
+          "text": "JavaScript",
+          "start": 37.602,
+          "end": 38.385
         },
         {
           "text": "function",
-          "start": 40.489,
-          "end": 40.869
+          "start": 38.485,
+          "end": 38.866
+        },
+        {
+          "text": "for",
+          "start": 39.006,
+          "end": 39.106
+        },
+        {
+          "text": "each",
+          "start": 39.207,
+          "end": 39.347
+        },
+        {
+          "text": "host.",
+          "start": 39.427,
+          "end": 39.728
+        },
+        {
+          "text": "Next,",
+          "start": 41.38,
+          "end": 41.661
+        },
+        {
+          "text": "the",
+          "start": 41.821,
+          "end": 41.921
+        },
+        {
+          "text": "nwsapi",
+          "start": 42.041,
+          "end": 42.922
+        },
+        {
+          "text": "repository",
+          "start": 43.002,
+          "end": 43.563
+        },
+        {
+          "text": "script",
+          "start": 43.623,
+          "end": 43.903
+        },
+        {
+          "text": "has-route-decision.mts",
+          "start": 44.264,
+          "end": 47.006
+        },
+        {
+          "text": "reads",
+          "start": 47.487,
+          "end": 47.727
+        },
+        {
+          "text": "those",
+          "start": 47.807,
+          "end": 48.028
+        },
+        {
+          "text": "JavaScript",
+          "start": 48.148,
+          "end": 48.869
+        },
+        {
+          "text": "exports.",
+          "start": 49.069,
+          "end": 49.569
+        },
+        {
+          "text": "It",
+          "start": 50.951,
+          "end": 50.991
+        },
+        {
+          "text": "adds",
+          "start": 51.091,
+          "end": 51.252
+        },
+        {
+          "text": "types",
+          "start": 51.372,
+          "end": 51.713
+        },
+        {
+          "text": "and",
+          "start": 52.174,
+          "end": 52.254
+        },
+        {
+          "text": "writes",
+          "start": 52.294,
+          "end": 52.575
+        },
+        {
+          "text": "route-decision.generated.mts,",
+          "start": 52.655,
+          "end": 55.883
+        },
+        {
+          "text": "the",
+          "start": 56.384,
+          "end": 56.444
+        },
+        {
+          "text": "module",
+          "start": 56.504,
+          "end": 56.865
+        },
+        {
+          "text": "used",
+          "start": 57.066,
+          "end": 57.246
+        },
+        {
+          "text": "by",
+          "start": 57.326,
+          "end": 57.427
+        },
+        {
+          "text": "the",
+          "start": 57.507,
+          "end": 57.567
+        },
+        {
+          "text": "runtime.",
+          "start": 57.627,
+          "end": 58.148
+        },
+        {
+          "text": "Then",
+          "start": 59.781,
+          "end": 59.901
+        },
+        {
+          "text": "policy.mts",
+          "start": 60.021,
+          "end": 61.704
+        },
+        {
+          "text": "selects",
+          "start": 62.045,
+          "end": 62.406
+        },
+        {
+          "text": "the",
+          "start": 62.506,
+          "end": 62.586
+        },
+        {
+          "text": "saved",
+          "start": 62.646,
+          "end": 62.967
+        },
+        {
+          "text": "function",
+          "start": 63.047,
+          "end": 63.428
+        },
+        {
+          "text": "for",
+          "start": 63.588,
+          "end": 63.668
+        },
+        {
+          "text": "the",
+          "start": 63.708,
+          "end": 63.769
+        },
+        {
+          "text": "browser",
+          "start": 63.849,
+          "end": 64.31
+        },
+        {
+          "text": "or",
+          "start": 64.771,
+          "end": 64.871
+        },
+        {
+          "text": "jsdom",
+          "start": 64.971,
+          "end": 65.853
+        },
+        {
+          "text": "host.",
+          "start": 65.973,
+          "end": 66.314
+        },
+        {
+          "text": "The",
+          "start": 67.656,
+          "end": 67.736
+        },
+        {
+          "text": "build",
+          "start": 67.796,
+          "end": 68.037
+        },
+        {
+          "text": "bundles",
+          "start": 68.178,
+          "end": 68.599
         },
         {
           "text": "that",
-          "start": 41.25,
-          "end": 41.35
+          "start": 69,
+          "end": 69.101
         },
         {
-          "text": "recommends",
-          "start": 41.41,
-          "end": 41.911
+          "text": "function",
+          "start": 69.221,
+          "end": 69.602
         },
         {
-          "text": "where",
-          "start": 42.012,
-          "end": 42.212
+          "text": "into",
+          "start": 69.923,
+          "end": 70.084
+        },
+        {
+          "text": "nwsapi.",
+          "start": 70.285,
+          "end": 71.268
+        },
+        {
+          "text": "The",
+          "start": 72.651,
+          "end": 72.731
+        },
+        {
+          "text": "query",
+          "start": 72.771,
+          "end": 73.051
+        },
+        {
+          "text": "code",
+          "start": 73.172,
+          "end": 73.492
+        },
+        {
+          "text": "in",
+          "start": 73.833,
+          "end": 73.873
+        },
+        {
+          "text": "match.mts",
+          "start": 73.973,
+          "end": 75.937
+        },
+        {
+          "text": "checks",
+          "start": 76.057,
+          "end": 76.317
+        },
+        {
+          "text": "eligibility",
+          "start": 76.458,
+          "end": 77.159
+        },
+        {
+          "text": "before",
+          "start": 77.68,
+          "end": 77.961
+        },
+        {
+          "text": "asking",
+          "start": 78.101,
+          "end": 78.401
+        },
+        {
+          "text": "it",
+          "start": 78.461,
+          "end": 78.522
+        },
+        {
+          "text": "for",
+          "start": 78.602,
+          "end": 78.702
+        },
+        {
+          "text": "a",
+          "start": 78.762,
+          "end": 78.802
+        },
+        {
+          "text": "recommendation.",
+          "start": 78.862,
+          "end": 79.724
+        },
+        {
+          "text": "On",
+          "start": 81.316,
+          "end": 81.356
+        },
+        {
+          "text": "your",
+          "start": 81.416,
+          "end": 81.577
+        },
+        {
+          "text": "page,",
+          "start": 81.657,
+          "end": 82.038
+        },
+        {
+          "text": "JavaScript",
+          "start": 82.54,
+          "end": 83.282
+        },
+        {
+          "text": "runs",
+          "start": 83.443,
+          "end": 83.724
+        },
+        {
+          "text": "the",
+          "start": 83.824,
+          "end": 83.904
+        },
+        {
+          "text": "saved",
+          "start": 83.985,
+          "end": 84.346
+        },
+        {
+          "text": "arithmetic.",
+          "start": 84.426,
+          "end": 84.968
+        },
+        {
+          "text": "The",
+          "start": 86.351,
+          "end": 86.432
+        },
+        {
+          "text": "weights",
+          "start": 86.472,
+          "end": 86.713
+        },
+        {
+          "text": "stay",
+          "start": 86.773,
+          "end": 86.994
+        },
+        {
+          "text": "fixed",
+          "start": 87.135,
+          "end": 87.456
+        },
+        {
+          "text": "while",
+          "start": 87.757,
+          "end": 87.918
+        },
+        {
+          "text": "queries",
+          "start": 88.019,
+          "end": 88.461
+        },
+        {
+          "text": "run.",
+          "start": 88.561,
+          "end": 88.903
+        },
+        {
+          "text": "Exact",
+          "start": 90.226,
+          "end": 90.567
+        },
+        {
+          "text": "selector",
+          "start": 90.687,
+          "end": 91.168
+        },
+        {
+          "text": "checks",
+          "start": 91.228,
+          "end": 91.569
+        },
+        {
+          "text": "determine",
+          "start": 91.97,
+          "end": 92.451
+        },
+        {
+          "text": "the",
+          "start": 92.571,
+          "end": 92.631
+        },
+        {
+          "text": "matching",
+          "start": 92.691,
+          "end": 93.072
+        },
+        {
+          "text": "elements.",
+          "start": 93.193,
+          "end": 93.614
+        },
+        {
+          "text": "Select",
+          "start": 95.185,
+          "end": 95.506
+        },
+        {
+          "text": "a",
+          "start": 95.566,
+          "end": 95.586
+        },
+        {
+          "text": "file",
+          "start": 95.686,
+          "end": 96.027
+        },
+        {
+          "text": "below",
+          "start": 96.327,
+          "end": 96.627
         },
         {
           "text": "to",
-          "start": 42.272,
-          "end": 42.352
+          "start": 96.768,
+          "end": 96.848
+        },
+        {
+          "text": "read",
+          "start": 96.908,
+          "end": 97.108
+        },
+        {
+          "text": "its",
+          "start": 97.208,
+          "end": 97.328
+        },
+        {
+          "text": "excerpt.",
+          "start": 97.448,
+          "end": 97.909
+        },
+        {
+          "text": "Use",
+          "start": 99.431,
+          "end": 99.572
+        },
+        {
+          "text": "the",
+          "start": 99.652,
+          "end": 99.712
+        },
+        {
+          "text": "copy",
+          "start": 99.792,
+          "end": 100.053
+        },
+        {
+          "text": "button",
+          "start": 100.134,
+          "end": 100.414
+        },
+        {
+          "text": "to",
+          "start": 100.535,
+          "end": 100.615
+        },
+        {
+          "text": "copy",
+          "start": 100.675,
+          "end": 100.916
+        },
+        {
+          "text": "the",
+          "start": 100.976,
+          "end": 101.036
+        },
+        {
+          "text": "code,",
+          "start": 101.117,
+          "end": 101.458
+        },
+        {
+          "text": "or",
+          "start": 102,
+          "end": 102.04
+        },
+        {
+          "text": "open",
+          "start": 102.26,
+          "end": 102.461
+        },
+        {
+          "text": "the",
+          "start": 102.581,
+          "end": 102.642
+        },
+        {
+          "text": "complete",
+          "start": 102.702,
+          "end": 103.063
+        },
+        {
+          "text": "file",
+          "start": 103.163,
+          "end": 103.524
+        },
+        {
+          "text": "on",
+          "start": 103.926,
+          "end": 103.966
+        },
+        {
+          "text": "GitHub.",
+          "start": 104.066,
+          "end": 104.528
+        },
+        {
+          "text": "Follow",
+          "start": 105.95,
+          "end": 106.21
+        },
+        {
+          "text": "the",
+          "start": 106.31,
+          "end": 106.391
+        },
+        {
+          "text": "trail",
+          "start": 106.471,
+          "end": 106.811
+        },
+        {
+          "text": "from",
+          "start": 107.011,
+          "end": 107.151
+        },
+        {
+          "text": "recorded",
+          "start": 107.271,
+          "end": 107.772
+        },
+        {
+          "text": "measurements",
+          "start": 107.872,
+          "end": 108.312
+        },
+        {
+          "text": "to",
+          "start": 108.792,
+          "end": 108.872
+        },
+        {
+          "text": "the",
+          "start": 108.932,
+          "end": 109.012
+        },
+        {
+          "text": "function",
+          "start": 109.092,
+          "end": 109.493
+        },
+        {
+          "text": "that",
+          "start": 109.893,
+          "end": 109.993
+        },
+        {
+          "text": "recommends",
+          "start": 110.053,
+          "end": 110.574
+        },
+        {
+          "text": "where",
+          "start": 110.674,
+          "end": 110.914
+        },
+        {
+          "text": "to",
+          "start": 110.974,
+          "end": 111.054
         },
         {
           "text": "start",
-          "start": 42.412,
-          "end": 42.673
+          "start": 111.114,
+          "end": 111.374
         },
         {
           "text": "searching.",
-          "start": 42.813,
-          "end": 43.294
+          "start": 111.514,
+          "end": 112.015
         }
       ]
     }

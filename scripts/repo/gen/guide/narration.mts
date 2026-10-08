@@ -17,6 +17,7 @@ import transcript from '../../../../assets/repo/model-guide/narration/transcript
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { loadNarrationAligner } from './alignment.mts'
+import { pronounceNarration } from './pronunciation.mts'
 import type { WordCue } from './alignment.mts'
 import alignmentManifest from '../../../../.config/guide-alignment.json' with { type: 'json' }
 
@@ -158,9 +159,7 @@ export function narrationSegments(section: NarrationSection) {
 
 export function narrationSpeech(text: string) {
   // Keep conventional spelling in the transcript and pronunciation hints in audio.
-  return text
-    .replaceAll('nwsapi', transcript.pronunciations.nwsapi)
-    .replace(/\blearned\b/g, transcript.pronunciations.learned)
+  return pronounceNarration(text)
 }
 
 function publishNarration(source: string, target: string) {

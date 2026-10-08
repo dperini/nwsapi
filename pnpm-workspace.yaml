@@ -6,6 +6,7 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  'phonemizer': '1.2.1'
   '@huggingface/transformers': '3.8.1'
   'typebox': '1.3.35'
   'ata-validator': '1.45.0'

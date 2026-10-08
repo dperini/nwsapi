@@ -6,103 +6,153 @@
     {
       "id": "training",
       "file": "what.generated.mp3",
-      "text": "Let's find the cards that contain a warning. nwsapi already has a search rule. A small learned model can sometimes suggest a different route. To teach it, we time both routes on the same documents. PyTorch uses those examples to adjust a set of numbers. Separate examples help check the result. Repository scripts then export a small JavaScript function that recommends where to start. Choose a selector below, and follow the steps from measurements to the finished function.",
+      "text": "Let's find the cards that contain a warning. nwsapi already has a search rule. A small learned model can sometimes suggest a different route. First, collect.mts, in the repository's planner benchmarks, times both search routes on the same documents. It records the selectors, candidate counts, and measured costs. PyTorch uses those examples to adjust the model's weights. Separate validation examples help choose the model and its decision threshold. Evaluation examples measure the chosen model on other document layouts. Next, the nwsapi repository script dispatch_train.py exports the learned weights as JavaScript. Then has-route-decision.mts generates the typed runtime module. Finally, the build includes that function in nwsapi. It recommends a search direction, and the selector engine checks the exact matches. Choose a selector below, and follow the steps from measurements to the finished function. Each step links to the source file that performs that part of the work.",
       "segments": [
         {
           "text": "Let's find the cards that contain a warning. nwsapi already has a search rule. A small learned model can sometimes suggest a different route.",
-          "pauseAfterMs": 480,
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "To teach it, we time both routes on the same documents. PyTorch uses those examples to adjust a set of numbers.",
-          "pauseAfterMs": 580,
+          "text": "First, collect.mts, in the repository's planner benchmarks, times both search routes on the same documents. It records the selectors, candidate counts, and measured costs.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Separate examples help check the result. Repository scripts then export a small JavaScript function that recommends where to start.",
-          "pauseAfterMs": 480,
-          "speed": 0.96
+          "text": "PyTorch uses those examples to adjust the model's weights. Separate validation examples help choose the model and its decision threshold. Evaluation examples measure the chosen model on other document layouts.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
         },
         {
-          "text": "Choose a selector below, and follow the steps from measurements to the finished function.",
-          "pauseAfterMs": 250,
-          "speed": 0.96
+          "text": "Next, the nwsapi repository script dispatch_train.py exports the learned weights as JavaScript. Then has-route-decision.mts generates the typed runtime module.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Finally, the build includes that function in nwsapi. It recommends a search direction, and the selector engine checks the exact matches.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Choose a selector below, and follow the steps from measurements to the finished function. Each step links to the source file that performs that part of the work.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
         }
       ]
     },
     {
       "id": "search",
       "file": "why.generated.mp3",
-      "text": "There are two ways to find cards with a warning. Search down from each card into its descendants. That's the forward route. Or start at each warning and walk up through its ancestors. That's the inverse route. Then check the cards in document order. Picture event capture going down, and bubbling coming up. Here, we're searching the DOM. No events are dispatched. Both routes return the same cards. Starting with a few warnings may save work. Play both searches, then change a warning in the DOM editor. The counters show steps. Timing queries shows which route is faster.",
+      "text": "There are two ways to find cards with a warning. Start at each card and search down through its descendants. That's the forward route. Each card can stop once a warning satisfies the selector. Or start at each warning and walk up through its ancestors. That's the inverse route. A warning is a witness: evidence that a containing card might match. Several warnings can lead to the same card. The engine keeps each matching card once, in document order. Both search directions return the same cards. Picture event capture going down, and bubbling coming up. Here, those directions describe how we search the DOM. No events are dispatched. The amount of work depends on the document. A card with an early warning may need only a short downward search. A few warnings among many cards may make upward search useful. Play both searches, then change a warning in the DOM editor. Watch the visits and ancestor steps change. These counters explain the search. collect.mts measures actual query time when preparing the training examples.",
       "segments": [
         {
-          "text": "There are two ways to find cards with a warning. Search down from each card into its descendants. That's the forward route.",
-          "pauseAfterMs": 520,
+          "text": "There are two ways to find cards with a warning. Start at each card and search down through its descendants. That's the forward route. Each card can stop once a warning satisfies the selector.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Or start at each warning and walk up through its ancestors. That's the inverse route. Then check the cards in document order.",
-          "pauseAfterMs": 560,
+          "text": "Or start at each warning and walk up through its ancestors. That's the inverse route. A warning is a witness: evidence that a containing card might match.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Picture event capture going down, and bubbling coming up. Here, we're searching the DOM. No events are dispatched.",
-          "pauseAfterMs": 540,
+          "text": "Several warnings can lead to the same card. The engine keeps each matching card once, in document order. Both search directions return the same cards.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Both routes return the same cards. Starting with a few warnings may save work. Play both searches, then change a warning in the DOM editor. The counters show steps. Timing queries shows which route is faster.",
-          "pauseAfterMs": 250,
-          "speed": 0.96
+          "text": "Picture event capture going down, and bubbling coming up. Here, those directions describe how we search the DOM. No events are dispatched.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "The amount of work depends on the document. A card with an early warning may need only a short downward search. A few warnings among many cards may make upward search useful.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Play both searches, then change a warning in the DOM editor. Watch the visits and ancestor steps change. These counters explain the search. collect.mts measures actual query time when preparing the training examples.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
         }
       ]
     },
     {
       "id": "policy",
       "file": "when.generated.mp3",
-      "text": "So, when should the model get a say? nwsapi starts with its usual count rule. Only some downward searches pass the checks that let the model help. The model can choose a slower route. nwsapi doesn't time that query and retry. Exact matching still finds the right elements, in the right order. The time estimates help you explore that trade-off. A full query measurement includes the model's own work. Switch the model off and on, and watch how the choice changes.",
+      "text": "So, when should the model get a say? nwsapi starts with its usual count rule. Only some downward searches pass the checks that let the model help. In match.mts, the engine checks the document context and the supported selector filters. The generated policy also checks whether its inputs fall within the measured range. The inputs describe candidate counts, filter choices, and the ratio of warnings to cards. A true result switches an eligible query to upward search. A false result keeps the existing route. The model can choose a slower route. nwsapi doesn't time that query and retry. Exact matching still finds the right elements, in the right order. The estimates below let you explore visits, ancestor steps, and the cost of calling the model. A full query measurement includes all of that work. The model must save enough searching to cover its own cost. Switch the model off and on, then change the counts. Watch which checks pass, whether the model is called, and how the recommended route changes.",
       "segments": [
         {
           "text": "So, when should the model get a say? nwsapi starts with its usual count rule. Only some downward searches pass the checks that let the model help.",
-          "pauseAfterMs": 480,
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "In match.mts, the engine checks the document context and the supported selector filters. The generated policy also checks whether its inputs fall within the measured range.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "The inputs describe candidate counts, filter choices, and the ratio of warnings to cards. A true result switches an eligible query to upward search. A false result keeps the existing route.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
           "text": "The model can choose a slower route. nwsapi doesn't time that query and retry. Exact matching still finds the right elements, in the right order.",
-          "pauseAfterMs": 600,
-          "speed": 0.94
+          "pauseAfterMs": 650,
+          "speed": 0.95
         },
         {
-          "text": "The time estimates help you explore that trade-off. A full query measurement includes the model's own work. Switch the model off and on, and watch how the choice changes.",
-          "pauseAfterMs": 250,
-          "speed": 0.96
+          "text": "The estimates below let you explore visits, ancestor steps, and the cost of calling the model. A full query measurement includes all of that work. The model must save enough searching to cover its own cost.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Switch the model off and on, then change the counts. Watch which checks pass, whether the model is called, and how the recommended route changes.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
         }
       ]
     },
     {
       "id": "source",
       "file": "where.generated.mp3",
-      "text": "Let's follow the code for our warning cards. PyTorch trains the model during development and saves a checkpoint: a file holding the learned numbers. Repository scripts turn the numbers into JavaScript. The generator adds types, and the build includes the function in nwsapi. On your page, JavaScript runs the saved function. There is no Python process, no remote model call, and no model download. Select a file below, and follow the trail from measurements to a small function that recommends where to start searching.",
+      "text": "Let's follow the actual files for our warning cards. First, collect.mts measures both routes and saves the examples used for training. Next, dispatch-train.mts starts the repository's pinned Python environment. It launches dispatch_train.py, which uses PyTorch to train and validate the model. That Python script saves a checkpoint containing the learned weights. It also writes the weights as JSON and exports a small JavaScript function for each host. Next, the nwsapi repository script has-route-decision.mts reads those JavaScript exports. It adds types and writes route-decision.generated.mts, the module used by the runtime. Then policy.mts selects the saved function for the browser or jsdom host. The build bundles that function into nwsapi. The query code in match.mts checks eligibility before asking it for a recommendation. On your page, JavaScript runs the saved arithmetic. The weights stay fixed while queries run. Exact selector checks determine the matching elements. Select a file below to read its excerpt. Use the copy button to copy the code, or open the complete file on GitHub. Follow the trail from recorded measurements to the function that recommends where to start searching.",
       "segments": [
         {
-          "text": "Let's follow the code for our warning cards. PyTorch trains the model during development and saves a checkpoint: a file holding the learned numbers.",
-          "pauseAfterMs": 540,
+          "text": "Let's follow the actual files for our warning cards. First, collect.mts measures both routes and saves the examples used for training.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Repository scripts turn the numbers into JavaScript. The generator adds types, and the build includes the function in nwsapi.",
-          "pauseAfterMs": 480,
-          "speed": 0.96
-        },
-        {
-          "text": "On your page, JavaScript runs the saved function. There is no Python process, no remote model call, and no model download.",
-          "pauseAfterMs": 500,
+          "text": "Next, dispatch-train.mts starts the repository's pinned Python environment. It launches dispatch_train.py, which uses PyTorch to train and validate the model.",
+          "pauseAfterMs": 650,
           "speed": 0.95
         },
         {
-          "text": "Select a file below, and follow the trail from measurements to a small function that recommends where to start searching.",
-          "pauseAfterMs": 250,
-          "speed": 0.96
+          "text": "That Python script saves a checkpoint containing the learned weights. It also writes the weights as JSON and exports a small JavaScript function for each host.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Next, the nwsapi repository script has-route-decision.mts reads those JavaScript exports. It adds types and writes route-decision.generated.mts, the module used by the runtime.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Then policy.mts selects the saved function for the browser or jsdom host. The build bundles that function into nwsapi. The query code in match.mts checks eligibility before asking it for a recommendation.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "On your page, JavaScript runs the saved arithmetic. The weights stay fixed while queries run. Exact selector checks determine the matching elements.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
+        },
+        {
+          "text": "Select a file below to read its excerpt. Use the copy button to copy the code, or open the complete file on GitHub. Follow the trail from recorded measurements to the function that recommends where to start searching.",
+          "pauseAfterMs": 650,
+          "speed": 0.95
         }
       ]
     }
@@ -117,6 +167,15 @@
   "delivery": "Each sentence is spoken separately, followed by a 420ms pause. Pauses between ideas are at least 650ms. No recorded or synthetic breath effects are added.",
   "pronunciations": {
     "nwsapi": "en-double-you-sappy",
-    "learned": "learnd"
+    "learned": "learnd",
+    "collect.mts": "collect script",
+    "dispatch-train.mts": "dispatch train script",
+    "dispatch_train.py": "dispatch train script",
+    "has-route-decision.mts": "has route decision script",
+    "route-decision.generated.mts": "route decision generated script",
+    "policy.mts": "policy script",
+    "match.mts": "match script",
+    "jsdom": "jay ess dom",
+    "JSON": "jay son"
   }
 }

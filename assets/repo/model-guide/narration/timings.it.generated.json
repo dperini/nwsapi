@@ -1,0 +1,3687 @@
+{
+  "model": "hexgrad/Kokoro-82M",
+  "revision": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+  "voice": "im_nicola",
+  "locale": "it-IT",
+  "alignment": "Kokoro phoneme durations",
+  "sections": [
+    {
+      "id": "training",
+      "file": "training.it.generated.mp3",
+      "duration": 91.8,
+      "words": [
+        {
+          "text": "Cerchiamo",
+          "start": 0.25,
+          "end": 0.712
+        },
+        {
+          "text": "le",
+          "start": 0.725,
+          "end": 0.85
+        },
+        {
+          "text": "schede",
+          "start": 0.875,
+          "end": 1.25
+        },
+        {
+          "text": "che",
+          "start": 1.275,
+          "end": 1.375
+        },
+        {
+          "text": "contengono",
+          "start": 1.4,
+          "end": 1.963
+        },
+        {
+          "text": "un",
+          "start": 1.975,
+          "end": 2.063
+        },
+        {
+          "text": "avviso.",
+          "start": 2.075,
+          "end": 2.988
+        },
+        {
+          "text": "nwsapi",
+          "start": 3.025,
+          "end": 4.338
+        },
+        {
+          "text": "ha",
+          "start": 4.35,
+          "end": 4.425
+        },
+        {
+          "text": "già",
+          "start": 4.45,
+          "end": 4.588
+        },
+        {
+          "text": "una",
+          "start": 4.6,
+          "end": 4.8
+        },
+        {
+          "text": "regola",
+          "start": 4.825,
+          "end": 5.188
+        },
+        {
+          "text": "di",
+          "start": 5.2,
+          "end": 5.312
+        },
+        {
+          "text": "ricerca.",
+          "start": 5.325,
+          "end": 6.55
+        },
+        {
+          "text": "Un",
+          "start": 7.525,
+          "end": 7.675
+        },
+        {
+          "text": "piccolo",
+          "start": 7.7,
+          "end": 8.062
+        },
+        {
+          "text": "modello",
+          "start": 8.075,
+          "end": 8.588
+        },
+        {
+          "text": "appreso",
+          "start": 8.6,
+          "end": 9.1
+        },
+        {
+          "text": "può",
+          "start": 9.125,
+          "end": 9.25
+        },
+        {
+          "text": "talvolta",
+          "start": 9.275,
+          "end": 9.875
+        },
+        {
+          "text": "suggerire",
+          "start": 9.9,
+          "end": 10.488
+        },
+        {
+          "text": "un",
+          "start": 10.5,
+          "end": 10.6
+        },
+        {
+          "text": "percorso",
+          "start": 10.625,
+          "end": 11.162
+        },
+        {
+          "text": "diverso.",
+          "start": 11.175,
+          "end": 12.35
+        },
+        {
+          "text": "Per",
+          "start": 13.35,
+          "end": 13.5
+        },
+        {
+          "text": "prima",
+          "start": 13.525,
+          "end": 13.825
+        },
+        {
+          "text": "cosa,",
+          "start": 13.85,
+          "end": 14.262
+        },
+        {
+          "text": "collect.mts,",
+          "start": 14.275,
+          "end": 15.6
+        },
+        {
+          "text": "tra",
+          "start": 15.625,
+          "end": 15.812
+        },
+        {
+          "text": "i",
+          "start": 15.825,
+          "end": 15.9
+        },
+        {
+          "text": "benchmark",
+          "start": 15.925,
+          "end": 16.5
+        },
+        {
+          "text": "del",
+          "start": 16.525,
+          "end": 16.7
+        },
+        {
+          "text": "repository,",
+          "start": 16.725,
+          "end": 17.8
+        },
+        {
+          "text": "misura",
+          "start": 17.825,
+          "end": 18.188
+        },
+        {
+          "text": "entrambi",
+          "start": 18.2,
+          "end": 18.713
+        },
+        {
+          "text": "i",
+          "start": 18.725,
+          "end": 18.8
+        },
+        {
+          "text": "percorsi",
+          "start": 18.825,
+          "end": 19.375
+        },
+        {
+          "text": "di",
+          "start": 19.4,
+          "end": 19.488
+        },
+        {
+          "text": "ricerca",
+          "start": 19.5,
+          "end": 20.075
+        },
+        {
+          "text": "sugli",
+          "start": 20.1,
+          "end": 20.413
+        },
+        {
+          "text": "stessi",
+          "start": 20.425,
+          "end": 20.788
+        },
+        {
+          "text": "documenti.",
+          "start": 20.8,
+          "end": 22.075
+        },
+        {
+          "text": "Registra",
+          "start": 23.075,
+          "end": 23.537
+        },
+        {
+          "text": "i",
+          "start": 23.55,
+          "end": 23.65
+        },
+        {
+          "text": "selettori,",
+          "start": 23.675,
+          "end": 24.5
+        },
+        {
+          "text": "il",
+          "start": 24.525,
+          "end": 24.725
+        },
+        {
+          "text": "numero",
+          "start": 24.75,
+          "end": 25.062
+        },
+        {
+          "text": "di",
+          "start": 25.075,
+          "end": 25.2
+        },
+        {
+          "text": "candidati",
+          "start": 25.225,
+          "end": 25.863
+        },
+        {
+          "text": "e",
+          "start": 25.875,
+          "end": 25.962
+        },
+        {
+          "text": "i",
+          "start": 25.975,
+          "end": 26.05
+        },
+        {
+          "text": "costi",
+          "start": 26.075,
+          "end": 26.475
+        },
+        {
+          "text": "misurati.",
+          "start": 26.5,
+          "end": 27.725
+        },
+        {
+          "text": "PyTorch",
+          "start": 28.725,
+          "end": 29.263
+        },
+        {
+          "text": "usa",
+          "start": 29.275,
+          "end": 29.5
+        },
+        {
+          "text": "questi",
+          "start": 29.525,
+          "end": 29.85
+        },
+        {
+          "text": "esempi",
+          "start": 29.875,
+          "end": 30.425
+        },
+        {
+          "text": "per",
+          "start": 30.45,
+          "end": 30.6
+        },
+        {
+          "text": "modificare",
+          "start": 30.625,
+          "end": 31.312
+        },
+        {
+          "text": "i",
+          "start": 31.325,
+          "end": 31.4
+        },
+        {
+          "text": "pesi",
+          "start": 31.425,
+          "end": 31.75
+        },
+        {
+          "text": "del",
+          "start": 31.775,
+          "end": 31.975
+        },
+        {
+          "text": "modello.",
+          "start": 32.0,
+          "end": 33.075
+        },
+        {
+          "text": "Esempi",
+          "start": 34.1,
+          "end": 34.488
+        },
+        {
+          "text": "di",
+          "start": 34.5,
+          "end": 34.6
+        },
+        {
+          "text": "convalida",
+          "start": 34.625,
+          "end": 35.2
+        },
+        {
+          "text": "separati",
+          "start": 35.225,
+          "end": 35.875
+        },
+        {
+          "text": "aiutano",
+          "start": 35.9,
+          "end": 36.338
+        },
+        {
+          "text": "a",
+          "start": 36.35,
+          "end": 36.513
+        },
+        {
+          "text": "scegliere",
+          "start": 36.55,
+          "end": 36.938
+        },
+        {
+          "text": "il",
+          "start": 36.95,
+          "end": 37.125
+        },
+        {
+          "text": "modello",
+          "start": 37.15,
+          "end": 37.938
+        },
+        {
+          "text": "e",
+          "start": 37.975,
+          "end": 38.062
+        },
+        {
+          "text": "la",
+          "start": 38.075,
+          "end": 38.225
+        },
+        {
+          "text": "sua",
+          "start": 38.25,
+          "end": 38.5
+        },
+        {
+          "text": "soglia",
+          "start": 38.525,
+          "end": 38.825
+        },
+        {
+          "text": "di",
+          "start": 38.85,
+          "end": 39.0
+        },
+        {
+          "text": "decisione.",
+          "start": 39.025,
+          "end": 40.325
+        },
+        {
+          "text": "Gli",
+          "start": 41.325,
+          "end": 41.425
+        },
+        {
+          "text": "esempi",
+          "start": 41.45,
+          "end": 41.812
+        },
+        {
+          "text": "di",
+          "start": 41.825,
+          "end": 41.925
+        },
+        {
+          "text": "valutazione",
+          "start": 41.95,
+          "end": 42.963
+        },
+        {
+          "text": "misurano",
+          "start": 43.0,
+          "end": 43.5
+        },
+        {
+          "text": "il",
+          "start": 43.525,
+          "end": 43.75
+        },
+        {
+          "text": "modello",
+          "start": 43.775,
+          "end": 44.288
+        },
+        {
+          "text": "scelto",
+          "start": 44.325,
+          "end": 44.75
+        },
+        {
+          "text": "su",
+          "start": 44.775,
+          "end": 44.938
+        },
+        {
+          "text": "altre",
+          "start": 44.95,
+          "end": 45.288
+        },
+        {
+          "text": "strutture",
+          "start": 45.3,
+          "end": 45.838
+        },
+        {
+          "text": "di",
+          "start": 45.85,
+          "end": 45.95
+        },
+        {
+          "text": "documenti.",
+          "start": 45.975,
+          "end": 47.25
+        },
+        {
+          "text": "Poi",
+          "start": 48.25,
+          "end": 48.413
+        },
+        {
+          "text": "dispatch_train.py,",
+          "start": 48.425,
+          "end": 50.0
+        },
+        {
+          "text": "nel",
+          "start": 50.025,
+          "end": 50.225
+        },
+        {
+          "text": "repository",
+          "start": 50.25,
+          "end": 50.925
+        },
+        {
+          "text": "di",
+          "start": 50.95,
+          "end": 51.062
+        },
+        {
+          "text": "nwsapi,",
+          "start": 51.075,
+          "end": 52.6
+        },
+        {
+          "text": "esporta",
+          "start": 52.625,
+          "end": 53.062
+        },
+        {
+          "text": "i",
+          "start": 53.075,
+          "end": 53.15
+        },
+        {
+          "text": "pesi",
+          "start": 53.175,
+          "end": 53.462
+        },
+        {
+          "text": "appresi",
+          "start": 53.475,
+          "end": 53.913
+        },
+        {
+          "text": "in",
+          "start": 53.925,
+          "end": 54.1
+        },
+        {
+          "text": "JavaScript.",
+          "start": 54.125,
+          "end": 55.475
+        },
+        {
+          "text": "Successivamente",
+          "start": 56.5,
+          "end": 57.312
+        },
+        {
+          "text": "has-route-decision.mts",
+          "start": 57.325,
+          "end": 59.288
+        },
+        {
+          "text": "genera",
+          "start": 59.325,
+          "end": 59.712
+        },
+        {
+          "text": "il",
+          "start": 59.725,
+          "end": 59.95
+        },
+        {
+          "text": "modulo",
+          "start": 59.975,
+          "end": 60.4
+        },
+        {
+          "text": "di",
+          "start": 60.425,
+          "end": 60.55
+        },
+        {
+          "text": "runtime",
+          "start": 60.575,
+          "end": 61.113
+        },
+        {
+          "text": "con",
+          "start": 61.15,
+          "end": 61.363
+        },
+        {
+          "text": "i",
+          "start": 61.375,
+          "end": 61.475
+        },
+        {
+          "text": "tipi.",
+          "start": 61.5,
+          "end": 62.425
+        },
+        {
+          "text": "Infine,",
+          "start": 63.425,
+          "end": 63.938
+        },
+        {
+          "text": "la",
+          "start": 63.95,
+          "end": 64.05
+        },
+        {
+          "text": "compilazione",
+          "start": 64.075,
+          "end": 64.838
+        },
+        {
+          "text": "include",
+          "start": 64.85,
+          "end": 65.275
+        },
+        {
+          "text": "questa",
+          "start": 65.3,
+          "end": 65.625
+        },
+        {
+          "text": "funzione",
+          "start": 65.65,
+          "end": 66.413
+        },
+        {
+          "text": "in",
+          "start": 66.45,
+          "end": 66.675
+        },
+        {
+          "text": "nwsapi.",
+          "start": 66.7,
+          "end": 68.55
+        },
+        {
+          "text": "La",
+          "start": 69.55,
+          "end": 69.65
+        },
+        {
+          "text": "funzione",
+          "start": 69.675,
+          "end": 70.275
+        },
+        {
+          "text": "suggerisce",
+          "start": 70.3,
+          "end": 70.888
+        },
+        {
+          "text": "una",
+          "start": 70.9,
+          "end": 71.038
+        },
+        {
+          "text": "direzione",
+          "start": 71.05,
+          "end": 71.65
+        },
+        {
+          "text": "di",
+          "start": 71.675,
+          "end": 71.788
+        },
+        {
+          "text": "ricerca,",
+          "start": 71.8,
+          "end": 72.85
+        },
+        {
+          "text": "mentre",
+          "start": 72.875,
+          "end": 73.288
+        },
+        {
+          "text": "il",
+          "start": 73.3,
+          "end": 73.525
+        },
+        {
+          "text": "motore",
+          "start": 73.55,
+          "end": 73.95
+        },
+        {
+          "text": "verifica",
+          "start": 73.975,
+          "end": 74.575
+        },
+        {
+          "text": "le",
+          "start": 74.6,
+          "end": 74.725
+        },
+        {
+          "text": "corrispondenze",
+          "start": 74.75,
+          "end": 75.8
+        },
+        {
+          "text": "esatte",
+          "start": 75.825,
+          "end": 76.263
+        },
+        {
+          "text": "del",
+          "start": 76.275,
+          "end": 76.45
+        },
+        {
+          "text": "selettore.",
+          "start": 76.475,
+          "end": 77.675
+        },
+        {
+          "text": "Scegli",
+          "start": 78.7,
+          "end": 78.938
+        },
+        {
+          "text": "un",
+          "start": 78.95,
+          "end": 79.05
+        },
+        {
+          "text": "selettore",
+          "start": 79.075,
+          "end": 79.6
+        },
+        {
+          "text": "qui",
+          "start": 79.625,
+          "end": 79.825
+        },
+        {
+          "text": "sotto",
+          "start": 79.85,
+          "end": 80.113
+        },
+        {
+          "text": "e",
+          "start": 80.125,
+          "end": 80.225
+        },
+        {
+          "text": "segui",
+          "start": 80.25,
+          "end": 80.563
+        },
+        {
+          "text": "i",
+          "start": 80.575,
+          "end": 80.65
+        },
+        {
+          "text": "passaggi",
+          "start": 80.675,
+          "end": 81.225
+        },
+        {
+          "text": "dalle",
+          "start": 81.25,
+          "end": 81.675
+        },
+        {
+          "text": "misurazioni",
+          "start": 81.7,
+          "end": 82.763
+        },
+        {
+          "text": "alla",
+          "start": 82.8,
+          "end": 83.075
+        },
+        {
+          "text": "funzione",
+          "start": 83.1,
+          "end": 83.65
+        },
+        {
+          "text": "finale.",
+          "start": 83.675,
+          "end": 84.725
+        },
+        {
+          "text": "Ogni",
+          "start": 85.725,
+          "end": 85.975
+        },
+        {
+          "text": "passaggio",
+          "start": 86.0,
+          "end": 86.513
+        },
+        {
+          "text": "rimanda",
+          "start": 86.525,
+          "end": 86.988
+        },
+        {
+          "text": "al",
+          "start": 87.0,
+          "end": 87.163
+        },
+        {
+          "text": "file",
+          "start": 87.2,
+          "end": 87.475
+        },
+        {
+          "text": "sorgente",
+          "start": 87.5,
+          "end": 88.388
+        },
+        {
+          "text": "che",
+          "start": 88.425,
+          "end": 88.55
+        },
+        {
+          "text": "esegue",
+          "start": 88.575,
+          "end": 89.075
+        },
+        {
+          "text": "quella",
+          "start": 89.1,
+          "end": 89.375
+        },
+        {
+          "text": "parte",
+          "start": 89.4,
+          "end": 89.775
+        },
+        {
+          "text": "del",
+          "start": 89.8,
+          "end": 90.0
+        },
+        {
+          "text": "lavoro.",
+          "start": 90.025,
+          "end": 91.05
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "file": "search.it.generated.mp3",
+      "duration": 105.725,
+      "words": [
+        {
+          "text": "Ci",
+          "start": 0.275,
+          "end": 0.425
+        },
+        {
+          "text": "sono",
+          "start": 0.45,
+          "end": 0.725
+        },
+        {
+          "text": "due",
+          "start": 0.75,
+          "end": 0.975
+        },
+        {
+          "text": "modi",
+          "start": 1.0,
+          "end": 1.4
+        },
+        {
+          "text": "per",
+          "start": 1.425,
+          "end": 1.6
+        },
+        {
+          "text": "trovare",
+          "start": 1.625,
+          "end": 2.013
+        },
+        {
+          "text": "le",
+          "start": 2.025,
+          "end": 2.175
+        },
+        {
+          "text": "schede",
+          "start": 2.2,
+          "end": 2.575
+        },
+        {
+          "text": "con",
+          "start": 2.6,
+          "end": 2.787
+        },
+        {
+          "text": "un",
+          "start": 2.8,
+          "end": 2.925
+        },
+        {
+          "text": "avviso.",
+          "start": 2.95,
+          "end": 4.05
+        },
+        {
+          "text": "Parti",
+          "start": 5.05,
+          "end": 5.362
+        },
+        {
+          "text": "da",
+          "start": 5.375,
+          "end": 5.487
+        },
+        {
+          "text": "ogni",
+          "start": 5.5,
+          "end": 5.775
+        },
+        {
+          "text": "scheda",
+          "start": 5.8,
+          "end": 6.212
+        },
+        {
+          "text": "e",
+          "start": 6.225,
+          "end": 6.325
+        },
+        {
+          "text": "cerca",
+          "start": 6.35,
+          "end": 6.725
+        },
+        {
+          "text": "tra",
+          "start": 6.75,
+          "end": 6.938
+        },
+        {
+          "text": "i",
+          "start": 6.95,
+          "end": 7.05
+        },
+        {
+          "text": "suoi",
+          "start": 7.075,
+          "end": 7.375
+        },
+        {
+          "text": "discendenti.",
+          "start": 7.4,
+          "end": 8.85
+        },
+        {
+          "text": "Questo",
+          "start": 9.825,
+          "end": 10.137
+        },
+        {
+          "text": "è",
+          "start": 10.15,
+          "end": 10.237
+        },
+        {
+          "text": "il",
+          "start": 10.25,
+          "end": 10.45
+        },
+        {
+          "text": "percorso",
+          "start": 10.475,
+          "end": 11.025
+        },
+        {
+          "text": "diretto.",
+          "start": 11.05,
+          "end": 12.15
+        },
+        {
+          "text": "La",
+          "start": 13.15,
+          "end": 13.262
+        },
+        {
+          "text": "ricerca",
+          "start": 13.275,
+          "end": 13.787
+        },
+        {
+          "text": "in",
+          "start": 13.8,
+          "end": 13.987
+        },
+        {
+          "text": "una",
+          "start": 14.0,
+          "end": 14.162
+        },
+        {
+          "text": "scheda",
+          "start": 14.175,
+          "end": 14.5
+        },
+        {
+          "text": "può",
+          "start": 14.525,
+          "end": 14.65
+        },
+        {
+          "text": "fermarsi",
+          "start": 14.675,
+          "end": 15.55
+        },
+        {
+          "text": "non",
+          "start": 15.6,
+          "end": 15.737
+        },
+        {
+          "text": "appena",
+          "start": 15.75,
+          "end": 16.112
+        },
+        {
+          "text": "un",
+          "start": 16.125,
+          "end": 16.212
+        },
+        {
+          "text": "avviso",
+          "start": 16.225,
+          "end": 16.7
+        },
+        {
+          "text": "soddisfa",
+          "start": 16.725,
+          "end": 17.237
+        },
+        {
+          "text": "il",
+          "start": 17.25,
+          "end": 17.475
+        },
+        {
+          "text": "selettore.",
+          "start": 17.5,
+          "end": 18.7
+        },
+        {
+          "text": "Oppure",
+          "start": 19.7,
+          "end": 20.025
+        },
+        {
+          "text": "parti",
+          "start": 20.05,
+          "end": 20.425
+        },
+        {
+          "text": "da",
+          "start": 20.45,
+          "end": 20.562
+        },
+        {
+          "text": "ogni",
+          "start": 20.575,
+          "end": 20.837
+        },
+        {
+          "text": "avviso",
+          "start": 20.85,
+          "end": 21.375
+        },
+        {
+          "text": "e",
+          "start": 21.4,
+          "end": 21.488
+        },
+        {
+          "text": "risali",
+          "start": 21.5,
+          "end": 21.925
+        },
+        {
+          "text": "lungo",
+          "start": 21.95,
+          "end": 22.288
+        },
+        {
+          "text": "i",
+          "start": 22.3,
+          "end": 22.4
+        },
+        {
+          "text": "suoi",
+          "start": 22.425,
+          "end": 22.712
+        },
+        {
+          "text": "antenati.",
+          "start": 22.725,
+          "end": 23.95
+        },
+        {
+          "text": "Questo",
+          "start": 24.925,
+          "end": 25.238
+        },
+        {
+          "text": "è",
+          "start": 25.25,
+          "end": 25.337
+        },
+        {
+          "text": "il",
+          "start": 25.35,
+          "end": 25.575
+        },
+        {
+          "text": "percorso",
+          "start": 25.6,
+          "end": 26.15
+        },
+        {
+          "text": "inverso.",
+          "start": 26.175,
+          "end": 27.375
+        },
+        {
+          "text": "Un",
+          "start": 28.375,
+          "end": 28.512
+        },
+        {
+          "text": "avviso",
+          "start": 28.525,
+          "end": 28.887
+        },
+        {
+          "text": "è",
+          "start": 28.9,
+          "end": 28.988
+        },
+        {
+          "text": "un",
+          "start": 29.0,
+          "end": 29.15
+        },
+        {
+          "text": "testimone:",
+          "start": 29.175,
+          "end": 30.188
+        },
+        {
+          "text": "dimostra",
+          "start": 30.225,
+          "end": 30.8
+        },
+        {
+          "text": "che",
+          "start": 30.825,
+          "end": 30.913
+        },
+        {
+          "text": "una",
+          "start": 30.925,
+          "end": 31.1
+        },
+        {
+          "text": "scheda",
+          "start": 31.125,
+          "end": 31.575
+        },
+        {
+          "text": "che",
+          "start": 31.6,
+          "end": 31.688
+        },
+        {
+          "text": "lo",
+          "start": 31.7,
+          "end": 31.825
+        },
+        {
+          "text": "contiene",
+          "start": 31.85,
+          "end": 32.45
+        },
+        {
+          "text": "potrebbe",
+          "start": 32.475,
+          "end": 32.975
+        },
+        {
+          "text": "corrispondere.",
+          "start": 33.0,
+          "end": 34.475
+        },
+        {
+          "text": "Più",
+          "start": 35.475,
+          "end": 35.625
+        },
+        {
+          "text": "avvisi",
+          "start": 35.65,
+          "end": 36.075
+        },
+        {
+          "text": "possono",
+          "start": 36.1,
+          "end": 36.575
+        },
+        {
+          "text": "portare",
+          "start": 36.6,
+          "end": 37.062
+        },
+        {
+          "text": "alla",
+          "start": 37.075,
+          "end": 37.337
+        },
+        {
+          "text": "stessa",
+          "start": 37.35,
+          "end": 37.75
+        },
+        {
+          "text": "scheda.",
+          "start": 37.775,
+          "end": 38.8
+        },
+        {
+          "text": "Il",
+          "start": 39.8,
+          "end": 39.975
+        },
+        {
+          "text": "motore",
+          "start": 40.0,
+          "end": 40.4
+        },
+        {
+          "text": "conserva",
+          "start": 40.425,
+          "end": 40.988
+        },
+        {
+          "text": "ogni",
+          "start": 41.0,
+          "end": 41.325
+        },
+        {
+          "text": "scheda",
+          "start": 41.35,
+          "end": 41.75
+        },
+        {
+          "text": "corrispondente",
+          "start": 41.775,
+          "end": 42.663
+        },
+        {
+          "text": "una",
+          "start": 42.675,
+          "end": 42.85
+        },
+        {
+          "text": "sola",
+          "start": 42.875,
+          "end": 43.15
+        },
+        {
+          "text": "volta,",
+          "start": 43.175,
+          "end": 43.95
+        },
+        {
+          "text": "nell'ordine",
+          "start": 43.975,
+          "end": 44.65
+        },
+        {
+          "text": "del",
+          "start": 44.675,
+          "end": 44.875
+        },
+        {
+          "text": "documento.",
+          "start": 44.9,
+          "end": 46.175
+        },
+        {
+          "text": "Entrambe",
+          "start": 47.175,
+          "end": 47.65
+        },
+        {
+          "text": "le",
+          "start": 47.675,
+          "end": 47.763
+        },
+        {
+          "text": "direzioni",
+          "start": 47.775,
+          "end": 48.425
+        },
+        {
+          "text": "di",
+          "start": 48.45,
+          "end": 48.6
+        },
+        {
+          "text": "ricerca",
+          "start": 48.625,
+          "end": 49.138
+        },
+        {
+          "text": "restituiscono",
+          "start": 49.15,
+          "end": 50.05
+        },
+        {
+          "text": "le",
+          "start": 50.075,
+          "end": 50.213
+        },
+        {
+          "text": "stesse",
+          "start": 50.225,
+          "end": 50.6
+        },
+        {
+          "text": "schede.",
+          "start": 50.625,
+          "end": 51.625
+        },
+        {
+          "text": "Immagina",
+          "start": 52.65,
+          "end": 53.188
+        },
+        {
+          "text": "la",
+          "start": 53.2,
+          "end": 53.3
+        },
+        {
+          "text": "cattura",
+          "start": 53.325,
+          "end": 53.763
+        },
+        {
+          "text": "degli",
+          "start": 53.775,
+          "end": 53.988
+        },
+        {
+          "text": "eventi",
+          "start": 54.0,
+          "end": 54.45
+        },
+        {
+          "text": "che",
+          "start": 54.475,
+          "end": 54.625
+        },
+        {
+          "text": "scende",
+          "start": 54.675,
+          "end": 55.113
+        },
+        {
+          "text": "e",
+          "start": 55.125,
+          "end": 55.213
+        },
+        {
+          "text": "il",
+          "start": 55.225,
+          "end": 55.438
+        },
+        {
+          "text": "bubbling",
+          "start": 55.475,
+          "end": 56.0
+        },
+        {
+          "text": "che",
+          "start": 56.025,
+          "end": 56.138
+        },
+        {
+          "text": "risale.",
+          "start": 56.15,
+          "end": 57.225
+        },
+        {
+          "text": "Qui",
+          "start": 58.225,
+          "end": 58.375
+        },
+        {
+          "text": "queste",
+          "start": 58.4,
+          "end": 58.663
+        },
+        {
+          "text": "direzioni",
+          "start": 58.675,
+          "end": 59.3
+        },
+        {
+          "text": "descrivono",
+          "start": 59.325,
+          "end": 59.975
+        },
+        {
+          "text": "come",
+          "start": 60.0,
+          "end": 60.275
+        },
+        {
+          "text": "cerchiamo",
+          "start": 60.3,
+          "end": 60.875
+        },
+        {
+          "text": "nel",
+          "start": 60.9,
+          "end": 61.15
+        },
+        {
+          "text": "DOM.",
+          "start": 61.175,
+          "end": 62.05
+        },
+        {
+          "text": "Non",
+          "start": 63.05,
+          "end": 63.225
+        },
+        {
+          "text": "vengono",
+          "start": 63.25,
+          "end": 63.65
+        },
+        {
+          "text": "inviati",
+          "start": 63.675,
+          "end": 64.275
+        },
+        {
+          "text": "eventi.",
+          "start": 64.3,
+          "end": 65.4
+        },
+        {
+          "text": "La",
+          "start": 66.4,
+          "end": 66.55
+        },
+        {
+          "text": "quantità",
+          "start": 66.575,
+          "end": 67.113
+        },
+        {
+          "text": "di",
+          "start": 67.125,
+          "end": 67.213
+        },
+        {
+          "text": "lavoro",
+          "start": 67.225,
+          "end": 67.625
+        },
+        {
+          "text": "dipende",
+          "start": 67.65,
+          "end": 68.125
+        },
+        {
+          "text": "dal",
+          "start": 68.15,
+          "end": 68.375
+        },
+        {
+          "text": "documento.",
+          "start": 68.4,
+          "end": 69.725
+        },
+        {
+          "text": "Una",
+          "start": 70.725,
+          "end": 70.95
+        },
+        {
+          "text": "scheda",
+          "start": 70.975,
+          "end": 71.35
+        },
+        {
+          "text": "con",
+          "start": 71.375,
+          "end": 71.538
+        },
+        {
+          "text": "un",
+          "start": 71.55,
+          "end": 71.663
+        },
+        {
+          "text": "avviso",
+          "start": 71.675,
+          "end": 72.088
+        },
+        {
+          "text": "all'inizio",
+          "start": 72.1,
+          "end": 72.85
+        },
+        {
+          "text": "può",
+          "start": 72.875,
+          "end": 73.038
+        },
+        {
+          "text": "richiedere",
+          "start": 73.05,
+          "end": 73.563
+        },
+        {
+          "text": "una",
+          "start": 73.575,
+          "end": 73.713
+        },
+        {
+          "text": "ricerca",
+          "start": 73.725,
+          "end": 74.325
+        },
+        {
+          "text": "discendente",
+          "start": 74.35,
+          "end": 75.15
+        },
+        {
+          "text": "molto",
+          "start": 75.175,
+          "end": 75.55
+        },
+        {
+          "text": "breve.",
+          "start": 75.575,
+          "end": 76.525
+        },
+        {
+          "text": "Pochi",
+          "start": 77.525,
+          "end": 77.738
+        },
+        {
+          "text": "avvisi",
+          "start": 77.75,
+          "end": 78.175
+        },
+        {
+          "text": "tra",
+          "start": 78.2,
+          "end": 78.35
+        },
+        {
+          "text": "molte",
+          "start": 78.375,
+          "end": 78.7
+        },
+        {
+          "text": "schede",
+          "start": 78.725,
+          "end": 79.15
+        },
+        {
+          "text": "possono",
+          "start": 79.175,
+          "end": 79.588
+        },
+        {
+          "text": "rendere",
+          "start": 79.6,
+          "end": 80.075
+        },
+        {
+          "text": "utile",
+          "start": 80.1,
+          "end": 80.488
+        },
+        {
+          "text": "la",
+          "start": 80.5,
+          "end": 80.613
+        },
+        {
+          "text": "ricerca",
+          "start": 80.625,
+          "end": 81.125
+        },
+        {
+          "text": "ascendente.",
+          "start": 81.15,
+          "end": 82.5
+        },
+        {
+          "text": "Riproduci",
+          "start": 83.5,
+          "end": 84.062
+        },
+        {
+          "text": "entrambe",
+          "start": 84.075,
+          "end": 84.537
+        },
+        {
+          "text": "le",
+          "start": 84.55,
+          "end": 84.638
+        },
+        {
+          "text": "ricerche,",
+          "start": 84.65,
+          "end": 85.5
+        },
+        {
+          "text": "poi",
+          "start": 85.525,
+          "end": 85.725
+        },
+        {
+          "text": "modifica",
+          "start": 85.75,
+          "end": 86.312
+        },
+        {
+          "text": "un",
+          "start": 86.325,
+          "end": 86.412
+        },
+        {
+          "text": "avviso",
+          "start": 86.425,
+          "end": 86.9
+        },
+        {
+          "text": "nell'editor",
+          "start": 86.925,
+          "end": 87.55
+        },
+        {
+          "text": "del",
+          "start": 87.575,
+          "end": 87.775
+        },
+        {
+          "text": "DOM.",
+          "start": 87.8,
+          "end": 88.675
+        },
+        {
+          "text": "Osserva",
+          "start": 89.675,
+          "end": 90.125
+        },
+        {
+          "text": "come",
+          "start": 90.15,
+          "end": 90.4
+        },
+        {
+          "text": "cambiano",
+          "start": 90.425,
+          "end": 90.875
+        },
+        {
+          "text": "le",
+          "start": 90.9,
+          "end": 91.05
+        },
+        {
+          "text": "visite",
+          "start": 91.075,
+          "end": 91.562
+        },
+        {
+          "text": "e",
+          "start": 91.575,
+          "end": 91.662
+        },
+        {
+          "text": "i",
+          "start": 91.675,
+          "end": 91.75
+        },
+        {
+          "text": "passi",
+          "start": 91.775,
+          "end": 92.15
+        },
+        {
+          "text": "tra",
+          "start": 92.175,
+          "end": 92.362
+        },
+        {
+          "text": "gli",
+          "start": 92.375,
+          "end": 92.462
+        },
+        {
+          "text": "antenati.",
+          "start": 92.475,
+          "end": 93.7
+        },
+        {
+          "text": "Questi",
+          "start": 94.7,
+          "end": 95.0
+        },
+        {
+          "text": "contatori",
+          "start": 95.025,
+          "end": 95.6
+        },
+        {
+          "text": "spiegano",
+          "start": 95.625,
+          "end": 96.088
+        },
+        {
+          "text": "la",
+          "start": 96.1,
+          "end": 96.213
+        },
+        {
+          "text": "ricerca.",
+          "start": 96.225,
+          "end": 97.375
+        },
+        {
+          "text": "collect.mts",
+          "start": 97.4,
+          "end": 98.562
+        },
+        {
+          "text": "misura",
+          "start": 98.6,
+          "end": 98.963
+        },
+        {
+          "text": "il",
+          "start": 98.975,
+          "end": 99.163
+        },
+        {
+          "text": "tempo",
+          "start": 99.2,
+          "end": 99.612
+        },
+        {
+          "text": "effettivo",
+          "start": 99.625,
+          "end": 100.275
+        },
+        {
+          "text": "delle",
+          "start": 100.3,
+          "end": 100.6
+        },
+        {
+          "text": "query",
+          "start": 100.625,
+          "end": 101.0
+        },
+        {
+          "text": "durante",
+          "start": 101.025,
+          "end": 101.463
+        },
+        {
+          "text": "la",
+          "start": 101.475,
+          "end": 101.6
+        },
+        {
+          "text": "preparazione",
+          "start": 101.625,
+          "end": 102.525
+        },
+        {
+          "text": "degli",
+          "start": 102.55,
+          "end": 102.825
+        },
+        {
+          "text": "esempi",
+          "start": 102.85,
+          "end": 103.325
+        },
+        {
+          "text": "di",
+          "start": 103.35,
+          "end": 103.5
+        },
+        {
+          "text": "addestramento.",
+          "start": 103.525,
+          "end": 104.975
+        }
+      ]
+    },
+    {
+      "id": "policy",
+      "file": "policy.it.generated.mp3",
+      "duration": 101.0,
+      "words": [
+        {
+          "text": "Quando",
+          "start": 0.25,
+          "end": 0.562
+        },
+        {
+          "text": "dovrebbe",
+          "start": 0.575,
+          "end": 1.012
+        },
+        {
+          "text": "intervenire",
+          "start": 1.025,
+          "end": 1.75
+        },
+        {
+          "text": "il",
+          "start": 1.775,
+          "end": 2.0
+        },
+        {
+          "text": "modello?",
+          "start": 2.025,
+          "end": 3.175
+        },
+        {
+          "text": "nwsapi",
+          "start": 4.175,
+          "end": 5.325
+        },
+        {
+          "text": "parte",
+          "start": 5.35,
+          "end": 5.825
+        },
+        {
+          "text": "dalla",
+          "start": 5.85,
+          "end": 6.15
+        },
+        {
+          "text": "sua",
+          "start": 6.175,
+          "end": 6.4
+        },
+        {
+          "text": "consueta",
+          "start": 6.425,
+          "end": 7.05
+        },
+        {
+          "text": "regola",
+          "start": 7.075,
+          "end": 7.5
+        },
+        {
+          "text": "basata",
+          "start": 7.525,
+          "end": 7.975
+        },
+        {
+          "text": "sui",
+          "start": 8.0,
+          "end": 8.225
+        },
+        {
+          "text": "conteggi.",
+          "start": 8.25,
+          "end": 9.475
+        },
+        {
+          "text": "Solo",
+          "start": 10.5,
+          "end": 10.737
+        },
+        {
+          "text": "alcune",
+          "start": 10.75,
+          "end": 11.112
+        },
+        {
+          "text": "ricerche",
+          "start": 11.125,
+          "end": 11.725
+        },
+        {
+          "text": "discendenti",
+          "start": 11.75,
+          "end": 12.588
+        },
+        {
+          "text": "superano",
+          "start": 12.625,
+          "end": 13.137
+        },
+        {
+          "text": "i",
+          "start": 13.15,
+          "end": 13.25
+        },
+        {
+          "text": "controlli",
+          "start": 13.275,
+          "end": 14.25
+        },
+        {
+          "text": "che",
+          "start": 14.3,
+          "end": 14.425
+        },
+        {
+          "text": "consentono",
+          "start": 14.45,
+          "end": 15.188
+        },
+        {
+          "text": "al",
+          "start": 15.2,
+          "end": 15.375
+        },
+        {
+          "text": "modello",
+          "start": 15.4,
+          "end": 15.925
+        },
+        {
+          "text": "di",
+          "start": 15.95,
+          "end": 16.062
+        },
+        {
+          "text": "intervenire.",
+          "start": 16.075,
+          "end": 17.375
+        },
+        {
+          "text": "In",
+          "start": 18.375,
+          "end": 18.55
+        },
+        {
+          "text": "match.mts,",
+          "start": 18.575,
+          "end": 19.775
+        },
+        {
+          "text": "il",
+          "start": 19.8,
+          "end": 20.0
+        },
+        {
+          "text": "motore",
+          "start": 20.025,
+          "end": 20.425
+        },
+        {
+          "text": "verifica",
+          "start": 20.45,
+          "end": 20.988
+        },
+        {
+          "text": "il",
+          "start": 21.0,
+          "end": 21.175
+        },
+        {
+          "text": "contesto",
+          "start": 21.2,
+          "end": 21.812
+        },
+        {
+          "text": "del",
+          "start": 21.825,
+          "end": 21.975
+        },
+        {
+          "text": "documento",
+          "start": 22.0,
+          "end": 22.825
+        },
+        {
+          "text": "e",
+          "start": 22.85,
+          "end": 22.938
+        },
+        {
+          "text": "i",
+          "start": 22.95,
+          "end": 23.037
+        },
+        {
+          "text": "filtri",
+          "start": 23.075,
+          "end": 23.475
+        },
+        {
+          "text": "supportati",
+          "start": 23.5,
+          "end": 24.188
+        },
+        {
+          "text": "del",
+          "start": 24.2,
+          "end": 24.375
+        },
+        {
+          "text": "selettore.",
+          "start": 24.4,
+          "end": 25.6
+        },
+        {
+          "text": "La",
+          "start": 26.6,
+          "end": 26.738
+        },
+        {
+          "text": "strategia",
+          "start": 26.75,
+          "end": 27.4
+        },
+        {
+          "text": "generata",
+          "start": 27.425,
+          "end": 27.913
+        },
+        {
+          "text": "verifica",
+          "start": 27.925,
+          "end": 28.475
+        },
+        {
+          "text": "anche",
+          "start": 28.5,
+          "end": 29.0
+        },
+        {
+          "text": "che",
+          "start": 29.025,
+          "end": 29.15
+        },
+        {
+          "text": "gli",
+          "start": 29.175,
+          "end": 29.3
+        },
+        {
+          "text": "input",
+          "start": 29.325,
+          "end": 29.863
+        },
+        {
+          "text": "rientrino",
+          "start": 29.9,
+          "end": 30.525
+        },
+        {
+          "text": "nell'intervallo",
+          "start": 30.55,
+          "end": 31.4
+        },
+        {
+          "text": "misurato.",
+          "start": 31.425,
+          "end": 32.625
+        },
+        {
+          "text": "Gli",
+          "start": 33.65,
+          "end": 33.763
+        },
+        {
+          "text": "input",
+          "start": 33.775,
+          "end": 34.125
+        },
+        {
+          "text": "descrivono",
+          "start": 34.15,
+          "end": 34.788
+        },
+        {
+          "text": "il",
+          "start": 34.8,
+          "end": 35.025
+        },
+        {
+          "text": "numero",
+          "start": 35.05,
+          "end": 35.388
+        },
+        {
+          "text": "di",
+          "start": 35.4,
+          "end": 35.525
+        },
+        {
+          "text": "candidati,",
+          "start": 35.55,
+          "end": 36.6
+        },
+        {
+          "text": "i",
+          "start": 36.625,
+          "end": 36.737
+        },
+        {
+          "text": "filtri",
+          "start": 36.775,
+          "end": 37.188
+        },
+        {
+          "text": "scelti",
+          "start": 37.225,
+          "end": 37.587
+        },
+        {
+          "text": "e",
+          "start": 37.6,
+          "end": 37.688
+        },
+        {
+          "text": "il",
+          "start": 37.7,
+          "end": 37.875
+        },
+        {
+          "text": "rapporto",
+          "start": 37.9,
+          "end": 38.575
+        },
+        {
+          "text": "tra",
+          "start": 38.6,
+          "end": 38.788
+        },
+        {
+          "text": "avvisi",
+          "start": 38.8,
+          "end": 39.212
+        },
+        {
+          "text": "e",
+          "start": 39.225,
+          "end": 39.325
+        },
+        {
+          "text": "schede.",
+          "start": 39.35,
+          "end": 40.325
+        },
+        {
+          "text": "Un",
+          "start": 41.325,
+          "end": 41.463
+        },
+        {
+          "text": "risultato",
+          "start": 41.475,
+          "end": 42.125
+        },
+        {
+          "text": "vero",
+          "start": 42.15,
+          "end": 42.45
+        },
+        {
+          "text": "passa",
+          "start": 42.475,
+          "end": 42.738
+        },
+        {
+          "text": "una",
+          "start": 42.75,
+          "end": 42.925
+        },
+        {
+          "text": "query",
+          "start": 42.95,
+          "end": 43.225
+        },
+        {
+          "text": "idonea",
+          "start": 43.25,
+          "end": 43.65
+        },
+        {
+          "text": "alla",
+          "start": 43.675,
+          "end": 43.963
+        },
+        {
+          "text": "ricerca",
+          "start": 43.975,
+          "end": 44.5
+        },
+        {
+          "text": "ascendente.",
+          "start": 44.525,
+          "end": 45.875
+        },
+        {
+          "text": "Un",
+          "start": 46.875,
+          "end": 47.013
+        },
+        {
+          "text": "risultato",
+          "start": 47.025,
+          "end": 47.675
+        },
+        {
+          "text": "falso",
+          "start": 47.7,
+          "end": 48.1
+        },
+        {
+          "text": "mantiene",
+          "start": 48.125,
+          "end": 48.663
+        },
+        {
+          "text": "il",
+          "start": 48.675,
+          "end": 48.85
+        },
+        {
+          "text": "percorso",
+          "start": 48.875,
+          "end": 49.388
+        },
+        {
+          "text": "esistente.",
+          "start": 49.4,
+          "end": 50.675
+        },
+        {
+          "text": "Il",
+          "start": 51.675,
+          "end": 51.85
+        },
+        {
+          "text": "modello",
+          "start": 51.875,
+          "end": 52.35
+        },
+        {
+          "text": "può",
+          "start": 52.375,
+          "end": 52.537
+        },
+        {
+          "text": "scegliere",
+          "start": 52.575,
+          "end": 52.912
+        },
+        {
+          "text": "un",
+          "start": 52.925,
+          "end": 53.025
+        },
+        {
+          "text": "percorso",
+          "start": 53.05,
+          "end": 53.6
+        },
+        {
+          "text": "più",
+          "start": 53.625,
+          "end": 53.8
+        },
+        {
+          "text": "lento.",
+          "start": 53.825,
+          "end": 54.737
+        },
+        {
+          "text": "nwsapi",
+          "start": 54.775,
+          "end": 56.212
+        },
+        {
+          "text": "non",
+          "start": 56.25,
+          "end": 56.4
+        },
+        {
+          "text": "misura",
+          "start": 56.425,
+          "end": 56.812
+        },
+        {
+          "text": "il",
+          "start": 56.825,
+          "end": 57.012
+        },
+        {
+          "text": "tempo",
+          "start": 57.05,
+          "end": 57.475
+        },
+        {
+          "text": "di",
+          "start": 57.5,
+          "end": 57.6
+        },
+        {
+          "text": "quella",
+          "start": 57.625,
+          "end": 57.95
+        },
+        {
+          "text": "query",
+          "start": 57.975,
+          "end": 58.275
+        },
+        {
+          "text": "per",
+          "start": 58.3,
+          "end": 58.475
+        },
+        {
+          "text": "poi",
+          "start": 58.5,
+          "end": 58.712
+        },
+        {
+          "text": "riprovare.",
+          "start": 58.725,
+          "end": 59.925
+        },
+        {
+          "text": "La",
+          "start": 60.95,
+          "end": 61.087
+        },
+        {
+          "text": "verifica",
+          "start": 61.1,
+          "end": 61.587
+        },
+        {
+          "text": "esatta",
+          "start": 61.6,
+          "end": 62.0
+        },
+        {
+          "text": "trova",
+          "start": 62.025,
+          "end": 62.325
+        },
+        {
+          "text": "comunque",
+          "start": 62.35,
+          "end": 62.837
+        },
+        {
+          "text": "gli",
+          "start": 62.85,
+          "end": 62.912
+        },
+        {
+          "text": "elementi",
+          "start": 62.925,
+          "end": 63.425
+        },
+        {
+          "text": "giusti,",
+          "start": 63.45,
+          "end": 64.175
+        },
+        {
+          "text": "nell'ordine",
+          "start": 64.2,
+          "end": 64.825
+        },
+        {
+          "text": "giusto.",
+          "start": 64.85,
+          "end": 65.9
+        },
+        {
+          "text": "Le",
+          "start": 66.9,
+          "end": 67.012
+        },
+        {
+          "text": "stime",
+          "start": 67.025,
+          "end": 67.35
+        },
+        {
+          "text": "qui",
+          "start": 67.375,
+          "end": 67.575
+        },
+        {
+          "text": "sotto",
+          "start": 67.6,
+          "end": 67.925
+        },
+        {
+          "text": "permettono",
+          "start": 67.95,
+          "end": 68.6
+        },
+        {
+          "text": "di",
+          "start": 68.625,
+          "end": 68.737
+        },
+        {
+          "text": "esplorare",
+          "start": 68.75,
+          "end": 69.287
+        },
+        {
+          "text": "le",
+          "start": 69.3,
+          "end": 69.425
+        },
+        {
+          "text": "visite,",
+          "start": 69.45,
+          "end": 70.3
+        },
+        {
+          "text": "i",
+          "start": 70.325,
+          "end": 70.425
+        },
+        {
+          "text": "passi",
+          "start": 70.45,
+          "end": 70.8
+        },
+        {
+          "text": "tra",
+          "start": 70.825,
+          "end": 71.012
+        },
+        {
+          "text": "gli",
+          "start": 71.025,
+          "end": 71.087
+        },
+        {
+          "text": "antenati",
+          "start": 71.1,
+          "end": 71.825
+        },
+        {
+          "text": "e",
+          "start": 71.85,
+          "end": 71.937
+        },
+        {
+          "text": "il",
+          "start": 71.95,
+          "end": 72.137
+        },
+        {
+          "text": "costo",
+          "start": 72.175,
+          "end": 72.6
+        },
+        {
+          "text": "della",
+          "start": 72.625,
+          "end": 72.925
+        },
+        {
+          "text": "chiamata",
+          "start": 72.95,
+          "end": 73.387
+        },
+        {
+          "text": "al",
+          "start": 73.4,
+          "end": 73.55
+        },
+        {
+          "text": "modello.",
+          "start": 73.575,
+          "end": 74.675
+        },
+        {
+          "text": "La",
+          "start": 75.7,
+          "end": 75.837
+        },
+        {
+          "text": "misurazione",
+          "start": 75.85,
+          "end": 76.75
+        },
+        {
+          "text": "di",
+          "start": 76.775,
+          "end": 76.862
+        },
+        {
+          "text": "una",
+          "start": 76.875,
+          "end": 77.05
+        },
+        {
+          "text": "query",
+          "start": 77.075,
+          "end": 77.375
+        },
+        {
+          "text": "completa",
+          "start": 77.4,
+          "end": 77.912
+        },
+        {
+          "text": "include",
+          "start": 77.925,
+          "end": 78.412
+        },
+        {
+          "text": "tutto",
+          "start": 78.45,
+          "end": 78.775
+        },
+        {
+          "text": "questo",
+          "start": 78.8,
+          "end": 79.112
+        },
+        {
+          "text": "lavoro.",
+          "start": 79.125,
+          "end": 80.15
+        },
+        {
+          "text": "Il",
+          "start": 81.15,
+          "end": 81.325
+        },
+        {
+          "text": "modello",
+          "start": 81.35,
+          "end": 81.875
+        },
+        {
+          "text": "deve",
+          "start": 81.9,
+          "end": 82.087
+        },
+        {
+          "text": "risparmiare",
+          "start": 82.1,
+          "end": 82.762
+        },
+        {
+          "text": "abbastanza",
+          "start": 82.775,
+          "end": 83.675
+        },
+        {
+          "text": "ricerca",
+          "start": 83.7,
+          "end": 84.325
+        },
+        {
+          "text": "da",
+          "start": 84.35,
+          "end": 84.475
+        },
+        {
+          "text": "compensare",
+          "start": 84.5,
+          "end": 85.187
+        },
+        {
+          "text": "il",
+          "start": 85.2,
+          "end": 85.375
+        },
+        {
+          "text": "proprio",
+          "start": 85.4,
+          "end": 85.8
+        },
+        {
+          "text": "costo.",
+          "start": 85.825,
+          "end": 86.875
+        },
+        {
+          "text": "Disattiva",
+          "start": 87.875,
+          "end": 88.387
+        },
+        {
+          "text": "e",
+          "start": 88.4,
+          "end": 88.487
+        },
+        {
+          "text": "riattiva",
+          "start": 88.5,
+          "end": 88.987
+        },
+        {
+          "text": "il",
+          "start": 89.0,
+          "end": 89.15
+        },
+        {
+          "text": "modello,",
+          "start": 89.175,
+          "end": 89.725
+        },
+        {
+          "text": "poi",
+          "start": 89.75,
+          "end": 89.95
+        },
+        {
+          "text": "modifica",
+          "start": 89.975,
+          "end": 90.487
+        },
+        {
+          "text": "i",
+          "start": 90.5,
+          "end": 90.575
+        },
+        {
+          "text": "conteggi.",
+          "start": 90.6,
+          "end": 91.8
+        },
+        {
+          "text": "Osserva",
+          "start": 92.8,
+          "end": 93.225
+        },
+        {
+          "text": "quali",
+          "start": 93.25,
+          "end": 93.525
+        },
+        {
+          "text": "controlli",
+          "start": 93.55,
+          "end": 94.075
+        },
+        {
+          "text": "vengono",
+          "start": 94.1,
+          "end": 94.5
+        },
+        {
+          "text": "superati,",
+          "start": 94.525,
+          "end": 95.537
+        },
+        {
+          "text": "se",
+          "start": 95.575,
+          "end": 95.687
+        },
+        {
+          "text": "il",
+          "start": 95.7,
+          "end": 95.9
+        },
+        {
+          "text": "modello",
+          "start": 95.925,
+          "end": 96.4
+        },
+        {
+          "text": "viene",
+          "start": 96.425,
+          "end": 96.75
+        },
+        {
+          "text": "chiamato",
+          "start": 96.775,
+          "end": 97.237
+        },
+        {
+          "text": "e",
+          "start": 97.25,
+          "end": 97.35
+        },
+        {
+          "text": "come",
+          "start": 97.375,
+          "end": 97.675
+        },
+        {
+          "text": "cambia",
+          "start": 97.7,
+          "end": 98.15
+        },
+        {
+          "text": "il",
+          "start": 98.175,
+          "end": 98.4
+        },
+        {
+          "text": "percorso",
+          "start": 98.425,
+          "end": 98.975
+        },
+        {
+          "text": "suggerito.",
+          "start": 99.0,
+          "end": 100.25
+        }
+      ]
+    },
+    {
+      "id": "source",
+      "file": "source.it.generated.mp3",
+      "duration": 112.825,
+      "words": [
+        {
+          "text": "Seguiamo",
+          "start": 0.275,
+          "end": 0.712
+        },
+        {
+          "text": "i",
+          "start": 0.725,
+          "end": 0.8
+        },
+        {
+          "text": "file",
+          "start": 0.825,
+          "end": 1.062
+        },
+        {
+          "text": "effettivi",
+          "start": 1.075,
+          "end": 1.675
+        },
+        {
+          "text": "usati",
+          "start": 1.7,
+          "end": 2.2
+        },
+        {
+          "text": "per",
+          "start": 2.225,
+          "end": 2.363
+        },
+        {
+          "text": "le",
+          "start": 2.375,
+          "end": 2.475
+        },
+        {
+          "text": "nostre",
+          "start": 2.5,
+          "end": 2.925
+        },
+        {
+          "text": "schede",
+          "start": 2.95,
+          "end": 3.3
+        },
+        {
+          "text": "con",
+          "start": 3.325,
+          "end": 3.525
+        },
+        {
+          "text": "avvisi.",
+          "start": 3.55,
+          "end": 4.625
+        },
+        {
+          "text": "Per",
+          "start": 5.6,
+          "end": 5.75
+        },
+        {
+          "text": "prima",
+          "start": 5.775,
+          "end": 6.075
+        },
+        {
+          "text": "cosa,",
+          "start": 6.1,
+          "end": 6.537
+        },
+        {
+          "text": "collect.mts",
+          "start": 6.55,
+          "end": 7.6
+        },
+        {
+          "text": "misura",
+          "start": 7.625,
+          "end": 7.988
+        },
+        {
+          "text": "entrambi",
+          "start": 8.0,
+          "end": 8.488
+        },
+        {
+          "text": "i",
+          "start": 8.5,
+          "end": 8.575
+        },
+        {
+          "text": "percorsi",
+          "start": 8.6,
+          "end": 9.562
+        },
+        {
+          "text": "e",
+          "start": 9.6,
+          "end": 9.7
+        },
+        {
+          "text": "salva",
+          "start": 9.725,
+          "end": 10.075
+        },
+        {
+          "text": "gli",
+          "start": 10.1,
+          "end": 10.188
+        },
+        {
+          "text": "esempi",
+          "start": 10.2,
+          "end": 10.6
+        },
+        {
+          "text": "usati",
+          "start": 10.625,
+          "end": 11.1
+        },
+        {
+          "text": "per",
+          "start": 11.125,
+          "end": 11.262
+        },
+        {
+          "text": "l'addestramento.",
+          "start": 11.275,
+          "end": 12.75
+        },
+        {
+          "text": "Poi",
+          "start": 13.75,
+          "end": 13.912
+        },
+        {
+          "text": "dispatch-train.mts",
+          "start": 13.925,
+          "end": 15.425
+        },
+        {
+          "text": "avvia",
+          "start": 15.45,
+          "end": 15.738
+        },
+        {
+          "text": "l'ambiente",
+          "start": 15.75,
+          "end": 16.425
+        },
+        {
+          "text": "Python",
+          "start": 16.45,
+          "end": 16.9
+        },
+        {
+          "text": "del",
+          "start": 16.925,
+          "end": 17.125
+        },
+        {
+          "text": "repository",
+          "start": 17.15,
+          "end": 17.988
+        },
+        {
+          "text": "con",
+          "start": 18.025,
+          "end": 18.25
+        },
+        {
+          "text": "versioni",
+          "start": 18.275,
+          "end": 18.8
+        },
+        {
+          "text": "fissate.",
+          "start": 18.825,
+          "end": 19.975
+        },
+        {
+          "text": "Esegue",
+          "start": 21.0,
+          "end": 21.338
+        },
+        {
+          "text": "dispatch_train.py,",
+          "start": 21.35,
+          "end": 23.0
+        },
+        {
+          "text": "che",
+          "start": 23.025,
+          "end": 23.113
+        },
+        {
+          "text": "usa",
+          "start": 23.125,
+          "end": 23.375
+        },
+        {
+          "text": "PyTorch",
+          "start": 23.4,
+          "end": 23.95
+        },
+        {
+          "text": "per",
+          "start": 23.975,
+          "end": 24.088
+        },
+        {
+          "text": "addestrare",
+          "start": 24.1,
+          "end": 24.738
+        },
+        {
+          "text": "e",
+          "start": 24.75,
+          "end": 24.85
+        },
+        {
+          "text": "convalidare",
+          "start": 24.875,
+          "end": 25.513
+        },
+        {
+          "text": "il",
+          "start": 25.525,
+          "end": 25.7
+        },
+        {
+          "text": "modello.",
+          "start": 25.725,
+          "end": 26.875
+        },
+        {
+          "text": "Questo",
+          "start": 27.875,
+          "end": 28.2
+        },
+        {
+          "text": "script",
+          "start": 28.225,
+          "end": 28.55
+        },
+        {
+          "text": "Python",
+          "start": 28.575,
+          "end": 28.988
+        },
+        {
+          "text": "salva",
+          "start": 29.025,
+          "end": 29.363
+        },
+        {
+          "text": "un",
+          "start": 29.375,
+          "end": 29.475
+        },
+        {
+          "text": "checkpoint",
+          "start": 29.5,
+          "end": 30.0
+        },
+        {
+          "text": "contenente",
+          "start": 30.025,
+          "end": 30.712
+        },
+        {
+          "text": "i",
+          "start": 30.725,
+          "end": 30.825
+        },
+        {
+          "text": "pesi",
+          "start": 30.85,
+          "end": 31.163
+        },
+        {
+          "text": "appresi.",
+          "start": 31.175,
+          "end": 32.275
+        },
+        {
+          "text": "Scrive",
+          "start": 33.275,
+          "end": 33.587
+        },
+        {
+          "text": "anche",
+          "start": 33.6,
+          "end": 33.887
+        },
+        {
+          "text": "i",
+          "start": 33.9,
+          "end": 33.975
+        },
+        {
+          "text": "pesi",
+          "start": 34.0,
+          "end": 34.262
+        },
+        {
+          "text": "in",
+          "start": 34.275,
+          "end": 34.487
+        },
+        {
+          "text": "JSON",
+          "start": 34.525,
+          "end": 34.975
+        },
+        {
+          "text": "ed",
+          "start": 35.0,
+          "end": 35.137
+        },
+        {
+          "text": "esporta",
+          "start": 35.15,
+          "end": 35.587
+        },
+        {
+          "text": "una",
+          "start": 35.6,
+          "end": 35.775
+        },
+        {
+          "text": "piccola",
+          "start": 35.8,
+          "end": 36.15
+        },
+        {
+          "text": "funzione",
+          "start": 36.175,
+          "end": 37.1
+        },
+        {
+          "text": "JavaScript",
+          "start": 37.15,
+          "end": 37.9
+        },
+        {
+          "text": "per",
+          "start": 37.925,
+          "end": 38.1
+        },
+        {
+          "text": "ciascun",
+          "start": 38.125,
+          "end": 38.538
+        },
+        {
+          "text": "ambiente.",
+          "start": 38.55,
+          "end": 39.725
+        },
+        {
+          "text": "Successivamente",
+          "start": 40.75,
+          "end": 41.587
+        },
+        {
+          "text": "has-route-decision.mts,",
+          "start": 41.6,
+          "end": 43.6
+        },
+        {
+          "text": "nel",
+          "start": 43.625,
+          "end": 43.85
+        },
+        {
+          "text": "repository",
+          "start": 43.875,
+          "end": 44.575
+        },
+        {
+          "text": "di",
+          "start": 44.6,
+          "end": 44.712
+        },
+        {
+          "text": "nwsapi,",
+          "start": 44.725,
+          "end": 46.25
+        },
+        {
+          "text": "legge",
+          "start": 46.275,
+          "end": 46.55
+        },
+        {
+          "text": "queste",
+          "start": 46.575,
+          "end": 46.888
+        },
+        {
+          "text": "esportazioni",
+          "start": 46.9,
+          "end": 47.8
+        },
+        {
+          "text": "JavaScript.",
+          "start": 47.825,
+          "end": 49.15
+        },
+        {
+          "text": "Aggiunge",
+          "start": 50.175,
+          "end": 50.513
+        },
+        {
+          "text": "i",
+          "start": 50.525,
+          "end": 50.6
+        },
+        {
+          "text": "tipi",
+          "start": 50.625,
+          "end": 50.863
+        },
+        {
+          "text": "e",
+          "start": 50.875,
+          "end": 50.963
+        },
+        {
+          "text": "scrive",
+          "start": 50.975,
+          "end": 51.338
+        },
+        {
+          "text": "route-decision.generated.mts,",
+          "start": 51.35,
+          "end": 53.95
+        },
+        {
+          "text": "il",
+          "start": 53.975,
+          "end": 54.175
+        },
+        {
+          "text": "modulo",
+          "start": 54.2,
+          "end": 54.625
+        },
+        {
+          "text": "usato",
+          "start": 54.65,
+          "end": 55.063
+        },
+        {
+          "text": "a",
+          "start": 55.075,
+          "end": 55.2
+        },
+        {
+          "text": "runtime.",
+          "start": 55.225,
+          "end": 56.35
+        },
+        {
+          "text": "Poi",
+          "start": 57.35,
+          "end": 57.513
+        },
+        {
+          "text": "policy.mts",
+          "start": 57.525,
+          "end": 58.525
+        },
+        {
+          "text": "sceglie",
+          "start": 58.55,
+          "end": 58.788
+        },
+        {
+          "text": "la",
+          "start": 58.8,
+          "end": 58.9
+        },
+        {
+          "text": "funzione",
+          "start": 58.925,
+          "end": 59.713
+        },
+        {
+          "text": "salvata",
+          "start": 59.75,
+          "end": 60.3
+        },
+        {
+          "text": "per",
+          "start": 60.325,
+          "end": 60.463
+        },
+        {
+          "text": "il",
+          "start": 60.475,
+          "end": 60.675
+        },
+        {
+          "text": "browser",
+          "start": 60.7,
+          "end": 61.213
+        },
+        {
+          "text": "o",
+          "start": 61.225,
+          "end": 61.325
+        },
+        {
+          "text": "per",
+          "start": 61.35,
+          "end": 61.563
+        },
+        {
+          "text": "jsdom.",
+          "start": 61.6,
+          "end": 62.675
+        },
+        {
+          "text": "La",
+          "start": 63.675,
+          "end": 63.775
+        },
+        {
+          "text": "compilazione",
+          "start": 63.8,
+          "end": 64.538
+        },
+        {
+          "text": "include",
+          "start": 64.55,
+          "end": 64.975
+        },
+        {
+          "text": "questa",
+          "start": 65.0,
+          "end": 65.325
+        },
+        {
+          "text": "funzione",
+          "start": 65.35,
+          "end": 66.063
+        },
+        {
+          "text": "in",
+          "start": 66.1,
+          "end": 66.325
+        },
+        {
+          "text": "nwsapi.",
+          "start": 66.35,
+          "end": 68.2
+        },
+        {
+          "text": "Il",
+          "start": 69.2,
+          "end": 69.4
+        },
+        {
+          "text": "codice",
+          "start": 69.425,
+          "end": 69.875
+        },
+        {
+          "text": "delle",
+          "start": 69.9,
+          "end": 70.2
+        },
+        {
+          "text": "query",
+          "start": 70.225,
+          "end": 70.525
+        },
+        {
+          "text": "in",
+          "start": 70.55,
+          "end": 70.75
+        },
+        {
+          "text": "match.mts",
+          "start": 70.775,
+          "end": 71.813
+        },
+        {
+          "text": "verifica",
+          "start": 71.85,
+          "end": 72.338
+        },
+        {
+          "text": "l'idoneità",
+          "start": 72.35,
+          "end": 73.213
+        },
+        {
+          "text": "prima",
+          "start": 73.275,
+          "end": 73.588
+        },
+        {
+          "text": "di",
+          "start": 73.6,
+          "end": 73.725
+        },
+        {
+          "text": "chiedere",
+          "start": 73.75,
+          "end": 74.113
+        },
+        {
+          "text": "un",
+          "start": 74.125,
+          "end": 74.25
+        },
+        {
+          "text": "suggerimento.",
+          "start": 74.275,
+          "end": 75.725
+        },
+        {
+          "text": "Nella",
+          "start": 76.725,
+          "end": 76.975
+        },
+        {
+          "text": "tua",
+          "start": 77.0,
+          "end": 77.175
+        },
+        {
+          "text": "pagina,",
+          "start": 77.2,
+          "end": 77.75
+        },
+        {
+          "text": "JavaScript",
+          "start": 77.775,
+          "end": 78.425
+        },
+        {
+          "text": "esegue",
+          "start": 78.45,
+          "end": 78.913
+        },
+        {
+          "text": "i",
+          "start": 78.925,
+          "end": 79.025
+        },
+        {
+          "text": "calcoli",
+          "start": 79.05,
+          "end": 79.525
+        },
+        {
+          "text": "salvati.",
+          "start": 79.55,
+          "end": 80.725
+        },
+        {
+          "text": "I",
+          "start": 81.725,
+          "end": 81.85
+        },
+        {
+          "text": "pesi",
+          "start": 81.875,
+          "end": 82.213
+        },
+        {
+          "text": "restano",
+          "start": 82.225,
+          "end": 82.675
+        },
+        {
+          "text": "fissi",
+          "start": 82.7,
+          "end": 83.05
+        },
+        {
+          "text": "durante",
+          "start": 83.075,
+          "end": 83.538
+        },
+        {
+          "text": "l'esecuzione",
+          "start": 83.55,
+          "end": 84.4
+        },
+        {
+          "text": "delle",
+          "start": 84.425,
+          "end": 84.725
+        },
+        {
+          "text": "query.",
+          "start": 84.75,
+          "end": 85.7
+        },
+        {
+          "text": "La",
+          "start": 86.725,
+          "end": 86.863
+        },
+        {
+          "text": "verifica",
+          "start": 86.875,
+          "end": 87.425
+        },
+        {
+          "text": "esatta",
+          "start": 87.45,
+          "end": 87.888
+        },
+        {
+          "text": "dei",
+          "start": 87.9,
+          "end": 88.05
+        },
+        {
+          "text": "selettori",
+          "start": 88.075,
+          "end": 88.613
+        },
+        {
+          "text": "determina",
+          "start": 88.625,
+          "end": 89.45
+        },
+        {
+          "text": "gli",
+          "start": 89.475,
+          "end": 89.563
+        },
+        {
+          "text": "elementi",
+          "start": 89.575,
+          "end": 90.075
+        },
+        {
+          "text": "corrispondenti.",
+          "start": 90.1,
+          "end": 91.725
+        },
+        {
+          "text": "Scegli",
+          "start": 92.75,
+          "end": 92.988
+        },
+        {
+          "text": "un",
+          "start": 93.0,
+          "end": 93.125
+        },
+        {
+          "text": "file",
+          "start": 93.15,
+          "end": 93.425
+        },
+        {
+          "text": "qui",
+          "start": 93.45,
+          "end": 93.738
+        },
+        {
+          "text": "sotto",
+          "start": 93.775,
+          "end": 94.1
+        },
+        {
+          "text": "per",
+          "start": 94.125,
+          "end": 94.3
+        },
+        {
+          "text": "leggerne",
+          "start": 94.325,
+          "end": 94.838
+        },
+        {
+          "text": "un",
+          "start": 94.85,
+          "end": 94.938
+        },
+        {
+          "text": "estratto.",
+          "start": 94.95,
+          "end": 96.15
+        },
+        {
+          "text": "Usa",
+          "start": 97.15,
+          "end": 97.388
+        },
+        {
+          "text": "il",
+          "start": 97.4,
+          "end": 97.575
+        },
+        {
+          "text": "pulsante",
+          "start": 97.6,
+          "end": 98.113
+        },
+        {
+          "text": "di",
+          "start": 98.125,
+          "end": 98.25
+        },
+        {
+          "text": "copia",
+          "start": 98.275,
+          "end": 98.7
+        },
+        {
+          "text": "per",
+          "start": 98.725,
+          "end": 98.9
+        },
+        {
+          "text": "copiare",
+          "start": 98.925,
+          "end": 99.363
+        },
+        {
+          "text": "il",
+          "start": 99.375,
+          "end": 99.563
+        },
+        {
+          "text": "codice",
+          "start": 99.6,
+          "end": 100.425
+        },
+        {
+          "text": "oppure",
+          "start": 100.475,
+          "end": 100.863
+        },
+        {
+          "text": "apri",
+          "start": 100.875,
+          "end": 101.113
+        },
+        {
+          "text": "il",
+          "start": 101.125,
+          "end": 101.313
+        },
+        {
+          "text": "file",
+          "start": 101.35,
+          "end": 101.625
+        },
+        {
+          "text": "completo",
+          "start": 101.65,
+          "end": 102.2
+        },
+        {
+          "text": "su",
+          "start": 102.225,
+          "end": 102.375
+        },
+        {
+          "text": "GitHub.",
+          "start": 102.4,
+          "end": 103.6
+        },
+        {
+          "text": "Segui",
+          "start": 104.625,
+          "end": 104.888
+        },
+        {
+          "text": "il",
+          "start": 104.9,
+          "end": 105.05
+        },
+        {
+          "text": "percorso",
+          "start": 105.075,
+          "end": 105.675
+        },
+        {
+          "text": "dalle",
+          "start": 105.7,
+          "end": 105.963
+        },
+        {
+          "text": "misurazioni",
+          "start": 105.975,
+          "end": 106.8
+        },
+        {
+          "text": "registrate",
+          "start": 106.825,
+          "end": 107.625
+        },
+        {
+          "text": "alla",
+          "start": 107.65,
+          "end": 107.9
+        },
+        {
+          "text": "funzione",
+          "start": 107.925,
+          "end": 108.738
+        },
+        {
+          "text": "che",
+          "start": 108.775,
+          "end": 108.95
+        },
+        {
+          "text": "suggerisce",
+          "start": 108.975,
+          "end": 109.763
+        },
+        {
+          "text": "da",
+          "start": 109.8,
+          "end": 109.95
+        },
+        {
+          "text": "dove",
+          "start": 109.975,
+          "end": 110.188
+        },
+        {
+          "text": "iniziare",
+          "start": 110.2,
+          "end": 110.713
+        },
+        {
+          "text": "la",
+          "start": 110.725,
+          "end": 110.838
+        },
+        {
+          "text": "ricerca.",
+          "start": 110.85,
+          "end": 112.075
+        }
+      ]
+    }
+  ]
+}

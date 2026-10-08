@@ -1,11 +1,52 @@
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
+import { optimiseSvg } from '../scripts/repo/gen/svg-optimize.mts'
+import { READING_MODE_KEY } from '../docs/repo/perf/pytorch-has-routing/reading-mode.mts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
+const criticalStyles = path.join(
+  root,
+  'docs/repo/perf/pytorch-has-routing/critical.css',
+)
+const languageIcon = path.join(
+  root,
+  'assets/repo/model-guide/icons/language.svg',
+)
+const readingIcon = path.join(root, 'assets/repo/model-guide/icons/reading.svg')
 
 export default defineConfig({
   root: path.join(root, 'docs/repo/perf'),
+  plugins: [
+    {
+      name: 'guide-head-and-icons',
+      configureServer(server) {
+        server.watcher.add([criticalStyles, languageIcon, readingIcon])
+        server.watcher.on('change', file => {
+          if ([criticalStyles, languageIcon, readingIcon].includes(file)) {
+            server.ws.send({ type: 'full-reload' })
+          }
+        })
+      },
+      transformIndexHtml: {
+        order: 'post',
+        handler(html) {
+          const css = readFileSync(criticalStyles, 'utf8')
+          const icon = optimiseSvg(readFileSync(languageIcon, 'utf8'))
+          const book = optimiseSvg(readFileSync(readingIcon, 'utf8'))
+          const restoreReading = `try { document.documentElement.toggleAttribute('data-reading-mode', sessionStorage.getItem(${JSON.stringify(READING_MODE_KEY)}) === 'true') } catch {}`
+          return html
+            .replaceAll('<!-- guide-language-symbol -->', icon)
+            .replaceAll('<!-- guide-reading-symbol -->', book)
+            .replace(
+              '</head>',
+              `<style data-guide-critical>${css}</style>\n<script>${restoreReading}</script>\n</head>`,
+            )
+        },
+      },
+    },
+  ],
   build: {
     outDir: path.join(root, '.cache/model-guide-build'),
     emptyOutDir: true,

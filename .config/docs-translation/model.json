@@ -1,0 +1,6 @@
+{
+  "model": "Helsinki-NLP/opus-mt-tc-big-en-it",
+  "revision": "592d2cfb0797867f1dd223e49141de051faa65c7",
+  "quantization": "int8",
+  "format": "CTranslate2"
+}

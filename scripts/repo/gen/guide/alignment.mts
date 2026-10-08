@@ -6,8 +6,8 @@ import {
   AutoTokenizer,
 } from '@huggingface/transformers'
 import manifest from '../../../../.config/guide-alignment.json' with { type: 'json' }
-import transcript from '../../../../assets/repo/model-guide/narration/transcript.json' with { type: 'json' }
 import { REPO_ROOT } from '../../lib/paths.mts'
+import { pronounceNarration } from './pronunciation.mts'
 
 export type WordCue = { text: string; start: number; end: number }
 type Token = { id: number; word: number }
@@ -118,8 +118,7 @@ function wordCues(
 }
 
 function spokenWord(word: string) {
-  return word
-    .replaceAll('nwsapi', transcript.pronunciations.nwsapi)
+  return pronounceNarration(word)
     .replaceAll('’', "'")
     .replaceAll('-', ' ')
     .toUpperCase()

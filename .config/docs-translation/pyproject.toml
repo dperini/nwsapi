@@ -1,0 +1,12 @@
+[project]
+name = "nwsapi-docs-translation"
+version = "0.0.0"
+description = "Pinned local translation toolchain for repository documentation."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "ctranslate2==4.8.2",
+  "huggingface-hub==0.36.2",
+  "transformers==4.57.6",
+  "sentencepiece==0.2.2",
+  "torch==2.14.1",
+]

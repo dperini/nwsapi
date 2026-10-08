@@ -143,6 +143,10 @@ npm test
 Tests, builds, and checks started with another package manager automatically use the local `pnpm` runtime. For dependency installation, use `npm run setup` rather than `npm install`, which cannot read this branch's workspace catalog. To use the pinned tools directly, run `export PATH="$PWD/.cache/bin:$PATH"` in a POSIX shell or `$env:PATH = "$PWD\.cache\bin;$env:PATH"` in PowerShell.
 Node tests do not use the browser or WPT checkout.
 
+Run `npm run guide` to open the interactive model guide and its Markdown reader
+with live updates. See the [guide instructions](docs/repo/perf/pytorch-for-beginners.md)
+for the local URL and static build command.
+
 <details>
 <summary>Check changes before a push</summary>
 

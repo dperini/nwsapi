@@ -12,6 +12,7 @@ export type SearchStep = {
   ascent: number
   mark: number | undefined
   match: number | undefined
+  reject?: number | undefined
 }
 export type SearchRoute = 'forward' | 'inverse'
 export const routeDirections = { forward: 'down', inverse: 'up' } as const
@@ -137,6 +138,7 @@ function forwardTrace(nodes: ToyNode[]): SearchStep[] {
         event(
           card,
           `All descendants checked. Card ${names[i]} has no warning, so skip it.`,
+          { reject: i },
         ),
       )
     }
@@ -185,7 +187,7 @@ function inverseTrace(nodes: ToyNode[]): SearchStep[] {
       event(
         card,
         `Now check card ${names[i]} in document order. ${keep ? 'It is marked, so keep it.' : 'It is not marked, so skip it.'}`,
-        { visit: 1, match: keep ? i : undefined },
+        { visit: 1, match: keep ? i : undefined, reject: keep ? undefined : i },
       ),
     )
   }
@@ -203,6 +205,10 @@ export function searchProgress(steps: SearchStep[], position: number) {
   const visited = steps.slice(0, position)
   return {
     current: visited.at(-1),
+    visitedNodes: new Set(visited.map(item => item.current)),
+    rejected: new Set(
+      visited.flatMap(item => (item.reject === undefined ? [] : [item.reject])),
+    ),
     matches: visited.flatMap(item =>
       item.match === undefined ? [] : [item.match],
     ),
