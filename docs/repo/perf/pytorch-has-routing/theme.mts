@@ -1,5 +1,16 @@
 let active: HTMLElement | undefined
 let pending = false
+const spotlightPositions = new Map<string, { x: string; y: string }>()
+
+function initializeSpotlightPositions() {
+  const themes = ['what', 'why', 'when', 'where']
+  for (let i = 0, length = themes.length; i < length; i += 1) {
+    spotlightPositions.set(themes[i]!, {
+      x: `${Math.round(Math.random() * 35)}vw`,
+      y: `${Math.round(Math.random() * 45)}vh`,
+    })
+  }
+}
 
 function updateActiveTheme() {
   const sections = document.querySelectorAll<HTMLElement>('[data-scroll-theme]')
@@ -28,6 +39,9 @@ function updateActiveTheme() {
   active?.classList.remove('is-active')
   selected.classList.add('is-active')
   document.body.dataset['theme'] = selected.dataset['scrollTheme']
+  const position = spotlightPositions.get(selected.dataset['scrollTheme']!)!
+  document.body.style.setProperty('--scroll-x', position.x)
+  document.body.style.setProperty('--scroll-y', position.y)
   document.documentElement.style.setProperty(
     '--page-scrollbar-accent',
     getComputedStyle(selected).getPropertyValue('--section-accent'),
@@ -55,6 +69,7 @@ function scheduleThemeUpdate() {
 }
 
 export function initializeSectionThemes() {
+  initializeSpotlightPositions()
   window.addEventListener('scroll', scheduleThemeUpdate, { passive: true })
   window.addEventListener('resize', scheduleThemeUpdate)
   updateActiveTheme()
