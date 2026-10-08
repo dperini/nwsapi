@@ -34,7 +34,7 @@ function evaluation() {
           chosen: { forwardOnlyProof: { proved: state.proved } },
           simpleRule: {
             forwardOnly: state.proved,
-          ...(state.policies ? { policies: [[1]] } : {}),
+            ...(state.policies ? { policies: [[1]] } : {}),
           },
         },
       ]),
