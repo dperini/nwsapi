@@ -9,18 +9,25 @@ html:has(.reader) {
 }
 .reader-topbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  gap: 16px 24px;
+}
+.reader-topbar .reader-back {
+  margin-left: 0;
 }
 .reader-back,
-.reading-source a {
+.reading-source a,
+.reading-related a {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
   font-size: 0.8125rem;
 }
-.reader-back svg {
+.reader-back svg,
+.reading-related svg {
+  flex-shrink: 0;
   width: 1em;
   height: 1em;
   fill: none;
@@ -44,8 +51,8 @@ html:has(.reader) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 220px;
   align-items: start;
-  gap: 48px;
-  padding-top: 48px;
+  gap: 52px;
+  padding-top: 52px;
 }
 .reading-column {
   min-width: 0;
@@ -66,7 +73,7 @@ html:has(.reader) {
   white-space: nowrap;
 }
 .reading-prose {
-  padding: clamp(22px, 3vw, 40px);
+  padding: clamp(24px, 3.2vw, 44px);
   border: 1px solid var(--section-line);
   border-top: 3px solid var(--section-accent);
   border-radius: 14px;
@@ -100,10 +107,25 @@ html:has(.reader) {
   color: #d3dfe7;
 }
 .reading-prose p {
-  margin: 0 0 20px;
+  margin: 0 0 24px;
 }
 .reading-prose > :last-child {
   margin-bottom: 0;
+}
+.reading-prose details {
+  margin-block: 28px;
+  padding: 20px 24px;
+}
+.reading-prose details[open] > summary {
+  margin-bottom: 24px;
+}
+.reading-prose details > :last-child {
+  margin-bottom: 0;
+}
+.reading-prose img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
 }
 .reading-prose :is(ul, ol) {
   padding-left: 1.4em;
@@ -125,6 +147,16 @@ html:has(.reader) {
   margin: 24px 0;
   max-inline-size: 100%;
   font-size: 0.78rem;
+}
+.reading-prose .code-sample {
+  margin: 24px 0;
+  max-inline-size: 100%;
+}
+.reading-prose .code-sample > pre {
+  margin: 0;
+}
+.reading-prose a .inline-icon {
+  margin-left: 0.35em;
 }
 .reading-prose code:not(pre code) {
   padding: 0.1em 0.35em;
@@ -176,6 +208,7 @@ html:has(.reader) {
   position: sticky;
   top: 32px;
   max-height: calc(100vh - 64px);
+  padding: 6px;
   overflow: auto;
   scrollbar-width: none;
 }
@@ -184,9 +217,13 @@ html:has(.reader) {
 }
 .reading-sidebar details {
   margin: 0;
-  padding: 0;
-  border: 0;
+  padding: 10px;
+  border: 1px solid var(--section-line);
   background: transparent;
+}
+.reading-sidebar details[open]::after {
+  inset: 0;
+  padding: 2px;
 }
 .reading-sidebar summary {
   color: var(--section-accent);
@@ -205,10 +242,12 @@ html:has(.reader) {
   border-left: 1px solid var(--section-line);
 }
 #reading-contents a {
+  position: relative;
   display: block;
   margin-left: -1px;
   padding: 7px 12px;
   border-left: 2px solid transparent;
+  border-radius: 4px;
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.5;
@@ -229,17 +268,15 @@ html:has(.reader) {
 .reading-related {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 24px;
-  padding-top: 24px;
+  gap: 16px 28px;
+  margin-top: 8px;
+  padding-top: 28px;
   border-top: 1px solid var(--section-line);
 }
 .reading-related h2 {
   flex-basis: 100%;
   font-size: 1rem;
   margin: 0;
-}
-.reading-related a {
-  font-size: 0.8125rem;
 }
 .reading-footer {
   margin-top: 48px;
@@ -253,6 +290,28 @@ html:has(.reader) {
   margin: auto;
 }
 @media (prefers-reduced-motion: no-preference) {
+  #reading-contents a[aria-current='location']::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 35%,
+      var(--section-accent) 47%,
+      color-mix(in srgb, var(--section-accent) 55%, white) 50%,
+      var(--section-accent) 53%,
+      transparent 65%
+    );
+    background-size: 250% 100%;
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: chapter-border-shimmer 5.6s ease-in-out infinite;
+  }
   #reading-contents a {
     transition:
       color 180ms ease,
@@ -262,8 +321,8 @@ html:has(.reader) {
 @media (max-width: 900px) {
   .reading-layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding-top: 24px;
+    gap: 28px;
+    padding-top: 28px;
     max-width: 800px;
   }
   .reading-sidebar {
@@ -284,9 +343,24 @@ html:has(.reader) {
 }
 @media (max-width: 520px) {
   .reader-topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    gap: 14px 18px;
+  }
+  .reader-topbar .brand {
+    flex-basis: 100%;
+  }
+  .language-picker {
+    margin-left: 0;
+  }
+  .reading-prose {
+    padding: 22px 20px;
+  }
+  .reading-prose h1 {
+    margin-bottom: 22px;
+  }
+  .reading-prose h2 {
+    margin-top: 36px;
+    padding-top: 20px;
   }
   .reading-meta {
     align-items: flex-start;

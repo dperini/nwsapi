@@ -14,18 +14,24 @@ the archived training measurements.
 To serve the guide locally from the repository root:
 
 ```sh
-portless nwsapi-model-guide node node_modules/vite/bin/vite.js --config .config/model-guide.mts
+pnpm run guide
 ```
 
-Open `/pytorch-has-routing.html` on the URL printed by Portless. Vite serves
-the guide and its TypeScript modules. The policy explorer imports the committed
+This starts Vite and opens the walkthrough in your browser at
+`http://127.0.0.1:4389/pytorch-has-routing.html`. The same server hosts the
+Markdown reader linked from the guide. Edits reload automatically.
+
+For the named local URL, use `portless nwsapi-model-guide pnpm run guide` and
+open `/pytorch-has-routing.html` on the URL printed by Portless.
+
+The policy explorer imports the committed
 runtime policy, source excerpts come from the owning files, and the timing
 examples load recorded benchmark inputs.
 
 To build the walkthrough into `.cache/model-guide-build/`:
 
 ```sh
-node node_modules/vite/bin/vite.js build --config .config/model-guide.mts
+pnpm run guide:build
 ```
 
 Code panels use the pinned `gpu-lexer` dev dependency for syntax coloring.
@@ -114,3 +120,47 @@ interpreting the integrated code as a general performance win.
 The build includes the generated module in the normal bundle. It does not
 search for a `model-*` directory. See the [implementation notes](neural-planner-integration.md)
 for setup and activation details.
+
+## Maintaining the guide languages and narration
+
+The walkthrough and Markdown reader support English and Italian. The language
+control initially follows the browser language. A manual choice is kept in
+`sessionStorage`, including page refreshes in the same tab. Source code,
+selectors, script names, and commands keep their original spelling.
+
+Interface labels live in `assets/repo/model-guide/locales/en.json` and
+`it.json`. Longer interface strings and repository documents are extracted
+into generated JSON catalogs in the same directory. Edit
+`overrides.it.json` for reviewed Italian translations instead of editing the
+generated catalogs. `Intl` handles language detection and number formatting.
+The translation model supplies the translated text.
+
+Set up the pinned translation model once, then refresh the catalogs after
+changing English documentation or interface text:
+
+```sh
+pnpm run docs:translate:setup
+pnpm run docs:translate:it
+```
+
+The translation environment and model revision are recorded in
+`.config/docs-translation/`. Its lockfile fixes Python dependency versions.
+The scripts use the repository-managed `.cache/bin/uv` executable and cache
+downloaded models under `.cache/`.
+
+English narration uses the pinned `kokoro-js` development dependency.
+Italian narration uses the native Italian `im_nicola` voice from `kokoro`.
+Its Python dependencies, model revision, and model file checksums live in
+`.config/guide-speech/`. Edit the Italian narration text in
+`assets/repo/model-guide/locales/narration.it.json`, then regenerate the
+affected audio and word timings:
+
+```sh
+pnpm run gen:guide:narration
+pnpm run gen:guide:narration:it
+pnpm run guide:build
+```
+
+The narration commands require `ffmpeg` on `PATH`. Commit the generated
+catalogs, narration metadata, and audio together with their source changes.
+The production build includes the recorded audio and translation catalogs.

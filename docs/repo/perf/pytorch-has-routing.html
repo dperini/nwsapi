@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
+    <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0c171e" />
     <link
@@ -33,6 +34,22 @@
       <a href="#start" class="brand"
         ><code>nwsapi</code> <span>/ MODEL GUIDE</span></a
       >
+      <div class="language-picker">
+        <svg
+          class="language-symbol"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M2 5h12M7 2v3M12 5c-1 4-4 7-8 9M5 8c1 2 3 4 6 6M12 22l5-10 5 10M14 18h6"
+          />
+        </svg>
+        <select id="language-select" data-language-select class="theme-select">
+          <option value="en">en</option>
+          <option value="it">it</option>
+        </select>
+      </div>
     </header>
     <main id="start">
       <section class="intro" data-scroll-theme="what">
@@ -135,7 +152,6 @@
           ></div>
           <div class="pipeline-detail">
             <div>
-              <span id="pipeline-stage" class="eyebrow"></span>
               <h3 id="pipeline-title"></h3>
               <p id="pipeline-description"></p>
               <p
@@ -180,8 +196,7 @@
               </svg>
               Previous
             </button>
-            <span id="story-progress" class="mono"></span>
-            <button id="story-next" type="button" class="primary">
+            <button id="story-next" type="button">
               Next
               <svg
                 class="step-nav-chevron"
@@ -192,11 +207,11 @@
               </svg>
             </button>
           </div>
-          <details class="story-provenance">
-            <summary>Recorded example and scope</summary>
-            <p id="story-context" class="context"></p>
-          </details>
         </div>
+        <details class="story-provenance">
+          <summary>Recorded example and scope</summary>
+          <p id="story-context" class="context"></p>
+        </details>
         <details id="training-examples">
           <summary>Look closer at the training examples</summary>
           <div class="recorded-example">
@@ -318,9 +333,11 @@
                 order. These are two ways to find matches, with no events
                 dispatched.
               </p>
-              <p>
-                The ring follows the current node. Solid outlines mark confirmed
-                matches. Dashed outlines mark ancestors awaiting a final check.
+              <p data-i18n="diagramStateHelp">
+                The blue outline follows the current node. Result markers appear
+                when it arrives. Finding a warning can confirm its containing
+                card. A ! labels a warning already in the DOM, not a selected
+                result.
               </p>
             </div>
           </div>
@@ -354,6 +371,33 @@
               ><span id="film-inverse-summary">0 steps · no matches</span>
             </p>
           </div>
+          <ul
+            class="film-legend"
+            aria-label="Diagram states"
+            data-i18n-aria="diagramStates"
+          >
+            <li>
+              <span class="film-key film-key-current" aria-hidden="true"></span
+              ><span data-i18n="diagramCurrent">Current node</span>
+            </li>
+            <li>
+              <span class="film-key film-key-visited" aria-hidden="true"></span
+              ><span data-i18n="diagramVisited">Visited</span>
+            </li>
+            <li>
+              <span class="film-key film-key-pending" aria-hidden="true">?</span
+              ><span data-i18n="diagramPending">Awaiting final check</span>
+            </li>
+            <li>
+              <span class="film-key film-key-result" aria-hidden="true">✓</span
+              ><span data-i18n="diagramResult">Confirmed result</span>
+            </li>
+            <li>
+              <span class="film-key film-key-excluded" aria-hidden="true"
+                >×</span
+              ><span data-i18n="diagramExcluded">Excluded card</span>
+            </li>
+          </ul>
           <div class="film-grid">
             <article>
               <h4>
@@ -678,7 +722,9 @@
             <p class="route-consequence">
               The route changes the search order. Exact selector checks decide
               which elements match. Results stay in document order.
-              <a href="#motion">Watch both searches above ↑</a>
+              <a href="#motion" class="search-route-link"
+                >Compare both search routes ↑</a
+              >
             </p>
             <details>
               <summary>See the function inputs</summary>
@@ -1081,19 +1127,6 @@ pnpm run build</pre>
           </p>
         </details>
       </section>
-      <details class="highlight-note">
-        <summary>About the code colors</summary>
-        <p>
-          Syntax highlighting uses the pinned <code>gpu-lexer</code> package. It
-          runs a separate small model in this browser using WebGPU. This is only
-          for coloring the guide’s code. It has no role in <code>nwsapi</code>
-          or route policy. If WebGPU is unavailable, the original source stays
-          readable without colors.
-        </p>
-        <a href="https://gpu-lexer.vercel.app/" target="_blank" rel="noreferrer"
-          >About gpu-lexer ↗</a
-        >
-      </details>
       <aside class="closing">
         <p class="eyebrow">What the evidence currently supports</p>
         <h2>Measure the whole query</h2>
@@ -1107,26 +1140,19 @@ pnpm run build</pre>
         <a href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
           >Read the crossed-query results
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="m10 13 4-4m-7 5-2 2a3 3 0 0 0 4 4l4-4m4-6 2-2a3 3 0 0 0-4-4l-4 4"
-            /></svg></a
+            <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
         ><a href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
           >Read the dispatch follow-up
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="m10 13 4-4m-7 5-2 2a3 3 0 0 0 4 4l4-4m4-6 2-2a3 3 0 0 0-4-4l-4 4"
-            /></svg></a
+            <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
         ><a href="./model-guide-reading.html?doc=pytorch-for-beginners"
           >Read the text guide
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="m10 13 4-4m-7 5-2 2a3 3 0 0 0 4 4l4-4m4-6 2-2a3 3 0 0 0-4-4l-4 4"
-            /></svg
+            <path d="M4 12h16m-6-6 6 6-6 6" /></svg
         ></a>
       </aside>
     </main>
     <footer>
-      Illustrated search + actual saved policy + recorded training examples.
       <a href="#start">Back to the beginning ↑</a>
     </footer>
     <noscript

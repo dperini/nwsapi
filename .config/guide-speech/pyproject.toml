@@ -1,0 +1,14 @@
+[project]
+name = "nwsapi-guide-speech"
+version = "0.0.0"
+description = "Pinned Italian guide narration generator."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "kokoro==0.9.4",
+  "misaki==0.9.4",
+  "phonemizer-fork==3.3.2",
+  "espeakng-loader==0.2.4",
+  "huggingface-hub==0.36.2",
+  "transformers==4.57.6",
+  "torch==2.14.1",
+]

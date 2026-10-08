@@ -1,20 +1,30 @@
 /// <reference types="vite/client" />
 import { Marked } from 'marked'
-import { element, escapeHtml } from './ui.mts'
+import { element } from './ui.mts'
+import { readingMarkup } from './markdown.mts'
 import { initializeHighlighting } from './highlight.mts'
+import { initializeLinkMarkers } from './links.mts'
+import { currentLocale, initializeLocale, translate } from './locale.mts'
+import { localizeText } from './locale-content.mts'
 
-const documents = import.meta.glob<string>(
-  [
-    '../neural-dispatch-crossed-outcome.md',
-    '../neural-dispatch-jit-outcome.md',
-    '../pytorch-for-beginners.md',
-    '../neural-dispatch-crossed-plan.md',
-    '../neural-dispatch-jit-plan.md',
-    '../neural-dispatch-jit-tasks.md',
-    '../neural-planner-integration.md',
-  ],
-  { query: '?raw', import: 'default', eager: true },
+const documentLoaders = import.meta.glob<string>(
+  ['../../../**/*.md', '../../../../README.md'],
+  { query: '?raw', import: 'default' },
 )
+const documents = Object.fromEntries(
+  Object.entries(documentLoaders).map(([file, load]) => [
+    new URL(
+      file,
+      'https://guide.invalid/docs/repo/perf/pytorch-has-routing/',
+    ).pathname.slice(1),
+    load,
+  ]),
+)
+let documentPath = 'docs/repo/perf/pytorch-for-beginners.md'
+let sourceBase = new URL('https://guide.invalid/' + documentPath)
+let renderRequest = 0
+let stopFollowing: (() => void) | undefined
+let originalHeadings: string[] = []
 const reports = import.meta.glob<string>(
   [
     '../../../../assets/repo/bench/survey-2026-10-03/neural-dispatch-crossed-2026-10-05.html',
@@ -24,7 +34,6 @@ const reports = import.meta.glob<string>(
 )
 const repository = 'https://github.com/dperini/nwsapi'
 const revision = 'prerelease/3.0.0'
-const sourceBase = new URL('https://guide.invalid/docs/repo/perf/')
 const labels: Record<string, string> = {
   'neural-dispatch-crossed-outcome': 'Crossed-query results',
   'neural-dispatch-jit-outcome': 'Dispatch follow-up',
@@ -34,14 +43,7 @@ const labels: Record<string, string> = {
   'neural-dispatch-jit-tasks': 'Further work',
   'neural-planner-integration': 'Implementation notes',
 }
-const markdown = new Marked({
-  gfm: true,
-  renderer: {
-    html({ text }) {
-      return escapeHtml(text)
-    },
-  },
-})
+const markdown = new Marked({ gfm: true })
 
 function documentHref(slug: string) {
   return `./model-guide-reading.html?doc=${encodeURIComponent(slug)}`
@@ -73,12 +75,8 @@ function resolveLink(href: string): string | undefined {
     return href
   }
   const name = url.pathname.split('/').pop() ?? ''
-  const slug = name.replace(/\.md$/, '')
-  if (
-    url.pathname.startsWith(sourceBase.pathname) &&
-    documents[`../${slug}.md`]
-  ) {
-    return documentHref(slug) + url.hash
+  if (documents[url.pathname.slice(1)]) {
+    return documentHref(url.pathname.slice(1)) + url.hash
   }
   if (name === 'pytorch-has-routing.html') {
     return './pytorch-has-routing.html' + url.hash
@@ -96,6 +94,13 @@ function prepareLinks(article: HTMLElement) {
       link.removeAttribute('href')
     }
   }
+  for (const image of article.querySelectorAll<HTMLImageElement>('img[src]')) {
+    const url = new URL(image.getAttribute('src')!, sourceBase)
+    if (url.origin === sourceBase.origin) {
+      image.src = `https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/${revision}${url.pathname}${url.search}`
+    }
+    image.loading = 'lazy'
+  }
 }
 
 function prepareTables(article: HTMLElement) {
@@ -104,10 +109,7 @@ function prepareTables(article: HTMLElement) {
     wrapper.className = 'table-scroll'
     wrapper.tabIndex = 0
     wrapper.setAttribute('role', 'region')
-    wrapper.setAttribute(
-      'aria-label',
-      'Comparison table, scroll for more columns',
-    )
+    wrapper.setAttribute('aria-label', translate('comparisonTable'))
     table.before(wrapper)
     wrapper.append(table)
   }
@@ -115,19 +117,20 @@ function prepareTables(article: HTMLElement) {
 
 function createContents(article: HTMLElement) {
   const contents = element('reading-contents')
+  contents.replaceChildren()
+  contents.dataset['localeContent'] = ''
   const navigation = element('reading-navigation') as HTMLDetailsElement
   const mobile = matchMedia('(max-width: 900px)')
   const resize = () => {
     navigation.open = !mobile.matches
   }
-  mobile.addEventListener('change', resize)
   resize()
   const used = new Map<string, number>()
   const headings = Array.from(article.querySelectorAll<HTMLElement>('h2, h3'))
-  for (const heading of headings) {
+  for (const [index, heading] of headings.entries()) {
     const title = heading.textContent ?? ''
     const base =
-      title
+      (originalHeadings[index] ?? title)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '') || 'section'
@@ -176,55 +179,91 @@ function followReading(headings: HTMLElement[]) {
   addEventListener('scroll', schedule, { passive: true })
   addEventListener('resize', schedule)
   update()
+  return () => {
+    removeEventListener('scroll', schedule)
+    removeEventListener('resize', schedule)
+  }
 }
 
 function renderDocument(slug: string, source: string) {
   const article = element('reading-content')
   // Only bundled repository documents enter the renderer, never URL-provided text.
-  article.innerHTML = markdown.parse(source, { async: false })
+  article.dataset['localeContent'] = ''
+  article.innerHTML = readingMarkup(markdown.parse(source, { async: false }))
   article.removeAttribute('aria-busy')
   const title = article.querySelector('h1')?.textContent ?? labels[slug]!
-  document.title = `${title} · NWSAPI model guide`
-  element('reading-label').textContent = labels[slug] ?? 'Further reading'
+  document.title = `${title} · ${localizeText('NWSAPI model guide', currentLocale())}`
+  element('reading-label').removeAttribute('data-i18n')
+  element('reading-label').textContent = localizeText(
+    labels[slug] ?? 'Further reading',
+    currentLocale(),
+  )
   const minutes = Math.max(
     1,
     Math.ceil((article.textContent ?? '').split(/\s+/).length / 220),
   )
-  element('reading-time').textContent = `${minutes} min read`
+  element('reading-time').textContent = translate('readMinutes').replace(
+    '{minutes}',
+    new Intl.NumberFormat(currentLocale()).format(minutes),
+  )
   const sourceLink = element('reading-source-link') as HTMLAnchorElement
-  sourceLink.href = `${repository}/blob/${revision}/docs/repo/perf/${slug}.md`
+  sourceLink.href = `${repository}/blob/${revision}/${documentPath}`
   sourceLink.parentElement!.hidden = false
   prepareLinks(article)
+  initializeLinkMarkers()
   prepareTables(article)
   const headings = createContents(article)
-  followReading(headings)
+  stopFollowing?.()
+  stopFollowing = followReading(headings)
   initializeHighlighting()
   for (const link of document.querySelectorAll<HTMLAnchorElement>(
     '.reading-related a',
   )) {
-    if (new URL(link.href).searchParams.get('doc') === slug) {
-      link.hidden = true
-    }
+    link.hidden = new URL(link.href).searchParams.get('doc') === slug
   }
   requestAnimationFrame(() => {
     document.getElementById(location.hash.slice(1))?.scrollIntoView()
   })
 }
 
-function openDocument() {
+async function openDocument() {
+  const request = ++renderRequest
   const slug =
     new URLSearchParams(location.search).get('doc') ?? 'pytorch-for-beginners'
-  const source = documents[`../${slug}.md`]
-  if (!source) {
+  documentPath = Object.hasOwn(documents, slug)
+    ? slug
+    : `docs/repo/perf/${slug}.md`
+  sourceBase = new URL('https://guide.invalid/' + documentPath)
+  const load = documents[documentPath]
+  if (!load) {
     const article = element('reading-content')
     article.removeAttribute('aria-busy')
-    article.innerHTML =
-      '<h1>Document not found</h1><p>Choose one of the reading links below, or return to the guide.</p>'
+    article.innerHTML = `<h1>${translate('documentNotFound')}</h1><p>${translate('documentNotFoundHelp')}</p>`
     document.querySelector<HTMLElement>('.reading-sidebar')!.hidden = true
-    document.title = 'Document not found · NWSAPI model guide'
+    document.title = translate('documentNotFound')
     return
   }
-  renderDocument(slug, source)
+  const source = await load()
+  const headings = document.createElement('div')
+  headings.innerHTML = readingMarkup(markdown.parse(source, { async: false }))
+  originalHeadings = Array.from(
+    headings.querySelectorAll('h2,h3'),
+    node => node.textContent ?? '',
+  )
+  let translated = source
+  if (currentLocale() === 'it') {
+    const catalog = (
+      await import('../../../../assets/repo/model-guide/locales/documents.it.generated.json')
+    ).default as Record<string, { text: string }>
+    translated = catalog[documentPath]?.text ?? source
+  }
+  if (request === renderRequest) {
+    renderDocument(slug, translated)
+  }
 }
 
-openDocument()
+initializeLocale()
+window.addEventListener('guide-locale-change', () => {
+  void openDocument()
+})
+void openDocument()

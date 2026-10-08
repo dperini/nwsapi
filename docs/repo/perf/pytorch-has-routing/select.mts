@@ -1,6 +1,7 @@
 import { createElement as h, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { createRoot } from 'react-dom/client'
+import { flushSync } from 'react-dom'
 import * as Select from '@radix-ui/react-select'
 import * as Checkbox from '@radix-ui/react-checkbox'
 import { selectorTokens } from './selector.mts'
@@ -38,17 +39,27 @@ function notify(control: HTMLElement) {
   control.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
-function GuideSelect({ control }: { control: HTMLSelectElement }) {
+function GuideSelect({
+  control,
+  label,
+}: {
+  control: HTMLSelectElement
+  label?: string
+}) {
   const value = useControlValue(control) as string
   const options = Array.from(control.options).filter(
     option => option.value !== '',
   )
   const placeholder =
     control.options[0]?.value === '' ? control.options[0].text : undefined
-  const section = control.closest<HTMLElement>('[data-scroll-theme]')!
+  const section = control.closest<HTMLElement>('[data-scroll-theme]')
+  const accent = control.hasAttribute('data-language-select')
+    ? 'var(--scroll-accent, var(--topic-what))'
+    : section
+      ? getComputedStyle(section).getPropertyValue('--section-accent')
+      : 'var(--topic-where)'
   const theme: CSSProperties & { '--section-accent': string } = {
-    '--section-accent':
-      getComputedStyle(section).getPropertyValue('--section-accent'),
+    '--section-accent': accent,
   }
   return h(
     Select.Root,
@@ -64,13 +75,18 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
       {
         className: 'guide-select-trigger',
         'aria-label':
-          control.id === 'challenge-prediction'
+          label ??
+          (control.id === 'challenge-prediction'
             ? 'My prediction'
             : control.id === 'story-selector'
               ? 'Your selector'
-              : 'Environment',
+              : 'Environment'),
       },
-      h(Select.Value, { placeholder }),
+      h(
+        Select.Value,
+        { placeholder },
+        control.hasAttribute('data-language-select') ? value : undefined,
+      ),
       h(
         Select.Icon,
         { 'aria-hidden': true },
@@ -153,7 +169,9 @@ function GuideCheckbox({
 
 export function initializeGuideControls() {
   document
-    .querySelectorAll<HTMLSelectElement>('select.theme-select')
+    .querySelectorAll<HTMLSelectElement>(
+      'select.theme-select:not([data-language-select])',
+    )
     .forEach(control => {
       const mount = document.createElement('span')
       mount.className = 'guide-select-mount'
@@ -171,4 +189,20 @@ export function initializeGuideControls() {
       control.hidden = true
       createRoot(mount).render(h(GuideCheckbox, { control, label }))
     })
+}
+
+export function initializeLanguageSelect() {
+  const control = document.querySelector<HTMLSelectElement>(
+    'select[data-language-select]',
+  )
+  if (!control) {
+    return
+  }
+  const mount = document.createElement('span')
+  mount.className = 'language-select-mount'
+  control.after(mount)
+  flushSync(() => {
+    createRoot(mount).render(h(GuideSelect, { control, label: 'Language' }))
+  })
+  control.hidden = true
 }

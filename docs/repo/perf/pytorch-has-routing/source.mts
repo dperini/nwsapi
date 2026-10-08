@@ -119,7 +119,7 @@ export const stages: Array<{
   source: SourceId
 }> = [
   {
-    title: '1. Measure both routes',
+    title: 'Measure both routes',
     description:
       'Run both routes on the same fixture DOMs. Save their timings and the query facts available before searching. These recorded examples become the training data.',
     example:
@@ -127,7 +127,7 @@ export const stages: Array<{
     source: 'collect',
   },
   {
-    title: '2. Train and validate',
+    title: 'Train and validate',
     description:
       'Split fixture families into training, validation, and evaluation groups. Train the weights, then select a model and threshold using validation. Account for uncertain timings, slowdowns, and model overhead.',
     example:
@@ -135,7 +135,7 @@ export const stages: Array<{
     source: 'train',
   },
   {
-    title: '3. Save and export',
+    title: 'Save and export',
     description:
       'Save the weights in a PyTorch checkpoint. The Python exporter also writes JSON and JavaScript. Development tools use the checkpoint. The TypeScript generator reads the JavaScript export.',
     example:
@@ -143,7 +143,7 @@ export const stages: Array<{
     source: 'export',
   },
   {
-    title: '4. Generate and build',
+    title: 'Generate and build',
     description:
       'The repository generator parses the saved JavaScript exports, adds types and host-specific function names, and writes route-decision.generated.mts. The normal build includes that module in dist/nwsapi.js.',
     example:
@@ -151,7 +151,7 @@ export const stages: Array<{
     source: 'generate',
   },
   {
-    title: '5. Run exact queries',
+    title: 'Run exact queries',
     description:
       'nwsapi first chooses a route using its count rule. An eligible downward search can ask the saved function for an override. The selected route checks exact matches. The weights stay fixed.',
     example:

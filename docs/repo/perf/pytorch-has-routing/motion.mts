@@ -1,4 +1,4 @@
-import { motionFrame, motionPoint } from './motion-frame.mts'
+import { motionFrame, motionPoint, motionShape } from './motion-frame.mts'
 import type { SearchRoute, ToyNode } from './dom.mts'
 import { resultNames, routeDirections } from './dom.mts'
 import { element, input, text } from './ui.mts'
@@ -11,6 +11,7 @@ let total = 0
 let timer: ReturnType<typeof setInterval> | undefined
 let activeRoute: SearchRoute | undefined
 const positions: Record<SearchRoute, number> = { forward: 0, inverse: 0 }
+const revisions: Record<SearchRoute, number> = { forward: 0, inverse: 0 }
 const reduced = matchMedia('(prefers-reduced-motion: reduce)')
 
 function status(state: string, message: string) {
@@ -29,14 +30,14 @@ function graphic(route: SearchRoute) {
     })
   const dots = nodes.map(node => {
     const point = points.get(node.id)!
-    const width = point.label.length * 7 + 16
+    const { width, height, radius } = motionShape(point.label)
     const shape =
       point.label.length > 3
-        ? `<rect x="${-width / 2}" y="-13" width="${width}" height="26" rx="7"/>`
-        : `<circle r="${point.label === 'DOM' ? 18 : 13}"/>`
-    return `<g data-motion-node="${node.id}" class="film-node film-${node.kind}" transform="translate(${point.x} ${point.y})">${shape}<text y="4" text-anchor="middle">${point.label}</text></g>`
+        ? `<rect x="${-width / 2}" y="${-height / 2}" width="${width}" height="${height}" rx="${radius}"/>`
+        : `<circle r="${radius}"/>`
+    return `<g data-motion-node="${node.id}" class="film-node film-${node.kind}" transform="translate(${point.x} ${point.y})">${shape}<text y="4" text-anchor="middle">${point.label}</text><g class="film-state-badge" transform="translate(${width / 2} ${-height / 2})"><circle r="6"/><text y="3" text-anchor="middle"></text></g></g>`
   })
-  return `<svg viewBox="0 0 440 310" aria-hidden="true"><g class="film-links">${links.join('')}</g>${dots.join('')}<circle class="film-cursor" r="18" visibility="hidden"/></svg><button type="button" class="film-scene-control" data-film-route="${route}" aria-pressed="false" aria-label="Play ${routeDirections[route]}ward search. Drag or use arrow keys to step. Home rewinds, End finishes."><span class="film-scene-action" data-film-label>Play</span></button>`
+  return `<svg viewBox="0 0 440 310" aria-hidden="true"><g class="film-links">${links.join('')}</g>${dots.join('')}<rect class="film-cursor" width="36" height="36" rx="18" visibility="hidden"/></svg><button type="button" class="film-scene-control" data-film-route="${route}" aria-pressed="false" aria-label="Play ${routeDirections[route]}ward search. Drag or use arrow keys to step. Home rewinds, End finishes."><span class="film-scene-action" data-film-label>Play</span></button>`
 }
 
 function labelScene(control: HTMLElement, playing: boolean) {
@@ -67,44 +68,83 @@ function stop() {
   status('paused', 'Paused. Use Next step or drag the timeline to continue.')
 }
 
-function moveCursor(scene: HTMLElement, current: string | undefined) {
-  const cursor = scene.querySelector<SVGCircleElement>('.film-cursor')!
-  const animations = cursor.getAnimations()
-  for (let i = 0, length = animations.length; i < length; i += 1) {
-    animations[i]!.cancel()
-  }
+function moveCursor(
+  scene: HTMLElement,
+  current: string | undefined,
+): Animation | undefined {
+  const cursor = scene.querySelector<SVGRectElement>('.film-cursor')!
+  const visible = cursor.getAttribute('visibility') === 'visible'
   cursor.setAttribute('visibility', current ? 'visible' : 'hidden')
   if (!current) {
-    return
+    cursor.getAnimations().forEach(animation => animation.cancel())
+    return undefined
   }
   const point = motionPoint(nodes.find(node => node.id === current)!)
-  const before = cursor.style.transform
-  const after = `translate(${point.x}px, ${point.y}px)`
-  cursor.style.transform = after
-  if (before && before !== after && !reduced.matches) {
-    cursor.animate([{ transform: before }, { transform: after }], {
+  const shape = motionShape(point.label)
+  const width = shape.width + 6
+  const height = shape.height + 6
+  const after = {
+    transform: `translate(${point.x - width / 2}px, ${point.y - height / 2}px)`,
+    width: `${width}px`,
+    height: `${height}px`,
+    rx: `${shape.radius + 3}px`,
+  }
+  const properties = Object.entries(after)
+  if (
+    visible &&
+    properties.every(
+      ([key, value]) => cursor.style.getPropertyValue(key) === value,
+    )
+  ) {
+    return cursor.getAnimations()[0]
+  }
+  const computed = getComputedStyle(cursor)
+  const before = Object.fromEntries(
+    properties.map(([key]) => [key, computed.getPropertyValue(key)]),
+  )
+  cursor.getAnimations().forEach(animation => animation.cancel())
+  for (const [key, value] of properties) {
+    cursor.style.setProperty(key, value)
+  }
+  if (visible && !reduced.matches) {
+    return cursor.animate([before, after], {
       duration: 450,
       easing: 'cubic-bezier(.2,.7,.2,1)',
     })
   }
+  return undefined
 }
 
-function drawRoute(route: SearchRoute) {
-  const frame = motionFrame(nodes, route, positions[route])
+function commitFrame(
+  route: SearchRoute,
+  frame: ReturnType<typeof motionFrame>,
+) {
   const scene = element(`film-${route}`)
   const dots = scene.querySelectorAll<SVGGElement>('[data-motion-node]')
   for (let i = 0, length = dots.length; i < length; i += 1) {
     const dot = dots[i]!
     const node = nodes.find(item => item.id === dot.dataset['motionNode'])!
     dot.dataset['current'] = String(node.id === frame.current?.current)
+    dot.dataset['visited'] = String(frame.visitedNodes.has(node.id))
+    dot.dataset['rejected'] = String(
+      node.kind === 'card' && frame.rejected.has(node.card!),
+    )
     dot.dataset['marked'] = String(
       node.kind === 'card' && frame.marked.has(node.card!),
     )
     dot.dataset['match'] = String(
       node.kind === 'card' && frame.matches.includes(node.card!),
     )
+    const badge = dot.querySelector('.film-state-badge text')!
+    badge.textContent =
+      dot.dataset['match'] === 'true'
+        ? '✓'
+        : dot.dataset['rejected'] === 'true'
+          ? '×'
+          : dot.dataset['marked'] === 'true'
+            ? '?'
+            : ''
   }
-  moveCursor(scene, frame.current?.current)
   const work = `${frame.work} ${frame.work === 1 ? 'operation' : 'operations'}`
   text(`film-${route}-work`, work)
   text(`film-${route}-result`, resultNames(frame.matches))
@@ -116,6 +156,32 @@ function drawRoute(route: SearchRoute) {
       : frame.current?.description || 'Ready. No nodes examined yet.',
   )
   scene.dataset['complete'] = String(frame.complete)
+  queueMicrotask(finishPlayback)
+}
+
+function drawRoute(route: SearchRoute) {
+  const revision = ++revisions[route]
+  const frame = motionFrame(nodes, route, positions[route])
+  const scene = element(`film-${route}`)
+  scene.dataset['complete'] = 'false'
+  const animation = moveCursor(scene, frame.current?.current)
+  if (!animation) {
+    commitFrame(route, frame)
+    return
+  }
+  scene.querySelectorAll('[data-current="true"]').forEach(node => {
+    node.setAttribute('data-current', 'false')
+  })
+  void animation.finished.then(
+    () => {
+      if (revisions[route] === revision) {
+        commitFrame(route, frame)
+      }
+    },
+    () => {
+      // A newer step cancels the animation and owns the next displayed result.
+    },
+  )
 }
 
 function draw() {
@@ -130,6 +196,15 @@ function draw() {
   )
   const bothComplete = frames.every(frame => frame.complete)
   ;(element('film-next') as HTMLButtonElement).disabled = bothComplete
+}
+
+function finishPlayback() {
+  const bothComplete = routes.every(
+    route => element(`film-${route}`).dataset['complete'] === 'true',
+  )
+  const frames = routes.map(route =>
+    motionFrame(nodes, route, positions[route]),
+  )
   document
     .querySelector('.film-scoreboard')
     ?.toggleAttribute(
@@ -138,7 +213,7 @@ function draw() {
     )
   const completedRoute = activeRoute
   const complete = completedRoute
-    ? motionFrame(nodes, completedRoute, positions[completedRoute]).complete
+    ? element(`film-${completedRoute}`).dataset['complete'] === 'true'
     : bothComplete
   if (complete) {
     stop()

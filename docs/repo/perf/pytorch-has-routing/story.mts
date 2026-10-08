@@ -2,7 +2,10 @@ import {
   chromiumPolicy,
   jsdomPolicy,
 } from '../../../../src/core/select/has/route-decision.generated.mts'
-import { element, text } from './ui.mts'
+import { element, text, writeUnitText } from './ui.mts'
+import { highlightSelector } from './selector.mts'
+import { currentLocale } from './locale.mts'
+import { localizeText } from './locale-content.mts'
 import { routeDirections } from './dom.mts'
 import type { StoryReadout } from './story-readout.mts'
 
@@ -36,15 +39,32 @@ function microseconds(value: number) {
   return `${(value / 1000).toFixed(2)}µs`
 }
 
+function explain(source: string, chosen?: string) {
+  const node = element('story-explanation')
+  node.setAttribute('data-locale-content', '')
+  const localized = localizeText(source, currentLocale())
+  const start = chosen ? localized.indexOf(chosen) : -1
+  if (!chosen || start < 0) {
+    writeUnitText(node, localized)
+    return
+  }
+  const code = document.createElement('code')
+  code.className = 'selector-code'
+  highlightSelector(code, chosen)
+  node.replaceChildren(
+    localized.slice(0, start),
+    code,
+    localized.slice(start + chosen.length),
+  )
+}
+
 export function renderStory(index: number, fallback: string): StoryReadout {
   const query = selectedQuery()
   element('pipeline-description').hidden = query !== undefined
-  text('story-progress', `${index + 1} / 5`)
   ;(element('story-back') as HTMLButtonElement).disabled = index === 0
   ;(element('story-next') as HTMLButtonElement).disabled = index === 4
   if (!query) {
-    text(
-      'story-explanation',
+    explain(
       failed
         ? 'Recorded measurements could not load. The source walkthrough is still available.'
         : 'Loading the recorded query…',
@@ -75,7 +95,7 @@ export function renderStory(index: number, fallback: string): StoryReadout {
     'The generator creates a typed module from the saved JavaScript export. The build bundles that module into nwsapi. Neither Python nor a training run is needed to execute a query.',
     `The committed ${query.host} model returns ${override} for these inputs. An eligible query would ${override ? 'switch to upward search' : 'keep searching down'}. The ${routeDirections[route]}ward search still checks the selector exactly and returns matches in document order. This recommendation could be slower on another DOM with the same inputs.`,
   ]
-  text('story-explanation', explanations[index]!)
+  explain(explanations[index]!, index === 0 ? chosen : undefined)
   text(
     'story-context',
     `Source: ${query.host} fixture ${query.id}, recorded October 5, 2026. Timings are archived medians. The steps explain the training process without retraining the model or running a benchmark. The final step calls the committed function with this example’s inputs.`,

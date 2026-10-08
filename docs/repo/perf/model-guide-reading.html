@@ -1,7 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
+    <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0c171e" />
     <meta
@@ -19,52 +20,85 @@
     <script type="module" src="./pytorch-has-routing/reading.mts"></script>
   </head>
   <body class="reader" data-theme="where" data-scroll-theme="where">
-    <a class="skip-link" href="#reading-content">Skip to the document</a>
+    <a class="skip-link" href="#reading-content" data-i18n="skipToDocument"
+      >Skip to the document</a
+    >
     <div class="scroll-morph" aria-hidden="true"></div>
     <header class="topbar reader-topbar">
       <a href="./pytorch-has-routing.html" class="brand"
         ><code>nwsapi</code> <span>/ MODEL GUIDE</span></a
       >
+      <div class="language-picker">
+        <svg
+          class="language-symbol"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M2 5h12M7 2v3M12 5c-1 4-4 7-8 9M5 8c1 2 3 4 6 6M12 22l5-10 5 10M14 18h6"
+          />
+        </svg>
+        <select id="language-select" data-language-select class="theme-select">
+          <option value="en">en</option>
+          <option value="it">it</option>
+        </select>
+      </div>
       <a class="reader-back" href="./pytorch-has-routing.html#source">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="m14 6-6 6 6 6M8 12h12" />
         </svg>
-        Back to the guide
+        <span data-i18n="backToGuide">Back to the guide</span>
       </a>
     </header>
     <div class="reading-progress" aria-hidden="true"></div>
     <main class="reading-layout">
       <div class="reading-column">
         <div class="reading-meta">
-          <p id="reading-label" class="eyebrow">Further reading</p>
+          <p id="reading-label" class="eyebrow" data-i18n="furtherReading">
+            Further reading
+          </p>
           <span id="reading-time"></span>
         </div>
         <article id="reading-content" class="reading-prose" aria-busy="true">
-          <p class="reading-loading" role="status">Opening document…</p>
+          <p class="reading-loading" role="status" data-i18n="readingLoading">
+            Opening document…
+          </p>
         </article>
         <div class="reading-source" hidden>
           <a id="reading-source-link" target="_blank" rel="noreferrer">
-            View on GitHub <span class="github-icon" aria-hidden="true"></span>
+            <span data-i18n="viewOnGitHub">View on GitHub</span>
+            <span class="github-icon" aria-hidden="true"></span>
           </a>
         </div>
-        <nav class="reading-related" aria-label="Further reading">
-          <h2>Keep reading</h2>
+        <nav
+          class="reading-related"
+          aria-label="Further reading"
+          data-i18n-aria="furtherReading"
+        >
+          <h2 data-i18n="keepReading">Keep reading</h2>
           <a
             href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
-            >Crossed-query results</a
-          >
+            >Crossed-query results
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
+          ></a>
           <a href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
-            >Dispatch follow-up</a
-          >
+            >Dispatch follow-up
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
+          ></a>
           <a href="./model-guide-reading.html?doc=pytorch-for-beginners"
-            >Text guide</a
-          >
+            >Text guide
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
+          ></a>
         </nav>
       </div>
       <aside class="reading-sidebar">
         <details id="reading-navigation" open>
-          <summary>On this page</summary>
-          <nav aria-label="On this page">
+          <summary data-i18n="onThisPage">On this page</summary>
+          <nav aria-label="On this page" data-i18n-aria="onThisPage">
             <ol id="reading-contents"></ol>
           </nav>
         </details>

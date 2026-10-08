@@ -57,6 +57,7 @@
   width: 100%;
   height: 100%;
   border: 0;
+  border-radius: inherit;
   padding: 0;
   background: transparent;
   cursor: grab;
@@ -68,8 +69,7 @@
   cursor: grabbing;
 }
 .film-scene-control:focus-visible {
-  outline: 1px solid var(--theme-highlight-edge);
-  outline-offset: 4px;
+  outline: none;
 }
 .film-scene-action {
   position: absolute;
@@ -92,9 +92,10 @@
 .film-scene:active {
   cursor: grabbing;
 }
-.film-scene:focus-visible {
-  outline: 1px solid var(--theme-highlight-edge);
-  outline-offset: 4px;
+.film-scene:focus-visible,
+.film-scene:has(.film-scene-control:focus-visible) {
+  outline: 1.5px solid var(--theme-highlight-edge);
+  outline-offset: -1px;
 }
 .film-grid h4 span {
   display: block;
@@ -126,40 +127,125 @@
   stroke: #415c6a;
   stroke-width: 1;
 }
-.film-node :is(circle, rect) {
+.route-film {
+  --trace-current: var(--topic-what);
+  --trace-pending: #ffc46d;
+  --trace-result: #92e6b2;
+  --trace-excluded: #c78b67;
+  --trace-visited: #8196a0;
+}
+.film-node > :is(circle, rect) {
   fill: var(--surface-raised);
   stroke: var(--section-line);
 }
-.film-node text {
+.film-node > text {
   fill: #c8d9e0;
   font:
     10px 'JetBrains Mono',
     monospace;
 }
-.film-warning :is(circle, rect) {
-  fill: var(--theme-highlight);
-  stroke: var(--amber);
+.film-node[data-visited='true'] > :is(circle, rect) {
+  stroke: var(--trace-visited);
+  stroke-dasharray: 1 3;
+  stroke-linecap: round;
 }
-.film-node[data-current='true'] :is(circle, rect) {
-  fill: var(--theme-highlight);
-  stroke: var(--theme-highlight-edge);
+.film-node[data-current='true'] > :is(circle, rect) {
+  fill: color-mix(in srgb, var(--trace-current) 12%, var(--surface-inset));
 }
-.film-node[data-marked='true'] :is(circle, rect) {
-  stroke: var(--section-accent);
-  stroke-dasharray: 2 2;
+.film-node[data-marked='true'] {
+  --trace-state: var(--trace-pending);
 }
-.film-node[data-match='true'] :is(circle, rect) {
-  fill: var(--theme-highlight);
-  stroke: var(--theme-highlight-edge);
+.film-node[data-marked='true'] > :is(circle, rect) {
+  stroke: var(--trace-state);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+.film-node[data-rejected='true'] {
+  --trace-state: var(--trace-excluded);
+}
+.film-node[data-rejected='true'] > :is(circle, rect) {
+  stroke: var(--trace-state);
+  stroke-dasharray: none;
+}
+.film-node[data-match='true'] {
+  --trace-state: var(--trace-result);
+}
+.film-node[data-match='true'] > :is(circle, rect) {
+  fill: color-mix(in srgb, var(--trace-result) 14%, var(--surface-inset));
+  stroke: var(--trace-state);
   stroke-width: 2;
   stroke-dasharray: none;
 }
+.film-state-badge {
+  display: none;
+}
+.film-node:is([data-marked='true'], [data-rejected='true'], [data-match='true'])
+  .film-state-badge {
+  display: block;
+}
+.film-state-badge circle {
+  fill: var(--surface-inset);
+  stroke: var(--trace-state);
+  stroke-width: 1;
+}
+.film-state-badge text {
+  fill: var(--trace-state);
+  font:
+    700 9px Inter,
+    sans-serif;
+}
 .film-cursor {
   fill: none;
-  stroke: var(--amber);
+  stroke: var(--trace-current);
   stroke-width: 2;
   pointer-events: none;
   transform-origin: 0 0;
+}
+.film-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin: 0;
+  padding: 20px;
+  list-style: none;
+  border-bottom: 1px solid var(--section-line);
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.film-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.film-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.film-key-current {
+  color: var(--trace-current);
+}
+.film-key-visited {
+  color: var(--trace-visited);
+  border-style: dotted;
+}
+.film-key-pending {
+  color: var(--trace-pending);
+  border-style: dashed;
+}
+.film-key-result {
+  color: var(--trace-result);
+  border-width: 2px;
+}
+.film-key-excluded {
+  color: var(--trace-excluded);
 }
 .film-work {
   color: var(--amber);

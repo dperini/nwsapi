@@ -9,7 +9,10 @@ export function transcriptMarkup(text: string) {
       if (!word.trim()) {
         return word
       }
-      const label = escapeHtml(word).replaceAll('nwsapi', '<code>nwsapi</code>')
+      const label = escapeHtml(word).replace(
+        /\b(?:[\w/.-]+\.(?:mts|mjs|py|js)|nwsapi|jsdom)\b/g,
+        '<code>$&</code>',
+      )
       return `<span class="spoken-word">${label}</span>`
     })
     .join('')

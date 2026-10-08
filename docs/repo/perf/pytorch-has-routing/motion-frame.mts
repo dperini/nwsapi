@@ -40,3 +40,11 @@ export function motionPoint(node: ToyNode) {
     ? { x: x - 18, y: 156, label: 'p' }
     : { x: x + 18, y: 240, label: 'footer' }
 }
+
+export function motionShape(label: string) {
+  if (label.length > 3) {
+    return { width: label.length * 7 + 16, height: 26, radius: 7 }
+  }
+  const radius = label === 'DOM' ? 18 : 13
+  return { width: radius * 2, height: radius * 2, radius }
+}

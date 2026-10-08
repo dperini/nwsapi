@@ -26,9 +26,12 @@ import { initializeGuideControls } from './pytorch-has-routing/select.mts'
 import { initializeStory, renderStory } from './pytorch-has-routing/story.mts'
 import { initializeNarration } from './pytorch-has-routing/narration.mts'
 import { renderStoryReadout } from './pytorch-has-routing/story-readout.mts'
+import { initializeLinkMarkers } from './pytorch-has-routing/links.mts'
+import { initializeLocale } from './pytorch-has-routing/locale.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
-  return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
+  const path = passes ? 'm5 12 4 4 10-10' : 'm6 6 12 12m0-12L6 18'
+  return `<li><span class="guard-mark" data-pass="${passes}" role="img" aria-label="${passes ? 'Pass' : 'Fail'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg></span><span>${label}<small>${detail}</small></span></li>`
 }
 
 function policyState() {
@@ -211,6 +214,36 @@ function renderPolicy() {
   renderImpact(state, reached, override)
 }
 
+function navigatePresets(event: KeyboardEvent) {
+  const directions: Record<string, number> = {
+    ArrowDown: 1,
+    ArrowRight: 1,
+    ArrowLeft: -1,
+    ArrowUp: -1,
+  }
+  const direction = directions[event.key]
+  const current = event.target
+  if (direction === undefined || !(current instanceof HTMLButtonElement)) {
+    return
+  }
+  const buttons = Array.from(
+    element('policy-controls').querySelectorAll<HTMLButtonElement>(
+      '[data-preset]',
+    ),
+  )
+  const index = buttons.indexOf(current)
+  if (index < 0) {
+    return
+  }
+  event.preventDefault()
+  buttons[(index + direction + buttons.length) % buttons.length]!.focus()
+  applyPreset(
+    buttons[(index + direction + buttons.length) % buttons.length]!.dataset[
+      'preset'
+    ]!,
+  )
+}
+
 const presets: Record<string, [number, number, boolean, boolean]> = {
   eligible: [64, 192, true, false],
   tiny: [8, 24, true, false],
@@ -264,10 +297,6 @@ let stageIndex = 0
 function showStage(index: number) {
   stageIndex = index
   const stage = stages[index]!
-  text(
-    'pipeline-stage',
-    `${index < 4 ? 'DURING DEVELOPMENT' : 'WHEN A QUERY RUNS'} · ${index + 1} / 5`,
-  )
   text('pipeline-title', stage.title)
   text('pipeline-description', stage.description)
   renderStoryReadout(renderStory(index, stage.example))
@@ -379,12 +408,13 @@ async function loadSamples() {
 }
 
 function initialize() {
+  initializeLocale()
   initializeSectionThemes()
   initializeNarration()
   element('pipeline').innerHTML = stages
     .map(
       (stage, index) =>
-        `<button type="button" data-stage="${index}" aria-pressed="${index === 0}"><span>0${index + 1} ${index === 4 ? 'RUNTIME' : 'OFFLINE'}</span>${stage.title.slice(3)}</button>`,
+        `<button type="button" data-stage="${index}" aria-pressed="${index === 0}">${stage.title}</button>`,
     )
     .join(
       '<svg class="pipeline-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 6 6 6-6 6m8-12 6 6-6 6"/></svg>',
@@ -399,6 +429,7 @@ function initialize() {
   initializeCalculation()
   initializeImpact(renderPolicy)
   initializeHighlighting()
+  initializeLinkMarkers()
   renderPolicy()
   showStage(0)
   showSource('match')
@@ -438,6 +469,7 @@ function handleClick(event: MouseEvent) {
 }
 
 initialize()
+window.addEventListener('guide-locale-change', () => showStage(stageIndex))
 window.addEventListener('resize', revealSourceChoice)
 element('story-selector').addEventListener('change', () => showStage(0))
 element('story-host').addEventListener('change', () => showStage(0))
@@ -449,6 +481,7 @@ element('story-next').addEventListener('click', () =>
 )
 document.addEventListener('click', handleClick)
 element('policy-controls').addEventListener('input', renderPolicy)
+element('policy-controls').addEventListener('keydown', navigatePresets)
 element('policy-controls').addEventListener('submit', event =>
   event.preventDefault(),
 )
