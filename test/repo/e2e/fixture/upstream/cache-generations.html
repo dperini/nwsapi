@@ -9,8 +9,10 @@ test(() => {
   const cache = NW.Dom.matchLambdas;
   for (let i = 0; i < 4096; i++) cache.set(String(i), i);
   assert_equals(cache.get('0'), 0);
-  cache.set('4096', 4096);
-  assert_equals(cache.get('0'), 0);
+  for (let i = 4096; i < 4200; i++) {
+    cache.set(String(i), i);
+    assert_equals(cache.get('0'), 0);
+  }
   assert_equals(cache.get('1'), undefined);
   cache.set('0', 'updated');
   assert_equals(cache.get('0'), 'updated');
@@ -26,8 +28,8 @@ test(() => {
   assert_less_than_equal(maximumSize, 4096);
   cache.set('next', 'value');
   assert_less_than_equal(cache.size(), 4096);
-  assert_equals(cache.get('next'), 'value');
-}, 'Generation promotion preserves hot entries without exceeding capacity');
+  assert_true(cache.get('next') === undefined || cache.get('next') === 'value');
+}, 'Overflow admissions preserve hot entries without exceeding capacity');
 test(() => {
   const engine = NW.Dom;
   const doc = document.implementation.createHTMLDocument('cache');

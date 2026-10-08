@@ -7,20 +7,20 @@ export function createCache<Value>(
   limit?: number,
   budget?: CacheBudget<Value>,
 ): PlanCache<Value> {
-  if (budget) {
-    return createWeightedCache(engine, limit || engine.CACHE_LIMIT, budget)
+  if (budget || !engine.primordials.MapCtor) {
+    return createWeightedCache(engine, limit, budget)
   }
   var young: Map<string, Value> | undefined,
     old: Map<string, Value> | undefined,
-    half: number
-
-  limit || (limit = engine.CACHE_LIMIT)
-  half = limit > 1 ? limit >> 1 : 1
+    capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit,
+    half = Math.max(1, Math.floor(capacity / 2))
 
   return {
     clear: function () {
       young = undefined
       old = undefined
+      capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit
+      half = Math.max(1, Math.floor(capacity / 2))
     },
     get: function (key: string) {
       if (!young) {
@@ -38,7 +38,7 @@ export function createCache<Value>(
         // second chance: carry it across before the old generation goes
         old.delete(key)
         if (young.size >= half) {
-          old = young
+          old = capacity > 1 ? young : undefined
           young = new engine.primordials.MapCtor!<string, Value>()
         }
         young.set(key, value)
@@ -46,8 +46,11 @@ export function createCache<Value>(
       return value
     },
     set: function (key: string, value: Value) {
+      if (capacity === 0) {
+        return value
+      }
       if (!young || young.size >= half) {
-        old = young
+        old = capacity > 1 ? young : undefined
         young = new engine.primordials.MapCtor!<string, Value>()
       }
       young.set(key, value)

@@ -73,6 +73,10 @@ export const adapterDescriptions: Record<string, string> = {
 }
 
 export const optionDescriptions: Record<string, string> = {
+  CACHE_LIMIT:
+    'Maximum entries per configurable cache. A nonnegative safe integer. Zero disables retention.',
+  CACHE_BYTES:
+    'Maximum estimated bytes per compiled-plan cache. A nonnegative safe integer. Zero disables plan retention.',
   NEURAL_PLANNER:
     'Uses the selected model for eligible :has() queries. Enabled by default. Unsupported queries keep the existing route.',
   FORGIVING:

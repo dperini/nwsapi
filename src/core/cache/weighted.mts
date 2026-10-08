@@ -1,86 +1,167 @@
 import type { EngineState, PlanCache } from '../state/types.mts'
 
 export interface CacheBudget<Value> {
-  bytes: number
+  bytes?: number
   weight: (value: Value) => number
 }
 
 interface Entry<Value> {
+  key: string
   value: Value
   bytes: number
+  previous: Entry<Value> | undefined
+  next: Entry<Value> | undefined
 }
 
 export function createWeightedCache<Value>(
   engine: EngineState,
-  limit: number,
-  budget: CacheBudget<Value>,
+  limit?: number,
+  budget?: CacheBudget<Value>,
 ): PlanCache<Value> {
-  let young: Map<string, Entry<Value>> | undefined
-  let old: Map<string, Entry<Value>> | undefined
-  let youngBytes = 0
-  let oldBytes = 0
-  const half = Math.max(1, limit >> 1)
-  const halfBytes = budget.bytes / 2
+  let map: Map<string, Entry<Value>> | undefined
+  let fallback: Record<string, Entry<Value> | undefined> = {}
+  let head: Entry<Value> | undefined
+  let tail: Entry<Value> | undefined
+  let size = 0
+  let bytes = 0
+  let capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit
+  let byteLimit = budget
+    ? (budget.bytes ?? engine.Config.CACHE_BYTES)
+    : Infinity
+  let initialized = false
+  let admission = 0x9e3779b9
 
-  function insert(key: string, entry: Entry<Value>) {
-    if (!young || young.size >= half || youngBytes + entry.bytes > halfBytes) {
-      old = young
-      oldBytes = youngBytes
-      young = new engine.primordials.MapCtor!<string, Entry<Value>>()
-      youngBytes = 0
-    }
-    young.set(key, entry)
-    youngBytes += entry.bytes
+  function clear() {
+    map = undefined
+    initialized = false
+    fallback = {}
+    head = tail = undefined
+    size = bytes = 0
+    capacity = limit === undefined ? engine.Config.CACHE_LIMIT : limit
+    byteLimit = budget ? (budget.bytes ?? engine.Config.CACHE_BYTES) : Infinity
+    admission = 0x9e3779b9
   }
 
-  function remove(key: string) {
-    const recent = young?.get(key)
-    const previous = old?.get(key)
-    if (recent) {
-      young!.delete(key)
-      youngBytes -= recent.bytes
+  function lookup(key: string) {
+    return map ? map.get(key) : fallback['\x01' + key]
+  }
+
+  function unlink(entry: Entry<Value>) {
+    if (entry.previous) {
+      entry.previous.next = entry.next
+    } else {
+      head = entry.next
+    }
+    if (entry.next) {
+      entry.next.previous = entry.previous
+    } else {
+      tail = entry.previous
+    }
+  }
+
+  function append(entry: Entry<Value>) {
+    entry.previous = tail
+    entry.next = undefined
+    if (tail) {
+      tail.next = entry
+    } else {
+      head = entry
+    }
+    tail = entry
+  }
+
+  function remove(entry: Entry<Value>) {
+    unlink(entry)
+    if (map) {
+      map.delete(entry.key)
+    } else {
+      delete fallback['\x01' + entry.key]
+    }
+    --size
+    bytes -= entry.bytes
+  }
+
+  function admit() {
+    // Sample overflow admissions to preserve residents during cyclic scans.
+    // A local sequence avoids fixed strides that align with stylesheet order.
+    admission ^= admission << 13
+    admission ^= admission >>> 17
+    admission ^= admission << 5
+    return (admission & 7) === 0
+  }
+
+  function set(key: string, value: Value) {
+    const weight = budget ? key.length * 2 + budget.weight(value) + 96 : 0
+    const previous = lookup(key)
+    if (weight > byteLimit || byteLimit === 0) {
+      if (previous) {
+        remove(previous)
+      }
+      return value
+    }
+    const overflow = size >= capacity || bytes + weight > byteLimit
+    if (!previous && overflow && !admit()) {
+      return value
     }
     if (previous) {
-      old!.delete(key)
-      oldBytes -= previous.bytes
+      remove(previous)
+    }
+    while (head && (size >= capacity || bytes + weight > byteLimit)) {
+      remove(head)
+    }
+    const entry = {
+      key,
+      value,
+      bytes: weight,
+      previous: undefined,
+      next: undefined,
+    }
+    if (map) {
+      map.set(key, entry)
+    } else {
+      fallback['\x01' + key] = entry
+    }
+    append(entry)
+    ++size
+    bytes += weight
+    return value
+  }
+
+  // Keep caches lazy because most instances use only a few query paths.
+  function initialize() {
+    if (!initialized) {
+      map = engine.primordials.MapCtor
+        ? new engine.primordials.MapCtor<string, Entry<Value>>()
+        : undefined
+      initialized = true
     }
   }
 
   return {
-    clear() {
-      young = old = undefined
-      youngBytes = oldBytes = 0
+    clear,
+    has(key) {
+      return lookup(key) !== undefined
     },
     get(key) {
-      const recent = young?.get(key)
-      if (recent) {
-        return recent.value
+      const entry = lookup(key)
+      if (entry && entry !== tail) {
+        unlink(entry)
+        append(entry)
       }
-      const previous = old?.get(key)
-      if (previous) {
-        old!.delete(key)
-        oldBytes -= previous.bytes
-        insert(key, previous)
-      }
-      return previous?.value
+      return entry?.value
     },
     set(key, value) {
-      if (typeof key !== 'string') {
+      if (typeof key !== 'string' || capacity === 0) {
         return value
       }
-      const bytes = key.length * 2 + budget.weight(value) + 64
-      remove(key)
-      // Oversized entries must not displace the useful working set.
-      if (bytes <= halfBytes) {
-        insert(key, { value, bytes })
-      }
-      return value
+      initialize()
+      return set(key, value)
     },
     size() {
-      return (young?.size || 0) + (old?.size || 0)
+      return size
     },
     bytes() {
-      return youngBytes + oldBytes
+      return bytes
     },
   }
 }

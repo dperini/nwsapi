@@ -1,3 +1,4 @@
+import type { EngineConfiguration } from '../initialize/configuration.mts'
 import type { CacheBudget } from '../cache/weighted.mts'
 import type {
   LegacyHooks,
@@ -51,17 +52,7 @@ export interface RuntimeState {
   reOptimizer: RegExp
   reSimpleId: RegExp
   reValidator: RegExp
-  Config: {
-    NEURAL_PLANNER: boolean
-    [key: string]: boolean
-    IDS_DUPES: boolean
-    FORGIVING: boolean
-    LEGACY: boolean
-    NODE_LIST: boolean
-    LOGERRORS: boolean
-    USR_EVENT: boolean
-    VERBOSITY: boolean
-  }
+  Config: EngineConfiguration
   legacyHooks: LegacyHooks | undefined
   createWeakMap: <Key extends WeakKey, Value>() =>
     | WeakMap<Key, Value>
@@ -79,7 +70,6 @@ export interface RuntimeState {
     callback: (element: Element) => unknown,
   ) => Element[]
   concatList: (list: Element[], nodes: ArrayLike<Element>) => Element[]
-  CACHE_LIMIT: number
   createCache: <Value>(
     limit?: number,
     budget?: CacheBudget<Value>,

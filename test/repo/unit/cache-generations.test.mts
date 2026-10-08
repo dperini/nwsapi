@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom'
 import { expect, test } from 'vitest'
 import factory from '../../../dist/nwsapi.js'
 
-test('cache generations retain promoted entries and discard cold entries', t => {
+test('overflow admissions preserve recently used entries', t => {
   const { window } = new JSDOM('')
   t.onTestFinished(() => window.close())
   const cache = factory(window).matchLambdas
@@ -10,8 +10,10 @@ test('cache generations retain promoted entries and discard cold entries', t => 
     cache.set(String(i), i)
   }
   expect(cache.get('0')).toBe(0)
-  cache.set('4096', 4096)
-  expect(cache.get('0')).toBe(0)
+  for (let i = 4096; i < 4200; ++i) {
+    cache.set(String(i), i)
+    expect(cache.get('0')).toBe(0)
+  }
   expect(cache.get('1')).toBeUndefined()
   cache.set('0', 'updated')
   expect(cache.get('0')).toBe('updated')
@@ -33,5 +35,6 @@ test('promotions followed by insertions cannot exceed the cache limit', t => {
   }
   cache.set('next', 'value')
   expect(cache.size()).toBeLessThanOrEqual(4096)
-  expect(cache.get('next')).toBe('value')
+  const retained = cache.get('next')
+  expect(retained === undefined || retained === 'value').toBe(true)
 })

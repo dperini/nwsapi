@@ -240,3 +240,22 @@ test('separately loaded adapter copies share configuration, binding, and setup l
 import '../jsdom-stylesheet.cases.mts'
 
 import '../jsdom-regression.cases.mts'
+
+test('adapter setup accepts numeric cache budgets before stylesheet matching', t => {
+  const window = host(t)
+  DOMSelector.configure(window, { CACHE_LIMIT: 8, CACHE_BYTES: 4096 })
+  const engine = new DOMSelector(window).engine
+  assert.equal(engine.configure('CACHE_LIMIT'), 8)
+  assert.equal(engine.configure('CACHE_BYTES'), 4096)
+  assert.throws(
+    () => DOMSelector.configure(window, { CACHE_LIMIT: -1 }),
+    TypeError,
+  )
+  assert.equal(engine.configure('CACHE_LIMIT'), 8)
+  const element = window.document.querySelector('#one')!
+  for (let i = 0; i < 32; ++i) {
+    engine.match('.item' + i, element)
+  }
+  assert.ok(engine.matchResolvers.size() <= 8)
+  assert.ok(engine.matchResolvers.bytes!() <= 4096)
+})

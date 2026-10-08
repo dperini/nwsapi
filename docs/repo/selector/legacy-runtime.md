@@ -8,7 +8,7 @@ Use `NW.Dom.configure({ LEGACY: true })` to enable it explicitly.
 
 The core uses native `Map` and `WeakMap` implementations.
 The optional module checks built-in support when its hooks are registered.
-When `Map` is absent, registration replaces the empty query caches with bounded legacy caches.
+When `Map` is absent, the core query caches use a prefixed dictionary with the same configurable bounds and admission policy.
 When `WeakMap` is absent, consumers use their existing bounded or uncached paths.
 The core captures required runtime APIs once at module startup. Every engine
 reuses those references. Legacy registration selects allocators from that
@@ -30,7 +30,7 @@ The build and compatibility lint share the IE11 target in `package.json`. The ru
 
 Optional native APIs use a source-pattern check adapted from [`lodash`](https://github.com/lodash/lodash/blob/4.17.21/lodash.js#L1388-L1392). It derives the pattern from `Object.prototype.hasOwnProperty` and uses a captured `Function.prototype.toString`. A function's own `toString` method cannot make an ordinary shim pass. Map probes also check the operations used by the caches, including frozen object keys.
 
-Native-source detection is a heuristic. Proxies, bound functions, or a previously patched `Function.prototype.toString` can conceal an implementation. The check does not prove garbage-collection behavior. Ordinary JavaScript weak-reference shims are rejected, so they cannot enable caches that require weak ownership. Missing or rejected implementations use the legacy module's bounded caches or the existing uncached paths.
+Native-source detection is a heuristic. Proxies, bound functions, or a previously patched `Function.prototype.toString` can conceal an implementation. The check does not prove garbage-collection behavior. Ordinary JavaScript weak-reference shims are rejected, so they cannot enable caches that require weak ownership. Missing or rejected implementations use the core dictionary caches or the existing uncached paths.
 
 ## Adding capabilities
 

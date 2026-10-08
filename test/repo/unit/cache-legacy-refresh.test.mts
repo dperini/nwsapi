@@ -34,7 +34,7 @@ for (const map of [undefined, {}] as const) {
     element!.className = 'changed'
     expect(nw.select('.item')).toHaveLength(0)
     expect(nw.match('.changed', element!)).toBe(true)
-    nw.configure({}, true)
+    nw.configure({ CACHE_LIMIT: 4096, CACHE_BYTES: 2 * 1024 * 1024 }, true)
     expect(nw.select('.changed')).toEqual([element])
     const cache = nw.matchLambdas
     cache.clear()
@@ -46,7 +46,9 @@ for (const map of [undefined, {}] as const) {
     expect(cache.size()).toBe(4096)
     expect(cache.get('0')).toBe(0)
     cache.set('1', 'updated')
-    cache.set('__proto__', 'safe')
+    for (let i = 0; i < 128 && !cache.has!('__proto__'); ++i) {
+      cache.set('__proto__', 'safe')
+    }
     expect(cache.get('2')).toBeUndefined()
     expect(cache.get('0')).toBe(0)
     expect(cache.get('1')).toBe('updated')
@@ -54,5 +56,11 @@ for (const map of [undefined, {}] as const) {
     expect(cache.size()).toBe(4096)
     cache.clear()
     expect(cache.has!('0')).toBe(false)
+    nw.configure({ CACHE_LIMIT: 2, CACHE_BYTES: 1024 })
+    for (let i = 0; i < 10; ++i) {
+      nw.match('.item' + i, element!)
+    }
+    expect(cache.size()).toBeLessThanOrEqual(2)
+    expect(cache.bytes!()).toBeLessThanOrEqual(1024)
   })
 }

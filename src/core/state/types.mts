@@ -153,6 +153,7 @@ export interface SelectorExtension {
 }
 
 export interface PlanCache<Value> {
+  has?(key: string): boolean
   bytes?(): number
   clear(): void
   get(key: string): Value | undefined

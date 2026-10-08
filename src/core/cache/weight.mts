@@ -1,7 +1,5 @@
 import type { CompiledResolver, QueryPlan } from '../state/types.mts'
 
-export const PLAN_BYTES = 2 * 1024 * 1024
-
 export function resolverWeight(resolver: CompiledResolver | null) {
   return resolver ? resolver.cacheSize || 64 : 8
 }
