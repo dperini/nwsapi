@@ -83,13 +83,28 @@ Returns an array of elements having the specified class name `class`, optionally
 
 #### `configure( options )`
 
-The following is the list of currently available configuration options, their default values and descriptions, they are boolean flags that can be set to `true` or `false`:
+The following is the list of currently available configuration options, their default values and descriptions, the existing flags can be set to `true` or `false`:
 
 * `IDS_DUPES`: true  - true to allow using multiple elements having the same id, false to disallow
 * `LIVECACHE`: true  - true for caching both results and resolvers, false for caching only resolvers
 * `MIXEDCASE`: true  - true to match tag names case insensitive, false to match using case sensitive
 * `LOGERRORS`: true  - true to print errors and warnings to the console, false to mute both of them
 
+
+Two numeric settings control each compiled-plan cache:
+
+* `CACHE_LIMIT`: `1000` entries by default.
+* `CACHE_BYTES`: `2 * 1024 * 1024` estimated bytes by default.
+
+Both accept nonnegative safe integers. Zero disables retention. Changing either setting clears existing query caches and applies the new bounds immediately. Invalid values throw a `TypeError` before any options change. Read a numeric setting with `configure("CACHE_LIMIT")` or `configure("CACHE_BYTES")`.
+
+```js
+engine.configure({ CACHE_LIMIT: 8192, CACHE_BYTES: 8 * 1024 * 1024 });
+```
+
+This example opts into larger bounds for a large stylesheet. Measure runtime and memory for your workload. The byte budget is per cache and estimates keys and compiled plans, not total JavaScript heap usage. Configure the `nwsapi` instance used by your host. Creating a separate instance does not change `jsdom`'s engine.
+
+The eviction policy remains LRU. These settings can mitigate [issue #242](https://github.com/dperini/nwsapi/issues/242) when the stylesheet fits the configured bounds. Scans larger than those bounds can still miss on every query.
 
 ### Examples on extending the basic functionalities
 

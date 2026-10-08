@@ -157,6 +157,8 @@
 
   // special handling configuration flags
   Config = {
+    CACHE_LIMIT: 1000,
+    CACHE_BYTES: 2 * 1024 * 1024,
     IDS_DUPES: true,
     FORGIVING: true,
     NODE_LIST: false,
@@ -231,14 +233,13 @@
 
   // Entry and estimated byte budgets for plans. UTF-16 keys, generated code,
   // bound subplans and metadata are charged; VM object/code overhead varies.
-  CACHE_LIMIT = 1000,
-  CACHE_BYTES = 2 * 1024 * 1024,
-
   // ES5 bounded LRU cache. It stores query plans (compiled resolvers),
   // never DOM result sets. A prefixed dictionary avoids user-key collisions
   // and a doubly linked list keeps the least-recently-used entry at the head.
   createCache = function(limit, byteLimit) {
     var cache = { }, head = null, tail = null, size = 0, bytes = 0,
+      defaultLimit = limit === undefined,
+      defaultBytes = byteLimit === undefined,
       prefix = '\x01', has = function(key) {
         return Object.prototype.hasOwnProperty.call(cache, prefix + key);
       }, unlink = function(entry) {
@@ -261,14 +262,24 @@
         bytes -= entry.bytes;
       };
 
-    limit || (limit = CACHE_LIMIT);
-    byteLimit || (byteLimit = CACHE_BYTES);
+    if (defaultLimit) {
+      limit = Config.CACHE_LIMIT;
+    }
+    if (defaultBytes) {
+      byteLimit = Config.CACHE_BYTES;
+    }
 
     return {
       clear: function() {
         cache = { };
         head = tail = null;
         size = bytes = 0;
+        if (defaultLimit) {
+          limit = Config.CACHE_LIMIT;
+        }
+        if (defaultBytes) {
+          byteLimit = Config.CACHE_BYTES;
+        }
       },
       get: function(key) {
         var entry;
@@ -284,7 +295,7 @@
       set: function(key, value, weight) {
         var entry, entryKey = prefix + key, cost = entryKey.length * 2 + (weight || value && value.cacheSize || 64);
 
-        if (cost > byteLimit) {
+        if (limit === 0 || byteLimit === 0 || cost > byteLimit) {
           if (has(key)) { remove(cache[entryKey]); }
           return value;
         }
@@ -1120,20 +1131,57 @@
       parsedSelectors.clear();
     },
 
+  isCacheOption =
+    function(name) {
+      return name == 'CACHE_LIMIT' || name == 'CACHE_BYTES';
+    },
+
+  validateCacheOptions =
+    function(options) {
+      var names = ['CACHE_LIMIT', 'CACHE_BYTES'], i, name, value;
+      for (i = 0; i < names.length; ++i) {
+        name = names[i];
+        if (Object.prototype.hasOwnProperty.call(options, name)) {
+          value = options[name];
+          if (typeof value != 'number' || value < 0 ||
+              value > 9007199254740991 || value % 1 !== 0) {
+            throw new TypeError(name + ' must be a nonnegative safe integer');
+          }
+        }
+      }
+    },
+
   // configure the engine to use special handling
   configure =
     function(option, clear) {
-      if (typeof option == 'string') { return !!Config[option]; }
-      if (typeof option != 'object') { return Config; }
-      for (var i in option) {
-        // Compiled selectors capture forgiving and error-reporting behavior.
-        if ((i == 'FORGIVING' || i == 'VERBOSITY') && Config[i] !== !!option[i]) {
+      var keys, index, key, value, copied;
+      if (typeof option == 'string') {
+        return isCacheOption(option) ?
+          Config[option] : !!Config[option];
+      }
+      if (!option || typeof option != 'object') {
+        return Config;
+      }
+      keys = Object.keys(option);
+      copied = Object.create(null);
+      for (index = 0; index < keys.length; ++index) {
+        copied[keys[index]] = option[keys[index]];
+      }
+      option = copied;
+      validateCacheOptions(option);
+      for (index = 0; index < keys.length; ++index) {
+        key = keys[index];
+        value = isCacheOption(key) ? option[key] : !!option[key];
+        // Plans must be rebuilt after semantic changes or budget changes.
+        if ((key == 'FORGIVING' || key == 'VERBOSITY' ||
+             isCacheOption(key)) && Config[key] !== value) {
           clear = true;
         }
-        Config[i] = !!option[i];
+        Config[key] = value;
       }
-      // clear lambda cache
-      if (clear) { clearResolverCaches(); }
+      if (clear) {
+        clearResolverCaches();
+      }
       setIdentifierSyntax();
       return true;
     },
