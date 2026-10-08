@@ -87,12 +87,21 @@ body[data-theme='where'] {
   filter: blur(105px);
   opacity: 0.55;
   pointer-events: none;
+  animation: spotlight-breathe 18s ease-in-out infinite alternate;
   transform: translate3d(var(--scroll-x), var(--scroll-y), 0)
     scale(var(--scroll-scale));
   transition:
     background-color 900ms ease,
     border-radius 1000ms ease,
     transform 1200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes spotlight-breathe {
+  from {
+    scale: 0.98;
+  }
+  to {
+    scale: 1.03;
+  }
 }
 body[data-theme='where'] .scroll-morph {
   opacity: 0.72;
@@ -226,6 +235,12 @@ button,
 }
 button {
   cursor: pointer;
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease,
+    color 240ms ease,
+    box-shadow 240ms ease,
+    transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 button:hover {
   background: #304953;
@@ -239,8 +254,8 @@ a:focus-visible,
 input:focus-visible,
 .theme-select:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--theme-highlight-edge);
-  outline-offset: 4px;
+  outline: 1px solid var(--theme-highlight-edge);
+  outline-offset: 3px;
 }
 p {
   color: var(--muted);
@@ -535,6 +550,27 @@ h1 em {
 [data-scroll-theme] button:not(.primary, .guide-checkbox):hover {
   background: var(--theme-highlight);
   border-color: var(--theme-highlight-edge);
+}
+@media (hover: hover) {
+  .pipeline button:hover,
+  .story-navigation button:not(:disabled):hover,
+  .source-list button:hover,
+  .presets button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px #0002;
+  }
+  .route-overview a:hover {
+    transform: translateY(-2px);
+  }
+}
+.route-overview a {
+  transition:
+    background-color 240ms ease,
+    border-color 240ms ease,
+    transform 240ms ease;
+}
+button:active {
+  transform: translateY(0);
 }
 [data-scroll-theme] button[aria-pressed='true'] {
   background: var(--theme-highlight);
