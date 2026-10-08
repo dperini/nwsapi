@@ -6,9 +6,9 @@ import {
 } from '../../../src/core/select/has/route-decision.generated.mts'
 import { sources, stages } from './pytorch-has-routing/source.mts'
 import type { SourceId } from './pytorch-has-routing/source.mts'
-import guideFavicon from '../../../assets/repo/model-guide-favicon.svg?url'
 import { element, input, text } from './pytorch-has-routing/ui.mts'
 import { initializeSearch } from './pytorch-has-routing/search.mts'
+import { routeDirections } from './pytorch-has-routing/dom.mts'
 import {
   code,
   initializeHighlighting,
@@ -24,6 +24,8 @@ import {
 import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
 import { initializeGuideControls } from './pytorch-has-routing/select.mts'
 import { initializeStory, renderStory } from './pytorch-has-routing/story.mts'
+import { initializeNarration } from './pytorch-has-routing/narration.mts'
+import { renderStoryReadout } from './pytorch-has-routing/story-readout.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -64,7 +66,8 @@ function routeSummary(state: ReturnType<typeof policyState>) {
   if (state.anchors < 32) {
     return {
       title: 'Generic selector path',
-      detail: 'Fewer than 32 anchors, so the bulk route is skipped.',
+      detail:
+        'Fewer than 32 card candidates. nwsapi uses its generic matching path and skips the model.',
     }
   }
   if (state.witnesses === 0) {
@@ -75,8 +78,8 @@ function routeSummary(state: ReturnType<typeof policyState>) {
   }
   const direction = state.forward ? 'forward' : 'inverse'
   return {
-    title: `${direction[0]!.toUpperCase()}${direction.slice(1)} route`,
-    detail: `The existing count rule selects ${direction} matching.`,
+    title: `Search ${routeDirections[direction]}`,
+    detail: `The count rule selects ${routeDirections[direction]}ward search (${direction}).`,
   }
 }
 
@@ -85,35 +88,38 @@ function plannerSummary(
   override: boolean,
 ) {
   if (state.anchors < 32 || state.witnesses === 0) {
-    return ['Not called', 'The ordinary selector path handles this query']
+    return ['Not called', 'The existing selector path handles this query.']
   }
   if (!state.forward) {
     return [
-      'Not called · inverse stays',
-      'The existing rule already chose inverse. The planner only considers replacing forward.',
+      'Keep searching up',
+      'The count rule already chose upward search. The model only reconsiders downward searches.',
     ]
   }
   if (!state.enabled) {
-    return ['Disabled · forward stays', 'The optional planner is switched off.']
+    return ['Keep searching down', 'The optional planner is switched off.']
   }
   if (state.attributes === 0) {
     return [
-      'Not eligible · forward stays',
+      'Keep searching down',
       'This query has no supported attribute filter.',
     ]
   }
   if (!state.inRange) {
     return [
-      'Range guard · forward stays',
+      'Keep searching down',
       'The saved function rejects inputs outside its training range.',
     ]
   }
   return override
     ? [
-        'Recommend inverse',
-        'The model changes the route. Exact selector checks still produce the matches.',
+        'Search up instead',
+        'Start with warnings and walk up their ancestors. Exact selector checks still decide which cards match.',
       ]
-    : ['Keep forward', 'The model leaves the traditional route in place.']
+    : [
+        'Keep searching down',
+        'Continue with the route chosen by the count rule.',
+      ]
 }
 
 function showPolicyDecision(
@@ -141,6 +147,18 @@ function canCallPolicy(state: ReturnType<typeof policyState>) {
 function renderPolicy() {
   document.dispatchEvent(new Event('guide-controls-sync'))
   const state = policyState()
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-preset]')
+    .forEach(button => {
+      const preset = presets[button.dataset['preset']!]
+      const selected =
+        preset !== undefined &&
+        state.enabled &&
+        state.anchors === preset[0] &&
+        state.witnesses === preset[1] &&
+        state.attributes === Number(preset[2]) * 2 + Number(preset[3])
+      button.setAttribute('aria-pressed', String(selected))
+    })
   const {
     anchors,
     witnesses,
@@ -164,18 +182,18 @@ function renderPolicy() {
   )
   element('guard-list').innerHTML = [
     guard(
-      'Bulk matching is available',
+      'Enough candidates for this route',
       `${anchors} anchors (need at least 32), ${witnesses} witnesses (need at least 1).`,
       anchors >= 32 && witnesses > 0,
     ),
     guard(
-      'The existing route is forward',
-      `The existing count rule selects ${forward ? 'forward' : 'inverse'}. An existing inverse decision stays inverse.`,
+      'The existing route searches down',
+      `The count rule selects ${forward ? 'downward' : 'upward'} search. An existing upward search stays unchanged.`,
       forward,
     ),
     guard(
-      'The planner is enabled and a filter is present',
-      `Planner ${enabled ? 'enabled' : 'disabled'}. ${attributes ? 'A supported filter is present.' : 'No attribute filter is present.'}`,
+      'The model is enabled and a filter is present',
+      `Model ${enabled ? 'enabled' : 'disabled'}. ${attributes ? 'A supported filter is present.' : 'No attribute filter is present.'}`,
       enabled && attributes !== 0,
     ),
     guard(
@@ -214,6 +232,17 @@ function applyPreset(name: string) {
   renderPolicy()
 }
 
+function revealSourceChoice() {
+  const list = element('source-list')
+  const button = list.querySelector<HTMLButtonElement>('[aria-pressed="true"]')
+  if (button && list.scrollWidth > list.clientWidth) {
+    list.scrollTo({
+      left: button.offsetLeft - (list.clientWidth - button.offsetWidth) / 2,
+      behavior: 'instant',
+    })
+  }
+}
+
 function showSource(id: SourceId) {
   const source = sources[id]
   text('source-role', source.role)
@@ -227,6 +256,7 @@ function showSource(id: SourceId) {
     .forEach(button => {
       button.setAttribute('aria-pressed', String(button.dataset['file'] === id))
     })
+  revealSourceChoice()
 }
 
 let stageIndex = 0
@@ -236,11 +266,11 @@ function showStage(index: number) {
   const stage = stages[index]!
   text(
     'pipeline-stage',
-    `OFFLINE ${index < 4 ? 'DEVELOPMENT' : '→ RUNTIME'} · ${index + 1} / 5`,
+    `${index < 4 ? 'DURING DEVELOPMENT' : 'WHEN A QUERY RUNS'} · ${index + 1} / 5`,
   )
   text('pipeline-title', stage.title)
   text('pipeline-description', stage.description)
-  code('pipeline-example', renderStory(index, stage.example))
+  renderStoryReadout(renderStory(index, stage.example))
   document
     .querySelectorAll<HTMLButtonElement>('[data-stage]')
     .forEach(button => {
@@ -304,20 +334,20 @@ currentRoute = '${row.baselineRoute}'`,
   element('sample-bars').hidden = sampleStage === 0
   element('sample-learning').hidden = sampleStage !== 2
   text('sample-name', `${row.id} · ${sampleIndex + 1} of ${rows.length}`)
-  element('sample-bars').innerHTML = ['Forward', 'Inverse']
+  element('sample-bars').innerHTML = ['Search down', 'Search up']
     .map((name, index) => {
       const time = row.costsNs[index]!
-      return `<div class="timing-row"><span>${name}</span><div class="timing-track"><div class="timing-fill" style="width:${(time / maximum) * 100}%"></div></div><span>${(time / 1000).toFixed(2)}µs</span></div>`
+      return `<div class="timing-row"><span>${name}</span><div class="timing-track"><div class="timing-fill" style="width:${(time / maximum) * 100}%"></div></div><span>${(time / 1000).toFixed(2)}<span class="time-unit">µs</span></span></div>`
     })
     .join('')
   text(
     'sample-context',
-    `Lower is faster. Archived median costs of the forward and inverse query variants for one ${row.host} fixture, recorded October 5, 2026. ${row.features[0]} anchor candidates, ${row.features[1]} witness candidates, attribute mask ${row.features[2]}. Family: ${row.family}. These are development examples, not a new measurement or independent qualification of the current runtime. Source: assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1/dataset/dataset.json.`,
+    `Shorter is faster. Archived median costs for both query variants on one ${row.host} fixture, recorded October 5, 2026. ${row.features[0]} card candidates, ${row.features[1]} warning candidates, filter mask ${row.features[2]}. Family: ${row.family}. These development measurements do not benchmark current nwsapi. Source: assets/repo/bench/planner-dispatch-crossed-2026-10-05-r1/dataset/dataset.json.`,
   )
   const inverse = row.costsNs[1]!
   text(
     'sample-label',
-    `For this recorded row, baseline forward costs ${(row.baselineCostNs / 1000).toFixed(2)}µs. Inverse plus the trainer’s estimated ${decisionBudgetNs}ns decision budget costs ${((inverse + decisionBudgetNs) / 1000).toFixed(2)}µs. The timing-derived target is ${inverse + decisionBudgetNs < row.baselineCostNs ? 'override with inverse (1)' : 'keep forward (0)'}. This is a training label, not the saved model’s prediction. The full repeated samples determine whether this comparison receives nonzero weight.`,
+    `The recorded downward search costs ${(row.baselineCostNs / 1000).toFixed(2)}µs. Upward search plus the trainer’s ${decisionBudgetNs}ns model budget costs ${((inverse + decisionBudgetNs) / 1000).toFixed(2)}µs. This comparison gives the training label ${inverse + decisionBudgetNs < row.baselineCostNs ? 'switch to upward search (1)' : 'keep searching down (0)'}. The saved model can recommend a different choice. Repeated samples determine whether this comparison is certain enough to influence training.`,
   )
 }
 
@@ -349,14 +379,16 @@ async function loadSamples() {
 }
 
 function initialize() {
-  ;(element('guide-favicon') as HTMLLinkElement).href = guideFavicon
   initializeSectionThemes()
+  initializeNarration()
   element('pipeline').innerHTML = stages
     .map(
       (stage, index) =>
         `<button type="button" data-stage="${index}" aria-pressed="${index === 0}"><span>0${index + 1} ${index === 4 ? 'RUNTIME' : 'OFFLINE'}</span>${stage.title.slice(3)}</button>`,
     )
-    .join('')
+    .join(
+      '<svg class="pipeline-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 6 6 6-6 6m8-12 6 6-6 6"/></svg>',
+    )
   element('source-list').innerHTML = Object.entries(sources)
     .map(
       ([id, source]) =>
@@ -406,6 +438,7 @@ function handleClick(event: MouseEvent) {
 }
 
 initialize()
+window.addEventListener('resize', revealSourceChoice)
 element('story-selector').addEventListener('change', () => showStage(0))
 element('story-host').addEventListener('change', () => showStage(0))
 element('story-back').addEventListener('click', () =>

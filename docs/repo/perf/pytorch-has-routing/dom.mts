@@ -14,6 +14,7 @@ export type SearchStep = {
   match: number | undefined
 }
 export type SearchRoute = 'forward' | 'inverse'
+export const routeDirections = { forward: 'down', inverse: 'up' } as const
 export const names = ['A', 'B', 'C', 'D']
 
 export function toyNodes(counts: number[], outside: boolean): ToyNode[] {
@@ -73,7 +74,7 @@ export function toyNodes(counts: number[], outside: boolean): ToyNode[] {
   if (outside) {
     nodes.push({
       id: 'outside',
-      label: '.warning · outside every card',
+      label: '.warning · outside all cards',
       parent: 'document',
       card: undefined,
       kind: 'warning',
@@ -109,7 +110,7 @@ function forwardTrace(nodes: ToyNode[]): SearchStep[] {
     steps.push(
       event(
         card,
-        `Start at card ${names[i]}. Does anything inside it match .warning?`,
+        `Start at card ${names[i]}. Search down through its descendants for .warning.`,
         { visit: 1 },
       ),
     )

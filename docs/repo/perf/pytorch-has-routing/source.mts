@@ -42,15 +42,19 @@ export const sources = {
     path: 'scripts/repo/bench/planner/dispatch/collect.mts',
     role: 'Benchmark collection',
     explanation:
-      'Measures both search routes and saves the results under assets/repo/bench/. Complete query timings must confirm that each route ran as intended.',
-    code: collectorSource.split('\n').slice(0, 65).join('\n'),
+      'Runs both routes on the same fixture DOMs and saves timings under assets/repo/bench/. Instrumentation checks that each variant takes the intended route.',
+    code: excerpt(
+      collectorSource,
+      'export async function collect(',
+      '\n  if (resume)',
+    ),
   },
   train: {
     title: 'Train the model',
     path: 'scripts/repo/pytorch/dispatch_train.py',
     role: 'Python · PyTorch',
     explanation:
-      'Trains a linear model or small neural network from six inputs. AdamW adjusts the weights. Validation selects the saved model and threshold.',
+      'Trains a linear function or small neural network from six query facts. The loss weights uncertain results and slowdown risks. AdamW adjusts the learned numbers. Validation selects a model and threshold.',
     code: excerpt(trainerSource, 'def weights(', '\ndef export('),
   },
   entry: {
@@ -58,7 +62,7 @@ export const sources = {
     path: 'scripts/repo/pytorch/dispatch-train.mts',
     role: 'TypeScript entry point',
     explanation:
-      'Starts the Python trainer through uv using the pinned training environment. PyTorch training runs in Python.',
+      'Uses uv to start the Python trainer in the pinned environment. This TypeScript file launches training. PyTorch itself runs in Python.',
     code: entrySource,
   },
   export: {
@@ -66,15 +70,15 @@ export const sources = {
     path: 'scripts/repo/pytorch/dispatch_train.py',
     role: 'Repository exporter',
     explanation:
-      'The exporter reads learned tensors and emits guarded scalar arithmetic. Input normalization is folded into the exported weights and biases.',
+      'Turns the learned arrays of numbers into JavaScript arithmetic and input checks. It folds normalization into the weights and biases, so the runtime needs no separate normalization pass.',
     code: excerpt(trainerSource, 'def export(', '\ndef '),
   },
   generate: {
     title: 'Generate the typed runtime module',
     path: 'scripts/repo/gen/has-route-decision.mts',
-    role: 'AST-based generation',
+    role: 'TypeScript generation',
     explanation:
-      'Reads the committed JavaScript exports and model.txt. Uses @ultrathink/acorn.rs.wasm to parse the code, rename helpers for each host, add types, and format the runtime module.',
+      'Reads the committed JavaScript exports and model.txt. The pinned @ultrathink/acorn.rs.wasm parser builds a syntax tree. The generator uses it to rename host helpers, add types, and write the runtime module.',
     code: excerpt(
       generatorSource,
       'function modelSource(',
@@ -86,7 +90,7 @@ export const sources = {
     path: 'src/core/select/has/route-decision.generated.mts',
     role: 'Actual generated policy',
     explanation:
-      'This is the same module imported by the explorer above. The Chromium function has four hidden units and a saved threshold. The jsdom export uses linear arithmetic.',
+      'The explorer and nwsapi import this same module. Chromium uses four intermediate units and a saved threshold. The jsdom function uses a single linear score.',
     code: generatedSource,
   },
   policy: {
@@ -94,15 +98,15 @@ export const sources = {
     path: 'src/core/select/has/policy.mts',
     role: 'Static runtime import',
     explanation:
-      'Imports both generated functions directly and selects Chromium or jsdom. The build bundles them into the engine. There is no latest-file lookup.',
+      'Imports both generated functions directly and selects Chromium or jsdom. The build bundles them into nwsapi. There is no latest-file lookup.',
     code: policySource,
   },
   match: {
     title: 'Guard and execute the route',
     path: 'src/core/select/has/match.mts',
-    role: 'Exact selector engine',
+    role: 'Exact matching in nwsapi',
     explanation:
-      'Checks eligibility and calls the model to decide whether to switch routes. A callback error keeps the forward route. Inverse matching checks witnesses, marks ancestors, and filters anchors in document order.',
+      'Checks eligibility before asking the model whether to replace downward search (forward). A callback error keeps that route. Upward search (inverse) checks witnesses, marks ancestors, then filters anchors in document order.',
     code: matchSource,
   },
 }
@@ -117,9 +121,9 @@ export const stages: Array<{
   {
     title: '1. Measure both routes',
     description:
-      'Run both search routes on fixture DOMs in Chromium and jsdom. Record their timings and the inputs available before searching. These examples teach the model which route costs less.',
+      'Run both routes on the same fixture DOMs. Save their timings and the query facts available before searching. These recorded examples become the training data.',
     example:
-      'query facts + forward cost + inverse cost\n→ one recorded example\n\nTiming units: ns per query\nSource: assets/repo/bench/',
+      'query facts + downward cost + upward cost\n→ one recorded example\n\nTiming units: ns per query\nSource: assets/repo/bench/',
     source: 'collect',
   },
   {
@@ -149,9 +153,9 @@ export const stages: Array<{
   {
     title: '5. Run exact queries',
     description:
-      'The engine collects query inputs and checks eligibility. For eligible queries, it calls the saved JavaScript function and searches using the chosen route. The weights stay fixed.',
+      'nwsapi first chooses a route using its count rule. An eligible downward search can ask the saved function for an override. The selected route checks exact matches. The weights stay fixed.',
     example:
-      'guards → policy(inputs) → boolean\n\ntrue: override forward with inverse\nfalse: keep current route\n\nExact DOM checks produce the matches.',
+      'guards → policy(inputs) → boolean\n\ntrue: search up (inverse)\nfalse: keep searching down (forward)\n\nExact DOM checks produce the matches.',
     source: 'match',
   },
 ]

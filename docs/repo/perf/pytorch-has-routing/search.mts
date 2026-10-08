@@ -1,6 +1,7 @@
 import {
   names,
   resultNames,
+  routeDirections,
   searchProgress,
   searchTrace,
   toyNodes,
@@ -21,7 +22,7 @@ function nodeMarkup(node: ToyNode): string {
   const children = nodes.filter(child => child.parent === node.id)
   const toggle =
     node.kind === 'card'
-      ? `<button type="button" data-warning="${node.card}" aria-label="Change warning count in card ${names[node.card!]}">${counts[node.card!]} ${counts[node.card!] === 1 ? 'warning' : 'warnings'} · change</button>`
+      ? `<button type="button" data-warning="${node.card}" aria-label="${counts[node.card!]} ${counts[node.card!] === 1 ? 'warning' : 'warnings'} · change warning count in card ${names[node.card!]}">${counts[node.card!]} ${counts[node.card!] === 1 ? 'warning' : 'warnings'} · change</button>`
       : ''
   return `<div class="tree-node tree-${node.kind}" data-node="${node.id}" data-current="false" data-marked="false" data-match="false"><span class="node-label">${escapeHtml(node.label)}</span>${toggle}${children.length ? `<div class="tree-children">${children.map(nodeMarkup).join('')}</div>` : ''}</div>`
 }
@@ -75,7 +76,7 @@ function comparison() {
     'forced-explanation',
     extra === 0
       ? 'Both routes use the same number of counted operations and return the same cards. These counts omit candidate discovery and runtime overhead.'
-      : `${cheaper === 'forward' ? 'Forward' : 'Inverse'} uses ${extra} fewer counted operations here. Both routes return the same cards. Counts omit candidate discovery and runtime overhead, so fewer operations do not prove a faster query.`,
+      : `Searching ${routeDirections[cheaper]} uses ${extra} fewer counted operations here. Both routes return the same cards. Counts omit candidate discovery and runtime overhead, so fewer operations do not prove a faster query.`,
   )
 }
 
@@ -96,7 +97,7 @@ function showStep() {
   text(
     'trace-description',
     progress.current?.description ||
-      'Ready. Choose a route, then press Next step. The result starts empty.',
+      'Choose a route, then select Next step. No cards have been checked yet.',
   )
   text(
     'match-result',
@@ -115,8 +116,8 @@ function showStep() {
       progress.current.visit
       ? 'Check marked cards in document order'
       : route === 'forward'
-        ? 'Search inside each card'
-        : 'Find warnings and mark ancestors',
+        ? 'Search down through descendants'
+        : 'Search up and mark ancestors',
   )
   text(
     'result-status',
@@ -141,8 +142,8 @@ function render() {
   text(
     'route-explanation',
     route === 'forward'
-      ? 'Start at a card. Inspect its descendants until the first warning. Then move to the next card.'
-      : 'Start at each warning. Mark its ancestors. Then check cards in document order to build the result once per card.',
+      ? 'Start at each card. Search down through its descendants until the first warning, then move to the next card.'
+      : 'Start at each warning. Walk up and mark its ancestors, then check cards in document order. Each matching card appears once.',
   )
   const matches = exactMatches()
   const forward = searchTrace(nodes, 'forward')
@@ -159,6 +160,14 @@ function render() {
   showStep()
   renderMotion(nodes)
   document.dispatchEvent(new Event('guide-controls-sync'))
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-challenge]')
+    .forEach(button => {
+      button.setAttribute(
+        'aria-pressed',
+        String(button.dataset['challenge'] === challenge),
+      )
+    })
 }
 
 function next() {
@@ -195,7 +204,7 @@ const challenges = {
   },
   empty: {
     counts: [0, 0, 0, 0],
-    question: 'There is one warning outside every card. Does any card match?',
+    question: 'The only warning is outside all the cards. Does any card match?',
     explanation:
       'No card matches. Finding a warning candidate is not enough. The ancestor relationship still needs to hold.',
   },
@@ -222,7 +231,7 @@ function reveal() {
   const prediction = (element('challenge-prediction') as HTMLSelectElement)
     .value
   if (!prediction) {
-    text('challenge-feedback', 'Choose a prediction first.')
+    text('challenge-feedback', 'Choose which cards you expect to match first.')
     return
   }
   const answer =
@@ -270,7 +279,7 @@ function growFixture() {
   ).join('')
   text(
     'bridge-result',
-    `Counted from a constructed DOM: ${anchors} card candidates, ${witnesses} warning candidates, ${matches} exact matches. Ratio: ${witnesses / anchors}. These counts are now loaded into the saved-policy explorer below.`,
+    `This larger DOM has ${anchors} card candidates, ${witnesses} warning candidates, and ${matches} exact matches. Warnings / cards: ${witnesses / anchors}. The model explorer below now uses these counts. Counting the candidates does not measure query time.`,
   )
 }
 
@@ -299,6 +308,15 @@ function handleClick(event: MouseEvent) {
     route = data['force'] as SearchRoute
     input(`route-${route}`).checked = true
     render()
+    ;(element('dom-editor') as HTMLDetailsElement).open = true
+    const radio = input(`route-${route}`)
+    radio.closest('fieldset')!.scrollIntoView({
+      block: 'center',
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+    })
+    radio.focus({ preventScroll: true })
   }
 }
 

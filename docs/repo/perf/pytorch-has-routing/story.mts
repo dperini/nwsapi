@@ -3,6 +3,8 @@ import {
   jsdomPolicy,
 } from '../../../../src/core/select/has/route-decision.generated.mts'
 import { element, text } from './ui.mts'
+import { routeDirections } from './dom.mts'
+import type { StoryReadout } from './story-readout.mts'
 
 type RecordedQuery = {
   id: string
@@ -34,21 +36,12 @@ function microseconds(value: number) {
   return `${(value / 1000).toFixed(2)}µs`
 }
 
-export function renderStory(index: number, fallback: string) {
+export function renderStory(index: number, fallback: string): StoryReadout {
   const query = selectedQuery()
+  element('pipeline-description').hidden = query !== undefined
   text('story-progress', `${index + 1} / 5`)
   ;(element('story-back') as HTMLButtonElement).disabled = index === 0
   ;(element('story-next') as HTMLButtonElement).disabled = index === 4
-  text(
-    'story-next',
-    [
-      'Next: train the model',
-      'Next: save the weights',
-      'Next: build the engine',
-      'Next: run the query',
-      'Story complete',
-    ][index]!,
-  )
   if (!query) {
     text(
       'story-explanation',
@@ -56,7 +49,7 @@ export function renderStory(index: number, fallback: string) {
         ? 'Recorded measurements could not load. The source walkthrough is still available.'
         : 'Loading the recorded query…',
     )
-    return fallback
+    return { note: fallback }
   }
   const [anchors, witnesses, mask, ratio] = query.features as [
     number,
@@ -76,23 +69,61 @@ export function renderStory(index: number, fallback: string) {
   )
   const route = override ? 'inverse' : 'forward'
   const explanations = [
-    `Start with ${chosen}. On this fixture, the engine finds ${anchors} card candidates and ${witnesses} witness candidates. Measure both routes on the same DOM before training.`,
-    `Inverse costs ${microseconds(query.costsNs[1]! + budget)} after adding the trainer’s ${budget}ns model budget. The existing forward route costs ${microseconds(query.baselineCostNs)}. This row’s timing target is ${target ? 'switch to inverse' : 'keep forward'}. Many examples train the same weights.`,
-    'PyTorch saves the learned weights. The repository exporter turns those numbers into JavaScript arithmetic. This selector is an example used to train a shared function, not a separate model file.',
-    'The generator adds TypeScript types to the saved JavaScript. The build bundles the function into the engine. Your selector and DOM stay ordinary inputs to the selector API.',
-    `For this row’s inputs, the saved ${query.host} model returns ${override}. The engine would ${override ? 'switch to inverse' : 'keep forward'} after checking eligibility. The ${route} route still checks the selector and returns exact matches in document order.`,
+    `Start with ${chosen}. This recorded fixture has ${anchors} card candidates and ${witnesses} witness candidates. Before training, the benchmark measured both routes on the same DOM.`,
+    `The recorded upward search plus the trainer’s ${budget}ns model budget costs ${microseconds(query.costsNs[1]! + budget)}. Downward search costs ${microseconds(query.baselineCostNs)}. A simple comparison favors ${target ? 'switching to upward search' : 'keeping the downward search'}. Training also considers uncertainty and slowdown penalties across many examples.`,
+    'PyTorch saves the learned weights in a checkpoint. The repository exporter writes JavaScript arithmetic using those weights. Many selectors share this function. There is no model file for each selector.',
+    'The generator creates a typed module from the saved JavaScript export. The build bundles that module into nwsapi. Neither Python nor a training run is needed to execute a query.',
+    `The committed ${query.host} model returns ${override} for these inputs. An eligible query would ${override ? 'switch to upward search' : 'keep searching down'}. The ${routeDirections[route]}ward search still checks the selector exactly and returns matches in document order. This recommendation could be slower on another DOM with the same inputs.`,
   ]
   text('story-explanation', explanations[index]!)
   text(
     'story-context',
-    `Recorded ${query.host} fixture ${query.id}, October 5, 2026. Timings are archived medians, not a new benchmark. This row is one training example. Repeated samples, uncertainty, and slowdown penalties also affect training. The final recommendation calls the saved model; it is not a newly trained prediction.`,
+    `Source: ${query.host} fixture ${query.id}, recorded October 5, 2026. Timings are archived medians. The steps explain the training process without retraining the model or running a benchmark. The final step calls the committed function with this example’s inputs.`,
   )
-  const examples = [
-    `selector = '${chosen}'\n\nanchors = ${anchors}\nwitnesses = ${witnesses}\nratio = ${ratio}\n\nForward: ${microseconds(query.costsNs[0]!)}\nInverse: ${microseconds(query.costsNs[1]!)}`,
-    `query inputs → model → prediction\nmeasured route costs → training target\n\nThis row’s target: ${target ? 'inverse (1)' : 'forward (0)'}\n\nloss → AdamW → updated weights\nRepeat across the training examples.`,
-    `assets/repo/pytorch/model/\n  ${query.host}.generated.pt\n  ${query.host}-weights.generated.json\n  ${query.host}.generated.mjs\n\nSaved weights → JavaScript arithmetic`,
-    `pnpm run gen:has-route-decision\npnpm run build\n\nSaved export\n→ route-decision.generated.mts\n→ dist/nwsapi.js`,
-    `${query.host}Policy(${anchors}, ${witnesses}, ${mask}, ${Number(query.routeFacts.denseInverse)}, ${ratio})\n→ ${override}\n→ ${route} route\n\nengine.select('${chosen}', document)\n→ exact matching cards`,
+  const examples: StoryReadout[] = [
+    {
+      selector: chosen,
+      facts: [
+        ['Cards', String(anchors)],
+        ['Witnesses', String(witnesses)],
+        ['Witnesses per card', String(ratio)],
+        ['Search down', microseconds(query.costsNs[0]!)],
+        ['Search up', microseconds(query.costsNs[1]!)],
+      ],
+    },
+    {
+      facts: [
+        ['Timing target', target ? 'Search up' : 'Search down'],
+        ['Search up + model budget', microseconds(query.costsNs[1]! + budget)],
+        ['Search down', microseconds(query.baselineCostNs)],
+        ['Model budget', `${budget}ns`],
+      ],
+      note: 'Measured costs guide training. AdamW adjusts the weights across many examples.',
+    },
+    {
+      facts: [
+        ['Checkpoint', `${query.host}.generated.pt`],
+        ['Weights', `${query.host}-weights.generated.json`],
+        ['JavaScript', `${query.host}.generated.mjs`],
+      ],
+      note: 'Saved under assets/repo/pytorch/model/.',
+    },
+    {
+      code: 'pnpm run gen:has-route-decision\npnpm run build',
+      facts: [
+        ['Generated module', 'route-decision.generated.mts'],
+        ['Bundle', 'dist/nwsapi.js'],
+      ],
+    },
+    {
+      selector: chosen,
+      code: `const useUpward = ${query.host}Policy(${anchors}, ${witnesses}, ${mask}, ${Number(query.routeFacts.denseInverse)}, ${ratio})`,
+      facts: [
+        ['Model decision', String(override)],
+        ['Recommended route', `Search ${routeDirections[route]}`],
+        ['Results', 'Exact matching cards'],
+      ],
+    },
   ]
   return examples[index]!
 }

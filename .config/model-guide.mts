@@ -10,7 +10,10 @@ export default defineConfig({
     outDir: path.join(root, '.cache/model-guide-build'),
     emptyOutDir: true,
     rolldownOptions: {
-      input: path.join(root, 'docs/repo/perf/pytorch-has-routing.html'),
+      input: [
+        path.join(root, 'docs/repo/perf/pytorch-has-routing.html'),
+        path.join(root, 'docs/repo/perf/model-guide-reading.html'),
+      ],
     },
   },
   server: {

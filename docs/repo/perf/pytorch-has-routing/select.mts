@@ -1,7 +1,19 @@
 import { createElement as h, useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { createRoot } from 'react-dom/client'
 import * as Select from '@radix-ui/react-select'
 import * as Checkbox from '@radix-ui/react-checkbox'
+import { selectorTokens } from './selector.mts'
+
+function selectorLabel(source: string) {
+  return h(
+    'code',
+    { className: 'selector-code' },
+    selectorTokens(source).map((token, index) =>
+      h('span', { key: index, className: `syntax-${token.kind}` }, token.text),
+    ),
+  )
+}
 
 // Adapted from shadcn/ui Select and Checkbox, with the guide's semantic theme tokens.
 // Keep the original form controls as the shared state for the existing demonstrations.
@@ -34,6 +46,10 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
   const placeholder =
     control.options[0]?.value === '' ? control.options[0].text : undefined
   const section = control.closest<HTMLElement>('[data-scroll-theme]')!
+  const theme: CSSProperties & { '--section-accent': string } = {
+    '--section-accent':
+      getComputedStyle(section).getPropertyValue('--section-accent'),
+  }
   return h(
     Select.Root,
     {
@@ -52,10 +68,18 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
             ? 'My prediction'
             : control.id === 'story-selector'
               ? 'Your selector'
-              : 'Host',
+              : 'Environment',
       },
       h(Select.Value, { placeholder }),
-      h(Select.Icon, { 'aria-hidden': true }, '⌄'),
+      h(
+        Select.Icon,
+        { 'aria-hidden': true },
+        h(
+          'svg',
+          { viewBox: '0 0 24 24', className: 'guide-select-chevron' },
+          h('path', { d: 'm6 9 6 6 6-6' }),
+        ),
+      ),
     ),
     h(
       Select.Portal,
@@ -66,10 +90,7 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
           className: 'guide-select-content',
           position: 'popper',
           sideOffset: 6,
-          style: {
-            '--section-accent':
-              getComputedStyle(section).getPropertyValue('--section-accent'),
-          },
+          style: theme,
         },
         h(
           Select.Viewport,
@@ -84,8 +105,15 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
                   key: option.value,
                   value: option.value,
                   className: 'guide-select-item',
+                  textValue: option.text,
                 },
-                h(Select.ItemText, null, option.text),
+                h(
+                  Select.ItemText,
+                  null,
+                  control.id === 'story-selector'
+                    ? selectorLabel(option.text)
+                    : option.text,
+                ),
                 h(
                   Select.ItemIndicator,
                   { className: 'guide-select-check' },
@@ -100,14 +128,20 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
   )
 }
 
-function GuideCheckbox({ control }: { control: HTMLInputElement }) {
+function GuideCheckbox({
+  control,
+  label,
+}: {
+  control: HTMLInputElement
+  label: string | undefined
+}) {
   const checked = useControlValue(control) as boolean
   return h(
     Checkbox.Root,
     {
       className: 'guide-checkbox',
       checked,
-      'aria-label': control.closest('label')?.textContent?.trim(),
+      'aria-label': label,
       onCheckedChange: (next: boolean | 'indeterminate') => {
         control.checked = next === true
         notify(control)
@@ -130,10 +164,11 @@ export function initializeGuideControls() {
   document
     .querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
     .forEach(control => {
+      const label = control.labels?.[0]?.textContent?.trim()
       const mount = document.createElement('span')
       mount.className = 'guide-checkbox-mount'
       control.after(mount)
       control.hidden = true
-      createRoot(mount).render(h(GuideCheckbox, { control }))
+      createRoot(mount).render(h(GuideCheckbox, { control, label }))
     })
 }

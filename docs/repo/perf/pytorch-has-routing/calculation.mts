@@ -106,12 +106,12 @@ function showOutput(
     : `score = ${number(result.score)} // the linear result above`
   code(
     'calculation-output',
-    `${terms}\n\n// Saved threshold: ${model.chosen.threshold}, plus a 0.00001 margin.\noverride = Number.isFinite(score) && score > ${number(result.threshold)}\n// ${actual ? 'true: use inverse' : 'false: keep forward'}`,
+    `${terms}\n\n// Saved threshold: ${model.chosen.threshold}, plus a 0.00001 margin.\noverride = Number.isFinite(score) && score > ${number(result.threshold)}\n// ${actual ? 'true: search up (inverse)' : 'false: keep searching down (forward)'}`,
   )
   text(
     'calculation-check',
     result.score > result.threshold === actual
-      ? 'This calculation agrees with the actual generated policy call above. The score is not a probability or a speedup estimate.'
+      ? 'This arithmetic agrees with the committed function above. The score is neither a probability nor a speedup estimate.'
       : 'The explanation and exported function disagree. Use the actual saved function outcome above.',
   )
 }
@@ -142,8 +142,8 @@ export function renderCalculation(
   text(
     'calculation-guard',
     eligible
-      ? 'The guards pass. Follow the actual saved weights through the calculation.'
-      : 'A guard declines this query. The exported policy stops before the learned arithmetic. Choose Eligible query above to follow a complete calculation.',
+      ? 'The checks pass. Follow the saved weights through the calculation.'
+      : 'This query does not reach the learned arithmetic. Choose Eligible query above to follow the calculation.',
   )
   if (!eligible) {
     return

@@ -13,3 +13,5 @@ bin/*.mts text eol=lf diff merge linguist-vendored=false
 assets/repo/pytorch/model/*.generated.pt binary linguist-generated
 assets/repo/pytorch/model/*.generated.json -diff linguist-generated
 assets/repo/pytorch/model/*.generated.mjs -diff linguist-generated
+assets/repo/model-guide/narration/*.generated.mp3 binary linguist-generated
+assets/repo/model-guide/fonts/*.woff2 binary

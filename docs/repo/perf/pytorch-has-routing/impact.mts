@@ -1,4 +1,5 @@
 import type { PolicyInputs } from './calculation.mts'
+import { routeDirections } from './dom.mts'
 import { element, input, text } from './ui.mts'
 
 function routeWork(anchors: number, witnesses: number, prefix: number) {
@@ -30,8 +31,8 @@ export function renderImpact(
   text(
     'impact-eligibility',
     available
-      ? 'Uses your current candidate counts and the actual saved policy outcome above.'
-      : 'Choose Eligible query above. This particular demonstration needs at least 32 cards and enough witnesses to put warnings inside half the cards. Small and empty queries follow different runtime paths.',
+      ? 'The route choice above is real. The traversal counts and timings below are a demonstration.'
+      : 'Choose Eligible query above to start. This demonstration needs at least 32 cards and enough warnings for half the cards. Small and empty queries use other nwsapi paths.',
   )
   if (!available) {
     return
@@ -46,8 +47,14 @@ export function renderImpact(
   const fallbackTime = cost(base.visits, base.ascents)
   const plannedTime =
     cost(planned.visits, planned.ascents) + (reached ? callCost : 0)
-  text('impact-fallback-route', `Traditional rule → ${fallback}`)
-  text('impact-policy-route', `With planner → ${selected}`)
+  text(
+    'impact-fallback-route',
+    `Count rule → search ${routeDirections[fallback]}`,
+  )
+  text(
+    'impact-policy-route',
+    `With model → search ${routeDirections[selected]}`,
+  )
   text('impact-fallback-steps', `${base.visits + base.ascents} traversal steps`)
   text(
     'impact-policy-steps',
@@ -76,11 +83,11 @@ export function renderImpact(
   )
   text(
     'impact-explanation',
-    `${state.anchors} cards, ${state.witnesses} warnings. Every card has one nested section with ${prefix} neutral elements. Half then contain warnings. The other half end with a footer and no warning. Inverse walks through the section, card, and document for every warning, then filters cards in order. Changing the DOM shape here does not change the inputs the saved model sees.`,
+    `${state.anchors} cards, ${state.witnesses} warnings. Every card has one nested section with ${prefix} neutral elements. Half then contain warnings. The other half end with a footer and no warning. Upward search walks through the section, card, and document for every warning, then filters cards in order. Changing the DOM shape here does not change the inputs the saved model sees.`,
   )
   text(
     'impact-formula',
-    `estimated time = visits × ${visitCost}ns + ancestor steps × ${ancestorCost}ns + ${reached ? callCost : 0}ns model overhead (policy lane only)`,
+    `estimated time = visits × ${visitCost}ns + ancestor steps × ${ancestorCost}ns + ${reached ? callCost : 0}ns model overhead (model comparison only)`,
   )
 }
 

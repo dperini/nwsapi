@@ -6,6 +6,7 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  '@huggingface/transformers': '3.8.1'
   'typebox': '1.3.35'
   'ata-validator': '1.45.0'
   'semver': '7.8.5'
@@ -22,6 +23,8 @@ catalog:
   '@types/css-tree': '3.2.0'
   '@types/jsdom': '30.0.0'
   '@types/node': '26.6.4'
+  '@types/react': '19.3.0'
+  '@types/react-dom': '19.3.0'
   '@ultrathink/acorn.rs.wasm': '0.2.0'
   '@unicode/unicode-17.0.0': '2.0.7'
   '@vitest/coverage-v8': '5.0.3'
@@ -35,6 +38,8 @@ catalog:
   'istanbul-reports': '3.2.0'
   'jquery': '4.0.0'
   'jsdom': '30.0.1'
+  'kokoro-js': '1.2.1'
+  'marked': '18.0.14'
   'mitata': '1.0.34'
   'nock': '15.0.1'
   'oxfmt': '0.66.0'
@@ -49,8 +54,8 @@ catalog:
   'vitest': '5.0.3'
   'yaml': '2.9.1'
   '@maschwenk/tsrs': 0.8.0-ts7.1.0-dev.20260929
-  "@radix-ui/react-checkbox": '1.3.12'
-  "@radix-ui/react-select": '2.3.8'
+  '@radix-ui/react-checkbox': '1.3.12'
+  '@radix-ui/react-select': '2.3.8'
   react: '19.3.0'
   react-dom: '19.3.0'
 minimumReleaseAge: 1440
@@ -75,34 +80,34 @@ minimumReleaseAgeExclude:
   # published: 2026-10-07T16:40:50.756Z | removable: 2026-10-08T16:40:50.756Z
   - '@maschwenk/tsrs-linux-x64@0.8.0-ts7.1.0-dev.20260929'
   # published: 2026-10-07T14:11:00.617Z | removable: 2026-10-08T14:11:00.617Z
-  - "@rolldown/binding-android-arm-eabi@1.2.13"
+  - '@rolldown/binding-android-arm-eabi@1.2.13'
   # published: 2026-10-07T14:10:00.155Z | removable: 2026-10-08T14:10:00.155Z
-  - "@rolldown/binding-android-arm64@1.2.13"
+  - '@rolldown/binding-android-arm64@1.2.13'
   # published: 2026-10-07T14:10:08.893Z | removable: 2026-10-08T14:10:08.893Z
-  - "@rolldown/binding-darwin-arm64@1.2.13"
+  - '@rolldown/binding-darwin-arm64@1.2.13'
   # published: 2026-10-07T14:15:16.286Z | removable: 2026-10-08T14:15:16.286Z
-  - "@rolldown/binding-darwin-x64@1.2.13"
+  - '@rolldown/binding-darwin-x64@1.2.13'
   # published: 2026-10-07T14:13:02.815Z | removable: 2026-10-08T14:13:02.815Z
-  - "@rolldown/binding-freebsd-x64@1.2.13"
+  - '@rolldown/binding-freebsd-x64@1.2.13'
   # published: 2026-10-07T14:11:29.207Z | removable: 2026-10-08T14:11:29.207Z
-  - "@rolldown/binding-linux-arm-gnueabihf@1.2.13"
+  - '@rolldown/binding-linux-arm-gnueabihf@1.2.13'
   # published: 2026-10-07T14:10:44.972Z | removable: 2026-10-08T14:10:44.972Z
-  - "@rolldown/binding-linux-arm64-gnu@1.2.13"
+  - '@rolldown/binding-linux-arm64-gnu@1.2.13'
   # published: 2026-10-07T14:11:04.485Z | removable: 2026-10-08T14:11:04.485Z
-  - "@rolldown/binding-linux-arm64-musl@1.2.13"
+  - '@rolldown/binding-linux-arm64-musl@1.2.13'
   # published: 2026-10-07T14:13:02.572Z | removable: 2026-10-08T14:13:02.572Z
-  - "@rolldown/binding-linux-ppc64-gnu@1.2.13"
+  - '@rolldown/binding-linux-ppc64-gnu@1.2.13'
   # published: 2026-10-07T14:11:37.629Z | removable: 2026-10-08T14:11:37.629Z
-  - "@rolldown/binding-linux-s390x-gnu@1.2.13"
+  - '@rolldown/binding-linux-s390x-gnu@1.2.13'
   # published: 2026-10-07T14:14:55.989Z | removable: 2026-10-08T14:14:55.989Z
-  - "@rolldown/binding-linux-x64-gnu@1.2.13"
+  - '@rolldown/binding-linux-x64-gnu@1.2.13'
   # published: 2026-10-07T14:16:05.191Z | removable: 2026-10-08T14:16:05.191Z
-  - "@rolldown/binding-linux-x64-musl@1.2.13"
+  - '@rolldown/binding-linux-x64-musl@1.2.13'
   # published: 2026-10-07T14:13:23.841Z | removable: 2026-10-08T14:13:23.841Z
-  - "@rolldown/binding-openharmony-arm64@1.2.13"
+  - '@rolldown/binding-openharmony-arm64@1.2.13'
   # published: 2026-10-07T14:10:32.961Z | removable: 2026-10-08T14:10:32.961Z
-  - "@rolldown/binding-win32-arm64-msvc@1.2.13"
+  - '@rolldown/binding-win32-arm64-msvc@1.2.13'
   # published: 2026-10-07T14:11:34.787Z | removable: 2026-10-08T14:11:34.787Z
-  - "@rolldown/binding-win32-x64-msvc@1.2.13"
+  - '@rolldown/binding-win32-x64-msvc@1.2.13'
   # published: 2026-10-07T14:20:03.410Z | removable: 2026-10-08T14:20:03.410Z
   - rolldown@1.2.13

@@ -1,0 +1,7 @@
+{
+  "model": "Xenova/wav2vec2-base-960h",
+  "revision": "a19f851b3d42865797e410752b4c570c871e4825",
+  "dtype": "q8",
+  "sampleRate": 16000,
+  "source": "https://huggingface.co/Xenova/wav2vec2-base-960h"
+}

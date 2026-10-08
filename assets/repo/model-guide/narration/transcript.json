@@ -1,0 +1,122 @@
+{
+  "voice": "bm_george",
+  "locale": "en-GB",
+  "generator": "scripts/repo/gen/guide/narration.mts",
+  "sections": [
+    {
+      "id": "training",
+      "file": "what.generated.mp3",
+      "text": "Let's find the cards that contain a warning. nwsapi already has a search rule. A small learned model can sometimes suggest a different route. To teach it, we time both routes on the same documents. PyTorch uses those examples to adjust a set of numbers. Separate examples help check the result. Repository scripts then export a small JavaScript function that recommends where to start. Choose a selector below, and follow the steps from measurements to the finished function.",
+      "segments": [
+        {
+          "text": "Let's find the cards that contain a warning. nwsapi already has a search rule. A small learned model can sometimes suggest a different route.",
+          "pauseAfterMs": 480,
+          "speed": 0.95
+        },
+        {
+          "text": "To teach it, we time both routes on the same documents. PyTorch uses those examples to adjust a set of numbers.",
+          "pauseAfterMs": 580,
+          "speed": 0.95
+        },
+        {
+          "text": "Separate examples help check the result. Repository scripts then export a small JavaScript function that recommends where to start.",
+          "pauseAfterMs": 480,
+          "speed": 0.96
+        },
+        {
+          "text": "Choose a selector below, and follow the steps from measurements to the finished function.",
+          "pauseAfterMs": 250,
+          "speed": 0.96
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "file": "why.generated.mp3",
+      "text": "There are two ways to find cards with a warning. Search down from each card into its descendants. That's the forward route. Or start at each warning and walk up through its ancestors. That's the inverse route. Then check the cards in document order. Picture event capture going down, and bubbling coming up. Here, we're searching the DOM. No events are dispatched. Both routes return the same cards. Starting with a few warnings may save work. Play both searches, then change a warning in the DOM editor. The counters show steps. Timing queries shows which route is faster.",
+      "segments": [
+        {
+          "text": "There are two ways to find cards with a warning. Search down from each card into its descendants. That's the forward route.",
+          "pauseAfterMs": 520,
+          "speed": 0.95
+        },
+        {
+          "text": "Or start at each warning and walk up through its ancestors. That's the inverse route. Then check the cards in document order.",
+          "pauseAfterMs": 560,
+          "speed": 0.95
+        },
+        {
+          "text": "Picture event capture going down, and bubbling coming up. Here, we're searching the DOM. No events are dispatched.",
+          "pauseAfterMs": 540,
+          "speed": 0.95
+        },
+        {
+          "text": "Both routes return the same cards. Starting with a few warnings may save work. Play both searches, then change a warning in the DOM editor. The counters show steps. Timing queries shows which route is faster.",
+          "pauseAfterMs": 250,
+          "speed": 0.96
+        }
+      ]
+    },
+    {
+      "id": "policy",
+      "file": "when.generated.mp3",
+      "text": "So, when should the model get a say? nwsapi starts with its usual count rule. Only some downward searches pass the checks that let the model help. The model can choose a slower route. nwsapi doesn't time that query and retry. Exact matching still finds the right elements, in the right order. The time estimates help you explore that trade-off. A full query measurement includes the model's own work. Switch the model off and on, and watch how the choice changes.",
+      "segments": [
+        {
+          "text": "So, when should the model get a say? nwsapi starts with its usual count rule. Only some downward searches pass the checks that let the model help.",
+          "pauseAfterMs": 480,
+          "speed": 0.95
+        },
+        {
+          "text": "The model can choose a slower route. nwsapi doesn't time that query and retry. Exact matching still finds the right elements, in the right order.",
+          "pauseAfterMs": 600,
+          "speed": 0.94
+        },
+        {
+          "text": "The time estimates help you explore that trade-off. A full query measurement includes the model's own work. Switch the model off and on, and watch how the choice changes.",
+          "pauseAfterMs": 250,
+          "speed": 0.96
+        }
+      ]
+    },
+    {
+      "id": "source",
+      "file": "where.generated.mp3",
+      "text": "Let's follow the code for our warning cards. PyTorch trains the model during development and saves a checkpoint: a file holding the learned numbers. Repository scripts turn the numbers into JavaScript. The generator adds types, and the build includes the function in nwsapi. On your page, JavaScript runs the saved function. There is no Python process, no remote model call, and no model download. Select a file below, and follow the trail from measurements to a small function that recommends where to start searching.",
+      "segments": [
+        {
+          "text": "Let's follow the code for our warning cards. PyTorch trains the model during development and saves a checkpoint: a file holding the learned numbers.",
+          "pauseAfterMs": 540,
+          "speed": 0.95
+        },
+        {
+          "text": "Repository scripts turn the numbers into JavaScript. The generator adds types, and the build includes the function in nwsapi.",
+          "pauseAfterMs": 480,
+          "speed": 0.96
+        },
+        {
+          "text": "On your page, JavaScript runs the saved function. There is no Python process, no remote model call, and no model download.",
+          "pauseAfterMs": 500,
+          "speed": 0.95
+        },
+        {
+          "text": "Select a file below, and follow the trail from measurements to a small function that recommends where to start searching.",
+          "pauseAfterMs": 250,
+          "speed": 0.96
+        }
+      ]
+    }
+  ],
+  "speed": 0.96,
+  "sentencePauseMs": 420,
+  "ideaPauseMs": 650,
+  "engine": "Kokoro 82M v1.0",
+  "modelLicense": "Apache-2.0",
+  "modelRevision": "1939ad2a8e416c0acfeecc08a694d14ef25f2231",
+  "source": "https://github.com/hexgrad/kokoro",
+  "delivery": "Each sentence is spoken separately, followed by a 420ms pause. Pauses between ideas are at least 650ms. No recorded or synthetic breath effects are added.",
+  "pronunciations": {
+    "nwsapi": "en-double-you-sappy",
+    "learned": "learnd"
+  }
+}

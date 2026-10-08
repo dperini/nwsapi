@@ -45,6 +45,9 @@
 !/assets/repo/pytorch/model/*.generated.pt
 !/assets/repo/pytorch/model/*-weights.generated.json
 !/assets/repo/pytorch/model/model.txt
+!/assets/repo/model-guide/narration/*.generated.mp3
+!/assets/repo/model-guide/fonts/*.woff2
+!/assets/repo/model-guide/fonts/*-license.txt
 !/bin/nwsapi
 !/bin/*.mts
 !/docs/**/*.md
