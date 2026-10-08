@@ -4,6 +4,10 @@ const paths = {
   external:
     'M14 3h7v7m0-7L10 14M9 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4',
   internal: 'M4 12h16m-6-6 6 6-6 6',
+  nextDocument:
+    'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Zm0 0v5h6m-10 3 3 3-3 3',
+  previousDocument:
+    'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Zm0 0v5h6m-7 3-3 3 3 3',
 } as const
 
 export function iconMarkup(name: keyof typeof paths) {

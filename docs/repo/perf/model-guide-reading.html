@@ -16,6 +16,7 @@
       href="../../../assets/repo/model-guide-favicon.svg"
     />
     <link rel="stylesheet" href="./pytorch-has-routing.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/contents.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/reading.css" />
     <script type="module" src="./pytorch-has-routing/reading.mts"></script>
   </head>
@@ -43,17 +44,6 @@
         <span class="appearance-controls">
           <button
             type="button"
-            class="color-mode-toggle"
-            data-color-toggle
-            data-light-label="Switch to light mode"
-            data-dark-label="Switch to dark mode"
-            aria-label="Switch to light mode"
-            title="Switch to light mode"
-          >
-            <!-- guide-color-symbol -->
-          </button>
-          <button
-            type="button"
             class="reading-mode-toggle"
             data-reading-toggle
             aria-pressed="false"
@@ -64,14 +54,31 @@
           >
             <!-- guide-reading-symbol -->
           </button>
+          <button
+            type="button"
+            class="color-mode-toggle"
+            data-color-toggle
+            data-light-label="Switch to light mode"
+            data-dark-label="Switch to dark mode"
+            aria-label="Switch to light mode"
+            title="Switch to light mode"
+          >
+            <!-- guide-color-symbol -->
+          </button>
+          <a
+            id="reading-source-link"
+            class="header-source-link"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="View on GitHub"
+            title="View on GitHub"
+            data-i18n-aria="viewOnGitHub"
+            data-i18n-title="viewOnGitHub"
+            hidden
+            ><span class="github-icon" aria-hidden="true"></span
+          ></a>
         </span>
       </div>
-      <a class="reader-back" href="./pytorch-has-routing.html#source">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m14 6-6 6 6 6M8 12h12" />
-        </svg>
-        <span data-i18n="backToGuide">Back to the guide</span>
-      </a>
     </header>
     <div class="reading-progress" aria-hidden="true"></div>
     <main class="reading-layout">
@@ -87,48 +94,42 @@
             Opening document…
           </p>
         </article>
-        <div class="reading-source" hidden>
-          <a id="reading-source-link" target="_blank" rel="noreferrer">
-            <span data-i18n="viewOnGitHub">View on GitHub</span>
-            <span class="github-icon" aria-hidden="true"></span>
-          </a>
-        </div>
-        <nav
-          class="reading-related"
-          aria-label="Further reading"
-          data-i18n-aria="furtherReading"
-        >
-          <h2 data-i18n="keepReading">Keep reading</h2>
-          <a
-            href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
-            >Crossed-query results
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
-          ></a>
-          <a href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
-            >Dispatch follow-up
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
-          ></a>
-          <a href="./model-guide-reading.html?doc=pytorch-for-beginners"
-            >Text guide
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
-          ></a>
-        </nav>
       </div>
-      <aside class="reading-sidebar">
-        <details id="reading-navigation" open>
-          <summary data-i18n="onThisPage">On this page</summary>
-          <nav aria-label="On this page" data-i18n-aria="onThisPage">
-            <ol id="reading-contents"></ol>
-          </nav>
-        </details>
-      </aside>
+      <div class="reading-sidebar-rail">
+        <aside class="reading-sidebar">
+          <a
+            class="reader-close"
+            href="./pytorch-has-routing.html#source"
+            aria-label="Close reader and return to guide"
+            title="Close reader and return to guide"
+            data-i18n-aria="closeReader"
+            data-i18n-title="closeReader"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m6 6 12 12M18 6 6 18" /></svg
+          ></a>
+          <details id="reading-navigation" open>
+            <summary>
+              <span data-i18n="onThisPage">On this page</span>
+              <svg
+                class="reading-contents-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
+              </svg>
+            </summary>
+            <nav aria-label="On this page" data-i18n-aria="onThisPage">
+              <ol id="reading-contents"></ol>
+            </nav>
+          </details>
+          <nav
+            class="reading-pagination"
+            aria-label="Document navigation"
+            data-i18n-aria="documentNavigation"
+          ></nav>
+        </aside>
+      </div>
     </main>
-    <footer class="reading-footer">
-      <a href="./pytorch-has-routing.html#source">Back to the guide</a>
-    </footer>
     <noscript
       ><p class="reading-noscript">
         JavaScript renders these notes.

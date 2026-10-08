@@ -25,6 +25,8 @@
     />
     <link rel="stylesheet" href="./pytorch-has-routing.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/motion.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/contents.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/guide-layout.css" />
     <script type="module" src="./pytorch-has-routing.mts"></script>
   </head>
   <body data-theme="what">
@@ -49,17 +51,6 @@
         <span class="appearance-controls">
           <button
             type="button"
-            class="color-mode-toggle"
-            data-color-toggle
-            data-light-label="Switch to light mode"
-            data-dark-label="Switch to dark mode"
-            aria-label="Switch to light mode"
-            title="Switch to light mode"
-          >
-            <!-- guide-color-symbol -->
-          </button>
-          <button
-            type="button"
             class="reading-mode-toggle"
             data-reading-toggle
             aria-pressed="false"
@@ -70,1142 +61,1242 @@
           >
             <!-- guide-reading-symbol -->
           </button>
+          <button
+            type="button"
+            class="color-mode-toggle"
+            data-color-toggle
+            data-light-label="Switch to light mode"
+            data-dark-label="Switch to dark mode"
+            aria-label="Switch to light mode"
+            title="Switch to light mode"
+          >
+            <!-- guide-color-symbol -->
+          </button>
         </span>
       </div>
     </header>
-    <main id="start">
-      <section class="intro" data-scroll-theme="what">
-        <h1>Two ways to search.<br /><em>A model helps choose.</em></h1>
-        <p class="lede">
-          First, <code>nwsapi</code> uses its existing rule to choose a search
-          direction from candidate counts. For some <code>:has()</code> queries,
-          a small model trained with PyTorch can recommend a different
-          direction. Both routes check the selector exactly and return the same
-          elements.
-        </p>
-        <p class="eyebrow">At a glance</p>
-        <div class="orientation route-overview" aria-label="Model overview">
-          <a href="#training" data-topic="what">
-            <strong>What</strong>
-            <span
-              >A trained function recommends a route. <code>nwsapi</code> checks
-              the matches.</span
+    <div class="guide-layout">
+      <main id="start">
+        <section id="overview" class="intro" data-scroll-theme="what">
+          <h1>Two ways to search.<br /><em>A model helps choose.</em></h1>
+          <p class="lede">
+            First, <code>nwsapi</code> uses its existing rule to choose a search
+            direction from candidate counts. For some
+            <code>:has()</code> queries, a small model trained with PyTorch can
+            recommend a different direction. Both routes check the selector
+            exactly and return the same elements.
+          </p>
+          <p class="eyebrow">At a glance</p>
+          <div class="orientation route-overview" aria-label="Model overview">
+            <a href="#training" data-topic="what">
+              <strong>What</strong>
+              <span
+                >A trained function recommends a route.
+                <code>nwsapi</code> checks the matches.</span
+              >
+            </a>
+            <a href="#search" data-topic="why">
+              <strong>Why</strong>
+              <span
+                >Searching down or up the DOM can do different amounts of
+                work.</span
+              >
+            </a>
+            <a href="#policy" data-topic="when">
+              <strong>When</strong>
+              <span
+                >It can switch eligible queries from searching down to up.</span
+              >
+            </a>
+            <a href="#source" data-topic="where">
+              <strong>Where</strong>
+              <span
+                >PyTorch trains it. JavaScript runs it inside
+                <code>nwsapi</code>.</span
+              >
+            </a>
+          </div>
+        </section>
+        <section
+          id="training"
+          class="chapter"
+          data-scroll-theme="what"
+          aria-labelledby="training-title"
+        >
+          <p class="eyebrow" aria-hidden="true">What</p>
+          <h2 id="training-title" aria-label="What is the model?">
+            is the model?
+          </h2>
+          <p class="section-intro">
+            The model is a small function that recommends a search route.
+            PyTorch learns its <strong>weights</strong>—numbers in the
+            function—from measured examples. Queries run the saved function in
+            JavaScript. Exact selector checks still decide which elements match.
+          </p>
+          <p class="route-key">
+            <strong>Search down (forward):</strong> card ↓ warning.
+            <strong>Search up (inverse):</strong> warning ↑ card. Both routes
+            return the same matches.
+          </p>
+          <div class="lab">
+            <div class="story-controls">
+              <label
+                >Recorded selector
+                <select id="story-selector" class="theme-select">
+                  <option value="2">.card[data-ok="1"]:has(.witness)</option>
+                  <option value="1">.card:has(.witness[data-ok="1"])</option>
+                  <option value="3">
+                    .card[data-ok="1"]:has(.witness[data-ok="1"])
+                  </option>
+                </select>
+              </label>
+              <label
+                >Recorded environment
+                <select id="story-host" class="theme-select">
+                  <option value="chromium">Browser</option>
+                  <option value="jsdom">jsdom</option>
+                </select>
+              </label>
+              <p class="small">
+                A witness satisfies the condition inside <code>:has()</code>.
+                <code>data-ok="1"</code> is this benchmark’s sample attribute
+                filter.
+              </p>
+            </div>
+            <div
+              class="pipeline"
+              id="pipeline"
+              role="group"
+              aria-label="Training pipeline"
+            ></div>
+            <div class="pipeline-detail">
+              <div>
+                <h3 id="pipeline-title"></h3>
+                <p id="pipeline-description"></p>
+                <p
+                  id="story-explanation"
+                  class="story-explanation"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+              <div>
+                <div id="pipeline-example" class="story-readout">
+                  <code id="story-query" class="selector-code" hidden></code>
+                  <dl id="story-facts" hidden></dl>
+                  <pre id="story-code" hidden></pre>
+                  <p id="story-process" hidden></p>
+                </div>
+                <p class="context">
+                  Shown timings are archived measurements on one fixture, not a
+                  benchmark running here.
+                </p>
+                <a href="#source" id="pipeline-source" class="source-jump">
+                  Read this step’s source
+                  <svg
+                    class="source-arrow"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div class="story-navigation">
+              <button id="story-back" type="button">
+                <svg
+                  class="step-nav-chevron"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m19 6-6 6 6 6m-8-12-6 6 6 6" />
+                </svg>
+                Previous
+              </button>
+              <button id="story-next" type="button">
+                Next
+                <svg
+                  class="step-nav-chevron"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m5 6 6 6-6 6m8-12 6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <details class="story-provenance">
+            <summary>Recorded example and scope</summary>
+            <p id="story-context" class="context"></p>
+          </details>
+          <details id="training-examples">
+            <summary>Look closer at the training examples</summary>
+            <div class="recorded-example">
+              <label
+                >Environment
+                <select id="sample-host" class="theme-select">
+                  <option value="chromium">Browser</option>
+                  <option value="jsdom">jsdom</option>
+                </select></label
+              >
+              <div class="step-controls">
+                <button id="sample-previous">Previous example</button
+                ><button id="sample-next">Next example</button>
+              </div>
+              <p id="sample-name" class="mono"></p>
+              <div class="step-controls">
+                <button data-sample-stage="0" aria-pressed="true">
+                  1. See the facts</button
+                ><button data-sample-stage="1" aria-pressed="false">
+                  2. Reveal measurements</button
+                ><button data-sample-stage="2" aria-pressed="false">
+                  3. Explain learning
+                </button>
+              </div>
+              <pre id="sample-facts"></pre>
+              <div id="sample-bars" aria-label="Recorded route timings"></div>
+              <p id="sample-context" class="context"></p>
+              <div id="sample-learning" hidden>
+                <p id="sample-label"></p>
+                <p>
+                  The model predicts a route from the query inputs. The trainer
+                  compares that prediction with the measured route costs. It
+                  calculates a loss that measures the cost of that choice.
+                  AdamW, the optimizer, adjusts the weights to reduce this loss.
+                  The examples all tune the same function.
+                </p>
+                <p>
+                  The trainer uses repeated timing samples to check uncertainty.
+                  It can ignore uncertain comparisons and penalizes large
+                  slowdowns more heavily. It also accounts for the estimated
+                  cost of calling the model.
+                </p>
+                <p>
+                  Different DOM shapes can have the same model inputs and
+                  different route costs. The model cannot see those differences.
+                  Validation selects the saved model and threshold. Separate
+                  evaluation examples and complete query timings check the
+                  result.
+                </p>
+                <a href="#source" class="source-jump" data-source="train">
+                  Read the loss and optimizer code
+                  <svg
+                    class="source-arrow"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+                  </svg>
+                </a>
+              </div>
+              <p class="small">
+                The shorter timing bar is only part of the training signal. The
+                trainer also accounts for the existing route, model overhead,
+                uncertainty, and the cost of slowdowns.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>How training is checked</summary>
+            <div class="definition-grid">
+              <article>
+                <h3>Training examples</h3>
+                <p>
+                  Teach the function using query facts and measured route costs.
+                </p>
+              </article>
+              <article>
+                <h3>Validation examples</h3>
+                <p>
+                  Select the saved model and threshold using separate fixture
+                  families.
+                </p>
+              </article>
+              <article>
+                <h3>Evaluation examples</h3>
+                <p>
+                  Check the selected model on reserved examples. Complete query
+                  measurements are still needed before shipping a performance
+                  change.
+                </p>
+              </article>
+            </div>
+          </details>
+          <p class="callout">
+            <strong>Training happens during development.</strong> Queries use
+            fixed weights, so your page does not train the model. Updating it
+            requires a new training run, review, export, and build.
+          </p>
+        </section>
+        <section
+          id="search"
+          class="chapter"
+          data-scroll-theme="why"
+          aria-labelledby="search-title"
+        >
+          <p class="eyebrow" aria-hidden="true">Why</p>
+          <h2
+            id="search-title"
+            aria-label="Why can a different search route help?"
+          >
+            can a different search route help?
+          </h2>
+          <p class="section-intro">
+            <code>.card:has(.warning)</code> asks for cards with a warning
+            somewhere inside them. The card is the <strong>anchor</strong>. A
+            warning is a <strong>witness</strong>: something that proves the
+            condition is true.
+          </p>
+          <div class="lab route-film" id="motion">
+            <div class="lab-header">
+              <div>
+                <h3>Follow both routes through the same DOM</h3>
+                <p>
+                  Think of event capture going down and bubbling coming up.
+                  Here, searching down explores a card’s descendants. Searching
+                  up follows a warning’s ancestors, then checks cards in
+                  document order. These are two ways to find matches, with no
+                  events dispatched.
+                </p>
+                <p data-i18n="diagramStateHelp">
+                  The blue outline follows the current node. Result markers
+                  appear when it arrives. Finding a warning can confirm its
+                  containing card. A ! labels a warning already in the DOM, not
+                  a selected result.
+                </p>
+              </div>
+            </div>
+            <div class="film-controls">
+              <div class="step-controls">
+                <button id="film-play" class="primary" aria-pressed="false">
+                  Play both routes</button
+                ><button id="film-next">Next step</button
+                ><button id="film-reset">Reset</button>
+              </div>
+              <label for="film-timeline">Playback timeline</label>
+              <span id="film-beat" class="mono"></span>
+              <input
+                id="film-timeline"
+                type="range"
+                min="0"
+                max="1"
+                value="0"
+                aria-describedby="film-beat"
+              />
+              <p id="film-status" role="status" aria-live="polite"></p>
+              <p class="small">Drag a diagram to scrub. Use ←/→ to step.</p>
+            </div>
+            <div class="film-scoreboard" aria-label="Search progress">
+              <p>
+                <strong>Search down</strong
+                ><span id="film-forward-summary">0 steps · no matches</span>
+              </p>
+              <p>
+                <strong>Search up</strong
+                ><span id="film-inverse-summary">0 steps · no matches</span>
+              </p>
+            </div>
+            <ul
+              class="film-legend"
+              aria-label="Diagram states"
+              data-i18n-aria="diagramStates"
             >
-          </a>
-          <a href="#search" data-topic="why">
-            <strong>Why</strong>
-            <span
-              >Searching down or up the DOM can do different amounts of
-              work.</span
-            >
-          </a>
-          <a href="#policy" data-topic="when">
-            <strong>When</strong>
-            <span
-              >It can switch eligible queries from searching down to up.</span
-            >
-          </a>
-          <a href="#source" data-topic="where">
-            <strong>Where</strong>
-            <span
-              >PyTorch trains it. JavaScript runs it inside
-              <code>nwsapi</code>.</span
-            >
-          </a>
-        </div>
-      </section>
-      <div class="chapter-navigation">
-        <nav class="chapters" aria-label="Guide chapters" data-scroll-reveal>
-          <a href="#training">What</a><a href="#search">Why</a
-          ><a href="#policy">When</a><a href="#source">Where</a>
-        </nav>
-      </div>
-      <section
-        id="training"
-        class="chapter"
-        data-scroll-theme="what"
-        aria-labelledby="training-title"
-      >
-        <p class="eyebrow" aria-hidden="true">What</p>
-        <h2 id="training-title" aria-label="What is the model?">
-          is the model?
-        </h2>
-        <p class="section-intro">
-          The model is a small function that recommends a search route. PyTorch
-          learns its <strong>weights</strong>—numbers in the function—from
-          measured examples. Queries run the saved function in JavaScript. Exact
-          selector checks still decide which elements match.
-        </p>
-        <p class="route-key">
-          <strong>Search down (forward):</strong> card ↓ warning.
-          <strong>Search up (inverse):</strong> warning ↑ card. Both routes
-          return the same matches.
-        </p>
-        <div class="lab">
-          <div class="story-controls">
-            <label
-              >Recorded selector
-              <select id="story-selector" class="theme-select">
-                <option value="2">.card[data-ok="1"]:has(.witness)</option>
-                <option value="1">.card:has(.witness[data-ok="1"])</option>
-                <option value="3">
-                  .card[data-ok="1"]:has(.witness[data-ok="1"])
-                </option>
-              </select>
-            </label>
-            <label
-              >Recorded environment
-              <select id="story-host" class="theme-select">
-                <option value="chromium">Browser</option>
-                <option value="jsdom">jsdom</option>
-              </select>
-            </label>
-            <p class="small">
-              A witness satisfies the condition inside <code>:has()</code>.
-              <code>data-ok="1"</code> is this benchmark’s sample attribute
-              filter.
+              <li>
+                <span
+                  class="film-key film-key-current"
+                  aria-hidden="true"
+                ></span
+                ><span data-i18n="diagramCurrent">Current node</span>
+              </li>
+              <li>
+                <span
+                  class="film-key film-key-visited"
+                  aria-hidden="true"
+                ></span
+                ><span data-i18n="diagramVisited">Visited</span>
+              </li>
+              <li>
+                <span class="film-key film-key-pending" aria-hidden="true"
+                  >?</span
+                ><span data-i18n="diagramPending">Awaiting final check</span>
+              </li>
+              <li>
+                <span class="film-key film-key-result" aria-hidden="true"
+                  >✓</span
+                ><span data-i18n="diagramResult">Confirmed result</span>
+              </li>
+              <li>
+                <span class="film-key film-key-excluded" aria-hidden="true"
+                  >×</span
+                ><span data-i18n="diagramExcluded">Excluded card</span>
+              </li>
+            </ul>
+            <div class="film-grid">
+              <article>
+                <h4 class="film-route-heading">
+                  Search down <span>Forward · card ↓ warning</span>
+                </h4>
+                <div id="film-forward" class="film-scene"></div>
+                <p id="film-forward-work" class="film-work mono"></p>
+                <p id="film-forward-result"></p>
+                <p id="film-forward-caption" class="film-caption"></p>
+              </article>
+              <article>
+                <h4 class="film-route-heading">
+                  Search up <span>Inverse · warning ↑ card</span>
+                </h4>
+                <div id="film-inverse" class="film-scene"></div>
+                <p id="film-inverse-work" class="film-work mono"></p>
+                <p id="film-inverse-result"></p>
+                <p id="film-inverse-caption" class="film-caption"></p>
+              </article>
+            </div>
+          </div>
+          <p class="context">
+            Playback advances one illustrated step at a time. Steps can take
+            different amounts of time, so finishing first here does not prove a
+            speedup. Edit the DOM below to compare the searches. With reduced
+            motion enabled, the ring stays still and the same steps remain
+            available.
+          </p>
+          <details id="dom-editor">
+            <summary>Edit the DOM and inspect each step</summary>
+            <div class="lab">
+              <div class="lab-header">
+                <div>
+                  <span class="badge">Editable sample DOM</span>
+                  <p>
+                    Change each card’s warning count. Follow the highlighted
+                    node to see how the result is built.
+                  </p>
+                </div>
+                <code>.card:has(.warning)</code>
+              </div>
+              <div class="search-layout">
+                <div>
+                  <div class="dom-cards" id="dom-cards"></div>
+                  <label class="check"
+                    ><input type="checkbox" id="outside-warning" checked /> Add
+                    a warning outside all cards</label
+                  >
+                  <div class="legend">
+                    <span class="legend-current">Examining now</span
+                    ><span class="legend-marked">Marked ancestor</span
+                    ><span class="legend-match">Confirmed match</span>
+                  </div>
+                </div>
+                <div class="trace-panel">
+                  <fieldset class="route-control">
+                    <legend>Trace one search direction</legend>
+                    <label
+                      ><input
+                        id="route-forward"
+                        type="radio"
+                        name="route"
+                        value="forward"
+                        checked
+                      />
+                      Search down <small>Forward · card ↓ warning</small></label
+                    ><label
+                      ><input
+                        id="route-inverse"
+                        type="radio"
+                        name="route"
+                        value="inverse"
+                      />
+                      Search up <small>Inverse · warning ↑ card</small></label
+                    >
+                  </fieldset>
+                  <p class="small route-teaching-note">
+                    Choose either route to see its work. This small example has
+                    fewer than 32 cards, so <code>nwsapi</code> would skip the
+                    model.
+                  </p>
+                  <p id="route-explanation"></p>
+                  <div class="step-controls">
+                    <button id="step-back">Back</button
+                    ><button id="step-next" class="primary">Next step</button
+                    ><button id="step-reset">Replay</button
+                    ><button id="step-play" aria-pressed="false">Play</button>
+                  </div>
+                  <p id="step-count" class="mono"></p>
+                  <p id="search-phase" class="badge"></p>
+                  <div
+                    id="trace-description"
+                    class="trace-description"
+                    role="status"
+                    aria-live="polite"
+                  ></div>
+                  <p class="small">
+                    <span id="search-work"></span><br />Select
+                    <strong>Play</strong>
+                    to advance one step at a time.
+                  </p>
+                </div>
+              </div>
+              <div class="result-strip">
+                <strong>Result so far</strong><span id="match-result"></span>
+              </div>
+            </div>
+            <p class="context">
+              This four-card example illustrates search order, not a model
+              decision. Each step visits an element or follows a parent link.
+              Step counts do not measure query time.
+            </p>
+          </details>
+          <div class="lab discovery">
+            <p class="eyebrow">Predict the matching cards</p>
+            <h3>Change the relationship. What happens?</h3>
+            <div class="step-controls">
+              <button data-challenge="outside">Move A’s warning outside</button>
+              <button data-challenge="duplicate">Two warnings in A</button>
+              <button data-challenge="empty">No warnings inside</button>
+            </div>
+            <p id="challenge-question">
+              Pick a situation above. Predict the result before following the
+              search.
+            </p>
+            <div class="prediction-controls">
+              <div class="prediction-label">
+                <label for="challenge-prediction">Which cards match?</label>
+                <div class="prediction-field">
+                  <span class="qa-marker" aria-hidden="true" translate="no"
+                    >Q</span
+                  >
+                  <select id="challenge-prediction" class="theme-select">
+                    <option value="">Choose the result…</option>
+                    <option value="A,C">A and C</option>
+                    <option value="C">Only C</option>
+                    <option value="A,A,C">A, A, and C</option>
+                    <option value="none">No cards</option>
+                  </select>
+                </div>
+              </div>
+              <div class="prediction-answer">
+                <span class="qa-marker" aria-hidden="true" translate="no"
+                  >A</span
+                >
+                <button id="challenge-reveal">Reveal and explain</button>
+              </div>
+            </div>
+            <p id="challenge-feedback" role="status" aria-live="polite">
+              Choose a result, then reveal the explanation.
             </p>
           </div>
-          <div
-            class="pipeline"
-            id="pipeline"
-            role="group"
-            aria-label="Training pipeline"
-          ></div>
-          <div class="pipeline-detail">
-            <div>
-              <h3 id="pipeline-title"></h3>
-              <p id="pipeline-description"></p>
+          <details id="route-comparison">
+            <summary>Compare the work done by each route</summary>
+            <div class="comparison-grid">
+              <article>
+                <h3>Search down</h3>
+                <p id="forward-counts" class="mono"></p>
+                <p id="forward-matches"></p>
+                <button data-force="forward">Trace down</button>
+              </article>
+              <article>
+                <h3>Search up</h3>
+                <p id="inverse-counts" class="mono"></p>
+                <p id="inverse-matches"></p>
+                <button data-force="inverse">Trace up</button>
+              </article>
+            </div>
+            <p id="forced-explanation" class="context"></p>
+            <p class="small">
+              These counts include the complete search on your edited DOM. A
+              visit checks a candidate or descendant. An ancestor step follows a
+              parent link. Both result lists are checked against an exact DOM
+              query.
+              <code>nwsapi</code> has optimizations omitted from this
+              demonstration.
+            </p>
+            <p>
+              In <code>nwsapi</code>, a slow recommendation still runs. There is
+              no automatic timing check and retry. A failed callback or an
+              unsupported query retains the ordinary route.
+            </p>
+          </details>
+          <details>
+            <summary>Why can one direction be cheaper?</summary>
+            <p>
+              Searching down can stop inside a card as soon as it finds a
+              witness. Searching up starts with the witness candidates and marks
+              ancestors, which can avoid repeatedly searching inside cards.
+              Candidate counts, selector filters, and DOM shape affect the work.
+              Counting the visible arrows alone does not predict query time.
+            </p>
+          </details>
+          <div class="lab discovery" id="bridge">
+            <p class="eyebrow">Try a larger query</p>
+            <h3>Build a query that can use the model.</h3>
+            <p>
+              Use the starter pattern: A and C contain warnings, B and D do not.
+              Repeat it 16 times, give each matching card six warnings, and add
+              <code>[data-ok="1"]</code> to every card. This constructs 64 card
+              candidates and 192 warning candidates. The exact result still
+              depends on the DOM relationship.
+            </p>
+            <button id="bridge-grow" class="primary">
+              Build the larger DOM and load its counts
+            </button>
+            <div id="bridge-grid" class="bridge-grid" aria-hidden="true"></div>
+            <p id="bridge-result" role="status" aria-live="polite">
+              The four-card lesson has fewer than 32 anchors, so the runtime
+              never needs a model call.
+            </p>
+            <p>
+              The tiles show matching cards. This constructed example
+              illustrates eligibility checks without training data or timing
+              measurements.
+            </p>
+            <a href="#policy">See how the model uses these counts ↓</a>
+          </div>
+        </section>
+        <section
+          id="policy"
+          class="chapter"
+          data-scroll-theme="when"
+          aria-labelledby="policy-title"
+        >
+          <p class="eyebrow" aria-hidden="true">When</p>
+          <h2
+            id="policy-title"
+            aria-label="When can the model change the route?"
+          >
+            can the model change the route?
+          </h2>
+          <p class="section-intro">
+            The existing count rule chooses the default route. If a query passes
+            the eligibility checks, the model can switch it from searching down
+            to searching up. Both routes return the same exact matches.
+          </p>
+          <div class="lab policy-layout">
+            <form id="policy-controls" class="controls">
+              <label
+                >Environment
+                <select id="host" class="theme-select">
+                  <option value="chromium">Browser</option>
+                  <option value="jsdom">jsdom</option>
+                </select></label
+              >
+              <p class="environment-note">
+                Each environment has its own model.
+              </p>
+              <label
+                >Anchor candidates
+                <output id="anchor-output" for="anchors"></output
+                ><input
+                  id="anchors"
+                  type="range"
+                  min="8"
+                  max="256"
+                  step="8"
+                  value="64"
+              /></label>
+              <label
+                >Witness candidates
+                <output id="witness-output" for="witnesses"></output
+                ><input
+                  id="witnesses"
+                  type="range"
+                  min="0"
+                  max="1024"
+                  step="8"
+                  value="192"
+              /></label>
+              <fieldset>
+                <legend>Selector filters</legend>
+                <label class="check"
+                  ><input type="checkbox" id="anchor-filter" checked /> Card
+                  needs <code>[data-ok="1"]</code></label
+                ><label class="check"
+                  ><input type="checkbox" id="witness-filter" /> Warning needs
+                  <code>[data-ok="1"]</code></label
+                >
+              </fieldset>
+              <label class="check"
+                ><input type="checkbox" id="planner-enabled" checked /> Enable
+                the planner</label
+              >
+              <div class="presets">
+                <span>Try a case</span
+                ><button type="button" data-preset="eligible">
+                  Eligible query</button
+                ><button type="button" data-preset="tiny">Too small</button
+                ><button type="button" data-preset="inverse">
+                  Already searching up</button
+                ><button type="button" data-preset="unfiltered">
+                  No filters</button
+                ><button type="button" data-preset="range">
+                  Outside trained range
+                </button>
+              </div>
+            </form>
+            <div class="policy-readout">
+              <code id="policy-selector" class="query-block"></code>
+              <p class="small">
+                Assumes an HTML document in standards mode, document context,
+                pure compiler, and WeakMap support.
+              </p>
+              <div
+                class="route-outcomes"
+                aria-label="Route choice comparison"
+                role="status"
+                aria-live="polite"
+              >
+                <article>
+                  <span class="eyebrow">Traditional count rule</span>
+                  <h3 id="traditional-choice">Search down</h3>
+                  <p id="traditional-detail" class="small"></p>
+                </article>
+                <article class="planner-outcome">
+                  <span class="eyebrow">Optional model planner</span>
+                  <h3 id="decision-title">Not evaluated</h3>
+                  <p id="decision-detail" class="small"></p>
+                </article>
+              </div>
+              <ol id="guard-list" class="guard-list"></ol>
+              <p class="route-consequence">
+                The route changes the search order. Exact selector checks decide
+                which elements match. Results stay in document order.
+                <a href="#motion" class="search-route-link"
+                  >Compare both search routes ↑</a
+                >
+              </p>
+              <details>
+                <summary>See the function inputs</summary>
+                <pre id="policy-inputs"></pre>
+                <p>
+                  The attribute mask stores two filter flags. The function reads
+                  them separately. The ratio is witness count divided by anchor
+                  count. Candidate counts come before the remaining selector
+                  checks.
+                </p>
+              </details>
+            </div>
+          </div>
+          <p class="context">
+            This explorer calls the committed <code>chromiumPolicy</code> or
+            <code>jsdomPolicy</code> function with fixed weights. The checks
+            show when <code>nwsapi</code> can call it. This is not a query
+            benchmark.
+          </p>
+          <div class="lab discovery" id="impact">
+            <p class="eyebrow">
+              Why the route can matter · estimated, not measured
+            </p>
+            <h3>Connect the route choice to the work</h3>
+            <p>
+              Use the actual route choice above on an imaginary DOM. Count the
+              illustrated traversal work, then assign a cost to each operation.
+              Try late warnings and early warnings: the policy sees the same
+              counts, but the amount of work changes.
+            </p>
+            <div id="impact-controls" class="impact-controls">
+              <div class="step-controls">
+                <button data-impact-prefix="64">
+                  Warnings after lots of text</button
+                ><button data-impact-prefix="1">Warnings near the start</button>
+              </div>
+              <label
+                >Neutral elements before warnings, per card
+                <output id="impact-prefix-output" for="impact-prefix"></output
+                ><input
+                  id="impact-prefix"
+                  type="range"
+                  min="0"
+                  max="256"
+                  step="1"
+                  value="64"
+              /></label>
+              <details>
+                <summary>Edit the imaginary timing assumptions</summary>
+                <label
+                  >Cost per candidate/descendant visit
+                  <output id="impact-visit-output" for="impact-visit"></output
+                  ><input
+                    id="impact-visit"
+                    type="range"
+                    min="1"
+                    max="100"
+                    step="1"
+                    value="20"
+                /></label>
+                <label
+                  >Cost per ancestor step
+                  <output
+                    id="impact-ancestor-output"
+                    for="impact-ancestor"
+                  ></output
+                  ><input
+                    id="impact-ancestor"
+                    type="range"
+                    min="1"
+                    max="100"
+                    step="1"
+                    value="10"
+                /></label>
+                <label
+                  >Additional model call cost
+                  <output id="impact-call-output" for="impact-call"></output
+                  ><input
+                    id="impact-call"
+                    type="range"
+                    min="0"
+                    max="2000"
+                    step="25"
+                    value="250"
+                /></label>
+                <p class="small">
+                  These values are assumptions, not Chromium or jsdom
+                  measurements. The estimate omits shared candidate discovery,
+                  detailed eligibility checks, and JIT effects.
+                </p>
+              </details>
+            </div>
+            <p id="impact-eligibility" role="status" aria-live="polite"></p>
+            <div id="impact-results">
+              <div class="comparison-grid">
+                <article>
+                  <h4 id="impact-fallback-route"></h4>
+                  <p id="impact-fallback-steps" class="work-total"></p>
+                  <p id="impact-fallback-detail" class="small"></p>
+                  <div class="timing-track">
+                    <div id="impact-fallback-bar" class="timing-fill"></div>
+                  </div>
+                  <p>
+                    <strong id="impact-fallback-time"></strong> illustrative
+                    time
+                  </p>
+                </article>
+                <article>
+                  <h4 id="impact-policy-route"></h4>
+                  <p id="impact-policy-steps" class="work-total"></p>
+                  <p id="impact-policy-detail" class="small"></p>
+                  <div class="timing-track">
+                    <div id="impact-policy-bar" class="timing-fill"></div>
+                  </div>
+                  <p>
+                    <strong id="impact-policy-time"></strong> illustrative time
+                  </p>
+                </article>
+              </div>
+              <p id="impact-explanation" class="context"></p>
               <p
-                id="story-explanation"
-                class="story-explanation"
+                id="impact-difference"
+                class="callout"
                 role="status"
                 aria-live="polite"
               ></p>
-            </div>
-            <div>
-              <div id="pipeline-example" class="story-readout">
-                <code id="story-query" class="selector-code" hidden></code>
-                <dl id="story-facts" hidden></dl>
-                <pre id="story-code" hidden></pre>
-                <p id="story-process" hidden></p>
+              <div id="impact-formula" aria-labelledby="impact-formula-title">
+                <h4 id="impact-formula-title">Estimated time with model</h4>
+                <dl class="impact-cost-terms">
+                  <div>
+                    <dt>Visits</dt>
+                    <dd id="impact-visit-term"></dd>
+                  </div>
+                  <div>
+                    <dt>Ancestor steps</dt>
+                    <dd id="impact-ancestor-term"></dd>
+                  </div>
+                  <div>
+                    <dt>Model overhead</dt>
+                    <dd id="impact-model-term"></dd>
+                  </div>
+                </dl>
               </div>
-              <p class="context">
-                Shown timings are archived measurements on one fixture, not a
-                benchmark running here.
-              </p>
-              <a href="#source" id="pipeline-source" class="source-jump">
-                Read this step’s source
-                <svg
-                  class="source-arrow"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-                </svg>
-              </a>
             </div>
+            <p class="context">
+              The estimate multiplies visit and ancestor counts by your assumed
+              costs. Both routes return the same cards. These counts describe
+              the sample traversal, not CPU instructions. Verify actual
+              performance with complete query measurements using the built
+              <code>nwsapi</code> bundle.
+            </p>
           </div>
-          <div class="story-navigation">
-            <button id="story-back" type="button">
-              <svg
-                class="step-nav-chevron"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
+          <details id="calculation">
+            <summary>Calculate the route recommendation</summary>
+            <p id="calculation-host" class="mono"></p>
+            <p id="calculation-guard" role="status" aria-live="polite"></p>
+            <div id="calculation-arithmetic">
+              <div
+                class="step-controls"
+                role="group"
+                aria-label="Calculation stages"
               >
-                <path d="m19 6-6 6 6 6m-8-12-6 6 6 6" />
-              </svg>
-              Previous
-            </button>
-            <button id="story-next" type="button">
-              Next
-              <svg
-                class="step-nav-chevron"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="m5 6 6 6-6 6m8-12 6 6-6 6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <details class="story-provenance">
-          <summary>Recorded example and scope</summary>
-          <p id="story-context" class="context"></p>
-        </details>
-        <details id="training-examples">
-          <summary>Look closer at the training examples</summary>
-          <div class="recorded-example">
-            <label
-              >Environment
-              <select id="sample-host" class="theme-select">
-                <option value="chromium">Browser</option>
-                <option value="jsdom">jsdom</option>
-              </select></label
-            >
-            <div class="step-controls">
-              <button id="sample-previous">Previous example</button
-              ><button id="sample-next">Next example</button>
-            </div>
-            <p id="sample-name" class="mono"></p>
-            <div class="step-controls">
-              <button data-sample-stage="0" aria-pressed="true">
-                1. See the facts</button
-              ><button data-sample-stage="1" aria-pressed="false">
-                2. Reveal measurements</button
-              ><button data-sample-stage="2" aria-pressed="false">
-                3. Explain learning
-              </button>
-            </div>
-            <pre id="sample-facts"></pre>
-            <div id="sample-bars" aria-label="Recorded route timings"></div>
-            <p id="sample-context" class="context"></p>
-            <div id="sample-learning" hidden>
-              <p id="sample-label"></p>
-              <p>
-                The model predicts a route from the query inputs. The trainer
-                compares that prediction with the measured route costs. It
-                calculates a loss that measures the cost of that choice. AdamW,
-                the optimizer, adjusts the weights to reduce this loss. The
-                examples all tune the same function.
-              </p>
-              <p>
-                The trainer uses repeated timing samples to check uncertainty.
-                It can ignore uncertain comparisons and penalizes large
-                slowdowns more heavily. It also accounts for the estimated cost
-                of calling the model.
-              </p>
-              <p>
-                Different DOM shapes can have the same model inputs and
-                different route costs. The model cannot see those differences.
-                Validation selects the saved model and threshold. Separate
-                evaluation examples and complete query timings check the result.
-              </p>
-              <a href="#source" class="source-jump" data-source="train">
-                Read the loss and optimizer code
-                <svg
-                  class="source-arrow"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-                </svg>
-              </a>
-            </div>
-            <p class="small">
-              The shorter timing bar is only part of the training signal. The
-              trainer also accounts for the existing route, model overhead,
-              uncertainty, and the cost of slowdowns.
-            </p>
-          </div>
-        </details>
-        <details>
-          <summary>How training is checked</summary>
-          <div class="definition-grid">
-            <article>
-              <h3>Training examples</h3>
-              <p>
-                Teach the function using query facts and measured route costs.
-              </p>
-            </article>
-            <article>
-              <h3>Validation examples</h3>
-              <p>
-                Select the saved model and threshold using separate fixture
-                families.
-              </p>
-            </article>
-            <article>
-              <h3>Evaluation examples</h3>
-              <p>
-                Check the selected model on reserved examples. Complete query
-                measurements are still needed before shipping a performance
-                change.
-              </p>
-            </article>
-          </div>
-        </details>
-        <p class="callout">
-          <strong>Training happens during development.</strong> Queries use
-          fixed weights, so your page does not train the model. Updating it
-          requires a new training run, review, export, and build.
-        </p>
-      </section>
-      <section
-        id="search"
-        class="chapter"
-        data-scroll-theme="why"
-        aria-labelledby="search-title"
-      >
-        <p class="eyebrow" aria-hidden="true">Why</p>
-        <h2
-          id="search-title"
-          aria-label="Why can a different search route help?"
-        >
-          can a different search route help?
-        </h2>
-        <p class="section-intro">
-          <code>.card:has(.warning)</code> asks for cards with a warning
-          somewhere inside them. The card is the <strong>anchor</strong>. A
-          warning is a <strong>witness</strong>: something that proves the
-          condition is true.
-        </p>
-        <div class="lab route-film" id="motion">
-          <div class="lab-header">
-            <div>
-              <h3>Follow both routes through the same DOM</h3>
-              <p>
-                Think of event capture going down and bubbling coming up. Here,
-                searching down explores a card’s descendants. Searching up
-                follows a warning’s ancestors, then checks cards in document
-                order. These are two ways to find matches, with no events
-                dispatched.
-              </p>
-              <p data-i18n="diagramStateHelp">
-                The blue outline follows the current node. Result markers appear
-                when it arrives. Finding a warning can confirm its containing
-                card. A ! labels a warning already in the DOM, not a selected
-                result.
-              </p>
-            </div>
-          </div>
-          <div class="film-controls">
-            <div class="step-controls">
-              <button id="film-play" class="primary" aria-pressed="false">
-                Play both routes</button
-              ><button id="film-next">Next step</button
-              ><button id="film-reset">Reset</button>
-            </div>
-            <label for="film-timeline">Playback timeline</label>
-            <span id="film-beat" class="mono"></span>
-            <input
-              id="film-timeline"
-              type="range"
-              min="0"
-              max="1"
-              value="0"
-              aria-describedby="film-beat"
-            />
-            <p id="film-status" role="status" aria-live="polite"></p>
-            <p class="small">Drag a diagram to scrub. Use ←/→ to step.</p>
-          </div>
-          <div class="film-scoreboard" aria-label="Search progress">
-            <p>
-              <strong>Search down</strong
-              ><span id="film-forward-summary">0 steps · no matches</span>
-            </p>
-            <p>
-              <strong>Search up</strong
-              ><span id="film-inverse-summary">0 steps · no matches</span>
-            </p>
-          </div>
-          <ul
-            class="film-legend"
-            aria-label="Diagram states"
-            data-i18n-aria="diagramStates"
-          >
-            <li>
-              <span class="film-key film-key-current" aria-hidden="true"></span
-              ><span data-i18n="diagramCurrent">Current node</span>
-            </li>
-            <li>
-              <span class="film-key film-key-visited" aria-hidden="true"></span
-              ><span data-i18n="diagramVisited">Visited</span>
-            </li>
-            <li>
-              <span class="film-key film-key-pending" aria-hidden="true">?</span
-              ><span data-i18n="diagramPending">Awaiting final check</span>
-            </li>
-            <li>
-              <span class="film-key film-key-result" aria-hidden="true">✓</span
-              ><span data-i18n="diagramResult">Confirmed result</span>
-            </li>
-            <li>
-              <span class="film-key film-key-excluded" aria-hidden="true"
-                >×</span
-              ><span data-i18n="diagramExcluded">Excluded card</span>
-            </li>
-          </ul>
-          <div class="film-grid">
-            <article>
-              <h4 class="film-route-heading">
-                Search down <span>Forward · card ↓ warning</span>
-              </h4>
-              <div id="film-forward" class="film-scene"></div>
-              <p id="film-forward-work" class="film-work mono"></p>
-              <p id="film-forward-result"></p>
-              <p id="film-forward-caption" class="film-caption"></p>
-            </article>
-            <article>
-              <h4 class="film-route-heading">
-                Search up <span>Inverse · warning ↑ card</span>
-              </h4>
-              <div id="film-inverse" class="film-scene"></div>
-              <p id="film-inverse-work" class="film-work mono"></p>
-              <p id="film-inverse-result"></p>
-              <p id="film-inverse-caption" class="film-caption"></p>
-            </article>
-          </div>
-        </div>
-        <p class="context">
-          Playback advances one illustrated step at a time. Steps can take
-          different amounts of time, so finishing first here does not prove a
-          speedup. Edit the DOM below to compare the searches. With reduced
-          motion enabled, the ring stays still and the same steps remain
-          available.
-        </p>
-        <details id="dom-editor">
-          <summary>Edit the DOM and inspect each step</summary>
-          <div class="lab">
-            <div class="lab-header">
-              <div>
-                <span class="badge">Editable sample DOM</span>
+                <button data-calc-stage="0" aria-pressed="true">
+                  1. Query facts
+                </button>
+                <button data-calc-stage="1" aria-pressed="false">
+                  2. Saved numbers
+                </button>
+                <button data-calc-stage="2" aria-pressed="false">
+                  3. Route recommendation
+                </button>
+              </div>
+              <section id="calculation-input-panel">
+                <h3>Six inputs, all available before searching</h3>
                 <p>
-                  Change each card’s warning count. Follow the highlighted node
-                  to see how the result is built.
+                  The model reads two separate filter flags. Saved means and
+                  scales normalize the inputs so their different units are
+                  easier to train on.
                 </p>
-              </div>
-              <code>.card:has(.warning)</code>
-            </div>
-            <div class="search-layout">
-              <div>
-                <div class="dom-cards" id="dom-cards"></div>
-                <label class="check"
-                  ><input type="checkbox" id="outside-warning" checked /> Add a
-                  warning outside all cards</label
-                >
-                <div class="legend">
-                  <span class="legend-current">Examining now</span
-                  ><span class="legend-marked">Marked ancestor</span
-                  ><span class="legend-match">Confirmed match</span>
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Query fact</th>
+                        <th>Raw input</th>
+                        <th>Normalized input</th>
+                      </tr>
+                    </thead>
+                    <tbody id="calculation-features"></tbody>
+                  </table>
                 </div>
-              </div>
-              <div class="trace-panel">
-                <fieldset class="route-control">
-                  <legend>Trace one search direction</legend>
-                  <label
-                    ><input
-                      id="route-forward"
-                      type="radio"
-                      name="route"
-                      value="forward"
-                      checked
-                    />
-                    Search down <small>Forward · card ↓ warning</small></label
-                  ><label
-                    ><input
-                      id="route-inverse"
-                      type="radio"
-                      name="route"
-                      value="inverse"
-                    />
-                    Search up <small>Inverse · warning ↑ card</small></label
-                  >
-                </fieldset>
-                <p class="small route-teaching-note">
-                  Choose either route to see its work. This small example has
-                  fewer than 32 cards, so <code>nwsapi</code> would skip the
-                  model.
-                </p>
-                <p id="route-explanation"></p>
-                <div class="step-controls">
-                  <button id="step-back">Back</button
-                  ><button id="step-next" class="primary">Next step</button
-                  ><button id="step-reset">Replay</button
-                  ><button id="step-play" aria-pressed="false">Play</button>
-                </div>
-                <p id="step-count" class="mono"></p>
-                <p id="search-phase" class="badge"></p>
-                <div
-                  id="trace-description"
-                  class="trace-description"
-                  role="status"
-                  aria-live="polite"
-                ></div>
                 <p class="small">
-                  <span id="search-work"></span><br />Select
-                  <strong>Play</strong>
-                  to advance one step at a time.
+                  <code>normalized = (input − savedMean) / savedScale</code>.
+                  The exporter folds this calculation into its coefficients. The
+                  runtime does not need a separate normalization pass.
                 </p>
-              </div>
-            </div>
-            <div class="result-strip">
-              <strong>Result so far</strong><span id="match-result"></span>
-            </div>
-          </div>
-          <p class="context">
-            This four-card example illustrates search order, not a model
-            decision. Each step visits an element or follows a parent link. Step
-            counts do not measure query time.
-          </p>
-        </details>
-        <div class="lab discovery">
-          <p class="eyebrow">Predict the matching cards</p>
-          <h3>Change the relationship. What happens?</h3>
-          <div class="step-controls">
-            <button data-challenge="outside">Move A’s warning outside</button>
-            <button data-challenge="duplicate">Two warnings in A</button>
-            <button data-challenge="empty">No warnings inside</button>
-          </div>
-          <p id="challenge-question">
-            Pick a situation above. Predict the result before following the
-            search.
-          </p>
-          <div class="prediction-controls">
-            <div class="prediction-label">
-              <label for="challenge-prediction">Which cards match?</label>
-              <div class="prediction-field">
-                <span class="qa-marker" aria-hidden="true" translate="no"
-                  >Q</span
-                >
-                <select id="challenge-prediction" class="theme-select">
-                  <option value="">Choose the result…</option>
-                  <option value="A,C">A and C</option>
-                  <option value="C">Only C</option>
-                  <option value="A,A,C">A, A, and C</option>
-                  <option value="none">No cards</option>
-                </select>
-              </div>
-            </div>
-            <div class="prediction-answer">
-              <span class="qa-marker" aria-hidden="true" translate="no">A</span>
-              <button id="challenge-reveal">Reveal and explain</button>
-            </div>
-          </div>
-          <p id="challenge-feedback" role="status" aria-live="polite">
-            Choose a result, then reveal the explanation.
-          </p>
-        </div>
-        <details id="route-comparison">
-          <summary>Compare the work done by each route</summary>
-          <div class="comparison-grid">
-            <article>
-              <h3>Search down</h3>
-              <p id="forward-counts" class="mono"></p>
-              <p id="forward-matches"></p>
-              <button data-force="forward">Trace down</button>
-            </article>
-            <article>
-              <h3>Search up</h3>
-              <p id="inverse-counts" class="mono"></p>
-              <p id="inverse-matches"></p>
-              <button data-force="inverse">Trace up</button>
-            </article>
-          </div>
-          <p id="forced-explanation" class="context"></p>
-          <p class="small">
-            These counts include the complete search on your edited DOM. A visit
-            checks a candidate or descendant. An ancestor step follows a parent
-            link. Both result lists are checked against an exact DOM query.
-            <code>nwsapi</code> has optimizations omitted from this
-            demonstration.
-          </p>
-          <p>
-            In <code>nwsapi</code>, a slow recommendation still runs. There is
-            no automatic timing check and retry. A failed callback or an
-            unsupported query retains the ordinary route.
-          </p>
-        </details>
-        <details>
-          <summary>Why can one direction be cheaper?</summary>
-          <p>
-            Searching down can stop inside a card as soon as it finds a witness.
-            Searching up starts with the witness candidates and marks ancestors,
-            which can avoid repeatedly searching inside cards. Candidate counts,
-            selector filters, and DOM shape affect the work. Counting the
-            visible arrows alone does not predict query time.
-          </p>
-        </details>
-        <div class="lab discovery" id="bridge">
-          <p class="eyebrow">Try a larger query</p>
-          <h3>Build a query that can use the model.</h3>
-          <p>
-            Use the starter pattern: A and C contain warnings, B and D do not.
-            Repeat it 16 times, give each matching card six warnings, and add
-            <code>[data-ok="1"]</code> to every card. This constructs 64 card
-            candidates and 192 warning candidates. The exact result still
-            depends on the DOM relationship.
-          </p>
-          <button id="bridge-grow" class="primary">
-            Build the larger DOM and load its counts
-          </button>
-          <div id="bridge-grid" class="bridge-grid" aria-hidden="true"></div>
-          <p id="bridge-result" role="status" aria-live="polite">
-            The four-card lesson has fewer than 32 anchors, so the runtime never
-            needs a model call.
-          </p>
-          <p>
-            The tiles show matching cards. This constructed example illustrates
-            eligibility checks without training data or timing measurements.
-          </p>
-          <a href="#policy">See how the model uses these counts ↓</a>
-        </div>
-      </section>
-      <section
-        id="policy"
-        class="chapter"
-        data-scroll-theme="when"
-        aria-labelledby="policy-title"
-      >
-        <p class="eyebrow" aria-hidden="true">When</p>
-        <h2 id="policy-title" aria-label="When can the model change the route?">
-          can the model change the route?
-        </h2>
-        <p class="section-intro">
-          The existing count rule chooses the default route. If a query passes
-          the eligibility checks, the model can switch it from searching down to
-          searching up. Both routes return the same exact matches.
-        </p>
-        <div class="lab policy-layout">
-          <form id="policy-controls" class="controls">
-            <label
-              >Environment
-              <select id="host" class="theme-select">
-                <option value="chromium">Browser</option>
-                <option value="jsdom">jsdom</option>
-              </select></label
-            >
-            <p class="environment-note">Each environment has its own model.</p>
-            <label
-              >Anchor candidates
-              <output id="anchor-output" for="anchors"></output
-              ><input
-                id="anchors"
-                type="range"
-                min="8"
-                max="256"
-                step="8"
-                value="64"
-            /></label>
-            <label
-              >Witness candidates
-              <output id="witness-output" for="witnesses"></output
-              ><input
-                id="witnesses"
-                type="range"
-                min="0"
-                max="1024"
-                step="8"
-                value="192"
-            /></label>
-            <fieldset>
-              <legend>Selector filters</legend>
-              <label class="check"
-                ><input type="checkbox" id="anchor-filter" checked /> Card needs
-                <code>[data-ok="1"]</code></label
-              ><label class="check"
-                ><input type="checkbox" id="witness-filter" /> Warning needs
-                <code>[data-ok="1"]</code></label
-              >
-            </fieldset>
-            <label class="check"
-              ><input type="checkbox" id="planner-enabled" checked /> Enable the
-              planner</label
-            >
-            <div class="presets">
-              <span>Try a case</span
-              ><button type="button" data-preset="eligible">
-                Eligible query</button
-              ><button type="button" data-preset="tiny">Too small</button
-              ><button type="button" data-preset="inverse">
-                Already searching up</button
-              ><button type="button" data-preset="unfiltered">No filters</button
-              ><button type="button" data-preset="range">
-                Outside trained range
-              </button>
-            </div>
-          </form>
-          <div class="policy-readout">
-            <code id="policy-selector" class="query-block"></code>
-            <p class="small">
-              Assumes an HTML document in standards mode, document context, pure
-              compiler, and WeakMap support.
-            </p>
-            <div
-              class="route-outcomes"
-              aria-label="Route choice comparison"
-              role="status"
-              aria-live="polite"
-            >
-              <article>
-                <span class="eyebrow">Traditional count rule</span>
-                <h3 id="traditional-choice">Search down</h3>
-                <p id="traditional-detail" class="small"></p>
-              </article>
-              <article class="planner-outcome">
-                <span class="eyebrow">Optional model planner</span>
-                <h3 id="decision-title">Not evaluated</h3>
-                <p id="decision-detail" class="small"></p>
-              </article>
-            </div>
-            <ol id="guard-list" class="guard-list"></ol>
-            <p class="route-consequence">
-              The route changes the search order. Exact selector checks decide
-              which elements match. Results stay in document order.
-              <a href="#motion" class="search-route-link"
-                >Compare both search routes ↑</a
-              >
-            </p>
-            <details>
-              <summary>See the function inputs</summary>
-              <pre id="policy-inputs"></pre>
-              <p>
-                The attribute mask stores two filter flags. The function reads
-                them separately. The ratio is witness count divided by anchor
-                count. Candidate counts come before the remaining selector
-                checks.
-              </p>
-            </details>
-          </div>
-        </div>
-        <p class="context">
-          This explorer calls the committed <code>chromiumPolicy</code> or
-          <code>jsdomPolicy</code> function with fixed weights. The checks show
-          when <code>nwsapi</code> can call it. This is not a query benchmark.
-        </p>
-        <div class="lab discovery" id="impact">
-          <p class="eyebrow">
-            Why the route can matter · estimated, not measured
-          </p>
-          <h3>Connect the route choice to the work</h3>
-          <p>
-            Use the actual route choice above on an imaginary DOM. Count the
-            illustrated traversal work, then assign a cost to each operation.
-            Try late warnings and early warnings: the policy sees the same
-            counts, but the amount of work changes.
-          </p>
-          <div id="impact-controls" class="impact-controls">
-            <div class="step-controls">
-              <button data-impact-prefix="64">
-                Warnings after lots of text</button
-              ><button data-impact-prefix="1">Warnings near the start</button>
-            </div>
-            <label
-              >Neutral elements before warnings, per card
-              <output id="impact-prefix-output" for="impact-prefix"></output
-              ><input
-                id="impact-prefix"
-                type="range"
-                min="0"
-                max="256"
-                step="1"
-                value="64"
-            /></label>
-            <details>
-              <summary>Edit the imaginary timing assumptions</summary>
-              <label
-                >Cost per candidate/descendant visit
-                <output id="impact-visit-output" for="impact-visit"></output
-                ><input
-                  id="impact-visit"
-                  type="range"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value="20"
-              /></label>
-              <label
-                >Cost per ancestor step
-                <output
-                  id="impact-ancestor-output"
-                  for="impact-ancestor"
-                ></output
-                ><input
-                  id="impact-ancestor"
-                  type="range"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value="10"
-              /></label>
-              <label
-                >Additional model call cost
-                <output id="impact-call-output" for="impact-call"></output
-                ><input
-                  id="impact-call"
-                  type="range"
-                  min="0"
-                  max="2000"
-                  step="25"
-                  value="250"
-              /></label>
-              <p class="small">
-                These values are assumptions, not Chromium or jsdom
-                measurements. The estimate omits shared candidate discovery,
-                detailed eligibility checks, and JIT effects.
-              </p>
-            </details>
-          </div>
-          <p id="impact-eligibility" role="status" aria-live="polite"></p>
-          <div id="impact-results">
-            <div class="comparison-grid">
-              <article>
-                <h4 id="impact-fallback-route"></h4>
-                <p id="impact-fallback-steps" class="work-total"></p>
-                <p id="impact-fallback-detail" class="small"></p>
-                <div class="timing-track">
-                  <div id="impact-fallback-bar" class="timing-fill"></div>
-                </div>
+              </section>
+              <section id="calculation-unit-panel" hidden>
+                <h3>Multiply by weights and add a bias</h3>
                 <p>
-                  <strong id="impact-fallback-time"></strong> illustrative time
+                  A weight is a multiplier. A bias is the starting value of the
+                  sum. Chromium makes four intermediate sums, then ReLU replaces
+                  any negative sum with zero. jsdom goes directly to one linear
+                  score.
+                </p>
+                <div id="calculation-units" class="unit-grid"></div>
+                <pre id="calculation-math"></pre>
+              </section>
+              <section id="calculation-output-panel" hidden>
+                <h3>Compare the score with a saved threshold</h3>
+                <p>
+                  Chromium combines the hidden values using another set of saved
+                  weights. jsdom already has its score. A value above the
+                  threshold recommends searching up. Otherwise, the search
+                  continues downward.
+                </p>
+                <p id="calculation-score" class="query-block"></p>
+                <pre id="calculation-output"></pre>
+                <p id="calculation-check" class="context"></p>
+              </section>
+            </div>
+            <p class="context">
+              The calculator uses the committed
+              <code>{host}-weights.generated.json</code> files and your current
+              inputs. Displayed values are rounded. The route recommendation
+              comes from the generated function.
+            </p>
+            <a href="#source" class="source-jump" data-source="generated">
+              Compare with the generated JavaScript
+              <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+              </svg>
+            </a>
+          </details>
+          <p class="callout">
+            <strong>What if the model picks the slower route?</strong> A poor
+            recommendation can increase query time. Both routes still use exact
+            DOM checks and preserve result order. <code>nwsapi</code> does not
+            detect a slower recommendation and retry the other route. Training,
+            validation, and benchmarks reduce this risk without guaranteeing
+            every choice is faster.
+          </p>
+          <details>
+            <summary>When does it fall back to the existing route?</summary>
+            <p>
+              Unsupported queries keep the existing route. If the optional
+              callback throws or returns anything other than <code>true</code>,
+              the downward search continues. If the count rule already chose
+              upward search, that choice stays. These guards handle unsupported
+              inputs and callback failures. A valid recommendation that turns
+              out to be slower still runs the recommended route.
+            </p>
+            <a href="#source" class="source-jump" data-source="match">
+              See the guards and exact matching code
+              <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+              </svg>
+            </a>
+          </details>
+          <details>
+            <summary>Model terms and arithmetic</summary>
+            <div class="definition-grid">
+              <article>
+                <h3>Model</h3>
+                <p>
+                  A function with numeric parameters learned from measured
+                  examples. Here, it returns a boolean route recommendation.
                 </p>
               </article>
               <article>
-                <h4 id="impact-policy-route"></h4>
-                <p id="impact-policy-steps" class="work-total"></p>
-                <p id="impact-policy-detail" class="small"></p>
-                <div class="timing-track">
-                  <div id="impact-policy-bar" class="timing-fill"></div>
-                </div>
+                <h3>Policy</h3>
                 <p>
-                  <strong id="impact-policy-time"></strong> illustrative time
+                  A rule for choosing an action from the available facts. Here,
+                  the action is whether to switch from searching down to up.
+                </p>
+              </article>
+              <article>
+                <h3>Inference</h3>
+                <p>
+                  Calling the trained function. Ordinary JavaScript multiplies
+                  inputs by saved weights, adds them, and checks a threshold.
                 </p>
               </article>
             </div>
-            <p id="impact-explanation" class="context"></p>
-            <p
-              id="impact-difference"
-              class="callout"
-              role="status"
-              aria-live="polite"
-            ></p>
-            <div id="impact-formula" aria-labelledby="impact-formula-title">
-              <h4 id="impact-formula-title">Estimated time with model</h4>
-              <dl class="impact-cost-terms">
-                <div>
-                  <dt>Visits</dt>
-                  <dd id="impact-visit-term"></dd>
-                </div>
-                <div>
-                  <dt>Ancestor steps</dt>
-                  <dd id="impact-ancestor-term"></dd>
-                </div>
-                <div>
-                  <dt>Model overhead</dt>
-                  <dd id="impact-model-term"></dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-          <p class="context">
-            The estimate multiplies visit and ancestor counts by your assumed
-            costs. Both routes return the same cards. These counts describe the
-            sample traversal, not CPU instructions. Verify actual performance
-            with complete query measurements using the built
-            <code>nwsapi</code> bundle.
-          </p>
-        </div>
-        <details id="calculation">
-          <summary>Calculate the route recommendation</summary>
-          <p id="calculation-host" class="mono"></p>
-          <p id="calculation-guard" role="status" aria-live="polite"></p>
-          <div id="calculation-arithmetic">
-            <div
-              class="step-controls"
-              role="group"
-              aria-label="Calculation stages"
-            >
-              <button data-calc-stage="0" aria-pressed="true">
-                1. Query facts
-              </button>
-              <button data-calc-stage="1" aria-pressed="false">
-                2. Saved numbers
-              </button>
-              <button data-calc-stage="2" aria-pressed="false">
-                3. Route recommendation
-              </button>
-            </div>
-            <section id="calculation-input-panel">
-              <h3>Six inputs, all available before searching</h3>
-              <p>
-                The model reads two separate filter flags. Saved means and
-                scales normalize the inputs so their different units are easier
-                to train on.
-              </p>
-              <div class="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Query fact</th>
-                      <th>Raw input</th>
-                      <th>Normalized input</th>
-                    </tr>
-                  </thead>
-                  <tbody id="calculation-features"></tbody>
-                </table>
-              </div>
-              <p class="small">
-                <code>normalized = (input − savedMean) / savedScale</code>. The
-                exporter folds this calculation into its coefficients. The
-                runtime does not need a separate normalization pass.
-              </p>
-            </section>
-            <section id="calculation-unit-panel" hidden>
-              <h3>Multiply by weights and add a bias</h3>
-              <p>
-                A weight is a multiplier. A bias is the starting value of the
-                sum. Chromium makes four intermediate sums, then ReLU replaces
-                any negative sum with zero. jsdom goes directly to one linear
-                score.
-              </p>
-              <div id="calculation-units" class="unit-grid"></div>
-              <pre id="calculation-math"></pre>
-            </section>
-            <section id="calculation-output-panel" hidden>
-              <h3>Compare the score with a saved threshold</h3>
-              <p>
-                Chromium combines the hidden values using another set of saved
-                weights. jsdom already has its score. A value above the
-                threshold recommends searching up. Otherwise, the search
-                continues downward.
-              </p>
-              <p id="calculation-score" class="query-block"></p>
-              <pre id="calculation-output"></pre>
-              <p id="calculation-check" class="context"></p>
-            </section>
-          </div>
-          <p class="context">
-            The calculator uses the committed
-            <code>{host}-weights.generated.json</code> files and your current
-            inputs. Displayed values are rounded. The route recommendation comes
-            from the generated function.
-          </p>
-          <a href="#source" class="source-jump" data-source="generated">
-            Compare with the generated JavaScript
-            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
-              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-            </svg>
-          </a>
-        </details>
-        <p class="callout">
-          <strong>What if the model picks the slower route?</strong> A poor
-          recommendation can increase query time. Both routes still use exact
-          DOM checks and preserve result order. <code>nwsapi</code> does not
-          detect a slower recommendation and retry the other route. Training,
-          validation, and benchmarks reduce this risk without guaranteeing every
-          choice is faster.
-        </p>
-        <details>
-          <summary>When does it fall back to the existing route?</summary>
-          <p>
-            Unsupported queries keep the existing route. If the optional
-            callback throws or returns anything other than <code>true</code>,
-            the downward search continues. If the count rule already chose
-            upward search, that choice stays. These guards handle unsupported
-            inputs and callback failures. A valid recommendation that turns out
-            to be slower still runs the recommended route.
-          </p>
-          <a href="#source" class="source-jump" data-source="match">
-            See the guards and exact matching code
-            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
-              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-            </svg>
-          </a>
-        </details>
-        <details>
-          <summary>Model terms and arithmetic</summary>
-          <div class="definition-grid">
-            <article>
-              <h3>Model</h3>
-              <p>
-                A function with numeric parameters learned from measured
-                examples. Here, it returns a boolean route recommendation.
-              </p>
-            </article>
-            <article>
-              <h3>Policy</h3>
-              <p>
-                A rule for choosing an action from the available facts. Here,
-                the action is whether to switch from searching down to up.
-              </p>
-            </article>
-            <article>
-              <h3>Inference</h3>
-              <p>
-                Calling the trained function. Ordinary JavaScript multiplies
-                inputs by saved weights, adds them, and checks a threshold.
-              </p>
-            </article>
-          </div>
-          <h3>Hidden units and the output</h3>
+            <h3>Hidden units and the output</h3>
 
-          <p>
-            A hidden unit makes an intermediate number from the inputs. Chromium
-            uses four of these, each with a ReLU operation that replaces a
-            negative value with zero. Their weighted outputs produce a final
-            score. The saved jsdom model has no hidden layer.
-          </p>
-          <pre>
+            <p>
+              A hidden unit makes an intermediate number from the inputs.
+              Chromium uses four of these, each with a ReLU operation that
+              replaces a negative value with zero. Their weighted outputs
+              produce a final score. The saved jsdom model has no hidden layer.
+            </p>
+            <pre>
 hidden = Math.max(0, bias + weight1 * input1 + …)
 score  = outputBias + outputWeight1 * hidden1 + …
 override = score > savedThreshold</pre>
-          <p>
-            A weight multiplies an input. A bias adds a constant. Training
-            adjusts both. The output recommends a route. It does not predict
-            whether an element matches or express a probability. Queries run in
-            JavaScript without Python, a GPU, or a remote model.
-          </p>
-          <a href="#source" class="source-jump" data-source="generated">
-            Open the actual generated function
-            <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
-              <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-            </svg>
-          </a>
-        </details>
-      </section>
-      <section
-        id="source"
-        class="chapter"
-        data-scroll-theme="where"
-        aria-labelledby="source-heading"
-      >
-        <p class="eyebrow" aria-hidden="true">Where</p>
-        <h2 id="source-heading" aria-label="Where does the model run?">
-          does the model run?
-        </h2>
-        <p class="section-intro">
-          The model runs inside the <code>nwsapi</code> bundle. PyTorch is only
-          needed during training. Repository scripts export its saved weights to
-          JavaScript and generate a typed module. The build includes that fixed
-          module in <code>dist/nwsapi.js</code>.
-        </p>
-        <div class="lab source-layout">
-          <div
-            id="source-list"
-            class="source-list"
-            role="group"
-            aria-label="Source files"
-          ></div>
-          <div class="source-preview">
-            <span id="source-role" class="eyebrow"></span>
-            <h3 id="source-title"></h3>
-            <p id="source-explanation"></p>
-            <pre id="source-code"></pre>
-            <a id="source-link" target="_blank" rel="noreferrer">
-              Read the full file on GitHub
-              <span class="github-icon" aria-hidden="true"></span>
+            <p>
+              A weight multiplies an input. A bias adds a constant. Training
+              adjusts both. The output recommends a route. It does not predict
+              whether an element matches or express a probability. Queries run
+              in JavaScript without Python, a GPU, or a remote model.
+            </p>
+            <a href="#source" class="source-jump" data-source="generated">
+              Open the actual generated function
+              <svg class="source-arrow" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+              </svg>
             </a>
-          </div>
-        </div>
-        <details>
-          <summary>Generated files and their paths</summary>
-          <table>
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <code>assets/repo/pytorch/model/{host}.generated.pt</code>
-                </td>
-                <td>PyTorch checkpoint for developer tooling.</td>
-              </tr>
-              <tr>
-                <td>
-                  <code
-                    >assets/repo/pytorch/model/{host}-weights.generated.json</code
-                  >
-                </td>
-                <td>Exported numbers and metadata.</td>
-              </tr>
-              <tr>
-                <td>
-                  <code>assets/repo/pytorch/model/{host}.generated.mjs</code>
-                </td>
-                <td>JavaScript written by the Python exporter.</td>
-              </tr>
-              <tr>
-                <td><code>assets/repo/pytorch/model/model.txt</code></td>
-                <td>The pinned model ID and source artifact.</td>
-              </tr>
-              <tr>
-                <td>
-                  <code>src/core/select/has/route-decision.generated.mts</code>
-                </td>
-                <td>
-                  Typed module generated by the repository. Imported directly by
-                  the runtime.
-                </td>
-              </tr>
-              <tr>
-                <td><code>dist/nwsapi.js</code></td>
-                <td>
-                  Built <code>nwsapi</code> bundle, including the saved
-                  policies.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            <code>{host}</code> is <code>chromium</code> or <code>jsdom</code>.
-            <code>.generated.</code> is the repository’s naming convention.
-            PyTorch does not create <code>.mts</code> files. There is no glob,
-            latest-model search, or query-time download.
+          </details>
+        </section>
+        <section
+          id="source"
+          class="chapter"
+          data-scroll-theme="where"
+          aria-labelledby="source-heading"
+        >
+          <p class="eyebrow" aria-hidden="true">Where</p>
+          <h2 id="source-heading" aria-label="Where does the model run?">
+            does the model run?
+          </h2>
+          <p class="section-intro">
+            The model runs inside the <code>nwsapi</code> bundle. PyTorch is
+            only needed during training. Repository scripts export its saved
+            weights to JavaScript and generate a typed module. The build
+            includes that fixed module in <code>dist/nwsapi.js</code>.
           </p>
-        </details>
-        <details>
-          <summary>Use the model or rebuild its module</summary>
-          <pre>
+          <div class="lab source-layout">
+            <div
+              id="source-list"
+              class="source-list"
+              role="group"
+              aria-label="Source files"
+            ></div>
+            <div class="source-preview">
+              <span id="source-role" class="eyebrow"></span>
+              <h3 id="source-title"></h3>
+              <p id="source-explanation"></p>
+              <pre id="source-code"></pre>
+              <a id="source-link" target="_blank" rel="noreferrer">
+                <span class="github-icon" aria-hidden="true"></span>
+                <span class="code-source-label" data-i18n="readFullFileOnGitHub"
+                  >Read full file on GitHub</span
+                >
+              </a>
+            </div>
+          </div>
+          <details>
+            <summary>Generated files and their paths</summary>
+            <table>
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <code
+                      ><span>assets/repo/pytorch/model/</span
+                      ><span>{host}.generated.pt</span></code
+                    >
+                  </td>
+                  <td>PyTorch checkpoint for developer tooling.</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code
+                      ><span>assets/repo/pytorch/model/</span
+                      ><span>{host}-weights.generated.json</span></code
+                    >
+                  </td>
+                  <td>Exported numbers and metadata.</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code
+                      ><span>assets/repo/pytorch/model/</span
+                      ><span>{host}.generated.mjs</span></code
+                    >
+                  </td>
+                  <td>JavaScript written by the Python exporter.</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code
+                      ><span>assets/repo/pytorch/model/</span
+                      ><span>model.txt</span></code
+                    >
+                  </td>
+                  <td>The pinned model ID and source artifact.</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code
+                      ><span>src/core/select/has/</span
+                      ><span>route-decision.generated.mts</span></code
+                    >
+                  </td>
+                  <td>
+                    Typed module generated by the repository. Imported directly
+                    by the runtime.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <code><span>dist/</span><span>nwsapi.js</span></code>
+                  </td>
+                  <td>
+                    Built <code>nwsapi</code> bundle, including the saved
+                    policies.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              <code>{host}</code> is <code>chromium</code> or
+              <code>jsdom</code>. <code>.generated.</code> is the repository’s
+              naming convention. PyTorch does not create
+              <code>.mts</code> files. There is no glob, latest-model search, or
+              query-time download.
+            </p>
+          </details>
+          <details>
+            <summary>Use the model or rebuild its module</summary>
+            <pre>
 // An `nwsapi` instance created directly for jsdom:
 engine.useNeuralPlanner('jsdom')
 const matches = engine.select('.card[data-ok="1"]:has(.warning)', document)
 
 // Disable calls to the selected policy:
 engine.configure({ NEURAL_PLANNER: false })</pre>
-          <p>
-            New <code>nwsapi</code> instances select the Chromium policy by
-            default. The jsdom adapter selects its own profile. Existing query
-            calls stay the same. To rebuild from the committed JavaScript
-            exports:
-          </p>
-          <pre>
+            <p>
+              New <code>nwsapi</code> instances select the Chromium policy by
+              default. The jsdom adapter selects its own profile. Existing query
+              calls stay the same. To rebuild from the committed JavaScript
+              exports:
+            </p>
+            <pre>
 pnpm run gen:has-route-decision
 pnpm run build</pre>
+            <p>
+              These commands do not retrain the weights. The training entry
+              point is <code>pnpm run bench:planner:dispatch:train</code>, with
+              input and output arguments. Read the trainer and setup
+              documentation before starting an expensive training run.
+            </p>
+          </details>
+        </section>
+        <aside id="evidence" class="closing" data-scroll-theme="where">
+          <p class="eyebrow">What the evidence currently supports</p>
+          <h2>Measure the whole query</h2>
           <p>
-            These commands do not retrain the weights. The training entry point
-            is <code>pnpm run bench:planner:dispatch:train</code>, with input
-            and output arguments. Read the trainer and setup documentation
-            before starting an expensive training run.
+            Both routes preserve exact matches and document order. The model can
+            still slow a query down, including the cost of its checks and
+            callback. Recorded synthetic tests show both speedups and slowdowns.
+            They do not establish a general speedup or show that the model beats
+            a simpler fitted rule.
           </p>
-        </details>
-      </section>
-      <aside class="closing">
-        <p class="eyebrow">What the evidence currently supports</p>
-        <h2>Measure the whole query</h2>
-        <p>
-          Both routes preserve exact matches and document order. The model can
-          still slow a query down, including the cost of its checks and
-          callback. Recorded synthetic tests show both speedups and slowdowns.
-          They do not establish a general speedup or show that the model beats a
-          simpler fitted rule.
-        </p>
-        <a href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
-          >Read the crossed-query results
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
-        ><a href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
-          >Read the dispatch follow-up
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
-        ><a href="./model-guide-reading.html?doc=pytorch-for-beginners"
-          >Read the text guide
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 12h16m-6-6 6 6-6 6" /></svg
-        ></a>
-      </aside>
-    </main>
-    <footer>
-      <a href="#start">Back to the beginning ↑</a>
-    </footer>
+          <a
+            href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
+            >Read the crossed-query results
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
+          ><a href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
+            >Read the dispatch follow-up
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg></a
+          ><a href="./model-guide-reading.html?doc=pytorch-for-beginners"
+            >Read how the routing model works
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 12h16m-6-6 6 6-6 6" /></svg
+          ></a>
+        </aside>
+      </main>
+      <div class="reading-sidebar-rail">
+        <aside class="reading-sidebar">
+          <details id="reading-navigation" open>
+            <summary>
+              <span data-i18n="onThisPage">On this page</span>
+              <svg
+                class="reading-contents-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" />
+              </svg>
+            </summary>
+            <nav aria-label="On this page" data-i18n-aria="onThisPage">
+              <ol id="reading-contents">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#training">What is the model?</a></li>
+                <li><a href="#search">Why search in two directions?</a></li>
+                <li>
+                  <a href="#policy">When can the model change the route?</a>
+                </li>
+                <li><a href="#source">Where does the model run?</a></li>
+                <li><a href="#evidence">What the evidence supports</a></li>
+              </ol>
+            </nav>
+          </details>
+          <nav
+            class="reading-related"
+            aria-label="Further reading"
+            data-i18n-aria="furtherReading"
+          >
+            <h2 data-i18n="furtherReading">Further reading</h2>
+            <ul>
+              <li>
+                <a href="./model-guide-reading.html?doc=pytorch-for-beginners"
+                  >How the routing model works</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./model-guide-reading.html?doc=neural-dispatch-crossed-outcome"
+                  >Crossed-query results</a
+                >
+              </li>
+              <li>
+                <a
+                  href="./model-guide-reading.html?doc=neural-dispatch-jit-outcome"
+                  >Dispatch follow-up</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </aside>
+      </div>
+    </div>
     <noscript
       ><p>
         This guide needs JavaScript for the interactive examples.
         <a
           href="https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/docs/repo/perf/pytorch-for-beginners.md"
-          >Read the text guide.</a
+          >Read how the routing model works.</a
         >
       </p></noscript
     >

@@ -10,7 +10,7 @@ and the trained model weights are unchanged.
 
 ## Read the charts
 
-[Open the HTML report](https://nwsapi-model-guide.localhost:1355/neural-dispatch-jit-2026-10-05.html).
+[Open the HTML report](../../../assets/repo/bench/survey-2026-10-03/neural-dispatch-jit-2026-10-05.html).
 Lower bars mean less time and faster queries. Current v3 is 100%. A bar at
 80% means the query takes 20% less time than current v3.
 

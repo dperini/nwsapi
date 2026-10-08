@@ -6,9 +6,19 @@ import { initializeHighlighting } from './highlight.mts'
 import { initializeLinkMarkers } from './links.mts'
 import { currentLocale, initializeLocale, translate } from './locale.mts'
 import { localizeText } from './locale-content.mts'
+import { reportMarkup } from './reading-report.mts'
+import {
+  initializeReadingContents,
+  renderReadingNavigation,
+} from './reading-navigation.mts'
 
 const documentLoaders = import.meta.glob<string>(
-  ['../../../**/*.md', '../../../../README.md'],
+  [
+    '../../../**/*.md',
+    '../../../../README.md',
+    '../../../../assets/repo/bench/survey-2026-10-03/neural-dispatch-crossed-2026-10-05.html',
+    '../../../../assets/repo/bench/survey-2026-10-03/neural-dispatch-jit-2026-10-05.html',
+  ],
   { query: '?raw', import: 'default' },
 )
 const documents = Object.fromEntries(
@@ -37,27 +47,47 @@ const revision = 'prerelease/3.0.0'
 const labels: Record<string, string> = {
   'neural-dispatch-crossed-outcome': 'Crossed-query results',
   'neural-dispatch-jit-outcome': 'Dispatch follow-up',
-  'pytorch-for-beginners': 'Text guide',
+  'pytorch-for-beginners': 'How the routing model works',
   'neural-dispatch-crossed-plan': 'Measurement plan',
   'neural-dispatch-jit-plan': 'Dispatch plan',
   'neural-dispatch-jit-tasks': 'Further work',
   'neural-planner-integration': 'Implementation notes',
+  'neural-dispatch-crossed-2026-10-05': 'Crossed-query report',
+  'neural-dispatch-jit-2026-10-05': 'Dispatch and JIT report',
 }
 const markdown = new Marked({ gfm: true })
 
-function documentHref(slug: string) {
+export function documentHref(slug: string) {
   return `./model-guide-reading.html?doc=${encodeURIComponent(slug)}`
 }
 
-function reportHref(url: URL) {
+export function reportHref(url: URL) {
   const name = url.pathname.split('/').pop()
-  const entry = Object.entries(reports).find(([path]) =>
-    path.endsWith(`/${name}`),
+  const entry = Object.entries(reports).find(
+    ([path, emitted]) =>
+      path.endsWith(`/${name}`) || emitted.endsWith(`/${name}`),
   )
-  return entry ? entry[1] + url.hash : undefined
+  return entry
+    ? documentHref(
+        new URL(
+          entry[0],
+          'https://guide.invalid/docs/repo/perf/pytorch-has-routing/',
+        ).pathname.slice(1),
+      ) + url.hash
+    : undefined
 }
 
-function resolveLink(href: string): string | undefined {
+export function documentMarkup(source: string, locale: 'en' | 'it') {
+  return documentPath.endsWith('.html')
+    ? reportMarkup(source, locale)
+    : readingMarkup(markdown.parse(source, { async: false }))
+}
+
+export function contentsSelector() {
+  return documentPath.endsWith('.html') ? 'h2' : 'h2, h3'
+}
+
+export function resolveLink(href: string): string | undefined {
   const url = new URL(href, sourceBase)
   if (!['https:', 'http:', 'mailto:'].includes(url.protocol)) {
     return undefined
@@ -85,7 +115,7 @@ function resolveLink(href: string): string | undefined {
   return `${repository}/${view}/${revision}${url.pathname}${url.hash}`
 }
 
-function prepareLinks(article: HTMLElement) {
+export function prepareLinks(article: HTMLElement) {
   for (const link of article.querySelectorAll<HTMLAnchorElement>('a[href]')) {
     const href = resolveLink(link.getAttribute('href')!)
     if (href) {
@@ -103,7 +133,7 @@ function prepareLinks(article: HTMLElement) {
   }
 }
 
-function prepareTables(article: HTMLElement) {
+export function prepareTables(article: HTMLElement) {
   for (const table of article.querySelectorAll('table')) {
     const wrapper = document.createElement('div')
     wrapper.className = 'table-scroll'
@@ -115,18 +145,14 @@ function prepareTables(article: HTMLElement) {
   }
 }
 
-function createContents(article: HTMLElement) {
+export function createContents(article: HTMLElement) {
   const contents = element('reading-contents')
   contents.replaceChildren()
   contents.dataset['localeContent'] = ''
-  const navigation = element('reading-navigation') as HTMLDetailsElement
-  const mobile = matchMedia('(max-width: 900px)')
-  const resize = () => {
-    navigation.open = !mobile.matches
-  }
-  resize()
   const used = new Map<string, number>()
-  const headings = Array.from(article.querySelectorAll<HTMLElement>('h2, h3'))
+  const headings = Array.from(
+    article.querySelectorAll<HTMLElement>(contentsSelector()),
+  )
   for (const [index, heading] of headings.entries()) {
     const title = heading.textContent ?? ''
     const base =
@@ -148,7 +174,7 @@ function createContents(article: HTMLElement) {
   return headings
 }
 
-function followReading(headings: HTMLElement[]) {
+export function followReading(headings: HTMLElement[]) {
   const links = Array.from(element('reading-contents').querySelectorAll('a'))
   let scheduled = false
   const update = () => {
@@ -162,6 +188,9 @@ function followReading(headings: HTMLElement[]) {
         active = index
       }
     })
+    if (last > 0 && scrollY >= last - 2) {
+      active = headings.length - 1
+    }
     links.forEach((link, index) => {
       if (index === active) {
         link.setAttribute('aria-current', 'location')
@@ -185,17 +214,25 @@ function followReading(headings: HTMLElement[]) {
   }
 }
 
-function renderDocument(slug: string, source: string) {
+export function renderDocument(slug: string, source: string) {
+  const label =
+    labels[
+      slug
+        .split('/')
+        .pop()!
+        .replace(/\.(md|html)$/, '')
+    ]
   const article = element('reading-content')
   // Only bundled repository documents enter the renderer, never URL-provided text.
   article.dataset['localeContent'] = ''
-  article.innerHTML = readingMarkup(markdown.parse(source, { async: false }))
+  article.classList.toggle('reading-report', documentPath.endsWith('.html'))
+  article.innerHTML = documentMarkup(source, currentLocale())
   article.removeAttribute('aria-busy')
-  const title = article.querySelector('h1')?.textContent ?? labels[slug]!
+  const title = article.querySelector('h1')?.textContent ?? label!
   document.title = `${title} · ${localizeText('NWSAPI model guide', currentLocale())}`
   element('reading-label').removeAttribute('data-i18n')
   element('reading-label').textContent = localizeText(
-    labels[slug] ?? 'Further reading',
+    label ?? 'Further reading',
     currentLocale(),
   )
   const minutes = Math.max(
@@ -208,7 +245,7 @@ function renderDocument(slug: string, source: string) {
   )
   const sourceLink = element('reading-source-link') as HTMLAnchorElement
   sourceLink.href = `${repository}/blob/${revision}/${documentPath}`
-  sourceLink.parentElement!.hidden = false
+  sourceLink.hidden = false
   prepareLinks(article)
   initializeLinkMarkers()
   prepareTables(article)
@@ -216,18 +253,15 @@ function renderDocument(slug: string, source: string) {
   stopFollowing?.()
   stopFollowing = followReading(headings)
   initializeHighlighting()
-  for (const link of document.querySelectorAll<HTMLAnchorElement>(
-    '.reading-related a',
-  )) {
-    link.hidden = new URL(link.href).searchParams.get('doc') === slug
-  }
+  renderReadingNavigation(documentPath)
   requestAnimationFrame(() => {
     document.getElementById(location.hash.slice(1))?.scrollIntoView()
   })
 }
 
-async function openDocument() {
+export async function openDocument() {
   const request = ++renderRequest
+  element('reading-source-link').hidden = true
   const slug =
     new URLSearchParams(location.search).get('doc') ?? 'pytorch-for-beginners'
   documentPath = Object.hasOwn(documents, slug)
@@ -239,15 +273,15 @@ async function openDocument() {
     const article = element('reading-content')
     article.removeAttribute('aria-busy')
     article.innerHTML = `<h1>${translate('documentNotFound')}</h1><p>${translate('documentNotFoundHelp')}</p>`
-    document.querySelector<HTMLElement>('.reading-sidebar')!.hidden = true
+    element('reading-navigation').hidden = true
     document.title = translate('documentNotFound')
     return
   }
   const source = await load()
   const headings = document.createElement('div')
-  headings.innerHTML = readingMarkup(markdown.parse(source, { async: false }))
+  headings.innerHTML = documentMarkup(source, 'en')
   originalHeadings = Array.from(
-    headings.querySelectorAll('h2,h3'),
+    headings.querySelectorAll(contentsSelector()),
     node => node.textContent ?? '',
   )
   let translated = source
@@ -263,6 +297,7 @@ async function openDocument() {
 }
 
 initializeLocale()
+initializeReadingContents()
 window.addEventListener('guide-locale-change', () => {
   void openDocument()
 })

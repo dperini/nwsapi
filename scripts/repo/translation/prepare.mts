@@ -95,7 +95,13 @@ function visit(value: unknown) {
     }
   }
 }
-for (const file of globSync('docs/repo/perf/**/*.html', { cwd: REPO_ROOT })) {
+for (const file of globSync(
+  [
+    'docs/repo/perf/**/*.html',
+    'assets/repo/bench/survey-2026-10-03/neural-dispatch-{crossed,jit}-2026-10-05.html',
+  ],
+  { cwd: REPO_ROOT },
+)) {
   html(readFileSync(path.join(REPO_ROOT, file), 'utf8'))
 }
 for (const file of globSync('docs/repo/perf/**/*.mts', { cwd: REPO_ROOT })) {

@@ -15,28 +15,6 @@ html:has(.reader) {
   align-items: center;
   gap: 16px 24px;
 }
-.reader-topbar .reader-back {
-  margin-left: 0;
-}
-.reader-back,
-.reading-source a,
-.reading-related a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  font-size: var(--text-support);
-}
-.reader-back svg,
-.reading-related svg {
-  flex-shrink: 0;
-  width: 1em;
-  height: 1em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
 .reading-progress {
   position: fixed;
   z-index: 5;
@@ -50,10 +28,15 @@ html:has(.reader) {
 }
 .reading-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: 52px;
-  padding-top: 52px;
+  max-width: none;
+  padding: 52px calc(260px + var(--paper-margin)) 0;
+}
+.reading-layout:has(#reading-navigation:not([open])) {
+  grid-template-columns: minmax(0, 1fr);
+  padding-left: calc(64px + var(--paper-margin));
+  padding-right: calc(64px + var(--paper-margin));
 }
 .reading-column {
   min-width: 0;
@@ -202,147 +185,74 @@ html:has(.reader) {
   height: 14px;
   margin-right: 6px;
 }
-.reading-source {
-  padding: 18px 2px;
-}
-.reading-sidebar {
-  position: sticky;
-  top: 32px;
-  max-height: calc(100vh - 64px);
-  padding: 6px;
-  overflow: auto;
-  scrollbar-width: none;
-}
-.reading-sidebar::-webkit-scrollbar {
-  display: none;
-}
-.reading-sidebar details {
-  margin: 0;
-  padding: 10px;
-  border: 1px solid var(--section-line);
-  background: transparent;
-}
-.reading-sidebar details[open]::after {
-  inset: 0;
-  padding: 2px;
-}
-.reading-sidebar summary {
-  color: var(--section-accent);
-  font-size: var(--text-support);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.13em;
-}
-.reading-sidebar details[open] summary {
-  margin-bottom: 14px;
-}
-#reading-contents {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-left: 1px solid var(--section-line);
-}
-#reading-contents a {
-  position: relative;
-  display: block;
-  margin-left: -1px;
-  padding: 7px 12px;
-  border-left: 2px solid transparent;
-  border-radius: 4px;
-  color: var(--muted);
-  font-size: var(--text-support);
-  line-height: 1.5;
-  text-decoration: none;
-}
-#reading-contents li[data-depth='3'] a {
-  padding-left: 24px;
-  font-size: var(--text-support);
-}
-#reading-contents a[aria-current='location'] {
-  border-color: var(--section-accent);
-  background: color-mix(in srgb, var(--section-accent) 9%, transparent);
-  color: var(--section-accent);
-}
-#reading-contents a:hover {
-  color: var(--section-accent);
-}
-.reading-related {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 28px;
-  margin-top: 8px;
-  padding-top: 28px;
-  border-top: 1px solid var(--section-line);
-}
-.reading-related h2 {
-  flex-basis: 100%;
-  font-size: 1rem;
-  margin: 0;
-}
-.reading-footer {
-  margin-top: 48px;
-}
-.reading-footer a {
-  color: var(--section-accent);
-}
 .reading-noscript {
   max-width: 760px;
   padding: 24px;
   margin: auto;
 }
-@media (prefers-reduced-motion: no-preference) {
-  #reading-contents a[aria-current='location']::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 2px;
-    border-radius: inherit;
-    pointer-events: none;
-    background: linear-gradient(
-      110deg,
-      transparent 35%,
-      var(--scroll-accent) 47%,
-      color-mix(in srgb, var(--scroll-accent) 55%, white) 50%,
-      var(--scroll-accent) 53%,
-      transparent 65%
-    );
-    background-size: 250% 100%;
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    animation: chapter-border-shimmer 5.6s ease-in-out infinite;
-  }
-  #reading-contents a {
-    transition:
-      color 180ms ease,
-      background-color 180ms ease;
-  }
+.reading-report section {
+  margin-block: 36px;
+}
+.reading-report .direction {
+  color: var(--section-accent);
+  font-weight: 600;
+}
+.reading-report .variant {
+  margin-block: 24px;
+}
+.reading-report .variant h3 {
+  margin: 0 0 8px;
+  font-size: var(--text-body);
+}
+.reading-report :is(.row, .run) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(60px, 2fr) 6.5ch;
+  align-items: center;
+  gap: 12px;
+  margin-block: 12px;
+  font-size: var(--text-body);
+}
+.reading-report .run {
+  grid-template-columns: 7.5em minmax(0, 1fr) 6.5ch;
+}
+.reading-report .track {
+  height: 22px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--section-accent) 12%, var(--surface));
+}
+.reading-report .bar {
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--section-accent) 65%, var(--surface));
+}
+.reading-report .bar.repeat {
+  background: var(--section-accent);
+}
+.reading-report .bar.baseline {
+  background: var(--topic-why);
+}
+.reading-report :is(.row, .run) strong {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
 }
 @media (max-width: 900px) {
   .reading-layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    padding-top: 28px;
-    max-width: 800px;
+    padding: 28px calc(64px + var(--paper-margin)) 0;
   }
-  .reading-sidebar {
-    position: static;
-    grid-row: 1;
-    max-height: 220px;
-    padding: 16px;
-    border: 1px solid var(--section-line);
-    border-radius: 10px;
-    background: var(--surface);
-  }
-  #reading-contents {
-    columns: 2 200px;
-  }
-  #reading-contents li {
-    break-inside: avoid;
+  .reading-prose :is(h1, h2, h3, h4) {
+    scroll-margin-top: 240px;
   }
 }
 @media (max-width: 520px) {
+  .reading-report .run {
+    grid-template-columns: minmax(0, 1fr) 6.5ch;
+    gap: 4px 12px;
+  }
+  .reading-report .run > span {
+    grid-column: 1 / -1;
+  }
   .reader-topbar {
     align-items: center;
     gap: 14px 18px;
@@ -377,7 +287,7 @@ html:has(.reader) {
       .scroll-morph,
       .reading-sidebar,
       .reading-progress,
-      .reading-related,
+      .reading-pagination,
       .topbar,
       footer
     ) {

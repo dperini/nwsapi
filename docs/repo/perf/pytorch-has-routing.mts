@@ -33,13 +33,14 @@ import { initializeNarration } from './pytorch-has-routing/narration.mts'
 import { renderStoryReadout } from './pytorch-has-routing/story-readout.mts'
 import { initializeLinkMarkers } from './pytorch-has-routing/links.mts'
 import { initializeLocale } from './pytorch-has-routing/locale.mts'
+import { initializeReadingContents } from './pytorch-has-routing/reading-navigation.mts'
 
-function guard(label: string, detail: string, passes: boolean) {
+export function guard(label: string, detail: string, passes: boolean) {
   const path = passes ? 'm5 12 4 4 10-10' : 'm6 6 12 12m0-12L6 18'
   return `<li><span class="guard-mark" data-pass="${passes}" role="img" aria-label="${passes ? 'Pass' : 'Fail'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg></span><span>${label}<small>${detail}</small></span></li>`
 }
 
-function policyState() {
+export function policyState() {
   const anchors = Number(input('anchors').value)
   const witnesses = Number(input('witnesses').value)
   const attributes =
@@ -70,7 +71,7 @@ function policyState() {
   }
 }
 
-function routeSummary(state: ReturnType<typeof policyState>) {
+export function routeSummary(state: ReturnType<typeof policyState>) {
   if (state.anchors < 32) {
     return {
       title: 'Generic selector path',
@@ -91,7 +92,7 @@ function routeSummary(state: ReturnType<typeof policyState>) {
   }
 }
 
-function plannerSummary(
+export function plannerSummary(
   state: ReturnType<typeof policyState>,
   override: boolean,
 ) {
@@ -130,7 +131,7 @@ function plannerSummary(
       ]
 }
 
-function showPolicyDecision(
+export function showPolicyDecision(
   state: ReturnType<typeof policyState>,
   override: boolean,
 ) {
@@ -142,7 +143,7 @@ function showPolicyDecision(
   text('decision-detail', planner[1]!)
 }
 
-function canCallPolicy(state: ReturnType<typeof policyState>) {
+export function canCallPolicy(state: ReturnType<typeof policyState>) {
   return (
     state.enabled &&
     state.anchors >= 32 &&
@@ -152,7 +153,7 @@ function canCallPolicy(state: ReturnType<typeof policyState>) {
   )
 }
 
-function renderPolicy() {
+export function renderPolicy() {
   document.dispatchEvent(new Event('guide-controls-sync'))
   const state = policyState()
   document
@@ -219,7 +220,7 @@ function renderPolicy() {
   renderImpact(state, reached, override)
 }
 
-function navigatePresets(event: KeyboardEvent) {
+export function navigatePresets(event: KeyboardEvent) {
   const directions: Record<string, number> = {
     ArrowDown: 1,
     ArrowRight: 1,
@@ -257,7 +258,7 @@ const presets: Record<string, [number, number, boolean, boolean]> = {
   range: [256, 768, true, false],
 }
 
-function applyPreset(name: string) {
+export function applyPreset(name: string) {
   const values = presets[name]
   if (!values) {
     return
@@ -272,7 +273,11 @@ function applyPreset(name: string) {
 
 let stageIndex = 0
 
-function showStage(index: number) {
+export function showStage(index: number) {
+  if (index !== stageIndex) {
+    element('pipeline').dataset['direction'] =
+      index < stageIndex ? 'backward' : 'forward'
+  }
   stageIndex = index
   const stage = stages[index]!
   text('pipeline-title', stage.title)
@@ -304,12 +309,12 @@ let sampleIndex = 0
 let sampleStage = 0
 let decisionBudgetNs = 0
 
-function selectedRows() {
+export function selectedRows() {
   const host = (element('sample-host') as HTMLSelectElement).value
   return trainingRows.filter(row => row.host === host)
 }
 
-function showSample() {
+export function showSample() {
   const rows = selectedRows()
   if (!rows.length) {
     return
@@ -349,7 +354,7 @@ currentRoute = '${row.baselineRoute}'`,
   )
 }
 
-async function loadSamples() {
+export async function loadSamples() {
   if (trainingRows.length) {
     return
   }
@@ -376,8 +381,9 @@ async function loadSamples() {
   }
 }
 
-function initialize() {
+export function initialize() {
   initializeLocale()
+  initializeReadingContents('nwsapi-guide-main-contents', '(max-width: 1200px)')
   initializeSectionThemes()
   initializePanelShimmer()
   initializeNarration()
@@ -402,12 +408,12 @@ function initialize() {
   initializeLinkMarkers()
   renderPolicy()
   showStage(0)
-  showSource('match')
+  showSource('collect')
   initializeGuideControls()
   void initializeStory(() => showStage(stageIndex))
 }
 
-function handleClick(event: MouseEvent) {
+export function handleClick(event: MouseEvent) {
   const target = (event.target as HTMLElement).closest<HTMLElement>(
     'button, a[data-source]',
   )

@@ -27,6 +27,28 @@ export default defineConfig({
   root: path.join(root, 'docs/repo/perf'),
   plugins: [
     {
+      name: 'guide-report-reader',
+      generateBundle(_options, bundle) {
+        for (const output of Object.values(bundle)) {
+          if (output.type !== 'asset') {
+            continue
+          }
+          const source = output.originalFileNames.find(file =>
+            /neural-dispatch-(?:crossed|jit)-2026-10-05\.html$/.test(file),
+          )
+          if (!source) {
+            continue
+          }
+          const documentPath = path.relative(
+            root,
+            path.resolve(root, 'docs/repo/perf', source),
+          )
+          const href = `../model-guide-reading.html?doc=${encodeURIComponent(documentPath)}`
+          output.source = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NWSAPI report</title><script>location.replace(${JSON.stringify(href)} + location.hash)</script><a href="${href}">Open the report in the model guide</a></html>`
+        }
+      },
+    },
+    {
       name: 'guide-head-and-icons',
       configureServer(server) {
         server.watcher.add([
