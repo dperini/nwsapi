@@ -48,7 +48,11 @@ function GuideSelect({ control }: { control: HTMLSelectElement }) {
       {
         className: 'guide-select-trigger',
         'aria-label':
-          control.id === 'challenge-prediction' ? 'My prediction' : 'Host',
+          control.id === 'challenge-prediction'
+            ? 'My prediction'
+            : control.id === 'story-selector'
+              ? 'Your selector'
+              : 'Host',
       },
       h(Select.Value, { placeholder }),
       h(Select.Icon, { 'aria-hidden': true }, '⌄'),

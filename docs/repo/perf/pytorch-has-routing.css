@@ -928,6 +928,44 @@ input[type='range'] {
   gap: 32px;
   min-height: 240px;
 }
+.story-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 18px;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.story-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 220px;
+  font-size: 0.85rem;
+}
+.story-controls > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.story-explanation {
+  padding: 16px;
+  border-left: 3px solid var(--section-accent);
+  background: var(--theme-highlight);
+  color: #d1dfe6;
+}
+.story-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+#story-context {
+  margin: 0;
+  padding: 0 24px 24px;
+}
 .pipeline-detail p {
   font-size: 0.87rem;
 }

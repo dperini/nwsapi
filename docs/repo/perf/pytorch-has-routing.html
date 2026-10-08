@@ -22,7 +22,7 @@
     <main id="start">
       <section class="intro" data-scroll-theme="what">
         <p class="eyebrow">Supervised learning · not generative AI</p>
-        <h1>The same matches.<br /><em>A learned choice of direction.</em></h1>
+        <h1>Two ways to search.<br /><em>A model helps choose.</em></h1>
         <p class="lede">
           The existing count rule chooses how to search a <code>:has()</code>
           query. An optional model trained with PyTorch can recommend a
@@ -77,6 +77,30 @@
           learning. It does not generate text or matching elements.
         </p>
         <div class="lab">
+          <div class="story-controls">
+            <label
+              >Your selector
+              <select id="story-selector" class="theme-select">
+                <option value="2">.card[data-ok="1"]:has(.witness)</option>
+                <option value="1">.card:has(.witness[data-ok="1"])</option>
+                <option value="3">
+                  .card[data-ok="1"]:has(.witness[data-ok="1"])
+                </option>
+              </select>
+            </label>
+            <label
+              >Run in
+              <select id="story-host" class="theme-select">
+                <option value="chromium">Chromium</option>
+                <option value="jsdom">jsdom</option>
+              </select>
+            </label>
+            <p class="small">
+              Follow one recorded query from measurement to runtime. A witness
+              is an element that satisfies the condition inside
+              <code>:has()</code>.
+            </p>
+          </div>
           <div
             class="pipeline"
             id="pipeline"
@@ -88,6 +112,12 @@
               <span id="pipeline-stage" class="eyebrow"></span>
               <h3 id="pipeline-title"></h3>
               <p id="pipeline-description"></p>
+              <p
+                id="story-explanation"
+                class="story-explanation"
+                role="status"
+                aria-live="polite"
+              ></p>
             </div>
             <div>
               <pre id="pipeline-example"></pre>
@@ -103,6 +133,14 @@
               </button>
             </div>
           </div>
+          <div class="story-navigation">
+            <button id="story-back" type="button">Previous</button>
+            <span id="story-progress" class="mono"></span>
+            <button id="story-next" type="button" class="primary">
+              Next: train the model
+            </button>
+          </div>
+          <p id="story-context" class="context"></p>
         </div>
         <details id="training-examples">
           <summary>Explore a recorded training example</summary>

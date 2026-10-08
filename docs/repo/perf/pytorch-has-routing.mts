@@ -23,6 +23,7 @@ import {
 } from './pytorch-has-routing/impact.mts'
 import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
 import { initializeGuideControls } from './pytorch-has-routing/select.mts'
+import { initializeStory, renderStory } from './pytorch-has-routing/story.mts'
 
 function guard(label: string, detail: string, passes: boolean) {
   return `<li><span class="guard-mark" data-pass="${passes}" aria-label="${passes ? 'Pass' : 'Fail'}">${passes ? '✓' : '×'}</span><span>${label}<small>${detail}</small></span></li>`
@@ -239,7 +240,7 @@ function showStage(index: number) {
   )
   text('pipeline-title', stage.title)
   text('pipeline-description', stage.description)
-  code('pipeline-example', stage.example)
+  code('pipeline-example', renderStory(index, stage.example))
   document
     .querySelectorAll<HTMLButtonElement>('[data-stage]')
     .forEach(button => {
@@ -370,6 +371,7 @@ function initialize() {
   showStage(0)
   showSource('match')
   initializeGuideControls()
+  void initializeStory(() => showStage(stageIndex))
 }
 
 function handleClick(event: MouseEvent) {
@@ -404,6 +406,14 @@ function handleClick(event: MouseEvent) {
 }
 
 initialize()
+element('story-selector').addEventListener('change', () => showStage(0))
+element('story-host').addEventListener('change', () => showStage(0))
+element('story-back').addEventListener('click', () =>
+  showStage(Math.max(0, stageIndex - 1)),
+)
+element('story-next').addEventListener('click', () =>
+  showStage(Math.min(4, stageIndex + 1)),
+)
 document.addEventListener('click', handleClick)
 element('policy-controls').addEventListener('input', renderPolicy)
 element('policy-controls').addEventListener('submit', event =>
