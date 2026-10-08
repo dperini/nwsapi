@@ -176,12 +176,14 @@ export function createContents(article: HTMLElement) {
 
 export function followReading(headings: HTMLElement[]) {
   const links = Array.from(element('reading-contents').querySelectorAll('a'))
+  const progressBar = document.querySelector<HTMLElement>('.reading-progress')!
+  const nativeProgress = CSS.supports('animation-timeline: scroll()')
   let scheduled = false
+  let current = -1
   const update = () => {
     scheduled = false
     const last = document.documentElement.scrollHeight - innerHeight
     const progress = last > 0 ? Math.min(1, Math.max(0, scrollY / last)) : 1
-    document.body.style.setProperty('--reading-progress', String(progress))
     let active = 0
     headings.forEach((heading, index) => {
       if (heading.getBoundingClientRect().top <= innerHeight * 0.3) {
@@ -191,6 +193,13 @@ export function followReading(headings: HTMLElement[]) {
     if (last > 0 && scrollY >= last - 2) {
       active = headings.length - 1
     }
+    if (!nativeProgress) {
+      progressBar.style.transform = `scaleX(${progress})`
+    }
+    if (active === current) {
+      return
+    }
+    current = active
     links.forEach((link, index) => {
       if (index === active) {
         link.setAttribute('aria-current', 'location')

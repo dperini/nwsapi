@@ -107,6 +107,24 @@ html[data-reading-mode] .reading-mode-toggle:not(:hover):not(:focus-visible) {
   flex: none;
   height: var(--header-control-size);
 }
+.appearance-controls:has(.header-source-link[hidden])::after {
+  content: '';
+  width: var(--header-control-size);
+  height: var(--header-control-size);
+}
+.header-source-link {
+  position: relative;
+}
+.header-external-arrow {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  font:
+    12px/1 system-ui,
+    sans-serif;
+  background: var(--reading-page, #0c171e);
+  border-radius: 2px;
+}
 .header-source-link .github-icon {
   width: 20px;
   height: 20px;
@@ -254,7 +272,7 @@ html[data-color-mode='light']:not([data-reading-mode]) {
   --reading-raised: #e2eaf4;
   --reading-ink: #172c40;
   --reading-body: #30465a;
-  --reading-muted: #506477;
+  --reading-muted: #46596b;
   --reading-line: #c4d1df;
   --reading-edge: #738ba4;
   --reading-positive-surface: #e0f1e7;
@@ -270,7 +288,7 @@ html[data-color-mode='light']:not([data-reading-mode]) {
   --reading-syntax-operator: #a43d61;
   --topic-what: #285fa6;
   --topic-why: #176b5e;
-  --topic-when: #a2471e;
+  --topic-when: #963f18;
   --topic-where: #7549aa;
 }
 .color-mode-sun {

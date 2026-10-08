@@ -3,6 +3,7 @@ import { initializeRangePulses } from './range.mts'
 
 let active: HTMLElement | undefined
 let pending = false
+let spotlightKey = ''
 const spotlightPositions = new Map<string, { x: string; y: string }>()
 
 export function initializeSpotlightPositions() {
@@ -23,10 +24,16 @@ export function blendSpotlight(
   const from = first.dataset['scrollTheme']!
   const to = second.dataset['scrollTheme']!
   const percent = Math.round((1 - progress) * 100)
+  const key = `${from}:${to}:${percent}`
+  if (key === spotlightKey) {
+    return
+  }
+  spotlightKey = key
+  const spotlight = document.querySelector<HTMLElement>('.scroll-morph')!
   const color = `color-mix(in srgb, var(--topic-${from}) ${percent}%, var(--topic-${to}))`
   document.body.style.setProperty('--scroll-accent', color)
   document.documentElement.style.setProperty('--page-scrollbar-accent', color)
-  document.body.style.setProperty(
+  spotlight.style.setProperty(
     '--scroll-wash',
     `color-mix(in srgb, ${color} 70%, transparent)`,
   )
@@ -36,14 +43,11 @@ export function blendSpotlight(
     parseFloat(start.x) + (parseFloat(end.x) - parseFloat(start.x)) * progress
   const y =
     parseFloat(start.y) + (parseFloat(end.y) - parseFloat(start.y)) * progress
-  document.body.style.setProperty('--scroll-x', `${x}vw`)
-  document.body.style.setProperty('--scroll-y', `${y}vh`)
+  spotlight.style.setProperty('--scroll-x', `${x}vw`)
+  spotlight.style.setProperty('--scroll-y', `${y}vh`)
 }
 
-export function updateSpotlight(
-  sections: NodeListOf<HTMLElement>,
-  center: number,
-) {
+function measureSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
   if (!sections.length) {
     return
   }
@@ -60,21 +64,20 @@ export function updateSpotlight(
         0,
         Math.min(1, (center - boundary + width / 2) / width),
       )
-      blendSpotlight(first, second, progress)
-      return
+      return () => blendSpotlight(first, second, progress)
     }
   }
   const last = sections[sections.length - 1]!
-  blendSpotlight(last, last, 0)
+  return () => blendSpotlight(last, last, 0)
 }
 
 export function updateActiveTheme() {
   const sections = document.querySelectorAll<HTMLElement>('[data-scroll-theme]')
   const center = window.innerHeight / 2
-  if (!isReadingMode()) {
-    updateSpotlight(sections, center)
-  }
-  updateActiveContents()
+  const paintSpotlight = isReadingMode()
+    ? undefined
+    : measureSpotlight(sections, center)
+  const paintContents = measureActiveContents()
   let nearest = Number.POSITIVE_INFINITY
   let selected: HTMLElement | undefined
 
@@ -93,6 +96,8 @@ export function updateActiveTheme() {
     }
   }
 
+  paintSpotlight?.()
+  paintContents()
   if (!selected || selected === active) {
     return
   }
@@ -102,7 +107,7 @@ export function updateActiveTheme() {
   active = selected
 }
 
-export function updateActiveContents() {
+function measureActiveContents() {
   const links = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('#reading-contents a'),
   )
@@ -117,15 +122,17 @@ export function updateActiveContents() {
   if (pageEnd > 0 && scrollY >= pageEnd - Math.max(8, innerHeight * 0.02)) {
     selected = links.length - 1
   }
-  for (let i = 0, length = links.length; i < length; i += 1) {
-    const link = links[i]!
-    if (i === selected) {
-      if (!link.hasAttribute('aria-current')) {
-        link.setAttribute('aria-current', 'location')
-        randomizeContentsShimmer(link)
+  return () => {
+    for (let i = 0, length = links.length; i < length; i += 1) {
+      const link = links[i]!
+      if (i === selected) {
+        if (!link.hasAttribute('aria-current')) {
+          link.setAttribute('aria-current', 'location')
+          randomizeContentsShimmer(link)
+        }
+      } else {
+        link.removeAttribute('aria-current')
       }
-    } else {
-      link.removeAttribute('aria-current')
     }
   }
 }

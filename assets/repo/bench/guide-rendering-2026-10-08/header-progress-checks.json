@@ -1,0 +1,21 @@
+{
+  "progress": "matrix(0.213311, 0, 0, 1, 0, 0)",
+  "controls": [
+    {
+      "width": 34,
+      "height": 34,
+      "display": "flex"
+    },
+    {
+      "width": 34,
+      "height": 34,
+      "display": "flex"
+    },
+    {
+      "width": 34,
+      "height": 34,
+      "display": "flex"
+    }
+  ],
+  "readingDisplay": "none"
+}

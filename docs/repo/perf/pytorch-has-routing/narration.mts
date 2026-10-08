@@ -28,6 +28,7 @@ function attachPlayer(
   audio: HTMLAudioElement,
   panel: HTMLElement,
   title: string,
+  recordedDuration: number,
 ) {
   const button = panel.querySelector<HTMLButtonElement>('button')!
   const label = button.querySelector('span')!
@@ -36,6 +37,9 @@ function attachPlayer(
   const seek = panel.querySelector<HTMLInputElement>('input')!
   let request = 0
   const update = () => {
+    const duration = Number.isFinite(audio.duration)
+      ? audio.duration
+      : recordedDuration
     const active = !audio.paused
     label.textContent = translate(active ? 'pause' : 'listen')
     icon.setAttribute(
@@ -51,7 +55,7 @@ function attachPlayer(
       ),
     )
     panel.classList.toggle('is-playing', active)
-    time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`
+    time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(duration)}`
     seek.max = String(Number.isFinite(audio.duration) ? audio.duration : 0)
     seek.value = String(audio.currentTime)
     seek.disabled = !Number.isFinite(audio.duration)
@@ -59,7 +63,7 @@ function attachPlayer(
       'aria-valuetext',
       translate('narrationProgress')
         .replace('{current}', formatTime(audio.currentTime))
-        .replace('{duration}', formatTime(audio.duration)),
+        .replace('{duration}', formatTime(duration)),
     )
     const progress =
       audio.duration > 0 ? (audio.currentTime / audio.duration) * 100 : 0
@@ -120,7 +124,7 @@ export function initializeNarration() {
     const audio = new Audio(
       clips[`../../../../assets/repo/model-guide/narration/${file}`],
     )
-    audio.preload = 'metadata'
+    audio.preload = 'none'
     const panel = document.createElement('div')
     panel.className = 'narration'
     panel.setAttribute('data-locale-content', '')
@@ -141,10 +145,10 @@ export function initializeNarration() {
       source: 'narrationSource',
     } as const
     const title = translate(titles[section.id as keyof typeof titles])
-    attachPlayer(audio, panel, title)
     const aligned = (italian ? italianTimings : timings).sections.find(
       entry => entry.id === section.id,
     )
+    attachPlayer(audio, panel, title, aligned?.duration ?? 0)
     if (aligned) {
       attachWordHighlight(audio, panel, aligned.words)
     }

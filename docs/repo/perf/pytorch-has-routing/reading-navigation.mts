@@ -24,20 +24,6 @@ export function placeReadingContents(
   }
 }
 
-export function syncReadingSidebarOffset() {
-  const header = document.querySelector<HTMLElement>('.topbar')
-  if (header) {
-    const bottom = Math.min(
-      header.offsetHeight,
-      Math.max(0, header.getBoundingClientRect().bottom),
-    )
-    document.documentElement.style.setProperty(
-      '--guide-topbar-bottom',
-      `${bottom}px`,
-    )
-  }
-}
-
 export function wiggleReadingContent() {
   const layouts = document.querySelectorAll<HTMLElement>(
     '.guide-layout, .reading-layout',
@@ -58,18 +44,7 @@ export function initializeReadingContents(
   )!
   const summary = contents.querySelector('summary')!
   const summaryLabel = summary.querySelector('span')!
-  const navigation = contents.querySelector('nav')!
-  const header = document.querySelector<HTMLElement>('.topbar')
-  const headerObserver = header
-    ? new ResizeObserver(syncReadingSidebarOffset)
-    : undefined
-  if (header) {
-    headerObserver?.observe(header)
-    syncReadingSidebarOffset()
-    window.addEventListener('scroll', syncReadingSidebarOffset, {
-      passive: true,
-    })
-  }
+  const navigation = contents.parentElement!.querySelector('nav')!
   navigation.classList.add('reading-section-links')
   labelReadingContents(navigation)
   new MutationObserver(() => labelReadingContents(navigation)).observe(
@@ -100,7 +75,10 @@ export function initializeReadingContents(
     summary.title = translate(
       contents.open ? 'collapseContents' : 'expandContents',
     )
-    summary.setAttribute('aria-label', summary.title)
+    summary.setAttribute(
+      'aria-label',
+      `${summaryLabel.textContent}: ${summary.title}`,
+    )
   }
   contents.addEventListener('toggle', () => {
     update()
@@ -115,9 +93,11 @@ export function initializeReadingContents(
       // Keep the current panel state when browser storage is unavailable.
     }
   })
-  window.setTimeout(() => {
-    initializing = false
-  }, 0)
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      initializing = false
+    })
+  })
   mobile.addEventListener('change', () => {
     contents.open = !mobile.matches && !isReadingMode()
     update()

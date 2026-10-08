@@ -410,7 +410,13 @@ export function initialize() {
   showStage(0)
   showSource('collect')
   initializeGuideControls()
-  void initializeStory(() => showStage(stageIndex))
+  const storyObserver = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) {
+      storyObserver.disconnect()
+      void initializeStory(() => showStage(stageIndex))
+    }
+  })
+  storyObserver.observe(element('training'))
 }
 
 export function handleClick(event: MouseEvent) {

@@ -41,10 +41,7 @@
   margin-left: auto;
   pointer-events: auto;
   width: 260px;
-  max-height: calc(
-    100dvh - var(--guide-topbar-bottom, 96px) - 2 *
-      var(--contents-edge-inset, 16px)
-  );
+  max-height: calc(100dvh - 2 * var(--contents-edge-inset, 16px));
   padding: 0;
 }
 .reader-close {
@@ -272,7 +269,7 @@
       linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
     mask-composite: exclude;
-    animation: chapter-border-shimmer 8.4s ease-in-out infinite;
+    animation: chapter-border-shimmer 8.4s ease-in-out;
   }
   #reading-contents a {
     transition:
@@ -288,10 +285,7 @@
 @media (max-width: 900px) {
   .reading-sidebar {
     grid-row: 1;
-    max-height: calc(
-      100dvh - var(--guide-topbar-bottom, 96px) - 2 *
-        var(--contents-edge-inset, 16px)
-    );
+    max-height: calc(100dvh - 2 * var(--contents-edge-inset, 16px));
     padding: 0;
     border: 1px solid var(--section-line);
     border-radius: 10px;
