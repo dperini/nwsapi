@@ -106,9 +106,8 @@ export async function browserEvidence(
     for (const entry of entries) {
       const traces = await page.evaluate(
         ({ fixture, warmCount: iterations }) => {
-          const factories = (
-            globalThis as unknown as { probeFactories: Factory[] }
-          ).probeFactories
+          const host = globalThis as unknown as { probeFactories: Factory[] }
+          const factories = host.probeFactories
           return factories.map(factory => {
             const frame = document.createElement('iframe')
             document.body.append(frame)
@@ -130,7 +129,10 @@ export async function browserEvidence(
                 actual.length !== expected.length ||
                 actual.some((e, i) => e !== expected[i])
               ) {
-                throw new Error(`Probe identity mismatch: ${fixture.id}`)
+                throw Object.assign(
+                  new Error(`Probe identity mismatch: ${fixture.id}`),
+                  { code: 'ERR_PLANNER_PROBE_IDENTITY' },
+                )
               }
               return structuredClone(factory.trace())
             } finally {
