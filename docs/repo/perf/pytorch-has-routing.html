@@ -34,8 +34,8 @@
           <a href="#training" data-topic="what">
             <strong>What</strong>
             <span
-              >A learned function recommends a route; JavaScript still checks
-              exact matches.</span
+              >A trained function chooses a route. JavaScript checks the
+              matches.</span
             >
           </a>
           <a href="#search" data-topic="why">
@@ -47,13 +47,12 @@
           </a>
           <a href="#policy" data-topic="when">
             <strong>When</strong>
-            <span>Only eligible forward queries can be reconsidered.</span>
+            <span>It can switch eligible queries from forward to inverse.</span>
           </a>
           <a href="#source" data-topic="where">
             <strong>Where</strong>
             <span
-              >Python trains it; a generated function is bundled with the
-              engine.</span
+              >PyTorch trains it. JavaScript runs it inside the engine.</span
             >
           </a>
         </div>
@@ -71,13 +70,11 @@
         <p class="eyebrow">01 / What the model learns</p>
         <h2>What is the model?</h2>
         <p class="section-intro">
-          A small numeric function trained with PyTorch recommends a search
-          direction. It is machine learning, without generated text or selector
-          results. JavaScript still checks every match using the chosen route.
-          During development, we run both exact routes on benchmark fixtures.
-          Their timings provide examples for training. PyTorch adjusts weights
-          to recommend the cheaper alternative, with checks intended to limit
-          regressions.
+          The model is a small function that recommends a search direction.
+          PyTorch trains it using timings from both routes. Training adjusts
+          numeric weights to favor the faster route. JavaScript then runs the
+          saved function and checks the matches. The model uses machine
+          learning. It does not generate text or matching elements.
         </p>
         <div class="lab">
           <div
@@ -95,7 +92,7 @@
             <div>
               <pre id="pipeline-example"></pre>
               <button id="pipeline-source" class="source-jump">
-                View owning source
+                View source
                 <svg
                   class="source-arrow"
                   viewBox="0 0 24 24"
@@ -137,34 +134,32 @@
             <div id="sample-learning" hidden>
               <p id="sample-label"></p>
               <p>
-                During training, the model predicts from the query facts. The
-                trainer compares that prediction with the timing-derived label,
-                calculates a weighted loss, and adjusts weights using AdamW. One
-                example contributes an update alongside other examples. It does
-                not become an <code>if</code> statement.
+                The model predicts a route from the query inputs. The trainer
+                compares that prediction with the measured route costs. It
+                calculates a loss, a number that measures prediction error, and
+                uses AdamW to adjust the weights. Each example helps tune the
+                same function.
               </p>
               <p>
-                Close timings need repeated samples. The trainer uses paired
-                bootstrap intervals to detect uncertain comparisons and can give
-                them zero weight. Large regressions receive a larger penalty. It
-                also includes an estimated decision budget.
+                The trainer uses repeated timing samples to check uncertainty.
+                It can ignore uncertain comparisons and penalizes large
+                slowdowns more heavily. It also accounts for the estimated cost
+                of calling the model.
               </p>
               <p>
-                The same inputs can occur in differently shaped DOMs with
-                different route costs. A model cannot distinguish cases using
-                facts it never receives. Validation helps choose a checkpoint
-                and threshold, then reserved evaluation and full-query
-                measurements assess it.
+                Different DOM shapes can have the same model inputs and
+                different route costs. The model cannot see those differences.
+                Validation selects the saved model and threshold. Separate
+                evaluation examples and complete query timings check the result.
               </p>
               <button class="source-jump" data-source="train">
                 Read the loss and optimizer code ↓
               </button>
             </div>
             <p class="small">
-              The trainer also considers the existing route, decision overhead,
-              timing uncertainty, and regression costs. Close or uncertain
-              timings can get zero training weight. Choosing the lower bar alone
-              is not the full training algorithm.
+              The lower timing bar is only part of the training signal. The
+              trainer also accounts for the existing route, model overhead,
+              uncertainty, and the cost of slowdowns.
             </p>
           </div>
         </details>
@@ -172,30 +167,29 @@
           <article>
             <h3>Training examples</h3>
             <p>
-              Used to adjust weights. Each example combines query facts with
-              measured route costs.
+              Adjust the weights using query inputs and measured route costs.
             </p>
           </article>
           <article>
             <h3>Validation examples</h3>
             <p>
-              Used to select the checkpoint and threshold. The weights are
-              evaluated on fixtures outside the training families.
+              Select the saved model and threshold using separate fixture
+              families.
             </p>
           </article>
           <article>
             <h3>Evaluation examples</h3>
             <p>
-              Reserved to assess the selected model. Further independent
-              full-query measurements are needed to qualify a shipped runtime
+              Check the selected model on reserved examples. Complete query
+              measurements are still needed before shipping a performance
               change.
             </p>
           </article>
         </div>
         <p class="callout">
-          <strong>Learning happens offline.</strong> Your page never becomes a
-          training example. The model does not update while queries run. New
-          weights require a deliberate training run, review, export, and build.
+          <strong>Training happens during development.</strong> Queries use
+          fixed weights. Your page is not used for training. Updating the model
+          requires a new training run, review, export, and build.
         </p>
       </section>
       <section id="search" class="chapter" data-scroll-theme="why">
@@ -210,7 +204,7 @@
         <div class="lab">
           <div class="lab-header">
             <div>
-              <span class="badge">Editable toy DOM</span>
+              <span class="badge">Editable sample DOM</span>
               <p>
                 Change each card’s warning count. Follow the highlighted node to
                 see how the result is built.
@@ -254,9 +248,8 @@
                 >
               </fieldset>
               <p class="small route-teaching-note">
-                This control only chooses which search to demonstrate. The model
-                is skipped here because this toy example has fewer than 32
-                anchors.
+                Choose the route to demonstrate. This example has fewer than 32
+                cards, so the engine would skip the model.
               </p>
               <p id="route-explanation"></p>
               <div class="step-controls">
@@ -274,8 +267,8 @@
                 aria-live="polite"
               ></div>
               <p class="small">
-                <span id="search-work"></span><br />You control the pace. Play
-                advances one step at a time. Nothing starts automatically.
+                <span id="search-work"></span><br />Select <strong>Play</strong>
+                to advance one step at a time.
               </p>
             </div>
           </div>
@@ -285,10 +278,9 @@
           </div>
         </div>
         <p class="context">
-          This four-card example teaches the traversal. The real model is
-          skipped below 32 anchor candidates. Steps here illustrate the search
-          order, not measured query time. Inverse matching also checks witness
-          filters, marks ancestors, and filters anchors in document order.
+          This four-card example shows the search order. The engine skips the
+          model below 32 anchor candidates. Each step represents a visit or a
+          parent link. Step counts do not measure query time.
         </p>
         <div class="lab route-film" id="motion">
           <div class="lab-header">
@@ -296,9 +288,8 @@
               <span class="badge">Two exact search routes</span>
               <h3>Follow both routes through the same DOM.</h3>
               <p>
-                The moving ring shows the node being examined. Green cards are
-                confirmed matches. Blue cards have been marked for a later
-                check.
+                The ring follows the current node. Solid outlines mark confirmed
+                matches. Dashed outlines mark ancestors awaiting a final check.
               </p>
             </div>
           </div>
@@ -339,12 +330,10 @@
           </div>
         </div>
         <p class="context">
-          Each beat advances one teaching step in each route. One operation is a
-          visit or a parent link, not a fixed amount of time. Finishing earlier
-          in this animation does not establish a real speedup. The four-card
-          example does not call the model. Change the DOM above to see both
-          searches change together. Reduced motion keeps the same steps without
-          moving the ring.
+          Each beat advances both routes by one step. Steps can take different
+          amounts of time, so finishing first here does not prove a speedup.
+          Change the DOM above to compare the searches. With reduced motion
+          enabled, the ring stays still and the same steps remain available.
         </p>
         <div class="lab discovery">
           <p class="eyebrow">Try a prediction</p>
@@ -372,13 +361,11 @@
             <button id="challenge-reveal">Reveal and explain</button>
           </div>
           <p id="challenge-feedback" role="status" aria-live="polite">
-            No scoring. Follow the DOM to find the answer.
+            Choose a result, then reveal the explanation.
           </p>
         </div>
         <details id="route-comparison">
-          <summary>
-            Compare both routes. What if we force the wrong choice?
-          </summary>
+          <summary>Compare routes and try the slower choice</summary>
           <div class="comparison-grid">
             <article>
               <h3>Forward</h3>
@@ -395,11 +382,10 @@
           </div>
           <p id="forced-explanation" class="context"></p>
           <p class="small">
-            These totals run both illustrated traces to completion on your
-            edited DOM. A visit checks a candidate or descendant. An ancestor
-            step follows one parent link. The real engine uses optimizations
-            that this teaching trace does not reproduce. Both totals are checked
-            against an exact DOM query.
+            These counts include the complete search on your edited DOM. A visit
+            checks a candidate or descendant. An ancestor step follows a parent
+            link. Both result lists are checked against an exact DOM query. The
+            real engine has optimizations omitted from this demonstration.
           </p>
           <p>
             In the engine, a slow recommendation still runs. There is no
@@ -418,8 +404,8 @@
           </p>
         </details>
         <div class="lab discovery" id="bridge">
-          <p class="eyebrow">Bridge to the route decision</p>
-          <h3>Now see when a larger query reaches the planner.</h3>
+          <p class="eyebrow">Try a larger query</p>
+          <h3>Build a query that can use the model.</h3>
           <p>
             Use the starter pattern: A and C contain warnings, B and D do not.
             Repeat it 16 times, give each matching card six warnings, and add
@@ -435,7 +421,7 @@
             The four-card lesson has fewer than 32 anchors, so the runtime never
             needs a model call.
           </p>
-          <a href="#policy">Follow these counts into the saved function ↓</a>
+          <a href="#policy">See how the model uses these counts ↓</a>
           <p class="context">
             This constructed example introduces the eligibility guards. It is
             not a training example or a measured speedup. The colored tiles
@@ -445,12 +431,11 @@
       </section>
       <section id="policy" class="chapter" data-scroll-theme="when">
         <p class="eyebrow">03 / When the model can change the route</p>
-        <h2>When does the model get a say?</h2>
+        <h2>When can the model change the route?</h2>
         <p class="section-intro">
-          The traditional count rule chooses the default route. For a narrower
-          set of queries, the saved model can recommend switching from forward
-          to inverse. Either route still runs the same exact selector checks and
-          returns the same matches.
+          The existing count rule chooses the default route. If a query passes
+          the eligibility checks, the model can switch it from forward to
+          inverse. Both routes check the selector and return the same matches.
         </p>
         <div class="lab policy-layout">
           <form id="policy-controls" class="controls">
@@ -535,28 +520,26 @@
             </div>
             <ol id="guard-list" class="guard-list"></ol>
             <p class="route-consequence">
-              Route choice changes <em>how the engine searches</em>. The exact
-              matcher still decides which elements match and keeps document
-              order.
+              The route changes the search order. Exact selector checks decide
+              which elements match. Results stay in document order.
               <a href="#motion">Watch both searches above ↑</a>
             </p>
             <details>
               <summary>See the function inputs</summary>
               <pre id="policy-inputs"></pre>
               <p>
-                The attribute mask encodes two yes/no filter flags. The
-                generated arithmetic reads them separately. The ratio is witness
-                count divided by anchor count. These counts describe candidate
-                lists before the remaining exact checks.
+                The attribute mask stores two filter flags. The function reads
+                them separately. The ratio is witness count divided by anchor
+                count. Candidate counts come before the remaining selector
+                checks.
               </p>
             </details>
           </div>
         </div>
         <p class="context">
-          This explorer imports the committed <code>chromiumPolicy</code> and
-          <code>jsdomPolicy</code> functions. Its visible checks explain the
-          runtime guards. It does not run a full query benchmark or measure a
-          speedup. Each change is evaluated with fixed weights.
+          This explorer calls the committed <code>chromiumPolicy</code> or
+          <code>jsdomPolicy</code> function with fixed weights. The checks show
+          when the engine can call it. This is not a query benchmark.
         </p>
         <div class="lab discovery" id="impact">
           <p class="eyebrow">
@@ -625,9 +608,9 @@
                   value="250"
               /></label>
               <p class="small">
-                These defaults are arbitrary teaching values. They are not
-                measurements from Chromium or jsdom. Common discovery costs,
-                detailed guard costs, and JIT behavior are omitted.
+                These values are assumptions, not Chromium or jsdom
+                measurements. The estimate omits shared candidate discovery,
+                detailed eligibility checks, and JIT effects.
               </p>
             </details>
           </div>
@@ -667,18 +650,14 @@
             <p id="impact-formula" class="mono small"></p>
           </div>
           <p class="context">
-            Illustrated step counts come from the described DOM and simple
-            traversal rules. One step means a candidate/descendant visit or an
-            ancestor hop. These are not the runtime’s internal instruction
-            counts. Estimated timings combine those counts with your
-            assumptions. Both routes return the same cards. A real performance
-            claim needs complete-query measurements with the built engine.
+            The estimate multiplies visit and ancestor counts by your assumed
+            costs. Both routes return the same cards. These counts describe the
+            sample traversal, not CPU instructions. Verify actual performance
+            with complete query measurements using the built engine.
           </p>
         </div>
         <details id="calculation">
-          <summary>
-            Open the calculator. Where does the boolean come from?
-          </summary>
+          <summary>Calculate the route recommendation</summary>
           <p id="calculation-host" class="mono"></p>
           <p id="calculation-guard" role="status" aria-live="polite"></p>
           <div id="calculation-arithmetic">
@@ -700,9 +679,9 @@
             <section id="calculation-input-panel">
               <h3>Six inputs, all available before searching</h3>
               <p>
-                Two filter flags are encoded separately. Training centers and
-                scales each input using saved means and scales. This makes very
-                different units easier to learn from.
+                The model reads two separate filter flags. Saved means and
+                scales normalize the inputs so their different units are easier
+                to train on.
               </p>
               <div class="table-scroll">
                 <table>
@@ -747,10 +726,10 @@
             </section>
           </div>
           <p class="context">
-            Numbers come from the committed
+            The calculator uses the committed
             <code>{host}-weights.generated.json</code> files and your current
-            controls. Values are rounded for display. The recommendation above
-            always calls the actual generated function.
+            inputs. Displayed values are rounded. The route recommendation comes
+            from the generated function.
           </p>
           <button class="source-jump" data-source="generated">
             Compare with the generated JavaScript ↓
@@ -816,11 +795,10 @@ hidden = Math.max(0, bias + weight1 * input1 + …)
 score  = outputBias + outputWeight1 * hidden1 + …
 override = score > savedThreshold</pre>
           <p>
-            A weight is the multiplier for an input. A bias is an added
-            constant. Training adjusts those numbers. The output is a
-            recommendation, not a probability or a prediction that an element
-            matches. No Python, GPU, PyTorch runtime, or remote model is needed
-            when the engine selects elements.
+            A weight multiplies an input. A bias adds a constant. Training
+            adjusts both. The output recommends a route. It does not predict
+            whether an element matches or express a probability. Queries run in
+            JavaScript without Python, a GPU, or a remote model.
           </p>
           <button class="source-jump" data-source="generated">
             Open the actual generated function ↓
@@ -853,7 +831,7 @@ override = score > savedThreshold</pre>
           </div>
         </div>
         <details>
-          <summary>What are the generated files? Where do they go?</summary>
+          <summary>Generated files and their paths</summary>
           <table>
             <thead>
               <tr>
@@ -909,7 +887,7 @@ override = score > savedThreshold</pre>
           </p>
         </details>
         <details>
-          <summary>How would I use it or regenerate the module?</summary>
+          <summary>Use the model or rebuild its module</summary>
           <pre>
 // An engine created directly for jsdom:
 engine.useNeuralPlanner('jsdom')
@@ -948,13 +926,13 @@ pnpm run build</pre>
       </details>
       <aside class="closing">
         <p class="eyebrow">What the evidence currently supports</p>
-        <h2>A learned choice still needs a measured benefit.</h2>
+        <h2>Measure the whole query.</h2>
         <p>
-          Both routes must preserve exact matches and document order. A correct
-          model can still make queries slower once its guards and callback costs
-          are included. Current research includes scoped synthetic wins and
-          regressions. It does not establish a general speedup or show the model
-          beating a simpler fitted rule.
+          Both routes preserve exact matches and document order. The model can
+          still slow a query down, including the cost of its checks and
+          callback. Recorded synthetic tests show both speedups and slowdowns.
+          They do not establish a general speedup or show that the model beats a
+          simpler fitted rule.
         </p>
         <a href="./neural-dispatch-crossed-outcome.md"
           >Read the crossed-query results ↗</a

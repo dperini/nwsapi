@@ -73,7 +73,9 @@ function comparison() {
   const extra = Math.abs(forwardWork - inverseWork)
   text(
     'forced-explanation',
-    `In this illustrated DOM, ${cheaper} performs ${extra} fewer counted operations${extra === 0 ? ' (a tie)' : ''}. Forcing the other route still produces the same cards. These counts omit candidate discovery and runtime costs, so they do not establish which route is faster in the real engine.`,
+    extra === 0
+      ? 'Both routes use the same number of counted operations and return the same cards. These counts omit candidate discovery and runtime overhead.'
+      : `${cheaper === 'forward' ? 'Forward' : 'Inverse'} uses ${extra} fewer counted operations here. Both routes return the same cards. Counts omit candidate discovery and runtime overhead, so fewer operations do not prove a faster query.`,
   )
 }
 
@@ -206,7 +208,7 @@ function selectChallenge(id: keyof typeof challenges) {
   text('challenge-question', challenges[id].question)
   text(
     'challenge-feedback',
-    'Choose a prediction, then reveal the answer. You can step through either route to check it.',
+    'Choose a result, then reveal the explanation. Step through either route to check it.',
   )
   ;(element('challenge-prediction') as HTMLSelectElement).value = ''
   render()
@@ -229,7 +231,7 @@ function reveal() {
       .join(',') || 'none'
   text(
     'challenge-feedback',
-    `${prediction === answer ? 'Your prediction matches.' : 'Try following the relationship again.'} ${challenges[challenge as keyof typeof challenges].explanation}`,
+    `${prediction === answer ? 'Correct.' : 'Not quite.'} ${challenges[challenge as keyof typeof challenges].explanation}`,
   )
 }
 

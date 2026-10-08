@@ -42,15 +42,15 @@ export const sources = {
     path: 'scripts/repo/bench/planner/dispatch/collect.mts',
     role: 'Benchmark collection',
     explanation:
-      'Builds the route comparison experiment. Measurements are saved under assets/repo/bench/. Full-query timings must confirm that both routes actually ran.',
+      'Measures both search routes and saves the results under assets/repo/bench/. Complete query timings must confirm that each route ran as intended.',
     code: collectorSource.split('\n').slice(0, 65).join('\n'),
   },
   train: {
-    title: 'Train the numeric model',
+    title: 'Train the model',
     path: 'scripts/repo/pytorch/dispatch_train.py',
     role: 'Python · PyTorch',
     explanation:
-      'The six encoded inputs feed a linear model or a small neural network. Training adjusts weights with AdamW. Validation selects the checkpoint and threshold.',
+      'Trains a linear model or small neural network from six inputs. AdamW adjusts the weights. Validation selects the saved model and threshold.',
     code: excerpt(trainerSource, 'def weights(', '\ndef export('),
   },
   entry: {
@@ -58,7 +58,7 @@ export const sources = {
     path: 'scripts/repo/pytorch/dispatch-train.mts',
     role: 'TypeScript entry point',
     explanation:
-      'This .mts script invokes the Python trainer through uv and the locked model-training environment. It does not implement PyTorch training in TypeScript.',
+      'Starts the Python trainer through uv using the pinned training environment. PyTorch training runs in Python.',
     code: entrySource,
   },
   export: {
@@ -74,7 +74,7 @@ export const sources = {
     path: 'scripts/repo/gen/has-route-decision.mts',
     role: 'AST-based generation',
     explanation:
-      'Reads the committed .generated.mjs files and model.txt. It parses JavaScript with @ultrathink/acorn.rs.wasm, gives helpers host-specific names, adds types, and formats one generated module.',
+      'Reads the committed JavaScript exports and model.txt. Uses @ultrathink/acorn.rs.wasm to parse the code, rename helpers for each host, add types, and format the runtime module.',
     code: excerpt(
       generatorSource,
       'function modelSource(',
@@ -102,7 +102,7 @@ export const sources = {
     path: 'src/core/select/has/match.mts',
     role: 'Exact selector engine',
     explanation:
-      'Checks runtime eligibility and asks the callback for an override. An error retains the forward route. Inverse matching checks witnesses, marks ancestors, and filters anchor candidates in order.',
+      'Checks eligibility and calls the model to decide whether to switch routes. A callback error keeps the forward route. Inverse matching checks witnesses, marks ancestors, and filters anchors in document order.',
     code: matchSource,
   },
 }
@@ -117,7 +117,7 @@ export const stages: Array<{
   {
     title: '1. Measure both routes',
     description:
-      'Run a selector on a fixture DOM in Chromium and jsdom. Record forward and inverse costs plus facts available before executing the query. Measurements supply supervision: examples of which action costs less.',
+      'Run both search routes on fixture DOMs in Chromium and jsdom. Record their timings and the inputs available before searching. These examples teach the model which route costs less.',
     example:
       'query facts + forward cost + inverse cost\n→ one recorded example\n\nTiming units: ns per query\nSource: assets/repo/bench/',
     source: 'collect',
@@ -125,7 +125,7 @@ export const stages: Array<{
   {
     title: '2. Train and validate',
     description:
-      'Separate fixture families into training, validation, and evaluation groups. Adjust weights on training examples, then choose a model and threshold using validation and control cases. Uncertain pairs can receive zero weight. Regression risk and decision overhead matter.',
+      'Split fixture families into training, validation, and evaluation groups. Train the weights, then select a model and threshold using validation. Account for uncertain timings, slowdowns, and model overhead.',
     example:
       'nn.Linear(6, hidden)\n→ nn.ReLU()\n→ nn.Linear(hidden, 1)\n\nOr: nn.Linear(6, 1)\nOptimizer: torch.optim.AdamW',
     source: 'train',
@@ -133,7 +133,7 @@ export const stages: Array<{
   {
     title: '3. Save and export',
     description:
-      'Save the selected weights as a PyTorch checkpoint. Repository Python code also writes the numeric JSON and JavaScript arithmetic. The .pt file is for development. The exported JavaScript is what the typed generator consumes.',
+      'Save the weights in a PyTorch checkpoint. The Python exporter also writes JSON and JavaScript. Development tools use the checkpoint. The TypeScript generator reads the JavaScript export.',
     example:
       'assets/repo/pytorch/model/\n  chromium.generated.pt\n  chromium-weights.generated.json\n  chromium.generated.mjs\n  (plus jsdom equivalents)',
     source: 'export',
@@ -149,7 +149,7 @@ export const stages: Array<{
   {
     title: '5. Run exact queries',
     description:
-      'At query time, the engine collects facts and applies guards. If eligible, it calls the fixed JavaScript policy. The normal engine performs the chosen exact traversal. The weights remain unchanged.',
+      'The engine collects query inputs and checks eligibility. For eligible queries, it calls the saved JavaScript function and searches using the chosen route. The weights stay fixed.',
     example:
       'guards → policy(inputs) → boolean\n\ntrue: override forward with inverse\nfalse: keep current route\n\nExact DOM checks produce the matches.',
     source: 'match',

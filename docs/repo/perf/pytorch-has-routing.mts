@@ -168,17 +168,17 @@ function renderPolicy() {
       anchors >= 32 && witnesses > 0,
     ),
     guard(
-      'Planner can consider this route',
+      'The existing route is forward',
       `The existing count rule selects ${forward ? 'forward' : 'inverse'}. An existing inverse decision stays inverse.`,
       forward,
     ),
     guard(
-      'The optional planner is eligible',
+      'The planner is enabled and a filter is present',
       `Planner ${enabled ? 'enabled' : 'disabled'}. ${attributes ? 'A supported filter is present.' : 'No attribute filter is present.'}`,
       enabled && attributes !== 0,
     ),
     guard(
-      'The inputs are inside the saved range',
+      'The inputs are within the trained range',
       `32–192 anchors, 80–768 witnesses, ratio 2.5–4. Current ratio: ${ratio.toFixed(2)}.`,
       inRange,
     ),
