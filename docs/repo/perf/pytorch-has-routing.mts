@@ -22,6 +22,12 @@ import {
   renderImpact,
 } from './pytorch-has-routing/impact.mts'
 import { initializeSectionThemes } from './pytorch-has-routing/theme.mts'
+import {
+  showSource,
+  jumpToSource,
+  revealSourceChoice,
+} from './pytorch-has-routing/source-view.mts'
+import { initializePanelShimmer } from './pytorch-has-routing/panel-shimmer.mts'
 import { initializeGuideControls } from './pytorch-has-routing/select.mts'
 import { initializeStory, renderStory } from './pytorch-has-routing/story.mts'
 import { initializeNarration } from './pytorch-has-routing/narration.mts'
@@ -265,33 +271,6 @@ function applyPreset(name: string) {
   renderPolicy()
 }
 
-function revealSourceChoice() {
-  const list = element('source-list')
-  const button = list.querySelector<HTMLButtonElement>('[aria-pressed="true"]')
-  if (button && list.scrollWidth > list.clientWidth) {
-    list.scrollTo({
-      left: button.offsetLeft - (list.clientWidth - button.offsetWidth) / 2,
-      behavior: 'instant',
-    })
-  }
-}
-
-function showSource(id: SourceId) {
-  const source = sources[id]
-  text('source-role', source.role)
-  text('source-title', source.title)
-  text('source-explanation', source.explanation)
-  code('source-code', source.code)
-  const link = element('source-link') as HTMLAnchorElement
-  link.href = `https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/${source.path}`
-  document
-    .querySelectorAll<HTMLButtonElement>('[data-file]')
-    .forEach(button => {
-      button.setAttribute('aria-pressed', String(button.dataset['file'] === id))
-    })
-  revealSourceChoice()
-}
-
 let stageIndex = 0
 
 function showStage(index: number) {
@@ -308,15 +287,6 @@ function showStage(index: number) {
         String(Number(button.dataset['stage']) === index),
       )
     })
-}
-
-function jumpToSource(id: SourceId) {
-  showSource(id)
-  element('source').scrollIntoView({
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? 'instant'
-      : 'smooth',
-  })
 }
 
 type TrainingRow = {
@@ -410,6 +380,7 @@ async function loadSamples() {
 function initialize() {
   initializeLocale()
   initializeSectionThemes()
+  initializePanelShimmer()
   initializeNarration()
   element('pipeline').innerHTML = stages
     .map(

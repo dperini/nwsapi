@@ -1,5 +1,6 @@
 .reader {
   --page-scrollbar-accent: var(--topic-where);
+  --scroll-accent: var(--topic-where);
 }
 html:has(.reader) {
   --page-scrollbar-accent: var(--topic-where);
@@ -104,7 +105,7 @@ html:has(.reader) {
 }
 .reading-prose p,
 .reading-prose li {
-  color: #d3dfe7;
+  color: var(--reading-body, #d3dfe7);
 }
 .reading-prose p {
   margin: 0 0 24px;
@@ -300,9 +301,9 @@ html:has(.reader) {
     background: linear-gradient(
       110deg,
       transparent 35%,
-      var(--section-accent) 47%,
-      color-mix(in srgb, var(--section-accent) 55%, white) 50%,
-      var(--section-accent) 53%,
+      var(--scroll-accent) 47%,
+      color-mix(in srgb, var(--scroll-accent) 55%, white) 50%,
+      var(--scroll-accent) 53%,
       transparent 65%
     );
     background-size: 250% 100%;

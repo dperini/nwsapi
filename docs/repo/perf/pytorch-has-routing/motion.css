@@ -131,22 +131,22 @@
 }
 .film-links path {
   fill: none;
-  stroke: #415c6a;
+  stroke: var(--reading-line, #415c6a);
   stroke-width: 1;
 }
 .route-film {
   --trace-current: var(--topic-what);
-  --trace-pending: #ffc46d;
-  --trace-result: #92e6b2;
-  --trace-excluded: #c78b67;
-  --trace-visited: #8196a0;
+  --trace-pending: var(--reading-pending, #ffc46d);
+  --trace-result: var(--reading-positive, #92e6b2);
+  --trace-excluded: var(--reading-excluded, #c78b67);
+  --trace-visited: var(--reading-edge, #8196a0);
 }
 .film-node > :is(circle, rect) {
   fill: var(--surface-raised);
   stroke: var(--section-line);
 }
 .film-node > text {
-  fill: #c8d9e0;
+  fill: var(--reading-body, #c8d9e0);
   font:
     10px 'JetBrains Mono',
     monospace;

@@ -128,6 +128,12 @@ control initially follows the browser language. A manual choice is kept in
 `sessionStorage`, including page refreshes in the same tab. Source code,
 selectors, script names, and commands keep their original spelling.
 
+Use the open-book button beside the language selector to enable reading mode.
+It uses warm paper colors and darker text, controls, and code highlighting.
+Decorative spotlight and border shimmer effects are hidden while the
+interactive diagrams remain available. The choice persists across refreshes
+and navigation between the guide and reader in the same browser tab.
+
 Interface labels live in `assets/repo/model-guide/locales/en.json` and
 `it.json`. Longer interface strings and repository documents are extracted
 into generated JSON catalogs in the same directory. Edit

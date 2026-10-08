@@ -2,6 +2,7 @@ import en from './locales/en.json'
 import it from './locales/it.json'
 import { initializeLanguageSelect } from './select.mts'
 import { initializeContentLocale } from './locale-content.mts'
+import { initializeReadingMode } from './reading-mode.mts'
 
 type Locale = keyof typeof messages
 const messages = { en, it }
@@ -35,6 +36,7 @@ export function translate(key: keyof typeof en): string {
 }
 
 export function initializeLocale() {
+  initializeReadingMode()
   const select = document.querySelector<HTMLSelectElement>(
     '[data-language-select]',
   )
