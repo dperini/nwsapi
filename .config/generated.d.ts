@@ -23,7 +23,10 @@ declare module '*/dist/adapter/dom-selector.js' {
   type SelectorList = import('css-tree').SelectorList
   export default class DOMSelector {
     constructor(window: unknown, document?: unknown, options?: unknown)
-    static configure(window: unknown, options: Record<string, boolean>): void
+    static configure(
+      window: unknown,
+      options: Record<string, boolean | number>,
+    ): void
     static use(window: unknown, engine: typeof NW.Dom): typeof NW.Dom
     engine: typeof NW.Dom
     // oxlint-disable-next-line typescript/consistent-type-imports -- Keep this wildcard declaration ambient.

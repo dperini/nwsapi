@@ -1,3 +1,7 @@
+import type {
+  EngineConfiguration,
+  Configure,
+} from '../initialize/configuration.mts'
 import type { NeuralPlannerHost } from '../select/has/policy.mts'
 import type {
   BulkHasPlanner,
@@ -170,32 +174,9 @@ export interface PublicState {
       relative?: boolean,
       existenceOnly?: boolean,
     ) => CompiledResolver | null
-    configure: (
-      option: string | Record<string, unknown>,
-      clear?: boolean,
-    ) =>
-      | boolean
-      | {
-          [key: string]: boolean
-          IDS_DUPES: boolean
-          FORGIVING: boolean
-          LEGACY: boolean
-          NODE_LIST: boolean
-          LOGERRORS: boolean
-          USR_EVENT: boolean
-          VERBOSITY: boolean
-        }
+    configure: Configure
     emit: (message: string, proto?: TypeErrorConstructor | undefined) => void
-    Config: {
-      [key: string]: boolean
-      IDS_DUPES: boolean
-      FORGIVING: boolean
-      LEGACY: boolean
-      NODE_LIST: boolean
-      LOGERRORS: boolean
-      USR_EVENT: boolean
-      VERBOSITY: boolean
-    }
+    Config: EngineConfiguration
     Snapshot: {
       matchesTag: (element: Element, name: string) => boolean
       hasClass: (value: string, name: string) => boolean

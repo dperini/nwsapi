@@ -105,6 +105,8 @@ export function initializeRuntime(engine: EngineState) {
   engine.reNthElem = /(:nth(?:-last)?-child)/i
   engine.reNthType = /(:nth(?:-last)?-of-type)/i
   engine.Config = {
+    CACHE_LIMIT: 4096,
+    CACHE_BYTES: 2 * 1024 * 1024,
     IDS_DUPES: true,
     FORGIVING: true,
     LEGACY: false,
@@ -191,7 +193,6 @@ export function initializeRuntime(engine: EngineState) {
   }
   engine.concatCall = concatCall.bind(null, engine) as EngineState['concatCall']
   engine.concatList = concatList.bind(null, engine) as EngineState['concatList']
-  engine.CACHE_LIMIT = 4096
   engine.createCache = createCache.bind(
     null,
     engine,

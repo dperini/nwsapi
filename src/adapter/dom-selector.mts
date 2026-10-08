@@ -1,3 +1,4 @@
+import { validateCacheOptions } from '../core/initialize/configuration.mts'
 import { createHostReaders } from './jsdom.mts'
 import type { HostOptions, HostReaders, IdlUtils } from './jsdom.mts'
 
@@ -21,7 +22,7 @@ type QueryOptions = { noexcept?: boolean | undefined }
 type AdapterDocument = Document & { [DOCUMENT_STATE]?: State }
 type State = {
   engine?: Engine
-  options: Record<string, boolean> | { __proto__: null }
+  options: Record<string, boolean | number> | { __proto__: null }
   active: boolean
   hostReaders?: HostReaders | undefined
 }
@@ -97,9 +98,14 @@ class DOMSelector {
       >
     | undefined
 
-  static configure(window: HostWindow, options: Record<string, boolean>) {
+  static configure(
+    window: HostWindow,
+    options: Record<string, boolean | number>,
+  ) {
     const document = window.document
     assertSetup(window, document)
+    options = { ...options }
+    validateCacheOptions(options)
     if (
       Object.keys(options).includes('VERBOSITY') &&
       options['VERBOSITY'] !== true

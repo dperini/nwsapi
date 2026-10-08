@@ -54,7 +54,6 @@ export const initializeState = function (
   this.Operators = undefined
   this.concatCall = undefined
   this.concatList = undefined
-  this.CACHE_LIMIT = undefined
   this.createCache = undefined
   this.toNodeList = undefined
   this.isInstanceOf = undefined

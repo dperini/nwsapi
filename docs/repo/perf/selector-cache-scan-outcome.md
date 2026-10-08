@@ -2,6 +2,8 @@
 
 The repeated-scan cache failure in [issue #242](https://github.com/dperini/nwsapi/issues/242) still occurs on both branches as of October 7, 2026. V3 raises the entry bound and uses two generations, which improves smaller scans. Larger scans can still miss on every match.
 
+The [October 8 V3 follow-up](selector-cache-mitigation-outcome.md) adds configurable budgets, changes compiled-plan admission, and records the resulting runtime, compilation, and memory measurements. The findings below describe the earlier revisions.
+
 ## Recorded scope
 
 The [recorded inputs and counts](../../../assets/repo/bench/issue-242-cache-scan-2026-10-07.json) include the reproduction source and per-pass results. The run used Node.js 26.11.0 and `jsdom` 30.0.1, with these fetched revisions:

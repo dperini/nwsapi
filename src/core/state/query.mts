@@ -1,3 +1,4 @@
+import type { Configure } from '../initialize/configuration.mts'
 import type { CodeFactoryCache } from '../compile/factory.mts'
 import type {
   BulkHasPlanner,
@@ -67,21 +68,7 @@ export interface QueryState {
   isPopoverOpen: (node: EngineElement) => boolean | undefined
   isLink: (node: EngineElement) => boolean
   isMediaState: (media: HTMLMediaElement, state: string) => boolean
-  configure: (
-    option: string | Record<string, unknown>,
-    clear?: boolean,
-  ) =>
-    | boolean
-    | {
-        [key: string]: boolean
-        IDS_DUPES: boolean
-        FORGIVING: boolean
-        LEGACY: boolean
-        NODE_LIST: boolean
-        LOGERRORS: boolean
-        USR_EVENT: boolean
-        VERBOSITY: boolean
-      }
+  configure: Configure
   errors: number
   emit: (message: string, proto?: TypeErrorConstructor | undefined) => void
   initialize: (doc: Document) => void

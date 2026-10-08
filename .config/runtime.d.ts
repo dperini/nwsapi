@@ -1,3 +1,7 @@
+import type {
+  EngineConfiguration,
+  Configure,
+} from '../src/core/initialize/configuration.mts'
 import type { NeuralPlannerHost } from '../src/core/select/neural-planner.mts'
 import type { BulkHasPlanner } from '../src/core/state/types.mts'
 import type { LegacyHookFactory } from '../src/core/state/legacy.mts'
@@ -5,7 +9,7 @@ export type NwsapiCollection = Element[] | NodeListOf<Element>
 export type NwsapiContext = Document | DocumentFragment | Element
 
 export interface NwsapiEngine {
-  Config: Record<string, boolean>
+  Config: EngineConfiguration
   useNeuralPlanner(host: NeuralPlannerHost | null): void
   registerBulkHasPlanner(planner: BulkHasPlanner | null): void
   Version: string
@@ -42,6 +46,7 @@ export interface NwsapiEngine {
     name: string,
     resolver: (match: RegExpMatchArray) => string,
   ): void
+  matchResolvers: NwsapiEngine['matchLambdas']
   matchLambdas: {
     clear(): void
     get(key: string): unknown
@@ -84,9 +89,7 @@ export interface NwsapiEngine {
         results: Element[] | boolean,
       ) => Element[] | boolean)
     | null
-  configure(): Record<string, boolean>
-  configure(option: string): boolean
-  configure(options: Record<string, unknown>, clear?: boolean): boolean
+  configure: Configure
   install(all?: boolean): void
   uninstall(): void
   registerLegacyHooks(factory: LegacyHookFactory): boolean

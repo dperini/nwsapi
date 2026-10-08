@@ -1,0 +1,3556 @@
+{
+  "date": "2026-10-08T13:21:21.634Z",
+  "node": "v26.11.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "cpu": "Apple M1 Max",
+  "beforeRevision": "c6ccba8b2a9fd04a11ddc830491f00461815d40b",
+  "candidateRevision": "021544c12c607c7e215f8b5e9af107a12a8906cb",
+  "variants": [
+    {
+      "name": "before",
+      "bundle": "/Users/jdalton/projects/nwsapi/.cache/issue-242-before.cjs",
+      "sha256": "ed06b546de823c979ac78411a1b96e4592daa9be5d6359ba741841aad467ec4f"
+    },
+    {
+      "name": "after",
+      "bundle": "/Users/jdalton/projects/nwsapi/dist/nwsapi.js",
+      "sha256": "49b026d17704905bbe9707daaa972bc9ab5d7c94a6594c250b5cc11904fd9c3b"
+    },
+    {
+      "name": "after-expanded",
+      "bundle": "/Users/jdalton/projects/nwsapi/dist/nwsapi.js",
+      "settings": {
+        "CACHE_LIMIT": 8192,
+        "CACHE_BYTES": 8388608
+      },
+      "sha256": "49b026d17704905bbe9707daaa972bc9ab5d7c94a6594c250b5cc11904fd9c3b"
+    }
+  ],
+  "cases": [
+    {
+      "name": "small-warm",
+      "count": 32,
+      "passes": 2000,
+      "shape": "class"
+    },
+    {
+      "name": "class-1000",
+      "count": 1000,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "class-1001",
+      "count": 1001,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "class-2300",
+      "count": 2300,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "class-4097",
+      "count": 4097,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "complex-2300",
+      "count": 2300,
+      "passes": 10,
+      "shape": "complex"
+    },
+    {
+      "name": "hot-with-one-offs",
+      "count": 2300,
+      "passes": 10,
+      "shape": "mixed"
+    },
+    {
+      "name": "changed-stylesheet",
+      "count": 2300,
+      "passes": 20,
+      "shape": "changed"
+    }
+  ],
+  "rows": [
+    {
+      "variant": "before",
+      "case": "small-warm",
+      "samples": [
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 17.187749999999994,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47892000,
+          "heapAfterBytes": 48522872,
+          "heapDeltaBytes": 630872,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 15064
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 15000
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 17.450874999999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47891336,
+          "heapAfterBytes": 48520336,
+          "heapDeltaBytes": 629000,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 15064
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 15000
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 18.069667000000038,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47901696,
+          "heapAfterBytes": 48525280,
+          "heapDeltaBytes": 623584,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 15064
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 15000
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "small-warm",
+        "mode": "counts",
+        "calls": 64000,
+        "matches": 2000,
+        "milliseconds": 24.73504200000002,
+        "compilations": 0,
+        "lookups": 64000,
+        "hits": 64000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "heapBeforeBytes": 48061840,
+        "heapAfterBytes": 48700680,
+        "heapDeltaBytes": 638840,
+        "retained": [
+          {
+            "entries": 32,
+            "estimatedBytes": 15064
+          },
+          {
+            "entries": 32,
+            "estimatedBytes": 15000
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "small-warm",
+      "samples": [
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 18.468542000000014,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47915024,
+          "heapAfterBytes": 48553088,
+          "heapDeltaBytes": 638064,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 18.303875000000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47902288,
+          "heapAfterBytes": 48540416,
+          "heapDeltaBytes": 638128,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 20.281124999999975,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47900616,
+          "heapAfterBytes": 48546248,
+          "heapDeltaBytes": 645632,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "small-warm",
+        "mode": "counts",
+        "calls": 64000,
+        "matches": 2000,
+        "milliseconds": 24.56562500000001,
+        "compilations": 0,
+        "lookups": 64000,
+        "hits": 64000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "heapBeforeBytes": 48056824,
+        "heapAfterBytes": 48706144,
+        "heapDeltaBytes": 649320,
+        "retained": [
+          {
+            "entries": 32,
+            "estimatedBytes": 16088
+          },
+          {
+            "entries": 32,
+            "estimatedBytes": 16024
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "small-warm",
+      "samples": [
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 18.152040999999997,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47917640,
+          "heapAfterBytes": 48555760,
+          "heapDeltaBytes": 638120,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 18.026459000000045,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47904072,
+          "heapAfterBytes": 48542664,
+          "heapDeltaBytes": 638592,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        },
+        {
+          "name": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 17.893417,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47901096,
+          "heapAfterBytes": 48539104,
+          "heapDeltaBytes": 638008,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 16088
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16024
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "small-warm",
+        "mode": "counts",
+        "calls": 64000,
+        "matches": 2000,
+        "milliseconds": 25.287374999999997,
+        "compilations": 0,
+        "lookups": 64000,
+        "hits": 64000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "heapBeforeBytes": 48075792,
+        "heapAfterBytes": 48725368,
+        "heapDeltaBytes": 649576,
+        "retained": [
+          {
+            "entries": 32,
+            "estimatedBytes": 16088
+          },
+          {
+            "entries": 32,
+            "estimatedBytes": 16024
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "class-1000",
+      "samples": [
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 15.426666000000012,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45972168,
+          "heapAfterBytes": 51245640,
+          "heapDeltaBytes": 5273472,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 475560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 473560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 15.628791999999976,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45970168,
+          "heapAfterBytes": 51244400,
+          "heapDeltaBytes": 5274232,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 475560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 473560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 16.741832999999986,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45971464,
+          "heapAfterBytes": 51244848,
+          "heapDeltaBytes": 5273384,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 475560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 473560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1000",
+        "mode": "counts",
+        "calls": 10000,
+        "matches": 10,
+        "milliseconds": 18.05204200000003,
+        "compilations": 0,
+        "lookups": 10000,
+        "hits": 10000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          }
+        ],
+        "heapBeforeBytes": 46142144,
+        "heapAfterBytes": 51411520,
+        "heapDeltaBytes": 5269376,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 475560
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 473560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "class-1000",
+      "samples": [
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 15.904499999999985,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45993112,
+          "heapAfterBytes": 51320920,
+          "heapDeltaBytes": 5327808,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 16.342709000000013,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45994440,
+          "heapAfterBytes": 51325800,
+          "heapDeltaBytes": 5331360,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 15.426207999999974,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45994344,
+          "heapAfterBytes": 51324416,
+          "heapDeltaBytes": 5330072,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1000",
+        "mode": "counts",
+        "calls": 10000,
+        "matches": 10,
+        "milliseconds": 19.99525,
+        "compilations": 0,
+        "lookups": 10000,
+        "hits": 10000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          }
+        ],
+        "heapBeforeBytes": 46169448,
+        "heapAfterBytes": 51519640,
+        "heapDeltaBytes": 5350192,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 507560
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 505560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "class-1000",
+      "samples": [
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 15.859500000000025,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45986136,
+          "heapAfterBytes": 51316160,
+          "heapDeltaBytes": 5330024,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 16.222125000000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45998448,
+          "heapAfterBytes": 51329808,
+          "heapDeltaBytes": 5331360,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        },
+        {
+          "name": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 16.07054199999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45998432,
+          "heapAfterBytes": 51326392,
+          "heapDeltaBytes": 5327960,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 507560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 505560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1000",
+        "mode": "counts",
+        "calls": 10000,
+        "matches": 10,
+        "milliseconds": 19.20104200000003,
+        "compilations": 0,
+        "lookups": 10000,
+        "hits": 10000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          },
+          {
+            "calls": 1000,
+            "hits": 1000
+          }
+        ],
+        "heapBeforeBytes": 46106104,
+        "heapAfterBytes": 51435784,
+        "heapDeltaBytes": 5329680,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 507560
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 505560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "class-1001",
+      "samples": [
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 15.055292000000009,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45985440,
+          "heapAfterBytes": 51263776,
+          "heapDeltaBytes": 5278336,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 476040
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 474038
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 15.377666000000033,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45982616,
+          "heapAfterBytes": 51261320,
+          "heapDeltaBytes": 5278704,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 476040
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 474038
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 15.807833000000016,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45982280,
+          "heapAfterBytes": 51259896,
+          "heapDeltaBytes": 5277616,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 476040
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 474038
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1001",
+        "mode": "counts",
+        "calls": 10010,
+        "matches": 10,
+        "milliseconds": 19.85024999999996,
+        "compilations": 0,
+        "lookups": 10010,
+        "hits": 10010,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          }
+        ],
+        "heapBeforeBytes": 46142072,
+        "heapAfterBytes": 51412888,
+        "heapDeltaBytes": 5270816,
+        "retained": [
+          {
+            "entries": 1001,
+            "estimatedBytes": 476040
+          },
+          {
+            "entries": 1001,
+            "estimatedBytes": 474038
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "class-1001",
+      "samples": [
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 16.411374999999964,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45979672,
+          "heapAfterBytes": 51314464,
+          "heapDeltaBytes": 5334792,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 15.705874999999992,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45981784,
+          "heapAfterBytes": 51317440,
+          "heapDeltaBytes": 5335656,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 16.43625000000003,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45994776,
+          "heapAfterBytes": 51329344,
+          "heapDeltaBytes": 5334568,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1001",
+        "mode": "counts",
+        "calls": 10010,
+        "matches": 10,
+        "milliseconds": 19.320291999999995,
+        "compilations": 0,
+        "lookups": 10010,
+        "hits": 10010,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          }
+        ],
+        "heapBeforeBytes": 46152704,
+        "heapAfterBytes": 51486456,
+        "heapDeltaBytes": 5333752,
+        "retained": [
+          {
+            "entries": 1001,
+            "estimatedBytes": 508072
+          },
+          {
+            "entries": 1001,
+            "estimatedBytes": 506070
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "class-1001",
+      "samples": [
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 16.08499999999998,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45984216,
+          "heapAfterBytes": 51318784,
+          "heapDeltaBytes": 5334568,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 18.122500000000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 45998024,
+          "heapAfterBytes": 51330176,
+          "heapDeltaBytes": 5332152,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        },
+        {
+          "name": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 15.093542000000014,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46000152,
+          "heapAfterBytes": 51336272,
+          "heapDeltaBytes": 5336120,
+          "retained": [
+            {
+              "entries": 1001,
+              "estimatedBytes": 508072
+            },
+            {
+              "entries": 1001,
+              "estimatedBytes": 506070
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-1001",
+        "mode": "counts",
+        "calls": 10010,
+        "matches": 10,
+        "milliseconds": 19.219708999999966,
+        "compilations": 0,
+        "lookups": 10010,
+        "hits": 10010,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          },
+          {
+            "calls": 1001,
+            "hits": 1001
+          }
+        ],
+        "heapBeforeBytes": 46156752,
+        "heapAfterBytes": 51490096,
+        "heapDeltaBytes": 5333344,
+        "retained": [
+          {
+            "entries": 1001,
+            "estimatedBytes": 508072
+          },
+          {
+            "entries": 1001,
+            "estimatedBytes": 506070
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "class-2300",
+      "samples": [
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 54.55020899999994,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46472464,
+          "heapAfterBytes": 58113208,
+          "heapDeltaBytes": 11640744,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1099560
+            },
+            {
+              "entries": 2293,
+              "estimatedBytes": 1091634
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 54.47154199999994,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46461272,
+          "heapAfterBytes": 58101904,
+          "heapDeltaBytes": 11640632,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1099560
+            },
+            {
+              "entries": 2293,
+              "estimatedBytes": 1091634
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 53.94987500000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46473240,
+          "heapAfterBytes": 58113784,
+          "heapDeltaBytes": 11640544,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1099560
+            },
+            {
+              "entries": 2293,
+              "estimatedBytes": 1091634
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 10,
+        "milliseconds": 61.91754099999997,
+        "compilations": 244,
+        "lookups": 23000,
+        "hits": 20239,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 1830
+          },
+          {
+            "calls": 2300,
+            "hits": 2017
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          }
+        ],
+        "heapBeforeBytes": 46630816,
+        "heapAfterBytes": 58266512,
+        "heapDeltaBytes": 11635696,
+        "retained": [
+          {
+            "entries": 2300,
+            "estimatedBytes": 1099560
+          },
+          {
+            "entries": 2293,
+            "estimatedBytes": 1091634
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "class-2300",
+      "samples": [
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 41.73025000000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46469456,
+          "heapAfterBytes": 58354216,
+          "heapDeltaBytes": 11884760,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 43.17937499999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46472224,
+          "heapAfterBytes": 58354168,
+          "heapDeltaBytes": 11881944,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 43.693209000000024,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46482528,
+          "heapAfterBytes": 58367312,
+          "heapDeltaBytes": 11884784,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 10,
+        "milliseconds": 52.67729200000002,
+        "compilations": 0,
+        "lookups": 23000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 46644504,
+        "heapAfterBytes": 58426336,
+        "heapDeltaBytes": 11781832,
+        "retained": [
+          {
+            "entries": 2300,
+            "estimatedBytes": 1173160
+          },
+          {
+            "entries": 2300,
+            "estimatedBytes": 1168560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "class-2300",
+      "samples": [
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 42.508749999999964,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46438088,
+          "heapAfterBytes": 58323192,
+          "heapDeltaBytes": 11885104,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 44.44875000000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46491464,
+          "heapAfterBytes": 58373672,
+          "heapDeltaBytes": 11882208,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        },
+        {
+          "name": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 41.35445800000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 46473488,
+          "heapAfterBytes": 58359776,
+          "heapDeltaBytes": 11886288,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1173160
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 1168560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 10,
+        "milliseconds": 47.33249999999998,
+        "compilations": 0,
+        "lookups": 23000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 46631280,
+        "heapAfterBytes": 58415856,
+        "heapDeltaBytes": 11784576,
+        "retained": [
+          {
+            "entries": 2300,
+            "estimatedBytes": 1173160
+          },
+          {
+            "entries": 2300,
+            "estimatedBytes": 1168560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "class-4097",
+      "samples": [
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 211.7735,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47063416,
+          "heapAfterBytes": 64790840,
+          "heapDeltaBytes": 17727424,
+          "retained": [
+            {
+              "entries": 2059,
+              "estimatedBytes": 988320
+            },
+            {
+              "entries": 2059,
+              "estimatedBytes": 984202
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 214.37604199999998,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47079208,
+          "heapAfterBytes": 64803672,
+          "heapDeltaBytes": 17724464,
+          "retained": [
+            {
+              "entries": 2059,
+              "estimatedBytes": 988320
+            },
+            {
+              "entries": 2059,
+              "estimatedBytes": 984202
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 207.483792,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47081856,
+          "heapAfterBytes": 64804696,
+          "heapDeltaBytes": 17722840,
+          "retained": [
+            {
+              "entries": 2059,
+              "estimatedBytes": 988320
+            },
+            {
+              "entries": 2059,
+              "estimatedBytes": 984202
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-4097",
+        "mode": "counts",
+        "calls": 40970,
+        "matches": 10,
+        "milliseconds": 241.342084,
+        "compilations": 40970,
+        "lookups": 40970,
+        "hits": 0,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          },
+          {
+            "calls": 4097,
+            "hits": 0
+          }
+        ],
+        "heapBeforeBytes": 47240488,
+        "heapAfterBytes": 64954456,
+        "heapDeltaBytes": 17713968,
+        "retained": [
+          {
+            "entries": 2059,
+            "estimatedBytes": 988320
+          },
+          {
+            "entries": 2059,
+            "estimatedBytes": 984202
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "class-4097",
+      "samples": [
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 78.15241700000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47074720,
+          "heapAfterBytes": 67902104,
+          "heapDeltaBytes": 20827384,
+          "retained": [
+            {
+              "entries": 4096,
+              "estimatedBytes": 2092724
+            },
+            {
+              "entries": 4096,
+              "estimatedBytes": 2084532
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 78.32179199999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47077472,
+          "heapAfterBytes": 67901760,
+          "heapDeltaBytes": 20824288,
+          "retained": [
+            {
+              "entries": 4096,
+              "estimatedBytes": 2092724
+            },
+            {
+              "entries": 4096,
+              "estimatedBytes": 2084532
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 79.44916599999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47091824,
+          "heapAfterBytes": 67916376,
+          "heapDeltaBytes": 20824552,
+          "retained": [
+            {
+              "entries": 4096,
+              "estimatedBytes": 2092724
+            },
+            {
+              "entries": 4096,
+              "estimatedBytes": 2084532
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-4097",
+        "mode": "counts",
+        "calls": 40970,
+        "matches": 10,
+        "milliseconds": 85.58049999999992,
+        "compilations": 11,
+        "lookups": 40970,
+        "hits": 40959,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          },
+          {
+            "calls": 4097,
+            "hits": 4095
+          },
+          {
+            "calls": 4097,
+            "hits": 4096
+          }
+        ],
+        "heapBeforeBytes": 47249928,
+        "heapAfterBytes": 68055104,
+        "heapDeltaBytes": 20805176,
+        "retained": [
+          {
+            "entries": 4096,
+            "estimatedBytes": 2092724
+          },
+          {
+            "entries": 4096,
+            "estimatedBytes": 2084532
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "class-4097",
+      "samples": [
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 78.53158299999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47046472,
+          "heapAfterBytes": 67870936,
+          "heapDeltaBytes": 20824464,
+          "retained": [
+            {
+              "entries": 4097,
+              "estimatedBytes": 2093224
+            },
+            {
+              "entries": 4097,
+              "estimatedBytes": 2085030
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 80.35983299999998,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47093056,
+          "heapAfterBytes": 67917024,
+          "heapDeltaBytes": 20823968,
+          "retained": [
+            {
+              "entries": 4097,
+              "estimatedBytes": 2093224
+            },
+            {
+              "entries": 4097,
+              "estimatedBytes": 2085030
+            }
+          ]
+        },
+        {
+          "name": "class-4097",
+          "mode": "timing",
+          "calls": 40970,
+          "matches": 10,
+          "milliseconds": 81.76975000000004,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47081432,
+          "heapAfterBytes": 67905288,
+          "heapDeltaBytes": 20823856,
+          "retained": [
+            {
+              "entries": 4097,
+              "estimatedBytes": 2093224
+            },
+            {
+              "entries": 4097,
+              "estimatedBytes": 2085030
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "class-4097",
+        "mode": "counts",
+        "calls": 40970,
+        "matches": 10,
+        "milliseconds": 88.29983300000004,
+        "compilations": 0,
+        "lookups": 40970,
+        "hits": 40970,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          },
+          {
+            "calls": 4097,
+            "hits": 4097
+          }
+        ],
+        "heapBeforeBytes": 47240344,
+        "heapAfterBytes": 68045152,
+        "heapDeltaBytes": 20804808,
+        "retained": [
+          {
+            "entries": 4097,
+            "estimatedBytes": 2093224
+          },
+          {
+            "entries": 4097,
+            "estimatedBytes": 2085030
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "complex-2300",
+      "samples": [
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 390.242708,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47538176,
+          "heapAfterBytes": 63326056,
+          "heapDeltaBytes": 15787880,
+          "retained": [
+            {
+              "entries": 1420,
+              "estimatedBytes": 1996040
+            },
+            {
+              "entries": 1388,
+              "estimatedBytes": 1948400
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 401.763959,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47523152,
+          "heapAfterBytes": 63312304,
+          "heapDeltaBytes": 15789152,
+          "retained": [
+            {
+              "entries": 1420,
+              "estimatedBytes": 1996040
+            },
+            {
+              "entries": 1388,
+              "estimatedBytes": 1948400
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 390.1798329999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47521184,
+          "heapAfterBytes": 63309376,
+          "heapDeltaBytes": 15788192,
+          "retained": [
+            {
+              "entries": 1420,
+              "estimatedBytes": 1996040
+            },
+            {
+              "entries": 1388,
+              "estimatedBytes": 1948400
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "complex-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 0,
+        "milliseconds": 412.10795899999994,
+        "compilations": 23000,
+        "lookups": 23000,
+        "hits": 0,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 0
+          }
+        ],
+        "heapBeforeBytes": 47696336,
+        "heapAfterBytes": 63394920,
+        "heapDeltaBytes": 15698584,
+        "retained": [
+          {
+            "entries": 1420,
+            "estimatedBytes": 1996040
+          },
+          {
+            "entries": 1388,
+            "estimatedBytes": 1948400
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "complex-2300",
+      "samples": [
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 151.31687499999998,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47533680,
+          "heapAfterBytes": 62015424,
+          "heapDeltaBytes": 14481744,
+          "retained": [
+            {
+              "entries": 1460,
+              "estimatedBytes": 2096072
+            },
+            {
+              "entries": 1461,
+              "estimatedBytes": 2096292
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 148.4616249999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47550568,
+          "heapAfterBytes": 62034776,
+          "heapDeltaBytes": 14484208,
+          "retained": [
+            {
+              "entries": 1460,
+              "estimatedBytes": 2096072
+            },
+            {
+              "entries": 1461,
+              "estimatedBytes": 2096292
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 147.23579100000006,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47534392,
+          "heapAfterBytes": 62019088,
+          "heapDeltaBytes": 14484696,
+          "retained": [
+            {
+              "entries": 1460,
+              "estimatedBytes": 2096072
+            },
+            {
+              "entries": 1461,
+              "estimatedBytes": 2096292
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "complex-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 0,
+        "milliseconds": 160.32666599999993,
+        "compilations": 5062,
+        "lookups": 23000,
+        "hits": 13399,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 1350
+          },
+          {
+            "calls": 2300,
+            "hits": 1348
+          },
+          {
+            "calls": 2300,
+            "hits": 1343
+          },
+          {
+            "calls": 2300,
+            "hits": 1329
+          },
+          {
+            "calls": 2300,
+            "hits": 1331
+          },
+          {
+            "calls": 2300,
+            "hits": 1331
+          },
+          {
+            "calls": 2300,
+            "hits": 1344
+          },
+          {
+            "calls": 2300,
+            "hits": 1341
+          },
+          {
+            "calls": 2300,
+            "hits": 1334
+          },
+          {
+            "calls": 2300,
+            "hits": 1348
+          }
+        ],
+        "heapBeforeBytes": 47706096,
+        "heapAfterBytes": 62093552,
+        "heapDeltaBytes": 14387456,
+        "retained": [
+          {
+            "entries": 1460,
+            "estimatedBytes": 2096072
+          },
+          {
+            "entries": 1461,
+            "estimatedBytes": 2096292
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "complex-2300",
+      "samples": [
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 48.84566600000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47554616,
+          "heapAfterBytes": 60225520,
+          "heapDeltaBytes": 12670904,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 3302960
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 3298360
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 48.772083000000066,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47554488,
+          "heapAfterBytes": 60168776,
+          "heapDeltaBytes": 12614288,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 3302960
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 3298360
+            }
+          ]
+        },
+        {
+          "name": "complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 48.47058300000003,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47551056,
+          "heapAfterBytes": 60081496,
+          "heapDeltaBytes": 12530440,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 3302960
+            },
+            {
+              "entries": 2300,
+              "estimatedBytes": 3298360
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "complex-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 0,
+        "milliseconds": 56.32733299999995,
+        "compilations": 0,
+        "lookups": 23000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 47709048,
+        "heapAfterBytes": 59994552,
+        "heapDeltaBytes": 12285504,
+        "retained": [
+          {
+            "entries": 2300,
+            "estimatedBytes": 3302960
+          },
+          {
+            "entries": 2300,
+            "estimatedBytes": 3298360
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "hot-with-one-offs",
+      "samples": [
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 724.36275,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48102504,
+          "heapAfterBytes": 91378344,
+          "heapDeltaBytes": 43275840,
+          "retained": [
+            {
+              "entries": 3124,
+              "estimatedBytes": 1593728
+            },
+            {
+              "entries": 2772,
+              "estimatedBytes": 1409280
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 724.723916,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48099864,
+          "heapAfterBytes": 91375312,
+          "heapDeltaBytes": 43275448,
+          "retained": [
+            {
+              "entries": 3124,
+              "estimatedBytes": 1593728
+            },
+            {
+              "entries": 2772,
+              "estimatedBytes": 1409280
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 733.145959,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48116656,
+          "heapAfterBytes": 91387928,
+          "heapDeltaBytes": 43271272,
+          "retained": [
+            {
+              "entries": 3124,
+              "estimatedBytes": 1593728
+            },
+            {
+              "entries": 2772,
+              "estimatedBytes": 1409280
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "hot-with-one-offs",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 720,
+        "milliseconds": 764.0138340000001,
+        "compilations": 23000,
+        "lookups": 46000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 48273704,
+        "heapAfterBytes": 91459304,
+        "heapDeltaBytes": 43185600,
+        "retained": [
+          {
+            "entries": 3124,
+            "estimatedBytes": 1593728
+          },
+          {
+            "entries": 2772,
+            "estimatedBytes": 1409280
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "hot-with-one-offs",
+      "samples": [
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 726.697042,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48113256,
+          "heapAfterBytes": 92570360,
+          "heapDeltaBytes": 44457104,
+          "retained": [
+            {
+              "entries": 3870,
+              "estimatedBytes": 2097036
+            },
+            {
+              "entries": 3882,
+              "estimatedBytes": 2096972
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 728.4625410000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48125888,
+          "heapAfterBytes": 92582992,
+          "heapDeltaBytes": 44457104,
+          "retained": [
+            {
+              "entries": 3870,
+              "estimatedBytes": 2097036
+            },
+            {
+              "entries": 3882,
+              "estimatedBytes": 2096972
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 723.123959,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48112224,
+          "heapAfterBytes": 92570256,
+          "heapDeltaBytes": 44458032,
+          "retained": [
+            {
+              "entries": 3870,
+              "estimatedBytes": 2097036
+            },
+            {
+              "entries": 3882,
+              "estimatedBytes": 2096972
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "hot-with-one-offs",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 720,
+        "milliseconds": 754.3837920000001,
+        "compilations": 23000,
+        "lookups": 46000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 48269624,
+        "heapAfterBytes": 92631560,
+        "heapDeltaBytes": 44361936,
+        "retained": [
+          {
+            "entries": 3870,
+            "estimatedBytes": 2097036
+          },
+          {
+            "entries": 3882,
+            "estimatedBytes": 2096972
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "hot-with-one-offs",
+      "samples": [
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 729.0890000000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48117208,
+          "heapAfterBytes": 94558560,
+          "heapDeltaBytes": 46441352,
+          "retained": [
+            {
+              "entries": 8192,
+              "estimatedBytes": 4435520
+            },
+            {
+              "entries": 8192,
+              "estimatedBytes": 4419432
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 735.9346250000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48115520,
+          "heapAfterBytes": 94556136,
+          "heapDeltaBytes": 46440616,
+          "retained": [
+            {
+              "entries": 8192,
+              "estimatedBytes": 4435520
+            },
+            {
+              "entries": 8192,
+              "estimatedBytes": 4419432
+            }
+          ]
+        },
+        {
+          "name": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 725.8154999999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 48129992,
+          "heapAfterBytes": 94570592,
+          "heapDeltaBytes": 46440600,
+          "retained": [
+            {
+              "entries": 8192,
+              "estimatedBytes": 4435520
+            },
+            {
+              "entries": 8192,
+              "estimatedBytes": 4419432
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "hot-with-one-offs",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 720,
+        "milliseconds": 752.4675,
+        "compilations": 23000,
+        "lookups": 46000,
+        "hits": 23000,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          },
+          {
+            "calls": 4600,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 48275544,
+        "heapAfterBytes": 94623592,
+        "heapDeltaBytes": 46348048,
+        "retained": [
+          {
+            "entries": 8192,
+            "estimatedBytes": 4435520
+          },
+          {
+            "entries": 8192,
+            "estimatedBytes": 4419432
+          }
+        ]
+      }
+    },
+    {
+      "variant": "before",
+      "case": "changed-stylesheet",
+      "samples": [
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 144.410167,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47632232,
+          "heapAfterBytes": 63486728,
+          "heapDeltaBytes": 15854496,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1154760
+            },
+            {
+              "entries": 2295,
+              "estimatedBytes": 1147670
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 143.624167,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47618736,
+          "heapAfterBytes": 63473536,
+          "heapDeltaBytes": 15854800,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1154760
+            },
+            {
+              "entries": 2295,
+              "estimatedBytes": 1147670
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 142.46537499999994,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47629032,
+          "heapAfterBytes": 63486784,
+          "heapDeltaBytes": 15857752,
+          "retained": [
+            {
+              "entries": 2300,
+              "estimatedBytes": 1154760
+            },
+            {
+              "entries": 2295,
+              "estimatedBytes": 1147670
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "changed-stylesheet",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 20,
+        "milliseconds": 157.63950000000006,
+        "compilations": 2794,
+        "lookups": 46000,
+        "hits": 38429,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 1830
+          },
+          {
+            "calls": 2300,
+            "hits": 2017
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 1862
+          },
+          {
+            "calls": 2300,
+            "hits": 1985
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          }
+        ],
+        "heapBeforeBytes": 47785088,
+        "heapAfterBytes": 63617312,
+        "heapDeltaBytes": 15832224,
+        "retained": [
+          {
+            "entries": 2300,
+            "estimatedBytes": 1154760
+          },
+          {
+            "entries": 2295,
+            "estimatedBytes": 1147670
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after",
+      "case": "changed-stylesheet",
+      "samples": [
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 140.93529099999995,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47639368,
+          "heapAfterBytes": 64670208,
+          "heapDeltaBytes": 17030840,
+          "retained": [
+            {
+              "entries": 4001,
+              "estimatedBytes": 2096716
+            },
+            {
+              "entries": 4030,
+              "estimatedBytes": 2096808
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 139.907625,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47638464,
+          "heapAfterBytes": 64669216,
+          "heapDeltaBytes": 17030752,
+          "retained": [
+            {
+              "entries": 4001,
+              "estimatedBytes": 2096716
+            },
+            {
+              "entries": 4030,
+              "estimatedBytes": 2096808
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 144.26437499999997,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47590592,
+          "heapAfterBytes": 64621640,
+          "heapDeltaBytes": 17031048,
+          "retained": [
+            {
+              "entries": 4001,
+              "estimatedBytes": 2096716
+            },
+            {
+              "entries": 4030,
+              "estimatedBytes": 2096808
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "changed-stylesheet",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 20,
+        "milliseconds": 149.42512499999998,
+        "compilations": 3928,
+        "lookups": 46000,
+        "hits": 40163,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 1809
+          },
+          {
+            "calls": 2300,
+            "hits": 1873
+          },
+          {
+            "calls": 2300,
+            "hits": 1929
+          },
+          {
+            "calls": 2300,
+            "hits": 1974
+          },
+          {
+            "calls": 2300,
+            "hits": 2016
+          },
+          {
+            "calls": 2300,
+            "hits": 2049
+          },
+          {
+            "calls": 2300,
+            "hits": 2086
+          },
+          {
+            "calls": 2300,
+            "hits": 2116
+          },
+          {
+            "calls": 2300,
+            "hits": 2132
+          },
+          {
+            "calls": 2300,
+            "hits": 2153
+          },
+          {
+            "calls": 2300,
+            "hits": 2174
+          },
+          {
+            "calls": 2300,
+            "hits": 2189
+          },
+          {
+            "calls": 2300,
+            "hits": 2204
+          },
+          {
+            "calls": 2300,
+            "hits": 2217
+          },
+          {
+            "calls": 2300,
+            "hits": 2228
+          },
+          {
+            "calls": 2300,
+            "hits": 2243
+          },
+          {
+            "calls": 2300,
+            "hits": 2251
+          },
+          {
+            "calls": 2300,
+            "hits": 2258
+          },
+          {
+            "calls": 2300,
+            "hits": 2262
+          }
+        ],
+        "heapBeforeBytes": 47788376,
+        "heapAfterBytes": 64791136,
+        "heapDeltaBytes": 17002760,
+        "retained": [
+          {
+            "entries": 4001,
+            "estimatedBytes": 2096716
+          },
+          {
+            "entries": 4030,
+            "estimatedBytes": 2096808
+          }
+        ]
+      }
+    },
+    {
+      "variant": "after-expanded",
+      "case": "changed-stylesheet",
+      "samples": [
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 127.26683400000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47631704,
+          "heapAfterBytes": 64823376,
+          "heapDeltaBytes": 17191672,
+          "retained": [
+            {
+              "entries": 4600,
+              "estimatedBytes": 2401520
+            },
+            {
+              "entries": 4600,
+              "estimatedBytes": 2392320
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 125.89137499999998,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47632184,
+          "heapAfterBytes": 64823872,
+          "heapDeltaBytes": 17191688,
+          "retained": [
+            {
+              "entries": 4600,
+              "estimatedBytes": 2401520
+            },
+            {
+              "entries": 4600,
+              "estimatedBytes": 2392320
+            }
+          ]
+        },
+        {
+          "name": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 125.08479100000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotHits": 0,
+          "hotLookups": 0,
+          "heapBeforeBytes": 47593304,
+          "heapAfterBytes": 64788768,
+          "heapDeltaBytes": 17195464,
+          "retained": [
+            {
+              "entries": 4600,
+              "estimatedBytes": 2401520
+            },
+            {
+              "entries": 4600,
+              "estimatedBytes": 2392320
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "name": "changed-stylesheet",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 20,
+        "milliseconds": 140.41045800000006,
+        "compilations": 2300,
+        "lookups": 46000,
+        "hits": 43700,
+        "hotHits": 0,
+        "hotLookups": 0,
+        "perPass": [
+          {
+            "calls": 2300,
+            "hits": 0
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          },
+          {
+            "calls": 2300,
+            "hits": 2300
+          }
+        ],
+        "heapBeforeBytes": 47801232,
+        "heapAfterBytes": 64971984,
+        "heapDeltaBytes": 17170752,
+        "retained": [
+          {
+            "entries": 4600,
+            "estimatedBytes": 2401520
+          },
+          {
+            "entries": 4600,
+            "estimatedBytes": 2392320
+          }
+        ]
+      }
+    }
+  ]
+}

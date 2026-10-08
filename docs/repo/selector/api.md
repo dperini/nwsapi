@@ -44,11 +44,11 @@ Change engine options and error handling.
 
 | Method | Result |
 | --- | --- |
-| [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L2) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
+| [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L3) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
 | [`emit(message, proto)`](../../../src/core/validation/error.mts#L2) | Reports an error using the configured error policy. |
-| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L266) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
-| [`useNeuralPlanner(host)`](../../../src/core/initialize/api.mts#L251) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
-| [`registerBulkHasPlanner(planner)`](../../../src/core/initialize/api.mts#L257) | Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared. |
+| [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L261) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
+| [`useNeuralPlanner(host)`](../../../src/core/initialize/api.mts#L246) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
+| [`registerBulkHasPlanner(planner)`](../../../src/core/initialize/api.mts#L252) | Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared. |
 
 ### Compile and extend selectors
 
@@ -57,9 +57,9 @@ Advanced APIs for compiled resolvers and trusted selector extensions.
 | Method | Result |
 | --- | --- |
 | [`compile(selector, mode, callback, relative, existenceOnly)`](../../../src/core/compile/resolver.mts#L12) | Compiles a selector into a resolver function. This is an advanced API. |
-| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L301) | Adds a relationship between elements using trusted resolver code. |
-| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L335) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
-| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L362) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
+| [`registerCombinator(combinator, resolver)`](../../../src/core/initialize/api.mts#L280) | Adds a relationship between elements using trusted resolver code. |
+| [`registerOperator(operator, resolver)`](../../../src/core/initialize/api.mts#L314) | Adds an attribute operator using a resolver with `p1`, `p2`, and `p3` fields. |
+| [`registerSelector(name, rexp, func)`](../../../src/core/initialize/api.mts#L341) | Adds a selector pattern and a compiler callback that returns `source` and `status`. |
 
 ### Override browser DOM methods
 
@@ -75,10 +75,12 @@ Calling `NW.Dom.install()` redirects native `querySelector()`, `querySelectorAll
 
 ### Configuration
 
-Use `configure({ option: value })` to change options, `configure()` to read them, or `configure("OPTION")` to read one flag.
+Use `configure({ option: value })` to change options, `configure()` to read them, or `configure("OPTION")` to read one value.
 
 | Option | Default | Effect |
 | --- | --- | --- |
+| `CACHE_BYTES` | `2 * 1024 * 1024` | Maximum estimated bytes per compiled-plan cache. A nonnegative safe integer. Zero disables plan retention. |
+| `CACHE_LIMIT` | `4096` | Maximum entries per configurable cache. A nonnegative safe integer. Zero disables retention. |
 | `FORGIVING` | `true` | Allows invalid items in forgiving lists such as `:is()` and `:where()`. |
 | `IDS_DUPES` | `true` | Allows duplicate IDs when finding elements. |
 | `LEGACY` | `false` | Enables older DOM behavior after the legacy module has registered its hooks. |
@@ -87,6 +89,10 @@ Use `configure({ option: value })` to change options, `configure()` to read them
 | `NODE_LIST` | `false` | Uses NodeList-style results where supported. |
 | `USR_EVENT` | `true` | Reserved compatibility flag. The core does not currently read it. |
 | `VERBOSITY` | `true` | Throws exceptions for invalid selectors. |
+
+Changing a cache budget clears the affected query caches immediately. Invalid numeric budgets throw a `TypeError` before options change. Boolean options keep their existing behavior. The byte budget is per compiled-plan cache and estimates retained keys, generated code, subplans, and metadata. It is not a total JavaScript heap limit. Fixed-size helper caches keep their own bounds.
+
+For a large stylesheet, a host can opt into more retention with `engine.configure({ CACHE_LIMIT: 8192, CACHE_BYTES: 8 * 1024 * 1024 })`. Measure runtime and memory for the actual workload. Configure the engine used by the host, because changing a separate factory instance does not affect `jsdom`. The adapter accepts these numeric options through `DOMSelector.configure(window, options)` before its first use.
 
 <blockquote>
 <p><img src="../../../assets/repo/important.svg" width="16" height="16" alt=""> <strong>Important</strong></p>
@@ -116,17 +122,17 @@ These exports support extensions and debugging. Prefer query methods and `config
 | [`Config`](../../../src/core/initialize/runtime.mts#L107) | Contains the active options. Use `configure()` to change them. |
 | [`M_BODY`](../../../src/core/initialize/matching.mts#L169) | Contains the matching resolver body template. |
 | [`M_TEST`](../../../src/core/initialize/matching.mts#L175) | Contains the matching resolver test template. |
-| [`matchLambdas`](../../../src/core/initialize/api.mts#L287) | Caches compiled matching functions, not DOM results. |
-| [`matchResolvers`](../../../src/core/initialize/api.mts#L289) | Caches matching plans, not DOM results. |
+| [`matchLambdas`](../../../src/core/initialize/api.mts#L114) | Caches compiled matching functions, not DOM results. |
+| [`matchResolvers`](../../../src/core/initialize/api.mts#L121) | Caches matching plans, not DOM results. |
 | [`N_BODY`](../../../src/core/initialize/matching.mts#L169) | Exposes the matching resolver body template. |
 | [`N_TEST`](../../../src/core/initialize/matching.mts#L176) | Contains the alternate resolver test template. |
-| [`Operators`](../../../src/core/initialize/runtime.mts#L180) | Contains registered attribute operators. |
+| [`Operators`](../../../src/core/initialize/runtime.mts#L182) | Contains registered attribute operators. |
 | [`S_BODY`](../../../src/core/initialize/matching.mts#L168) | Contains the selection resolver body template. |
 | [`S_TEST`](../../../src/core/initialize/matching.mts#L174) | Contains the selection resolver test template. |
-| [`selectLambdas`](../../../src/core/initialize/api.mts#L288) | Caches compiled selection functions, not DOM results. |
-| [`Selectors`](../../../src/core/initialize/runtime.mts#L179) | Contains registered selector extensions. |
-| [`selectResolvers`](../../../src/core/initialize/api.mts#L292) | Caches selection plans, not DOM results. |
-| [`Snapshot`](../../../src/core/initialize/api.mts#L139) | Contains the document state and helpers used by compiled selectors. |
+| [`selectLambdas`](../../../src/core/initialize/api.mts#L117) | Caches compiled selection functions, not DOM results. |
+| [`Selectors`](../../../src/core/initialize/runtime.mts#L181) | Contains registered selector extensions. |
+| [`selectResolvers`](../../../src/core/initialize/api.mts#L128) | Caches selection plans, not DOM results. |
+| [`Snapshot`](../../../src/core/initialize/api.mts#L134) | Contains the document state and helpers used by compiled selectors. |
 | [`Version`](../../../src/core/initialize/runtime.mts#L42) | Contains the engine version string. |
 
 </details>
@@ -157,21 +163,21 @@ Setup locks on the first query, selector support check, or stylesheet match. Do 
 
 | Method | Result |
 | --- | --- |
-| [`check(selector, input)`](../../../src/adapter/dom-selector.mts#L333) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
-| [`clear(clearAll = false)`](../../../src/adapter/dom-selector.mts#L266) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
-| [`closest(selector, node, options)`](../../../src/adapter/dom-selector.mts#L254) | Returns the nearest matching element, or `null`. |
-| [`DOMSelector.configure(window, options)`](../../../src/adapter/dom-selector.mts#L100) | Configures the shared engine before the first query or stylesheet match. |
-| [`constructor(window, document = window.document, options = {})`](../../../src/adapter/dom-selector.mts#L152) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
-| [`engine`](../../../src/adapter/dom-selector.mts#L166) | Returns the shared engine, creating it on first access. |
-| [`extractSubjects()`](../../../src/adapter/dom-selector.mts#L277) | Returns a wildcard candidate description for stylesheet matching. |
-| [`matches(selector, node, options)`](../../../src/adapter/dom-selector.mts#L250) | Returns whether an element matches. |
-| [`parse(selector)`](../../../src/adapter/dom-selector.mts#L295) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
-| [`querySelector(selector, node, options)`](../../../src/adapter/dom-selector.mts#L258) | Returns the first matching descendant, or `null`. |
-| [`querySelectorAll(selector, node, options)`](../../../src/adapter/dom-selector.mts#L262) | Returns matching descendants as an array. |
-| [`run(method, selector, input, options, fallback, elementOnly = false)`](../../../src/adapter/dom-selector.mts#L217) | Internal helper that checks nodes and applies the query error policy. |
-| [`supports(selector)`](../../../src/adapter/dom-selector.mts#L283) | Returns whether the engine accepts a selector. |
-| [`DOMSelector.use(window, engine)`](../../../src/adapter/dom-selector.mts#L122) | Binds an existing engine before jsdom first uses the adapter. Returns the engine. |
-| [`wrap(node)`](../../../src/adapter/dom-selector.mts#L187) | Internal helper that converts jsdom implementation nodes to public nodes. |
+| [`check(selector, input)`](../../../src/adapter/dom-selector.mts#L339) | Returns matching stylesheet branches and their syntax tree. Loads `css-tree` on first use. |
+| [`clear(clearAll = false)`](../../../src/adapter/dom-selector.mts#L272) | Clears compiled selectors and parsed stylesheet selectors when `clearAll` is `true`. |
+| [`closest(selector, node, options)`](../../../src/adapter/dom-selector.mts#L260) | Returns the nearest matching element, or `null`. |
+| [`DOMSelector.configure(window, options)`](../../../src/adapter/dom-selector.mts#L101) | Configures the shared engine before the first query or stylesheet match. |
+| [`constructor(window, document = window.document, options = {})`](../../../src/adapter/dom-selector.mts#L158) | Creates the adapter. `options.idlUtils` supports jsdom implementation nodes. |
+| [`engine`](../../../src/adapter/dom-selector.mts#L172) | Returns the shared engine, creating it on first access. |
+| [`extractSubjects()`](../../../src/adapter/dom-selector.mts#L283) | Returns a wildcard candidate description for stylesheet matching. |
+| [`matches(selector, node, options)`](../../../src/adapter/dom-selector.mts#L256) | Returns whether an element matches. |
+| [`parse(selector)`](../../../src/adapter/dom-selector.mts#L301) | Internal helper that caches stylesheet syntax after `css-tree` is loaded. |
+| [`querySelector(selector, node, options)`](../../../src/adapter/dom-selector.mts#L264) | Returns the first matching descendant, or `null`. |
+| [`querySelectorAll(selector, node, options)`](../../../src/adapter/dom-selector.mts#L268) | Returns matching descendants as an array. |
+| [`run(method, selector, input, options, fallback, elementOnly = false)`](../../../src/adapter/dom-selector.mts#L223) | Internal helper that checks nodes and applies the query error policy. |
+| [`supports(selector)`](../../../src/adapter/dom-selector.mts#L289) | Returns whether the engine accepts a selector. |
+| [`DOMSelector.use(window, engine)`](../../../src/adapter/dom-selector.mts#L128) | Binds an existing engine before jsdom first uses the adapter. Returns the engine. |
+| [`wrap(node)`](../../../src/adapter/dom-selector.mts#L193) | Internal helper that converts jsdom implementation nodes to public nodes. |
 
 </details>
 

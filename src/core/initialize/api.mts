@@ -3,7 +3,6 @@ import type { NeuralPlannerHost } from '../select/has/policy.mts'
 import type { BulkHasPlanner } from '../state/types.mts'
 import { hasChild } from '../match/child.mts'
 import {
-  PLAN_BYTES,
   forgivingWeight,
   queryWeight,
   resolverListWeight,
@@ -113,27 +112,23 @@ export function initializeApi(engine: EngineState) {
   engine.uninstall = uninstall.bind(null, engine) as EngineState['uninstall']
   engine.none = Array<never>()
   engine.matchLambdas = engine.createCache<CompiledResolver | null>(undefined, {
-    bytes: PLAN_BYTES,
     weight: resolverWeight,
   })
   engine.selectLambdas = engine.createCache<CompiledResolver | null>(
     undefined,
-    { bytes: PLAN_BYTES, weight: resolverWeight },
+    { weight: resolverWeight },
   )
   engine.matchResolvers = engine.createCache<CompiledResolver[]>(undefined, {
-    bytes: PLAN_BYTES,
     weight: resolverListWeight,
   })
   engine.forgivingResolvers = engine.createCache<
     Array<CompiledResolver[] | null>
-  >(undefined, { bytes: PLAN_BYTES, weight: forgivingWeight })
+  >(undefined, { weight: forgivingWeight })
   engine.selectorGeneration = 0
   engine.selectResolvers = engine.createCache<QueryPlan>(undefined, {
-    bytes: PLAN_BYTES,
     weight: queryWeight,
   })
   engine.firstResolvers = engine.createCache<QueryPlan>(undefined, {
-    bytes: PLAN_BYTES,
     weight: queryWeight,
   })
   engine.Snapshot = {
@@ -276,22 +271,6 @@ export function initializeApi(engine: EngineState) {
         byTag: (tag, context) => engine.byTag(tag, context),
       })
       engine.createWeakMap = engine.legacyHooks.createWeakMap
-      if (!engine.legacyHooks.hasMap) {
-        engine.createCache = engine.legacyHooks.createCache
-        engine.typeRoutes = engine.createCache()
-        engine.childPlans = engine.createCache()
-        engine.chainPlans = engine.createCache(256)
-        engine.partCounts = engine.createCache()
-        engine.descentDeclined = engine.createCache()
-        engine.hasPlans = undefined
-        engine.Dom.matchLambdas = engine.matchLambdas = engine.createCache()
-        engine.Dom.selectLambdas = engine.selectLambdas = engine.createCache()
-        engine.Dom.matchResolvers = engine.matchResolvers = engine.createCache()
-        engine.forgivingResolvers = engine.createCache()
-        engine.Dom.selectResolvers = engine.selectResolvers =
-          engine.createCache()
-        engine.firstResolvers = engine.createCache()
-      }
       engine.initialize(engine.doc)
       engine.configure({}, true)
       return true
