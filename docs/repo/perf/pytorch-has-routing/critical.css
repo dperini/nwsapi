@@ -530,14 +530,9 @@ html[data-reading-mode]
     .range-pulse,
     .film-scene-action,
     #film-play,
-    #step-play,
-    .narration-seek,
-    .narration-time
+    #step-play
   ) {
   display: none !important;
-}
-html[data-reading-mode] .narration {
-  grid-template-columns: auto 1fr;
 }
 html[data-reading-mode] :is(button, a):hover {
   transform: none !important;

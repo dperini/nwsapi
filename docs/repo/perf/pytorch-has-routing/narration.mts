@@ -132,11 +132,12 @@ export function initializeNarration() {
       ? italianTranscript[section.id as keyof typeof italianTranscript]
       : section.text
     const written = transcriptMarkup(text)
-    panel.innerHTML = `<button type="button" class="narration-play" aria-pressed="false" aria-label="Play section narration"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>Listen</span></button><input class="narration-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek section narration" disabled><span class="narration-time mono"></span><details><summary><svg class="transcript-icon transcript-icon-document" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6zM14 3.5v4h4m-9 5h6m-6 3.5h6"/></svg><svg class="transcript-icon transcript-icon-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 3 6 6-4 1-4 4-1 4-2-2-3-3-2-2 4-1 4-4zM3 21l7-7"/></svg><span class="narration-transcript-label">Transcript</span></summary><p>${written}</p></details>`
+    panel.innerHTML = `<button type="button" class="narration-play" aria-pressed="false" aria-label="Play section narration"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>Listen</span></button><input class="narration-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek section narration" disabled><span class="narration-time mono"></span><details><summary><svg class="transcript-icon transcript-icon-document" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6zM14 3.5v4h4m-9 5h6m-6 3.5h6"/></svg><span class="narration-transcript-label">Transcript</span></summary><p>${written}</p></details>`
     const chapter = element(section.id)
     chapter.querySelector('.section-intro')!.after(panel)
     panel.querySelector('.narration-transcript-label')!.textContent =
       translate('transcript')
+    panel.querySelector('summary')!.title = translate('transcript')
     panel.querySelector('p')!.lang = currentLocale()
     const titles = {
       training: 'narrationTraining',
