@@ -1,3 +1,4 @@
+import { allowsMotion, isReadingMode } from './reading-mode.mts'
 import { motionFrame, motionPoint, motionShape } from './motion-frame.mts'
 import type { SearchRoute, ToyNode } from './dom.mts'
 import { resultNames, routeDirections } from './dom.mts'
@@ -45,7 +46,7 @@ function labelScene(control: HTMLElement, playing: boolean) {
   if (!label) {
     return
   }
-  const action = playing ? 'Pause' : 'Play'
+  const action = isReadingMode() ? 'Step through' : playing ? 'Pause' : 'Play'
   label.textContent = action
   control.setAttribute(
     'aria-label',
@@ -106,7 +107,7 @@ function moveCursor(
   for (const [key, value] of properties) {
     cursor.style.setProperty(key, value)
   }
-  if (visible && !reduced.matches) {
+  if (visible && allowsMotion()) {
     return cursor.animate([before, after], {
       duration: 450,
       easing: 'cubic-bezier(.2,.7,.2,1)',
@@ -238,7 +239,9 @@ export function renderMotion(fixture: ToyNode[]) {
   positions.inverse = 0
   total = Math.max(...routes.map(route => motionFrame(nodes, route, 0).total))
   for (let i = 0, length = routes.length; i < length; i += 1) {
-    element(`film-${routes[i]}`).innerHTML = graphic(routes[i]!)
+    const scene = element(`film-${routes[i]}`)
+    scene.innerHTML = graphic(routes[i]!)
+    labelScene(scene.querySelector<HTMLElement>('[data-film-route]')!, false)
   }
   input('film-timeline').max = String(total)
   status('ready', 'Ready. Both routes use the same sample DOM.')
@@ -258,6 +261,13 @@ function next() {
 }
 
 function play(route?: SearchRoute | undefined) {
+  if (isReadingMode()) {
+    stop()
+    activeRoute = route
+    next()
+    activeRoute = undefined
+    return
+  }
   if (timer !== undefined && activeRoute === route) {
     stop()
     return
@@ -377,21 +387,25 @@ function bindDrag(route: SearchRoute) {
   })
 }
 
-function initializeRouteControls() {
-  routes.forEach(bindDrag)
-  document
-    .querySelectorAll<HTMLButtonElement>('.film-route-toggle')
-    .forEach(button => {
-      if (button.tagName === 'BUTTON') {
-        button.addEventListener('click', () =>
-          play(button.dataset['filmRoute'] as SearchRoute),
-        )
-      }
-    })
-}
-
 export function initializeMotion() {
-  initializeRouteControls()
+  window.addEventListener('guide-reading-mode-change', () => {
+    if (isReadingMode()) {
+      stop()
+      draw()
+    } else {
+      document
+        .querySelectorAll<HTMLElement>('[data-film-route]')
+        .forEach(control =>
+          labelScene(
+            control,
+            timer !== undefined &&
+              (activeRoute === undefined ||
+                control.dataset['filmRoute'] === activeRoute),
+          ),
+        )
+    }
+  })
+  routes.forEach(bindDrag)
   element('film-play').addEventListener('click', () => {
     if (timer !== undefined) {
       stop()

@@ -1,0 +1,1070 @@
+{
+  "page": "http://127.0.0.1:4390/pytorch-has-routing.html",
+  "date": "2026-10-08",
+  "browser": "Installed Google Chrome through playwright-core, headless",
+  "modes": [
+    "dark",
+    "light",
+    "reader"
+  ],
+  "fixes": [
+    "Preserved lighter green backgrounds and used dark labels for contrast.",
+    "Strengthened reader muted text and orange accent contrast.",
+    "Strengthened transcript and code icons while matching each border to its icon.",
+    "Corrected the copy button border cascade.",
+    "At widths up to 600px, placed the TOC disclosure in document flow and restored 16px page margins. Desktop native sticky TOC remains unchanged.",
+    "Stacked quiz controls on narrow screens and wrapped long inline code.",
+    "Added a named, keyboard-scrollable model input table and a valid role for the training chart.",
+    "Made quiz instructions match Check and preserved the prediction when no situation is selected.",
+    "Named enhanced selects from their visible labels.",
+    "Stopped word-highlight frame work for closed transcripts and hidden pages. Cleaned up listeners when rebuilding narration after language changes.",
+    "Preserved audio error labels across media events and reloaded failed resources on retry."
+  ],
+  "checks": {
+    "desktopAccessibility": [
+      {
+        "mode": "dark",
+        "expanded": false,
+        "axe": []
+      },
+      {
+        "mode": "dark",
+        "expanded": true,
+        "axe": []
+      },
+      {
+        "mode": "light",
+        "expanded": false,
+        "axe": []
+      },
+      {
+        "mode": "light",
+        "expanded": true,
+        "axe": []
+      },
+      {
+        "mode": "reader",
+        "expanded": false,
+        "axe": []
+      },
+      {
+        "mode": "reader",
+        "expanded": true,
+        "axe": []
+      }
+    ],
+    "mobileAccessibilityAndOverflow": [
+      {
+        "mode": "dark",
+        "width": 320,
+        "scrollWidth": 320,
+        "violations": []
+      },
+      {
+        "mode": "dark",
+        "width": 390,
+        "scrollWidth": 390,
+        "violations": []
+      },
+      {
+        "mode": "dark",
+        "width": 768,
+        "scrollWidth": 768,
+        "violations": []
+      },
+      {
+        "mode": "light",
+        "width": 320,
+        "scrollWidth": 320,
+        "violations": []
+      },
+      {
+        "mode": "light",
+        "width": 390,
+        "scrollWidth": 390,
+        "violations": []
+      },
+      {
+        "mode": "light",
+        "width": 768,
+        "scrollWidth": 768,
+        "violations": []
+      },
+      {
+        "mode": "reader",
+        "width": 320,
+        "scrollWidth": 320,
+        "violations": []
+      },
+      {
+        "mode": "reader",
+        "width": 390,
+        "scrollWidth": 390,
+        "violations": []
+      },
+      {
+        "mode": "reader",
+        "width": 768,
+        "scrollWidth": 768,
+        "violations": []
+      }
+    ],
+    "flowAndEnglishAudio": [
+      {
+        "mode": "dark",
+        "quiz": [
+          {
+            "challenge": "outside",
+            "feedback": "Correct. Only C matches. A warning must be inside a card to make that card match."
+          },
+          {
+            "challenge": "duplicate",
+            "feedback": "Correct. A and C each appear once, in document order. Multiple witnesses do not duplicate an anchor."
+          },
+          {
+            "challenge": "empty",
+            "feedback": "Correct. No card matches. Finding a warning candidate is not enough. The ancestor relationship still needs to hold."
+          }
+        ],
+        "bridge": "This larger DOM has 64 card candidates, 192 warning candidates, and 32 exact matches. Warnings / cards: 3. The model explorer below now uses these counts. Counting the candidates does not measure query time.",
+        "presets": [
+          {
+            "preset": "eligible",
+            "choice": "Search down",
+            "decision": "Search up instead"
+          },
+          {
+            "preset": "tiny",
+            "choice": "Generic selector path",
+            "decision": "Not called"
+          },
+          {
+            "preset": "inverse",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "unfiltered",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "range",
+            "choice": "Search down",
+            "decision": "Keep searching down"
+          }
+        ],
+        "audio": [
+          {
+            "i": 0,
+            "playback": {
+              "current": 0.331033,
+              "duration": 86.54,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:26",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 1,
+            "playback": {
+              "current": 0.539947,
+              "duration": 95.085011,
+              "playing": 1
+            },
+            "seeked": "0:47 / 1:35",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 2,
+            "playback": {
+              "current": 0.538044,
+              "duration": 87.63,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:27",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 3,
+            "playback": {
+              "current": 0.532999,
+              "duration": 113.325011,
+              "playing": 1
+            },
+            "seeked": "0:56 / 1:53",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          }
+        ],
+        "source": [
+          {
+            "text": "Measure both routesscripts/repo/bench/planner/dispatch/collect.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/bench/planner/dispatch/collect.mts",
+            "codeLength": 910
+          },
+          {
+            "text": "Train the modelscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 4915
+          },
+          {
+            "text": "Start the pinned Python environmentscripts/repo/pytorch/dispatch-train.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch-train.mts",
+            "codeLength": 999
+          },
+          {
+            "text": "Write the JavaScript exportscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 2255
+          },
+          {
+            "text": "Generate the typed runtime modulescripts/repo/gen/has-route-decision.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/gen/has-route-decision.mts",
+            "codeLength": 3554
+          },
+          {
+            "text": "Run the saved weightssrc/core/select/has/route-decision.generated.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/route-decision.generated.mts",
+            "codeLength": 4606
+          },
+          {
+            "text": "Select the host policysrc/core/select/has/policy.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/policy.mts",
+            "codeLength": 600
+          },
+          {
+            "text": "Guard and execute the routesrc/core/select/has/match.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/match.mts",
+            "codeLength": 4375
+          }
+        ],
+        "errors": []
+      },
+      {
+        "mode": "light",
+        "quiz": [
+          {
+            "challenge": "outside",
+            "feedback": "Correct. Only C matches. A warning must be inside a card to make that card match."
+          },
+          {
+            "challenge": "duplicate",
+            "feedback": "Correct. A and C each appear once, in document order. Multiple witnesses do not duplicate an anchor."
+          },
+          {
+            "challenge": "empty",
+            "feedback": "Correct. No card matches. Finding a warning candidate is not enough. The ancestor relationship still needs to hold."
+          }
+        ],
+        "bridge": "This larger DOM has 64 card candidates, 192 warning candidates, and 32 exact matches. Warnings / cards: 3. The model explorer below now uses these counts. Counting the candidates does not measure query time.",
+        "presets": [
+          {
+            "preset": "eligible",
+            "choice": "Search down",
+            "decision": "Search up instead"
+          },
+          {
+            "preset": "tiny",
+            "choice": "Generic selector path",
+            "decision": "Not called"
+          },
+          {
+            "preset": "inverse",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "unfiltered",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "range",
+            "choice": "Search down",
+            "decision": "Keep searching down"
+          }
+        ],
+        "audio": [
+          {
+            "i": 0,
+            "playback": {
+              "current": 0.51133,
+              "duration": 86.54,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:26",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 1,
+            "playback": {
+              "current": 0.534081,
+              "duration": 95.085011,
+              "playing": 1
+            },
+            "seeked": "0:47 / 1:35",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 2,
+            "playback": {
+              "current": 0.533847,
+              "duration": 87.63,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:27",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          },
+          {
+            "i": 3,
+            "playback": {
+              "current": 0.534477,
+              "duration": 113.325011,
+              "playing": 1
+            },
+            "seeked": "0:56 / 1:53",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 512.25
+          }
+        ],
+        "source": [
+          {
+            "text": "Measure both routesscripts/repo/bench/planner/dispatch/collect.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/bench/planner/dispatch/collect.mts",
+            "codeLength": 910
+          },
+          {
+            "text": "Train the modelscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 4915
+          },
+          {
+            "text": "Start the pinned Python environmentscripts/repo/pytorch/dispatch-train.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch-train.mts",
+            "codeLength": 999
+          },
+          {
+            "text": "Write the JavaScript exportscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 2255
+          },
+          {
+            "text": "Generate the typed runtime modulescripts/repo/gen/has-route-decision.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/gen/has-route-decision.mts",
+            "codeLength": 3554
+          },
+          {
+            "text": "Run the saved weightssrc/core/select/has/route-decision.generated.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/route-decision.generated.mts",
+            "codeLength": 4606
+          },
+          {
+            "text": "Select the host policysrc/core/select/has/policy.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/policy.mts",
+            "codeLength": 600
+          },
+          {
+            "text": "Guard and execute the routesrc/core/select/has/match.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/match.mts",
+            "codeLength": 4375
+          }
+        ],
+        "errors": []
+      },
+      {
+        "mode": "reader",
+        "quiz": [
+          {
+            "challenge": "outside",
+            "feedback": "Correct. Only C matches. A warning must be inside a card to make that card match."
+          },
+          {
+            "challenge": "duplicate",
+            "feedback": "Correct. A and C each appear once, in document order. Multiple witnesses do not duplicate an anchor."
+          },
+          {
+            "challenge": "empty",
+            "feedback": "Correct. No card matches. Finding a warning candidate is not enough. The ancestor relationship still needs to hold."
+          }
+        ],
+        "bridge": "This larger DOM has 64 card candidates, 192 warning candidates, and 32 exact matches. Warnings / cards: 3. The model explorer below now uses these counts. Counting the candidates does not measure query time.",
+        "presets": [
+          {
+            "preset": "eligible",
+            "choice": "Search down",
+            "decision": "Search up instead"
+          },
+          {
+            "preset": "tiny",
+            "choice": "Generic selector path",
+            "decision": "Not called"
+          },
+          {
+            "preset": "inverse",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "unfiltered",
+            "choice": "Search up",
+            "decision": "Keep searching up"
+          },
+          {
+            "preset": "range",
+            "choice": "Search down",
+            "decision": "Keep searching down"
+          }
+        ],
+        "audio": [
+          {
+            "i": 0,
+            "playback": {
+              "current": 0.514488,
+              "duration": 86.54,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:26",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 904.25
+          },
+          {
+            "i": 1,
+            "playback": {
+              "current": 0.54072,
+              "duration": 95.085011,
+              "playing": 1
+            },
+            "seeked": "0:47 / 1:35",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 904.25
+          },
+          {
+            "i": 2,
+            "playback": {
+              "current": 0.542122,
+              "duration": 87.63,
+              "playing": 1
+            },
+            "seeked": "0:43 / 1:27",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 904.25
+          },
+          {
+            "i": 3,
+            "playback": {
+              "current": 0.537593,
+              "duration": 113.325011,
+              "playing": 1
+            },
+            "seeked": "0:56 / 1:53",
+            "dividerOffset": 65.671875,
+            "closedHeight": 66.671875,
+            "seekWidth": 904.25
+          }
+        ],
+        "source": [
+          {
+            "text": "Measure both routesscripts/repo/bench/planner/dispatch/collect.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/bench/planner/dispatch/collect.mts",
+            "codeLength": 910
+          },
+          {
+            "text": "Train the modelscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 4915
+          },
+          {
+            "text": "Start the pinned Python environmentscripts/repo/pytorch/dispatch-train.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch-train.mts",
+            "codeLength": 999
+          },
+          {
+            "text": "Write the JavaScript exportscripts/repo/pytorch/dispatch_train.py",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/pytorch/dispatch_train.py",
+            "codeLength": 2255
+          },
+          {
+            "text": "Generate the typed runtime modulescripts/repo/gen/has-route-decision.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/scripts/repo/gen/has-route-decision.mts",
+            "codeLength": 3554
+          },
+          {
+            "text": "Run the saved weightssrc/core/select/has/route-decision.generated.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/route-decision.generated.mts",
+            "codeLength": 4606
+          },
+          {
+            "text": "Select the host policysrc/core/select/has/policy.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/policy.mts",
+            "codeLength": 600
+          },
+          {
+            "text": "Guard and execute the routesrc/core/select/has/match.mts",
+            "href": "https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/src/core/select/has/match.mts",
+            "codeLength": 4375
+          }
+        ],
+        "errors": []
+      }
+    ],
+    "keyboardModesAndLocale": {
+      "modes": [
+        {
+          "mode": "reader",
+          "keyboardTranscript": true
+        },
+        {
+          "mode": "dark",
+          "keyboardTranscript": true
+        },
+        {
+          "mode": "light",
+          "keyboardTranscript": true
+        }
+      ],
+      "locale": [
+        {
+          "lang": "it",
+          "players": 4,
+          "playing": [
+            {
+              "src": "http://127.0.0.1:4390/assets/training.it.generated-2_fsEMXu.mp3",
+              "current": 0.19267
+            }
+          ],
+          "button": "Pausa"
+        },
+        {
+          "lang": "en",
+          "players": 4,
+          "playing": [
+            {
+              "src": "http://127.0.0.1:4390/assets/what.generated-B30k16GZ.mp3",
+              "current": 0.440908
+            }
+          ],
+          "button": "Pause"
+        },
+        {
+          "lang": "it",
+          "players": 4,
+          "playing": [
+            {
+              "src": "http://127.0.0.1:4390/assets/training.it.generated-2_fsEMXu.mp3",
+              "current": 0.444603
+            }
+          ],
+          "button": "Pausa"
+        },
+        {
+          "lang": "en",
+          "players": 4,
+          "playing": [
+            {
+              "src": "http://127.0.0.1:4390/assets/what.generated-B30k16GZ.mp3",
+              "current": 0.424748
+            }
+          ],
+          "button": "Pause"
+        }
+      ],
+      "readOn": true,
+      "persisted": true,
+      "colorExit": true,
+      "errors": []
+    },
+    "iconStatesAndClipboard": [
+      {
+        "mode": "dark",
+        "noChallenge": "Choose a situation above before checking your prediction.",
+        "icons": [
+          {
+            "target": "search",
+            "state": "idle",
+            "color": "color(srgb 0.437976 0.796008 0.739008)",
+            "border": "color(srgb 0.437976 0.796008 0.739008)",
+            "ratio": 8.588235475673422,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "hover",
+            "color": "color(srgb 0.470588 0.866667 0.796078)",
+            "border": "color(srgb 0.470588 0.866667 0.796078)",
+            "ratio": 10.191893315869775,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "focus",
+            "color": "color(srgb 0.437976 0.796008 0.739008)",
+            "border": "color(srgb 0.437976 0.796008 0.739008)",
+            "ratio": 8.588235475673422,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.752941 0.611765 0.972549)",
+            "border": "color(srgb 0.752941 0.611765 0.972549)",
+            "ratio": 7.4229269590038625,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "idle",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "hover",
+            "color": "color(srgb 0.752941 0.611765 0.972549)",
+            "border": "color(srgb 0.752941 0.611765 0.972549)",
+            "ratio": 7.4229269590038625,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "focus",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.752941 0.611765 0.972549)",
+            "border": "color(srgb 0.752941 0.611765 0.972549)",
+            "ratio": 7.4229269590038625,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.687718 0.570547 0.895096)",
+            "border": "color(srgb 0.687718 0.570547 0.895096)",
+            "ratio": 6.344346049142324,
+            "outline": "none"
+          }
+        ],
+        "copied": {
+          "length": 910,
+          "matches": true
+        },
+        "tocTop": 16,
+        "escapeCloses": true
+      },
+      {
+        "mode": "light",
+        "noChallenge": "Choose a situation above before checking your prediction.",
+        "icons": [
+          {
+            "target": "search",
+            "state": "idle",
+            "color": "color(srgb 0.168555 0.465808 0.427057)",
+            "border": "color(srgb 0.168555 0.465808 0.427057)",
+            "ratio": 4.523112822436551,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "hover",
+            "color": "color(srgb 0.0901961 0.419608 0.368627)",
+            "border": "color(srgb 0.0901961 0.419608 0.368627)",
+            "ratio": 5.4289764825687925,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "focus",
+            "color": "color(srgb 0.168555 0.465808 0.427057)",
+            "border": "color(srgb 0.168555 0.465808 0.427057)",
+            "ratio": 4.523112822436551,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.458824 0.286275 0.666667)",
+            "border": "color(srgb 0.458824 0.286275 0.666667)",
+            "ratio": 5.4437557746417795,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "idle",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "hover",
+            "color": "color(srgb 0.458824 0.286275 0.666667)",
+            "border": "color(srgb 0.458824 0.286275 0.666667)",
+            "ratio": 5.4437557746417795,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "focus",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.458824 0.286275 0.666667)",
+            "border": "color(srgb 0.458824 0.286275 0.666667)",
+            "ratio": 5.4437557746417795,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.494606 0.347875 0.690673)",
+            "border": "color(srgb 0.494606 0.347875 0.690673)",
+            "ratio": 4.5420231479714905,
+            "outline": "none"
+          }
+        ],
+        "copied": {
+          "length": 910,
+          "matches": true
+        },
+        "tocTop": 16,
+        "escapeCloses": true
+      },
+      {
+        "mode": "reader",
+        "noChallenge": "Choose a situation above before checking your prediction.",
+        "icons": [
+          {
+            "target": "search",
+            "state": "idle",
+            "color": "color(srgb 0.241098 0.452827 0.404255)",
+            "border": "color(srgb 0.241098 0.452827 0.404255)",
+            "ratio": 4.273111084867699,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "hover",
+            "color": "color(srgb 0.168627 0.415686 0.372549)",
+            "border": "color(srgb 0.168627 0.415686 0.372549)",
+            "ratio": 4.936607366882338,
+            "outline": "none"
+          },
+          {
+            "target": "search",
+            "state": "focus",
+            "color": "color(srgb 0.241098 0.452827 0.404255)",
+            "border": "color(srgb 0.241098 0.452827 0.404255)",
+            "ratio": 4.273111084867699,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.443137 0.313726 0.517647)",
+            "border": "color(srgb 0.443137 0.313726 0.517647)",
+            "ratio": 5.154568551352913,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "idle",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "hover",
+            "color": "color(srgb 0.443137 0.313726 0.517647)",
+            "border": "color(srgb 0.443137 0.313726 0.517647)",
+            "ratio": 5.154568551352913,
+            "outline": "none"
+          },
+          {
+            "target": "source-link",
+            "state": "focus",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "idle",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "hover",
+            "color": "color(srgb 0.443137 0.313726 0.517647)",
+            "border": "color(srgb 0.443137 0.313726 0.517647)",
+            "ratio": 5.154568551352913,
+            "outline": "none"
+          },
+          {
+            "target": "source",
+            "state": "focus",
+            "color": "color(srgb 0.483902 0.362643 0.532594)",
+            "border": "color(srgb 0.483902 0.362643 0.532594)",
+            "ratio": 4.400068093336323,
+            "outline": "none"
+          }
+        ],
+        "copied": {
+          "length": 910,
+          "matches": true
+        },
+        "tocTop": 16,
+        "escapeCloses": true
+      }
+    ],
+    "audioAssets": [
+      {
+        "locale": "en",
+        "section": "training",
+        "duration": 86.54,
+        "recordedDuration": 86.53999999999999,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.2 dB",
+          "max_volume: -1.4 dB"
+        ]
+      },
+      {
+        "locale": "en",
+        "section": "search",
+        "duration": 95.085011,
+        "recordedDuration": 95.085,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.5 dB",
+          "max_volume: -1.5 dB"
+        ]
+      },
+      {
+        "locale": "en",
+        "section": "policy",
+        "duration": 87.63,
+        "recordedDuration": 87.63000000000001,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.3 dB",
+          "max_volume: -1.5 dB"
+        ]
+      },
+      {
+        "locale": "en",
+        "section": "source",
+        "duration": 113.325011,
+        "recordedDuration": 113.325,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.2 dB",
+          "max_volume: -1.3 dB"
+        ]
+      },
+      {
+        "locale": "it",
+        "section": "training",
+        "duration": 91.8,
+        "recordedDuration": 91.8,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.2 dB",
+          "max_volume: -1.4 dB"
+        ]
+      },
+      {
+        "locale": "it",
+        "section": "search",
+        "duration": 105.725011,
+        "recordedDuration": 105.725,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.6 dB",
+          "max_volume: -1.5 dB"
+        ]
+      },
+      {
+        "locale": "it",
+        "section": "policy",
+        "duration": 101.0,
+        "recordedDuration": 101.0,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.1 dB",
+          "max_volume: -1.5 dB"
+        ]
+      },
+      {
+        "locale": "it",
+        "section": "source",
+        "duration": 112.825011,
+        "recordedDuration": 112.825,
+        "wordsMatch": true,
+        "ordered": true,
+        "segmentsMatch": true,
+        "levels": [
+          "mean_volume: -18.1 dB",
+          "max_volume: -1.5 dB"
+        ]
+      }
+    ],
+    "italianAudioAndFailureRecovery": {
+      "italian": [
+        {
+          "section": 0,
+          "label": "Pausa",
+          "time": "0:00 / 1:31",
+          "seekEnabled": true
+        },
+        {
+          "section": 1,
+          "label": "Pausa",
+          "time": "0:00 / 1:45",
+          "seekEnabled": true
+        },
+        {
+          "section": 2,
+          "label": "Pausa",
+          "time": "0:00 / 1:41",
+          "seekEnabled": true
+        },
+        {
+          "section": 3,
+          "label": "Pausa",
+          "time": "0:00 / 1:52",
+          "seekEnabled": true
+        }
+      ],
+      "retry": "Audio unavailable. Retry narration: Training",
+      "recovered": "true"
+    }
+  },
+  "validation": [
+    "guide:build completed",
+    "oxlint passed for four changed authored TypeScript modules",
+    "git diff --check passed",
+    "Screenshots inspected for desktop sections and mobile quiz, controls, and navigation.",
+    "Narration script reviewed against source policy guards, training/validation/export code, and walkthrough interactions."
+  ],
+  "limitations": [
+    "Automated axe results are not a complete accessibility certification.",
+    "Speech delivery and pronunciation were not assessed by listening. Audio checks covered browser playback, seeking, exclusivity, failure recovery, word alignment metadata, duration and digital sample peaks.",
+    "Native macOS elastic overscroll was not reproduced in headless Chrome.",
+    "No new Lighthouse score or energy-use measurement was taken."
+  ]
+}

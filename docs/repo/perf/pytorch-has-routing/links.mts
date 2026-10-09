@@ -2,7 +2,7 @@ import { iconMarkup } from './icons.mts'
 
 export function initializeLinkMarkers() {
   const links = document.querySelectorAll<HTMLAnchorElement>(
-    '.closing a[href], .reading-related a[href], .reading-prose a[href]',
+    '.closing a[href], .reading-prose a[href], .reading-related a[href]',
   )
   for (const link of links) {
     const url = new URL(link.href)

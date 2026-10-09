@@ -85,10 +85,9 @@ export function renderImpact(
     'impact-explanation',
     `${state.anchors} cards, ${state.witnesses} warnings. Every card has one nested section with ${prefix} neutral elements. Half then contain warnings. The other half end with a footer and no warning. Upward search walks through the section, card, and document for every warning, then filters cards in order. Changing the DOM shape here does not change the inputs the saved model sees.`,
   )
-  text(
-    'impact-formula',
-    `estimated time = visits × ${visitCost}ns + ancestor steps × ${ancestorCost}ns + ${reached ? callCost : 0}ns model overhead (model comparison only)`,
-  )
+  text('impact-visit-term', `${planned.visits} × ${visitCost}ns`)
+  text('impact-ancestor-term', `${planned.ascents} × ${ancestorCost}ns`)
+  text('impact-model-term', `${reached ? callCost : 0}ns`)
 }
 
 export function initializeImpact(refresh: () => void) {

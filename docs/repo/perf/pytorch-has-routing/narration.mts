@@ -18,6 +18,7 @@ const clips = import.meta.glob<string>(
   { eager: true, query: '?url', import: 'default' },
 )
 let playing: HTMLAudioElement | undefined
+let narrationListeners = new AbortController()
 
 function formatTime(seconds: number) {
   const rounded = Math.floor(Number.isFinite(seconds) ? seconds : 0)
@@ -28,6 +29,7 @@ function attachPlayer(
   audio: HTMLAudioElement,
   panel: HTMLElement,
   title: string,
+  recordedDuration: number,
 ) {
   const button = panel.querySelector<HTMLButtonElement>('button')!
   const label = button.querySelector('span')!
@@ -35,9 +37,15 @@ function attachPlayer(
   const time = panel.querySelector<HTMLElement>('.narration-time')!
   const seek = panel.querySelector<HTMLInputElement>('input')!
   let request = 0
+  let unavailable = false
   const update = () => {
+    const duration = Number.isFinite(audio.duration)
+      ? audio.duration
+      : recordedDuration
     const active = !audio.paused
-    label.textContent = translate(active ? 'pause' : 'listen')
+    label.textContent = translate(
+      unavailable ? 'audioUnavailable' : active ? 'pause' : 'listen',
+    )
     icon.setAttribute(
       'd',
       active ? 'M7 5h4v14H7ZM14 5h4v14h-4Z' : 'm9 5 10 7-10 7Z',
@@ -45,13 +53,16 @@ function attachPlayer(
     button.setAttribute('aria-pressed', String(active))
     button.setAttribute(
       'aria-label',
-      translate(active ? 'pauseNarration' : 'listenNarration').replace(
-        '{title}',
-        title,
-      ),
+      translate(
+        unavailable
+          ? 'retryNarration'
+          : active
+            ? 'pauseNarration'
+            : 'listenNarration',
+      ).replace('{title}', title),
     )
     panel.classList.toggle('is-playing', active)
-    time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`
+    time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(duration)}`
     seek.max = String(Number.isFinite(audio.duration) ? audio.duration : 0)
     seek.value = String(audio.currentTime)
     seek.disabled = !Number.isFinite(audio.duration)
@@ -59,7 +70,7 @@ function attachPlayer(
       'aria-valuetext',
       translate('narrationProgress')
         .replace('{current}', formatTime(audio.currentTime))
-        .replace('{duration}', formatTime(audio.duration)),
+        .replace('{duration}', formatTime(duration)),
     )
     const progress =
       audio.duration > 0 ? (audio.currentTime / audio.duration) * 100 : 0
@@ -90,6 +101,11 @@ function attachPlayer(
     }
     playing?.pause()
     playing = audio
+    unavailable = false
+    panel.removeAttribute('role')
+    if (audio.error) {
+      audio.load()
+    }
     const attempt = request
     void audio.play().catch(() => {
       if (attempt !== request || playing !== audio) {
@@ -97,19 +113,17 @@ function attachPlayer(
       }
       audio.pause()
       playing = undefined
-      update()
-      label.textContent = translate('audioUnavailable')
-      button.setAttribute(
-        'aria-label',
-        translate('retryNarration').replace('{title}', title),
-      )
+      unavailable = true
       panel.setAttribute('role', 'status')
+      update()
     })
   })
   update()
 }
 
 export function initializeNarration() {
+  narrationListeners.abort()
+  narrationListeners = new AbortController()
   playing?.pause()
   playing = undefined
   document.querySelectorAll('.narration').forEach(panel => panel.remove())
@@ -120,7 +134,7 @@ export function initializeNarration() {
     const audio = new Audio(
       clips[`../../../../assets/repo/model-guide/narration/${file}`],
     )
-    audio.preload = 'metadata'
+    audio.preload = 'none'
     const panel = document.createElement('div')
     panel.className = 'narration'
     panel.setAttribute('data-locale-content', '')
@@ -128,10 +142,12 @@ export function initializeNarration() {
       ? italianTranscript[section.id as keyof typeof italianTranscript]
       : section.text
     const written = transcriptMarkup(text)
-    panel.innerHTML = `<button type="button" class="narration-play" aria-pressed="false" aria-label="Play section narration"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>Listen</span></button><input class="narration-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek section narration" disabled><span class="narration-time mono"></span><details><summary>Transcript</summary><p>${written}</p></details>`
+    panel.innerHTML = `<button type="button" class="narration-play" aria-pressed="false" aria-label="Play section narration"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 10 7-10 7Z"/></svg><span>Listen</span></button><input class="narration-seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Seek section narration" disabled><span class="narration-time mono"></span><details><summary><svg class="transcript-icon transcript-icon-document" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6zM14 3.5v4h4m-9 5h6m-6 3.5h6"/></svg><span class="narration-transcript-label">Transcript</span></summary><p>${written}</p></details>`
     const chapter = element(section.id)
     chapter.querySelector('.section-intro')!.after(panel)
-    panel.querySelector('summary')!.textContent = translate('transcript')
+    panel.querySelector('.narration-transcript-label')!.textContent =
+      translate('transcript')
+    panel.querySelector('summary')!.title = translate('transcript')
     panel.querySelector('p')!.lang = currentLocale()
     const titles = {
       training: 'narrationTraining',
@@ -140,12 +156,17 @@ export function initializeNarration() {
       source: 'narrationSource',
     } as const
     const title = translate(titles[section.id as keyof typeof titles])
-    attachPlayer(audio, panel, title)
     const aligned = (italian ? italianTimings : timings).sections.find(
       entry => entry.id === section.id,
     )
+    attachPlayer(audio, panel, title, aligned?.duration ?? 0)
     if (aligned) {
-      attachWordHighlight(audio, panel, aligned.words)
+      attachWordHighlight(
+        audio,
+        panel,
+        aligned.words,
+        narrationListeners.signal,
+      )
     }
   }
 }

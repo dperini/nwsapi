@@ -1,3 +1,4 @@
+import { allowsMotion } from './reading-mode.mts'
 import { sources } from './source.mts'
 import type { SourceId } from './source.mts'
 import { element, text } from './ui.mts'
@@ -23,6 +24,15 @@ export function showSource(id: SourceId) {
   code('source-code', source.code)
   const link = element('source-link') as HTMLAnchorElement
   link.href = `https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/${source.path}`
+  link.classList.add('code-source-link')
+  link.setAttribute('aria-label', 'Read full file on GitHub')
+  link.title = 'Read full file on GitHub'
+  const toolbar =
+    element('source-code').parentElement?.querySelector('.code-toolbar')
+  const copyButton = toolbar?.querySelector('.code-copy')
+  if (toolbar && copyButton) {
+    toolbar.insertBefore(link, copyButton)
+  }
   document
     .querySelectorAll<HTMLButtonElement>('[data-file]')
     .forEach(button => {
@@ -35,8 +45,6 @@ export function jumpToSource(id: SourceId) {
   showSource(id)
   highlightLinkedArea(element('source-code'))
   element('source').scrollIntoView({
-    behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? 'instant'
-      : 'smooth',
+    behavior: !allowsMotion() ? 'instant' : 'smooth',
   })
 }

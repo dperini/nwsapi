@@ -84,5 +84,17 @@ function applyLocaleMessages() {
     const key = node.dataset['i18nTitle'] as keyof typeof en
     node.setAttribute('title', translate(key))
   }
+  const color = document.querySelector<HTMLElement>('[data-color-toggle]')
+  if (color) {
+    color.dataset['lightLabel'] = translate('useLightMode')
+    color.dataset['darkLabel'] = translate('useDarkMode')
+    const label = translate(
+      document.documentElement.dataset['colorMode'] === 'dark'
+        ? 'useLightMode'
+        : 'useDarkMode',
+    )
+    color.setAttribute('aria-label', label)
+    color.title = label
+  }
   document.documentElement.lang = locale
 }

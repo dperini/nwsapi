@@ -128,11 +128,19 @@ control initially follows the browser language. A manual choice is kept in
 `sessionStorage`, including page refreshes in the same tab. Source code,
 selectors, script names, and commands keep their original spelling.
 
-Use the open-book button beside the language selector to enable reading mode.
-It uses warm paper colors and darker text, controls, and code highlighting.
-Decorative spotlight and border shimmer effects are hidden while the
-interactive diagrams remain available. The choice persists across refreshes
-and navigation between the guide and reader in the same browser tab.
+The guide initially follows the system’s light or dark appearance. Use the
+sun or moon button beside the language selector to switch between light and
+dark. Both keep the section colors, spotlight, and animations, respecting the
+system’s reduced-motion preference.
+
+The book icon peeks out beside the sun or moon. Hover or use keyboard focus
+to reveal it. Touch screens keep both controls visible. Use the book to enter
+reading mode with warm paper colors, dark text, and generous line spacing. Reading mode stops diagram playback and
+removes animation, transitions, moving narration highlights, decorative
+effects, and smooth scrolling. You can still step through diagrams manually.
+Press the book again to restore the underlying light or dark appearance.
+These choices persist across refreshes and navigation between the guide and
+reader in the same browser tab.
 
 Interface labels live in `assets/repo/model-guide/locales/en.json` and
 `it.json`. Longer interface strings and repository documents are extracted

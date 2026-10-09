@@ -1,10 +1,12 @@
+import { isReadingMode } from './reading-mode.mts'
 import { initializeRangePulses } from './range.mts'
 
 let active: HTMLElement | undefined
 let pending = false
+let spotlightKey = ''
 const spotlightPositions = new Map<string, { x: string; y: string }>()
 
-function initializeSpotlightPositions() {
+export function initializeSpotlightPositions() {
   const themes = ['what', 'why', 'when', 'where']
   for (let i = 0, length = themes.length; i < length; i += 1) {
     spotlightPositions.set(themes[i]!, {
@@ -14,7 +16,7 @@ function initializeSpotlightPositions() {
   }
 }
 
-function blendSpotlight(
+export function blendSpotlight(
   first: HTMLElement,
   second: HTMLElement,
   progress: number,
@@ -22,10 +24,16 @@ function blendSpotlight(
   const from = first.dataset['scrollTheme']!
   const to = second.dataset['scrollTheme']!
   const percent = Math.round((1 - progress) * 100)
+  const key = `${from}:${to}:${percent}`
+  if (key === spotlightKey) {
+    return
+  }
+  spotlightKey = key
+  const spotlight = document.querySelector<HTMLElement>('.scroll-morph')!
   const color = `color-mix(in srgb, var(--topic-${from}) ${percent}%, var(--topic-${to}))`
   document.body.style.setProperty('--scroll-accent', color)
   document.documentElement.style.setProperty('--page-scrollbar-accent', color)
-  document.body.style.setProperty(
+  spotlight.style.setProperty(
     '--scroll-wash',
     `color-mix(in srgb, ${color} 70%, transparent)`,
   )
@@ -35,11 +43,11 @@ function blendSpotlight(
     parseFloat(start.x) + (parseFloat(end.x) - parseFloat(start.x)) * progress
   const y =
     parseFloat(start.y) + (parseFloat(end.y) - parseFloat(start.y)) * progress
-  document.body.style.setProperty('--scroll-x', `${x}vw`)
-  document.body.style.setProperty('--scroll-y', `${y}vh`)
+  spotlight.style.setProperty('--scroll-x', `${x}vw`)
+  spotlight.style.setProperty('--scroll-y', `${y}vh`)
 }
 
-function updateSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
+function measureSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
   if (!sections.length) {
     return
   }
@@ -56,28 +64,20 @@ function updateSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
         0,
         Math.min(1, (center - boundary + width / 2) / width),
       )
-      blendSpotlight(first, second, progress)
-      return
+      return () => blendSpotlight(first, second, progress)
     }
   }
   const last = sections[sections.length - 1]!
-  blendSpotlight(last, last, 0)
+  return () => blendSpotlight(last, last, 0)
 }
 
-function updateChapterVisibility() {
-  const chapters = document.querySelector<HTMLElement>('.chapters')
-  const overview = document.querySelector<HTMLElement>('.route-overview')
-  chapters?.toggleAttribute(
-    'data-visible',
-    !overview || overview.getBoundingClientRect().bottom <= 0,
-  )
-}
-
-function updateActiveTheme() {
-  updateChapterVisibility()
+export function updateActiveTheme() {
   const sections = document.querySelectorAll<HTMLElement>('[data-scroll-theme]')
   const center = window.innerHeight / 2
-  updateSpotlight(sections, center)
+  const paintSpotlight = isReadingMode()
+    ? undefined
+    : measureSpotlight(sections, center)
+  const paintContents = measureActiveContents()
   let nearest = Number.POSITIVE_INFINITY
   let selected: HTMLElement | undefined
 
@@ -96,44 +96,67 @@ function updateActiveTheme() {
     }
   }
 
+  paintSpotlight?.()
+  paintContents()
   if (!selected || selected === active) {
     return
   }
   active?.classList.remove('is-active')
   selected.classList.add('is-active')
   document.body.dataset['theme'] = selected.dataset['scrollTheme']
-  document.querySelectorAll<HTMLAnchorElement>('.chapters a').forEach(link => {
-    const current = link.hash === `#${selected.id}`
-    if (current) {
-      link.setAttribute('aria-current', 'location')
-      randomizeChapterShimmer(link)
-    } else {
-      link.removeAttribute('aria-current')
-    }
-  })
   active = selected
 }
 
-function randomizeChapterShimmer(link: HTMLAnchorElement) {
+function measureActiveContents() {
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('#reading-contents a'),
+  )
+  let selected = links.length > 0 ? 0 : -1
+  for (let i = 0, length = links.length; i < length; i += 1) {
+    const target = document.getElementById(links[i]!.hash.slice(1))
+    if (target && target.getBoundingClientRect().top <= innerHeight * 0.3) {
+      selected = i
+    }
+  }
+  const pageEnd = document.documentElement.scrollHeight - innerHeight
+  if (pageEnd > 0 && scrollY >= pageEnd - Math.max(8, innerHeight * 0.02)) {
+    selected = links.length - 1
+  }
+  return () => {
+    for (let i = 0, length = links.length; i < length; i += 1) {
+      const link = links[i]!
+      if (i === selected) {
+        if (!link.hasAttribute('aria-current')) {
+          link.setAttribute('aria-current', 'location')
+          randomizeContentsShimmer(link)
+        }
+      } else {
+        link.removeAttribute('aria-current')
+      }
+    }
+  }
+}
+
+export function randomizeContentsShimmer(link: HTMLAnchorElement) {
   const leftToRight = Math.random() < 0.5
   link.style.setProperty('--shimmer-start', leftToRight ? '100%' : '0%')
   link.style.setProperty('--shimmer-end', leftToRight ? '0%' : '100%')
 }
 
-function initializeChapterShimmer() {
+export function initializeContentsShimmer() {
   document
-    .querySelector<HTMLElement>('.chapters')
+    .querySelector<HTMLElement>('.reading-sidebar')
     ?.addEventListener('animationiteration', event => {
       if (
         event.animationName === 'chapter-border-shimmer' &&
         event.target instanceof HTMLAnchorElement
       ) {
-        randomizeChapterShimmer(event.target)
+        randomizeContentsShimmer(event.target)
       }
     })
 }
 
-function scheduleThemeUpdate() {
+export function scheduleThemeUpdate() {
   if (pending) {
     return
   }
@@ -144,7 +167,7 @@ function scheduleThemeUpdate() {
   })
 }
 
-function initializePanelHighlights() {
+export function initializePanelHighlights() {
   if (typeof IntersectionObserver === 'undefined') {
     return
   }
@@ -171,8 +194,9 @@ export function initializeSectionThemes() {
   initializeRangePulses()
   initializeSpotlightPositions()
   initializePanelHighlights()
-  initializeChapterShimmer()
+  initializeContentsShimmer()
   window.addEventListener('scroll', scheduleThemeUpdate, { passive: true })
   window.addEventListener('resize', scheduleThemeUpdate)
+  window.addEventListener('guide-reading-mode-change', scheduleThemeUpdate)
   updateActiveTheme()
 }

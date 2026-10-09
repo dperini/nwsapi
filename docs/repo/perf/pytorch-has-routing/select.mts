@@ -58,7 +58,7 @@ function GuideSelect({
   const accent = control.hasAttribute('data-language-select')
     ? 'var(--scroll-accent, var(--topic-what))'
     : section
-      ? getComputedStyle(section).getPropertyValue('--section-accent')
+      ? `var(--topic-${section.dataset['scrollTheme']})`
       : 'var(--topic-where)'
   const theme: CSSProperties & { '--section-accent': string } = {
     '--section-accent': accent,
@@ -188,7 +188,12 @@ export function initializeGuideControls() {
       mount.className = 'guide-select-mount'
       control.after(mount)
       control.hidden = true
-      createRoot(mount).render(h(GuideSelect, { control }))
+      const label = Array.from(control.labels?.[0]?.childNodes ?? [])
+        .filter(node => node.nodeType === Node.TEXT_NODE)
+        .map(node => node.textContent)
+        .join('')
+        .trim()
+      createRoot(mount).render(h(GuideSelect, { control, label }))
     })
   document
     .querySelectorAll<HTMLInputElement>('input[type="checkbox"]')

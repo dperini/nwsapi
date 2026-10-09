@@ -1,3 +1,4 @@
+import { isReadingMode } from './reading-mode.mts'
 import { escapeHtml } from './ui.mts'
 
 type WordCue = { text: string; start: number; end: number }
@@ -38,6 +39,7 @@ export function attachWordHighlight(
   audio: HTMLAudioElement,
   panel: HTMLElement,
   cues: WordCue[],
+  signal: AbortSignal,
 ) {
   const words = Array.from(panel.querySelectorAll<HTMLElement>('.spoken-word'))
   if (words.length !== cues.length) {
@@ -60,6 +62,14 @@ export function attachWordHighlight(
     }
   }
   const follow = () => {
+    if (document.hidden || !panel.querySelector('details')?.open) {
+      return
+    }
+    if (isReadingMode()) {
+      words.forEach(word => word.classList.remove('is-speaking', 'is-pausing'))
+      active = -1
+      return
+    }
     update()
     if (!audio.paused && !audio.ended) {
       frame = requestAnimationFrame(follow)
@@ -77,7 +87,15 @@ export function attachWordHighlight(
     'seeked',
     'timeupdate',
   ]) {
-    audio.addEventListener(event, refresh)
+    audio.addEventListener(event, refresh, { signal })
   }
-  update()
+  panel
+    .querySelector('details')
+    ?.addEventListener('toggle', refresh, { signal })
+  document.addEventListener('visibilitychange', refresh, { signal })
+  window.addEventListener('guide-reading-mode-change', refresh, { signal })
+  signal.addEventListener('abort', () => cancelAnimationFrame(frame), {
+    once: true,
+  })
+  refresh()
 }
