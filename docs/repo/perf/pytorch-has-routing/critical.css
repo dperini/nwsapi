@@ -271,6 +271,7 @@ html[data-color-mode='light']:not([data-reading-mode]) {
   --reading-inset: #edf2f8;
   --reading-raised: #e2eaf4;
   --reading-ink: #172c40;
+  --reading-primary-ink: #101410;
   --reading-body: #30465a;
   --reading-muted: #46596b;
   --reading-line: #c4d1df;
@@ -469,7 +470,8 @@ html[data-reading-mode] {
   --reading-raised: #eadecc;
   --reading-ink: #393329;
   --reading-body: #4c4439;
-  --reading-muted: #6b6052;
+  --reading-muted: #5e5448;
+  --reading-primary-ink: #101410;
   --reading-line: #cbbca5;
   --reading-edge: #9a886d;
   --reading-positive-surface: #e0e7d5;
@@ -485,7 +487,7 @@ html[data-reading-mode] {
   --reading-syntax-operator: #914663;
   --topic-what: #365f82;
   --topic-why: #2b6a5f;
-  --topic-when: #924c2d;
+  --topic-when: #874428;
   --topic-where: #715084;
 }
 html[data-reading-mode] ::selection {

@@ -188,7 +188,12 @@ export function initializeGuideControls() {
       mount.className = 'guide-select-mount'
       control.after(mount)
       control.hidden = true
-      createRoot(mount).render(h(GuideSelect, { control }))
+      const label = Array.from(control.labels?.[0]?.childNodes ?? [])
+        .filter(node => node.nodeType === Node.TEXT_NODE)
+        .map(node => node.textContent)
+        .join('')
+        .trim()
+      createRoot(mount).render(h(GuideSelect, { control, label }))
     })
   document
     .querySelectorAll<HTMLInputElement>('input[type="checkbox"]')

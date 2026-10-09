@@ -215,7 +215,7 @@ function selectChallenge(id: keyof typeof challenges) {
   text('challenge-question', challenges[id].question)
   text(
     'challenge-feedback',
-    'Choose a result, then reveal the explanation. Step through either route to check it.',
+    'Choose a result, then press Check for the explanation. Step through either route to follow the search.',
   )
   ;(element('challenge-prediction') as HTMLSelectElement).value = ''
   render()
@@ -223,7 +223,10 @@ function selectChallenge(id: keyof typeof challenges) {
 
 function reveal() {
   if (!challenge) {
-    selectChallenge('outside')
+    text(
+      'challenge-feedback',
+      'Choose a situation before checking your prediction.',
+    )
     return
   }
   const prediction = (element('challenge-prediction') as HTMLSelectElement)

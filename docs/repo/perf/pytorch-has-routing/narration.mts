@@ -18,6 +18,7 @@ const clips = import.meta.glob<string>(
   { eager: true, query: '?url', import: 'default' },
 )
 let playing: HTMLAudioElement | undefined
+let narrationListeners = new AbortController()
 
 function formatTime(seconds: number) {
   const rounded = Math.floor(Number.isFinite(seconds) ? seconds : 0)
@@ -36,12 +37,15 @@ function attachPlayer(
   const time = panel.querySelector<HTMLElement>('.narration-time')!
   const seek = panel.querySelector<HTMLInputElement>('input')!
   let request = 0
+  let unavailable = false
   const update = () => {
     const duration = Number.isFinite(audio.duration)
       ? audio.duration
       : recordedDuration
     const active = !audio.paused
-    label.textContent = translate(active ? 'pause' : 'listen')
+    label.textContent = translate(
+      unavailable ? 'audioUnavailable' : active ? 'pause' : 'listen',
+    )
     icon.setAttribute(
       'd',
       active ? 'M7 5h4v14H7ZM14 5h4v14h-4Z' : 'm9 5 10 7-10 7Z',
@@ -49,10 +53,13 @@ function attachPlayer(
     button.setAttribute('aria-pressed', String(active))
     button.setAttribute(
       'aria-label',
-      translate(active ? 'pauseNarration' : 'listenNarration').replace(
-        '{title}',
-        title,
-      ),
+      translate(
+        unavailable
+          ? 'retryNarration'
+          : active
+            ? 'pauseNarration'
+            : 'listenNarration',
+      ).replace('{title}', title),
     )
     panel.classList.toggle('is-playing', active)
     time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(duration)}`
@@ -94,6 +101,11 @@ function attachPlayer(
     }
     playing?.pause()
     playing = audio
+    unavailable = false
+    panel.removeAttribute('role')
+    if (audio.error) {
+      audio.load()
+    }
     const attempt = request
     void audio.play().catch(() => {
       if (attempt !== request || playing !== audio) {
@@ -101,19 +113,17 @@ function attachPlayer(
       }
       audio.pause()
       playing = undefined
-      update()
-      label.textContent = translate('audioUnavailable')
-      button.setAttribute(
-        'aria-label',
-        translate('retryNarration').replace('{title}', title),
-      )
+      unavailable = true
       panel.setAttribute('role', 'status')
+      update()
     })
   })
   update()
 }
 
 export function initializeNarration() {
+  narrationListeners.abort()
+  narrationListeners = new AbortController()
   playing?.pause()
   playing = undefined
   document.querySelectorAll('.narration').forEach(panel => panel.remove())
@@ -151,7 +161,12 @@ export function initializeNarration() {
     )
     attachPlayer(audio, panel, title, aligned?.duration ?? 0)
     if (aligned) {
-      attachWordHighlight(audio, panel, aligned.words)
+      attachWordHighlight(
+        audio,
+        panel,
+        aligned.words,
+        narrationListeners.signal,
+      )
     }
   }
 }

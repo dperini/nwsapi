@@ -262,7 +262,11 @@
                 </button>
               </div>
               <pre id="sample-facts"></pre>
-              <div id="sample-bars" aria-label="Recorded route timings"></div>
+              <div
+                id="sample-bars"
+                role="group"
+                aria-label="Recorded route timings"
+              ></div>
               <p id="sample-context" class="context"></p>
               <div id="sample-learning" hidden>
                 <p id="sample-label"></p>
@@ -553,24 +557,26 @@
             </p>
           </details>
           <div class="lab discovery">
-            <p class="eyebrow">Predict the matching cards</p>
+            <p class="eyebrow">Quiz: Predict the matching cards</p>
             <h3>Change the relationship. What happens?</h3>
+            <p id="challenge-question">
+              <span class="quiz-instruction"
+                >Pick a situation below. Predict the result before following the
+                search.</span
+              >
+            </p>
             <div class="step-controls">
               <button data-challenge="outside">Move A’s warning outside</button>
               <button data-challenge="duplicate">Two warnings in A</button>
               <button data-challenge="empty">No warnings inside</button>
             </div>
-            <p id="challenge-question">
-              Pick a situation above. Predict the result before following the
-              search.
-            </p>
             <div class="prediction-controls">
               <div class="prediction-label">
                 <label for="challenge-prediction">Which cards match?</label>
+                <p id="challenge-feedback" role="status" aria-live="polite">
+                  Choose a result, then press Check for the explanation.
+                </p>
                 <div class="prediction-field">
-                  <span class="qa-marker" aria-hidden="true" translate="no"
-                    >Q</span
-                  >
                   <select id="challenge-prediction" class="theme-select">
                     <option value="">Choose the result…</option>
                     <option value="A,C">A and C</option>
@@ -581,15 +587,14 @@
                 </div>
               </div>
               <div class="prediction-answer">
-                <span class="qa-marker" aria-hidden="true" translate="no"
-                  >A</span
-                >
-                <button id="challenge-reveal">Reveal and explain</button>
+                <button id="challenge-reveal" class="primary">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 3h8l4 4v14H6zM14 3v5h4m-9 6 2 2 4-4" />
+                  </svg>
+                  <span>Check</span>
+                </button>
               </div>
             </div>
-            <p id="challenge-feedback" role="status" aria-live="polite">
-              Choose a result, then reveal the explanation.
-            </p>
           </div>
           <details id="route-comparison">
             <summary>Compare the work done by each route</summary>
@@ -947,7 +952,12 @@
                   scales normalize the inputs so their different units are
                   easier to train on.
                 </p>
-                <div class="table-scroll">
+                <div
+                  class="table-scroll"
+                  tabindex="0"
+                  role="region"
+                  aria-label="Model input values"
+                >
                   <table>
                     <thead>
                       <tr>
