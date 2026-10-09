@@ -78,8 +78,10 @@ export function initializeReadingMode() {
     root.toggleAttribute('data-reading-mode')
     persist()
     apply()
+    reading.dataset['bookMotion'] = isReadingMode() ? 'opening' : 'closing'
   })
   color.addEventListener('click', () => {
+    delete reading.dataset['bookMotion']
     mode = mode === 'dark' ? 'light' : 'dark'
     explicit = true
     root.removeAttribute('data-reading-mode')

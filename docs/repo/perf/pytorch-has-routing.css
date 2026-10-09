@@ -1621,7 +1621,7 @@ input[type='range']:not(.narration-seek)::-moz-range-thumb {
 }
 .pipeline {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) repeat(4, 1rem minmax(0, 1fr));
+  grid-template-columns: auto repeat(4, minmax(1rem, 1fr) auto);
   padding: 18px;
   gap: 8px;
   border-bottom: 1px solid var(--line);
@@ -1629,6 +1629,7 @@ input[type='range']:not(.narration-seek)::-moz-range-thumb {
 .pipeline-chevron {
   display: block;
   align-self: center;
+  justify-self: center;
   flex: 0 0 1rem;
   width: 1rem;
   height: 1rem;
@@ -1642,7 +1643,10 @@ input[type='range']:not(.narration-seek)::-moz-range-thumb {
   user-select: none;
 }
 .pipeline button {
-  text-align: left;
+  justify-self: center;
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
   background: transparent;
   border: 1px solid transparent;
   font-size: var(--text-support);
@@ -2267,6 +2271,12 @@ td code {
 }
 .closing p {
   max-width: 760px;
+}
+html[data-reading-mode] .closing {
+  --section-accent: var(--reading-ink);
+  --mint: var(--reading-ink);
+  border-color: var(--reading-line);
+  background: var(--reading-surface);
 }
 .closing a {
   display: inline-flex;

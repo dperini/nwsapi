@@ -333,12 +333,12 @@ html[data-color-mode='light'] .color-mode-moon {
     opacity: 0.7;
   }
 }
-.language-symbol > path {
+.language-symbol > :is(path, text) {
   transform-box: fill-box;
   transform-origin: center;
   --glyph-direction: 1;
 }
-.language-symbol > path + path {
+.language-symbol > text {
   --glyph-direction: -1;
 }
 .reading-page {
@@ -348,7 +348,7 @@ html[data-color-mode='light'] .color-mode-moon {
   transform-box: view-box;
   transform-origin: 12px 12px;
 }
-@keyframes reading-page-flutter {
+@keyframes reading-page-open {
   0% {
     opacity: 0;
     transform: rotateY(0deg) skewY(0deg);
@@ -372,6 +372,32 @@ html[data-color-mode='light'] .color-mode-moon {
   100% {
     opacity: 0;
     transform: rotateY(-180deg) skewY(0deg);
+  }
+}
+@keyframes reading-page-close {
+  0% {
+    opacity: 0;
+    transform: rotateY(-180deg) skewY(0deg);
+  }
+  10% {
+    opacity: 1;
+    transform: rotateY(-180deg) skewY(0deg);
+  }
+  36% {
+    opacity: 1;
+    transform: rotateY(-125deg) skewY(6deg);
+  }
+  58% {
+    opacity: 1;
+    transform: rotateY(-75deg) skewY(-9deg);
+  }
+  88% {
+    opacity: 1;
+    transform: rotateY(-12deg) skewY(-2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotateY(0deg) skewY(0deg);
   }
 }
 @keyframes language-glyph-hug {
@@ -401,26 +427,23 @@ html[data-color-mode='light'] .color-mode-moon {
   }
 }
 @media (prefers-reduced-motion: no-preference) {
-  html:not([data-reading-mode])
-    .reading-mode-toggle:is(:hover, :focus-visible)
-    .reading-page {
-    animation: reading-page-flutter 760ms ease-in-out both;
+  html .reading-mode-toggle[data-book-motion] .reading-page {
+    animation: reading-page-open 760ms ease-in-out both !important;
   }
-  html:not([data-reading-mode])
-    .reading-mode-toggle:is(:hover, :focus-visible)
-    .reading-page:nth-child(2) {
-    animation-delay: 130ms;
+  html .reading-mode-toggle[data-book-motion='closing'] .reading-page {
+    animation-name: reading-page-close !important;
   }
-  html:not([data-reading-mode])
-    .reading-mode-toggle:is(:hover, :focus-visible)
-    .reading-page:nth-child(3) {
-    animation-delay: 260ms;
+  html .reading-mode-toggle[data-book-motion] .reading-page:nth-child(2) {
+    animation-delay: 130ms !important;
+  }
+  html .reading-mode-toggle[data-book-motion] .reading-page:nth-child(3) {
+    animation-delay: 260ms !important;
   }
   html:not([data-reading-mode])
     .language-picker
     .guide-select-trigger[data-state='closed']
     .language-symbol
-    > path {
+    > :is(path, text) {
     animation: language-glyph-hug 720ms ease-in-out;
   }
   html[data-color-mode='light']:not([data-reading-mode]) .color-mode-sun {
