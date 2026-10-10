@@ -61,7 +61,7 @@
     "wpt:test": "node test/wpt/wpt-test.mjs"
   },
   "engines": {
-    "npm": ">=12.1.0"
+    "npm": ">=12.2.0"
   },
   "devDependencies": {
     "acorn": "8.15.0",

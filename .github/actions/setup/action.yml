@@ -13,11 +13,10 @@ runs:
     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
       with:
         node-version: ${{ inputs.node-version }}
-    # v2 uses npm with its committed lockfile. To adopt pnpm later, replace
-    # this step and regenerate the lockfile; no workflow files change.
-    # Bootstrap the pinned npm first: bundled npm versions on Node 22/24 are
-    # older than the enforced >=12.1.0 engines floor.
-    - run: npm install --global npm@12.1.0 --ignore-scripts
+    # Read the npm pin while preserving the workflow's Node test matrix.
+    - run: |
+        NWSAPI_NPM_VERSION=$(node --input-type=module -e "import fs from 'node:fs'; console.log(JSON.parse(fs.readFileSync('.config/external-tools.json', 'utf8')).tools.npm.version)")
+        npm install --global "npm@$NWSAPI_NPM_VERSION" --ignore-scripts
       shell: bash
     - run: npm ci
       shell: bash

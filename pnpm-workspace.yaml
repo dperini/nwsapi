@@ -1,0 +1,2 @@
+# Setup selects npm before any automatic dependency installation can run.
+verifyDepsBeforeRun: false
