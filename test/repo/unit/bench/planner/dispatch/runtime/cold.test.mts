@@ -22,7 +22,7 @@ vi.mock(
   () => ({ checkedPower: () => 'AC' }),
 )
 const source =
-  'var cache = new Map(); module.exports = function(window) { return { select: function(selector, doc) { var size = doc.getElementsByClassName("hit").length; var key = selector + size; if (!cache.has(key)) cache.set(key, doc.querySelectorAll(selector)); return cache.get(key) }, useNeuralPlanner: function(value) { globalThis.recordDisabled(value) } } }'
+  'var cache = new Map(); module.exports = function(window) { return { select: function(selector, doc) { var size = doc.getElementsByClassName("hit").length; var key = selector + size; if (!cache.has(key)) cache.set(key, doc.querySelectorAll(selector)); return cache.get(key) }, useRoutePlanner: function(value) { globalThis.recordDisabled(value) } } }'
 
 async function load() {
   return import('../../../../../../../scripts/repo/bench/planner/dispatch/runtime/cold.mts')

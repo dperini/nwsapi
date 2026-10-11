@@ -3,9 +3,9 @@ import type { BulkHasPlanner } from '../../state/types.mts'
 
 // The committed model asset is pinned by model metadata and generated into a
 // statically included module. Chromium is the default policy.
-export type NeuralPlannerHost = 'chromium' | 'jsdom'
+export type RoutePlannerHost = 'chromium' | 'jsdom'
 
-export function neuralPlannerPolicy(host: NeuralPlannerHost): BulkHasPlanner {
+export function routePlannerPolicy(host: RoutePlannerHost): BulkHasPlanner {
   if (host === 'chromium') {
     return chromiumPolicy
   }

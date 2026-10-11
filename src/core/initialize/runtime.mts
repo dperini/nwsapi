@@ -1,4 +1,4 @@
-import { neuralPlannerPolicy } from '../select/has/policy.mts'
+import { routePlannerPolicy } from '../select/has/policy.mts'
 import { attributeValueNS, hasAttributeNS } from '../dom/attribute.mts'
 import {
   attrNamesOf,
@@ -110,13 +110,13 @@ export function initializeRuntime(engine: EngineState) {
     IDS_DUPES: true,
     FORGIVING: true,
     LEGACY: false,
-    NEURAL_PLANNER: true,
+    ROUTE_PLANNER: true,
     NODE_LIST: false,
     LOGERRORS: true,
     USR_EVENT: true,
     VERBOSITY: true,
   }
-  engine.bulkHasPlanner = neuralPlannerPolicy('chromium')
+  engine.bulkHasPlanner = routePlannerPolicy('chromium')
   engine.createWeakMap = createWeakMap.bind(
     null,
     engine,

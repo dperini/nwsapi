@@ -29,7 +29,7 @@ function profile(source: string, host: string, disabled = false) {
     `\nvar originalFactory = module.exports;
 module.exports = function (window) {
   var engine = originalFactory(window);
-  engine.useNeuralPlanner(${disabled ? 'null' : JSON.stringify(host)});
+  engine.useRoutePlanner(${disabled ? 'null' : JSON.stringify(host)});
   return engine;
 };\nObject.assign(module.exports, originalFactory);\n`
   )

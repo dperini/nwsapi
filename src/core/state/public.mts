@@ -2,7 +2,7 @@ import type {
   EngineConfiguration,
   Configure,
 } from '../initialize/configuration.mts'
-import type { NeuralPlannerHost } from '../select/has/policy.mts'
+import type { RoutePlannerHost } from '../select/has/policy.mts'
 import type {
   BulkHasPlanner,
   LegacyHookFactory,
@@ -289,7 +289,7 @@ export interface PublicState {
     uninstall: () => void
     Operators: Record<string, AttributeOperator>
     Selectors: Record<string, SelectorExtension>
-    useNeuralPlanner: (host: NeuralPlannerHost | null) => void
+    useRoutePlanner: (host: RoutePlannerHost | null) => void
     registerBulkHasPlanner: (planner: BulkHasPlanner | null) => void
     registerLegacyHooks: (factory: LegacyHookFactory) => boolean
     registerCombinator: (
