@@ -102,8 +102,9 @@ git diff
 
 **Expected result:** the checks pass and the diff contains the intended changes. Before opening a pull request, choose any additional checks below that apply to your change.
 
-After staging the files for a commit, run `pnpm run commit:check` for a quick
-staged-file pass. It checks staged whitespace, then lints and formats supported
+After staging the files for a commit, run `pnpm run commit:check` for a
+staged-file pass. Package and lint configuration changes run full lint.
+Formatting configuration changes run the full formatting check. It checks staged whitespace, then lints and formats supported
 staged files in a temporary snapshot of the Git index. It does not change the
 index or working files, including partially staged files. This repository does
 not install a Git pre-commit hook, so run the command explicitly. The staged

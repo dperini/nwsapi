@@ -34,6 +34,8 @@ function copyLintContext(root: string) {
     ...toolingFiles(),
     ...globSync(
       [
+        'scripts/fleet/**/*.mts',
+        '.config/generated/*.mts',
         'docs/**/*.mts',
         'docs/**/*.json',
         'assets/repo/model-guide/**/*.json',
@@ -84,7 +86,8 @@ test('snapshot exports index bytes without changing staged or worktree files', (
     runGit(root, ['config', 'commit.gpgsign', 'false'])
     mkdirSync(path.join(root, 'node_modules'))
     writeFile(root, 'src/staged.mts', 'export const value = 1\n')
-    runGit(root, ['add', '--', 'src/staged.mts'])
+    writeFile(root, 'scripts/fleet/fixture.mts', 'export const shared = 1\n')
+    runGit(root, ['add', '--', 'src/staged.mts', 'scripts/fleet/fixture.mts'])
     runGit(root, ['commit', '-m', 'fixture'])
     writeFile(root, 'src/staged.mts', 'export const value = 2\n')
     runGit(root, ['add', '--', 'src/staged.mts'])
@@ -94,6 +97,9 @@ test('snapshot exports index bytes without changing staged or worktree files', (
 
     const snapshot = createStagedSnapshot(root)
     snapshotRoots.push(snapshot)
+    expect(
+      readFileSync(path.join(snapshot, 'scripts/fleet/fixture.mts'), 'utf8'),
+    ).toBe('export const shared = 1\n')
 
     expect(readFileSync(path.join(snapshot, 'src/staged.mts'), 'utf8')).toBe(
       'export const value = 2\n',
@@ -116,12 +122,18 @@ test('snapshot exports index bytes without changing staged or worktree files', (
   }
 })
 
-test('staged checks run real lint and format on staged content', async () => {
+test('package changes run full staged lint with imported fleet context', async () => {
   const root = createGitFixture()
   try {
     writeFile(root, 'src/staged.mts', 'export const value = 2\n')
     runGit(root, ['add', '--', 'src/staged.mts'])
     writeFile(root, 'src/staged.mts', 'export const value = 3\n')
+    const manifest = JSON.parse(
+      readFileSync(path.join(root, 'package.json'), 'utf8'),
+    )
+    manifest.description = 'Staged fixture package'
+    writeFile(root, 'package.json', JSON.stringify(manifest, null, 2) + '\n')
+    runGit(root, ['add', '--', 'package.json'])
 
     expect(await checkStagedFiles(root)).toBe(0)
     expect(runGit(root, ['show', ':src/staged.mts'])).toBe(

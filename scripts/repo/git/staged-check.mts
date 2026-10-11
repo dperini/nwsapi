@@ -83,6 +83,7 @@ export function createStagedSnapshot(sourceRoot = REPO_ROOT) {
         ':(glob)src/external/*.js',
         ':(glob)src/**/*.d.ts',
         ':(glob)scripts/repo/**/*.mts',
+        ':(glob)scripts/fleet/**/*.mts',
         ':(glob)test/repo/**/*.mts',
         ':(glob)docs/**/*.mts',
         ':(glob)docs/**/*.json',
