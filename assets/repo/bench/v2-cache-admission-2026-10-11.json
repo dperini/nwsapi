@@ -1,0 +1,1637 @@
+{
+  "recordedAt": "2026-10-11T23:06:08.705Z",
+  "node": "v26.11.0",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "cpu": "Apple M1 Max",
+  "jsdom": "26.1.0",
+  "baselineRevision": "ffe3bade81732e6d4e1d4993393483871692d28b",
+  "baselineSource": "../../package-manager-minima/master/src/nwsapi.js",
+  "candidateBaseRevision": "ffe3bade81732e6d4e1d4993393483871692d28b",
+  "candidateSourceModified": true,
+  "sources": [
+    {
+      "name": "baseline",
+      "path": "../../package-manager-minima/master/src/nwsapi.js",
+      "sha256": "ddf74cd622e311bb29399eaf9a3e5b8a869358a5f3783d00b0aa37fe145d0541"
+    },
+    {
+      "name": "candidate",
+      "path": "src/nwsapi.js",
+      "sha256": "89478e37218b8fd618e6d81ca90034d2aeae1aad31c77245c8d5365ce493b1b3"
+    }
+  ],
+  "settings": {
+    "defaultCacheLimit": 1000,
+    "defaultCacheBytes": 2097152,
+    "bytePressure": {
+      "CACHE_LIMIT": 100000,
+      "CACHE_BYTES": 2097152
+    },
+    "timingSamples": 3
+  },
+  "cases": [
+    {
+      "name": "small-warm",
+      "count": 32,
+      "passes": 2000,
+      "shape": "class"
+    },
+    {
+      "name": "class-1000",
+      "count": 1000,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "class-1001",
+      "count": 1001,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "class-2300",
+      "count": 2300,
+      "passes": 10,
+      "shape": "class"
+    },
+    {
+      "name": "byte-pressure-complex-2300",
+      "count": 2300,
+      "passes": 10,
+      "shape": "complex",
+      "settings": {
+        "CACHE_LIMIT": 100000,
+        "CACHE_BYTES": 2097152
+      }
+    },
+    {
+      "name": "hot-with-one-offs",
+      "count": 2300,
+      "passes": 10,
+      "shape": "mixed"
+    },
+    {
+      "name": "changed-stylesheet",
+      "count": 2300,
+      "passes": 20,
+      "shape": "changed"
+    }
+  ],
+  "rows": [
+    {
+      "variant": "baseline",
+      "case": "small-warm",
+      "validation": {
+        "case": "small-warm",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 27.020500000000027,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        },
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 30.368499999999983,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        },
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 24.942165999999986,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "small-warm",
+        "mode": "counts",
+        "calls": 64000,
+        "matches": 2000,
+        "milliseconds": 40.48087499999997,
+        "lookups": 64000,
+        "hits": 64000,
+        "hotLookups": 64000,
+        "hotHits": 64000,
+        "queryLookups": 64000,
+        "queryHits": 64000,
+        "hotQueryLookups": 64000,
+        "hotQueryHits": 64000,
+        "compilations": 0,
+        "retained": [
+          {
+            "entries": 32,
+            "estimatedBytes": 17688
+          },
+          {
+            "entries": 32,
+            "estimatedBytes": 16600
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "small-warm",
+      "validation": {
+        "case": "small-warm",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 24.70545800000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        },
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 30.302791999999954,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        },
+        {
+          "case": "small-warm",
+          "mode": "timing",
+          "calls": 64000,
+          "matches": 2000,
+          "milliseconds": 23.184083999999984,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 32,
+              "estimatedBytes": 17688
+            },
+            {
+              "entries": 32,
+              "estimatedBytes": 16600
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "small-warm",
+        "mode": "counts",
+        "calls": 64000,
+        "matches": 2000,
+        "milliseconds": 39.760875,
+        "lookups": 64000,
+        "hits": 64000,
+        "hotLookups": 64000,
+        "hotHits": 64000,
+        "queryLookups": 64000,
+        "queryHits": 64000,
+        "hotQueryLookups": 64000,
+        "hotQueryHits": 64000,
+        "compilations": 0,
+        "retained": [
+          {
+            "entries": 32,
+            "estimatedBytes": 17688
+          },
+          {
+            "entries": 32,
+            "estimatedBytes": 16600
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "class-1000",
+      "validation": {
+        "case": "class-1000",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 7.2192079999999805,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        },
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 6.500166999999976,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        },
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 7.87745799999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-1000",
+        "mode": "counts",
+        "calls": 10000,
+        "matches": 10,
+        "milliseconds": 15.803458000000035,
+        "lookups": 10000,
+        "hits": 10000,
+        "hotLookups": 10000,
+        "hotHits": 10000,
+        "queryLookups": 10000,
+        "queryHits": 10000,
+        "hotQueryLookups": 10000,
+        "hotQueryHits": 10000,
+        "compilations": 0,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 557560
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 523560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "class-1000",
+      "validation": {
+        "case": "class-1000",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 8.221541000000002,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        },
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 10.584415999999976,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        },
+        {
+          "case": "class-1000",
+          "mode": "timing",
+          "calls": 10000,
+          "matches": 10,
+          "milliseconds": 9.628375000000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557560
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523560
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-1000",
+        "mode": "counts",
+        "calls": 10000,
+        "matches": 10,
+        "milliseconds": 11.749374999999986,
+        "lookups": 10000,
+        "hits": 10000,
+        "hotLookups": 10000,
+        "hotHits": 10000,
+        "queryLookups": 10000,
+        "queryHits": 10000,
+        "hotQueryLookups": 10000,
+        "hotQueryHits": 10000,
+        "compilations": 0,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 557560
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 523560
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "class-1001",
+      "validation": {
+        "case": "class-1001",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 93.44683300000003,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        },
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 107.927458,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        },
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 90.43570900000003,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-1001",
+        "mode": "counts",
+        "calls": 10010,
+        "matches": 10,
+        "milliseconds": 118.39425,
+        "lookups": 20020,
+        "hits": 0,
+        "hotLookups": 20020,
+        "hotHits": 0,
+        "queryLookups": 10010,
+        "queryHits": 0,
+        "hotQueryLookups": 10010,
+        "hotQueryHits": 0,
+        "compilations": 10010,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 557572
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 523572
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "class-1001",
+      "validation": {
+        "case": "class-1001",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 6.825709000000018,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        },
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 8.707540999999992,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        },
+        {
+          "case": "class-1001",
+          "mode": "timing",
+          "calls": 10010,
+          "matches": 10,
+          "milliseconds": 8.028292000000022,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 557572
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 523572
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-1001",
+        "mode": "counts",
+        "calls": 10010,
+        "matches": 10,
+        "milliseconds": 12.501874999999984,
+        "lookups": 10021,
+        "hits": 9999,
+        "hotLookups": 10021,
+        "hotHits": 9999,
+        "queryLookups": 10010,
+        "queryHits": 9999,
+        "hotQueryLookups": 10010,
+        "hotQueryHits": 9999,
+        "compilations": 11,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 557572
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 523572
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "class-2300",
+      "validation": {
+        "case": "class-2300",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 223.54187500000006,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 562000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 528000
+            }
+          ]
+        },
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 224.33737499999995,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 562000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 528000
+            }
+          ]
+        },
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 221.44004100000006,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 562000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 528000
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 10,
+        "milliseconds": 311.091208,
+        "lookups": 46000,
+        "hits": 0,
+        "hotLookups": 46000,
+        "hotHits": 0,
+        "queryLookups": 23000,
+        "queryHits": 0,
+        "hotQueryLookups": 23000,
+        "hotQueryHits": 0,
+        "compilations": 23000,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 562000
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 528000
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "class-2300",
+      "validation": {
+        "case": "class-2300",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 118.21574999999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 558816
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 527100
+            }
+          ]
+        },
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 110.957292,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 558816
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 527100
+            }
+          ]
+        },
+        {
+          "case": "class-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 10,
+          "milliseconds": 101.20533400000005,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 558816
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 527100
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "class-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 10,
+        "milliseconds": 133.30325,
+        "lookups": 37852,
+        "hits": 8148,
+        "hotLookups": 37852,
+        "hotHits": 8148,
+        "queryLookups": 23000,
+        "queryHits": 8148,
+        "hotQueryLookups": 23000,
+        "hotQueryHits": 8148,
+        "compilations": 8069,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 558816
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 527100
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "byte-pressure-complex-2300",
+      "validation": {
+        "case": "byte-pressure-complex-2300",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 298.67745900000006,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1161,
+              "estimatedBytes": 2096766
+            },
+            {
+              "entries": 1184,
+              "estimatedBytes": 2095604
+            }
+          ]
+        },
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 273.679417,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1161,
+              "estimatedBytes": 2096766
+            },
+            {
+              "entries": 1184,
+              "estimatedBytes": 2095604
+            }
+          ]
+        },
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 277.89041699999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1161,
+              "estimatedBytes": 2096766
+            },
+            {
+              "entries": 1184,
+              "estimatedBytes": 2095604
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "byte-pressure-complex-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 0,
+        "milliseconds": 348.601375,
+        "lookups": 46000,
+        "hits": 0,
+        "hotLookups": 0,
+        "hotHits": 0,
+        "queryLookups": 23000,
+        "queryHits": 0,
+        "hotQueryLookups": 0,
+        "hotQueryHits": 0,
+        "compilations": 23000,
+        "retained": [
+          {
+            "entries": 1161,
+            "estimatedBytes": 2096766
+          },
+          {
+            "entries": 1184,
+            "estimatedBytes": 2095604
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "byte-pressure-complex-2300",
+      "validation": {
+        "case": "byte-pressure-complex-2300",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 133.237209,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1163,
+              "estimatedBytes": 2097150
+            },
+            {
+              "entries": 1185,
+              "estimatedBytes": 2096424
+            }
+          ]
+        },
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 146.46458399999995,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1163,
+              "estimatedBytes": 2097150
+            },
+            {
+              "entries": 1185,
+              "estimatedBytes": 2096424
+            }
+          ]
+        },
+        {
+          "case": "byte-pressure-complex-2300",
+          "mode": "timing",
+          "calls": 23000,
+          "matches": 0,
+          "milliseconds": 148.78941700000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1163,
+              "estimatedBytes": 2097150
+            },
+            {
+              "entries": 1185,
+              "estimatedBytes": 2096424
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "byte-pressure-complex-2300",
+        "mode": "counts",
+        "calls": 23000,
+        "matches": 0,
+        "milliseconds": 172.31345799999997,
+        "lookups": 35978,
+        "hits": 10022,
+        "hotLookups": 0,
+        "hotHits": 0,
+        "queryLookups": 23000,
+        "queryHits": 10022,
+        "hotQueryLookups": 0,
+        "hotQueryHits": 0,
+        "compilations": 6686,
+        "retained": [
+          {
+            "entries": 1163,
+            "estimatedBytes": 2097150
+          },
+          {
+            "entries": 1185,
+            "estimatedBytes": 2096424
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "hot-with-one-offs",
+      "validation": {
+        "case": "hot-with-one-offs",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 659.178208,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 592680
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 560000
+            }
+          ]
+        },
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 762.9271669999999,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 592680
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 560000
+            }
+          ]
+        },
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 663.449625,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 592680
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 560000
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "hot-with-one-offs",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 720,
+        "milliseconds": 723.4585,
+        "lookups": 69000,
+        "hits": 23000,
+        "hotLookups": 23000,
+        "hotHits": 23000,
+        "queryLookups": 46000,
+        "queryHits": 23000,
+        "hotQueryLookups": 23000,
+        "hotQueryHits": 23000,
+        "compilations": 23000,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 592680
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 560000
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "hot-with-one-offs",
+      "validation": {
+        "case": "hot-with-one-offs",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 711.978708,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 591084
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 558404
+            }
+          ]
+        },
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 664.790125,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 591084
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 558404
+            }
+          ]
+        },
+        {
+          "case": "hot-with-one-offs",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 720,
+          "milliseconds": 690.2706250000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 591084
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 558404
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "hot-with-one-offs",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 720,
+        "milliseconds": 811.5397919999999,
+        "lookups": 69000,
+        "hits": 23000,
+        "hotLookups": 23000,
+        "hotHits": 23000,
+        "queryLookups": 46000,
+        "queryHits": 23000,
+        "hotQueryLookups": 23000,
+        "hotQueryHits": 23000,
+        "compilations": 23000,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 591084
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 558404
+          }
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "case": "changed-stylesheet",
+      "validation": {
+        "case": "changed-stylesheet",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 576.34625,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 586000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 552000
+            }
+          ]
+        },
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 515.0164580000001,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 586000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 552000
+            }
+          ]
+        },
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 498.98525000000006,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 586000
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 552000
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "changed-stylesheet",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 20,
+        "milliseconds": 601.6701660000001,
+        "lookups": 92000,
+        "hits": 0,
+        "hotLookups": 0,
+        "hotHits": 0,
+        "queryLookups": 46000,
+        "queryHits": 0,
+        "hotQueryLookups": 0,
+        "hotQueryHits": 0,
+        "compilations": 46000,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 586000
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 552000
+          }
+        ]
+      }
+    },
+    {
+      "variant": "candidate",
+      "case": "changed-stylesheet",
+      "validation": {
+        "case": "changed-stylesheet",
+        "valid": true
+      },
+      "samples": [
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 342.72554099999996,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 583916
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 550200
+            }
+          ]
+        },
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 291.089875,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 583916
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 550200
+            }
+          ]
+        },
+        {
+          "case": "changed-stylesheet",
+          "mode": "timing",
+          "calls": 46000,
+          "matches": 20,
+          "milliseconds": 294.37225,
+          "lookups": 0,
+          "hits": 0,
+          "hotLookups": 0,
+          "hotHits": 0,
+          "queryLookups": 0,
+          "queryHits": 0,
+          "hotQueryLookups": 0,
+          "hotQueryHits": 0,
+          "retained": [
+            {
+              "entries": 1000,
+              "estimatedBytes": 583916
+            },
+            {
+              "entries": 1000,
+              "estimatedBytes": 550200
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "case": "changed-stylesheet",
+        "mode": "counts",
+        "calls": 46000,
+        "matches": 20,
+        "milliseconds": 365.25845799999996,
+        "lookups": 77289,
+        "hits": 14711,
+        "hotLookups": 0,
+        "hotHits": 0,
+        "queryLookups": 46000,
+        "queryHits": 14711,
+        "hotQueryLookups": 0,
+        "hotQueryHits": 0,
+        "compilations": 19840,
+        "retained": [
+          {
+            "entries": 1000,
+            "estimatedBytes": 583916
+          },
+          {
+            "entries": 1000,
+            "estimatedBytes": 550200
+          }
+        ]
+      }
+    }
+  ]
+}
