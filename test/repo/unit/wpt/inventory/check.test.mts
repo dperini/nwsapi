@@ -14,8 +14,14 @@ import { JSDOM } from 'jsdom'
 
 test('inventory can validate silently when another audit reports its summary', () => {
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-  checkInventory({ quiet: true })
+  const readRevision = vi.fn(() => 'fd983776a7cd19ebcda7a2bcb69c74330ee5d8c9')
+  checkInventory({ quiet: true }, readRevision)
+  expect(readRevision).toHaveBeenCalledOnce()
   expect(log).not.toHaveBeenCalled()
+  readRevision.mockReturnValue('different')
+  expect(() => checkInventory({ quiet: true }, readRevision)).toThrow(
+    'The WPT pin changed.',
+  )
 })
 
 test('inventory counts AST calls and flags assertions without treating strings as code', () => {

@@ -3,12 +3,13 @@
 Before this change, a diagnostic unit run covered 380 files and 2,320 tests.
 A single unit process
 can exceed the unchanged 10,000ms budget before finishing the inventory on the
-Linux CI runner. Full Node plans therefore run the unit suite across 16 external
+Linux CI runner. A 16-shard Linux run still exceeded the deadline in seven
+shards. Full Node plans therefore run the unit suite across 32 external
 Vitest shards. Each shard keeps the ordinary 10,000ms watchdog and the unit
 configuration, including per-file isolation and network denial.
 
 The shard jobs use the same revision and install. Vitest selects files with
-`--shard=<index>/16`. The existing developer commands remain unsharded:
+`--shard=<index>/32`. The existing developer commands remain unsharded:
 `pnpm test` and `pnpm run test:unit` still run the complete unit suite in one
 process.
 

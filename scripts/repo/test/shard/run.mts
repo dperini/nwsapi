@@ -34,7 +34,7 @@ function parseShardOptions(args: string[]): ShardOptions | undefined {
   })
   if (values.help) {
     console.log(
-      'Usage: node scripts/repo/run.mts scripts/repo/test/shard/run.mts --index <n> --count 16 --directory <runner-temp>',
+      `Usage: node scripts/repo/run.mts scripts/repo/test/shard/run.mts --index <n> --count ${UNIT_CI_SHARD_COUNT} --directory <runner-temp>`,
     )
     return undefined
   }

@@ -51,7 +51,11 @@ test('nub resolves an isolated exact pin and the returned binary is verified', (
   })
   execute.mockReturnValueOnce('v22.23.2\n')
   expect(resolveNodeRuntime('22.23.2')).toBe('/nub/node/22.23.2/bin/node')
-  expect(execute.mock.calls[0]?.[1]).toEqual(['node', 'which'])
+  expect(execute.mock.calls[0]?.[1]).toEqual([
+    '--no-env-file',
+    '-p',
+    'process.execPath',
+  ])
   expect(execute.mock.calls[1]?.slice(0, 2)).toEqual([
     '/nub/node/22.23.2/bin/node',
     ['--version'],

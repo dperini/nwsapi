@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import { REPO_ROOT } from '../../lib/paths.mts'
 
-export const UNIT_CI_SHARD_COUNT = 16
+export const UNIT_CI_SHARD_COUNT = 32
 
 export interface VitestShardReport {
   success: boolean

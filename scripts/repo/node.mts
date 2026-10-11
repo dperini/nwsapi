@@ -52,7 +52,7 @@ export function resolveNodeRuntime(version: string) {
     writeFileSync(path.join(directory, '.node-version'), version + '\n')
     const executable = execFileSync(
       toolExecutable('nub'),
-      ['node', 'which'],
+      ['--no-env-file', '-p', 'process.execPath'],
       options,
     ).trim()
     const actual = execFileSync(executable, ['--version'], options).trim()
