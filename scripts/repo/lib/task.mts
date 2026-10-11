@@ -56,6 +56,10 @@ export function discoverTasks(kind: TaskKind, root = REPO_ROOT): Task[] {
   }
   const tasks = new Map<string, Task>()
   for (const [name, command] of Object.entries(pkg.scripts)) {
+    // Setup diagnostics describe the host, not a repository validation lane.
+    if (name === 'setup:check') {
+      continue
+    }
     if (name.endsWith(`:${kind}`)) {
       const task = packageTask(name, command, kind, root)
       tasks.set(task.entry, task)

@@ -141,7 +141,7 @@ export async function main(
   if (values['github-path']) {
     appendFileSync(env['GITHUB_PATH']!, bin + '\n')
   }
-  log(`Toolchain ready. Prepend ${bin} to PATH.`)
+  log('Toolchain ready for repository commands. Global defaults are unchanged.')
 }
 
 if (isMainModule(import.meta.url)) {

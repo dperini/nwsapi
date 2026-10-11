@@ -17,5 +17,15 @@ export function setupUpstream(run = runNode) {
 }
 
 if (isMainModule(import.meta.url)) {
-  setupUpstream()
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(
+      'Usage: npm run setup:full\nPrepares tools, security scanners, WPT, and Chrome. Existing verified downloads are reused.',
+    )
+  } else {
+    console.log(
+      'Preparing security scanners, WPT, and Chrome. This may download additional tools and upstream sources.',
+    )
+    setupUpstream()
+    console.log('Full setup complete. Next: npm run check')
+  }
 }

@@ -123,6 +123,16 @@ export const ToolsSchema = Type.Object(
           },
           { additionalProperties: false },
         ),
+        fframes: Type.Object(
+          {
+            origin: Type.Literal('cargo-project'),
+            package: Type.Literal('fframes'),
+            version: Type.String({ pattern: VERSION }),
+            integrity: Type.String({ pattern: INTEGRITY }),
+            project: Type.Literal('.config/perf-video'),
+          },
+          { additionalProperties: false },
+        ),
         pytorch: Type.Object(
           {
             origin: Type.Literal('python-project'),

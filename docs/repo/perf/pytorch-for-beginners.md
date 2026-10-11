@@ -1,66 +1,44 @@
 # PyTorch and the `:has()` route planner, for beginners
 
 [Explore the interactive walkthrough](pytorch-has-routing.html). Edit a small
-DOM, watch results accumulate along both routes, try prediction challenges,
-and follow the saved policy through its arithmetic into the source code.
-
-The performance demonstration compares the ordinary route with the saved
-policy’s choice. Its step counts describe an illustrated DOM. Its timing
-estimates use editable teaching assumptions, including model overhead.
-Changing the warning position can show either a gain or a slowdown without
-changing the facts available to the model. These estimates are separate from
-the archived training measurements.
-
-To serve the guide locally from the repository root:
-
-```sh
-pnpm run guide
-```
-
-This starts Vite and opens the walkthrough in your browser at
-`http://127.0.0.1:4389/pytorch-has-routing.html`. The same server hosts the
-Markdown reader linked from the guide. Edits reload automatically.
-
-For the named local URL, use `portless nwsapi-model-guide pnpm run guide` and
-open `/pytorch-has-routing.html` on the URL printed by Portless.
-
-The policy explorer imports the committed
-runtime policy, source excerpts come from the owning files, and the timing
-examples load recorded benchmark inputs.
-
-To build the walkthrough into `.cache/model-guide-build/`:
-
-```sh
-pnpm run guide:build
-```
-
-Code panels use the pinned `gpu-lexer` dev dependency for syntax coloring.
-Its separate WebGPU model runs only in the guide. Without WebGPU, the source
-remains readable as plain text.
+DOM, compare two exact searches, try prediction challenges, and follow the
+saved route policy through its arithmetic and source code.
 
 ## The short version
 
-Yes, this is machine learning. We train a small model with examples of
-`:has()` queries and measurements of how long two exact search routes take.
-At query time, the model can recommend one route for a narrow set of eligible
-queries. The normal selector engine still checks the DOM and decides which
-elements match.
+For some `:has()` queries, `nwsapi` can search down from each possible matching
+card or search up from each possible warning. Both routes check the selector
+exactly and return the same matching elements in document order. The existing
+count rule chooses the default route. An optional model can recommend the
+other route for a narrow set of eligible queries.
 
-This is not generative AI. The model does not write text, create selectors,
-or invent results. It makes one small numeric choice: use the existing route,
-or try the other exact route.
+This is machine learning, but not generative AI. The model does not write text,
+create selectors, or decide which elements match. It makes one numeric choice:
+keep the existing route or try the other exact route. PyTorch trains the model
+offline. The application runs fixed exported weights in ordinary JavaScript,
+without Python, a GPU, or a model download.
+
+The route planner is experimental. Recorded synthetic tests show both
+speedups and slowdowns. They do not establish a general speedup or show that
+the learned model beats a simpler fitted rule. The walkthrough’s editable
+timing estimates use teaching assumptions and are distinct from archived
+measurements.
 
 ## What does `:has()` do?
 
 For example, `.card:has(.warning)` selects each `.card` element that contains
-a `.warning` descendant. The engine can find those cards in two ways:
+a `.warning` descendant. The card is the **anchor**. The warning is a
+**witness**: an element that proves the condition is true.
 
-- **Forward:** visit each possible card and search inside it for a warning.
-- **Inverse:** find possible warnings, walk up to their ancestors, then keep
-  the possible cards that were marked.
+There are two exact ways to find matching cards:
 
-Both routes perform exact checks and must return the same elements in the same
-document order. The planner chooses which route to use for that query.
+- **Forward (search down):** visit each possible card and search inside its
+descendants for a warning.
+- **Inverse (search up):** find possible warnings, mark their ancestor cards,
+  then check those cards in document order.
+
+The route changes the search order and the amount of work. Exact selector
+checks still decide the result.
 
 ## What is the model?
 
@@ -71,22 +49,17 @@ candidate counts and a few selector facts, such as whether the anchor and
 descendant selectors have supported attribute filters. It produces a route
 choice, not a match/no-match answer.
 
-PyTorch is used offline to train and save the weights. The repository's
-exporter turns those weights into ordinary JavaScript and a generated
-TypeScript module. At runtime, the app does not need Python, PyTorch, a GPU,
-or a model download. It calls a small JavaScript function.
-
 ## How does it learn?
 
 1. The benchmark creates selector and DOM examples.
 2. It measures both correct routes on each example.
 3. Those measurements label which route was faster for that example.
-4. PyTorch adjusts the model's weights to make better route choices on the
-   training examples, then the repo checks separate held-out examples.
+4. PyTorch adjusts the model’s weights using training examples. The repository
+   checks the selected model on separate validation and held-out examples.
 5. A repository script exports the saved weights as JavaScript. Parity and
    complete-query checks compare its choices and results with the reference.
 
-The model does not learn from a user's live page or change itself while the
+The model does not learn from a user’s live page or change itself while the
 application runs. Its checked-in weights stay fixed until the team trains,
 reviews, and exports another version.
 
@@ -98,21 +71,20 @@ inputs, unavailable planner support, or a planner error keep the ordinary
 route. The planner has no authority to remove a result or declare a selector
 match.
 
-The current implementation is experimental. The independent crossed-query
-confirmation found large gains on reserved synthetic examples, but also a
-repeat regression for some Chromium cases and no required average gain on the
-older cases. The model and a simpler fitted rule chose the same routes in
-that comparison, so the evidence does not show that the learned model beats
-the rule. See the [crossed-query results](neural-dispatch-crossed-outcome.md)
-and [latest dispatch follow-up](neural-dispatch-jit-outcome.md) before
-interpreting the integrated code as a general performance win.
+The independent crossed-query confirmation found large gains on reserved
+synthetic examples, but also a repeat regression for some Chromium cases and
+no required average gain on the older cases. The model and a simpler fitted
+rule chose the same routes in that comparison. The evidence therefore does
+not show that the learned model beats the rule. See the
+[crossed-query results](neural-dispatch-crossed-outcome.md) and [latest dispatch
+follow-up](neural-dispatch-jit-outcome.md) before interpreting the integrated
+code as a general performance win.
 
 ## Where the files live
 
 - Training code: `scripts/repo/pytorch/dispatch_train.py`
 - Training entry point: `scripts/repo/pytorch/dispatch-train.mts`
-- Saved checkpoints and exported weights:
-  `assets/repo/pytorch/model/`
+- Saved checkpoints and exported weights: `assets/repo/pytorch/model/`
 - Generated runtime policy:
   `src/core/select/has/route-decision.generated.mts`
 - Runtime guard and route selection: `src/core/select/has/match.mts`
@@ -121,6 +93,36 @@ The build includes the generated module in the normal bundle. It does not
 search for a `model-*` directory. See the [implementation notes](neural-planner-integration.md)
 for setup and activation details.
 
+## Run the guide locally
+
+From the repository root, start the development server:
+
+```sh
+pnpm run guide
+```
+
+This starts Vite and opens the walkthrough in your browser at
+`http://127.0.0.1:4389/pytorch-has-routing.html`. The same server hosts the
+Markdown reader linked from the guide. Edits reload automatically.
+
+For a named local URL, use `portless nwsapi-model-guide pnpm run guide` and
+open `/pytorch-has-routing.html` on the URL printed by Portless.
+
+To build the walkthrough into `.cache/model-guide-build/`:
+
+```sh
+pnpm run guide:build
+```
+
+The policy explorer imports the committed runtime policy, source excerpts come
+from the owning files, and the timing examples load recorded benchmark inputs.
+The demonstration’s editable timing assumptions remain illustrative and are
+not measurements.
+
+Code panels use the pinned `gpu-lexer` dev dependency for syntax coloring. Its
+separate WebGPU model runs only in the guide. Without WebGPU, the source remains
+readable as plain text.
+
 ## Maintaining the guide languages and narration
 
 The walkthrough and Markdown reader support English and Italian. The language
@@ -128,19 +130,18 @@ control initially follows the browser language. A manual choice is kept in
 `sessionStorage`, including page refreshes in the same tab. Source code,
 selectors, script names, and commands keep their original spelling.
 
-The guide initially follows the system’s light or dark appearance. Use the
-sun or moon button beside the language selector to switch between light and
-dark. Both keep the section colors, spotlight, and animations, respecting the
+The guide initially follows the system’s light or dark appearance. Use the sun
+or moon button beside the language selector to switch between light and dark.
+Both keep the section colors, spotlight, and animations, respecting the
 system’s reduced-motion preference.
 
-The book icon peeks out beside the sun or moon. Hover or use keyboard focus
-to reveal it. Touch screens keep both controls visible. Use the book to enter
-reading mode with warm paper colors, dark text, and generous line spacing. Reading mode stops diagram playback and
-removes animation, transitions, moving narration highlights, decorative
-effects, and smooth scrolling. You can still step through diagrams manually.
-Press the book again to restore the underlying light or dark appearance.
-These choices persist across refreshes and navigation between the guide and
-reader in the same browser tab.
+The book button is visible beside the appearance controls. Select it to enter
+reading mode with warm paper colors, dark text, and generous line spacing.
+Reading mode stops diagram playback and removes animation, transitions, moving
+narration highlights, decorative effects, and smooth scrolling. You can still
+step through diagrams manually. Select the book button again to restore the
+underlying light or dark appearance. These choices persist across refreshes
+and navigation between the guide and reader in the same browser tab.
 
 Interface labels live in `assets/repo/model-guide/locales/en.json` and
 `it.json`. Longer interface strings and repository documents are extracted
@@ -162,9 +163,9 @@ The translation environment and model revision are recorded in
 The scripts use the repository-managed `.cache/bin/uv` executable and cache
 downloaded models under `.cache/`.
 
-English narration uses the pinned `kokoro-js` development dependency.
-Italian narration uses the native Italian `im_nicola` voice from `kokoro`.
-Its Python dependencies, model revision, and model file checksums live in
+English narration uses the pinned `kokoro-js` development dependency. Italian
+narration uses the native Italian `im_nicola` voice from `kokoro`. Its Python
+dependencies, model revision, and model file checksums live in
 `.config/guide-speech/`. Edit the Italian narration text in
 `assets/repo/model-guide/locales/narration.it.json`, then regenerate the
 affected audio and word timings:

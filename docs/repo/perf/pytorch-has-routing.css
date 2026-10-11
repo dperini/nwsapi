@@ -378,6 +378,25 @@ pre {
   overflow-wrap: anywhere;
   overflow-x: auto;
 }
+.link-marker-tail {
+  white-space: nowrap;
+}
+.link-code-marker {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+  white-space: normal;
+}
+.link-code-marker > code {
+  min-width: 0;
+}
+.link-code-marker-short {
+  max-width: none;
+  white-space: nowrap;
+}
+.link-code-marker-short > code {
+  flex-shrink: 0;
+}
 .inline-icon {
   display: inline-block;
   flex-shrink: 0;
@@ -440,7 +459,7 @@ pre {
 .code-toolbar #source-link {
   --code-control-color: color-mix(
     in srgb,
-    var(--section-accent) 85%,
+    var(--section-accent) 60%,
     var(--section-line, var(--line))
   );
   overflow: hidden;
@@ -453,7 +472,7 @@ pre {
   padding: 7px;
   color: var(--code-control-color) !important;
   background: var(--surface-inset, var(--reading-inset, #101f27)) !important;
-  border: 1px solid currentColor !important;
+  border: 1px solid var(--section-line, var(--line)) !important;
   border-radius: 6px;
   opacity: 1 !important;
   transition:
@@ -463,6 +482,7 @@ pre {
 }
 .code-toolbar #source-link:is(:hover, :focus-visible),
 .code-toolbar .code-copy:is(:hover, :focus-visible) {
+  border-color: var(--section-accent) !important;
   --code-control-color: color-mix(
     in srgb,
     var(--section-accent, var(--topic-what)) 100%,
@@ -944,13 +964,13 @@ main code:not(.query-block, pre code) {
 [data-scroll-theme] .primary:hover {
   background: color-mix(in srgb, var(--section-accent) 75%, white);
 }
-html:is([data-reading-mode], [data-color-mode='light']) .primary {
+html[data-color-mode='light'] .primary {
   color: var(--topic-why);
   background: color-mix(in srgb, var(--topic-why) 16%, var(--reading-surface));
   border-color: color-mix(in srgb, var(--topic-why) 40%, var(--reading-line));
   font-weight: 600;
 }
-html:is([data-reading-mode], [data-color-mode='light']) .primary:hover {
+html[data-color-mode='light'] .primary:hover {
   background: color-mix(in srgb, var(--topic-why) 24%, var(--reading-surface));
   filter: none;
 }
@@ -1046,7 +1066,7 @@ button:active {
   border-color: var(--theme-highlight-edge);
   color: var(--theme-soft-text);
 }
-html:is([data-reading-mode], [data-color-mode='light'])
+html[data-color-mode='light']
   [data-scroll-theme]
   button[aria-pressed='true']:not(.film-scene-control, .language-picker *) {
   color: color-mix(in srgb, var(--reading-ink) 75%, black);
@@ -1481,7 +1501,7 @@ input[type='range']:not(.narration-seek)::-moz-range-thumb {
     var(--reading-ink, white)
   );
 }
-html:is([data-reading-mode], [data-color-mode='light'])
+html[data-color-mode='light']
   [data-scroll-theme]
   .presets
   button[aria-pressed='true'] {

@@ -926,11 +926,12 @@ const _fn = function (d) {
         'agentshield',
         'skill-scanner',
         'skillspector',
+        'fframes',
         'pytorch',
       ])
     )
       return false
-    if (Object.keys(_r2).length !== 19) return false
+    if (Object.keys(_r2).length !== 20) return false
     {
       const _r4 = _r2['node']
       const _pk5 =
@@ -2382,7 +2383,7 @@ const _fn = function (d) {
       if (_r231['project'] !== '.config/security/skillspector') return false
     }
     {
-      const _r234 = _r2['pytorch']
+      const _r234 = _r2['fframes']
       const _pk235 =
         typeof _r234 === 'object' &&
         _r234 !== null &&
@@ -2391,25 +2392,58 @@ const _fn = function (d) {
         return false
       if (
         !_pk235 &&
-        !_hall(_r234, ['origin', 'package', 'version', 'python', 'project'])
+        !_hall(_r234, ['origin', 'package', 'version', 'integrity', 'project'])
       )
         return false
       var _n = 0
       for (var _k in _r234) _n++
       if (_n !== 5) return false
       if (typeof _r234['origin'] !== 'string') return false
-      if (_r234['origin'] !== 'python-project') return false
+      if (_r234['origin'] !== 'cargo-project') return false
       if (typeof _r234['package'] !== 'string') return false
-      if (_r234['package'] !== 'torch') return false
+      if (_r234['package'] !== 'fframes') return false
       {
         const _r236 = _r234['version']
         if (typeof _r236 !== 'string') return false
         if (!_re7.test(_r236)) return false
       }
-      if (typeof _r234['python'] !== 'string') return false
-      if (_r234['python'] !== '3.12') return false
+      {
+        const _r237 = _r234['integrity']
+        if (typeof _r237 !== 'string') return false
+        if (!_re15.test(_r237)) return false
+      }
       if (typeof _r234['project'] !== 'string') return false
-      if (_r234['project'] !== '.config/model-training') return false
+      if (_r234['project'] !== '.config/perf-video') return false
+    }
+    {
+      const _r238 = _r2['pytorch']
+      const _pk239 =
+        typeof _r238 === 'object' &&
+        _r238 !== null &&
+        (_PN ? _r238.__proto__ : _gp(_r238)) === _OP
+      if (typeof _r238 !== 'object' || _r238 === null || Array.isArray(_r238))
+        return false
+      if (
+        !_pk239 &&
+        !_hall(_r238, ['origin', 'package', 'version', 'python', 'project'])
+      )
+        return false
+      var _n = 0
+      for (var _k in _r238) _n++
+      if (_n !== 5) return false
+      if (typeof _r238['origin'] !== 'string') return false
+      if (_r238['origin'] !== 'python-project') return false
+      if (typeof _r238['package'] !== 'string') return false
+      if (_r238['package'] !== 'torch') return false
+      {
+        const _r240 = _r238['version']
+        if (typeof _r240 !== 'string') return false
+        if (!_re7.test(_r240)) return false
+      }
+      if (typeof _r238['python'] !== 'string') return false
+      if (_r238['python'] !== '3.12') return false
+      if (typeof _r238['project'] !== 'string') return false
+      if (_r238['project'] !== '.config/model-training') return false
     }
   }
   for (var _k in d) if (_k !== '$schema' && _k !== 'tools') return false
@@ -2442,6 +2476,7 @@ const _mkErr = function () {
     'agentshield',
     'skill-scanner',
     'skillspector',
+    'fframes',
     'pytorch',
   ])
   const _a5 = new Set(['origin', 'version'])
@@ -2468,7 +2503,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/npm/properties/format/anyOf/0/type',
-          _o: 65,
+          _o: 66,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2485,7 +2520,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 66,
+          _o: 67,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2500,7 +2535,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/npm/properties/format/anyOf/1/type',
-          _o: 68,
+          _o: 69,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2517,7 +2552,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 69,
+          _o: 70,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2550,7 +2585,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 124,
+          _o: 125,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2567,7 +2602,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 124,
+          _o: 125,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2582,7 +2617,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 124,
+          _o: 125,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2599,7 +2634,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 124,
+          _o: 125,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2639,7 +2674,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 127,
+          _o: 128,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2656,7 +2691,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 127,
+          _o: 128,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2671,7 +2706,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 127,
+          _o: 128,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2688,7 +2723,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 127,
+          _o: 128,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2728,7 +2763,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 128,
+          _o: 129,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2745,7 +2780,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 128,
+          _o: 129,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2760,7 +2795,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 128,
+          _o: 129,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2777,7 +2812,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 128,
+          _o: 129,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2817,7 +2852,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 129,
+          _o: 130,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2834,7 +2869,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 129,
+          _o: 130,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2849,7 +2884,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 129,
+          _o: 130,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2866,7 +2901,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 129,
+          _o: 130,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2906,7 +2941,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 130,
+          _o: 131,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2923,7 +2958,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 130,
+          _o: 131,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2938,7 +2973,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 130,
+          _o: 131,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -2955,7 +2990,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 130,
+          _o: 131,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -2995,7 +3030,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 131,
+          _o: 132,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3012,7 +3047,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 131,
+          _o: 132,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3027,7 +3062,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 131,
+          _o: 132,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3044,7 +3079,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 131,
+          _o: 132,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3084,7 +3119,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 132,
+          _o: 133,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3101,7 +3136,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 132,
+          _o: 133,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3116,7 +3151,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 132,
+          _o: 133,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3133,7 +3168,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 132,
+          _o: 133,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3173,7 +3208,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 133,
+          _o: 134,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3190,7 +3225,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 133,
+          _o: 134,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3205,7 +3240,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 133,
+          _o: 134,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3222,7 +3257,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 133,
+          _o: 134,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3262,7 +3297,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 134,
+          _o: 135,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3279,7 +3314,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 134,
+          _o: 135,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3294,7 +3329,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 134,
+          _o: 135,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3311,7 +3346,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 134,
+          _o: 135,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3351,7 +3386,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 135,
+          _o: 136,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3368,7 +3403,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 135,
+          _o: 136,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3383,7 +3418,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 135,
+          _o: 136,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3400,7 +3435,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 135,
+          _o: 136,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3440,7 +3475,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 136,
+          _o: 137,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3457,7 +3492,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 136,
+          _o: 137,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3472,7 +3507,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 136,
+          _o: 137,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3489,7 +3524,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 136,
+          _o: 137,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3529,7 +3564,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 137,
+          _o: 138,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3546,7 +3581,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 137,
+          _o: 138,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3561,7 +3596,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 137,
+          _o: 138,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3578,7 +3613,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 137,
+          _o: 138,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3618,7 +3653,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/format/anyOf/0/type',
-          _o: 138,
+          _o: 139,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3635,7 +3670,7 @@ const _mkErr = function () {
           params: { allowedValue: 'archive' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 138,
+          _o: 139,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3650,7 +3685,7 @@ const _mkErr = function () {
           instancePath: _bpth,
           schemaPath:
             '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/format/anyOf/1/type',
-          _o: 138,
+          _o: 139,
           params: { type: 'string' },
           message: 'must be string',
           docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -3667,7 +3702,7 @@ const _mkErr = function () {
           params: { allowedValue: 'binary' },
           message: 'must be equal to constant',
           docUrl: 'https://ata-validator.com/e/ATA6002',
-          _o: 138,
+          _o: 139,
         })
         if (!_all) return { valid: false, errors: _e }
       }
@@ -3712,7 +3747,14 @@ const _mkErr = function () {
     'win32-x64',
   ])
   const _a144 = new Set(['origin', 'repository', 'version', 'project'])
-  const _a146 = new Set(['origin', 'package', 'version', 'python', 'project'])
+  const _a146 = new Set([
+    'origin',
+    'package',
+    'version',
+    'integrity',
+    'project',
+  ])
+  const _a148 = new Set(['origin', 'package', 'version', 'python', 'project'])
   const __ATA_SEVERITY = {
     type: 10,
     const: 8,
@@ -3852,7 +3894,7 @@ const _mkErr = function () {
               keyword: 'additionalProperties',
               instancePath: '',
               schemaPath: '#/additionalProperties',
-              _o: 248,
+              _o: 274,
               params: { additionalProperty: _k1[_i] },
               message: 'must NOT have additional properties',
               docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -4241,6 +4283,24 @@ const _mkErr = function () {
         typeof d['tools'] === 'object' &&
         d['tools'] !== null &&
         !Array.isArray(d['tools']) &&
+        !(_pk2 ? 'fframes' in d['tools'] : _h(d['tools'], 'fframes'))
+      ) {
+        _e.push({
+          code: 'ATA7001',
+          keyword: 'required',
+          instancePath: '/tools',
+          schemaPath: '#/properties/tools/required',
+          _o: 9,
+          params: { missingProperty: 'fframes' },
+          message: "must have required property 'fframes'",
+          docUrl: 'https://ata-validator.com/e/ATA7001',
+        })
+        if (!_all) return { valid: false, errors: _e }
+      }
+      if (
+        typeof d['tools'] === 'object' &&
+        d['tools'] !== null &&
+        !Array.isArray(d['tools']) &&
         !(_pk2 ? 'pytorch' in d['tools'] : _h(d['tools'], 'pytorch'))
       ) {
         _e.push({
@@ -4276,7 +4336,7 @@ const _mkErr = function () {
                 keyword: 'additionalProperties',
                 instancePath: '/tools',
                 schemaPath: '#/properties/tools/additionalProperties',
-                _o: 247,
+                _o: 273,
                 params: { additionalProperty: _k3[_i] },
                 message: 'must NOT have additional properties',
                 docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -4308,7 +4368,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/node',
             schemaPath: '#/properties/tools/properties/node/type',
-            _o: 31,
+            _o: 32,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4328,7 +4388,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/node',
             schemaPath: '#/properties/tools/properties/node/required',
-            _o: 32,
+            _o: 33,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4348,7 +4408,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/node',
             schemaPath: '#/properties/tools/properties/node/required',
-            _o: 32,
+            _o: 33,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4377,7 +4437,7 @@ const _mkErr = function () {
                   instancePath: '/tools/node',
                   schemaPath:
                     '#/properties/tools/properties/node/additionalProperties',
-                  _o: 42,
+                  _o: 43,
                   params: { additionalProperty: _k5[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -4402,7 +4462,7 @@ const _mkErr = function () {
               instancePath: '/tools/node/origin',
               schemaPath:
                 '#/properties/tools/properties/node/properties/origin/type',
-              _o: 37,
+              _o: 38,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4419,7 +4479,7 @@ const _mkErr = function () {
               params: { allowedValue: 'nub' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 38,
+              _o: 39,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4439,7 +4499,7 @@ const _mkErr = function () {
               instancePath: '/tools/node/version',
               schemaPath:
                 '#/properties/tools/properties/node/properties/version/type',
-              _o: 40,
+              _o: 41,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4459,7 +4519,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 41,
+              _o: 42,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4487,7 +4547,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/type',
-            _o: 44,
+            _o: 45,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4507,7 +4567,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'asset' },
             message: "must have required property 'asset'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4527,7 +4587,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'binary' },
             message: "must have required property 'binary'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4547,7 +4607,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'integrity' },
             message: "must have required property 'integrity'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4567,7 +4627,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4587,7 +4647,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4607,7 +4667,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/npm',
             schemaPath: '#/properties/tools/properties/npm/required',
-            _o: 45,
+            _o: 46,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4636,7 +4696,7 @@ const _mkErr = function () {
                   instancePath: '/tools/npm',
                   schemaPath:
                     '#/properties/tools/properties/npm/additionalProperties',
-                  _o: 79,
+                  _o: 80,
                   params: { additionalProperty: _k8[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -4659,7 +4719,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/asset',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/asset/type',
-              _o: 54,
+              _o: 55,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4679,7 +4739,7 @@ const _mkErr = function () {
               params: { pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' },
               message: 'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 55,
+              _o: 56,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4699,7 +4759,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/binary',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/binary/type',
-              _o: 57,
+              _o: 58,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4722,7 +4782,7 @@ const _mkErr = function () {
               message:
                 'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 58,
+              _o: 59,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4742,7 +4802,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/integrity',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/integrity/type',
-              _o: 60,
+              _o: 61,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4763,7 +4823,7 @@ const _mkErr = function () {
               message:
                 'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 61,
+              _o: 62,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4804,7 +4864,7 @@ const _mkErr = function () {
                 _brr12,
                 _pp12,
                 '#/properties/tools/properties/npm/properties/format/anyOf',
-                63,
+                64,
                 _bt12,
               )
               if (_brc12) {
@@ -4829,7 +4889,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/origin',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/origin/type',
-              _o: 71,
+              _o: 72,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4846,7 +4906,7 @@ const _mkErr = function () {
               params: { allowedValue: 'npm' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 72,
+              _o: 73,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4866,7 +4926,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/repository',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/repository/type',
-              _o: 74,
+              _o: 75,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4883,7 +4943,7 @@ const _mkErr = function () {
               params: { allowedValue: 'npm:npm' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 75,
+              _o: 76,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4903,7 +4963,7 @@ const _mkErr = function () {
               instancePath: '/tools/npm/version',
               schemaPath:
                 '#/properties/tools/properties/npm/properties/version/type',
-              _o: 77,
+              _o: 78,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4923,7 +4983,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 78,
+              _o: 79,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -4951,7 +5011,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/pnpm',
             schemaPath: '#/properties/tools/properties/pnpm/type',
-            _o: 81,
+            _o: 82,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -4971,7 +5031,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pnpm',
             schemaPath: '#/properties/tools/properties/pnpm/required',
-            _o: 82,
+            _o: 83,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -4991,7 +5051,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pnpm',
             schemaPath: '#/properties/tools/properties/pnpm/required',
-            _o: 82,
+            _o: 83,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5011,7 +5071,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pnpm',
             schemaPath: '#/properties/tools/properties/pnpm/required',
-            _o: 82,
+            _o: 83,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5031,7 +5091,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pnpm',
             schemaPath: '#/properties/tools/properties/pnpm/required',
-            _o: 82,
+            _o: 83,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5060,7 +5120,7 @@ const _mkErr = function () {
                   instancePath: '/tools/pnpm',
                   schemaPath:
                     '#/properties/tools/properties/pnpm/additionalProperties',
-                  _o: 126,
+                  _o: 127,
                   params: { additionalProperty: _k14[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -5085,7 +5145,7 @@ const _mkErr = function () {
               instancePath: '/tools/pnpm/origin',
               schemaPath:
                 '#/properties/tools/properties/pnpm/properties/origin/type',
-              _o: 89,
+              _o: 90,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5102,7 +5162,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 90,
+              _o: 91,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5122,7 +5182,7 @@ const _mkErr = function () {
               instancePath: '/tools/pnpm/repository',
               schemaPath:
                 '#/properties/tools/properties/pnpm/properties/repository/type',
-              _o: 92,
+              _o: 93,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5142,7 +5202,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 93,
+              _o: 94,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5162,7 +5222,7 @@ const _mkErr = function () {
               instancePath: '/tools/pnpm/version',
               schemaPath:
                 '#/properties/tools/properties/pnpm/properties/version/type',
-              _o: 95,
+              _o: 96,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5182,7 +5242,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 96,
+              _o: 97,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5200,7 +5260,7 @@ const _mkErr = function () {
               instancePath: '/tools/pnpm/tag',
               schemaPath:
                 '#/properties/tools/properties/pnpm/properties/tag/type',
-              _o: 98,
+              _o: 99,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5220,7 +5280,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 99,
+              _o: 100,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5246,7 +5306,7 @@ const _mkErr = function () {
               instancePath: '/tools/pnpm/platforms',
               schemaPath:
                 '#/properties/tools/properties/pnpm/properties/platforms/type',
-              _o: 101,
+              _o: 102,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5268,7 +5328,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 103,
+              _o: 104,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5298,7 +5358,7 @@ const _mkErr = function () {
                     instancePath: '/tools/pnpm/platforms' + '/' + _pe(_k18),
                     schemaPath:
                       '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/type',
-                    _o: 115,
+                    _o: 116,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5319,7 +5379,7 @@ const _mkErr = function () {
                     instancePath: '/tools/pnpm/platforms' + '/' + _pe(_k18),
                     schemaPath:
                       '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/required',
-                    _o: 116,
+                    _o: 117,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5340,7 +5400,7 @@ const _mkErr = function () {
                     instancePath: '/tools/pnpm/platforms' + '/' + _pe(_k18),
                     schemaPath:
                       '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/required',
-                    _o: 116,
+                    _o: 117,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5361,7 +5421,7 @@ const _mkErr = function () {
                     instancePath: '/tools/pnpm/platforms' + '/' + _pe(_k18),
                     schemaPath:
                       '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/required',
-                    _o: 116,
+                    _o: 117,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5393,7 +5453,7 @@ const _mkErr = function () {
                             '/tools/pnpm/platforms' + '/' + _pe(_k18),
                           schemaPath:
                             '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 125,
+                          _o: 126,
                           params: { additionalProperty: _k20[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -5424,7 +5484,7 @@ const _mkErr = function () {
                         '/tools/pnpm/platforms' + '/' + _pe(_k18) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 121,
+                      _o: 122,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5447,7 +5507,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 121,
+                      _o: 122,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -5473,7 +5533,7 @@ const _mkErr = function () {
                         '/tools/pnpm/platforms' + '/' + _pe(_k18) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 122,
+                      _o: 123,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5499,7 +5559,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 122,
+                      _o: 123,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -5529,7 +5589,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 123,
+                      _o: 124,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5560,7 +5620,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 123,
+                      _o: 124,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -5608,7 +5668,7 @@ const _mkErr = function () {
                         _brr21,
                         _pp21,
                         '#/properties/tools/properties/pnpm/properties/platforms/additionalProperties/properties/format/anyOf',
-                        124,
+                        125,
                         _bt21,
                       )
                       if (_brc21) {
@@ -5648,7 +5708,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 105,
+                  _o: 106,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -5678,7 +5738,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/nub',
             schemaPath: '#/properties/tools/properties/nub/type',
-            _o: 127,
+            _o: 128,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5698,7 +5758,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/nub',
             schemaPath: '#/properties/tools/properties/nub/required',
-            _o: 127,
+            _o: 128,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5718,7 +5778,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/nub',
             schemaPath: '#/properties/tools/properties/nub/required',
-            _o: 127,
+            _o: 128,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5738,7 +5798,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/nub',
             schemaPath: '#/properties/tools/properties/nub/required',
-            _o: 127,
+            _o: 128,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5758,7 +5818,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/nub',
             schemaPath: '#/properties/tools/properties/nub/required',
-            _o: 127,
+            _o: 128,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -5787,7 +5847,7 @@ const _mkErr = function () {
                   instancePath: '/tools/nub',
                   schemaPath:
                     '#/properties/tools/properties/nub/additionalProperties',
-                  _o: 127,
+                  _o: 128,
                   params: { additionalProperty: _k25[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -5812,7 +5872,7 @@ const _mkErr = function () {
               instancePath: '/tools/nub/origin',
               schemaPath:
                 '#/properties/tools/properties/nub/properties/origin/type',
-              _o: 127,
+              _o: 128,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5829,7 +5889,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 127,
+              _o: 128,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5849,7 +5909,7 @@ const _mkErr = function () {
               instancePath: '/tools/nub/repository',
               schemaPath:
                 '#/properties/tools/properties/nub/properties/repository/type',
-              _o: 127,
+              _o: 128,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5869,7 +5929,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 127,
+              _o: 128,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5889,7 +5949,7 @@ const _mkErr = function () {
               instancePath: '/tools/nub/version',
               schemaPath:
                 '#/properties/tools/properties/nub/properties/version/type',
-              _o: 127,
+              _o: 128,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5909,7 +5969,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 127,
+              _o: 128,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5927,7 +5987,7 @@ const _mkErr = function () {
               instancePath: '/tools/nub/tag',
               schemaPath:
                 '#/properties/tools/properties/nub/properties/tag/type',
-              _o: 127,
+              _o: 128,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5947,7 +6007,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 127,
+              _o: 128,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -5973,7 +6033,7 @@ const _mkErr = function () {
               instancePath: '/tools/nub/platforms',
               schemaPath:
                 '#/properties/tools/properties/nub/properties/platforms/type',
-              _o: 127,
+              _o: 128,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -5995,7 +6055,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 127,
+              _o: 128,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6025,7 +6085,7 @@ const _mkErr = function () {
                     instancePath: '/tools/nub/platforms' + '/' + _pe(_k27),
                     schemaPath:
                       '#/properties/tools/properties/nub/properties/platforms/additionalProperties/type',
-                    _o: 127,
+                    _o: 128,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6046,7 +6106,7 @@ const _mkErr = function () {
                     instancePath: '/tools/nub/platforms' + '/' + _pe(_k27),
                     schemaPath:
                       '#/properties/tools/properties/nub/properties/platforms/additionalProperties/required',
-                    _o: 127,
+                    _o: 128,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6067,7 +6127,7 @@ const _mkErr = function () {
                     instancePath: '/tools/nub/platforms' + '/' + _pe(_k27),
                     schemaPath:
                       '#/properties/tools/properties/nub/properties/platforms/additionalProperties/required',
-                    _o: 127,
+                    _o: 128,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6088,7 +6148,7 @@ const _mkErr = function () {
                     instancePath: '/tools/nub/platforms' + '/' + _pe(_k27),
                     schemaPath:
                       '#/properties/tools/properties/nub/properties/platforms/additionalProperties/required',
-                    _o: 127,
+                    _o: 128,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6120,7 +6180,7 @@ const _mkErr = function () {
                             '/tools/nub/platforms' + '/' + _pe(_k27),
                           schemaPath:
                             '#/properties/tools/properties/nub/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 127,
+                          _o: 128,
                           params: { additionalProperty: _k29[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -6151,7 +6211,7 @@ const _mkErr = function () {
                         '/tools/nub/platforms' + '/' + _pe(_k27) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 127,
+                      _o: 128,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6174,7 +6234,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 127,
+                      _o: 128,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -6200,7 +6260,7 @@ const _mkErr = function () {
                         '/tools/nub/platforms' + '/' + _pe(_k27) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 127,
+                      _o: 128,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6226,7 +6286,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 127,
+                      _o: 128,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -6253,7 +6313,7 @@ const _mkErr = function () {
                         '/tools/nub/platforms' + '/' + _pe(_k27) + '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 127,
+                      _o: 128,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6280,7 +6340,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 127,
+                      _o: 128,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -6326,7 +6386,7 @@ const _mkErr = function () {
                         _brr30,
                         _pp30,
                         '#/properties/tools/properties/nub/properties/platforms/additionalProperties/properties/format/anyOf',
-                        127,
+                        128,
                         _bt30,
                       )
                       if (_brc30) {
@@ -6366,7 +6426,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 127,
+                  _o: 128,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -6396,7 +6456,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/mise',
             schemaPath: '#/properties/tools/properties/mise/type',
-            _o: 128,
+            _o: 129,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6416,7 +6476,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mise',
             schemaPath: '#/properties/tools/properties/mise/required',
-            _o: 128,
+            _o: 129,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6436,7 +6496,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mise',
             schemaPath: '#/properties/tools/properties/mise/required',
-            _o: 128,
+            _o: 129,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6456,7 +6516,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mise',
             schemaPath: '#/properties/tools/properties/mise/required',
-            _o: 128,
+            _o: 129,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6476,7 +6536,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mise',
             schemaPath: '#/properties/tools/properties/mise/required',
-            _o: 128,
+            _o: 129,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6505,7 +6565,7 @@ const _mkErr = function () {
                   instancePath: '/tools/mise',
                   schemaPath:
                     '#/properties/tools/properties/mise/additionalProperties',
-                  _o: 128,
+                  _o: 129,
                   params: { additionalProperty: _k34[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -6530,7 +6590,7 @@ const _mkErr = function () {
               instancePath: '/tools/mise/origin',
               schemaPath:
                 '#/properties/tools/properties/mise/properties/origin/type',
-              _o: 128,
+              _o: 129,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6547,7 +6607,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 128,
+              _o: 129,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6567,7 +6627,7 @@ const _mkErr = function () {
               instancePath: '/tools/mise/repository',
               schemaPath:
                 '#/properties/tools/properties/mise/properties/repository/type',
-              _o: 128,
+              _o: 129,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6587,7 +6647,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 128,
+              _o: 129,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6607,7 +6667,7 @@ const _mkErr = function () {
               instancePath: '/tools/mise/version',
               schemaPath:
                 '#/properties/tools/properties/mise/properties/version/type',
-              _o: 128,
+              _o: 129,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6627,7 +6687,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 128,
+              _o: 129,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6645,7 +6705,7 @@ const _mkErr = function () {
               instancePath: '/tools/mise/tag',
               schemaPath:
                 '#/properties/tools/properties/mise/properties/tag/type',
-              _o: 128,
+              _o: 129,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6665,7 +6725,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 128,
+              _o: 129,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6691,7 +6751,7 @@ const _mkErr = function () {
               instancePath: '/tools/mise/platforms',
               schemaPath:
                 '#/properties/tools/properties/mise/properties/platforms/type',
-              _o: 128,
+              _o: 129,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6713,7 +6773,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 128,
+              _o: 129,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -6743,7 +6803,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mise/platforms' + '/' + _pe(_k36),
                     schemaPath:
                       '#/properties/tools/properties/mise/properties/platforms/additionalProperties/type',
-                    _o: 128,
+                    _o: 129,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6764,7 +6824,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mise/platforms' + '/' + _pe(_k36),
                     schemaPath:
                       '#/properties/tools/properties/mise/properties/platforms/additionalProperties/required',
-                    _o: 128,
+                    _o: 129,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6785,7 +6845,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mise/platforms' + '/' + _pe(_k36),
                     schemaPath:
                       '#/properties/tools/properties/mise/properties/platforms/additionalProperties/required',
-                    _o: 128,
+                    _o: 129,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6806,7 +6866,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mise/platforms' + '/' + _pe(_k36),
                     schemaPath:
                       '#/properties/tools/properties/mise/properties/platforms/additionalProperties/required',
-                    _o: 128,
+                    _o: 129,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -6838,7 +6898,7 @@ const _mkErr = function () {
                             '/tools/mise/platforms' + '/' + _pe(_k36),
                           schemaPath:
                             '#/properties/tools/properties/mise/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 128,
+                          _o: 129,
                           params: { additionalProperty: _k38[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -6869,7 +6929,7 @@ const _mkErr = function () {
                         '/tools/mise/platforms' + '/' + _pe(_k36) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 128,
+                      _o: 129,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6892,7 +6952,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 128,
+                      _o: 129,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -6918,7 +6978,7 @@ const _mkErr = function () {
                         '/tools/mise/platforms' + '/' + _pe(_k36) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 128,
+                      _o: 129,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -6944,7 +7004,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 128,
+                      _o: 129,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -6974,7 +7034,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 128,
+                      _o: 129,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7005,7 +7065,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 128,
+                      _o: 129,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -7053,7 +7113,7 @@ const _mkErr = function () {
                         _brr39,
                         _pp39,
                         '#/properties/tools/properties/mise/properties/platforms/additionalProperties/properties/format/anyOf',
-                        128,
+                        129,
                         _bt39,
                       )
                       if (_brc39) {
@@ -7093,7 +7153,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 128,
+                  _o: 129,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -7123,7 +7183,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/sfw',
             schemaPath: '#/properties/tools/properties/sfw/type',
-            _o: 129,
+            _o: 130,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7143,7 +7203,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/sfw',
             schemaPath: '#/properties/tools/properties/sfw/required',
-            _o: 129,
+            _o: 130,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7163,7 +7223,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/sfw',
             schemaPath: '#/properties/tools/properties/sfw/required',
-            _o: 129,
+            _o: 130,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7183,7 +7243,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/sfw',
             schemaPath: '#/properties/tools/properties/sfw/required',
-            _o: 129,
+            _o: 130,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7203,7 +7263,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/sfw',
             schemaPath: '#/properties/tools/properties/sfw/required',
-            _o: 129,
+            _o: 130,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7232,7 +7292,7 @@ const _mkErr = function () {
                   instancePath: '/tools/sfw',
                   schemaPath:
                     '#/properties/tools/properties/sfw/additionalProperties',
-                  _o: 129,
+                  _o: 130,
                   params: { additionalProperty: _k43[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -7257,7 +7317,7 @@ const _mkErr = function () {
               instancePath: '/tools/sfw/origin',
               schemaPath:
                 '#/properties/tools/properties/sfw/properties/origin/type',
-              _o: 129,
+              _o: 130,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7274,7 +7334,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 129,
+              _o: 130,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -7294,7 +7354,7 @@ const _mkErr = function () {
               instancePath: '/tools/sfw/repository',
               schemaPath:
                 '#/properties/tools/properties/sfw/properties/repository/type',
-              _o: 129,
+              _o: 130,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7314,7 +7374,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 129,
+              _o: 130,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -7334,7 +7394,7 @@ const _mkErr = function () {
               instancePath: '/tools/sfw/version',
               schemaPath:
                 '#/properties/tools/properties/sfw/properties/version/type',
-              _o: 129,
+              _o: 130,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7354,7 +7414,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 129,
+              _o: 130,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -7372,7 +7432,7 @@ const _mkErr = function () {
               instancePath: '/tools/sfw/tag',
               schemaPath:
                 '#/properties/tools/properties/sfw/properties/tag/type',
-              _o: 129,
+              _o: 130,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7392,7 +7452,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 129,
+              _o: 130,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -7418,7 +7478,7 @@ const _mkErr = function () {
               instancePath: '/tools/sfw/platforms',
               schemaPath:
                 '#/properties/tools/properties/sfw/properties/platforms/type',
-              _o: 129,
+              _o: 130,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7440,7 +7500,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 129,
+              _o: 130,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -7470,7 +7530,7 @@ const _mkErr = function () {
                     instancePath: '/tools/sfw/platforms' + '/' + _pe(_k45),
                     schemaPath:
                       '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/type',
-                    _o: 129,
+                    _o: 130,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7491,7 +7551,7 @@ const _mkErr = function () {
                     instancePath: '/tools/sfw/platforms' + '/' + _pe(_k45),
                     schemaPath:
                       '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/required',
-                    _o: 129,
+                    _o: 130,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7512,7 +7572,7 @@ const _mkErr = function () {
                     instancePath: '/tools/sfw/platforms' + '/' + _pe(_k45),
                     schemaPath:
                       '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/required',
-                    _o: 129,
+                    _o: 130,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7533,7 +7593,7 @@ const _mkErr = function () {
                     instancePath: '/tools/sfw/platforms' + '/' + _pe(_k45),
                     schemaPath:
                       '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/required',
-                    _o: 129,
+                    _o: 130,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7565,7 +7625,7 @@ const _mkErr = function () {
                             '/tools/sfw/platforms' + '/' + _pe(_k45),
                           schemaPath:
                             '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 129,
+                          _o: 130,
                           params: { additionalProperty: _k47[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -7596,7 +7656,7 @@ const _mkErr = function () {
                         '/tools/sfw/platforms' + '/' + _pe(_k45) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 129,
+                      _o: 130,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7619,7 +7679,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 129,
+                      _o: 130,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -7645,7 +7705,7 @@ const _mkErr = function () {
                         '/tools/sfw/platforms' + '/' + _pe(_k45) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 129,
+                      _o: 130,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7671,7 +7731,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 129,
+                      _o: 130,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -7698,7 +7758,7 @@ const _mkErr = function () {
                         '/tools/sfw/platforms' + '/' + _pe(_k45) + '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 129,
+                      _o: 130,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7725,7 +7785,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 129,
+                      _o: 130,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -7771,7 +7831,7 @@ const _mkErr = function () {
                         _brr48,
                         _pp48,
                         '#/properties/tools/properties/sfw/properties/platforms/additionalProperties/properties/format/anyOf',
-                        129,
+                        130,
                         _bt48,
                       )
                       if (_brc48) {
@@ -7811,7 +7871,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 129,
+                  _o: 130,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -7841,7 +7901,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/uv',
             schemaPath: '#/properties/tools/properties/uv/type',
-            _o: 130,
+            _o: 131,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7861,7 +7921,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/uv',
             schemaPath: '#/properties/tools/properties/uv/required',
-            _o: 130,
+            _o: 131,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7881,7 +7941,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/uv',
             schemaPath: '#/properties/tools/properties/uv/required',
-            _o: 130,
+            _o: 131,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7901,7 +7961,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/uv',
             schemaPath: '#/properties/tools/properties/uv/required',
-            _o: 130,
+            _o: 131,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7921,7 +7981,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/uv',
             schemaPath: '#/properties/tools/properties/uv/required',
-            _o: 130,
+            _o: 131,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -7950,7 +8010,7 @@ const _mkErr = function () {
                   instancePath: '/tools/uv',
                   schemaPath:
                     '#/properties/tools/properties/uv/additionalProperties',
-                  _o: 130,
+                  _o: 131,
                   params: { additionalProperty: _k52[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -7975,7 +8035,7 @@ const _mkErr = function () {
               instancePath: '/tools/uv/origin',
               schemaPath:
                 '#/properties/tools/properties/uv/properties/origin/type',
-              _o: 130,
+              _o: 131,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -7992,7 +8052,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 130,
+              _o: 131,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8012,7 +8072,7 @@ const _mkErr = function () {
               instancePath: '/tools/uv/repository',
               schemaPath:
                 '#/properties/tools/properties/uv/properties/repository/type',
-              _o: 130,
+              _o: 131,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8032,7 +8092,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 130,
+              _o: 131,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8052,7 +8112,7 @@ const _mkErr = function () {
               instancePath: '/tools/uv/version',
               schemaPath:
                 '#/properties/tools/properties/uv/properties/version/type',
-              _o: 130,
+              _o: 131,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8072,7 +8132,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 130,
+              _o: 131,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8090,7 +8150,7 @@ const _mkErr = function () {
               instancePath: '/tools/uv/tag',
               schemaPath:
                 '#/properties/tools/properties/uv/properties/tag/type',
-              _o: 130,
+              _o: 131,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8110,7 +8170,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 130,
+              _o: 131,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8136,7 +8196,7 @@ const _mkErr = function () {
               instancePath: '/tools/uv/platforms',
               schemaPath:
                 '#/properties/tools/properties/uv/properties/platforms/type',
-              _o: 130,
+              _o: 131,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8158,7 +8218,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 130,
+              _o: 131,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8188,7 +8248,7 @@ const _mkErr = function () {
                     instancePath: '/tools/uv/platforms' + '/' + _pe(_k54),
                     schemaPath:
                       '#/properties/tools/properties/uv/properties/platforms/additionalProperties/type',
-                    _o: 130,
+                    _o: 131,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8209,7 +8269,7 @@ const _mkErr = function () {
                     instancePath: '/tools/uv/platforms' + '/' + _pe(_k54),
                     schemaPath:
                       '#/properties/tools/properties/uv/properties/platforms/additionalProperties/required',
-                    _o: 130,
+                    _o: 131,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8230,7 +8290,7 @@ const _mkErr = function () {
                     instancePath: '/tools/uv/platforms' + '/' + _pe(_k54),
                     schemaPath:
                       '#/properties/tools/properties/uv/properties/platforms/additionalProperties/required',
-                    _o: 130,
+                    _o: 131,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8251,7 +8311,7 @@ const _mkErr = function () {
                     instancePath: '/tools/uv/platforms' + '/' + _pe(_k54),
                     schemaPath:
                       '#/properties/tools/properties/uv/properties/platforms/additionalProperties/required',
-                    _o: 130,
+                    _o: 131,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8282,7 +8342,7 @@ const _mkErr = function () {
                           instancePath: '/tools/uv/platforms' + '/' + _pe(_k54),
                           schemaPath:
                             '#/properties/tools/properties/uv/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 130,
+                          _o: 131,
                           params: { additionalProperty: _k56[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -8313,7 +8373,7 @@ const _mkErr = function () {
                         '/tools/uv/platforms' + '/' + _pe(_k54) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 130,
+                      _o: 131,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8336,7 +8396,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 130,
+                      _o: 131,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -8362,7 +8422,7 @@ const _mkErr = function () {
                         '/tools/uv/platforms' + '/' + _pe(_k54) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 130,
+                      _o: 131,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8388,7 +8448,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 130,
+                      _o: 131,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -8415,7 +8475,7 @@ const _mkErr = function () {
                         '/tools/uv/platforms' + '/' + _pe(_k54) + '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 130,
+                      _o: 131,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8442,7 +8502,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 130,
+                      _o: 131,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -8488,7 +8548,7 @@ const _mkErr = function () {
                         _brr57,
                         _pp57,
                         '#/properties/tools/properties/uv/properties/platforms/additionalProperties/properties/format/anyOf',
-                        130,
+                        131,
                         _bt57,
                       )
                       if (_brc57) {
@@ -8528,7 +8588,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 130,
+                  _o: 131,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -8559,7 +8619,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/zizmor',
             schemaPath: '#/properties/tools/properties/zizmor/type',
-            _o: 131,
+            _o: 132,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8579,7 +8639,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/zizmor',
             schemaPath: '#/properties/tools/properties/zizmor/required',
-            _o: 131,
+            _o: 132,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8599,7 +8659,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/zizmor',
             schemaPath: '#/properties/tools/properties/zizmor/required',
-            _o: 131,
+            _o: 132,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8619,7 +8679,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/zizmor',
             schemaPath: '#/properties/tools/properties/zizmor/required',
-            _o: 131,
+            _o: 132,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8639,7 +8699,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/zizmor',
             schemaPath: '#/properties/tools/properties/zizmor/required',
-            _o: 131,
+            _o: 132,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8668,7 +8728,7 @@ const _mkErr = function () {
                   instancePath: '/tools/zizmor',
                   schemaPath:
                     '#/properties/tools/properties/zizmor/additionalProperties',
-                  _o: 131,
+                  _o: 132,
                   params: { additionalProperty: _k61[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -8693,7 +8753,7 @@ const _mkErr = function () {
               instancePath: '/tools/zizmor/origin',
               schemaPath:
                 '#/properties/tools/properties/zizmor/properties/origin/type',
-              _o: 131,
+              _o: 132,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8710,7 +8770,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 131,
+              _o: 132,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8730,7 +8790,7 @@ const _mkErr = function () {
               instancePath: '/tools/zizmor/repository',
               schemaPath:
                 '#/properties/tools/properties/zizmor/properties/repository/type',
-              _o: 131,
+              _o: 132,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8750,7 +8810,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 131,
+              _o: 132,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8770,7 +8830,7 @@ const _mkErr = function () {
               instancePath: '/tools/zizmor/version',
               schemaPath:
                 '#/properties/tools/properties/zizmor/properties/version/type',
-              _o: 131,
+              _o: 132,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8790,7 +8850,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 131,
+              _o: 132,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8810,7 +8870,7 @@ const _mkErr = function () {
               instancePath: '/tools/zizmor/tag',
               schemaPath:
                 '#/properties/tools/properties/zizmor/properties/tag/type',
-              _o: 131,
+              _o: 132,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8830,7 +8890,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 131,
+              _o: 132,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8856,7 +8916,7 @@ const _mkErr = function () {
               instancePath: '/tools/zizmor/platforms',
               schemaPath:
                 '#/properties/tools/properties/zizmor/properties/platforms/type',
-              _o: 131,
+              _o: 132,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8878,7 +8938,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 131,
+              _o: 132,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -8909,7 +8969,7 @@ const _mkErr = function () {
                     instancePath: '/tools/zizmor/platforms' + '/' + _pe(_k63),
                     schemaPath:
                       '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/type',
-                    _o: 131,
+                    _o: 132,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -8930,7 +8990,7 @@ const _mkErr = function () {
                     instancePath: '/tools/zizmor/platforms' + '/' + _pe(_k63),
                     schemaPath:
                       '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/required',
-                    _o: 131,
+                    _o: 132,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8951,7 +9011,7 @@ const _mkErr = function () {
                     instancePath: '/tools/zizmor/platforms' + '/' + _pe(_k63),
                     schemaPath:
                       '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/required',
-                    _o: 131,
+                    _o: 132,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -8972,7 +9032,7 @@ const _mkErr = function () {
                     instancePath: '/tools/zizmor/platforms' + '/' + _pe(_k63),
                     schemaPath:
                       '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/required',
-                    _o: 131,
+                    _o: 132,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9004,7 +9064,7 @@ const _mkErr = function () {
                             '/tools/zizmor/platforms' + '/' + _pe(_k63),
                           schemaPath:
                             '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 131,
+                          _o: 132,
                           params: { additionalProperty: _k65[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -9036,7 +9096,7 @@ const _mkErr = function () {
                         '/tools/zizmor/platforms' + '/' + _pe(_k63) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 131,
+                      _o: 132,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9059,7 +9119,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 131,
+                      _o: 132,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9086,7 +9146,7 @@ const _mkErr = function () {
                         '/tools/zizmor/platforms' + '/' + _pe(_k63) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 131,
+                      _o: 132,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9114,7 +9174,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 131,
+                      _o: 132,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9144,7 +9204,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 131,
+                      _o: 132,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9175,7 +9235,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 131,
+                      _o: 132,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9223,7 +9283,7 @@ const _mkErr = function () {
                         _brr66,
                         _pp66,
                         '#/properties/tools/properties/zizmor/properties/platforms/additionalProperties/properties/format/anyOf',
-                        131,
+                        132,
                         _bt66,
                       )
                       if (_brc66) {
@@ -9263,7 +9323,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 131,
+                  _o: 132,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -9295,7 +9355,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/actionlint',
             schemaPath: '#/properties/tools/properties/actionlint/type',
-            _o: 132,
+            _o: 133,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9315,7 +9375,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/actionlint',
             schemaPath: '#/properties/tools/properties/actionlint/required',
-            _o: 132,
+            _o: 133,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9335,7 +9395,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/actionlint',
             schemaPath: '#/properties/tools/properties/actionlint/required',
-            _o: 132,
+            _o: 133,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9355,7 +9415,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/actionlint',
             schemaPath: '#/properties/tools/properties/actionlint/required',
-            _o: 132,
+            _o: 133,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9375,7 +9435,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/actionlint',
             schemaPath: '#/properties/tools/properties/actionlint/required',
-            _o: 132,
+            _o: 133,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9404,7 +9464,7 @@ const _mkErr = function () {
                   instancePath: '/tools/actionlint',
                   schemaPath:
                     '#/properties/tools/properties/actionlint/additionalProperties',
-                  _o: 132,
+                  _o: 133,
                   params: { additionalProperty: _k70[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -9429,7 +9489,7 @@ const _mkErr = function () {
               instancePath: '/tools/actionlint/origin',
               schemaPath:
                 '#/properties/tools/properties/actionlint/properties/origin/type',
-              _o: 132,
+              _o: 133,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9446,7 +9506,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 132,
+              _o: 133,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -9466,7 +9526,7 @@ const _mkErr = function () {
               instancePath: '/tools/actionlint/repository',
               schemaPath:
                 '#/properties/tools/properties/actionlint/properties/repository/type',
-              _o: 132,
+              _o: 133,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9486,7 +9546,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 132,
+              _o: 133,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -9506,7 +9566,7 @@ const _mkErr = function () {
               instancePath: '/tools/actionlint/version',
               schemaPath:
                 '#/properties/tools/properties/actionlint/properties/version/type',
-              _o: 132,
+              _o: 133,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9526,7 +9586,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 132,
+              _o: 133,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -9546,7 +9606,7 @@ const _mkErr = function () {
               instancePath: '/tools/actionlint/tag',
               schemaPath:
                 '#/properties/tools/properties/actionlint/properties/tag/type',
-              _o: 132,
+              _o: 133,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9566,7 +9626,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 132,
+              _o: 133,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -9592,7 +9652,7 @@ const _mkErr = function () {
               instancePath: '/tools/actionlint/platforms',
               schemaPath:
                 '#/properties/tools/properties/actionlint/properties/platforms/type',
-              _o: 132,
+              _o: 133,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9614,7 +9674,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 132,
+              _o: 133,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -9647,7 +9707,7 @@ const _mkErr = function () {
                       '/tools/actionlint/platforms' + '/' + _pe(_k72),
                     schemaPath:
                       '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/type',
-                    _o: 132,
+                    _o: 133,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9670,7 +9730,7 @@ const _mkErr = function () {
                       '/tools/actionlint/platforms' + '/' + _pe(_k72),
                     schemaPath:
                       '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/required',
-                    _o: 132,
+                    _o: 133,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9693,7 +9753,7 @@ const _mkErr = function () {
                       '/tools/actionlint/platforms' + '/' + _pe(_k72),
                     schemaPath:
                       '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/required',
-                    _o: 132,
+                    _o: 133,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9719,7 +9779,7 @@ const _mkErr = function () {
                       '/tools/actionlint/platforms' + '/' + _pe(_k72),
                     schemaPath:
                       '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/required',
-                    _o: 132,
+                    _o: 133,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -9754,7 +9814,7 @@ const _mkErr = function () {
                             '/tools/actionlint/platforms' + '/' + _pe(_k72),
                           schemaPath:
                             '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 132,
+                          _o: 133,
                           params: { additionalProperty: _k74[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -9790,7 +9850,7 @@ const _mkErr = function () {
                         '/asset',
                       schemaPath:
                         '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 132,
+                      _o: 133,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9819,7 +9879,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 132,
+                      _o: 133,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9850,7 +9910,7 @@ const _mkErr = function () {
                         '/binary',
                       schemaPath:
                         '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 132,
+                      _o: 133,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9882,7 +9942,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 132,
+                      _o: 133,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9916,7 +9976,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 132,
+                      _o: 133,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -9947,7 +10007,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 132,
+                      _o: 133,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -9999,7 +10059,7 @@ const _mkErr = function () {
                         _brr75,
                         _pp75,
                         '#/properties/tools/properties/actionlint/properties/platforms/additionalProperties/properties/format/anyOf',
-                        132,
+                        133,
                         _bt75,
                       )
                       if (_brc75) {
@@ -10039,7 +10099,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 132,
+                  _o: 133,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -10070,7 +10130,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/cdxgen',
             schemaPath: '#/properties/tools/properties/cdxgen/type',
-            _o: 133,
+            _o: 134,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10090,7 +10150,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/cdxgen',
             schemaPath: '#/properties/tools/properties/cdxgen/required',
-            _o: 133,
+            _o: 134,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10110,7 +10170,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/cdxgen',
             schemaPath: '#/properties/tools/properties/cdxgen/required',
-            _o: 133,
+            _o: 134,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10130,7 +10190,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/cdxgen',
             schemaPath: '#/properties/tools/properties/cdxgen/required',
-            _o: 133,
+            _o: 134,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10150,7 +10210,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/cdxgen',
             schemaPath: '#/properties/tools/properties/cdxgen/required',
-            _o: 133,
+            _o: 134,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10179,7 +10239,7 @@ const _mkErr = function () {
                   instancePath: '/tools/cdxgen',
                   schemaPath:
                     '#/properties/tools/properties/cdxgen/additionalProperties',
-                  _o: 133,
+                  _o: 134,
                   params: { additionalProperty: _k79[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -10204,7 +10264,7 @@ const _mkErr = function () {
               instancePath: '/tools/cdxgen/origin',
               schemaPath:
                 '#/properties/tools/properties/cdxgen/properties/origin/type',
-              _o: 133,
+              _o: 134,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10221,7 +10281,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 133,
+              _o: 134,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10241,7 +10301,7 @@ const _mkErr = function () {
               instancePath: '/tools/cdxgen/repository',
               schemaPath:
                 '#/properties/tools/properties/cdxgen/properties/repository/type',
-              _o: 133,
+              _o: 134,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10261,7 +10321,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 133,
+              _o: 134,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10281,7 +10341,7 @@ const _mkErr = function () {
               instancePath: '/tools/cdxgen/version',
               schemaPath:
                 '#/properties/tools/properties/cdxgen/properties/version/type',
-              _o: 133,
+              _o: 134,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10301,7 +10361,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 133,
+              _o: 134,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10321,7 +10381,7 @@ const _mkErr = function () {
               instancePath: '/tools/cdxgen/tag',
               schemaPath:
                 '#/properties/tools/properties/cdxgen/properties/tag/type',
-              _o: 133,
+              _o: 134,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10341,7 +10401,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 133,
+              _o: 134,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10367,7 +10427,7 @@ const _mkErr = function () {
               instancePath: '/tools/cdxgen/platforms',
               schemaPath:
                 '#/properties/tools/properties/cdxgen/properties/platforms/type',
-              _o: 133,
+              _o: 134,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10389,7 +10449,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 133,
+              _o: 134,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10420,7 +10480,7 @@ const _mkErr = function () {
                     instancePath: '/tools/cdxgen/platforms' + '/' + _pe(_k81),
                     schemaPath:
                       '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/type',
-                    _o: 133,
+                    _o: 134,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10441,7 +10501,7 @@ const _mkErr = function () {
                     instancePath: '/tools/cdxgen/platforms' + '/' + _pe(_k81),
                     schemaPath:
                       '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/required',
-                    _o: 133,
+                    _o: 134,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10462,7 +10522,7 @@ const _mkErr = function () {
                     instancePath: '/tools/cdxgen/platforms' + '/' + _pe(_k81),
                     schemaPath:
                       '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/required',
-                    _o: 133,
+                    _o: 134,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10483,7 +10543,7 @@ const _mkErr = function () {
                     instancePath: '/tools/cdxgen/platforms' + '/' + _pe(_k81),
                     schemaPath:
                       '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/required',
-                    _o: 133,
+                    _o: 134,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10515,7 +10575,7 @@ const _mkErr = function () {
                             '/tools/cdxgen/platforms' + '/' + _pe(_k81),
                           schemaPath:
                             '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 133,
+                          _o: 134,
                           params: { additionalProperty: _k83[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -10547,7 +10607,7 @@ const _mkErr = function () {
                         '/tools/cdxgen/platforms' + '/' + _pe(_k81) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 133,
+                      _o: 134,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10570,7 +10630,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 133,
+                      _o: 134,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -10597,7 +10657,7 @@ const _mkErr = function () {
                         '/tools/cdxgen/platforms' + '/' + _pe(_k81) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 133,
+                      _o: 134,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10625,7 +10685,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 133,
+                      _o: 134,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -10655,7 +10715,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 133,
+                      _o: 134,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10686,7 +10746,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 133,
+                      _o: 134,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -10734,7 +10794,7 @@ const _mkErr = function () {
                         _brr84,
                         _pp84,
                         '#/properties/tools/properties/cdxgen/properties/platforms/additionalProperties/properties/format/anyOf',
-                        133,
+                        134,
                         _bt84,
                       )
                       if (_brc84) {
@@ -10774,7 +10834,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 133,
+                  _o: 134,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -10806,7 +10866,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/opengrep',
             schemaPath: '#/properties/tools/properties/opengrep/type',
-            _o: 134,
+            _o: 135,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10826,7 +10886,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/opengrep',
             schemaPath: '#/properties/tools/properties/opengrep/required',
-            _o: 134,
+            _o: 135,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10846,7 +10906,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/opengrep',
             schemaPath: '#/properties/tools/properties/opengrep/required',
-            _o: 134,
+            _o: 135,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10866,7 +10926,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/opengrep',
             schemaPath: '#/properties/tools/properties/opengrep/required',
-            _o: 134,
+            _o: 135,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10886,7 +10946,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/opengrep',
             schemaPath: '#/properties/tools/properties/opengrep/required',
-            _o: 134,
+            _o: 135,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -10915,7 +10975,7 @@ const _mkErr = function () {
                   instancePath: '/tools/opengrep',
                   schemaPath:
                     '#/properties/tools/properties/opengrep/additionalProperties',
-                  _o: 134,
+                  _o: 135,
                   params: { additionalProperty: _k88[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -10940,7 +11000,7 @@ const _mkErr = function () {
               instancePath: '/tools/opengrep/origin',
               schemaPath:
                 '#/properties/tools/properties/opengrep/properties/origin/type',
-              _o: 134,
+              _o: 135,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10957,7 +11017,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 134,
+              _o: 135,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -10977,7 +11037,7 @@ const _mkErr = function () {
               instancePath: '/tools/opengrep/repository',
               schemaPath:
                 '#/properties/tools/properties/opengrep/properties/repository/type',
-              _o: 134,
+              _o: 135,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -10997,7 +11057,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 134,
+              _o: 135,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11017,7 +11077,7 @@ const _mkErr = function () {
               instancePath: '/tools/opengrep/version',
               schemaPath:
                 '#/properties/tools/properties/opengrep/properties/version/type',
-              _o: 134,
+              _o: 135,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11037,7 +11097,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 134,
+              _o: 135,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11057,7 +11117,7 @@ const _mkErr = function () {
               instancePath: '/tools/opengrep/tag',
               schemaPath:
                 '#/properties/tools/properties/opengrep/properties/tag/type',
-              _o: 134,
+              _o: 135,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11077,7 +11137,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 134,
+              _o: 135,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11103,7 +11163,7 @@ const _mkErr = function () {
               instancePath: '/tools/opengrep/platforms',
               schemaPath:
                 '#/properties/tools/properties/opengrep/properties/platforms/type',
-              _o: 134,
+              _o: 135,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11125,7 +11185,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 134,
+              _o: 135,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11157,7 +11217,7 @@ const _mkErr = function () {
                     instancePath: '/tools/opengrep/platforms' + '/' + _pe(_k90),
                     schemaPath:
                       '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/type',
-                    _o: 134,
+                    _o: 135,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11179,7 +11239,7 @@ const _mkErr = function () {
                     instancePath: '/tools/opengrep/platforms' + '/' + _pe(_k90),
                     schemaPath:
                       '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/required',
-                    _o: 134,
+                    _o: 135,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11201,7 +11261,7 @@ const _mkErr = function () {
                     instancePath: '/tools/opengrep/platforms' + '/' + _pe(_k90),
                     schemaPath:
                       '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/required',
-                    _o: 134,
+                    _o: 135,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11226,7 +11286,7 @@ const _mkErr = function () {
                     instancePath: '/tools/opengrep/platforms' + '/' + _pe(_k90),
                     schemaPath:
                       '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/required',
-                    _o: 134,
+                    _o: 135,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11261,7 +11321,7 @@ const _mkErr = function () {
                             '/tools/opengrep/platforms' + '/' + _pe(_k90),
                           schemaPath:
                             '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 134,
+                          _o: 135,
                           params: { additionalProperty: _k92[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -11297,7 +11357,7 @@ const _mkErr = function () {
                         '/asset',
                       schemaPath:
                         '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 134,
+                      _o: 135,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11326,7 +11386,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 134,
+                      _o: 135,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -11357,7 +11417,7 @@ const _mkErr = function () {
                         '/binary',
                       schemaPath:
                         '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 134,
+                      _o: 135,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11389,7 +11449,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 134,
+                      _o: 135,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -11423,7 +11483,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 134,
+                      _o: 135,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11454,7 +11514,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 134,
+                      _o: 135,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -11503,7 +11563,7 @@ const _mkErr = function () {
                         _brr93,
                         _pp93,
                         '#/properties/tools/properties/opengrep/properties/platforms/additionalProperties/properties/format/anyOf',
-                        134,
+                        135,
                         _bt93,
                       )
                       if (_brc93) {
@@ -11543,7 +11603,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 134,
+                  _o: 135,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -11574,7 +11634,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/trivy',
             schemaPath: '#/properties/tools/properties/trivy/type',
-            _o: 135,
+            _o: 136,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11594,7 +11654,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trivy',
             schemaPath: '#/properties/tools/properties/trivy/required',
-            _o: 135,
+            _o: 136,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11614,7 +11674,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trivy',
             schemaPath: '#/properties/tools/properties/trivy/required',
-            _o: 135,
+            _o: 136,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11634,7 +11694,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trivy',
             schemaPath: '#/properties/tools/properties/trivy/required',
-            _o: 135,
+            _o: 136,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11654,7 +11714,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trivy',
             schemaPath: '#/properties/tools/properties/trivy/required',
-            _o: 135,
+            _o: 136,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11683,7 +11743,7 @@ const _mkErr = function () {
                   instancePath: '/tools/trivy',
                   schemaPath:
                     '#/properties/tools/properties/trivy/additionalProperties',
-                  _o: 135,
+                  _o: 136,
                   params: { additionalProperty: _k97[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -11708,7 +11768,7 @@ const _mkErr = function () {
               instancePath: '/tools/trivy/origin',
               schemaPath:
                 '#/properties/tools/properties/trivy/properties/origin/type',
-              _o: 135,
+              _o: 136,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11725,7 +11785,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 135,
+              _o: 136,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11745,7 +11805,7 @@ const _mkErr = function () {
               instancePath: '/tools/trivy/repository',
               schemaPath:
                 '#/properties/tools/properties/trivy/properties/repository/type',
-              _o: 135,
+              _o: 136,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11765,7 +11825,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 135,
+              _o: 136,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11785,7 +11845,7 @@ const _mkErr = function () {
               instancePath: '/tools/trivy/version',
               schemaPath:
                 '#/properties/tools/properties/trivy/properties/version/type',
-              _o: 135,
+              _o: 136,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11805,7 +11865,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 135,
+              _o: 136,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11825,7 +11885,7 @@ const _mkErr = function () {
               instancePath: '/tools/trivy/tag',
               schemaPath:
                 '#/properties/tools/properties/trivy/properties/tag/type',
-              _o: 135,
+              _o: 136,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11845,7 +11905,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 135,
+              _o: 136,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11871,7 +11931,7 @@ const _mkErr = function () {
               instancePath: '/tools/trivy/platforms',
               schemaPath:
                 '#/properties/tools/properties/trivy/properties/platforms/type',
-              _o: 135,
+              _o: 136,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11893,7 +11953,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 135,
+              _o: 136,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -11924,7 +11984,7 @@ const _mkErr = function () {
                     instancePath: '/tools/trivy/platforms' + '/' + _pe(_k99),
                     schemaPath:
                       '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/type',
-                    _o: 135,
+                    _o: 136,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -11945,7 +12005,7 @@ const _mkErr = function () {
                     instancePath: '/tools/trivy/platforms' + '/' + _pe(_k99),
                     schemaPath:
                       '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/required',
-                    _o: 135,
+                    _o: 136,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11966,7 +12026,7 @@ const _mkErr = function () {
                     instancePath: '/tools/trivy/platforms' + '/' + _pe(_k99),
                     schemaPath:
                       '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/required',
-                    _o: 135,
+                    _o: 136,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -11987,7 +12047,7 @@ const _mkErr = function () {
                     instancePath: '/tools/trivy/platforms' + '/' + _pe(_k99),
                     schemaPath:
                       '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/required',
-                    _o: 135,
+                    _o: 136,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12019,7 +12079,7 @@ const _mkErr = function () {
                             '/tools/trivy/platforms' + '/' + _pe(_k99),
                           schemaPath:
                             '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 135,
+                          _o: 136,
                           params: { additionalProperty: _k101[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -12050,7 +12110,7 @@ const _mkErr = function () {
                         '/tools/trivy/platforms' + '/' + _pe(_k99) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 135,
+                      _o: 136,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12073,7 +12133,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 135,
+                      _o: 136,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -12100,7 +12160,7 @@ const _mkErr = function () {
                         '/tools/trivy/platforms' + '/' + _pe(_k99) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 135,
+                      _o: 136,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12128,7 +12188,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 135,
+                      _o: 136,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -12158,7 +12218,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 135,
+                      _o: 136,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12189,7 +12249,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 135,
+                      _o: 136,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -12237,7 +12297,7 @@ const _mkErr = function () {
                         _brr102,
                         _pp102,
                         '#/properties/tools/properties/trivy/properties/platforms/additionalProperties/properties/format/anyOf',
-                        135,
+                        136,
                         _bt102,
                       )
                       if (_brc102) {
@@ -12277,7 +12337,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 135,
+                  _o: 136,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -12309,7 +12369,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/trufflehog',
             schemaPath: '#/properties/tools/properties/trufflehog/type',
-            _o: 136,
+            _o: 137,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12329,7 +12389,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trufflehog',
             schemaPath: '#/properties/tools/properties/trufflehog/required',
-            _o: 136,
+            _o: 137,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12349,7 +12409,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trufflehog',
             schemaPath: '#/properties/tools/properties/trufflehog/required',
-            _o: 136,
+            _o: 137,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12369,7 +12429,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trufflehog',
             schemaPath: '#/properties/tools/properties/trufflehog/required',
-            _o: 136,
+            _o: 137,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12389,7 +12449,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/trufflehog',
             schemaPath: '#/properties/tools/properties/trufflehog/required',
-            _o: 136,
+            _o: 137,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12418,7 +12478,7 @@ const _mkErr = function () {
                   instancePath: '/tools/trufflehog',
                   schemaPath:
                     '#/properties/tools/properties/trufflehog/additionalProperties',
-                  _o: 136,
+                  _o: 137,
                   params: { additionalProperty: _k106[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -12443,7 +12503,7 @@ const _mkErr = function () {
               instancePath: '/tools/trufflehog/origin',
               schemaPath:
                 '#/properties/tools/properties/trufflehog/properties/origin/type',
-              _o: 136,
+              _o: 137,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12460,7 +12520,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 136,
+              _o: 137,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -12480,7 +12540,7 @@ const _mkErr = function () {
               instancePath: '/tools/trufflehog/repository',
               schemaPath:
                 '#/properties/tools/properties/trufflehog/properties/repository/type',
-              _o: 136,
+              _o: 137,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12500,7 +12560,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 136,
+              _o: 137,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -12520,7 +12580,7 @@ const _mkErr = function () {
               instancePath: '/tools/trufflehog/version',
               schemaPath:
                 '#/properties/tools/properties/trufflehog/properties/version/type',
-              _o: 136,
+              _o: 137,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12540,7 +12600,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 136,
+              _o: 137,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -12560,7 +12620,7 @@ const _mkErr = function () {
               instancePath: '/tools/trufflehog/tag',
               schemaPath:
                 '#/properties/tools/properties/trufflehog/properties/tag/type',
-              _o: 136,
+              _o: 137,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12580,7 +12640,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 136,
+              _o: 137,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -12606,7 +12666,7 @@ const _mkErr = function () {
               instancePath: '/tools/trufflehog/platforms',
               schemaPath:
                 '#/properties/tools/properties/trufflehog/properties/platforms/type',
-              _o: 136,
+              _o: 137,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12628,7 +12688,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 136,
+              _o: 137,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -12661,7 +12721,7 @@ const _mkErr = function () {
                       '/tools/trufflehog/platforms' + '/' + _pe(_k108),
                     schemaPath:
                       '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/type',
-                    _o: 136,
+                    _o: 137,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12686,7 +12746,7 @@ const _mkErr = function () {
                       '/tools/trufflehog/platforms' + '/' + _pe(_k108),
                     schemaPath:
                       '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/required',
-                    _o: 136,
+                    _o: 137,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12714,7 +12774,7 @@ const _mkErr = function () {
                       '/tools/trufflehog/platforms' + '/' + _pe(_k108),
                     schemaPath:
                       '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/required',
-                    _o: 136,
+                    _o: 137,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12743,7 +12803,7 @@ const _mkErr = function () {
                       '/tools/trufflehog/platforms' + '/' + _pe(_k108),
                     schemaPath:
                       '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/required',
-                    _o: 136,
+                    _o: 137,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -12778,7 +12838,7 @@ const _mkErr = function () {
                             '/tools/trufflehog/platforms' + '/' + _pe(_k108),
                           schemaPath:
                             '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 136,
+                          _o: 137,
                           params: { additionalProperty: _k110[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -12816,7 +12876,7 @@ const _mkErr = function () {
                         '/asset',
                       schemaPath:
                         '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 136,
+                      _o: 137,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12845,7 +12905,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 136,
+                      _o: 137,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -12881,7 +12941,7 @@ const _mkErr = function () {
                         '/binary',
                       schemaPath:
                         '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 136,
+                      _o: 137,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12913,7 +12973,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 136,
+                      _o: 137,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -12950,7 +13010,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 136,
+                      _o: 137,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -12981,7 +13041,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 136,
+                      _o: 137,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -13044,7 +13104,7 @@ const _mkErr = function () {
                         _brr111,
                         _pp111,
                         '#/properties/tools/properties/trufflehog/properties/platforms/additionalProperties/properties/format/anyOf',
-                        136,
+                        137,
                         _bt111,
                       )
                       if (_brc111) {
@@ -13084,7 +13144,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 136,
+                  _o: 137,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -13114,7 +13174,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/mold',
             schemaPath: '#/properties/tools/properties/mold/type',
-            _o: 137,
+            _o: 138,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13134,7 +13194,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mold',
             schemaPath: '#/properties/tools/properties/mold/required',
-            _o: 137,
+            _o: 138,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13154,7 +13214,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mold',
             schemaPath: '#/properties/tools/properties/mold/required',
-            _o: 137,
+            _o: 138,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13174,7 +13234,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mold',
             schemaPath: '#/properties/tools/properties/mold/required',
-            _o: 137,
+            _o: 138,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13194,7 +13254,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/mold',
             schemaPath: '#/properties/tools/properties/mold/required',
-            _o: 137,
+            _o: 138,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13223,7 +13283,7 @@ const _mkErr = function () {
                   instancePath: '/tools/mold',
                   schemaPath:
                     '#/properties/tools/properties/mold/additionalProperties',
-                  _o: 137,
+                  _o: 138,
                   params: { additionalProperty: _k115[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -13248,7 +13308,7 @@ const _mkErr = function () {
               instancePath: '/tools/mold/origin',
               schemaPath:
                 '#/properties/tools/properties/mold/properties/origin/type',
-              _o: 137,
+              _o: 138,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13265,7 +13325,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 137,
+              _o: 138,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -13285,7 +13345,7 @@ const _mkErr = function () {
               instancePath: '/tools/mold/repository',
               schemaPath:
                 '#/properties/tools/properties/mold/properties/repository/type',
-              _o: 137,
+              _o: 138,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13305,7 +13365,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 137,
+              _o: 138,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -13325,7 +13385,7 @@ const _mkErr = function () {
               instancePath: '/tools/mold/version',
               schemaPath:
                 '#/properties/tools/properties/mold/properties/version/type',
-              _o: 137,
+              _o: 138,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13345,7 +13405,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 137,
+              _o: 138,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -13363,7 +13423,7 @@ const _mkErr = function () {
               instancePath: '/tools/mold/tag',
               schemaPath:
                 '#/properties/tools/properties/mold/properties/tag/type',
-              _o: 137,
+              _o: 138,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13383,7 +13443,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 137,
+              _o: 138,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -13409,7 +13469,7 @@ const _mkErr = function () {
               instancePath: '/tools/mold/platforms',
               schemaPath:
                 '#/properties/tools/properties/mold/properties/platforms/type',
-              _o: 137,
+              _o: 138,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13431,7 +13491,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 137,
+              _o: 138,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -13462,7 +13522,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mold/platforms' + '/' + _pe(_k117),
                     schemaPath:
                       '#/properties/tools/properties/mold/properties/platforms/additionalProperties/type',
-                    _o: 137,
+                    _o: 138,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13483,7 +13543,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mold/platforms' + '/' + _pe(_k117),
                     schemaPath:
                       '#/properties/tools/properties/mold/properties/platforms/additionalProperties/required',
-                    _o: 137,
+                    _o: 138,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13504,7 +13564,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mold/platforms' + '/' + _pe(_k117),
                     schemaPath:
                       '#/properties/tools/properties/mold/properties/platforms/additionalProperties/required',
-                    _o: 137,
+                    _o: 138,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13525,7 +13585,7 @@ const _mkErr = function () {
                     instancePath: '/tools/mold/platforms' + '/' + _pe(_k117),
                     schemaPath:
                       '#/properties/tools/properties/mold/properties/platforms/additionalProperties/required',
-                    _o: 137,
+                    _o: 138,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13557,7 +13617,7 @@ const _mkErr = function () {
                             '/tools/mold/platforms' + '/' + _pe(_k117),
                           schemaPath:
                             '#/properties/tools/properties/mold/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 137,
+                          _o: 138,
                           params: { additionalProperty: _k119[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -13588,7 +13648,7 @@ const _mkErr = function () {
                         '/tools/mold/platforms' + '/' + _pe(_k117) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 137,
+                      _o: 138,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13611,7 +13671,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 137,
+                      _o: 138,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -13638,7 +13698,7 @@ const _mkErr = function () {
                         '/tools/mold/platforms' + '/' + _pe(_k117) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 137,
+                      _o: 138,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13666,7 +13726,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 137,
+                      _o: 138,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -13696,7 +13756,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 137,
+                      _o: 138,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13727,7 +13787,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 137,
+                      _o: 138,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -13775,7 +13835,7 @@ const _mkErr = function () {
                         _brr120,
                         _pp120,
                         '#/properties/tools/properties/mold/properties/platforms/additionalProperties/properties/format/anyOf',
-                        137,
+                        138,
                         _bt120,
                       )
                       if (_brc120) {
@@ -13815,7 +13875,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 137,
+                  _o: 138,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -13845,7 +13905,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/tak',
             schemaPath: '#/properties/tools/properties/tak/type',
-            _o: 138,
+            _o: 139,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13865,7 +13925,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/tak',
             schemaPath: '#/properties/tools/properties/tak/required',
-            _o: 138,
+            _o: 139,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13885,7 +13945,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/tak',
             schemaPath: '#/properties/tools/properties/tak/required',
-            _o: 138,
+            _o: 139,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13905,7 +13965,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/tak',
             schemaPath: '#/properties/tools/properties/tak/required',
-            _o: 138,
+            _o: 139,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13925,7 +13985,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/tak',
             schemaPath: '#/properties/tools/properties/tak/required',
-            _o: 138,
+            _o: 139,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -13954,7 +14014,7 @@ const _mkErr = function () {
                   instancePath: '/tools/tak',
                   schemaPath:
                     '#/properties/tools/properties/tak/additionalProperties',
-                  _o: 138,
+                  _o: 139,
                   params: { additionalProperty: _k124[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -13979,7 +14039,7 @@ const _mkErr = function () {
               instancePath: '/tools/tak/origin',
               schemaPath:
                 '#/properties/tools/properties/tak/properties/origin/type',
-              _o: 138,
+              _o: 139,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -13996,7 +14056,7 @@ const _mkErr = function () {
               params: { allowedValue: 'gh-asset' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 138,
+              _o: 139,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14016,7 +14076,7 @@ const _mkErr = function () {
               instancePath: '/tools/tak/repository',
               schemaPath:
                 '#/properties/tools/properties/tak/properties/repository/type',
-              _o: 138,
+              _o: 139,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14036,7 +14096,7 @@ const _mkErr = function () {
               params: { pattern: '^github:[\\w-]+/[\\w.-]+$' },
               message: 'must match pattern "^github:[\\w-]+/[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 138,
+              _o: 139,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14056,7 +14116,7 @@ const _mkErr = function () {
               instancePath: '/tools/tak/version',
               schemaPath:
                 '#/properties/tools/properties/tak/properties/version/type',
-              _o: 138,
+              _o: 139,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14076,7 +14136,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 138,
+              _o: 139,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14094,7 +14154,7 @@ const _mkErr = function () {
               instancePath: '/tools/tak/tag',
               schemaPath:
                 '#/properties/tools/properties/tak/properties/tag/type',
-              _o: 138,
+              _o: 139,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14114,7 +14174,7 @@ const _mkErr = function () {
               params: { pattern: '^[\\w.-]+$' },
               message: 'must match pattern "^[\\w.-]+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 138,
+              _o: 139,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14140,7 +14200,7 @@ const _mkErr = function () {
               instancePath: '/tools/tak/platforms',
               schemaPath:
                 '#/properties/tools/properties/tak/properties/platforms/type',
-              _o: 138,
+              _o: 139,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14162,7 +14222,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 138,
+              _o: 139,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14192,7 +14252,7 @@ const _mkErr = function () {
                     instancePath: '/tools/tak/platforms' + '/' + _pe(_k126),
                     schemaPath:
                       '#/properties/tools/properties/tak/properties/platforms/additionalProperties/type',
-                    _o: 138,
+                    _o: 139,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14213,7 +14273,7 @@ const _mkErr = function () {
                     instancePath: '/tools/tak/platforms' + '/' + _pe(_k126),
                     schemaPath:
                       '#/properties/tools/properties/tak/properties/platforms/additionalProperties/required',
-                    _o: 138,
+                    _o: 139,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14234,7 +14294,7 @@ const _mkErr = function () {
                     instancePath: '/tools/tak/platforms' + '/' + _pe(_k126),
                     schemaPath:
                       '#/properties/tools/properties/tak/properties/platforms/additionalProperties/required',
-                    _o: 138,
+                    _o: 139,
                     params: { missingProperty: 'binary' },
                     message: "must have required property 'binary'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14255,7 +14315,7 @@ const _mkErr = function () {
                     instancePath: '/tools/tak/platforms' + '/' + _pe(_k126),
                     schemaPath:
                       '#/properties/tools/properties/tak/properties/platforms/additionalProperties/required',
-                    _o: 138,
+                    _o: 139,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14287,7 +14347,7 @@ const _mkErr = function () {
                             '/tools/tak/platforms' + '/' + _pe(_k126),
                           schemaPath:
                             '#/properties/tools/properties/tak/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 138,
+                          _o: 139,
                           params: { additionalProperty: _k128[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -14318,7 +14378,7 @@ const _mkErr = function () {
                         '/tools/tak/platforms' + '/' + _pe(_k126) + '/asset',
                       schemaPath:
                         '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 138,
+                      _o: 139,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14341,7 +14401,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^[A-Za-z0-9_][A-Za-z0-9_.-]*$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 138,
+                      _o: 139,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -14367,7 +14427,7 @@ const _mkErr = function () {
                         '/tools/tak/platforms' + '/' + _pe(_k126) + '/binary',
                       schemaPath:
                         '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/binary/type',
-                      _o: 138,
+                      _o: 139,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14393,7 +14453,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 138,
+                      _o: 139,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -14423,7 +14483,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 138,
+                      _o: 139,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14454,7 +14514,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 138,
+                      _o: 139,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -14502,7 +14562,7 @@ const _mkErr = function () {
                         _brr129,
                         _pp129,
                         '#/properties/tools/properties/tak/properties/platforms/additionalProperties/properties/format/anyOf',
-                        138,
+                        139,
                         _bt129,
                       )
                       if (_brc129) {
@@ -14542,7 +14602,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 138,
+                  _o: 139,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -14574,7 +14634,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/type',
-            _o: 140,
+            _o: 141,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14594,7 +14654,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/required',
-            _o: 141,
+            _o: 142,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14614,7 +14674,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/required',
-            _o: 141,
+            _o: 142,
             params: { missingProperty: 'package' },
             message: "must have required property 'package'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14634,7 +14694,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/required',
-            _o: 141,
+            _o: 142,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14654,7 +14714,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/required',
-            _o: 141,
+            _o: 142,
             params: { missingProperty: 'integrity' },
             message: "must have required property 'integrity'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14674,7 +14734,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/agentshield',
             schemaPath: '#/properties/tools/properties/agentshield/required',
-            _o: 141,
+            _o: 142,
             params: { missingProperty: 'binary' },
             message: "must have required property 'binary'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14703,7 +14763,7 @@ const _mkErr = function () {
                   instancePath: '/tools/agentshield',
                   schemaPath:
                     '#/properties/tools/properties/agentshield/additionalProperties',
-                  _o: 163,
+                  _o: 164,
                   params: { additionalProperty: _k133[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -14728,7 +14788,7 @@ const _mkErr = function () {
               instancePath: '/tools/agentshield/origin',
               schemaPath:
                 '#/properties/tools/properties/agentshield/properties/origin/type',
-              _o: 149,
+              _o: 150,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14745,7 +14805,7 @@ const _mkErr = function () {
               params: { allowedValue: 'catalog' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 150,
+              _o: 151,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14765,7 +14825,7 @@ const _mkErr = function () {
               instancePath: '/tools/agentshield/package',
               schemaPath:
                 '#/properties/tools/properties/agentshield/properties/package/type',
-              _o: 152,
+              _o: 153,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14782,7 +14842,7 @@ const _mkErr = function () {
               params: { allowedValue: 'ecc-agentshield' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 153,
+              _o: 154,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14802,7 +14862,7 @@ const _mkErr = function () {
               instancePath: '/tools/agentshield/version',
               schemaPath:
                 '#/properties/tools/properties/agentshield/properties/version/type',
-              _o: 155,
+              _o: 156,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14822,7 +14882,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 156,
+              _o: 157,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14842,7 +14902,7 @@ const _mkErr = function () {
               instancePath: '/tools/agentshield/integrity',
               schemaPath:
                 '#/properties/tools/properties/agentshield/properties/integrity/type',
-              _o: 158,
+              _o: 159,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14863,7 +14923,7 @@ const _mkErr = function () {
               message:
                 'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 159,
+              _o: 160,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14883,7 +14943,7 @@ const _mkErr = function () {
               instancePath: '/tools/agentshield/binary',
               schemaPath:
                 '#/properties/tools/properties/agentshield/properties/binary/type',
-              _o: 161,
+              _o: 162,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14900,7 +14960,7 @@ const _mkErr = function () {
               params: { allowedValue: 'agentshield' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 162,
+              _o: 163,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -14930,7 +14990,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/skill-scanner',
             schemaPath: '#/properties/tools/properties/skill-scanner/type',
-            _o: 165,
+            _o: 166,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -14950,7 +15010,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skill-scanner',
             schemaPath: '#/properties/tools/properties/skill-scanner/required',
-            _o: 166,
+            _o: 167,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14970,7 +15030,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skill-scanner',
             schemaPath: '#/properties/tools/properties/skill-scanner/required',
-            _o: 166,
+            _o: 167,
             params: { missingProperty: 'package' },
             message: "must have required property 'package'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -14990,7 +15050,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skill-scanner',
             schemaPath: '#/properties/tools/properties/skill-scanner/required',
-            _o: 166,
+            _o: 167,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15010,7 +15070,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skill-scanner',
             schemaPath: '#/properties/tools/properties/skill-scanner/required',
-            _o: 166,
+            _o: 167,
             params: { missingProperty: 'platforms' },
             message: "must have required property 'platforms'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15039,7 +15099,7 @@ const _mkErr = function () {
                   instancePath: '/tools/skill-scanner',
                   schemaPath:
                     '#/properties/tools/properties/skill-scanner/additionalProperties',
-                  _o: 200,
+                  _o: 201,
                   params: { additionalProperty: _k135[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -15064,7 +15124,7 @@ const _mkErr = function () {
               instancePath: '/tools/skill-scanner/origin',
               schemaPath:
                 '#/properties/tools/properties/skill-scanner/properties/origin/type',
-              _o: 173,
+              _o: 174,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15081,7 +15141,7 @@ const _mkErr = function () {
               params: { allowedValue: 'python' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 174,
+              _o: 175,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15101,7 +15161,7 @@ const _mkErr = function () {
               instancePath: '/tools/skill-scanner/package',
               schemaPath:
                 '#/properties/tools/properties/skill-scanner/properties/package/type',
-              _o: 176,
+              _o: 177,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15120,7 +15180,7 @@ const _mkErr = function () {
               params: { allowedValue: 'cisco-ai-skill-scanner' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 177,
+              _o: 178,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15140,7 +15200,7 @@ const _mkErr = function () {
               instancePath: '/tools/skill-scanner/version',
               schemaPath:
                 '#/properties/tools/properties/skill-scanner/properties/version/type',
-              _o: 179,
+              _o: 180,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15160,7 +15220,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 180,
+              _o: 181,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15186,7 +15246,7 @@ const _mkErr = function () {
               instancePath: '/tools/skill-scanner/platforms',
               schemaPath:
                 '#/properties/tools/properties/skill-scanner/properties/platforms/type',
-              _o: 182,
+              _o: 183,
               params: { type: 'object' },
               message: 'must be object',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15208,7 +15268,7 @@ const _mkErr = function () {
               params: { limit: 1 },
               message: 'must NOT have fewer than 1 properties',
               docUrl: 'https://ata-validator.com/e/ATA2010',
-              _o: 184,
+              _o: 185,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15244,7 +15304,7 @@ const _mkErr = function () {
                       '/tools/skill-scanner/platforms' + '/' + _pe(_k137),
                     schemaPath:
                       '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/type',
-                    _o: 188,
+                    _o: 189,
                     params: { type: 'object' },
                     message: 'must be object',
                     docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15272,7 +15332,7 @@ const _mkErr = function () {
                       '/tools/skill-scanner/platforms' + '/' + _pe(_k137),
                     schemaPath:
                       '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/required',
-                    _o: 189,
+                    _o: 190,
                     params: { missingProperty: 'asset' },
                     message: "must have required property 'asset'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15301,7 +15361,7 @@ const _mkErr = function () {
                       '/tools/skill-scanner/platforms' + '/' + _pe(_k137),
                     schemaPath:
                       '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/required',
-                    _o: 189,
+                    _o: 190,
                     params: { missingProperty: 'integrity' },
                     message: "must have required property 'integrity'",
                     docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15338,7 +15398,7 @@ const _mkErr = function () {
                             '/tools/skill-scanner/platforms' + '/' + _pe(_k137),
                           schemaPath:
                             '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/additionalProperties',
-                          _o: 199,
+                          _o: 200,
                           params: { additionalProperty: _k139[_i] },
                           message: 'must NOT have additional properties',
                           docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -15379,7 +15439,7 @@ const _mkErr = function () {
                         '/asset',
                       schemaPath:
                         '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/properties/asset/type',
-                      _o: 194,
+                      _o: 195,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15411,7 +15471,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^https://files\\.pythonhosted\\.org/packages/[A-Za-z0-9_./-]+\\.whl$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 195,
+                      _o: 196,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -15448,7 +15508,7 @@ const _mkErr = function () {
                         '/integrity',
                       schemaPath:
                         '#/properties/tools/properties/skill-scanner/properties/platforms/additionalProperties/properties/integrity/type',
-                      _o: 197,
+                      _o: 198,
                       params: { type: 'string' },
                       message: 'must be string',
                       docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15481,7 +15541,7 @@ const _mkErr = function () {
                       message:
                         'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
                       docUrl: 'https://ata-validator.com/e/ATA2013',
-                      _o: 198,
+                      _o: 199,
                     })
                     if (!_all) return { valid: false, errors: _e }
                   }
@@ -15516,7 +15576,7 @@ const _mkErr = function () {
                   },
                   message: 'must be equal to one of the allowed values',
                   docUrl: 'https://ata-validator.com/e/ATA6001',
-                  _o: 186,
+                  _o: 187,
                 })
                 if (!_all) return { valid: false, errors: _e }
               }
@@ -15548,7 +15608,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/skillspector',
             schemaPath: '#/properties/tools/properties/skillspector/type',
-            _o: 202,
+            _o: 203,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15568,7 +15628,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skillspector',
             schemaPath: '#/properties/tools/properties/skillspector/required',
-            _o: 203,
+            _o: 204,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15588,7 +15648,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skillspector',
             schemaPath: '#/properties/tools/properties/skillspector/required',
-            _o: 203,
+            _o: 204,
             params: { missingProperty: 'repository' },
             message: "must have required property 'repository'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15608,7 +15668,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skillspector',
             schemaPath: '#/properties/tools/properties/skillspector/required',
-            _o: 203,
+            _o: 204,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15628,7 +15688,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/skillspector',
             schemaPath: '#/properties/tools/properties/skillspector/required',
-            _o: 203,
+            _o: 204,
             params: { missingProperty: 'project' },
             message: "must have required property 'project'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15657,7 +15717,7 @@ const _mkErr = function () {
                   instancePath: '/tools/skillspector',
                   schemaPath:
                     '#/properties/tools/properties/skillspector/additionalProperties',
-                  _o: 221,
+                  _o: 222,
                   params: { additionalProperty: _k144[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
@@ -15682,7 +15742,7 @@ const _mkErr = function () {
               instancePath: '/tools/skillspector/origin',
               schemaPath:
                 '#/properties/tools/properties/skillspector/properties/origin/type',
-              _o: 210,
+              _o: 211,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15699,7 +15759,7 @@ const _mkErr = function () {
               params: { allowedValue: 'git' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 211,
+              _o: 212,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15719,7 +15779,7 @@ const _mkErr = function () {
               instancePath: '/tools/skillspector/repository',
               schemaPath:
                 '#/properties/tools/properties/skillspector/properties/repository/type',
-              _o: 213,
+              _o: 214,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15739,7 +15799,7 @@ const _mkErr = function () {
               params: { allowedValue: 'github:NVIDIA/skillspector' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 214,
+              _o: 215,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15759,7 +15819,7 @@ const _mkErr = function () {
               instancePath: '/tools/skillspector/version',
               schemaPath:
                 '#/properties/tools/properties/skillspector/properties/version/type',
-              _o: 216,
+              _o: 217,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15799,7 +15859,7 @@ const _mkErr = function () {
               params: { pattern: '^[a-f0-9]{40}$' },
               message: 'must match pattern "^[a-f0-9]{40}$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 217,
+              _o: 218,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15819,7 +15879,7 @@ const _mkErr = function () {
               instancePath: '/tools/skillspector/project',
               schemaPath:
                 '#/properties/tools/properties/skillspector/properties/project/type',
-              _o: 219,
+              _o: 220,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15839,7 +15899,363 @@ const _mkErr = function () {
               params: { allowedValue: '.config/security/skillspector' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 220,
+              _o: 221,
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+      }
+      if (
+        typeof d['tools'] === 'object' &&
+        d['tools'] !== null &&
+        !Array.isArray(d['tools']) &&
+        (_pk2 ? 'fframes' in d['tools'] : _h(d['tools'], 'fframes'))
+      ) {
+        const _pk145 =
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          (_PN
+            ? d['tools']['fframes'].__proto__
+            : _gp(d['tools']['fframes'])) === _OP
+        if (
+          !(
+            typeof d['tools']['fframes'] === 'object' &&
+            d['tools']['fframes'] !== null &&
+            !Array.isArray(d['tools']['fframes'])
+          )
+        ) {
+          _e.push({
+            code: 'ATA1001',
+            keyword: 'type',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/type',
+            _o: 224,
+            params: { type: 'object' },
+            message: 'must be object',
+            docUrl: 'https://ata-validator.com/e/ATA1001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          !(_pk145
+            ? 'origin' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'origin'))
+        ) {
+          _e.push({
+            code: 'ATA7001',
+            keyword: 'required',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/required',
+            _o: 225,
+            params: { missingProperty: 'origin' },
+            message: "must have required property 'origin'",
+            docUrl: 'https://ata-validator.com/e/ATA7001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          !(_pk145
+            ? 'package' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'package'))
+        ) {
+          _e.push({
+            code: 'ATA7001',
+            keyword: 'required',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/required',
+            _o: 225,
+            params: { missingProperty: 'package' },
+            message: "must have required property 'package'",
+            docUrl: 'https://ata-validator.com/e/ATA7001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          !(_pk145
+            ? 'version' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'version'))
+        ) {
+          _e.push({
+            code: 'ATA7001',
+            keyword: 'required',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/required',
+            _o: 225,
+            params: { missingProperty: 'version' },
+            message: "must have required property 'version'",
+            docUrl: 'https://ata-validator.com/e/ATA7001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          !(_pk145
+            ? 'integrity' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'integrity'))
+        ) {
+          _e.push({
+            code: 'ATA7001',
+            keyword: 'required',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/required',
+            _o: 225,
+            params: { missingProperty: 'integrity' },
+            message: "must have required property 'integrity'",
+            docUrl: 'https://ata-validator.com/e/ATA7001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          !(_pk145
+            ? 'project' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'project'))
+        ) {
+          _e.push({
+            code: 'ATA7001',
+            keyword: 'required',
+            instancePath: '/tools/fframes',
+            schemaPath: '#/properties/tools/properties/fframes/required',
+            _o: 225,
+            params: { missingProperty: 'project' },
+            message: "must have required property 'project'",
+            docUrl: 'https://ata-validator.com/e/ATA7001',
+          })
+          if (!_all) return { valid: false, errors: _e }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes'])
+        ) {
+          let _x146 = 0
+          for (const _f146 in d['tools']['fframes']) {
+            if (!_a146.has(_f146)) {
+              _x146 = 1
+              break
+            }
+          }
+          if (_x146) {
+            const _k146 = Object.keys(d['tools']['fframes'])
+            for (let _i = 0; _i < _k146.length; _i++) {
+              if (!_a146.has(_k146[_i])) {
+                _e.push({
+                  code: 'ATA7002',
+                  keyword: 'additionalProperties',
+                  instancePath: '/tools/fframes',
+                  schemaPath:
+                    '#/properties/tools/properties/fframes/additionalProperties',
+                  _o: 247,
+                  params: { additionalProperty: _k146[_i] },
+                  message: 'must NOT have additional properties',
+                  docUrl: 'https://ata-validator.com/e/ATA7002',
+                })
+                if (!_all) return { valid: false, errors: _e }
+              }
+            }
+          }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          (_pk145
+            ? 'origin' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'origin'))
+        ) {
+          if (!(typeof d['tools']['fframes']['origin'] === 'string')) {
+            _e.push({
+              code: 'ATA1001',
+              keyword: 'type',
+              instancePath: '/tools/fframes/origin',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/origin/type',
+              _o: 233,
+              params: { type: 'string' },
+              message: 'must be string',
+              docUrl: 'https://ata-validator.com/e/ATA1001',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+          if (d['tools']['fframes']['origin'] !== 'cargo-project') {
+            _e.push({
+              code: 'ATA6002',
+              keyword: 'const',
+              instancePath: '/tools/fframes/origin',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/origin/const',
+              params: { allowedValue: 'cargo-project' },
+              message: 'must be equal to constant',
+              docUrl: 'https://ata-validator.com/e/ATA6002',
+              _o: 234,
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          (_pk145
+            ? 'package' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'package'))
+        ) {
+          if (!(typeof d['tools']['fframes']['package'] === 'string')) {
+            _e.push({
+              code: 'ATA1001',
+              keyword: 'type',
+              instancePath: '/tools/fframes/package',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/package/type',
+              _o: 236,
+              params: { type: 'string' },
+              message: 'must be string',
+              docUrl: 'https://ata-validator.com/e/ATA1001',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+          if (d['tools']['fframes']['package'] !== 'fframes') {
+            _e.push({
+              code: 'ATA6002',
+              keyword: 'const',
+              instancePath: '/tools/fframes/package',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/package/const',
+              params: { allowedValue: 'fframes' },
+              message: 'must be equal to constant',
+              docUrl: 'https://ata-validator.com/e/ATA6002',
+              _o: 237,
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          (_pk145
+            ? 'version' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'version'))
+        ) {
+          if (!(typeof d['tools']['fframes']['version'] === 'string')) {
+            _e.push({
+              code: 'ATA1001',
+              keyword: 'type',
+              instancePath: '/tools/fframes/version',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/version/type',
+              _o: 239,
+              params: { type: 'string' },
+              message: 'must be string',
+              docUrl: 'https://ata-validator.com/e/ATA1001',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+          if (
+            typeof d['tools']['fframes']['version'] === 'string' &&
+            !_re6.test(d['tools']['fframes']['version'])
+          ) {
+            _e.push({
+              code: 'ATA2013',
+              keyword: 'pattern',
+              instancePath: '/tools/fframes/version',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/version/pattern',
+              params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
+              message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
+              docUrl: 'https://ata-validator.com/e/ATA2013',
+              _o: 240,
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          (_pk145
+            ? 'integrity' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'integrity'))
+        ) {
+          if (!(typeof d['tools']['fframes']['integrity'] === 'string')) {
+            _e.push({
+              code: 'ATA1001',
+              keyword: 'type',
+              instancePath: '/tools/fframes/integrity',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/integrity/type',
+              _o: 242,
+              params: { type: 'string' },
+              message: 'must be string',
+              docUrl: 'https://ata-validator.com/e/ATA1001',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+          if (
+            typeof d['tools']['fframes']['integrity'] === 'string' &&
+            !_re11.test(d['tools']['fframes']['integrity'])
+          ) {
+            _e.push({
+              code: 'ATA2013',
+              keyword: 'pattern',
+              instancePath: '/tools/fframes/integrity',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/integrity/pattern',
+              params: { pattern: '^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$' },
+              message:
+                'must match pattern "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"',
+              docUrl: 'https://ata-validator.com/e/ATA2013',
+              _o: 243,
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+        }
+        if (
+          typeof d['tools']['fframes'] === 'object' &&
+          d['tools']['fframes'] !== null &&
+          !Array.isArray(d['tools']['fframes']) &&
+          (_pk145
+            ? 'project' in d['tools']['fframes']
+            : _h(d['tools']['fframes'], 'project'))
+        ) {
+          if (!(typeof d['tools']['fframes']['project'] === 'string')) {
+            _e.push({
+              code: 'ATA1001',
+              keyword: 'type',
+              instancePath: '/tools/fframes/project',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/project/type',
+              _o: 245,
+              params: { type: 'string' },
+              message: 'must be string',
+              docUrl: 'https://ata-validator.com/e/ATA1001',
+            })
+            if (!_all) return { valid: false, errors: _e }
+          }
+          if (d['tools']['fframes']['project'] !== '.config/perf-video') {
+            _e.push({
+              code: 'ATA6002',
+              keyword: 'const',
+              instancePath: '/tools/fframes/project',
+              schemaPath:
+                '#/properties/tools/properties/fframes/properties/project/const',
+              params: { allowedValue: '.config/perf-video' },
+              message: 'must be equal to constant',
+              docUrl: 'https://ata-validator.com/e/ATA6002',
+              _o: 246,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -15851,7 +16267,7 @@ const _mkErr = function () {
         !Array.isArray(d['tools']) &&
         (_pk2 ? 'pytorch' in d['tools'] : _h(d['tools'], 'pytorch'))
       ) {
-        const _pk145 =
+        const _pk147 =
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           (_PN
@@ -15869,7 +16285,7 @@ const _mkErr = function () {
             keyword: 'type',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/type',
-            _o: 223,
+            _o: 249,
             params: { type: 'object' },
             message: 'must be object',
             docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -15880,7 +16296,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          !(_pk145
+          !(_pk147
             ? 'origin' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'origin'))
         ) {
@@ -15889,7 +16305,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/required',
-            _o: 224,
+            _o: 250,
             params: { missingProperty: 'origin' },
             message: "must have required property 'origin'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15900,7 +16316,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          !(_pk145
+          !(_pk147
             ? 'package' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'package'))
         ) {
@@ -15909,7 +16325,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/required',
-            _o: 224,
+            _o: 250,
             params: { missingProperty: 'package' },
             message: "must have required property 'package'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15920,7 +16336,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          !(_pk145
+          !(_pk147
             ? 'version' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'version'))
         ) {
@@ -15929,7 +16345,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/required',
-            _o: 224,
+            _o: 250,
             params: { missingProperty: 'version' },
             message: "must have required property 'version'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15940,7 +16356,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          !(_pk145
+          !(_pk147
             ? 'python' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'python'))
         ) {
@@ -15949,7 +16365,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/required',
-            _o: 224,
+            _o: 250,
             params: { missingProperty: 'python' },
             message: "must have required property 'python'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15960,7 +16376,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          !(_pk145
+          !(_pk147
             ? 'project' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'project'))
         ) {
@@ -15969,7 +16385,7 @@ const _mkErr = function () {
             keyword: 'required',
             instancePath: '/tools/pytorch',
             schemaPath: '#/properties/tools/properties/pytorch/required',
-            _o: 224,
+            _o: 250,
             params: { missingProperty: 'project' },
             message: "must have required property 'project'",
             docUrl: 'https://ata-validator.com/e/ATA7001',
@@ -15981,25 +16397,25 @@ const _mkErr = function () {
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch'])
         ) {
-          let _x146 = 0
-          for (const _f146 in d['tools']['pytorch']) {
-            if (!_a146.has(_f146)) {
-              _x146 = 1
+          let _x148 = 0
+          for (const _f148 in d['tools']['pytorch']) {
+            if (!_a148.has(_f148)) {
+              _x148 = 1
               break
             }
           }
-          if (_x146) {
-            const _k146 = Object.keys(d['tools']['pytorch'])
-            for (let _i = 0; _i < _k146.length; _i++) {
-              if (!_a146.has(_k146[_i])) {
+          if (_x148) {
+            const _k148 = Object.keys(d['tools']['pytorch'])
+            for (let _i = 0; _i < _k148.length; _i++) {
+              if (!_a148.has(_k148[_i])) {
                 _e.push({
                   code: 'ATA7002',
                   keyword: 'additionalProperties',
                   instancePath: '/tools/pytorch',
                   schemaPath:
                     '#/properties/tools/properties/pytorch/additionalProperties',
-                  _o: 246,
-                  params: { additionalProperty: _k146[_i] },
+                  _o: 272,
+                  params: { additionalProperty: _k148[_i] },
                   message: 'must NOT have additional properties',
                   docUrl: 'https://ata-validator.com/e/ATA7002',
                 })
@@ -16012,7 +16428,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          (_pk145
+          (_pk147
             ? 'origin' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'origin'))
         ) {
@@ -16023,7 +16439,7 @@ const _mkErr = function () {
               instancePath: '/tools/pytorch/origin',
               schemaPath:
                 '#/properties/tools/properties/pytorch/properties/origin/type',
-              _o: 232,
+              _o: 258,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -16040,7 +16456,7 @@ const _mkErr = function () {
               params: { allowedValue: 'python-project' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 233,
+              _o: 259,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -16049,7 +16465,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          (_pk145
+          (_pk147
             ? 'package' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'package'))
         ) {
@@ -16060,7 +16476,7 @@ const _mkErr = function () {
               instancePath: '/tools/pytorch/package',
               schemaPath:
                 '#/properties/tools/properties/pytorch/properties/package/type',
-              _o: 235,
+              _o: 261,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -16077,7 +16493,7 @@ const _mkErr = function () {
               params: { allowedValue: 'torch' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 236,
+              _o: 262,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -16086,7 +16502,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          (_pk145
+          (_pk147
             ? 'version' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'version'))
         ) {
@@ -16097,7 +16513,7 @@ const _mkErr = function () {
               instancePath: '/tools/pytorch/version',
               schemaPath:
                 '#/properties/tools/properties/pytorch/properties/version/type',
-              _o: 238,
+              _o: 264,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -16117,7 +16533,7 @@ const _mkErr = function () {
               params: { pattern: '^\\d+\\.\\d+\\.\\d+$' },
               message: 'must match pattern "^\\d+\\.\\d+\\.\\d+$"',
               docUrl: 'https://ata-validator.com/e/ATA2013',
-              _o: 239,
+              _o: 265,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -16126,7 +16542,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          (_pk145
+          (_pk147
             ? 'python' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'python'))
         ) {
@@ -16137,7 +16553,7 @@ const _mkErr = function () {
               instancePath: '/tools/pytorch/python',
               schemaPath:
                 '#/properties/tools/properties/pytorch/properties/python/type',
-              _o: 241,
+              _o: 267,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -16154,7 +16570,7 @@ const _mkErr = function () {
               params: { allowedValue: '3.12' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 242,
+              _o: 268,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -16163,7 +16579,7 @@ const _mkErr = function () {
           typeof d['tools']['pytorch'] === 'object' &&
           d['tools']['pytorch'] !== null &&
           !Array.isArray(d['tools']['pytorch']) &&
-          (_pk145
+          (_pk147
             ? 'project' in d['tools']['pytorch']
             : _h(d['tools']['pytorch'], 'project'))
         ) {
@@ -16174,7 +16590,7 @@ const _mkErr = function () {
               instancePath: '/tools/pytorch/project',
               schemaPath:
                 '#/properties/tools/properties/pytorch/properties/project/type',
-              _o: 244,
+              _o: 270,
               params: { type: 'string' },
               message: 'must be string',
               docUrl: 'https://ata-validator.com/e/ATA1001',
@@ -16191,7 +16607,7 @@ const _mkErr = function () {
               params: { allowedValue: '.config/model-training' },
               message: 'must be equal to constant',
               docUrl: 'https://ata-validator.com/e/ATA6002',
-              _o: 245,
+              _o: 271,
             })
             if (!_all) return { valid: false, errors: _e }
           }
@@ -16211,7 +16627,7 @@ function isValid(data) {
 function validate(data) {
   return _fn(data) ? VALID : { valid: false, errors: errFn(data, true).errors }
 }
-const schemaHash = '1bb931600685b8b1'
+const schemaHash = 'a76e097725fbecb4'
 const ataVersion = '1.45.0'
 export { validate, isValid, schemaHash, ataVersion }
 export default { validate, isValid, schemaHash, ataVersion }

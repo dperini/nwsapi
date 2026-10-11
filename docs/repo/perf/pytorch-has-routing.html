@@ -2,6 +2,22 @@
 <html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
+    <script>
+      try {
+        const root = document.documentElement
+        const mode = localStorage.getItem('nwsapi-guide-color-mode')
+        root.dataset.colorMode =
+          mode === 'light' || mode === 'dark'
+            ? mode
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        root.toggleAttribute(
+          'data-reading-mode',
+          localStorage.getItem('nwsapi-guide-reading') === 'true',
+        )
+      } catch {}
+    </script>
     <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0c171e" />
@@ -33,57 +49,81 @@
     <link rel="stylesheet" href="./pytorch-has-routing.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/motion.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/contents.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/navigation-menu.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/guide-layout.css" />
+    <noscript
+      ><style>
+        .appearance-controls,
+        .language-select-shell {
+          display: none !important;
+        }
+      </style></noscript
+    >
     <script type="module" src="./pytorch-has-routing.mts"></script>
   </head>
   <body data-theme="what">
     <a class="skip-link" href="#training">Skip to the walkthrough</a>
     <div class="scroll-morph" aria-hidden="true"></div>
     <header class="topbar">
-      <a href="#start" class="brand"
-        ><code>nwsapi</code> <span>/ MODEL GUIDE</span></a
+      <nav
+        class="header-navigation-group"
+        aria-label="Breadcrumb"
+        data-i18n-aria="breadcrumb"
       >
-      <div class="language-picker">
-        <span class="language-select-shell">
-          <!-- guide-language-symbol -->
-          <select
-            id="language-select"
-            data-language-select
-            class="theme-select"
-          >
-            <option value="en">en</option>
-            <option value="it">it</option>
-          </select>
-        </span>
-        <span class="appearance-controls">
-          <button
-            type="button"
-            class="reading-mode-toggle"
-            data-reading-toggle
-            aria-pressed="false"
-            aria-label="Reading mode"
-            title="Reading mode"
-            data-i18n-aria="readingMode"
-            data-i18n-title="readingMode"
-          >
-            <!-- guide-reading-symbol -->
-          </button>
-          <button
-            type="button"
-            class="color-mode-toggle"
-            data-color-toggle
-            data-light-label="Switch to light mode"
-            data-dark-label="Switch to dark mode"
-            aria-label="Switch to light mode"
-            title="Switch to light mode"
-          >
-            <!-- guide-color-symbol -->
-          </button>
-        </span>
+        <a href="./index.html" class="brand"><code>nwsapi</code></a>
+        <span class="brand-separator" aria-hidden="true">/</span>
+        <span
+          class="brand-context documents-navigation-mount"
+          data-header-context
+          data-header-context-kind="model-guide"
+          aria-current="page"
+          >Model Guide</span
+        >
+      </nav>
+      <div class="header-actions">
+        <div class="language-picker">
+          <span class="language-select-shell">
+            <!-- guide-language-symbol -->
+            <select
+              id="language-select"
+              data-language-select
+              class="theme-select"
+              aria-label="Language"
+            >
+              <option value="en">en</option>
+              <option value="it">it</option>
+            </select>
+          </span>
+          <span class="appearance-controls">
+            <button
+              type="button"
+              class="reading-mode-toggle"
+              data-reading-toggle
+              aria-pressed="false"
+              aria-label="Reading mode"
+              title="Reading mode"
+              data-i18n-aria="readingMode"
+              data-i18n-title="readingMode"
+            >
+              <!-- guide-reading-symbol -->
+            </button>
+            <button
+              type="button"
+              class="color-mode-toggle"
+              data-color-toggle
+              data-light-label="Switch to light mode"
+              data-dark-label="Switch to dark mode"
+              aria-label="Switch to light mode"
+              title="Switch to light mode"
+            >
+              <!-- guide-color-symbol -->
+            </button>
+          </span>
+        </div>
       </div>
     </header>
     <div class="guide-layout">
-      <main id="start">
+      <main id="start" tabindex="-1">
         <section id="overview" class="intro" data-scroll-theme="what">
           <h1>Two ways to search.<br /><em>A model helps choose.</em></h1>
           <p class="lede">
@@ -93,8 +133,18 @@
             recommend a different direction. Both routes check the selector
             exactly and return the same elements.
           </p>
+          <p class="context">
+            This route planner is experimental. Recorded synthetic tests show
+            both speedups and slowdowns, and do not establish a general gain or
+            that the learned model beats a simpler fitted rule. See the evidence
+            summary below before interpreting the examples as a performance win.
+          </p>
           <p class="eyebrow">At a glance</p>
-          <div class="orientation route-overview" aria-label="Model overview">
+          <div
+            class="orientation route-overview"
+            role="group"
+            aria-label="Model overview"
+          >
             <a href="#training" data-topic="what">
               <strong>What</strong>
               <span
@@ -123,222 +173,6 @@
               >
             </a>
           </div>
-        </section>
-        <section
-          id="training"
-          class="chapter"
-          data-scroll-theme="what"
-          aria-labelledby="training-title"
-        >
-          <p class="eyebrow" aria-hidden="true">What</p>
-          <h2 id="training-title" aria-label="What is the model?">
-            is the model?
-          </h2>
-          <p class="section-intro">
-            The model is a small function that recommends a search route.
-            PyTorch learns its <strong>weights</strong>—numbers in the
-            function—from measured examples. Queries run the saved function in
-            JavaScript. Exact selector checks still decide which elements match.
-          </p>
-          <p class="route-key">
-            <strong>Search down (forward):</strong> card ↓ warning.
-            <strong>Search up (inverse):</strong> warning ↑ card. Both routes
-            return the same matches.
-          </p>
-          <div class="lab">
-            <div class="story-controls">
-              <label
-                >Recorded selector
-                <select id="story-selector" class="theme-select">
-                  <option value="2">.card[data-ok="1"]:has(.witness)</option>
-                  <option value="1">.card:has(.witness[data-ok="1"])</option>
-                  <option value="3">
-                    .card[data-ok="1"]:has(.witness[data-ok="1"])
-                  </option>
-                </select>
-              </label>
-              <label
-                >Recorded environment
-                <select id="story-host" class="theme-select">
-                  <option value="chromium">Browser</option>
-                  <option value="jsdom">jsdom</option>
-                </select>
-              </label>
-              <p class="small">
-                A witness satisfies the condition inside <code>:has()</code>.
-                <code>data-ok="1"</code> is this benchmark’s sample attribute
-                filter.
-              </p>
-            </div>
-            <div
-              class="pipeline"
-              id="pipeline"
-              role="group"
-              aria-label="Training pipeline"
-            ></div>
-            <div class="pipeline-detail">
-              <div>
-                <h3 id="pipeline-title"></h3>
-                <p id="pipeline-description"></p>
-                <p
-                  id="story-explanation"
-                  class="story-explanation"
-                  role="status"
-                  aria-live="polite"
-                ></p>
-              </div>
-              <div>
-                <div id="pipeline-example" class="story-readout">
-                  <code id="story-query" class="selector-code" hidden></code>
-                  <dl id="story-facts" hidden></dl>
-                  <pre id="story-code" hidden></pre>
-                  <p id="story-process" hidden></p>
-                </div>
-                <p class="context">
-                  Shown timings are archived measurements on one fixture, not a
-                  benchmark running here.
-                </p>
-                <a href="#source" id="pipeline-source" class="source-jump">
-                  Read this step’s source
-                  <svg
-                    class="source-arrow"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div class="story-navigation">
-              <button id="story-back" type="button">
-                <svg
-                  class="step-nav-chevron"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path d="m19 6-6 6 6 6m-8-12-6 6 6 6" />
-                </svg>
-                Previous
-              </button>
-              <button id="story-next" type="button">
-                Next
-                <svg
-                  class="step-nav-chevron"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path d="m5 6 6 6-6 6m8-12 6 6-6 6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <details class="story-provenance">
-            <summary>Recorded example and scope</summary>
-            <p id="story-context" class="context"></p>
-          </details>
-          <details id="training-examples">
-            <summary>Look closer at the training examples</summary>
-            <div class="recorded-example">
-              <label
-                >Environment
-                <select id="sample-host" class="theme-select">
-                  <option value="chromium">Browser</option>
-                  <option value="jsdom">jsdom</option>
-                </select></label
-              >
-              <div class="step-controls">
-                <button id="sample-previous">Previous example</button
-                ><button id="sample-next">Next example</button>
-              </div>
-              <p id="sample-name" class="mono"></p>
-              <div class="step-controls">
-                <button data-sample-stage="0" aria-pressed="true">
-                  1. See the facts</button
-                ><button data-sample-stage="1" aria-pressed="false">
-                  2. Reveal measurements</button
-                ><button data-sample-stage="2" aria-pressed="false">
-                  3. Explain learning
-                </button>
-              </div>
-              <pre id="sample-facts"></pre>
-              <div
-                id="sample-bars"
-                role="group"
-                aria-label="Recorded route timings"
-              ></div>
-              <p id="sample-context" class="context"></p>
-              <div id="sample-learning" hidden>
-                <p id="sample-label"></p>
-                <p>
-                  The model predicts a route from the query inputs. The trainer
-                  compares that prediction with the measured route costs. It
-                  calculates a loss that measures the cost of that choice.
-                  AdamW, the optimizer, adjusts the weights to reduce this loss.
-                  The examples all tune the same function.
-                </p>
-                <p>
-                  The trainer uses repeated timing samples to check uncertainty.
-                  It can ignore uncertain comparisons and penalizes large
-                  slowdowns more heavily. It also accounts for the estimated
-                  cost of calling the model.
-                </p>
-                <p>
-                  Different DOM shapes can have the same model inputs and
-                  different route costs. The model cannot see those differences.
-                  Validation selects the saved model and threshold. Separate
-                  evaluation examples and complete query timings check the
-                  result.
-                </p>
-                <a href="#source" class="source-jump" data-source="train">
-                  Read the loss and optimizer code
-                  <svg
-                    class="source-arrow"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
-                  </svg>
-                </a>
-              </div>
-              <p class="small">
-                The shorter timing bar is only part of the training signal. The
-                trainer also accounts for the existing route, model overhead,
-                uncertainty, and the cost of slowdowns.
-              </p>
-            </div>
-          </details>
-          <details>
-            <summary>How training is checked</summary>
-            <div class="definition-grid">
-              <article>
-                <h3>Training examples</h3>
-                <p>
-                  Teach the function using query facts and measured route costs.
-                </p>
-              </article>
-              <article>
-                <h3>Validation examples</h3>
-                <p>
-                  Select the saved model and threshold using separate fixture
-                  families.
-                </p>
-              </article>
-              <article>
-                <h3>Evaluation examples</h3>
-                <p>
-                  Check the selected model on reserved examples. Complete query
-                  measurements are still needed before shipping a performance
-                  change.
-                </p>
-              </article>
-            </div>
-          </details>
-          <p class="callout">
-            <strong>Training happens during development.</strong> Queries use
-            fixed weights, so your page does not train the model. Updating it
-            requires a new training run, review, export, and build.
-          </p>
         </section>
         <section
           id="search"
@@ -398,7 +232,11 @@
               <p id="film-status" role="status" aria-live="polite"></p>
               <p class="small">Drag a diagram to scrub. Use ←/→ to step.</p>
             </div>
-            <div class="film-scoreboard" aria-label="Search progress">
+            <div
+              class="film-scoreboard"
+              role="group"
+              aria-label="Search progress"
+            >
               <p>
                 <strong>Search down</strong
                 ><span id="film-forward-summary">0 steps · no matches</span>
@@ -577,7 +415,11 @@
                   Choose a result, then press Check for the explanation.
                 </p>
                 <div class="prediction-field">
-                  <select id="challenge-prediction" class="theme-select">
+                  <select
+                    id="challenge-prediction"
+                    class="theme-select"
+                    aria-describedby="challenge-feedback"
+                  >
                     <option value="">Choose the result…</option>
                     <option value="A,C">A and C</option>
                     <option value="C">Only C</option>
@@ -899,7 +741,11 @@
                 role="status"
                 aria-live="polite"
               ></p>
-              <div id="impact-formula" aria-labelledby="impact-formula-title">
+              <div
+                id="impact-formula"
+                role="group"
+                aria-labelledby="impact-formula-title"
+              >
                 <h4 id="impact-formula-title">Estimated time with model</h4>
                 <dl class="impact-cost-terms">
                   <div>
@@ -1089,6 +935,223 @@ override = score > savedThreshold</pre>
           </details>
         </section>
         <section
+          id="training"
+          class="chapter"
+          data-scroll-theme="what"
+          aria-labelledby="training-title"
+        >
+          <p class="eyebrow" aria-hidden="true">What</p>
+          <h2 id="training-title" aria-label="What is the model?">
+            is the model?
+          </h2>
+          <p class="section-intro">
+            The model is a small function that recommends a search route.
+            PyTorch learns its
+            <strong>weights</strong>—numbers in the function—from measured
+            examples. Queries run the saved function in JavaScript. Exact
+            selector checks still decide which elements match.
+          </p>
+          <p class="route-key">
+            <strong>Search down (forward):</strong> card ↓ warning.
+            <strong>Search up (inverse):</strong> warning ↑ card. Both routes
+            return the same matches.
+          </p>
+          <div class="lab">
+            <div class="story-controls">
+              <label
+                >Recorded selector
+                <select id="story-selector" class="theme-select">
+                  <option value="2">.card[data-ok="1"]:has(.witness)</option>
+                  <option value="1">.card:has(.witness[data-ok="1"])</option>
+                  <option value="3">
+                    .card[data-ok="1"]:has(.witness[data-ok="1"])
+                  </option>
+                </select>
+              </label>
+              <label
+                >Recorded environment
+                <select id="story-host" class="theme-select">
+                  <option value="chromium">Browser</option>
+                  <option value="jsdom">jsdom</option>
+                </select>
+              </label>
+              <p class="small">
+                A witness satisfies the condition inside <code>:has()</code>.
+                <code>data-ok="1"</code> is this benchmark’s sample attribute
+                filter.
+              </p>
+            </div>
+            <div
+              class="pipeline"
+              id="pipeline"
+              role="group"
+              aria-label="Training pipeline"
+            ></div>
+            <div class="pipeline-detail">
+              <div>
+                <h3 id="pipeline-title"></h3>
+                <p id="pipeline-description"></p>
+                <p
+                  id="story-explanation"
+                  class="story-explanation"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+              <div>
+                <div id="pipeline-example" class="story-readout">
+                  <code id="story-query" class="selector-code" hidden></code>
+                  <dl id="story-facts" hidden></dl>
+                  <pre id="story-code" hidden></pre>
+                  <p id="story-process" hidden></p>
+                </div>
+                <p class="context">
+                  Shown timings are archived measurements on one fixture, not a
+                  benchmark running here.
+                </p>
+                <a href="#source" id="pipeline-source" class="source-jump">
+                  Read this step’s source
+                  <svg
+                    class="source-arrow"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div class="story-navigation">
+              <button id="story-back" type="button">
+                <svg
+                  class="step-nav-chevron"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m19 6-6 6 6 6m-8-12-6 6 6 6" />
+                </svg>
+                Previous
+              </button>
+              <button id="story-next" type="button">
+                Next
+                <svg
+                  class="step-nav-chevron"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m5 6 6 6-6 6m8-12 6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <details class="story-provenance">
+            <summary>Recorded example and scope</summary>
+            <p id="story-context" class="context"></p>
+          </details>
+          <details id="training-examples">
+            <summary>Look closer at the training examples</summary>
+            <div class="recorded-example">
+              <label
+                >Environment
+                <select id="sample-host" class="theme-select">
+                  <option value="chromium">Browser</option>
+                  <option value="jsdom">jsdom</option>
+                </select></label
+              >
+              <div class="step-controls">
+                <button id="sample-previous">Previous example</button
+                ><button id="sample-next">Next example</button>
+              </div>
+              <p id="sample-name" class="mono"></p>
+              <div class="step-controls">
+                <button data-sample-stage="0" aria-pressed="true">
+                  1. See the facts</button
+                ><button data-sample-stage="1" aria-pressed="false">
+                  2. Reveal measurements</button
+                ><button data-sample-stage="2" aria-pressed="false">
+                  3. Explain learning
+                </button>
+              </div>
+              <pre id="sample-facts"></pre>
+              <div
+                id="sample-bars"
+                role="group"
+                aria-label="Recorded route timings"
+              ></div>
+              <p id="sample-context" class="context"></p>
+              <div id="sample-learning" hidden>
+                <p id="sample-label"></p>
+                <p>
+                  The model predicts a route from the query inputs. The trainer
+                  compares that prediction with the measured route costs. It
+                  calculates a loss that measures the cost of that choice.
+                  AdamW, the optimizer, adjusts the weights to reduce this loss.
+                  The examples all tune the same function.
+                </p>
+                <p>
+                  The trainer uses repeated timing samples to check uncertainty.
+                  It can ignore uncertain comparisons and penalizes large
+                  slowdowns more heavily. It also accounts for the estimated
+                  cost of calling the model.
+                </p>
+                <p>
+                  Different DOM shapes can have the same model inputs and
+                  different route costs. The model cannot see those differences.
+                  Validation selects the saved model and threshold. Separate
+                  evaluation examples and complete query timings check the
+                  result.
+                </p>
+                <a href="#source" class="source-jump" data-source="train">
+                  Read the loss and optimizer code
+                  <svg
+                    class="source-arrow"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path class="source-arrow-stem" d="M12 4v16m-5-5 5 5 5-5" />
+                  </svg>
+                </a>
+              </div>
+              <p class="small">
+                The shorter timing bar is only part of the training signal. The
+                trainer also accounts for the existing route, model overhead,
+                uncertainty, and the cost of slowdowns.
+              </p>
+            </div>
+          </details>
+          <details>
+            <summary>How training is checked</summary>
+            <div class="definition-grid">
+              <article>
+                <h3>Training examples</h3>
+                <p>
+                  Teach the function using query facts and measured route costs.
+                </p>
+              </article>
+              <article>
+                <h3>Validation examples</h3>
+                <p>
+                  Select the saved model and threshold using separate fixture
+                  families.
+                </p>
+              </article>
+              <article>
+                <h3>Evaluation examples</h3>
+                <p>
+                  Check the selected model on reserved examples. Complete query
+                  measurements are still needed before shipping a performance
+                  change.
+                </p>
+              </article>
+            </div>
+          </details>
+          <p class="callout">
+            <strong>Training happens during development.</strong> Queries use
+            fixed weights, so your page does not train the model. Updating it
+            requires a new training run, review, export, and build.
+          </p>
+        </section>
+        <section
           id="source"
           class="chapter"
           data-scroll-theme="where"
@@ -1205,11 +1268,11 @@ override = score > savedThreshold</pre>
             <summary>Use the model or rebuild its module</summary>
             <pre>
 // An `nwsapi` instance created directly for jsdom:
-engine.useNeuralPlanner('jsdom')
+engine.useRoutePlanner('jsdom')
 const matches = engine.select('.card[data-ok="1"]:has(.warning)', document)
 
 // Disable calls to the selected policy:
-engine.configure({ NEURAL_PLANNER: false })</pre>
+engine.configure({ ROUTE_PLANNER: false })</pre>
             <p>
               New <code>nwsapi</code> instances select the Chromium policy by
               default. The jsdom adapter selects its own profile. Existing query
@@ -1221,15 +1284,21 @@ pnpm run gen:has-route-decision
 pnpm run build</pre>
             <p>
               These commands do not retrain the weights. The training entry
-              point is <code>pnpm run bench:planner:dispatch:train</code>, with
-              input and output arguments. Read the trainer and setup
-              documentation before starting an expensive training run.
+              point is
+              <code>pnpm run bench:planner:dispatch:train</code>, with input and
+              output arguments. Read the trainer and setup documentation before
+              starting an expensive training run.
             </p>
           </details>
         </section>
-        <aside id="evidence" class="closing" data-scroll-theme="where">
+        <aside
+          id="evidence"
+          class="closing"
+          data-scroll-theme="where"
+          aria-labelledby="evidence-title"
+        >
           <p class="eyebrow">What the evidence currently supports</p>
-          <h2>Measure the whole query</h2>
+          <h2 id="evidence-title">Measure the whole query</h2>
           <p>
             Both routes preserve exact matches and document order. The model can
             still slow a query down, including the cost of its checks and
@@ -1269,11 +1338,11 @@ pnpm run build</pre>
             <nav aria-label="On this page" data-i18n-aria="onThisPage">
               <ol id="reading-contents">
                 <li><a href="#overview">Overview</a></li>
-                <li><a href="#training">What is the model?</a></li>
                 <li><a href="#search">Why search in two directions?</a></li>
                 <li>
                   <a href="#policy">When can the model change the route?</a>
                 </li>
+                <li><a href="#training">What is the model?</a></li>
                 <li><a href="#source">Where does the model run?</a></li>
                 <li><a href="#evidence">What the evidence supports</a></li>
               </ol>
@@ -1317,5 +1386,10 @@ pnpm run build</pre>
         >
       </p></noscript
     >
+    <footer class="guide-preferences" hidden>
+      <button type="button" data-reset-display data-i18n="resetDisplay">
+        Reset display
+      </button>
+    </footer>
   </body>
 </html>

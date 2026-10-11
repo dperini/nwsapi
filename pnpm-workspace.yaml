@@ -6,6 +6,8 @@ allowBuilds:
   ssh2: false
 blockExoticSubdeps: true
 catalog:
+  '@opentui/core': '0.5.17'
+  '@base-ui/react': '1.9.0'
   'phonemizer': '1.2.1'
   '@huggingface/transformers': '3.8.1'
   'typebox': '1.3.35'
@@ -65,13 +67,17 @@ overrides:
   '@swc/core': '1.15.41'
   rolldown: '1.2.13'
   vite: '8.2.2'
-pmOnFail: error
+pmOnFail: warn
 # Setup must provision tools before a package manager attempts installation.
 verifyDepsBeforeRun: false
 saveExact: true
 strictDepBuilds: true
 trustPolicy: no-downgrade
 minimumReleaseAgeExclude:
+  # published: 2026-10-09T08:52:43.788Z | removable: 2026-10-10T08:52:43.788Z
+  - '@base-ui/react@1.9.0'
+  # published: 2026-10-09T08:50:42.770Z | removable: 2026-10-10T08:50:42.770Z
+  - '@base-ui/utils@0.5.0'
   # published: 2026-10-07T16:38:45.718Z | removable: 2026-10-08T16:38:45.718Z
   - '@maschwenk/tsrs@0.8.0-ts7.1.0-dev.20260929'
   # published: 2026-10-07T16:33:19.525Z | removable: 2026-10-08T16:33:19.525Z

@@ -14,6 +14,12 @@
 - Keep measured outcomes, commands, and performance journals with the repository. Shared measurement and testing practices belong in the fleet tree.
 - Keep benchmark measurements and generated reports under `assets/repo/bench/`, tracked by Git. Generate derived reports from recorded inputs rather than storing result JSON under `docs/`.
 
+# Developer workflow
+
+- Discover guided tasks with `node scripts/repo/develop/run.mts --list --json`. Present the ordered choices through the harness's own interface when the user needs guidance.
+- Run a selected task with `node scripts/repo/develop/run.mts --task <id> --json`. Capture stdout as JSON and stderr as progress. Use the reported exit status and preserve existing authorization requirements.
+- Keep persistent tasks in a managed session. See [the harness contract](docs/repo/development/toolchain.md#agent-harnesses) for task IDs, results, and shutdown behavior.
+
 # Style
 
 - Keep internal authored types in `.mts` files. Use `import type` and colocate types with their implementation when practical. Under `src/`, reserve `.d.ts` declarations for JavaScript loaders in `src/external/`.

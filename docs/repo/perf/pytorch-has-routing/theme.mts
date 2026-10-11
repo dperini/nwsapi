@@ -1,5 +1,6 @@
 import { isReadingMode } from './reading-mode.mts'
 import { initializeRangePulses } from './range.mts'
+import { selectedContentsIndex } from './contents-selection.mts'
 
 let active: HTMLElement | undefined
 let pending = false
@@ -49,7 +50,7 @@ export function blendSpotlight(
 
 function measureSpotlight(sections: NodeListOf<HTMLElement>, center: number) {
   if (!sections.length) {
-    return
+    return undefined
   }
   const width = window.innerHeight * 0.6
   for (let i = 0, length = sections.length - 1; i < length; i += 1) {
@@ -122,38 +123,19 @@ function measureActiveContents() {
   if (pageEnd > 0 && scrollY >= pageEnd - Math.max(8, innerHeight * 0.02)) {
     selected = links.length - 1
   }
+  selected = selectedContentsIndex(links) ?? selected
   return () => {
     for (let i = 0, length = links.length; i < length; i += 1) {
       const link = links[i]!
       if (i === selected) {
         if (!link.hasAttribute('aria-current')) {
           link.setAttribute('aria-current', 'location')
-          randomizeContentsShimmer(link)
         }
       } else {
         link.removeAttribute('aria-current')
       }
     }
   }
-}
-
-export function randomizeContentsShimmer(link: HTMLAnchorElement) {
-  const leftToRight = Math.random() < 0.5
-  link.style.setProperty('--shimmer-start', leftToRight ? '100%' : '0%')
-  link.style.setProperty('--shimmer-end', leftToRight ? '0%' : '100%')
-}
-
-export function initializeContentsShimmer() {
-  document
-    .querySelector<HTMLElement>('.reading-sidebar')
-    ?.addEventListener('animationiteration', event => {
-      if (
-        event.animationName === 'chapter-border-shimmer' &&
-        event.target instanceof HTMLAnchorElement
-      ) {
-        randomizeContentsShimmer(event.target)
-      }
-    })
 }
 
 export function scheduleThemeUpdate() {
@@ -194,9 +176,12 @@ export function initializeSectionThemes() {
   initializeRangePulses()
   initializeSpotlightPositions()
   initializePanelHighlights()
-  initializeContentsShimmer()
   window.addEventListener('scroll', scheduleThemeUpdate, { passive: true })
   window.addEventListener('resize', scheduleThemeUpdate)
+  window.addEventListener(
+    'guide-contents-selection-change',
+    scheduleThemeUpdate,
+  )
   window.addEventListener('guide-reading-mode-change', scheduleThemeUpdate)
   updateActiveTheme()
 }

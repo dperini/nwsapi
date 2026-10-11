@@ -25,6 +25,7 @@
         "agentshield",
         "skill-scanner",
         "skillspector",
+        "fframes",
         "pytorch"
       ],
       "properties": {
@@ -871,6 +872,21 @@
               "type": "string",
               "const": ".config/security/skillspector"
             }
+          },
+          "additionalProperties": false
+        },
+        "fframes": {
+          "type": "object",
+          "required": ["origin", "package", "version", "integrity", "project"],
+          "properties": {
+            "origin": { "type": "string", "const": "cargo-project" },
+            "package": { "type": "string", "const": "fframes" },
+            "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "integrity": {
+              "type": "string",
+              "pattern": "^sha(?:256|512)-[A-Za-z0-9+/]+={0,2}$"
+            },
+            "project": { "type": "string", "const": ".config/perf-video" }
           },
           "additionalProperties": false
         },

@@ -11,9 +11,9 @@ export function checkCatalog(root = REPO_ROOT) {
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
   ) as {
-    packageManager: string
+    packageManager?: string
     devDependencies: Record<string, string>
-    devEngines: { packageManager: Array<{ version: string }> }
+    devEngines: { packageManager: Array<{ version: string; onFail: string }> }
   }
   for (const [name, spec] of Object.entries(pkg.devDependencies)) {
     if (name.startsWith('@socketsecurity/lib')) {
@@ -27,12 +27,17 @@ export function checkCatalog(root = REPO_ROOT) {
     }
   }
   if (
-    pkg.packageManager !== `pnpm@${manifest.tools.pnpm.version}` ||
-    pkg.devEngines.packageManager[0]?.version !== manifest.tools.pnpm.version
+    pkg.packageManager !== undefined ||
+    pkg.devEngines.packageManager[0]?.version !==
+      `>=${manifest.tools.pnpm.version}`
   ) {
     throw new Error(
-      'The pnpm package-manager pin differs from external-tools.json.',
+      "The pnpm minimum must match external-tools.json without overriding the developer's manager.",
     )
+  }
+  // npm must reach setup before the checkout can select its pinned pnpm.
+  if (pkg.devEngines.packageManager[0]?.onFail !== 'ignore') {
+    throw new Error('Allow npm to bootstrap the pinned pnpm through setup.')
   }
   if (
     workspace.catalog['ecc-agentshield'] !== manifest.tools.agentshield.version

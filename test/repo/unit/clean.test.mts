@@ -1,52 +1,67 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 import path from 'node:path'
-import type * as OS from 'node:os'
 import { REPO_ROOT } from '../../../scripts/repo/lib/paths.mts'
+import { main } from '../../../scripts/repo/clean.mts'
 
-const state = vi.hoisted(() => ({ remove: vi.fn(), execute: vi.fn() }))
+const state = vi.hoisted(() => ({ remove: vi.fn() }))
 vi.mock('node:fs/promises', () => ({ rm: state.remove }))
-vi.mock('node:child_process', () => ({ execFileSync: state.execute }))
-vi.mock('node:os', async importOriginal => ({
-  ...(await importOriginal<typeof OS>()),
-  homedir: () => '/fixture-home',
-}))
-vi.mock('../../../.config/build.config.mts', () => ({
-  obsoleteOutputs: ['old/report.json', 'dist/stale.js'],
-}))
 
 beforeEach(() => {
-  vi.resetModules()
   vi.clearAllMocks()
   state.remove.mockResolvedValue(undefined)
 })
 
-test('clean removes generated state and prunes before deleting provisioning cache', async () => {
-  await import('../../../scripts/repo/clean.mts')
-  const removed = state.remove.mock.calls.map(call => call[0])
-  expect(removed).toContain(path.join(REPO_ROOT, 'node_modules'))
-  expect(removed).toContain(path.join(REPO_ROOT, 'old/report.json'))
-  expect(removed).toContain('/fixture-home/.cache/nwsapi/browsers')
-  expect(removed).not.toContain(path.join(REPO_ROOT, 'src'))
-  expect(removed).not.toContain(path.join(REPO_ROOT, 'upstream'))
-  expect(removed.at(-1)).toBe(path.join(REPO_ROOT, '.cache'))
-  expect(state.execute).toHaveBeenCalledExactlyOnceWith(
-    'pnpm',
-    ['store', 'prune'],
-    { cwd: REPO_ROOT, stdio: 'inherit' },
-  )
-  expect(state.execute.mock.invocationCallOrder[0]).toBeLessThan(
-    state.remove.mock.invocationCallOrder.at(-1)!,
-  )
+function removedPaths() {
+  return state.remove.mock.calls.map(call => path.relative(REPO_ROOT, call[0]))
+}
+
+test('ordinary clean removes only generated outputs', async () => {
+  await main([], vi.fn())
+  expect(removedPaths()).toEqual([
+    'dist',
+    'coverage',
+    'playwright-report',
+    'test-results',
+    '.tmp',
+  ])
+  expect(state.remove).toHaveBeenCalledWith(path.join(REPO_ROOT, 'dist'), {
+    force: true,
+    recursive: true,
+  })
 })
 
-test('a failed store prune preserves the provisioned tools for retry', async () => {
-  state.execute.mockImplementationOnce(() => {
-    throw Object.assign(new Error('fixture'), { code: 'ERR_PRUNE_FIXTURE' })
-  })
-  await expect(import('../../../scripts/repo/clean.mts')).rejects.toMatchObject(
-    { code: 'ERR_PRUNE_FIXTURE' },
-  )
-  expect(state.remove.mock.calls.map(call => call[0])).not.toContain(
-    path.join(REPO_ROOT, '.cache'),
-  )
+test.each(['dependencies', 'tools'])(
+  'reset %s previews until explicitly applied',
+  async scope => {
+    await main(['--scope', scope], vi.fn())
+    expect(state.remove).not.toHaveBeenCalled()
+    await main(['--scope', scope, '--apply'], vi.fn())
+    expect(removedPaths()).toEqual(
+      scope === 'dependencies'
+        ? ['node_modules']
+        : [
+            '.cache/bin',
+            '.cache/external-tools',
+            '.cache/mise',
+            '.cache/setup-progress.json',
+          ],
+    )
+  },
+)
+
+test('dry run overrides apply and help makes no changes', async () => {
+  await main(['--scope', 'tools', '--apply', '--dry-run'], vi.fn())
+  await main(['--help'], vi.fn())
+  expect(state.remove).not.toHaveBeenCalled()
+})
+
+test('unknown scopes and removal errors stop cleanup', async () => {
+  await expect(
+    main(['--scope', '../other-checkout'], vi.fn()),
+  ).rejects.toThrow()
+  expect(state.remove).not.toHaveBeenCalled()
+  const error = new Error('Permission denied')
+  state.remove.mockRejectedValueOnce(error)
+  await expect(main([], vi.fn())).rejects.toBe(error)
+  expect(removedPaths()).toEqual(['dist'])
 })

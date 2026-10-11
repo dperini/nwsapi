@@ -13,6 +13,7 @@
 !/README.md
 !/THANKS.md
 !/package.json
+!/portless.json
 !/tak.toml
 !/pnpm-lock.yaml
 !/pnpm-workspace.yaml
@@ -59,6 +60,7 @@
 !/bin/*.mts
 !/docs/**/*.md
 !/docs/repo/perf/pytorch-has-routing.html
+!/docs/repo/perf/index.html
 !/docs/repo/perf/pytorch-has-routing.css
 !/docs/repo/perf/pytorch-has-routing.mts
 !/docs/repo/perf/pytorch-has-routing/locales/*.json
@@ -114,3 +116,10 @@
 !/src/external/*.js
 !/src/external/*.d.ts
 yarn.lock
+
+# Authored walkthrough assets and rendered deliverables.
+!/assets/repo/video/media/*.ttf
+!/assets/repo/video/*.mp4
+!/assets/repo/video/*.png
+!/assets/repo/video/*.vtt
+!/docs/repo/development/video.html

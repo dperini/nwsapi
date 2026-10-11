@@ -27,6 +27,30 @@ export default defineConfig({
   root: path.join(root, 'docs/repo/perf'),
   plugins: [
     {
+      name: 'guide-catalog-alias',
+      configureServer(server) {
+        server.middlewares.use((request, response, next) => {
+          const url = new URL(request.url ?? '/', 'http://guide.invalid')
+          if (
+            url.pathname !== '/model-guide-documents.html' &&
+            url.pathname !== '/all.html'
+          ) {
+            next()
+            return
+          }
+          response.writeHead(302, { Location: `/index.html${url.search}` })
+          response.end()
+        })
+      },
+      generateBundle() {
+        const source =
+          '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>All documents</title><script>location.replace("./index.html" + location.search + location.hash)</script><a href="./index.html">Browse all documents</a></html>'
+        for (const fileName of ['model-guide-documents.html', 'all.html']) {
+          this.emitFile({ type: 'asset', fileName, source })
+        }
+      },
+    },
+    {
       name: 'guide-report-reader',
       generateBundle(_options, bundle) {
         for (const output of Object.values(bundle)) {
@@ -44,6 +68,11 @@ export default defineConfig({
             path.resolve(root, 'docs/repo/perf', source),
           )
           const href = `../model-guide-reading.html?doc=${encodeURIComponent(documentPath)}`
+          this.emitFile({
+            type: 'asset',
+            fileName: `${output.fileName}.source.txt`,
+            source: output.source,
+          })
           output.source = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NWSAPI report</title><script>location.replace(${JSON.stringify(href)} + location.hash)</script><a href="${href}">Open the report in the model guide</a></html>`
         }
       },
@@ -75,18 +104,30 @@ export default defineConfig({
               /<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g,
               (link, href: string) => {
                 const asset = context.bundle![href.replace(/^\//, '')]
-                return asset?.type === 'asset'
-                  ? `<style>${asset.source}</style>`
-                  : link
+                if (asset?.type !== 'asset') {
+                  return link
+                }
+                const source =
+                  typeof asset.source === 'string'
+                    ? asset.source
+                    : new TextDecoder().decode(asset.source)
+                return `<style>${source}</style>`
               },
+            )
+          }
+          if (context.server || !context.bundle) {
+            const fontBase = `/@fs${path.join(root, 'assets/repo/model-guide/fonts')}/`
+            html = html.replaceAll(
+              '../../../assets/repo/model-guide/fonts/',
+              fontBase,
             )
           }
           const css = readFileSync(criticalStyles, 'utf8')
           const icon = optimiseSvg(readFileSync(languageIcon, 'utf8'))
           const book = optimiseSvg(readFileSync(readingIcon, 'utf8'))
           const color = optimiseSvg(readFileSync(colorIcon, 'utf8'))
-          const restoreAppearance = `(() => { const root = document.documentElement; let mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; let reading = false; try { const saved = sessionStorage.getItem(${JSON.stringify(COLOR_MODE_KEY)}); if (saved === 'dark' || saved === 'light') { mode = saved; } reading = sessionStorage.getItem(${JSON.stringify(READING_MODE_KEY)}) === 'true' } catch {} root.dataset.colorMode = mode; root.toggleAttribute('data-reading-mode', reading); document.querySelector('meta[name="theme-color"]')?.setAttribute('content', reading ? '#f4ecdf' : mode === 'dark' ? '#0c171e' : '#f5f8fc') })()`
-          const restoreContents = `(() => { const contents = document.getElementById('reading-navigation'); if (!contents) return; const guide = !!document.querySelector('.guide-layout'); let open = !matchMedia(guide ? '(max-width: 1200px)' : '(max-width: 900px)').matches; try { const saved = sessionStorage.getItem(guide ? 'nwsapi-guide-main-contents' : 'nwsapi-guide-contents'); if (saved !== null) open = saved === 'true' } catch {} contents.open = open && !document.documentElement.hasAttribute('data-reading-mode'); const nav = contents.querySelector('nav'); nav.classList.add('reading-section-links'); if (!contents.open) contents.after(nav) })()`
+          const restoreAppearance = `(() => { const root = document.documentElement; let mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; let reading = false; try { const saved = localStorage.getItem(${JSON.stringify(COLOR_MODE_KEY)}); if (saved === 'dark' || saved === 'light') { mode = saved; } reading = localStorage.getItem(${JSON.stringify(READING_MODE_KEY)}) === 'true' } catch {} root.dataset.colorMode = mode; root.toggleAttribute('data-reading-mode', reading); document.querySelector('meta[name="theme-color"]')?.setAttribute('content', reading ? '#f4ecdf' : mode === 'dark' ? '#0c171e' : '#f5f8fc') })()`
+          const restoreContents = `(() => { const contents = document.getElementById('reading-navigation'); if (!contents) return; const guide = !!document.querySelector('.guide-layout'); let open = !matchMedia('(max-width: 1200px)').matches; try { const saved = localStorage.getItem(guide ? 'nwsapi-guide-main-contents' : 'nwsapi-guide-contents'); if (saved !== null) open = saved === 'true' } catch {} contents.open = open && !document.documentElement.hasAttribute('data-reading-mode'); const nav = contents.querySelector('nav'); nav.classList.add('reading-section-links'); if (!contents.open) contents.after(nav) })()`
           return html
             .replaceAll('<!-- guide-language-symbol -->', icon)
             .replaceAll('<!-- guide-reading-symbol -->', book)
@@ -107,6 +148,7 @@ export default defineConfig({
       input: [
         path.join(root, 'docs/repo/perf/pytorch-has-routing.html'),
         path.join(root, 'docs/repo/perf/model-guide-reading.html'),
+        path.join(root, 'docs/repo/perf/index.html'),
       ],
     },
   },
@@ -114,7 +156,7 @@ export default defineConfig({
     host: '127.0.0.1',
     port: Number(process.env['PORT'] || 4389),
     strictPort: true,
-    allowedHosts: ['nwsapi-model-guide.localhost'],
+    allowedHosts: ['nwsapi-docs.localhost'],
     fs: { allow: [root] },
   },
 })
