@@ -196,6 +196,10 @@ export function writeGithubPlan(plan: CiTestPlan): void {
 export async function main(): Promise<void> {
   const changed = changedFiles()
   const plan = changed.reliable ? planCiTests(changed.files) : completePlan()
+  if (process.argv.includes('--plan')) {
+    console.log(JSON.stringify(plan, null, 2))
+    return
+  }
   if (process.argv.includes('--github-output')) {
     writeGithubPlan(plan)
     console.log(`CI test plan: ${JSON.stringify(plan)}`)
@@ -209,10 +213,10 @@ export async function main(): Promise<void> {
   const testScript = path.join(REPO_ROOT, 'scripts/repo/test.mts')
   if (plan.fullNode) {
     const integrationOnly = process.argv.includes('--integration-only')
-    runNode(testScript, [
-      integrationOnly ? 'integration' : 'all',
-      ...(integrationOnly ? ['--ci-isolate-clean-checkout'] : []),
-    ])
+    if (!integrationOnly) {
+      runNode(path.join(REPO_ROOT, 'scripts/repo/review/unit.mts'))
+    }
+    runNode(testScript, ['integration', '--ci-isolate-clean-checkout'])
     return
   }
   const unitFiles = plan.testFiles.filter(file =>

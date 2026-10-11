@@ -13,6 +13,13 @@ The shard jobs use the same revision and install. Vitest selects files with
 `pnpm test` and `pnpm run test:unit` still run the complete unit suite in one
 process.
 
+`pnpm run review` uses the same 32 shards locally and runs them one at a time.
+This keeps each shard under the unchanged 10,000ms watchdog while avoiding
+concurrent setup builds against the shared `dist/` output. The complete review
+may take longer than 10s overall. It stops at the first failed shard, then
+checks the combined reports against the full unit test inventory. The standalone
+`pnpm run test:unit` command remains a single-process run.
+
 Each shard writes a JSON envelope under the runner's temporary directory. It
 records the shard index, shard count, commit, workflow run and attempt, start,
 finish and elapsed times, exit status, and Vitest JSON report. The workflow

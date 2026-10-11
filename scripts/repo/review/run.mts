@@ -18,9 +18,9 @@ const steps = [
   },
   {
     label: 'Unit tests',
-    entry: 'test.mts',
-    command: 'pnpm run test:unit',
-    args: ['unit'],
+    entry: 'review/unit.mts',
+    command: 'pnpm run review',
+    args: [],
   },
 ]
 

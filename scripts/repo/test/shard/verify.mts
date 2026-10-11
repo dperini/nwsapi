@@ -5,19 +5,23 @@ import { REPO_ROOT } from '../../lib/paths.mts'
 import {
   readUnitShardEnvelopes,
   unitTestFiles,
+  type UnitShardIdentity,
   verifyUnitShardEnvelopes,
   UNIT_CI_SHARD_COUNT,
 } from './report.mts'
 
-export function verifyUnitShardDirectory(directory: string) {
+export function verifyUnitShardDirectory(
+  directory: string,
+  identity: UnitShardIdentity = {
+    revision: process.env['GITHUB_SHA'] ?? '',
+    runId: process.env['GITHUB_RUN_ID'] ?? '',
+    runAttempt: process.env['GITHUB_RUN_ATTEMPT'] ?? '',
+  },
+) {
   const result = verifyUnitShardEnvelopes(
     readUnitShardEnvelopes(directory),
     unitTestFiles(),
-    {
-      revision: process.env['GITHUB_SHA'] ?? '',
-      runId: process.env['GITHUB_RUN_ID'] ?? '',
-      runAttempt: process.env['GITHUB_RUN_ATTEMPT'] ?? '',
-    },
+    identity,
   )
   console.log(
     `[test] verified ${result.fileCount} unit test files and ${result.testCount} tests across ${UNIT_CI_SHARD_COUNT} shards (${(result.laneElapsedMs / 1000).toFixed(1)}s lane, ${(result.elapsedMs / 1000).toFixed(1)}s combined); shard durations ${result.shardElapsedMs.map((duration, index) => `${index + 1}:${(duration / 1000).toFixed(1)}s`).join(' ')}`,
