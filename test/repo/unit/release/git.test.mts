@@ -95,6 +95,39 @@ test('prepare defaults to a plan and refuses previously consumed versions', asyn
   ])
 })
 
+test.each(['local', 'remote'])(
+  'prepare treats an existing %s burned/vVERSION tag as consumed',
+  async location => {
+    const fixture = releaseFixture(null)
+    cleanups.push(fixture.cleanup)
+    const burnTag = `burned/v${VERSION}`
+    const run: CommandRunner = (command, args, options) => {
+      if (
+        location === 'local' &&
+        args[0] === 'tag' &&
+        args[1] === '--list' &&
+        args[2] === burnTag
+      ) {
+        return { status: 0, stdout: burnTag, stderr: '' }
+      }
+      if (
+        location === 'remote' &&
+        args[0] === 'ls-remote' &&
+        args[2] === `refs/tags/${burnTag}`
+      ) {
+        return { status: 0, stdout: `${COMMIT}\t${args[2]}`, stderr: '' }
+      }
+      if (args[0] === 'ls-remote' && args[2]?.startsWith('refs/tags/')) {
+        return { status: 0, stdout: '', stderr: '' }
+      }
+      return gitRunner(command, args, options)
+    }
+    await expect(
+      prepareRelease(VERSION, false, fixture.root, run, registryResponse()),
+    ).rejects.toThrow('already consumed')
+  },
+)
+
 test('preparation refuses unqualified source and local-only version reservations', async () => {
   const fixture = releaseFixture(null)
   cleanups.push(fixture.cleanup)

@@ -53,3 +53,30 @@ test('same-run shard artifacts keep fork permissions read-only', () => {
   expect(upload.with['if-no-files-found']).toBe('error')
   expect(() => checkInlineWorkflows()).not.toThrow()
 })
+
+test('publishing keeps qualification before staging with independent audits in parallel', () => {
+  const config = parse(
+    readFileSync(
+      new URL('../../../../.github/workflows/publish-npm.yml', import.meta.url),
+      'utf8',
+    ),
+  )
+  const steps = config.jobs.stage.steps
+  const audits = steps.findIndex(
+    (step: { parallel?: unknown }) => step.parallel,
+  )
+  expect(
+    steps[audits].parallel.map((step: { run: string }) => step.run),
+  ).toEqual(['pnpm run check', 'pnpm run security'])
+  const qualification = steps.findIndex((step: { run?: string }) =>
+    step.run?.includes('pnpm run cover'),
+  )
+  const stage = steps.findIndex(
+    (step: { run?: string }) => step.run === 'pnpm run publish:stage',
+  )
+  expect(audits).toBeGreaterThan(-1)
+  expect(qualification).toBeGreaterThan(audits)
+  expect(stage).toBeGreaterThan(qualification)
+  expect(config.jobs.stage.environment).toBe('publish-npm')
+  expect(config.concurrency['cancel-in-progress']).toBe(false)
+})

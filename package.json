@@ -235,7 +235,14 @@
     "video:preview": "portless nwsapi-video node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/video.mts",
     "video:player": "node scripts/repo/video/run.mts preview",
     "dev": "node scripts/repo/develop/run.mts",
-    "commit:check": "node scripts/repo/run.mts scripts/repo/git/staged-check.mts"
+    "commit:check": "node scripts/repo/run.mts scripts/repo/git/staged-check.mts",
+    "approve": "node scripts/repo/run.mts scripts/repo/release/run.mts approve",
+    "publish:prepare": "node scripts/repo/run.mts scripts/repo/release/run.mts prepare",
+    "publish:status": "node scripts/repo/run.mts scripts/repo/release/run.mts status",
+    "publish:stage": "node scripts/repo/run.mts scripts/repo/release/run.mts stage",
+    "publish:verify": "node scripts/repo/run.mts scripts/repo/release/run.mts verify",
+    "publish:trust": "node scripts/repo/run.mts scripts/repo/release/run.mts trust",
+    "publish:login": "node scripts/repo/run.mts scripts/repo/release/run.mts login"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",

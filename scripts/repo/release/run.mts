@@ -1,22 +1,33 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { parseArgs } from 'node:util'
+import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { RELEASE, readRequest, validateVersion } from './config.mts'
+import {
+  RELEASE,
+  readRequest,
+  validateStageId,
+  validateVersion,
+} from './config.mts'
 import { prepareRelease } from './git.mts'
 import { verifyStage } from './artifact.mts'
 import { approveRelease, burnRelease, stageRelease } from './pipeline.mts'
-import { npmCommand, npmRead } from './registry.mts'
+import { approvalStage, npmCommand, npmRead } from './registry.mts'
 import { configureTrust } from './trust.mts'
 
-export const HELP = `Usage: pnpm run release -- <command> [version] [--stage UUID] [--apply]
+export const HELP = `Usage: pnpm run release <command> [version] [--stage UUID] [--apply]
 
-Package aliases: npm:publish VERSION, npm:staged, npm:verify VERSION --stage UUID,
-npm:approve VERSION --stage UUID, npm:trust, and npm:login.
+Package aliases: publish:prepare VERSION, publish:status, publish:verify VERSION --stage UUID,
+approve [VERSION] [--stage UUID], publish:trust, publish:login, and release:burn.
+Use pnpm run approve. Bare pnpm approve manages dependency permissions.
 
 prepare VERSION   Plan a new v3 candidate. --apply commits, signs, reserves and pushes it.
 status            Read the release request and npm stages.
 stage             CI-only OIDC upload after qualification. Never approves a stage.
 verify VERSION    Compare the npm stage, GitHub release and rebuilt source bytes.
-approve VERSION   Verify first. --apply requests npm proof of presence and publishes.
+approve [VERSION] [--stage UUID]
+                  Discover one exact candidate or verify explicit values.
+                  --apply requests proof of presence and publishes.
 burn VERSION      Keep the version consumed. --apply records a signed burn and rejects --stage.
 trust             Plan environment and stage-only OIDC settings. --apply reconciles them.
 login             Sign in to npm for trust configuration, inspection and approval.
@@ -53,11 +64,19 @@ export function parseReleaseArgs(args: string[]) {
   ) {
     throw new Error(HELP)
   }
-  const versioned = ['prepare', 'verify', 'approve', 'burn'].includes(command)
-  if (values.help) {
-    return { command, version, ...values }
+  if (!values.help) {
+    validateCommandOptions(command, version, values)
   }
-  if (versioned) {
+  return { command, version, ...values }
+}
+
+function validateCommandOptions(
+  command: string,
+  version: string | undefined,
+  values: { apply: boolean; stage?: string | undefined },
+) {
+  const versioned = ['prepare', 'verify', 'approve', 'burn'].includes(command)
+  if (versioned && (command !== 'approve' || version)) {
     validateVersion(version ?? '')
   }
   if (
@@ -68,10 +87,40 @@ export function parseReleaseArgs(args: string[]) {
   ) {
     throw new Error(HELP)
   }
-  if (['verify', 'approve'].includes(command) && !values.stage) {
-    throw new Error('Verification and approval require --stage UUID.')
+  if (command === 'verify' && !values.stage) {
+    throw new Error('Verification requires --stage UUID.')
   }
-  return { command, version, ...values }
+  if (values.stage && !['burn'].includes(command)) {
+    validateStageId(values.stage)
+  }
+}
+
+export function resolveApprovalVersion(
+  version: string | undefined,
+  requestVersion: string | null,
+  manifest: { name?: unknown; version?: unknown },
+) {
+  if (version) {
+    return validateVersion(version)
+  }
+  if (requestVersion) {
+    return validateVersion(requestVersion)
+  }
+  if (
+    manifest.name !== RELEASE.package ||
+    typeof manifest.version !== 'string'
+  ) {
+    throw new Error('The package manifest does not identify nwsapi.')
+  }
+  return validateVersion(manifest.version)
+}
+
+function approvalSession(env = process.env) {
+  if (env['CI'] || env['GITHUB_ACTIONS']) {
+    throw new Error(
+      'Approval must run in the maintainer session with npm proof of presence.',
+    )
+  }
 }
 
 export async function main(args = process.argv.slice(2)) {
@@ -91,13 +140,32 @@ export async function main(args = process.argv.slice(2)) {
     case 'verify':
       result = await verifyStage(options.version!, options.stage!)
       break
-    case 'approve':
-      result = await approveRelease(
-        options.version!,
-        options.stage!,
-        options.apply,
+    case 'approve': {
+      approvalSession()
+      const request = readRequest()
+      const manifest =
+        options.version || request.version
+          ? {}
+          : (JSON.parse(
+              readFileSync(path.join(REPO_ROOT, 'package.json'), 'utf8'),
+            ) as {
+              name?: unknown
+              version?: unknown
+            })
+      const version = resolveApprovalVersion(
+        options.version,
+        request.version,
+        manifest,
       )
+      const stage = options.stage
+        ? options.stage
+        : approvalStage(
+            JSON.parse(npmRead(['stage', 'list', RELEASE.package, '--json'])),
+            version,
+          ).id
+      result = await approveRelease(version, stage, options.apply)
       break
+    }
     case 'burn':
       result = await burnRelease(options.version!, options.stage, options.apply)
       break
