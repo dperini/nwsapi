@@ -102,6 +102,29 @@ git diff
 
 **Expected result:** the checks pass and the diff contains the intended changes. Before opening a pull request, choose any additional checks below that apply to your change.
 
+After staging the files for a commit, run `pnpm run commit:check` for a quick
+staged-file pass. It checks staged whitespace, then lints and formats supported
+staged files in a temporary snapshot of the Git index. It does not change the
+index or working files, including partially staged files. This repository does
+not install a Git pre-commit hook, so run the command explicitly. The staged
+check does not replace `pnpm run review` or CI.
+
+Before pushing a pull request branch, run the full review. To preview the
+affected Node test plan locally, preview it after committing so the planner
+checks the committed tree. Run the same command without `--plan` to execute it:
+
+```sh
+pnpm run review
+pnpm run test:ci --base origin/prerelease/3.0.0 --plan
+pnpm run test:ci --base origin/prerelease/3.0.0
+```
+
+Replace `origin/prerelease/3.0.0` with the pull request's target ref. The test
+planner applies its affected-test selection, including the applicable unit and
+integration suites. Review plus the executed affected test plan form the local
+push gate. These commands do not push the branch. Review any additional checks
+required by the files changed.
+
 ## Additional checks
 
 | Work changed                    | Command                 | Additional requirements                     |

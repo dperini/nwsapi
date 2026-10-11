@@ -1,7 +1,7 @@
 import { globSync } from 'node:fs'
 import { REPO_ROOT } from './paths.mts'
 
-export function toolingFiles() {
+export function toolingFiles(root = REPO_ROOT) {
   return globSync(
     [
       'vitest.config.mts',
@@ -15,6 +15,6 @@ export function toolingFiles() {
       '.config/*.d.ts',
       '.github/**/*.mts',
     ],
-    { cwd: REPO_ROOT },
+    { cwd: root },
   ).toSorted()
 }

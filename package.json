@@ -234,7 +234,8 @@
     "video:render": "node scripts/repo/video/run.mts render -o assets/repo/video/v3-walkthrough.mp4",
     "video:preview": "portless nwsapi-video node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/video.mts",
     "video:player": "node scripts/repo/video/run.mts preview",
-    "dev": "node scripts/repo/develop/run.mts"
+    "dev": "node scripts/repo/develop/run.mts",
+    "commit:check": "node scripts/repo/run.mts scripts/repo/git/staged-check.mts"
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",
