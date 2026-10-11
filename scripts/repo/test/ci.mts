@@ -208,8 +208,10 @@ export async function main(): Promise<void> {
   runNode(path.join(REPO_ROOT, 'scripts/repo/build/run.mts'))
   const testScript = path.join(REPO_ROOT, 'scripts/repo/test.mts')
   if (plan.fullNode) {
+    const integrationOnly = process.argv.includes('--integration-only')
     runNode(testScript, [
-      process.argv.includes('--integration-only') ? 'integration' : 'all',
+      integrationOnly ? 'integration' : 'all',
+      ...(integrationOnly ? ['--ci-isolate-clean-checkout'] : []),
     ])
     return
   }

@@ -297,7 +297,7 @@ test('the full Node test plan can leave unit shards to the matrix and run integr
   await main()
   expect(state.run.mock.calls.map(call => call[1])).toEqual([
     undefined,
-    ['integration'],
+    ['integration', '--ci-isolate-clean-checkout'],
   ])
 })
 
