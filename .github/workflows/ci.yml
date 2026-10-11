@@ -119,7 +119,7 @@ jobs:
 
   unit:
     needs: runtime
-    if: needs.runtime.outputs.fullNode == 'true'
+    if: ${{ !cancelled() && needs.runtime.outputs.fullNode == 'true' }}
     runs-on: ubuntu-26.04
     strategy:
       fail-fast: false

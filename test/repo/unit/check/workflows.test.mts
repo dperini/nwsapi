@@ -24,7 +24,9 @@ test('the required Node gate includes runtime and every unit shard', () => {
     FULL_NODE: '${{ needs.runtime.outputs.fullNode }}',
   })
   expect(jobs.unit.needs).toBe('runtime')
-  expect(jobs.unit.if).toBe("needs.runtime.outputs.fullNode == 'true'")
+  expect(jobs.unit.if).toBe(
+    "${{ !cancelled() && needs.runtime.outputs.fullNode == 'true' }}",
+  )
   expect(jobs.unit.strategy['fail-fast']).toBe(false)
   expect(jobs.unit.strategy.matrix.shard).toBe(
     '${{ fromJSON(needs.runtime.outputs.unitShards) }}',
