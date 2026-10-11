@@ -12,7 +12,6 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
-import { toolingFiles } from '../../../../scripts/repo/lib/tooling-scope.mts'
 import { expect, test } from 'vitest'
 import {
   checkStagedFiles,
@@ -31,19 +30,25 @@ function writeFile(root: string, file: string, content: string) {
 
 function copyLintContext(root: string) {
   const files = [
-    ...toolingFiles(),
-    ...globSync(
-      [
-        'scripts/fleet/**/*.mts',
-        '.config/generated/*.mts',
-        'docs/**/*.mts',
-        'docs/**/*.json',
-        'assets/repo/model-guide/**/*.json',
-        '.config/*.json',
-        '.config/fleet/**/*.json',
-      ],
-      { cwd: REPO_ROOT },
-    ),
+    'scripts/repo/lint.mts',
+    'scripts/repo/lint/files.mts',
+    'scripts/repo/lib/is-agent.mts',
+    'scripts/repo/lib/paths.mts',
+    'scripts/repo/lib/run-node.mts',
+    'scripts/repo/lib/run-tool.mts',
+    'scripts/repo/lib/tooling-scope.mts',
+    'scripts/repo/develop/process.mts',
+    'scripts/repo/git/staged-check.mts',
+    'scripts/repo/format.mts',
+    'scripts/repo/bench/compare/fixture.mts',
+    'scripts/repo/bench/compare/options.mts',
+    'scripts/repo/bench/compare/report.mts',
+    'scripts/fleet/bench/comparison.mts',
+    '.config/oxfmt.json',
+    '.config/oxlint.json',
+    '.config/tsconfig.check.json',
+    '.config/fleet/oxlint/complexity.json',
+    ...globSync('.config/repo/oxlint-plugin/**/*.mts', { cwd: REPO_ROOT }),
     'package.json',
   ]
   for (const file of files) {
@@ -133,9 +138,43 @@ test('package changes run full staged lint with imported fleet context', async (
     )
     manifest.description = 'Staged fixture package'
     writeFile(root, 'package.json', JSON.stringify(manifest, null, 2) + '\n')
-    runGit(root, ['add', '--', 'package.json'])
+    const formatterConfig = JSON.parse(
+      readFileSync(path.join(root, '.config/oxfmt.json'), 'utf8'),
+    )
+    formatterConfig.overrides.push({
+      files: ['__fixture__/**/*.mts'],
+      options: { printWidth: 81 },
+    })
+    writeFile(
+      root,
+      '.config/oxfmt.json',
+      JSON.stringify(formatterConfig, null, 2) + '\n',
+    )
+    execFileSync(
+      process.execPath,
+      [
+        'node_modules/oxfmt/bin/oxfmt',
+        '--config',
+        '.config/oxfmt.json',
+        '.config/oxfmt.json',
+      ],
+      { cwd: root, stdio: 'ignore' },
+    )
+    runGit(root, ['add', '--', 'package.json', '.config/oxfmt.json'])
+    writeFile(root, '.config/oxfmt.json', '{ invalid worktree config\n')
 
     expect(await checkStagedFiles(root)).toBe(0)
+    expect(
+      JSON.parse(runGit(root, ['show', ':.config/oxfmt.json'])).overrides.at(
+        -1,
+      ),
+    ).toEqual({
+      files: ['__fixture__/**/*.mts'],
+      options: { printWidth: 81 },
+    })
+    expect(readFileSync(path.join(root, '.config/oxfmt.json'), 'utf8')).toBe(
+      '{ invalid worktree config\n',
+    )
     expect(runGit(root, ['show', ':src/staged.mts'])).toBe(
       'export const value = 2\n',
     )
