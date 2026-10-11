@@ -1,0 +1,45 @@
+WEBVTT
+
+00:00.000 --> 00:06.000
+NWSAPI v3: a clearer path to your next change.
+1. Set up. 2. Find and edit. 3. Review.
+
+00:06.000 --> 00:10.000
+In a terminal, open the repository folder.
+Type pnpm run setup, then press Enter.
+
+00:10.000 --> 00:14.000
+Setup installs tools, dependencies, and build outputs.
+Wait for “Setup complete” before moving on.
+
+00:14.000 --> 00:18.500
+Type pnpm run guide, then press Enter.
+This opens the documentation in your browser.
+
+00:18.500 --> 00:23.000
+Choose a document from the page-title menu.
+Search all documents, or filter by topic and type.
+
+00:23.000 --> 00:27.500
+Find the section relevant to your task.
+Then edit your source or documentation.
+
+00:27.500 --> 00:32.000
+Return to a saved section later.
+Reading mode reduces visual motion.
+
+00:32.000 --> 00:36.500
+After editing, type pnpm run review and press Enter.
+It runs lint, formatting, types, and unit tests in order.
+
+00:36.500 --> 00:41.000
+Fix the first reported issue and rerun.
+Finish with git diff to inspect your changes.
+
+00:41.000 --> 00:44.500
+Missing tool or wrong version?
+Type pnpm run setup:check, then press Enter.
+
+00:44.500 --> 00:48.000
+It checks Node.js, package managers, and checkout tools.
+It reports readiness without changing your tools.

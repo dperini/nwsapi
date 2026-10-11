@@ -82,10 +82,11 @@ jobs:
         run: node scripts/repo/setup/tools.mts --github-path
       - name: Install dependencies and security tools
         run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
-      - name: Validate source and security
-        run: |
-          pnpm run check
-          pnpm run security
+      - parallel:
+          - name: Validate source
+            run: pnpm run check
+          - name: Audit publishing security
+            run: pnpm run security
       - name: Install Chrome system dependencies
         run: |
           for source in /etc/apt/sources.list.d/google-chrome.list /etc/apt/sources.list.d/google-chrome.sources; do
@@ -103,4 +104,4 @@ jobs:
       - name: Reserve artifacts and stage through OIDC
         env:
           GH_TOKEN: ${{ github.token }}
-        run: pnpm run release -- stage
+        run: pnpm run publish:stage

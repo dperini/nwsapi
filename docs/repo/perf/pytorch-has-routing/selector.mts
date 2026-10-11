@@ -16,7 +16,7 @@ export function selectorTokens(source: string): SelectorToken[] {
       kind = 'keyword'
     } else if (/^\d/.test(text)) {
       kind = 'number'
-    } else if (/^[\[\]()>+~=|^$*,]$/.test(text)) {
+    } else if (/^[[\]()>+~=|^$*,]$/.test(text)) {
       kind = 'operator'
     } else if (attribute && /^[\w-]+$/.test(text)) {
       kind = 'type'

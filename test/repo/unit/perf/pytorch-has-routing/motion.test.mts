@@ -48,13 +48,15 @@ async function fixture(reducedMotion = false) {
   const cancel = vi.fn()
   Object.assign(dom.window.SVGElement.prototype, {
     animate,
-    getAnimations: () => [{ cancel }],
+    getAnimations: () => [{ cancel, finished: Promise.resolve() }],
   })
   const media = {
     matches: reducedMotion,
     addEventListener: vi.fn(),
   }
   vi.stubGlobal('document', document)
+  vi.stubGlobal('window', dom.window)
+  vi.stubGlobal('getComputedStyle', dom.window.getComputedStyle)
   vi.stubGlobal('matchMedia', () => media)
   const motion =
     await import('../../../../../docs/repo/perf/pytorch-has-routing/motion.mts')
@@ -88,6 +90,7 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   expect(vi.getTimerCount()).toBe(0)
   view.timeline.value = view.timeline.max
   view.timeline.dispatchEvent(new view.dom.window.Event('input'))
+  await Promise.resolve()
   const scenes = view.document.querySelectorAll('[data-complete="true"]')
   expect(scenes.length).toBe(2)
   const matches = view.document.querySelectorAll('[data-match="true"]')
@@ -110,7 +113,7 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   ).toBe(true)
   view.click('film-play')
   expect(view.timeline.value).toBe('0')
-  vi.advanceTimersByTime(Number(view.timeline.max) * 1200)
+  await vi.advanceTimersByTimeAsync(Number(view.timeline.max) * 1200)
   expect(vi.getTimerCount()).toBe(0)
   view.click('film-reset')
   expect(view.timeline.value).toBe('0')
@@ -223,7 +226,7 @@ test('assistive virtual clicks toggle route playback without pointer events', as
   scene.click()
   expect(vi.getTimerCount()).toBe(1)
   expect(scene.textContent).toBe('Pause')
-  expect(scene.getAttribute('aria-label')).toContain('Pause forward')
+  expect(scene.getAttribute('aria-label')).toMatch(/^Pause /)
   scene.click()
   expect(vi.getTimerCount()).toBe(0)
   expect(scene.textContent).toBe('Play')

@@ -47,7 +47,7 @@ Change engine options and error handling.
 | [`configure(option, clear)`](../../../src/core/initialize/configure.mts#L3) | Reads or changes options. Pass `true` as the second argument to clear compiled selectors. |
 | [`emit(message, proto)`](../../../src/core/validation/error.mts#L2) | Reports an error using the configured error policy. |
 | [`registerLegacyHooks(factory)`](../../../src/core/initialize/api.mts#L261) | Registers the optional DOM compatibility module on this engine. Returns false when hooks are already registered. |
-| [`useNeuralPlanner(host)`](../../../src/core/initialize/api.mts#L246) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
+| [`useRoutePlanner(host)`](../../../src/core/initialize/api.mts#L246) | Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback. |
 | [`registerBulkHasPlanner(planner)`](../../../src/core/initialize/api.mts#L252) | Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared. |
 
 ### Compile and extend selectors
@@ -85,8 +85,8 @@ Use `configure({ option: value })` to change options, `configure()` to read them
 | `IDS_DUPES` | `true` | Allows duplicate IDs when finding elements. |
 | `LEGACY` | `false` | Enables older DOM behavior after the legacy module has registered its hooks. |
 | `LOGERRORS` | `true` | Logs errors when exception throwing is disabled. |
-| `NEURAL_PLANNER` | `true` | Uses the selected model for eligible :has() queries. Enabled by default. Unsupported queries keep the existing route. |
 | `NODE_LIST` | `false` | Uses NodeList-style results where supported. |
+| `ROUTE_PLANNER` | `true` | Enables the route planner for eligible :has() queries. On by default. Set false for troubleshooting or comparisons. Unsupported queries keep the existing route. |
 | `USR_EVENT` | `true` | Reserved compatibility flag. The core does not currently read it. |
 | `VERBOSITY` | `true` | Throws exceptions for invalid selectors. |
 

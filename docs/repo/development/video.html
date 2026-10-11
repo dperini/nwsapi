@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c171e" />
+    <title>V3 workflow walkthrough · nwsapi</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+        color: #eff3fa;
+        background: #0c171e;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 48px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 36px;
+      }
+      .brand {
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        font-size: 21px;
+      }
+      .version {
+        margin-left: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0;
+        color: #d3b8fa;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(28px, 4vw, 44px);
+        letter-spacing: -0.035em;
+        line-height: 1.15;
+      }
+      .intro {
+        color: #a9b9c7;
+        margin: 0 0 26px;
+        line-height: 1.6;
+      }
+      a {
+        color: #c5a5f3;
+        text-underline-offset: 4px;
+      }
+      a:hover {
+        color: #e1cefc;
+      }
+      a:focus-visible,
+      button:focus-visible,
+      summary:focus-visible,
+      video:focus-visible {
+        outline: 2px solid #d3b8fa;
+        outline-offset: 4px;
+      }
+      video {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        background: #0c171e;
+        border: 1px solid #354651;
+        border-radius: 16px;
+      }
+      .chapters[hidden] {
+        display: none;
+      }
+      .chapters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0 30px;
+      }
+      button {
+        font: inherit;
+        font-size: 14px;
+        border: 1px solid #354651;
+        border-radius: 10px;
+        padding: 12px 15px;
+        min-height: 44px;
+        color: #eff3fa;
+        background: #152530;
+        cursor: pointer;
+      }
+      button:hover,
+      button[aria-current='true'] {
+        background: #37304c;
+        border-color: #a389ce;
+      }
+      button span {
+        color: #b8c6d1;
+        margin-right: 8px;
+        font-variant-numeric: tabular-nums;
+      }
+      details {
+        border-top: 1px solid #354651;
+        padding: 20px 0;
+      }
+      summary {
+        cursor: pointer;
+        width: fit-content;
+        min-height: 44px;
+        line-height: 44px;
+      }
+      ol {
+        margin: 8px 0 16px;
+        padding-left: 24px;
+        max-width: 80ch;
+      }
+      li {
+        padding: 8px 0 8px 8px;
+        line-height: 1.7;
+        color: #bdcbd6;
+      }
+      strong {
+        color: #eff3fa;
+      }
+      code {
+        font-size: 0.95em;
+        color: #cceadf;
+      }
+      section {
+        margin: 30px 0;
+      }
+      section > p,
+      details > p {
+        color: #bdcbd6;
+        line-height: 1.7;
+        max-width: 80ch;
+      }
+      .commands > li {
+        padding-block: 12px;
+      }
+      .commands > li > code {
+        display: block;
+        margin-top: 8px;
+        font-size: 18px;
+        overflow-wrap: anywhere;
+      }
+      .commands p {
+        margin: 8px 0 0;
+      }
+      footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 14px;
+        color: #a9b9c7;
+        margin-top: 16px;
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 20px 12px 32px;
+        }
+        header {
+          margin-bottom: 28px;
+        }
+        video {
+          border-radius: 8px;
+        }
+        .chapters {
+          gap: 8px;
+        }
+        button {
+          flex: 1 0 28%;
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand">
+          nwsapi <span class="version">V3 / WALKTHROUGH</span>
+        </div>
+        <a href="/v3-walkthrough.mp4" download>Download MP4</a>
+      </header>
+      <h1>A clearer path to your next change.</h1>
+      <p class="intro" id="video-description">
+        Set up, open docs and edit, then review in 48 seconds. Silent, with
+        on-screen captions and illustrated interface scenes.
+      </p>
+      <video
+        controls
+        playsinline
+        preload="metadata"
+        poster="/v3-walkthrough-poster.png"
+        aria-label="V3 workflow and documentation walkthrough"
+        aria-describedby="video-description"
+      >
+        <source src="/v3-walkthrough.mp4" type="video/mp4" />
+        <track
+          kind="captions"
+          src="/v3-walkthrough.vtt"
+          srclang="en"
+          label="English"
+        />
+        Your browser cannot play this video.
+        <a href="/v3-walkthrough.mp4">Download the MP4</a> or read the
+        transcript below.
+      </video>
+      <nav class="chapters" aria-label="Video chapters" hidden>
+        <button type="button" data-time="0"><span>0:00</span>Welcome</button>
+        <button type="button" data-time="6"><span>0:06</span>1. Set up</button>
+        <button type="button" data-time="14">
+          <span>0:14</span>2. Open docs
+        </button>
+        <button type="button" data-time="23">
+          <span>0:23</span>Read & edit
+        </button>
+        <button type="button" data-time="32"><span>0:32</span>3. Review</button>
+        <button type="button" data-time="41">
+          <span>0:41</span>Setup help
+        </button>
+      </nav>
+      <section aria-labelledby="commands-title">
+        <h2 id="commands-title">Follow the guided menu</h2>
+        <p>
+          Run <code>pnpm run dev</code>. Use 1–4 or the arrow keys to preview setup,
+          documentation, review, or setup help. Read the description, then press
+          Enter to run the displayed command.
+        </p>
+        <p>You can also type the individual commands shown in the video:</p>
+        <p>
+          Open a terminal in the repository folder. Type a command and press
+          Enter.
+        </p>
+        <ol class="commands">
+          <li>
+            <strong>Prepare the checkout.</strong><code>pnpm run setup</code>
+            <p>
+              Installs tools and dependencies, then builds the project. Wait for
+              “Setup complete.”
+            </p>
+          </li>
+          <li>
+            <strong>Open the docs and make your change.</strong
+            ><code>pnpm run guide</code>
+            <p>
+              Opens documentation in your browser. Find the relevant section,
+              then edit your source or documentation. Use another terminal for
+              the next step while the docs server runs.
+            </p>
+          </li>
+          <li>
+            <strong>Review after editing.</strong><code>pnpm run review</code>
+            <p>
+              Runs lint, formatting, types, and unit tests in order. Fix the
+              first reported issue and rerun. Finish with <code>git diff</code>.
+            </p>
+          </li>
+        </ol>
+      </section>
+      <details>
+        <summary>Setup help: missing tool or wrong version?</summary>
+        <p>Type <code>pnpm run setup:check</code> and press Enter.</p>
+        <p>
+          This reports Node.js and package-manager versions, whether the pinned
+          checkout tools are ready, and the next command. It does not install or
+          change tools.
+        </p>
+        <p>
+          For paths, version requirements, and wrapper information, use
+          <code>pnpm run setup:check --details</code>. The older
+          <code>doctor:tools</code> name still works.
+        </p>
+      </details>
+      <details>
+        <summary>Read the transcript</summary>
+        <ol>
+          <li>
+            <strong>Welcome.</strong> Follow the task order: set up, find and
+            edit, review.
+          </li>
+          <li>
+            <strong>1. Set up.</strong> Open a terminal in the repository
+            folder. Type <code>pnpm run setup</code> and press Enter. Wait for
+            “Setup complete.”
+          </li>
+          <li>
+            <strong>2. Open docs.</strong> Type <code>pnpm run guide</code> and
+            press Enter. Choose a document from the page-title menu, or search
+            and filter by topic and type.
+          </li>
+          <li>
+            <strong>Read and edit.</strong> Find the relevant section, then edit
+            your source or documentation. Return to a saved section later.
+            Reading mode reduces visual motion.
+          </li>
+          <li>
+            <strong>3. Review.</strong> After editing, type
+            <code>pnpm run review</code> and press Enter. Fix the first reported
+            issue and rerun. Finish with <code>git diff</code>.
+          </li>
+          <li>
+            <strong>Optional setup help.</strong> For a missing tool or wrong
+            version, type <code>pnpm run setup:check</code> and press Enter. It
+            checks Node.js, package managers, and checkout tools. It reports
+            readiness without changing your tools.
+          </li>
+        </ol>
+      </details>
+      <footer>
+        <span>1920 × 1080 · 30fps</span>
+        <span>Open again with <code>pnpm run video:preview</code></span>
+      </footer>
+    </main>
+    <script>
+      const video = document.querySelector('video')
+      const chapters = document.querySelector('.chapters')
+      const buttons = [...chapters.querySelectorAll('button')]
+      chapters.hidden = false
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          video.currentTime = Number(button.dataset.time)
+        })
+      }
+      function updateChapter() {
+        const active = buttons.findLast(
+          button => Number(button.dataset.time) <= video.currentTime,
+        )
+        for (const button of buttons) {
+          if (button === active) {
+            button.setAttribute('aria-current', 'true')
+          } else {
+            button.removeAttribute('aria-current')
+          }
+        }
+      }
+      video.addEventListener('timeupdate', updateChapter)
+      updateChapter()
+    </script>
+  </body>
+</html>

@@ -17,7 +17,7 @@ export const descriptions: Record<string, string> = {
   install:
     'Replaces native selector methods. `querySelectorAll()` returns static NodeList-compatible snapshots. The `all` flag enables legacy iframe-load handling.',
   uninstall: 'Restores the native methods saved by `install()`.',
-  useNeuralPlanner:
+  useRoutePlanner:
     'Selects the Chromium or jsdom routing policy. Pass null to disable the planner and clear its callback.',
   registerBulkHasPlanner:
     'Registers a custom bulk :has() routing callback. Pass null to remove it. Query caches are cleared.',
@@ -77,8 +77,8 @@ export const optionDescriptions: Record<string, string> = {
     'Maximum entries per configurable cache. A nonnegative safe integer. Zero disables retention.',
   CACHE_BYTES:
     'Maximum estimated bytes per compiled-plan cache. A nonnegative safe integer. Zero disables plan retention.',
-  NEURAL_PLANNER:
-    'Uses the selected model for eligible :has() queries. Enabled by default. Unsupported queries keep the existing route.',
+  ROUTE_PLANNER:
+    'Enables the route planner for eligible :has() queries. On by default. Set false for troubleshooting or comparisons. Unsupported queries keep the existing route.',
   FORGIVING:
     'Allows invalid items in forgiving lists such as `:is()` and `:where()`.',
   IDS_DUPES: 'Allows duplicate IDs when finding elements.',

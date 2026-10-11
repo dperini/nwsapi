@@ -3,8 +3,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   run: vi.fn(),
   budget: vi.fn(),
+  localUnit: vi.fn(),
   argv: [] as string[],
   exitCode: 0,
+}))
+vi.mock('../../../scripts/repo/review/unit.mts', () => ({
+  runLocalUnitReview: state.localUnit,
 }))
 vi.mock('../../../scripts/repo/lib/test-budget.mts', () => ({
   runBudgeted: state.run,
@@ -17,6 +21,8 @@ beforeEach(() => {
   state.exitCode = 0
   state.run.mockResolvedValue(0)
   state.budget.mockReturnValue(1000)
+  state.localUnit.mockReset()
+  vi.spyOn(performance, 'now').mockReturnValue(0)
   vi.stubGlobal(
     'process',
     new Proxy(process, {
@@ -39,11 +45,23 @@ beforeEach(() => {
     }),
   )
 })
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 
-test('default test command runs only offline unit tests with its budget', async () => {
+test('the default command runs the full local unit shard plan', async () => {
   await import('../../../scripts/repo/test.mts')
-  expect(state.budget).toHaveBeenCalledExactlyOnceWith('unit', false)
+  expect(state.localUnit).toHaveBeenCalledOnce()
+  expect(state.budget).not.toHaveBeenCalled()
+  expect(state.run).not.toHaveBeenCalled()
+})
+
+test('the all command shards unit tests before its normal integration lane', async () => {
+  state.argv.push('all')
+  await import('../../../scripts/repo/test.mts')
+  expect(state.localUnit).toHaveBeenCalledOnce()
+  expect(state.budget).toHaveBeenCalledExactlyOnceWith('integration', false)
   expect(state.run).toHaveBeenCalledExactlyOnceWith(
     [
       'node_modules/vitest/vitest.mjs',
@@ -52,8 +70,8 @@ test('default test command runs only offline unit tests with its budget', async 
       '.config/repo/vitest.config.mts',
     ],
     1000,
-    'unit',
-    expect.objectContaining({ NWSAPI_TEST_TIER: 'unit' }),
+    'integration',
+    expect.objectContaining({ NWSAPI_TEST_TIER: 'integration' }),
   )
 })
 
@@ -69,6 +87,8 @@ test('all coverage runs isolate tier reports and forward runner options', async 
     '--coverage.reportsDirectory=coverage/integration',
   ])
   expect(state.run.mock.calls[0]![0]).toContain('--reporter=dot')
+  expect(state.localUnit).not.toHaveBeenCalled()
+  expect(state.run.mock.calls.map(call => call[1])).toEqual([1000, 1000])
 })
 
 test('upstream selects Playwright and does not add Vitest coverage flags', async () => {

@@ -55,7 +55,9 @@ test('CI reserves artifacts before staging and never approves them', async () =>
   }
   expect(
     await stageRelease(fixture.root, gitRunner, TRUSTED_ENV, operations),
-  ).toMatchObject({ stageId: STAGE })
+  ).toMatchObject({
+    stageId: STAGE,
+  })
   expect(order).toEqual(['reserve', 'stage'])
   await expect(
     stageRelease(fixture.root, gitRunner, {}, operations),
@@ -91,7 +93,9 @@ test('approval is explicit and checks public registry bytes after proof of prese
   const verify = vi.fn(async () => RECEIPT)
   expect(
     await approveRelease(VERSION, STAGE, false, '/tmp', run, verify),
-  ).toMatchObject({ approvalRequired: true })
+  ).toMatchObject({
+    approvalRequired: true,
+  })
   expect(run).not.toHaveBeenCalled()
   expect(
     await approveRelease(
@@ -108,7 +112,14 @@ test('approval is explicit and checks public registry bytes after proof of prese
       }),
     ),
   ).toMatchObject({ published: true })
-  expect(run.mock.calls[0]?.[1]).toContain('approve')
+  const calls = run.mock.calls.map(([, args]) => args)
+  const approvalIndex = calls.findIndex(args => args.includes('approve'))
+  expect(approvalIndex).toBeGreaterThan(0)
+  expect(calls[approvalIndex - 1]).toEqual([
+    'ls-remote',
+    'origin',
+    `refs/tags/burned/v${VERSION}`,
+  ])
   await expect(
     approveRelease(
       VERSION,
@@ -125,6 +136,77 @@ test('approval is explicit and checks public registry bytes after proof of prese
     approveRelease(VERSION, STAGE, true, '/tmp', run, verify),
   ).rejects.toThrow('maintainer')
 })
+
+test('approval rechecks the burn marker after verification and before npm approval', async () => {
+  vi.stubEnv('CI', '')
+  vi.stubEnv('GITHUB_ACTIONS', '')
+  const fixture = releaseFixture()
+  cleanups.push(fixture.cleanup)
+  let burned = false
+  const run = vi.fn<CommandRunner>((command, args, options) => {
+    if (args[0] === 'ls-remote' && args[2]?.includes('/burned/')) {
+      return {
+        status: 0,
+        stdout: burned ? COMMIT : '',
+        stderr: '',
+      }
+    }
+    return gitRunner(command, args, options)
+  })
+  const verify = vi.fn(async () => {
+    burned = true
+    return RECEIPT
+  })
+  await expect(
+    approveRelease(VERSION, STAGE, true, fixture.root, run, verify),
+  ).rejects.toThrow('was burned')
+  expect(verify).toHaveBeenCalledOnce()
+  expect(run.mock.calls.some(([, args]) => args.includes('approve'))).toBe(
+    false,
+  )
+})
+
+test.each([1, 2])(
+  'staging rejects a burn before publication step %i',
+  async threshold => {
+    const fixture = releaseFixture()
+    cleanups.push(fixture.cleanup)
+    let burnReads = 0
+    const run: CommandRunner = (command, args, options) => {
+      if (args[0] === 'ls-remote' && args[2]?.includes('/burned/')) {
+        burnReads += 1
+        return {
+          status: 0,
+          stdout: burnReads > threshold ? COMMIT : '',
+          stderr: '',
+        }
+      }
+      return gitRunner(command, args, options)
+    }
+    const uploadStage = vi.fn(() => STAGE)
+    const operations: typeof STAGE_OPERATIONS = {
+      ...STAGE_OPERATIONS,
+      setupEnvironment: () => ({
+        create: false,
+        addBranch: false,
+        branch: 'prerelease/3.0.0',
+      }),
+      publishedVersion: async () => undefined,
+      packRelease: async () => ({
+        directory: fixture.root,
+        tarball: 'candidate.tgz',
+        receipt: RECEIPT,
+      }),
+      reserveGithubRelease: () => {},
+      uploadStage,
+    }
+    await expect(
+      stageRelease(fixture.root, run, TRUSTED_ENV, operations),
+    ).rejects.toThrow('remains consumed')
+    expect(burnReads).toBe(threshold + 1)
+    expect(uploadStage).not.toHaveBeenCalled()
+  },
+)
 
 test('burn preserves the original release tag and consumes the version before rejection', async () => {
   const fixture = releaseFixture()

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, test, expect } from 'vitest'
-import { execFileSync, spawnSync } from 'node:child_process'
+import { spawnSync } from 'node:child_process'
 import {
   copyFileSync,
   existsSync,
@@ -37,6 +37,8 @@ beforeAll(() => {
       'src/**/*.d.ts',
       'scripts/**/*.mts',
       'docs/**/*.mts',
+      'docs/**/*.json',
+      'assets/repo/model-guide/**/*.json',
       'test/repo/**/*.mts',
       '.config/*.mts',
       '.config/generated/*.mts',
@@ -70,7 +72,7 @@ afterAll(() => {
 })
 
 test('type checks pass without build outputs or an incremental cache', () => {
-  execFileSync(
+  const checked = spawnSync(
     process.execPath,
     [
       TSRS_CLI_PATH,
@@ -80,8 +82,9 @@ test('type checks pass without build outputs or an incremental cache', () => {
       '-p',
       '.config/tsconfig.check.json',
     ],
-    { cwd: root, stdio: 'pipe' },
+    { cwd: root, encoding: 'utf8' },
   )
+  expect(checked.status, checked.stdout + checked.stderr).toBe(0)
 })
 
 test('lint checks pass without build outputs or an incremental cache', () => {

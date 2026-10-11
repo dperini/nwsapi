@@ -5,7 +5,7 @@ export interface EngineConfiguration {
   IDS_DUPES: boolean
   FORGIVING: boolean
   LEGACY: boolean
-  NEURAL_PLANNER: boolean
+  ROUTE_PLANNER: boolean
   NODE_LIST: boolean
   LOGERRORS: boolean
   USR_EVENT: boolean

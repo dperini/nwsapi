@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import type * as Command from '../../../../scripts/repo/lib/command.mts'
 import {
+  approvalStage,
   npmCommand,
   npmRead,
   parseStage,
@@ -27,7 +28,9 @@ test('registry absence is distinct from a failed authenticated or network read',
       VERSION,
       registryResponse(200, { version: VERSION }),
     ),
-  ).toEqual({ version: VERSION })
+  ).toEqual({
+    version: VERSION,
+  })
 })
 
 test('stages bind package, UUID, version and dist-tag before promotion', () => {
@@ -48,6 +51,38 @@ test('stages bind package, UUID, version and dist-tag before promotion', () => {
       parseStage({ ...stage, ...replacement }, VERSION, STAGE),
     ).toThrow()
   }
+})
+
+test('approval selects one complete, ready stage for the requested release', () => {
+  const stage = {
+    id: STAGE,
+    packageName: 'nwsapi',
+    version: VERSION,
+    tag: 'next',
+    status: 'staged',
+  }
+  expect(approvalStage([stage], VERSION)).toEqual(stage)
+  expect(approvalStage([{ ...stage, tag: 'latest' }, stage], VERSION)).toEqual(
+    stage,
+  )
+  expect(() =>
+    approvalStage(
+      [stage, { ...stage, id: '22345678-1234-1234-1234-123456789abc' }],
+      VERSION,
+    ),
+  ).toThrow('Multiple approval-ready')
+  expect(() =>
+    approvalStage([{ ...stage, status: 'validating' }], VERSION),
+  ).toThrow('No approval-ready')
+  expect(() => approvalStage([{ ...stage, id: 'bad' }], VERSION)).toThrow(
+    'stage UUID',
+  )
+  expect(() =>
+    approvalStage([{ ...stage, packageName: 'other' }], VERSION),
+  ).toThrow('Malformed npm stage entry')
+  expect(() => approvalStage({ items: [stage] }, VERSION)).toThrow(
+    'Malformed npm stage list',
+  )
 })
 
 test('trusted npm runs isolate config and stage without approval or lifecycle scripts', () => {

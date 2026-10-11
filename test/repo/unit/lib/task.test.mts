@@ -34,6 +34,9 @@ test('task discovery combines package-owned lanes with nested fleet tasks and ex
     'lint:check':
       'node scripts/repo/run.mts scripts/repo/lint/check.mts --strict',
     unrelated: 'ignored',
+    'setup:check': 'node scripts/repo/setup/doctor.mts',
+    'commit:check':
+      'node scripts/repo/run.mts scripts/repo/git/staged-check.mts',
   })
   writeFileSync(path.join(state.root, 'scripts/repo/check.mts'), '')
   writeFileSync(path.join(state.root, 'scripts/repo/lint/other.mts'), '')

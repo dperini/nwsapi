@@ -1,46 +1,65 @@
-import { execFileSync } from 'node:child_process'
 import { rm } from 'node:fs/promises'
-import { homedir } from 'node:os'
 import path from 'node:path'
-import { obsoleteOutputs } from '../../.config/build.config.mts'
-import { COMPILE_CACHE_DIR, REPO_ROOT } from './lib/paths.mts'
+import { parseArgs } from 'node:util'
+import { REPO_ROOT } from './lib/paths.mts'
+import { isMainModule } from './lib/run-node.mts'
 
-const caches = [
-  'node_modules',
-  '.cache',
-  '.vitiate',
-  '.tmp',
-  '.pnpm-store',
-  'coverage',
-  'dist',
-  'playwright-report',
-  'test-results',
-]
-const browserCache = path.join(homedir(), '.cache', 'nwsapi', 'browsers')
-const generated = obsoleteOutputs.filter(file => !file.startsWith('dist/'))
-const compileCache = path.resolve(
-  REPO_ROOT,
-  process.env['NODE_COMPILE_CACHE'] || COMPILE_CACHE_DIR,
-)
+const scopes = {
+  outputs: ['dist', 'coverage', 'playwright-report', 'test-results', '.tmp'],
+  dependencies: ['node_modules'],
+  tools: [
+    '.cache/bin',
+    '.cache/external-tools',
+    '.cache/mise',
+    '.cache/setup-progress.json',
+  ],
+} as const
 
-// Remove repo-local generated state; preserve source and upstream checkouts.
-await Promise.all(
-  [
-    ...new Set([
-      ...caches.filter(file => file !== '.cache'),
-      ...generated,
-      browserCache,
-      compileCache,
-    ]),
-  ].map(file =>
-    rm(path.isAbsolute(file) ? file : path.join(REPO_ROOT, file), {
-      force: true,
-      recursive: true,
-    }),
-  ),
-)
+type Scope = keyof typeof scopes
 
-// Prune only store entries no project uses, then remove the repo's tool cache.
-execFileSync('pnpm', ['store', 'prune'], { cwd: REPO_ROOT, stdio: 'inherit' })
+export async function main(args = process.argv.slice(2), log = console.log) {
+  const { values } = parseArgs({
+    args: args.filter(arg => arg !== '--'),
+    options: {
+      scope: { type: 'string', default: 'outputs' },
+      apply: { type: 'boolean' },
+      'dry-run': { type: 'boolean' },
+      help: { type: 'boolean', short: 'h' },
+    },
+  })
+  if (values.help) {
+    log(
+      'Usage: npm run clean [-- --dry-run]\nRemoves generated outputs.\nTo preview a reset: npm run reset:dependencies or npm run reset:tools\nAdd -- --apply to a reset command to remove the listed files.',
+    )
+    return
+  }
+  const scope = values.scope as Scope
+  if (!Object.hasOwn(scopes, scope)) {
+    throw new Error('Choose --scope outputs, dependencies, or tools.')
+  }
+  const preview = values['dry-run'] || (scope !== 'outputs' && !values.apply)
+  log(`${preview ? 'Would remove' : 'Removing'} from this checkout:`)
+  for (const file of scopes[scope]) {
+    log(`  ${file}`)
+  }
+  if (preview) {
+    log(
+      scope === 'outputs'
+        ? 'Next: npm run clean'
+        : `Next: npm run reset:${scope} -- --apply`,
+    )
+    return
+  }
+  for (const file of scopes[scope]) {
+    await rm(path.join(REPO_ROOT, file), { force: true, recursive: true })
+  }
+  log(
+    scope === 'outputs'
+      ? 'Cleanup complete. Next: npm run build'
+      : 'Reset complete. Next: npm run setup',
+  )
+}
 
-await rm(path.join(REPO_ROOT, '.cache'), { force: true, recursive: true })
+if (isMainModule(import.meta.url)) {
+  await main()
+}

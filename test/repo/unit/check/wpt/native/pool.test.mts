@@ -154,9 +154,18 @@ test('scope reviews require a passing harness assertion, a reason and a unique s
 })
 
 test('native pin verification requires the checkout to match its configured revision', () => {
-  expect(nativePins()).toEqual(pins)
+  const calls: string[][] = []
+  const readGit = (args: string[]) => {
+    calls.push(args)
+    return args.includes('config') ? state.revision : state.checkout
+  }
+  expect(nativePins(readGit)).toEqual(pins)
+  expect(calls).toEqual([
+    ['config', '--file', '.gitmodules', '--get', 'submodule.upstream/wpt.ref'],
+    ['-C', 'upstream/wpt', 'rev-parse', 'HEAD'],
+  ])
   state.checkout = 'different'
-  expect(() => nativePins()).toThrow()
+  expect(() => nativePins(readGit)).toThrow()
   state.checkout = state.revision
 })
 

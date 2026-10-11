@@ -164,13 +164,16 @@ export function scanInventory(sourceRoot: string) {
   return { revision, scanned, candidates }
 }
 
-export function checkInventory(options: { quiet?: boolean | undefined } = {}) {
+export function checkInventory(
+  options: { quiet?: boolean | undefined } = {},
+  readRevision = inventoryRevision,
+) {
   const report = JSON.parse(readFileSync(inventoryPath, 'utf8')) as {
     revision: string
     scanned: number
     candidates: unknown[]
   }
-  if (report.revision !== inventoryRevision()) {
+  if (report.revision !== readRevision()) {
     throw new Error(
       'The WPT pin changed. Rebuild the full-tree selector inventory and review new parsing and matching candidates before accepting the update.',
     )

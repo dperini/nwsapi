@@ -1,6 +1,7 @@
 import type Adapter from '../../../../../../dist/adapter/dom-selector.js'
 import type * as Module from 'node:module'
 import type * as Jsdom from 'jsdom'
+import type * as Fixtures from '../../../../../../scripts/repo/bench/compare/fixture.mts'
 import { ADAPTER_BUILD_PATH } from '../../../../../../scripts/repo/lib/paths.mts'
 import { afterEach, beforeEach, vi } from 'vitest'
 const state = vi.hoisted(() => ({
@@ -36,6 +37,24 @@ vi.mock('../../../../../../scripts/repo/bench/documents.mts', () => ({
   components: () =>
     '<main id="root"><button data-testid="btn-150"></button><button data-testid="other"></button></main>',
 }))
+vi.mock(
+  '../../../../../../scripts/repo/bench/compare/fixture.mts',
+  async () => {
+    const actual = await vi.importActual<typeof Fixtures>(
+      '../../../../../../scripts/repo/bench/compare/fixture.mts',
+    )
+    // Keep DOM identity cases representative without benchmark-sized trees.
+    return {
+      ...actual,
+      fixture: (
+        matches: number,
+        groups: number,
+        layout: Fixtures.Layout,
+        scenario: Fixtures.Scenario = 'grouped',
+      ) => actual.fixture(Math.min(matches, 32), groups, layout, scenario, 32),
+    }
+  },
+)
 vi.mock('../../../../../../scripts/repo/bench/compare/timing.mts', () => ({
   compareTiming: state.compare,
 }))

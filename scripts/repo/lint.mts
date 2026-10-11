@@ -1,5 +1,7 @@
 import { runTool } from './lib/run-tool.mts'
-import { toolingFiles } from './lib/tooling-scope.mts'
+import { parseLintArguments, selectedLintFiles } from './lint/files.mts'
+
+const { files, forwarded } = parseLintArguments(process.argv.slice(2))
 
 runTool([
   'node_modules/oxlint/bin/oxlint',
@@ -7,6 +9,6 @@ runTool([
   '.config/oxlint.json',
   '--tsconfig',
   '.config/tsconfig.check.json',
-  ...toolingFiles(),
-  ...process.argv.slice(2),
+  ...selectedLintFiles(files),
+  ...forwarded,
 ])

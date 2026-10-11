@@ -1,7 +1,7 @@
 import { currentLocale, translate } from './locale.mts'
 import { localizeText } from './locale-content.mts'
-import { isReadingMode } from './reading-mode.mts'
-import { iconMarkup } from './icons.mts'
+import { documentHref, getDocument } from './documents.mts'
+import { initializeContentsSelection } from './contents-selection.mts'
 
 export const CONTENTS_STATE_KEY = 'nwsapi-guide-contents'
 
@@ -16,28 +16,14 @@ export function placeReadingContents(
   contents: HTMLDetailsElement,
   navigation: HTMLElement,
 ) {
-  // Closed details hide their children, so the compact tabs sit beside it.
-  if (contents.open) {
+  if (navigation.parentElement !== contents) {
     contents.append(navigation)
-  } else {
-    contents.after(navigation)
-  }
-}
-
-export function wiggleReadingContent() {
-  const layouts = document.querySelectorAll<HTMLElement>(
-    '.guide-layout, .reading-layout',
-  )
-  for (const layout of layouts) {
-    layout.classList.remove('contents-resizing')
-    void layout.offsetWidth
-    layout.classList.add('contents-resizing')
   }
 }
 
 export function initializeReadingContents(
   stateKey = CONTENTS_STATE_KEY,
-  breakpoint = '(max-width: 900px)',
+  breakpoint = '(max-width: 1200px)',
 ) {
   const contents = document.querySelector<HTMLDetailsElement>(
     '#reading-navigation',
@@ -45,27 +31,22 @@ export function initializeReadingContents(
   const summary = contents.querySelector('summary')!
   const summaryLabel = summary.querySelector('span')!
   const navigation = contents.parentElement!.querySelector('nav')!
-  navigation.classList.add('reading-section-links')
-  labelReadingContents(navigation)
-  new MutationObserver(() => labelReadingContents(navigation)).observe(
-    navigation,
-    { childList: true, subtree: true, characterData: true },
+  const mobileToggle = document.querySelector<HTMLButtonElement>(
+    '[data-reader-contents-toggle]',
   )
+  const replacementView = matchMedia('(max-width: 600px)')
+  navigation.classList.add('reading-section-links')
+  initializeContentsSelection(navigation)
+  labelReadingContents(navigation)
   const mobile = matchMedia(breakpoint)
   contents.open = !mobile.matches
   try {
-    const saved = sessionStorage.getItem(stateKey)
+    const saved = localStorage.getItem(stateKey)
     if (saved !== null) {
       contents.open = saved === 'true'
     }
   } catch {
     // The contents can still collapse when browser storage is unavailable.
-  }
-  let reading = isReadingMode()
-  let initializing = true
-  let expandedBeforeReading = contents.open
-  if (reading) {
-    contents.open = false
   }
   const update = () => {
     placeReadingContents(contents, navigation)
@@ -79,103 +60,147 @@ export function initializeReadingContents(
       'aria-label',
       `${summaryLabel.textContent}: ${summary.title}`,
     )
+    if (mobileToggle) {
+      const hasLinks = navigation.querySelector('a[href^="#"]') !== null
+      const ready =
+        hasLinks &&
+        !contents.hidden &&
+        !document.querySelector('#reading-content')?.hasAttribute('aria-busy')
+      const toggleLabel = translate(
+        contents.open ? 'collapseContents' : 'contents',
+      )
+      mobileToggle.disabled = !ready
+      mobileToggle.setAttribute('aria-expanded', String(contents.open))
+      mobileToggle.setAttribute('aria-label', toggleLabel)
+      mobileToggle.title = toggleLabel
+    }
   }
+  document
+    .querySelector<HTMLAnchorElement>('.skip-link[href="#reading-content"]')
+    ?.addEventListener('click', () => {
+      if (mobile.matches && contents.open) {
+        contents.open = false
+        update()
+      }
+    })
+  const navigationObserver = new MutationObserver(() => {
+    labelReadingContents(navigation)
+    update()
+  })
+  navigationObserver.observe(navigation, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  })
+  navigationObserver.observe(contents, {
+    attributes: true,
+    attributeFilter: ['hidden'],
+  })
+  const article = document.querySelector('#reading-content')
+  if (article) {
+    navigationObserver.observe(article, {
+      attributes: true,
+      attributeFilter: ['aria-busy'],
+    })
+  }
+  mobileToggle?.addEventListener('click', () => {
+    if (replacementView.matches && !mobileToggle.disabled) {
+      contents.open = !contents.open
+      update()
+    }
+  })
   contents.addEventListener('toggle', () => {
     update()
-    if (!initializing && !isReadingMode()) {
-      wiggleReadingContent()
-    }
     try {
-      if (!isReadingMode()) {
-        sessionStorage.setItem(stateKey, String(contents.open))
-      }
+      localStorage.setItem(stateKey, String(contents.open))
     } catch {
       // Keep the current panel state when browser storage is unavailable.
     }
   })
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      initializing = false
-    })
-  })
   mobile.addEventListener('change', () => {
-    contents.open = !mobile.matches && !isReadingMode()
+    if (mobile.matches) {
+      contents.open = false
+    }
+    update()
+  })
+  window.addEventListener('guide-display-reset', () => {
+    contents.open = !mobile.matches
+    try {
+      localStorage.removeItem(stateKey)
+    } catch {
+      // The visible panel still resets when storage is unavailable.
+    }
     update()
   })
   window.addEventListener('guide-locale-change', update)
-  window.addEventListener('guide-reading-mode-change', () => {
-    const nextReading = isReadingMode()
-    if (nextReading === reading) {
-      return
-    }
-    if (nextReading) {
-      expandedBeforeReading = contents.open
-    }
-    contents.open = nextReading ? false : expandedBeforeReading
-    reading = nextReading
-    update()
-  })
-  contents.parentElement!.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
+  document.addEventListener('keydown', event => {
+    if (mobile.matches && contents.open && event.key === 'Escape') {
+      event.preventDefault()
       contents.open = false
-      summary.focus()
+      update()
+      if (replacementView.matches && mobileToggle) {
+        mobileToggle.focus()
+      } else {
+        summary.focus()
+      }
     }
   })
   navigation.addEventListener('click', event => {
-    if (
-      mobile.matches &&
-      event.target instanceof Element &&
-      event.target.closest('a')
-    ) {
+    const link =
+      event.target instanceof Element
+        ? event.target.closest<HTMLAnchorElement>('a[href^="#"]')
+        : null
+    if (mobile.matches && link) {
       contents.open = false
+      update()
+      const id = decodeURIComponent(link.hash.slice(1))
+      requestAnimationFrame(() => {
+        const target = document.getElementById(id)
+        if (!target) {
+          return
+        }
+        let disclosure = target.closest('details')
+        while (disclosure) {
+          disclosure.open = true
+          disclosure = disclosure.parentElement?.closest('details') ?? null
+        }
+        target.focus({ preventScroll: true })
+        target.scrollIntoView({ block: 'start', behavior: 'instant' })
+      })
     }
   })
   update()
 }
 
-const sequence = [
-  ['docs/repo/perf/pytorch-for-beginners.md', 'How the routing model works'],
-  [
-    'docs/repo/perf/neural-dispatch-crossed-outcome.md',
-    'Crossed-query results',
-  ],
-  [
-    'assets/repo/bench/survey-2026-10-03/neural-dispatch-crossed-2026-10-05.html',
-    'Crossed-query report',
-  ],
-  ['docs/repo/perf/neural-dispatch-jit-outcome.md', 'Dispatch follow-up'],
-  [
-    'assets/repo/bench/survey-2026-10-03/neural-dispatch-jit-2026-10-05.html',
-    'Dispatch and JIT report',
-  ],
-] as const
-
-export function renderReadingNavigation(documentPath: string) {
-  const navigation = document.querySelector<HTMLElement>('.reading-pagination')!
-  navigation.replaceChildren()
-  const index = sequence.findIndex(([path]) => path === documentPath)
-  for (const [direction, entry] of [
-    ['previous', sequence[index - 1]],
-    ['next', sequence[index + 1]],
-  ] as const) {
-    if (!entry) {
-      continue
-    }
-    const link = document.createElement('a')
-    link.rel = direction === 'previous' ? 'prev' : 'next'
-    link.href = `./model-guide-reading.html?doc=${encodeURIComponent(entry[0])}`
-    const title = document.createElement('span')
-    title.className = 'reading-page-title'
-    title.textContent = localizeText(entry[1], currentLocale())
-    link.title = `${translate(direction)}: ${title.textContent}`
-    link.setAttribute('aria-label', link.title)
-    const icon = document.createElement('span')
-    icon.className = 'reading-page-icon'
-    icon.ariaHidden = 'true'
-    icon.innerHTML = iconMarkup(
-      direction === 'previous' ? 'previousDocument' : 'nextDocument',
-    )
-    link.append(title, icon)
-    navigation.append(link)
+export function renderRelatedDocuments(path: string) {
+  const navigation = document.querySelector<HTMLElement>('.reading-related')
+  if (!navigation) {
+    return
   }
+  navigation.replaceChildren()
+  const related = (getDocument(path)?.related ?? []).filter(item =>
+    getDocument(item.path),
+  )
+  if (related.length === 0) {
+    navigation.hidden = true
+    return
+  }
+  navigation.hidden = false
+  const heading = document.createElement('h2')
+  heading.dataset['i18n'] = 'relatedDocuments'
+  heading.textContent = translate('relatedDocuments')
+  navigation.append(heading)
+  const list = document.createElement('ul')
+  for (const item of related) {
+    const target = getDocument(item.path)
+    if (target) {
+      const link = document.createElement('a')
+      link.href = documentHref(target.path)
+      link.textContent = localizeText(item.label, currentLocale())
+      const row = document.createElement('li')
+      row.append(link)
+      list.append(row)
+    }
+  }
+  navigation.append(list)
 }

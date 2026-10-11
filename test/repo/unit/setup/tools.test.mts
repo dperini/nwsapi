@@ -10,7 +10,7 @@ const state = vi.hoisted(() => ({
     node: '26.11.0',
     nub: '0.9.6',
     npm: '12.2.0',
-    pnpm: '12.10.1',
+    pnpm: '12.12.0',
     mise: '2026.10.4',
     sfw: '1.15.2',
     mold: '2.43.0',

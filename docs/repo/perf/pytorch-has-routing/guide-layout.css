@@ -30,8 +30,8 @@
 .guide-layout:has(#reading-navigation:not([open])) {
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
-  padding-left: calc(64px + var(--paper-margin));
-  padding-right: calc(64px + var(--paper-margin));
+  padding-left: var(--paper-margin);
+  padding-right: calc(128px + var(--paper-margin));
 }
 @media (max-width: 900px) {
   .guide-layout,
@@ -41,7 +41,7 @@
     padding-left: var(--paper-margin);
   }
   .guide-layout:has(#reading-navigation) {
-    padding-right: calc(64px + var(--paper-margin));
+    padding-right: calc(128px + var(--paper-margin));
   }
   .guide-layout > main {
     grid-area: 1 / 1;
@@ -51,8 +51,8 @@
   }
   .guide-layout:has(#reading-navigation:not([open])) {
     gap: 0;
-    padding-left: calc(64px + var(--paper-margin));
-    padding-right: calc(64px + var(--paper-margin));
+    padding-left: var(--paper-margin);
+    padding-right: calc(128px + var(--paper-margin));
   }
 }
 @media (max-width: 600px) {

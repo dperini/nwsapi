@@ -17,10 +17,18 @@ const state = vi.hoisted(() => ({
   generate: vi.fn(),
   dispose: vi.fn(),
   load: vi.fn(),
+  align: vi.fn(),
+  closeAligner: vi.fn(),
   main: false,
   root: '',
 }))
 vi.mock('node:child_process', () => ({ execFileSync: state.execute }))
+vi.mock('../../../../../scripts/repo/gen/guide/alignment.mts', () => ({
+  loadNarrationAligner: async () => ({
+    align: state.align,
+    close: state.closeAligner,
+  }),
+}))
 vi.mock('kokoro-js', () => ({ KokoroTTS: { from_pretrained: state.load } }))
 vi.mock('../../../../../.config/guide-narration.json', () => ({
   default: {
@@ -49,6 +57,14 @@ const voice = transcript.voice
 beforeEach(() => {
   vi.resetModules()
   vi.clearAllMocks()
+  state.align.mockImplementation(async (_file: string, text: string) => ({
+    duration: 2,
+    words: text.split(/\s+/).map((word, index) => ({
+      text: word,
+      start: index * 0.1,
+      end: (index + 1) * 0.1,
+    })),
+  }))
   state.main = false
   directory = mkdtempSync(path.join(tmpdir(), 'nwsapi-narration-test-'))
   state.root = directory
@@ -122,7 +138,7 @@ test('failed and corrupt downloads never leave model files in the cache', async 
 test('spoken segments preserve visible words and validate pace and quiet pause metadata', async () => {
   const { narrationSegments, narrationSpeech } = await load()
   expect(narrationSpeech('nwsapi finds the cards.')).toBe(
-    'N W S A P I finds the cards.',
+    `${transcript.pronunciations.nwsapi} finds the cards.`,
   )
   expect(narrationSpeech('PyTorch trains the model.')).toBe(
     'PyTorch trains the model.',
@@ -130,7 +146,13 @@ test('spoken segments preserve visible words and validate pace and quiet pause m
   const segment = { text: 'A clear sentence ends here.', pauseAfterMs: 420 }
   expect(
     narrationSegments({ text: segment.text, segments: [segment] }),
-  ).toEqual([{ ...segment, speed: transcript.speed }])
+  ).toEqual([
+    {
+      ...segment,
+      pauseAfterMs: transcript.ideaPauseMs,
+      speed: transcript.speed,
+    },
+  ])
   const invalid = [
     { changes: { text: '' }, code: 'ERR_NARRATION_TEXT' },
     { changes: { text: 'x'.repeat(241) }, code: 'ERR_NARRATION_TEXT' },
@@ -207,6 +229,13 @@ test('local neural speech joins sentence chunks into normalized section audio an
     ),
   ).toBe(true)
   expect(close).toHaveBeenCalledOnce()
+  expect(state.align).toHaveBeenCalledTimes(generated)
+  expect(state.closeAligner).toHaveBeenCalledOnce()
+  const timings = JSON.parse(
+    readFileSync(path.join(directory, 'timings.generated.json'), 'utf8'),
+  )
+  expect(timings.sections).toHaveLength(transcript.sections.length)
+  expect(timings.sections[0].words[0].start).toBe(0)
   expect(existsSync(path.dirname(state.save.mock.calls[0]![0]))).toBe(false)
   expect(state.execute).not.toHaveBeenCalled()
 })

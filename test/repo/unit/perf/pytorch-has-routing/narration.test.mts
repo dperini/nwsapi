@@ -9,11 +9,19 @@ async function fixture() {
     ['training', 'search', 'policy', 'source']
       .map(id => `<section id="${id}"><p class="section-intro"></p></section>`)
       .join(''),
+    { url: 'https://docs.example/' },
   )
   const audios: HTMLAudioElement[] = []
   const reject: Array<(reason: Error) => void> = []
   vi.stubGlobal('document', dom.window.document)
   vi.stubGlobal('window', dom.window)
+  vi.stubGlobal('localStorage', dom.window.localStorage)
+  vi.stubGlobal(
+    'requestAnimationFrame',
+    vi.fn(() => 1),
+  )
+  vi.stubGlobal('cancelAnimationFrame', vi.fn())
+  vi.stubGlobal('AbortController', dom.window.AbortController)
   vi.stubGlobal('Audio', function () {
     const audio = dom.window.document.createElement('audio')
     let paused = true
@@ -46,12 +54,12 @@ test('switching narration pauses the previous clip and ignores its stale failure
   const view = await fixture()
   view.buttons[0]!.click()
   expect(view.buttons[0]!.getAttribute('aria-label')).toBe(
-    'Pause narration: training',
+    'Pause narration: Training',
   )
   view.buttons[1]!.click()
   expect(view.audios[0]!.paused).toBe(true)
   expect(view.buttons[0]!.getAttribute('aria-label')).toBe(
-    'Listen to narration: training',
+    'Listen to narration: Training',
   )
   expect(view.buttons[1]!.getAttribute('aria-pressed')).toBe('true')
   view.reject[0]!(new Error('cancelled'))

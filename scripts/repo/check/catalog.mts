@@ -4,17 +4,35 @@ import { parse, parseAllDocuments } from 'yaml'
 import { REPO_ROOT } from '../lib/paths.mts'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 
+type PackageConfiguration = {
+  packageManager?: string
+  devDependencies: Record<string, string>
+  devEngines: { packageManager: Array<{ version: string; onFail: string }> }
+}
+
+function checkPackageManager(pkg: PackageConfiguration) {
+  if (
+    pkg.packageManager !== undefined ||
+    pkg.devEngines.packageManager[0]?.version !==
+      `>=${manifest.tools.pnpm.version}`
+  ) {
+    throw new Error(
+      "The pnpm minimum must match external-tools.json without overriding the developer's manager.",
+    )
+  }
+  // npm must reach setup before the checkout can select its pinned pnpm.
+  if (pkg.devEngines.packageManager[0]?.onFail !== 'ignore') {
+    throw new Error('Allow npm to bootstrap the pinned pnpm through setup.')
+  }
+}
+
 export function checkCatalog(root = REPO_ROOT) {
   const workspace = parse(
     readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
   ) as { catalog: Record<string, string> }
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
-  ) as {
-    packageManager: string
-    devDependencies: Record<string, string>
-    devEngines: { packageManager: Array<{ version: string }> }
-  }
+  ) as PackageConfiguration
   for (const [name, spec] of Object.entries(pkg.devDependencies)) {
     if (name.startsWith('@socketsecurity/lib')) {
       throw new Error('Inline the required Socket library helpers locally.')
@@ -26,14 +44,7 @@ export function checkCatalog(root = REPO_ROOT) {
       throw new Error(`${name} must use an exact pinned catalog version.`)
     }
   }
-  if (
-    pkg.packageManager !== `pnpm@${manifest.tools.pnpm.version}` ||
-    pkg.devEngines.packageManager[0]?.version !== manifest.tools.pnpm.version
-  ) {
-    throw new Error(
-      'The pnpm package-manager pin differs from external-tools.json.',
-    )
-  }
+  checkPackageManager(pkg)
   if (
     workspace.catalog['ecc-agentshield'] !== manifest.tools.agentshield.version
   ) {

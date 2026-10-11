@@ -21,8 +21,30 @@ vi.mock(
   '../../../../../../../scripts/repo/bench/planner/has/power.mts',
   () => ({ checkedPower: () => 'AC' }),
 )
-const source =
-  'var cache = new Map(); module.exports = function(window) { return { select: function(selector, doc) { var size = doc.getElementsByClassName("hit").length; var key = selector + size; if (!cache.has(key)) cache.set(key, doc.querySelectorAll(selector)); return cache.get(key) }, useNeuralPlanner: function(value) { globalThis.recordDisabled(value) } } }'
+const source = `
+var documents = new WeakMap();
+module.exports = function(window) {
+  return {
+    select: function(selector, doc) {
+      var state = documents.get(doc);
+      if (!state) {
+        var observer = new window.MutationObserver(function() {});
+        observer.observe(doc, { childList: true, subtree: true, attributes: true });
+        state = { cache: new Map(), observer: observer };
+        documents.set(doc, state);
+      }
+      if (state.observer.takeRecords().length) {
+        state.cache.clear();
+      }
+      if (!state.cache.has(selector)) {
+        state.cache.set(selector, doc.querySelectorAll(selector));
+      }
+      return state.cache.get(selector);
+    },
+    useRoutePlanner: function(value) { globalThis.recordDisabled(value); }
+  };
+};
+`
 
 async function load() {
   return import('../../../../../../../scripts/repo/bench/planner/dispatch/runtime/cold.mts')

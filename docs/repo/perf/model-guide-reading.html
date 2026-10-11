@@ -2,6 +2,22 @@
 <html lang="en" translate="no">
   <head>
     <meta charset="utf-8" />
+    <script>
+      try {
+        const root = document.documentElement
+        const mode = localStorage.getItem('nwsapi-guide-color-mode')
+        root.dataset.colorMode =
+          mode === 'light' || mode === 'dark'
+            ? mode
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        root.toggleAttribute(
+          'data-reading-mode',
+          localStorage.getItem('nwsapi-guide-reading') === 'true',
+        )
+      } catch {}
+    </script>
     <meta name="google" content="notranslate" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0c171e" />
@@ -31,7 +47,17 @@
     />
     <link rel="stylesheet" href="./pytorch-has-routing.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/contents.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/navigation-menu.css" />
     <link rel="stylesheet" href="./pytorch-has-routing/reading.css" />
+    <noscript
+      ><style>
+        .appearance-controls,
+        .language-select-shell,
+        .reader-mobile-contents-toggle {
+          display: none !important;
+        }
+      </style></noscript
+    >
     <script type="module" src="./pytorch-has-routing/reading.mts"></script>
   </head>
   <body class="reader" data-theme="where" data-scroll-theme="where">
@@ -40,46 +66,32 @@
     >
     <div class="scroll-morph" aria-hidden="true"></div>
     <header class="topbar reader-topbar">
-      <a href="./pytorch-has-routing.html" class="brand"
-        ><code>nwsapi</code> <span>/ MODEL GUIDE</span></a
-      >
-      <div class="language-picker">
-        <span class="language-select-shell">
-          <!-- guide-language-symbol -->
-          <select
-            id="language-select"
-            data-language-select
-            class="theme-select"
+      <div class="reader-header-identity">
+        <nav
+          class="header-navigation-group"
+          aria-label="Breadcrumb"
+          data-i18n-aria="breadcrumb"
+        >
+          <a href="./index.html" class="brand"><code>nwsapi</code></a>
+          <span
+            class="brand-separator"
+            data-header-context-separator
+            aria-hidden="true"
+            hidden
+            >/</span
           >
-            <option value="en">en</option>
-            <option value="it">it</option>
-          </select>
-        </span>
-        <span class="appearance-controls">
-          <button
-            type="button"
-            class="reading-mode-toggle"
-            data-reading-toggle
-            aria-pressed="false"
-            aria-label="Reading mode"
-            title="Reading mode"
-            data-i18n-aria="readingMode"
-            data-i18n-title="readingMode"
-          >
-            <!-- guide-reading-symbol -->
-          </button>
-          <button
-            type="button"
-            class="color-mode-toggle"
-            data-color-toggle
-            data-light-label="Switch to light mode"
-            data-dark-label="Switch to dark mode"
-            aria-label="Switch to light mode"
-            title="Switch to light mode"
-          >
-            <!-- guide-color-symbol -->
-          </button>
-          <a
+          <span
+            class="brand-context documents-navigation-mount"
+            data-header-context
+            data-header-context-kind="reader"
+            data-locale-content
+            translate="no"
+            aria-current="page"
+            hidden
+          ></span>
+        </nav>
+        <span class="header-source-slot"
+          ><a
             id="reading-source-link"
             class="header-source-link"
             target="_blank"
@@ -90,39 +102,106 @@
             data-i18n-title="viewOnGitHub"
             hidden
             ><span class="github-icon" aria-hidden="true"></span
-            ><span class="header-external-arrow" aria-hidden="true">↗</span></a
+            ><svg
+              class="header-external-arrow"
+              viewBox="0 0 8 8"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="m2 6 4-4M2 2h4v4" /></svg></a
+        ></span>
+      </div>
+      <div class="header-actions">
+        <div class="reader-header-navigation-controls">
+          <button
+            type="button"
+            class="reader-mobile-contents-toggle"
+            data-reader-contents-toggle
+            aria-label="Contents"
+            title="Contents"
+            aria-controls="reading-navigation"
+            aria-expanded="false"
+            disabled
           >
-        </span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        <div class="language-picker">
+          <span class="language-select-shell">
+            <!-- guide-language-symbol -->
+            <select
+              id="language-select"
+              data-language-select
+              class="theme-select"
+              aria-label="Language"
+            >
+              <option value="en">en</option>
+              <option value="it">it</option>
+            </select>
+          </span>
+          <span class="appearance-controls">
+            <button
+              type="button"
+              class="reading-mode-toggle"
+              data-reading-toggle
+              aria-pressed="false"
+              aria-label="Reading mode"
+              title="Reading mode"
+              data-i18n-aria="readingMode"
+              data-i18n-title="readingMode"
+            >
+              <!-- guide-reading-symbol -->
+            </button>
+            <button
+              type="button"
+              class="color-mode-toggle"
+              data-color-toggle
+              data-light-label="Switch to light mode"
+              data-dark-label="Switch to dark mode"
+              aria-label="Switch to light mode"
+              title="Switch to light mode"
+            >
+              <!-- guide-color-symbol -->
+            </button>
+          </span>
+        </div>
       </div>
     </header>
     <div class="reading-progress" aria-hidden="true"></div>
     <main class="reading-layout">
       <div class="reading-column">
-        <div class="reading-meta">
-          <p id="reading-label" class="eyebrow" data-i18n="furtherReading">
-            Further reading
-          </p>
-          <span id="reading-time"></span>
-        </div>
-        <article id="reading-content" class="reading-prose" aria-busy="true">
+        <p
+          id="reading-translation-notice"
+          class="reading-translation-notice"
+          role="status"
+          data-i18n="translationUpdating"
+          hidden
+        >
+          The Italian translation is being updated; this document is shown in
+          English.
+        </p>
+        <article
+          id="reading-content"
+          class="reading-prose"
+          aria-busy="true"
+          tabindex="-1"
+        >
           <p class="reading-loading" role="status" data-i18n="readingLoading">
             Opening document…
           </p>
         </article>
+        <nav
+          class="reading-related"
+          aria-label="Related documents"
+          data-i18n-aria="relatedDocuments"
+          hidden
+        ></nav>
       </div>
       <div class="reading-sidebar-rail">
         <aside class="reading-sidebar">
-          <a
-            class="reader-close"
-            href="./pytorch-has-routing.html#source"
-            aria-label="Close reader and return to guide"
-            title="Close reader and return to guide"
-            data-i18n-aria="closeReader"
-            data-i18n-title="closeReader"
-            ><svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m6 6 12 12M18 6 6 18" /></svg
-          ></a>
-          <details id="reading-navigation" open>
+          <details id="reading-navigation">
             <summary>
               <span data-i18n="onThisPage">On this page</span>
               <svg
@@ -137,22 +216,22 @@
               <ol id="reading-contents"></ol>
             </nav>
           </details>
-          <nav
-            class="reading-pagination"
-            aria-label="Document navigation"
-            data-i18n-aria="documentNavigation"
-          ></nav>
         </aside>
       </div>
     </main>
-    <noscript
-      ><p class="reading-noscript">
-        JavaScript renders these notes.
-        <a
-          href="https://github.com/dperini/nwsapi/tree/prerelease/3.0.0/docs/repo/perf"
-          >Read them on GitHub.</a
-        >
-      </p></noscript
-    >
+    <noscript>
+      <p class="reading-noscript">
+        JavaScript renders this document. Browse the
+        <a href="./index.html">document catalog</a> or
+        <a href="https://github.com/dperini/nwsapi/tree/prerelease/3.0.0/docs"
+          >repository documentation on GitHub</a
+        >.
+      </p>
+    </noscript>
+    <footer class="guide-preferences" hidden>
+      <button type="button" data-reset-display data-i18n="resetDisplay">
+        Reset display
+      </button>
+    </footer>
   </body>
 </html>
