@@ -12,16 +12,24 @@ const state = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
+// The fixture only mutates content classes, so box and content topology is fixed.
+const topology = new WeakMap<Document, Element[][]>()
+
 function select(selector: string, root: Document | Element) {
   const doc = root.nodeType === 9 ? (root as Document) : root.ownerDocument!
-  const boxes = Array.from(doc.body.children).filter(node =>
-    node.classList.contains('box'),
-  )
-  return boxes.flatMap((box, index) =>
-    selector.includes('nth-of-type') && !(index >= 4 && index % 4 === 0)
-      ? []
-      : Array.from(box.getElementsByClassName('content')),
-  )
+  let contentsByBox = topology.get(doc)
+  if (!contentsByBox) {
+    contentsByBox = Array.from(doc.body.children)
+      .filter(node => node.classList.contains('box'))
+      .map(box => Array.from(box.getElementsByClassName('content')))
+    topology.set(doc, contentsByBox)
+  }
+  return contentsByBox.flatMap((contents, index) => {
+    if (selector.includes('nth-of-type') && !(index >= 4 && index % 4 === 0)) {
+      return []
+    }
+    return contents.filter(node => node.classList.contains('content'))
+  })
 }
 class Baseline {
   private cache = new Map<string, Element[]>()
