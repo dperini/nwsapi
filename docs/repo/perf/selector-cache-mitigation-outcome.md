@@ -63,4 +63,4 @@ Expanded budgets can hold both the simple and complex steady scans. The changed 
 - Configure the host’s actual engine. The V3 `DOMSelector` adapter accepts these numeric settings before its first use.
 - The no-`Map` fallback uses the same compiled-plan policy and limits. Fixed-size helper caches retain their own bounds.
 
-The separate [V2 draft PR](https://github.com/dperini/nwsapi/pull/243) exposes configuration with its existing defaults and LRU policy. It is a mitigation when a stylesheet fits the host-selected bounds, rather than the V3 admission-policy change.
+The merged [V2 PR](https://github.com/dperini/nwsapi/pull/243) exposes configuration with its existing defaults and LRU policy. Its mitigation depends on a stylesheet fitting the host-selected bounds. V3 already includes the selective admission policy measured here.
