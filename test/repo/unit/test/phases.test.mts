@@ -4,10 +4,21 @@ import { test, vi } from 'vitest'
 import {
   runTestPhases,
   testPhases,
+  usesLocalUnitShards,
 } from '../../../../scripts/repo/test/phases.mts'
 import type { runBudgeted } from '../../../../scripts/repo/lib/test-budget.mts'
 
 const cleanCheckout = 'test/repo/integration/typecheck-clean.test.mts'
+
+test('only argument-free noncoverage unit runs use local shards', () => {
+  assert.equal(usesLocalUnitShards('unit', [], false), true)
+  assert.equal(usesLocalUnitShards('unit', [], true), false)
+  assert.equal(
+    usesLocalUnitShards('unit', ['--reporter=verbose'], false),
+    false,
+  )
+  assert.equal(usesLocalUnitShards('integration', [], false), false)
+})
 
 test('the isolated CI integration schedule runs the clean checkout alone', () => {
   const phases = testPhases('integration', ['--reporter=json'], true)

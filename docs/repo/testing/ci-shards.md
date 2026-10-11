@@ -9,16 +9,16 @@ Vitest shards. Each shard keeps the ordinary 10,000ms watchdog and the unit
 configuration, including per-file isolation and network denial.
 
 The shard jobs use the same revision and install. Vitest selects files with
-`--shard=<index>/32`. The existing developer commands remain unsharded:
-`pnpm test` and `pnpm run test:unit` still run the complete unit suite in one
-process.
+`--shard=<index>/32`.
 
-`pnpm run review` uses the same 32 shards locally and runs them one at a time.
-This keeps each shard under the unchanged 10,000ms watchdog while avoiding
-concurrent setup builds against the shared `dist/` output. The complete review
-may take longer than 10s overall. It stops at the first failed shard, then
-checks the combined reports against the full unit test inventory. The standalone
-`pnpm run test:unit` command remains a single-process run.
+Argument-free local unit runs, including `pnpm test`, `pnpm run test:unit`, and
+the unit phase of `pnpm run test:node`, use the same 32 shards serially.
+`pnpm run review` uses this path too. Serial execution keeps each shard under the
+unchanged 10,000ms watchdog while avoiding concurrent setup builds against the
+shared `dist/` output. The complete run can take longer than 10s overall. It
+stops at the first failed shard, then verifies the combined reports against the
+full unit test inventory. Runner arguments and coverage requests retain the
+existing single-process runner and its normal budget.
 
 Each shard writes a JSON envelope under the runner's temporary directory. It
 records the shard index, shard count, commit, workflow run and attempt, start,

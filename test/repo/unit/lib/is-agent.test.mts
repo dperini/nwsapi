@@ -10,6 +10,10 @@ vi.mock('@playwright/test', () => ({
   defineConfig: (config: unknown) => config,
 }))
 
+vi.mock('../../../../scripts/repo/browser.mts', () => ({
+  browserLaunchOptions: () => ({}),
+}))
+
 const agentKeys = [
   'AI_AGENT',
   'AUGMENT_AGENT',

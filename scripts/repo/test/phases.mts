@@ -7,6 +7,14 @@ export interface TestPhase {
   label: string
 }
 
+export function usesLocalUnitShards(
+  lane: string,
+  runnerArgs: readonly string[],
+  coverage: boolean,
+) {
+  return lane === 'unit' && runnerArgs.length === 0 && !coverage
+}
+
 interface PhaseRunnerOptions {
   phases: readonly TestPhase[]
   runner: string[]

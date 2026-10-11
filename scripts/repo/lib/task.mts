@@ -56,8 +56,8 @@ export function discoverTasks(kind: TaskKind, root = REPO_ROOT): Task[] {
   }
   const tasks = new Map<string, Task>()
   for (const [name, command] of Object.entries(pkg.scripts)) {
-    // Setup diagnostics describe the host, not a repository validation lane.
-    if (name === 'setup:check') {
+    // Host diagnostics and index checks do not validate the complete repository.
+    if (name === 'setup:check' || name === 'commit:check') {
       continue
     }
     if (name.endsWith(`:${kind}`)) {

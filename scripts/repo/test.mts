@@ -1,5 +1,10 @@
 import { testBudget } from './lib/test-budget.mts'
-import { runTestPhases, testPhases } from './test/phases.mts'
+import { runLocalUnitReview } from './review/unit.mts'
+import {
+  runTestPhases,
+  testPhases,
+  usesLocalUnitShards,
+} from './test/phases.mts'
 
 const isolateCleanCheckout = process.argv.includes(
   '--ci-isolate-clean-checkout',
@@ -53,6 +58,11 @@ async function runLane(
 }
 
 for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
+  const coverage = args.includes('--coverage')
+  if (usesLocalUnitShards(lane, args, coverage)) {
+    runLocalUnitReview()
+    continue
+  }
   const upstream = lane === 'upstream'
   const runner = upstream
     ? [
@@ -67,7 +77,6 @@ for (const lane of tier === 'all' ? ['unit', 'integration'] : [tier]) {
         '--config',
         '.config/repo/vitest.config.mts',
       ]
-  const coverage = args.includes('--coverage')
   const code = await runLane(lane, runner, args, !upstream && coverage)
   if (code) {
     process.exitCode = code
