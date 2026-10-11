@@ -2,7 +2,10 @@ allowBuilds:
   '@swc/core': true
   cpu-features: false
   fsevents: false
+  # CPU inference and image processing use the published native binaries.
+  onnxruntime-node: false
   protobufjs: false
+  sharp: false
   ssh2: false
 blockExoticSubdeps: true
 catalog:
