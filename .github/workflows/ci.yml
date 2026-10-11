@@ -15,7 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  node:
+  runtime:
+    outputs:
+      fullNode: ${{ steps.test-plan.outputs.fullNode }}
+      unitShards: ${{ steps.test-plan.outputs.unitShards }}
+      unitShardCount: ${{ steps.test-plan.outputs.unitShardCount }}
     runs-on: ubuntu-26.04
     env:
       pnpm_config_store_dir: ${{ github.workspace }}/.cache/pnpm-store
@@ -72,7 +76,7 @@ jobs:
         if: steps.test-plan.outputs.node == 'true'
         env:
           GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-        run: pnpm run test:ci
+        run: pnpm run test:ci --integration-only
       - name: Replay the fuzz corpus
         if: steps.test-plan.outputs.fuzz == 'true'
         id: fuzz-replay
@@ -112,3 +116,120 @@ jobs:
           path: .vitiate/
           if-no-files-found: warn
           retention-days: 14
+
+  unit:
+    needs: runtime
+    if: needs.runtime.outputs.fullNode == 'true'
+    runs-on: ubuntu-26.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.runtime.outputs.unitShards) }}
+    env:
+      pnpm_config_store_dir: ${{ github.workspace }}/.cache/pnpm-store
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          fi
+          # Full ancestry lets the affected-test planner verify its comparison.
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
+      - name: Install integrity-verified contributor tools
+        run: node scripts/repo/setup/tools.mts --github-path
+      - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
+      - name: Run unit shard within its normal budget
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_COUNT: ${{ needs.runtime.outputs.unitShardCount }}
+        run: >-
+          node scripts/repo/test/shard/run.mts
+          --index "$SHARD_INDEX" --count "$SHARD_COUNT"
+          --directory "$RUNNER_TEMP/unit-reports"
+      - name: Upload unit shard diagnostics
+        if: always()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: unit-shard-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/unit-reports
+          if-no-files-found: error
+          retention-days: 7
+
+  node:
+    needs: [runtime, unit]
+    if: always()
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Bootstrap checkout
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          TRIGGER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q
+          git config --local advice.detachedHead false
+          git remote remove origin 2>/dev/null || true
+          git remote add origin "${SERVER_URL}/${REPOSITORY}"
+          if [ -n "${GITHUB_TOKEN}" ]; then
+            AUTH_B64="$(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 | tr -d '\n')"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
+          fi
+          # Full ancestry lets the affected-test planner verify its comparison.
+          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
+          git checkout -q --detach "${TRIGGER_SHA}"
+      - uses: ./.github/actions/repo/cache-tools
+        if: needs.runtime.outputs.fullNode == 'true'
+      - name: Install integrity-verified contributor tools
+        if: needs.runtime.outputs.fullNode == 'true'
+        run: node scripts/repo/setup/tools.mts --github-path
+      - name: Download every unit shard report
+        if: needs.runtime.outputs.fullNode == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: >-
+          gh run download "$GITHUB_RUN_ID"
+          --pattern "unit-shard-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-*"
+          --dir "$RUNNER_TEMP/unit-reports"
+      - name: Verify complete unit test inventory
+        if: needs.runtime.outputs.fullNode == 'true'
+        run: >-
+          node scripts/repo/test/shard/verify.mts
+          --directory "$RUNNER_TEMP/unit-reports"
+      - name: Require all runtime and unit gates
+        if: always()
+        env:
+          RUNTIME_RESULT: ${{ needs.runtime.result }}
+          UNIT_RESULT: ${{ needs.unit.result }}
+          FULL_NODE: ${{ needs.runtime.outputs.fullNode }}
+        run: |
+          test "$RUNTIME_RESULT" = success
+          if [ "$FULL_NODE" = true ]; then
+            test "$UNIT_RESULT" = success
+          else
+            test "$UNIT_RESULT" = skipped
+          fi

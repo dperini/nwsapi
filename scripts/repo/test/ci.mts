@@ -5,6 +5,7 @@ import path from 'node:path'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { runBudgeted } from '../lib/test-budget.mts'
+import { UNIT_CI_SHARD_COUNT } from './shard/report.mts'
 
 export interface CiTestPlan {
   browser: boolean
@@ -176,6 +177,18 @@ export function writeGithubPlan(plan: CiTestPlan): void {
     output,
     `${(['browser', 'fuzz', 'node', 'package', 'upstream'] as const)
       .map(key => `${key}=${String(plan[key])}`)
+      .concat([
+        `fullNode=${String(plan.fullNode)}`,
+        `unitShardCount=${UNIT_CI_SHARD_COUNT}`,
+        `unitShards=${JSON.stringify(
+          plan.fullNode
+            ? Array.from(
+                { length: UNIT_CI_SHARD_COUNT },
+                (_, index) => index + 1,
+              )
+            : [0],
+        )}`,
+      ])
       .join('\n')}\n`,
   )
 }
@@ -195,7 +208,9 @@ export async function main(): Promise<void> {
   runNode(path.join(REPO_ROOT, 'scripts/repo/build/run.mts'))
   const testScript = path.join(REPO_ROOT, 'scripts/repo/test.mts')
   if (plan.fullNode) {
-    runNode(testScript, ['all'])
+    runNode(testScript, [
+      process.argv.includes('--integration-only') ? 'integration' : 'all',
+    ])
     return
   }
   const unitFiles = plan.testFiles.filter(file =>
