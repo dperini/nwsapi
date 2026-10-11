@@ -4,28 +4,13 @@ import { parse, parseAllDocuments } from 'yaml'
 import { REPO_ROOT } from '../lib/paths.mts'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 
-export function checkCatalog(root = REPO_ROOT) {
-  const workspace = parse(
-    readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
-  ) as { catalog: Record<string, string> }
-  const pkg = JSON.parse(
-    readFileSync(path.join(root, 'package.json'), 'utf8'),
-  ) as {
-    packageManager?: string
-    devDependencies: Record<string, string>
-    devEngines: { packageManager: Array<{ version: string; onFail: string }> }
-  }
-  for (const [name, spec] of Object.entries(pkg.devDependencies)) {
-    if (name.startsWith('@socketsecurity/lib')) {
-      throw new Error('Inline the required Socket library helpers locally.')
-    }
-    if (
-      spec !== 'catalog:' ||
-      !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(workspace.catalog[name] ?? '')
-    ) {
-      throw new Error(`${name} must use an exact pinned catalog version.`)
-    }
-  }
+type PackageConfiguration = {
+  packageManager?: string
+  devDependencies: Record<string, string>
+  devEngines: { packageManager: Array<{ version: string; onFail: string }> }
+}
+
+function checkPackageManager(pkg: PackageConfiguration) {
   if (
     pkg.packageManager !== undefined ||
     pkg.devEngines.packageManager[0]?.version !==
@@ -39,6 +24,27 @@ export function checkCatalog(root = REPO_ROOT) {
   if (pkg.devEngines.packageManager[0]?.onFail !== 'ignore') {
     throw new Error('Allow npm to bootstrap the pinned pnpm through setup.')
   }
+}
+
+export function checkCatalog(root = REPO_ROOT) {
+  const workspace = parse(
+    readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
+  ) as { catalog: Record<string, string> }
+  const pkg = JSON.parse(
+    readFileSync(path.join(root, 'package.json'), 'utf8'),
+  ) as PackageConfiguration
+  for (const [name, spec] of Object.entries(pkg.devDependencies)) {
+    if (name.startsWith('@socketsecurity/lib')) {
+      throw new Error('Inline the required Socket library helpers locally.')
+    }
+    if (
+      spec !== 'catalog:' ||
+      !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(workspace.catalog[name] ?? '')
+    ) {
+      throw new Error(`${name} must use an exact pinned catalog version.`)
+    }
+  }
+  checkPackageManager(pkg)
   if (
     workspace.catalog['ecc-agentshield'] !== manifest.tools.agentshield.version
   ) {
