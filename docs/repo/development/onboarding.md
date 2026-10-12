@@ -22,7 +22,20 @@ A fresh local macOS journey at `15cbe8b` completed setup, guide delivery and shu
 
 Cold runs exposed issues that focused checks did not: detached checkouts could return an empty task list, Windows command launchers resolved the wrong executable, and macOS filesystem aliases could make repeat setup exit without rebuilding. The branch now includes fixes and behavioral regression coverage. The launcher test runs on the host platform without skipping the unit inventory. Rejected review reports, including pending tests, are retained for diagnosis. Shared script drivers now schedule the full unit matrix and a separate integration run. Focused related tests are constrained to unit and integration tiers with their existing time budgets.
 
-Windows onboarding has not passed. [Run 38290856045](https://github.com/dperini/nwsapi/actions/runs/38290856045) at `912d3fa` reached the pinned pnpm download and failed with `UND_ERR_SOCKET` for the GitHub release archive. The preceding nub download succeeded. The Windows npm and pnpm lanes completed installation but failed their subsequent readiness checks. The branch now uses the activated checkout Node path consistently when generating and verifying the Windows npm wrapper. Mocked Windows regressions pass, with native confirmation pending. The download diagnostic includes the asset location and error code while omitting URL credentials, query strings, and raw error messages.
+### Windows failure analysis
+
+[Run 38304267575](https://github.com/dperini/nwsapi/actions/runs/38304267575) at `ed55e3c` passed Windows bootstrap and literal `npm i`, including both Firewall launcher smoke checks. The literal `pnpm i` lane completed installation but failed readiness. All Linux and macOS lanes passed, including the complete Linux wizard journey.
+
+The investigation separated four failures:
+
+- Archive requests sometimes failed with `UND_ERR_SOCKET` or `ECONNRESET`. Fresh connections alone did not prevent resets. The exact remote cause remains unconfirmed. The downloader now logs bounded recovery for interrupted requests and bodies while retaining the original URL, timeout, and integrity pin.
+- The Windows wrapper writer ended its last line with LF while the verifier expected CRLF. Both now use consistent CRLF, with a writer-to-verifier regression.
+- The isolated Windows environment dropped `PATHEXT` and `ComSpec`, preventing direct bootstrap from resolving a managed executable. Both OS settings are now preserved.
+- After successful installation, `sfw` 1.15.2 could crash during Windows shutdown with the [reported embedded-runtime assertion](https://github.com/SocketDev/sfw-free/issues/66). The exact pin is now 1.15.4, whose verified Windows binary embeds Node 24.21.0. Both Windows bootstrap and npm launcher smoke checks passed with that pin.
+
+A further readiness failure was confirmed by [run 38305202692](https://github.com/dperini/nwsapi/actions/runs/38305202692): the pnpm lifecycle wrote long Windows paths while the doctor expected the short `RUNNER~1` spelling. Both wrapper comparisons reported `path-alias-equivalent=true` with matching CRLF counts. The managed tool cache and bin paths now derive from the native canonical repository path on Windows. Verification still compares complete wrapper contents exactly and rejects edited commands or guards. Native confirmation of this final path fix is pending.
+
+Download diagnostics omit URL credentials, query strings, and raw error messages. Wrapper mismatch diagnostics report positions, lengths, newline counts, and alias equivalence without printing launcher contents.
 
 Native npm installation also reported nine development dependency advisories in the pinned toolchain. Those findings require a separate dependency review.
 
