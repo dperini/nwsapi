@@ -57,7 +57,7 @@ export async function stageCommands(
     if (selected) {
       if (/\.(?:c|m)?js$/i.test(manager)) {
         if (process.platform === 'win32') {
-          body = `@echo off\r\n"%~dp0node.exe" "${manager}" %*\r\nexit /b %ERRORLEVEL%\r\n`
+          body = `@echo off\r\n"${node}" "${manager}" %*\r\nexit /b %ERRORLEVEL%\r\n`
         } else {
           const quote = (value: string) => `'${value.replaceAll("'", "'\\''")}'`
           body = `#!/bin/sh\nexec ${quote(node)} ${quote(manager)} "$@"\n`
