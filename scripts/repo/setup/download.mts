@@ -10,6 +10,8 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 
+class IntegrityError extends Error {}
+
 export function parseIntegrity(integrity: string) {
   const match = /^(sha256|sha512)-([A-Za-z0-9+/]+={0,2})$/.exec(integrity)
   if (!match) {
@@ -31,7 +33,7 @@ export function verifyIntegrity(bytes: Uint8Array, integrity: string) {
   const { algorithm, expected } = parseIntegrity(integrity)
   const actual = createHash(algorithm).update(bytes).digest('base64')
   if (actual !== expected) {
-    throw new Error(
+    throw new IntegrityError(
       `Tool integrity mismatch: expected ${integrity}, received ${algorithm}-${actual}`,
     )
   }
@@ -53,6 +55,18 @@ export function cachedArchive(file: string, integrity: string) {
   }
 }
 
+function reusableArchive(file: string, integrity: string) {
+  try {
+    return cachedArchive(file, integrity)
+  } catch (error) {
+    if (!(error instanceof IntegrityError)) {
+      throw error
+    }
+    rmSync(file, { force: true })
+    return undefined
+  }
+}
+
 export async function downloadArchive(
   url: string,
   integrity: string,
@@ -65,7 +79,7 @@ export async function downloadArchive(
   }
   const identity = createHash('sha256').update(integrity).digest('hex')
   const file = path.join(cache, identity)
-  const cached = cachedArchive(file, integrity)
+  const cached = reusableArchive(file, integrity)
   if (cached) {
     return cached
   }

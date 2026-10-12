@@ -63,15 +63,28 @@ test('a corrupt download never enters the cache', async () => {
   expect(readdirSync(cache)).toEqual([])
 })
 
-test('cached bytes are checked again and corruption cannot trigger a fallback', async () => {
+test('corrupt cached bytes are replaced only by the same verified release', async () => {
   const cache = fixture()
   const request = vi.fn(async () => new Response(bytes))
   await downloadArchive(url, integrity, cache, request)
   writeFileSync(path.join(cache, readdirSync(cache)[0]!), 'tampered')
+  expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
+  expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
+  expect(request).toHaveBeenCalledTimes(2)
+})
+
+test('a corrupt replacement is rejected and leaves a retryable cache', async () => {
+  const cache = fixture()
+  const request = vi.fn(async () => new Response(bytes))
+  await downloadArchive(url, integrity, cache, request)
+  writeFileSync(path.join(cache, readdirSync(cache)[0]!), 'tampered')
+  request.mockImplementationOnce(async () => new Response('also tampered'))
   await expect(downloadArchive(url, integrity, cache, request)).rejects.toThrow(
     'integrity mismatch',
   )
-  expect(request).toHaveBeenCalledOnce()
+  expect(readdirSync(cache)).toEqual([])
+  expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
+  expect(request).toHaveBeenCalledTimes(3)
 })
 
 test('symlinks cannot substitute an archive cache entry', async () => {
