@@ -787,7 +787,7 @@
         } else nodes = none;
       }
       return !Config.NODE_LIST ?
-        nodes : isInstanceof(nodes) ?
+        nodes : isInstanceOf(nodes) ?
         nodes : toNodeList(nodes);
     },
 
@@ -961,6 +961,32 @@
         (/^(select|textarea)$/.test(node.localName) ||
         (node.localName == 'input' &&
         !/^(hidden|range|color|button|submit|reset|image)$/.test(node.type)));
+    },
+
+  isRadioGroupChecked =
+    function(element) {
+      var root = element, radios, radio, i;
+
+      if (element.checked) { return true; }
+      if (!element.name) { return false; }
+      if (element.form) {
+        radios = element.form.elements;
+      } else {
+        while (root.parentNode) { root = root.parentNode; }
+        if (root.localName === 'input' && root.type === 'radio' &&
+          root.name === element.name && root.form === element.form && root.checked) {
+          return true;
+        }
+        radios = root.querySelectorAll ? root.querySelectorAll('input[type="radio"]') : [];
+      }
+      for (i = 0; i < radios.length; i++) {
+        radio = radios[i];
+        if (radio.type === 'radio' && radio.name === element.name &&
+          radio.form === element.form && radio.checked) {
+          return true;
+        }
+      }
+      return false;
     },
 
   isContentEditable =
@@ -2309,7 +2335,7 @@
                   source = 'if((s.isLink(e)&&e.visited)){' + source + '}';
                   break;
                 case 'target':
-                  source = 'if((s.doc.location.hash&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16))){' + source + '}';
+                  source = 'if((s.doc.location&&s.doc.location.hash&&e.id==s.doc.location.hash.slice(1)&&(s.doc.compareDocumentPosition(e)&16))){' + source + '}';
                   break;
                 case 'defined':
                   source = 'if(s.isDefined(e)){' + source + '}';
@@ -2431,7 +2457,7 @@
                   source =
                     'if((/^progress$/i.test(e.localName)&&!e.hasAttribute("value"))||' +
                       '(/^input$/i.test(e.localName)&&("checkbox"==e.type&&e.indeterminate)||' +
-                      '("radio"==e.type&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+                      '("radio"==e.type&&!s.isRadioGroupChecked(e))' +
                     ')){' + source + '}';
                   break;
                 case 'required':
@@ -3516,6 +3542,7 @@
     isDefined: isDefined,
     matchesNative: matchesNative,
     isRequired: isRequired,
+    isRadioGroupChecked: isRadioGroupChecked,
     isOpen: isOpen,
     isClosed: isClosed,
     isDisabled: isDisabled,

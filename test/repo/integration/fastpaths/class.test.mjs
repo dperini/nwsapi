@@ -47,3 +47,15 @@ test('fragment class lookup matches every requested token and reads SVG class na
   assert.deepEqual(Array.from(engine.byClass('foo bar', fragment)), [html, svg])
   assert.deepEqual(Array.from(engine.byClass('bar', fragment)), [html, svg])
 })
+
+test('fragment class lookup supports configured NodeList results', t => {
+  const { document, engine } = fixture(t)
+  const fragment = document.createDocumentFragment()
+  const first = document.createElement('div')
+  const second = document.createElement('div')
+  first.className = second.className = 'foo'
+  fragment.append(first, second)
+  engine.configure({ NODE_LIST: true })
+
+  assert.deepEqual(Array.from(engine.byClass('foo', fragment)), [first, second])
+})

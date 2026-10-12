@@ -59,6 +59,59 @@ test(':target checks the hash and element ID before document position', t => {
   assert.equal(calls, 1)
 })
 
+test(':target tolerates documents without a browsing-context location', t => {
+  const { window, document, engine } = fixture(t)
+  const htmlElement = document.getElementById('target')
+  document.location.hash = '#target'
+  const xml = new window.DOMParser().parseFromString(
+    '<root id="target"><item id="target"/></root>',
+    'application/xml',
+  )
+  const detached = document.implementation.createHTMLDocument('')
+  const cases = [
+    { document, element: htmlElement, expected: true },
+    { document: xml, element: xml.documentElement, expected: false },
+    { document: detached, element: detached.documentElement, expected: false },
+  ]
+
+  for (let pass = 0; pass < 2; pass++) {
+    for (const { document: context, element, expected } of cases) {
+      assert.equal(engine.match(':target', element), expected)
+      assert.equal(engine.select(':target', context).includes(element), expected)
+      assert.equal(engine.first(':target', context), expected ? element : null)
+    }
+  }
+})
+
+test(':indeterminate checks named radio groups without parsing radio names', t => {
+  const { document, engine } = fixture(t)
+  const form = document.createElement('form')
+  const radios = ['two words', 'quote"name', 'back\\slash'].map(name => {
+    const checked = document.createElement('input')
+    const unchecked = document.createElement('input')
+    checked.type = unchecked.type = 'radio'
+    checked.name = unchecked.name = name
+    form.append(checked, unchecked)
+    return { checked, unchecked }
+  })
+  document.body.append(form)
+
+  for (const { checked, unchecked } of radios) {
+    assert.equal(engine.match(':indeterminate', unchecked), true)
+    checked.checked = true
+    assert.equal(engine.match(':indeterminate', unchecked), false)
+    checked.checked = false
+  }
+
+  const detachedChecked = document.createElement('input')
+  const detachedUnchecked = document.createElement('input')
+  detachedChecked.type = detachedUnchecked.type = 'radio'
+  detachedChecked.name = detachedUnchecked.name = 'detached'
+  detachedChecked.checked = true
+  detachedChecked.append(detachedUnchecked)
+  assert.equal(engine.match(':indeterminate', detachedUnchecked), false)
+})
+
 test(':empty ignores comments and rejects text and CDATA children', t => {
   const { document, engine, window } = fixture(t)
   const element = document.getElementById('target')
