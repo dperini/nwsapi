@@ -39,6 +39,27 @@ export function verifyIntegrity(bytes: Uint8Array, integrity: string) {
   }
 }
 
+function safeDownloadLocation(value: string) {
+  const target = new URL(value)
+  return `${target.origin}${target.pathname}`
+}
+
+function errorLabel(value: unknown) {
+  if (!(value instanceof Error)) {
+    return typeof value
+  }
+  const code =
+    'code' in value && typeof value.code === 'string' ? ` (${value.code})` : ''
+  return `${value.name}${code}`
+}
+
+function downloadFailure(value: unknown) {
+  if (value instanceof Error && value.cause !== undefined) {
+    return `${errorLabel(value)}; cause ${errorLabel(value.cause)}`
+  }
+  return errorLabel(value)
+}
+
 export function cachedArchive(file: string, integrity: string) {
   try {
     if (!lstatSync(file).isFile()) {
@@ -83,9 +104,19 @@ export async function downloadArchive(
   if (cached) {
     return cached
   }
-  const response = await request(url, { signal: AbortSignal.timeout(120_000) })
+  const location = safeDownloadLocation(url)
+  let response: Response
+  try {
+    response = await request(url, { signal: AbortSignal.timeout(120_000) })
+  } catch (error) {
+    throw new Error(
+      `Tool download request failed for ${location}: ${downloadFailure(error)}.`,
+    )
+  }
   if (!response.ok) {
-    throw new Error(`Tool download failed: HTTP ${response.status} for ${url}`)
+    throw new Error(
+      `Tool download failed: HTTP ${response.status} for ${location}`,
+    )
   }
   if (response.url && new URL(response.url).protocol !== 'https:') {
     throw new Error('External tool download redirected away from HTTPS.')
