@@ -12,6 +12,7 @@ export interface Task {
 export const TASKS: readonly Task[] = [
   {
     script: 'setup',
+    command: ['node', 'scripts/repo/setup/bootstrap.mts'],
     name: 'Set up this checkout',
     description: 'Prepare tools, dependencies, and build outputs.',
     detail:
@@ -37,6 +38,7 @@ export const TASKS: readonly Task[] = [
   },
   {
     script: 'setup:check',
+    command: ['node', 'scripts/repo/setup/doctor.mts'],
     name: 'Troubleshoot setup (optional)',
     description: 'Check missing tools or incompatible versions.',
     detail:

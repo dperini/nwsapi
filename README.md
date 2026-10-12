@@ -253,7 +253,7 @@ Use `pnpm run soak:bypass package@version` for an exact, dated exception.
 `pnpm run update` removes expired exceptions, synchronizes the npm and pnpm settings, and retries failed taze lookups once.
 Compiler tool versions need a separate compatibility review.
 New dependency versions have a one-day release delay. Dependency scripts need explicit approval.
-Use pnpm to install this repository. npm cannot install its catalog references.
+Keep root catalog declarations and npm and pnpm lockfiles synchronized when dependencies change.
 Local setup and CI read exact tool versions, platform assets, and integrity hashes from `.config/external-tools.json`. See [verified tool setup](docs/repo/development/toolchain.md) for cache behavior and pin updates.
 See [security tools and schemas](docs/repo/development/contributor-tools.md) and [staged v3 releases](docs/repo/development/releases.md) for the contributor checks and release commands.
 The package interoperability versions are pinned in `.config/node-interop.json`. Run `pnpm run setup:node` after changing those pins.
