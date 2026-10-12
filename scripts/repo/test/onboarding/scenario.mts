@@ -238,6 +238,7 @@ export async function runJourney(
   redact: (value: string) => string,
   recordGuide: (outcome: GuideOutcome) => void,
   beforeSetup: BeforeSetup,
+  installed = false,
 ): Promise<GuideOutcome> {
   const list = await command(
     log,
@@ -268,10 +269,10 @@ export async function runJourney(
     node,
     env,
     check.execution,
-    'failed',
+    installed ? 'completed' : 'failed',
     command,
   )
-  if (before['exitCode'] === 0) {
+  if (!installed && before['exitCode'] === 0) {
     throw new Error('Setup diagnostics passed before setup.')
   }
   await beforeSetup()
