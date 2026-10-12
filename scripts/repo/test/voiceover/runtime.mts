@@ -11,6 +11,7 @@ import {
   voiceOverState,
 } from '../../develop/voiceover/control.mts'
 import { acquireSessionLock } from './lock.mts'
+import { createWorkerChannel } from './channel.mts'
 import { runNarrationSession } from './session.mts'
 import type {
   NarrationEvidence,
@@ -127,11 +128,30 @@ function startWorkerProcess(
       stdio: ['pipe', 'pipe', 'pipe'],
     },
   )
-  child.stdin.write(`GO:${nonce}\n`)
   let text = ''
   let result: WorkerOutcome | undefined
+  let inputFailure: string | undefined
+  let inputEscalation: ReturnType<typeof setTimeout> | undefined
   let browserPid: number | undefined
   let browserClosed = false
+  const abortInput = (signal: NodeJS.Signals) => {
+    try {
+      killWorker(child, signal)
+    } catch {
+      inputFailure =
+        'The narration worker input failed and shutdown is uncertain.'
+    }
+  }
+  const send = createWorkerChannel(
+    child.stdin,
+    () => child.exitCode === null && child.signalCode === null,
+    () => {
+      inputFailure = 'The narration worker input closed unexpectedly.'
+      abortInput('SIGTERM')
+      inputEscalation = setTimeout(() => abortInput('SIGKILL'), 1000)
+      inputEscalation.unref()
+    },
+  )
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', chunk => {
     text += chunk
@@ -156,7 +176,7 @@ function startWorkerProcess(
           .then(allowed => {
             if (allowed) {
               onStarted()
-              child.stdin.write(`START:${nonce}\n`)
+              send(`START:${nonce}`)
             } else {
               killWorker(child, 'SIGTERM')
             }
@@ -173,16 +193,25 @@ function startWorkerProcess(
   const closed = new Promise<WorkerOutcome>((resolve, reject) => {
     child.once('error', reject)
     child.once('close', (code, signal) => {
+      clearTimeout(inputEscalation)
       resolve(
-        result ?? {
-          status: code,
-          signal,
-          started: false,
-          error: 'The narration worker exited without a result record.',
-        },
+        inputFailure
+          ? {
+              status: 1,
+              signal,
+              started: false,
+              error: inputFailure,
+            }
+          : (result ?? {
+              status: code,
+              signal,
+              started: false,
+              error: 'The narration worker exited without a result record.',
+            }),
       )
     })
   })
+  send(`GO:${nonce}`)
   return {
     wait: () => closed,
     terminate: () => killWorker(child, 'SIGTERM'),
