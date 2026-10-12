@@ -24,15 +24,15 @@ function connectCopy(
       button.innerHTML = iconMarkup('check')
       button.setAttribute('aria-label', 'Code copied')
       button.title = 'Code copied'
-      const message = document.createElement('span')
-      message.className = 'code-copy-message'
-      message.textContent = 'Copied'
-      status.replaceChildren(message)
+      status.textContent = 'Copied'
       toolbar.dataset['copyState'] = 'copied'
     } catch {
       status.textContent = 'Select the code to copy it manually.'
     }
-    reset = setTimeout(restore, 2400)
+    reset = setTimeout(
+      restore,
+      toolbar.dataset['copyState'] === 'copied' ? 400 : 2400,
+    )
   }
   button.addEventListener('click', () => {
     void copy()

@@ -22,9 +22,6 @@ export function initializeReadingMode() {
   if (!reading || !color) {
     return
   }
-  document
-    .querySelector<HTMLElement>('.guide-preferences')
-    ?.removeAttribute('hidden')
   const system = matchMedia('(prefers-color-scheme: dark)')
   let explicit = false
   let mode: ColorMode = system.matches ? 'dark' : 'light'
@@ -90,21 +87,6 @@ export function initializeReadingMode() {
     persist()
     apply()
   })
-  document
-    .querySelector('[data-reset-display]')
-    ?.addEventListener('click', () => {
-      explicit = false
-      mode = system.matches ? 'dark' : 'light'
-      root.removeAttribute('data-reading-mode')
-      try {
-        localStorage.removeItem(READING_MODE_KEY)
-        localStorage.removeItem(COLOR_MODE_KEY)
-      } catch {
-        // Reset the current page even when stored preferences cannot be changed.
-      }
-      window.dispatchEvent(new Event('guide-display-reset'))
-      apply()
-    })
   system.addEventListener('change', () => {
     if (!explicit) {
       mode = system.matches ? 'dark' : 'light'

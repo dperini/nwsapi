@@ -9,6 +9,7 @@ import {
 import type { CliRenderer } from '@opentui/core'
 import { TASKS, taskDetails } from './actions.mts'
 import type { MenuState } from './actions.mts'
+import { menuHelp } from './keys.mts'
 
 const COLORS = {
   background: '#0c171e',
@@ -121,8 +122,7 @@ export function menuContent(renderer: CliRenderer, state: MenuState) {
     flexShrink: 0,
   })
   const footer = new TextRenderable(renderer, {
-    content:
-      '1–4 or ↑/↓ preview · Enter run · q or Esc quit\nPageUp/PageDown scroll details and history',
+    content: menuHelp(TASKS.length),
     fg: COLORS.title,
     height: 2,
     flexShrink: 0,

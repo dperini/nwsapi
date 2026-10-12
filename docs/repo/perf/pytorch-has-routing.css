@@ -18,7 +18,7 @@
 }
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  scroll-padding-top: calc(var(--topbar-height, 90px) + 16px);
   --page-scrollbar-accent: var(--topic-what);
   scrollbar-color: var(--page-scrollbar-accent) var(--reading-page, #0c171e);
   transition: scrollbar-color 180ms linear;
@@ -134,7 +134,6 @@ body[data-theme='where'] {
     scale: 1.03;
   }
 }
-.topbar,
 main {
   position: relative;
   z-index: 1;
@@ -381,22 +380,6 @@ pre {
 .link-marker-tail {
   white-space: nowrap;
 }
-.link-code-marker {
-  display: inline-flex;
-  align-items: baseline;
-  max-width: 100%;
-  white-space: normal;
-}
-.link-code-marker > code {
-  min-width: 0;
-}
-.link-code-marker-short {
-  max-width: none;
-  white-space: nowrap;
-}
-.link-code-marker-short > code {
-  flex-shrink: 0;
-}
 .inline-icon {
   display: inline-block;
   flex-shrink: 0;
@@ -509,60 +492,18 @@ pre {
   font-size: var(--text-support);
   line-height: 1.5;
 }
-.code-copy-message {
-  display: inline-block;
-  transform-origin: right center;
+.code-toolbar[data-copy-state='copied'] .code-copy-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
-@keyframes copy-message-bounce {
-  0% {
-    opacity: 0;
-    transform: translateX(10px) scale(0.85);
-  }
-  12% {
-    opacity: 1;
-    transform: translateX(-6px) scale(1.06);
-  }
-  22%,
-  76% {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(6px) scale(0.96);
-  }
-}
-@keyframes copy-check-slide {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.7);
-  }
-  12% {
-    opacity: 1;
-    transform: translateY(3px) scale(1.12);
-  }
-  22%,
-  76% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  html:not([data-reading-mode])
-    .code-toolbar[data-copy-state='copied']
-    .code-copy-message {
-    animation: copy-message-bounce 2400ms ease-out both;
-  }
-  html:not([data-reading-mode])
-    .code-toolbar[data-copy-state='copied']
-    .code-copy
-    .inline-icon {
-    animation: copy-check-slide 2400ms ease-out both;
-  }
+.code-toolbar .code-copy:focus-visible {
+  animation: none;
 }
 .story-readout .code-sample {
   margin: 20px 0 0;

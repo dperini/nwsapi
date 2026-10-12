@@ -123,3 +123,14 @@ yarn.lock
 !/assets/repo/video/*.png
 !/assets/repo/video/*.vtt
 !/docs/repo/development/video.html
+
+# Authored shared guidance. Generated aliases and local agent state stay ignored.
+!/.claude/skills/ui-usability/SKILL.md
+!/.claude/skills/developer-flow-usability/SKILL.md
+/CLAUDE.md
+/.agents/
+/.codex/
+/.opencode/
+/.claude/plans/
+/.claude/reports/
+/.claude/cache/

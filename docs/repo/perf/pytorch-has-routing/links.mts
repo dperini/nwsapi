@@ -1,6 +1,6 @@
 import { iconMarkup } from './icons.mts'
 
-function removeLinkMarker(link: HTMLAnchorElement) {
+function removeLinkMarker(link: HTMLElement) {
   const previousTail = link.querySelector('.link-marker-tail')
   if (previousTail) {
     previousTail.querySelector('.inline-icon')?.remove()
@@ -10,30 +10,14 @@ function removeLinkMarker(link: HTMLAnchorElement) {
   link.querySelector('svg.inline-icon')?.remove()
 }
 
-function appendCodeMarker(
-  link: HTMLAnchorElement,
-  code: HTMLElement,
-  kind: 'internal' | 'external',
-) {
-  const tail = document.createElement('span')
-  tail.className = 'link-marker-tail link-code-marker'
-  tail.classList.toggle(
-    'link-code-marker-short',
-    (code.textContent?.length ?? 0) <= 24,
-  )
-  tail.append(code)
-  tail.insertAdjacentHTML('beforeend', iconMarkup(kind))
-  link.append(tail)
-}
-
 function appendLinkMarker(
-  link: HTMLAnchorElement,
+  link: HTMLElement,
   kind: 'internal' | 'external',
 ) {
   removeLinkMarker(link)
   const ending = link.lastChild
   if (ending instanceof HTMLElement && ending.tagName === 'CODE') {
-    appendCodeMarker(link, ending, kind)
+    appendLinkMarker(ending, kind)
     return
   }
   const words =
@@ -67,6 +51,10 @@ export function initializeLinkMarkers() {
     }
     const kind = url.origin === location.origin ? 'internal' : 'external'
     link.dataset['linkKind'] = kind
-    appendLinkMarker(link, kind)
+    if (kind === 'internal') {
+      removeLinkMarker(link)
+    } else {
+      appendLinkMarker(link, kind)
+    }
   }
 }

@@ -1,0 +1,51 @@
+# Documentation and developer workflow usability review
+
+Reviewed 12 October 2026 on the v3 working tree. This pass inspected the live catalog and API reader, the native-menu implementation, copy feedback, table rendering, and shared setup guidance. It records task friction and the next changes in priority order. It does not certify conformance or establish suitability for every user.
+
+## Evidence
+
+Browser measurements used the running docs site at 320px, 390px, and 1440px wide, with a 900px viewport height, in light appearance and with reading mode off and on. Routes were `all.html` and `model-guide-reading.html?doc=docs/repo/selector/api.md`. Each route loaded its actual content before measurements. Captures and raw measurements are local under `.cache/usability-scan/`.
+
+There was no document-wide horizontal overflow in those six route/viewport combinations. The catalog main region stayed at x=16px and width=288px at 320px, x=16px and width=358px at 390px, and x=200px and width=1040px at 1440px across reading-mode toggles. The API main region also retained its position and width. These measurements cover the main region, not every descendant's text or scroll position.
+
+The DOM scan found no visibly rendered unnamed buttons or links using its label heuristic. This is not an accessibility-tree audit. The 1px select elements belong to enhanced controls and were excluded from target findings. Disabled Clear was measured but its active behavior still needs the same inspection.
+
+## Priorities
+
+| Priority | Finding and evidence                                                                                                                         | Impact                                                                                               | Next change and acceptance                                                                                                                                                                                                                                                           |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P1       | Copy is 32px × 32px. Several article disclosure summaries are about 24px high. Catalog Clear is30px high in the captured empty state.        | Frequent controls demand more precise pointing than our 44px design target.                          | Enlarge hit areas while preserving small glyphs. Recheck populated search, nested disclosure, and code overlap at 320px. These measurements are below our target, not an automatic claim of an AA failure.                                                                           |
+| P1       | `code-copy.mts` clears the live status with the visual check at 400ms. Clipboard failures disappear after 2400ms. Source-level finding.      | Success announcements may be interrupted. A user may miss the only recovery instruction.             | Keep the requested 400ms visual cue, retain programmatic success until superseded, and keep failure guidance until retry or dismissal. Verify rapid repeat copies and screen-reader delivery.                                                                                        |
+| P2       | API tables remain locally scrollable at 320px and390px. At320px, the widest measured inner table was498px in a 236px wrapper.                | Reading an API name and its description can require repeated horizontal navigation.                  | Review the longest signatures and nested details. Wrap at words, retain a final-word external indicator, and expose horizontal overflow clearly. Existing reader code makes overflowing wrappers keyboard focusable. Do not flatten genuinely two-dimensional data indiscriminately. |
+| P2       | Theme overrides remain explicit after every toggle in `reading-mode.mts`. Source-level finding.                                              | Returning to the system's current appearance still leaves an override that can surprise users later. | Define system-following behavior before changing persistence. Retain one visible action and outcome-based labels.                                                                                                                                                                    |
+| P2       | Header controls use icons with names and tooltips. The mobile header can use two rows at 320px. Measured geometry and source inspection.     | New visitors must infer some actions and may not see hover help on touch.                            | Check task completion without coaching. Add visible labels where confusion is observed, preserving 44px targets rather than squeezing controls.                                                                                                                                      |
+| P2       | Native menu uses explicit preview and activation, a fixed command row, scrollable details, and a plain fallback. Current source inspection.  | Good structure can still fail with a held key, long localized hints, or terminal assistive tools.    | Exercise 80×24 and smaller terminals, held Enter, cancellation, Unicode, and linear output. Do not infer current behavior solely from an older native capture.                                                                                                                       |
+| P3       | Header glyph animations and a requested 220ms contents-settling effect remain. Reduced-motion and reading-mode guards are present in source. | Motion may compete with reading if it is repeated, unrelated to action, or not cancelled correctly.  | Preserve requested feedback while checking interruption and reduced-motion behavior. Do not add decorative movement to focus or status.                                                                                                                                              |
+
+## Retain these decisions
+
+- Ordered task shortcuts and a visible search label.
+- Preview before terminal execution, with the exact command visible.
+- Clearly marked historical outcomes and an actionable retry.
+- Mobile contents replacing the article, with a close action and focus return.
+- Internal links without added arrows.
+- The brief copy check and stable button position.
+- Stable reading-mode geometry and independent prose/table widths.
+
+## Checks still needed
+
+Actual browser zoom at 200% and400%, dark-theme contrast measurements, forced colors, full keyboard focus traversal, actual screen-reader announcements, touch interaction, and native-terminal assistive-tool behavior were not established by this pass. Schedule them before describing the interface as fully verified. A narrow viewport is useful evidence but is not a substitute for those checks.
+
+For a practical review, ask someone to find installation instructions, choose an API section, copy a snippet, recover from a failed copy, and return to results without prompting them about the controls. Record completion, misclicks, lost position, and recovery difficulty. Avoid collecting personal context in repository artifacts.
+
+## Guidance setup validation
+
+Both authored skills passed the skill-creator validator. Isolated alias fixtures passed missing-file detection, unchanged repeat runs, read-only drift detection, stale-copy repair, custom-file preservation, and symlink-parent protection. The generated skill metadata matches the authored names. Git ignore checks confirmed that aliases and local state remain ignored, while the two authored skills are eligible for tracking.
+
+The generator and its `--check` command completed successfully in this checkout. Its wiring into `prepare` was inspected. The full dependency installation and package build were not rerun for this guidance change. New Claude Code, Codex, and OpenCode sessions were not launched to validate discovery independently.
+
+## Reusable outcome
+
+The review process now lives in `.claude/skills/ui-usability/SKILL.md` and `.claude/skills/developer-flow-usability/SKILL.md`. Root `AGENTS.md` routes relevant work to them. Setup generates ignored discovery aliases. See [shared agent guidance](agent-guidance.md) and the [fleet usability guide](../../fleet/design/usability.md).
+
+The recommendations use the [W3C cognitive design guide](https://www.w3.org/TR/coga-usable/#design-guide), [enhanced target-size guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html), [reflow guidance](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html), and [status-message guidance](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html). They are design and review inputs, not proof that a particular interaction works for every person.

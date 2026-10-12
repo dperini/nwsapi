@@ -24,8 +24,7 @@ function readerTitleSpace(header: HTMLElement, context: HTMLElement) {
   const separator = navigation?.querySelector<HTMLElement>(
     '[data-header-context-separator]',
   )
-  const source = identity?.querySelector<HTMLElement>('.header-source-slot')
-  if (!identity || !navigation || !actions || !brand || !separator || !source) {
+  if (!identity || !navigation || !actions || !brand || !separator) {
     return Number.POSITIVE_INFINITY
   }
   const actionChildren = Array.from(actions.children)
@@ -44,8 +43,6 @@ function readerTitleSpace(header: HTMLElement, context: HTMLElement) {
     contentWidth -
     actionWidth -
     stylePixels(header, 'columnGap') -
-    stylePixels(identity, 'columnGap') -
-    source.getBoundingClientRect().width -
     brand.scrollWidth -
     separator.getBoundingClientRect().width -
     navigationGaps
@@ -74,22 +71,30 @@ function updateReaderHeaderReflow() {
 }
 
 function observeReaderHeader() {
-  const header = document.querySelector<HTMLElement>(
-    '.reader-topbar:has(.reader-header-identity)',
-  )
-  if (!header || typeof ResizeObserver === 'undefined') {
-    window.addEventListener('resize', updateReaderHeaderReflow)
+  const header = document.querySelector<HTMLElement>('.topbar')
+  if (!header) {
+    return
+  }
+  const update = () => {
+    updateReaderHeaderReflow()
+    document.documentElement.style.setProperty(
+      '--topbar-height',
+      `${header.getBoundingClientRect().height}px`,
+    )
+  }
+  update()
+  window.addEventListener('resize', update)
+  if (typeof ResizeObserver === 'undefined') {
     return
   }
   readerHeaderObserver?.disconnect()
-  readerHeaderObserver = new ResizeObserver(updateReaderHeaderReflow)
+  readerHeaderObserver = new ResizeObserver(update)
   readerHeaderObserver.observe(header)
   for (const target of header.querySelectorAll<HTMLElement>(
     '.reader-header-identity, .header-navigation-group, .brand, [data-header-context], .header-source-slot, .header-actions',
   )) {
     readerHeaderObserver.observe(target)
   }
-  window.addEventListener('resize', updateReaderHeaderReflow)
 }
 
 function renderHeaderContext() {

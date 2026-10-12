@@ -6,7 +6,7 @@ html:has(.reader) {
   --page-scrollbar-accent: var(--topic-where);
 }
 html:has(.reader:not(.documents-page)) {
-  scroll-padding-top: 0;
+  scroll-padding-top: calc(var(--topbar-height, 90px) + 16px);
 }
 .reader .scroll-morph {
   opacity: 0.3;
@@ -21,7 +21,7 @@ html:has(.reader:not(.documents-page)) {
 .reading-progress {
   position: fixed;
   z-index: 5;
-  top: 0;
+  top: var(--topbar-height, 90px);
   left: 0;
   width: 100%;
   height: 2px;
@@ -43,6 +43,7 @@ html:has(.reader:not(.documents-page)) {
 }
 .reading-column {
   min-width: 0;
+  width: 100%;
   max-width: 80ch;
   margin-inline: auto;
 }
@@ -229,12 +230,21 @@ html:has(.reader:not(.documents-page)) {
   margin: 24px 0;
   border: 1px solid var(--section-line);
   border-radius: 8px;
-  background: var(--surface-inset);
+  background: var(--surface);
 }
 .reading-prose table {
   margin: 0;
-  font-size: var(--text-support);
-  line-height: 1.55;
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+.reading-prose table code:not(pre code) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 .reading-prose .reading-table-caption {
   position: absolute;
@@ -253,7 +263,7 @@ html:has(.reader:not(.documents-page)) {
   vertical-align: top;
 }
 .reading-prose th {
-  color: var(--theme-soft-text);
+  color: var(--reading-ink);
   background: var(--surface-raised);
 }
 .reading-prose tbody tr:last-child td {
