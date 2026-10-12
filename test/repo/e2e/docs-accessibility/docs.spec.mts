@@ -59,13 +59,9 @@ for (const pageCase of cases) {
           const target = await clear.boundingBox()
           expect(target?.width).toBeGreaterThanOrEqual(44)
           expect(target?.height).toBeGreaterThanOrEqual(44)
-          await expect
-            .poll(() =>
-              page.evaluate(
-                () => document.documentElement.scrollWidth <= innerWidth,
-              ),
-            )
-            .toBe(true)
+          await page.waitForFunction(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          )
         } else {
           const summary = page
             .locator('#reading-content details > summary')
@@ -73,13 +69,9 @@ for (const pageCase of cases) {
           await expect(summary).toBeVisible()
           const target = await summary.boundingBox()
           expect(target?.height).toBeGreaterThanOrEqual(44)
-          await expect
-            .poll(() =>
-              page.evaluate(
-                () => document.documentElement.scrollWidth <= innerWidth,
-              ),
-            )
-            .toBe(true)
+          await page.waitForFunction(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          )
           const source = page.getByRole('link', {
             name: 'View on GitHub',
             exact: true,

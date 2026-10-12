@@ -10,6 +10,12 @@ The direct Node entry point works before the pinned package manager is installed
 
 The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `pnpm run security` prepares its scanners. `pnpm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
 
+VoiceOver assets and current-user settings are an opt-in setup step after core setup succeeds. On a TTY, the prompt defaults to Not now. Use `--voiceover` to opt in or `--no-voiceover` to skip. Noninteractive setup skips it unless explicitly requested. `--tools-only` does not offer the step.
+
+The optional setup never starts VoiceOver or narration and never edits TCC databases. It installs local Guidepup assets under `.cache/guidepup`. Machine configuration runs only when local VoiceOver preferences are readable and present. It may enable AppleScript control, disable the welcome splash and Dictation auto-enable, and ask you to enable AppleScript control in VoiceOver Utility. If preferences or settings cannot be verified, setup reports that state and skips machine configuration. Installed assets and detected settings do not verify macOS privacy permissions or prove VoiceOver is operational. Use the developer menu's VoiceOver controls to start or stop it explicitly.
+
+In `pnpm run dev`, choose **VoiceOver controls** to see the current state and confirm Start or Stop. `pnpm run voiceover` opens the same prompt. For a direct action, use `pnpm run voiceover:start` or `pnpm run voiceover:stop`. These actions do not run Guidepup configuration. The Stop command also works before dependency installation as `node scripts/repo/develop/voiceover.mts --stop`. Command-F5 is the macOS toggle if you need to stop narration outside the menu.
+
 Setup prints numbered phases and stores its last phase in `.cache/setup-progress.json`. Rerun the same setup command after resolving a failure. Each phase checks its inputs again, so a stale progress record cannot skip required work.
 
 Run `pnpm run setup:check` for a short readiness summary. Add `--details` for PATH resolution, inferred ownership, external version minimums, exact project pins, and checkout wrapper verification. It compares the generated Firewall launchers with the expected command and recursion guards. External wrappers, aliases, and shell functions are not inspected. A ready checkout fallback can coexist with an older external manager. The check does not change global defaults.
@@ -60,7 +66,7 @@ Setup and diagnostics remain available before checkout tools are ready. Other
 tasks use the pinned checkout package manager through its Firewall wrapper.
 Each action runs from the repository root with inherited terminal output.
 Finishing returns control to the menu after the user has read the output.
-Use 1–4 or the arrow keys to preview a task, then Enter to run it. Ctrl+C
+Use the numbered keys or arrow keys to preview a task, then Enter to run it. Ctrl+C
 stops the docs server and offers to return to the menu. During other tasks,
 Ctrl+C stops the task and exits. Reopen with `pnpm run dev`.
 
@@ -86,15 +92,15 @@ entry point also avoids package-manager banners when parsing stdout.
 Discovery returns one JSON object with `schemaVersion: 1`, `type: "tasks"`,
 and a `tasks` array in workflow order. Each task has a stable `id`, `order`,
 `name`, `description`, `detail`, `next`, `persistent`, `optional`, and command argument
-arrays. `command` identifies the underlying package script. `execution`
+arrays. `command` identifies the underlying package script or direct helper command. `execution`
 invokes the shared runner with JSON results. The IDs are `setup`, `guide`,
-`review`, and `setup:check`. Discovery never starts a task. `--json` alone
+`review`, `setup:check`, and `voiceover`. Discovery never starts a task. `--json` alone
 also selects discovery.
 
 A harness can present these choices with its own question or selection UI,
 then execute the selected task. Explicit `--task` works without a TTY and
 does not load `@opentui/core` or wait for menu input. Child stdin is closed.
-The selected command still needs its normal filesystem and network access.
+The selected command still needs its normal filesystem and network access. VoiceOver controls show the current state and require an explicit Start or Stop action.
 
 In JSON mode, stdout contains a single final object. Progress and child
 stdout/stderr go to stderr. Capture the two streams separately. Results

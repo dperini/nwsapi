@@ -71,7 +71,7 @@ export function menuContent(renderer: CliRenderer, state: MenuState) {
   })
   const menu = new SelectRenderable(renderer, {
     width: '100%',
-    height: 4,
+    height: TASKS.length,
     flexShrink: 0,
     selectedIndex: state.selected,
     options: TASKS.map((task, index) => ({
@@ -116,7 +116,7 @@ export function menuContent(renderer: CliRenderer, state: MenuState) {
     wrapMode: 'word',
   })
   const command = new TextRenderable(renderer, {
-    content: `Command: pnpm run ${TASKS[state.selected]!.script}`,
+    content: `Command: ${TASKS[state.selected]!.command?.join(' ') ?? `pnpm run ${TASKS[state.selected]!.script}`}`,
     fg: COLORS.details,
     height: 1,
     flexShrink: 0,
@@ -144,7 +144,7 @@ export function menuContent(renderer: CliRenderer, state: MenuState) {
     if (task) {
       state.selected = index
       details.content = taskDetails(task, state.readiness?.[task.script])
-      command.content = `Command: pnpm run ${task.script}`
+      command.content = `Command: ${task.command?.join(' ') ?? `pnpm run ${task.script}`}`
       body.scrollTo(0)
     }
   })

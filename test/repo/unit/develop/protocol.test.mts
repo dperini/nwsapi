@@ -26,7 +26,7 @@ test('discovery is ordered and identifies optional and persistent tasks', () => 
     TASKS.map(task => task.script),
   )
   expect(result.tasks.map((task: { order: number }) => task.order)).toEqual([
-    1, 2, 3, 4,
+    1, 2, 3, 4, 5,
   ])
   expect(
     result.tasks.filter((task: { persistent: boolean }) => task.persistent),
@@ -82,4 +82,14 @@ test('launch failures return a structured failure', async () => {
     message: 'Executable missing',
   })
   expect(process.exitCode).toBe(1)
+})
+
+test('VoiceOver helper is a direct explicit control command', () => {
+  const task = TASKS.find(candidate => candidate.script === 'voiceover')!
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  printJsonTasks()
+  const result = JSON.parse(log.mock.calls[0]![0])
+  expect(task.command).toEqual(['node', 'scripts/repo/develop/voiceover.mts'])
+  expect(result.tasks.at(-1).command).toEqual(task.command)
+  expect(result.tasks.at(-1).execution).toContain('--task')
 })

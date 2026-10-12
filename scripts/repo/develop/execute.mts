@@ -6,6 +6,13 @@ import { runProcess } from './process.mts'
 import { taskReadiness } from '../setup/readiness.mts'
 
 async function taskCommand(task: Task) {
+  if (task.command) {
+    return {
+      command: process.execPath,
+      args: [path.join(REPO_ROOT, task.command[1]!)],
+      env: process.env,
+    }
+  }
   // Setup and diagnostics must work before checkout tools have been installed.
   const entry = task.script === 'setup' ? 'bootstrap.mts' : 'doctor.mts'
   if (task.script === 'setup' || task.script === 'setup:check') {
@@ -77,7 +84,8 @@ export async function executeTask(
   }
   const request = await taskCommand(task)
   const log = json ? console.error : console.log
-  log(`\n${task.name}\nRunning: pnpm run ${task.script}\n`)
+  const command = task.command?.join(' ') ?? `pnpm run ${task.script}`
+  log(`\n${task.name}\nRunning: ${command}\n`)
   if (task.persistent) {
     log(
       interactive

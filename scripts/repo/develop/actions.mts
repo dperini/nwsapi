@@ -6,6 +6,7 @@ export interface Task {
   next: string
   persistent?: boolean
   optional?: boolean
+  command?: string[]
 }
 
 export const TASKS: readonly Task[] = [
@@ -43,6 +44,16 @@ export const TASKS: readonly Task[] = [
     next: 'Follow the report. For executable paths: pnpm run setup:check --details.',
     optional: true,
   },
+  {
+    script: 'voiceover',
+    name: 'VoiceOver controls (optional)',
+    description: 'Explicitly start or stop macOS VoiceOver.',
+    detail:
+      'Shows the current state before offering a Start or Stop action. It never toggles implicitly. Command-F5 is the macOS emergency toggle.',
+    next: 'VoiceOver control finished. You can return to this action to stop it.',
+    optional: true,
+    command: ['node', 'scripts/repo/develop/voiceover.mts'],
+  },
 ]
 
 export interface MenuState {
@@ -55,7 +66,8 @@ export function taskInstructions(
   task: Task,
   readiness?: { ready: boolean; message: string },
 ) {
-  return `${taskDetails(task, readiness)}\n\nCommand: pnpm run ${task.script}`
+  const command = task.command?.join(' ') ?? `pnpm run ${task.script}`
+  return `${taskDetails(task, readiness)}\n\nCommand: ${command}`
 }
 
 export function taskDetails(
