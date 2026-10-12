@@ -129,6 +129,18 @@ test('agent scans use Git-selected files, persist reports and remove temporary s
       workflows: true,
       skills: 1,
     })
+    expect(
+      run.mock.calls.find(([, args]) =>
+        args.includes('--fail-on-severity'),
+      )?.[1],
+    ).toEqual([
+      'scan',
+      path.join(root, '.claude/skills/example'),
+      '--format',
+      'json',
+      '--fail-on-severity',
+      'medium',
+    ])
     expect(existsSync(snapshot)).toBe(false)
     expect(
       JSON.parse(
