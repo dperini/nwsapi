@@ -80,6 +80,8 @@ async function harness(
   const expectedExit = expectedStatus === 'failed' ? 1 : 0
   const taskIndex = args.indexOf('--task')
   const task = taskIndex >= 0 ? args[taskIndex + 1] : ''
+  const captureFailure =
+    task === 'setup:check' && expectedStatus === 'completed'
   const result = await command(
     file,
     args.slice(1).join(' '),
@@ -88,9 +90,9 @@ async function harness(
     checkout,
     env,
     undefined,
-    task === 'setup:check' ? null : expectedExit,
+    captureFailure ? null : expectedExit,
   )
-  if (task === 'setup:check' && result.code !== 0) {
+  if (captureFailure && result.code !== 0) {
     await captureReadinessDetails(file, checkout, node, env, command)
   }
   const object = parseHarnessJson(result.stdout)

@@ -36,7 +36,7 @@ const discovery = {
   ],
 }
 
-test('failed readiness harness captures safe doctor details before setup', async () => {
+test('expected pre-setup failure preserves its required exit code without extra probes', async () => {
   const phases: string[] = []
   const command = vi.fn(
     async (
@@ -44,6 +44,10 @@ test('failed readiness harness captures safe doctor details before setup', async
       phase: string,
       _executable: string,
       args: string[],
+      _checkout: string,
+      _env: NodeJS.ProcessEnv,
+      _timeout?: number,
+      expected?: number | null,
     ): Promise<CommandOutput> => {
       phases.push(phase)
       if (phase === 'harness task discovery') {
@@ -53,10 +57,8 @@ test('failed readiness harness captures safe doctor details before setup', async
           stderr: '',
         }
       }
-      if (phase === 'setup diagnostics detail after readiness failure') {
-        expect(args).toEqual(['scripts/repo/setup/doctor.mts', '--details'])
-        return { code: 1, stdout: 'npm probe details', stderr: '' }
-      }
+      expect(args).toContain('setup:check')
+      expect(expected).toBe(1)
       return {
         code: 1,
         stdout: JSON.stringify({
@@ -93,7 +95,6 @@ test('failed readiness harness captures safe doctor details before setup', async
   expect(phases).toEqual([
     'harness task discovery',
     'scripts/repo/develop/run.mts --task setup:check',
-    'setup diagnostics detail after readiness failure',
   ])
   expect(beforeSetup).toHaveBeenCalledOnce()
 })
