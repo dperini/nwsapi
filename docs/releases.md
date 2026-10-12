@@ -7,22 +7,23 @@ proof of presence. No browser extension or long-lived CI npm token is needed.
 
 ## Contributor setup
 
-Use Node 22.22.2+, 24.15.0+, or 26+ and npm 12.1.0 or newer (`engines` plus
-`engine-strict` in `.npmrc` reject older npm; the release workflow bootstraps
-the same pinned version). These are contributor-tool requirements;
-the published selector engine keeps its existing syntax baseline.
+Use Node 22.22.2+, 24.15.0+, or 26+ and npm 12.2.0 or newer. `engines` and
+`engine-strict` in `.npmrc` reject older npm. CI reads the npm pin from
+`.config/external-tools.json`. These requirements apply to contributor tools.
+The published selector engine keeps its existing syntax baseline.
 
 ```sh
 npm ci
 npm test
 ```
 
-Installation runs `prepare`, which checks the pinned npm 12.1.0 release CLI,
-resets the pinned WPT checkout, installs Homebrew if needed on macOS, updates
+Installation runs `prepare`, which provisions the checkout tools pinned in
+`.config/external-tools.json`, resets the pinned WPT checkout, installs Homebrew
+if needed on macOS, updates
 its metadata, installs PHP if missing, and installs the pinned Playwright
 Chromium browser without interactive prompts. Setup does not run `brew upgrade`
 or intentionally upgrade other installed formulae. `npm run setup` repeats
-these steps;
+these steps.
 `npm run publish:setup` checks just the publish CLI. The npm lockfile pins the
 contributor tools. The packaged manifest excludes contributor scripts and tools,
 so installing a release does not clone WPT or install release tooling.
