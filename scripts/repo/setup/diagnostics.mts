@@ -126,18 +126,22 @@ export function probeToolVersion(
   }
 }
 
-export function managedEntry(name: ToolName) {
+export function managedEntry(name: ToolName, directory = TOOL_BIN) {
   if (name === 'node') {
-    return managedNodeEntry()
+    return managedNodeEntry(directory)
   }
   const extension = process.platform === 'win32' ? '.cmd' : ''
-  return path.join(TOOL_BIN, name + extension)
+  return path.join(directory, name + extension)
 }
 
-export function wrapperStatus(name: 'npm' | 'pnpm') {
+export function wrapperStatus(
+  name: 'npm' | 'pnpm',
+  directory = TOOL_BIN,
+  firewall = toolExecutable('sfw'),
+  npm = toolExecutable('npm'),
+) {
   try {
-    const firewall = toolExecutable('sfw')
-    const node = realExecutable(managedNodeEntry())
+    const node = realExecutable(managedNodeEntry(directory))
     if (!executableAvailable(firewall)) {
       return 'Firewall executable missing'
     }
@@ -146,15 +150,20 @@ export function wrapperStatus(name: 'npm' | 'pnpm') {
     }
     const real =
       name === 'npm'
-        ? { executable: node, args: [toolExecutable('npm')] }
+        ? { executable: node, args: [npm] }
         : { executable: toolExecutable('pnpm') }
     const windows = process.platform === 'win32'
-    const lines = (windows ? windowsShim : posixShim)(name, firewall, real)
+    const lines = (windows ? windowsShim : posixShim)(
+      name,
+      firewall,
+      real,
+      directory,
+    )
     const newline = windows ? '\r\n' : '\n'
-    if (!executableAvailable(managedEntry(name))) {
+    if (!executableAvailable(managedEntry(name, directory))) {
       return 'checkout launcher missing'
     }
-    return readFileSync(managedEntry(name), 'utf8') ===
+    return readFileSync(managedEntry(name, directory), 'utf8') ===
       lines.join(newline) + newline
       ? 'verified'
       : 'checkout launcher contents differ from the pinned command'
@@ -163,8 +172,13 @@ export function wrapperStatus(name: 'npm' | 'pnpm') {
   }
 }
 
-export function verifiedWrapper(name: 'npm' | 'pnpm') {
-  return wrapperStatus(name) === 'verified'
+export function verifiedWrapper(
+  name: 'npm' | 'pnpm',
+  directory = TOOL_BIN,
+  firewall?: string,
+  npm?: string,
+) {
+  return wrapperStatus(name, directory, firewall, npm) === 'verified'
 }
 
 export function managedVersionProbes() {

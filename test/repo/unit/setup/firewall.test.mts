@@ -2,6 +2,8 @@ import { expect, test } from 'vitest'
 import {
   mkdirSync,
   mkdtempSync,
+  readFileSync,
+  realpathSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -13,8 +15,13 @@ import {
   quotePosix,
   quoteWindows,
   sentinelFor,
+  windowsShim,
   writeFirewallShim,
 } from '../../../../scripts/repo/setup/firewall.mts'
+import {
+  verifiedWrapper,
+  wrapperStatus,
+} from '../../../../scripts/repo/setup/diagnostics.mts'
 
 test('shell arguments escape embedded delimiters and Windows variable expansion', () => {
   expect(quotePosix("a'b $c")).toBe("'a'\\''b $c'")
@@ -90,5 +97,40 @@ test('manager launchers resolve Node from the checkout bin on PATH', () => {
     expect(process.env['PATH']).not.toContain(directory)
   } finally {
     rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('Windows shim writer output passes the checkout wrapper verifier', () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-shim-ready-'))
+  const original = process.platform
+  const node = path.join(directory, 'node.exe')
+  const firewall = path.join(directory, 'sfw.exe')
+  const npm = path.join(directory, 'npm-cli.js')
+  Object.defineProperty(process, 'platform', { value: 'win32' })
+  try {
+    writeFileSync(node, 'node executable placeholder')
+    writeFileSync(firewall, 'Firewall executable placeholder')
+    const launcher = writeFirewallShim(
+      'npm',
+      firewall,
+      { executable: realpathSync(node), args: [npm] },
+      directory,
+    )
+
+    const written = readFileSync(launcher, 'utf8')
+    expect(written.endsWith('\r\n')).toBe(true)
+    expect(written).toBe(
+      windowsShim(
+        'npm',
+        firewall,
+        { executable: realpathSync(node), args: [npm] },
+        directory,
+      ).join('\r\n') + '\r\n',
+    )
+    expect(wrapperStatus('npm', directory, firewall, npm)).toBe('verified')
+    expect(verifiedWrapper('npm', directory, firewall, npm)).toBe(true)
+  } finally {
+    Object.defineProperty(process, 'platform', { value: original })
+    rmSync(directory, { recursive: true, force: true })
   }
 })

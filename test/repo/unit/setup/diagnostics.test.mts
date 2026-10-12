@@ -80,7 +80,7 @@ test('Windows npm wrapper verification uses the activated managed Node path', ()
   expect(state.wrapper).toHaveBeenCalledWith('npm', '/tools/sfw', {
     executable: '/tools/bin/node.exe',
     args: ['/tools/npm'],
-  })
+  }, '/tools/bin')
   expect(fs.readFileSync).toHaveBeenCalledWith('/tools/bin/npm.cmd', 'utf8')
 })
 

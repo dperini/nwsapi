@@ -152,7 +152,8 @@ export function writeFirewallShim(
   const target = path.join(directory, windows ? `${name}.cmd` : name)
   try {
     const temporary = path.join(staging, 'shim')
-    writeFileSync(temporary, lines.join(windows ? '\r\n' : '\n') + '\n', {
+    const newline = windows ? '\r\n' : '\n'
+    writeFileSync(temporary, lines.join(newline) + newline, {
       mode: 0o755,
     })
     // Replace the launcher atomically so an existing symlink cannot alter its target.
