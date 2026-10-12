@@ -111,7 +111,7 @@ async function runOptIn(
 const consentMessage = [
   'This starts VoiceOver for one focused “Reading mode” control on the local API reader page.',
   'The test may speak aloud. It snapshots five VoiceOver preference entries and restores them only after VoiceOver is confirmed stopped and the temporary volume is detached.',
-  'The active test is limited to 120s, then cleanup runs. Ctrl+C stops it. No settings, privacy grants, or other apps are opened.',
+  'A temporary browser window opens. The active test is limited to 120s, then cleanup runs. Ctrl+C stops it. Privacy permissions are not changed.',
   'Start narration? [y/N] ',
 ].join('\n')
 
