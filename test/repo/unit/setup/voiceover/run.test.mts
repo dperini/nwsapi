@@ -14,7 +14,11 @@ const hostCommand = vi.hoisted(() =>
 )
 vi.mock('node:child_process', async original => ({
   ...(await original<typeof ChildProcess>()),
+  exec: hostCommand,
+  execFile: hostCommand,
   execFileSync: hostCommand,
+  execSync: hostCommand,
+  fork: hostCommand,
   spawn: hostCommand,
   spawnSync: hostCommand,
 }))
