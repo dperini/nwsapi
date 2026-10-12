@@ -75,7 +75,7 @@ function skillAliases(root: string) {
   }
   return readdirSync(source, { withFileTypes: true })
     .filter(item => item.isDirectory())
-    .sort((left, right) => left.name.localeCompare(right.name))
+    .toSorted((left, right) => left.name.localeCompare(right.name))
     .flatMap(item => {
       const skill = path.join(source, item.name, 'SKILL.md')
       if (!entry(skill)) {

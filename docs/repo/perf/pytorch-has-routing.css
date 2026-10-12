@@ -409,7 +409,6 @@ pre {
   max-inline-size: 100%;
   border: 0;
   border-radius: 8px;
-  padding-inline-end: 76px;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--section-accent, var(--topic-what))
@@ -429,14 +428,31 @@ pre {
 }
 .code-toolbar {
   --code-toolbar-spacing: 10px;
-  position: absolute;
-  inset-block-start: var(--code-toolbar-spacing);
-  inset-inline-end: calc(8px + var(--code-toolbar-spacing));
-  z-index: 1;
+  position: static;
+  inset: auto;
   display: flex;
+  flex-wrap: wrap;
+  min-height: 44px;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--code-toolbar-spacing);
+  gap: 0 var(--code-toolbar-spacing);
+  padding-inline: var(--code-toolbar-spacing);
+}
+.code-toolbar .code-copy-status:not([data-copy-outcome='copied']) {
+  flex: 1 1 12ch;
+  min-width: 0;
+  max-width: 32ch;
+  overflow-wrap: anywhere;
+}
+.code-toolbar .code-copy-status[data-copy-outcome='copied'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 .code-toolbar .code-copy,
 .code-toolbar #source-link {
@@ -445,14 +461,14 @@ pre {
     var(--section-accent) 60%,
     var(--section-line, var(--line))
   );
-  overflow: hidden;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 7px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   color: var(--code-control-color) !important;
   background: var(--surface-inset, var(--reading-inset, #101f27)) !important;
   border: 1px solid var(--section-line, var(--line)) !important;
@@ -483,24 +499,14 @@ pre {
   clip-path: inset(50%);
 }
 .code-toolbar #source-link .github-icon {
-  width: 100%;
-  height: 100%;
+  width: 20px;
+  height: 20px;
 }
 .code-copy-status {
   min-width: 0;
   color: var(--section-accent, var(--topic-what));
   font-size: var(--text-support);
   line-height: 1.5;
-}
-.code-toolbar[data-copy-state='copied'] .code-copy-status {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  white-space: nowrap;
-  clip-path: inset(50%);
 }
 .code-toolbar .code-copy:focus-visible {
   animation: none;
