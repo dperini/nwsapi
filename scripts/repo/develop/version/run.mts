@@ -55,7 +55,7 @@ interface CheckoutContext {
   sourceBranch: string
   sourceHead: string
   currentVersion: 'v2' | 'v3'
-  helperMetadata?: WorktreeMetadata
+  helperMetadata?: WorktreeMetadata | undefined
 }
 
 function readCheckoutContext(repositoryInput: string): CheckoutContext {
@@ -211,13 +211,14 @@ function selectedRunnerEnvironment(
   checkout: string,
   token: string,
 ) {
-  const env = {
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
     NWSAPI_WORKTREE_LEASE_TOKEN: token,
     NWSAPI_WORKTREE_PATH: checkout,
   }
-  if (env.PATH) {
-    env.PATH = env.PATH.split(path.delimiter)
+  if (env['PATH']) {
+    env['PATH'] = env['PATH']
+      .split(path.delimiter)
       .filter(
         entry => path.resolve(entry) !== path.join(repository, '.cache', 'bin'),
       )
@@ -225,7 +226,7 @@ function selectedRunnerEnvironment(
   }
   const selectedBin = path.join(checkout, '.cache', 'bin')
   if (existsSync(selectedBin)) {
-    env.PATH = `${selectedBin}${path.delimiter}${env.PATH ?? ''}`
+    env['PATH'] = `${selectedBin}${path.delimiter}${env['PATH'] ?? ''}`
   }
   return env
 }

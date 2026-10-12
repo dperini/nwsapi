@@ -91,7 +91,7 @@ export async function claimWorktree(
       }),
     )
     await pulseFile.close()
-    let stored = ownedMetadata
+    let stored: WorktreeMetadata = ownedMetadata
     if (persistMetadata) {
       try {
         stored = JSON.parse(

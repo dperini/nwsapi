@@ -175,36 +175,59 @@ test('v2 CLI task failure emits one JSON object when master has no guided runner
 test('version wrapper forwards SIGINT to a noninteractive selected runner', async () => {
   const root = fixture('prerelease/3.0.0')
   const runner = path.join(root, 'scripts/repo/develop/run.mts')
-  const marker = path.join(root, 'signal-received')
   mkdirSync(path.dirname(runner), { recursive: true })
   writeFileSync(
     runner,
-    `import { writeFileSync } from 'node:fs'; process.on('SIGINT', () => { writeFileSync(${JSON.stringify(marker)}, 'yes'); process.exit(130) }); setInterval(() => {}, 1000)\n`,
+    `process.on('SIGINT', () => { console.log(JSON.stringify({type:'result', status:'failed', exitCode:130})); process.exit(130) }); process.stderr.write('READY\\n'); setInterval(() => {}, 1000)\n`,
   )
   git(root, 'add', 'scripts/repo/develop/run.mts')
   git(root, 'commit', '-m', 'add cancellable runner fixture')
   const moduleUrl = pathToFileURL(
     path.join(REPO_ROOT, 'scripts/repo/develop/version/run.mts'),
   ).href
-  const invocation = `import { runVersion } from ${JSON.stringify(moduleUrl)}; await runVersion('v3', [], ${JSON.stringify(root)})`
+  const invocation = `import { runVersion } from ${JSON.stringify(moduleUrl)}; await runVersion('v3', ['--task', 'fixture', '--json'], ${JSON.stringify(root)})`
   const child = spawn(
     process.execPath,
     ['--input-type=module', '-e', invocation],
     {
       cwd: root,
-      stdio: 'ignore',
+      stdio: ['ignore', 'pipe', 'pipe'],
     },
   )
+  let stdout = ''
+  child.stdout?.on('data', chunk => {
+    stdout += chunk.toString()
+  })
   try {
-    await new Promise(resolve => setTimeout(resolve, 300))
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Runner did not become ready.')),
+        5000,
+      )
+      child.stderr?.on('data', chunk => {
+        if (chunk.toString().includes('READY')) {
+          clearTimeout(timeout)
+          resolve()
+        }
+      })
+      child.once('error', reject)
+    })
     child.kill('SIGINT')
     const exitCode = await new Promise<number | null>(resolve => {
       child.once('close', code => resolve(code))
     })
-    expect(exitCode).not.toBe(0)
-    expect(readFileSync(marker, 'utf8')).toBe('yes')
+    expect(exitCode).toBe(130)
+    expect(stdout.trim().split('\n')).toHaveLength(1)
+    expect(JSON.parse(stdout)).toMatchObject({
+      type: 'result',
+      status: 'failed',
+      exitCode: 130,
+    })
   } finally {
-    child.kill('SIGKILL')
+    if (child.exitCode === null && child.signalCode === null) {
+      child.kill('SIGKILL')
+      await new Promise<void>(resolve => child.once('close', () => resolve()))
+    }
     rmSync(root, { recursive: true, force: true })
   }
 })
