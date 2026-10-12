@@ -708,13 +708,17 @@
       // duplicates id allowed
       if (Config.IDS_DUPES === false) {
         if (api in context) {
-          return (e = context[api](id)) ? [ e ] : none;
+          e = context[api](id);
+          return e ? [ e ] : none;
         }
       } else {
         if ('all' in context) {
           if ((e = context.all[id])) {
             if (e.nodeType == 1) return e.getAttribute('id') != id ? [ ] : [ e ];
-            else if (id == 'length') return (e = context[api](id)) ? [ e ] : none;
+            else if (id == 'length') {
+              e = context[api](id);
+              return e ? [ e ] : none;
+            }
             for (i = 0, l = e.length, nodes = [ ]; l > i; ++i) {
               if (e[i].id == id) nodes[nodes.length] = e[i];
             }
@@ -1877,7 +1881,7 @@
     function(selector, mode, callback, relative, seed) {
       var cacheKey = mode + ':' + (callback ? 1 : 0) + ':' +
         (relative ? 1 : 0) + ':' + JSON.stringify(seed || null) + ':' + selector;
-      var factory, head = '', loop = '', macro = '', source = '', vars = '',
+      var factory, head = '', loop = '', macro = '', source, vars = '',
         enter = '', cleanup = '', info, previousCompilation, current;
 
       // Internal modes 1/2 find a boolean/node; 3 retains extension macros.
@@ -2821,7 +2825,8 @@
       }
 
       // normalize input string
-      parsed = normalizeSelector(selectors.replace(/\x00|\\$/g, '\ufffd'));
+      // CSS parsing replaces NUL characters before compiling the selector.
+      parsed = normalizeSelector(selectors.replace(/\x00|\\$/g, '\ufffd')); // eslint-disable-line no-control-regex
 
       // parse, validate and split possible compound selectors
       if ((selectors = parsed.match(reValidator)) && selectors.join('') == parsed) {
