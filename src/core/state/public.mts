@@ -109,6 +109,7 @@ export interface PublicState {
     ) => boolean | undefined
     isRequired: (node: EngineElement) => boolean
     isDisabled: (element: EngineElement) => boolean
+    isRadioGroupChecked: (element: EngineElement) => boolean
     isOpen: (node: EngineElement) => boolean | undefined
     isClosed: (node: EngineElement) => boolean | undefined
     isModal: (node: EngineElement) => boolean | undefined
@@ -267,6 +268,7 @@ export interface PublicState {
       ) => boolean | undefined
       isRequired: (node: EngineElement) => boolean
       isDisabled: (element: EngineElement) => boolean
+      isRadioGroupChecked: (element: EngineElement) => boolean
       isOpen: (node: EngineElement) => boolean | undefined
       isClosed: (node: EngineElement) => boolean | undefined
       isModal: (node: EngineElement) => boolean | undefined

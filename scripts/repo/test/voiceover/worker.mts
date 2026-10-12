@@ -102,12 +102,12 @@ export async function runVoiceOverWorker(
     assertNotCancelled()
     voiceOver = await adapters.loadVoiceOver()
     assertNotCancelled()
+    adapters.onStarted()
     if (!(await adapters.authorizeStart())) {
       throw new Error('The parent did not authorize VoiceOver startup.')
     }
     assertNotCancelled()
     startAttempted = true
-    adapters.onStarted()
     await voiceOver.start({ capture: false, retries: 1, timeout: 15_000 })
     assertNotCancelled()
     await page.bringToFront()

@@ -1,4 +1,64 @@
-import type { EngineState, EngineElement } from '../state/types.mts'
+import type {
+  EngineState,
+  EngineElement,
+  EngineContext,
+} from '../state/types.mts'
+
+export function isRadioGroupChecked(
+  engine: EngineState,
+  element: EngineElement,
+) {
+  var radio = element as HTMLInputElement,
+    name = radio.name,
+    form = radio.form,
+    root: Node = element,
+    peers: ArrayLike<Element>,
+    peer: HTMLInputElement
+
+  if (!name) {
+    return false
+  }
+  while (root.parentNode) {
+    root = root.parentNode
+  }
+  peers = form ? form.elements : engine.byTag('input', root as EngineContext)
+  if (!form && root.nodeType == 1 && root !== element) {
+    peer = root as HTMLInputElement
+    if (isCheckedRadio(peer, element, name, form, root)) {
+      return true
+    }
+  }
+  for (var index = 0, length = peers.length; index < length; index++) {
+    peer = peers[index] as HTMLInputElement
+    if (isCheckedRadio(peer, element, name, form, root)) {
+      return true
+    }
+  }
+  return false
+}
+
+function isCheckedRadio(
+  peer: HTMLInputElement,
+  element: Element,
+  name: string,
+  form: HTMLFormElement | null,
+  root: Node,
+) {
+  var peerRoot: Node = peer
+  if (
+    peer === element ||
+    peer.type !== 'radio' ||
+    peer.name !== name ||
+    peer.form !== form ||
+    !peer.checked
+  ) {
+    return false
+  }
+  while (peerRoot.parentNode) {
+    peerRoot = peerRoot.parentNode
+  }
+  return peerRoot === root
+}
 
 export function isDisabled(engine: EngineState, element: EngineElement) {
   var legend,

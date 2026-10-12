@@ -23,7 +23,7 @@ export function compilePseudoInputValue(
         '_t=e.type;n=e.localName;' +
         'if((("progress"==n||/^progress$/i.test(n))&&!e.hasAttribute("value"))||' +
         '(("input"==n||/^input$/i.test(n))&&("checkbox"==_t&&e.indeterminate&&!e.switch&&!e.hasAttribute("switch"))||' +
-        '("radio"==_t&&e.name&&!s.first("input[name="+e.name+"]:checked",e.form))' +
+        '("radio"==_t&&!e.checked&&!s.isRadioGroupChecked(e))' +
         ')){' +
         state.source +
         '}'
