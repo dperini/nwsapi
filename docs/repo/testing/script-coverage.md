@@ -2,6 +2,8 @@
 
 Run `pnpm run cover:scripts` to test every Node repository script and Python training script. Unit tests disable network access before importing their modules. Use `nock` for HTTP responses and Vitest for filesystem, subprocess, and browser mocks. Tests mirror their owning script paths beneath `test/repo/unit/` or `test/repo/integration/`.
 
+Screen-reader unit tests mock `@guidepup/guidepup`, browser launches, permission checks, and process controls. Exercise preference backup and restoration with isolated fixtures and timeouts with fake clocks. They must not start VoiceOver, open Settings, read personal preferences, or change host permissions. Actual narration checks run separately with explicit opt-in. Passing mocks establishes runner behavior, not spoken-output quality.
+
 The command runs unit and integration tests, records coverage from Node subprocesses, and runs the Python unit tests offline. It inventories every `.mts`, `.mjs`, `.js`, and `.py` file beneath `scripts/`, including scripts with no tests. Node files must each reach 98% lines, statements, functions, and branches. Python files must each reach 98% lines and branches. An untested file remains in the denominator.
 
 Reports are written beneath `coverage/scripts/`. Open `coverage/scripts/index.html` for the Node report or inspect `coverage/scripts/gaps.json` for files below the gate. Python details are in `coverage/scripts/python.json`. Run `pnpm run cover:scripts --analyze` to reuse recorded results after changing reporting logic. Rerun tests after changing scripts or test behavior.

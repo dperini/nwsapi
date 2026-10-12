@@ -28,6 +28,18 @@ Keep programmatic status separate from a short visual reset. Announce success wi
 
 ## Vision and reading
 
+### Spoken feedback and code
+
+Announce the outcome of the current action briefly. Avoid repeating the same status through several live regions, reading an entire result list when its count changes, or announcing decorative animation. Keep progress quiet unless it communicates a useful change. Use polite announcements for routine outcomes and preserve essential error and recovery text.
+
+Do not assume camelCase or acronym-heavy identifiers will sound like separate words. Prefer plain-language control labels. Place a short explanation beside exact code when pronunciation could obscure its meaning. Keep identifiers unchanged in visible examples, copy output, and commands. Preserve the relationship between a control's visible label and accessible name so voice control can still find it. Avoid blanket ARIA overrides that hide code or make every identifier repeat twice.
+
+Check pronunciation, repetition, timing, and interruption with an actual screen reader. DOM labels and automated accessibility scans do not establish what is spoken. Narration tests require explicit activation and a quick Stop path. Their time limit must include startup and permission waits, with cleanup after cancellation or failure.
+
+Offer reader preferences as a user choice. VoiceOver supports [verbosity adjustments](https://support.apple.com/guide/voiceover/customize-verbosity-vo27984/mac) and [pronunciation substitutions](https://support.apple.com/guide/voiceover/change-voiceover-pronounces-text-symbols-unac049/mac), which can be limited to an app. For example, someone can choose to hear `querySelector` as “query selector” without changing the code. Setup must not silently change verbosity, pronunciation, volume, or speech rate. Captured phrase text does not establish how the voice actually pronounced it.
+
+### Visual presentation
+
 - Measure text contrast against the actual background in both themes. Normal text needs 4.5:1 and qualifying large text needs 3:1 under WCAG's minimum contrast criterion. Check controls and focus boundaries separately. [Text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
 - Combine shape, wording, or position with color. Category pills and readiness colors need readable labels.
 - Review at 320 CSS pixels and with browser zoom. A narrow viewport checks reflow, but does not by itself establish that actual zoom works. Keep horizontal scrolling within genuine tables or code regions and make those regions keyboard reachable. [Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html)

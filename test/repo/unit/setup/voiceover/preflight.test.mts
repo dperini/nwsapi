@@ -1,5 +1,17 @@
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { preflightVoiceOver } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
+
+const hostCommand = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error(
+      'Inject a defaults mock. Unit tests cannot read host preferences.',
+    )
+  }),
+)
+vi.mock('node:child_process', () => ({ execFileSync: hostCommand }))
+afterEach(() => {
+  expect(hostCommand).not.toHaveBeenCalled()
+})
 
 test('preflight distinguishes ready setup, assets, and unverified permissions', () => {
   const result = preflightVoiceOver({
