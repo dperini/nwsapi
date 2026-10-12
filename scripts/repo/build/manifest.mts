@@ -69,6 +69,7 @@ export function publishedManifest(manifest: Record<string, unknown>) {
     'devDependencies',
     'devEngines',
     'allowScripts',
+    'overrides',
   ]) {
     delete published[key]
   }
