@@ -24,8 +24,18 @@ test('retains only failed structured shard reports and redacts their values', as
     sandbox,
     'tmp/nwsapi-review-unit-one/nwsapi-unit-shard-5-run',
   )
+  const pendingShard = path.join(
+    sandbox,
+    'tmp/nwsapi-review-unit-one/nwsapi-unit-shard-6-run',
+  )
+  const skippedShard = path.join(
+    sandbox,
+    'tmp/nwsapi-review-unit-one/nwsapi-unit-shard-7-run',
+  )
   mkdirSync(failedShard, { recursive: true })
   mkdirSync(passingShard, { recursive: true })
+  mkdirSync(pendingShard, { recursive: true })
+  mkdirSync(skippedShard, { recursive: true })
   writeFileSync(
     path.join(failedShard, 'unit-shard-4.json'),
     JSON.stringify({
@@ -59,16 +69,54 @@ test('retains only failed structured shard reports and redacts their values', as
       report: { success: true, numFailedTestSuites: 0 },
     }),
   )
+  writeFileSync(
+    path.join(pendingShard, 'unit-shard-6.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      shardIndex: 6,
+      exitCode: 0,
+      report: {
+        success: true,
+        numPendingTestSuites: 1,
+        numPendingTests: 1,
+        numTodoTests: 1,
+        testResults: [{ name: 'pending.test.mts', status: 'passed' }],
+      },
+    }),
+  )
+  writeFileSync(
+    path.join(pendingShard, 'unit-shard-6.vitest.json'),
+    JSON.stringify({
+      success: true,
+      numPendingTests: 1,
+      testResults: [{ name: 'pending.test.mts', status: 'passed' }],
+    }),
+  )
+  writeFileSync(
+    path.join(skippedShard, 'unit-shard-7.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      shardIndex: 7,
+      exitCode: 0,
+      report: {
+        success: true,
+        testResults: [{ name: 'skipped.test.mts', status: 'skipped' }],
+      },
+    }),
+  )
   try {
     const retained = await retainFailedReviewReports({
       sandbox,
       destination,
       redact: value => value.replaceAll('secret-value', '[redacted]'),
     })
-    assert.equal(retained.length, 2)
+    assert.equal(retained.length, 5)
     assert.deepEqual(retained.map(file => path.basename(file)).toSorted(), [
       'unit-shard-4.json',
       'unit-shard-4.vitest.json',
+      'unit-shard-6.json',
+      'unit-shard-6.vitest.json',
+      'unit-shard-7.json',
     ])
     const vitest = JSON.parse(
       readFileSync(

@@ -167,6 +167,13 @@ async function readReport(
 
 function hasFailedTests(value: Record<string, unknown>) {
   const report = isRecord(value['report']) ? value['report'] : value
+  const rejectedCounts = [
+    report['numFailedTestSuites'],
+    report['numFailedTests'],
+    report['numPendingTestSuites'],
+    report['numPendingTests'],
+    report['numTodoTests'],
+  ]
   if (
     value['exitCode'] !== undefined &&
     typeof value['exitCode'] === 'number' &&
@@ -176,17 +183,14 @@ function hasFailedTests(value: Record<string, unknown>) {
   }
   if (
     report['success'] === false ||
-    (typeof report['numFailedTestSuites'] === 'number' &&
-      report['numFailedTestSuites'] > 0) ||
-    (typeof report['numFailedTests'] === 'number' &&
-      report['numFailedTests'] > 0)
+    rejectedCounts.some(count => typeof count === 'number' && count > 0)
   ) {
     return true
   }
   const results = report['testResults']
   return (
     Array.isArray(results) &&
-    results.some(suite => isRecord(suite) && suite['status'] === 'failed')
+    results.some(suite => isRecord(suite) && suite['status'] !== 'passed')
   )
 }
 
