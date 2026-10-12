@@ -22,18 +22,21 @@ export function initializeReadingMode() {
   if (!reading || !color) {
     return
   }
+  document
+    .querySelector<HTMLElement>('.guide-preferences')
+    ?.removeAttribute('hidden')
   const system = matchMedia('(prefers-color-scheme: dark)')
   let explicit = false
   let mode: ColorMode = system.matches ? 'dark' : 'light'
   try {
-    const stored = sessionStorage.getItem(COLOR_MODE_KEY)
+    const stored = localStorage.getItem(COLOR_MODE_KEY)
     if (stored === 'dark' || stored === 'light') {
       mode = stored
       explicit = true
     }
     root.toggleAttribute(
       'data-reading-mode',
-      sessionStorage.getItem(READING_MODE_KEY) === 'true',
+      localStorage.getItem(READING_MODE_KEY) === 'true',
     )
   } catch {
     // System defaults and in-memory controls work when storage is blocked.
@@ -66,9 +69,9 @@ export function initializeReadingMode() {
   }
   const persist = () => {
     try {
-      sessionStorage.setItem(READING_MODE_KEY, String(isReadingMode()))
+      localStorage.setItem(READING_MODE_KEY, String(isReadingMode()))
       if (explicit) {
-        sessionStorage.setItem(COLOR_MODE_KEY, mode)
+        localStorage.setItem(COLOR_MODE_KEY, mode)
       }
     } catch {
       // Keep the current appearance for this page if storage is unavailable.
@@ -84,10 +87,24 @@ export function initializeReadingMode() {
     delete reading.dataset['bookMotion']
     mode = mode === 'dark' ? 'light' : 'dark'
     explicit = true
-    root.removeAttribute('data-reading-mode')
     persist()
     apply()
   })
+  document
+    .querySelector('[data-reset-display]')
+    ?.addEventListener('click', () => {
+      explicit = false
+      mode = system.matches ? 'dark' : 'light'
+      root.removeAttribute('data-reading-mode')
+      try {
+        localStorage.removeItem(READING_MODE_KEY)
+        localStorage.removeItem(COLOR_MODE_KEY)
+      } catch {
+        // Reset the current page even when stored preferences cannot be changed.
+      }
+      window.dispatchEvent(new Event('guide-display-reset'))
+      apply()
+    })
   system.addEventListener('change', () => {
     if (!explicit) {
       mode = system.matches ? 'dark' : 'light'

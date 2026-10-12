@@ -55,6 +55,7 @@ export interface ExternalTools {
       platforms: Record<string, { asset: string; integrity: string }>
     }
     skillspector: ToolPin & { repository: string; project: string }
+    fframes: ToolPin & { package: string; integrity: string; project: string }
     pytorch: ToolPin & {
       origin: string
       package: string
@@ -192,6 +193,7 @@ export function checkExternalTools(data: ExternalTools = manifest) {
   }
   toolVersions(data)
   toolPlan('npm', undefined, data)
+  parseIntegrity(data.tools.fframes.integrity)
   parseIntegrity(data.tools.agentshield.integrity)
   for (const pin of Object.values(data.tools['skill-scanner'].platforms)) {
     parseIntegrity(pin.integrity)

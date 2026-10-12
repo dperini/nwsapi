@@ -131,36 +131,42 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-Use Node.js 22.18 or newer to bootstrap the pinned contributor toolchain.
+Start with [Make your first change](docs/repo/development/first-change.md). It explains each step, the expected result, and how to continue after an interruption.
+
+Use Node.js 22.18 or newer. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
 
 ```sh
-npm run setup
-npm test
+node scripts/repo/setup/bootstrap.mts
 ```
 
-`npm run setup` and `pnpm run setup` select this branch's pinned `pnpm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm`, uses `mise` with `nub` to provision Node, installs dependencies, and sets up WPT and Chromium. Versions and integrity hashes live in `.config/external-tools.json`. Tools stay in the checkout's ignored `.cache/` directory. Setup needs Git, archive extraction tools, and network access.
+Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
 
-Tests, builds, and checks started with another package manager automatically use the local `pnpm` runtime. For dependency installation, use `npm run setup` rather than `npm install`, which cannot read this branch's workspace catalog. To use the pinned tools directly, run `export PATH="$PWD/.cache/bin:$PATH"` in a POSIX shell or `$env:PATH = "$PWD\.cache\bin;$env:PATH"` in PowerShell.
-Node tests do not use the browser or WPT checkout.
+For documentation changes, `pnpm run guide` opens the local documentation with live updates. For setup problems, `pnpm run setup:check` reports readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
 
-Run `npm run guide` to open the interactive model guide and its Markdown reader
-with live updates. See the [guide instructions](docs/repo/perf/pytorch-for-beginners.md)
-for the local URL and static build command.
+After setup, run `pnpm run dev` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `pnpm run dev --plain` for numbered prompts.
+
+Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
+
+<details>
+<summary>Package manager details</summary>
+
+`npm run setup` and `pnpm run setup` select this branch's pinned `pnpm`. Use either command for dependency installation. `npm install` cannot read this branch's workspace catalog. Repository commands started with another package manager use the checkout toolchain automatically. No PATH edits are needed.
+
+</details>
 
 <details>
 <summary>Check changes before a push</summary>
 
 ```sh
-npm run check
-npm run test:package
-npm run test:fuzz        # Bounded coverage-guided pass
-npm run test:fuzz:replay # Replay saved inputs and crashes
+pnpm run check
+pnpm run test:package
+pnpm run test:fuzz        # Bounded coverage-guided pass
+pnpm run test:fuzz:replay # Replay saved inputs and crashes
 ```
 
-Run `npm run fix` to apply lint fixes, format files, and check the result.
-Run `npm run test:watch` to repeat Node tests while you edit files.
+These are additional checks for changes that need them. Run `pnpm run fix` to apply lint fixes, format files, and check the result. Run `pnpm run test:watch` to repeat Node tests while you edit files.
 
-Run `npm run ci:local` to test the GitHub Actions workflow locally.
+Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
 The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 
@@ -188,7 +194,7 @@ CI also creates HTML reports. Known WPT failures remain visible in test results.
 <summary>Build the package and update dependencies</summary>
 
 Rolldown builds readable JavaScript from the `.mts` source files. The browser distribution is `dist/nwsapi.js`. The build does not minify JavaScript.
-Run `npm run build` to build the files. Run `npm run clean` to remove build outputs, dependencies, and local tool/test/browser caches; it also prunes unreferenced packages from the pnpm store. Re-run `npm run setup` to restore the checkout.
+Run `npm run build` to build the files. `npm run clean` removes generated outputs and keeps dependencies and tools. Add `-- --dry-run` to preview the paths. `npm run reset:dependencies` and `npm run reset:tools` preview separate resets. Add `-- --apply` to perform a reset, then rerun `npm run setup`. Shared package stores, browser caches, and other checkouts are preserved.
 
 Run `pnpm run package` to build and create a tarball in `dist/`.
 Packaging uses an operating-system temporary directory to preserve the published `src/` paths, CommonJS API, browser and AMD support, and extension modules.

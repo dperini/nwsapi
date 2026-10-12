@@ -5,6 +5,7 @@ import path from 'node:path'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { runBudgeted } from '../lib/test-budget.mts'
+import { UNIT_CI_SHARD_COUNT } from './shard/report.mts'
 
 export interface CiTestPlan {
   browser: boolean
@@ -176,6 +177,18 @@ export function writeGithubPlan(plan: CiTestPlan): void {
     output,
     `${(['browser', 'fuzz', 'node', 'package', 'upstream'] as const)
       .map(key => `${key}=${String(plan[key])}`)
+      .concat([
+        `fullNode=${String(plan.fullNode)}`,
+        `unitShardCount=${UNIT_CI_SHARD_COUNT}`,
+        `unitShards=${JSON.stringify(
+          plan.fullNode
+            ? Array.from(
+                { length: UNIT_CI_SHARD_COUNT },
+                (_, index) => index + 1,
+              )
+            : [0],
+        )}`,
+      ])
       .join('\n')}\n`,
   )
 }
@@ -183,6 +196,10 @@ export function writeGithubPlan(plan: CiTestPlan): void {
 export async function main(): Promise<void> {
   const changed = changedFiles()
   const plan = changed.reliable ? planCiTests(changed.files) : completePlan()
+  if (process.argv.includes('--plan')) {
+    console.log(JSON.stringify(plan, null, 2))
+    return
+  }
   if (process.argv.includes('--github-output')) {
     writeGithubPlan(plan)
     console.log(`CI test plan: ${JSON.stringify(plan)}`)
@@ -195,7 +212,11 @@ export async function main(): Promise<void> {
   runNode(path.join(REPO_ROOT, 'scripts/repo/build/run.mts'))
   const testScript = path.join(REPO_ROOT, 'scripts/repo/test.mts')
   if (plan.fullNode) {
-    runNode(testScript, ['all'])
+    const integrationOnly = process.argv.includes('--integration-only')
+    if (!integrationOnly) {
+      runNode(path.join(REPO_ROOT, 'scripts/repo/review/unit.mts'))
+    }
+    runNode(testScript, ['integration', '--ci-isolate-clean-checkout'])
     return
   }
   const unitFiles = plan.testFiles.filter(file =>

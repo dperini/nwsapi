@@ -197,47 +197,47 @@
     "pnpm": {
       "origin": "gh-asset",
       "repository": "github:pnpm/pnpm",
-      "version": "12.10.1",
-      "tag": "v12.10.1",
+      "version": "12.12.0",
+      "tag": "v12.12.0",
       "platforms": {
         "darwin-arm64": {
           "asset": "pnpm-darwin-arm64.tar.gz",
-          "integrity": "sha256-pheualXIs81JTGEa2ojWXLfDz214KOkbL0S0vtG+4hc=",
+          "integrity": "sha256-t7rZh9Td97r8MIguKdRvmCWUbUpVQXsCu5aAaRSYpUQ=",
           "binary": "pnpm"
         },
         "darwin-x64": {
           "asset": "pnpm-darwin-x64.tar.gz",
-          "integrity": "sha256-vnit7mYSMCZng23N5aNExuwDwjHeNAkYaObycqZIT+Y=",
+          "integrity": "sha256-9xuSjGMO7CdgkDwKRHLxdXvd9M5AVy0dFJfT+1q2zBY=",
           "binary": "pnpm"
         },
         "linux-arm64": {
           "asset": "pnpm-linux-arm64.tar.gz",
-          "integrity": "sha256-GNuxGN4dvvDkUWwXv4R9buIG/E3v+yu0iOyOHSgU4Hg=",
+          "integrity": "sha256-zz5ZpXbTVhtyGrIUqKveejeYJ3cAHEunUBnt7tEJiuY=",
           "binary": "pnpm"
         },
         "linux-arm64-musl": {
           "asset": "pnpm-linux-arm64-musl.tar.gz",
-          "integrity": "sha256-kGJZBFqu83o/5hRfq9wcwxldpSOniJAIdb+XvjtAMz4=",
+          "integrity": "sha256-g5bE/+PolBMtFE6khN88Ev5qcL0Acmi8LRJ2kXhyFgs=",
           "binary": "pnpm"
         },
         "linux-x64": {
           "asset": "pnpm-linux-x64.tar.gz",
-          "integrity": "sha256-UConWYSkzQHlV5rHIEmiQQkcrFEY5Evs+ElREww+B54=",
+          "integrity": "sha256-INaNU7+om6nPcnwf/Q08HDGT6TPQl7Nufyn3QyV3E9k=",
           "binary": "pnpm"
         },
         "linux-x64-musl": {
           "asset": "pnpm-linux-x64-musl.tar.gz",
-          "integrity": "sha256-8q0FCnBatDPmwcT9V9WERiiWBisEjp0pqQVIrW2R+Rs=",
+          "integrity": "sha256-LhbQ9fwjvdKbfgzZk02Tx9RMtvuYe07UJcf3NXlbKXk=",
           "binary": "pnpm"
         },
         "win32-arm64": {
           "asset": "pnpm-win32-arm64.zip",
-          "integrity": "sha256-Z8CYDCIj0vibRs7tsJyqo3v6sHXYMZ0OZR62WdAMZuk=",
+          "integrity": "sha256-/8zxOwKhPctL2LkriuK9JqAS9de96Y213mtlrsfOmuA=",
           "binary": "pnpm.exe"
         },
         "win32-x64": {
           "asset": "pnpm-win32-x64.zip",
-          "integrity": "sha256-KZAJMXVUuCkFkn+Ol4LsXwr7COt7XMXrKxWpI8saVu8=",
+          "integrity": "sha256-LsFlF4xoKoLfvmCN3PDFUQi2GwlBNCvOLKSxom+qLHw=",
           "binary": "pnpm.exe"
         }
       }
@@ -582,6 +582,13 @@
           "binary": "mise/bin/mise.exe"
         }
       }
+    },
+    "fframes": {
+      "origin": "cargo-project",
+      "package": "fframes",
+      "version": "1.2.0",
+      "integrity": "sha256-AEsdD+xlHqjF9iqlvohpb/7rbc83sZTOXBO2ixiPEBY=",
+      "project": ".config/perf-video"
     }
   }
 }

@@ -24,7 +24,11 @@ test(() => {
   assert_equals(cache.size(), 4096);
   assert_equals(cache.get('0'), 0);
   cache.set('1', 'updated');
-  cache.set('__proto__', 'safe');
+  for (let i = 0; i < 128 && !cache.has('__proto__'); ++i) {
+    cache.set('__proto__', 'safe');
+    assert_less_than_equal(cache.size(), 4096);
+    assert_equals(cache.get('0'), 0);
+  }
   assert_equals(cache.get('2'), undefined);
   assert_equals(cache.get('0'), 0);
   assert_equals(cache.get('1'), 'updated');
@@ -32,7 +36,7 @@ test(() => {
   assert_equals(cache.size(), 4096);
   cache.clear();
   assert_false(cache.has('0'));
-}, 'Legacy cache preserves live queries and bounded LRU eviction');
+}, 'Legacy cache preserves live queries and bounded selective admission');
 test(t => {
   const engine = NW.Dom;
   const saved = window.WeakMap;

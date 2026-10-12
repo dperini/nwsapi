@@ -9,7 +9,13 @@ import {
   releaseTag,
   validateStageId,
 } from './config.mts'
-import { assertReserved, git, localTag, remoteRef } from './git.mts'
+import {
+  assertNotBurned,
+  assertReserved,
+  git,
+  localTag,
+  remoteRef,
+} from './git.mts'
 import { packRelease, reserveGithubRelease, verifyStage } from './artifact.mts'
 import {
   npmCommand,
@@ -51,18 +57,20 @@ export async function stageRelease(
     throw new Error(`${version} is already public.`)
   }
   const artifact = await operations.packRelease(version, commit, root, run)
-  operations.reserveGithubRelease(
-    artifact.directory,
-    artifact.receipt,
-    root,
-    run,
-  )
   try {
+    assertNotBurned(version, root, run)
+    operations.reserveGithubRelease(
+      artifact.directory,
+      artifact.receipt,
+      root,
+      run,
+    )
+    assertNotBurned(version, root, run)
     const id = operations.uploadStage(artifact.tarball, { run, env })
     if (env['GITHUB_STEP_SUMMARY']) {
       appendFileSync(
         env['GITHUB_STEP_SUMMARY'],
-        `Staged \`nwsapi@${version}\` as \`${id}\`.\n\nVerify: \`pnpm run release -- verify ${version} --stage ${id}\`\n\nApprove separately: \`pnpm run release -- approve ${version} --stage ${id} --apply\`\n`,
+        `Staged \`nwsapi@${version}\` as \`${id}\`.\n\nVerify: \`pnpm run publish:verify ${version} --stage ${id}\`\n\nApprove separately: \`pnpm run approve ${version} --stage ${id} --apply\`\n`,
       )
     }
     return { ...artifact.receipt, stageId: id }
@@ -92,6 +100,7 @@ export async function approveRelease(
   if (!apply) {
     return { ...receipt, approvalRequired: true }
   }
+  assertNotBurned(version, root, run)
   npmCommand(['stage', 'approve', validateStageId(id)], {
     run,
     interactive: true,

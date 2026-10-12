@@ -47,23 +47,22 @@ export interface NativeCase {
 export const caseKey = (entry: Omit<NativeCase, 'type'>) =>
   JSON.stringify([entry.subsuite, entry.test, entry.subtest])
 
-export function nativePins(): NativePins {
-  const revision = execFileSync(
-    'git',
-    ['config', '--file', '.gitmodules', '--get', 'submodule.upstream/wpt.ref'],
-    {
+export function nativePins(
+  readGit = (args: string[]) => {
+    return execFileSync('git', args, {
       cwd: REPO_ROOT,
       encoding: 'utf8',
-    },
-  ).trim()
-  const checkoutRevision = execFileSync(
-    'git',
-    ['-C', 'upstream/wpt', 'rev-parse', 'HEAD'],
-    {
-      cwd: REPO_ROOT,
-      encoding: 'utf8',
-    },
-  ).trim()
+    }).trim()
+  },
+): NativePins {
+  const revision = readGit([
+    'config',
+    '--file',
+    '.gitmodules',
+    '--get',
+    'submodule.upstream/wpt.ref',
+  ])
+  const checkoutRevision = readGit(['-C', 'upstream/wpt', 'rev-parse', 'HEAD'])
   if (revision !== checkoutRevision) {
     throw new Error(
       'WPT checkout does not match the configured pin. Run pnpm run upstream:clone before native qualification.',

@@ -21,6 +21,36 @@ const kinds = new Set([
   'operator',
 ])
 
+function tokenFragment(
+  spans: Awaited<ReturnType<typeof parse>>,
+  source: string,
+) {
+  const fragment = document.createDocumentFragment()
+  let cursor = 0
+  for (let i = 0, length = spans.length; i < length; i += 1) {
+    const span = spans[i]!
+    if (
+      !Number.isSafeInteger(span.start) ||
+      !Number.isSafeInteger(span.end) ||
+      span.start !== cursor ||
+      span.end <= cursor ||
+      span.end > source.length ||
+      !kinds.has(span.type)
+    ) {
+      return undefined
+    }
+    const token = document.createElement('span')
+    token.className = `syntax-${span.type}`
+    writeUnitText(token, source, span.start, span.end)
+    fragment.append(token)
+    cursor = span.end
+  }
+  if (cursor !== source.length) {
+    return undefined
+  }
+  return fragment
+}
+
 async function highlight(node: HTMLElement, source: string) {
   let timeout: ReturnType<typeof setTimeout> | undefined
   try {
@@ -40,27 +70,8 @@ async function highlight(node: HTMLElement, source: string) {
     if (node.textContent !== source) {
       return
     }
-    const fragment = document.createDocumentFragment()
-    let cursor = 0
-    for (let i = 0, length = spans.length; i < length; i += 1) {
-      const span = spans[i]!
-      if (
-        !Number.isSafeInteger(span.start) ||
-        !Number.isSafeInteger(span.end) ||
-        span.start !== cursor ||
-        span.end <= cursor ||
-        span.end > source.length ||
-        !kinds.has(span.type)
-      ) {
-        return
-      }
-      const token = document.createElement('span')
-      token.className = `syntax-${span.type}`
-      writeUnitText(token, source, span.start, span.end)
-      fragment.append(token)
-      cursor = span.end
-    }
-    if (cursor !== source.length) {
+    const fragment = tokenFragment(spans, source)
+    if (!fragment) {
       return
     }
     node.replaceChildren(fragment)

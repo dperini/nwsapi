@@ -1,0 +1,172 @@
+{
+  "measuredAt": "2026-10-12T00:26:36.529Z",
+  "head": "ffe2a9453c45ab4c4ceb2e3c81260c31304c56b7",
+  "worktreeDirty": true,
+  "scope": "Catalog input-to-results baseline only. No before/after comparison or performance claim.",
+  "environment": {
+    "os": "Darwin 27.0.0 arm64",
+    "node": "v26.11.0",
+    "browser": "154.0.8037.0",
+    "viewport": "1280x900"
+  },
+  "corpusDocuments": 98,
+  "method": "For each synthetic input event, capture-phase listener recorded performance.now(). A MutationObserver on #document-results recorded the next subtree mutation. The interval includes synchronous search, ranking, and DOM rendering plus observer scheduling. It excludes text entry, debouncing, announcement delay, and paint. Thirty trials cycled the recorded queries below. Percentiles use nearest rank (ceil(p*n)).",
+  "summaryMs": {
+    "p50": 12.9,
+    "p95": 61.8,
+    "min": 7.6,
+    "max": 69.5
+  },
+  "trials": [
+    {
+      "query": "selector",
+      "matchingCards": 56,
+      "elapsedMs": 61.8
+    },
+    {
+      "query": "DOM",
+      "matchingCards": 58,
+      "elapsedMs": 14
+    },
+    {
+      "query": "search",
+      "matchingCards": 29,
+      "elapsedMs": 36.3
+    },
+    {
+      "query": "warning",
+      "matchingCards": 7,
+      "elapsedMs": 69.5
+    },
+    {
+      "query": "document",
+      "matchingCards": 68,
+      "elapsedMs": 11.8
+    },
+    {
+      "query": "model",
+      "matchingCards": 46,
+      "elapsedMs": 15.6
+    },
+    {
+      "query": "performance",
+      "matchingCards": 46,
+      "elapsedMs": 9.5
+    },
+    {
+      "query": "route",
+      "matchingCards": 34,
+      "elapsedMs": 12.6
+    },
+    {
+      "query": "HTML",
+      "matchingCards": 39,
+      "elapsedMs": 14.2
+    },
+    {
+      "query": "selector",
+      "matchingCards": 56,
+      "elapsedMs": 9.8
+    },
+    {
+      "query": "DOM",
+      "matchingCards": 58,
+      "elapsedMs": 8.1
+    },
+    {
+      "query": "search",
+      "matchingCards": 29,
+      "elapsedMs": 14.2
+    },
+    {
+      "query": "warning",
+      "matchingCards": 7,
+      "elapsedMs": 18.4
+    },
+    {
+      "query": "document",
+      "matchingCards": 68,
+      "elapsedMs": 11.5
+    },
+    {
+      "query": "model",
+      "matchingCards": 46,
+      "elapsedMs": 14.1
+    },
+    {
+      "query": "performance",
+      "matchingCards": 46,
+      "elapsedMs": 9.4
+    },
+    {
+      "query": "route",
+      "matchingCards": 34,
+      "elapsedMs": 12.9
+    },
+    {
+      "query": "HTML",
+      "matchingCards": 39,
+      "elapsedMs": 13.9
+    },
+    {
+      "query": "selector",
+      "matchingCards": 56,
+      "elapsedMs": 9.2
+    },
+    {
+      "query": "DOM",
+      "matchingCards": 58,
+      "elapsedMs": 7.6
+    },
+    {
+      "query": "search",
+      "matchingCards": 29,
+      "elapsedMs": 13.4
+    },
+    {
+      "query": "warning",
+      "matchingCards": 7,
+      "elapsedMs": 17.3
+    },
+    {
+      "query": "document",
+      "matchingCards": 68,
+      "elapsedMs": 10.4
+    },
+    {
+      "query": "model",
+      "matchingCards": 46,
+      "elapsedMs": 13.7
+    },
+    {
+      "query": "performance",
+      "matchingCards": 46,
+      "elapsedMs": 8.8
+    },
+    {
+      "query": "route",
+      "matchingCards": 34,
+      "elapsedMs": 11.3
+    },
+    {
+      "query": "HTML",
+      "matchingCards": 39,
+      "elapsedMs": 13.1
+    },
+    {
+      "query": "selector",
+      "matchingCards": 56,
+      "elapsedMs": 9.2
+    },
+    {
+      "query": "DOM",
+      "matchingCards": 58,
+      "elapsedMs": 7.6
+    },
+    {
+      "query": "search",
+      "matchingCards": 29,
+      "elapsedMs": 13.4
+    }
+  ]
+}

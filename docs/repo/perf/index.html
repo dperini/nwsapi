@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en" translate="no">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      try {
+        const root = document.documentElement
+        const mode = localStorage.getItem('nwsapi-guide-color-mode')
+        root.dataset.colorMode =
+          mode === 'light' || mode === 'dark'
+            ? mode
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+        root.toggleAttribute(
+          'data-reading-mode',
+          localStorage.getItem('nwsapi-guide-reading') === 'true',
+        )
+      } catch {}
+    </script>
+    <meta name="google" content="notranslate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c171e" />
+    <meta
+      name="description"
+      content="Search all nwsapi documents, guides, experiments, and reports."
+    />
+    <link
+      rel="preload"
+      href="../../../assets/repo/model-guide/fonts/inter.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="../../../assets/repo/model-guide/fonts/jetbrains-mono.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title data-i18n="documentsPageTitle">All documents · nwsapi</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="../../../assets/repo/model-guide-favicon.svg"
+    />
+    <link rel="stylesheet" href="./pytorch-has-routing.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/documents.css" />
+    <link rel="stylesheet" href="./pytorch-has-routing/navigation-menu.css" />
+    <noscript
+      ><style>
+        .appearance-controls,
+        .language-select-shell,
+        .documents-controls,
+        .documents-count,
+        .documents-source-note,
+        .document-results,
+        .documents-empty {
+          display: none !important;
+        }
+      </style></noscript
+    >
+    <script
+      type="module"
+      src="./pytorch-has-routing/documents-page.mts"
+    ></script>
+  </head>
+  <body
+    class="reader documents-page"
+    data-theme="where"
+    data-scroll-theme="where"
+  >
+    <a class="skip-link" href="#document-search" data-i18n="skipToSearch"
+      >Skip to document search</a
+    >
+    <div class="scroll-morph" aria-hidden="true"></div>
+    <header class="topbar reader-topbar">
+      <nav
+        class="header-navigation-group"
+        aria-label="Breadcrumb"
+        data-i18n-aria="breadcrumb"
+      >
+        <a href="./index.html" class="brand"><code>nwsapi</code></a>
+        <span class="brand-separator" aria-hidden="true">/</span>
+        <span
+          class="brand-context documents-navigation-mount"
+          data-header-context
+          data-header-context-kind="catalog"
+          aria-current="page"
+          >all</span
+        >
+      </nav>
+      <div class="header-actions">
+        <div class="language-picker">
+          <span class="language-select-shell">
+            <!-- guide-language-symbol -->
+            <select
+              id="language-select"
+              data-language-select
+              class="theme-select"
+              aria-label="Language"
+            >
+              <option value="en">en</option>
+              <option value="it">it</option>
+            </select>
+          </span>
+          <span class="appearance-controls">
+            <button
+              type="button"
+              class="reading-mode-toggle"
+              data-reading-toggle
+              aria-pressed="false"
+              aria-label="Reading mode"
+              title="Reading mode"
+              data-i18n-aria="readingMode"
+              data-i18n-title="readingMode"
+            >
+              <!-- guide-reading-symbol -->
+            </button>
+            <button
+              type="button"
+              class="color-mode-toggle"
+              data-color-toggle
+              data-light-label="Switch to light mode"
+              data-dark-label="Switch to dark mode"
+              aria-label="Switch to light mode"
+              title="Switch to light mode"
+            >
+              <!-- guide-color-symbol -->
+            </button>
+          </span>
+        </div>
+      </div>
+    </header>
+    <main id="documents-main" class="documents-main">
+      <header class="documents-heading">
+        <h1 data-i18n="documents">Documents</h1>
+        <p data-i18n="documentsIntro">
+          Browse guides, reference material, experiments, and reports.
+        </p>
+      </header>
+      <nav
+        class="documents-start"
+        aria-label="Start here"
+        data-i18n-aria="startHere"
+      >
+        <a
+          href="./model-guide-reading.html?doc=README.md#install"
+          data-i18n="useLibrary"
+          >Use the library</a
+        >
+        <a
+          href="./model-guide-reading.html?doc=docs%2Frepo%2Fdevelopment%2Ffirst-change.md"
+          data-i18n="makeChange"
+          >Make a change</a
+        >
+        <a
+          href="./model-guide-reading.html?doc=docs%2Frepo%2Fdevelopment%2Ffirst-change.md#cleanup-and-recovery"
+          data-i18n="fixProblem"
+          >Fix a problem</a
+        >
+        <a
+          href="./model-guide-reading.html?doc=docs%2Frepo%2Fperf%2Fbenchmarks.md"
+          data-i18n="advancedWork"
+          >Explore benchmarks</a
+        >
+      </nav>
+      <form
+        class="documents-controls"
+        id="document-filters"
+        role="search"
+        method="get"
+        onsubmit="return false"
+        tabindex="-1"
+        aria-label="Search documents"
+        data-i18n-aria="searchDocuments"
+      >
+        <div
+          class="catalog-field-group documents-form-fields"
+          data-slot="field-group"
+        >
+          <div
+            class="catalog-field documents-search-field"
+            role="group"
+            data-slot="field"
+          >
+            <label
+              class="catalog-field-label"
+              for="document-search"
+              data-slot="field-label"
+              data-i18n="searchDocuments"
+              >Search documents</label
+            >
+            <div
+              class="catalog-input-group"
+              role="group"
+              data-slot="input-group"
+            >
+              <span
+                class="catalog-input-group-addon"
+                data-slot="input-group-addon"
+                data-align="inline-start"
+                aria-hidden="true"
+                ><svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  aria-hidden="true"
+                >
+                  <circle cx="10.8" cy="10.8" r="6.3"></circle>
+                  <path d="m16 16 4.2 4.2"></path></svg
+              ></span>
+              <input
+                id="document-search"
+                name="q"
+                type="search"
+                autocomplete="off"
+                class="catalog-input-group-input"
+                data-slot="input-group-control"
+                placeholder="Try :has(), jsdom, or route planner"
+              />
+              <span
+                class="catalog-input-group-addon"
+                data-slot="input-group-addon"
+                data-align="inline-end"
+                ><button
+                  id="clear-search"
+                  type="button"
+                  disabled
+                  class="catalog-button catalog-button-ghost catalog-input-group-button"
+                  data-slot="input-group-button"
+                  data-i18n="clearSearch"
+                >
+                  Clear
+                </button></span
+              >
+            </div>
+          </div>
+          <div class="documents-filter-row">
+            <div class="catalog-field" role="group" data-slot="field">
+              <label
+                class="catalog-field-label"
+                for="category-filter"
+                data-slot="field-label"
+                data-i18n="topicFilter"
+                >Topic</label
+              >
+              <select
+                id="category-filter"
+                name="category"
+                class="theme-select"
+                data-allow-empty=""
+                data-i18n-aria="topicFilter"
+              >
+                <option value="" data-i18n="allTopics">All topics</option>
+              </select>
+            </div>
+            <div class="catalog-field" role="group" data-slot="field">
+              <label
+                class="catalog-field-label"
+                for="type-filter"
+                data-slot="field-label"
+                data-i18n="typeFilter"
+                >Type</label
+              >
+              <select
+                id="type-filter"
+                name="type"
+                class="theme-select"
+                data-allow-empty=""
+                data-i18n-aria="typeFilter"
+              >
+                <option value="" data-i18n="allTypes">All types</option>
+              </select>
+            </div>
+          </div>
+          <p
+            id="document-load-status"
+            class="documents-load-status"
+            role="status"
+            hidden
+          ></p>
+          <button
+            id="retry-document-load"
+            type="button"
+            class="catalog-button catalog-button-outline documents-retry-button"
+            data-slot="button"
+            hidden
+            data-i18n="retryFailedDocuments"
+          >
+            Retry failed documents
+          </button>
+          <button
+            type="submit"
+            disabled
+            hidden
+            class="catalog-button catalog-button-default catalog-submit-guard"
+            data-slot="button"
+            aria-hidden="true"
+            tabindex="-1"
+          ></button>
+        </div>
+      </form>
+      <p
+        id="document-count"
+        class="documents-count"
+        aria-live="polite"
+        data-i18n="loadingDocuments"
+      >
+        Loading documents…
+      </p>
+      <p class="documents-source-note" data-i18n="sourceLanguageNote">
+        The index searches English source text. Code identifiers keep their
+        original spelling.
+      </p>
+      <div
+        id="document-results"
+        class="document-results"
+        aria-busy="true"
+      ></div>
+      <p
+        id="document-empty"
+        class="documents-empty"
+        hidden
+        data-i18n="noDocumentsMatch"
+      >
+        No documents match. Try a different term or clear a filter.
+      </p>
+    </main>
+    <noscript>
+      <section
+        class="documents-noscript"
+        aria-labelledby="documents-noscript-heading"
+      >
+        <h2 id="documents-noscript-heading">Browse key documents</h2>
+        <p>
+          JavaScript is required to search the full library. These source pages
+          remain available:
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/README.md"
+              >README and API overview</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/docs/repo/selector/api.md"
+              >Selector API reference</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/docs/repo/perf/guide.md"
+              >Performance guide</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/dperini/nwsapi/blob/prerelease/3.0.0/docs/repo/perf/pytorch-has-routing.html"
+              >Interactive route planner guide source</a
+            >
+          </li>
+        </ul>
+      </section>
+    </noscript>
+    <footer class="guide-preferences" hidden>
+      <button type="button" data-reset-display data-i18n="resetDisplay">
+        Reset display
+      </button>
+    </footer>
+  </body>
+</html>

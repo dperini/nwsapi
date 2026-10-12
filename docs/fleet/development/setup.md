@@ -6,6 +6,12 @@ Start at the repository root. Read the root `README.md`, agent instructions, `pa
 
 Use the Node and package-manager versions declared by the checkout. Check its version files, `packageManager`, and `engines` before installing dependencies. An engine mismatch is a setup failure, not a reason to change the repository's pins.
 
+Keep tool installation, tool selection, shell activation, and update policy separate. Resolve the executable the developer invokes and check its version and required capabilities before selecting a fallback. Reuse a compatible installation owned by nvm, fnm, asdf, Volta, Homebrew, or another manager. Do not activate mise globally just because setup installed it, and do not move an unwrapped package manager ahead of a Socket Firewall entrypoint.
+
+When no suitable tool exists, install a compatible mise-managed version for the command or checkout. If another manager owns an outdated version, report the mismatch and use the scoped fallback without changing that manager's global default. Enable background updates only for tools explicitly owned by mise. Use one update owner per tool, a shared update interval with optional per-tool intervals or opt-outs, and the configured release-age policy. Floating global selections may advance within their allowed range. Exact project and CI pins remain authoritative and are changed only through reviewed repository updates.
+
+Diagnostics should report the resolved executable, version, owner, required constraint, and any wrapper or PATH entry that determines resolution. A repair should be scoped and repeatable. Setup must preserve existing shell initialization and must not add duplicate activation entries or competing update mechanisms.
+
 Use `pnpm install` from the root with lifecycle scripts enabled. The fleet's prepare sequence restores the shared payload, reconciles workspace packages, and installs the repository's hooks. Do not substitute a recursive install from a package directory. Follow the [tooling rules](../agents.md/tooling.md).
 
 A fresh clone may not contain `scripts/fleet/` or `.config/fleet/` yet. Members obtain those files through the tracked bootstrap under `scripts/repo/bootstrap/`. Use that bootstrap when restoring a missing payload. Do not copy files from a neighboring checkout or edit a generated mirror to repair setup.

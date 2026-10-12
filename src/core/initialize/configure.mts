@@ -59,6 +59,6 @@ function applyOption(engine: EngineState, key: string, value: unknown) {
   // Resolvers capture validation modes and optional planner eligibility.
   return (
     changed &&
-    (key === 'FORGIVING' || key === 'VERBOSITY' || key === 'NEURAL_PLANNER')
+    (key === 'FORGIVING' || key === 'VERBOSITY' || key === 'ROUTE_PLANNER')
   )
 }

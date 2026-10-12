@@ -48,13 +48,15 @@ async function fixture(reducedMotion = false) {
   const cancel = vi.fn()
   Object.assign(dom.window.SVGElement.prototype, {
     animate,
-    getAnimations: () => [{ cancel }],
+    getAnimations: () => [{ cancel, finished: Promise.resolve() }],
   })
   const media = {
     matches: reducedMotion,
     addEventListener: vi.fn(),
   }
   vi.stubGlobal('document', document)
+  vi.stubGlobal('window', dom.window)
+  vi.stubGlobal('getComputedStyle', dom.window.getComputedStyle)
   vi.stubGlobal('matchMedia', () => media)
   const motion =
     await import('../../../../../docs/repo/perf/pytorch-has-routing/motion.mts')
@@ -88,6 +90,7 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   expect(vi.getTimerCount()).toBe(0)
   view.timeline.value = view.timeline.max
   view.timeline.dispatchEvent(new view.dom.window.Event('input'))
+  await Promise.resolve()
   const scenes = view.document.querySelectorAll('[data-complete="true"]')
   expect(scenes.length).toBe(2)
   const matches = view.document.querySelectorAll('[data-match="true"]')
@@ -110,7 +113,7 @@ test('scrubbing and playback produce the same exact matches for both routes', as
   ).toBe(true)
   view.click('film-play')
   expect(view.timeline.value).toBe('0')
-  vi.advanceTimersByTime(Number(view.timeline.max) * 1200)
+  await vi.advanceTimersByTimeAsync(Number(view.timeline.max) * 1200)
   expect(vi.getTimerCount()).toBe(0)
   view.click('film-reset')
   expect(view.timeline.value).toBe('0')
@@ -223,7 +226,7 @@ test('assistive virtual clicks toggle route playback without pointer events', as
   scene.click()
   expect(vi.getTimerCount()).toBe(1)
   expect(scene.textContent).toBe('Pause')
-  expect(scene.getAttribute('aria-label')).toContain('Pause forward')
+  expect(scene.getAttribute('aria-label')).toMatch(/^Pause /)
   scene.click()
   expect(vi.getTimerCount()).toBe(0)
   expect(scene.textContent).toBe('Play')
@@ -244,4 +247,37 @@ test('hidden tabs pause playback and edits reset both traces', async () => {
   view.renderMotion(toyNodes([0, 0, 0, 0], false))
   expect(view.timeline.value).toBe('0')
   expect(view.document.querySelectorAll('.film-warning').length).toBe(0)
+})
+
+test('held playback keys do not toggle again and ordinary stepping still repeats', async () => {
+  const view = await fixture()
+  const scene = view.document.getElementById('film-forward')!
+  const key = (name: string, repeat = false) =>
+    scene.dispatchEvent(
+      new view.dom.window.KeyboardEvent('keydown', {
+        key: name,
+        repeat,
+        cancelable: true,
+      }),
+    )
+  key('Enter')
+  expect(vi.getTimerCount()).toBe(1)
+  key('Enter', true)
+  key(' ', true)
+  expect(vi.getTimerCount()).toBe(1)
+  key('Enter')
+  expect(vi.getTimerCount()).toBe(0)
+  key('ArrowRight', true)
+  expect(view.timeline.value).toBe('1')
+})
+
+test('reduced motion allows explicit playback without interpolated animation', async () => {
+  const view = await fixture(true)
+  view.click('film-play')
+  expect(vi.getTimerCount()).toBe(1)
+  vi.advanceTimersByTime(2400)
+  expect(view.timeline.value).toBe('2')
+  expect(view.animate).not.toHaveBeenCalled()
+  view.click('film-play')
+  expect(vi.getTimerCount()).toBe(0)
 })

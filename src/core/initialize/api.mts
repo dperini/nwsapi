@@ -1,5 +1,5 @@
-import { neuralPlannerPolicy } from '../select/has/policy.mts'
-import type { NeuralPlannerHost } from '../select/has/policy.mts'
+import { routePlannerPolicy } from '../select/has/policy.mts'
+import type { RoutePlannerHost } from '../select/has/policy.mts'
 import type { BulkHasPlanner } from '../state/types.mts'
 import { hasChild } from '../match/child.mts'
 import {
@@ -243,10 +243,10 @@ export function initializeApi(engine: EngineState) {
     Operators: engine.Operators,
     Selectors: engine.Selectors,
 
-    useNeuralPlanner: function (host: NeuralPlannerHost | null) {
+    useRoutePlanner: function (host: RoutePlannerHost | null) {
       engine.bulkHasPlanner =
-        host === null ? undefined : neuralPlannerPolicy(host)
-      engine.configure({ NEURAL_PLANNER: host !== null }, true)
+        host === null ? undefined : routePlannerPolicy(host)
+      engine.configure({ ROUTE_PLANNER: host !== null }, true)
     },
 
     registerBulkHasPlanner: function (planner: BulkHasPlanner | null) {

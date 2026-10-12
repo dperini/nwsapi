@@ -10,6 +10,7 @@ import {
   planCiTests,
   writeGithubPlan,
 } from '../../../../scripts/repo/test/ci.mts'
+import { UNIT_CI_SHARD_COUNT } from '../../../../scripts/repo/test/shard/report.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -263,14 +264,41 @@ test('GitHub output records parsed lane booleans and requires its destination', 
   )
   expect(values).toEqual({
     browser: 'true',
+    fullNode: 'true',
     fuzz: 'true',
     node: 'true',
     package: 'true',
+    unitShardCount: String(UNIT_CI_SHARD_COUNT),
     upstream: 'true',
+    unitShards: JSON.stringify(
+      Array.from({ length: UNIT_CI_SHARD_COUNT }, (_, index) => index + 1),
+    ),
   })
   state.args = ['--github-output']
   await main()
   expect(state.run).not.toHaveBeenCalled()
+})
+
+test('a plan without a full Node run does not schedule unit shard workers', () => {
+  vi.stubEnv('GITHUB_OUTPUT', '/fixture/github-output')
+  writeGithubPlan(planCiTests(['docs/repo/testing/ci-shards.md']))
+  const values = Object.fromEntries(
+    state.append.mock.calls[0]![1].trim()
+      .split('\n')
+      .map((line: string) => line.split('=')),
+  )
+  expect(values['fullNode']).toBe('false')
+  expect(values['unitShards']).toBe('[0]')
+})
+
+test('the full Node test plan can leave unit shards to the matrix and run integration once', async () => {
+  state.files = ['src/fixture.mts']
+  state.args = ['--integration-only']
+  await main()
+  expect(state.run.mock.calls.map(call => call[1])).toEqual([
+    undefined,
+    ['integration', '--ci-isolate-clean-checkout'],
+  ])
 })
 
 test('the CI runner builds only affected work then schedules full or targeted tiers', async () => {
@@ -281,7 +309,8 @@ test('the CI runner builds only affected work then schedules full or targeted ti
   await main()
   expect(state.run.mock.calls.map(call => call[1])).toEqual([
     undefined,
-    ['all'],
+    undefined,
+    ['integration', '--ci-isolate-clean-checkout'],
   ])
   state.run.mockClear()
   state.files = [
@@ -309,10 +338,31 @@ test('the CI runner builds only affected work then schedules full or targeted ti
 test('unreliable change discovery and the command entrypoint run the complete Node plan', async () => {
   vi.stubEnv('CI', 'true')
   await main()
-  expect(state.run).toHaveBeenLastCalledWith(expect.any(String), ['all'])
+  expect(state.run).toHaveBeenLastCalledWith(expect.any(String), [
+    'integration',
+    '--ci-isolate-clean-checkout',
+  ])
+  expect(state.run).toHaveBeenCalledWith(
+    expect.stringContaining('scripts/repo/review/unit.mts'),
+  )
   state.run.mockClear()
   state.main = true
   vi.resetModules()
   await import('../../../../scripts/repo/test/ci.mts')
-  expect(state.run).toHaveBeenLastCalledWith(expect.any(String), ['all'])
+  expect(state.run).toHaveBeenLastCalledWith(expect.any(String), [
+    'integration',
+    '--ci-isolate-clean-checkout',
+  ])
+  expect(state.run).toHaveBeenCalledWith(
+    expect.stringContaining('scripts/repo/review/unit.mts'),
+  )
+})
+
+test('plan preview does not build or execute tests', async () => {
+  state.files = ['src/fixture.mts']
+  state.args = ['--plan']
+  await main()
+  expect(state.run).not.toHaveBeenCalled()
+  expect(state.budget).not.toHaveBeenCalled()
+  expect(state.append).not.toHaveBeenCalled()
 })

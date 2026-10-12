@@ -4,6 +4,7 @@ const state = vi.hoisted(() => ({
   mismatch: false,
   empty: false,
   disconnect: vi.fn(),
+  selections: new WeakMap<Document, Map<string, Element[]>>(),
 }))
 vi.mock('node:fs', () => ({
   readFileSync: () => Buffer.from('fixture'),
@@ -14,8 +15,13 @@ vi.mock('node:module', () => ({
     file.endsWith('package.json')
       ? { version: 'fixture' }
       : () => {
-          const cache = new Map<string, Element[]>()
           const select = (selector: string, doc: Document) => {
+            // Fixtures are immutable, so fake engines can share native results.
+            let cache = state.selections.get(doc)
+            if (!cache) {
+              cache = new Map<string, Element[]>()
+              state.selections.set(doc, cache)
+            }
             if (!cache.has(selector)) {
               cache.set(selector, Array.from(doc.querySelectorAll(selector)))
             }

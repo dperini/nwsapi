@@ -3,6 +3,8 @@ import it from './locales/it.json'
 import { initializeLanguageSelect } from './select.mts'
 import { initializeContentLocale } from './locale-content.mts'
 import { initializeReadingMode } from './reading-mode.mts'
+import { initializeNavigationMenu } from './navigation-menu.mts'
+import { initializeHeaderContext } from './header-context.mts'
 
 type Locale = keyof typeof messages
 const messages = { en, it }
@@ -15,7 +17,7 @@ function browserLocale(): Locale {
 
 function savedLocale(): Locale {
   try {
-    const stored = sessionStorage.getItem(preferenceKey)
+    const stored = localStorage.getItem(preferenceKey)
     if (stored === 'it' || stored === 'en') {
       return stored
     }
@@ -37,23 +39,26 @@ export function translate(key: keyof typeof en): string {
 
 export function initializeLocale() {
   initializeReadingMode()
+  initializeHeaderContext(translate)
   const select = document.querySelector<HTMLSelectElement>(
     '[data-language-select]',
   )
   if (!select) {
+    initializeNavigationMenu(translate)
     return
   }
   select.value = currentLocale()
   document.documentElement.lang = select.value
+  select.setAttribute('aria-label', translate('language'))
   initializeLanguageSelect()
   applyLocaleMessages()
-  select.setAttribute('aria-label', translate('language'))
+  initializeNavigationMenu(translate)
   initializeContentLocale(currentLocale)
   select.addEventListener('change', () => {
     const locale = select.value === 'it' ? 'it' : 'en'
     activeLocale = locale
     try {
-      sessionStorage.setItem(preferenceKey, locale)
+      localStorage.setItem(preferenceKey, locale)
     } catch {
       // Keep the in-memory choice when browser storage is unavailable.
     }

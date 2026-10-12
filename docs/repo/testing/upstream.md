@@ -20,14 +20,14 @@ The shared [browser setup](../../../scripts/repo/browser.mts) follows the explic
 The runner uses the pages in [the test manifest](../../../test/repo/e2e/upstream/manifest.mts).
 The selected manifest contains **190 pages**. It does not run the complete WPT project.
 
-| Test group | Pages | Subtests | Passed | Known failures |
-| --- | ---: | ---: | ---: | ---: |
-| Upstream DOM matching | 99 | 5,532 | 5,448 | 84 |
-| Wrapped upstream window scripts | 8 | 356 | 356 | 0 |
-| Adapted upstream DOM matching | 16 | 132 | 132 | 0 |
-| Adapted upstream selector validity | 48 | 1,780 | 1,780 | 0 |
-| Local regressions | 19 | 77 | 77 | 0 |
-| Total | 190 | 7,877 | 7,793 | 84 |
+| Test group                         | Pages | Subtests | Passed | Known failures |
+| ---------------------------------- | ----: | -------: | -----: | -------------: |
+| Upstream DOM matching              |    99 |    5,532 |  5,448 |             84 |
+| Wrapped upstream window scripts    |     8 |      356 |    356 |              0 |
+| Adapted upstream DOM matching      |    16 |      132 |    132 |              0 |
+| Adapted upstream selector validity |    48 |    1,780 |  1,780 |              0 |
+| Local regressions                  |    19 |       77 |     77 |              0 |
+| Total                              |   190 |    7,877 |  7,793 |             84 |
 
 These counts describe the selected manifest in Chrome for Testing beta 154.0.8037.0. A known failure remains a failed subtest. No subtests were filtered at runtime. The documented source adapters remove out-of-scope assertions before execution. The [generated summary](../../../assets/repo/bench/wpt-summary.json) records the source hash, WPT revision, page counts, and failing names. The separate [Chrome comparison](../selector/compatibility.md) checks behavior in milestone 153.
 
@@ -62,7 +62,7 @@ The generator rejects missing pages, inconsistent builds, filtered results, unex
 <details>
 <summary>How setup works</summary>
 
-The contributor `prepare` script fetches WPT, verifies the checkout, and installs Chromium.
+The `setup:wpt` task fetches WPT, verifies the checkout, and installs Chromium. WPT tests and full repository checks run this task when needed. The default `prepare` task only builds the package.
 Published package installs do not run this setup.
 
 [.gitmodules](../../../.gitmodules) records the WPT revision, selected directories, and manifest hash.
@@ -74,7 +74,7 @@ The checkout is ignored by Git and managed through this metadata, rather than a 
 If you install with `--ignore-scripts`, run setup separately:
 
 ```sh
-pnpm run prepare
+pnpm run setup:wpt
 ```
 
 Use `pnpm run upstream:verify` to check the checkout without changing it.
@@ -142,6 +142,5 @@ Discovery uses broad text signals to avoid overlooking likely pages. The AST sco
 The earlier expansion retains eight slot-assignment tests, four WebKit pseudo-element tests, and seven selector-result collection tests. The separate live `childNodes` test is excluded because it exercises the host collection rather than our selector results. Narrow AST adapters remove four computed-style assertions from the slot page and two stylesheet tests plus one CSSOM assertion from the WebKit page. Exact edit counts and the scope check reject upstream changes that need another review. The namespace `nth-of-type` page asserts only computed color, so it remains excluded. Existing DOM regression tests cover namespace-sensitive sibling positions.
 
 Additional checks of the pinned Git tree found custom-state `nth-of` and shadow-root pages outside the sparse checkout. Both assert computed colors rather than selector results. The inert/disabled page also reads computed style. They remain outside this DOM-only suite. The inventory flags selector and pseudo-element filenames outside the checkout for future review without downloading every WPT file.
-
 
 The [full-tree inventory](wpt-inventory.md) extends discovery beyond sparse filenames. It covers all 144,489 HTML, XHTML, XML, JavaScript, and module source files in the pinned Git tree. Its 6,742 candidates are review inputs, not a test count. Setup rejects an inventory from a different WPT revision. The latest additions cover 46 pages and 413 subtests, including grammar, custom-element states, shadow boundaries, direction and language inheritance, option disabledness, popover state, and draft heading offsets.

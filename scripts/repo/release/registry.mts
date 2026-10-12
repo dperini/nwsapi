@@ -1,6 +1,7 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { valid as validSemver } from 'semver'
 import { toolExecutable } from '../external-tools.mts'
 import { checked, execute } from '../lib/command.mts'
 import type { CommandRunner } from '../lib/command.mts'
@@ -58,7 +59,9 @@ export async function publishedVersion(
   validateVersion(version)
   const response = await request(
     `${RELEASE.registry}${RELEASE.package}/${version}`,
-    { signal: AbortSignal.timeout(30_000) },
+    {
+      signal: AbortSignal.timeout(30_000),
+    },
   )
   if (response.status === 404) {
     return undefined
@@ -96,6 +99,60 @@ export function parseStage(value: unknown, version: string, id?: string) {
     )
   }
   return { ...stage, id: stageId }
+}
+
+export function approvalStage(value: unknown, version: string) {
+  validateVersion(version)
+  if (!Array.isArray(value)) {
+    throw new Error('Malformed npm stage list.')
+  }
+  const stages = value.map(item => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error('Malformed npm stage entry.')
+    }
+    const stage = item as Record<string, unknown>
+    const id = validateStageId(
+      typeof stage['id'] === 'string'
+        ? stage['id']
+        : typeof stage['stageId'] === 'string'
+          ? stage['stageId']
+          : '',
+    )
+    if (
+      stage['packageName'] !== RELEASE.package ||
+      typeof stage['version'] !== 'string' ||
+      validSemver(stage['version']) !== stage['version'] ||
+      typeof stage['tag'] !== 'string' ||
+      !['staged', 'validating'].includes(String(stage['status']))
+    ) {
+      throw new Error('Malformed npm stage entry.')
+    }
+    return {
+      id,
+      packageName: stage['packageName'],
+      version: stage['version'],
+      tag: stage['tag'],
+      status: stage['status'],
+    }
+  })
+  const matches = stages.filter(
+    stage =>
+      stage.packageName === RELEASE.package &&
+      stage.version === version &&
+      stage.tag === RELEASE.distTag &&
+      stage.status === 'staged',
+  )
+  if (!matches.length) {
+    throw new Error(
+      `No approval-ready ${RELEASE.package}@${version} stage uses ${RELEASE.distTag}.`,
+    )
+  }
+  if (matches.length !== 1) {
+    throw new Error(
+      `Multiple approval-ready ${RELEASE.package}@${version} stages use ${RELEASE.distTag}.`,
+    )
+  }
+  return matches[0]!
 }
 
 export function uploadStage(tarball: string, options: NpmOptions = {}) {

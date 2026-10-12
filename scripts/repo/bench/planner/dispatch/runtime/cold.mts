@@ -31,8 +31,8 @@ function factory(source: string, disablePlanner: boolean): Factory {
   const create = module.exports as (window: unknown) => NwsapiEngine
   return window => {
     const engine = create(window)
-    if (disablePlanner && engine.useNeuralPlanner) {
-      engine.useNeuralPlanner(null)
+    if (disablePlanner && engine.useRoutePlanner) {
+      engine.useRoutePlanner(null)
     }
     return engine
   }

@@ -37,5 +37,5 @@ test('cache replacement supports numeric configuration defaults', () => {
   const values = new vm.Script(
     result + ';[Config.CACHE_LIMIT, Config.CACHE_BYTES]',
   ).runInNewContext() as unknown[]
-  assert.deepEqual(Array.from(values), [1000, 2097152])
+  assert.deepEqual(Array.from(values), [1000, 2_097_152])
 })

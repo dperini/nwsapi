@@ -65,12 +65,15 @@ export function assertReserved(
       )
     }
   }
-  if (!allowBurned && remoteRef(`refs/tags/burned/${tag}`, root, run)) {
-    throw new Error(`${tag} was burned. Start a new version.`)
+  if (!allowBurned) {
+    assertNotBurned(version, root, run)
   }
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
-  ) as { name: string; version: string }
+  ) as {
+    name: string
+    version: string
+  }
   if (pkg.name !== RELEASE.package || pkg.version !== version) {
     throw new Error('Release tag and package manifest disagree.')
   }
@@ -124,6 +127,17 @@ export function localTag(
   return git(['tag', '--list', tag], root, run) !== ''
 }
 
+export function assertNotBurned(
+  version: string,
+  root = REPO_ROOT,
+  run: CommandRunner = execute,
+) {
+  const tag = `burned/${releaseTag(version)}`
+  if (localTag(tag, root, run) || remoteRef(`refs/tags/${tag}`, root, run)) {
+    throw new Error(`${releaseTag(version)} was burned. Start a new version.`)
+  }
+}
+
 export async function prepareRelease(
   version: string,
   apply: boolean,
@@ -141,9 +155,12 @@ export async function prepareRelease(
     throw new Error('Push and validate the current prerelease commit first.')
   }
   const tag = releaseTag(version)
+  const burnedTag = `burned/${tag}`
   if (
     localTag(tag, root, run) ||
     remoteRef(`refs/tags/${tag}`, root, run) ||
+    localTag(burnedTag, root, run) ||
+    remoteRef(`refs/tags/${burnedTag}`, root, run) ||
     (await publishedVersion(version, request))
   ) {
     throw new Error(`${version} is already consumed. Choose a new version.`)

@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import type * as Fixtures from '../../../../../scripts/repo/bench/compare/fixture.mts'
+import type * as Jsdom from 'jsdom'
 import {
   mkdirSync,
   mkdtempSync,
@@ -50,6 +52,50 @@ vi.mock('node:inspector/promises', () => ({
     }
   },
 }))
+
+// Keep the selector and state cases while bounding their synthetic DOM size.
+vi.mock('jsdom', async () => {
+  const actual = await vi.importActual<typeof Jsdom>('jsdom')
+  return {
+    ...actual,
+    JSDOM: class extends actual.JSDOM {
+      constructor(...args: ConstructorParameters<typeof actual.JSDOM>) {
+        const source = args[0]
+        const html =
+          typeof source === 'string'
+            ? source.replace(
+                /(?:<input required value=ok>){33,}/g,
+                '<input required value=ok>'.repeat(32),
+              )
+            : source
+        super(html, args[1])
+      }
+    },
+  }
+})
+
+vi.mock('../../../../../scripts/repo/bench/compare/fixture.mts', async () => {
+  const actual = await vi.importActual<typeof Fixtures>(
+    '../../../../../scripts/repo/bench/compare/fixture.mts',
+  )
+  return {
+    ...actual,
+    fixture: (
+      matches: number,
+      groups: number,
+      layout: Fixtures.Layout,
+      scenario: Fixtures.Scenario = 'grouped',
+      size = 256,
+    ) =>
+      actual.fixture(
+        Math.min(matches, Math.max(groups, 32)),
+        groups,
+        layout,
+        scenario,
+        Math.min(size, Math.max(groups, 32)),
+      ),
+  }
+})
 
 test('bounded CPU profiler separates warmup, samples and timings and verifies ordered fixtures', async () => {
   const directory = mkdtempSync(

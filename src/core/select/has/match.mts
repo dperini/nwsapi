@@ -61,7 +61,7 @@ export function selectBulkHas(
       witnesses.length > anchors.length * 4)
   ) {
     if (
-      !engine.Config.NEURAL_PLANNER ||
+      !engine.Config.ROUTE_PLANNER ||
       !engine.bulkHasPlanner ||
       !plannerOverride(engine, plan, context, anchors.length, witnesses.length)
     ) {
@@ -105,7 +105,7 @@ function plannerMask(
   anchor: string,
   witness: string,
 ): number | undefined {
-  if (!engine.Config.NEURAL_PLANNER || !engine.bulkHasPlanner) {
+  if (!engine.Config.ROUTE_PLANNER || !engine.bulkHasPlanner) {
     return undefined
   }
   // Qualification used simple class seeds with the measured data-ok equality filter.
@@ -126,7 +126,7 @@ function plannerOverride(
   if (
     plan.plannerMask === undefined ||
     plan.plannerMask === 0 ||
-    !engine.Config.NEURAL_PLANNER ||
+    !engine.Config.ROUTE_PLANNER ||
     !engine.bulkHasPlanner
   ) {
     return false
