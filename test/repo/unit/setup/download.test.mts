@@ -52,6 +52,10 @@ test('a verified download is cached and reused without another request', async (
   expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
   expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
   expect(request).toHaveBeenCalledOnce()
+  expect(request).toHaveBeenCalledWith(url, {
+    headers: { Connection: 'close' },
+    signal: expect.any(AbortSignal),
+  })
 })
 
 test('a corrupt download never enters the cache', async () => {
@@ -156,7 +160,9 @@ test('SHA256 verification rejects noncanonical base64 and insecure source URLs',
   ).rejects.toThrow()
 })
 test('native download verifies bytes using the mocked HTTPS service', async () => {
-  const service = nock('https://github.com')
+  const service = nock('https://github.com', {
+    reqheaders: { connection: 'close' },
+  })
     .get('/example/tool/releases/download/v1.0.0/tool.tgz')
     .reply(200, bytes)
   expect(await downloadArchive(url, integrity, fixture())).toEqual(bytes)

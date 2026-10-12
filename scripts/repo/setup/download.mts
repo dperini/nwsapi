@@ -107,7 +107,12 @@ export async function downloadArchive(
   const location = safeDownloadLocation(url)
   let response: Response
   try {
-    response = await request(url, { signal: AbortSignal.timeout(120_000) })
+    response = await request(url, {
+      // Synchronous extraction can leave an idle socket closed before fetch notices.
+      // Each pinned archive gets a fresh connection, including redirect hops.
+      headers: { Connection: 'close' },
+      signal: AbortSignal.timeout(120_000),
+    })
   } catch (error) {
     throw new Error(
       `Tool download request failed for ${location}: ${downloadFailure(error)}.`,
