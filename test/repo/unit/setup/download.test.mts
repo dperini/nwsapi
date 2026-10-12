@@ -117,7 +117,7 @@ test('a transient header reset retries the same pinned URL and promotes verified
     await downloadArchive(requestUrl, integrity, cache, request, delay, report),
   ).toEqual(bytes)
   expect(
-    await cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
+    cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
   ).toEqual(bytes)
   expect(request).toHaveBeenCalledTimes(2)
   expect(request.mock.calls.map(([input]) => input)).toEqual([
@@ -208,7 +208,7 @@ test('a body socket reset retries the original pinned archive', async () => {
     expect.stringContaining('UND_ERR_SOCKET during body'),
   )
   expect(
-    await cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
+    cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
   ).toEqual(bytes)
 })
 
