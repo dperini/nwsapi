@@ -94,22 +94,22 @@ export async function dependencyReadiness(root: string) {
   const nodeModules = path.join(root, 'node_modules')
   const pnpmMarker = existsSync(path.join(nodeModules, '.modules.yaml'))
   const npmMarker = existsSync(path.join(nodeModules, '.package-lock.json'))
-  if (pnpmMarker && npmMarker) {
-    return {
-      ready: false,
-      issues: [
-        'Mixed npm and pnpm installation metadata was found. Run setup.',
-      ],
+  if (pnpmMarker === npmMarker) {
+    if (pnpmMarker) {
+      return {
+        ready: false,
+        issues: [
+          'Mixed npm and pnpm installation metadata was found. Run setup.',
+        ],
+      }
     }
-  }
-  if (npmMarker) {
-    return npmDependencyReadiness(root, nodeModules)
-  }
-  if (!pnpmMarker) {
     return {
       ready: false,
       issues: ['Dependencies are not installed. Run setup.'],
     }
+  }
+  if (npmMarker) {
+    return npmDependencyReadiness(root, nodeModules)
   }
   try {
     const { parseAllDocuments, parse } = await import('yaml')
@@ -262,7 +262,7 @@ function checkNpmDependencyGroup(
   rootRequested: Record<string, string>,
 ) {
   const issues: string[] = []
-  const names = Object.keys(requested).sort()
+  const names = Object.keys(requested).toSorted()
   if (
     names.length !== Object.keys(rootRequested).length ||
     names.some(name => rootRequested[name] !== requested[name])

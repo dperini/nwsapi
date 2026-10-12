@@ -15,6 +15,12 @@ type PackageConfiguration = {
   }
 }
 
+type WorkspaceConfiguration = {
+  catalog: Record<string, string>
+  allowBuilds?: Record<string, boolean>
+  overrides?: Record<string, string>
+}
+
 function checkPackageManager(pkg: PackageConfiguration) {
   const managers = pkg.devEngines.packageManager
   if (pkg.packageManager !== undefined || managers.length !== 2) {
@@ -33,16 +39,26 @@ function checkPackageManager(pkg: PackageConfiguration) {
 }
 
 export function checkCatalog(root = REPO_ROOT) {
-  const workspace = parse(
-    readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
-  ) as {
-    catalog: Record<string, string>
-    allowBuilds?: Record<string, boolean>
-    overrides?: Record<string, string>
-  }
+  const workspace = readWorkspace(root)
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
   ) as PackageConfiguration
+  checkPackageCatalog(pkg, workspace)
+  checkInstallPolicies(pkg, workspace)
+  checkPinnedToolVersions(root, workspace)
+  checkAgentShieldLock(root)
+}
+
+function readWorkspace(root: string): WorkspaceConfiguration {
+  return parse(
+    readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
+  ) as WorkspaceConfiguration
+}
+
+function checkPackageCatalog(
+  pkg: PackageConfiguration,
+  workspace: WorkspaceConfiguration,
+) {
   for (const [name, version] of Object.entries(workspace.catalog)) {
     if (pkg.devDependencies[name] !== version) {
       throw new Error(`${name} must match its exact workspace catalog version.`)
@@ -59,6 +75,12 @@ export function checkCatalog(root = REPO_ROOT) {
       throw new Error(`${name} must use an exact pinned catalog version.`)
     }
   }
+}
+
+function checkInstallPolicies(
+  pkg: PackageConfiguration,
+  workspace: WorkspaceConfiguration,
+) {
   const buildPolicies = workspace.allowBuilds ?? {}
   if (!isDeepStrictEqual(pkg.allowScripts ?? {}, buildPolicies)) {
     throw new Error('npm allowScripts must match pnpm allowBuilds.')
@@ -67,6 +89,12 @@ export function checkCatalog(root = REPO_ROOT) {
     throw new Error('npm overrides must match pnpm overrides.')
   }
   checkPackageManager(pkg)
+}
+
+function checkPinnedToolVersions(
+  root: string,
+  workspace: WorkspaceConfiguration,
+) {
   if (
     workspace.catalog['ecc-agentshield'] !== manifest.tools.agentshield.version
   ) {
@@ -96,6 +124,9 @@ export function checkCatalog(root = REPO_ROOT) {
   ) {
     throw new Error('PyTorch lockfile differs from external-tools.json.')
   }
+}
+
+function checkAgentShieldLock(root: string) {
   const documents = parseAllDocuments(
     readFileSync(path.join(root, 'pnpm-lock.yaml'), 'utf8'),
   )
