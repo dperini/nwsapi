@@ -53,6 +53,8 @@ vi.mock('../../../../scripts/repo/external-tools.mts', () => ({
   checkExternalTools: vi.fn(),
   toolchainState: () => '{"manager":"pnpm"}',
   toolVersions: () => state.versions,
+  managedNodeEntry: () =>
+    state.platform === 'win32' ? '/tools/bin/node.exe' : '/tools/bin/node',
   toolPlan: (name: string) => ({ name }),
   toolPlatform: () => state.moldPlatform,
 }))
@@ -153,6 +155,16 @@ test('a mismatched or unparseable tool version cannot produce a ready marker', a
     await expect(tools.setupTools()).rejects.toThrow(Error)
   }
   expect(fs.writeFileSync).not.toHaveBeenCalled()
+})
+
+test('Windows npm firewall uses the activated managed Node launcher', async () => {
+  state.platform = 'win32'
+  const tools = await fixture()
+  await tools.setupTools()
+  expect(state.shim).toHaveBeenCalledWith('npm', '/verified/sfw', {
+    executable: '/tools/bin/node.exe',
+    args: ['/verified/npm'],
+  })
 })
 
 test('Windows activates native Node bytes and command launchers', async () => {
