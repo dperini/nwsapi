@@ -64,3 +64,20 @@ test('doctor returns failure and setup guidance for missing tools or dependencie
     state.tools = state.dependencies = true
   }
 })
+
+test('details report optional VoiceOver uncertainty without changing readiness status', async () => {
+  const log = vi.fn()
+  const voiceOverProbe = vi.fn(() => ({
+    platform: 'darwin' as const,
+    supported: true,
+    machineSetup: 'unknown' as const,
+    assets: 'missing' as const,
+    permissions: 'unverified' as const,
+    localPreferences: 'unknown' as const,
+  }))
+  expect(await main(['--details'], log, voiceOverProbe)).toBe(0)
+  expect(voiceOverProbe).toHaveBeenCalledOnce()
+  expect(log.mock.calls.flat().join('\n')).toContain(
+    'Optional VoiceOver: machine setup could not be verified; assets not installed; local preferences could not be verified; macOS permissions unverified.',
+  )
+})

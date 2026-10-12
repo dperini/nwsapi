@@ -15,6 +15,7 @@ import {
 } from './diagnostics.mts'
 import { setupProgress } from './progress.mts'
 import { checkoutReadiness, readinessForTask } from './readiness.mts'
+import { preflightVoiceOver } from './voiceover/preflight.mts'
 
 const minimums = { node: '22.18.0', npm: '12.2.0', pnpm: '12.12.0' }
 
@@ -109,7 +110,11 @@ export function formatToolReports(
   return lines.join('\n')
 }
 
-export async function main(args = process.argv.slice(2), log = console.log) {
+export async function main(
+  args = process.argv.slice(2),
+  log = console.log,
+  voiceOverProbe = preflightVoiceOver,
+) {
   const { values } = parseDoctorArgs(args)
   if (values.help) {
     log(DOCTOR_HELP)
@@ -121,7 +126,7 @@ export async function main(args = process.argv.slice(2), log = console.log) {
   }
   const requestedTask =
     taskId === 'guide' || taskId === 'review' ? taskId : undefined
-  return reportReadiness(requestedTask, values.details, log)
+  return reportReadiness(requestedTask, values.details, log, voiceOverProbe)
 }
 
 const DOCTOR_HELP =
@@ -142,6 +147,7 @@ async function reportReadiness(
   taskId: 'guide' | 'review' | undefined,
   details: boolean | undefined,
   log: (message: string) => void,
+  voiceOverProbe: typeof preflightVoiceOver,
 ) {
   const reports = toolReports()
   const toolsReady = reports.every(report => report.managedReady)
@@ -156,9 +162,11 @@ async function reportReadiness(
   const taskStatus = task
     ? `Requested task ${taskId}: ${task.ready ? 'ready.' : task.message}`
     : ''
+  const voiceOverStatus = details ? formatVoiceOverStatus(voiceOverProbe()) : ''
   log(
     [
       formatToolReports(reports, details, readiness),
+      voiceOverStatus,
       dependencyStatus,
       buildStatus,
       taskStatus,
@@ -174,4 +182,29 @@ async function reportReadiness(
 
 if (isMainModule(import.meta.url)) {
   process.exitCode = await main()
+}
+
+function formatVoiceOverStatus(status: ReturnType<typeof preflightVoiceOver>) {
+  if (!status.supported) {
+    return `Optional VoiceOver: unsupported on ${status.platform}.`
+  }
+  const machine =
+    status.machineSetup === 'ready'
+      ? 'machine setup detected'
+      : status.machineSetup === 'needed'
+        ? 'machine setup needed'
+        : 'machine setup could not be verified'
+  const assets =
+    status.assets === 'present'
+      ? 'assets available'
+      : status.assets === 'missing'
+        ? 'assets not installed'
+        : 'assets could not be verified'
+  const preferences =
+    status.localPreferences === 'present'
+      ? 'local preferences readable'
+      : status.localPreferences === 'missing'
+        ? 'local preferences missing'
+        : 'local preferences could not be verified'
+  return `Optional VoiceOver: ${machine}; ${assets}; ${preferences}; macOS permissions unverified.`
 }
