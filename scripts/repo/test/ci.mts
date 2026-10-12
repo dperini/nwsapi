@@ -33,7 +33,12 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
   const normalized = files.map(file => file.replaceAll('\\', '/'))
   const sourceChanged = normalized.some(file => file.startsWith('src/'))
   const dependencyChanged = normalized.some(file =>
-    ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml'].includes(file),
+    [
+      'package.json',
+      'package-lock.json',
+      'pnpm-lock.yaml',
+      'pnpm-workspace.yaml',
+    ].includes(file),
   )
   const workflowChanged = normalized.some(
     file => file.startsWith('.github/') || file.startsWith('scripts/repo/ci/'),
