@@ -2,6 +2,7 @@ import { testBudget } from './lib/test-budget.mts'
 import { runLocalUnitReview } from './review/unit.mts'
 import {
   runTestPhases,
+  runnerArguments,
   testPhases,
   usesLocalUnitShards,
 } from './test/phases.mts'
@@ -22,7 +23,8 @@ Examples:
   process.exit(0)
 }
 
-const [tier = 'unit', ...args] = process.argv.slice(2)
+const [tier = 'unit', ...forwardedArgs] = process.argv.slice(2)
+const args = runnerArguments(forwardedArgs)
 if (!['unit', 'integration', 'all', 'upstream'].includes(tier)) {
   throw new Error(
     'Usage: test.mts <unit|integration|all|upstream> [runner flags]',

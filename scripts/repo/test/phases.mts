@@ -7,6 +7,10 @@ export interface TestPhase {
   label: string
 }
 
+export function runnerArguments(args: readonly string[]) {
+  return args[0] === '--' ? args.slice(1) : [...args]
+}
+
 export function usesLocalUnitShards(
   lane: string,
   runnerArgs: readonly string[],

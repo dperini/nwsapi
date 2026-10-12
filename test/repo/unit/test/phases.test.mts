@@ -3,12 +3,29 @@ import { test, vi } from 'vitest'
 
 import {
   runTestPhases,
+  runnerArguments,
   testPhases,
   usesLocalUnitShards,
 } from '../../../../scripts/repo/test/phases.mts'
 import type { runBudgeted } from '../../../../scripts/repo/lib/test-budget.mts'
 
 const cleanCheckout = 'test/repo/integration/typecheck-clean.test.mts'
+
+test('package-manager separators preserve focused test selection', () => {
+  const suite = 'test/repo/unit/test/phases.test.mts'
+  assert.deepEqual(runnerArguments(['--', suite]), [suite])
+  assert.deepEqual(runnerArguments([suite]), [suite])
+  assert.deepEqual(runnerArguments(['--']), [])
+  assert.deepEqual(runnerArguments([suite, '--', 'literal']), [
+    suite,
+    '--',
+    'literal',
+  ])
+  assert.equal(
+    usesLocalUnitShards('unit', runnerArguments(['--']), false),
+    true,
+  )
+})
 
 test('only argument-free noncoverage unit runs use local shards', () => {
   assert.equal(usesLocalUnitShards('unit', [], false), true)
