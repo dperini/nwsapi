@@ -152,6 +152,35 @@ test('Windows cancellation uses taskkill to stop the process tree', async () => 
   expect(vi.getTimerCount()).toBe(0)
 })
 
+test('Windows native executables keep Node argument quoting enabled', async () => {
+  setPlatform('win32')
+  const signals = captureSignals()
+  const executable = 'C:\\Program Files\\nodejs\\node.exe'
+  const args = ['C:\\checkout with spaces\\scripts\\run.mts']
+  const promise = runBounded(
+    executable,
+    args,
+    'C:\\checkout with spaces',
+    {},
+    1000,
+  )
+  expect(processMocks.spawn).toHaveBeenCalledWith(
+    executable,
+    args,
+    expect.objectContaining({
+      detached: false,
+      windowsVerbatimArguments: false,
+      windowsHide: true,
+    }),
+  )
+  child.close(0)
+  const result = await promise
+  expect(result.code).toBe(0)
+  expect(result.error).toBeUndefined()
+  expectRemovedSignals(signals)
+  expect(vi.getTimerCount()).toBe(0)
+})
+
 function captureSignals() {
   const handlers = new Map<string, () => void>()
   const originalOnce = process.once.bind(process)
