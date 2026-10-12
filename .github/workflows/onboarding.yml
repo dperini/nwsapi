@@ -102,6 +102,186 @@ jobs:
         timeout-minutes: 15
         shell: pwsh
         run: npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-managers') --no-save npm@12.2.0 pnpm@12.12.0
+      - name: Trace Windows archive connection reuse
+        if: matrix.os == 'windows-2025' && matrix.scenario == 'bootstrap'
+        timeout-minutes: 15
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force .cache | Out-Null
+          @'
+          // Temporary investigation only. This does not replace the cold onboarding gate.
+          import { spawnSync } from 'node:child_process'
+          import { channel } from 'node:diagnostics_channel'
+          import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+          import { tmpdir } from 'node:os'
+          import path from 'node:path'
+          import { setImmediate } from 'node:timers/promises'
+          import { fileURLToPath, pathToFileURL } from 'node:url'
+
+          const { toolPlan } = await import(pathToFileURL(path.join(process.cwd(), 'scripts/repo/external-tools.mts')).href)
+          const { installTool } = await import(pathToFileURL(path.join(process.cwd(), 'scripts/repo/setup/install.mts')).href)
+
+          const mode = process.argv[2] ?? 'both'
+          const script = fileURLToPath(import.meta.url)
+          const output = path.join(process.cwd(), '.cache', 'onboarding')
+          mkdirSync(output, { recursive: true })
+
+          if (mode === 'both') {
+            const runs = []
+            for (const policy of ['default', 'close']) {
+              const child = spawnSync(process.execPath, [script, policy], {
+                cwd: process.cwd(),
+                env: process.env,
+                stdio: 'inherit',
+                timeout: 360_000,
+              })
+              runs.push({
+                policy,
+                exitCode: child.status,
+                signal: child.signal,
+                errorCode: child.error?.code,
+              })
+            }
+            writeFileSync(
+              path.join(output, 'onboarding-transport-processes.json'),
+              JSON.stringify({ node: process.version, undici: process.versions.undici, runs }, null, 2),
+            )
+            // Observed download failure is data. Infrastructure failures are fatal.
+            process.exitCode = runs.some(run => run.exitCode !== 0 || run.errorCode) ? 1 : 0
+          } else if (mode === 'default' || mode === 'close') {
+            await diagnose(mode)
+          } else {
+            throw new Error('Expected default, close, or both.')
+          }
+
+          function safeError(error) {
+            return {
+              name: typeof error?.name === 'string' ? error.name : typeof error,
+              code: typeof error?.code === 'string' ? error.code : undefined,
+              causeName: typeof error?.cause?.name === 'string' ? error.cause.name : undefined,
+              causeCode: typeof error?.cause?.code === 'string' ? error.cause.code : undefined,
+            }
+          }
+
+          async function diagnose(policy) {
+            const started = performance.now()
+            const events = []
+            const subscriptions = []
+            const sockets = new WeakMap()
+            const requests = new WeakMap()
+            let socketCount = 0
+            let requestCount = 0
+            let droppedEvents = 0
+            let activeTool
+            let outcome = 'passed'
+            let failure
+            const cache = mkdtempSync(path.join(tmpdir(), `nwsapi-transport-${policy}-`))
+            function record(type, details = {}) {
+              if (events.length >= 512) {
+                droppedEvents += 1
+                return
+              }
+              events.push({ ms: Math.round((performance.now() - started) * 100) / 100, type, tool: activeTool, ...details })
+            }
+            function socketInfo(socket) {
+              let info = sockets.get(socket)
+              if (!info) {
+                info = { id: ++socketCount, sends: 0 }
+                sockets.set(socket, info)
+                socket.once('end', () => record('socket.end', { socketId: info.id }))
+                socket.once('close', hadError => record('socket.close', { socketId: info.id, hadError }))
+              }
+              return info
+            }
+            function requestInfo(request) {
+              let id = requests.get(request)
+              if (!id) {
+                id = ++requestCount
+                requests.set(request, id)
+              }
+              try {
+                const target = new URL(request.path, request.origin)
+                return { requestId: id, origin: target.origin, pathname: target.pathname }
+              } catch {
+                return { requestId: id, location: 'unavailable' }
+              }
+            }
+            function subscribe(name, listener) {
+              const source = channel(name)
+              source.subscribe(listener)
+              subscriptions.push(() => source.unsubscribe(listener))
+            }
+            subscribe('undici:client:connected', ({ socket }) => {
+              record('connected', { socketId: socketInfo(socket).id })
+            })
+            subscribe('undici:client:sendHeaders', ({ request, socket }) => {
+              const info = socketInfo(socket)
+              record('send', {
+                ...requestInfo(request),
+                socketId: info.id,
+                reused: info.sends > 0,
+                destroyed: socket.destroyed,
+                readableEnded: socket.readableEnded,
+                bytesRead: socket.bytesRead,
+                bytesWritten: socket.bytesWritten,
+              })
+              info.sends += 1
+            })
+            subscribe('undici:request:headers', ({ request, response }) => {
+              record('response', { ...requestInfo(request), status: response.statusCode })
+            })
+            subscribe('undici:request:error', ({ request, error }) => {
+              record('request.error', { ...requestInfo(request), ...safeError(error) })
+            })
+            const request = async (input, init) => {
+              const headers = new Headers(init?.headers)
+              if (policy === 'default') {
+                headers.delete('Connection')
+              } else {
+                headers.set('Connection', 'close')
+              }
+              record('fetch.start')
+              return fetch(input, { ...init, headers })
+            }
+            try {
+              for (const name of ['nub', 'pnpm']) {
+                activeTool = name
+                const plan = toolPlan(name)
+                record('install.start', { version: plan.version, asset: plan.asset, integrity: plan.integrity })
+                // Real cold install includes extraction. Missing targets skip treeDigest.
+                await installTool(plan, cache, request)
+                record('install.end')
+              }
+            } catch (error) {
+              outcome = 'failed'
+              failure = { tool: activeTool, ...safeError(error) }
+              record('install.error', failure)
+            } finally {
+              await setImmediate()
+              for (const unsubscribe of subscriptions) {
+                unsubscribe()
+              }
+              writeFileSync(
+                path.join(output, `onboarding-transport-${policy}.json`),
+                JSON.stringify({
+                  policy,
+                  platform: process.platform,
+                  arch: process.arch,
+                  node: process.version,
+                  undici: process.versions.undici,
+                  outcome,
+                  failure,
+                  droppedEvents,
+                  events,
+                }, null, 2),
+              )
+              rmSync(cache, { recursive: true, force: true })
+            }
+            console.log(`Transport diagnostic ${policy}: ${outcome}. See .cache/onboarding-transport-${policy}.json`)
+          }
+          '@ | Set-Content .cache/download-trace.mts
+          node .cache/download-trace.mts both
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run isolated onboarding scenario
         timeout-minutes: 45
         shell: pwsh
