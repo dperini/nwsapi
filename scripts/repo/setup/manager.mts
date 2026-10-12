@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import type {
@@ -138,6 +138,18 @@ export function executeManaged(
   })
   if (result.error) {
     throw result.error
+  }
+  if (
+    args[0] === 'install' &&
+    result.status === 0 &&
+    !result.signal &&
+    existsSync(path.join(REPO_ROOT, 'node_modules', '.modules.yaml'))
+  ) {
+    // pnpm replaces npm's dependency layout but leaves its hidden lockfile.
+    // Retire that stale installation marker only after pnpm succeeds.
+    rmSync(path.join(REPO_ROOT, 'node_modules', '.package-lock.json'), {
+      force: true,
+    })
   }
   return result
 }
