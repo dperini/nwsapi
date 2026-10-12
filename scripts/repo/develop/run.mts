@@ -26,7 +26,7 @@ import {
 
 const HELP = `Usage: pnpm run dev [--plain | --list | --task <id>] [--json]
 
-Guides you through setup, documentation, review, and optional setup help.
+Guides setup, documentation, review, optional setup help, and VoiceOver controls.
 ${menuHelp(TASKS.length)}
 --plain  Use numbered text prompts.
 --list   Print commands without running anything.

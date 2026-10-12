@@ -25,7 +25,7 @@ export function printTasks() {
   console.log('nwsapi developer menu\n')
   for (const [index, task] of TASKS.entries()) {
     console.log(
-      `${index + 1}. ${task.name}\n  ${task.description}\n  pnpm run ${task.script}\n`,
+      `${index + 1}. ${task.name}\n  ${task.description}\n  ${task.command?.join(' ') ?? `pnpm run ${task.script}`}\n`,
     )
   }
 }

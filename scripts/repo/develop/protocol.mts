@@ -76,7 +76,7 @@ export function printJsonTasks(version?: 'v2' | 'v3') {
       description: task.description,
       detail: task.detail,
       next: task.next,
-      command: ['pnpm', 'run', task.script],
+      command: task.command ?? ['pnpm', 'run', task.script],
       persistent: task.persistent ?? false,
       optional: task.optional ?? false,
       execution: version
