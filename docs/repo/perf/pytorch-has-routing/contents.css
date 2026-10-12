@@ -74,12 +74,14 @@
 .reading-sidebar #reading-navigation,
 .reading-sidebar #reading-navigation > summary,
 .reading-sidebar #reading-contents a,
+.reading-sidebar .reading-contents-close,
 .reader-mobile-contents-toggle {
   animation: none !important;
 }
 .reading-sidebar #reading-navigation::after,
 .reading-sidebar #reading-navigation > summary::after,
 .reading-sidebar #reading-contents a::after,
+.reading-sidebar .reading-contents-close::after,
 .reader-mobile-contents-toggle::after {
   content: none;
   display: none !important;

@@ -32,6 +32,9 @@ export function initializeReadingContents(
   const summary = contents.querySelector('summary')!
   const summaryLabel = summary.querySelector('span')!
   const navigation = contents.parentElement!.querySelector('nav')!
+  const closeControl = contents.querySelector<HTMLButtonElement>(
+    '[data-reading-contents-close]',
+  )
   const mobileToggle = document.querySelector<HTMLButtonElement>(
     '[data-reader-contents-toggle]',
   )
@@ -108,7 +111,15 @@ export function initializeReadingContents(
     if (replacementView.matches && !mobileToggle.disabled) {
       contents.open = !contents.open
       update()
+      if (contents.open) {
+        closeControl?.focus()
+      }
     }
+  })
+  closeControl?.addEventListener('click', () => {
+    contents.open = false
+    update()
+    mobileToggle?.focus()
   })
   contents.addEventListener('toggle', () => {
     update()
@@ -121,6 +132,16 @@ export function initializeReadingContents(
   mobile.addEventListener('change', () => {
     if (mobile.matches) {
       contents.open = false
+    }
+    update()
+  })
+  replacementView.addEventListener('change', () => {
+    if (!replacementView.matches && document.activeElement === closeControl) {
+      if (contents.open) {
+        summary.focus()
+      } else {
+        mobileToggle?.focus()
+      }
     }
     update()
   })

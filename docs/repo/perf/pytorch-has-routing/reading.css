@@ -74,6 +74,7 @@ html:has(.reader:not(.documents-page)) {
   line-height: 1.5;
 }
 .reading-prose {
+  --reading-prose-measure: 72ch;
   padding: clamp(24px, 3.2vw, 44px);
   border: 1px solid var(--section-line);
   border-top: 3px solid var(--section-accent);
@@ -81,6 +82,11 @@ html:has(.reader:not(.documents-page)) {
   background: var(--surface);
   overflow-wrap: anywhere;
   line-height: 1.8;
+}
+@property --reading-prose-measure {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 72px;
 }
 .reading-prose[aria-busy='true']:has(.reading-loading) {
   min-height: 520px;
@@ -132,6 +138,13 @@ html:has(.reader:not(.documents-page)) {
 }
 .reading-prose h3 {
   margin-top: 28px;
+}
+.reading-prose > :is(p, ul, ol, h1, h2, h3, h4, h5, h6, summary, blockquote),
+.reading-prose
+  details:not(table *)
+  > :is(p, ul, ol, h1, h2, h3, h4, h5, h6, summary, blockquote) {
+  max-inline-size: var(--reading-prose-measure);
+  margin-inline-end: auto;
 }
 .reading-prose :is(h1, h2, h3, h4) {
   scroll-margin-top: 28px;
@@ -405,6 +418,35 @@ html:has(.reader:not(.documents-page)) {
   .reader:not(.documents-page) .reading-sidebar #reading-navigation[open] {
     overflow: visible;
   }
+  .reader:not(.documents-page) .reading-contents-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 14px 0 auto;
+    padding: 0;
+    border: 1px solid var(--section-line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .reader:not(.documents-page) .reading-contents-close:hover {
+    color: var(--section-accent);
+  }
+  .reader:not(.documents-page) .reading-contents-close:focus-visible {
+    outline: 2px solid var(--theme-highlight-edge);
+    outline-offset: 2px;
+  }
+  .reader:not(.documents-page) .reading-contents-close svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
   .reader:not(.documents-page) .reading-sidebar .reading-section-links {
     display: block;
     max-height: none;
@@ -418,6 +460,10 @@ html:has(.reader:not(.documents-page)) {
   .reader:not(.documents-page) .reading-prose :is(h1, h2, h3, h4) {
     scroll-margin-top: 24px;
   }
+}
+
+.reading-contents-close {
+  display: none;
 }
 
 @media screen and (max-width: 600px) {
