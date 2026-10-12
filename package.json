@@ -240,7 +240,7 @@
     "voiceover": "node scripts/repo/develop/voiceover.mts",
     "voiceover:start": "node scripts/repo/develop/voiceover.mts --start",
     "voiceover:stop": "node scripts/repo/develop/voiceover.mts --stop",
-    "voiceover:check": "node scripts/repo/test/voiceover/run.mts",
+    "voiceover:status": "node scripts/repo/test/voiceover/run.mts",
     "voiceover:test": "node scripts/repo/test/voiceover/run.mts --start-session",
     "commit:check": "node scripts/repo/run.mts scripts/repo/git/staged-check.mts",
     "approve": "node scripts/repo/run.mts scripts/repo/release/run.mts approve",

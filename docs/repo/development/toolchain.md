@@ -16,7 +16,7 @@ The optional setup never starts VoiceOver or narration and never edits TCC datab
 
 In `pnpm run dev`, choose **VoiceOver controls** to see the current state and confirm Start or Stop. `pnpm run voiceover` opens the same prompt. For a direct action, use `pnpm run voiceover:start` or `pnpm run voiceover:stop`. These actions do not run Guidepup configuration. The Stop command also works before dependency installation as `node scripts/repo/develop/voiceover.mts --stop`. Command-F5 is the macOS toggle if you need to stop narration outside the menu.
 
-Unit tests mock screen-reader and operating-system actions. `pnpm run voiceover:check` provides read-only guidance. The separate `pnpm run voiceover:test -- --url <local-api-reader-url>` command requires explicit interactive confirmation before starting narration. See [the narration check](../testing/voiceover.md) for prerequisites, cancellation, and preference recovery.
+Unit tests mock screen-reader and operating-system actions. `pnpm run voiceover:status` provides read-only guidance. The separate `pnpm run voiceover:test -- --url <local-api-reader-url>` command requires explicit interactive confirmation before starting narration. See [the narration check](../testing/voiceover.md) for prerequisites, cancellation, and preference recovery.
 
 Setup prints numbered phases and stores its last phase in `.cache/setup-progress.json`. Rerun the same setup command after resolving a failure. Each phase checks its inputs again, so a stale progress record cannot skip required work.
 

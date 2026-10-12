@@ -8,7 +8,7 @@ VoiceOver or speak.
 
 ## Run a check
 
-1. Use `pnpm run voiceover:check` to read the instructions without starting anything.
+1. Use `pnpm run voiceover:status` to read the instructions without starting anything.
 2. If needed, opt in to testing assets with `pnpm run setup -- --voiceover`. Follow its macOS permission instructions. Setup and starting narration are separate choices.
 3. Start the docs with `pnpm run guide`. Keep that terminal running and use the loopback port it prints.
 4. In another interactive terminal, run the command below. Replace `4389` if the server printed a different port. Confirm only when ready to hear narration.

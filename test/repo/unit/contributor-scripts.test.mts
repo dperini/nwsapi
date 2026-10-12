@@ -46,6 +46,14 @@ test('check runs formatting, lint, and types without fix flags', () => {
   )
 })
 
+test('automatic checks never select the opt-in narration runner', () => {
+  expect(
+    discoverTasks('check').some(task =>
+      task.entry.replaceAll('\\', '/').includes('/test/voiceover/'),
+    ),
+  ).toBe(false)
+})
+
 test('fix formats after lint fixes and verifies the result', () => {
   const { calls, run } = recorder()
   fixCode((entry, args = []) => {
