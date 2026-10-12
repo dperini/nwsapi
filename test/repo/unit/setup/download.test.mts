@@ -63,6 +63,34 @@ test('a corrupt download never enters the cache', async () => {
   expect(readdirSync(cache)).toEqual([])
 })
 
+test('network errors identify the safe download target and cause code', async () => {
+  const cache = fixture()
+  const requestUrl =
+    'https://user:password@github.com/example/tool/releases/download/v1.0.0/tool.tgz?token=private'
+  const cause = Object.assign(new Error('connection detail'), {
+    code: 'ECONNRESET',
+  })
+  const request = vi.fn(async () => {
+    throw Object.assign(new TypeError('fetch failed'), { cause })
+  })
+  let message = ''
+  try {
+    await downloadArchive(requestUrl, integrity, cache, request)
+  } catch (error) {
+    expect(error).toBeInstanceOf(Error)
+    if (error instanceof Error) {
+      message = error.message
+    }
+  }
+  expect(message).toContain(
+    'Tool download request failed for https://github.com/example/tool/releases/download/v1.0.0/tool.tgz: TypeError; cause Error (ECONNRESET).',
+  )
+  expect(message).not.toContain('password')
+  expect(message).not.toContain('private')
+  expect(message).not.toContain('connection detail')
+  expect(request).toHaveBeenCalledOnce()
+})
+
 test('corrupt cached bytes are replaced only by the same verified release', async () => {
   const cache = fixture()
   const request = vi.fn(async () => new Response(bytes))
