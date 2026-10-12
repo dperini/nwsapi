@@ -195,12 +195,13 @@ async function launchVersionRunner(
     return
   }
   const env = selectedRunnerEnvironment(repository, checkout, token)
-  const interactive =
-    Boolean(process.stdin.isTTY && process.stdout.isTTY) &&
-    !args.some(arg => arg === '--task' || arg.startsWith('--task='))
+  const noninteractive =
+    !process.stdin.isTTY ||
+    !process.stdout.isTTY ||
+    args.some(arg => arg === '--task' || arg.startsWith('--task='))
   const result = await runProcess(
     { command: process.execPath, args: [runner, ...args], cwd: checkout, env },
-    { interactive, terminalOwner: interactive },
+    { interactive: !noninteractive, terminalOwner: !noninteractive },
   )
   process.exitCode = result.code ?? (result.signal === 'SIGTERM' ? 143 : 130)
 }
