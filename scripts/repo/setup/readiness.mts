@@ -93,6 +93,9 @@ export async function dependencyReadiness(root: string) {
   const nodeModules = path.join(root, 'node_modules')
   const marker = path.join(nodeModules, '.modules.yaml')
   if (!existsSync(marker)) {
+    if (existsSync(path.join(root, 'package-lock.json'))) {
+      return npmDependencyReadiness(root, nodeModules)
+    }
     return {
       ready: false,
       issues: ['Dependencies are not installed. Run setup.'],
@@ -149,6 +152,57 @@ export async function dependencyReadiness(root: string) {
       ready: false,
       issues: [
         `Could not verify pnpm dependencies: ${error instanceof Error ? error.message : String(error)}`,
+      ],
+    }
+  }
+}
+
+function npmDependencyReadiness(root: string, nodeModules: string) {
+  try {
+    const manifest = JSON.parse(
+      readFileSync(path.join(root, 'package.json'), 'utf8'),
+    ) as PackageManifest
+    const lock = JSON.parse(
+      readFileSync(path.join(root, 'package-lock.json'), 'utf8'),
+    ) as {
+      packages?: Record<
+        string,
+        { version?: string; integrity?: string; dev?: boolean }
+      >
+    }
+    const rootLock = lock.packages?.['']
+    const issues: string[] = []
+    for (const [group, requested] of [
+      ['dependencies', manifest.dependencies ?? {}],
+      ['devDependencies', manifest.devDependencies ?? {}],
+    ] as const) {
+      for (const [name, specifier] of Object.entries(requested)) {
+        const entry = lock.packages?.[`node_modules/${name}`]
+        const locked = rootLock?.[group]?.[name]
+        if (
+          !entry?.version ||
+          !entry.integrity ||
+          locked !== specifier ||
+          entry.version !== specifier
+        ) {
+          issues.push(`${name}: package-lock.json does not match package.json.`)
+          continue
+        }
+        const actual = installedPackage(root, nodeModules, name, entry.version)
+        if (!actual.ready) {
+          issues.push(`${name}: ${actual.issue}`)
+        }
+      }
+    }
+    if (!rootLock) {
+      issues.push('package-lock.json has no root package entry.')
+    }
+    return { ready: issues.length === 0, issues }
+  } catch (error) {
+    return {
+      ready: false,
+      issues: [
+        `Could not verify npm dependencies: ${error instanceof Error ? error.message : String(error)}`,
       ],
     }
   }

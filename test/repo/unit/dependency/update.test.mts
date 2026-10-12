@@ -4,6 +4,7 @@ import {
   REPO_ROOT,
   TAZE_CLI_PATH,
 } from '../../../../scripts/repo/lib/paths.mts'
+import { toolExecutable } from '../../../../scripts/repo/external-tools.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -74,26 +75,26 @@ test('check mode never installs dependencies and validates the soak policy first
   expect(state.execute).not.toHaveBeenCalled()
   expect(state.spawn.mock.calls[0]![1][0]).toBe(TAZE_CLI_PATH)
 })
-test.each(['/fixture/pnpm', '/fixture/pnpm.cjs'])(
-  'install reuses the invoking manager %s',
-  cli => {
-    vi.stubEnv('npm_execpath', cli)
-    updateDependencies(false)
-    expect(state.refresh).toHaveBeenCalledOnce()
-    const script = cli.endsWith('.cjs')
-    expect(state.execute).toHaveBeenCalledExactlyOnceWith(
-      script ? process.execPath : cli,
-      script
-        ? [cli, 'install', '--no-frozen-lockfile']
-        : ['install', '--no-frozen-lockfile'],
+test('dependency updates refresh both graphs with pinned checkout managers', () => {
+  updateDependencies(false)
+  expect(state.refresh).toHaveBeenCalledOnce()
+  expect(state.execute.mock.calls).toEqual([
+    [
+      toolExecutable('pnpm'),
+      ['install', '--no-frozen-lockfile'],
       { cwd: REPO_ROOT, stdio: 'inherit' },
-    )
-  },
-)
-test('updates outside a package manager fail before modifying policy', () => {
+    ],
+    [
+      toolExecutable('npm'),
+      ['install', '--package-lock-only'],
+      { cwd: REPO_ROOT, stdio: 'inherit' },
+    ],
+  ])
+})
+test('updates select checkout managers instead of ambient npm_execpath', () => {
   vi.stubEnv('npm_execpath', '')
-  expect(() => updateDependencies(false)).toThrow(Error)
-  expect(state.refresh).not.toHaveBeenCalled()
+  expect(() => updateDependencies(false)).not.toThrow()
+  expect(state.refresh).toHaveBeenCalledOnce()
 })
 test('spawn errors propagate before references or installation', () => {
   const error = Object.assign(new Error('fixture'), {
@@ -125,13 +126,34 @@ test('repeated lookup failures stop before reference updates', () => {
   expect(state.spawn).toHaveBeenCalledTimes(2)
   expect(state.runNode).not.toHaveBeenCalled()
 })
-test('losing manager information during updates prevents an accidental install', () => {
-  expect(() =>
-    updateDependencies(false, undefined, undefined, () => {
-      delete process.env['npm_execpath']
-    }),
-  ).toThrow(Error)
-  expect(state.execute).not.toHaveBeenCalled()
+test('manifest synchronization copies exact catalog and lifecycle policy values', async () => {
+  const { mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-update-'))
+  try {
+    writeFileSync(
+      path.join(root, 'pnpm-workspace.yaml'),
+      "catalog:\n  vite: '8.2.2'\nallowBuilds:\n  fsevents: false\noverrides:\n  vite: '8.2.2'\n",
+    )
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ devDependencies: {}, scripts: {} }),
+    )
+    const { syncPackageManifest } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    syncPackageManifest(root)
+    const pkg = JSON.parse(
+      readFileSync(path.join(root, 'package.json'), 'utf8'),
+    )
+    expect(pkg).toMatchObject({
+      devDependencies: { vite: '8.2.2' },
+      allowScripts: { fsevents: false },
+      overrides: { vite: '8.2.2' },
+    })
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('CLI check updates dependencies without re-running upstream tasks', async () => {
