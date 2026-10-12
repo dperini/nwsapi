@@ -91,11 +91,20 @@ function taskStatus(readiness: CheckoutReadiness) {
 
 export async function dependencyReadiness(root: string) {
   const nodeModules = path.join(root, 'node_modules')
-  const marker = path.join(nodeModules, '.modules.yaml')
-  if (!existsSync(marker)) {
-    if (existsSync(path.join(root, 'package-lock.json'))) {
-      return npmDependencyReadiness(root, nodeModules)
+  const pnpmMarker = existsSync(path.join(nodeModules, '.modules.yaml'))
+  const npmMarker = existsSync(path.join(nodeModules, '.package-lock.json'))
+  if (pnpmMarker && npmMarker) {
+    return {
+      ready: false,
+      issues: [
+        'Mixed npm and pnpm installation metadata was found. Run setup.',
+      ],
     }
+  }
+  if (npmMarker) {
+    return npmDependencyReadiness(root, nodeModules)
+  }
+  if (!pnpmMarker) {
     return {
       ready: false,
       issues: ['Dependencies are not installed. Run setup.'],
@@ -118,14 +127,17 @@ export async function dependencyReadiness(root: string) {
     if (!importer) {
       return { ready: false, issues: ['pnpm lockfile has no root importer.'] }
     }
-    const issues = checkDependencyGroup(
-      root,
-      nodeModules,
-      'dependencies',
-      manifest.dependencies ?? {},
-      importer['dependencies'] ?? {},
-      workspace,
-      lock.catalogs ?? {},
+    const issues = checkManifestCatalog(manifest, workspace)
+    issues.push(
+      ...checkDependencyGroup(
+        root,
+        nodeModules,
+        'dependencies',
+        manifest.dependencies ?? {},
+        importer['dependencies'] ?? {},
+        workspace,
+        lock.catalogs ?? {},
+      ),
     )
     issues.push(
       ...checkDependencyGroup(
@@ -157,7 +169,7 @@ export async function dependencyReadiness(root: string) {
   }
 }
 
-function npmDependencyReadiness(root: string, nodeModules: string) {
+async function npmDependencyReadiness(root: string, nodeModules: string) {
   try {
     const manifest = JSON.parse(
       readFileSync(path.join(root, 'package.json'), 'utf8'),
@@ -165,31 +177,37 @@ function npmDependencyReadiness(root: string, nodeModules: string) {
     const lock = JSON.parse(
       readFileSync(path.join(root, 'package-lock.json'), 'utf8'),
     ) as {
+      lockfileVersion?: number
       packages?: Record<string, NpmLockPackage>
     }
+    const hidden = JSON.parse(
+      readFileSync(path.join(nodeModules, '.package-lock.json'), 'utf8'),
+    ) as NpmLock
     const rootLock = lock.packages?.['']
     const issues: string[] = []
+    if (lock.lockfileVersion !== 3 || hidden.lockfileVersion !== 3) {
+      issues.push('npm lock metadata must use lockfileVersion 3.')
+    }
+    const { parse } = await import('yaml')
+    const workspace = parse(
+      readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
+    ) as PnpmWorkspace
+    issues.push(...checkManifestCatalog(manifest, workspace))
     for (const [group, requested] of [
       ['dependencies', manifest.dependencies ?? {}],
       ['devDependencies', manifest.devDependencies ?? {}],
     ] as const) {
-      for (const [name, specifier] of Object.entries(requested)) {
-        const entry = lock.packages?.[`node_modules/${name}`]
-        const locked = rootLock?.[group]?.[name]
-        if (
-          !entry?.version ||
-          !entry.integrity ||
-          locked !== specifier ||
-          entry.version !== specifier
-        ) {
-          issues.push(`${name}: package-lock.json does not match package.json.`)
-          continue
-        }
-        const actual = installedPackage(root, nodeModules, name, entry.version)
-        if (!actual.ready) {
-          issues.push(`${name}: ${actual.issue}`)
-        }
-      }
+      issues.push(
+        ...checkNpmDependencyGroup(
+          root,
+          nodeModules,
+          group,
+          requested,
+          lock.packages ?? {},
+          hidden.packages ?? {},
+          rootLock?.[group] ?? {},
+        ),
+      )
     }
     if (!rootLock) {
       issues.push('package-lock.json has no root package entry.')
@@ -205,12 +223,71 @@ function npmDependencyReadiness(root: string, nodeModules: string) {
   }
 }
 
+interface NpmLock {
+  lockfileVersion?: number
+  packages?: Record<string, NpmLockPackage>
+}
+
 interface NpmLockPackage {
   version?: string
   integrity?: string
   dev?: boolean
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
+}
+
+function checkManifestCatalog(
+  manifest: PackageManifest,
+  workspace: PnpmWorkspace,
+) {
+  return Object.entries(manifest.devDependencies ?? {})
+    .filter(
+      ([name, version]) =>
+        !version.startsWith('catalog:') &&
+        workspace.catalog?.[name] !== version,
+    )
+    .map(
+      ([name]) => `${name}: package.json does not match the workspace catalog.`,
+    )
+}
+
+function checkNpmDependencyGroup(
+  root: string,
+  nodeModules: string,
+  group: 'dependencies' | 'devDependencies',
+  requested: Record<string, string>,
+  lockedPackages: Record<string, NpmLockPackage>,
+  installedPackages: Record<string, NpmLockPackage>,
+  rootRequested: Record<string, string>,
+) {
+  const issues: string[] = []
+  const names = Object.keys(requested).sort()
+  if (
+    names.length !== Object.keys(rootRequested).length ||
+    names.some(name => rootRequested[name] !== requested[name])
+  ) {
+    issues.push(`package-lock.json ${group} do not match package.json.`)
+  }
+  for (const name of names) {
+    const specifier = requested[name]!
+    const packagePath = `node_modules/${name}`
+    const locked = lockedPackages[packagePath]
+    const installed = installedPackages[packagePath]
+    if (
+      locked?.version !== specifier ||
+      !locked.integrity ||
+      installed?.version !== locked.version ||
+      installed.integrity !== locked.integrity
+    ) {
+      issues.push(`${name}: npm lock metadata does not match.`)
+      continue
+    }
+    const actual = installedPackage(root, nodeModules, name, locked.version)
+    if (!actual.ready) {
+      issues.push(`${name}: ${actual.issue}`)
+    }
+  }
+  return issues
 }
 
 function checkOptionalPeerGroup(
@@ -414,7 +491,7 @@ function installedPackage(
   }
 }
 
-function buildReadiness(root: string) {
+export function buildReadiness(root: string) {
   const issues = BUILD_OUTPUTS.filter(
     file => !existsSync(path.join(root, file)),
   )

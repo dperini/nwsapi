@@ -1,5 +1,12 @@
 import { expect, test } from 'vitest'
-import { mkdtempSync, rmSync, statSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import os from 'node:os'
 import path from 'node:path'
 import {
@@ -54,3 +61,34 @@ test.each([
     }
   },
 )
+
+test('manager launchers resolve Node from the checkout bin on PATH', () => {
+  if (process.platform === 'win32') {
+    return
+  }
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-shim-path-'))
+  const directory = path.join(root, 'bin')
+  const firewall = path.join(root, 'sfw')
+  const manager = path.join(root, 'npm')
+  const node = path.join(directory, 'node')
+  try {
+    mkdirSync(directory)
+    writeFileSync(firewall, '#!/bin/bash\nexec "$@"\n', { mode: 0o755 })
+    writeFileSync(manager, '#!/bin/bash\ncommand -v node\n', { mode: 0o755 })
+    writeFileSync(node, '#!/bin/bash\necho pinned-node\n', { mode: 0o755 })
+    const launcher = writeFirewallShim(
+      'npm',
+      firewall,
+      { executable: manager },
+      directory,
+    )
+    const result = execFileSync(launcher, [], {
+      encoding: 'utf8',
+      env: { PATH: '/usr/bin:/bin', HOME: root },
+    })
+    expect(result.trim()).toBe(node)
+    expect(process.env['PATH']).not.toContain(directory)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})

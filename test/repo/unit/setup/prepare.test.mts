@@ -16,7 +16,9 @@ test('prepare verifies tools before source preparation and a repeatable build', 
     'scripts/repo/video/prepare.mts',
     'scripts/repo/build/run.mts',
   ])
-  expect(run.mock.calls.every(call => call[0].endsWith('/node'))).toBe(true)
+  expect(run.mock.calls.every(call => /node(?:\.exe)?$/.test(call[0]))).toBe(
+    true,
+  )
   expect(run.mock.calls[0]?.[2]?.['PATH']).toContain('/checkout-tools')
   expect(run.mock.calls[0]?.[2]?.['NODE_OPTIONS']).toBeUndefined()
 })

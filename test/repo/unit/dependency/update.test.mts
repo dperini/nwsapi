@@ -4,7 +4,6 @@ import {
   REPO_ROOT,
   TAZE_CLI_PATH,
 } from '../../../../scripts/repo/lib/paths.mts'
-import { managedCommand } from '../../../../scripts/repo/setup/manager.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -49,7 +48,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs())
 
 function runUpdate() {
-  updateDependencies(false, undefined, undefined, undefined, () => {}, vi.fn())
+  updateDependencies(false, undefined, vi.fn(), undefined, () => {}, vi.fn())
 }
 
 test('dependency updates honor maturity and exclude the reviewed toolchain', () => {
@@ -79,35 +78,81 @@ test('check mode never installs dependencies and validates the soak policy first
   expect(state.execute).not.toHaveBeenCalled()
   expect(state.spawn.mock.calls[0]![1][0]).toBe(TAZE_CLI_PATH)
 })
-test('dependency updates refresh both graphs with pinned checkout managers', () => {
-  runUpdate()
-  expect(state.refresh).toHaveBeenCalledOnce()
-  expect(state.execute.mock.calls).toEqual([
-    [
-      ...Object.values(
-        managedCommand(
-          ['install', '--no-frozen-lockfile'],
-          undefined,
-          process.platform,
-          'pnpm',
-        ),
-      ),
-      expect.objectContaining({ cwd: REPO_ROOT, stdio: 'inherit' }),
-    ],
-    [
-      ...Object.values(
-        managedCommand(
-          ['install', '--package-lock-only', '--ignore-scripts'],
-          undefined,
-          process.platform,
-          'npm',
-        ),
-      ),
-      expect.objectContaining({ cwd: REPO_ROOT, stdio: 'inherit' }),
-    ],
-  ])
+test('dependency updates delegate lock refresh after manifest synchronization', () => {
+  const order: string[] = []
+  const install = vi.fn(() => order.push('install'))
+  updateDependencies(
+    false,
+    undefined,
+    install,
+    undefined,
+    () => order.push('references'),
+    () => order.push('manifest'),
+  )
+  expect(order).toEqual(['manifest', 'references', 'install'])
 })
-test('updates select checkout managers instead of ambient npm_execpath', () => {
+test('npm lock generation is isolated from the pnpm installation tree', async () => {
+  const { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-test-'))
+  const lock = JSON.stringify({ lockfileVersion: 3, packages: {} })
+  try {
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ name: 'fixture' }),
+    )
+    writeFileSync(path.join(root, '.npmrc'), 'minimum-release-age=1\n')
+    const run = vi.fn((_manager: 'npm' | 'pnpm', args: string[], cwd = '') => {
+      expect(args).toEqual([
+        'install',
+        '--package-lock-only',
+        '--ignore-scripts',
+      ])
+      expect(existsSync(path.join(cwd, 'node_modules'))).toBe(false)
+      expect(readFileSync(path.join(cwd, '.npmrc'), 'utf8')).toBe(
+        'minimum-release-age=1\n',
+      )
+      writeFileSync(path.join(cwd, 'package-lock.json'), lock)
+    })
+    const { refreshNpmLock } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    refreshNpmLock(root, run)
+    expect(run).toHaveBeenCalledOnce()
+    expect(readFileSync(path.join(root, 'package-lock.json'), 'utf8')).toBe(
+      lock,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+test('failed npm lock generation does not replace the existing lock', async () => {
+  const { mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-fail-'))
+  try {
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ name: 'fixture' }),
+    )
+    writeFileSync(path.join(root, '.npmrc'), '')
+    writeFileSync(path.join(root, 'package-lock.json'), 'previous')
+    const { refreshNpmLock } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    expect(() =>
+      refreshNpmLock(root, () => {
+        throw new Error('fixture')
+      }),
+    ).toThrow('fixture')
+    expect(readFileSync(path.join(root, 'package-lock.json'), 'utf8')).toBe(
+      'previous',
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+test('updates ignore ambient npm_execpath when selecting checkout managers', () => {
   vi.stubEnv('npm_execpath', '')
   expect(runUpdate).not.toThrow()
   expect(state.refresh).toHaveBeenCalledOnce()

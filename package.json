@@ -252,39 +252,39 @@
     "publish:login": "node scripts/repo/run.mts scripts/repo/release/run.mts login"
   },
   "devDependencies": {
-    "@opentui/core": "0.5.17",
-    "@base-ui/react": "1.9.0",
-    "phonemizer": "1.2.1",
-    "@huggingface/transformers": "3.8.1",
-    "typebox": "1.3.35",
-    "ata-validator": "1.45.0",
-    "semver": "7.8.5",
-    "@types/semver": "7.8.0",
-    "ecc-agentshield": "1.6.0",
     "@asamuzakjp/dom-selector": "9.2.4",
     "@axe-core/playwright": "4.13.0",
+    "@base-ui/react": "1.9.0",
+    "@guidepup/guidepup": "0.35.0",
+    "@guidepup/setup": "0.29.2",
+    "@huggingface/transformers": "3.8.1",
+    "@maschwenk/tsrs": "0.8.0-ts7.1.0-dev.20260929",
+    "@opentui/core": "0.5.17",
+    "@playwright/test": "1.63.0",
+    "@puppeteer/browsers": "3.2.2",
+    "@radix-ui/react-checkbox": "1.3.12",
+    "@radix-ui/react-select": "2.3.8",
     "@swc/core": "1.15.41",
     "@testing-library/dom": "10.4.2",
+    "@types/css-tree": "3.2.0",
     "@types/istanbul-lib-coverage": "2.0.6",
     "@types/istanbul-lib-report": "3.0.3",
     "@types/istanbul-reports": "3.0.4",
-    "@playwright/test": "1.63.0",
-    "@puppeteer/browsers": "3.2.2",
-    "@types/css-tree": "3.2.0",
     "@types/jsdom": "30.0.0",
     "@types/node": "26.6.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/semver": "7.8.0",
     "@ultrathink/acorn.rs.wasm": "0.2.0",
     "@unicode/unicode-17.0.0": "2.0.7",
     "@vitest/coverage-v8": "5.0.3",
     "@vitiate/core": "0.3.1",
     "acorn": "8.18.0",
     "ast-v8-to-istanbul": "1.0.7",
+    "ata-validator": "1.45.0",
+    "ecc-agentshield": "1.6.0",
     "eslint-plugin-compat": "7.0.2",
     "gpu-lexer": "0.0.3",
-    "@guidepup/guidepup": "0.35.0",
-    "@guidepup/setup": "0.29.2",
     "istanbul-lib-coverage": "3.2.2",
     "istanbul-lib-report": "3.0.1",
     "istanbul-reports": "3.2.0",
@@ -298,18 +298,18 @@
     "oxlint": "1.81.0",
     "oxlint-tsgolint": "7.0.2001",
     "parse5": "8.0.1",
+    "phonemizer": "1.2.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "rolldown": "1.2.13",
-    "taze": "21.3.0",
-    "svgo": "4.1.0",
     "run-local-ci": "0.18.1",
+    "semver": "7.8.5",
+    "svgo": "4.1.0",
+    "taze": "21.3.0",
+    "typebox": "1.3.35",
     "vite": "8.2.2",
     "vitest": "5.0.3",
-    "yaml": "2.9.1",
-    "@maschwenk/tsrs": "0.8.0-ts7.1.0-dev.20260929",
-    "@radix-ui/react-checkbox": "1.3.12",
-    "@radix-ui/react-select": "2.3.8",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "yaml": "2.9.1"
   },
   "peerDependencies": {
     "css-tree": "^3.2.1",
@@ -323,6 +323,11 @@
       "optional": true
     }
   },
+  "overrides": {
+    "@swc/core": "1.15.41",
+    "rolldown": "1.2.13",
+    "vite": "8.2.2"
+  },
   "browserslist": [
     "ie 11"
   ],
@@ -331,12 +336,12 @@
       {
         "name": "npm",
         "version": ">=12.2.0",
-        "onFail": "ignore"
+        "onFail": "error"
       },
       {
         "name": "pnpm",
         "version": ">=12.12.0",
-        "onFail": "ignore"
+        "onFail": "error"
       }
     ]
   },
@@ -355,10 +360,5 @@
       "type": "MIT",
       "url": "https://javascript.nwbox.com/nwsapi/MIT-LICENSE"
     }
-  ],
-  "overrides": {
-    "@swc/core": "1.15.41",
-    "rolldown": "1.2.13",
-    "vite": "8.2.2"
-  }
+  ]
 }
