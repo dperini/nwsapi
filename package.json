@@ -165,6 +165,7 @@
     "test:attributes": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/unit/attribute-parse-error.test.mts",
     "test:attributes:browser": "node scripts/repo/run.mts scripts/repo/browser.mts && NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/e2e/attribute-strings-browser.test.mts",
     "test:browser": "node scripts/repo/run.mts scripts/repo/browser.mts && NWSAPI_BROWSER=1 node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/e2e && node scripts/repo/run.mts scripts/repo/build/run.mts && node scripts/repo/run.mts node_modules/@playwright/test/cli.js test --config .config/state-pseudos.config.mts",
+    "test:docs:a11y": "node scripts/repo/run.mts scripts/repo/browser.mts && node scripts/repo/run.mts scripts/repo/test/docs-accessibility.mts",
     "test:media": "node scripts/repo/run.mts scripts/repo/browser.mts && node scripts/repo/run.mts scripts/repo/build/run.mts && node scripts/repo/run.mts node_modules/@playwright/test/cli.js test --config .config/state-pseudos.config.mts",
     "test:optimizer": "node scripts/repo/run.mts node_modules/vitest/vitest.mjs run --config .config/repo/vitest.config.mts test/repo/unit/optimizer-nesting.test.mts",
     "compile": "node dist/bin/nwsapi.js compile",
@@ -247,7 +248,10 @@
   },
   "devDependencies": {
     "@asamuzakjp/dom-selector": "catalog:",
+    "@axe-core/playwright": "catalog:",
     "@base-ui/react": "catalog:",
+    "@guidepup/guidepup": "catalog:",
+    "@guidepup/setup": "catalog:",
     "@huggingface/transformers": "catalog:",
     "@maschwenk/tsrs": "catalog:",
     "@opentui/core": "catalog:",
