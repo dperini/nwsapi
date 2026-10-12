@@ -64,17 +64,21 @@ function downloadFailure(value: unknown) {
 function transportResetCode(value: unknown) {
   const visited = new Set<unknown>()
   let current = value
+  let resetCode: string | undefined
   while (current instanceof Error && !visited.has(current)) {
     visited.add(current)
+    if (current.name === 'AbortError' || current.name === 'TimeoutError') {
+      return undefined
+    }
     if (
       'code' in current &&
       (current.code === 'ECONNRESET' || current.code === 'UND_ERR_SOCKET')
     ) {
-      return current.code
+      resetCode = current.code
     }
     current = current.cause
   }
-  return undefined
+  return resetCode
 }
 
 export type DownloadDelay = (

@@ -135,6 +135,29 @@ test('a transient header reset retries the same pinned URL and promotes verified
   expect(report.mock.calls.flat().join('\n')).not.toContain('private')
 })
 
+test('two transient resets recover on the last permitted attempt', async () => {
+  const cache = fixture()
+  const reset = Object.assign(new Error('socket reset'), {
+    code: 'ECONNRESET',
+  })
+  const request = vi
+    .fn<typeof fetch>()
+    .mockRejectedValueOnce(reset)
+    .mockRejectedValueOnce(reset)
+    .mockResolvedValueOnce(new Response(bytes))
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  expect(await downloadArchive(url, integrity, cache, request, delay)).toEqual(
+    bytes,
+  )
+  expect(request).toHaveBeenCalledTimes(3)
+  expect(delay.mock.calls.map(([milliseconds]) => milliseconds)).toEqual([
+    250, 750,
+  ])
+})
+
 test('transport resets exhaust at three attempts with bounded delays and no cache promotion', async () => {
   const cache = fixture()
   const request = vi.fn<typeof fetch>(async () => {
@@ -205,6 +228,49 @@ test('TLS failures are never retried', async () => {
   ).rejects.toThrow('CERT_HAS_EXPIRED')
   expect(request).toHaveBeenCalledOnce()
   expect(delay).not.toHaveBeenCalled()
+})
+
+test('AbortError with a nested socket reset is never retried', async () => {
+  const cache = fixture()
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('aborted request'), {
+      name: 'AbortError',
+      cause: Object.assign(new Error('socket reset'), {
+        code: 'ECONNRESET',
+      }),
+    })
+  })
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('AbortError')
+  expect(request).toHaveBeenCalledOnce()
+  expect(delay).not.toHaveBeenCalled()
+})
+
+test('a deadline during retry backoff prevents another request', async () => {
+  const cache = fixture()
+  const controller = new AbortController()
+  vi.spyOn(AbortSignal, 'timeout').mockReturnValue(controller.signal)
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('socket reset'), { code: 'ECONNRESET' })
+  })
+  const delay = vi.fn(async (milliseconds: number) => {
+    if (milliseconds === 750) {
+      controller.abort(new Error('deadline'))
+    }
+  })
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('ECONNRESET')
+  expect(request).toHaveBeenCalledTimes(2)
+  expect(delay.mock.calls.map(([milliseconds]) => milliseconds)).toEqual([
+    250, 750,
+  ])
 })
 
 test('an aborted shared timeout prevents a reset retry', async () => {
