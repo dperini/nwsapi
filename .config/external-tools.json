@@ -245,53 +245,53 @@
     "sfw": {
       "origin": "gh-asset",
       "repository": "github:SocketDev/sfw-free",
-      "version": "1.15.2",
+      "version": "1.15.4",
       "platforms": {
         "darwin-arm64": {
           "asset": "sfw-free-macos-arm64",
-          "integrity": "sha256-KMTRTtXbCeOj4pnAIDbdqlJMXEdsso4y3qxPdwkayss=",
+          "integrity": "sha256-G3Bep8OZcn7kGqk/Y+BGnSw3h8UOHdiELLj/XO7J65k=",
           "binary": "sfw",
           "format": "binary"
         },
         "darwin-x64": {
           "asset": "sfw-free-macos-x86_64",
-          "integrity": "sha256-Or1ghgmOatYEqIFM1qXZ5d2OZMIQhYP56FwS4IuqeiY=",
+          "integrity": "sha256-sZ+W8N0+vE7McRHbxDzCsJXze/dZJzwL2cDEeE6iRzE=",
           "binary": "sfw",
           "format": "binary"
         },
         "linux-arm64": {
           "asset": "sfw-free-linux-arm64",
-          "integrity": "sha256-0+VJDnoTFf8rqbzJA9nVfeBC2Nzeg93h1ZU2clpHCUY=",
+          "integrity": "sha256-yMgKpYKCnyT11jPyw/LM0LBwu+6AvzuVbl4qmIAYTiA=",
           "binary": "sfw",
           "format": "binary"
         },
         "linux-arm64-musl": {
           "asset": "sfw-free-musl-linux-arm64",
-          "integrity": "sha256-E/Qy0mfJJGtNvXQUk+e0D6ccQIIj9++DYMjA/OHoEww=",
+          "integrity": "sha256-WWsfZcuK6XjLCT97mvdXhPZ+LTCgLHBWfFlTa28046Y=",
           "binary": "sfw",
           "format": "binary"
         },
         "linux-x64": {
           "asset": "sfw-free-linux-x86_64",
-          "integrity": "sha256-/qgXGAj52RNjXI9V+nD35yRRzTiw/KPWlOEu4anX/Gg=",
+          "integrity": "sha256-z59VuDQ+Hvbm3MzbCbmccMBDCiLtfQB5KG7M3er3JnA=",
           "binary": "sfw",
           "format": "binary"
         },
         "linux-x64-musl": {
           "asset": "sfw-free-musl-linux-x86_64",
-          "integrity": "sha256-AHqXablSNdOIEYIuWZ/16CLZxGho0mO4K0KjHwOwBSw=",
+          "integrity": "sha256-52bidn5rv9Hd9mpeMqdTY3QtmMQNOCfDMN0UuOoXkkk=",
           "binary": "sfw",
           "format": "binary"
         },
         "win32-arm64": {
           "asset": "sfw-free-windows-arm64.exe",
-          "integrity": "sha256-12Lrhdt7OfDRTzckUU4etF+GlVtrx6mXi8gpF1Sb9Os=",
+          "integrity": "sha256-FmB/nGQFW44K+Rjck6cqNCyoNS9G5uP4ENGjeKOAqCo=",
           "binary": "sfw.exe",
           "format": "binary"
         },
         "win32-x64": {
           "asset": "sfw-free-windows-x86_64.exe",
-          "integrity": "sha256-iAKs4VhCEu0DYdtvTxJEf59Ca1LCTq2lT3YlkQw9UpI=",
+          "integrity": "sha256-+MlPxeQdScUdL9ATwsFpJ035xIP8dj2Mgv9xxVedO7A=",
           "binary": "sfw.exe",
           "format": "binary"
         }
