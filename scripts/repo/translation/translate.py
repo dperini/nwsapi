@@ -12,11 +12,11 @@ DIRECTORY = ROOT / ".cache/docs-localization"
 CONFIG = json.loads((ROOT / ".config/docs-translation/model.json").read_text())
 MODEL = ROOT / ".cache/guide-translation-model"
 OUTPUT = DIRECTORY / "translations.json"
-TOKEN = re.compile(r"ZXQ\d+QXZ")
+TOKEN = re.compile(r"ZXQ\d+QXZ|\{[A-Za-z]\w*\}")
 if not (MODEL / "model.bin").is_file() or json.loads((MODEL / "model-source.json").read_text()) != CONFIG:
     raise SystemExit(
-        "Pinned CTranslate2 model is missing. Download the configured revision and "
-        "convert it with the documented translation setup command."
+        "Pinned CTranslate2 model is missing. Run pnpm run docs:translate:setup, "
+        "then pnpm run docs:translate:it."
     )
 tokenizer = MarianTokenizer.from_pretrained(str(MODEL))
 translator = ctranslate2.Translator(
@@ -28,7 +28,14 @@ translator = ctranslate2.Translator(
 )
 translations = json.loads(OUTPUT.read_text()) if OUTPUT.exists() else {}
 requests = json.loads((DIRECTORY / "requests.json").read_text())
-pending = sorted((text for text in requests if text not in translations), key=len)
+pending = sorted(
+    (
+        text for text in requests
+        if text not in translations
+        or sorted(TOKEN.findall(text)) != sorted(TOKEN.findall(translations[text]))
+    ),
+    key=len,
+)
 
 
 def translate(texts):
@@ -53,7 +60,7 @@ def retain_slots(source, translated):
     translated = re.sub(r"Z\s*X\s*Q\s*(\d+)\s*Q\s*X\s*Z", r"ZXQ\1QXZ", translated)
     if sorted(TOKEN.findall(source)) == sorted(TOKEN.findall(translated)):
         return translated
-    pieces = re.split(r"(ZXQ\d+QXZ)", source)
+    pieces = re.split(f"({TOKEN.pattern})", source)
     prose = [piece for piece in pieces if piece.strip() and not TOKEN.fullmatch(piece)]
     mapped = iter(translate(prose))
     return "".join(

@@ -16,6 +16,7 @@ Review a complete task: find a document, choose a section, read a table, copy co
 - Do not assume camelCase identifiers are pronounced as separate words. Prefer plain-language control labels and explanations beside exact code. Preserve identifier spelling for display, copying, and voice control. Verify any spoken expansion with a real reader rather than applying blanket ARIA overrides to code.
 - Keep real link text breakable at words. An external icon should accompany the final word, not turn an entire signature into an unbreakable object. Internal links need no directional decoration.
 - Report the state, viewport, action, observed result, impact, and smallest fix. Distinguish a measured defect from a source-level risk and an untested question.
+- Include a language pass after prose edits. Run `pnpm run docs:translate:it`, review changed translations, and run `pnpm run docs:translate:check`. Keep code, links, units, and placeholders intact. Commit the catalogs with their source changes. English fallback is not completed coverage.
 
 Keep implementation and public reports about observable usability needs. Do not include personal health context. Do not claim a review establishes suitability for every user or certifies conformance.
 

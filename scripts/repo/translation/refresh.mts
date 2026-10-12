@@ -45,12 +45,13 @@ for (const file of files) {
     console.log(`Removed translation for ${relative}`)
     continue
   }
-  const source = readFileSync(absolute, 'utf8')
+  const source = readFileSync(absolute, 'utf8').replaceAll('\r\n', '\n')
   requests.clear()
   const recipe = markdownRecipe(source)
   if ([...requests].some(text => !Object.hasOwn(dictionary, text))) {
-    console.log(`Using current English source for ${relative}`)
-    continue
+    throw new Error(
+      `Incomplete Italian translation for ${relative}. Run pnpm run docs:translate:it. No catalog changes were written.`,
+    )
   }
   documents[relative] = {
     sha256: createHash('sha256').update(source).digest('hex'),

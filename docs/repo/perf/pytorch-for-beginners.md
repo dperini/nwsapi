@@ -143,10 +143,10 @@ step through diagrams manually. Select the book button again to restore the
 underlying light or dark appearance. These choices persist across refreshes
 and navigation between the guide and reader in the same browser tab.
 
-Interface labels live in `assets/repo/model-guide/locales/en.json` and
-`it.json`. Longer interface strings and repository documents are extracted
-into generated JSON catalogs in the same directory. Edit
-`overrides.it.json` for reviewed Italian translations instead of editing the
+Interface labels live in `docs/repo/perf/pytorch-has-routing/locales/en.json`
+and `it.json`. Longer interface strings and repository documents are extracted
+into generated JSON catalogs under `assets/repo/model-guide/locales/`. Edit
+`assets/repo/model-guide/locales/overrides.it.json` for reviewed Italian translations instead of editing the
 generated catalogs. `Intl` handles language detection and number formatting.
 The translation model supplies the translated text.
 
@@ -156,6 +156,7 @@ changing English documentation or interface text:
 ```sh
 pnpm run docs:translate:setup
 pnpm run docs:translate:it
+pnpm run docs:translate:check
 ```
 
 The translation environment and model revision are recorded in
@@ -170,9 +171,15 @@ node scripts/repo/run.mts scripts/repo/translation/refresh.mts docs/repo/selecto
 ```
 
 Pass both old and new paths when moving a document. This reuses complete cached
-translations and removes stale entries when a translation is incomplete or the
-source was removed. Those pages use the current English source until the full
-translation command above regenerates the catalog. No model download is needed.
+translations and removes entries for removed sources. Incomplete translations
+stop the command without writing the catalog. Run the full translation command
+to fill the missing passages.
+
+The language coverage check runs inside `pnpm run check` and CI. It verifies
+document source hashes, missing or removed documents, interface coverage, and
+translation placeholders without downloading a model. Review the changed text
+for meaning and readability, then commit the catalogs with the source edits.
+English fallback is a runtime recovery path, not a completed language pass.
 
 English narration uses the pinned `kokoro-js` development dependency. Italian
 narration uses the native Italian `im_nicola` voice from `kokoro`. Its Python

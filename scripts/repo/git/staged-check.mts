@@ -87,7 +87,10 @@ export function createStagedSnapshot(sourceRoot = REPO_ROOT) {
         ':(glob)test/repo/**/*.mts',
         ':(glob)docs/**/*.mts',
         ':(glob)docs/**/*.json',
+        ':(glob)docs/**/*.md',
+        ':(glob)docs/**/*.html',
         ':(glob)assets/repo/model-guide/**/*.json',
+        ':(glob)assets/repo/bench/survey-2026-10-03/*.html',
         ':(glob).config/*.mts',
         ':(glob).config/generated/*.mts',
         ':(glob).config/repo/**/*.mts',
@@ -97,6 +100,7 @@ export function createStagedSnapshot(sourceRoot = REPO_ROOT) {
         ':(glob).github/**/*.mts',
         'vitest.config.mts',
         'package.json',
+        'README.md',
       ],
       { cwd: sourceRoot, encoding: 'buffer' },
     ) as Buffer
@@ -132,6 +136,46 @@ async function runNodeTool(args: string[], cwd: string) {
     cwd,
     env: process.env,
   })
+}
+
+async function checkStagedTranslations(files: string[], snapshot: string) {
+  const changed = files.some(
+    file =>
+      file === 'README.md' ||
+      file.startsWith('docs/') ||
+      file.startsWith('assets/repo/model-guide/') ||
+      file.startsWith('assets/repo/bench/survey-2026-10-03/') ||
+      file.startsWith('scripts/repo/translation/'),
+  )
+  if (!changed) {
+    return 0
+  }
+  console.log('[commit] Checking language coverage for the staged content.')
+  const result = await runNodeTool(
+    [path.join(snapshot, 'scripts/repo/translation/check.mts')],
+    snapshot,
+  )
+  return result.code ?? 1
+}
+
+async function checkStagedFormat(plan: StagedCheckPlan, snapshot: string) {
+  if (plan.fullFormat || plan.formatFiles.length > 0) {
+    const formatArgs = plan.fullFormat
+      ? [path.join(snapshot, 'scripts/repo/format.mts'), '--check']
+      : [
+          path.join(snapshot, 'node_modules/oxfmt/bin/oxfmt'),
+          '--config',
+          '.config/oxfmt.json',
+          '--check',
+          '--',
+          ...plan.formatFiles,
+        ]
+    const format = await runNodeTool(formatArgs, snapshot)
+    if (format.code !== 0) {
+      return format.code ?? 1
+    }
+  }
+  return 0
 }
 
 export async function checkStagedFiles(root = REPO_ROOT) {
@@ -173,21 +217,14 @@ export async function checkStagedFiles(root = REPO_ROOT) {
       }
     }
 
-    if (plan.fullFormat || plan.formatFiles.length > 0) {
-      const formatArgs = plan.fullFormat
-        ? [path.join(snapshot, 'scripts/repo/format.mts'), '--check']
-        : [
-            path.join(snapshot, 'node_modules/oxfmt/bin/oxfmt'),
-            '--config',
-            '.config/oxfmt.json',
-            '--check',
-            '--',
-            ...plan.formatFiles,
-          ]
-      const format = await runNodeTool(formatArgs, snapshot)
-      if (format.code !== 0) {
-        return format.code ?? 1
-      }
+    const formatCode = await checkStagedFormat(plan, snapshot)
+    if (formatCode !== 0) {
+      return formatCode
+    }
+
+    const languageCode = await checkStagedTranslations(stagedFiles, snapshot)
+    if (languageCode !== 0) {
+      return languageCode
     }
 
     console.log(
@@ -202,7 +239,7 @@ export async function checkStagedFiles(root = REPO_ROOT) {
 if (isMainModule(import.meta.url) && process.argv.includes('--help')) {
   console.log('Usage: node scripts/repo/git/staged-check.mts [--help]')
   console.log(
-    'Check staged whitespace, lint, and formatting without changing the index or worktree.',
+    'Check staged whitespace, lint, formatting, and language coverage without changing the index or worktree.',
   )
 } else if (isMainModule(import.meta.url)) {
   process.exitCode = await checkStagedFiles()
