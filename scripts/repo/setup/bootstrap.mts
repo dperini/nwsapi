@@ -4,6 +4,8 @@ import { executeManaged, setupNotice } from './manager.mts'
 import type { ManagedRun } from './manager.mts'
 import { setupTools } from './tools.mts'
 import { recordSetupProgress } from './progress.mts'
+import { setupVoiceOver } from './voiceover/run.mts'
+import type { VoiceOverChoice } from './voiceover/run.mts'
 
 async function phase<T>(name: string, action: () => T | Promise<T>) {
   console.log(name)
@@ -34,6 +36,8 @@ export async function bootstrap(
   toolsOnly = false,
   setup = setupTools,
   run: ManagedRun = executeManaged,
+  voiceOverChoice: VoiceOverChoice = 'ask',
+  setupOptionalVoiceOver = setupVoiceOver,
 ) {
   const directory = await phase(
     toolsOnly
@@ -63,26 +67,29 @@ export async function bootstrap(
     console.log(
       'Setup complete. Next: pnpm run guide to browse the docs and choose a change.',
     )
+    const optional = await setupOptionalVoiceOver({ choice: voiceOverChoice })
+    if (optional.status !== 0 || optional.signal) {
+      return optional
+    }
   }
   return prepared
 }
 
 export async function main(
   args = process.argv.slice(2),
-  run = bootstrap,
+  run: (
+    toolsOnly?: boolean,
+  ) => Promise<Awaited<ReturnType<typeof bootstrap>>> = runCoreSetup,
   log = console.log,
+  setupOptionalVoiceOver = setupVoiceOver,
 ) {
-  const { values } = parseArgs({
-    args: args[0] === '--' ? args.slice(1) : args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      'tools-only': { type: 'boolean' },
-    },
-  })
+  const values = parseSetupOptions(args)
+  const invalid = invalidSetupOptions(values, log)
+  if (invalid) {
+    return invalid
+  }
   if (values.help) {
-    log(
-      'Usage: pnpm run setup [--tools-only]\nPrepares checkout tools, installs dependencies, and builds the package.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--tools-only  Install the pinned tools without installing dependencies.',
-    )
+    log(SETUP_HELP)
     return { status: 0, signal: null }
   }
   log(setupNotice())
@@ -90,7 +97,16 @@ export async function main(
     'Requires network access on the first run. Tools stay in this checkout. Completed downloads are reused on retry.',
   )
   try {
-    return await run(values['tools-only'])
+    const result = await run(values['tools-only'])
+    if (!values['tools-only'] && result.status === 0 && !result.signal) {
+      const optional = await setupOptionalVoiceOver({
+        choice: setupChoice(values),
+      })
+      if (optional.status !== 0 || optional.signal) {
+        return optional
+      }
+    }
+    return result
   } catch (error) {
     log(
       `Setup paused: ${error instanceof Error ? error.message : String(error)}`,
@@ -100,6 +116,48 @@ export async function main(
     )
     return { status: 1, signal: null }
   }
+}
+
+const SETUP_HELP =
+  'Usage: pnpm run setup [--tools-only] [--voiceover|--no-voiceover]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--tools-only  Install the pinned tools without installing dependencies.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.\n--no-voiceover  Skip the optional VoiceOver prompt.'
+
+async function runCoreSetup(toolsOnly = false) {
+  return bootstrap(toolsOnly, setupTools, executeManaged, 'no')
+}
+
+function parseSetupOptions(args: string[]) {
+  return parseArgs({
+    args: args[0] === '--' ? args.slice(1) : args,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      'tools-only': { type: 'boolean' },
+      voiceover: { type: 'boolean' },
+      'no-voiceover': { type: 'boolean' },
+    },
+  }).values
+}
+
+function invalidSetupOptions(
+  values: ReturnType<typeof parseSetupOptions>,
+  log: (message: string) => void,
+) {
+  if (values['tools-only'] && values.voiceover) {
+    log(
+      '--voiceover requires full setup. Run pnpm run setup without --tools-only.',
+    )
+    return { status: 2, signal: null }
+  }
+  if (values.voiceover && values['no-voiceover']) {
+    log('Choose only one of --voiceover or --no-voiceover.')
+    return { status: 2, signal: null }
+  }
+  return undefined
+}
+
+function setupChoice(
+  values: ReturnType<typeof parseSetupOptions>,
+): VoiceOverChoice {
+  return values.voiceover ? 'yes' : values['no-voiceover'] ? 'no' : 'ask'
 }
 
 if (isMainModule(import.meta.url)) {

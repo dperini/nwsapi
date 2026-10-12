@@ -165,3 +165,53 @@ test('manager arguments stay separate from shell syntax on Windows', () => {
   expect(request.command).not.toContain('cmd.exe')
   expect(request.args.slice(1)).toEqual(args)
 })
+
+test('optional VoiceOver is offered only after core setup succeeds', async () => {
+  const order: string[] = []
+  const setupVoiceOver = vi.fn(async () => {
+    order.push('voiceover')
+    return { status: 0, signal: null }
+  })
+  const run = vi.fn(() => {
+    order.push('core')
+    return { status: 0, signal: null }
+  })
+  await bootstrap(false, async () => '/tools', run, 'yes', setupVoiceOver)
+  expect(order).toEqual(['core', 'core', 'voiceover'])
+  expect(setupVoiceOver).toHaveBeenCalledWith({ choice: 'yes' })
+})
+
+test('optional VoiceOver is skipped for tools-only and failed core setup', async () => {
+  const setupVoiceOver = vi.fn(async () => ({ status: 0, signal: null }))
+  const toolsOnlyRun = vi.fn<ManagedRun>()
+  await bootstrap(
+    true,
+    async () => '/tools',
+    toolsOnlyRun,
+    'ask',
+    setupVoiceOver,
+  )
+  expect(setupVoiceOver).not.toHaveBeenCalled()
+  const failedRun = vi.fn<ManagedRun>(() => ({ status: 3, signal: null }))
+  await bootstrap(false, async () => '/tools', failedRun, 'ask', setupVoiceOver)
+  expect(setupVoiceOver).not.toHaveBeenCalled()
+})
+
+test('setup CLI rejects conflicting optional VoiceOver flags before provisioning', async () => {
+  const run = vi.fn<typeof bootstrap>()
+  const optional = vi.fn()
+  expect(
+    (await main(['--voiceover', '--no-voiceover'], run, vi.fn(), optional))
+      .status,
+  ).toBe(2)
+  expect(run).not.toHaveBeenCalled()
+  expect(optional).not.toHaveBeenCalled()
+})
+
+test('tools-only rejects explicit VoiceOver opt-in before provisioning', async () => {
+  const run = vi.fn<typeof bootstrap>()
+  expect(
+    (await main(['--tools-only', '--voiceover'], run, vi.fn())).status,
+  ).toBe(2)
+  expect(run).not.toHaveBeenCalled()
+})
