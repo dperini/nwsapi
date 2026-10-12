@@ -67,13 +67,16 @@ test('dependency pins agree with the tool manifest and reject Socket library dep
       JSON.stringify({
         ...pkg,
         devEngines: {
-          packageManager: [
-            { ...pkg.devEngines.packageManager[0], onFail: 'error' },
-          ],
+          packageManager: pkg.devEngines.packageManager.map(
+            (manager: { name: string; version: string; onFail: string }) => ({
+              ...manager,
+              onFail: 'ignore',
+            }),
+          ),
         },
       }),
     )
-    expect(() => checkCatalog(root)).toThrow('bootstrap')
+    expect(() => checkCatalog(root)).toThrow('minimums')
     writeFileSync(file, JSON.stringify(pkg))
     const workspaceFile = path.join(root, 'pnpm-workspace.yaml')
     const workspace = readFileSync(workspaceFile, 'utf8')
