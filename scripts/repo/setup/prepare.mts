@@ -2,17 +2,22 @@ import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { ensureManagedTools } from './manager.mts'
+import { ensureManagedTools, managedEnvironment } from './manager.mts'
 
 type Run = (
   command: string,
   args: string[],
+  env: NodeJS.ProcessEnv,
 ) => { status: number | null; signal: NodeJS.Signals | null; error?: Error }
 
 export async function prepareCheckout(
   ensure = ensureManagedTools,
-  run: Run = (command, args) =>
-    spawnSync(command, args, { cwd: REPO_ROOT, stdio: 'inherit' }),
+  run: Run = (command, args, env) =>
+    spawnSync(command, args, {
+      cwd: REPO_ROOT,
+      env,
+      stdio: 'inherit',
+    }),
 ) {
   try {
     const tools = await ensure()
@@ -28,7 +33,7 @@ export async function prepareCheckout(
       const args = script.endsWith('agents.mts')
         ? [script, '--optional']
         : [script]
-      const result = run(node, args)
+      const result = run(node, args, managedEnvironment(tools))
       if (result.error) {
         throw result.error
       }

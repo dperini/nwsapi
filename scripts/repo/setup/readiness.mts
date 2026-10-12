@@ -165,10 +165,7 @@ function npmDependencyReadiness(root: string, nodeModules: string) {
     const lock = JSON.parse(
       readFileSync(path.join(root, 'package-lock.json'), 'utf8'),
     ) as {
-      packages?: Record<
-        string,
-        { version?: string; integrity?: string; dev?: boolean }
-      >
+      packages?: Record<string, NpmLockPackage>
     }
     const rootLock = lock.packages?.['']
     const issues: string[] = []
@@ -206,6 +203,14 @@ function npmDependencyReadiness(root: string, nodeModules: string) {
       ],
     }
   }
+}
+
+interface NpmLockPackage {
+  version?: string
+  integrity?: string
+  dev?: boolean
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
 }
 
 function checkOptionalPeerGroup(

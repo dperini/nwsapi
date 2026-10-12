@@ -39,11 +39,28 @@ export function managedCommand(
   args: string[],
   directory = TOOL_BIN,
   platform = process.platform,
+  manager: 'pnpm' | 'npm' = 'pnpm',
 ) {
   if (platform === 'win32') {
+    if (manager === 'npm') {
+      return {
+        command: toolExecutable('sfw'),
+        args: [
+          path.join(directory, 'node.exe'),
+          toolExecutable('npm'),
+          ...args,
+        ],
+      }
+    }
     return {
       command: toolExecutable('sfw'),
       args: [toolExecutable('pnpm'), ...args],
+    }
+  }
+  if (manager === 'npm') {
+    return {
+      command: toolExecutable('sfw'),
+      args: [path.join(directory, 'node'), toolExecutable('npm'), ...args],
     }
   }
   return { command: path.join(directory, 'pnpm'), args }

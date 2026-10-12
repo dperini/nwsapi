@@ -164,6 +164,11 @@ test('manager arguments stay separate from shell syntax on Windows', () => {
   const request = managedCommand(args, '/tools', 'win32')
   expect(request.command).not.toContain('cmd.exe')
   expect(request.args.slice(1)).toEqual(args)
+  const npm = managedCommand(args, '/tools', 'win32', 'npm')
+  expect(npm.command).not.toContain('cmd.exe')
+  expect(npm.args[0]).toContain('node.exe')
+  expect(npm.args[1]).toContain('npm-cli.js')
+  expect(npm.args.slice(2)).toEqual(args)
 })
 
 test('optional VoiceOver is offered only after core setup succeeds', async () => {
