@@ -231,3 +231,53 @@ test('version wrapper forwards SIGINT to a noninteractive selected runner', asyn
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('version wrapper preserves cancellation when the selected runner exits cleanly', async () => {
+  const root = fixture('prerelease/3.0.0')
+  const runner = path.join(root, 'scripts/repo/develop/run.mts')
+  mkdirSync(path.dirname(runner), { recursive: true })
+  writeFileSync(
+    runner,
+    `process.on('SIGINT', () => process.exit(0)); process.stderr.write('READY\\n'); setInterval(() => {}, 1000)\n`,
+  )
+  git(root, 'add', 'scripts/repo/develop/run.mts')
+  git(root, 'commit', '-m', 'add gracefully cancellable runner fixture')
+  const moduleUrl = pathToFileURL(
+    path.join(REPO_ROOT, 'scripts/repo/develop/version/run.mts'),
+  ).href
+  const invocation = `import { runVersion } from ${JSON.stringify(moduleUrl)}; await runVersion('v3', ['--task', 'fixture'], ${JSON.stringify(root)})`
+  const child = spawn(
+    process.execPath,
+    ['--input-type=module', '-e', invocation],
+    {
+      cwd: root,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  )
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error('Runner did not become ready.')),
+        5000,
+      )
+      child.stderr?.on('data', chunk => {
+        if (chunk.toString().includes('READY')) {
+          clearTimeout(timeout)
+          resolve()
+        }
+      })
+      child.once('error', reject)
+    })
+    child.kill('SIGINT')
+    const exitCode = await new Promise<number | null>(resolve => {
+      child.once('close', code => resolve(code))
+    })
+    expect(exitCode).toBe(130)
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      child.kill('SIGKILL')
+      await new Promise<void>(resolve => child.once('close', () => resolve()))
+    }
+    rmSync(root, { recursive: true, force: true })
+  }
+})

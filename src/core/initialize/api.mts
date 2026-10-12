@@ -182,6 +182,7 @@ export function initializeApi(engine: EngineState) {
     isOpen: engine.isOpen,
     isClosed: engine.isClosed,
     isDisabled: engine.isDisabled,
+    isRadioGroupChecked: engine.isRadioGroupChecked,
     isModal: engine.isModal,
     isFullscreen: engine.isFullscreen,
     classOf: engine.classOf,

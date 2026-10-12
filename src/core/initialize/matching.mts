@@ -41,7 +41,11 @@ import {
   isPopoverOpen,
 } from '../predicate/display.mts'
 import { isContentEditable } from '../predicate/content-editable.mts'
-import { isDisabled, isFocusable } from '../predicate/form.mts'
+import {
+  isDisabled,
+  isFocusable,
+  isRadioGroupChecked,
+} from '../predicate/form.mts'
 import { isLink } from '../predicate/link.mts'
 import { isMediaState } from '../predicate/media.mts'
 import { matchesNative } from '../match/native.mts'
@@ -100,6 +104,10 @@ export function initializeMatching(engine: EngineState) {
     engine,
   ) as EngineState['isContentEditable']
   engine.isDisabled = isDisabled.bind(null, engine) as EngineState['isDisabled']
+  engine.isRadioGroupChecked = isRadioGroupChecked.bind(
+    null,
+    engine,
+  ) as EngineState['isRadioGroupChecked']
   engine.isFocusable = isFocusable.bind(
     null,
     engine,

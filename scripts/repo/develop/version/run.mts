@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { readFileSync, realpathSync } from 'node:fs'
-import { hostname } from 'node:os'
+import { constants, hostname } from 'node:os'
 import path from 'node:path'
 import { runProcess } from '../process.mts'
 import { claimWorktree } from '../worktree/lease.mts'
@@ -203,7 +203,9 @@ async function launchVersionRunner(
     { command: process.execPath, args: [runner, ...args], cwd: checkout, env },
     { interactive: !noninteractive, terminalOwner: !noninteractive },
   )
-  process.exitCode = result.code ?? (result.signal === 'SIGTERM' ? 143 : 130)
+  process.exitCode = result.signal
+    ? 128 + (constants.signals[result.signal] ?? 1)
+    : (result.code ?? 1)
 }
 
 function selectedRunnerEnvironment(

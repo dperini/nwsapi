@@ -126,6 +126,7 @@ export const initializeState = function (
   this.isRequired = undefined
   this.isContentEditable = undefined
   this.isDisabled = undefined
+  this.isRadioGroupChecked = undefined
   this.isFocusable = undefined
   this.matchesNative = undefined
   this.matchingNative = undefined

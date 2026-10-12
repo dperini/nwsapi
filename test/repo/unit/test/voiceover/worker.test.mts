@@ -50,11 +50,124 @@ test('does not import or start VoiceOver when foreground ownership is wrong', as
 test('requires parent authorization immediately before VoiceOver startup', async () => {
   const voiceOver = fakeVoiceOver([])
   const adapters = fakeAdapters(fakePage(), voiceOver)
-  adapters.authorizeStart = vi.fn(async () => false)
+  adapters.authorizeStart = vi.fn(async () => {
+    expect(adapters.onStarted).toHaveBeenCalledOnce()
+    return false
+  })
   const result = await runVoiceOverWorker(target, adapters)
   expect(result.status).toBe(1)
   expect(vi.mocked(voiceOver.start)).not.toHaveBeenCalled()
+  expect(vi.mocked(voiceOver.stop)).not.toHaveBeenCalled()
   expect(adapters.authorizeStart).toHaveBeenCalledOnce()
+})
+
+test('cancellation while opening the page prevents later VoiceOver setup', async () => {
+  const voiceOver = fakeVoiceOver([])
+  const page = fakePage()
+  const adapters = fakeAdapters(page, voiceOver)
+  let stop: (() => Promise<void>) | undefined
+  let finishOpen!: (page: NarrationPage) => void
+  adapters.onStop = vi.fn(callback => {
+    stop = callback
+  })
+  adapters.openPage = vi.fn(
+    () =>
+      new Promise<NarrationPage>(resolve => {
+        finishOpen = resolve
+      }),
+  )
+
+  const resultPromise = runVoiceOverWorker(target, adapters)
+  await vi.waitFor(() => expect(finishOpen).toBeTypeOf('function'))
+  await stop!()
+  finishOpen(page)
+
+  const result = await resultPromise
+  expect(result.status).toBe(1)
+  expect(vi.mocked(adapters.loadVoiceOver)).not.toHaveBeenCalled()
+  expect(vi.mocked(voiceOver.start)).not.toHaveBeenCalled()
+  expect(vi.mocked(page.dispose)).toHaveBeenCalledOnce()
+})
+
+test('cancellation during authorization prevents VoiceOver startup', async () => {
+  const voiceOver = fakeVoiceOver([])
+  const adapters = fakeAdapters(fakePage(), voiceOver)
+  let stop: (() => Promise<void>) | undefined
+  let authorize!: (allowed: boolean) => void
+  adapters.onStop = vi.fn(callback => {
+    stop = callback
+  })
+  adapters.authorizeStart = vi.fn(
+    () =>
+      new Promise<boolean>(resolve => {
+        authorize = resolve
+      }),
+  )
+
+  const resultPromise = runVoiceOverWorker(target, adapters)
+  await vi.waitFor(() => expect(authorize).toBeTypeOf('function'))
+  await stop!()
+  authorize(true)
+
+  const result = await resultPromise
+  expect(result.status).toBe(1)
+  expect(result.evidence).toBeUndefined()
+  expect(vi.mocked(voiceOver.start)).not.toHaveBeenCalled()
+  expect(vi.mocked(voiceOver.perform)).not.toHaveBeenCalled()
+})
+
+test('cancellation during startup prevents speech capture after startup resolves', async () => {
+  const voiceOver = fakeVoiceOver([])
+  let finishStart!: () => void
+  vi.mocked(voiceOver.start).mockImplementation(
+    () =>
+      new Promise<void>(resolve => {
+        finishStart = resolve
+      }),
+  )
+  const adapters = fakeAdapters(fakePage(), voiceOver)
+  let stop: (() => Promise<void>) | undefined
+  adapters.onStop = vi.fn(callback => {
+    stop = callback
+  })
+
+  const resultPromise = runVoiceOverWorker(target, adapters)
+  await vi.waitFor(() => expect(finishStart).toBeTypeOf('function'))
+  await stop!()
+  finishStart()
+
+  const result = await resultPromise
+  expect(result.status).toBe(1)
+  expect(result.evidence).toBeUndefined()
+  expect(vi.mocked(voiceOver.perform)).not.toHaveBeenCalled()
+  expect(vi.mocked(voiceOver.stop)).toHaveBeenCalledTimes(2)
+})
+
+test('cancellation while collecting final phrases discards capture evidence', async () => {
+  const voiceOver = fakeVoiceOver([])
+  let finishLog!: (phrases: string[]) => void
+  vi.mocked(voiceOver.spokenPhraseLog)
+    .mockResolvedValueOnce([])
+    .mockImplementationOnce(
+      () =>
+        new Promise<string[]>(resolve => {
+          finishLog = resolve
+        }),
+    )
+  const adapters = fakeAdapters(fakePage(), voiceOver)
+  let stop: (() => Promise<void>) | undefined
+  adapters.onStop = vi.fn(callback => {
+    stop = callback
+  })
+
+  const resultPromise = runVoiceOverWorker(target, adapters)
+  await vi.waitFor(() => expect(finishLog).toBeTypeOf('function'))
+  await stop!()
+  finishLog(['Reading mode, toggle button'])
+
+  const result = await resultPromise
+  expect(result.status).toBe(1)
+  expect(result.evidence).toBeUndefined()
 })
 
 test('rechecks current ownership after Guidepup startup before arming capture', async () => {

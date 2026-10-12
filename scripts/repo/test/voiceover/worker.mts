@@ -73,37 +73,50 @@ export async function runVoiceOverWorker(
   let page: NarrationPage | undefined
   let voiceOver: VoiceOverDriver | undefined
   let startAttempted = false
+  let cancelled = false
+  adapters.onStop(async () => {
+    cancelled = true
+    if (voiceOver && startAttempted) {
+      await voiceOver.stop({ capture: false, retries: 1, timeout: 5000 })
+    }
+  })
   try {
     page = await adapters.openPage(
       url,
       pid => adapters.onBrowserStarted(pid),
       pid => adapters.onBrowserClosed(pid),
     )
+    assertNotCancelled()
     await page.bringToFront()
+    assertNotCancelled()
     await verifyPage(page, url, adapters)
+    assertNotCancelled()
     const heading = await page.heading()
+    assertNotCancelled()
     if (heading.trim() !== EXPECTED_HEADING) {
       throw new Error('The selected local page did not show the API document.')
     }
     await page.focusReadingMode()
+    assertNotCancelled()
     await verifyPage(page, url, adapters)
+    assertNotCancelled()
     voiceOver = await adapters.loadVoiceOver()
-    const activeVoiceOver = voiceOver
+    assertNotCancelled()
     adapters.onStarted()
-    adapters.onStop(() =>
-      activeVoiceOver.stop({ capture: false, retries: 1, timeout: 5000 }),
-    )
     if (!(await adapters.authorizeStart())) {
       throw new Error('The parent did not authorize VoiceOver startup.')
     }
+    assertNotCancelled()
     startAttempted = true
     await voiceOver.start({ capture: false, retries: 1, timeout: 15_000 })
+    assertNotCancelled()
     await page.bringToFront()
     await page.focusReadingMode()
     await verifyPage(page, url, adapters)
     await page.armOwnershipWatch()
     await verifyPage(page, url, adapters)
     const beforeCount = (await voiceOver.spokenPhraseLog()).length
+    assertNotCancelled()
     await voiceOver.perform(
       voiceOver.keyboardCommands.moveCursorToKeyboardFocus,
       {
@@ -112,6 +125,7 @@ export async function runVoiceOverWorker(
         timeout: 5000,
       },
     )
+    assertNotCancelled()
     if (!(await page.ownershipIntact())) {
       throw new Error(
         'The page lost foreground ownership during speech capture.',
@@ -119,11 +133,13 @@ export async function runVoiceOverWorker(
     }
     await verifyPage(page, url, adapters)
     const after = await voiceOver.spokenPhraseLog()
+    assertNotCancelled()
     if (!(await page.ownershipIntact())) {
       throw new Error(
         'The page lost foreground ownership during speech capture.',
       )
     }
+    assertNotCancelled()
     const phrases = after
       .slice(beforeCount)
       .filter(phrase => phrase.trim())
@@ -150,6 +166,12 @@ export async function runVoiceOverWorker(
         .catch(() => undefined)
     }
     await page?.dispose().catch(() => undefined)
+  }
+
+  function assertNotCancelled() {
+    if (cancelled) {
+      throw new Error('Narration was cancelled.')
+    }
   }
 }
 

@@ -200,3 +200,61 @@ test('API reader geometry remains stable when reading mode is toggled', async ({
       .toEqual({ x: before?.x, width: before?.width })
   }
 })
+
+test('catalog clear and undo preserve the search and keyboard focus', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 })
+  await page.goto('/index.html')
+  const search = page.locator('#document-search')
+  const clear = page.locator('#clear-search')
+  const undo = page.locator('#undo-clear-search')
+  await expect(clear).toBeDisabled()
+  await search.fill('route planner')
+  await expect(clear).toBeEnabled()
+  const count = page.locator('#document-count')
+  await expect(count).toContainText(/\d/)
+  await clear.focus()
+  await page.keyboard.press('Enter')
+  await expect(search).toHaveValue('')
+  await expect(search).toBeFocused()
+  await expect(clear).toBeDisabled()
+  await expect(undo).toBeVisible()
+  await undo.focus()
+  await page.keyboard.press('Enter')
+  await expect(search).toHaveValue('route planner')
+  await expect(search).toBeFocused()
+  await expect(undo).toBeHidden()
+  await expect(clear).toBeEnabled()
+})
+
+test('mobile contents supports Escape and keyboard section selection', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/model-guide-reading.html?doc=docs/repo/selector/api.md')
+  const toggle = page.locator('[data-reader-contents-toggle]')
+  const close = page.locator('[data-reading-contents-close]')
+  const contents = page.locator('#reading-navigation')
+  await expect(toggle).toBeEnabled()
+  await toggle.focus()
+  await page.keyboard.press('Enter')
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(close).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(toggle).toBeFocused()
+  await page.keyboard.press('Enter')
+  const section = contents.locator('a[href^="#"]').first()
+  const id = decodeURIComponent((await section.getAttribute('href'))!.slice(1))
+  await section.focus()
+  await page.keyboard.press('Enter')
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  await expect
+    .poll(() => page.evaluate(() => document.activeElement?.id))
+    .toBe(id)
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+    .toBeLessThanOrEqual(320)
+})
