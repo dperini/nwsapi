@@ -196,8 +196,7 @@ async function launchVersionRunner(
   }
   const env = selectedRunnerEnvironment(repository, checkout, token)
   const interactive =
-    process.stdin.isTTY === true &&
-    process.stdout.isTTY === true &&
+    Boolean(process.stdin.isTTY && process.stdout.isTTY) &&
     !args.some(arg => arg === '--task' || arg.startsWith('--task='))
   const result = await runProcess(
     { command: process.execPath, args: [runner, ...args], cwd: checkout, env },
