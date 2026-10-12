@@ -1,8 +1,25 @@
 import { PassThrough } from 'node:stream'
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { setupVoiceOver } from '../../../../../scripts/repo/setup/voiceover/run.mts'
 import type { VoiceOverPreflight } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
 import type { VoiceOverRun } from '../../../../../scripts/repo/setup/voiceover/run.mts'
+
+const hostCommand = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error(
+      'Inject a setup mock. Unit tests cannot launch host commands.',
+    )
+  }),
+)
+vi.mock('node:child_process', async original => ({
+  ...(await original<typeof import('node:child_process')>()),
+  execFileSync: hostCommand,
+  spawn: hostCommand,
+  spawnSync: hostCommand,
+}))
+afterEach(() => {
+  expect(hostCommand).not.toHaveBeenCalled()
+})
 
 function state(
   machineSetup: VoiceOverPreflight['machineSetup'],

@@ -1,8 +1,20 @@
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import {
   controlVoiceOver,
   voiceOverState,
 } from '../../../../../scripts/repo/develop/voiceover/control.mts'
+
+const hostCommand = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error(
+      'Inject a command mock. Unit tests cannot control VoiceOver.',
+    )
+  }),
+)
+vi.mock('node:child_process', () => ({ spawnSync: hostCommand }))
+afterEach(() => {
+  expect(hostCommand).not.toHaveBeenCalled()
+})
 
 test('state checks only the current user and treats pgrep errors as unknown', () => {
   const run = vi.fn(() => ({ status: 0 }))
