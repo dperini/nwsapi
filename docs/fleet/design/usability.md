@@ -36,6 +36,8 @@ Do not assume camelCase or acronym-heavy identifiers will sound like separate wo
 
 Check pronunciation, repetition, timing, and interruption with an actual screen reader. DOM labels and automated accessibility scans do not establish what is spoken. Narration tests require explicit activation and a quick Stop path. Their time limit must include startup and permission waits, with cleanup after cancellation or failure.
 
+Offer reader preferences as a user choice. VoiceOver supports [verbosity adjustments](https://support.apple.com/guide/voiceover/customize-verbosity-vo27984/mac) and [pronunciation substitutions](https://support.apple.com/guide/voiceover/change-voiceover-pronounces-text-symbols-unac049/mac), which can be limited to an app. For example, someone can choose to hear `querySelector` as “query selector” without changing the code. Setup must not silently change verbosity, pronunciation, volume, or speech rate. Captured phrase text does not establish how the voice actually pronounced it.
+
 ### Visual presentation
 
 - Measure text contrast against the actual background in both themes. Normal text needs 4.5:1 and qualifying large text needs 3:1 under WCAG's minimum contrast criterion. Check controls and focus boundaries separately. [Text contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
