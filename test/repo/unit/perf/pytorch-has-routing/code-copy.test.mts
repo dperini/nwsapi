@@ -6,11 +6,14 @@ const windows: JSDOM[] = []
 afterEach(() => {
   windows.splice(0).forEach(dom => dom.window.close())
   vi.useRealTimers()
+  vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
 
 function fixture() {
-  const dom = new JSDOM('<pre><code>const answer = 42</code></pre>')
+  const dom = new JSDOM('<pre><code>const answer = 42</code></pre>', {
+    url: 'https://example.test',
+  })
   windows.push(dom)
   vi.stubGlobal('document', dom.window.document)
   const code = dom.window.document.querySelector<HTMLElement>('code')!
@@ -35,17 +38,21 @@ function clipboardWith(promise: Promise<void>) {
 test('copy locks repeated activation and keeps success status after the visual check resets', async () => {
   vi.useFakeTimers()
   let complete!: () => void
-  clipboardWith(
-    new Promise<void>(resolve => {
-      complete = resolve
-    }),
+  const writeText = vi.fn(
+    () =>
+      new Promise<void>(resolve => {
+        complete = resolve
+      }),
   )
+  vi.stubGlobal('navigator', { clipboard: { writeText } })
   const view = fixture()
 
+  view.button.focus()
   view.button.click()
   view.button.click()
-  expect(navigator.clipboard.writeText).toHaveBeenCalledOnce()
-  expect(view.button.disabled).toBe(true)
+  expect(writeText).toHaveBeenCalledOnce()
+  expect(view.button.getAttribute('aria-disabled')).toBe('true')
+  expect(view.dom.window.document.activeElement).toBe(view.button)
 
   complete()
   await vi.waitFor(() => expect(view.status.textContent).toBe('Copied'))
@@ -54,6 +61,8 @@ test('copy locks repeated activation and keeps success status after the visual c
   expect(view.button.getAttribute('aria-label')).toBe('Copy code')
   expect(view.toolbar.dataset['copyState']).toBeUndefined()
   expect(view.status.textContent).toBe('Copied')
+  expect(view.status.hidden).toBe(false)
+  expect(view.status.dataset['copyOutcome']).toBe('copied')
 })
 
 test('copy failure stays available until retry and a successful retry restores the label', async () => {
@@ -76,6 +85,44 @@ test('copy failure stays available until retry and a successful retry restores t
 
   view.button.click()
   expect(view.status.textContent).toBe('')
+  await vi.waitFor(() => expect(view.status.textContent).toBe('Copied'))
+  expect(writeText).toHaveBeenCalledTimes(2)
+  expect(view.button.getAttribute('aria-label')).toBe('Code copied')
+})
+
+test('a retry before the visual reset cancels the stale reset', async () => {
+  vi.useFakeTimers()
+  let completeFirst!: () => void
+  let completeSecond!: () => void
+  const writeText = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>(resolve => {
+          completeFirst = resolve
+        }),
+    )
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>(resolve => {
+          completeSecond = resolve
+        }),
+    )
+  vi.stubGlobal('navigator', { clipboard: { writeText } })
+  const view = fixture()
+
+  view.button.click()
+  completeFirst()
+  await vi.waitFor(() => expect(view.status.textContent).toBe('Copied'))
+  await vi.advanceTimersByTimeAsync(200)
+  view.button.click()
+  expect(view.button.getAttribute('aria-disabled')).toBe('true')
+  await vi.advanceTimersByTimeAsync(200)
+  expect(view.button.getAttribute('aria-label')).toBe('Copy code')
+  expect(view.status.hidden).toBe(false)
+  expect(view.status.textContent).toBe('')
+
+  completeSecond()
   await vi.waitFor(() => expect(view.status.textContent).toBe('Copied'))
   expect(writeText).toHaveBeenCalledTimes(2)
   expect(view.button.getAttribute('aria-label')).toBe('Code copied')

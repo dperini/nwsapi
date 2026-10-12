@@ -23,10 +23,16 @@ function connectCopy(
     }
     inFlight = true
     const currentAttempt = ++attempt
-    clearTimeout(reset)
+    if (reset) {
+      clearTimeout(reset)
+      reset = undefined
+    }
     restoreVisual()
     status.replaceChildren()
-    button.disabled = true
+    status.hidden = false
+    delete status.dataset['copyOutcome']
+    button.setAttribute('aria-disabled', 'true')
+    button.setAttribute('aria-busy', 'true')
     try {
       await navigator.clipboard.writeText(code.textContent ?? '')
       if (currentAttempt !== attempt) {
@@ -36,22 +42,34 @@ function connectCopy(
       button.setAttribute('aria-label', 'Code copied')
       button.title = 'Code copied'
       status.textContent = 'Copied'
+      delete status.dataset['copyOutcome']
+      status.hidden = false
       toolbar.dataset['copyState'] = 'copied'
     } catch {
       if (currentAttempt === attempt) {
         status.textContent = 'Select the code to copy it manually.'
+        delete status.dataset['copyOutcome']
+        status.hidden = false
       }
     } finally {
       inFlight = false
-      button.disabled = !code.textContent
+      button.removeAttribute('aria-disabled')
+      button.removeAttribute('aria-busy')
     }
     if (currentAttempt === attempt) {
       if (toolbar.dataset['copyState'] === 'copied') {
-        reset = setTimeout(restoreVisual, 400)
+        reset = setTimeout(() => {
+          restoreVisual()
+          status.dataset['copyOutcome'] = 'copied'
+        }, 400)
       }
     }
   }
-  button.addEventListener('click', () => {
+  button.addEventListener('click', event => {
+    if (button.getAttribute('aria-disabled') === 'true') {
+      event.preventDefault()
+      return
+    }
     void copy()
   })
 }
@@ -76,6 +94,7 @@ export function attachCodeCopy(code: HTMLElement) {
   const status = document.createElement('span')
   status.className = 'code-copy-status'
   status.setAttribute('role', 'status')
+  status.hidden = true
   code.before(sample)
   toolbar.append(status, button)
   sample.append(toolbar, code)

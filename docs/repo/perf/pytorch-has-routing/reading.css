@@ -176,25 +176,39 @@ html:has(.reader:not(.documents-page)) {
   margin-bottom: 0;
 }
 .reading-prose details > summary {
+  box-sizing: border-box;
   min-height: 44px;
-  display: flex;
-  align-items: center;
+  padding-block: 10px;
 }
-.reading-prose .code-toolbar {
+.code-toolbar {
   display: flex;
+  flex-wrap: wrap;
   min-height: 44px;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: -44px;
-  position: relative;
-  z-index: 1;
+  gap: 0 8px;
 }
-.reading-prose .code-toolbar .code-copy-status {
-  max-width: min(24ch, calc(100% - 104px));
+.code-toolbar .code-copy-status:not([hidden]) {
+  flex: 1 1 12ch;
+  min-width: 0;
+  max-width: 32ch;
   overflow-wrap: anywhere;
 }
-.reading-prose :is(.code-copy, .code-source-link) {
+.code-toolbar .code-copy-status[data-copy-outcome='copied'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.code-toolbar .code-copy,
+.code-toolbar #source-link {
   display: inline-flex;
+  box-sizing: border-box;
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
@@ -202,12 +216,13 @@ html:has(.reader:not(.documents-page)) {
   justify-content: center;
   padding: 0;
 }
-.reading-prose :is(.code-copy, .code-source-link) svg {
+.code-toolbar .code-copy svg {
   width: 18px;
   height: 18px;
 }
-.reading-prose .code-copy-status {
-  margin-right: 8px;
+.code-toolbar #source-link .github-icon {
+  width: 20px;
+  height: 20px;
 }
 .reading-prose img {
   max-width: 100%;
