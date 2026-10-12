@@ -12,7 +12,7 @@ The runner uses direct OS prerequisites such as Git and archive extraction tools
 
 ## Workflow coverage
 
-Pull requests and pushes to `prerelease/3.0.0` run independent Linux lanes for Node bootstrap at the 22.18 minimum, literal `npm i`, literal `pnpm i`, and the full wizard journey. Scheduled and manually dispatched native jobs run bootstrap and both manager lanes on macOS and Windows. The workflow has no restored package or tool cache.
+Pull requests and pushes to `prerelease/3.0.0` run independent Linux lanes for Node bootstrap at the 22.18 minimum, literal `npm i`, literal `pnpm i`, and the full wizard journey. Native jobs run bootstrap and both manager lanes on macOS and Windows when pushed to this branch, and on scheduled or manual dispatches after the workflow reaches the default branch. The workflow has no restored package or tool cache.
 
 ## Observed and unverified
 
