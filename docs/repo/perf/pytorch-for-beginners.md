@@ -163,6 +163,17 @@ The translation environment and model revision are recorded in
 The scripts use the repository-managed `.cache/bin/uv` executable and cache
 downloaded models under `.cache/`.
 
+For a small documentation move or edit, refresh only the affected reader entries:
+
+```sh
+node scripts/repo/run.mts scripts/repo/translation/refresh.mts docs/repo/selector/selector-cache.md
+```
+
+Pass both old and new paths when moving a document. This reuses complete cached
+translations and removes stale entries when a translation is incomplete or the
+source was removed. Those pages use the current English source until the full
+translation command above regenerates the catalog. No model download is needed.
+
 English narration uses the pinned `kokoro-js` development dependency. Italian
 narration uses the native Italian `im_nicola` voice from `kokoro`. Its Python
 dependencies, model revision, and model file checksums live in

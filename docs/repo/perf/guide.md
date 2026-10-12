@@ -21,6 +21,22 @@ and its [animated walkthrough](pytorch-has-routing.html). The
 [latest dispatch results](neural-dispatch-jit-outcome.md) explain the
 performance evidence and its limits.
 
+## Where to record new work
+
+Keep one maintained guide for a feature's current behavior, such as
+[Selector caching](../selector/selector-cache.md). Add a short descriptive entry to
+the [journal](journal.md) for a measured decision: date, revisions, hypothesis,
+result, tradeoffs, and whether the change was retained.
+
+Store raw measurements and generated reports together under
+`assets/repo/bench/<topic>/<date>.json` and `<date>.md`. Add a descriptive suffix
+when several runs share a date. Preserve earlier inputs and regenerate reports
+from them. Link issues and PRs in the entry and report for provenance. Their
+numbers should not determine the maintained guide's title or filename.
+
+This structure applies to new work and documents being consolidated. Existing
+historical reports can be migrated when their topic is reviewed.
+
 ## Terms used in the reports
 
 | Term              | Meaning                                                                                                                                                            |

@@ -138,23 +138,11 @@ artifact. The inspection CLI still emits source that depends on engine helpers.
 
 ### Retain useful compiled plans during stylesheet scans
 
-Compiled-plan caches use LRU ordering with sampled admission at capacity. Hits
-refresh the entry. New entries that fit are retained immediately. When insertion
-requires eviction, a local deterministic sequence admits approximately one in
-eight new entries. This prevents an oversized cyclic scan from replacing every
-plan just before the next pass needs it. Misses still compile and execute normally.
-
-`configure({ CACHE_LIMIT, CACHE_BYTES })` sets numeric entry and estimated byte
-bounds per cache. Defaults remain 4,096 entries and 2MiB. Zero disables retention,
-and changed budgets clear existing query caches. Oversized entries are bypassed.
-The byte estimate includes keys, generated code, bound subplans, and metadata.
-It does not bound total VM heap or native code memory. Fixed-size helper caches
-keep their own bounds. Hosts without `Map` use the same compiled-plan policy
-through a prefixed dictionary.
-
-The policy trades slower admission of a newly changed working set for fewer
-recompilations during oversized scans. Workloads and measurements are recorded
-in the [cache mitigation outcome](selector-cache-mitigation-outcome.md).
+Compiled-plan caches retain recently used entries and limit new admissions when
+insertion requires eviction. This reduces recompilation during oversized scans,
+with slower admission when the working set changes. See [Selector caching](../selector/selector-cache.md)
+for the current policy and configuration, and the [journal decision](journal.md#retain-compiled-plans-during-oversized-scans)
+for the measured tradeoffs.
 
 ### Bound pure memo tables and reject ineligible routes early
 

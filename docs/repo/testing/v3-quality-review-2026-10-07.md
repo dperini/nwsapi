@@ -40,7 +40,7 @@ The integration test fails with TS2307 for `transcript.json` and `timings.genera
 
 ## Known unresolved performance issue
 
-Issue #242 remains relevant. The [recorded cache scan](../perf/selector-cache-scan-outcome.md) shows 23,000 misses and compiled-function insertions over 23,000 measured calls for a repeated scan of 2,300 complex selectors on v3. The relevant runtime code is unchanged in this reviewed revision. This is previously recorded evidence, not a new benchmark from this review.
+Issue #242 remains relevant. The [recorded cache scan](../../../assets/repo/bench/cache-admission/2026-10-07.json) shows 23,000 misses and compiled-function insertions over 23,000 measured calls for a repeated scan of 2,300 complex selectors on v3. The relevant runtime code is unchanged in this reviewed revision. This is previously recorded evidence, not a new benchmark from this review. The later [cache policy](../selector/selector-cache.md) addresses oversized scans.
 
 ## Three-pass results
 
