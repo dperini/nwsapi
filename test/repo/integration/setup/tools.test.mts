@@ -53,6 +53,9 @@ test('failed bootstrap replaces existing manager launchers with repair stubs', (
       'scripts/repo/external-tools.mts',
       'scripts/repo/lib/paths.mts',
       'scripts/repo/lib/run-node.mts',
+      'scripts/repo/lib/platform.mts',
+      'scripts/repo/lib/tool-process.mts',
+      'scripts/repo/lib/tool-worker.mts',
       '.config/node-interop.json',
       '.config/generated/external-tools.mts',
     ]
