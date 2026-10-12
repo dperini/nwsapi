@@ -217,6 +217,10 @@ export async function runPlainSetup(
       stop(`Could not start the PTY setup journey: ${error.message}`)
     }
     const onAbort = () => stop('The PTY setup journey was cancelled.')
+    const onInterrupt = () =>
+      stop('The PTY setup journey was cancelled by SIGINT.')
+    const onTerminate = () =>
+      stop('The PTY setup journey was cancelled by SIGTERM.')
     const finish = (code: number | null, signal: NodeJS.Signals | null) => {
       if (settled) {
         return
@@ -225,6 +229,8 @@ export async function runPlainSetup(
       clearTimeout(timeout)
       clearTimeout(escalation)
       options.signal?.removeEventListener('abort', onAbort)
+      process.removeListener('SIGINT', onInterrupt)
+      process.removeListener('SIGTERM', onTerminate)
       const result: PlainSetupResult = {
         stdout,
         stderr,
@@ -241,6 +247,8 @@ export async function runPlainSetup(
     child.stderr.on('data', onStderr)
     child.once('error', onError)
     child.once('close', finish)
+    process.once('SIGINT', onInterrupt)
+    process.once('SIGTERM', onTerminate)
     options.signal?.addEventListener('abort', onAbort, { once: true })
     timeout = setTimeout(
       () =>
