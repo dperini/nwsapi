@@ -21,13 +21,21 @@ test('noninteractive discovery emits one JSON object with no terminal escapes', 
   expect(result.stderr).toBe('')
   const data = JSON.parse(result.stdout)
   expect(data.type).toBe('tasks')
-  expect(data.tasks.map((task: { id: string }) => task.id)).toEqual([
+  const tasks = data.tasks as Array<{
+    id: string
+    optional?: boolean
+    execution?: string[]
+  }>
+  expect(tasks.slice(0, 4).map(task => task.id)).toEqual([
     'setup',
     'guide',
     'review',
     'setup:check',
   ])
-  expect(data.tasks[0].execution).toEqual([
+  expect(tasks.find(task => task.id === 'voiceover')).toMatchObject({
+    optional: true,
+  })
+  expect(tasks[0]!.execution).toEqual([
     'node',
     'scripts/repo/develop/run.mts',
     '--task',

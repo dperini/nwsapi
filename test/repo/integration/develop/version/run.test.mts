@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import {
   mkdirSync,
@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url'
 import { REPO_ROOT } from '../../../../../scripts/repo/lib/paths.mts'
 import { runVersion } from '../../../../../scripts/repo/develop/version/run.mts'
 import { parseOptions } from '../../../../../scripts/repo/develop/protocol.mts'
+import { main } from '../../../../../scripts/repo/develop/run.mts'
 
 function git(root: string, ...args: string[]) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
@@ -68,19 +69,29 @@ function cleanGeneratedCheckout(root: string, prefix: string) {
   rmSync(parent, { recursive: true, force: true })
 }
 
-test('selected-version discovery emits one object and does not create a worktree', () => {
-  const before = git(REPO_ROOT, 'worktree', 'list', '--porcelain')
-  const result = spawnSync(
-    process.execPath,
-    ['scripts/repo/develop/run.mts', '--version', 'v3', '--list', '--json'],
-    { cwd: REPO_ROOT, encoding: 'utf8' },
-  )
-  expect(result.status).toBe(0)
-  const parsed = JSON.parse(result.stdout)
-  expect(parsed.selectedVersion).toBe('v3')
-  expect(parsed.tasks[0].execution).toContain('v3')
-  expect(result.stdout.trim().split('\n')).toHaveLength(1)
-  expect(git(REPO_ROOT, 'worktree', 'list', '--porcelain')).toBe(before)
+test('selected-version discovery emits one object and does not create a worktree', async () => {
+  const root = fixture('prerelease/3.0.0')
+  const runner = path.join(root, 'scripts/repo/develop/run.mts')
+  mkdirSync(path.dirname(runner), { recursive: true })
+  writeFileSync(runner, 'process.exitCode = 0\n')
+  git(root, 'add', 'scripts/repo/develop/run.mts')
+  git(root, 'commit', '-m', 'add v3 runner fixture')
+  const before = git(root, 'worktree', 'list', '--porcelain')
+  const output: string[] = []
+  const log = vi.spyOn(console, 'log').mockImplementation(value => {
+    output.push(String(value))
+  })
+  try {
+    await main(['--version', 'v3', '--list', '--json'], root)
+    expect(output).toHaveLength(1)
+    const parsed = JSON.parse(output[0]!)
+    expect(parsed.selectedVersion).toBe('v3')
+    expect(parsed.tasks[0].execution).toContain('v3')
+    expect(git(root, 'worktree', 'list', '--porcelain')).toBe(before)
+  } finally {
+    log.mockRestore()
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('version task names are delegated to the selected runner', () => {
