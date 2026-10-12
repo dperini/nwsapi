@@ -250,7 +250,11 @@ async function dispatchOptions(
     return
   }
   if (isVersionDiscovery(options)) {
-    printVersionDiscovery(options.version, options.json ?? false, repository)
+    printVersionDiscovery(
+      options.version as 'v2' | 'v3',
+      options.json ?? false,
+      repository,
+    )
     return
   }
   if (options.version) {
@@ -298,7 +302,7 @@ async function dispatchVersion(
 ) {
   try {
     await runVersion(
-      options.version!,
+      options.version as 'v2' | 'v3',
       args.filter(
         (arg, index) =>
           !arg.startsWith('--version=') &&
