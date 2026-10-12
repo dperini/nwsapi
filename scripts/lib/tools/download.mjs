@@ -31,8 +31,11 @@ export function verifyIntegrity(bytes, integrity) {
   const { algorithm, expected } = parseIntegrity(integrity)
   const actual = createHash(algorithm).update(bytes).digest('base64')
   if (actual !== expected) {
-    throw new Error(
-      `Tool integrity mismatch: expected ${integrity}, received ${algorithm}-${actual}`,
+    throw Object.assign(
+      new Error(
+        `Tool integrity mismatch: expected ${integrity}, received ${algorithm}-${actual}`,
+      ),
+      { code: 'ERR_TOOL_INTEGRITY' },
     )
   }
 }
@@ -46,10 +49,10 @@ export function cachedArchive(file, integrity) {
     verifyIntegrity(bytes, integrity)
     return bytes
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error
+    if (error.code === 'ENOENT') {
+      return undefined
     }
-    return undefined
+    throw error
   }
 }
 
@@ -60,7 +63,15 @@ export async function downloadArchive(url, integrity, cache, request = fetch) {
   }
   const identity = createHash('sha256').update(integrity).digest('hex')
   const file = path.join(cache, identity)
-  const cached = cachedArchive(file, integrity)
+  let cached
+  try {
+    cached = cachedArchive(file, integrity)
+  } catch (error) {
+    if (error.code !== 'ERR_TOOL_INTEGRITY') {
+      throw error
+    }
+    rmSync(file, { force: true })
+  }
   if (cached) {
     return cached
   }

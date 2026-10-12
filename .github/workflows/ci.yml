@@ -21,6 +21,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node }}
+      - run: npm run lint
       - run: npm test
 
   wpt:
