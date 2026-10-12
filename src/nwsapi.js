@@ -238,6 +238,7 @@
   // and a doubly linked list keeps the least-recently-used entry at the head.
   createCache = function(limit, byteLimit) {
     var cache = { }, head = null, tail = null, size = 0, bytes = 0,
+      admission = 0x9e3779b9,
       defaultLimit = limit === undefined,
       defaultBytes = byteLimit === undefined,
       prefix = '\x01', has = function(key) {
@@ -274,6 +275,7 @@
         cache = { };
         head = tail = null;
         size = bytes = 0;
+        admission = 0x9e3779b9;
         if (defaultLimit) {
           limit = Config.CACHE_LIMIT;
         }
@@ -308,6 +310,16 @@
           bytes += cost;
           promote(entry);
         } else {
+          if (size >= limit || bytes + cost > byteLimit) {
+            // Sample overflow admissions so scans preserve useful residents.
+            // A local sequence avoids fixed strides matching stylesheet order.
+            admission ^= admission << 13;
+            admission ^= admission >>> 17;
+            admission ^= admission << 5;
+            if ((admission & 7) !== 0) {
+              return value;
+            }
+          }
           size >= limit && remove(head);
           entry = { key: entryKey, value: value, bytes: cost, prev: null, next: null };
           cache[entryKey] = entry;
