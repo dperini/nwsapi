@@ -68,7 +68,7 @@ Replace `<version>` with the published `nwsapi` version you want to use.
 
   ```yaml
   overrides:
-    '@asamuzakjp/dom-selector': 'npm:nwsapi@<version>'
+    "@asamuzakjp/dom-selector": "npm:nwsapi@<version>"
   ```
 
 Install dependencies after the change.
@@ -86,13 +86,13 @@ pnpm add nwsapi jsdom
 ```
 
 ```js
-const { JSDOM } = require('jsdom')
-const createNwsapi = require('nwsapi')
-const { window } = new JSDOM('<p class="item">Hello</p>')
-const nw = createNwsapi(window)
+const { JSDOM } = require("jsdom");
+const createNwsapi = require("nwsapi");
+const { window } = new JSDOM('<p class="item">Hello</p>');
+const nw = createNwsapi(window);
 
-const items = nw.select('.item', window.document)
-window.close()
+const items = nw.select(".item", window.document);
+window.close();
 ```
 
 This example calls `nwsapi` directly. It does not replace `jsdom`'s selector engine.
@@ -106,8 +106,8 @@ Load `src/nwsapi.js` from the package:
 ```html
 <script src="nwsapi.js"></script>
 <script>
-  const items = NW.Dom.select('.item', document)
-  const firstItem = NW.Dom.first('.item', document)
+  const items = NW.Dom.select(".item", document);
+  const firstItem = NW.Dom.first(".item", document);
 </script>
 ```
 
@@ -118,9 +118,9 @@ Load `src/nwsapi.js` from the package:
 Use it only when you want those methods to call NWSAPI.
 
 ```js
-NW.Dom.install()
+NW.Dom.install();
 // Restore the original methods when they are no longer needed.
-NW.Dom.uninstall()
+NW.Dom.uninstall();
 ```
 
 </details>
@@ -133,24 +133,68 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 Start with [Make your first change](docs/repo/development/first-change.md). It explains each step, the expected result, and how to continue after an interruption.
 
-Use Node.js 22.18 or newer. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
+Use Node.js 22.18 or newer, Git, archive extraction tools, and network access. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
+
+<!-- onboarding:bootstrap:start -->
 
 ```sh
 node scripts/repo/setup/bootstrap.mts
 ```
 
+<!-- onboarding:bootstrap:end -->
+
+For a direct package-manager install, use the pinned contributor Node version (26.11.0) and the matching manager version from the root manifest. The package managers are pinned to npm 12.2.0 and pnpm 12.12.0. `npm i` and `pnpm i` each run the checkout's install lifecycle, which prepares its local tools and build. The root pins and catalogs are kept in sync with both lockfiles.
+
+To discover the ordered setup, guide, review, and diagnostics tasks from a terminal or an agent:
+
+<!-- onboarding:task-discovery:start -->
+
+```sh
+node scripts/repo/develop/run.mts --list --json
+```
+
+<!-- onboarding:task-discovery:end -->
+
+After setup, check the current checkout readiness:
+
+<!-- onboarding:readiness:start -->
+
+```sh
+node scripts/repo/develop/run.mts --task setup:check --json
+```
+
+<!-- onboarding:readiness:end -->
+
 Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
 
-For documentation changes, `pnpm run guide` opens the local documentation with live updates. For setup problems, `pnpm run setup:check` reports readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
+For documentation changes, use `.cache/bin/pnpm run guide` to open the local documentation with live updates. For setup problems, use `.cache/bin/pnpm run setup:check` to report readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
 
-After setup, run `pnpm run dev` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `pnpm run dev --plain` for numbered prompts.
+After setup, run `node scripts/repo/develop/run.mts` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `node scripts/repo/develop/run.mts --plain` for numbered prompts.
 
 Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
 
 <details>
 <summary>Package manager details</summary>
 
-`npm run setup` and `pnpm run setup` select this branch's pinned `pnpm`. Use either command for dependency installation. `npm install` cannot read this branch's workspace catalog. Repository commands started with another package manager use the checkout toolchain automatically. No PATH edits are needed.
+`npm i` and `pnpm i` both use this branch's matching root pins, lockfiles, and lifecycle. Use the direct Node bootstrap above when the pinned package manager is not installed. After setup, prefer `node scripts/repo/develop/run.mts --task <id> --json` for repository tasks, or `.cache/bin/pnpm` when you need package-manager commands. No PATH edits are needed.
+
+The equivalent direct install commands are:
+
+<!-- onboarding:npm-install:start -->
+
+```sh
+npm i
+```
+
+<!-- onboarding:npm-install:end -->
+
+<!-- onboarding:pnpm-install:start -->
+
+```sh
+pnpm i
+```
+
+<!-- onboarding:pnpm-install:end -->
 
 </details>
 
