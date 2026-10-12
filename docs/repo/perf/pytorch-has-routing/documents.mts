@@ -125,6 +125,14 @@ export function documentCategoryKey(category: string) {
 }
 
 const reviewedDocuments: Record<string, Partial<DocumentMetadata>> = {
+  'docs/repo/selector/selector-cache.md': {
+    title: 'Selector caching',
+    summary:
+      'Compiled-plan retention, cache budgets, host configuration, and measured tradeoffs.',
+    category: 'Repository documentation',
+    type: 'Guide',
+    status: 'Current',
+  },
   [interactiveGuidePath]: {
     title: 'PyTorch :has() route planner walkthrough',
     summary:

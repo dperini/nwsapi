@@ -13,6 +13,23 @@ Follow the [shared performance practices](../../fleet/perf/practices.md) when de
 
 Each entry identifies the measured phase, the result, whether the change was retained, the behavior protected by verification, and any remaining work. Entries record their measurement dates. Older measurements without a separate date were recorded on September 8, 2026. Revision pairs identify comparable builds. Percentages from different comparisons must not be added together.
 
+## Retain compiled plans during oversized scans
+
+**Measured October 8, 2026. Retained in v3.** LRU ordering with sampled admission
+keeps reusable compiled plans resident when a cyclic scan exceeds the cache
+budget. New plans that fit are retained immediately. Plans requiring eviction
+are admitted selectively, so one pass cannot displace every useful resident.
+
+The [recorded comparison](../../../assets/repo/bench/cache-admission/2026-10-08.md)
+shows reduced recompilation and runtime for oversized simple and complex scans.
+The tradeoff is slower admission of a changed working set, with some higher
+small-workload timings. Larger budgets can improve reuse but retain more memory.
+The report includes exact revisions, raw samples, correctness observations,
+and commands. These synthetic scans do not predict every host's performance.
+
+Read [Selector caching](../selector/selector-cache.md) for the current policy,
+configuration, and memory bounds.
+
 ## Module boundaries and runtime cost
 
 The September 10, 2026 refactor separates the shared engine closure into modules with explicit per-engine state. Compiler handlers follow token and pseudo-class families. All 36 reported complexity violations and 10 oversized authored files are resolved without new lint exceptions. Published package paths remain unchanged.

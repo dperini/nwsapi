@@ -46,6 +46,7 @@
 !/assets/**/*.LICENSE
 !/assets/**/*.json
 !/assets/**/*.svg
+!/assets/repo/bench/**/*.md
 !/assets/repo/bench/compilation-report.html
 !/assets/repo/bench/planner-neural-2026-10-04/model.mjs
 !/assets/repo/bench/survey-2026-10-03/neural-planner.html

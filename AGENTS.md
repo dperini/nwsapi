@@ -13,6 +13,8 @@
 - Use `perf/` for performance and `testing/` for testing in both trees. Use descriptive document names instead of section README files.
 - Keep measured outcomes, commands, and performance journals with the repository. Shared measurement and testing practices belong in the fleet tree.
 - Keep benchmark measurements and generated reports under `assets/repo/bench/`, tracked by Git. Generate derived reports from recorded inputs rather than storing result JSON under `docs/`.
+- Keep current behavior in a topic guide and historical decisions in the performance journal. Group benchmark artifacts by topic and measurement date. Link issue and PR numbers as provenance instead of using them as document names.
+- After editing documentation or interface prose, run `pnpm run docs:translate:it`, review the affected translations, and run `pnpm run docs:translate:check`. Commit current language catalogs with the source changes. An English fallback does not complete the language pass.
 
 # Developer workflow
 
