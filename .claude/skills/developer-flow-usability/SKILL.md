@@ -15,6 +15,7 @@ Follow a new checkout through setup, documentation, editing, review, and recover
 - Reuse compatible tools, respect project pins and package-manager wrappers, and keep repairs scoped. Do not edit shell startup files or global defaults as a convenience.
 - Harnesses use ordered `--list --json` and explicit `--task <id> --json` execution. Do not spawn a TUI inside a noninteractive harness or infer publication authorization from task discovery.
 - Keep each branch and implementation agent in a separate worktree under `os.tmpdir()`. Each PR has its own branch. Record the intended target and sweep only confirmed merged, inactive worktrees without uncommitted work. Read `docs/fleet/development/worktrees.md` for creation, integration, and cleanup rules.
+- For guided product version selection, use `node scripts/repo/develop/run.mts --version v2|v3`. Discovery with `--list --json` stays read-only. The explicit `--sweep` command previews helper-owned worktrees; require `--apply` for removal and preserve uncertain, dirty, locked, or unmerged entries.
 - Use `.claude/skills/` for authored shared skills, root `AGENTS.md` for brief invariants, and ignored generated aliases for discovery. Put captures, logs, and downloads under `.cache/`.
 
 For a requested audit, record evidence for terminal size, Unicode, cancellation, repeat activation, no-TTY behavior, and JSON output. Mark unavailable platform or harness checks as unverified. Do not silently widen the task into installing or upgrading agent products.

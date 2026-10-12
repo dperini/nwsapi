@@ -3,16 +3,13 @@ import { TASKS } from './actions.mts'
 import type { TaskResult } from './execute.mts'
 
 export function parseOptions(args: string[]) {
-  const { values } = parseArgs({
-    args,
-    options: {
-      help: { type: 'boolean', short: 'h' },
-      plain: { type: 'boolean' },
-      list: { type: 'boolean' },
-      json: { type: 'boolean' },
-      task: { type: 'string' },
-    },
-  })
+  const values = readOptions(args)
+  validateOptionCombinations(values)
+  validateVersionTask(values)
+  return values
+}
+
+function validateOptionCombinations(values: ReturnType<typeof readOptions>) {
   if (
     values.plain &&
     (values.json || values.list || values.task !== undefined)
@@ -24,22 +21,54 @@ export function parseOptions(args: string[]) {
   if (values.list && values.task !== undefined) {
     throw new Error('Choose --list or --task, not both.')
   }
+  if (values.apply && !values.sweep) {
+    throw new Error('--apply requires --sweep.')
+  }
+  if (values.sweep && (values.task !== undefined || values.list)) {
+    throw new Error('--sweep cannot be combined with --task or --list.')
+  }
+  if (values.sweep && (values.version !== undefined || values.plain)) {
+    throw new Error('--sweep cannot be combined with --version or --plain.')
+  }
+}
+
+function readOptions(args: string[]) {
+  return parseArgs({
+    args,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      plain: { type: 'boolean' },
+      list: { type: 'boolean' },
+      json: { type: 'boolean' },
+      task: { type: 'string' },
+      version: { type: 'string' },
+      sweep: { type: 'boolean' },
+      apply: { type: 'boolean' },
+    },
+  }).values
+}
+
+function validateVersionTask(values: ReturnType<typeof readOptions>) {
+  if (values.version !== undefined && !['v2', 'v3'].includes(values.version)) {
+    throw new Error('Unknown version. Choose --version v2 or --version v3.')
+  }
   if (
     values.task !== undefined &&
+    values.version === undefined &&
     !TASKS.some(task => task.script === values.task)
   ) {
     throw new Error('Unknown task. Use --list --json to discover task IDs.')
   }
-  return values
 }
 
 function writeJson(value: object) {
   console.log(JSON.stringify({ schemaVersion: 1, ...value }))
 }
 
-export function printJsonTasks() {
+export function printJsonTasks(version?: 'v2' | 'v3') {
   writeJson({
     type: 'tasks',
+    ...(version ? { selectedVersion: version } : {}),
     tasks: TASKS.map((task, index) => ({
       id: task.script,
       order: index + 1,
@@ -50,13 +79,23 @@ export function printJsonTasks() {
       command: ['pnpm', 'run', task.script],
       persistent: task.persistent ?? false,
       optional: task.optional ?? false,
-      execution: [
-        'node',
-        'scripts/repo/develop/run.mts',
-        '--task',
-        task.script,
-        '--json',
-      ],
+      execution: version
+        ? [
+            'node',
+            'scripts/repo/develop/run.mts',
+            '--version',
+            version,
+            '--task',
+            task.script,
+            '--json',
+          ]
+        : [
+            'node',
+            'scripts/repo/develop/run.mts',
+            '--task',
+            task.script,
+            '--json',
+          ],
     })),
   })
 }
