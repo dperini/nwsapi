@@ -55,6 +55,13 @@ export function taskInstructions(
   task: Task,
   readiness?: { ready: boolean; message: string },
 ) {
+  return `${taskDetails(task, readiness)}\n\nCommand: pnpm run ${task.script}`
+}
+
+export function taskDetails(
+  task: Task,
+  readiness?: { ready: boolean; message: string },
+) {
   const stop = task.persistent
     ? '\nCtrl+C stops the server and returns here.'
     : ''
@@ -63,5 +70,5 @@ export function taskInstructions(
       ? '\nStatus: ready in this checkout.'
       : `\nStatus: needs setup. ${readiness.message}`
     : ''
-  return `${task.description}\n\n${task.detail}${stop}${status}\n\nCommand: pnpm run ${task.script}`
+  return `${task.description}\n\n${task.detail}${stop}${status}`
 }

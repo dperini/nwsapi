@@ -62,6 +62,11 @@ Use 1–4 or the arrow keys to preview a task, then Enter to run it. Ctrl+C
 stops the docs server and offers to return to the menu. During other tasks,
 Ctrl+C stops the task and exits. Reopen with `pnpm run dev`.
 
+The visual menu shows task readiness beside each task and keeps the exact
+command above the keyboard hints. Use Page Up and Page Down to read longer
+details and historical results. Scrolling does not change the selected task.
+Choosing a different task returns its details to the top.
+
 ### Agent harnesses
 
 Codex, Claude Code, and OpenCode can discover the same ordered tasks and run

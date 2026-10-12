@@ -51,6 +51,9 @@ test('previews the saved readiness for the selected task', async () => {
   expect(log.mock.calls.map(call => call[0]).join('\n')).toContain(
     'Status: needs setup. Dependencies are missing.',
   )
+  expect(log.mock.calls.map(call => call[0]).join('\n')).toContain(
+    'Command: pnpm run guide',
+  )
 })
 
 test('return prompt rejects typos instead of silently proceeding', async () => {
