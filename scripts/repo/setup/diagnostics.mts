@@ -12,6 +12,14 @@ import { posixShim, windowsShim } from './firewall.mts'
 import { cachedToolchain, managedEnvironment } from './manager.mts'
 
 export type ToolName = 'node' | 'npm' | 'pnpm'
+export interface VersionProbe {
+  version: string | undefined
+  status: number | null
+  signal: NodeJS.Signals | null
+  errorCode: string | undefined
+  outputLines: number
+  outputMatchesVersion: boolean
+}
 
 export function executableAvailable(file: string) {
   try {
@@ -79,6 +87,14 @@ export function toolVersion(
   args = ['--version'],
   env = process.env,
 ) {
+  return probeToolVersion(file, args, env).version
+}
+
+export function probeToolVersion(
+  file: string,
+  args = ['--version'],
+  env = process.env,
+): VersionProbe {
   const windowsScript =
     process.platform === 'win32' && /\.(cmd|bat)$/i.test(file)
   const command = windowsScript ? 'cmd.exe' : file
@@ -93,9 +109,21 @@ export function toolVersion(
     windowsHide: true,
     windowsVerbatimArguments: windowsScript,
   })
-  return result.status === 0
-    ? result.stdout.trim().match(/^v?(\d+\.\d+\.\d+)$/)?.[1]
+  const output = result.stdout?.trim() ?? ''
+  const match = output.match(/^v?(\d+\.\d+\.\d+)$/)
+  const errorCode = result.error
+    ? 'code' in result.error && typeof result.error.code === 'string'
+      ? result.error.code
+      : result.error.name
     : undefined
+  return {
+    version: result.status === 0 ? match?.[1] : undefined,
+    status: result.status,
+    signal: result.signal,
+    errorCode,
+    outputLines: output ? output.split(/\r?\n/).length : 0,
+    outputMatchesVersion: match !== null,
+  }
 }
 
 export function managedEntry(name: ToolName) {
@@ -106,12 +134,15 @@ export function managedEntry(name: ToolName) {
   return path.join(TOOL_BIN, name + extension)
 }
 
-export function verifiedWrapper(name: 'npm' | 'pnpm') {
+export function wrapperStatus(name: 'npm' | 'pnpm') {
   try {
     const firewall = toolExecutable('sfw')
     const node = realExecutable(managedNodeEntry())
-    if (!node || !executableAvailable(firewall)) {
-      return false
+    if (!executableAvailable(firewall)) {
+      return 'Firewall executable missing'
+    }
+    if (!node) {
+      return 'managed Node executable missing'
     }
     const real =
       name === 'npm'
@@ -120,23 +151,43 @@ export function verifiedWrapper(name: 'npm' | 'pnpm') {
     const windows = process.platform === 'win32'
     const lines = (windows ? windowsShim : posixShim)(name, firewall, real)
     const newline = windows ? '\r\n' : '\n'
-    return (
-      executableAvailable(managedEntry(name)) &&
-      readFileSync(managedEntry(name), 'utf8') === lines.join(newline) + newline
-    )
+    if (!executableAvailable(managedEntry(name))) {
+      return 'checkout launcher missing'
+    }
+    return readFileSync(managedEntry(name), 'utf8') ===
+      lines.join(newline) + newline
+      ? 'verified'
+      : 'checkout launcher contents differ from the pinned command'
   } catch {
-    return false
+    return 'wrapper verification could not read required files'
+  }
+}
+
+export function verifiedWrapper(name: 'npm' | 'pnpm') {
+  return wrapperStatus(name) === 'verified'
+}
+
+export function managedVersionProbes() {
+  const node = managedEntry('node')
+  const env = managedEnvironment()
+  return {
+    node: probeToolVersion(node, ['--version'], env),
+    npm: probeToolVersion(node, [toolExecutable('npm'), '--version'], env),
+    pnpm: probeToolVersion(toolExecutable('pnpm'), ['--version'], env),
   }
 }
 
 export function managedVersions() {
-  const node = managedEntry('node')
-  const env = managedEnvironment()
+  const probes = managedVersionProbes()
   return {
-    node: toolVersion(node, ['--version'], env),
-    npm: toolVersion(node, [toolExecutable('npm'), '--version'], env),
-    pnpm: toolVersion(toolExecutable('pnpm'), ['--version'], env),
+    node: probes.node.version,
+    npm: probes.npm.version,
+    pnpm: probes.pnpm.version,
   }
+}
+
+export function cachedToolchainMatches() {
+  return cachedToolchain()
 }
 
 export function managedReady(versions: ReturnType<typeof managedVersions>) {

@@ -4,9 +4,36 @@ import type * as ReadinessModule from '../../../../scripts/repo/setup/readiness.
 
 const state = vi.hoisted(() => ({ tools: true, dependencies: true }))
 vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
+  cachedToolchainMatches: () => state.tools,
   executableOwner: () => 'checkout',
   managedEntry: (name: string) => `/tools/${name}`,
   managedReady: () => state.tools,
+  managedVersionProbes: () => ({
+    node: {
+      version: '26.11.0',
+      status: 0,
+      signal: null,
+      errorCode: undefined,
+      outputLines: 1,
+      outputMatchesVersion: true,
+    },
+    npm: {
+      version: '12.2.0',
+      status: 0,
+      signal: null,
+      errorCode: undefined,
+      outputLines: 1,
+      outputMatchesVersion: true,
+    },
+    pnpm: {
+      version: '12.12.0',
+      status: 0,
+      signal: null,
+      errorCode: undefined,
+      outputLines: 1,
+      outputMatchesVersion: true,
+    },
+  }),
   managedVersions: () => ({ node: '26.11.0', npm: '12.2.0', pnpm: '12.12.0' }),
   meetsMinimum: () => true,
   realExecutable: (value: string) => value,
@@ -15,7 +42,7 @@ vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
     index: 0,
   }),
   toolVersion: () => 'unused',
-  verifiedWrapper: () => true,
+  wrapperStatus: () => 'verified',
 }))
 vi.mock('../../../../scripts/repo/setup/progress.mts', () => ({
   setupProgress: () => undefined,
@@ -80,4 +107,13 @@ test('details report optional VoiceOver uncertainty without changing readiness s
   expect(log.mock.calls.flat().join('\n')).toContain(
     'Optional VoiceOver: machine setup could not be verified; assets not installed; local preferences could not be verified; macOS permissions unverified.',
   )
+})
+
+test('details expose bounded managed probe and cache results for diagnosis', async () => {
+  const log = vi.fn()
+  expect(await main(['--details'], log)).toBe(0)
+  const output = log.mock.calls.flat().join('\n')
+  expect(output).toContain('version probe: exit=0 signal=none')
+  expect(output).toContain('cached toolchain state: matches pins')
+  expect(output).toContain('Firewall: verified')
 })

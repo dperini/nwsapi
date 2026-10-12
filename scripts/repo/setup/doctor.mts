@@ -4,14 +4,15 @@ import { toolVersions } from '../external-tools.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import {
   executableOwner,
+  cachedToolchainMatches,
   managedEntry,
   managedReady,
-  managedVersions,
+  managedVersionProbes,
   meetsMinimum,
   realExecutable,
   resolveExecutable,
   toolVersion,
-  verifiedWrapper,
+  wrapperStatus,
 } from './diagnostics.mts'
 import { setupProgress } from './progress.mts'
 import { checkoutReadiness, readinessForTask } from './readiness.mts'
@@ -20,8 +21,14 @@ import { preflightVoiceOver } from './voiceover/preflight.mts'
 const minimums = { node: '22.18.0', npm: '12.2.0', pnpm: '12.12.0' }
 
 export function toolReports() {
-  const versions = managedVersions()
+  const probes = managedVersionProbes()
+  const versions = {
+    node: probes.node.version,
+    npm: probes.npm.version,
+    pnpm: probes.pnpm.version,
+  }
   const ready = managedReady(versions)
+  const cachedStateMatches = cachedToolchainMatches()
   const pins = toolVersions()
   return (['node', 'npm', 'pnpm'] as const).map(name => {
     const resolution = resolveExecutable(name)
@@ -43,13 +50,10 @@ export function toolReports() {
       meetsMinimum: meetsMinimum(version, minimums[name]),
       pin: pins[name],
       managedVersion: versions[name],
+      probe: probes[name],
       managedReady: ready,
-      wrapper:
-        name === 'node'
-          ? 'not applicable'
-          : verifiedWrapper(name)
-            ? 'checkout wrapper verified'
-            : 'checkout wrapper missing or changed',
+      wrapper: name === 'node' ? 'not applicable' : wrapperStatus(name),
+      cachedStateMatches,
     }
   })
 }
@@ -63,6 +67,8 @@ function toolDetails(report: ReturnType<typeof toolReports>[number]) {
     `  version minimum: >=${report.minimum}`,
     `  project pin: ${report.pin}`,
     `  checkout version: ${report.managedVersion ?? 'unavailable'}`,
+    `  version probe: exit=${report.probe.status ?? 'null'} signal=${report.probe.signal ?? 'none'} error=${report.probe.errorCode ?? 'none'} output-lines=${report.probe.outputLines} version-format=${report.probe.outputMatchesVersion ? 'matched' : 'unmatched'}`,
+    `  cached toolchain state: ${report.cachedStateMatches ? 'matches pins' : 'missing or differs from pins'}`,
     `  Firewall: ${report.wrapper}`,
   ]
 }

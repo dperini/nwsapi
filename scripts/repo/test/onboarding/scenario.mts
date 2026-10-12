@@ -78,6 +78,8 @@ async function harness(
   command: CommandRunner,
 ) {
   const expectedExit = expectedStatus === 'failed' ? 1 : 0
+  const taskIndex = args.indexOf('--task')
+  const task = taskIndex >= 0 ? args[taskIndex + 1] : ''
   const result = await command(
     file,
     args.slice(1).join(' '),
@@ -86,11 +88,21 @@ async function harness(
     checkout,
     env,
     undefined,
-    expectedExit,
+    task === 'setup:check' ? null : expectedExit,
   )
+  if (task === 'setup:check' && result.code !== 0) {
+    await command(
+      file,
+      'setup diagnostics detail after readiness failure',
+      node,
+      ['scripts/repo/setup/doctor.mts', '--details'],
+      checkout,
+      env,
+      undefined,
+      null,
+    )
+  }
   const object = parseHarnessJson(result.stdout)
-  const taskIndex = args.indexOf('--task')
-  const task = taskIndex >= 0 ? args[taskIndex + 1] : ''
   assertHarnessResult(object, expectedStatus, result.code, task!)
   return object
 }
