@@ -91,20 +91,30 @@ async function harness(
     task === 'setup:check' ? null : expectedExit,
   )
   if (task === 'setup:check' && result.code !== 0) {
-    await command(
-      file,
-      'setup diagnostics detail after readiness failure',
-      node,
-      ['scripts/repo/setup/doctor.mts', '--details'],
-      checkout,
-      env,
-      undefined,
-      null,
-    )
+    await captureReadinessDetails(file, checkout, node, env, command)
   }
   const object = parseHarnessJson(result.stdout)
   assertHarnessResult(object, expectedStatus, result.code, task!)
   return object
+}
+
+async function captureReadinessDetails(
+  file: string,
+  checkout: string,
+  node: string,
+  env: NodeJS.ProcessEnv,
+  command: CommandRunner,
+) {
+  await command(
+    file,
+    'setup diagnostics detail after readiness failure',
+    node,
+    ['scripts/repo/setup/doctor.mts', '--details'],
+    checkout,
+    env,
+    undefined,
+    null,
+  )
 }
 
 export async function verifyInstalledCheckout(
@@ -377,7 +387,12 @@ export async function runReadmeHarnessSteps(
       args,
       checkout,
       env,
+      undefined,
+      step.id === 'readiness' ? null : 0,
     )
+    if (step.id === 'readiness' && result.code !== 0) {
+      await captureReadinessDetails(log, checkout, node, env, command)
+    }
     const value = parseHarnessJson(result.stdout)
     if (step.id === 'task-discovery') {
       assertTaskDiscovery(value)
