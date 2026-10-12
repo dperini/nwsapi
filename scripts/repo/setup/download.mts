@@ -9,6 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
+import { setTimeout as timerDelay } from 'node:timers/promises'
 
 class IntegrityError extends Error {}
 
@@ -60,6 +61,128 @@ function downloadFailure(value: unknown) {
   return errorLabel(value)
 }
 
+function transportResetCode(value: unknown) {
+  const visited = new Set<unknown>()
+  let current = value
+  let resetCode: string | undefined
+  while (current instanceof Error && !visited.has(current)) {
+    visited.add(current)
+    if (current.name === 'AbortError' || current.name === 'TimeoutError') {
+      return undefined
+    }
+    if (
+      'code' in current &&
+      (current.code === 'ECONNRESET' || current.code === 'UND_ERR_SOCKET')
+    ) {
+      resetCode = current.code
+    }
+    current = current.cause
+  }
+  return resetCode
+}
+
+export type DownloadDelay = (
+  milliseconds: number,
+  signal: AbortSignal,
+) => Promise<void>
+
+function waitForRetry(milliseconds: number, signal: AbortSignal) {
+  return timerDelay(milliseconds, undefined, { signal }).then(() => undefined)
+}
+
+function canRetry(error: unknown, attempt: number, signal: AbortSignal) {
+  return (
+    attempt < 3 && !signal.aborted && transportResetCode(error) !== undefined
+  )
+}
+
+async function retryDownload(
+  error: unknown,
+  stage: 'headers' | 'body',
+  attempt: number,
+  location: string,
+  signal: AbortSignal,
+  delay: DownloadDelay,
+  report: (message: string) => void,
+) {
+  if (!canRetry(error, attempt, signal)) {
+    return false
+  }
+  const wait = attempt === 1 ? 250 : 750
+  report(
+    `Retrying tool download (${attempt + 1}/3) after ${transportResetCode(error)} during ${stage} for ${location}.`,
+  )
+  await delay(wait, signal)
+  return !signal.aborted
+}
+
+function requestFailure(location: string, error: unknown, stage: string) {
+  return new Error(
+    `Tool download ${stage} failed for ${location}: ${downloadFailure(error)}.`,
+  )
+}
+
+async function fetchAttempt(
+  url: string,
+  location: string,
+  signal: AbortSignal,
+  request: typeof fetch,
+  attempt: number,
+  delay: DownloadDelay,
+  report: (message: string) => void,
+) {
+  let response: Response
+  try {
+    response = await request(url, {
+      // Synchronous extraction can leave an idle socket closed before fetch notices.
+      // Each pinned archive gets a fresh connection, including redirect hops.
+      headers: { Connection: 'close' },
+      signal,
+    })
+  } catch (error) {
+    if (
+      await retryDownload(
+        error,
+        'headers',
+        attempt,
+        location,
+        signal,
+        delay,
+        report,
+      )
+    ) {
+      return undefined
+    }
+    throw requestFailure(location, error, 'request')
+  }
+  if (!response.ok) {
+    throw new Error(
+      `Tool download failed: HTTP ${response.status} for ${location}`,
+    )
+  }
+  if (response.url && new URL(response.url).protocol !== 'https:') {
+    throw new Error('External tool download redirected away from HTTPS.')
+  }
+  try {
+    return Buffer.from(await response.arrayBuffer())
+  } catch (error) {
+    if (
+      await retryDownload(
+        error,
+        'body',
+        attempt,
+        location,
+        signal,
+        delay,
+        report,
+      )
+    ) {
+      return undefined
+    }
+    throw requestFailure(location, error, 'body')
+  }
+}
+
 export function cachedArchive(file: string, integrity: string) {
   try {
     if (!lstatSync(file).isFile()) {
@@ -93,6 +216,8 @@ export async function downloadArchive(
   integrity: string,
   cache: string,
   request: typeof fetch = fetch,
+  delay: DownloadDelay = waitForRetry,
+  report: (message: string) => void = message => console.error(message),
 ) {
   parseIntegrity(integrity)
   if (new URL(url).protocol !== 'https:') {
@@ -105,23 +230,28 @@ export async function downloadArchive(
     return cached
   }
   const location = safeDownloadLocation(url)
-  let response: Response
-  try {
-    response = await request(url, { signal: AbortSignal.timeout(120_000) })
-  } catch (error) {
-    throw new Error(
-      `Tool download request failed for ${location}: ${downloadFailure(error)}.`,
+  const signal = AbortSignal.timeout(120_000)
+  let bytes: Buffer | undefined
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    if (signal.aborted) {
+      throw requestFailure(location, signal.reason, 'request')
+    }
+    bytes = await fetchAttempt(
+      url,
+      location,
+      signal,
+      request,
+      attempt,
+      delay,
+      report,
     )
+    if (bytes) {
+      break
+    }
   }
-  if (!response.ok) {
-    throw new Error(
-      `Tool download failed: HTTP ${response.status} for ${location}`,
-    )
+  if (!bytes) {
+    throw new Error(`Tool download produced no bytes for ${location}.`)
   }
-  if (response.url && new URL(response.url).protocol !== 'https:') {
-    throw new Error('External tool download redirected away from HTTPS.')
-  }
-  const bytes = Buffer.from(await response.arrayBuffer())
   verifyIntegrity(bytes, integrity)
   mkdirSync(cache, { recursive: true })
   const staging = mkdtempSync(path.join(cache, '.download-'))

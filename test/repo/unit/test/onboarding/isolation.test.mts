@@ -22,6 +22,8 @@ test('onboarding environment keeps scoped paths and explicit proxy or CA setting
     pnpm_config_store_dir: '/host/store',
     HTTPS_PROXY: 'http://proxy.invalid',
     NODE_EXTRA_CA_CERTS: '/ca.pem',
+    PATHEXT: '.COM;.EXE;.BAT;.CMD',
+    ComSpec: 'C:\\Windows\\System32\\cmd.exe',
     GITHUB_TOKEN: 'secret',
   })
   expect(env['PATH']).toBe('/entry:/manager')
@@ -37,6 +39,8 @@ test('onboarding environment keeps scoped paths and explicit proxy or CA setting
   expect(env['GITHUB_TOKEN']).toBeUndefined()
   expect(env['HTTPS_PROXY']).toBe('http://proxy.invalid')
   expect(env['NODE_EXTRA_CA_CERTS']).toBe('/ca.pem')
+  expect(env['PATHEXT']).toBe('.COM;.EXE;.BAT;.CMD')
+  expect(env['ComSpec']).toBe('C:\\Windows\\System32\\cmd.exe')
 })
 
 test('README parser returns executable shell words from scoped commands', () => {

@@ -52,6 +52,10 @@ test('a verified download is cached and reused without another request', async (
   expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
   expect(await downloadArchive(url, integrity, cache, request)).toEqual(bytes)
   expect(request).toHaveBeenCalledOnce()
+  expect(request).toHaveBeenCalledWith(url, {
+    headers: { Connection: 'close' },
+    signal: expect.any(AbortSignal),
+  })
 })
 
 test('a corrupt download never enters the cache', async () => {
@@ -88,7 +92,204 @@ test('network errors identify the safe download target and cause code', async ()
   expect(message).not.toContain('password')
   expect(message).not.toContain('private')
   expect(message).not.toContain('connection detail')
+  expect(request).toHaveBeenCalledTimes(3)
+})
+
+test('a transient header reset retries the same pinned URL and promotes verified bytes', async () => {
+  const cache = fixture()
+  const requestUrl = `${url}?token=private`
+  const request = vi
+    .fn<typeof fetch>()
+    .mockRejectedValueOnce(
+      Object.assign(new TypeError('fetch failed'), {
+        cause: Object.assign(new Error('socket reset'), {
+          code: 'ECONNRESET',
+        }),
+      }),
+    )
+    .mockResolvedValueOnce(new Response(bytes))
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+  const report = vi.fn()
+
+  expect(
+    await downloadArchive(requestUrl, integrity, cache, request, delay, report),
+  ).toEqual(bytes)
+  expect(
+    cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
+  ).toEqual(bytes)
+  expect(request).toHaveBeenCalledTimes(2)
+  expect(request.mock.calls.map(([input]) => input)).toEqual([
+    requestUrl,
+    requestUrl,
+  ])
+  const firstSignal = request.mock.calls[0]![1]?.signal
+  expect(request.mock.calls[1]![1]?.signal).toBe(firstSignal)
+  expect(delay).toHaveBeenCalledWith(250, firstSignal)
+  expect(report).toHaveBeenCalledWith(
+    expect.stringContaining(
+      'Retrying tool download (2/3) after ECONNRESET during headers',
+    ),
+  )
+  expect(report.mock.calls.flat().join('\n')).not.toContain('private')
+})
+
+test('two transient resets recover on the last permitted attempt', async () => {
+  const cache = fixture()
+  const reset = Object.assign(new Error('socket reset'), {
+    code: 'ECONNRESET',
+  })
+  const request = vi
+    .fn<typeof fetch>()
+    .mockRejectedValueOnce(reset)
+    .mockRejectedValueOnce(reset)
+    .mockResolvedValueOnce(new Response(bytes))
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  expect(await downloadArchive(url, integrity, cache, request, delay)).toEqual(
+    bytes,
+  )
+  expect(request).toHaveBeenCalledTimes(3)
+  expect(delay.mock.calls.map(([milliseconds]) => milliseconds)).toEqual([
+    250, 750,
+  ])
+})
+
+test('transport resets exhaust at three attempts with bounded delays and no cache promotion', async () => {
+  const cache = fixture()
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('socket reset'), { code: 'UND_ERR_SOCKET' })
+  })
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+  const report = vi.fn()
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay, report),
+  ).rejects.toThrow('UND_ERR_SOCKET')
+
+  expect(request).toHaveBeenCalledTimes(3)
+  const signal = request.mock.calls[0]![1]?.signal
+  expect(
+    request.mock.calls.every(([, options]) => options?.signal === signal),
+  ).toBe(true)
+  expect(delay.mock.calls.map(([milliseconds]) => milliseconds)).toEqual([
+    250, 750,
+  ])
+  expect(report).toHaveBeenCalledTimes(2)
+  expect(readdirSync(cache)).toEqual([])
+})
+
+test('a body socket reset retries the original pinned archive', async () => {
+  const cache = fixture()
+  const interrupted = new Response(bytes)
+  vi.spyOn(interrupted, 'arrayBuffer').mockRejectedValueOnce(
+    Object.assign(new Error('body reset'), { code: 'UND_ERR_SOCKET' }),
+  )
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(interrupted)
+    .mockResolvedValueOnce(new Response(bytes))
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+  const report = vi.fn()
+
+  expect(
+    await downloadArchive(url, integrity, cache, request, delay, report),
+  ).toEqual(bytes)
+  expect(request).toHaveBeenCalledTimes(2)
+  expect(delay).toHaveBeenCalledWith(250, request.mock.calls[0]![1]?.signal)
+  expect(report).toHaveBeenCalledWith(
+    expect.stringContaining('UND_ERR_SOCKET during body'),
+  )
+  expect(
+    cachedArchive(path.join(cache, readdirSync(cache)[0]!), integrity),
+  ).toEqual(bytes)
+})
+
+test('TLS failures are never retried', async () => {
+  const cache = fixture()
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('certificate rejected'), {
+      code: 'CERT_HAS_EXPIRED',
+    })
+  })
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('CERT_HAS_EXPIRED')
   expect(request).toHaveBeenCalledOnce()
+  expect(delay).not.toHaveBeenCalled()
+})
+
+test('AbortError with a nested socket reset is never retried', async () => {
+  const cache = fixture()
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('aborted request'), {
+      name: 'AbortError',
+      cause: Object.assign(new Error('socket reset'), {
+        code: 'ECONNRESET',
+      }),
+    })
+  })
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('AbortError')
+  expect(request).toHaveBeenCalledOnce()
+  expect(delay).not.toHaveBeenCalled()
+})
+
+test('a deadline during retry backoff prevents another request', async () => {
+  const cache = fixture()
+  const controller = new AbortController()
+  vi.spyOn(AbortSignal, 'timeout').mockReturnValue(controller.signal)
+  const request = vi.fn<typeof fetch>(async () => {
+    throw Object.assign(new Error('socket reset'), { code: 'ECONNRESET' })
+  })
+  const delay = vi.fn(async (milliseconds: number) => {
+    if (milliseconds === 750) {
+      controller.abort(new Error('deadline'))
+    }
+  })
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('ECONNRESET')
+  expect(request).toHaveBeenCalledTimes(2)
+  expect(delay.mock.calls.map(([milliseconds]) => milliseconds)).toEqual([
+    250, 750,
+  ])
+})
+
+test('an aborted shared timeout prevents a reset retry', async () => {
+  const cache = fixture()
+  const controller = new AbortController()
+  vi.spyOn(AbortSignal, 'timeout').mockReturnValue(controller.signal)
+  const request = vi.fn<typeof fetch>(async () => {
+    controller.abort(new Error('deadline'))
+    throw Object.assign(new Error('socket reset'), { code: 'ECONNRESET' })
+  })
+  const delay = vi.fn(
+    async (_milliseconds: number, _signal: AbortSignal) => undefined,
+  )
+
+  await expect(
+    downloadArchive(url, integrity, cache, request, delay),
+  ).rejects.toThrow('ECONNRESET')
+  expect(request).toHaveBeenCalledOnce()
+  expect(delay).not.toHaveBeenCalled()
 })
 
 test('corrupt cached bytes are replaced only by the same verified release', async () => {
@@ -156,7 +357,9 @@ test('SHA256 verification rejects noncanonical base64 and insecure source URLs',
   ).rejects.toThrow()
 })
 test('native download verifies bytes using the mocked HTTPS service', async () => {
-  const service = nock('https://github.com')
+  const service = nock('https://github.com', {
+    reqheaders: { connection: 'close' },
+  })
     .get('/example/tool/releases/download/v1.0.0/tool.tgz')
     .reply(200, bytes)
   expect(await downloadArchive(url, integrity, fixture())).toEqual(bytes)

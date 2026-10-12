@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { realpathSync } from 'node:fs'
 import path from 'node:path'
 import manifest from '../../.config/external-tools.json' with { type: 'json' }
 import { REPO_ROOT } from './lib/paths.mts'
@@ -73,8 +74,17 @@ export interface ToolPlan extends AssetPin {
   url: string
 }
 
-export const TOOL_CACHE = path.join(REPO_ROOT, '.cache', 'external-tools')
-export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
+export function resolveToolRoot(
+  repositoryRoot = REPO_ROOT,
+  platform = process.platform,
+  nativeRealpath: typeof realpathSync.native = realpathSync.native,
+) {
+  return platform === 'win32' ? nativeRealpath(repositoryRoot) : repositoryRoot
+}
+
+const TOOL_ROOT = resolveToolRoot()
+export const TOOL_CACHE = path.join(TOOL_ROOT, '.cache', 'external-tools')
+export const TOOL_BIN = path.join(TOOL_ROOT, '.cache', 'bin')
 export const TOOLCHAIN_STATE = toolchainStatePath()
 
 export function managedNodeEntry(
