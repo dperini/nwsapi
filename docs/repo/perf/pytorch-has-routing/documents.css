@@ -135,6 +135,10 @@
 .catalog-button-ghost {
   background: transparent;
 }
+.documents-page .documents-controls .catalog-input-group-button {
+  min-width: 44px;
+  min-height: 44px;
+}
 #undo-clear-search {
   align-self: flex-start;
   min-height: 44px;

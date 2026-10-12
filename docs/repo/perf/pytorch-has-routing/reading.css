@@ -175,6 +175,40 @@ html:has(.reader:not(.documents-page)) {
 .reading-prose details > :last-child {
   margin-bottom: 0;
 }
+.reading-prose details > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.reading-prose .code-toolbar {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: -44px;
+  position: relative;
+  z-index: 1;
+}
+.reading-prose .code-toolbar .code-copy-status {
+  max-width: min(24ch, calc(100% - 104px));
+  overflow-wrap: anywhere;
+}
+.reading-prose :is(.code-copy, .code-source-link) {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.reading-prose :is(.code-copy, .code-source-link) svg {
+  width: 18px;
+  height: 18px;
+}
+.reading-prose .code-copy-status {
+  margin-right: 8px;
+}
 .reading-prose img {
   max-width: 100%;
   height: auto;

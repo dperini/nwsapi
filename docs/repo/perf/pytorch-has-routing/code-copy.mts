@@ -8,31 +8,48 @@ function connectCopy(
   code: HTMLElement,
 ) {
   let reset: ReturnType<typeof setTimeout> | undefined
+  let attempt = 0
+  let inFlight = false
   const toolbar = button.parentElement!
-  const restore = () => {
+  const restoreVisual = () => {
     button.innerHTML = iconMarkup('copy')
     button.setAttribute('aria-label', 'Copy code')
     button.title = 'Copy code'
-    status.replaceChildren()
     delete toolbar.dataset['copyState']
   }
   const copy = async () => {
+    if (inFlight) {
+      return
+    }
+    inFlight = true
+    const currentAttempt = ++attempt
     clearTimeout(reset)
-    restore()
+    restoreVisual()
+    status.replaceChildren()
+    button.disabled = true
     try {
       await navigator.clipboard.writeText(code.textContent ?? '')
+      if (currentAttempt !== attempt) {
+        return
+      }
       button.innerHTML = iconMarkup('check')
       button.setAttribute('aria-label', 'Code copied')
       button.title = 'Code copied'
       status.textContent = 'Copied'
       toolbar.dataset['copyState'] = 'copied'
     } catch {
-      status.textContent = 'Select the code to copy it manually.'
+      if (currentAttempt === attempt) {
+        status.textContent = 'Select the code to copy it manually.'
+      }
+    } finally {
+      inFlight = false
+      button.disabled = !code.textContent
     }
-    reset = setTimeout(
-      restore,
-      toolbar.dataset['copyState'] === 'copied' ? 400 : 2400,
-    )
+    if (currentAttempt === attempt) {
+      if (toolbar.dataset['copyState'] === 'copied') {
+        reset = setTimeout(restoreVisual, 400)
+      }
+    }
   }
   button.addEventListener('click', () => {
     void copy()
