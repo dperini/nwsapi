@@ -18,12 +18,12 @@ const STATE_TIMEOUT_MS = 5000
 export function voiceOverState(
   run: VoiceOverCommand = runCommand,
   platform = process.platform,
+  uid: number | null | undefined = process.getuid?.(),
 ): VoiceOverState {
   if (platform !== 'darwin') {
     return 'unknown'
   }
-  const uid = process.getuid?.()
-  if (uid === undefined) {
+  if (uid === undefined || uid === null) {
     return 'unknown'
   }
   const result = run('/usr/bin/pgrep', ['-U', String(uid), '-x', 'VoiceOver'])
@@ -39,6 +39,8 @@ export async function controlVoiceOver(
   run: VoiceOverCommand = runCommand,
   platform = process.platform,
   delay: Delay = wait,
+  uid: number | null | undefined = process.getuid?.(),
+  now: () => number = () => performance.now(),
 ) {
   const unavailable = unavailableMessage(state, platform)
   if (unavailable) {
@@ -48,12 +50,12 @@ export async function controlVoiceOver(
   if (unchanged) {
     return { status: 0, message: unchanged }
   }
-  const result = action === 'start' ? startVoiceOver(run) : stopVoiceOver(run)
+  const result = runAction(action, run)
   if (result.status !== 0 || result.error) {
     return commandFailure(action)
   }
   const expected = action === 'start' ? 'running' : 'stopped'
-  const confirmed = await waitForState(expected, run, platform, delay)
+  const confirmed = await waitForState(expected, run, platform, delay, uid, now)
   if (!confirmed) {
     return {
       status: 1,
@@ -62,8 +64,16 @@ export async function controlVoiceOver(
   }
   return {
     status: 0,
-    message: action === 'start' ? 'VoiceOver started.' : 'VoiceOver stopped.',
+    message: successMessage(action),
   }
+}
+
+function runAction(action: VoiceOverAction, run: VoiceOverCommand) {
+  return action === 'start' ? startVoiceOver(run) : stopVoiceOver(run)
+}
+
+function successMessage(action: VoiceOverAction) {
+  return action === 'start' ? 'VoiceOver started.' : 'VoiceOver stopped.'
 }
 
 function unavailableMessage(state: VoiceOverState, platform: NodeJS.Platform) {
@@ -97,13 +107,15 @@ async function waitForState(
   run: VoiceOverCommand,
   platform: NodeJS.Platform,
   delay: Delay,
+  uid: number | null | undefined,
+  now: () => number,
 ) {
-  const deadline = performance.now() + STATE_TIMEOUT_MS
-  while (performance.now() < deadline) {
-    if (voiceOverState(run, platform) === expected) {
+  const deadline = now() + STATE_TIMEOUT_MS
+  while (now() < deadline) {
+    if (voiceOverState(run, platform, uid) === expected) {
       return true
     }
-    const remaining = deadline - performance.now()
+    const remaining = deadline - now()
     await delay(Math.min(STATE_INTERVAL_MS, Math.max(remaining, 0)))
   }
   return false
