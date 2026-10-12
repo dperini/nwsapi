@@ -25,7 +25,7 @@ export default defineConfig({
   },
   webServer: {
     cwd: root,
-    command: `node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/model-guide.mts --host 127.0.0.1 --port ${port}`,
+    command: `node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/docs-accessibility-server.mts --host 127.0.0.1 --port ${port}`,
     url: `http://127.0.0.1:${port}/index.html`,
     reuseExistingServer: false,
     timeout: 60_000,
