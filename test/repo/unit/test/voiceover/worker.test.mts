@@ -1,5 +1,6 @@
 import { expect, test, vi } from 'vitest'
 import {
+  closeOwnedBrowser,
   runVoiceOverWorker,
   type NarrationPage,
   type VoiceOverDriver,
@@ -56,13 +57,39 @@ test('requires parent authorization immediately before VoiceOver startup', async
   expect(adapters.authorizeStart).toHaveBeenCalledOnce()
 })
 
+test('rechecks current ownership after Guidepup startup before arming capture', async () => {
+  const voiceOver = fakeVoiceOver([])
+  const page = fakePage()
+  let captureWatchArmed = false
+  page.ownershipIntact = vi.fn(async () => captureWatchArmed)
+  page.armOwnershipWatch = vi.fn(async () => {
+    captureWatchArmed = true
+  })
+  const result = await runVoiceOverWorker(target, fakeAdapters(page, voiceOver))
+  expect(result.status).toBe(0)
+  expect(vi.mocked(page.armOwnershipWatch)).toHaveBeenCalledOnce()
+})
+
+test('reports browser closure only after the server closes successfully', async () => {
+  const onClosed = vi.fn()
+  const closeServer = vi.fn(async () => {})
+  await closeOwnedBrowser(closeServer, 1042, onClosed)
+  expect(onClosed).toHaveBeenCalledWith(1042)
+
+  const failedClose = vi.fn(async () => {
+    throw new Error('fixture close failure')
+  })
+  await expect(closeOwnedBrowser(failedClose, 1043, onClosed)).rejects.toThrow(
+    'fixture close failure',
+  )
+  expect(onClosed).toHaveBeenCalledOnce()
+})
+
 test('discards phrases if the page briefly loses ownership during capture', async () => {
   const phrases: string[] = []
   const voiceOver = fakeVoiceOver(phrases)
   const page = fakePage()
-  vi.mocked(page.ownershipIntact)
-    .mockResolvedValueOnce(true)
-    .mockResolvedValueOnce(false)
+  vi.mocked(page.ownershipIntact).mockResolvedValueOnce(false)
   const result = await runVoiceOverWorker(target, fakeAdapters(page, voiceOver))
   expect(result.status).toBe(1)
   expect(result.evidence).toBeUndefined()
@@ -146,6 +173,7 @@ function fakeAdapters(
     loadVoiceOver: vi.fn(async () => voiceOver),
     onStarted: vi.fn(),
     onBrowserStarted: vi.fn(),
+    onBrowserClosed: vi.fn(),
     authorizeStart: vi.fn(async () => true),
     onStop: vi.fn(),
   }

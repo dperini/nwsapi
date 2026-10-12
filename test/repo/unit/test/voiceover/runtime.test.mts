@@ -29,7 +29,7 @@ test('broken worker input is handled through mocked termination and close', asyn
     stderr: new PassThrough(),
     exitCode: null,
     signalCode: null,
-    pid: 424242,
+    pid: 424_242,
     kill: vi.fn(),
   })
   commands.spawn.mockReturnValue(child)

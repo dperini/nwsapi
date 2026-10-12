@@ -133,7 +133,6 @@ function startWorkerProcess(
   let inputFailure: string | undefined
   let inputEscalation: ReturnType<typeof setTimeout> | undefined
   let browserPid: number | undefined
-  let browserClosed = false
   const abortInput = (signal: NodeJS.Signals) => {
     try {
       killWorker(child, signal)
@@ -168,8 +167,9 @@ function startWorkerProcess(
         }
       }
       if (message.event === 'browser-closed') {
-        browserClosed = true
-        browserPid = undefined
+        if (Number(message.pid) === browserPid) {
+          browserPid = undefined
+        }
       }
       if (message.event === 'start-attempt') {
         void authorizeStart()
@@ -217,7 +217,7 @@ function startWorkerProcess(
     terminate: () => killWorker(child, 'SIGTERM'),
     kill: () => killWorker(child, 'SIGKILL'),
     killOwnedBrowser: () => {
-      if (browserPid && !browserClosed) {
+      if (browserPid) {
         try {
           process.kill(-browserPid, 'SIGKILL')
           return
