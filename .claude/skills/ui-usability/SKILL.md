@@ -12,6 +12,8 @@ Review a complete task: find a document, choose a section, read a table, copy co
 - Preserve user choices about motion and brief feedback. A 400ms copy check is a local preference, not a general time limit. Essential errors, recovery instructions, and announcements must survive that visual reset.
 - Compare hit areas with visible icon sizes. Prefer 44px standalone controls without inflating the glyph. Do not label every small inline text link a target-size failure.
 - Check keyboard focus, Escape, browser Back, magnification, light/dark contrast, narrow tables, and reduced motion. Reading mode should keep content geometry stable.
+- Keep spoken feedback brief and relevant to the current action. Avoid duplicate announcements, full-content readouts for small updates, and narration of decorative changes. Check actual speech instead of assuming an accessible name sounds clear.
+- Do not assume camelCase identifiers are pronounced as separate words. Prefer plain-language control labels and explanations beside exact code. Preserve identifier spelling for display, copying, and voice control. Verify any spoken expansion with a real reader rather than applying blanket ARIA overrides to code.
 - Keep real link text breakable at words. An external icon should accompany the final word, not turn an entire signature into an unbreakable object. Internal links need no directional decoration.
 - Report the state, viewport, action, observed result, impact, and smallest fix. Distinguish a measured defect from a source-level risk and an untested question.
 
