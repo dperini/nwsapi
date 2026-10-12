@@ -29,12 +29,6 @@ function fixture() {
   return { dom, code, button, status, toolbar: button.parentElement! }
 }
 
-function clipboardWith(promise: Promise<void>) {
-  vi.stubGlobal('navigator', {
-    clipboard: { writeText: vi.fn(() => promise) },
-  })
-}
-
 test('copy locks repeated activation and keeps success status after the visual check resets', async () => {
   vi.useFakeTimers()
   let complete!: () => void
