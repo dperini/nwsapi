@@ -46,14 +46,14 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
   const scrolled = output.frames[1]!
   expect(first).toContain('Setup needed')
   expect(first).toContain('Missing tool.')
-  expect(first).toContain('pnpm run setup')
+  expect(first).toContain('node scripts/repo/setup/bootstrap.mts')
   expect(first).toContain(`${runKey} run`)
   expect(first).toContain(`q or ${quitKey} quit`)
   expect(flatten(scrolled)).toContain('LAST HISTORY MARKER')
   expect(flatten(output.remediation)).toContain('complete diagnostic report.')
   for (const frame of [output.wideScrolled, output.largerScrolled]) {
     expect(flatten(frame)).toContain('LAST HISTORY MARKER')
-    expect(frame).toContain('Command: pnpm run setup')
+    expect(frame).toContain('Command: node scripts/repo/setup/bootstrap.mts')
     expect(frame).toContain(`${runKey} run`)
   }
   expect(output.pageDown).toEqual({ selected: 0, activations: 0 })
@@ -62,7 +62,7 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
     selected: 3,
     activations: 0,
   })
-  expect(output.preview.frame).toContain('pnpm run setup:check')
+  expect(output.preview.frame).toContain('node scripts/repo/setup/doctor.mts')
   expect(output.enter).toEqual({ selected: 3, activations: 1 })
   for (const frame of [
     first,
@@ -79,10 +79,14 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
     expect(commandRow).toBeGreaterThan(-1)
     expect(footerRow).toBeGreaterThan(commandRow)
   }
+  const commands = [
+    'node scripts/repo/setup/bootstrap.mts',
+    'pnpm run guide',
+    'pnpm run review',
+    'node scripts/repo/setup/doctor.mts',
+  ]
   for (const [index, frame] of output.commands.entries()) {
-    expect(frame).toContain(
-      `pnpm run ${['setup', 'guide', 'review', 'setup:check'][index]}`,
-    )
+    expect(frame).toContain(commands[index])
     expect(frame).toContain('3. Review my changes')
     expect(frame).not.toContain('3. Review my changes ·')
     if (index > 1) {
@@ -93,5 +97,5 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
     frame.split('\n').findIndex(line => line.includes('Command:')),
   )
   expect(new Set(commandRows).size).toBe(1)
-  expect(output.small).toContain('pnpm run setup:check')
+  expect(output.small).toContain('node scripts/repo/setup/doctor.mts')
 })

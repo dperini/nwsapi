@@ -162,7 +162,7 @@ export function syncPackageManifest(root = REPO_ROOT) {
     overrides?: Record<string, string>
   }
   pkg.devDependencies = Object.fromEntries(
-    Object.entries(workspace.catalog).sort(([left], [right]) =>
+    Object.entries(workspace.catalog).toSorted(([left], [right]) =>
       left.localeCompare(right),
     ),
   )
