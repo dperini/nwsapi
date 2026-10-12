@@ -86,7 +86,7 @@ async function askQuestion(options: VoiceOverOptions, question: string) {
   }
   const input = options.input ?? stdin
   const output = options.output ?? stdout
-  if (!(options.tty ?? Boolean(input.isTTY && output.isTTY))) {
+  if (!(options.tty ?? (input.isTTY && output.isTTY))) {
     return undefined
   }
   const prompt = createInterface({ input, output })
@@ -280,22 +280,13 @@ async function offerSettingsPanel(
 ) {
   const input = options.input ?? stdin
   const output = options.output ?? stdout
-  if (!(options.tty ?? Boolean(input.isTTY && output.isTTY))) {
+  if (!(options.tty ?? (input.isTTY && output.isTTY))) {
     return
   }
-  const settingsQuestion =
-    destination === 'utility'
-      ? 'Open VoiceOver Utility to review AppleScript control? [y/N] '
-      : 'Open macOS Privacy & Security to review your terminal application permissions? [y/N] '
-  if (
-    (await askQuestion(options, settingsQuestion))?.trim().toLowerCase() !== 'y'
-  ) {
+  const { question, target } = settingsDestinations[destination]
+  if ((await askQuestion(options, question))?.trim().toLowerCase() !== 'y') {
     return
   }
-  const target =
-    destination === 'utility'
-      ? '/System/Applications/Utilities/VoiceOver Utility.app'
-      : 'x-apple.systempreferences:com.apple.preference.security'
   const result = options.openSettings
     ? options.openSettings(target)
     : spawnSync('/usr/bin/open', [target], {
@@ -307,4 +298,16 @@ async function offerSettingsPanel(
       `Could not open settings: ${result.error?.message ?? `exit ${result.status ?? 'unknown'}`}. Open the window manually to continue.`,
     )
   }
+}
+
+const settingsDestinations = {
+  utility: {
+    question: 'Open VoiceOver Utility to review AppleScript control? [y/N] ',
+    target: '/System/Applications/Utilities/VoiceOver Utility.app',
+  },
+  privacy: {
+    question:
+      'Open macOS Privacy & Security to review your terminal application permissions? [y/N] ',
+    target: 'x-apple.systempreferences:com.apple.preference.security',
+  },
 }
