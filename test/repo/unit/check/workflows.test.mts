@@ -15,7 +15,9 @@ function workflow() {
 test('the required Node gate includes runtime and every unit shard', () => {
   const { jobs } = workflow()
   expect(jobs.node.needs).toEqual(['runtime', 'unit'])
-  expect(jobs.node.if).toBe('always()')
+  expect(jobs.node.if).toBe(
+    "always() && (github.event_name == 'push' || github.event_name == 'pull_request')",
+  )
   const gate = jobs.node.steps.at(-1)
   expect(gate.if).toBe('always()')
   expect(gate.env).toEqual({
