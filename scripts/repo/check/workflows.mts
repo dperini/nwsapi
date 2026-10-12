@@ -5,6 +5,8 @@ import { REPO_ROOT } from '../lib/paths.mts'
 
 const PINNED_EXTERNAL_ACTIONS = new Map([
   ['actions/cache', '55cc8345863c7cc4c66a329aec7e433d2d1c52a9'],
+  ['actions/checkout', 'de0fac2e4500dabe0009e67214ff5f5447ce83dd'],
+  ['actions/setup-node', '249970729cb0ef3589644e2896645e5dc5ba9c38'],
 ])
 
 export function actionReferences(value: unknown): string[] {
