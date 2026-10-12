@@ -16,5 +16,7 @@ export function toolingFiles(root = REPO_ROOT) {
       '.github/**/*.mts',
     ],
     { cwd: root },
-  ).toSorted()
+  )
+    .map(file => file.replaceAll('\\', '/'))
+    .toSorted()
 }

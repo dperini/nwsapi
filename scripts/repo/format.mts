@@ -8,6 +8,8 @@ runTool([
   '--config',
   '.config/oxfmt.json',
   ...toolingFiles(),
-  ...globSync('.config/*.json', { cwd: REPO_ROOT }),
+  ...globSync('.config/*.json', { cwd: REPO_ROOT }).map(file =>
+    file.replaceAll('\\', '/'),
+  ),
   ...process.argv.slice(2),
 ])
