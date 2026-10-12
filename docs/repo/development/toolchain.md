@@ -130,3 +130,31 @@ Discovery and plain mode use Node built-ins and local modules. The setup
 implementation and native UI load only when needed. JSON output is written
 once per invocation, and task logs stream directly without being buffered
 in memory.
+
+Use `node scripts/repo/develop/run.mts --version v2` or `--version v3` to select
+the 2.x or 3.x product checkout. If the current checkout has the selected
+version's guided runner, it runs there so local edits remain available.
+Otherwise, the selector creates a uniquely named worktree under
+`os.tmpdir()`, prints its path, and runs that checkout's runner with that
+checkout as its working directory. A checkout without the version's runner
+reports the available package command path instead of invoking another
+version's scripts. `--version ... --list --json` only discovers tasks and does
+not create a worktree.
+
+Version worktrees keep a small source, target, hostname, and ownership record
+beside the checkout. A live runner refreshes a host-tagged tokenized pulse.
+Unknown or foreign hosts are retained without interpreting their PIDs. Clean shutdown records a
+matching release token, then removes the pulse. A crash leaves its pulse and
+the sweep retains that checkout for review. These records are local to the
+temporary worktree and are not a central registry.
+
+Use `node scripts/repo/develop/run.mts --sweep --json` to preview eligible
+cleanup. Add `--apply` to remove eligible worktrees. The sweep only considers
+helper-marked worktrees under the canonical system temporary directory. It
+requires source commits beyond the recorded starting point and proves the
+current source HEAD is an ancestor of the exact recorded local target branch.
+It retains active or uncertain owners, locked or current worktrees, dirty,
+untracked, ignored, or submodule content, missing targets, and unmerged or
+ambiguous work. Squash and rebase integrations are retained because this
+workflow has no separate integration proof for them. Source branches are never
+deleted automatically.
