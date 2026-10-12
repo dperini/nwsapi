@@ -1,6 +1,8 @@
 allowBuilds:
   '@swc/core': true
   cpu-features: false
+  # Guidepup recording is optional and the docs checks do not record video.
+  ffmpeg-static: false
   fsevents: false
   # CPU inference and image processing use the published native binaries.
   onnxruntime-node: false
