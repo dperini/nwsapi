@@ -27,11 +27,13 @@
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   position: sticky;
-  top: var(--contents-edge-inset, 16px);
+  top: calc(var(--topbar-height, 90px) + var(--contents-edge-inset, 16px));
   margin-left: auto;
   pointer-events: auto;
   width: 260px;
-  max-height: calc(100dvh - 2 * var(--contents-edge-inset, 16px));
+  max-height: calc(
+    100dvh - var(--topbar-height, 90px) - 2 * var(--contents-edge-inset, 16px)
+  );
   padding: 0;
 }
 .reading-sidebar details {
@@ -196,7 +198,9 @@
 @media (max-width: 900px) {
   .reading-sidebar {
     grid-row: 1;
-    max-height: calc(100dvh - 2 * var(--contents-edge-inset, 16px));
+    max-height: calc(
+      100dvh - var(--topbar-height, 90px) - 2 * var(--contents-edge-inset, 16px)
+    );
     padding: 0;
     border: 1px solid var(--section-line);
     border-radius: 10px;

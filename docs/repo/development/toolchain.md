@@ -16,6 +16,8 @@ Run `pnpm run setup:check` for a short readiness summary. Add `--details` for PA
 
 Doctor reports tools, dependency installation, and build outputs separately. Its exit status checks tools and dependencies. Use `pnpm run setup:check --task guide` or `--task review` to check a specific task. Review prepares its own build outputs. Dependency checks cover the root pnpm importer, catalogs, workspace links, and installed package versions. They do not audit every transitive dependency.
 
+Normal setup and `prepare` also refresh local agent guidance from `.claude/skills/` and `AGENTS.md`. Run `pnpm run setup:agents` to refresh only those aliases, or add `--check` to inspect them without writing. See [shared agent guidance](agent-guidance.md) for discovery paths and the ignore policy.
+
 The interactive menu remembers its last task and outcome in `.cache/developer-state.json` for up to 30 days. This is historical metadata, not a current validation result. Reopening the menu never starts a task. Delete that file to forget the history. Task output and environment variables are not saved.
 
 External version minimums and project pins have different roles. Repository tasks run the pinned Node and package managers together. Meeting an external version minimum alone does not establish runtime compatibility or override a project pin.

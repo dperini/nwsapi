@@ -3,6 +3,7 @@ import { localizeText } from './locale-content.mts'
 import { documentHref, getDocument } from './documents.mts'
 import { initializeContentsSelection } from './contents-selection.mts'
 import { handleContentsActivation } from './contents-focus.mts'
+import { allowsMotion } from './reading-mode.mts'
 
 export const CONTENTS_STATE_KEY = 'nwsapi-guide-contents'
 
@@ -20,6 +21,36 @@ export function placeReadingContents(
   if (navigation.parentElement !== contents) {
     contents.append(navigation)
   }
+}
+
+function initializeContentsResize(contents: HTMLDetailsElement) {
+  const column = document.querySelector<HTMLElement>('.reading-column')
+  let previousOpen = contents.open
+  let settling: Animation | undefined
+  contents.addEventListener('toggle', () => {
+    if (contents.open === previousOpen) {
+      return
+    }
+    previousOpen = contents.open
+    settling?.cancel()
+    if (
+      !column?.animate ||
+      !allowsMotion() ||
+      matchMedia('(max-width: 600px)').matches
+    ) {
+      return
+    }
+    settling = column.animate(
+      [
+        { transform: 'scaleX(1)', offset: 0 },
+        { transform: 'scaleX(1.012)', offset: 0.18 },
+        { transform: 'scaleX(0.994)', offset: 0.46 },
+        { transform: 'scaleX(1.002)', offset: 0.74 },
+        { transform: 'scaleX(1)', offset: 1 },
+      ],
+      { duration: 220, easing: 'ease-out' },
+    )
+  })
 }
 
 export function initializeReadingContents(
@@ -52,6 +83,7 @@ export function initializeReadingContents(
   } catch {
     // The contents can still collapse when browser storage is unavailable.
   }
+  initializeContentsResize(contents)
   const update = () => {
     placeReadingContents(contents, navigation)
     const label = contents.open ? 'onThisPage' : 'contents'
@@ -142,15 +174,6 @@ export function initializeReadingContents(
       } else {
         mobileToggle?.focus()
       }
-    }
-    update()
-  })
-  window.addEventListener('guide-display-reset', () => {
-    contents.open = !mobile.matches
-    try {
-      localStorage.removeItem(stateKey)
-    } catch {
-      // The visible panel still resets when storage is unavailable.
     }
     update()
   })

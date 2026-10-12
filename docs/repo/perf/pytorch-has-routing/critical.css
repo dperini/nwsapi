@@ -37,6 +37,10 @@ body {
   --scroll-radius: 57% 43% 65% 35% / 58% 44% 56% 42%;
 }
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--reading-page, #0c171e);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -145,6 +149,7 @@ html[data-reading-mode] .reading-mode-toggle:not(:hover):not(:focus-visible) {
   height: var(--header-control-size);
 }
 .header-source-slot {
+  --header-control-size: 44px;
   display: inline-flex;
   width: var(--header-control-size);
   height: var(--header-control-size);
@@ -174,17 +179,14 @@ html[data-reading-mode] .reading-mode-toggle:not(:hover):not(:focus-visible) {
   width: 20px;
   height: 20px;
 }
-.reader-header-identity .header-source-link {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-top: 2px;
-  padding-left: 0;
-  margin-left: 2px;
-  transform: translateY(-2px);
+.reader .header-source-link {
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
 }
-.reader-header-identity .header-source-link .github-icon {
-  width: 14px;
-  height: 14px;
+.reader .header-source-link .github-icon {
+  width: 20px;
+  height: 20px;
 }
 .reader .reader-topbar:has(.reader-header-identity) {
   flex-wrap: nowrap;
@@ -196,10 +198,9 @@ html[data-reading-mode] .reading-mode-toggle:not(:hover):not(:focus-visible) {
 .reader .reader-topbar:has(.reader-header-identity) .header-actions {
   flex: 0 0 auto;
 }
-.reader-header-identity .header-external-arrow {
-  top: 1px;
-  right: auto;
-  left: 11px;
+.reader .header-external-arrow {
+  top: 12px;
+  right: 7px;
   width: 6px;
   height: 6px;
   fill: none;
@@ -651,17 +652,17 @@ html[data-reading-mode]
     height: 44px;
     flex: 0 0 44px;
   }
-  .reader .reader-header-identity .header-source-link {
+  .reader .header-source-link {
     width: 44px;
-    padding-top: 2px;
+    padding: 6px;
   }
-  .reader .reader-header-identity .header-source-link .github-icon {
-    width: 12px;
-    height: 12px;
+  .reader .header-source-link .github-icon {
+    width: 20px;
+    height: 20px;
   }
-  .reader .reader-header-identity .header-external-arrow {
-    top: 0;
-    left: 14px;
+  .reader .header-external-arrow {
+    top: 12px;
+    right: 7px;
     width: 6px;
     height: 6px;
     background: transparent;
@@ -723,7 +724,6 @@ html[data-reading-mode] *::after {
   scroll-behavior: auto !important;
 }
 html[data-reading-mode] body {
-  line-height: 1.8;
   --scroll-accent: var(--topic-what) !important;
 }
 html[data-reading-mode]
@@ -738,33 +738,4 @@ html[data-reading-mode]
 }
 html[data-reading-mode] :is(button, a):hover {
   transform: none !important;
-}
-html[data-reading-mode]
-  :is(.section-intro, .context, .callout p, .reading-prose p) {
-  line-height: 1.85;
-}
-
-.guide-preferences {
-  padding: 24px var(--contents-edge-inset);
-  text-align: center;
-}
-.guide-preferences button {
-  min-height: 44px;
-  padding: 8px 14px;
-  color: var(--muted);
-  font: inherit;
-  font-size: var(--text-support);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--reading-page, #0c171e);
-}
-.guide-preferences button:focus-visible {
-  outline: 2px solid var(--theme-highlight-edge);
-  outline-offset: 2px;
-}
-
-@media print {
-  .guide-preferences {
-    display: none;
-  }
 }

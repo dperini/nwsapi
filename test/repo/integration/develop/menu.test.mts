@@ -2,6 +2,9 @@ import { spawnSync } from 'node:child_process'
 import { expect, test } from 'vitest'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
+const runKey = process.platform === 'darwin' ? '↩ Return' : '↵ Enter'
+const quitKey = process.platform === 'darwin' ? '⎋ Esc' : 'Esc'
+
 const fixture = new URL('./fixture/menu.mts', import.meta.url).href
 const source = `
   import { captureMenuFrames } from ${JSON.stringify(fixture)};
@@ -44,14 +47,14 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
   expect(first).toContain('Setup needed')
   expect(first).toContain('Missing tool.')
   expect(first).toContain('pnpm run setup')
-  expect(first).toContain('Enter run')
-  expect(first).toContain('q or Esc quit')
+  expect(first).toContain(`${runKey} run`)
+  expect(first).toContain(`q or ${quitKey} quit`)
   expect(flatten(scrolled)).toContain('LAST HISTORY MARKER')
   expect(flatten(output.remediation)).toContain('complete diagnostic report.')
   for (const frame of [output.wideScrolled, output.largerScrolled]) {
     expect(flatten(frame)).toContain('LAST HISTORY MARKER')
     expect(frame).toContain('Command: pnpm run setup')
-    expect(frame).toContain('Enter run')
+    expect(frame).toContain(`${runKey} run`)
   }
   expect(output.pageDown).toEqual({ selected: 0, activations: 0 })
   expect(output.preview).toMatchObject({
@@ -72,7 +75,7 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
       .findIndex(line => line.includes('Command:'))
     const footerRow = frame
       .split('\n')
-      .findIndex(line => line.includes('Enter run'))
+      .findIndex(line => line.includes(`${runKey} run`))
     expect(commandRow).toBeGreaterThan(-1)
     expect(footerRow).toBeGreaterThan(commandRow)
   }

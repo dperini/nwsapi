@@ -8,33 +8,53 @@ function connectCopy(
   code: HTMLElement,
 ) {
   let reset: ReturnType<typeof setTimeout> | undefined
+  let inFlight = false
   const toolbar = button.parentElement!
-  const restore = () => {
+  const restoreVisual = () => {
     button.innerHTML = iconMarkup('copy')
     button.setAttribute('aria-label', 'Copy code')
     button.title = 'Copy code'
-    status.replaceChildren()
     delete toolbar.dataset['copyState']
   }
   const copy = async () => {
-    clearTimeout(reset)
-    restore()
+    if (inFlight) {
+      return
+    }
+    inFlight = true
+    if (reset) {
+      clearTimeout(reset)
+      reset = undefined
+    }
+    restoreVisual()
+    status.replaceChildren()
+    delete status.dataset['copyOutcome']
+    button.setAttribute('aria-disabled', 'true')
+    button.setAttribute('aria-busy', 'true')
     try {
       await navigator.clipboard.writeText(code.textContent ?? '')
       button.innerHTML = iconMarkup('check')
       button.setAttribute('aria-label', 'Code copied')
       button.title = 'Code copied'
-      const message = document.createElement('span')
-      message.className = 'code-copy-message'
-      message.textContent = 'Copied'
-      status.replaceChildren(message)
+      status.textContent = 'Copied'
+      status.dataset['copyOutcome'] = 'copied'
       toolbar.dataset['copyState'] = 'copied'
     } catch {
       status.textContent = 'Select the code to copy it manually.'
+      delete status.dataset['copyOutcome']
+    } finally {
+      inFlight = false
+      button.removeAttribute('aria-disabled')
+      button.removeAttribute('aria-busy')
     }
-    reset = setTimeout(restore, 2400)
+    if (toolbar.dataset['copyState'] === 'copied') {
+      reset = setTimeout(restoreVisual, 400)
+    }
   }
-  button.addEventListener('click', () => {
+  button.addEventListener('click', event => {
+    if (button.getAttribute('aria-disabled') === 'true') {
+      event.preventDefault()
+      return
+    }
     void copy()
   })
 }

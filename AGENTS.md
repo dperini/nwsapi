@@ -20,6 +20,20 @@
 - Run a selected task with `node scripts/repo/develop/run.mts --task <id> --json`. Capture stdout as JSON and stderr as progress. Use the reported exit status and preserve existing authorization requirements.
 - Keep persistent tasks in a managed session. See [the harness contract](docs/repo/development/toolchain.md#agent-harnesses) for task IDs, results, and shutdown behavior.
 
+# Branches and worktrees
+
+- Give each active branch its own worktree. Create new worktrees beneath `os.tmpdir()` using a unique directory. Do not place worktree checkouts inside this repository or its `.cache/` tree.
+- Each PR uses a distinct branch. Each implementation agent owns a separate branch and worktree, including agents contributing to the same PR. Integrate their commits into the intended PR or target branch explicitly.
+- Record the owning task, source branch, and intended merge target when creating a worktree. Do not switch branches in another task's checkout.
+- Sweep owned temporary worktrees after their work is confirmed merged into the recorded target. Preserve active, dirty, unmerged, or uncertain worktrees. Follow the [worktree lifecycle](docs/fleet/development/worktrees.md), including squash-merge verification.
+
+# Usability and shared agent guidance
+
+- Use `.claude/skills/ui-usability/SKILL.md` for docs and web UI usability work, and `.claude/skills/developer-flow-usability/SKILL.md` for setup, CLI, and terminal workflow reviews. Follow the [shared usability guide](docs/fleet/design/usability.md).
+- Preserve stable controls, focus, and content geometry. Keep essential outcomes available independently of brief visual cues. Report observed evidence separately from assumptions and unverified checks.
+- Keep shared instructions about observable product needs. Do not put personal context in implementation, skills, or public reports.
+- Author skills under `.claude/skills/`. Run `pnpm run setup:agents` to refresh ignored Claude and Codex/OpenCode aliases. Keep captures, logs, and downloads in `.cache/`. See [agent guidance](docs/repo/development/agent-guidance.md).
+
 # Style
 
 - Keep internal authored types in `.mts` files. Use `import type` and colocate types with their implementation when practical. Under `src/`, reserve `.d.ts` declarations for JavaScript loaders in `src/external/`.

@@ -4,6 +4,7 @@ import { realpathSync } from 'node:fs'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import { TASKS } from './actions.mts'
+import { menuHelp } from './keys.mts'
 import type { MenuState } from './actions.mts'
 import type { TaskResult } from './execute.mts'
 import { runProcess } from './process.mts'
@@ -20,7 +21,7 @@ import {
 const HELP = `Usage: pnpm run dev [--plain | --list | --task <id>] [--json]
 
 Guides you through setup, documentation, review, and optional setup help.
-Arrow keys or 1–${TASKS.length} preview a task. Enter runs it. q or Esc quits.
+${menuHelp(TASKS.length)}
 --plain  Use numbered text prompts.
 --list   Print commands without running anything.
 --task   Run one task by ID without menu prompts, then exit.
