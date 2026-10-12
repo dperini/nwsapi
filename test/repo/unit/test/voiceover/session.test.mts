@@ -51,6 +51,70 @@ test('restores only after a stopped, detached session and records evidence', asy
   expect(runtime.removeSnapshot).toHaveBeenCalledOnce()
 })
 
+test('evidence write failure releases a restored session snapshot and lock', async () => {
+  const runtime = fakeRuntime({
+    outcome: {
+      status: 0,
+      signal: null,
+      started: true,
+      evidence: {
+        action: 'moveCursorToKeyboardFocus',
+        pageUrl: url,
+        phrases: ['Reading mode'],
+      },
+    },
+  })
+  runtime.saveEvidence.mockRejectedValue(new Error('fixture disk full'))
+
+  const result = await runNarrationSession({ url, runtime })
+
+  expect(result).toMatchObject({
+    status: 'failed',
+    message: 'fixture disk full',
+  })
+  expect(result.recoveryPath).toBeUndefined()
+  expect(runtime.restore).toHaveBeenCalledOnce()
+  expect(runtime.removeSnapshot).toHaveBeenCalledOnce()
+  expect(runtime.lockRelease).toHaveBeenCalledOnce()
+})
+
+test.each(['snapshot', 'lock'] as const)(
+  'a restored session reports recovery data when %s cleanup fails',
+  async failure => {
+    const runtime = fakeRuntime({
+      outcome: {
+        status: 0,
+        signal: null,
+        started: true,
+        evidence: {
+          action: 'moveCursorToKeyboardFocus',
+          pageUrl: url,
+          phrases: ['Reading mode'],
+        },
+      },
+    })
+    if (failure === 'snapshot') {
+      runtime.removeSnapshot.mockRejectedValue(
+        new Error('fixture snapshot removal failure'),
+      )
+    } else {
+      runtime.lockRelease.mockRejectedValue(new Error('fixture lock failure'))
+    }
+
+    const result = await runNarrationSession({ url, runtime })
+
+    expect(result.status).toBe('incomplete')
+    expect(result.recoveryPath).toBe(snapshot.root)
+    expect(runtime.restore).toHaveBeenCalledOnce()
+    if (failure === 'snapshot') {
+      expect(runtime.lockRelease).toHaveBeenCalledOnce()
+      expect(runtime.removeSnapshot).toHaveBeenCalledTimes(2)
+    } else {
+      expect(runtime.removeSnapshot).not.toHaveBeenCalled()
+    }
+  },
+)
+
 test('preserves lock and snapshot when stop cannot be confirmed', async () => {
   const runtime = fakeRuntime({
     outcome: { status: 1, signal: null, started: true },
