@@ -12,7 +12,9 @@ The reusable browser check is `pnpm run test:docs:a11y`. On 12 October 2026, its
 
 Additional native Chromium checks by the coordinator found keyboard navigation from Skip to Search, keyboard use of Clear with focus return, and Escape dismissal of navigation. At 200% and 400% browser zoom, the inspected top region reflowed within the window, including the contents control becoming a mobile button at 400%. Zoom was restored to 100%. These spot checks did not audit all descendants for overflow or cover every route.
 
-Actual screen-reader announcements remain unverified. A VoiceOver launch attempt left no running VoiceOver process, and the host lacks the AppleScript setup needed for configuration. Do not run an automatic Guidepup setup or change TCC permissions as part of the test command. Screen-reader verification is pending explicit machine configuration and a separate live run. Browser status DOM assertions do not establish spoken output.
+Actual screen-reader announcements remain unverified. After explicit consent, the pinned Guidepup assets installed and its setup completed with `--macos-ignore-tcc-db`. The user enabled AppleScript control in VoiceOver Utility. The subsequent live test failed with `EPERM` while creating a portable-preferences symlink in the protected VoiceOver group container. Cleanup unmounted the preferences image, and System Settings showed VoiceOver off. Configuration success does not establish that a live test can run. Browser status DOM assertions do not establish spoken output.
+
+Keep screen-reader configuration opt-in and separate from starting narration. Do not run Guidepup setup or change TCC permissions from the browser test command. A further live run requires resolving the protected-preferences access failure and explicitly starting a test.
 
 The DOM scan found no visibly rendered unnamed buttons or links using its label heuristic. This is not an accessibility-tree audit. The 1px select elements belong to enhanced controls and were excluded from target findings. Disabled Clear was measured but its active behavior still needs the same inspection.
 
