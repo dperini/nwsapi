@@ -150,18 +150,30 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
 
 ## Development setup
 
-Use Node.js 22.18 or newer to start setup:
+Use Node.js 22.18 or newer to start setup from the checkout root. The direct
+Node entry point works before the pinned npm is installed:
 
 ```sh
-npm run setup
-npm test
+node scripts/setup.mjs
 ```
 
-Either `npm run setup` or `pnpm run setup` selects this branch's pinned `npm` automatically. Setup downloads and verifies `mise`, `nub`, `npm`, and `pnpm` from the versions and integrity hashes in `.config/external-tools.json`, uses `mise` with `nub` to provision Node, installs dependencies from `package-lock.json`, and prepares WPT and Chromium. Tools and isolated `mise` state stay in the checkout's ignored `.cache/` directory. No global installation or shell configuration is required.
+Setup verifies the tools pinned in `.config/external-tools.json`, installs
+dependencies with the pinned npm, prepares release tooling and PHP, sets up
+Web Platform Tests, and installs Chromium. Tools and isolated `mise` state stay
+in the checkout's ignored `.cache/` directory. Setup does not change global
+tools or shell configuration.
 
-If neither package manager is installed, run `node scripts/setup.mjs`. Add `--tools-only` to provision tools without installing dependencies. After switching branches, rerun setup to replace dependencies and restore the tools for that checkout. Setup needs Git, archive extraction tools, and network access.
+V2 uses npm and `package-lock.json`. Its `preinstall` guard rejects other
+package managers. Add `--tools-only` to provision tools without installing
+dependencies or test fixtures. After switching branches, rerun setup to
+replace dependencies and restore the tools for that checkout. Setup needs Git,
+archive extraction tools, and network access.
 
-The v3 prerelease uses the same setup commands and selects `pnpm`. For direct dependency installation, use `npm install` on master and `pnpm install` on v3. The common setup command avoids needing to remember that distinction.
+After setup, run `npm run dev` for the guided contributor menu. It offers
+documentation, review, and read-only setup diagnostics. Follow [the first
+change guide](docs/repo/development/first-change.md) for the canonical edit,
+review, commit, and push steps. See [the v2 toolchain
+notes](docs/repo/development/toolchain.md) for setup and harness details.
 
 ## 💖 Support & Sponsoring
 
