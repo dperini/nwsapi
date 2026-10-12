@@ -1,8 +1,11 @@
 import { expect, test } from 'vitest'
+import path from 'node:path'
 import {
   isolatedEnvironment,
+  makeSandbox,
   sha256,
 } from '../../../../../scripts/repo/test/onboarding/isolation.mts'
+import { hashes } from '../../../../../scripts/repo/test/onboarding/environment.mts'
 import {
   assertHarnessResult,
   assertTaskDiscovery,
@@ -97,4 +100,23 @@ test('sha256 fingerprints sentinel bytes', () => {
   expect(sha256('sentinel')).toBe(
     '2b7847b7b705781d7cf21a05e9c1bb37cbf078aea103bc3edcc6aca52ab65453',
   )
+})
+
+test('sandbox protects common shell profile and manager configuration files', async () => {
+  const sandbox = await makeSandbox()
+  try {
+    const sentinels = await hashes(path.join(sandbox.directory, 'home'), [
+      '.npmrc',
+      '.pnpmrc',
+      '.gitconfig',
+      '.zshrc',
+      '.bashrc',
+      '.profile',
+      '.bash_profile',
+      '.zprofile',
+    ])
+    expect(Object.values(sentinels).every(value => value !== null)).toBe(true)
+  } finally {
+    await sandbox.cleanup()
+  }
 })

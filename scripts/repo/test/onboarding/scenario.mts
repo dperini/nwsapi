@@ -39,6 +39,7 @@ export type GuideRunner = (
   execution: string[],
   redact: (value: string) => string,
 ) => Promise<GuideOutcome>
+export type BeforeSetup = () => Promise<void>
 export interface ScenarioOptions {
   scenario: 'bootstrap' | 'npm' | 'pnpm' | 'journey'
   node: string
@@ -204,6 +205,7 @@ export async function runJourney(
   startGuide: GuideRunner,
   redact: (value: string) => string,
   recordGuide: (outcome: GuideOutcome) => void,
+  beforeSetup: BeforeSetup,
 ): Promise<GuideOutcome> {
   const list = await command(
     log,
@@ -240,6 +242,7 @@ export async function runJourney(
   if (before['exitCode'] === 0) {
     throw new Error('Setup diagnostics passed before setup.')
   }
+  await beforeSetup()
   await harness(log, checkout, node, env, setup.execution, 'completed', command)
   await harness(log, checkout, node, env, check.execution, 'completed', command)
   const guideOutcome = await startGuide(

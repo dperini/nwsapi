@@ -12,7 +12,7 @@ class FakeTerminal extends EventEmitter {
   stdin = new PassThrough()
   stdout = new PassThrough()
   stderr = new PassThrough()
-  pid = 31415
+  pid = 31_415
   answers: string[] = []
   wasConfirmed = false
   killed: NodeJS.Signals[] = []

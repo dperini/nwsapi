@@ -8,6 +8,7 @@ import { readJourney } from './readme.mts'
 import { startGuide } from './guide.mts'
 import { externalToolVersion, hashes, redact } from './environment.mts'
 import { runBounded } from './process.mts'
+import { runPlainSetup } from './terminal.mts'
 import {
   runJourney,
   runReadmeHarnessSteps,
@@ -28,6 +29,7 @@ let cleanupSandbox: (() => Promise<void>) | undefined
 let keepSandbox = false
 let activeLog = ''
 let activeScenario: Scenario | undefined
+let activeCommit: string | undefined
 let entryNodeVersion = ''
 const managerVersions: Record<string, string> = {}
 type Scenario = (typeof cases)[number]
@@ -146,7 +148,7 @@ async function appendLog(
   phases.push({
     phase,
     command: phase,
-    status: result.code === 0 ? 'completed' : 'failed',
+    status: !result.error && result.code === 0 ? 'completed' : 'failed',
     code: result.code,
   })
   if (result.error) {
@@ -181,8 +183,9 @@ async function command(
     phase,
     command: `${path.basename(executable)} ${args.join(' ')}`,
     status:
-      (expected !== null && result.code === expected) ||
-      (expected === null && result.code === 0)
+      !result.error &&
+      ((expected !== null && result.code === expected) ||
+        (expected === null && result.code === 0))
         ? 'completed'
         : 'failed',
     code: result.code,
@@ -248,7 +251,60 @@ async function runScenario(
     startGuide,
     redact,
     recordGuideOutcome,
+    () => runPlainMenu(log, context.snapshot, options.node, context.env),
   )
+}
+
+async function runPlainMenu(
+  log: string,
+  checkout: string,
+  node: string,
+  env: NodeJS.ProcessEnv,
+) {
+  if (process.platform !== 'linux') {
+    const message = 'Skipped: real PTY menu is verified in the Linux journey.'
+    phases.push({
+      phase: 'plain terminal setup wizard',
+      command: 'skipped on non-Linux platform',
+      status: 'skipped',
+      code: null,
+    })
+    await writeFile(log, `\n## plain terminal setup wizard\n${message}\n`, {
+      flag: 'a',
+    })
+    return
+  }
+  const result = await runPlainSetup({
+    checkout,
+    node,
+    env,
+    timeoutMs: TIMEOUT,
+  })
+  await writeFile(
+    log,
+    redact(
+      `\n## plain terminal setup wizard\npreview=${result.previewObserved} confirmation=${result.confirmationSent} setup=${result.setupCompleted} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'} failure=${result.failure ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+    ),
+    { flag: 'a' },
+  )
+  const success =
+    !result.failure &&
+    result.code === 0 &&
+    result.signal === null &&
+    result.previewObserved &&
+    result.confirmationSent &&
+    result.setupCompleted
+  phases.push({
+    phase: 'plain terminal setup wizard',
+    command: 'node scripts/repo/develop/run.mts --plain; select setup; confirm',
+    status: success ? 'completed' : 'failed',
+    code: result.code,
+  })
+  if (!success) {
+    throw new Error(
+      `Plain terminal setup wizard did not complete: ${result.failure ?? `exit ${result.code ?? 'null'}`}. See ${log}`,
+    )
+  }
 }
 
 async function runManagerScenario(
@@ -312,6 +368,23 @@ async function verifyFinalState(
   log: string,
   context: SnapshotContext,
 ) {
+  for (const artifact of ['node_modules', 'dist']) {
+    if (!existsSync(path.join(context.snapshot, artifact))) {
+      throw new Error(`Onboarding did not create ${artifact}/.`)
+    }
+  }
+  await verifyInstalledCheckout(
+    log,
+    context.snapshot,
+    options.node,
+    context.env,
+    command,
+    managerVersions,
+  )
+  await verifySnapshotIntegrity(context)
+}
+
+async function verifySnapshotIntegrity(context: SnapshotContext) {
   const finalManifests = await hashes(context.snapshot, [
     'package.json',
     'package-lock.json',
@@ -337,19 +410,6 @@ async function verifyFinalState(
   if (finalHead !== context.initialCommit) {
     throw new Error('Snapshot HEAD changed during onboarding.')
   }
-  for (const artifact of ['node_modules', 'dist']) {
-    if (!existsSync(path.join(context.snapshot, artifact))) {
-      throw new Error(`Onboarding did not create ${artifact}/.`)
-    }
-  }
-  await verifyInstalledCheckout(
-    log,
-    context.snapshot,
-    options.node,
-    context.env,
-    command,
-    managerVersions,
-  )
 }
 
 async function main() {
@@ -377,6 +437,7 @@ async function main() {
     REPO,
   )
   entryNodeVersion = context.nodeVersion
+  activeCommit = context.initialCommit
   await runScenario(options, log, context)
   await verifyFinalState(options, log, context)
   await writeSummary('completed', context.initialCommit)
@@ -399,7 +460,7 @@ async function writeSummary(status: string, commit?: string, message?: string) {
     status,
     entryNodeVersion: entryNodeVersion || null,
     managerVersions,
-    commit: commit ?? null,
+    commit: commit ?? activeCommit ?? null,
     message: message ? redact(message) : null,
     phases,
   }
@@ -417,7 +478,7 @@ async function execute() {
     await main()
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    const summary = await writeSummary('failed', undefined, message)
+    const summary = await writeSummary('failed', activeCommit, message)
     if (activeLog) {
       await writeFile(
         activeLog,
