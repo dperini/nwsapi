@@ -143,7 +143,7 @@ export function runSecurity(root = REPO_ROOT, run: CommandRunner = execute) {
   for (const skill of skillDirectories(root)) {
     checked(
       scannerExecutable(root),
-      ['scan', skill, '--format', 'json', '--fail-on-severity', 'MEDIUM'],
+      ['scan', skill, '--format', 'json', '--fail-on-severity', 'medium'],
       { ...options, interactive: true },
       run,
     )
