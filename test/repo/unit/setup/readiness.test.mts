@@ -145,6 +145,38 @@ test('checks root importer ranges, catalog resolutions, and exact workspace link
   }
 })
 
+test('accepts a coherent native npm lock without pnpm metadata', async () => {
+  const root = fixture()
+  try {
+    rmSync(path.join(root, 'node_modules/.modules.yaml'))
+    const manifestPath = path.join(root, 'package.json')
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({ devDependencies: { vite: '8.2.2' } }),
+    )
+    writeFileSync(
+      path.join(root, 'package-lock.json'),
+      JSON.stringify({
+        lockfileVersion: 3,
+        packages: {
+          '': { devDependencies: { vite: '8.2.2' } },
+          'node_modules/vite': {
+            version: '8.2.2',
+            integrity: 'sha512-fixture',
+          },
+        },
+      }),
+    )
+    expect(await dependencyReadiness(root)).toEqual({ ready: true, issues: [] })
+    writePackage(path.join(root, 'node_modules'), 'vite', '8.2.1')
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'vite: expected 8.2.2, found 8.2.1.',
+    )
+  } finally {
+    clean(root)
+  }
+})
+
 test('merges pnpm lockfile documents without losing importer groups', async () => {
   const root = fixture()
   try {
