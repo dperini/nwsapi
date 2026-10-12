@@ -148,9 +148,46 @@ test('failed setup offers only the allowlisted macOS settings panel after opt-in
     log: vi.fn(),
   })
   expect(openSettings).toHaveBeenCalledWith(
-    'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
+    '/System/Applications/Utilities/VoiceOver Utility.app',
   )
 })
+
+test('explicit skip avoids probes, prompts, and commands', async () => {
+  const probe = vi.fn(() => state('needed', 'missing'))
+  const run = vi.fn<VoiceOverRun>(() => ({ status: 0, signal: null }))
+  const ask = vi.fn(async () => 'y')
+  const result = await setupVoiceOver({ choice: 'no', probe, run, ask })
+  expect(result.status).toBe(0)
+  expect(probe).not.toHaveBeenCalled()
+  expect(run).not.toHaveBeenCalled()
+  expect(ask).not.toHaveBeenCalled()
+})
+
+test.each(['y', 'n'])(
+  'unknown settings offer a permission window with separate consent: %s',
+  async answer => {
+    const openSettings = vi.fn(() => ({ status: 0, signal: null }))
+    const run = vi.fn<VoiceOverRun>(() => ({ status: 0, signal: null }))
+    const result = await setupVoiceOver({
+      choice: 'yes',
+      probe: () => state('unknown', 'missing'),
+      run,
+      log: vi.fn(),
+      tty: true,
+      ask: async () => answer,
+      openSettings,
+    })
+    expect(result.status).toBe(1)
+    expect(run).toHaveBeenCalledTimes(1)
+    if (answer === 'y') {
+      expect(openSettings).toHaveBeenCalledWith(
+        'x-apple.systempreferences:com.apple.preference.security',
+      )
+    } else {
+      expect(openSettings).not.toHaveBeenCalled()
+    }
+  },
+)
 
 test('missing local preferences prevent Guidepup machine configuration', async () => {
   const run = vi.fn<VoiceOverRun>(() => ({ status: 0, signal: null }))

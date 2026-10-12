@@ -28,10 +28,20 @@ export interface VoiceOverOptions {
   ask?: (prompt: string) => Promise<string>
 }
 
-const settingsPrompt =
-  'Optional setup installs local VoiceOver assets and may update current-user settings: AppleScript control, the welcome splash, and Dictation auto-enable. It never launches VoiceOver or narration. If local preferences are missing or unreadable, machine configuration is skipped. Guidepup may open VoiceOver Utility and wait for you to enable AppleScript control. TCC databases are not changed. Continue? [y/N] '
+const settingsPrompt = [
+  'Optional: prepare VoiceOver testing.',
+  '1. Download verified testing assets into this checkout.',
+  '2. Enable AppleScript control, hide the welcome splash, and disable Dictation auto-enable for this user.',
+  '3. Open VoiceOver Utility if a manual setting is needed.',
+  'These settings persist. Setup does not start narration or grant privacy permissions.',
+  'Missing or unreadable VoiceOver preferences leave machine configuration for manual setup.',
+  'Continue? [y/N] ',
+].join('\n')
 
 export async function setupVoiceOver(options: VoiceOverOptions = {}) {
+  if (options.choice === 'no') {
+    return { status: 0, signal: null }
+  }
   const root = options.root ?? REPO_ROOT
   const log = options.log ?? console.log
   const probe =
@@ -50,13 +60,12 @@ export async function setupVoiceOver(options: VoiceOverOptions = {}) {
     return { status: 0, signal: null }
   }
   if (state.machineSetup === 'ready' && state.assets === 'present') {
-    log('VoiceOver setup is already configured and its assets are available.')
+    log(
+      'VoiceOver configuration and assets detected. Operating-system permissions remain unverified.',
+    )
     return { status: 0, signal: null }
   }
   const choice = options.choice ?? 'ask'
-  if (choice === 'no') {
-    return { status: 0, signal: null }
-  }
   if (choice === 'ask' && !(await confirmVoiceOver(options))) {
     log(
       'Skipped optional VoiceOver setup. Run pnpm run setup -- --voiceover to retry.',
@@ -115,8 +124,9 @@ async function configureVoiceOver(
   }
   if (state.machineSetup === 'unknown') {
     log(
-      'VoiceOver assets are ready, but machine settings could not be verified. Setup did not change machine settings.',
+      'VoiceOver assets are ready, but machine settings could not be read. Review permissions for your terminal application in System Settings, then retry with pnpm run setup -- --voiceover. Setup did not change machine settings.',
     )
+    await offerSettingsPanel(options, log, 'privacy')
     return { status: 1, signal: null }
   }
   if (state.machineSetup === 'needed') {
@@ -132,12 +142,18 @@ async function configureVoiceOver(
       log(
         'VoiceOver assets are ready, but local VoiceOver preferences are not confirmed. Automatic machine configuration was skipped to ensure setup never starts VoiceOver. Enable AppleScript control in VoiceOver Utility manually, then retry.',
       )
+      await offerSettingsPanel(
+        options,
+        log,
+        current.localPreferences === 'missing' ? 'utility' : 'privacy',
+      )
       return { status: 1, signal: null }
     }
     if (current.machineSetup === 'unknown') {
       log(
         'VoiceOver assets are ready, but current-user settings could not be verified. No machine configuration was run.',
       )
+      await offerSettingsPanel(options, log, 'privacy')
       return { status: 1, signal: null }
     }
     if (current.machineSetup === 'ready') {
@@ -157,7 +173,7 @@ async function configureVoiceOver(
       log(
         'VoiceOver setup did not finish. Core setup remains complete. Enable “Allow VoiceOver to be controlled with AppleScript” in VoiceOver Utility, then retry with pnpm run setup -- --voiceover.',
       )
-      await offerSettingsPanel(options, log)
+      await offerSettingsPanel(options, log, 'utility')
       return configured
     }
     const verified = probe(root, options.platform)
@@ -165,6 +181,7 @@ async function configureVoiceOver(
       log(
         'Guidepup finished its configuration step, but macOS settings could not be confirmed. VoiceOver was not started and privacy permissions remain unverified.',
       )
+      await offerSettingsPanel(options, log, 'privacy')
       return { status: 1, signal: null }
     }
   }
@@ -259,6 +276,7 @@ async function runGuidepup(
 async function offerSettingsPanel(
   options: VoiceOverOptions,
   log: (message: string) => void,
+  destination: 'utility' | 'privacy',
 ) {
   const input = options.input ?? stdin
   const output = options.output ?? stdout
@@ -266,24 +284,27 @@ async function offerSettingsPanel(
     return
   }
   const settingsQuestion =
-    'Open macOS Privacy & Security settings to review accessibility permissions? [y/N] '
+    destination === 'utility'
+      ? 'Open VoiceOver Utility to review AppleScript control? [y/N] '
+      : 'Open macOS Privacy & Security to review your terminal application permissions? [y/N] '
   if (
     (await askQuestion(options, settingsQuestion))?.trim().toLowerCase() !== 'y'
   ) {
     return
   }
+  const target =
+    destination === 'utility'
+      ? '/System/Applications/Utilities/VoiceOver Utility.app'
+      : 'x-apple.systempreferences:com.apple.preference.security'
   const result = options.openSettings
-    ? options.openSettings(
-        'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
-      )
-    : spawnSync(
-        '/usr/bin/open',
-        [
-          'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
-        ],
-        { stdio: 'inherit' },
-      )
-  if ('error' in result && result.error) {
-    log(`Could not open System Settings: ${result.error.message}`)
+    ? options.openSettings(target)
+    : spawnSync('/usr/bin/open', [target], {
+        stdio: 'inherit',
+        timeout: 10_000,
+      })
+  if (result.status !== 0 || result.error) {
+    log(
+      `Could not open settings: ${result.error?.message ?? `exit ${result.status ?? 'unknown'}`}. Open the window manually to continue.`,
+    )
   }
 }
