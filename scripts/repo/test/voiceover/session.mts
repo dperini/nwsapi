@@ -241,20 +241,29 @@ async function handleSessionError(
       state.snapshot,
     )
   }
-  if (state.snapshot && !state.restored) {
-    const cleanup = await cleanSession(
-      state.runtime,
-      state.snapshot,
-      state.started,
-    ).catch(() => ({
-      complete: false,
-      message: 'Session cleanup could not be confirmed.',
-    }))
-    if (!cleanup.complete) {
-      return incomplete(cleanup.message, state.snapshot)
+  if (state.snapshot) {
+    if (!state.restored) {
+      const cleanup = await cleanSession(
+        state.runtime,
+        state.snapshot,
+        state.started,
+      ).catch(() => ({
+        complete: false,
+        message: 'Session cleanup could not be confirmed.',
+      }))
+      if (!cleanup.complete) {
+        return incomplete(cleanup.message, state.snapshot)
+      }
+      state.restored = true
     }
-    state.restored = true
-    await releaseCompletedSnapshot(state)
+    try {
+      await releaseCompletedSnapshot(state)
+    } catch {
+      return incomplete(
+        'Preference restoration completed, but recovery cleanup failed.',
+        state.snapshot,
+      )
+    }
   }
   return { status: 'failed', exitCode: 1, message: errorText(error) }
 }
@@ -264,9 +273,9 @@ async function releaseCompletedSnapshot(state: SessionState) {
   if (!snapshot) {
     return
   }
-  await state.runtime.removeSnapshot(snapshot)
   await state.lock?.release()
   state.lock = undefined
+  await state.runtime.removeSnapshot(snapshot)
   state.snapshot = undefined
 }
 
