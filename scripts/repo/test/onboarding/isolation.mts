@@ -19,6 +19,8 @@ const SAFE_ENV = [
   'CURL_CA_BUNDLE',
   'SystemRoot',
   'WINDIR',
+  'PATHEXT',
+  'ComSpec',
 ]
 export function isolatedEnvironment(
   root: string,
