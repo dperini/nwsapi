@@ -11,7 +11,7 @@ export interface Task {
 export const TASKS: readonly Task[] = [
   {
     script: 'setup',
-    name: '1. Set up this checkout',
+    name: 'Set up this checkout',
     description: 'Prepare tools, dependencies, and build outputs.',
     detail:
       'Downloads missing tools and dependencies, then builds the project.\nNeeds network access on first use. Existing downloads are reused.',
@@ -19,7 +19,7 @@ export const TASKS: readonly Task[] = [
   },
   {
     script: 'guide',
-    name: '2. Open documentation',
+    name: 'Open documentation',
     description: 'Browse the docs while you edit.',
     detail:
       'Starts a docs server and opens your browser.\nRuns until you stop it.',
@@ -28,7 +28,7 @@ export const TASKS: readonly Task[] = [
   },
   {
     script: 'review',
-    name: '3. Review my changes',
+    name: 'Review my changes',
     description: 'Check lint, formatting, types, and unit tests.',
     detail:
       'Run after editing. Checks run in order and stop at the first failure.\nThis does not automatically fix, commit, or publish files.',
@@ -36,7 +36,7 @@ export const TASKS: readonly Task[] = [
   },
   {
     script: 'setup:check',
-    name: '4. Troubleshoot setup (optional)',
+    name: 'Troubleshoot setup (optional)',
     description: 'Check missing tools or incompatible versions.',
     detail:
       'Checks tools and suggests the next command.\nRead-only. Use this whenever setup needs attention.',
@@ -48,11 +48,20 @@ export const TASKS: readonly Task[] = [
 export interface MenuState {
   selected: number
   result: string
+  readiness?: Record<string, { ready: boolean; message: string }>
 }
 
-export function taskInstructions(task: Task) {
+export function taskInstructions(
+  task: Task,
+  readiness?: { ready: boolean; message: string },
+) {
   const stop = task.persistent
     ? '\nCtrl+C stops the server and returns here.'
     : ''
-  return `${task.description}\n\n${task.detail}${stop}\n\nCommand: pnpm run ${task.script}`
+  const status = readiness
+    ? readiness.ready
+      ? '\nStatus: ready in this checkout.'
+      : `\nStatus: needs setup. ${readiness.message}`
+    : ''
+  return `${task.description}\n\n${task.detail}${stop}${status}\n\nCommand: pnpm run ${task.script}`
 }

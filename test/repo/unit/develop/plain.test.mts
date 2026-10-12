@@ -37,6 +37,22 @@ test('rejects non-menu number formats and accepts quitting from preview', async 
   expect(ask).toHaveBeenCalledTimes(5)
 })
 
+test('previews the saved readiness for the selected task', async () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+  const state = {
+    selected: 0,
+    result: '',
+    readiness: {
+      guide: { ready: false, message: 'Dependencies are missing.' },
+    },
+  }
+  const ask = answers(['2', 'b', 'q'])
+  await choosePlain(state, ask)
+  expect(log.mock.calls.map(call => call[0]).join('\n')).toContain(
+    'Status: needs setup. Dependencies are missing.',
+  )
+})
+
 test('return prompt rejects typos instead of silently proceeding', async () => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
   const ask = answers(['typo', ''])

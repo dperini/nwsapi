@@ -22,10 +22,17 @@ function menuContent(renderer: CliRenderer, state: MenuState) {
     height: 4,
     flexShrink: 0,
     selectedIndex: state.selected,
-    options: TASKS.map(task => ({
-      name: task.name,
-      description: task.description,
-    })),
+    options: TASKS.map((task, index) => {
+      const status = state.readiness?.[task.script]
+      return {
+        name: `${index + 1}. ${task.name}`,
+        description: status
+          ? status.ready
+            ? `${task.description} · Ready`
+            : `${task.description} · Setup needed`
+          : task.description,
+      }
+    }),
     showDescription: false,
     wrapSelection: false,
     backgroundColor: '#0c171e',
@@ -36,7 +43,10 @@ function menuContent(renderer: CliRenderer, state: MenuState) {
     selectedTextColor: '#e1cefc',
   })
   const details = new TextRenderable(renderer, {
-    content: taskInstructions(TASKS[state.selected]!),
+    content: taskInstructions(
+      TASKS[state.selected]!,
+      state.readiness?.[TASKS[state.selected]!.script],
+    ),
     fg: '#cceadf',
     width: '100%',
     height: 7,
@@ -63,7 +73,7 @@ function menuContent(renderer: CliRenderer, state: MenuState) {
   panel.add(
     new TextRenderable(renderer, {
       content: state.result,
-      height: 2,
+      height: Math.min(6, Math.max(2, Math.ceil(state.result.length / 72))),
       flexShrink: 0,
       fg: '#bdcbd6',
       wrapMode: 'word',
@@ -71,8 +81,7 @@ function menuContent(renderer: CliRenderer, state: MenuState) {
   )
   panel.add(
     new TextRenderable(renderer, {
-      content:
-        '1–4 or ↑/↓ preview · Enter run · q or Esc quit\nNothing runs until you press Enter.',
+      content: `1–${TASKS.length} or ↑/↓ preview · Enter run · q or Esc quit\nNothing runs until you press Enter.`,
       fg: '#d3b8fa',
       wrapMode: 'word',
     }),
@@ -82,7 +91,7 @@ function menuContent(renderer: CliRenderer, state: MenuState) {
     const task = TASKS[index]
     if (task) {
       state.selected = index
-      details.content = taskInstructions(task)
+      details.content = taskInstructions(task, state.readiness?.[task.script])
     }
   })
   menu.focus()
@@ -122,8 +131,11 @@ export async function chooseTask(
       finish(index),
     )
     renderer.keyInput.on('keypress', key => {
-      if (/^[1-4]$/.test(key.name)) {
-        menu.setSelectedIndex(Number(key.name) - 1)
+      if (/^\d$/.test(key.name)) {
+        const index = Number(key.name) - 1
+        if (TASKS[index]) {
+          menu.setSelectedIndex(index)
+        }
       }
       if (key.name === 'q' || key.name === 'escape') {
         finish(undefined)

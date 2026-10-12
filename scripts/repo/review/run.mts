@@ -19,7 +19,7 @@ const steps = [
   {
     label: 'Unit tests',
     entry: 'review/unit.mts',
-    command: 'pnpm run review',
+    command: 'pnpm run test:unit',
     args: [],
   },
 ]
@@ -30,10 +30,20 @@ export function review(run = runNode, log = console.log) {
     try {
       run(path.join(REPO_ROOT, 'scripts/repo', step.entry), step.args)
     } catch {
-      log(
-        `Review stopped at ${step.label}. Resolve the reported issue, then run ${step.command}.`,
-      )
-      log('Next: pnpm run review to repeat the complete review.')
+      if (step.label === 'Unit tests') {
+        log(
+          'Review stopped at Unit tests. Resolve the reported issue, then run pnpm run test:unit.',
+        )
+        log(
+          'Rerun the unit step with pnpm run test:unit. Focused suite commands, when shown, are diagnostic only and do not verify the full inventory.',
+        )
+        log('After resolving the failure, rerun pnpm run review.')
+      } else {
+        log(
+          `Review stopped at ${step.label}. Resolve the reported issue, then run ${step.command}.`,
+        )
+        log('Next: pnpm run review to repeat the complete review.')
+      }
       return 1
     }
   }

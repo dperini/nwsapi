@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync } from 'node:fs'
+import { globSync, mkdtempSync, readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -17,6 +17,8 @@ export interface LocalUnitShardIdentity {
 interface LocalUnitShardOptions {
   directory: string
   identity: LocalUnitShardIdentity
+  log?: (message: string) => void
+  now?: () => number
   runShard?: (
     index: number,
     directory: string,
@@ -28,13 +30,112 @@ interface LocalUnitShardOptions {
 export function runLocalUnitShards({
   directory,
   identity,
+  log = console.log,
+  now = () => performance.now(),
   runShard = executeShard,
   verify = verifyUnitShardDirectory,
 }: LocalUnitShardOptions) {
   for (let index = 1; index <= UNIT_CI_SHARD_COUNT; index += 1) {
-    runShard(index, directory, identity)
+    const started = now()
+    log(`[review] Unit shard ${index}/${UNIT_CI_SHARD_COUNT} started.`)
+    try {
+      runShard(index, directory, identity)
+    } catch (error) {
+      const report = shardReportPath(directory, index)
+      const elapsedMs = Math.round(now() - started)
+      logShardCompletion(log, index, elapsedMs, report)
+      logShardFailure(log, report)
+      throw error
+    }
+    const elapsedMs = Math.round(now() - started)
+    logShardCompletion(log, index, elapsedMs, shardReportPath(directory, index))
   }
   return verify(directory, identity)
+}
+
+function shardReportPath(directory: string, index: number) {
+  const reports = globSync(`**/unit-shard-${index}*.json`, { cwd: directory })
+    .filter(file =>
+      [`unit-shard-${index}.json`, `unit-shard-${index}.vitest.json`].includes(
+        path.basename(file),
+      ),
+    )
+    .toSorted()
+  const report =
+    reports.find(file => path.basename(file) === `unit-shard-${index}.json`) ??
+    reports[0]
+  return report ? path.resolve(directory, report) : undefined
+}
+
+function logShardCompletion(
+  log: (message: string) => void,
+  index: number,
+  elapsedMs: number,
+  report: string | undefined,
+) {
+  const reportText = report ? ` Report: ${report}` : ' Report: unavailable.'
+  log(
+    `[review] Unit shard ${index}/${UNIT_CI_SHARD_COUNT} finished in ${elapsedMs}ms.${reportText}`,
+  )
+}
+
+function logShardFailure(
+  log: (message: string) => void,
+  report: string | undefined,
+) {
+  const failedSuites = failedSuitePaths(report)
+  if (failedSuites.length) {
+    log(
+      '[review] Focused diagnostics for failed suites (not a full inventory):',
+    )
+    for (const suite of failedSuites) {
+      log(`[review]   pnpm run test:unit -- ${shellArgument(suite)}`)
+    }
+  } else {
+    log(
+      '[review] Failed suite paths are unavailable. Rerun the unit step with: pnpm run test:unit',
+    )
+  }
+  log(
+    '[review] A focused run is diagnostic only. The full unit inventory remains required. Rerun pnpm run review after resolving the failure.',
+  )
+}
+
+function failedSuitePaths(reportPath: string | undefined) {
+  if (!reportPath?.endsWith('.json')) {
+    return []
+  }
+  const vitestPath = reportPath.endsWith('.vitest.json')
+    ? reportPath
+    : reportPath.replace(/\.json$/, '.vitest.json')
+  try {
+    const report = JSON.parse(readFileSync(vitestPath, 'utf8')) as {
+      testResults?: Array<{ name?: unknown; status?: unknown }>
+    }
+    return [
+      ...new Set(
+        (report.testResults ?? [])
+          .filter(
+            suite =>
+              suite.status === 'failed' && typeof suite.name === 'string',
+          )
+          .map(suite => {
+            const name = suite.name as string
+            const absolute = path.isAbsolute(name)
+              ? name
+              : path.resolve(REPO_ROOT, name)
+            return path.relative(REPO_ROOT, absolute).replaceAll('\\', '/')
+          })
+          .filter(file => file.startsWith('test/repo/unit/')),
+      ),
+    ]
+  } catch {
+    return []
+  }
+}
+
+function shellArgument(value: string) {
+  return `'${value.replaceAll("'", "'\\''")}'`
 }
 
 function executeShard(

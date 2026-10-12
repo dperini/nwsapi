@@ -50,6 +50,34 @@ Approval can discover a single staged candidate for the requested version and th
 
 Verification compares the actual GitHub tarball, npm stage download, and freshly rebuilt package against the reserved receipt. Approval repeats verification before requesting npm proof of presence. It then checks the public registry's package identity, version, and integrity. An indeterminate registry response requires inspection before any further action.
 
+## Recover after an interruption
+
+Start with observations. A lost connection or missing stage in one response does not establish whether an upload or approval succeeded. Do not repeat an upload, approve another candidate, reject a stage, or burn a version while its state is uncertain.
+
+Replace `VERSION` and `RUN_ID` with the reserved version and its workflow run:
+
+```sh
+pnpm run publish:status
+gh run list --repo dperini/nwsapi --workflow publish-npm.yml --branch prerelease/3.0.0
+gh run view RUN_ID --repo dperini/nwsapi --log
+gh release view vVERSION --repo dperini/nwsapi
+npm view nwsapi@VERSION version dist.integrity --json
+npm dist-tag ls nwsapi --json
+```
+
+These commands inspect remote state without changing publication. An authentication error, timeout, or unavailable registry is an unknown result, not evidence that a version is absent. Check the exact version, source commit, stage UUID, receipt integrity, and intended `next` tag together.
+
+| Observed state                                                                           | Next action                                                                                                                                                                                            |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Upload workflow still running                                                            | Wait for that run. Do not start another upload.                                                                                                                                                        |
+| Upload failed and the version is confirmed unpublished                                   | Keep the reservation and artifacts. Inspect any remaining stage, then use the explicit burn procedure below before preparing a new version.                                                            |
+| One matching stage exists and the version is unpublished                                 | From the signed release checkout, run `pnpm run publish:verify VERSION --stage STAGE_UUID`. Review the result before approval. Verification downloads artifacts and builds locally without publishing. |
+| Approval was interrupted and the exact version is public with matching receipt integrity | Publication succeeded. Check the intended tag. Do not approve or burn it again.                                                                                                                        |
+| Approval was interrupted and the version remains unpublished with one verified stage     | Recheck status and verification. A maintainer can then explicitly retry approval for that UUID.                                                                                                        |
+| Multiple stages, mismatched integrity, a missing receipt, or unavailable services        | Stop mutations and resolve the discrepancy from the workflow log, GitHub artifacts, and npm state. A public version cannot be burned.                                                                  |
+
+A wrong dist-tag requires a separate maintainer decision. Do not republish the version to repair it. Keep evidence of the interrupted operation until its outcome is known.
+
 ## Burn a failed candidate
 
 Failed, rejected, and abandoned candidates consume their versions permanently. Keep their original release tags and artifacts.

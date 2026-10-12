@@ -131,31 +131,19 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-Run `pnpm run dev` for a guided terminal menu: set up, open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `pnpm run dev --plain` for numbered prompts.
-
 Start with [Make your first change](docs/repo/development/first-change.md). It explains each step, the expected result, and how to continue after an interruption.
 
-Use Node.js 22.18 or newer. Run these commands from the checkout root.
+Use Node.js 22.18 or newer. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
 
-1. Prepare the checkout. The first run downloads tools and dependencies and builds the package.
+```sh
+node scripts/repo/setup/bootstrap.mts
+```
 
-   ```sh
-   npm run setup
-   ```
+Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
 
-2. Run the unit tests. A successful run ends with a test summary and exit code 0.
+For documentation changes, `pnpm run guide` opens the local documentation with live updates. For setup problems, `pnpm run setup:check` reports readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
 
-   ```sh
-   npm test
-   ```
-
-3. Edit a file, then review the change with lint, formatting, types, and unit tests.
-
-   ```sh
-   npm run review
-   ```
-
-For documentation changes, `npm run guide` opens the local documentation with live updates. For setup problems, `npm run doctor:tools` reports readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
+After setup, run `pnpm run dev` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `pnpm run dev --plain` for numbered prompts.
 
 Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
 
@@ -170,16 +158,15 @@ Setup keeps tools in this checkout and preserves shell defaults. It reuses valid
 <summary>Check changes before a push</summary>
 
 ```sh
-npm run check
-npm run test:package
-npm run test:fuzz        # Bounded coverage-guided pass
-npm run test:fuzz:replay # Replay saved inputs and crashes
+pnpm run check
+pnpm run test:package
+pnpm run test:fuzz        # Bounded coverage-guided pass
+pnpm run test:fuzz:replay # Replay saved inputs and crashes
 ```
 
-Run `npm run fix` to apply lint fixes, format files, and check the result.
-Run `npm run test:watch` to repeat Node tests while you edit files.
+These are additional checks for changes that need them. Run `pnpm run fix` to apply lint fixes, format files, and check the result. Run `pnpm run test:watch` to repeat Node tests while you edit files.
 
-Run `npm run ci:local` to test the GitHub Actions workflow locally.
+Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
 It needs Docker and GitHub CLI authentication. It pauses when a step fails.
 The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
 

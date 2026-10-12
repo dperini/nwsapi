@@ -1,59 +1,36 @@
 # Make your first change
 
-Use this path to prepare a checkout, edit a file, and review the result. Run commands from the repository root. You can stop between steps and return to the same step later.
+Use this path to prepare a checkout, make a change, review it, and run the local push gates. Run commands from the repository root. You can stop between steps and return later.
+
+On a fresh checkout, complete step 1 before using the `pnpm` menu or commands. Setup installs the pinned package manager.
 
 Watch the [48s workflow walkthrough](video.md) for an overview.
 
-## Guided menu
-
-Run `pnpm run dev` to choose tasks by name. Use 1–4 or the arrow keys to highlight a
-task and read its description and command. Press Enter to run it. The menu
-orders tasks as setup, documentation, review, and optional setup help. It
-returns after completed commands and keeps the last result visible.
-
-Use `pnpm run dev --plain` for numbered prompts, or `pnpm run dev --list` to
-print the commands. A fresh checkout without installed dependencies can use
-the text menu to run setup. The direct commands below remain available.
-
-The docs server stays in the foreground while you edit. Ctrl+C stops it and
-offers to return to the menu so you can choose Review. Ctrl+C during setup or
-review stops that task and exits. Run `pnpm run dev` to open it again. Press q
-or Esc in the visual menu to leave without running anything.
-
-In plain mode, enter a number to preview the task, then press Enter to run it.
-Use b to return to the choices or q to quit. Invalid input stays at the current
-prompt. Setup help is optional and available whenever you need it. You can
-return to any task without repeating the earlier steps.
-
-Working through an agent? `pnpm --silent run dev --list --json` provides the
-ordered choices for its interface. It can run one with
-`pnpm --silent run dev --task setup:check --json`. See the
-[agent harness contract](toolchain.md#agent-harnesses) for output and task
-lifecycle details.
-
 ## 1. Prepare the checkout
 
-You need Node.js 22.18 or newer, Git, archive extraction tools, and network access. The first run downloads the pinned tools and project dependencies. Download time depends on your connection. Setup prints its current phase.
+You need Node.js 22.18 or newer, Git, archive extraction tools, and network access. Start with the tracked Node entry point because the checkout's pinned package manager may not be installed yet. The first run downloads tools and dependencies and builds the package.
 
 ```sh
-pnpm run setup
+node scripts/repo/setup/bootstrap.mts
 ```
 
-**Expected result:** setup finishes with “Setup complete” and a suggested next command. Dependencies are in `node_modules/` and generated JavaScript is in `dist/`. Checkout tools stay under `.cache/`. Your global tools and shell settings remain in place.
+**Expected result:** setup prints “Setup complete.” Dependencies are in `node_modules/`, generated JavaScript is in `dist/`, and checkout tools stay under `.cache/`. Setup does not change global tools or shell settings.
 
-**If interrupted:** rerun the same command. Valid downloaded tools and dependencies are reused. Each phase checks its inputs before continuing.
+**If interrupted:** rerun `node scripts/repo/setup/bootstrap.mts`. Valid downloads and dependencies are reused, and each phase checks its inputs before continuing.
 
-**If setup fails:** resolve the error printed above the recovery message. If the error mentions a missing tool or a wrong version, check the setup tools:
+After setup, use `pnpm` for repository commands. If your shell has no `pnpm`, use `.cache/bin/pnpm` in its place (`.cache/bin/pnpm.cmd` on Windows). You can also open the menu with `node scripts/repo/develop/run.mts` without changing PATH.
+
+If setup fails, resolve the reported error. If it mentions a missing tool or wrong version, inspect readiness:
 
 ```sh
 pnpm run setup:check
 ```
 
-This reports Node.js and package-manager versions, whether the pinned checkout tools are ready, and the suggested next command. It does not install or change tools. `doctor:tools` remains an alias.
+This reports Node.js and package-manager versions, whether pinned checkout tools are ready, and the suggested next command. It does not install or change tools.
 
-Use `pnpm run setup:check --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands.
+Use `pnpm run setup:check -- --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands.
 
-## 2. Choose a task
+## Choose a task
 
 | Task                   | Start here                                                                | While editing                               |
 | ---------------------- | ------------------------------------------------------------------------- | ------------------------------------------- |
@@ -64,21 +41,17 @@ Use `pnpm run setup:check --details` when you need executable paths or wrapper d
 
 The documentation command opens a local browser page and watches for file changes. Stop it with Ctrl+C when finished. Documentation and unit-test work do not require WPT or a browser download.
 
-## 3. Run the unit tests
+## 2. Edit and test as needed
+
+Make the change in the matching source and test locations. A focused test is optional while editing. Pass its path to run only that suite:
 
 ```sh
-pnpm test
+pnpm run test:unit -- test/repo/unit/attribute-parse-error.test.mts
 ```
 
-**Expected result:** a test summary with no failures and exit code 0. A failure names the suite and case to investigate. Keep that output while you edit.
+The focused command is useful for quick feedback. It does not check the full unit inventory or replace review.
 
-To run one suite, add its path:
-
-```sh
-pnpm test test/repo/unit/attribute-parse-error.test.mts
-```
-
-To repeat tests during editing:
+To repeat unit tests while editing:
 
 ```sh
 pnpm run test:watch
@@ -86,13 +59,13 @@ pnpm run test:watch
 
 Stop watch mode with Ctrl+C. Your edited files stay on disk.
 
-## 4. Review your change
+## 3. Review once
 
 ```sh
 pnpm run review
 ```
 
-This runs lint, formatting checks, type checks, and unit tests in order. It stops at the first failing command. These checks do not automatically fix your files. Resolve the reported issue, then rerun the command.
+This runs lint, formatting checks, type checks, and the full unit inventory in order. It stops at the first failure and does not fix files. Resolve the reported issue, then rerun only the failed step for diagnosis. Run review again after the fix.
 
 Inspect the files you changed:
 
@@ -100,42 +73,38 @@ Inspect the files you changed:
 git diff
 ```
 
-**Expected result:** the checks pass and the diff contains the intended changes. Before opening a pull request, choose any additional checks below that apply to your change.
+**Expected result:** the checks pass and the diff contains the intended changes. The additional checks below are conditional on the files or behavior changed.
 
-After staging the files for a commit, run `pnpm run commit:check` for a
-staged-file pass. Package and lint configuration changes run full lint.
-Formatting configuration changes run the full formatting check. It checks staged whitespace, then lints and formats supported
-staged files in a temporary snapshot of the Git index. It does not change the
-index or working files, including partially staged files. This repository does
-not install a Git pre-commit hook, so run the command explicitly. The staged
-check does not replace `pnpm run review` or CI.
+## 4. Stage, commit, and run push gates
 
-Before pushing a pull request branch, run the full review. To preview the
-affected Node test plan locally, preview it after committing so the planner
-checks the committed tree. Run the same command without `--plan` to execute it:
+Stage the intended files and run the staged-file check before committing. The repository does not install a pre-commit hook, so run this check explicitly. It checks staged whitespace and supported staged files in a temporary snapshot. It preserves the index and working files, including partially staged files. Package and lint configuration changes run full lint. Formatting configuration changes run full formatting checks.
 
 ```sh
-pnpm run review
-pnpm run test:ci --base origin/prerelease/3.0.0 --plan
-pnpm run test:ci --base origin/prerelease/3.0.0
+git add src/example.mts test/repo/unit/example.test.mts
+pnpm run commit:check
+git commit -m "Describe the change"
 ```
 
-Replace `origin/prerelease/3.0.0` with the pull request's target ref. The test
-planner applies its affected-test selection, including the applicable unit and
-integration suites. Review plus the executed affected test plan form the local
-push gate. These commands do not push the branch. Review any additional checks
-required by the files changed.
+After the commit, preview and run the affected Node test plan against the pull request's target branch:
+
+```sh
+pnpm run test:ci --base origin/prerelease/3.0.0 --plan
+pnpm run test:ci --base origin/prerelease/3.0.0
+git push -u origin my-feature-branch
+```
+
+Replace `origin/prerelease/3.0.0` with the target ref and `my-feature-branch` with your branch name. The planner selects affected unit and integration suites. Run `pnpm run review` before staging. The plan and execution commands do not run that full review or push the branch. After the gates pass, push the branch and open or update its pull request.
 
 ## Additional checks
 
-| Work changed                    | Command                 | Additional requirements                     |
-| ------------------------------- | ----------------------- | ------------------------------------------- |
-| Full repository validation      | `pnpm run check`        | Prepares WPT and Chrome before the checks   |
-| Package exports or integration  | `pnpm run test:package` | Uses pinned interoperability runtimes       |
-| Browser behavior                | `pnpm run test:browser` | Prepares pinned Chrome on first use         |
-| Web Platform Tests              | `pnpm run test:wpt`     | Prepares WPT and Chrome on first use        |
-| Workflow or agent configuration | `pnpm run security`     | Prepares security scanners on first use     |
-| All optional setup              | `pnpm run setup:full`   | Downloads missing scanners, WPT, and Chrome |
+| Change area                     | Additional command      | Runs when needed for these changes      |
+| ------------------------------- | ----------------------- | --------------------------------------- |
+| Full repository validation      | `pnpm run check`        | You need the full check set             |
+| Package exports or integration  | `pnpm run test:package` | Package or consumer behavior changes    |
+| Browser behavior                | `pnpm run test:browser` | Browser-specific behavior changes       |
+| Web Platform Tests              | `pnpm run test:wpt`     | Selector conformance changes            |
+| Workflow or agent configuration | `pnpm run security`     | Workflow or agent configuration changes |
+| All optional setup              | `pnpm run setup:full`   | You need every optional test tool       |
 
 See [test commands](../testing/commands.md) and [performance work](../perf/benchmarks.md) for specialized tasks. Exact project and CI pins remain authoritative.
 
@@ -156,3 +125,27 @@ pnpm run reset:dependencies --apply
 ```
 
 Then run `pnpm run setup`. `pnpm run reset:tools` provides the same preview-and-apply flow for checkout tools. Neither reset removes other worktrees, shared browser caches, or the shared package store. A reset is optional and is not the first step for every error.
+
+## Guided menu
+
+After setup, run `pnpm run dev` to choose documentation, review, or setup help. Use 1–4 or the arrow keys to preview a task, then press Enter to run it. The menu returns after completed commands.
+
+Use `pnpm run dev --plain` for numbered prompts, or `pnpm run dev --list` to
+print the commands. A fresh checkout without installed dependencies can use
+the text menu to run setup. The direct commands below remain available.
+
+The docs server stays in the foreground while you edit. Ctrl+C stops it and
+offers to return to the menu so you can choose Review. Ctrl+C during setup or
+review stops that task and exits. Run `pnpm run dev` to open it again. Press q
+or Esc in the visual menu to leave without running anything.
+
+In plain mode, enter a number to preview the task, then press Enter to run it.
+Use b to return to the choices or q to quit. Invalid input stays at the current
+prompt. Setup help is optional and available whenever you need it. You can
+return to any task without repeating the earlier steps.
+
+Working through an agent? `pnpm --silent run dev --list --json` provides the
+ordered choices for its interface. It can run one with
+`pnpm --silent run dev --task setup:check --json`. See the
+[agent harness contract](toolchain.md#agent-harnesses) for output and task
+lifecycle details.

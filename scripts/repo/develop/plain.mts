@@ -23,9 +23,9 @@ export async function question(prompt: string) {
 
 export function printTasks() {
   console.log('nwsapi developer menu\n')
-  for (const task of TASKS) {
+  for (const [index, task] of TASKS.entries()) {
     console.log(
-      `${task.name}\n  ${task.description}\n  pnpm run ${task.script}\n`,
+      `${index + 1}. ${task.name}\n  ${task.description}\n  pnpm run ${task.script}\n`,
     )
   }
 }
@@ -34,17 +34,23 @@ export async function choosePlain(state: MenuState, ask = question) {
   printTasks()
   console.log(state.result)
   while (true) {
-    const answer = (await ask('Preview a task: 1–4, or q to quit: ')).trim()
+    const upper = TASKS.length
+    const answer = (
+      await ask(`Preview a task: 1–${upper}, or q to quit: `)
+    ).trim()
     if (answer.toLowerCase() === 'q') {
       return undefined
     }
-    const index = /^[1-4]$/.test(answer) ? Number(answer) - 1 : -1
+    const index = /^\d+$/.test(answer) ? Number(answer) - 1 : -1
     if (!TASKS[index]) {
-      console.log('Enter a task number from 1 to 4, or q to quit.')
+      console.log(`Enter a task number from 1 to ${upper}, or q to quit.`)
       continue
     }
     state.selected = index
-    console.log(`\n${TASKS[index].name}\n${taskInstructions(TASKS[index])}\n`)
+    const readiness = state.readiness?.[TASKS[index]!.script]
+    console.log(
+      `\n${TASKS[index]!.name}\n${taskInstructions(TASKS[index]!, readiness)}\n`,
+    )
     const run = await confirmTask(ask)
     if (run === 'run') {
       return index

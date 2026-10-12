@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs'
-import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { parseArgs } from 'node:util'
 import { toolVersions } from '../external-tools.mts'
@@ -16,6 +14,7 @@ import {
   verifiedWrapper,
 } from './diagnostics.mts'
 import { setupProgress } from './progress.mts'
+import { checkoutReadiness, readinessForTask } from './readiness.mts'
 
 const minimums = { node: '22.18.0', npm: '12.2.0', pnpm: '12.12.0' }
 
@@ -67,7 +66,11 @@ function toolDetails(report: ReturnType<typeof toolReports>[number]) {
   ]
 }
 
-export function formatToolReports(reports = toolReports(), details = false) {
+export function formatToolReports(
+  reports = toolReports(),
+  details = false,
+  readiness?: Awaited<ReturnType<typeof checkoutReadiness>>,
+) {
   const ready = reports.every(report => report.managedReady)
   const lines = [
     ready
@@ -88,9 +91,9 @@ export function formatToolReports(reports = toolReports(), details = false) {
   lines.push(
     'Version minimums describe external tools. Repository tasks use the pinned runtime and managers together.',
     'External tools and shell defaults stay under their current manager.',
-    ready && existsSync(path.join(REPO_ROOT, 'node_modules/.modules.yaml'))
+    ready && readiness?.dependencies.ready
       ? 'Next: pnpm run dev to choose documentation or review.'
-      : 'Next: pnpm run setup',
+      : 'Next: node scripts/repo/setup/bootstrap.mts',
   )
   const progress = setupProgress()
   if (progress) {
@@ -106,25 +109,69 @@ export function formatToolReports(reports = toolReports(), details = false) {
   return lines.join('\n')
 }
 
-export function main(args = process.argv.slice(2), log = console.log) {
-  const { values } = parseArgs({
+export async function main(args = process.argv.slice(2), log = console.log) {
+  const { values } = parseDoctorArgs(args)
+  if (values.help) {
+    log(DOCTOR_HELP)
+    return 0
+  }
+  const taskId = values.task
+  if (taskId && taskId !== 'guide' && taskId !== 'review') {
+    throw new Error('--task must be guide or review.')
+  }
+  const requestedTask =
+    taskId === 'guide' || taskId === 'review' ? taskId : undefined
+  return reportReadiness(requestedTask, values.details, log)
+}
+
+const DOCTOR_HELP =
+  'Usage: pnpm run setup:check [--details] [--task guide|review]\nReports readiness without changing tools or shell settings. Default checks pinned tools and installed dependencies.'
+
+function parseDoctorArgs(args: string[]) {
+  return parseArgs({
     args: args[0] === '--' ? args.slice(1) : args,
     options: {
       details: { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
+      task: { type: 'string' },
     },
   })
-  if (values.help) {
-    log(
-      'Usage: pnpm run setup:check [--details]\nReports toolchain readiness without changing tools or shell settings.',
-    )
-    return 0
-  }
+}
+
+async function reportReadiness(
+  taskId: 'guide' | 'review' | undefined,
+  details: boolean | undefined,
+  log: (message: string) => void,
+) {
   const reports = toolReports()
-  log(formatToolReports(reports, values.details))
-  return reports.every(report => report.managedReady) ? 0 : 1
+  const toolsReady = reports.every(report => report.managedReady)
+  const readiness = await checkoutReadiness(REPO_ROOT, toolsReady)
+  const task = taskId ? readinessForTask(readiness, taskId) : undefined
+  const dependencyStatus = readiness.dependencies.ready
+    ? 'Dependencies ready.'
+    : `Dependencies need setup: ${readiness.dependencies.issues.join(' ')}`
+  const buildStatus = readiness.build.ready
+    ? 'Build outputs ready.'
+    : 'Build outputs are incomplete. Review builds them automatically.'
+  const taskStatus = task
+    ? `Requested task ${taskId}: ${task.ready ? 'ready.' : task.message}`
+    : ''
+  log(
+    [
+      formatToolReports(reports, details, readiness),
+      dependencyStatus,
+      buildStatus,
+      taskStatus,
+    ]
+      .filter(Boolean)
+      .join('\n'),
+  )
+  if (task) {
+    return task.ready ? 0 : 1
+  }
+  return toolsReady && readiness.dependencies.ready ? 0 : 1
 }
 
 if (isMainModule(import.meta.url)) {
-  process.exitCode = main()
+  process.exitCode = await main()
 }

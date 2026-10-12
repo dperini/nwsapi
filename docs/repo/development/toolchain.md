@@ -3,16 +3,20 @@
 Run the bootstrap from the checkout root with Node 22.18 or newer. It imports only Node built-ins and tracked `.mts` and JSON files, so it works before `node_modules` exists.
 
 ```sh
-npm run setup
+node scripts/repo/setup/bootstrap.mts
 ```
 
-Either `npm run setup` or `pnpm run setup` selects the manager pinned for this branch and installs dependencies with its frozen lockfile. No shell configuration is required. `node scripts/repo/setup/bootstrap.mts` also works before a package manager is installed. Add `--tools-only` to provision tools without installing dependencies. Other scripts launched by a foreign package manager hand their entry point and arguments to the managed `pnpm` runtime.
+The direct Node entry point works before the pinned package manager is installed. After setup, use `pnpm` for repository commands. `pnpm run setup` and `npm run setup` also select the manager pinned for this branch and install dependencies with its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
 
-The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `npm run security` prepares its scanners. `npm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
+The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `pnpm run security` prepares its scanners. `pnpm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
 
 Setup prints numbered phases and stores its last phase in `.cache/setup-progress.json`. Rerun the same setup command after resolving a failure. Each phase checks its inputs again, so a stale progress record cannot skip required work.
 
-Run `npm run doctor:tools` for a short readiness summary. Add `-- --details` for PATH resolution, inferred ownership, external version minimums, exact project pins, and checkout wrapper verification. It compares the generated Firewall launchers with the expected command and recursion guards. External wrappers, aliases, and shell functions are not inspected. A ready checkout fallback can coexist with an older external manager. The doctor does not change global defaults.
+Run `pnpm run setup:check` for a short readiness summary. Add `--details` for PATH resolution, inferred ownership, external version minimums, exact project pins, and checkout wrapper verification. It compares the generated Firewall launchers with the expected command and recursion guards. External wrappers, aliases, and shell functions are not inspected. A ready checkout fallback can coexist with an older external manager. The check does not change global defaults.
+
+Doctor reports tools, dependency installation, and build outputs separately. Its exit status checks tools and dependencies. Use `pnpm run setup:check --task guide` or `--task review` to check a specific task. Review prepares its own build outputs. Dependency checks cover the root pnpm importer, catalogs, workspace links, and installed package versions. They do not audit every transitive dependency.
+
+The interactive menu remembers its last task and outcome in `.cache/developer-state.json` for up to 30 days. This is historical metadata, not a current validation result. Reopening the menu never starts a task. Delete that file to forget the history. Task output and environment variables are not saved.
 
 External version minimums and project pins have different roles. Repository tasks run the pinned Node and package managers together. Meeting an external version minimum alone does not establish runtime compatibility or override a project pin.
 
@@ -104,6 +108,16 @@ is killed after 5s. On Windows, signals stop the direct child without the same
 process-group guarantee. A forced kill of the runner cannot produce a final
 result. There is no automatic
 task chaining, and selecting `review` explicitly runs its checks and tests.
+
+The review unit step runs every shard serially and verifies the combined report
+against the full unit test inventory. Each shard prints its start, elapsed time,
+and report path. Every review run creates a fresh temporary report directory.
+It does not load a previous result or reuse report envelopes. If a failure
+report identifies a suite, the runner prints a focused `pnpm run test:unit --
+<suite-path>` command. Otherwise it recommends `pnpm run test:unit` to rerun
+the unit step directly. These focused runs are diagnostic and do not verify the
+full inventory. Resolve the failure, then rerun `pnpm run review` to complete
+the full review.
 
 Discovery and plain mode use Node built-ins and local modules. The setup
 implementation and native UI load only when needed. JSON output is written

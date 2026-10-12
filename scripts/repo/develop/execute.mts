@@ -3,6 +3,7 @@ import { constants } from 'node:os'
 import { REPO_ROOT } from '../lib/paths.mts'
 import type { Task } from './actions.mts'
 import { runProcess } from './process.mts'
+import { taskReadiness } from '../setup/readiness.mts'
 
 async function taskCommand(task: Task) {
   // Setup and diagnostics must work before checkout tools have been installed.
@@ -70,6 +71,10 @@ export async function executeTask(
   task: Task,
   { json = false, interactive = true }: ExecutionOptions = {},
 ): Promise<TaskResult> {
+  const readiness = await taskReadiness(task.script, REPO_ROOT)
+  if (!readiness.ready) {
+    throw new Error(readiness.message)
+  }
   const request = await taskCommand(task)
   const log = json ? console.error : console.log
   log(`\n${task.name}\nRunning: pnpm run ${task.script}\n`)
