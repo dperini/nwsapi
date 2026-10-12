@@ -69,6 +69,7 @@ test('staging drops contributor scripts and dependencies without changing its in
     'devDependencies',
     'devEngines',
     'allowScripts',
+    'overrides',
   ]) {
     expect(published).not.toHaveProperty(key)
   }

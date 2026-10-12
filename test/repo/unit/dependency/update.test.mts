@@ -47,6 +47,10 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
+function runUpdate() {
+  updateDependencies(false, undefined, vi.fn(), undefined, () => {}, vi.fn())
+}
+
 test('dependency updates honor maturity and exclude the reviewed toolchain', () => {
   const args = updateArgs('minimumReleaseAge: 1441', false)
   expect(args).toContain('--write')
@@ -74,26 +78,84 @@ test('check mode never installs dependencies and validates the soak policy first
   expect(state.execute).not.toHaveBeenCalled()
   expect(state.spawn.mock.calls[0]![1][0]).toBe(TAZE_CLI_PATH)
 })
-test.each(['/fixture/pnpm', '/fixture/pnpm.cjs'])(
-  'install reuses the invoking manager %s',
-  cli => {
-    vi.stubEnv('npm_execpath', cli)
-    updateDependencies(false)
-    expect(state.refresh).toHaveBeenCalledOnce()
-    const script = cli.endsWith('.cjs')
-    expect(state.execute).toHaveBeenCalledExactlyOnceWith(
-      script ? process.execPath : cli,
-      script
-        ? [cli, 'install', '--no-frozen-lockfile']
-        : ['install', '--no-frozen-lockfile'],
-      { cwd: REPO_ROOT, stdio: 'inherit' },
+test('dependency updates delegate lock refresh after manifest synchronization', () => {
+  const order: string[] = []
+  const install = vi.fn(() => order.push('install'))
+  updateDependencies(
+    false,
+    undefined,
+    install,
+    undefined,
+    () => order.push('references'),
+    () => order.push('manifest'),
+  )
+  expect(order).toEqual(['manifest', 'references', 'install'])
+})
+test('npm lock generation is isolated from the pnpm installation tree', async () => {
+  const { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-test-'))
+  const lock = JSON.stringify({ lockfileVersion: 3, packages: {} })
+  try {
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ name: 'fixture' }),
     )
-  },
-)
-test('updates outside a package manager fail before modifying policy', () => {
+    writeFileSync(path.join(root, '.npmrc'), 'minimum-release-age=1\n')
+    const run = vi.fn((_manager: 'npm' | 'pnpm', args: string[], cwd = '') => {
+      expect(args).toEqual([
+        'install',
+        '--package-lock-only',
+        '--ignore-scripts',
+      ])
+      expect(existsSync(path.join(cwd, 'node_modules'))).toBe(false)
+      expect(readFileSync(path.join(cwd, '.npmrc'), 'utf8')).toBe(
+        'minimum-release-age=1\n',
+      )
+      writeFileSync(path.join(cwd, 'package-lock.json'), lock)
+    })
+    const { refreshNpmLock } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    refreshNpmLock(root, run)
+    expect(run).toHaveBeenCalledOnce()
+    expect(readFileSync(path.join(root, 'package-lock.json'), 'utf8')).toBe(
+      lock,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+test('failed npm lock generation does not replace the existing lock', async () => {
+  const { mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-fail-'))
+  try {
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ name: 'fixture' }),
+    )
+    writeFileSync(path.join(root, '.npmrc'), '')
+    writeFileSync(path.join(root, 'package-lock.json'), 'previous')
+    const { refreshNpmLock } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    expect(() =>
+      refreshNpmLock(root, () => {
+        throw new Error('fixture')
+      }),
+    ).toThrow('fixture')
+    expect(readFileSync(path.join(root, 'package-lock.json'), 'utf8')).toBe(
+      'previous',
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+test('updates ignore ambient npm_execpath when selecting checkout managers', () => {
   vi.stubEnv('npm_execpath', '')
-  expect(() => updateDependencies(false)).toThrow(Error)
-  expect(state.refresh).not.toHaveBeenCalled()
+  expect(runUpdate).not.toThrow()
+  expect(state.refresh).toHaveBeenCalledOnce()
 })
 test('spawn errors propagate before references or installation', () => {
   const error = Object.assign(new Error('fixture'), {
@@ -125,13 +187,34 @@ test('repeated lookup failures stop before reference updates', () => {
   expect(state.spawn).toHaveBeenCalledTimes(2)
   expect(state.runNode).not.toHaveBeenCalled()
 })
-test('losing manager information during updates prevents an accidental install', () => {
-  expect(() =>
-    updateDependencies(false, undefined, undefined, () => {
-      delete process.env['npm_execpath']
-    }),
-  ).toThrow(Error)
-  expect(state.execute).not.toHaveBeenCalled()
+test('manifest synchronization copies exact catalog and lifecycle policy values', async () => {
+  const { mkdtempSync, readFileSync, rmSync, writeFileSync } =
+    await import('node:fs')
+  const os = await import('node:os')
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-update-'))
+  try {
+    writeFileSync(
+      path.join(root, 'pnpm-workspace.yaml'),
+      "catalog:\n  vite: '8.2.2'\nallowBuilds:\n  fsevents: false\noverrides:\n  vite: '8.2.2'\n",
+    )
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ devDependencies: {}, scripts: {} }),
+    )
+    const { syncPackageManifest } =
+      await import('../../../../scripts/repo/dependency/update.mts')
+    syncPackageManifest(root)
+    const pkg = JSON.parse(
+      readFileSync(path.join(root, 'package.json'), 'utf8'),
+    )
+    expect(pkg).toMatchObject({
+      devDependencies: { vite: '8.2.2' },
+      allowScripts: { fsevents: false },
+      overrides: { vite: '8.2.2' },
+    })
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('CLI check updates dependencies without re-running upstream tasks', async () => {

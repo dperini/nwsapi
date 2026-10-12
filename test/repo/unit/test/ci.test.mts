@@ -127,6 +127,7 @@ test('workflow and local action changes exercise every runtime lane', () => {
     '.github/workflows/ci.yml',
     '.github/actions/repo/upload-artifact/action.yml',
     'scripts/repo/ci/artifact/upload.mts',
+    'package-lock.json',
   ]) {
     const plan = planCiTests([file])
     for (const lane of [

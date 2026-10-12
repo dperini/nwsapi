@@ -1,10 +1,19 @@
 import { execFileSync, spawnSync } from 'node:child_process'
+import {
+  copyFileSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
-import { readFileSync } from 'node:fs'
 import { REPO_ROOT, TAZE_CLI_PATH, WORKSPACE_PATH } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { collectPackumentFailures } from '../lib/taze-output.mts'
 import { checkSoak, refreshSoak, soakPolicy } from '../soak.mts'
+import { parse } from 'yaml'
+import { managedCommand, managedEnvironment } from '../setup/manager.mts'
 
 // Toolchain versions need a separate compatibility review.
 const PINNED_TOOLCHAIN = [
@@ -58,16 +67,13 @@ export function updateDependencies(
   install = installDependencies,
   prepare = () => (check ? checkSoak() : refreshSoak()),
   upstream = updateReferences,
+  syncManifest = syncPackageManifest,
 ) {
-  if (
-    !check &&
-    install === installDependencies &&
-    !process.env['npm_execpath']
-  ) {
-    throw new Error('Run this command with pnpm run update.')
-  }
   prepare()
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
+  if (!check) {
+    syncManifest()
+  }
   upstream(check)
   if (!check) {
     install()
@@ -101,21 +107,68 @@ function runTaze(entry: string, args: string[], retry = true): void {
 }
 
 function installDependencies() {
-  // Reuse the invoking manager instead of selecting another pnpm from PATH.
-  const cli = process.env['npm_execpath']
-  if (!cli) {
-    throw new Error('Run this command with pnpm run update.')
+  runManagedManager('pnpm', ['install', '--no-frozen-lockfile'])
+  refreshNpmLock()
+}
+
+export function refreshNpmLock(root = REPO_ROOT, run = runManagedManager) {
+  const temporary = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-'))
+  try {
+    copyFileSync(
+      path.join(root, 'package.json'),
+      path.join(temporary, 'package.json'),
+    )
+    copyFileSync(path.join(root, '.npmrc'), path.join(temporary, '.npmrc'))
+    // Lock generation has no install tree, and must not rerun lifecycle scripts.
+    run(
+      'npm',
+      ['install', '--package-lock-only', '--ignore-scripts'],
+      temporary,
+    )
+    copyFileSync(
+      path.join(temporary, 'package-lock.json'),
+      path.join(root, 'package-lock.json'),
+    )
+  } finally {
+    rmSync(temporary, { recursive: true, force: true })
   }
-  const args = ['install', '--no-frozen-lockfile']
-  const isScript = /\.[cm]?js$/.test(cli)
-  execFileSync(
-    isScript ? process.execPath : cli,
-    isScript ? [cli, ...args] : args,
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-    },
+}
+
+function runManagedManager(
+  manager: 'pnpm' | 'npm',
+  args: string[],
+  cwd = REPO_ROOT,
+) {
+  const request = managedCommand(args, undefined, process.platform, manager)
+  execFileSync(request.command, request.args, {
+    cwd,
+    env: managedEnvironment(),
+    stdio: 'inherit',
+  })
+}
+
+export function syncPackageManifest(root = REPO_ROOT) {
+  const workspace = parse(
+    readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
+  ) as {
+    catalog: Record<string, string>
+    allowBuilds?: Record<string, boolean>
+    overrides?: Record<string, string>
+  }
+  const manifestPath = path.join(root, 'package.json')
+  const pkg = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+    devDependencies: Record<string, string>
+    allowScripts?: Record<string, boolean>
+    overrides?: Record<string, string>
+  }
+  pkg.devDependencies = Object.fromEntries(
+    Object.entries(workspace.catalog).sort(([left], [right]) =>
+      left.localeCompare(right),
+    ),
   )
+  pkg.allowScripts = { ...(workspace.allowBuilds ?? {}) }
+  pkg.overrides = { ...(workspace.overrides ?? {}) }
+  writeFileSync(manifestPath, `${JSON.stringify(pkg, null, 2)}\n`)
 }
 
 if (isMainModule(import.meta.url)) {

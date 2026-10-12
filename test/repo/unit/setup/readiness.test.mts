@@ -145,6 +145,142 @@ test('checks root importer ranges, catalog resolutions, and exact workspace link
   }
 })
 
+test('accepts a coherent native npm lock without pnpm metadata', async () => {
+  const root = fixture()
+  try {
+    rmSync(path.join(root, 'node_modules/.modules.yaml'))
+    const manifestPath = path.join(root, 'package.json')
+    writeFileSync(
+      manifestPath,
+      JSON.stringify({ devDependencies: { vite: '8.2.2' } }),
+    )
+    writeFileSync(
+      path.join(root, 'pnpm-workspace.yaml'),
+      stringify({ catalog: { vite: '8.2.2' } }),
+    )
+    writeFileSync(
+      path.join(root, 'package-lock.json'),
+      JSON.stringify({
+        lockfileVersion: 3,
+        packages: {
+          '': { devDependencies: { vite: '8.2.2' } },
+          'node_modules/vite': {
+            version: '8.2.2',
+            integrity: 'sha512-fixture',
+          },
+        },
+      }),
+    )
+    writeFileSync(
+      path.join(root, 'node_modules/.package-lock.json'),
+      JSON.stringify({
+        lockfileVersion: 3,
+        packages: {
+          'node_modules/vite': {
+            version: '8.2.2',
+            integrity: 'sha512-fixture',
+          },
+        },
+      }),
+    )
+    expect(await dependencyReadiness(root)).toEqual({ ready: true, issues: [] })
+    writePackage(path.join(root, 'node_modules'), 'vite', '8.2.1')
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'vite: expected 8.2.2, found 8.2.1.',
+    )
+  } finally {
+    clean(root)
+  }
+})
+
+test('requires npm hidden metadata and rejects mixed package-manager trees', async () => {
+  const root = fixture()
+  try {
+    rmSync(path.join(root, 'node_modules/.modules.yaml'))
+    writeFileSync(path.join(root, 'package-lock.json'), '{}')
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'Dependencies are not installed. Run setup.',
+    )
+    writeFileSync(path.join(root, 'node_modules/.package-lock.json'), '{}')
+    writeFileSync(
+      path.join(root, 'node_modules/.modules.yaml'),
+      'layoutVersion: 9\n',
+    )
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'Mixed npm and pnpm installation metadata was found. Run setup.',
+    )
+  } finally {
+    clean(root)
+  }
+})
+
+test('rejects npm trees with stale lock metadata, removed root specs, or catalog drift', async () => {
+  const root = fixture()
+  try {
+    rmSync(path.join(root, 'node_modules/.modules.yaml'))
+    writeFileSync(
+      path.join(root, 'package.json'),
+      JSON.stringify({ devDependencies: { vite: '8.2.2' } }),
+    )
+    const npmLock: {
+      lockfileVersion: number
+      packages: Record<
+        string,
+        {
+          devDependencies?: Record<string, string>
+          version?: string
+          integrity?: string
+        }
+      >
+    } = {
+      lockfileVersion: 3,
+      packages: {
+        '': { devDependencies: { vite: '8.2.2' } },
+        'node_modules/vite': {
+          version: '8.2.2',
+          integrity: 'sha512-fixture',
+        },
+      },
+    }
+    const hiddenLock = {
+      lockfileVersion: 3,
+      packages: {
+        'node_modules/vite': {
+          version: '8.2.2',
+          integrity: 'sha512-stale',
+        },
+      },
+    }
+    writeFileSync(path.join(root, 'package-lock.json'), JSON.stringify(npmLock))
+    writeFileSync(
+      path.join(root, 'node_modules/.package-lock.json'),
+      JSON.stringify(hiddenLock),
+    )
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'vite: npm lock metadata does not match.',
+    )
+    hiddenLock.packages['node_modules/vite']!.integrity = 'sha512-fixture'
+    npmLock.packages['']!.devDependencies = {}
+    writeFileSync(path.join(root, 'package-lock.json'), JSON.stringify(npmLock))
+    writeFileSync(
+      path.join(root, 'node_modules/.package-lock.json'),
+      JSON.stringify(hiddenLock),
+    )
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'package-lock.json devDependencies do not match package.json.',
+    )
+    writeFileSync(
+      path.join(root, 'pnpm-workspace.yaml'),
+      stringify({ catalog: { vite: '8.2.3' } }),
+    )
+    expect((await dependencyReadiness(root)).issues).toContain(
+      'vite: package.json does not match the workspace catalog.',
+    )
+  } finally {
+    clean(root)
+  }
+})
+
 test('merges pnpm lockfile documents without losing importer groups', async () => {
   const root = fixture()
   try {

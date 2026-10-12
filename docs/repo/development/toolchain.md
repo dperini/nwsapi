@@ -6,7 +6,11 @@ Run the bootstrap from the checkout root with Node 22.18 or newer. It imports on
 node scripts/repo/setup/bootstrap.mts
 ```
 
-The direct Node entry point works before the pinned package manager is installed. After setup, use `pnpm` for repository commands. `pnpm run setup` and `npm run setup` also select the manager pinned for this branch and install dependencies with its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
+The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm run setup` and `npm run setup` also select the manager pinned for this branch and install dependencies with its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
+
+With contributor Node 26.11.0 and either npm 12.2.0 or pnpm 12.12.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.18 is the bootstrap minimum, not the supported runtime for a direct npm 12.2 installation.
+
+Exact direct dependency versions and build-script approvals agree across both managers. The workspace catalog supplies the pins. `pnpm-lock.yaml` records the pnpm graph and `package-lock.json` records the native npm graph. The graphs may resolve transitive dependencies differently. Commit both lockfiles when updating dependencies.
 
 The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `pnpm run security` prepares its scanners. `pnpm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
 
@@ -22,7 +26,7 @@ Setup prints numbered phases and stores its last phase in `.cache/setup-progress
 
 Run `pnpm run setup:check` for a short readiness summary. Add `--details` for PATH resolution, inferred ownership, external version minimums, exact project pins, and checkout wrapper verification. It compares the generated Firewall launchers with the expected command and recursion guards. External wrappers, aliases, and shell functions are not inspected. A ready checkout fallback can coexist with an older external manager. The check does not change global defaults.
 
-Doctor reports tools, dependency installation, and build outputs separately. Its exit status checks tools and dependencies. Use `pnpm run setup:check --task guide` or `--task review` to check a specific task. Review prepares its own build outputs. Dependency checks cover the root pnpm importer, catalogs, workspace links, and installed package versions. They do not audit every transitive dependency.
+Doctor reports tools, dependency installation, and build outputs separately. Its exit status checks tools and dependencies. Use `pnpm run setup:check --task guide` or `--task review` to check a specific task. Review prepares its own build outputs. Dependency checks cover the selected manager's lockfile and installation metadata, catalog pins, and installed direct package versions. The pnpm path also checks workspace links. These checks do not audit every transitive dependency.
 
 Normal setup and `prepare` also refresh local agent guidance from `.claude/skills/` and `AGENTS.md`. Run `pnpm run setup:agents` to refresh only those aliases, or add `--check` to inspect them without writing. See [shared agent guidance](agent-guidance.md) for discovery paths and the ignore policy.
 
@@ -38,7 +42,7 @@ The installer rejects missing platform entries, invalid integrity strings, faile
 
 Setup also verifies the pinned `mise` release. It registers the verified `nub` installation with `mise link`, then runs the exact `nub` version through `mise exec` to provision contributor and interoperability Node versions. `nub` verifies Node distribution checksums. All `mise` state stays under `.cache/mise/`, with an isolated configuration that does not read or change global tool selections or enable background updates. The harness checks the resolved executable's exact version and runs stock Node. The [package test guide](../testing/commands.md#test-the-testing-library-consumer-path) describes the interoperability cases.
 
-`pnpm install` builds the package in `prepare`. `pnpm run setup:tools` verifies and provisions the checkout tools explicitly. Tools and launchers stay under this checkout's ignored `.cache/` directory. Setup does not edit shell configuration or install global shims.
+Both `pnpm install` and `npm install` provision tools and build the package in `prepare`. `pnpm run setup:tools` verifies and provisions the checkout tools explicitly. Tools and launchers stay under this checkout's ignored `.cache/` directory. Setup does not edit shell configuration or install global shims.
 
 The `npm` and `pnpm` launchers use Wheelhouse's Socket Firewall wrapper behavior. Each manager has its own recursion guard, preserves other launchers on `PATH`, and forwards arguments and exit status. The `pnpm` launcher checks its exact version before every invocation. Interactive commands keep their foreground terminal. Noninteractive wrappers clean up the firewall process group when they exit or receive a signal.
 

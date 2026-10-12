@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { isDeepStrictEqual } from 'node:util'
 import path from 'node:path'
 import { parse, parseAllDocuments } from 'yaml'
 import { REPO_ROOT } from '../lib/paths.mts'
@@ -7,42 +8,63 @@ import manifest from '../../../.config/external-tools.json' with { type: 'json' 
 type PackageConfiguration = {
   packageManager?: string
   devDependencies: Record<string, string>
-  devEngines: { packageManager: Array<{ version: string; onFail: string }> }
+  allowScripts?: Record<string, boolean>
+  overrides?: Record<string, string>
+  devEngines: {
+    packageManager: Array<{ name: string; version: string; onFail: string }>
+  }
 }
 
 function checkPackageManager(pkg: PackageConfiguration) {
-  if (
-    pkg.packageManager !== undefined ||
-    pkg.devEngines.packageManager[0]?.version !==
-      `>=${manifest.tools.pnpm.version}`
-  ) {
+  const managers = pkg.devEngines.packageManager
+  if (pkg.packageManager !== undefined || managers.length !== 2) {
     throw new Error(
-      "The pnpm minimum must match external-tools.json without overriding the developer's manager.",
+      "Declare npm and pnpm minimums without overriding the developer's manager.",
     )
   }
-  // npm must reach setup before the checkout can select its pinned pnpm.
-  if (pkg.devEngines.packageManager[0]?.onFail !== 'ignore') {
-    throw new Error('Allow npm to bootstrap the pinned pnpm through setup.')
+  const minimums = new Map(managers.map(manager => [manager.name, manager]))
+  if (
+    minimums.get('npm')?.version !== `>=${manifest.tools.npm.version}` ||
+    minimums.get('pnpm')?.version !== `>=${manifest.tools.pnpm.version}` ||
+    managers.some(manager => manager.onFail !== 'error')
+  ) {
+    throw new Error('npm and pnpm minimums must match external-tools.json.')
   }
 }
 
 export function checkCatalog(root = REPO_ROOT) {
   const workspace = parse(
     readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8'),
-  ) as { catalog: Record<string, string> }
+  ) as {
+    catalog: Record<string, string>
+    allowBuilds?: Record<string, boolean>
+    overrides?: Record<string, string>
+  }
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
   ) as PackageConfiguration
+  for (const [name, version] of Object.entries(workspace.catalog)) {
+    if (pkg.devDependencies[name] !== version) {
+      throw new Error(`${name} must match its exact workspace catalog version.`)
+    }
+  }
   for (const [name, spec] of Object.entries(pkg.devDependencies)) {
     if (name.startsWith('@socketsecurity/lib')) {
       throw new Error('Inline the required Socket library helpers locally.')
     }
     if (
-      spec !== 'catalog:' ||
-      !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(workspace.catalog[name] ?? '')
+      spec !== workspace.catalog[name] ||
+      !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(spec)
     ) {
       throw new Error(`${name} must use an exact pinned catalog version.`)
     }
+  }
+  const buildPolicies = workspace.allowBuilds ?? {}
+  if (!isDeepStrictEqual(pkg.allowScripts ?? {}, buildPolicies)) {
+    throw new Error('npm allowScripts must match pnpm allowBuilds.')
+  }
+  if (!isDeepStrictEqual(pkg.overrides ?? {}, workspace.overrides ?? {})) {
+    throw new Error('npm overrides must match pnpm overrides.')
   }
   checkPackageManager(pkg)
   if (

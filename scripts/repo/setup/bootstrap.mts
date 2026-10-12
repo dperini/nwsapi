@@ -25,7 +25,7 @@ function completed(name: string, result: Awaited<ReturnType<ManagedRun>>) {
     recordSetupProgress(name, 'paused')
     console.error(`Setup paused at ${name}.`)
     console.error(
-      'Next: run pnpm run setup again. Downloaded tools and dependencies are reused when valid.',
+      'Next: node scripts/repo/setup/bootstrap.mts. Verified downloads and dependencies are reused when valid.',
     )
     return false
   }
@@ -47,7 +47,7 @@ export async function bootstrap(
   )
   if (toolsOnly) {
     console.log(
-      'Checkout tools ready. Next: pnpm run setup to install dependencies.',
+      'Checkout tools ready. Next: node scripts/repo/setup/bootstrap.mts to install dependencies.',
     )
     return { status: 0, signal: null }
   }
@@ -58,14 +58,13 @@ export async function bootstrap(
   if (!completed(installation, result)) {
     return result
   }
-  // Repeat installs may skip lifecycle scripts even when build output is missing.
   const preparation = '3 of 3: Build package'
   const prepared = await phase(preparation, () =>
     run(['run', 'prepare'], directory),
   )
   if (completed(preparation, prepared)) {
     console.log(
-      'Setup complete. Next: pnpm run guide to browse the docs and choose a change.',
+      'Setup complete. Next: node scripts/repo/develop/run.mts --task guide --json',
     )
     const optional = await setupOptionalVoiceOver({ choice: voiceOverChoice })
     if (optional.status !== 0 || optional.signal) {
@@ -112,14 +111,14 @@ export async function main(
       `Setup paused: ${error instanceof Error ? error.message : String(error)}`,
     )
     log(
-      'Next: resolve the error above, then run pnpm run setup again. Check setup tools: pnpm run setup:check --details',
+      'Next: resolve the error above, then run node scripts/repo/setup/bootstrap.mts. Check tools: node scripts/repo/setup/doctor.mts --details',
     )
     return { status: 1, signal: null }
   }
 }
 
 const SETUP_HELP =
-  'Usage: pnpm run setup [--tools-only] [--voiceover|--no-voiceover]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--tools-only  Install the pinned tools without installing dependencies.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.\n--no-voiceover  Skip the optional VoiceOver prompt.'
+  'Usage: node scripts/repo/setup/bootstrap.mts [--tools-only] [--voiceover|--no-voiceover]\nPrepares checkout tools, installs dependencies, and builds the package.\nVoiceOver is optional and runs after successful core setup.\nBrowser, WPT, and scanner setup are separate tasks.\n-h, --help  Show this help without downloading tools.\n--tools-only  Install the pinned tools without installing dependencies.\n--voiceover  Explicitly opt in to optional macOS VoiceOver setup.\n--no-voiceover  Skip the optional VoiceOver prompt.'
 
 async function runCoreSetup(toolsOnly = false) {
   return bootstrap(toolsOnly, setupTools, executeManaged, 'no')
@@ -143,7 +142,7 @@ function invalidSetupOptions(
 ) {
   if (values['tools-only'] && values.voiceover) {
     log(
-      '--voiceover requires full setup. Run pnpm run setup without --tools-only.',
+      '--voiceover requires full setup. Run node scripts/repo/setup/bootstrap.mts without --tools-only.',
     )
     return { status: 2, signal: null }
   }

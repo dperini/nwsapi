@@ -23,7 +23,7 @@ export const TASKS: readonly Task[] = [
     name: 'Open documentation',
     description: 'Browse the docs while you edit.',
     detail:
-      'Starts a docs server and opens your browser.\nRuns until you stop it.',
+      'Starts a docs server and opens your browser. Set NWSAPI_GUIDE_NO_OPEN=1 to skip opening it.\nRuns until you stop it.',
     next: 'After editing: review your changes.',
     persistent: true,
   },
