@@ -50,7 +50,10 @@ test('does not import or start VoiceOver when foreground ownership is wrong', as
 test('requires parent authorization immediately before VoiceOver startup', async () => {
   const voiceOver = fakeVoiceOver([])
   const adapters = fakeAdapters(fakePage(), voiceOver)
-  adapters.authorizeStart = vi.fn(async () => false)
+  adapters.authorizeStart = vi.fn(async () => {
+    expect(adapters.onStarted).toHaveBeenCalledOnce()
+    return false
+  })
   const result = await runVoiceOverWorker(target, adapters)
   expect(result.status).toBe(1)
   expect(vi.mocked(voiceOver.start)).not.toHaveBeenCalled()
