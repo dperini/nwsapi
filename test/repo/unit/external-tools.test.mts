@@ -9,6 +9,7 @@ import {
   validateAsset,
   toolchainState,
   toolchainStatePath,
+  managedNodeEntry,
   toolExecutable,
 } from '../../../scripts/repo/external-tools.mts'
 import type { ExternalTools } from '../../../scripts/repo/external-tools.mts'
@@ -19,6 +20,11 @@ test('tool identities and state metadata use deterministic pinned paths', () => 
   expect(state.tools).toHaveLength(5)
   expect(toolchainStatePath('/tools')).toBe('/tools/toolchain.json')
   expect(toolExecutable('npm')).toContain(manifest.tools.npm.version)
+})
+
+test('managed Node entry uses the native Windows executable path', () => {
+  expect(managedNodeEntry('/tools/bin', 'win32')).toBe('/tools/bin/node.exe')
+  expect(managedNodeEntry('/tools/bin', 'linux')).toBe('/tools/bin/node')
 })
 
 test('invalid source origins, missing tools, and non-string versions reject', () => {

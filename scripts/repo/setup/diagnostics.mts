@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process'
 import { accessSync, constants, readFileSync, realpathSync } from 'node:fs'
 import path from 'node:path'
-import { TOOL_BIN, toolExecutable, toolVersions } from '../external-tools.mts'
+import {
+  TOOL_BIN,
+  managedNodeEntry,
+  toolExecutable,
+  toolVersions,
+} from '../external-tools.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
-import { resolveNodeRuntime } from '../node.mts'
 import { posixShim, windowsShim } from './firewall.mts'
 import { cachedToolchain, managedEnvironment } from './manager.mts'
 
@@ -95,18 +99,17 @@ export function toolVersion(
 }
 
 export function managedEntry(name: ToolName) {
-  const extension =
-    process.platform === 'win32' ? (name === 'node' ? '.exe' : '.cmd') : ''
+  if (name === 'node') {
+    return managedNodeEntry()
+  }
+  const extension = process.platform === 'win32' ? '.cmd' : ''
   return path.join(TOOL_BIN, name + extension)
 }
 
 export function verifiedWrapper(name: 'npm' | 'pnpm') {
   try {
     const firewall = toolExecutable('sfw')
-    const node =
-      process.platform === 'win32'
-        ? realExecutable(resolveNodeRuntime(toolVersions()['node']!))
-        : realExecutable(managedEntry('node'))
+    const node = realExecutable(managedNodeEntry())
     if (!node || !executableAvailable(firewall)) {
       return false
     }
