@@ -215,6 +215,26 @@ test('cancellation terminates the PTY process group without confirming setup', a
   expect(child.killed).toContain('SIGTERM')
 })
 
+test.each(['SIGINT', 'SIGTERM'] as const)(
+  'parent %s stops the detached PTY group and removes its handler',
+  async signal => {
+    const child = new FakeTerminal()
+    const killProcess = vi.fn(fakeKill(child))
+    const signals = captureParentSignals()
+    const resultPromise = runPlainSetup({ ...options(child), killProcess })
+    signals.get(signal)?.()
+    const result = await resultPromise
+    expect(result.failure).toContain(`cancelled by ${signal}`)
+    expect(result.confirmationSent).toBe(false)
+    expect(killProcess).toHaveBeenCalledWith(-child.pid, 'SIGTERM')
+    expect(killProcess).toHaveBeenCalledWith(-child.pid, 'SIGTERM')
+    expect(signals.remove).toHaveBeenCalledWith(
+      signal,
+      signals.handlers.get(signal),
+    )
+  },
+)
+
 test('the timeout terminates a stalled PTY journey before setup confirmation', async () => {
   const child = new FakeTerminal()
   const killProcess = vi.fn(fakeKill(child))
@@ -271,3 +291,27 @@ test('VoiceOver confirmation is rejected instead of receiving automatic input', 
   )
   expect(protocol.confirmationSent).toBe(false)
 })
+
+function captureParentSignals() {
+  const handlers = new Map<string, () => void>()
+  const originalOnce = process.once.bind(process)
+  vi.spyOn(process, 'once').mockImplementation(function (
+    event: string | symbol,
+    listener: (...args: never[]) => void,
+  ) {
+    if (event === 'SIGINT' || event === 'SIGTERM') {
+      handlers.set(event, listener as () => void)
+      return process
+    }
+    return Reflect.apply(originalOnce, process, [
+      event,
+      listener,
+    ]) as typeof process
+  } as typeof process.once)
+  const remove = vi.spyOn(process, 'removeListener')
+  return {
+    handlers,
+    remove,
+    get: (signal: string) => handlers.get(signal),
+  }
+}
