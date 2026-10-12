@@ -70,12 +70,14 @@ function cleanGeneratedCheckout(root: string, prefix: string) {
 }
 
 test('selected-version discovery emits one object and does not create a worktree', async () => {
-  const root = fixture('prerelease/3.0.0')
+  const root = fixture('master')
   const runner = path.join(root, 'scripts/repo/develop/run.mts')
   mkdirSync(path.dirname(runner), { recursive: true })
   writeFileSync(runner, 'process.exitCode = 0\n')
   git(root, 'add', 'scripts/repo/develop/run.mts')
   git(root, 'commit', '-m', 'add v3 runner fixture')
+  git(root, 'switch', '--detach', 'HEAD')
+  expect(git(root, 'branch', '--list', 'prerelease/3.0.0')).toBe('')
   const before = git(root, 'worktree', 'list', '--porcelain')
   const output: string[] = []
   const log = vi.spyOn(console, 'log').mockImplementation(value => {
