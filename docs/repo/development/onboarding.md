@@ -1,6 +1,6 @@
 # Cold onboarding validation
 
-This workflow tests first-install behavior from a separate, clean clone of the exact source commit. Each scenario starts with empty user, XDG, package-manager, Corepack, `nub`, and `mise` state. The runner does not restore CI caches. Its logs stay under `.cache/onboarding/`.
+The `ci: onboarding` matrix job in `.github/workflows/ci.yml` tests first-install behavior from a separate, clean clone of the exact source commit. Each scenario starts with empty user, XDG, package-manager, Corepack, `nub`, and `mise` state. The runner does not restore CI caches. Its logs stay under `.cache/onboarding/`.
 
 ## Evidence collected by each run
 
@@ -12,7 +12,7 @@ The runner uses direct OS prerequisites such as Git and archive extraction tools
 
 ## Workflow coverage
 
-Pull requests and pushes to `prerelease/3.0.0` run independent Linux lanes for Node bootstrap at the 22.18 minimum, literal `npm i`, literal `pnpm i`, and the full wizard journey. Native jobs run bootstrap and both manager lanes on macOS and Windows when pushed to this branch, and on scheduled or manual dispatches after the workflow reaches the default branch. The workflow has no restored package or tool cache.
+Pull requests and pushes to `prerelease/3.0.0` run independent Linux lanes for Node bootstrap at the 22.18 minimum, literal `npm i`, literal `pnpm i`, and the full wizard journey. Native jobs run bootstrap and both manager lanes on macOS and Windows when pushed to this branch, and on scheduled or manual dispatches after the workflow reaches the default branch. The onboarding job has no restored package or tool cache. Scheduled and manual runs execute onboarding only. Push and pull-request runs also execute the ordinary CI gates.
 
 ## Recorded results
 
