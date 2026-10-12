@@ -19,7 +19,7 @@ export async function runBounded(
       '/d',
       '/s',
       '/c',
-      `"${executable}" ${args.map(value => `"${value.replaceAll('"', '""')}"`).join(' ')}`,
+      `""${executable}" ${args.map(value => `"${value.replaceAll('"', '""')}"`).join(' ')}"`,
     ]
   }
   const grouped = process.platform !== 'win32'
@@ -28,6 +28,7 @@ export async function runBounded(
     env,
     detached: grouped,
     stdio: ['ignore', 'pipe', 'pipe'],
+    windowsVerbatimArguments: process.platform === 'win32',
     windowsHide: true,
   })
   const output: { stdout: string; stderr: string } = { stdout: '', stderr: '' }

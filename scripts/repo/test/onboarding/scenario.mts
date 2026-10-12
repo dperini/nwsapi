@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { access, rm, stat } from 'node:fs/promises'
+import { access, rm, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import {
@@ -9,6 +9,7 @@ import {
 } from './protocol.mts'
 import { readJourney } from './readme.mts'
 import { externalToolVersion } from './environment.mts'
+import { runPlainSetup } from './terminal.mts'
 
 export interface CommandOutput {
   code: number | null
@@ -30,6 +31,13 @@ export type CommandRunner = (
 export interface GuideOutcome {
   command: string
   code: number | null
+}
+export interface TerminalMenuOutcome {
+  phase: string
+  command: string
+  status: string
+  code: number | null
+  error?: string
 }
 export type GuideRunner = (
   file: string,
@@ -278,6 +286,63 @@ export async function runJourney(
   }
   await verifyBuildOutputs(log, checkout, node, env, command)
   return guideOutcome
+}
+
+export async function runPlainSetupMenu(
+  log: string,
+  checkout: string,
+  node: string,
+  env: NodeJS.ProcessEnv,
+  redact: (value: string) => string,
+): Promise<TerminalMenuOutcome> {
+  if (process.platform !== 'linux') {
+    const message = 'Skipped: real PTY menu is verified in the Linux journey.'
+    await writeFile(log, `\n## plain terminal setup wizard\n${message}\n`, {
+      flag: 'a',
+    })
+    return {
+      phase: 'plain terminal setup wizard',
+      command: 'skipped on non-Linux platform',
+      status: 'skipped',
+      code: null,
+    }
+  }
+  const result = await runPlainSetup({
+    checkout,
+    node,
+    env,
+    timeoutMs: 20 * 60_000,
+  })
+  await writeFile(
+    log,
+    redact(
+      `\n## plain terminal setup wizard\npreview=${result.previewObserved} confirmation=${result.confirmationSent} setup=${result.setupCompleted} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'} failure=${result.failure ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+    ),
+    { flag: 'a' },
+  )
+  const success =
+    !result.failure &&
+    result.code === 0 &&
+    result.signal === null &&
+    result.previewObserved &&
+    result.confirmationSent &&
+    result.setupCompleted
+  if (!success) {
+    return {
+      phase: 'plain terminal setup wizard',
+      command:
+        'node scripts/repo/develop/run.mts --plain; select setup; confirm',
+      status: 'failed',
+      code: result.code,
+      error: `Plain terminal setup wizard did not complete: ${result.failure ?? `exit ${result.code ?? 'null'}`}. See ${log}`,
+    }
+  }
+  return {
+    phase: 'plain terminal setup wizard',
+    command: 'node scripts/repo/develop/run.mts --plain; select setup; confirm',
+    status: 'completed',
+    code: result.code,
+  }
 }
 
 export async function runReadmeHarnessSteps(

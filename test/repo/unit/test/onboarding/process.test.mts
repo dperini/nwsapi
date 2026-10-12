@@ -119,17 +119,22 @@ test('parent SIGTERM stays a cancellation even when the child exits zero', async
 test('Windows cancellation uses taskkill to stop the process tree', async () => {
   setPlatform('win32')
   const signals = captureSignals()
+  const executable = 'C:\\runner temp\\entry-bin\\npm.cmd'
   const promise = runBounded(
-    'npm.cmd',
-    ['run', 'setup'],
+    executable,
+    ['--version'],
     'C:\\checkout',
     {},
     1000,
   )
   expect(processMocks.spawn).toHaveBeenCalledWith(
     process.env['ComSpec'] ?? 'cmd.exe',
-    expect.arrayContaining(['/d', '/s', '/c']),
-    expect.objectContaining({ detached: false, windowsHide: true }),
+    ['/d', '/s', '/c', `""${executable}" "--version""`],
+    expect.objectContaining({
+      detached: false,
+      windowsVerbatimArguments: true,
+      windowsHide: true,
+    }),
   )
   signals.get('SIGTERM')?.()
   expect(processMocks.spawnSync.mock.calls[0]?.[0]).toContain('taskkill.exe')
