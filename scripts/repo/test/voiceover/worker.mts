@@ -5,50 +5,50 @@ import { browserLaunchOptions } from '../../browser.mts'
 import { validateNarrationUrl } from './url.mts'
 
 export interface VoiceOverDriver {
-  readonly start: (
-    this: void,
-    options: { capture: false; retries: number; timeout: number },
-  ) => Promise<void>
-  readonly stop: (
-    this: void,
-    options: { capture: false; retries: number; timeout: number },
-  ) => Promise<void>
+  readonly start: (options: {
+    capture: false
+    retries: number
+    timeout: number
+  }) => Promise<void>
+  readonly stop: (options: {
+    capture: false
+    retries: number
+    timeout: number
+  }) => Promise<void>
   readonly perform: (
-    this: void,
     command: unknown,
     options: { capture: true; retries: number; timeout: number },
   ) => Promise<void>
   readonly keyboardCommands: { moveCursorToKeyboardFocus: unknown }
-  readonly spokenPhraseLog: (this: void) => Promise<string[]>
+  readonly spokenPhraseLog: () => Promise<string[]>
 }
 
 export interface NarrationPage {
-  url: (this: void) => string
-  bringToFront: (this: void) => Promise<void>
-  isVisible: (this: void) => Promise<boolean>
-  hasFocus: (this: void) => Promise<boolean>
-  heading: (this: void) => Promise<string>
-  focusReadingMode: (this: void) => Promise<void>
-  armOwnershipWatch: (this: void) => Promise<void>
-  ownershipIntact: (this: void) => Promise<boolean>
-  dispose: (this: void) => Promise<void>
+  url: () => string
+  bringToFront: () => Promise<void>
+  isVisible: () => Promise<boolean>
+  hasFocus: () => Promise<boolean>
+  heading: () => Promise<string>
+  focusReadingMode: () => Promise<void>
+  armOwnershipWatch: () => Promise<void>
+  ownershipIntact: () => Promise<boolean>
+  dispose: () => Promise<void>
   processId: number
 }
 
 export interface WorkerAdapters {
   openPage: (
-    this: void,
     url: string,
     onBrowserStarted: (pid: number) => void,
     onBrowserClosed: (pid: number) => void,
   ) => Promise<NarrationPage>
-  isOwnedBrowserFrontmost: (this: void, processId: number) => Promise<boolean>
-  loadVoiceOver: (this: void) => Promise<VoiceOverDriver>
-  onStarted: (this: void) => void
-  onBrowserStarted: (this: void, processId: number) => void
-  onBrowserClosed: (this: void, processId: number) => void
-  authorizeStart: (this: void) => Promise<boolean>
-  onStop: (this: void, stop: () => Promise<void>) => void
+  isOwnedBrowserFrontmost: (processId: number) => Promise<boolean>
+  loadVoiceOver: () => Promise<VoiceOverDriver>
+  onStarted: () => void
+  onBrowserStarted: (processId: number) => void
+  onBrowserClosed: (processId: number) => void
+  authorizeStart: () => Promise<boolean>
+  onStop: (stop: () => Promise<void>) => void
 }
 
 export interface WorkerResult {
