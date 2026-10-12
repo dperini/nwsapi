@@ -40,11 +40,13 @@ export interface WorkerAdapters {
     this: void,
     url: string,
     onBrowserStarted: (pid: number) => void,
+    onBrowserClosed: (pid: number) => void,
   ) => Promise<NarrationPage>
   isOwnedBrowserFrontmost: (this: void, processId: number) => Promise<boolean>
   loadVoiceOver: (this: void) => Promise<VoiceOverDriver>
   onStarted: (this: void) => void
   onBrowserStarted: (this: void, processId: number) => void
+  onBrowserClosed: (this: void, processId: number) => void
   authorizeStart: (this: void) => Promise<boolean>
   onStop: (this: void, stop: () => Promise<void>) => void
 }
@@ -72,7 +74,11 @@ export async function runVoiceOverWorker(
   let voiceOver: VoiceOverDriver | undefined
   let startAttempted = false
   try {
-    page = await adapters.openPage(url, pid => adapters.onBrowserStarted(pid))
+    page = await adapters.openPage(
+      url,
+      pid => adapters.onBrowserStarted(pid),
+      pid => adapters.onBrowserClosed(pid),
+    )
     await page.bringToFront()
     await verifyPage(page, url, adapters)
     const heading = await page.heading()
@@ -94,9 +100,6 @@ export async function runVoiceOverWorker(
     await voiceOver.start({ capture: false, retries: 1, timeout: 15_000 })
     await page.bringToFront()
     await page.focusReadingMode()
-    if (!(await page.ownershipIntact())) {
-      throw new Error('The page lost foreground ownership during startup.')
-    }
     await verifyPage(page, url, adapters)
     await page.armOwnershipWatch()
     await verifyPage(page, url, adapters)
@@ -170,21 +173,24 @@ async function verifyPage(
 async function openPage(
   url: string,
   onBrowserStarted: (pid: number) => void,
+  onBrowserClosed: (pid: number) => void,
 ): Promise<NarrationPage> {
   const { chromium } = await import('@playwright/test')
   let server: BrowserServer | undefined
   let browser: Browser | undefined
   let context: Awaited<ReturnType<Browser['newContext']>> | undefined
+  let processId: number | undefined
   try {
     server = (await chromium.launchServer({
       headless: false,
       ...browserLaunchOptions(),
     })) as BrowserServer
-    const processId = server.process().pid ?? 0
-    if (processId < 1) {
+    const browserPid = server.process().pid ?? 0
+    if (browserPid < 1) {
       throw new Error('Could not identify the owned browser process.')
     }
-    onBrowserStarted(processId)
+    processId = browserPid
+    onBrowserStarted(browserPid)
     browser = (await chromium.connect(server.wsEndpoint())) as Browser
     context = await browser.newContext()
     const page = await context.newPage()
@@ -267,16 +273,37 @@ async function openPage(
       dispose: async () => {
         await context?.close()
         await browser?.close()
-        await server?.close()
+        if (server) {
+          await closeOwnedBrowser(
+            () => server!.close(),
+            browserPid,
+            onBrowserClosed,
+          )
+        }
       },
-      processId,
+      processId: browserPid,
     }
   } catch (error) {
     await context?.close().catch(() => undefined)
     await browser?.close().catch(() => undefined)
-    await server?.close().catch(() => undefined)
+    if (server && processId !== undefined) {
+      await closeOwnedBrowser(
+        () => server!.close(),
+        processId,
+        onBrowserClosed,
+      ).catch(() => undefined)
+    }
     throw error
   }
+}
+
+export async function closeOwnedBrowser(
+  closeServer: () => Promise<void>,
+  processId: number,
+  onBrowserClosed: (pid: number) => void,
+) {
+  await closeServer()
+  onBrowserClosed(processId)
 }
 
 async function loadVoiceOver(): Promise<VoiceOverDriver> {
@@ -332,7 +359,6 @@ async function main(args = process.argv.slice(2)) {
     return 2
   }
   let stop = async () => {}
-  let browserProcessId: number | undefined
   const requestStop = () => {
     void stop().catch(() => undefined)
   }
@@ -343,10 +369,8 @@ async function main(args = process.argv.slice(2)) {
     isOwnedBrowserFrontmost,
     loadVoiceOver,
     onStarted: () => writeMessage({ event: 'start-attempt' }),
-    onBrowserStarted: pid => {
-      browserProcessId = pid
-      writeMessage({ event: 'browser', pid })
-    },
+    onBrowserStarted: pid => writeMessage({ event: 'browser', pid }),
+    onBrowserClosed: pid => writeMessage({ event: 'browser-closed', pid }),
     authorizeStart: async () =>
       (await nextControlLine(lines, 15_000)) === `START:${nonce}`,
     onStop: callback => {
@@ -356,9 +380,6 @@ async function main(args = process.argv.slice(2)) {
   process.removeListener('SIGINT', requestStop)
   process.removeListener('SIGTERM', requestStop)
   controls.close()
-  if (browserProcessId !== undefined) {
-    writeMessage({ event: 'browser-closed', pid: browserProcessId })
-  }
   writeMessage({ event: 'result', result })
   return result.status
 }
