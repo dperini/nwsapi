@@ -173,7 +173,9 @@ export async function checkoutSnapshot(
     '.gitconfig',
     '.zshrc',
     '.bashrc',
-    'profile',
+    '.zprofile',
+    '.bash_profile',
+    '.profile',
     'sentinel',
   ])
   const manifests = await hashes(snapshot, [

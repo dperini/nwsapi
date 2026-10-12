@@ -89,7 +89,9 @@ export async function makeSandbox(parent = tmpdir()) {
     '.gitconfig',
     '.zshrc',
     '.bashrc',
-    'profile',
+    '.zprofile',
+    '.bash_profile',
+    '.profile',
   ]) {
     await writeFile(
       path.join(directory, 'home', name),

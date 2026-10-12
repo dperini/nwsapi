@@ -143,7 +143,9 @@ export async function runPlainSetup(
   let settled = false
 
   return new Promise(resolve => {
-    const killProcess = options.killProcess ?? process.kill
+    const killProcess =
+      options.killProcess ??
+      ((pid: number, signal: NodeJS.Signals) => process.kill(pid, signal))
     const stop = (reason: string) => {
       if (failure) {
         return
