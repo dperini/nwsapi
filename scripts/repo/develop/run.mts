@@ -341,6 +341,15 @@ function printVersionDiscovery(
             ? 'v2'
             : 'v3'
           : undefined
+  const currentRunner = existsSync(path.join(repository, runner))
+  if (currentVersion === version && currentRunner) {
+    if (json) {
+      printJsonTasks(version)
+    } else {
+      printTasks()
+    }
+    return
+  }
   let available = false
   try {
     execFileSync('git', ['cat-file', '-e', `${branch}:${runner}`], {
@@ -350,15 +359,6 @@ function printVersionDiscovery(
     available = true
   } catch {
     available = false
-  }
-  const usable = available && currentVersion === version
-  if (usable) {
-    if (json) {
-      printJsonTasks(version)
-    } else {
-      printTasks()
-    }
-    return
   }
   const message = available
     ? `The ${version} runner exists on ${branch}. Select that checkout to discover its tasks.`
