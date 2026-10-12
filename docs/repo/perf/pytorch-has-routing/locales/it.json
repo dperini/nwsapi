@@ -64,6 +64,7 @@
   "retryingDocuments": "Nuovo tentativo di caricamento di {count} documenti…",
   "searchDocuments": "Cerca nei documenti",
   "searchPlaceholder": "Prova :has(), jsdom o route planner",
+  "undoClearSearch": "Annulla cancellazione",
   "clearSearch": "Cancella",
   "topicFilter": "Argomento",
   "allTopics": "Tutti gli argomenti",

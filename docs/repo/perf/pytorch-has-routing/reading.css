@@ -82,7 +82,7 @@ html:has(.reader:not(.documents-page)) {
   overflow-wrap: anywhere;
   line-height: 1.8;
 }
-.reading-prose[aria-busy='true'] {
+.reading-prose[aria-busy='true']:has(.reading-loading) {
   min-height: 520px;
   padding: 0;
   border: 0;
@@ -99,6 +99,23 @@ html:has(.reader:not(.documents-page)) {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+.reading-prose[aria-busy='true'][data-loading-visible]:has(.reading-loading) {
+  display: grid;
+  place-items: start center;
+  padding: 32px 20px;
+}
+.reading-prose[aria-busy='true'][data-loading-visible] .reading-loading {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  color: var(--muted);
+  font-size: var(--text-body);
+  text-align: center;
+  white-space: normal;
 }
 .reading-prose h1 {
   min-width: 0;

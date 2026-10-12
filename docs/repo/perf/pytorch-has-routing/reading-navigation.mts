@@ -2,6 +2,7 @@ import { currentLocale, translate } from './locale.mts'
 import { localizeText } from './locale-content.mts'
 import { documentHref, getDocument } from './documents.mts'
 import { initializeContentsSelection } from './contents-selection.mts'
+import { handleContentsActivation } from './contents-focus.mts'
 
 export const CONTENTS_STATE_KEY = 'nwsapi-guide-contents'
 
@@ -150,24 +151,15 @@ export function initializeReadingContents(
       event.target instanceof Element
         ? event.target.closest<HTMLAnchorElement>('a[href^="#"]')
         : null
-    if (mobile.matches && link) {
-      contents.open = false
-      update()
-      const id = decodeURIComponent(link.hash.slice(1))
-      requestAnimationFrame(() => {
-        const target = document.getElementById(id)
-        if (!target) {
-          return
-        }
-        let disclosure = target.closest('details')
-        while (disclosure) {
-          disclosure.open = true
-          disclosure = disclosure.parentElement?.closest('details') ?? null
-        }
-        target.focus({ preventScroll: true })
-        target.scrollIntoView({ block: 'start', behavior: 'instant' })
-      })
+    if (!link) {
+      return
     }
+    handleContentsActivation(event, link, () => {
+      if (mobile.matches) {
+        contents.open = false
+        update()
+      }
+    })
   })
   update()
 }

@@ -10,6 +10,7 @@ import {
 import type { SearchRoute, ToyNode } from './dom.mts'
 import { element, escapeHtml, input, text } from './ui.mts'
 import { initializeMotion, renderMotion } from './motion.mts'
+import { replaceWarningSample } from './search-focus.mts'
 
 const counts = [1, 0, 1, 0]
 let outside = true
@@ -132,7 +133,7 @@ function render() {
   stop()
   nodes = toyNodes(counts, outside)
   position = 0
-  element('dom-cards').innerHTML = nodeMarkup(nodes[0]!)
+  replaceWarningSample(element('dom-cards'), nodeMarkup(nodes[0]!))
   input('outside-warning').checked = outside
   text(
     'route-explanation',

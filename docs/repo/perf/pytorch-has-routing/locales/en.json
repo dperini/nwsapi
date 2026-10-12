@@ -64,6 +64,7 @@
   "retryingDocuments": "Retrying {count} documents…",
   "searchDocuments": "Search documents",
   "searchPlaceholder": "Try :has(), jsdom, or route planner",
+  "undoClearSearch": "Undo clear",
   "clearSearch": "Clear",
   "topicFilter": "Topic",
   "allTopics": "All topics",

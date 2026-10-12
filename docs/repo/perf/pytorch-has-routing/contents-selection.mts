@@ -1,3 +1,5 @@
+import { isUnmodifiedContentsActivation } from './contents-focus.mts'
+
 let selectedHash = ''
 const scrollKeys = new Set([
   'ArrowUp',
@@ -43,7 +45,11 @@ export function initializeContentsSelection(navigation: HTMLElement) {
       event.target instanceof Element
         ? event.target.closest<HTMLAnchorElement>('a[href^="#"]')
         : null
-    if (link && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+    if (
+      link &&
+      isUnmodifiedContentsActivation(event) &&
+      (!link.target || link.target.toLowerCase() === '_self')
+    ) {
       selectedHash = link.hash
       notifySelectionChange()
     }

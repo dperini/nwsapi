@@ -135,6 +135,11 @@
 .catalog-button-ghost {
   background: transparent;
 }
+#undo-clear-search {
+  align-self: flex-start;
+  min-height: 44px;
+  padding-inline: 12px;
+}
 .catalog-button-outline {
   border-color: var(--reading-line, #344651);
   background: var(--reading-surface, #14212a);

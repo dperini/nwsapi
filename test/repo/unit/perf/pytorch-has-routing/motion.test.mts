@@ -248,3 +248,36 @@ test('hidden tabs pause playback and edits reset both traces', async () => {
   expect(view.timeline.value).toBe('0')
   expect(view.document.querySelectorAll('.film-warning').length).toBe(0)
 })
+
+test('held playback keys do not toggle again and ordinary stepping still repeats', async () => {
+  const view = await fixture()
+  const scene = view.document.getElementById('film-forward')!
+  const key = (name: string, repeat = false) =>
+    scene.dispatchEvent(
+      new view.dom.window.KeyboardEvent('keydown', {
+        key: name,
+        repeat,
+        cancelable: true,
+      }),
+    )
+  key('Enter')
+  expect(vi.getTimerCount()).toBe(1)
+  key('Enter', true)
+  key(' ', true)
+  expect(vi.getTimerCount()).toBe(1)
+  key('Enter')
+  expect(vi.getTimerCount()).toBe(0)
+  key('ArrowRight', true)
+  expect(view.timeline.value).toBe('1')
+})
+
+test('reduced motion allows explicit playback without interpolated animation', async () => {
+  const view = await fixture(true)
+  view.click('film-play')
+  expect(vi.getTimerCount()).toBe(1)
+  vi.advanceTimersByTime(2400)
+  expect(view.timeline.value).toBe('2')
+  expect(view.animate).not.toHaveBeenCalled()
+  view.click('film-play')
+  expect(vi.getTimerCount()).toBe(0)
+})

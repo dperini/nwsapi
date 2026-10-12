@@ -1,5 +1,6 @@
 import { initializeLocale, translate } from './locale.mts'
 import { mountCatalogControls } from './catalog-controls.mts'
+import { connectSearchInput, settledAnnouncement } from './catalog-input.mts'
 import { initializeGuideControls } from './select.mts'
 import { indexDocument } from './catalog-index.mts'
 import { getHighlightRanges, searchDocument } from './catalog-search.mts'
@@ -17,12 +18,15 @@ let searchInput: HTMLInputElement
 let categoryFilter: HTMLSelectElement
 let typeFilter: HTMLSelectElement
 let clearButton: HTMLButtonElement
+let undoButton: HTMLButtonElement
+let searchControls: ReturnType<typeof connectSearchInput>
 let setClearDisabled: (disabled: boolean) => void
 let retryButton: HTMLButtonElement
 let loadStatus: HTMLParagraphElement
 const results = document.querySelector<HTMLDivElement>('#document-results')!
 const count = document.querySelector<HTMLParagraphElement>('#document-count')!
 const empty = document.querySelector<HTMLParagraphElement>('#document-empty')!
+const announcement = settledAnnouncement(count)
 const indexed = new Map<string, IndexedDocument>()
 const failedDocuments = new Map<string, Error>()
 let indexReady = false
@@ -160,6 +164,9 @@ function syncClearButton() {
 }
 
 function updateResults(updateUrl = true) {
+  if (searchControls?.isComposing()) {
+    return
+  }
   syncClearButton()
   if (!indexReady) {
     if (updateUrl) {
@@ -189,9 +196,11 @@ function updateResults(updateUrl = true) {
       left.document.title.localeCompare(right.document.title),
   )
   results.replaceChildren(...ordered.map(result => renderResult(result, query)))
-  count.textContent = translate(
-    ordered.length === 1 ? 'documentCountOne' : 'documentCountMany',
-  ).replace('{count}', String(ordered.length))
+  announcement.update(
+    translate(
+      ordered.length === 1 ? 'documentCountOne' : 'documentCountMany',
+    ).replace('{count}', String(ordered.length)),
+  )
   empty.hidden = ordered.length > 0 || failedDocuments.size > 0
   results.setAttribute('aria-busy', String(loadInProgress))
   if (updateUrl) {
@@ -271,15 +280,16 @@ function bindCatalogEvents() {
     event.preventDefault()
     updateResults()
   })
-  searchInput.addEventListener('input', () => updateResults())
+  searchControls = connectSearchInput({
+    input: searchInput,
+    clear: clearButton,
+    undo: undoButton,
+    setClearDisabled,
+    update: () => updateResults(),
+    cancelAnnouncement: () => announcement.cancel(),
+  })
   categoryFilter.addEventListener('change', () => updateResults())
   typeFilter.addEventListener('change', () => updateResults())
-  clearButton.addEventListener('click', () => {
-    searchInput.value = ''
-    syncClearButton()
-    updateResults()
-    searchInput.focus()
-  })
   retryButton.addEventListener('click', () => {
     const pending = documents.filter(metadata =>
       failedDocuments.has(metadata.path),
@@ -289,6 +299,7 @@ function bindCatalogEvents() {
   addEventListener('popstate', () => {
     const current = new URL(location.href)
     searchInput.value = current.searchParams.get('q') ?? ''
+    searchControls.reset()
     categoryFilter.value = current.searchParams.get('category') ?? ''
     typeFilter.value = current.searchParams.get('type') ?? ''
     document.dispatchEvent(new Event('guide-controls-sync'))
@@ -304,6 +315,7 @@ async function initialize() {
   categoryFilter = controls.categoryFilter
   typeFilter = controls.typeFilter
   clearButton = controls.clearButton
+  undoButton = controls.undoButton
   setClearDisabled = disabled => controls.setClearDisabled(disabled)
   retryButton = controls.retryButton
   loadStatus = controls.loadStatus

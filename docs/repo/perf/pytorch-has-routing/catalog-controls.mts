@@ -139,6 +139,7 @@ function ClearSearchButton({
 type CatalogLabelKey =
   | 'searchDocuments'
   | 'clearSearch'
+  | 'undoClearSearch'
   | 'topicFilter'
   | 'typeFilter'
   | 'allTopics'
@@ -216,6 +217,17 @@ export function mountCatalogControls(
               ),
             ),
           ),
+        ),
+        h(
+          Button,
+          {
+            id: 'undo-clear-search',
+            type: 'button',
+            variant: 'ghost',
+            hidden: true,
+            'data-i18n': 'undoClearSearch',
+          },
+          translate('undoClearSearch'),
         ),
         h(
           'div',
@@ -306,6 +318,7 @@ export function mountCatalogControls(
     categoryFilter: form.querySelector<HTMLSelectElement>('#category-filter')!,
     typeFilter: form.querySelector<HTMLSelectElement>('#type-filter')!,
     clearButton: form.querySelector<HTMLButtonElement>('#clear-search')!,
+    undoButton: form.querySelector<HTMLButtonElement>('#undo-clear-search')!,
     setClearDisabled(disabled: boolean) {
       flushSync(() => updateClearDisabled(disabled))
     },

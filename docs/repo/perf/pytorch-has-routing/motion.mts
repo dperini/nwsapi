@@ -366,7 +366,9 @@ function bindDrag(route: SearchRoute) {
   scene.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      play(route)
+      if (!event.repeat) {
+        play(route)
+      }
       return
     }
     const length = motionFrame(nodes, route, 0).total

@@ -20,10 +20,19 @@ import {
   initializeReadingContents,
   renderRelatedDocuments,
 } from './reading-navigation.mts'
+import { showLoadingAfterDelay } from './reading-loading.mts'
+import {
+  beginReaderRetry,
+  focusReaderRetryResult,
+  readerRetryOwnsFocus,
+} from './reading-retry.mts'
 
 let documentPath = 'docs/repo/perf/pytorch-for-beginners.md'
 let sourceBase = new URL('https://guide.invalid/' + documentPath)
 let renderRequest = 0
+let cancelLoadingIndicator: (() => void) | undefined
+let retryControlForFocus: HTMLButtonElement | undefined
+let retryRequestForRender = false
 let stopFollowing: (() => void) | undefined
 let stopWatchingTables: (() => void) | undefined
 let originalHeadings: string[] = []
@@ -309,12 +318,18 @@ function focusReadingTarget(id: string, scroll = true) {
 }
 
 export function renderDocument(source: string) {
+  const article = element('reading-content')
+  const focusHeading = readerRetryOwnsFocus(article, retryControlForFocus)
+  retryControlForFocus = undefined
+  const wasRetryRequest = retryRequestForRender
+  retryRequestForRender = false
+  cancelLoadingIndicator?.()
+  cancelLoadingIndicator = undefined
   const label = getDocument(documentPath)?.title
   const translationNotice = element('reading-translation-notice')
   translationNotice.hidden =
     currentLocale() !== 'it' ||
     documentPath !== 'docs/repo/perf/pytorch-for-beginners.md'
-  const article = element('reading-content')
   // Only bundled repository documents enter the renderer, never URL-provided text.
   article.dataset['localeContent'] = ''
   article.classList.toggle('reading-report', documentPath.endsWith('.html'))
@@ -357,26 +372,44 @@ export function renderDocument(source: string) {
   stopFollowing = followReading(headings, documentPath)
   initializeHighlighting()
   renderRelatedDocuments(documentPath)
-  requestAnimationFrame(() => {
-    focusReadingTarget(decodeURIComponent(location.hash.slice(1)))
-  })
+  const titleHeading = article.querySelector<HTMLElement>('h1')
+  if (focusHeading && titleHeading) {
+    focusReaderRetryResult(true, titleHeading, true)
+  } else if (!wasRetryRequest) {
+    requestAnimationFrame(() => {
+      focusReadingTarget(decodeURIComponent(location.hash.slice(1)))
+    })
+  }
 }
 
 export async function openDocument(retry = false) {
   const request = ++renderRequest
+  retryRequestForRender = retry
+  cancelLoadingIndicator?.()
+  cancelLoadingIndicator = undefined
   element('reading-source-link').hidden = true
   const slug =
     new URLSearchParams(location.search).get('doc') ?? 'pytorch-for-beginners'
   documentPath = resolveDocumentPath(slug)
   sourceBase = new URL('https://guide.invalid/' + documentPath)
   if (!Object.hasOwn(documentLoaders, documentPath)) {
+    retryControlForFocus = undefined
+    retryRequestForRender = false
     const article = element('reading-content')
+    article.removeAttribute('data-loading-visible')
     article.removeAttribute('aria-busy')
     article.innerHTML = `<h1>${translate('documentNotFound')}</h1><p>${translate('documentNotFoundHelp')}</p>`
     element('reading-navigation').hidden = true
     document.title = translate('documentNotFound')
     setHeaderContext(translate('documentNotFound'))
     return
+  }
+  const article = element('reading-content')
+  if (article.getAttribute('aria-busy') === 'true') {
+    cancelLoadingIndicator = showLoadingAfterDelay(
+      article,
+      () => request === renderRequest,
+    )
   }
   let source: string | undefined
   try {
@@ -424,16 +457,27 @@ export async function openDocument(retry = false) {
 
 function showDocumentLoadError() {
   const article = element('reading-content')
+  const focusRetry = readerRetryOwnsFocus(article, retryControlForFocus)
+  retryControlForFocus = undefined
+  retryRequestForRender = false
+  cancelLoadingIndicator?.()
+  cancelLoadingIndicator = undefined
   article.removeAttribute('aria-busy')
   const title = translate('documentLoadFailed')
   const heading = document.createElement('h1')
   heading.textContent = title
   const retry = document.createElement('button')
   retry.type = 'button'
+  retry.dataset['readerRetry'] = ''
   retry.textContent = translate('retryDocument')
   retry.addEventListener('click', () => {
-    retry.disabled = true
-    retry.textContent = translate('readingLoading')
+    if (!beginReaderRetry(retry, translate('readingLoading'))) {
+      return
+    }
+    retryControlForFocus = readerRetryOwnsFocus(article, retry)
+      ? retry
+      : undefined
+    retryRequestForRender = true
     article.setAttribute('aria-busy', 'true')
     void openDocument(true)
   })
@@ -444,6 +488,7 @@ function showDocumentLoadError() {
   actions.className = 'reading-recovery'
   actions.append(retry, catalog)
   article.replaceChildren(heading, actions)
+  focusReaderRetryResult(focusRetry, retry)
   document.title = `${title} · ${localizeText('NWSAPI model guide', currentLocale())}`
   setHeaderContext(title)
   element('reading-navigation').hidden = true
