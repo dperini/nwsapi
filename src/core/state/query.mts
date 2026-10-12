@@ -49,6 +49,7 @@ export interface QueryState {
   isRequired: (node: EngineElement) => boolean
   isContentEditable: (node: EngineElement) => boolean
   isDisabled: (element: EngineElement) => boolean
+  isRadioGroupChecked: (element: EngineElement) => boolean
   isFocusable: (node: EngineElement) => false | EngineElement
   matchesNative: (
     node: EngineElement,
