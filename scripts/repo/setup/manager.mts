@@ -58,10 +58,7 @@ export function managedCommand(
     }
   }
   if (manager === 'npm') {
-    return {
-      command: toolExecutable('sfw'),
-      args: [path.join(directory, 'node'), toolExecutable('npm'), ...args],
-    }
+    return { command: path.join(directory, 'npm'), args }
   }
   return { command: path.join(directory, 'pnpm'), args }
 }

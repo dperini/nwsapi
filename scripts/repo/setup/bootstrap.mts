@@ -1,11 +1,13 @@
 import { parseArgs } from 'node:util'
 import { isMainModule } from '../lib/run-node.mts'
 import { executeManaged, setupNotice } from './manager.mts'
-import type { ManagedRun } from './manager.mts'
+import type { ManagedResult, ManagedRun } from './manager.mts'
 import { setupTools } from './tools.mts'
 import { recordSetupProgress } from './progress.mts'
 import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
+import { buildReadiness } from './readiness.mts'
+import { REPO_ROOT } from '../lib/paths.mts'
 
 async function phase<T>(name: string, action: () => T | Promise<T>) {
   console.log(name)
@@ -38,6 +40,7 @@ export async function bootstrap(
   run: ManagedRun = executeManaged,
   voiceOverChoice: VoiceOverChoice = 'ask',
   setupOptionalVoiceOver = setupVoiceOver,
+  buildReady = () => buildReadiness(REPO_ROOT).ready,
 ) {
   const directory = await phase(
     toolsOnly
@@ -60,9 +63,16 @@ export async function bootstrap(
   }
   // Repeat installs may skip lifecycle scripts even when build output is missing.
   const preparation = '3 of 3: Build package'
-  const prepared = await phase(preparation, () =>
-    run(['run', 'prepare'], directory),
-  )
+  let prepared: ManagedResult
+  if (buildReady()) {
+    console.log(`${preparation}: outputs are ready.`)
+    recordSetupProgress(preparation, 'complete')
+    prepared = { status: 0, signal: null }
+  } else {
+    prepared = await phase(preparation, () =>
+      run(['run', 'prepare'], directory),
+    )
+  }
   if (completed(preparation, prepared)) {
     console.log(
       'Setup complete. Next: pnpm run guide to browse the docs and choose a change.',

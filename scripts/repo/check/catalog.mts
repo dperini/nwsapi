@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { isDeepStrictEqual } from 'node:util'
 import path from 'node:path'
 import { parse, parseAllDocuments } from 'yaml'
 import { REPO_ROOT } from '../lib/paths.mts'
@@ -25,7 +26,7 @@ function checkPackageManager(pkg: PackageConfiguration) {
   if (
     minimums.get('npm')?.version !== `>=${manifest.tools.npm.version}` ||
     minimums.get('pnpm')?.version !== `>=${manifest.tools.pnpm.version}` ||
-    managers.some(manager => manager.onFail !== 'ignore')
+    managers.some(manager => manager.onFail !== 'error')
   ) {
     throw new Error('npm and pnpm minimums must match external-tools.json.')
   }
@@ -59,15 +60,10 @@ export function checkCatalog(root = REPO_ROOT) {
     }
   }
   const buildPolicies = workspace.allowBuilds ?? {}
-  if (
-    JSON.stringify(pkg.allowScripts ?? {}) !== JSON.stringify(buildPolicies)
-  ) {
+  if (!isDeepStrictEqual(pkg.allowScripts ?? {}, buildPolicies)) {
     throw new Error('npm allowScripts must match pnpm allowBuilds.')
   }
-  if (
-    JSON.stringify(pkg.overrides ?? {}) !==
-    JSON.stringify(workspace.overrides ?? {})
-  ) {
+  if (!isDeepStrictEqual(pkg.overrides ?? {}, workspace.overrides ?? {})) {
     throw new Error('npm overrides must match pnpm overrides.')
   }
   checkPackageManager(pkg)

@@ -41,6 +41,7 @@ export function posixShim(
   name: Manager,
   firewall: string,
   real: FirewallCommand,
+  directory = TOOL_BIN,
 ) {
   const command = [real.executable, ...(real.args ?? [])]
     .map(quotePosix)
@@ -52,6 +53,7 @@ export function posixShim(
     '  echo "sfw: managed tool missing. Run node scripts/repo/setup/tools.mts" >&2',
     '  exit 127',
     'fi',
+    `export PATH=${quotePosix(directory)}:"\${PATH:-}"`,
     ...(name === 'pnpm' ? posixPin(command) : []),
     `if [ -n "\${${sentinel}:-}" ]; then`,
     `  exec ${command} "$@"`,
@@ -91,6 +93,7 @@ export function windowsShim(
   name: Manager,
   firewall: string,
   real: FirewallCommand,
+  directory = TOOL_BIN,
 ) {
   const command = [real.executable, ...(real.args ?? [])]
     .map(quoteWindows)
@@ -101,6 +104,7 @@ export function windowsShim(
     'setlocal DisableDelayedExpansion',
     `if not exist ${quoteWindows(firewall)} goto :missing`,
     `if not exist ${quoteWindows(real.executable)} goto :missing`,
+    `set "PATH=${directory.replaceAll('%', '%%')};%PATH%"`,
     ...(name === 'pnpm' ? windowsPin(command) : []),
     `if defined ${sentinel} goto :real`,
     `set "${sentinel}=1"`,
@@ -140,8 +144,8 @@ export function writeFirewallShim(
   const lines =
     firewall && real
       ? windows
-        ? windowsShim(name, firewall, real)
-        : posixShim(name, firewall, real)
+        ? windowsShim(name, firewall, real, directory)
+        : posixShim(name, firewall, real, directory)
       : stub(name, windows)
   mkdirSync(directory, { recursive: true })
   const staging = mkdtempSync(path.join(directory, '.shim-'))

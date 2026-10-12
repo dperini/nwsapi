@@ -1,6 +1,13 @@
 import { execFileSync, spawnSync } from 'node:child_process'
+import {
+  copyFileSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
-import { readFileSync, writeFileSync } from 'node:fs'
 import { REPO_ROOT, TAZE_CLI_PATH, WORKSPACE_PATH } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { collectPackumentFailures } from '../lib/taze-output.mts'
@@ -101,19 +108,40 @@ function runTaze(entry: string, args: string[], retry = true): void {
 
 function installDependencies() {
   runManagedManager('pnpm', ['install', '--no-frozen-lockfile'])
-  // Lock-only does not install packages. Scripts are disabled to avoid rerunning
-  // the root prepare lifecycle after the canonical pnpm install has built it.
-  runManagedManager('npm', [
-    'install',
-    '--package-lock-only',
-    '--ignore-scripts',
-  ])
+  refreshNpmLock()
 }
 
-function runManagedManager(manager: 'pnpm' | 'npm', args: string[]) {
+export function refreshNpmLock(root = REPO_ROOT, run = runManagedManager) {
+  const temporary = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-npm-lock-'))
+  try {
+    copyFileSync(
+      path.join(root, 'package.json'),
+      path.join(temporary, 'package.json'),
+    )
+    copyFileSync(path.join(root, '.npmrc'), path.join(temporary, '.npmrc'))
+    // Lock generation has no install tree, and must not rerun lifecycle scripts.
+    run(
+      'npm',
+      ['install', '--package-lock-only', '--ignore-scripts'],
+      temporary,
+    )
+    copyFileSync(
+      path.join(temporary, 'package-lock.json'),
+      path.join(root, 'package-lock.json'),
+    )
+  } finally {
+    rmSync(temporary, { recursive: true, force: true })
+  }
+}
+
+function runManagedManager(
+  manager: 'pnpm' | 'npm',
+  args: string[],
+  cwd = REPO_ROOT,
+) {
   const request = managedCommand(args, undefined, process.platform, manager)
   execFileSync(request.command, request.args, {
-    cwd: REPO_ROOT,
+    cwd,
     env: managedEnvironment(),
     stdio: 'inherit',
   })
