@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
-import { runBudgeted } from '../lib/test-budget.mts'
+import { runBudgeted, testBudget } from '../lib/test-budget.mts'
 import { UNIT_CI_SHARD_COUNT } from './shard/report.mts'
 
 export interface CiTestPlan {
@@ -52,7 +52,8 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
       file.startsWith('.config/playwright') ||
       file === '.config/state-pseudos.config.mts',
   )
-  const fullNode = shared || testInfrastructureChanged
+  const fullNode =
+    shared || testInfrastructureChanged || nodeTestDriverChanged(normalized)
   const testFiles = normalized.filter(file => TEST_FILE_RE.test(file))
   const relatedFiles = normalized.filter(
     file =>
@@ -110,6 +111,19 @@ export function planCiTests(files: readonly string[]): CiTestPlan {
     testFiles,
     upstream,
   }
+}
+
+function nodeTestDriverChanged(files: string[]) {
+  return files.some(
+    file =>
+      file.startsWith('scripts/repo/lib/') ||
+      file === 'scripts/repo/run.mts' ||
+      file.startsWith('scripts/repo/setup/') ||
+      file.startsWith('scripts/repo/build/') ||
+      file.startsWith('scripts/repo/review/') ||
+      file === 'scripts/repo/node.mts' ||
+      file === 'scripts/repo/external-tools.mts',
+  )
 }
 
 export function gitLines(args: string[]): string[] {
@@ -236,21 +250,32 @@ export async function main(): Promise<void> {
   if (integrationFiles.length > 0) {
     runNode(testScript, ['integration', ...integrationFiles])
   }
-  if (plan.relatedFiles.length > 0) {
+  await runRelatedTests(plan.relatedFiles)
+}
+
+async function runRelatedTests(files: string[]) {
+  if (files.length === 0) {
+    return
+  }
+  const tiers = ['unit', 'integration'] as const
+  for (const tier of tiers) {
     const code = await runBudgeted(
       [
         'node_modules/vitest/vitest.mjs',
         'related',
-        ...plan.relatedFiles,
+        ...files,
         '--run',
+        '--passWithNoTests',
         '--config',
         '.config/repo/vitest.config.mts',
       ],
-      60_000,
-      'related',
+      testBudget(tier, false),
+      `related ${tier}`,
+      { ...process.env, NWSAPI_TEST_TIER: tier },
     )
     if (code !== 0) {
       process.exitCode = code
+      return
     }
   }
 }

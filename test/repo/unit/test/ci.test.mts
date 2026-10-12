@@ -22,7 +22,14 @@ const state = vi.hoisted(() => ({
   append: vi.fn(),
   run: vi.fn(),
   budget: vi.fn(async () => 0),
+  testBudget: vi.fn(),
 }))
+type RelatedBudgetCall = [string[], number, string, NodeJS.ProcessEnv]
+
+function relatedBudgetCalls() {
+  return state.budget.mock.calls as unknown as RelatedBudgetCall[]
+}
+
 vi.mock('node:child_process', () => ({ execFileSync: state.git }))
 vi.mock('node:fs', () => ({ appendFileSync: state.append }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
@@ -32,6 +39,7 @@ vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
 }))
 vi.mock('../../../../scripts/repo/lib/test-budget.mts', () => ({
   runBudgeted: state.budget,
+  testBudget: state.testBudget,
 }))
 
 beforeEach(() => {
@@ -47,6 +55,9 @@ beforeEach(() => {
       args[0] === 'merge-base' ? state.mergeBase : state.files.join('\r\n'),
     )
   state.budget.mockResolvedValue(0)
+  state.testBudget.mockImplementation((tier: string) =>
+    tier === 'unit' ? 10_000 : 60_000,
+  )
   const variables = [
     'CI',
     'GITHUB_BASE_REF',
@@ -205,6 +216,13 @@ test('every shared and lane-specific driver selects its owning test contract', (
     ['.config/state-pseudos.config.mts', 'browser'],
     ['scripts/repo/browser.mts', 'browser'],
     ['scripts/repo/build/run.mts', 'package'],
+    ['scripts/repo/lib/test-budget.mts', 'fullNode'],
+    ['scripts/repo/run.mts', 'fullNode'],
+    ['scripts/repo/setup/download.mts', 'fullNode'],
+    ['scripts/repo/build/package.mts', 'fullNode'],
+    ['scripts/repo/review/unit.mts', 'fullNode'],
+    ['scripts/repo/node.mts', 'fullNode'],
+    ['scripts/repo/external-tools.mts', 'fullNode'],
     ['test/repo/fuzz/selectors.fuzz.mts', 'fuzz'],
     ['scripts/repo/fuzz.mts', 'fuzz'],
     ['test/repo/e2e/upstream/test.html', 'upstream'],
@@ -293,13 +311,14 @@ test('a plan without a full Node run does not schedule unit shard workers', () =
 })
 
 test('the full Node test plan can leave unit shards to the matrix and run integration once', async () => {
-  state.files = ['src/fixture.mts']
+  state.files = ['scripts/repo/lib/test-budget.mts']
   state.args = ['--integration-only']
   await main()
   expect(state.run.mock.calls.map(call => call[1])).toEqual([
     undefined,
     ['integration', '--ci-isolate-clean-checkout'],
   ])
+  expect(state.budget).not.toHaveBeenCalled()
 })
 
 test('the CI runner builds only affected work then schedules full or targeted tiers', async () => {
@@ -325,15 +344,59 @@ test('the CI runner builds only affected work then schedules full or targeted ti
     ['unit', 'test/repo/unit/fixture.test.mts'],
     ['integration', 'test/repo/integration/fixture.test.mts'],
   ])
-  expect(state.budget).toHaveBeenCalledWith(
-    expect.arrayContaining(['related', 'scripts/repo/fixture.mts']),
-    60_000,
-    'related',
+  expect(state.testBudget.mock.calls).toEqual([
+    ['unit', false],
+    ['integration', false],
+  ])
+  expect(relatedBudgetCalls().map(call => call[0])).toEqual([
+    [
+      'node_modules/vitest/vitest.mjs',
+      'related',
+      'scripts/repo/fixture.mts',
+      '--run',
+      '--passWithNoTests',
+      '--config',
+      '.config/repo/vitest.config.mts',
+    ],
+    [
+      'node_modules/vitest/vitest.mjs',
+      'related',
+      'scripts/repo/fixture.mts',
+      '--run',
+      '--passWithNoTests',
+      '--config',
+      '.config/repo/vitest.config.mts',
+    ],
+  ])
+  expect(relatedBudgetCalls().map(call => call[1])).toEqual([10_000, 60_000])
+  expect(relatedBudgetCalls().map(call => call[2])).toEqual([
+    'related unit',
+    'related integration',
+  ])
+  expect(relatedBudgetCalls().map(call => call[3]['NWSAPI_TEST_TIER'])).toEqual(
+    ['unit', 'integration'],
   )
+  expect(relatedBudgetCalls()[0]![0]).toContain('--passWithNoTests')
+  expect(relatedBudgetCalls()[1]![0]).toContain('--passWithNoTests')
   state.files = ['scripts/repo/fixture.mts']
-  state.budget.mockResolvedValue(3)
+  state.budget.mockReset().mockResolvedValueOnce(3)
   await main()
   expect(state.exitCode).toBe(3)
+  expect(state.budget).toHaveBeenCalledOnce()
+})
+
+test('focused unit tests still run when the caller requests integration-only work', async () => {
+  state.files = ['test/repo/unit/fixture.test.mts', 'scripts/repo/fixture.mts']
+  state.args = ['--integration-only']
+  await main()
+  expect(state.run.mock.calls.map(call => call[1])).toEqual([
+    undefined,
+    ['unit', 'test/repo/unit/fixture.test.mts'],
+  ])
+  expect(relatedBudgetCalls().map(call => call[2])).toEqual([
+    'related unit',
+    'related integration',
+  ])
 })
 
 test('unreliable change discovery and the command entrypoint run the complete Node plan', async () => {
