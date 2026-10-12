@@ -47,6 +47,7 @@ import {
   probeToolVersion,
   verifiedWrapper,
   wrapperStatus,
+  wrapperDifference,
 } from '../../../../scripts/repo/setup/diagnostics.mts'
 
 afterEach(() => {
@@ -119,4 +120,21 @@ test('wrapper diagnostic identifies an absent Firewall executable', () => {
     throw new Error('not found')
   })
   expect(wrapperStatus('npm')).toBe('Firewall executable missing')
+})
+
+test('wrapper mismatch distinguishes path aliases without exposing launcher text', () => {
+  const details = wrapperDifference(
+    '@echo off\r\nC:\\Users\\runneradmin\\tool --private=value\r\n',
+    '@echo off\r\nC:\\Users\\RUNNER~1\\tool --private=value\r\n',
+    'C:\\Users\\RUNNER~1',
+    'C:\\Users\\runneradmin',
+  )
+  expect(details).toContain('first-line=2')
+  expect(details).toContain('path-alias-equivalent=true')
+  expect(details).toContain('actual-crlf=2')
+  expect(details).not.toContain('private')
+  expect(details).not.toContain('Users')
+  expect(wrapperDifference('other', 'command', '/alias', '/real')).toContain(
+    'path-alias-equivalent=false',
+  )
 })

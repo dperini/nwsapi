@@ -134,6 +134,31 @@ export function managedEntry(name: ToolName, directory = TOOL_BIN) {
   return path.join(directory, name + extension)
 }
 
+export function wrapperDifference(
+  actual: string,
+  expected: string,
+  root: string,
+  nativeRoot: string,
+) {
+  let offset = 0
+  while (offset < actual.length && actual[offset] === expected[offset]) {
+    offset += 1
+  }
+  const line = expected.slice(0, offset).split('\n').length
+  const equivalent =
+    actual.replaceAll(root, nativeRoot) ===
+    expected.replaceAll(root, nativeRoot)
+  return [
+    'checkout launcher contents differ from the pinned command',
+    `first-line=${line}`,
+    `actual-length=${actual.length}`,
+    `expected-length=${expected.length}`,
+    `path-alias-equivalent=${equivalent}`,
+    `actual-crlf=${actual.split('\r\n').length - 1}`,
+    `expected-crlf=${expected.split('\r\n').length - 1}`,
+  ].join('; ')
+}
+
 export function wrapperStatus(
   name: 'npm' | 'pnpm',
   directory = TOOL_BIN,
@@ -163,10 +188,16 @@ export function wrapperStatus(
     if (!executableAvailable(managedEntry(name, directory))) {
       return 'checkout launcher missing'
     }
-    return readFileSync(managedEntry(name, directory), 'utf8') ===
-      lines.join(newline) + newline
+    const actual = readFileSync(managedEntry(name, directory), 'utf8')
+    const expected = lines.join(newline) + newline
+    return actual === expected
       ? 'verified'
-      : 'checkout launcher contents differ from the pinned command'
+      : wrapperDifference(
+          actual,
+          expected,
+          REPO_ROOT,
+          realpathSync.native(REPO_ROOT),
+        )
   } catch {
     return 'wrapper verification could not read required files'
   }
