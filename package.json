@@ -135,7 +135,7 @@
     "build": "node scripts/repo/run.mts scripts/repo/build/run.mts",
     "prepack": "node scripts/repo/build/require-staging.mts",
     "serve": "node scripts/repo/run.mts scripts/repo/serve.mts",
-    "guide": "node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/model-guide.mts --open /index.html",
+    "guide": "node scripts/repo/run.mts node_modules/vite/bin/vite.js --config .config/model-guide.mts",
     "guide:build": "node scripts/repo/run.mts node_modules/vite/bin/vite.js build --config .config/model-guide.mts",
     "test": "node scripts/repo/run.mts scripts/repo/test.mts unit",
     "test:ci": "node scripts/repo/run.mts scripts/repo/test/ci.mts",

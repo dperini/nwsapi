@@ -1,0 +1,126 @@
+name: "ci: cold onboarding"
+run-name: "ci: cold onboarding"
+
+on:
+  push:
+    branches: [prerelease/3.0.0]
+  pull_request:
+    branches: [prerelease/3.0.0]
+  schedule:
+    - cron: "17 10 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [bootstrap, npm, pnpm, journey]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ matrix.scenario == 'bootstrap' && '22.18.0' || '26.11.0' }}
+      - name: Provision external package-manager entry points
+        if: matrix.scenario == 'npm' || matrix.scenario == 'pnpm'
+        timeout-minutes: 15
+        shell: pwsh
+        run: npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-managers') --no-save npm@12.2.0 pnpm@12.12.0
+      - name: Run isolated onboarding scenario
+        timeout-minutes: 45
+        shell: pwsh
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+        run: |
+          $node = (Get-Command node).Source
+          $arguments = @('--scenario', $env:SCENARIO, '--node', $node)
+          $managerRoot = Join-Path $env:RUNNER_TEMP 'onboarding-managers/node_modules'
+          if (Test-Path (Join-Path $managerRoot 'npm/bin/npm-cli.js')) {
+            $arguments += @('--npm', (Join-Path $managerRoot 'npm/bin/npm-cli.js'))
+          }
+          if (Test-Path (Join-Path $managerRoot 'pnpm/bin/pnpm.cjs')) {
+            $arguments += @('--pnpm', (Join-Path $managerRoot 'pnpm/bin/pnpm.cjs'))
+          }
+          node scripts/repo/test/onboarding/run.mts @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload onboarding diagnostics
+        if: always()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: onboarding-linux-${{ matrix.scenario }}-${{ github.run_id }}
+          path: .cache/onboarding/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Summarize scenario
+        if: always()
+        shell: pwsh
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+        run: |
+          "scenario=$env:SCENARIO entry_node=$(node --version) manager_prerequisite=$((Test-Path (Join-Path $env:RUNNER_TEMP 'onboarding-managers/node_modules'))) result=${{ job.status }}" >> $env:GITHUB_STEP_SUMMARY
+
+  native:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/prerelease/3.0.0')
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025]
+        scenario: [bootstrap, npm, pnpm]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: ${{ matrix.scenario == 'bootstrap' && '22.18.0' || '26.11.0' }}
+      - name: Provision external package-manager entry points
+        if: matrix.scenario == 'npm' || matrix.scenario == 'pnpm'
+        timeout-minutes: 15
+        shell: pwsh
+        run: npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-managers') --no-save npm@12.2.0 pnpm@12.12.0
+      - name: Run isolated onboarding scenario
+        timeout-minutes: 45
+        shell: pwsh
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+        run: |
+          $node = (Get-Command node).Source
+          $arguments = @('--scenario', $env:SCENARIO, '--node', $node)
+          $managerRoot = Join-Path $env:RUNNER_TEMP 'onboarding-managers/node_modules'
+          if (Test-Path (Join-Path $managerRoot 'npm/bin/npm-cli.js')) {
+            $arguments += @('--npm', (Join-Path $managerRoot 'npm/bin/npm-cli.js'))
+          }
+          if (Test-Path (Join-Path $managerRoot 'pnpm/bin/pnpm.cjs')) {
+            $arguments += @('--pnpm', (Join-Path $managerRoot 'pnpm/bin/pnpm.cjs'))
+          }
+          node scripts/repo/test/onboarding/run.mts @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload onboarding diagnostics
+        if: always()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: onboarding-${{ matrix.os }}-${{ matrix.scenario }}-${{ github.run_id }}
+          path: .cache/onboarding/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Summarize native scenario
+        if: always()
+        shell: pwsh
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+          PLATFORM: ${{ matrix.os }}
+        run: |
+          "platform=$env:PLATFORM scenario=$env:SCENARIO entry_node=$(node --version) result=${{ job.status }}" >> $env:GITHUB_STEP_SUMMARY

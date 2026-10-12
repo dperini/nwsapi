@@ -153,6 +153,7 @@ export default defineConfig({
     },
   },
   server: {
+    open: process.env['NWSAPI_GUIDE_NO_OPEN'] === '1' ? false : '/index.html',
     host: '127.0.0.1',
     port: Number(process.env['PORT'] || 4389),
     strictPort: true,
