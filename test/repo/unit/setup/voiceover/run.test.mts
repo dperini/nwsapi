@@ -1,4 +1,5 @@
 import { PassThrough } from 'node:stream'
+import type * as ChildProcess from 'node:child_process'
 import { afterEach, expect, test, vi } from 'vitest'
 import { setupVoiceOver } from '../../../../../scripts/repo/setup/voiceover/run.mts'
 import type { VoiceOverPreflight } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
@@ -12,7 +13,7 @@ const hostCommand = vi.hoisted(() =>
   }),
 )
 vi.mock('node:child_process', async original => ({
-  ...(await original<typeof import('node:child_process')>()),
+  ...(await original<typeof ChildProcess>()),
   execFileSync: hostCommand,
   spawn: hostCommand,
   spawnSync: hostCommand,
