@@ -5,8 +5,8 @@ import { REPO_ROOT, TAZE_CLI_PATH, WORKSPACE_PATH } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
 import { collectPackumentFailures } from '../lib/taze-output.mts'
 import { checkSoak, refreshSoak, soakPolicy } from '../soak.mts'
-import { parse, stringify } from 'yaml'
-import { toolExecutable } from '../external-tools.mts'
+import { parse } from 'yaml'
+import { managedCommand, managedEnvironment } from '../setup/manager.mts'
 
 // Toolchain versions need a separate compatibility review.
 const PINNED_TOOLCHAIN = [
@@ -60,11 +60,12 @@ export function updateDependencies(
   install = installDependencies,
   prepare = () => (check ? checkSoak() : refreshSoak()),
   upstream = updateReferences,
+  syncManifest = syncPackageManifest,
 ) {
   prepare()
   run(TAZE_CLI_PATH, updateArgs(readFileSync(WORKSPACE_PATH, 'utf8'), check))
   if (!check) {
-    syncPackageManifest()
+    syncManifest()
   }
   upstream(check)
   if (!check) {
@@ -99,12 +100,21 @@ function runTaze(entry: string, args: string[], retry = true): void {
 }
 
 function installDependencies() {
-  execFileSync(toolExecutable('pnpm'), ['install', '--no-frozen-lockfile'], {
+  runManagedManager('pnpm', ['install', '--no-frozen-lockfile'])
+  // Lock-only does not install packages. Scripts are disabled to avoid rerunning
+  // the root prepare lifecycle after the canonical pnpm install has built it.
+  runManagedManager('npm', [
+    'install',
+    '--package-lock-only',
+    '--ignore-scripts',
+  ])
+}
+
+function runManagedManager(manager: 'pnpm' | 'npm', args: string[]) {
+  const request = managedCommand(args, undefined, process.platform, manager)
+  execFileSync(request.command, request.args, {
     cwd: REPO_ROOT,
-    stdio: 'inherit',
-  })
-  execFileSync(toolExecutable('npm'), ['install', '--package-lock-only'], {
-    cwd: REPO_ROOT,
+    env: managedEnvironment(),
     stdio: 'inherit',
   })
 }
@@ -123,7 +133,11 @@ export function syncPackageManifest(root = REPO_ROOT) {
     allowScripts?: Record<string, boolean>
     overrides?: Record<string, string>
   }
-  pkg.devDependencies = { ...workspace.catalog }
+  pkg.devDependencies = Object.fromEntries(
+    Object.entries(workspace.catalog).sort(([left], [right]) =>
+      left.localeCompare(right),
+    ),
+  )
   pkg.allowScripts = { ...(workspace.allowBuilds ?? {}) }
   pkg.overrides = { ...(workspace.overrides ?? {}) }
   writeFileSync(manifestPath, `${JSON.stringify(pkg, null, 2)}\n`)

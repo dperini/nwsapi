@@ -4,7 +4,7 @@ import {
   REPO_ROOT,
   TAZE_CLI_PATH,
 } from '../../../../scripts/repo/lib/paths.mts'
-import { toolExecutable } from '../../../../scripts/repo/external-tools.mts'
+import { managedCommand } from '../../../../scripts/repo/setup/manager.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -48,6 +48,10 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
+function runUpdate() {
+  updateDependencies(false, undefined, undefined, undefined, () => {}, vi.fn())
+}
+
 test('dependency updates honor maturity and exclude the reviewed toolchain', () => {
   const args = updateArgs('minimumReleaseAge: 1441', false)
   expect(args).toContain('--write')
@@ -76,24 +80,36 @@ test('check mode never installs dependencies and validates the soak policy first
   expect(state.spawn.mock.calls[0]![1][0]).toBe(TAZE_CLI_PATH)
 })
 test('dependency updates refresh both graphs with pinned checkout managers', () => {
-  updateDependencies(false)
+  runUpdate()
   expect(state.refresh).toHaveBeenCalledOnce()
   expect(state.execute.mock.calls).toEqual([
     [
-      toolExecutable('pnpm'),
-      ['install', '--no-frozen-lockfile'],
-      { cwd: REPO_ROOT, stdio: 'inherit' },
+      ...Object.values(
+        managedCommand(
+          ['install', '--no-frozen-lockfile'],
+          undefined,
+          process.platform,
+          'pnpm',
+        ),
+      ),
+      expect.objectContaining({ cwd: REPO_ROOT, stdio: 'inherit' }),
     ],
     [
-      toolExecutable('npm'),
-      ['install', '--package-lock-only'],
-      { cwd: REPO_ROOT, stdio: 'inherit' },
+      ...Object.values(
+        managedCommand(
+          ['install', '--package-lock-only', '--ignore-scripts'],
+          undefined,
+          process.platform,
+          'npm',
+        ),
+      ),
+      expect.objectContaining({ cwd: REPO_ROOT, stdio: 'inherit' }),
     ],
   ])
 })
 test('updates select checkout managers instead of ambient npm_execpath', () => {
   vi.stubEnv('npm_execpath', '')
-  expect(() => updateDependencies(false)).not.toThrow()
+  expect(runUpdate).not.toThrow()
   expect(state.refresh).toHaveBeenCalledOnce()
 })
 test('spawn errors propagate before references or installation', () => {
