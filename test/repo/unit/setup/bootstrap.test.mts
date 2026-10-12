@@ -113,31 +113,11 @@ test('branch changes and missing tool state require local launcher repair', () =
 
 test('successful repeat installs explicitly restore generated runtime outputs', async () => {
   const run = vi.fn<ManagedRun>(() => ({ status: 0, signal: null }))
-  await bootstrap(
-    false,
-    async () => '/tools',
-    run,
-    'no',
-    undefined,
-    () => false,
-  )
+  await bootstrap(false, async () => '/tools', run)
   expect(run.mock.calls).toEqual([
     [['install', '--frozen-lockfile'], '/tools'],
     [['run', 'prepare'], '/tools'],
   ])
-})
-
-test('successful install skips a second build when prepare outputs are ready', async () => {
-  const run = vi.fn<ManagedRun>(() => ({ status: 0, signal: null }))
-  await bootstrap(
-    false,
-    async () => '/tools',
-    run,
-    'no',
-    undefined,
-    () => true,
-  )
-  expect(run.mock.calls).toEqual([[['install', '--frozen-lockfile'], '/tools']])
 })
 
 test('an interrupted install does not start preparation', async () => {
@@ -201,15 +181,8 @@ test('optional VoiceOver is offered only after core setup succeeds', async () =>
     order.push('core')
     return { status: 0, signal: null }
   })
-  await bootstrap(
-    false,
-    async () => '/tools',
-    run,
-    'yes',
-    setupVoiceOver,
-    () => true,
-  )
-  expect(order).toEqual(['core', 'voiceover'])
+  await bootstrap(false, async () => '/tools', run, 'yes', setupVoiceOver)
+  expect(order).toEqual(['core', 'core', 'voiceover'])
   expect(setupVoiceOver).toHaveBeenCalledWith({ choice: 'yes' })
 })
 
