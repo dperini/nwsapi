@@ -8,9 +8,10 @@ import { readJourney } from './readme.mts'
 import { startGuide } from './guide.mts'
 import { externalToolVersion, hashes, redact } from './environment.mts'
 import { runBounded } from './process.mts'
-import { runPlainSetup } from './terminal.mts'
+import { retainFailedReviewReports } from './reports.mts'
 import {
   runJourney,
+  runPlainSetupMenu,
   runReadmeHarnessSteps,
   verifyInstalledCheckout,
 } from './scenario.mts'
@@ -30,6 +31,8 @@ let keepSandbox = false
 let activeLog = ''
 let activeScenario: Scenario | undefined
 let activeCommit: string | undefined
+let activeSandbox = ''
+let retainedArtifacts: string[] = []
 let entryNodeVersion = ''
 const managerVersions: Record<string, string> = {}
 type Scenario = (typeof cases)[number]
@@ -251,60 +254,20 @@ async function runScenario(
     startGuide,
     redact,
     recordGuideOutcome,
-    () => runPlainMenu(log, context.snapshot, options.node, context.env),
+    async () => {
+      const outcome = await runPlainSetupMenu(
+        log,
+        context.snapshot,
+        options.node,
+        context.env,
+        redact,
+      )
+      phases.push(outcome)
+      if (outcome.error) {
+        throw new Error(outcome.error)
+      }
+    },
   )
-}
-
-async function runPlainMenu(
-  log: string,
-  checkout: string,
-  node: string,
-  env: NodeJS.ProcessEnv,
-) {
-  if (process.platform !== 'linux') {
-    const message = 'Skipped: real PTY menu is verified in the Linux journey.'
-    phases.push({
-      phase: 'plain terminal setup wizard',
-      command: 'skipped on non-Linux platform',
-      status: 'skipped',
-      code: null,
-    })
-    await writeFile(log, `\n## plain terminal setup wizard\n${message}\n`, {
-      flag: 'a',
-    })
-    return
-  }
-  const result = await runPlainSetup({
-    checkout,
-    node,
-    env,
-    timeoutMs: TIMEOUT,
-  })
-  await writeFile(
-    log,
-    redact(
-      `\n## plain terminal setup wizard\npreview=${result.previewObserved} confirmation=${result.confirmationSent} setup=${result.setupCompleted} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'} failure=${result.failure ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
-    ),
-    { flag: 'a' },
-  )
-  const success =
-    !result.failure &&
-    result.code === 0 &&
-    result.signal === null &&
-    result.previewObserved &&
-    result.confirmationSent &&
-    result.setupCompleted
-  phases.push({
-    phase: 'plain terminal setup wizard',
-    command: 'node scripts/repo/develop/run.mts --plain; select setup; confirm',
-    status: success ? 'completed' : 'failed',
-    code: result.code,
-  })
-  if (!success) {
-    throw new Error(
-      `Plain terminal setup wizard did not complete: ${result.failure ?? `exit ${result.code ?? 'null'}`}. See ${log}`,
-    )
-  }
 }
 
 async function runManagerScenario(
@@ -417,6 +380,7 @@ async function main() {
   activeScenario = options.scenario
   await mkdir(LOG_ROOT, { recursive: true })
   const sandbox = await makeSandbox()
+  activeSandbox = sandbox.directory
   cleanupSandbox = sandbox.cleanup
   keepSandbox = options.keep ?? false
   const log = path.join(
@@ -434,6 +398,9 @@ async function main() {
     appendLog,
     command,
     managerVersions,
+    commit => {
+      activeCommit = commit
+    },
     REPO,
   )
   entryNodeVersion = context.nodeVersion
@@ -461,6 +428,7 @@ async function writeSummary(status: string, commit?: string, message?: string) {
     entryNodeVersion: entryNodeVersion || null,
     managerVersions,
     commit: commit ?? activeCommit ?? null,
+    artifacts: retainedArtifacts.map(file => path.relative(LOG_ROOT, file)),
     message: message ? redact(message) : null,
     phases,
   }
@@ -478,11 +446,25 @@ async function execute() {
     await main()
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
+    if (activeScenario === 'journey' && activeSandbox) {
+      try {
+        retainedArtifacts = await retainFailedReviewReports({
+          sandbox: activeSandbox,
+          destination: `${activeLog}.artifacts`,
+          redact,
+        })
+      } catch {
+        retainedArtifacts = []
+      }
+    }
     const summary = await writeSummary('failed', activeCommit, message)
     if (activeLog) {
+      const reports = retainedArtifacts.length
+        ? `retained reports=${retainedArtifacts.map(file => path.relative(LOG_ROOT, file)).join(', ')}`
+        : 'retained reports=none'
       await writeFile(
         activeLog,
-        `\n## summary\nstatus=failed\nmessage=${redact(message)}\nphases=${JSON.stringify(phases)}\n`,
+        `\n## summary\nstatus=failed\nmessage=${redact(message)}\nphases=${JSON.stringify(phases)}\n${reports}\n`,
         { flag: 'a' },
       )
     }

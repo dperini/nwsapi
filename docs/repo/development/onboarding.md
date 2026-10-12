@@ -14,8 +14,16 @@ The runner uses direct OS prerequisites such as Git and archive extraction tools
 
 Pull requests and pushes to `prerelease/3.0.0` run independent Linux lanes for Node bootstrap at the 22.18 minimum, literal `npm i`, literal `pnpm i`, and the full wizard journey. Native jobs run bootstrap and both manager lanes on macOS and Windows when pushed to this branch, and on scheduled or manual dispatches after the workflow reaches the default branch. The workflow has no restored package or tool cache.
 
-## Observed and unverified
+## Recorded results
 
-The runner, scenario definitions, and CI workflow are present in this branch. Their code paths are covered by focused unit tests for environment isolation, README command parsing, and JSON envelope validation.
+On October 12, 2026, [run 38289785970](https://github.com/dperini/nwsapi/actions/runs/38289785970) at `31b7357` passed Linux bootstrap, npm, pnpm, and the complete wizard journey. All three macOS installation lanes passed. The [ordinary CI gates](https://github.com/dperini/nwsapi/actions/runs/38289785952) passed at that revision too.
 
-A local full cold run has not been recorded in this report. GitHub Linux, macOS, and Windows results remain unverified until the corresponding workflow lanes pass. Do not treat the presence of the workflow as evidence that a platform completed onboarding.
+A fresh local macOS journey at `15cbe8b` completed setup, guide delivery and shutdown, review, removal and rebuilding of `dist/`, manifest and export checks, both Firewall launcher checks, and final readiness. The review verified 420 unit-test files and 2,541 tests across 32 shards, plus lint, formatting, and types. Its log is `.cache/onboarding/journey-2026-10-12T18-31-06.126Z.log`.
+
+Cold runs exposed issues that focused checks did not: detached checkouts could return an empty task list, Windows command launchers resolved the wrong executable, and macOS filesystem aliases could make repeat setup exit without rebuilding. The branch now includes fixes and behavioral regression coverage. The launcher test runs on the host platform without skipping the unit inventory. Rejected review reports, including pending tests, are retained for diagnosis. Shared script drivers now schedule the full unit matrix and a separate integration run. Focused related tests are constrained to unit and integration tiers with their existing time budgets.
+
+Windows onboarding has not passed. [Run 38290856045](https://github.com/dperini/nwsapi/actions/runs/38290856045) at `912d3fa` reached the pinned pnpm download and failed with `UND_ERR_SOCKET` for the GitHub release archive. The preceding nub download succeeded. The Windows npm and pnpm lanes completed installation but failed their subsequent readiness checks. The branch now uses the activated checkout Node path consistently when generating and verifying the Windows npm wrapper. Mocked Windows regressions pass, with native confirmation pending. The download diagnostic includes the asset location and error code while omitting URL credentials, query strings, and raw error messages.
+
+Native npm installation also reported nine development dependency advisories in the pinned toolchain. Those findings require a separate dependency review.
+
+The guide checks establish HTTP delivery and process shutdown. Browser rendering and assistive-technology behavior require their separate, opt-in checks. Linux PTY evidence does not establish native terminal behavior on macOS or Windows.

@@ -10,16 +10,15 @@ export async function runBounded(
 ) {
   let command = executable
   let commandArgs = args
-  if (
-    process.platform === 'win32' &&
-    executable.toLowerCase().endsWith('.cmd')
-  ) {
+  const windowsCommand =
+    process.platform === 'win32' && executable.toLowerCase().endsWith('.cmd')
+  if (windowsCommand) {
     command = process.env['ComSpec'] ?? 'cmd.exe'
     commandArgs = [
       '/d',
       '/s',
       '/c',
-      `"${executable}" ${args.map(value => `"${value.replaceAll('"', '""')}"`).join(' ')}`,
+      `""${executable}" ${args.map(value => `"${value.replaceAll('"', '""')}"`).join(' ')}"`,
     ]
   }
   const grouped = process.platform !== 'win32'
@@ -28,6 +27,7 @@ export async function runBounded(
     env,
     detached: grouped,
     stdio: ['ignore', 'pipe', 'pipe'],
+    windowsVerbatimArguments: windowsCommand,
     windowsHide: true,
   })
   const output: { stdout: string; stderr: string } = { stdout: '', stderr: '' }

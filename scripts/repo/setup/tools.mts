@@ -17,6 +17,7 @@ import {
   TOOL_BIN,
   TOOLCHAIN_STATE,
   toolchainState,
+  managedNodeEntry,
   toolPlan,
   toolPlatform,
   toolVersions,
@@ -112,12 +113,13 @@ export async function setupTools() {
     }
   }
   activateTool('node', node)
+  const managedNode = realpathSync(managedNodeEntry())
   activateTool('nub', executables.nub)
   activateTool('mise', executables.mise)
   activateTool('sfw', executables.sfw)
   writeFirewallShim('pnpm', executables.sfw, { executable: executables.pnpm })
   writeFirewallShim('npm', executables.sfw, {
-    executable: node,
+    executable: managedNode,
     args: [executables.npm],
   })
   writeFileSync(TOOLCHAIN_STATE, toolchainState())

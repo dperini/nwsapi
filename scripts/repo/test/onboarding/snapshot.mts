@@ -120,6 +120,7 @@ export async function checkoutSnapshot(
   appendLog: AppendLogger,
   command: CommandRunner,
   managerVersions: Record<string, string>,
+  recordCommit: (commit: string) => void,
   repo: string,
 ): Promise<SnapshotContext> {
   const { gitExecutable, env, snapshot } = environment
@@ -135,6 +136,7 @@ export async function checkoutSnapshot(
       'Cannot capture exact source commit for the onboarding snapshot.',
     )
   }
+  recordCommit(sourceCommit)
   const clone = run(
     gitExecutable,
     ['clone', '--no-hardlinks', '--local', '--no-checkout', repo, snapshot],

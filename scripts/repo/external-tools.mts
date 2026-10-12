@@ -77,6 +77,13 @@ export const TOOL_CACHE = path.join(REPO_ROOT, '.cache', 'external-tools')
 export const TOOL_BIN = path.join(REPO_ROOT, '.cache', 'bin')
 export const TOOLCHAIN_STATE = toolchainStatePath()
 
+export function managedNodeEntry(
+  directory = TOOL_BIN,
+  platform = process.platform,
+) {
+  return path.join(directory, platform === 'win32' ? 'node.exe' : 'node')
+}
+
 export function toolchainStatePath(directory = TOOL_BIN) {
   return path.join(directory, 'toolchain.json')
 }
