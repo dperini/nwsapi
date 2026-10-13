@@ -1,7 +1,24 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { ensureLocalCiDockerAvailable } from '../../../../../scripts/repo/ci/local/docker.mts'
+import { localCiInvocation } from '../../../../../scripts/repo/ci/local/run.mts'
 
 afterEach(() => vi.restoreAllMocks())
+
+test('selects the repository CI workflow for local runs', () => {
+  expect(localCiInvocation()).toEqual({
+    command: 'node scripts/repo/ci/local/run.mts',
+    args: [
+      'scripts/repo/run.mts',
+      'node_modules/run-local-ci/dist/native-launcher.js',
+      'run',
+      '--workflow',
+      '.github/workflows/ci.yml',
+      '--quiet',
+      '--pause-on-failure',
+      '--github-token',
+    ],
+  })
+})
 
 test('uses an already running Docker engine without installing anything', async () => {
   const execute = vi.fn(() => 0)
