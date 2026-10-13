@@ -129,6 +129,8 @@ NW.Dom.uninstall();
 
 See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.
 
+<!-- <onboarding> -->
+
 ## Contribute
 
 Start with [Make your first change](docs/repo/development/first-change.md). It explains each step, the expected result, and how to continue after an interruption.
@@ -197,6 +199,8 @@ pnpm i
 <!-- onboarding:pnpm-install:end -->
 
 </details>
+
+<!-- </onboarding> -->
 
 <details>
 <summary>Check changes before a push</summary>

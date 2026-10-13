@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
+import { extractBlockByTag } from '../../lib/named-blocks.mts'
 
 export interface JourneyStep {
   id: string
@@ -28,5 +29,9 @@ export function parseJourney(markdown: string): JourneyStep[] {
 
 export async function readJourney(repository: string) {
   const markdown = await readFile(path.join(repository, 'README.md'), 'utf8')
-  return parseJourney(markdown)
+  const block = extractBlockByTag(markdown, 'onboarding')
+  if (block === undefined) {
+    throw new Error('README must have one balanced onboarding section.')
+  }
+  return parseJourney(block)
 }

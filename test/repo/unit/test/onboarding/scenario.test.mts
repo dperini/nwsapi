@@ -133,7 +133,7 @@ test('failed literal README readiness records doctor details before assertion', 
   )
   writeFileSync(
     path.join(checkout, 'README.md'),
-    '<!-- onboarding:readiness:start -->\n```sh\nnode scripts/repo/develop/run.mts --task setup:check --json\n```\n<!-- onboarding:readiness:end -->',
+    '<!-- <onboarding> -->\n<!-- onboarding:readiness:start -->\n```sh\nnode scripts/repo/develop/run.mts --task setup:check --json\n```\n<!-- onboarding:readiness:end -->\n<!-- </onboarding> -->',
   )
   try {
     await expect(

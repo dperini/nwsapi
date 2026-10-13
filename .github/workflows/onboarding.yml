@@ -32,7 +32,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  plan:
+    name: onboarding changes
+    runs-on: ubuntu-26.04
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '22.18.0'
+          package-manager-cache: false
+      - name: Compare onboarding inputs
+        id: plan
+        env:
+          ONBOARDING_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: node scripts/repo/test/onboarding/plan.mts
+
   bootstrap:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     name: 'bootstrap (${{ matrix.os }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 35
@@ -61,6 +83,8 @@ jobs:
           retention-days: 14
 
   journey:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     name: 'journey (${{ matrix.os }}, ${{ matrix.manager }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90

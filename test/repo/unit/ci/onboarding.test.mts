@@ -39,9 +39,9 @@ test('onboarding has narrow matching push and pull request triggers', () => {
 
 test('minimum Node bootstrap and manager journeys run independently', () => {
   const jobs = workflow('onboarding.yml').jobs
-  expect(Object.keys(jobs).toSorted()).toEqual(['bootstrap', 'journey'])
-  expect(jobs['bootstrap']?.needs).toBeUndefined()
-  expect(jobs['journey']?.needs).toBeUndefined()
+  expect(Object.keys(jobs).toSorted()).toEqual(['bootstrap', 'journey', 'plan'])
+  expect(jobs['bootstrap']?.needs).toBe('plan')
+  expect(jobs['journey']?.needs).toBe('plan')
   const bootstrap = jobs['bootstrap']!.steps!
   const journey = jobs['journey']!.steps!
   expect(

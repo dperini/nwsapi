@@ -63,7 +63,10 @@ and six manager journeys. Manual dispatch runs the same matrix.
 
 Automatic runs are limited to the onboarding workflow, onboarding runner,
 setup scripts, developer helper, external-tool manifest, `package.json`, and
-the README consumed by the runner. Ordinary engine, test-suite, documentation,
+the README consumed by the runner. A small planning job compares the README's
+`<!-- <onboarding> -->` and `<!-- </onboarding> -->` section. README edits outside
+that block skip the full journeys. Missing, duplicate, or malformed markers
+run validation rather than silently skipping it. Ordinary engine, test-suite, documentation,
 and benchmark changes do not trigger onboarding.
 
 Bootstrap is independent of the entry manager, so each operating system checks
