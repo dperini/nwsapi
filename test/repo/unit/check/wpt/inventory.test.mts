@@ -19,15 +19,20 @@ import {
 import type * as RepoPaths from '../../../../../scripts/repo/lib/paths.mts'
 import type * as NodeRunner from '../../../../../scripts/repo/lib/run-node.mts'
 
-const state = vi.hoisted(() => ({
-  root: '/tmp/nwsapi-inventory-test-' + process.pid,
-  revision: 'revision',
-  tree: '',
-  files: {} as Record<string, string>,
-  downloadError: false,
-  archiveDirectory: '',
-  main: false,
-}))
+const state = await vi.hoisted(async () => {
+  const { mkdtempSync: makeTemporary } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  return {
+    root: makeTemporary(join(tmpdir(), 'nwsapi-inventory-test-')),
+    revision: 'revision',
+    tree: '',
+    files: {} as Record<string, string>,
+    downloadError: false,
+    archiveDirectory: '',
+    main: false,
+  }
+})
 vi.mock('../../../../../scripts/repo/lib/paths.mts', async importOriginal => ({
   ...(await importOriginal<typeof RepoPaths>()),
   REPO_ROOT: state.root,

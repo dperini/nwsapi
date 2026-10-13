@@ -6,7 +6,18 @@ import {
   isPathWithinRoot,
   normalizePath,
   toForwardSlashes,
+  uvExecutablePath,
 } from '../../../../scripts/repo/lib/paths.mts'
+
+test.each([
+  ['win32', 'uv.exe'],
+  ['darwin', 'uv'],
+  ['linux', 'uv'],
+] as const)('selects the native uv shim on %s', (platform, filename) => {
+  expect(uvExecutablePath('/checkout', platform)).toBe(
+    path.join('/checkout', '.cache/bin', filename),
+  )
+})
 
 test.each([
   ['C:\\Temp\\file', 'C:/Temp/file'],

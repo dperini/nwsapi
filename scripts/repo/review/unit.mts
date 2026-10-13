@@ -19,6 +19,7 @@ interface LocalUnitShardOptions {
   identity: LocalUnitShardIdentity
   log?: (message: string) => void
   now?: () => number
+  collectFailures?: boolean
   runShard?: (
     index: number,
     directory: string,
@@ -32,9 +33,11 @@ export function runLocalUnitShards({
   identity,
   log = console.log,
   now = () => performance.now(),
+  collectFailures = false,
   runShard = executeShard,
   verify = verifyUnitShardDirectory,
 }: LocalUnitShardOptions) {
+  const failures: Error[] = []
   for (let index = 1; index <= UNIT_CI_SHARD_COUNT; index += 1) {
     const started = now()
     log(`[review] Unit shard ${index}/${UNIT_CI_SHARD_COUNT} started.`)
@@ -45,10 +48,20 @@ export function runLocalUnitShards({
       const elapsedMs = Math.round(now() - started)
       logShardCompletion(log, index, elapsedMs, report)
       logShardFailure(log, report)
-      throw error
+      if (!collectFailures) {
+        throw error
+      }
+      failures.push(new Error(`Unit shard ${index} failed`, { cause: error }))
+      continue
     }
     const elapsedMs = Math.round(now() - started)
     logShardCompletion(log, index, elapsedMs, shardReportPath(directory, index))
+  }
+  if (failures.length) {
+    throw new AggregateError(
+      failures,
+      `${failures.length} unit shards failed. See their retained reports.`,
+    )
   }
   return verify(directory, identity)
 }
@@ -187,7 +200,11 @@ function currentIdentity(): LocalUnitShardIdentity {
 export function runLocalUnitReview() {
   const directory = createLocalReportDirectory()
   console.log(`[review] Unit reports: ${directory}`)
-  return runLocalUnitShards({ directory, identity: currentIdentity() })
+  return runLocalUnitShards({
+    directory,
+    identity: currentIdentity(),
+    collectFailures: ['1', 'true'].includes(process.env['CI'] ?? ''),
+  })
 }
 
 if (isMainModule(import.meta.url)) {

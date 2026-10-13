@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { expect, test, vi } from 'vitest'
 import manifest from '../../../../../.config/external-tools.json' with { type: 'json' }
 import {
@@ -17,7 +18,7 @@ test('bootstraps using the selected minimum Node executable', () => {
   expect(invocation).toEqual({
     command: '/tools/node',
     args: [
-      '/checkout/scripts/repo/test/onboarding/run.mts',
+      path.join('/checkout', 'scripts/repo/test/onboarding/run.mts'),
       '--scenario',
       'bootstrap',
       '--node',
@@ -45,7 +46,7 @@ test.each([
       args: [
         'install',
         '--prefix',
-        '/tmp/onboarding/onboarding-manager',
+        path.join('/tmp/onboarding', 'onboarding-manager'),
         '--no-save',
         `${manager}@${version}`,
       ],
@@ -61,13 +62,18 @@ test.each([
     expect(journey).toEqual({
       command: '/tools/node',
       args: [
-        '/checkout/scripts/repo/test/onboarding/run.mts',
+        path.join('/checkout', 'scripts/repo/test/onboarding/run.mts'),
         '--scenario',
         manager,
         '--node',
         '/tools/node',
         `--${manager}`,
-        `/tmp/onboarding/onboarding-manager/node_modules/${manager}/${entry}`,
+        path.join(
+          '/tmp/onboarding',
+          'onboarding-manager/node_modules',
+          manager,
+          entry,
+        ),
       ],
     })
   },

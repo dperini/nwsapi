@@ -8,15 +8,16 @@ import {
   checkPythonScriptCoverage,
 } from '../../../../../scripts/repo/cover/scripts/python.mts'
 import { fixture } from './fixture/input.mts'
-import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
+import {
+  normalizePath,
+  uvExecutablePath,
+} from '../../../../../scripts/repo/lib/paths.mts'
 
 test('Python runs offline from the pinned project with branch coverage and unittest discovery', () => {
   const execute = vi.fn<ScriptCoverageExecute>()
   runPythonScriptTests('/checkout', '/report', execute)
   expect(execute).toHaveBeenCalledTimes(2)
-  expect(execute.mock.calls[0]![0]).toBe(
-    path.join('/checkout', '.cache/bin/uv'),
-  )
+  expect(execute.mock.calls[0]![0]).toBe(uvExecutablePath('/checkout'))
   expect(execute.mock.calls[0]![1]).toEqual([
     'run',
     '--project',

@@ -13,7 +13,7 @@ import {
   redact,
 } from './environment.mts'
 import { runBounded } from './process.mts'
-import { retainFailedReviewReports } from './reports.mts'
+import * as reviewReports from './reports.mts'
 import {
   runJourney,
   runPlainSetupMenu,
@@ -448,6 +448,7 @@ async function writeSummary(status: string, commit?: string, message?: string) {
     commit: commit ?? activeCommit ?? null,
     artifacts: retainedArtifacts.map(file => path.relative(LOG_ROOT, file)),
     message: message ? redact(message) : null,
+    failures: await reviewReports.readReviewFailures(retainedArtifacts),
     phases,
   }
   if (activeLog) {
@@ -466,7 +467,7 @@ async function execute() {
     const message = error instanceof Error ? error.message : String(error)
     if (activeScenario !== 'bootstrap' && activeSandbox) {
       try {
-        retainedArtifacts = await retainFailedReviewReports({
+        retainedArtifacts = await reviewReports.retainFailedReviewReports({
           sandbox: activeSandbox,
           destination: `${activeLog}.artifacts`,
           redact,
@@ -486,7 +487,7 @@ async function execute() {
         { flag: 'a' },
       )
     }
-    console.error(JSON.stringify({ ...summary, log: activeLog || null }))
+    reviewReports.emitOnboardingFailure(summary, activeLog || null)
     process.exitCode = 1
   } finally {
     if (!keepSandbox) {

@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import type { Entry } from '../../../../../scripts/repo/git/partial/submodule.mts'
@@ -24,12 +25,12 @@ vi.mock('../../../../../scripts/repo/git/partial/checkout.mts', () => ({
   cloneEntry: state.clone,
   applySparse: state.sparse,
   requireCleanCheckout: state.clean,
-  checkoutDir: (entry: Entry) => `/fixture/repo/${entry.path}`,
+  checkoutDir: (entry: Entry) => path.join('/fixture/repo', entry.path),
   headOf: () => state.head,
   isGitRepo: () => state.repo,
 }))
 const pin = 'a'.repeat(40)
-const directory = '/fixture/repo/upstream/wpt'
+const directory = path.join('/fixture/repo', 'upstream/wpt')
 const entry: Entry = {
   name: 'fixture',
   path: 'upstream/wpt',
@@ -54,9 +55,9 @@ beforeEach(() => {
   state.select.mockImplementation((entries: Entry[]) => entries)
   state.exists.mockImplementation(
     (file: string) =>
-      file === '/fixture/repo/.gitmodules' ||
+      file === path.join('/fixture/repo', '.gitmodules') ||
       file === directory ||
-      file === `${directory}/.git/shallow`,
+      file === path.join(directory, '.git/shallow'),
   )
   state.execute.mockImplementation((command: string, args: string[]) => {
     if (command !== 'git') {
@@ -69,7 +70,7 @@ beforeEach(() => {
       return Buffer.from('+refs/heads/main:refs/remotes/origin/main')
     }
     if (args.includes('--absolute-git-dir')) {
-      return Buffer.from(`${directory}/.git`)
+      return Buffer.from(path.join(directory, '.git'))
     }
     if (args.includes('sparse-checkout')) {
       return Buffer.from('css\nresources')
@@ -84,7 +85,7 @@ beforeEach(() => {
   })
   process.argv = ['node', 'submodule.mts', 'verify']
   process.exitCode = undefined
-  vi.spyOn(process, 'cwd').mockReturnValue('/fixture/repo/subdir')
+  vi.spyOn(process, 'cwd').mockReturnValue(path.join('/fixture/repo', 'subdir'))
   vi.spyOn(console, 'log').mockImplementation(() => {})
   vi.spyOn(console, 'error').mockImplementation(() => {})
 })
@@ -98,7 +99,9 @@ const load = () =>
 test('verification finds the root from subdirectories and checks the pinned object manifest', async () => {
   await load()
   expect(process.exitCode).toBeUndefined()
-  expect(state.parse).toHaveBeenCalledWith('/fixture/repo/.gitmodules')
+  expect(state.parse).toHaveBeenCalledWith(
+    path.join('/fixture/repo', '.gitmodules'),
+  )
   expect(
     state.execute.mock.calls.some(call => call[1].includes('ls-tree')),
   ).toBe(true)
@@ -137,7 +140,7 @@ test.each([false, true])(
   async shallow => {
     state.entries[0]!.shallow = shallow
     state.exists.mockImplementation(
-      (file: string) => file === '/fixture/repo/.gitmodules',
+      (file: string) => file === path.join('/fixture/repo', '.gitmodules'),
     )
     await load()
     expect(process.exitCode).toBe(1)
@@ -201,7 +204,7 @@ test('missing shallow marker and missing manifest hash fail verification', async
   state.entries[0]!.sha256 = null
   state.exists.mockImplementation(
     (file: string) =>
-      file === '/fixture/repo/.gitmodules' || file === directory,
+      file === path.join('/fixture/repo', '.gitmodules') || file === directory,
   )
   await load()
   expect(process.exitCode).toBe(1)
@@ -218,7 +221,7 @@ test('deep verification runs a plain command only after structural checks pass',
     'fixture-validator',
     ['--check'],
     expect.objectContaining({
-      cwd: '/fixture/repo',
+      cwd: path.join('/fixture', 'repo'),
       stdio: ['ignore', 'inherit', 'inherit'],
     }),
   )
@@ -254,7 +257,8 @@ test.each([true, false])(
     state.repo = repo
     state.exists.mockImplementation(
       (file: string) =>
-        file === '/fixture/repo/.gitmodules' || (!repo && file === directory),
+        file === path.join('/fixture/repo', '.gitmodules') ||
+        (!repo && file === directory),
     )
     await load()
     expect(process.exitCode).toBe(1)

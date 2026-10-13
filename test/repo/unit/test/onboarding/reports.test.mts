@@ -10,7 +10,92 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { test } from 'vitest'
-import { retainFailedReviewReports } from '../../../../../scripts/repo/test/onboarding/reports.mts'
+import {
+  emitOnboardingFailure,
+  formatOnboardingFailure,
+  readReviewFailures,
+  retainFailedReviewReports,
+  reviewFailures,
+} from '../../../../../scripts/repo/test/onboarding/reports.mts'
+
+test('emits readable output and safely escapes Actions annotations only in CI', () => {
+  const output: string[] = []
+  const summary = {
+    phases: [{ phase: 'review', status: 'failed' }],
+    message: '100%\r\nfailed',
+    failures: [],
+  }
+  emitOnboardingFailure(summary, null, false, text => output.push(text))
+  assert.equal(output.length, 1)
+  emitOnboardingFailure(summary, null, true, text => output.push(text))
+  assert.equal(output.length, 3)
+  assert.ok(output[2]!.startsWith('::error title=Onboarding failed::'))
+  assert.ok(output[2]!.includes('100%25%0D%0Afailed'))
+  assert.ok(!output[2]!.includes('\n'))
+})
+
+test('extracts bounded assertion failures from wrapped and standalone reports', () => {
+  const report = {
+    testResults: [
+      {
+        name: 'task.test.mts',
+        assertionResults: [
+          { status: 'passed', fullName: 'passing' },
+          {
+            status: 'failed',
+            fullName: 'task discovery',
+            failureMessages: ['AssertionError: duplicate tasks\r\nstack trace'],
+          },
+        ],
+      },
+    ],
+  }
+  assert.deepEqual(reviewFailures(report), [
+    'task discovery: AssertionError: duplicate tasks',
+  ])
+  assert.deepEqual(reviewFailures({ report }), reviewFailures(report))
+  assert.deepEqual(reviewFailures(null), [])
+  assert.deepEqual(
+    reviewFailures({ testResults: [null, { status: 'passed' }] }),
+    [],
+  )
+  assert.equal(
+    reviewFailures({
+      testResults: Array.from({ length: 8 }, () => ({
+        status: 'failed',
+        name: 'suite',
+        message: 'x'.repeat(800),
+      })),
+    }).length,
+    5,
+  )
+  assert.equal(
+    reviewFailures({
+      testResults: [
+        { status: 'failed', name: 'suite', message: 'x'.repeat(800) },
+      ],
+    })[0]!.length,
+    500,
+  )
+})
+
+test('prints a failed phase, assertion evidence and retry without dumping JSON', () => {
+  const output = formatOnboardingFailure(
+    'review',
+    'process returned 1',
+    ['task discovery: duplicate tasks'],
+    'onboarding.log',
+  )
+  assert.ok(output.includes('task discovery: duplicate tasks'))
+  assert.ok(output.includes('--task review --json'))
+  assert.ok(output.includes('onboarding.log'))
+  assert.ok(!output.includes('process returned 1'))
+  assert.ok(
+    formatOnboardingFailure('setup', 'download failed', [], null).includes(
+      'download failed',
+    ),
+  )
+})
 
 test('retains only failed structured shard reports and redacts their values', async () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-onboarding-reports-'))
@@ -127,6 +212,13 @@ test('retains only failed structured shard reports and redacts their values', as
       testResults: Array<{ failureMessage: string }>
     }
     assert.equal(vitest.testResults[0]!.failureMessage, 'private [redacted]')
+    assert.deepEqual(await readReviewFailures(retained), [
+      'test/repo/unit/check/catalog.test.mts: private [redacted]',
+    ])
+    assert.deepEqual(
+      await readReviewFailures([path.join(root, 'missing.json')]),
+      [],
+    )
     assert.equal(
       readdirSync(path.dirname(retained[0]!)).includes('arbitrary.json'),
       false,

@@ -6,10 +6,15 @@ import type * as NodeRunner from '../../../../scripts/repo/lib/run-node.mts'
 
 import { checkNaming } from '../../../../scripts/repo/naming/check.mts'
 
-const state = vi.hoisted(() => ({
-  root: '/tmp/nwsapi-naming-test-' + process.pid,
-  main: false,
-}))
+const state = await vi.hoisted(async () => {
+  const { mkdtempSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  return {
+    root: mkdtempSync(join(tmpdir(), 'nwsapi-naming-test-')),
+    main: false,
+  }
+})
 vi.mock('../../../../scripts/repo/lib/paths.mts', async importOriginal => ({
   ...(await importOriginal<typeof RepoPaths>()),
   REPO_ROOT: state.root,

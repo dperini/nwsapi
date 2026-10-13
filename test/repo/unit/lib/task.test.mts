@@ -6,9 +6,14 @@ import { runNode } from '../../../../scripts/repo/lib/run-node.mts'
 import type * as RepoPaths from '../../../../scripts/repo/lib/paths.mts'
 import type * as NodeRunner from '../../../../scripts/repo/lib/run-node.mts'
 
-const state = vi.hoisted(() => ({
-  root: '/tmp/nwsapi-task-test-' + process.pid,
-}))
+const state = await vi.hoisted(async () => {
+  const { mkdtempSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  return {
+    root: mkdtempSync(join(tmpdir(), 'nwsapi-task-test-')),
+  }
+})
 vi.mock('../../../../scripts/repo/lib/paths.mts', async importOriginal => ({
   ...(await importOriginal<typeof RepoPaths>()),
   REPO_ROOT: state.root,
@@ -68,6 +73,21 @@ test('task discovery rejects malformed commands and missing subject entrypoints'
     fixture({ 'lint:check': commands[i]! })
     expect(() => discoverTasks('check')).toThrow()
   }
+})
+
+test('task discovery resolves the root once before combining package and filesystem entries', () => {
+  fixture({
+    'lint:check':
+      'node scripts/repo/run.mts scripts/repo/lint/check.mts --strict',
+  })
+  const relativeRoot = path.relative(process.cwd(), state.root)
+  expect(discoverTasks('check', relativeRoot)).toEqual([
+    {
+      name: 'lint:check',
+      entry: path.join(state.root, 'scripts/repo/lint/check.mts'),
+      args: ['--strict'],
+    },
+  ])
 })
 
 test('update tasks run dependency refresh first and native WPT qualification last', () => {

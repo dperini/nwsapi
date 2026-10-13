@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { beforeEach, expect, test, vi } from 'vitest'
 import type { Entry } from '../../../../../scripts/repo/git/partial/submodule.mts'
 const state = vi.hoisted(() => ({
@@ -45,7 +46,7 @@ const entry: Entry = {
   sha256: null,
   verifyCommand: null,
 }
-const directory = '/fixture/repo/upstream/wpt'
+const directory = path.join('/fixture/repo', 'upstream/wpt')
 beforeEach(() => {
   vi.clearAllMocks()
   state.exists.mockReturnValue(false)
@@ -130,7 +131,9 @@ test('checkout containment checks the nearest existing ancestor', () => {
     throw Object.assign(new Error('missing'), { code: 'ENOENT' })
   })
   expect(checkoutDir(entry)).toBe(directory)
-  expect(state.stat).toHaveBeenCalledWith('/fixture/repo/upstream')
+  expect(state.stat).toHaveBeenCalledWith(
+    path.join('/fixture/repo', 'upstream'),
+  )
 })
 test('non-missing filesystem errors propagate rather than climbing ancestors', () => {
   const error = Object.assign(new Error('fixture'), { code: 'EACCES' })

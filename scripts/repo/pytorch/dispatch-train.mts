@@ -1,13 +1,13 @@
 import path from 'node:path'
 import manifest from '../../../.config/external-tools.json' with { type: 'json' }
 import { checked } from '../lib/command.mts'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { REPO_ROOT, uvExecutablePath } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
 export function dispatchTrainingCommand(args: string[]) {
   const project = path.join(REPO_ROOT, manifest.tools.pytorch.project)
   return {
-    command: path.join(REPO_ROOT, '.cache/bin/uv'),
+    command: uvExecutablePath(),
     args: [
       'run',
       '--project',

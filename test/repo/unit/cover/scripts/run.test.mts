@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
@@ -57,10 +58,15 @@ test('coverage runs both tiers with native collection and transformed worker mar
     cwd: '/checkout',
     env: {
       NODE_DISABLE_COMPILE_CACHE: '1',
-      NODE_V8_COVERAGE: '/checkout/coverage/scripts/raw',
-      NWSAPI_SCRIPT_COVERAGE_TRANSFORMED:
-        '/checkout/coverage/scripts/transformed',
-      NWSAPI_SCRIPT_COVERAGE_REPORT: '/checkout/coverage/scripts/unit',
+      NODE_V8_COVERAGE: path.join('/checkout/coverage/scripts', 'raw'),
+      NWSAPI_SCRIPT_COVERAGE_TRANSFORMED: path.join(
+        '/checkout/coverage/scripts',
+        'transformed',
+      ),
+      NWSAPI_SCRIPT_COVERAGE_REPORT: path.join(
+        '/checkout/coverage/scripts',
+        'unit',
+      ),
     },
   })
 })

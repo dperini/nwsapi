@@ -218,3 +218,103 @@ function redactValue(
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
+
+export function reviewFailures(value: unknown): string[] {
+  if (!isRecord(value)) {
+    return []
+  }
+  const report = isRecord(value['report']) ? value['report'] : value
+  if (!Array.isArray(report['testResults'])) {
+    return []
+  }
+  return report['testResults'].flatMap(suiteFailures).slice(0, 5)
+}
+
+function suiteFailures(suite: unknown): string[] {
+  if (!isRecord(suite)) {
+    return []
+  }
+  const name = typeof suite['name'] === 'string' ? suite['name'] : 'test suite'
+  const assertions = suite['assertionResults']
+  const failures = Array.isArray(assertions)
+    ? assertions.filter(test => isRecord(test) && test['status'] === 'failed')
+    : []
+  if (failures.length === 0) {
+    return suite['status'] === 'failed'
+      ? [failureLine(name, suite['message'] ?? suite['failureMessage'])]
+      : []
+  }
+  return failures.map(test => {
+    const title = typeof test['fullName'] === 'string' ? test['fullName'] : name
+    const messages = test['failureMessages']
+    return failureLine(title, Array.isArray(messages) ? messages[0] : '')
+  })
+}
+
+function failureLine(title: string, message: unknown): string {
+  const detail = typeof message === 'string' ? message.split(/\r?\n/)[0] : ''
+  return `${title}: ${detail || 'failed'}`.replace(/[\r\n]/g, ' ').slice(0, 500)
+}
+
+export async function readReviewFailures(files: string[]): Promise<string[]> {
+  const failures = new Set<string>()
+  for (const file of files) {
+    try {
+      for (const failure of reviewFailures(
+        JSON.parse(await readFile(file, 'utf8')),
+      )) {
+        failures.add(failure)
+      }
+    } catch {
+      continue
+    }
+  }
+  return [...failures].slice(0, 5)
+}
+
+export function formatOnboardingFailure(
+  phase: string,
+  message: string,
+  failures: string[],
+  log: string | null,
+): string {
+  const retry =
+    failures.length || phase.includes('review')
+      ? 'node scripts/repo/develop/run.mts --task review --json'
+      : 'node scripts/repo/setup/bootstrap.mts'
+  return [
+    `[onboarding] Failed: ${phase}`,
+    ...(failures.length
+      ? failures.map(failure => `  - ${failure}`)
+      : [message]),
+    `Retry in the checkout: ${retry}`,
+    ...(log ? [`Full evidence: ${log} (uploaded onboarding artifact)`] : []),
+  ].join('\n')
+}
+
+export function emitOnboardingFailure(
+  summary: {
+    phases: Array<{ phase: string; status: string }>
+    message: string | null
+    failures: string[]
+  },
+  log: string | null,
+  githubActions = process.env['GITHUB_ACTIONS'] === 'true',
+  write = console.error,
+): void {
+  const phase = summary.phases.find(item => item.status === 'failed')?.phase
+  const output = formatOnboardingFailure(
+    phase ?? 'setup',
+    summary.message ?? 'Onboarding failed',
+    summary.failures,
+    log,
+  )
+  write(output)
+  if (githubActions) {
+    const annotation = output
+      .replaceAll('%', '%25')
+      .replaceAll('\r', '%0D')
+      .replaceAll('\n', '%0A')
+    write(`::error title=Onboarding failed::${annotation}`)
+  }
+}
