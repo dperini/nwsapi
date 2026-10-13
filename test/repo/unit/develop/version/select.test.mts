@@ -39,7 +39,11 @@ test('creates a uniquely branched checkout beneath the system temporary director
     git(root, 'commit', '-m', 'fixture')
     git(root, 'branch', 'prerelease/3.0.0')
     const selected = createVersionCheckout(root, 'v3')
-    expect(selected.path.startsWith(realpathSync(os.tmpdir()))).toBe(true)
+    const relative = path.relative(
+      realpathSync.native(os.tmpdir()),
+      selected.path,
+    )
+    expect(relative.split(path.sep)[0]).toMatch(/^nwsapi-worktree-/)
     expect(git(selected.path, 'branch', '--show-current')).toBe(
       selected.branchName,
     )
