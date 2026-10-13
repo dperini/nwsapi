@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { JSDOM } from 'jsdom'
 import type * as NodeFs from 'node:fs'
+import path from 'node:path'
+import { toForwardSlashes } from '../../../../scripts/repo/lib/paths.mts'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
   close: vi.fn(),
@@ -22,19 +24,24 @@ vi.mock('../../../../scripts/repo/browser.mts', () => ({
 vi.mock('node:child_process', () => ({ execFileSync: () => 'fixture\n' }))
 vi.mock('node:fs', async original => ({
   ...(await original<typeof NodeFs>()),
-  existsSync: (file: string) =>
-    !file.includes('/deep/') &&
-    !file.includes('/nested/package.json') &&
-    !file.includes('/mid/package.json'),
+  existsSync: (file: string) => {
+    const normalized = toForwardSlashes(file)
+    return (
+      !normalized.includes('/deep/') &&
+      !normalized.includes('/nested/package.json') &&
+      !normalized.includes('/mid/package.json')
+    )
+  },
   readFileSync: (file: string) => {
     if (file.endsWith('compatibility.json')) {
       return JSON.stringify(state.fixture)
     }
-    if (file.endsWith('/package.json')) {
-      if (state.metadataError || file.includes('/inner/')) {
+    if (path.basename(file) === 'package.json') {
+      const directory = path.basename(path.dirname(file))
+      if (state.metadataError || directory === 'inner') {
         return JSON.stringify({ name: 'inner' })
       }
-      const name = file.split('/').at(-2)
+      const name = directory
       return JSON.stringify({
         name,
         version: 'fixture',

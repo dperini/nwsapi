@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { REPO_ROOT } from '../../lib/paths.mts'
+import { REPO_ROOT, toForwardSlashes } from '../../lib/paths.mts'
 import { escapeText } from '../charts.mts'
 
 const source = path.join(REPO_ROOT, 'docs/repo/perf/survey-2026-10-03.md')
@@ -39,9 +39,11 @@ function render() {
     /(href|src)="(\.\.\/[^"#]+)"/g,
     (_match, attribute: string, target: string) => {
       const absolute = path.resolve(path.dirname(source), target)
-      const relative = path.relative(path.dirname(output), absolute)
+      const relative = toForwardSlashes(
+        path.relative(path.dirname(output), absolute),
+      )
       const url = relative.startsWith('../')
-        ? `https://github.com/dperini/nwsapi/blob/${revision}/${path.relative(REPO_ROOT, absolute)}`
+        ? `https://github.com/dperini/nwsapi/blob/${revision}/${toForwardSlashes(path.relative(REPO_ROOT, absolute))}`
         : relative
       return `${attribute}="${escapeText(url)}"`
     },

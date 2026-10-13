@@ -37,6 +37,7 @@ export async function startGuide(
   })
   let cancelled: NodeJS.Signals | undefined
   let forced = false
+  let alreadyStopped = false
   const cancel = (signal: NodeJS.Signals) => {
     cancelled = signal
     terminateTree(child, signal)
@@ -60,16 +61,18 @@ export async function startGuide(
       () => stderr,
     )
     const moduleStatuses = await verifyGuidePage(page, url)
-    forced = terminateTree(child, 'SIGTERM')
+    const termination = terminateTree(child, 'SIGTERM')
+    forced = termination === true
+    alreadyStopped = termination === 'already-stopped'
     exit = await stopBounded(child, closed)
     await writeFile(
       file,
       redact(
-        `\n## guide persistent session\nHTTP ${page.status}; modules HTTP ${moduleStatuses.join(',')}; shutdown=${forced ? 'Windows forced process tree' : 'SIGTERM'} child code=${exit.code} signal=${exit.signal}\nstdout=${stdout}\nstderr=${stderr}\n`,
+        `\n## guide persistent session\nHTTP ${page.status}; modules HTTP ${moduleStatuses.join(',')}; shutdown=${forced ? 'Windows forced process tree' : alreadyStopped ? 'process already exited' : 'SIGTERM'} child code=${exit.code} signal=${exit.signal}\nstdout=${stdout}\nstderr=${stderr}\n`,
       ),
       { flag: 'a' },
     )
-    assertGuideShutdown(stdout, exit, forced)
+    assertGuideShutdown(stdout, exit, forced, alreadyStopped)
     await assertGuideStopped(url)
     if (cancelled) {
       throw new Error(`Guide runner cancelled by ${cancelled}.`)
@@ -98,10 +101,39 @@ export function guideOutcomeCode(
   return forced ? 0 : exit.code
 }
 
+export function taskkillOutcome(
+  status: number | null,
+  signal: NodeJS.Signals | null,
+) {
+  if (signal === null && status === 0) {
+    return 'terminated'
+  }
+  if (signal === null && status === 128) {
+    return 'already-stopped'
+  }
+  throw new Error(
+    `Guide process-tree shutdown failed: taskkill exit=${status} signal=${signal}.`,
+  )
+}
+
+export function guideShutdownExpected(
+  exit: { code: number | null; signal: NodeJS.Signals | null },
+  forced: boolean,
+  alreadyStopped: boolean,
+  hasOutput: boolean,
+) {
+  return forced
+    ? exit.code !== null && exit.code !== 0
+    : exit.code === 143 ||
+        exit.signal === 'SIGTERM' ||
+        (alreadyStopped && exit.code === 0 && hasOutput)
+}
+
 function assertGuideShutdown(
   stdout: string,
   exit: { code: number | null; signal: NodeJS.Signals | null },
   forced: boolean,
+  alreadyStopped: boolean,
 ) {
   // Windows taskkill terminates the runner before it can emit a JSON result.
   // Require a successful tree kill and verify the server is unreachable separately.
@@ -109,10 +141,14 @@ function assertGuideShutdown(
     const result = parseHarnessJson(stdout)
     assertHarnessResult(result, 'stopped', exit.code, 'guide')
   }
-  const expected = forced
-    ? exit.code !== null && exit.code !== 0
-    : exit.code === 143 || exit.signal === 'SIGTERM'
-  if (!expected) {
+  if (
+    !guideShutdownExpected(
+      exit,
+      forced,
+      alreadyStopped,
+      stdout.trim().length > 0,
+    )
+  ) {
     throw new Error(`Guide runner cleanup unexpected: ${JSON.stringify(exit)}.`)
   }
 }
@@ -210,7 +246,7 @@ async function stopBounded(
 function terminateTree(
   child: ReturnType<typeof spawn>,
   signal: NodeJS.Signals,
-) {
+): boolean | 'already-stopped' {
   if (process.platform !== 'win32' && child.pid) {
     try {
       process.kill(-child.pid, signal)
@@ -234,12 +270,8 @@ function terminateTree(
         timeout: 5000,
       },
     )
-    if (result.status === 0) {
-      return true
-    }
-    throw new Error(
-      `Guide process-tree shutdown failed: taskkill exit=${result.status} signal=${result.signal}.`,
-    )
+    const outcome = taskkillOutcome(result.status, result.signal)
+    return outcome === 'terminated' ? true : 'already-stopped'
   }
   child.kill(signal)
   return false

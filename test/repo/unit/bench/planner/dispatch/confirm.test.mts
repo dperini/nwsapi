@@ -1,7 +1,9 @@
+import type * as NodeFs from 'node:fs'
 import assert from 'node:assert/strict'
+import os from 'node:os'
 import path from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { test, vi } from 'vitest'
+import { afterAll, beforeAll, test, vi } from 'vitest'
 import { invokeMainModule, missingMainArguments } from '../../main-module.mts'
 const state = vi.hoisted(() => ({
   exists: false,
@@ -14,6 +16,21 @@ const state = vi.hoisted(() => ({
   writes: vi.fn(),
   settings: { rounds: 0, milliseconds: 0 },
 }))
+const actualFs = await vi.importActual<typeof NodeFs>('node:fs')
+let modelDirectory = ''
+beforeAll(() => {
+  modelDirectory = actualFs.mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-dispatch-confirm-model-'),
+  )
+  const source =
+    'export function dispatchOverride(...values) { return values.every(Number.isFinite) && values[2] === 1 }\n'
+  for (const name of ['chromium', 'jsdom', 'chromium-rule', 'jsdom-rule']) {
+    actualFs.writeFileSync(path.join(modelDirectory, `${name}.mjs`), source)
+  }
+})
+afterAll(() => {
+  actualFs.rmSync(modelDirectory, { recursive: true, force: true })
+})
 const entries = ['train', 'development', 'validation', 'evaluation'].flatMap(
   family =>
     Array.from({ length: 9 }, (_, index) => ({
@@ -160,12 +177,6 @@ vi.mock('../../../../../../scripts/repo/bench/planner/has/evidence.mts', () => {
     jsdomEvidence: evidence,
   }
 })
-for (const host of ['chromium', 'jsdom', 'chromium-rule', 'jsdom-rule']) {
-  vi.doMock(path.resolve('/model', `${host}.mjs`), () => ({
-    dispatchOverride: (...values: number[]) =>
-      values.every(Number.isFinite) && values[2] === 1,
-  }))
-}
 async function load() {
   return import('../../../../../../scripts/repo/bench/planner/dispatch/confirm.mts')
 }
@@ -179,7 +190,7 @@ test('confirmation checks parity, selects qualified holdouts and measures cache 
     state.slow = index === 3
     await confirm(
       '/collection',
-      '/model',
+      modelDirectory,
       '/output',
       !!index,
       index === 1,
@@ -207,26 +218,32 @@ test('confirmation checks parity, selects qualified holdouts and measures cache 
   state.slow = false
   state.status = 'validation-passed'
   state.rules = false
-  assert.deepEqual((await parity('/model', evaluation())).ruleCases, {})
+  assert.deepEqual((await parity(modelDirectory, evaluation())).ruleCases, {})
   state.rules = true
   await assert.rejects(
-    confirm('/collection', '/model', '/output', false, true, true),
+    confirm('/collection', modelDirectory, '/output', false, true, true),
     { code: 'ERR_ASSERTION' },
   )
   state.exists = true
-  await assert.rejects(confirm('/collection', '/model', '/output'))
+  await assert.rejects(confirm('/collection', modelDirectory, '/output'))
   state.exists = false
   for (const fault of ['dataset', 'parity', 'route', 'cache']) {
     state.fault = fault
     await assert.rejects(
-      confirm('/collection', '/model', '/output', false, fault === 'cache'),
+      confirm(
+        '/collection',
+        modelDirectory,
+        '/output',
+        false,
+        fault === 'cache',
+      ),
       { code: 'ERR_ASSERTION' },
     )
   }
   state.fault = ''
   state.proved = false
   await assert.rejects(
-    confirm('/collection', '/model', '/output', false, false, true),
+    confirm('/collection', modelDirectory, '/output', false, false, true),
     { code: 'ERR_ASSERTION' },
   )
   state.proved = true
@@ -239,8 +256,8 @@ test('confirmation CLI validates every required operand and supports all timing 
     [
       [],
       ['collection'],
-      ['collection', '/model'],
-      ['collection', '/model', 'out', 'invalid'],
+      ['collection', modelDirectory],
+      ['collection', modelDirectory, 'out', 'invalid'],
     ],
     '/dispatch/confirm.mts',
   )
@@ -254,7 +271,7 @@ test('confirmation CLI validates every required operand and supports all timing 
   ]) {
     await invokeMainModule(
       load,
-      ['collection', '/model', 'out', ...args],
+      ['collection', modelDirectory, 'out', ...args],
       '/dispatch/confirm.mts',
     )
   }

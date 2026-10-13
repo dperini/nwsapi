@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { beforeEach, expect, test, vi } from 'vitest'
 import path from 'node:path'
-import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
+import { toForwardSlashes } from '../../../../../scripts/repo/lib/paths.mts'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
   remove: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('node:fs', () => ({
     if (path.basename(file) !== 'package.json') {
       return Buffer.from('asset')
     }
-    const override = normalizePath(file).includes('/override/')
+    const override = toForwardSlashes(file).includes('/override/')
     return JSON.stringify({
       name:
         state.mode === 'name'
@@ -59,11 +59,9 @@ function installation(comparison: boolean) {
 }
 vi.mock('node:module', () => ({
   createRequire: (location: string) => {
-    const normalizedLocation = normalizePath(location)
+    const normalizedLocation = toForwardSlashes(location)
     const comparison = normalizedLocation.includes('/comparison/')
-    const installed =
-      normalizedLocation.includes('/comparison/') ||
-      normalizedLocation.includes('/override/')
+    const installed = comparison || normalizedLocation.includes('/override/')
     const directory = comparison
       ? '/benchmark/comparison'
       : '/benchmark/override'

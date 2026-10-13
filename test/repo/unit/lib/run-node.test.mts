@@ -35,7 +35,9 @@ test('omitting arguments runs only the entrypoint', () => {
 })
 test('main detection compares file URLs to the invoked script', () => {
   expect(isMainModule(pathToFileURL(process.argv[1]!).href)).toBe(true)
-  expect(isMainModule('file:///fixture/other.mts')).toBe(false)
+  expect(
+    isMainModule(pathToFileURL(path.resolve('/fixture/other.mts')).href),
+  ).toBe(false)
 })
 test('main-module detection resolves filesystem path aliases', () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-entry-test-'))

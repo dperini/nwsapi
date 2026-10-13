@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 import {
@@ -11,6 +13,7 @@ import {
   writeGithubPlan,
 } from '../../../../scripts/repo/test/ci.mts'
 import { UNIT_CI_SHARD_COUNT } from '../../../../scripts/repo/test/shard/report.mts'
+import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -34,7 +37,8 @@ vi.mock('node:child_process', () => ({ execFileSync: state.git }))
 vi.mock('node:fs', () => ({ appendFileSync: state.append }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
   isMainModule: (url: string) =>
-    state.main && url.endsWith('/scripts/repo/test/ci.mts'),
+    state.main &&
+    fileURLToPath(url).endsWith(path.join('scripts', 'repo', 'test', 'ci.mts')),
   runNode: state.run,
 }))
 vi.mock('../../../../scripts/repo/lib/test-budget.mts', () => ({
@@ -400,15 +404,14 @@ test('focused unit tests still run when the caller requests integration-only wor
 })
 
 test('unreliable change discovery and the command entrypoint run the complete Node plan', async () => {
+  const unitReviewScript = path.join(REPO_ROOT, 'scripts/repo/review/unit.mts')
   vi.stubEnv('CI', 'true')
   await main()
   expect(state.run).toHaveBeenLastCalledWith(expect.any(String), [
     'integration',
     '--ci-isolate-clean-checkout',
   ])
-  expect(state.run).toHaveBeenCalledWith(
-    expect.stringContaining('scripts/repo/review/unit.mts'),
-  )
+  expect(state.run).toHaveBeenCalledWith(unitReviewScript)
   state.run.mockClear()
   state.main = true
   vi.resetModules()
@@ -417,9 +420,7 @@ test('unreliable change discovery and the command entrypoint run the complete No
     'integration',
     '--ci-isolate-clean-checkout',
   ])
-  expect(state.run).toHaveBeenCalledWith(
-    expect.stringContaining('scripts/repo/review/unit.mts'),
-  )
+  expect(state.run).toHaveBeenCalledWith(unitReviewScript)
 })
 
 test('plan preview does not build or execute tests', async () => {

@@ -8,6 +8,7 @@ import {
   createVersionCheckout,
   resolveVersion,
 } from '../../../../../scripts/repo/develop/version/select.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 
 function git(root: string, ...args: string[]) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
@@ -30,6 +31,7 @@ test('rejects invalid version options before any repository mutation', () => {
 
 test('creates a uniquely branched checkout beneath the system temporary directory', () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-version-fixture-'))
+  const temporaryRoot = realpathSync.native(os.tmpdir())
   try {
     git(root, 'init', '-b', 'master')
     git(root, 'config', 'user.email', 'fixture@example.test')
@@ -38,14 +40,23 @@ test('creates a uniquely branched checkout beneath the system temporary director
     git(root, 'add', 'file')
     git(root, 'commit', '-m', 'fixture')
     git(root, 'branch', 'prerelease/3.0.0')
-    const selected = createVersionCheckout(root, 'v3')
-    expect(selected.path.startsWith(realpathSync(os.tmpdir()))).toBe(true)
+    const selected = createVersionCheckout(
+      root,
+      'v3',
+      execFileSync,
+      temporaryRoot,
+    )
+    const worktreeRoot = realpathSync.native(path.dirname(selected.path))
+    expect(path.dirname(worktreeRoot)).toBe(temporaryRoot)
+    expect(path.basename(worktreeRoot)).toMatch(/^nwsapi-worktree-/)
     expect(git(selected.path, 'branch', '--show-current')).toBe(
       selected.branchName,
     )
-    expect(git(root, 'worktree', 'list', '--porcelain')).toContain(
-      selected.path,
-    )
+    const worktreePaths = git(root, 'worktree', 'list', '--porcelain')
+      .split('\n')
+      .filter(line => line.startsWith('worktree '))
+      .map(line => normalizePath(line.slice('worktree '.length)))
+    expect(worktreePaths).toContain(normalizePath(selected.path))
     git(root, 'worktree', 'remove', selected.path)
     git(root, 'branch', '-D', selected.branchName)
     rmSync(path.dirname(selected.path), { recursive: true, force: true })

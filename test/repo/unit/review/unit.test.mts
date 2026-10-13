@@ -85,6 +85,34 @@ test('local review stops on the first failed shard without partial verification'
   assert.equal(verified, false)
 })
 
+test('CI collection runs every shard and reports all failures without partial verification', () => {
+  const indexes: number[] = []
+  let verified = false
+  assert.throws(
+    () =>
+      runLocalUnitShards({
+        directory: '/tmp/unit-reports',
+        identity,
+        collectFailures: true,
+        log: () => {},
+        runShard: index => {
+          indexes.push(index)
+          if (index === 3 || index === 10) {
+            throw new Error('fixture failure')
+          }
+        },
+        verify: () => {
+          verified = true
+        },
+      }),
+    (error: unknown) =>
+      error instanceof AggregateError && error.errors.length === 2,
+  )
+  assert.equal(indexes.length, UNIT_CI_SHARD_COUNT)
+  assert.equal(indexes.at(-1), UNIT_CI_SHARD_COUNT)
+  assert.equal(verified, false)
+})
+
 test('failed shards print a focused command from their fresh report and retain full verification', () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-review-test-'))
   try {

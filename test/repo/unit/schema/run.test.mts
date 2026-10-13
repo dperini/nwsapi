@@ -14,12 +14,17 @@ import {
 import type * as RepoPaths from '../../../../scripts/repo/lib/paths.mts'
 import type * as NodeRunner from '../../../../scripts/repo/lib/run-node.mts'
 
-const state = vi.hoisted(() => ({
-  root: '/tmp/nwsapi-schema-test-' + process.pid,
-  main: '',
-  output: 'export default value => typeof value === "object"',
-  warnings: [] as string[],
-}))
+const state = await vi.hoisted(async () => {
+  const { mkdtempSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  return {
+    root: mkdtempSync(join(tmpdir(), 'nwsapi-schema-test-')),
+    main: '',
+    output: 'export default value => typeof value === "object"',
+    warnings: [] as string[],
+  }
+})
 const compiler = vi.hoisted(() =>
   vi.fn(
     (_schema: object, options: { onWarning: (warning: string) => void }) => {

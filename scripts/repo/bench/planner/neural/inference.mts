@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../lib/paths.mts'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'
@@ -8,7 +9,7 @@ type Model = {
 
 const directory =
   process.argv[2] || 'assets/repo/bench/planner-neural-2026-10-04'
-const model = (await import(path.resolve(directory, 'model.mjs'))) as Model
+const model = (await import(moduleFileUrl(directory, 'model.mjs'))) as Model
 const modelBytes = readFileSync(path.join(directory, 'model.mjs')).byteLength
 const cases: Array<{
   name: string

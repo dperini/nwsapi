@@ -46,9 +46,10 @@ const [{ JSDOM }, { default: factory }] = await Promise.all([
   import('jsdom'),
   import('../../../dist/nwsapi.js'),
 ])
-const make: typeof factoryType = values.engine
-  ? createRequire(import.meta.url)(path.resolve(values.engine))
-  : factory
+const make: typeof factoryType =
+  typeof enginePath === 'string'
+    ? createRequire(import.meta.url)(enginePath)
+    : factory
 const dom = new JSDOM('<i class="item"></i>')
 const session = new Session()
 session.connect()

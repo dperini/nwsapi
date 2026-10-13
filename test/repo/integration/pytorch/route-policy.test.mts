@@ -6,7 +6,7 @@ const repository = process.cwd()
 
 test('the Python trainer emits guarded, low complexity route helpers', () => {
   const result = spawnSync(
-    'python3',
+    process.platform === 'win32' ? 'python' : 'python3',
     [
       '-c',
       [

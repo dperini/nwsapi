@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { normalizePath, REPO_ROOT } from './paths.mts'
+import { normalizePath, toForwardSlashes, REPO_ROOT } from './paths.mts'
 import { runNode } from './run-node.mts'
 
 export type TaskKind = 'check' | 'update'
@@ -49,6 +49,7 @@ function packageTask(
 }
 
 export function discoverTasks(kind: TaskKind, root = REPO_ROOT): Task[] {
+  root = path.resolve(root)
   const pkg = JSON.parse(
     readFileSync(path.join(root, 'package.json'), 'utf8'),
   ) as {
@@ -71,10 +72,11 @@ export function discoverTasks(kind: TaskKind, root = REPO_ROOT): Task[] {
       continue
     }
     for (const entry of files(directory, kind)) {
+      const parent = path.dirname(entry)
       // Root compatibility loaders delegate to the umbrella, so exclude them.
-      if (path.dirname(entry) !== directory && !tasks.has(entry)) {
+      if (parent !== directory && !tasks.has(entry)) {
         tasks.set(entry, {
-          name: path.relative(directory, path.dirname(entry)),
+          name: toForwardSlashes(path.relative(directory, parent)),
           entry,
           args: [],
         })

@@ -9,7 +9,10 @@ import {
   dispatchTrainingCommand,
   runDispatchTraining,
 } from '../../../../scripts/repo/pytorch/dispatch-train.mts'
-import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
+import {
+  REPO_ROOT,
+  uvExecutablePath,
+} from '../../../../scripts/repo/lib/paths.mts'
 import { invokeMainModule } from '../bench/main-module.mts'
 
 test('dispatch training uses the pinned uv project and forwards arguments', () => {
@@ -20,7 +23,7 @@ test('dispatch training uses the pinned uv project and forwards arguments', () =
     'model',
   ])
   expect(invocation).toEqual({
-    command: path.join(REPO_ROOT, '.cache/bin/uv'),
+    command: uvExecutablePath(),
     args: [
       'run',
       '--project',

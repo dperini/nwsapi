@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type * as NodeFs from 'node:fs'
+import path from 'node:path'
 import { JSDOM } from 'jsdom'
 
 const state = vi.hoisted(() => ({
@@ -68,13 +69,14 @@ vi.mock('node:module', () => ({
   createRequire: () =>
     Object.assign(
       (specifier: string) => {
+        const basename = path.basename(specifier)
         if (specifier === './lib/api.js') {
           return { JSDOM: PreparedDom }
         }
-        if (specifier.endsWith('/package.json')) {
+        if (basename === 'package.json') {
           return { version: 'fixture' }
         }
-        if (specifier.endsWith('/nwsapi.js')) {
+        if (basename === 'nwsapi.js') {
           return () => ({ select })
         }
         return { DOMSelector: Baseline }

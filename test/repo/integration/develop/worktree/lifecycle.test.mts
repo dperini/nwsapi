@@ -15,7 +15,11 @@ import {
   claimWorktree,
   lockWorktree,
 } from '../../../../../scripts/repo/develop/worktree/lease.mts'
-import { sweepWorktrees } from '../../../../../scripts/repo/develop/worktree/sweep.mts'
+import {
+  parseWorktreeInventory,
+  sweepWorktrees,
+} from '../../../../../scripts/repo/develop/worktree/sweep.mts'
+import { foldPathForCompare } from '../../../../../scripts/repo/lib/paths.mts'
 import { createVersionCheckout } from '../../../../../scripts/repo/develop/version/select.mts'
 
 interface ManagedCheckout {
@@ -125,9 +129,10 @@ function writeMetadata(
 }
 
 function inventoryContains(fixture: ManagedCheckout) {
-  return git(fixture.root, 'worktree', 'list', '--porcelain').includes(
-    fixture.path,
-  )
+  const checkoutPath = foldPathForCompare(fixture.path)
+  return parseWorktreeInventory(
+    git(fixture.root, 'worktree', 'list', '--porcelain'),
+  ).some(entry => entry.path && foldPathForCompare(entry.path) === checkoutPath)
 }
 
 afterEach(async () => {
@@ -172,6 +177,9 @@ test.each([
   ['untracked content', 'modified, untracked, ignored, or submodule content'],
   ['staged content', 'modified, untracked, ignored, or submodule content'],
   ['ignored content', 'ignored'],
+  ['unmerged commit', 'not an ancestor'],
+  ['dead runner pulse', 'ended without a verified clean release'],
+  ['missing release marker', 'without a matching clean release'],
 ] as const)(
   'retains a managed checkout with %s',
   async (condition, expected) => {
@@ -231,6 +239,25 @@ test.each([
         )
         writeFileSync(path.join(fixture.path, 'ignored-local'), 'local')
       }
+      if (condition === 'unmerged commit') {
+        writeFileSync(path.join(fixture.path, 'unmerged'), 'change')
+        git(fixture.path, 'add', 'unmerged')
+        git(fixture.path, 'commit', '-m', 'unmerged change')
+      }
+      if (condition === 'dead runner pulse') {
+        writeFileSync(
+          fixture.pulsePath,
+          JSON.stringify({
+            pid: 999_999_999,
+            token: fixture.lease.token,
+            hostname: hostname(),
+            refreshedAt: 1,
+          }),
+        )
+      }
+      if (condition === 'missing release marker') {
+        writeMetadata(fixture, { releasedToken: 'unmatched' })
+      }
       expect(await sweepWorktrees(fixture.root, true)).toMatchObject([
         { status: 'retained', reason: expect.stringContaining(expected) },
       ])
@@ -238,6 +265,29 @@ test.each([
     expect(inventoryContains(fixture)).toBe(true)
   },
 )
+
+test('previews and removes a released, integrated checkout while preserving its branch and target', async () => {
+  const fixture = await makeManaged()
+  const targetHead = git(fixture.root, 'rev-parse', 'HEAD')
+  expect(await sweepWorktrees(fixture.root, false)).toEqual([
+    {
+      path: fixture.path,
+      status: 'retained',
+      reason: 'eligible; preview only',
+    },
+  ])
+  expect(inventoryContains(fixture)).toBe(true)
+  expect(await sweepWorktrees(fixture.root, true)).toEqual([
+    { path: fixture.path, status: 'removed', reason: 'removed' },
+  ])
+  expect(existsSync(fixture.path)).toBe(false)
+  expect(inventoryContains(fixture)).toBe(false)
+  expect(git(fixture.root, 'branch', '--show-current')).toBe('prerelease/3.0.0')
+  expect(git(fixture.root, 'rev-parse', 'HEAD')).toBe(targetHead)
+  expect(git(fixture.root, 'branch', '--list', fixture.branchName)).toBe(
+    fixture.branchName,
+  )
+})
 
 test.each([
   ['malformed metadata', 'metadata', ''],

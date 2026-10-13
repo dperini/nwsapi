@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import os from 'node:os'
 import path from 'node:path'
 import type * as NodeFs from 'node:fs'
+import { toForwardSlashes } from '../../../../scripts/repo/lib/paths.mts'
 const { mkdtempSync, mkdirSync, writeFileSync, rmSync } =
   await vi.importActual<typeof NodeFs>('node:fs')
 const state = vi.hoisted(() => ({
@@ -23,12 +24,14 @@ vi.mock('node:fs', async original => {
     mkdtempSync: () => state.root,
     mkdirSync: () => undefined,
     symlinkSync: () => undefined,
-    existsSync: (file: string) =>
-      file.endsWith('scripts/repo/build/package.mts')
+    existsSync: (file: string) => {
+      const normalized = toForwardSlashes(file)
+      return normalized.endsWith('/scripts/repo/build/package.mts')
         ? state.staging
-        : file.endsWith('scripts/repo/build/run.mts')
+        : normalized.endsWith('/scripts/repo/build/run.mts')
           ? !state.legacy
-          : !file.endsWith('missing.js'),
+          : path.basename(file) !== 'missing.js'
+    },
     readFileSync: (file: string, encoding?: string) => {
       if (file.endsWith('.tgz')) {
         return Buffer.from('archive')

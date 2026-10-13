@@ -27,10 +27,12 @@ export function isolatedEnvironment(
   pathValue: string,
   source = process.env,
 ) {
+  const homeDirectory = path.join(root, 'home')
+  const temporaryDirectory = path.join(root, 'tmp')
   const env: NodeJS.ProcessEnv = {
     PATH: pathValue,
-    HOME: path.join(root, 'home'),
-    USERPROFILE: path.join(root, 'home'),
+    HOME: homeDirectory,
+    USERPROFILE: homeDirectory,
     XDG_CONFIG_HOME: path.join(root, 'xdg', 'config'),
     XDG_CACHE_HOME: path.join(root, 'xdg', 'cache'),
     XDG_DATA_HOME: path.join(root, 'xdg', 'data'),
@@ -41,15 +43,15 @@ export function isolatedEnvironment(
     MISE_DATA_DIR: path.join(root, 'mise', 'data'),
     MISE_CONFIG_DIR: path.join(root, 'mise', 'config'),
     MISE_CACHE_DIR: path.join(root, 'mise', 'cache'),
-    TMPDIR: path.join(root, 'tmp'),
-    TEMP: path.join(root, 'tmp'),
-    TMP: path.join(root, 'tmp'),
+    TMPDIR: temporaryDirectory,
+    TEMP: temporaryDirectory,
+    TMP: temporaryDirectory,
     APPDATA: path.join(root, 'appdata', 'roaming'),
     LOCALAPPDATA: path.join(root, 'appdata', 'local'),
     CI: '1',
     NWSAPI_ONBOARDING: '1',
     GIT_CONFIG_NOSYSTEM: '1',
-    GIT_CONFIG_GLOBAL: path.join(root, 'home', '.gitconfig'),
+    GIT_CONFIG_GLOBAL: path.join(homeDirectory, '.gitconfig'),
     NO_COLOR: '1',
   }
   for (const name of SAFE_ENV) {

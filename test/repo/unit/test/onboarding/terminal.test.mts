@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { EventEmitter } from 'node:events'
 import type { ChildProcessWithoutNullStreams } from 'node:child_process'
 import { PassThrough } from 'node:stream'
@@ -265,7 +266,7 @@ test('macOS uses the BSD script command form with argument boundaries intact', a
       '-q',
       '/dev/null',
       '/pinned/node',
-      '/checkout/scripts/repo/develop/run.mts',
+      path.join('/checkout', 'scripts/repo/develop/run.mts'),
       '--plain',
     ],
   ])

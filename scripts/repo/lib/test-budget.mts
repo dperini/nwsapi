@@ -15,8 +15,8 @@ export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
   integration: 60_000,
 })
 
-// A clean Windows onboarding shard took 20s before its timer fired.
-export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 30_000 })
+// Windows onboarding runs the review shard in a clean checkout with no warm cache.
+export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 60_000 })
 
 export function testBudget(lane: string, coverage: boolean, env = process.env) {
   if (
@@ -37,9 +37,10 @@ export function runBudgeted(
   budgetMs: number,
   label: string,
   env: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const grouped = process.platform !== 'win32'
+    const grouped = platform !== 'win32'
     const child = spawn(process.execPath, args, {
       stdio: 'inherit',
       env,

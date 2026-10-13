@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
-import { normalizePath } from '../../lib/paths.mts'
+import { normalizePath, uvExecutablePath } from '../../lib/paths.mts'
 import { SCRIPT_COVERAGE_MINIMUM } from './report.mts'
 import type { ScriptCoverageExecute } from './run.mts'
 
@@ -18,7 +18,7 @@ export function runPythonScriptTests(
   directory: string,
   execute: ScriptCoverageExecute = execFileSync,
 ) {
-  const command = path.join(root, '.cache/bin/uv')
+  const command = uvExecutablePath(root)
   const project = path.join(root, manifest.tools.pytorch.project)
   const data = path.join(directory, '.coverage-python')
   const common = [

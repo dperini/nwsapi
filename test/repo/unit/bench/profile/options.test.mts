@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest'
+import path from 'node:path'
 import { parseProfileArgs } from '../../../../../scripts/repo/bench/profile/options.mts'
 
 test('profile options support named and positional forms', () => {
@@ -10,10 +11,16 @@ test('profile options support named and positional forms', () => {
       ['--phase', 'first', '--output', '/tmp/first.cpuprofile'],
       fallback,
     ),
-  ).toEqual({ phase: 'first', output: '/tmp/first.cpuprofile' })
+  ).toEqual({
+    phase: 'first',
+    output: path.resolve('/tmp/first.cpuprofile'),
+  })
   expect(
     parseProfileArgs(['resolver', '/tmp/resolver.cpuprofile'], fallback),
-  ).toEqual({ phase: 'resolver', output: '/tmp/resolver.cpuprofile' })
+  ).toEqual({
+    phase: 'resolver',
+    output: path.resolve('/tmp/resolver.cpuprofile'),
+  })
 })
 
 test.each([

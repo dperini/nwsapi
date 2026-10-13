@@ -31,6 +31,7 @@ test('snapshots and restores five file, link, and absent preference nodes', asyn
   const { home, backupRoot, paths } = await fixture()
   await mkdir(path.dirname(paths[0]!), { recursive: true })
   await writeFile(paths[0]!, 'local', { mode: 0o640 })
+  const originalMode = (await stat(paths[0]!)).mode & 0o777
   await writeFile(paths[1]!, 'portable')
   await symlink('portable-target', paths[2]!)
   const snapshot = await createPreferenceSnapshot({
@@ -49,7 +50,7 @@ test('snapshots and restores five file, link, and absent preference nodes', asyn
     identity,
   )
   expect(await readFile(paths[0]!, 'utf8')).toBe('local')
-  expect((await stat(paths[0]!)).mode & 0o777).toBe(0o640)
+  expect((await stat(paths[0]!)).mode & 0o777).toBe(originalMode)
   expect(await readFile(paths[1]!, 'utf8')).toBe('portable')
   expect(
     await import('node:fs/promises').then(fs => fs.readlink(paths[2]!)),

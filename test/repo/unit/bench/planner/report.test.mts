@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import { JSDOM } from 'jsdom'
 import { test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
@@ -108,10 +109,9 @@ test('planner report records host promotion gates and renders evaluation and rep
       'confirmation-repeat',
     ])
     assert.equal(state.view.mock.calls[1]![2], false)
-    assert.ok(
-      state.write.mock.calls[6]![0].endsWith(
-        '/confirmation-repeat-summary.json',
-      ),
+    assert.equal(
+      path.basename(state.write.mock.calls[6]![0]),
+      'confirmation-repeat-summary.json',
     )
     const repeat = new JSDOM(state.write.mock.calls[7]![1])
     assert.ok(repeat.window.document.querySelector('#choices'))

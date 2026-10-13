@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
-import { REPO_ROOT } from '../../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../../lib/paths.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { inspectWptScope } from './scope.mts'
 import { checkInventory } from './inventory.mts'
@@ -32,13 +32,14 @@ export function auditCandidates(root = REPO_ROOT) {
   for (const relative of globSync('**/*.{html,xht,xhtml,window.js,any.js}', {
     cwd: checkout,
   }).toSorted()) {
-    const url = '/' + relative
-    if (selected.has(url) || relative.startsWith('resources/')) {
+    const normalized = normalizePath(relative)
+    const url = '/' + normalized
+    if (selected.has(url) || normalized.startsWith('resources/')) {
       continue
     }
     const source = readFileSync(path.join(checkout, relative), 'utf8')
     const script =
-      relative.endsWith('.window.js') || relative.endsWith('.any.js')
+      normalized.endsWith('.window.js') || normalized.endsWith('.any.js')
     if (
       !candidateSignals(source) ||
       (!script && !source.includes('testharness.js'))

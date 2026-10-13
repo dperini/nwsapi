@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { afterEach, expect, test, vi } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
 import type * as fs from 'node:fs'
@@ -29,7 +30,11 @@ test('missing launchers and pinned binaries trigger repair even with valid state
   vi.mocked(readFileSync).mockReturnValue(toolchainState())
   const setup = vi.fn(async () => '/tools')
   const probe = () => ({ status: 0, stdout: `v${toolVersions()['node']}` })
-  vi.mocked(existsSync).mockImplementation(file => file !== '/tools/npm')
+  vi.mocked(existsSync).mockImplementation(
+    file =>
+      file !==
+      path.join('/tools', process.platform === 'win32' ? 'npm.cmd' : 'npm'),
+  )
   await ensureManagedTools('/tools', setup, probe)
   expect(setup).toHaveBeenCalledTimes(1)
   vi.mocked(existsSync).mockImplementation(

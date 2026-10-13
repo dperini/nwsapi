@@ -1,6 +1,6 @@
 import path from 'node:path'
 import os from 'node:os'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 export const REPO_ROOT = path.resolve(
   fileURLToPath(new URL('../../../', import.meta.url)),
@@ -116,6 +116,22 @@ export const COVERAGE_SUMMARY_PATH = path.join(
 const WIN32 = process.platform === 'win32'
 const DRIVE_LETTER_REGEXP = /^[A-Za-z]:$/
 const msysDriveRegExp = /^\/([a-zA-Z])($|\/)/
+
+export function moduleFileUrl(...segments: string[]): string {
+  return pathToFileURL(path.resolve(...segments)).href
+}
+
+export function uvExecutablePath(
+  root = REPO_ROOT,
+  platform = process.platform,
+) {
+  return path.join(root, '.cache/bin', platform === 'win32' ? 'uv.exe' : 'uv')
+}
+
+// Extracted from SocketDev/socket-lib src/eco/npm/registry/tarball/shared.mts at 42407687c51f1e75e6c2140ba3b3822fd45e1418.
+export function toForwardSlashes(name: string): string {
+  return name.replaceAll('\\', '/')
+}
 
 function appendNormalizedPathSegment(
   state: NormalizedPathState,
@@ -277,6 +293,24 @@ function normalizeSinglePathSegment(segment: string, prefix: string): string {
     return prefix ? prefix.slice(0, -1) || '/' : '..'
   }
   return msysDriveToNative(prefix + segment)
+}
+
+// Extracted from SocketDev/socket-lib src/paths/shared.mts at 5ddd9989dcfcdf57d7b3380bbf2a2020a299354b.
+export function foldPathForCompare(pathLike: string): string {
+  let normalized = normalizePath(pathLike)
+  if (normalized.length > 1 && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1)
+  }
+  return WIN32 ? normalized.toLowerCase() : normalized
+}
+
+// Extracted from SocketDev/socket-lib src/paths/predicates.mts at 5ddd9989dcfcdf57d7b3380bbf2a2020a299354b.
+export function isPathWithinRoot(candidate: string, root: string): boolean {
+  const left = foldPathForCompare(candidate)
+  const right = foldPathForCompare(root)
+  return (
+    left === right || left.startsWith(right.endsWith('/') ? right : `${right}/`)
+  )
 }
 
 function pathLikeToString(

@@ -52,9 +52,10 @@ const [{ JSDOM }, { default: factory }] = await Promise.all([
   import('jsdom'),
   import('../../../dist/nwsapi.js'),
 ])
-const make: typeof factoryType = values.engine
-  ? createRequire(import.meta.url)(path.resolve(values.engine))
-  : factory
+const make: typeof factoryType =
+  typeof enginePath === 'string'
+    ? createRequire(import.meta.url)(enginePath)
+    : factory
 const output = values['output-dir']
   ? path.resolve(values['output-dir'])
   : mkdtempSync(path.join(os.tmpdir(), 'nwsapi-heap-'))

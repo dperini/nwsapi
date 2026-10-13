@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import path from 'node:path'
 import type * as fs from 'node:fs'
 import type * as util from 'node:util'
 import { afterEach, test, vi } from 'vitest'
@@ -106,8 +107,12 @@ test('browser report runner records all-results and cold first-query measurement
     report: JSON.parse(json),
   }))
   assert.equal(reports.length, 3)
-  assert.equal(reports[0]!.file, '/fixture/report/results.json')
-  assert.equal(reports[1]!.file, '/fixture/report/documentation/results.json')
+  const output = path.resolve('/fixture/report')
+  assert.equal(reports[0]!.file, path.join(output, 'results.json'))
+  assert.equal(
+    reports[1]!.file,
+    path.join(output, 'documentation', 'results.json'),
+  )
   assert.equal(reports[0]!.report.metadata.fixture, 'components')
   assert.equal(reports[0]!.report.metadata.rounds, 2)
   assert.equal(reports[2]!.report.metadata.host, 'native browser DOM; no jsdom')

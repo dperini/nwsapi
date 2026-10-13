@@ -1,9 +1,44 @@
+import path from 'node:path'
 import { expect, test, vi } from 'vitest'
 import manifest from '../../../../../.config/external-tools.json' with { type: 'json' }
 import {
   onboardingInvocation,
   runOnboardingPhase,
+  executeCommand,
 } from '../../../../../scripts/repo/test/onboarding/ci.mts'
+
+test.each(['linux', 'win32'] as const)(
+  'Node onboarding keeps argument boundaries on %s',
+  platform => {
+    const run = vi.fn(() => ({
+      status: 0,
+      pid: 1,
+      signal: null,
+      output: [],
+      stdout: Buffer.alloc(0),
+      stderr: Buffer.alloc(0),
+    }))
+    expect(
+      executeCommand(
+        '/node with spaces/node.exe',
+        ['path with spaces', '--flag'],
+        platform,
+        run,
+      ),
+    ).toBe(0)
+    expect(run).toHaveBeenCalledWith(
+      '/node with spaces/node.exe',
+      ['path with spaces', '--flag'],
+      expect.objectContaining({ shell: false }),
+    )
+    executeCommand('npm', ['install'], platform, run)
+    expect(run).toHaveBeenLastCalledWith(
+      'npm',
+      ['install'],
+      expect.objectContaining({ shell: platform === 'win32' }),
+    )
+  },
+)
 
 test('bootstraps using the selected minimum Node executable', () => {
   const invocation = onboardingInvocation(
@@ -17,7 +52,7 @@ test('bootstraps using the selected minimum Node executable', () => {
   expect(invocation).toEqual({
     command: '/tools/node',
     args: [
-      '/checkout/scripts/repo/test/onboarding/run.mts',
+      path.join('/checkout', 'scripts/repo/test/onboarding/run.mts'),
       '--scenario',
       'bootstrap',
       '--node',
@@ -45,7 +80,7 @@ test.each([
       args: [
         'install',
         '--prefix',
-        '/tmp/onboarding/onboarding-manager',
+        path.join('/tmp/onboarding', 'onboarding-manager'),
         '--no-save',
         `${manager}@${version}`,
       ],
@@ -61,13 +96,18 @@ test.each([
     expect(journey).toEqual({
       command: '/tools/node',
       args: [
-        '/checkout/scripts/repo/test/onboarding/run.mts',
+        path.join('/checkout', 'scripts/repo/test/onboarding/run.mts'),
         '--scenario',
         manager,
         '--node',
         '/tools/node',
         `--${manager}`,
-        `/tmp/onboarding/onboarding-manager/node_modules/${manager}/${entry}`,
+        path.join(
+          '/tmp/onboarding',
+          'onboarding-manager/node_modules',
+          manager,
+          entry,
+        ),
       ],
     })
   },

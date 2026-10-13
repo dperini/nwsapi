@@ -1,5 +1,6 @@
 import type * as Fs from 'node:fs'
 import type * as Module from 'node:module'
+import path from 'node:path'
 import { beforeEach, expect, test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
@@ -20,7 +21,7 @@ vi.mock('node:module', async () => {
           if (file === 'jsdom/lib/generated/idl/utils.js') {
             return load(file)
           }
-          if (file.endsWith('/package.json')) {
+          if (path.basename(file) === 'package.json') {
             return { version: 'fixture' }
           }
           return () => {
@@ -54,7 +55,7 @@ vi.mock('node:fs', async () => {
           : legacy
         : actual.readFileSync(...args),
     writeFileSync: (...args: Parameters<typeof actual.writeFileSync>) =>
-      typeof args[0] === 'string' && args[0].endsWith('/candidate.cjs')
+      typeof args[0] === 'string' && path.basename(args[0]) === 'candidate.cjs'
         ? actual.writeFileSync(...args)
         : state.write(...args),
     rmSync: (...args: Parameters<typeof actual.rmSync>) => {

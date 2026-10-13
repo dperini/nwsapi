@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { review } from '../../../../scripts/repo/review/run.mts'
-import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
+import path from 'node:path'
 
 test('unit review failure stops at the first failing check and offers a unit retry', () => {
   const commands: string[] = []
@@ -9,7 +9,7 @@ test('unit review failure stops at the first failing check and offers a unit ret
   const result = review(
     script => {
       commands.push(script)
-      if (normalizePath(script).endsWith('/review/unit.mts')) {
+      if (path.basename(script) === 'unit.mts') {
         throw new Error('unit step failed')
       }
     },
@@ -51,7 +51,7 @@ test('review still stops at its first failed non-unit check', () => {
 
   assert.equal(result, 1)
   assert.equal(commands.length, 1)
-  assert.ok(normalizePath(commands[0]!).endsWith('/lint.mts'))
+  assert.equal(path.basename(commands[0]!), 'lint.mts')
   assert.ok(
     messages.includes('Next: pnpm run review to repeat the complete review.'),
   )

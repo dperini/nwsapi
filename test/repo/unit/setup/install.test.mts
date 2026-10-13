@@ -5,7 +5,6 @@ import path from 'node:path'
 import nock from 'nock'
 import { afterEach, expect, test, vi } from 'vitest'
 import type { ToolPlan } from '../../../../scripts/repo/external-tools.mts'
-import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const directories: string[] = []
 afterEach(() => {
@@ -70,18 +69,27 @@ test.each(['directory', 'escape'])(
       .reply(200, bytes)
     vi.doMock('node:fs', async original => {
       const actual = await original<typeof fs>()
+      const realpathSync = Object.assign(
+        (file: string) =>
+          invalid === 'escape' && path.basename(file) === 'sfw'
+            ? '/outside/executable'
+            : actual.realpathSync(file),
+        {
+          native: (file: string) =>
+            invalid === 'escape' && path.basename(file) === 'sfw'
+              ? '/outside/executable'
+              : actual.realpathSync.native(file),
+        },
+      )
       return {
         ...actual,
         lstatSync: (file: string) => {
           const stat = actual.lstatSync(file)
-          return invalid === 'directory' && normalizePath(file).endsWith('/sfw')
+          return invalid === 'directory' && path.basename(file) === 'sfw'
             ? { isFile: () => false }
             : stat
         },
-        realpathSync: (file: string) =>
-          invalid === 'escape' && normalizePath(file).endsWith('/sfw')
-            ? '/outside/executable'
-            : actual.realpathSync(file),
+        realpathSync,
       }
     })
     vi.resetModules()

@@ -1,4 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest'
+import path from 'node:path'
 import type * as Fs from 'node:fs'
 const mocks = vi.hoisted(() => ({ write: vi.fn(), main: false }))
 vi.mock('node:fs', async original => ({
@@ -17,9 +18,11 @@ test('refreshes documentation from the recorded native summary at the CLI entry 
   mocks.main = true
   await import('../../../../scripts/repo/gen/wpt-native-summary.mts')
   expect(mocks.write).toHaveBeenCalledOnce()
-  expect(mocks.write.mock.calls[0]![0]).toMatch(
-    /docs\/repo\/testing\/wpt-inventory\.md$/,
-  )
+  expect(
+    mocks.write.mock.calls[0]![0].endsWith(
+      path.join('docs', 'repo', 'testing', 'wpt-inventory.md'),
+    ),
+  ).toBe(true)
 })
 test('requires ordered insertion boundaries and preserves surrounding content', async () => {
   const { nativeSummaryDocumentation } =

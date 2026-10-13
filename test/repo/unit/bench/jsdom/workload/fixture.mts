@@ -1,4 +1,5 @@
 import type { Profiler } from 'node:inspector'
+import path from 'node:path'
 import { afterEach, beforeEach, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
@@ -154,6 +155,7 @@ vi.mock('node:module', () => ({
   createRequire: () =>
     Object.assign(
       (file: string) => {
+        const basename = path.basename(file)
         if (file === './lib/api.js') {
           return {
             JSDOM: FixtureDom,
@@ -161,10 +163,10 @@ vi.mock('node:module', () => ({
             requestInterceptor: (callback: unknown) => callback,
           }
         }
-        if (file.endsWith('/package.json')) {
+        if (basename === 'package.json') {
           return { version: 'fixture' }
         }
-        return file.endsWith('/dist/nwsapi.js')
+        return basename === 'nwsapi.js'
           ? state.candidate
           : state.cache['/prepared/adapter.js'].exports
       },

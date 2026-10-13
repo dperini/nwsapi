@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
 import { afterEach, test, vi } from 'vitest'
 import { invokeMainModule, missingMainArguments } from '../../main-module.mts'
+import { toForwardSlashes } from '../../../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({ read: vi.fn(), write: vi.fn() }))
 vi.mock('node:fs', () => ({
@@ -47,7 +48,7 @@ function fixtures() {
               ]),
             ),
           }
-        : measurement(file.includes('/repeat/') ? 110 : 90),
+        : measurement(toForwardSlashes(file).includes('/repeat/') ? 110 : 90),
     ),
   )
 }

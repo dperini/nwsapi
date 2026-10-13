@@ -20,6 +20,7 @@ import {
 } from '../../../../scripts/repo/security/run.mts'
 import type * as Paths from '../../../../scripts/repo/lib/paths.mts'
 import type { CommandRunner } from '../../../../scripts/repo/lib/command.mts'
+import { scannerExecutable } from '../../../../scripts/repo/setup/security.mts'
 
 test('security findings fail closed and severity matching ignores case', () => {
   expect(
@@ -60,16 +61,13 @@ test.each([false, true])(
       REPO_ROOT: root,
     }))
     vi.doMock('../../../../scripts/repo/lib/command.mts', () => ({
-      checked: (command: string) => (command === 'git' ? '' : ''),
+      checked: () => '',
       execute: () => ({ status: 0, stdout: '{"findings":[]}', stderr: '' }),
     }))
     vi.doMock('../../../../scripts/repo/lib/run-node.mts', () => ({
       isMainModule: (url: string) => url.endsWith('/security/run.mts'),
     }))
-    const scanner = path.join(
-      root,
-      '.cache/security/python/cisco-ai-skill-scanner/bin/skill-scanner',
-    )
+    const scanner = scannerExecutable(root)
     if (available) {
       mkdirSync(path.dirname(scanner), { recursive: true })
       writeFileSync(scanner, '')
@@ -82,9 +80,15 @@ test.each([false, true])(
     vi.spyOn(console, 'log').mockImplementation(() => {})
     try {
       if (available) {
-        await expect(
-          import('../../../../scripts/repo/security/run.mts'),
-        ).resolves.toBeDefined()
+        await import('../../../../scripts/repo/security/run.mts')
+        expect(
+          JSON.parse(
+            readFileSync(
+              path.join(root, '.cache/security/reports/agentshield.json'),
+              'utf8',
+            ),
+          ),
+        ).toEqual({ findings: [] })
       } else {
         await expect(
           import('../../../../scripts/repo/security/run.mts'),

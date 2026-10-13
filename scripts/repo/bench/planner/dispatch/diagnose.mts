@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../lib/paths.mts'
 import assert from 'node:assert/strict'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -166,10 +167,10 @@ export async function diagnose(
     assert.equal(sha256(model), evaluation.results[host]!.modelSha256)
     assert.equal(sha256(rule), evaluation.results[host]!.ruleSha256)
     const choose = (await import(
-      path.resolve(modelDirectory, `${host}.mjs`)
+      moduleFileUrl(modelDirectory, `${host}.mjs`)
     )) as { dispatchOverride: Override }
     const chooseRule = (await import(
-      path.resolve(modelDirectory, `${host}-rule.mjs`)
+      moduleFileUrl(modelDirectory, `${host}-rule.mjs`)
     )) as { dispatchOverride: Override }
     const sources = variants(baseline, model, rule)
     const traces = await evidence(
