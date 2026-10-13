@@ -2,8 +2,7 @@ name: 'perf: tak'
 run-name: 'perf: tak · ${{ github.sha }}'
 
 on:
-  push:
-    branches: [prerelease/3.0.0]
+  workflow_call:
 
 permissions:
   contents: read

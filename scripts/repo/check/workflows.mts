@@ -18,14 +18,45 @@ export function actionReferences(value: unknown): string[] {
   )
 }
 
+function checkReusableWorkflow(
+  root: string,
+  source: string,
+  reference: string,
+  workflows: string,
+) {
+  if (!reference.startsWith('./.github/workflows/')) {
+    return false
+  }
+
+  const workflow = path.resolve(root, reference)
+  if (
+    !workflow.startsWith(workflows) ||
+    !existsSync(workflow) ||
+    !['.yml', '.yaml'].includes(path.extname(workflow))
+  ) {
+    throw new Error(
+      `${source}: local reusable workflow is missing: ${reference}`,
+    )
+  }
+  const reusable = parse(readFileSync(workflow, 'utf8'))
+  if (!Object.hasOwn(reusable.on ?? {}, 'workflow_call')) {
+    throw new Error(`${source}: local workflow is not reusable: ${reference}`)
+  }
+  return true
+}
+
 export function checkInlineWorkflows(root = REPO_ROOT) {
   const files = globSync('.github/{workflows,actions}/**/*.{yml,yaml}', {
     cwd: root,
   })
   const actions = path.join(root, '.github', 'actions') + path.sep
+  const workflows = path.join(root, '.github', 'workflows') + path.sep
   for (const file of files) {
     const data = parse(readFileSync(path.join(root, file), 'utf8'))
     for (const reference of actionReferences(data)) {
+      if (checkReusableWorkflow(root, file, reference, workflows)) {
+        continue
+      }
       const [action, revision, ...extra] = reference.split('@')
       if (
         action &&

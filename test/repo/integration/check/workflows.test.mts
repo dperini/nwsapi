@@ -46,6 +46,29 @@ test('all workflow and nested composite action references remain local', () => {
   }
 })
 
+test('local reusable workflow calls must stay in the workflow directory', () => {
+  const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-reusable-'))
+  try {
+    const workflows = path.join(directory, '.github/workflows')
+    mkdirSync(workflows, { recursive: true })
+    writeFileSync(
+      path.join(workflows, 'caller.yml'),
+      stringify({
+        jobs: { measure: { uses: './.github/workflows/reusable.yml' } },
+      }),
+    )
+    const reusable = path.join(workflows, 'reusable.yml')
+    writeFileSync(reusable, stringify({ on: { workflow_call: {} }, jobs: {} }))
+
+    expect(() => checkInlineWorkflows(directory)).not.toThrow()
+
+    writeFileSync(reusable, stringify({ on: { push: {} }, jobs: {} }))
+    expect(() => checkInlineWorkflows(directory)).toThrow('not reusable')
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
+})
+
 test.skipIf(process.platform === 'win32')(
   'inline checkouts select the event commit with full ancestry and no persisted credentials',
   () => {

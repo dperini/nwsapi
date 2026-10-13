@@ -239,6 +239,14 @@ jobs:
             test "$UNIT_RESULT" = skipped
           fi
 
+  perf:
+    name: 'perf: tak'
+    needs: [node]
+    if: github.event_name == 'push' && needs.node.result == 'success'
+    uses: ./.github/workflows/perf-tak.yml
+    permissions:
+      contents: write
+
   onboarding:
     name: 'onboarding (${{ matrix.os }}, ${{ matrix.manager }})'
     runs-on: ${{ matrix.os }}
