@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'vitest'
 import { review } from '../../../../scripts/repo/review/run.mts'
-import { normalizePath } from '../../util/normalize-path.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 test('unit review failure stops at the first failing check and offers a unit retry', () => {
   const commands: string[] = []

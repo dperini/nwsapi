@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
-import { normalizePath } from '../../util/normalize-path.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,

@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { normalizePath } from './paths.mts'
 import { sourceStem } from './prefix-groups.mts'
 
 const CATEGORY_ROOTS = new Set(['src/core', 'src/extension'])
@@ -16,9 +17,7 @@ export function findSourceLayoutIssues(
   paths: readonly string[],
 ): SourceLayoutIssue[] {
   const knownPaths = new Set(
-    paths
-      .map(file => file.replaceAll('\\', '/'))
-      .filter(file => file.startsWith('src/')),
+    paths.map(normalizePath).filter(file => file.startsWith('src/')),
   )
   const normalized = [...knownPaths]
   const directories = new Set<string>()

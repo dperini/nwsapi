@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import path from 'node:path'
-import { normalizePath } from '../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 import {
   isolatedEnvironment,
   makeSandbox,

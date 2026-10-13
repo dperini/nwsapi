@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { beforeEach, expect, test, vi } from 'vitest'
 import path from 'node:path'
-import { normalizePath } from '../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
   remove: vi.fn(),

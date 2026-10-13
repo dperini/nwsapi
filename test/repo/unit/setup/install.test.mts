@@ -5,7 +5,7 @@ import path from 'node:path'
 import nock from 'nock'
 import { afterEach, expect, test, vi } from 'vitest'
 import type { ToolPlan } from '../../../../scripts/repo/external-tools.mts'
-import { normalizePath } from '../../util/normalize-path.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const directories: string[] = []
 afterEach(() => {

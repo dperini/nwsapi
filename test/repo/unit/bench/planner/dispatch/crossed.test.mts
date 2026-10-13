@@ -1,11 +1,29 @@
 import assert from 'node:assert/strict'
-import { test } from 'vitest'
+import { test, vi } from 'vitest'
 import { crossedFixtures } from '../../../../../../scripts/repo/bench/planner/dispatch/crossed.mts'
 import { split } from '../../../../../../scripts/repo/bench/planner/dispatch/fixtures.mts'
 import { checkFixtures } from './fixture-contract.mts'
 
+const control = vi.hoisted(() => ({
+  id: 'control',
+  family: 'control',
+  split: 'train' as const,
+  html: '<p></p>',
+  selector: 'p',
+  tags: [],
+}))
+
+vi.mock(
+  '../../../../../../scripts/repo/bench/planner/has/fixtures.mts',
+  () => ({
+    fixtures: () => [control],
+  }),
+)
+
 test('crossed layouts preserve raw counts through every attribute mask', () => {
-  const entries = crossedFixtures().filter(entry =>
+  const all = crossedFixtures()
+  assert.equal(all[0], control)
+  const entries = all.filter(entry =>
     entry.family.startsWith('dispatch-crossed-'),
   )
   assert.equal(entries.length, 192)

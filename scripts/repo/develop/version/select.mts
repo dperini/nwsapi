@@ -19,6 +19,7 @@ export function createVersionCheckout(
   repository: string,
   version: ProductVersion,
   run = execFileSync,
+  temporaryRoot = tmpdir(),
 ) {
   const selection = resolveVersion(version)
   const inventory = run('git', ['worktree', 'list', '--porcelain'], {
@@ -44,7 +45,7 @@ export function createVersionCheckout(
   while (occupied.has(branch) || localBranches.has(branch)) {
     branch = `agent/${version}-${randomUUID()}`
   }
-  const parent = mkdtempSync(path.join(tmpdir(), 'nwsapi-worktree-'))
+  const parent = mkdtempSync(path.join(temporaryRoot, 'nwsapi-worktree-'))
   const checkout = path.join(parent, 'checkout')
   run('git', ['worktree', 'add', '-b', branch, checkout, selection.branch], {
     cwd: repository,

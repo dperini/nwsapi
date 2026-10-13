@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
+import { normalizePath } from '../../lib/paths.mts'
 import { SCRIPT_COVERAGE_MINIMUM } from './report.mts'
 import type { ScriptCoverageExecute } from './run.mts'
 
@@ -78,7 +79,7 @@ export function checkPythonScriptCoverage(
     readFileSync(path.join(directory, 'python.json'), 'utf8'),
   ) as { files: Record<string, PythonFileCoverage> }
   const summaries = inventory.map(file => {
-    const item = data.files[path.relative(root, file).replaceAll('\\', '/')]
+    const item = data.files[normalizePath(path.relative(root, file))]
     if (item === undefined) {
       throw Object.assign(
         new Error('Python script is missing from execution coverage.'),

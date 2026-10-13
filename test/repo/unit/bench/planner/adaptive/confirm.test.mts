@@ -3,7 +3,7 @@ import { gzipSync } from 'node:zlib'
 import os from 'node:os'
 import path from 'node:path'
 import type * as NodeFs from 'node:fs'
-import { normalizePath } from '../../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 const fs = await vi.importActual<typeof NodeFs>('node:fs')
 const state = vi.hoisted(() => ({
   root: '',

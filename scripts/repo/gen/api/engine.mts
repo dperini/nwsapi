@@ -15,6 +15,7 @@ import path from 'node:path'
 import {
   CORE_SOURCE_DIR,
   ENGINE_SOURCE_PATH,
+  normalizePath,
   REPO_ROOT,
 } from '../../lib/paths.mts'
 import { walk } from './descriptions.mts'
@@ -44,7 +45,7 @@ function readSourceDirectory(directory: string): ApiSource[] {
       absolutePath !== ENGINE_SOURCE_PATH
     ) {
       sources.push({
-        file: path.relative(REPO_ROOT, absolutePath).replaceAll('\\', '/'),
+        file: normalizePath(path.relative(REPO_ROOT, absolutePath)),
         text: readFileSync(absolutePath, 'utf8'),
       })
     }

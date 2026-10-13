@@ -5,7 +5,12 @@ import path from 'node:path'
 
 import { findFilenamePrefixGroups } from '../lib/prefix-groups.mts'
 import { findSourceLayoutIssues } from '../lib/source-layout.mts'
-import { REPO_ROOT, REPO_SCRIPT_DIR, SOURCE_DIR } from '../lib/paths.mts'
+import {
+  normalizePath,
+  REPO_ROOT,
+  REPO_SCRIPT_DIR,
+  SOURCE_DIR,
+} from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
 function treePaths(directory: string): string[] {
@@ -14,11 +19,11 @@ function treePaths(directory: string): string[] {
     const absolutePath = path.join(directory, entry.name)
     if (entry.isDirectory()) {
       paths.push(
-        path.relative(REPO_ROOT, absolutePath).replaceAll('\\', '/'),
+        normalizePath(path.relative(REPO_ROOT, absolutePath)),
         ...treePaths(absolutePath),
       )
     } else if (entry.isFile()) {
-      paths.push(path.relative(REPO_ROOT, absolutePath).replaceAll('\\', '/'))
+      paths.push(normalizePath(path.relative(REPO_ROOT, absolutePath)))
     }
   }
   return paths

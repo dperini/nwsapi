@@ -7,7 +7,7 @@ import {
   type ChromeChannels,
 } from '../../../../scripts/repo/chrome/update.mts'
 import { updateReferences } from '../../../../scripts/repo/dependency/update.mts'
-import { normalizePath } from '../../util/normalize-path.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,

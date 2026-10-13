@@ -8,7 +8,7 @@ import {
   checkPythonScriptCoverage,
 } from '../../../../../scripts/repo/cover/scripts/python.mts'
 import { fixture } from './fixture/input.mts'
-import { normalizePath } from '../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 
 test('Python runs offline from the pinned project with branch coverage and unittest discovery', () => {
   const execute = vi.fn<ScriptCoverageExecute>()
@@ -43,7 +43,9 @@ test('Python runs offline from the pinned project with branch coverage and unitt
   expect(execute.mock.calls[1]![1]).toContain('json')
   const options = execute.mock.calls[0]![2]
   expect(normalizePath(options.cwd!)).toBe('/checkout')
-  expect(normalizePath(options.env!.UV_CACHE_DIR!)).toBe('/checkout/.cache/uv')
+  expect(normalizePath(options.env!['UV_CACHE_DIR']!)).toBe(
+    '/checkout/.cache/uv',
+  )
 })
 
 test('each Python script requires measured lines and branches and may have no branches', () => {

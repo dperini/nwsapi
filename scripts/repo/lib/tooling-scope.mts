@@ -1,5 +1,5 @@
 import { globSync } from 'node:fs'
-import { REPO_ROOT } from './paths.mts'
+import { normalizePath, REPO_ROOT } from './paths.mts'
 
 export function toolingFiles(root = REPO_ROOT) {
   return globSync(
@@ -17,6 +17,6 @@ export function toolingFiles(root = REPO_ROOT) {
     ],
     { cwd: root },
   )
-    .map(file => file.replaceAll('\\', '/'))
+    .map(normalizePath)
     .toSorted()
 }

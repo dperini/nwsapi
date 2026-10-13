@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
-import { normalizePath } from '../../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 import { afterEach, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({

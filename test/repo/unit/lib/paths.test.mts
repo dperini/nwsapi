@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { normalizePath } from '../../util/normalize-path.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 test.each([
   ['', '.'],

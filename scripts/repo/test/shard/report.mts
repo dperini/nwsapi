@@ -1,7 +1,7 @@
 import { globSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { REPO_ROOT } from '../../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../../lib/paths.mts'
 
 export const UNIT_CI_SHARD_COUNT = 32
 
@@ -39,7 +39,7 @@ export interface UnitShardIdentity {
 
 export function unitTestFiles(root = REPO_ROOT): string[] {
   return globSync('test/repo/unit/**/*.test.mts', { cwd: root })
-    .map(file => file.replaceAll('\\', '/'))
+    .map(normalizePath)
     .toSorted()
 }
 
@@ -185,9 +185,9 @@ function recordSuites(
         `Unit shard ${envelope.shardIndex} has a non-passing suite: ${suite.name}`,
       )
     }
-    const relative = path
-      .relative(REPO_ROOT, path.resolve(suite.name))
-      .replaceAll('\\', '/')
+    const relative = normalizePath(
+      path.relative(REPO_ROOT, path.resolve(suite.name)),
+    )
     if (relative === '..' || relative.startsWith('..')) {
       throw new Error(
         `Unit shard ${envelope.shardIndex} reported a file outside the repository.`,

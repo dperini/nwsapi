@@ -2,7 +2,7 @@ import { parse } from 'acorn'
 import { JSDOM } from 'jsdom'
 import path from 'node:path'
 import { expect, test } from 'vitest'
-import { normalizePath } from '../../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 import {
   namedTest,
   scriptPage,

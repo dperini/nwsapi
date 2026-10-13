@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { normalizePath } from '../../../util/normalize-path.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 import { test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   write: vi.fn(),

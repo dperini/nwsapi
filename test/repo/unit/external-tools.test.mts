@@ -29,7 +29,7 @@ import {
 import { writeFirewallShim } from '../../../scripts/repo/setup/firewall.mts'
 import { verifiedWrapper } from '../../../scripts/repo/setup/diagnostics.mts'
 import type { ExternalTools } from '../../../scripts/repo/external-tools.mts'
-import { normalizePath } from '../util/normalize-path.mts'
+import { normalizePath } from '../../../scripts/repo/lib/paths.mts'
 
 test('tool identities and state metadata use deterministic pinned paths', () => {
   const state = JSON.parse(toolchainState())
