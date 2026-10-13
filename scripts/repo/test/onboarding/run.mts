@@ -6,7 +6,12 @@ import { fileURLToPath } from 'node:url'
 import { makeSandbox } from './isolation.mts'
 import { readJourney } from './readme.mts'
 import { startGuide } from './guide.mts'
-import { externalToolVersion, hashes, redact } from './environment.mts'
+import {
+  exactManagerVersionCommand,
+  externalToolVersion,
+  hashes,
+  redact,
+} from './environment.mts'
 import { runBounded } from './process.mts'
 import { retainFailedReviewReports } from './reports.mts'
 import {
@@ -294,11 +299,12 @@ async function runManagerScenario(
   if (!manager || !step || step.command[0] !== managerName) {
     throw new Error(`README ${stepId} command or --${managerName} is missing.`)
   }
+  const versionCommand = exactManagerVersionCommand(manager, options.node)
   const version = await command(
     log,
     `${managerName} exact version`,
-    options.node,
-    [manager, '--version'],
+    versionCommand.executable,
+    versionCommand.args,
     context.snapshot,
     context.env,
     15_000,

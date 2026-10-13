@@ -28,6 +28,16 @@ export async function externalToolVersion(
   return config.tools[name]!.version
 }
 
+export function exactManagerVersionCommand(
+  manager: string,
+  node: string,
+): { executable: string; args: string[] } {
+  if (/\.(?:c|m)?js$/i.test(manager)) {
+    return { executable: node, args: [manager, '--version'] }
+  }
+  return { executable: manager, args: ['--version'] }
+}
+
 export function findGit() {
   const result = spawnSync(
     process.platform === 'win32' ? 'where.exe' : 'which',

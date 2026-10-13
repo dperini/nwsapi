@@ -12,7 +12,24 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { test } from 'vitest'
-import { stageCommands } from '../../../../../scripts/repo/test/onboarding/environment.mts'
+import {
+  exactManagerVersionCommand,
+  stageCommands,
+} from '../../../../../scripts/repo/test/onboarding/environment.mts'
+
+test('exact manager version command handles JavaScript launchers and native binaries', () => {
+  const node = '/tools/node'
+  const npm = '/tools/npm-cli.js'
+  const pnpm = '/tools/pnpm'
+  assert.deepEqual(exactManagerVersionCommand(npm, node), {
+    executable: node,
+    args: [npm, '--version'],
+  })
+  assert.deepEqual(exactManagerVersionCommand(pnpm, node), {
+    executable: pnpm,
+    args: ['--version'],
+  })
+})
 
 test('staged manager launcher uses its declared Node path from another directory', async () => {
   const root = mkdtempSync(
