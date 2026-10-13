@@ -4,6 +4,7 @@ import { readdir, readFile, realpath, rm, rmdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { hostname } from 'node:os'
 import path from 'node:path'
+import { foldPathForCompare, isPathWithinRoot } from '../../lib/paths.mts'
 import type { WorktreeMetadata } from './lease.mts'
 import { inspectPulse, lockWorktree } from './lease.mts'
 
@@ -23,19 +24,49 @@ function git(repository: string, args: string[]) {
 }
 
 function worktreeInventory(repository: string) {
-  const output = git(repository, ['worktree', 'list', '--porcelain'])
-  return output.split('\n\n').map(block => {
-    const fields = new Map<string, string>()
-    for (const line of block.split('\n')) {
-      const [key, ...rest] = line.split(' ')
-      fields.set(key!, rest.join(' '))
-    }
-    return {
-      path: fields.get('worktree'),
-      branch: fields.get('branch')?.replace('refs/heads/', ''),
-      locked: fields.has('locked'),
-    }
-  })
+  return parseWorktreeInventory(
+    git(repository, ['worktree', 'list', '--porcelain']),
+  )
+}
+
+export function parseWorktreeInventory(output: string) {
+  return output
+    .trim()
+    .split(/\r?\n\r?\n/)
+    .filter(Boolean)
+    .map(block => {
+      const fields = new Map<string, string>()
+      for (const line of block.split(/\r?\n/)) {
+        const [key, ...rest] = line.split(' ')
+        fields.set(key!, rest.join(' '))
+      }
+      return {
+        path: fields.get('worktree'),
+        branch: fields.get('branch')?.replace('refs/heads/', ''),
+        locked: fields.has('locked'),
+      }
+    })
+}
+
+export function candidatePathsMatch(
+  metadata: Pick<WorktreeMetadata, 'repository'>,
+  paths: {
+    parent: string
+    temporaryRoot: string
+    repository: string
+    checkout: string
+  },
+) {
+  const parent = foldPathForCompare(paths.parent)
+  const temporaryRoot = foldPathForCompare(paths.temporaryRoot)
+  return (
+    parent !== temporaryRoot &&
+    isPathWithinRoot(parent, temporaryRoot) &&
+    foldPathForCompare(paths.repository) ===
+      foldPathForCompare(metadata.repository) &&
+    foldPathForCompare(paths.checkout) ===
+      foldPathForCompare(path.join(parent, 'checkout'))
+  )
 }
 
 async function findCandidates(
@@ -43,6 +74,11 @@ async function findCandidates(
   temporaryRoot: string,
 ): Promise<Candidate[]> {
   const entries = await readdir(temporaryRoot, { withFileTypes: true })
+  const canonicalTemp = foldPathForCompare(await realpath(temporaryRoot))
+  const commonDirectory = git(repository, ['rev-parse', '--git-common-dir'])
+  const canonicalRepository = foldPathForCompare(
+    await realpath(path.resolve(repository, commonDirectory)),
+  )
   const candidates: Candidate[] = []
   for (const entry of entries) {
     if (!entry.isDirectory() || !entry.name.startsWith('nwsapi-worktree-')) {
@@ -55,16 +91,14 @@ async function findCandidates(
         await readFile(metadataPath, 'utf8'),
       ) as WorktreeMetadata
       const canonicalParent = await realpath(parent)
-      const canonicalTemp = await realpath(temporaryRoot)
-      const commonDirectory = git(repository, ['rev-parse', '--git-common-dir'])
-      const canonicalRepository = await realpath(
-        path.resolve(repository, commonDirectory),
-      )
       const canonicalCheckout = await realpath(metadata.path)
       if (
-        !canonicalParent.startsWith(`${canonicalTemp}${path.sep}`) ||
-        canonicalRepository !== metadata.repository ||
-        canonicalCheckout !== path.join(canonicalParent, 'checkout') ||
+        !candidatePathsMatch(metadata, {
+          parent: canonicalParent,
+          temporaryRoot: canonicalTemp,
+          repository: canonicalRepository,
+          checkout: canonicalCheckout,
+        }) ||
         metadata.schemaVersion !== 1
       ) {
         continue
@@ -138,7 +172,10 @@ function checkoutReason(
   if (existsSync(path.join(candidate.parent, '.nwsapi-operation.lock'))) {
     return 'worktree operation is in progress or uncertain'
   }
-  const registered = inventory.find(item => item.path === metadata.path)
+  const checkoutPath = foldPathForCompare(metadata.path)
+  const registered = inventory.find(
+    item => item.path && foldPathForCompare(item.path) === checkoutPath,
+  )
   if (!registered) {
     return 'checkout is absent from Git worktree inventory'
   }
@@ -148,7 +185,7 @@ function checkoutReason(
   ) {
     return 'source branch changed or no longer matches helper metadata'
   }
-  if (metadata.path === currentPath) {
+  if (checkoutPath === foldPathForCompare(currentPath)) {
     return 'current checkout'
   }
   if (registered.locked) {
@@ -283,7 +320,8 @@ async function finalRemovalReason(
       '--ignored=matching',
       '--ignore-submodules=none',
     ]) ||
-    path.resolve(latest.path) === currentPath
+    foldPathForCompare(path.resolve(latest.path)) ===
+      foldPathForCompare(currentPath)
   ) {
     return 'checkout changed during sweep'
   }
@@ -307,8 +345,9 @@ function metadataMatches(
   branch: string,
 ) {
   return (
-    latest.path === previous.path &&
-    latest.repository === previous.repository &&
+    foldPathForCompare(latest.path) === foldPathForCompare(previous.path) &&
+    foldPathForCompare(latest.repository) ===
+      foldPathForCompare(previous.repository) &&
     latest.sourceBranch === previous.sourceBranch &&
     latest.sourceHead === previous.sourceHead &&
     latest.targetBranch === previous.targetBranch &&

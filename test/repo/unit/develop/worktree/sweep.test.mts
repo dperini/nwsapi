@@ -9,8 +9,13 @@ import {
 } from 'node:fs'
 import os, { hostname } from 'node:os'
 import path from 'node:path'
+import { foldPathForCompare } from '../../../../../scripts/repo/lib/paths.mts'
 import { claimWorktree } from '../../../../../scripts/repo/develop/worktree/lease.mts'
-import { sweepWorktrees } from '../../../../../scripts/repo/develop/worktree/sweep.mts'
+import {
+  candidatePathsMatch,
+  parseWorktreeInventory,
+  sweepWorktrees,
+} from '../../../../../scripts/repo/develop/worktree/sweep.mts'
 import { createVersionCheckout } from '../../../../../scripts/repo/develop/version/select.mts'
 
 function git(root: string, ...args: string[]) {
@@ -24,6 +29,44 @@ function cleanupGit(root: string, ...args: string[]) {
     // Fixture cleanup tolerates an already-removed worktree or branch.
   }
 }
+
+test('parses Git worktree records with Windows line endings, spaces, and locked or detached checkouts', () => {
+  expect(
+    parseWorktreeInventory(
+      'worktree C:/Users/Dev Name/repo\r\nHEAD abc\r\nbranch refs/heads/master\r\n\r\nworktree C:/Temp/checkout\r\nHEAD def\r\ndetached\r\nlocked maintenance\r\n\r\n',
+    ),
+  ).toEqual([
+    { path: 'C:/Users/Dev Name/repo', branch: 'master', locked: false },
+    { path: 'C:/Temp/checkout', branch: undefined, locked: true },
+  ])
+  expect(parseWorktreeInventory('')).toEqual([])
+})
+
+test('matches native Windows paths to Git paths while rejecting unrelated cleanup targets', () => {
+  const metadata = { repository: 'C:/repo/.git' }
+  const paths = {
+    parent: 'C:\\Temp\\nwsapi-worktree-owned',
+    temporaryRoot: 'C:/Temp',
+    repository: 'C:\\repo\\.git',
+    checkout: 'C:\\Temp\\nwsapi-worktree-owned\\checkout',
+  }
+  expect(candidatePathsMatch(metadata, paths)).toBe(true)
+  expect(candidatePathsMatch({ repository: 'C:/other/.git' }, paths)).toBe(
+    false,
+  )
+  expect(candidatePathsMatch(metadata, { ...paths, parent: 'C:/Temp' })).toBe(
+    false,
+  )
+  expect(
+    candidatePathsMatch(metadata, { ...paths, temporaryRoot: 'C:/Tem' }),
+  ).toBe(false)
+  expect(
+    candidatePathsMatch(metadata, {
+      ...paths,
+      checkout: 'C:/Temp/unrelated/checkout',
+    }),
+  ).toBe(false)
+})
 
 function repositoryIdentity(root: string) {
   return path.resolve(root, git(root, 'rev-parse', '--git-common-dir'))
@@ -157,7 +200,11 @@ test('retains an expired pulse from a dead runner for review', async () => {
     expect(
       (await sweepWorktrees(root, true, temporaryRoot))[0]?.reason,
     ).toContain('ended without a verified clean release')
-    expect(git(root, 'worktree', 'list', '--porcelain')).toContain(managed.path)
+    expect(
+      parseWorktreeInventory(git(root, 'worktree', 'list', '--porcelain')).map(
+        item => item.path && foldPathForCompare(item.path),
+      ),
+    ).toContain(foldPathForCompare(managed.path))
   } finally {
     cleanupGit(root, 'worktree', 'remove', managed.path, '--force')
     cleanupGit(root, 'branch', '-D', managed.branchName)
