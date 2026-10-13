@@ -1,10 +1,10 @@
 import { spawnSync } from 'node:child_process'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
-import { ensureLocalCiDocker } from './docker.mts'
+import { ensureLocalCiDockerAvailable } from './local-docker.mts'
 
 export async function main() {
-  await ensureLocalCiDocker()
+  await ensureLocalCiDockerAvailable()
   const runner = spawnSync(
     process.execPath,
     [

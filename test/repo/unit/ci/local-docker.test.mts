@@ -1,12 +1,12 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { ensureLocalCiDocker } from '../../../../scripts/repo/ci/docker.mts'
+import { ensureLocalCiDockerAvailable } from '../../../../scripts/repo/ci/local-docker.mts'
 
 afterEach(() => vi.restoreAllMocks())
 
 test('uses an already running Docker engine without installing anything', async () => {
   const execute = vi.fn(() => 0)
 
-  await ensureLocalCiDocker('darwin', execute, async () => {})
+  await ensureLocalCiDockerAvailable('darwin', execute, async () => {})
 
   expect(execute).toHaveBeenCalledExactlyOnceWith('docker', ['info'], 'ignore')
 })
@@ -25,7 +25,7 @@ test('starts installed OrbStack before attempting a macOS install', async () => 
     return 0
   }
 
-  await ensureLocalCiDocker(
+  await ensureLocalCiDockerAvailable(
     'darwin',
     execute,
     async () => {},
@@ -50,7 +50,7 @@ test('starts installed Docker Desktop when OrbStack is not installed', async () 
     return 0
   }
 
-  await ensureLocalCiDocker(
+  await ensureLocalCiDockerAvailable(
     'darwin',
     execute,
     async () => {},
@@ -75,7 +75,7 @@ test('installs OrbStack with Homebrew when macOS has no runtime app', async () =
     return 0
   }
 
-  await ensureLocalCiDocker(
+  await ensureLocalCiDockerAvailable(
     'darwin',
     execute,
     async () => {},
@@ -100,7 +100,7 @@ test('installs and starts Docker Desktop on Windows', async () => {
     return 0
   }
 
-  await ensureLocalCiDocker('win32', execute, async () => {})
+  await ensureLocalCiDockerAvailable('win32', execute, async () => {})
 
   expect(calls[0]).toBe('docker info')
   expect(calls.some(call => call.startsWith('winget install'))).toBe(true)
@@ -121,7 +121,7 @@ test('installs Docker Engine on Linux when no engine is available', async () => 
     return 0
   }
 
-  await ensureLocalCiDocker('linux', execute, async () => {})
+  await ensureLocalCiDockerAvailable('linux', execute, async () => {})
 
   expect(calls).toContain('sh -c curl -fsSL https://get.docker.com | sh')
 })
@@ -130,7 +130,11 @@ test('reports unsupported platforms without running an installer', async () => {
   const execute = vi.fn(() => 1)
 
   await expect(
-    ensureLocalCiDocker('freebsd' as NodeJS.Platform, execute, async () => {}),
-  ).rejects.toThrow('Local CI runtime setup is unsupported on freebsd.')
+    ensureLocalCiDockerAvailable(
+      'freebsd' as NodeJS.Platform,
+      execute,
+      async () => {},
+    ),
+  ).rejects.toThrow('Local CI Docker setup is unsupported on freebsd.')
   expect(execute).toHaveBeenCalledExactlyOnceWith('docker', ['info'], 'ignore')
 })

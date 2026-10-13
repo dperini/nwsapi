@@ -12,11 +12,11 @@ export function localCiStatus(
   }
   return {
     ready: true,
-    message: `${localCiRuntimeGuidance(platform)} Running this task will check, start, or install the runtime.`,
+    message: `${localCiDockerGuidance(platform)} Running this task will check, start, or install Docker.`,
   }
 }
 
-function localCiRuntimeGuidance(platform: NodeJS.Platform) {
+function localCiDockerGuidance(platform: NodeJS.Platform) {
   if (platform === 'darwin') {
     return 'macOS setup checks OrbStack and Docker first, then installs OrbStack if neither is available.'
   }

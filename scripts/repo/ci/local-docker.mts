@@ -84,7 +84,7 @@ function installWindowsRuntime(execute: Run) {
   }
 }
 
-export async function ensureLocalCiDocker(
+export async function ensureLocalCiDockerAvailable(
   platform: Platform = process.platform,
   execute: Run = run,
   wait: (milliseconds: number) => Promise<void> = delay,
@@ -96,24 +96,24 @@ export async function ensureLocalCiDocker(
   }
   if (platform === 'darwin') {
     if (installMacRuntime(execute, hasApp) !== 0) {
-      throw new Error('Could not start the macOS container runtime.')
+      throw new Error('Could not start OrbStack or Docker Desktop on macOS.')
     }
   } else if (platform === 'win32') {
     installWindowsRuntime(execute)
   } else if (platform === 'linux') {
     installLinuxRuntime(execute)
   } else {
-    throw new Error(`Local CI runtime setup is unsupported on ${platform}.`)
+    throw new Error(`Local CI Docker setup is unsupported on ${platform}.`)
   }
   for (let attempt = 0; attempt < 60; attempt += 1) {
     await wait(2000)
     if (dockerWorks(execute)) {
-      console.log('Docker runtime is ready.')
+      console.log('Docker is ready.')
       return
     }
   }
   throw new Error(
-    'The container runtime was installed or started, but Docker is not ready yet. Finish any setup prompt, start the runtime, and rerun pnpm run ci:local.',
+    'Docker was installed or started, but it is not ready yet. Finish any setup prompt, start Docker, and rerun pnpm run ci:local.',
   )
 }
 
@@ -122,5 +122,5 @@ function delay(milliseconds: number) {
 }
 
 if (isMainModule(import.meta.url)) {
-  await ensureLocalCiDocker()
+  await ensureLocalCiDockerAvailable()
 }
