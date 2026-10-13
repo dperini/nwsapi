@@ -1,6 +1,7 @@
 import { PassThrough } from 'node:stream'
 import type * as ChildProcess from 'node:child_process'
 import { afterEach, expect, test, vi } from 'vitest'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 import { setupVoiceOver } from '../../../../../scripts/repo/setup/voiceover/run.mts'
 import type { VoiceOverPreflight } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
 import type { VoiceOverRun } from '../../../../../scripts/repo/setup/voiceover/run.mts'
@@ -101,7 +102,9 @@ test('explicit opt-in installs assets then runs the narrow machine setup command
     ['exec', 'guidepup', 'install', 'voiceover'],
     ['exec', 'guidepup', 'setup', '--macos-ignore-tcc-db'],
   ])
-  expect(run.mock.calls[0]?.[1]).toBe('/fixture/.cache/guidepup')
+  expect(normalizePath(run.mock.calls[0]?.[1]!)).toBe(
+    normalizePath('/fixture/.cache/guidepup'),
+  )
 })
 
 test('already configured state does not repeat setup or prompt', async () => {
