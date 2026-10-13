@@ -6,28 +6,30 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isMainModule } from '../../lib/run-node.mts'
 
-type Manager = 'npm' | 'pnpm'
-type Phase = 'bootstrap' | 'install-manager' | 'journey'
+export type OnboardingManager = 'npm' | 'pnpm'
+export type OnboardingPhase = 'bootstrap' | 'install-manager' | 'journey'
 
 const REPO_ROOT = path.resolve(
   fileURLToPath(new URL('../../../../', import.meta.url)),
 )
 const TOOLS = JSON.parse(
   readFileSync(path.join(REPO_ROOT, '.config/external-tools.json'), 'utf8'),
-) as { tools: Record<Manager, { version: string }> }
+) as { tools: Record<OnboardingManager, { version: string }> }
 
-interface Invocation {
+export interface OnboardingInvocation {
   command: string
   args: string[]
 }
 
-type OnboardingExecutor = (
+export type OnboardingExecutor = (
   command: string,
   args: string[],
   options: SpawnSyncOptions,
 ) => { status: number | null; error?: Error }
 
-function managerFrom(value: string | undefined): Manager {
+export function parseEntryManager(
+  value: string | undefined,
+): OnboardingManager {
   if (value === 'npm' || value === 'pnpm') {
     return value
   }
@@ -40,7 +42,7 @@ export function onboardingInvocation(
   node = process.execPath,
   temporary = process.env['RUNNER_TEMP'] ?? os.tmpdir(),
   root = REPO_ROOT,
-): Invocation {
+): OnboardingInvocation {
   if (phase === 'bootstrap') {
     return {
       command: node,
@@ -53,7 +55,7 @@ export function onboardingInvocation(
       ],
     }
   }
-  const manager = managerFrom(managerName)
+  const manager = parseEntryManager(managerName)
   const managerRoot = path.join(temporary, 'onboarding-manager')
   if (phase === 'install-manager') {
     return {
@@ -126,7 +128,7 @@ export function executeCommand(
 }
 
 if (isMainModule(import.meta.url)) {
-  const phase = process.argv[2] as Phase | undefined
+  const phase = process.argv[2] as OnboardingPhase | undefined
   if (
     phase !== 'bootstrap' &&
     phase !== 'install-manager' &&

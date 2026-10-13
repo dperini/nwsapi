@@ -5,7 +5,19 @@ import {
   onboardingInvocation,
   runOnboardingPhase,
   executeCommand,
+  parseEntryManager,
 } from '../../../../../scripts/repo/test/onboarding/ci.mts'
+
+test.each(['npm', 'pnpm'] as const)('accepts the %s entry manager', manager => {
+  expect(parseEntryManager(manager)).toBe(manager)
+})
+
+test.each([undefined, '', 'yarn', 'PNPM'])(
+  'rejects an invalid entry manager %s',
+  manager => {
+    expect(() => parseEntryManager(manager)).toThrow()
+  },
+)
 
 test.each(['linux', 'win32'] as const)(
   'Node onboarding keeps argument boundaries on %s',

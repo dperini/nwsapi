@@ -1,0 +1,118 @@
+name: 'ci: onboarding'
+run-name: 'ci: onboarding'
+
+on:
+  push:
+    branches: [prerelease/3.0.0]
+    paths:
+      - .github/workflows/onboarding.yml
+      - scripts/repo/test/onboarding/**
+      - scripts/repo/setup/**
+      - scripts/repo/develop/**
+      - .config/external-tools.json
+      - package.json
+      - README.md
+  pull_request:
+    branches: [prerelease/3.0.0]
+    paths:
+      - .github/workflows/onboarding.yml
+      - scripts/repo/test/onboarding/**
+      - scripts/repo/setup/**
+      - scripts/repo/develop/**
+      - .config/external-tools.json
+      - package.json
+      - README.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bootstrap:
+    name: 'bootstrap (${{ matrix.os }})'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04","macos-15","windows-2025"]') }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '22.18.0'
+          package-manager-cache: false
+      - name: Bootstrap from the minimum Node version
+        timeout-minutes: 30
+        run: node scripts/repo/test/onboarding/ci.mts bootstrap
+      - name: Upload bootstrap diagnostics
+        if: always()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: onboarding-bootstrap-${{ matrix.os }}-${{ github.run_id }}
+          path: .cache/onboarding/
+          if-no-files-found: warn
+          retention-days: 14
+
+  journey:
+    name: 'journey (${{ matrix.os }}, ${{ matrix.manager }})'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04","macos-15","windows-2025"]') }}
+        manager: [npm, pnpm]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '26.11.0'
+          package-manager-cache: false
+      - name: Provision the entry package manager
+        timeout-minutes: 15
+        env:
+          ENTRY_MANAGER: ${{ matrix.manager }}
+        run: node scripts/repo/test/onboarding/ci.mts install-manager
+      - name: Install, use the wizard, and complete the developer journey
+        timeout-minutes: 60
+        env:
+          ENTRY_MANAGER: ${{ matrix.manager }}
+        run: node scripts/repo/test/onboarding/ci.mts journey
+      - name: Upload onboarding diagnostics
+        if: always()
+        uses: ./.github/actions/repo/upload-artifact
+        with:
+          name: onboarding-${{ matrix.os }}-${{ matrix.manager }}-${{ github.run_id }}
+          path: .cache/onboarding/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Summarize onboarding journey
+        if: always()
+        shell: pwsh
+        env:
+          ENTRY_MANAGER: ${{ matrix.manager }}
+          PLATFORM: ${{ matrix.os }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          "platform=$env:PLATFORM entry=$env:ENTRY_MANAGER workflow=pnpm status=$env:JOB_STATUS" >> $env:GITHUB_STEP_SUMMARY
+          $summaries = @(Get-ChildItem .cache/onboarding/*.summary.json -ErrorAction SilentlyContinue | Sort-Object LastWriteTime)
+          if ($summaries.Count -eq 0) {
+            'Runner summary unavailable.' >> $env:GITHUB_STEP_SUMMARY
+          }
+          foreach ($file in $summaries) {
+            $summary = Get-Content $file.FullName -Raw | ConvertFrom-Json
+            "### $($summary.scenario): $($summary.status)" >> $env:GITHUB_STEP_SUMMARY
+            "entry_node=$($summary.entryNodeVersion) commit=$($summary.commit)" >> $env:GITHUB_STEP_SUMMARY
+            foreach ($phase in $summary.phases) {
+              "- $($phase.status): $($phase.command) (exit $($phase.code))" >> $env:GITHUB_STEP_SUMMARY
+            }
+          }

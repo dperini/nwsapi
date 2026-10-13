@@ -65,9 +65,10 @@ test('performance measurement runs only after the required push gates pass', () 
     ),
   )
 
-  expect(ci.jobs.perf.needs).toEqual(['node', 'onboarding'])
+  expect(ci.jobs.perf.needs).toBe('node')
+  expect(ci.jobs).not.toHaveProperty('onboarding')
   expect(ci.jobs.perf.if).toBe(
-    "github.event_name == 'push' && needs.node.result == 'success' && needs.onboarding.result == 'success'",
+    "github.event_name == 'push' && needs.node.result == 'success'",
   )
   expect(ci.jobs.perf.uses).toBe('./.github/workflows/perf-tak.yml')
   expect(perf.on.workflow_call).toBeDefined()
