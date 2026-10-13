@@ -1,7 +1,8 @@
-import { accessSync, constants, existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { installedPackage } from './dependency.mts'
 import { managedReady, managedVersions } from './diagnostics.mts'
+import { hasLocalCiDockerSocket, localCiStatus } from './local-ci.mts'
 import { packageFiles } from '../../../.config/build.config.mts'
 
 interface PackageManifest {
@@ -77,39 +78,6 @@ export function readinessForTask(
   _taskId: 'guide' | 'review' | 'ci:local',
 ) {
   return taskStatus(readiness)
-}
-
-export function localCiStatus(
-  readiness: CheckoutReadiness,
-  dockerSocketAvailable: boolean,
-) {
-  const setup = taskStatus(readiness)
-  if (!setup.ready || dockerSocketAvailable) {
-    return setup
-  }
-  return {
-    ready: false,
-    message:
-      'A working Docker socket is required. Start Docker Desktop with the default socket enabled, or set LOCAL_CI_DOCKER_HOST.',
-  }
-}
-
-function hasLocalCiDockerSocket() {
-  const host = process.env['LOCAL_CI_DOCKER_HOST']?.trim()
-  const socket = host?.startsWith('unix://')
-    ? host.slice('unix://'.length)
-    : host
-      ? undefined
-      : '/var/run/docker.sock'
-  if (socket === undefined) {
-    return Boolean(host)
-  }
-  try {
-    accessSync(socket, constants.R_OK | constants.W_OK)
-    return true
-  } catch {
-    return false
-  }
 }
 
 function taskStatus(readiness: CheckoutReadiness) {

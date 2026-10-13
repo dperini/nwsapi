@@ -12,9 +12,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { parse, stringify } from 'yaml'
 import {
-  checkoutReadiness,
   dependencyReadiness,
-  localCiStatus,
   taskReadiness,
 } from '../../../../scripts/repo/setup/readiness.mts'
 
@@ -384,12 +382,6 @@ test('guide and review require tools and dependencies, while review rebuilds dis
   try {
     expect(await taskReadiness('guide', root)).toMatchObject({ ready: true })
     expect(await taskReadiness('review', root)).toMatchObject({ ready: true })
-    const ready = await checkoutReadiness(root, true)
-    expect(localCiStatus(ready, true)).toMatchObject({ ready: true })
-    expect(localCiStatus(ready, false)).toMatchObject({
-      ready: false,
-      message: expect.stringContaining('Docker socket'),
-    })
     expect(existsSync(path.join(root, 'dist/nwsapi.js'))).toBe(false)
     tools.ready = false
     expect(await taskReadiness('guide', root)).toMatchObject({ ready: false })
