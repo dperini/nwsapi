@@ -5,7 +5,21 @@ import {
   foldPathForCompare,
   isPathWithinRoot,
   normalizePath,
+  toForwardSlashes,
 } from '../../../../scripts/repo/lib/paths.mts'
+
+test.each([
+  ['C:\\Temp\\file', 'C:/Temp/file'],
+  ['\\\\server\\share\\file', '//server/share/file'],
+  ['a\\..//b/', 'a/..//b/'],
+  ['./file', './file'],
+  ['', ''],
+])(
+  'converts separators without changing path structure: %s',
+  (input, expected) => {
+    expect(toForwardSlashes(input)).toBe(expected)
+  },
+)
 
 test.each([
   ['', '.'],

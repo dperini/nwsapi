@@ -117,6 +117,11 @@ const WIN32 = process.platform === 'win32'
 const DRIVE_LETTER_REGEXP = /^[A-Za-z]:$/
 const msysDriveRegExp = /^\/([a-zA-Z])($|\/)/
 
+// Extracted from SocketDev/socket-lib src/eco/npm/registry/tarball/shared.mts at 42407687c51f1e75e6c2140ba3b3822fd45e1418.
+export function toForwardSlashes(name: string): string {
+  return name.replaceAll('\\', '/')
+}
+
 function appendNormalizedPathSegment(
   state: NormalizedPathState,
   segment: string,

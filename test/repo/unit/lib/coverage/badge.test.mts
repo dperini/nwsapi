@@ -26,7 +26,9 @@ import {
 } from '../../../../../scripts/repo/lib/coverage/badge.mts'
 
 test('badge geometry and accessible values can be read independently', () => {
-  expect(svgWidth(coverageBadgeSvg(84))).toBeDefined()
+  const width = Number(svgWidth(coverageBadgeSvg(84)))
+  expect(Number.isFinite(width)).toBe(true)
+  expect(width).toBeGreaterThan(0)
   expect(svgWidth('<svg height="20"/>')).toBeUndefined()
   expect(parseBadgeSvgValue(coverageBadgeSvg(84))).toBe('84%')
   expect(parseBadgeSvgValue('<svg/>')).toBeUndefined()

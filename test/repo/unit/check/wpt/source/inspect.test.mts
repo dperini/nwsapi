@@ -187,28 +187,74 @@ test('defined-state adaptation requires the known assertion callback shape', () 
   ).toThrow()
 })
 
-test('DOM adapters remove only the reviewed rendering statements', () => {
-  expect(
-    dynamicDirectionEdit(statement('const acs = getComputedStyle(e)')),
-  ).toBeDefined()
-  expect(
-    dynamicDirectionEdit(statement('assert_equals(acs.direction, "rtl")')),
-  ).toBeDefined()
-  expect(
-    dynamicDirectionEdit(statement('assert_equals(other.direction, "rtl")')),
-  ).toBeUndefined()
-  expect(dynamicDirectionEdit(statement('other()'))).toBeUndefined()
-  expect(inertEdit(statement('color = "red"'))).toBeDefined()
-  expect(inertEdit(statement('other = "red"'))).toBeUndefined()
-  expect(formValidityEdit(statement('function getBGColor() {}'))).toBeDefined()
-  expect(
-    formValidityEdit(statement('test(testStyles.bind(null), "style")')),
-  ).toBeDefined()
-  expect(
-    formValidityEdit(statement('test(() => {}, "selector")')),
-  ).toBeUndefined()
-  expect(formValidityEdit(statement('const x = 1'))).toBeUndefined()
-  expect(namespaceEdit(statement('const x = 1'))).toBeUndefined()
+test.each([
+  ['direction', dynamicDirectionEdit, 'const acs = getComputedStyle(e)', true],
+  [
+    'direction',
+    dynamicDirectionEdit,
+    'assert_equals(acs.direction, "rtl")',
+    true,
+  ],
+  [
+    'direction',
+    dynamicDirectionEdit,
+    'assert_equals(other.direction, "rtl")',
+    false,
+  ],
+  ['direction', dynamicDirectionEdit, 'other()', false],
+  ['inert', inertEdit, 'color = "red"', true],
+  ['inert', inertEdit, 'other = "red"', false],
+  ['form validity', formValidityEdit, 'function getBGColor() {}', true],
+  [
+    'form validity',
+    formValidityEdit,
+    'test(testStyles.bind(null), "style")',
+    true,
+  ],
+  ['form validity', formValidityEdit, 'test(() => {}, "selector")', false],
+  ['form validity', formValidityEdit, 'const x = 1', false],
+  ['namespace', namespaceEdit, 'const x = 1', false],
+  [
+    'webkit',
+    webkitEdit,
+    'test(() => {}, "rules include webkit-prefixed pseudo-element should be cascaded")',
+    true,
+  ],
+  ['webkit', webkitEdit, 'assert_equals(sheet.cssRules.length, 1)', true],
+  ['webkit', webkitEdit, 'object.test()', false],
+  ['webkit', webkitEdit, 'test(() => {}, "other")', false],
+  ['webkit', webkitEdit, 'const x = 1', false],
+  [
+    'node list',
+    nodeListEdit,
+    'test(() => {}, "live NodeLists are for-of iterable and update appropriately")',
+    true,
+  ],
+  ['node list', nodeListEdit, 'test(() => {}, "other")', false],
+] as const)(
+  '%s adapter handles %s without changing adjacent statements',
+  (_name, edit, source, remove) => {
+    const prefix = 'before();\n'
+    const suffix = '\nafter();'
+    const input = prefix + source + suffix
+    const node = parse(input, { ecmaVersion: 'latest' }).body[1] as AnyNode
+    const change = edit(node)
+    if (!remove) {
+      expect(change).toBeUndefined()
+      return
+    }
+    expect(change).toEqual({
+      start: prefix.length,
+      end: prefix.length + source.length,
+      text: '',
+    })
+    expect(
+      input.slice(0, change!.start) + change!.text + input.slice(change!.end),
+    ).toBe(prefix + suffix)
+  },
+)
+
+test('namespace adaptation recognizes the reviewed methods array and call', () => {
   const namespace: AnyNode[] = []
   walkAst(
     parse('["matches", "webkitMatchesSelector"]; element[method]("div")', {
@@ -221,27 +267,6 @@ test('DOM adapters remove only the reviewed rendering statements', () => {
     },
   )
   expect(namespace).toHaveLength(2)
-  expect(
-    webkitEdit(
-      statement(
-        'test(() => {}, "rules include webkit-prefixed pseudo-element should be cascaded")',
-      ),
-    ),
-  ).toBeDefined()
-  expect(
-    webkitEdit(statement('assert_equals(sheet.cssRules.length, 1)')),
-  ).toBeDefined()
-  expect(webkitEdit(statement('object.test()'))).toBeUndefined()
-  expect(webkitEdit(statement('test(() => {}, "other")'))).toBeUndefined()
-  expect(webkitEdit(statement('const x = 1'))).toBeUndefined()
-  expect(
-    nodeListEdit(
-      statement(
-        'test(() => {}, "live NodeLists are for-of iterable and update appropriately")',
-      ),
-    ),
-  ).toBeDefined()
-  expect(nodeListEdit(statement('test(() => {}, "other")'))).toBeUndefined()
 })
 
 test('direction adaptation rejects computed-style use outside reviewed assertions', () => {

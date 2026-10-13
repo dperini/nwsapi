@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom'
+import path from 'node:path'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
@@ -60,7 +61,7 @@ vi.mock('node:module', () => ({
         if (file === 'jsdom') {
           return { JSDOM: FixtureDom }
         }
-        if (file.endsWith('/package.json')) {
+        if (path.basename(file) === 'package.json') {
           return { version: 'fixture' }
         }
         if (file === 'adapter') {

@@ -1,6 +1,6 @@
 import type { Profiler } from 'node:inspector'
+import path from 'node:path'
 import { afterEach, beforeEach, vi } from 'vitest'
-import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
   read: vi.fn(),
@@ -155,18 +155,18 @@ vi.mock('node:module', () => ({
   createRequire: () =>
     Object.assign(
       (file: string) => {
-        const normalizedFile = normalizePath(file)
-        if (normalizedFile === 'lib/api.js') {
+        const basename = path.basename(file)
+        if (file === './lib/api.js') {
           return {
             JSDOM: FixtureDom,
             VirtualConsole: FixtureConsole,
             requestInterceptor: (callback: unknown) => callback,
           }
         }
-        if (normalizedFile.endsWith('/package.json')) {
+        if (basename === 'package.json') {
           return { version: 'fixture' }
         }
-        return normalizedFile.endsWith('/dist/nwsapi.js')
+        return basename === 'nwsapi.js'
           ? state.candidate
           : state.cache['/prepared/adapter.js'].exports
       },

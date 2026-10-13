@@ -9,7 +9,7 @@ import {
   updateWpt,
 } from '../../../../scripts/repo/wpt/update.mts'
 import { updateDependencies } from '../../../../scripts/repo/dependency/update.mts'
-import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
+import { toForwardSlashes } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -28,11 +28,11 @@ vi.mock('node:fs', async importOriginal => {
   return {
     ...original,
     readFileSync: (file: NodeFs.PathOrFileDescriptor, options: unknown) => {
-      if (normalizePath(String(file)).endsWith('/.gitmodules')) {
+      if (path.basename(String(file)) === '.gitmodules') {
         return state.config
       }
       if (
-        normalizePath(String(file)).endsWith(
+        toForwardSlashes(String(file)).endsWith(
           '/test/repo/e2e/upstream/inventory.json',
         )
       ) {
