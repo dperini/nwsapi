@@ -70,7 +70,9 @@ vi.mock('../../../../../../scripts/repo/bench/footprint/shared.mts', () => ({
 }))
 vi.mock(
   '../../../../../../scripts/repo/bench/planner/has/variants.mts',
-  () => ({ baselinePath: () => '/fixture/baseline' }),
+  () => ({
+    baselinePath: () => '/fixture/baseline',
+  }),
 )
 vi.mock('../../../../../../scripts/repo/bench/planner/has/power.mts', () => ({
   checkedPower: () => 'AC',
@@ -85,7 +87,9 @@ vi.mock('../../../../../../scripts/repo/bench/planner/measure.mts', () => ({
 }))
 vi.mock(
   '../../../../../../scripts/repo/bench/planner/adaptive/variants.mts',
-  () => ({ adaptiveBundle: () => 'bundle' }),
+  () => ({
+    adaptiveBundle: () => 'bundle',
+  }),
 )
 const argv = process.argv.slice()
 beforeEach(() => {
@@ -135,11 +139,13 @@ test.each([false, true])(
       cases: 2,
       decisionDisagreements: 0,
     })
-    const reports = state.write.mock.calls.filter(
-      ([file]) =>
-        normalizePath(file).endsWith('/chromium.json') ||
-        normalizePath(file).endsWith('/jsdom.json'),
-    )
+    const reports = state.write.mock.calls.filter(([file]) => {
+      const normalized = normalizePath(file)
+      return (
+        normalized.endsWith('/chromium.json') ||
+        normalized.endsWith('/jsdom.json')
+      )
+    })
     expect(reports).toHaveLength(2)
     expect(
       JSON.parse(reports[0]![1]).rows.map((row: { id: string }) => row.id),

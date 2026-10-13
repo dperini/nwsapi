@@ -59,16 +59,14 @@ export async function claimWorktree(
   pulsePath = path.join(path.dirname(metadata.path), '.nwsapi-pulse.json'),
   persistMetadata = true,
 ) {
+  const parentDirectory = path.dirname(metadata.path)
   const token = randomUUID()
   const ownerHost = hostname()
   const ownedMetadata = { ...metadata, hostname: ownerHost }
-  await mkdir(path.dirname(metadata.path), { recursive: true })
-  const lockRoot = persistMetadata ? path.dirname(metadata.path) : metadata.path
+  await mkdir(parentDirectory, { recursive: true })
+  const lockRoot = persistMetadata ? parentDirectory : metadata.path
   const unlock = await lockWorktree(lockRoot)
-  const metadataPath = path.join(
-    path.dirname(metadata.path),
-    '.nwsapi-worktree.json',
-  )
+  const metadataPath = path.join(parentDirectory, '.nwsapi-worktree.json')
   try {
     await mkdir(path.dirname(pulsePath), { recursive: true })
     let pulseFile

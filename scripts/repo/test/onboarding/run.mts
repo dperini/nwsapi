@@ -180,16 +180,17 @@ async function command(
   expected: number | null = 0,
 ) {
   const result = await runBounded(executable, args, checkout, env, timeout)
+  const commandText = `${path.basename(executable)} ${args.join(' ')}`
   await writeFile(
     file,
     redact(
-      `\n## ${phase}\n$ ${path.basename(executable)} ${args.join(' ')}\nexit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+      `\n## ${phase}\n$ ${commandText}\nexit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
     ),
     { flag: 'a' },
   )
   phases.push({
     phase,
-    command: `${path.basename(executable)} ${args.join(' ')}`,
+    command: commandText,
     status:
       !result.error &&
       ((expected !== null && result.code === expected) ||

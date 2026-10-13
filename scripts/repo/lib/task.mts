@@ -71,10 +71,11 @@ export function discoverTasks(kind: TaskKind, root = REPO_ROOT): Task[] {
       continue
     }
     for (const entry of files(directory, kind)) {
+      const parent = path.dirname(entry)
       // Root compatibility loaders delegate to the umbrella, so exclude them.
-      if (path.dirname(entry) !== directory && !tasks.has(entry)) {
+      if (parent !== directory && !tasks.has(entry)) {
         tasks.set(entry, {
-          name: path.relative(directory, path.dirname(entry)),
+          name: path.relative(directory, parent),
           entry,
           args: [],
         })
