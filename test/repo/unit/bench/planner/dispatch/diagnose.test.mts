@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
+import os from 'node:os'
 import path from 'node:path'
 import { gunzipSync } from 'node:zlib'
-import { test, vi } from 'vitest'
+import { afterAll, beforeAll, test, vi } from 'vitest'
 import { invokeMainModule, missingMainArguments } from '../../main-module.mts'
 const state = vi.hoisted(() => ({
   exists: false,
@@ -10,6 +11,27 @@ const state = vi.hoisted(() => ({
   writes: vi.fn(),
   settings: { rounds: 0, milliseconds: 0 },
 }))
+const actualFs = await vi.importActual<typeof import('node:fs')>('node:fs')
+let modelDirectory = ''
+const fixtureChoiceKey = 'NWSAPI_DISPATCH_DIAGNOSE_CHOICE'
+const originalFixtureChoice = process.env[fixtureChoiceKey]
+beforeAll(() => {
+  modelDirectory = actualFs.mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-dispatch-diagnose-model-'),
+  )
+  const source = `export function dispatchOverride() { return process.env.${fixtureChoiceKey} === 'true' }\n`
+  for (const name of ['chromium', 'jsdom', 'chromium-rule', 'jsdom-rule']) {
+    actualFs.writeFileSync(path.join(modelDirectory, `${name}.mjs`), source)
+  }
+})
+afterAll(() => {
+  if (originalFixtureChoice === undefined) {
+    delete process.env[fixtureChoiceKey]
+  } else {
+    process.env[fixtureChoiceKey] = originalFixtureChoice
+  }
+  actualFs.rmSync(modelDirectory, { recursive: true, force: true })
+})
 vi.mock('node:fs', () => ({
   existsSync: () => state.exists,
   mkdirSync: vi.fn(),
@@ -130,11 +152,6 @@ vi.mock('../../../../../../scripts/repo/bench/planner/has/evidence.mts', () => {
     jsdomEvidence: evidence,
   }
 })
-for (const host of ['chromium', 'jsdom', 'chromium-rule', 'jsdom-rule']) {
-  vi.doMock(path.resolve('/model', `${host}.mjs`), () => ({
-    dispatchOverride: () => state.choose,
-  }))
-}
 async function load() {
   return import('../../../../../../scripts/repo/bench/planner/dispatch/diagnose.mts')
 }
@@ -144,7 +161,8 @@ test('diagnosis records fresh and reproduction summaries with verified model and
   for (let index = 0, length = 2; index < length; index += 1) {
     state.writes.mockClear()
     state.choose = !index
-    await diagnose('/model', '/output', !!index)
+    process.env[fixtureChoiceKey] = String(state.choose)
+    await diagnose(modelDirectory, '/output', !!index)
     const entries = JSON.parse(
       gunzipSync(state.writes.mock.calls[0]![1]).toString(),
     )
@@ -166,10 +184,14 @@ test('diagnosis records fresh and reproduction summaries with verified model and
     assert.equal(report.traces.length, 12)
   }
   state.exists = true
-  await assert.rejects(diagnose('/model', '/output'), { code: 'ERR_ASSERTION' })
+  await assert.rejects(diagnose(modelDirectory, '/output'), {
+    code: 'ERR_ASSERTION',
+  })
   state.exists = false
   state.fault = true
-  await assert.rejects(diagnose('/model', '/output'), { code: 'ERR_ASSERTION' })
+  await assert.rejects(diagnose(modelDirectory, '/output'), {
+    code: 'ERR_ASSERTION',
+  })
   state.fault = false
 })
 
@@ -177,13 +199,17 @@ test('diagnostic CLI validates modes and supports repeat', async () => {
   await invokeMainModule(load, ['--help'], '/dispatch/diagnose.mts')
   await missingMainArguments(
     load,
-    [[], ['/model'], ['/model', 'out', 'invalid']],
+    [[], [modelDirectory], [modelDirectory, 'out', 'invalid']],
     '/dispatch/diagnose.mts',
   )
-  await invokeMainModule(load, ['/model', 'out'], '/dispatch/diagnose.mts')
   await invokeMainModule(
     load,
-    ['/model', 'out', 'repeat'],
+    [modelDirectory, 'out'],
+    '/dispatch/diagnose.mts',
+  )
+  await invokeMainModule(
+    load,
+    [modelDirectory, 'out', 'repeat'],
     '/dispatch/diagnose.mts',
   )
 })

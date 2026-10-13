@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import os from 'node:os'
 import path from 'node:path'
 import { afterEach, test, vi } from 'vitest'
 
@@ -6,7 +7,6 @@ const state = vi.hoisted(() => ({
   read: vi.fn(() => Buffer.from('model')),
   write: vi.fn(),
   mkdir: vi.fn(),
-  calls: (features: number[]) => features[0]! >= 32,
   clock: 0,
 }))
 vi.mock('node:fs', () => ({
@@ -25,17 +25,30 @@ vi.mock('node:perf_hooks', () => ({
 afterEach(() => vi.clearAllMocks())
 
 test('standalone inference runner records route-only overhead for domain and fallback cases', async () => {
+  const actualFs = await vi.importActual<typeof import('node:fs')>('node:fs')
   const originalArgs = process.argv
+  const originalDirectory = process.cwd()
+  const workingDirectory = vi.spyOn(process, 'cwd')
+  const fixtureRoot = actualFs.mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-inference-model-'),
+  )
+  const defaultDirectory = path.join(
+    fixtureRoot,
+    'assets/repo/bench/planner-neural-2026-10-04',
+  )
+  const fixtureDirectory = path.join(fixtureRoot, 'fixture/inference')
+  const modelSource =
+    'export function chooseInverse(features) { return features[0] >= 32 }\n'
+  actualFs.mkdirSync(defaultDirectory, { recursive: true })
+  actualFs.mkdirSync(fixtureDirectory, { recursive: true })
+  actualFs.writeFileSync(path.join(defaultDirectory, 'model.mjs'), modelSource)
+  actualFs.writeFileSync(path.join(fixtureDirectory, 'model.mjs'), modelSource)
   vi.spyOn(console, 'log').mockImplementation(() => {})
-  const paths = [
-    '/fixture/inference',
-    path.resolve('assets/repo/bench/planner-neural-2026-10-04'),
-  ]
+  const paths = [fixtureDirectory, path.resolve(defaultDirectory)]
   try {
     for (let index = 0, length = paths.length; index < length; index += 1) {
       const directory = paths[index]!
-      const file = path.resolve(directory, 'model.mjs')
-      vi.doMock(file, () => ({ chooseInverse: state.calls }))
+      workingDirectory.mockReturnValue(index ? fixtureRoot : originalDirectory)
       vi.resetModules()
       process.argv = index
         ? [originalArgs[0]!, 'inference.mts']
@@ -57,10 +70,11 @@ test('standalone inference runner records route-only overhead for domain and fal
       assert.equal(report.results['fallback-small'].model.checksum, 0)
       assert.ok(report.results['in-domain'].model.medianNsPerCall > 0)
       assert.equal(report.results['fallback-small'].rule.checksum, 0)
-      vi.doUnmock(file)
     }
   } finally {
     process.argv = originalArgs
+    workingDirectory.mockRestore()
     vi.resetModules()
+    actualFs.rmSync(fixtureRoot, { recursive: true, force: true })
   }
 })
