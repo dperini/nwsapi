@@ -16,7 +16,7 @@ export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
 })
 
 // Fresh onboarding checkouts are slower than cached CI jobs on Windows and macOS.
-export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 15_000 })
+export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 20_000 })
 
 export function testBudget(lane: string, coverage: boolean, env = process.env) {
   if (
