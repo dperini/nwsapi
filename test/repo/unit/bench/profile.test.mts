@@ -154,7 +154,7 @@ test.each(['missing', 'empty'])(
     await invoke([])
     const report = JSON.parse(log.mock.calls[0]![0] as string)
     expect(report.phase).toBe('select')
-    expect(report.output).toBe(path.join('/profile', 'nwsapi.cpuprofile'))
+    expect(report.output).toBe(path.resolve('/profile/nwsapi.cpuprofile'))
     expect(
       report.top.every((node: { samples: number }) => node.samples === 0),
     ).toBe(true)
