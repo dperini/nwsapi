@@ -1,6 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import * as fs from 'node:fs'
 import * as childProcess from 'node:child_process'
+import path from 'node:path'
 
 const state = vi.hoisted(() => ({
   paths: [] as string[],
@@ -87,7 +88,10 @@ test('Windows npm wrapper verification uses the activated managed Node path', ()
     },
     '/tools/bin',
   )
-  expect(fs.readFileSync).toHaveBeenCalledWith('/tools/bin/npm.cmd', 'utf8')
+  expect(fs.readFileSync).toHaveBeenCalledWith(
+    path.join('/tools/bin', 'npm.cmd'),
+    'utf8',
+  )
 })
 
 test('managed version probe reports parse and process status without raw output', () => {
