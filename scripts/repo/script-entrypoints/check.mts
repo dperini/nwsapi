@@ -3,7 +3,7 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { parse } from '@ultrathink/acorn.rs.wasm'
 import { isMainModule } from '../lib/run-node.mts'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 
 type LooseNode = { type: string; [key: string]: unknown }
 
@@ -154,7 +154,7 @@ function recordPackageTarget(
     return
   }
   const absolute = path.resolve(root, target)
-  const relative = path.relative(root, absolute).replaceAll('\\', '/')
+  const relative = normalizePath(path.relative(root, absolute))
   if (relative.startsWith('../') || path.isAbsolute(relative)) {
     errors.push(`${name}: target leaves the repository: ${target}`)
   } else if (!existsSync(absolute)) {
@@ -167,7 +167,7 @@ function recordPackageTarget(
 function guardedFiles(root: string, errors: string[]) {
   const files: string[] = []
   for (const absolute of scriptFiles(path.join(root, 'scripts/repo'))) {
-    const relative = path.relative(root, absolute).replaceAll('\\', '/')
+    const relative = normalizePath(path.relative(root, absolute))
     try {
       if (inspectEntrypointSource(readFileSync(absolute, 'utf8')).guarded) {
         files.push(relative)

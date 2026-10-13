@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os, { hostname } from 'node:os'
 import path from 'node:path'
@@ -72,13 +72,17 @@ test('reports live expired pulses as active and malformed pulses as uncertain', 
 test('refreshes a live pulse and leaves a matching clean release marker', async () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-pulse-refresh-'))
   const pulse = path.join(root, 'pulse.json')
+  let lease: Awaited<ReturnType<typeof claimWorktree>> | undefined
+  vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
   try {
-    const lease = await claimWorktree(metadata(root), pulse)
+    lease = await claimWorktree(metadata(root), pulse)
     const first = JSON.parse(readFileSync(pulse, 'utf8')).refreshedAt as number
-    await new Promise(resolve => setTimeout(resolve, 3100))
-    const refreshed = JSON.parse(readFileSync(pulse, 'utf8'))
-      .refreshedAt as number
-    expect(refreshed).toBeGreaterThan(first)
+    await vi.advanceTimersByTimeAsync(3100)
+    await vi.waitFor(() => {
+      const refreshed = JSON.parse(readFileSync(pulse, 'utf8'))
+        .refreshedAt as number
+      expect(refreshed).toBeGreaterThan(first)
+    })
     await lease.release()
     const released = JSON.parse(
       readFileSync(path.join(root, '.nwsapi-worktree.json'), 'utf8'),
@@ -88,9 +92,12 @@ test('refreshes a live pulse and leaves a matching clean release marker', async 
       releasedToken: lease.token,
     })
     expect(() => readFileSync(pulse, 'utf8')).toThrow()
-    await new Promise(resolve => setTimeout(resolve, 3100))
+    expect(vi.getTimerCount()).toBe(0)
+    await vi.advanceTimersByTimeAsync(3100)
     expect(() => readFileSync(pulse, 'utf8')).toThrow()
   } finally {
+    await lease?.release()
+    vi.useRealTimers()
     rmSync(root, { recursive: true, force: true })
   }
 })

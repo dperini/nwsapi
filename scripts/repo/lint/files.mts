@@ -1,7 +1,7 @@
 import { realpathSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-import { REPO_ROOT } from '../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 import { toolingFiles } from '../lib/tooling-scope.mts'
 
 export interface LintArguments {
@@ -60,9 +60,7 @@ export function selectedLintFiles(
     return availableFiles
   }
   const repository = realpathSync(root)
-  const allowed = new Set(
-    availableFiles.map(file => file.replaceAll('\\', '/')),
-  )
+  const allowed = new Set(availableFiles.map(normalizePath))
   const selected = new Set<string>()
   for (const file of requested) {
     assertPathArgument(file)
@@ -82,7 +80,7 @@ export function selectedLintFiles(
     if (!statSync(realPath).isFile()) {
       throw new Error(`Lint path is not a file: ${file}`)
     }
-    const relative = path.relative(repository, realPath).replaceAll('\\', '/')
+    const relative = normalizePath(path.relative(repository, realPath))
     if (!allowed.has(relative)) {
       throw new Error(`Lint file is outside the configured scope: ${file}`)
     }

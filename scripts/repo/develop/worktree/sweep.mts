@@ -38,21 +38,24 @@ function worktreeInventory(repository: string) {
   })
 }
 
-async function findCandidates(repository: string): Promise<Candidate[]> {
-  const entries = await readdir(tmpdir(), { withFileTypes: true })
+async function findCandidates(
+  repository: string,
+  temporaryRoot: string,
+): Promise<Candidate[]> {
+  const entries = await readdir(temporaryRoot, { withFileTypes: true })
   const candidates: Candidate[] = []
   for (const entry of entries) {
     if (!entry.isDirectory() || !entry.name.startsWith('nwsapi-worktree-')) {
       continue
     }
-    const parent = path.join(tmpdir(), entry.name)
+    const parent = path.join(temporaryRoot, entry.name)
     const metadataPath = path.join(parent, '.nwsapi-worktree.json')
     try {
       const metadata = JSON.parse(
         await readFile(metadataPath, 'utf8'),
       ) as WorktreeMetadata
       const canonicalParent = await realpath(parent)
-      const canonicalTemp = await realpath(tmpdir())
+      const canonicalTemp = await realpath(temporaryRoot)
       const commonDirectory = git(repository, ['rev-parse', '--git-common-dir'])
       const canonicalRepository = await realpath(
         path.resolve(repository, commonDirectory),
@@ -327,11 +330,15 @@ function releaseMatches(metadata: WorktreeMetadata) {
   )
 }
 
-export async function sweepWorktrees(repository: string, apply: boolean) {
+export async function sweepWorktrees(
+  repository: string,
+  apply: boolean,
+  temporaryRoot = tmpdir(),
+) {
   const root = await realpath(repository)
   const currentPath = root
   const inventory = worktreeInventory(root)
-  const candidates = await findCandidates(root)
+  const candidates = await findCandidates(root, temporaryRoot)
   const results = []
   for (const candidate of candidates) {
     let reason: string | undefined

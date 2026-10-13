@@ -1,22 +1,29 @@
 import { spawnSync } from 'node:child_process'
 import { REPO_ROOT } from './paths.mts'
 import { isAgent } from './is-agent.mts'
+import { toolProcess } from './tool-process.mts'
 
 // Human sessions keep progress; agents receive diagnostics only on failure.
 export function runTool(args: string[]) {
   const minimal = isAgent() && !args.includes('--debug')
-  const result = spawnSync(process.execPath, args, {
-    cwd: REPO_ROOT,
-    stdio: minimal ? ['inherit', 'pipe', 'pipe'] : 'inherit',
-    encoding: 'utf8',
-    maxBuffer: 8 * 1024 * 1024,
-  })
-  if (minimal && (result.error || result.status !== 0)) {
-    process.stdout.write(result.stdout || '')
-    process.stderr.write(result.stderr || '')
+  const request = toolProcess(args)
+  try {
+    const result = spawnSync(request.command, request.args, {
+      ...request.options,
+      cwd: REPO_ROOT,
+      stdio: minimal ? ['inherit', 'pipe', 'pipe'] : 'inherit',
+      encoding: 'utf8',
+      maxBuffer: 8 * 1024 * 1024,
+    })
+    if (minimal && (result.error || result.status !== 0)) {
+      process.stdout.write(result.stdout || '')
+      process.stderr.write(result.stderr || '')
+    }
+    if (result.error) {
+      throw result.error
+    }
+    process.exitCode = result.status ?? 1
+  } finally {
+    request.dispose()
   }
-  if (result.error) {
-    throw result.error
-  }
-  process.exitCode = result.status ?? 1
 }

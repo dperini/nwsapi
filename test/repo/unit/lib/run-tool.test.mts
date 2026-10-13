@@ -5,6 +5,14 @@ vi.mock('node:child_process', () => ({ spawnSync: state.spawn }))
 vi.mock('../../../../scripts/repo/lib/is-agent.mts', () => ({
   isAgent: () => state.agent,
 }))
+vi.mock('../../../../scripts/repo/lib/tool-process.mts', () => ({
+  toolProcess: (args: string[]) => ({
+    command: process.execPath,
+    args,
+    options: {},
+    dispose() {},
+  }),
+}))
 import { runTool } from '../../../../scripts/repo/lib/run-tool.mts'
 const originalExit = process.exitCode
 beforeEach(() => {

@@ -1,6 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -33,10 +34,10 @@ test('training setup synchronizes the pinned project and verifies PyTorch', asyn
   await setupModelTraining()
   expect(state.plan).toHaveBeenCalledExactlyOnceWith('uv')
   expect(state.install).toHaveBeenCalledWith({ tool: 'uv' })
-  expect(state.checked.mock.calls[0]![1]).toEqual([
+  expect(state.checked.mock.calls[0]![1].map(normalizePath)).toEqual([
     'sync',
     '--project',
-    `${REPO_ROOT}/${manifest.tools.pytorch.project}`,
+    normalizePath(`${REPO_ROOT}/${manifest.tools.pytorch.project}`),
     '--python',
     manifest.tools.pytorch.python,
     '--locked',
@@ -44,8 +45,10 @@ test('training setup synchronizes the pinned project and verifies PyTorch', asyn
   expect(state.checked.mock.calls[0]![2]).toMatchObject({
     cwd: REPO_ROOT,
     interactive: true,
-    env: { UV_CACHE_DIR: `${REPO_ROOT}/.cache/uv` },
   })
+  expect(normalizePath(state.checked.mock.calls[0]![2].env.UV_CACHE_DIR)).toBe(
+    normalizePath(`${REPO_ROOT}/.cache/uv`),
+  )
   expect(state.checked.mock.calls[1]![1]).toContain(
     'import torch; print(torch.__version__)',
   )

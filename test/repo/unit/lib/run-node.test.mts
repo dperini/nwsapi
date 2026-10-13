@@ -7,6 +7,14 @@ import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 
 const execute = vi.hoisted(() => vi.fn())
 vi.mock('node:child_process', () => ({ execFileSync: execute }))
+vi.mock('../../../../scripts/repo/lib/tool-process.mts', () => ({
+  toolProcess: (args: string[]) => ({
+    command: process.execPath,
+    args,
+    options: {},
+    dispose() {},
+  }),
+}))
 import {
   isMainModule,
   runNode,

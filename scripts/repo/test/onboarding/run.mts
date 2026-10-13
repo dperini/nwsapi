@@ -6,7 +6,12 @@ import { fileURLToPath } from 'node:url'
 import { makeSandbox } from './isolation.mts'
 import { readJourney } from './readme.mts'
 import { startGuide } from './guide.mts'
-import { externalToolVersion, hashes, redact } from './environment.mts'
+import {
+  exactManagerVersionCommand,
+  externalToolVersion,
+  hashes,
+  redact,
+} from './environment.mts'
 import { runBounded } from './process.mts'
 import { retainFailedReviewReports } from './reports.mts'
 import {
@@ -245,6 +250,15 @@ async function runScenario(
     )
     return
   }
+  await runGuidedScenario(options, log, context)
+}
+
+async function runGuidedScenario(
+  options: Options,
+  log: string,
+  context: SnapshotContext,
+  installed = false,
+) {
   await runJourney(
     log,
     context.snapshot,
@@ -267,6 +281,7 @@ async function runScenario(
         throw new Error(outcome.error)
       }
     },
+    installed,
   )
 }
 
@@ -284,11 +299,12 @@ async function runManagerScenario(
   if (!manager || !step || step.command[0] !== managerName) {
     throw new Error(`README ${stepId} command or --${managerName} is missing.`)
   }
+  const versionCommand = exactManagerVersionCommand(manager, options.node)
   const version = await command(
     log,
     `${managerName} exact version`,
-    options.node,
-    [manager, '--version'],
+    versionCommand.executable,
+    versionCommand.args,
     context.snapshot,
     context.env,
     15_000,
@@ -315,6 +331,7 @@ async function runManagerScenario(
     context.env,
     command,
   )
+  await runGuidedScenario(options, log, context, true)
 }
 
 function recordGuideOutcome(outcome: GuideOutcome) {
@@ -446,7 +463,7 @@ async function execute() {
     await main()
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    if (activeScenario === 'journey' && activeSandbox) {
+    if (activeScenario !== 'bootstrap' && activeSandbox) {
       try {
         retainedArtifacts = await retainFailedReviewReports({
           sandbox: activeSandbox,

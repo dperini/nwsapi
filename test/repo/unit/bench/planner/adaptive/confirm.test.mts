@@ -3,6 +3,7 @@ import { gzipSync } from 'node:zlib'
 import os from 'node:os'
 import path from 'node:path'
 import type * as NodeFs from 'node:fs'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 const fs = await vi.importActual<typeof NodeFs>('node:fs')
 const state = vi.hoisted(() => ({
   root: '',
@@ -136,7 +137,8 @@ test.each([false, true])(
     })
     const reports = state.write.mock.calls.filter(
       ([file]) =>
-        file.endsWith('/chromium.json') || file.endsWith('/jsdom.json'),
+        normalizePath(file).endsWith('/chromium.json') ||
+        normalizePath(file).endsWith('/jsdom.json'),
     )
     expect(reports).toHaveLength(2)
     expect(
@@ -171,7 +173,7 @@ test('retains failing slow cases in gate summary', async () => {
     await module()
   ).confirmAdaptive('/fixture/input', state.root, '/fixture/output', false)
   const report = state.write.mock.calls.find(([file]) =>
-    file.endsWith('/chromium.json'),
+    normalizePath(file).endsWith('/chromium.json'),
   )!
   expect(JSON.parse(report[1]).summary.passesGate).toBe(false)
 })

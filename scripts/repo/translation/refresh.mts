@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 import { markdownRecipe, renderRecipe, requests } from './markdown.mts'
 
 interface Translation {
@@ -36,7 +36,7 @@ const dictionary = Object.assign(
 
 for (const file of files) {
   const absolute = path.resolve(REPO_ROOT, file)
-  const relative = path.relative(REPO_ROOT, absolute).split(path.sep).join('/')
+  const relative = normalizePath(path.relative(REPO_ROOT, absolute))
   if (!relative.startsWith('docs/') || !relative.endsWith('.md')) {
     throw new Error(`Expected a Markdown document under docs/: ${file}`)
   }

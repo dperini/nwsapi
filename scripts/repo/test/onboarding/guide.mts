@@ -59,22 +59,16 @@ export async function startGuide(
       () => stderr,
     )
     const moduleStatuses = await verifyGuidePage(page, url)
-    terminateTree(child, 'SIGTERM')
+    const forced = terminateTree(child, 'SIGTERM')
     exit = await stopBounded(child, closed)
-    const result = parseHarnessJson(stdout)
-    assertHarnessResult(result, 'stopped', exit.code, 'guide')
     await writeFile(
       file,
       redact(
-        `\n## guide persistent session\nHTTP ${page.status}; modules HTTP ${moduleStatuses.join(',')}; SIGTERM child code=${exit.code} signal=${exit.signal}\nstdout=${stdout}\nstderr=${stderr}\n`,
+        `\n## guide persistent session\nHTTP ${page.status}; modules HTTP ${moduleStatuses.join(',')}; shutdown=${forced ? 'Windows forced process tree' : 'SIGTERM'} child code=${exit.code} signal=${exit.signal}\nstdout=${stdout}\nstderr=${stderr}\n`,
       ),
       { flag: 'a' },
     )
-    if (exit.code !== 143 && exit.signal !== 'SIGTERM') {
-      throw new Error(
-        `Guide runner cleanup unexpected: ${JSON.stringify(exit)}.`,
-      )
-    }
+    assertGuideShutdown(stdout, exit, forced)
     await assertGuideStopped(url)
     if (cancelled) {
       throw new Error(`Guide runner cancelled by ${cancelled}.`)
@@ -91,6 +85,25 @@ export async function startGuide(
     throw new Error('Guide task finished without a shutdown result.')
   }
   return { command: execution.join(' '), code: exit.code }
+}
+
+function assertGuideShutdown(
+  stdout: string,
+  exit: { code: number | null; signal: NodeJS.Signals | null },
+  forced: boolean,
+) {
+  // Windows taskkill terminates the runner before it can emit a JSON result.
+  // Require a successful tree kill and verify the server is unreachable separately.
+  if (!forced || stdout.trim()) {
+    const result = parseHarnessJson(stdout)
+    assertHarnessResult(result, 'stopped', exit.code, 'guide')
+  }
+  const expected = forced
+    ? exit.code !== null && exit.code !== 0
+    : exit.code === 143 || exit.signal === 'SIGTERM'
+  if (!expected) {
+    throw new Error(`Guide runner cleanup unexpected: ${JSON.stringify(exit)}.`)
+  }
 }
 
 async function waitForGuide(
@@ -190,7 +203,7 @@ function terminateTree(
   if (process.platform !== 'win32' && child.pid) {
     try {
       process.kill(-child.pid, signal)
-      return
+      return false
     } catch {
       /* the process group may have exited */
     }
@@ -211,10 +224,14 @@ function terminateTree(
       },
     )
     if (result.status === 0) {
-      return
+      return true
     }
+    throw new Error(
+      `Guide process-tree shutdown failed: taskkill exit=${result.status} signal=${result.signal}.`,
+    )
   }
   child.kill(signal)
+  return false
 }
 
 function delay(milliseconds: number) {

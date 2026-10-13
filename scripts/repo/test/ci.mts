@@ -3,7 +3,7 @@ import { appendFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { isMainModule, runNode } from '../lib/run-node.mts'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 import { runBudgeted, testBudget } from '../lib/test-budget.mts'
 import { UNIT_CI_SHARD_COUNT } from './shard/report.mts'
 
@@ -30,7 +30,7 @@ function laneChanged(
 }
 
 export function planCiTests(files: readonly string[]): CiTestPlan {
-  const normalized = files.map(file => file.replaceAll('\\', '/'))
+  const normalized = files.map(normalizePath)
   const sourceChanged = normalized.some(file => file.startsWith('src/'))
   const dependencyChanged = normalized.some(file =>
     [

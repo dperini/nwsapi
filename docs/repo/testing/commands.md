@@ -29,8 +29,9 @@ fixtures after each test and fails with `ERR_UNIT_HTTP_MOCK_PENDING` when an
 expected request was not made. Assert error codes rather than error wording.
 
 `pnpm run type` checks the engine, adapters, CLI, repository scripts, and tests.
-It runs the pinned `@maschwenk/tsrs` compiler through the same entry point as
-`pnpm run type:check`.
+It uses the same entry point as `pnpm run type:check`. Windows uses pinned
+`@typescript/native-preview`, since `@maschwenk/tsrs` does not ship a Windows binary. Other
+platforms use pinned `@maschwenk/tsrs`. Both check the same files and configuration.
 The local TypeScript configuration uses the same strict checks as Wheelhouse.
 These checks require explicit handling of missing array entries, nullable DOM results, and optional properties.
 They also reject implicit `any` types and unused declarations.

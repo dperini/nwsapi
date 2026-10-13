@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   runtime:
+    name: checks
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
       fullNode: ${{ steps.test-plan.outputs.fullNode }}
@@ -176,6 +177,7 @@ jobs:
           retention-days: 7
 
   node:
+    name: summary
     needs: [runtime, unit]
     if: always() && (github.event_name == 'push' || github.event_name == 'pull_request')
     runs-on: ubuntu-26.04
@@ -239,71 +241,81 @@ jobs:
           fi
 
   onboarding:
-    name: 'ci: onboarding (${{ matrix.os }}, ${{ matrix.scenario }})'
+    name: 'onboarding (${{ matrix.os }}, ${{ matrix.manager }})'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
         os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04","macos-15","windows-2025"]') }}
-        scenario: [bootstrap, npm, pnpm, journey]
-        exclude:
-          - os: macos-15
-            scenario: journey
-          - os: windows-2025
-            scenario: journey
+        manager: [npm, pnpm]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
-          node-version: ${{ matrix.scenario == 'bootstrap' && '22.18.0' || '26.11.0' }}
+          node-version: '22.18.0'
           package-manager-cache: false
-      - name: Provision external package-manager entry points
-        if: matrix.scenario == 'npm' || matrix.scenario == 'pnpm'
-        timeout-minutes: 15
+      - name: Bootstrap from the minimum Node version
+        timeout-minutes: 30
         shell: pwsh
-        run: npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-managers') --no-save npm@12.2.0 pnpm@12.12.0
-      - name: Run isolated onboarding scenario
-        timeout-minutes: 45
-        shell: pwsh
-        env:
-          SCENARIO: ${{ matrix.scenario }}
         run: |
           $node = (Get-Command node).Source
-          $arguments = @('--scenario', $env:SCENARIO, '--node', $node)
-          $managerRoot = Join-Path $env:RUNNER_TEMP 'onboarding-managers/node_modules'
-          if (Test-Path (Join-Path $managerRoot 'npm/bin/npm-cli.js')) {
-            $arguments += @('--npm', (Join-Path $managerRoot 'npm/bin/npm-cli.js'))
-          }
-          if (Test-Path (Join-Path $managerRoot 'pnpm/bin/pnpm.mjs')) {
-            $arguments += @('--pnpm', (Join-Path $managerRoot 'pnpm/bin/pnpm.mjs'))
-          }
+          node scripts/repo/test/onboarding/run.mts --scenario bootstrap --node $node
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '26.11.0'
+          package-manager-cache: false
+      - name: Provision the entry package manager
+        timeout-minutes: 15
+        shell: pwsh
+        env:
+          ENTRY_MANAGER: ${{ matrix.manager }}
+        run: |
+          $pins = Get-Content .config/external-tools.json -Raw | ConvertFrom-Json
+          $version = $pins.tools.($env:ENTRY_MANAGER).version
+          npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-manager') --no-save "$($env:ENTRY_MANAGER)@$version"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install, use the wizard, and complete the developer journey
+        timeout-minutes: 60
+        shell: pwsh
+        env:
+          ENTRY_MANAGER: ${{ matrix.manager }}
+        run: |
+          $node = (Get-Command node).Source
+          $managerRoot = Join-Path $env:RUNNER_TEMP 'onboarding-manager/node_modules'
+          $entry = if ($env:ENTRY_MANAGER -eq 'npm') { 'npm/bin/npm-cli.js' } else { 'pnpm/bin/pnpm.mjs' }
+          $arguments = @('--scenario', $env:ENTRY_MANAGER, '--node', $node, "--$env:ENTRY_MANAGER", (Join-Path $managerRoot $entry))
           node scripts/repo/test/onboarding/run.mts @arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Upload onboarding diagnostics
         if: always()
         uses: ./.github/actions/repo/upload-artifact
         with:
-          name: onboarding-${{ matrix.os }}-${{ matrix.scenario }}-${{ github.run_id }}
+          name: onboarding-${{ matrix.os }}-${{ matrix.manager }}-${{ github.run_id }}
           path: .cache/onboarding/
           if-no-files-found: warn
           retention-days: 14
-      - name: Summarize onboarding scenario
+      - name: Summarize onboarding journey
         if: always()
         shell: pwsh
         env:
-          SCENARIO: ${{ matrix.scenario }}
+          ENTRY_MANAGER: ${{ matrix.manager }}
           PLATFORM: ${{ matrix.os }}
+          JOB_STATUS: ${{ job.status }}
         run: |
-          $summaryFile = Get-ChildItem .cache/onboarding/*.summary.json -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          if ($summaryFile) {
-            $summary = Get-Content $summaryFile.FullName -Raw | ConvertFrom-Json
-            "platform=$env:PLATFORM scenario=$($summary.scenario) status=$($summary.status) entry_node=$($summary.entryNodeVersion) managers=$($summary.managerVersions | ConvertTo-Json -Compress) commit=$($summary.commit)" >> $env:GITHUB_STEP_SUMMARY
+          "platform=$env:PLATFORM entry=$env:ENTRY_MANAGER workflow=pnpm status=$env:JOB_STATUS" >> $env:GITHUB_STEP_SUMMARY
+          $summaries = @(Get-ChildItem .cache/onboarding/*.summary.json -ErrorAction SilentlyContinue | Sort-Object LastWriteTime)
+          if ($summaries.Count -eq 0) {
+            'Runner summary unavailable.' >> $env:GITHUB_STEP_SUMMARY
+          }
+          foreach ($file in $summaries) {
+            $summary = Get-Content $file.FullName -Raw | ConvertFrom-Json
+            "### $($summary.scenario): $($summary.status)" >> $env:GITHUB_STEP_SUMMARY
+            "entry_node=$($summary.entryNodeVersion) commit=$($summary.commit)" >> $env:GITHUB_STEP_SUMMARY
             foreach ($phase in $summary.phases) {
               "- $($phase.status): $($phase.command) (exit $($phase.code))" >> $env:GITHUB_STEP_SUMMARY
             }
-          } else {
-            "platform=$env:PLATFORM scenario=$env:SCENARIO status=${{ job.status }} entry_node=$(node --version) runner_summary=unavailable" >> $env:GITHUB_STEP_SUMMARY
           }

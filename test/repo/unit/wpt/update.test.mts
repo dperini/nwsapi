@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type * as NodeFs from 'node:fs'
+import path from 'node:path'
 import nock from 'nock'
 import { REPO_ROOT } from '../../../../scripts/repo/lib/paths.mts'
 import {
@@ -8,6 +9,7 @@ import {
   updateWpt,
 } from '../../../../scripts/repo/wpt/update.mts'
 import { updateDependencies } from '../../../../scripts/repo/dependency/update.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -26,10 +28,14 @@ vi.mock('node:fs', async importOriginal => {
   return {
     ...original,
     readFileSync: (file: NodeFs.PathOrFileDescriptor, options: unknown) => {
-      if (String(file).endsWith('/.gitmodules')) {
+      if (normalizePath(String(file)).endsWith('/.gitmodules')) {
         return state.config
       }
-      if (String(file).endsWith('/test/repo/e2e/upstream/inventory.json')) {
+      if (
+        normalizePath(String(file)).endsWith(
+          '/test/repo/e2e/upstream/inventory.json',
+        )
+      ) {
         return JSON.stringify({ revision: state.inventory })
       }
       return original.readFileSync(
@@ -166,7 +172,7 @@ test('a changed release records its measured tree digest and regenerates stale i
     [
       'config',
       '--file',
-      `${REPO_ROOT}/.gitmodules`,
+      path.join(REPO_ROOT, '.gitmodules'),
       '--get',
       'submodule.upstream/wpt.ref',
     ],
@@ -183,7 +189,7 @@ test('a changed release records its measured tree digest and regenerates stale i
     [
       'config',
       '--file',
-      `${REPO_ROOT}/.gitmodules`,
+      path.join(REPO_ROOT, '.gitmodules'),
       'submodule.upstream/wpt.ref',
       sha,
     ],

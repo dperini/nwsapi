@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { REPO_ROOT } from './paths.mts'
+import { normalizePath, REPO_ROOT } from './paths.mts'
 import { runNode } from './run-node.mts'
 
 export type TaskKind = 'check' | 'update'
@@ -38,7 +38,7 @@ function packageTask(
     )
   }
   const entry = path.resolve(root, match[1]!)
-  const relative = path.relative(root, entry).replaceAll('\\', '/')
+  const relative = normalizePath(path.relative(root, entry))
   if (
     !new RegExp(`^scripts/(repo|fleet)/.+/${kind}\\.mts$`).test(relative) ||
     !existsSync(entry)

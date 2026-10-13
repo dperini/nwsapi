@@ -4,7 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { isMainModule } from '../lib/run-node.mts'
-import { REPO_ROOT } from '../lib/paths.mts'
+import { normalizePath, REPO_ROOT } from '../lib/paths.mts'
 import { UNIT_CI_SHARD_COUNT } from '../test/shard/report.mts'
 import { verifyUnitShardDirectory } from '../test/shard/verify.mts'
 
@@ -124,7 +124,7 @@ function failedSuitePaths(reportPath: string | undefined) {
             const absolute = path.isAbsolute(name)
               ? name
               : path.resolve(REPO_ROOT, name)
-            return path.relative(REPO_ROOT, absolute).replaceAll('\\', '/')
+            return normalizePath(path.relative(REPO_ROOT, absolute))
           })
           .filter(file => file.startsWith('test/repo/unit/')),
       ),

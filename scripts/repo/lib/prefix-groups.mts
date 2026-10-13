@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { normalizePath } from './paths.mts'
 
 const SOURCE_EXTENSION = /(?:\.d)?\.[cm]?[jt]sx?$/
 
@@ -21,7 +22,7 @@ export function sourceStem(file: string): string | undefined {
 export function findFilenamePrefixGroups(
   files: readonly string[],
 ): FilenamePrefixGroup[] {
-  const normalizedFiles = new Set(files.map(file => file.replaceAll('\\', '/')))
+  const normalizedFiles = new Set(files.map(normalizePath))
   const groups = new Map<string, FilenamePrefixGroup>()
 
   for (const file of normalizedFiles) {

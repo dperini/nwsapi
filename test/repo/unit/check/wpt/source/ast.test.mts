@@ -2,6 +2,7 @@ import { parse } from 'acorn'
 import { JSDOM } from 'jsdom'
 import path from 'node:path'
 import { expect, test } from 'vitest'
+import { normalizePath } from '../../../../../../scripts/repo/lib/paths.mts'
 import {
   namedTest,
   scriptPage,
@@ -10,15 +11,19 @@ import {
   wptFile,
 } from '../../../../../../scripts/repo/check/wpt/source/ast.mts'
 
-test('resolves repository and upstream resources and rejects traversal', () => {
-  expect(wptFile('/css/test.html', '/checkout')).toBe(
-    path.resolve('/checkout/upstream/wpt/css/test.html'),
-  )
-  expect(wptFile('/_repo/test/example.html', '/checkout')).toBe(
-    path.resolve('/checkout/test/example.html'),
-  )
-  expect(() => wptFile('/../../outside', '/checkout')).toThrow()
-})
+test.each(['/checkout', 'checkout', path.resolve('checkout')])(
+  'resolves repository and upstream resources under %s and rejects traversal',
+  root => {
+    expect(normalizePath(wptFile('/css/test.html', root))).toBe(
+      normalizePath(path.resolve(root, 'upstream/wpt/css/test.html')),
+    )
+    expect(normalizePath(wptFile('/_repo/test/example.html', root))).toBe(
+      normalizePath(path.resolve(root, 'test/example.html')),
+    )
+    expect(() => wptFile('/../../outside', root)).toThrow()
+    expect(() => wptFile('/_repo/../outside', root)).toThrow()
+  },
+)
 
 test('script wrappers preserve dependencies, setup and inline source as parsed HTML', () => {
   const html = scriptPage(

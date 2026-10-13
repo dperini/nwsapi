@@ -1,0 +1,31 @@
+import { expect, test } from 'vitest'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
+
+test.each([
+  ['', '.'],
+  ['foo\\bar//baz', 'foo/bar/baz'],
+  ['foo/./bar/../baz', 'foo/baz'],
+  ['../foo/../bar', '../bar'],
+  ['C:\\Users\\user\\file.txt', 'C:/Users/user/file.txt'],
+  ['C:\\', 'C:/'],
+  ['C:', 'C:'],
+  ['\\\\server\\share\\file', '//server/share/file'],
+  ['\\\\?\\C:\\file', '//?/C:/file'],
+  ['/tmp/a/../../file', '/file'],
+])('normalizes %s to %s', (input, expected) => {
+  expect(normalizePath(input)).toBe(expected)
+})
+
+test('accepts buffers and file URLs without an external package', () => {
+  expect(normalizePath(Buffer.from('foo\\bar'))).toBe('foo/bar')
+  const file = path.resolve('fixture with spaces')
+  expect(normalizePath(pathToFileURL(file))).toBe(normalizePath(file))
+})
+
+test('converts MSYS drives only on Windows', () => {
+  expect(normalizePath('/c/fixture')).toBe(
+    process.platform === 'win32' ? 'C:/fixture' : '/c/fixture',
+  )
+})

@@ -10,6 +10,12 @@ The direct Node entry point works before the pinned package manager is installed
 
 With contributor Node 26.11.0 and either npm 12.2.0 or pnpm 12.12.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.18 is the bootstrap minimum, not the supported runtime for a direct npm 12.2 installation.
 
+V3 uses `pnpm` for the managed developer workflow. Starting with `npm i` uses
+npm for that installation, then preparation provisions the checkout tools.
+Setup and shared script-runner handoffs use managed pnpm. The [onboarding
+journeys](onboarding.md) check both entry paths. V2 uses npm and rejects pnpm
+installation.
+
 Exact direct dependency versions and build-script approvals agree across both managers. The workspace catalog supplies the pins. `pnpm-lock.yaml` records the pnpm graph and `package-lock.json` records the native npm graph. The graphs may resolve transitive dependencies differently. Commit both lockfiles when updating dependencies.
 
 The default setup installs checkout tools and dependencies and builds the package. Browser tests and WPT install their additional requirements when invoked. `pnpm run security` prepares its scanners. `pnpm run setup:full` explicitly prepares all these tools. The first run needs network access. Repeated runs reuse verified downloads.
