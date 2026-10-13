@@ -41,7 +41,7 @@ export const TASKS: readonly Task[] = [
     name: 'Run GitHub Actions locally (optional)',
     description: 'Run the CI workflow in the local Actions runner.',
     detail:
-      'Uses the pinned run-local-ci tool with .github/workflows/ci.yml. Needs setup. Workflow secrets come from .env.local-ci or the environment. GitHub authentication may be needed for remote workflow resources.',
+      'Uses the pinned run-local-ci tool with .github/workflows/ci.yml. Needs setup and a working Docker socket. Enable Docker Desktop’s default socket or set LOCAL_CI_DOCKER_HOST. Workflow secrets come from .env.local-ci or the environment.',
     next: 'Next: review any failed job in the local runner output.',
     optional: true,
   },

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { accessSync, constants, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { installedPackage } from './dependency.mts'
 import { managedReady, managedVersions } from './diagnostics.mts'
@@ -57,7 +57,7 @@ export async function menuReadiness(root: string) {
   return {
     guide: taskStatus(readiness),
     review: taskStatus(readiness),
-    'ci:local': taskStatus(readiness),
+    'ci:local': localCiStatus(readiness, hasLocalCiDockerSocket()),
   }
 }
 
@@ -66,6 +66,9 @@ export async function taskReadiness(taskId: string, root: string) {
     return { ready: true, message: '' }
   }
   const readiness = await checkoutReadiness(root)
+  if (taskId === 'ci:local') {
+    return localCiStatus(readiness, hasLocalCiDockerSocket())
+  }
   return readinessForTask(readiness, taskId)
 }
 
@@ -74,6 +77,39 @@ export function readinessForTask(
   _taskId: 'guide' | 'review' | 'ci:local',
 ) {
   return taskStatus(readiness)
+}
+
+export function localCiStatus(
+  readiness: CheckoutReadiness,
+  dockerSocketAvailable: boolean,
+) {
+  const setup = taskStatus(readiness)
+  if (!setup.ready || dockerSocketAvailable) {
+    return setup
+  }
+  return {
+    ready: false,
+    message:
+      'A working Docker socket is required. Start Docker Desktop with the default socket enabled, or set LOCAL_CI_DOCKER_HOST.',
+  }
+}
+
+function hasLocalCiDockerSocket() {
+  const host = process.env['LOCAL_CI_DOCKER_HOST']?.trim()
+  const socket = host?.startsWith('unix://')
+    ? host.slice('unix://'.length)
+    : host
+      ? undefined
+      : '/var/run/docker.sock'
+  if (socket === undefined) {
+    return Boolean(host)
+  }
+  try {
+    accessSync(socket, constants.R_OK | constants.W_OK)
+    return true
+  } catch {
+    return false
+  }
 }
 
 function taskStatus(readiness: CheckoutReadiness) {
