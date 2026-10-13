@@ -27,7 +27,7 @@ export default defineConfig({
           : 'test/repo/**/*.test.mts',
     ],
     globalSetup: ['.config/repo/vitest.setup.mts'],
-    setupFiles: ['.config/repo/vitest/unit-network.mts'],
+    setupFiles: ['.config/repo/vitest/network/setup.mts'],
     forceRerunTriggers: [
       '../../src/**/*.mts',
       '../../scripts/repo/build/run.mts',

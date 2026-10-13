@@ -1,11 +1,12 @@
+import { isLoopbackHost } from './guard.mts'
 import nock from 'nock'
 
 const preload = new URL(
-  '../../../.config/repo/vitest/network.mts',
+  '../../../../.config/repo/vitest/network/preload.mts',
   import.meta.url,
 )
 
-export function unitNetworkEnvironment(env: NodeJS.ProcessEnv = process.env) {
+export function testNetworkEnvironment(env: NodeJS.ProcessEnv = process.env) {
   const option = `--import=${preload.href}`
   const existing = env['NODE_OPTIONS'] ?? ''
   return {
@@ -16,20 +17,24 @@ export function unitNetworkEnvironment(env: NodeJS.ProcessEnv = process.env) {
   }
 }
 
-export function disableUnitNetwork() {
+export function disableTestNetwork() {
   nock.disableNetConnect()
+  nock.enableNetConnect(host => {
+    const hostname = new URL(`http://${host}`).hostname
+    return isLoopbackHost(hostname)
+  })
 }
 
-export function clearUnitNetworkMocks() {
+export function clearTestNetworkMocks() {
   const pending = nock.pendingMocks()
   nock.abortPendingRequests()
   nock.cleanAll()
-  nock.disableNetConnect()
+  disableTestNetwork()
   if (pending.length) {
     throw Object.assign(
       new Error('HTTP mock expectations were not consumed.'),
       {
-        code: 'ERR_UNIT_HTTP_MOCK_PENDING',
+        code: 'ERR_TEST_HTTP_MOCK_PENDING',
         pending,
       },
     )

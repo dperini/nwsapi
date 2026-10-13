@@ -52,7 +52,7 @@ catalog:
   'kokoro-js': '1.2.1'
   'marked': '18.0.14'
   'mitata': '1.0.34'
-  'nock': '15.0.1'
+  'nock': '14.0.17'
   'oxfmt': '0.66.0'
   'oxlint': '1.81.0'
   'oxlint-tsgolint': '7.0.2001'
