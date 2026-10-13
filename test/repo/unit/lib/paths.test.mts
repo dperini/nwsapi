@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
+import {
+  foldPathForCompare,
+  isPathWithinRoot,
+  normalizePath,
+} from '../../../../scripts/repo/lib/paths.mts'
 
 test.each([
   ['', '.'],
@@ -28,4 +32,19 @@ test('converts MSYS drives only on Windows', () => {
   expect(normalizePath('/c/fixture')).toBe(
     process.platform === 'win32' ? 'C:/fixture' : '/c/fixture',
   )
+})
+
+test('folds paths for platform-aware comparisons', () => {
+  expect(foldPathForCompare('folder\\child///')).toBe('folder/child')
+  expect(foldPathForCompare('/')).toBe('/')
+  expect(foldPathForCompare('C:\\Temp\\')).toBe(
+    process.platform === 'win32' ? 'c:/temp' : 'C:/Temp',
+  )
+})
+
+test('checks real paths against root boundaries', () => {
+  expect(isPathWithinRoot('/repo', '/repo')).toBe(true)
+  expect(isPathWithinRoot('/repo/sub/file', '/repo')).toBe(true)
+  expect(isPathWithinRoot('/repo-other/file', '/repo')).toBe(false)
+  expect(isPathWithinRoot('/repo', '/')).toBe(true)
 })

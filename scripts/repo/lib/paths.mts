@@ -279,6 +279,24 @@ function normalizeSinglePathSegment(segment: string, prefix: string): string {
   return msysDriveToNative(prefix + segment)
 }
 
+// Extracted from SocketDev/socket-lib src/paths/shared.mts at 5ddd9989dcfcdf57d7b3380bbf2a2020a299354b.
+export function foldPathForCompare(pathLike: string): string {
+  let normalized = normalizePath(pathLike)
+  if (normalized.length > 1 && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1)
+  }
+  return WIN32 ? normalized.toLowerCase() : normalized
+}
+
+// Extracted from SocketDev/socket-lib src/paths/predicates.mts at 5ddd9989dcfcdf57d7b3380bbf2a2020a299354b.
+export function isPathWithinRoot(candidate: string, root: string): boolean {
+  const left = foldPathForCompare(candidate)
+  const right = foldPathForCompare(root)
+  return (
+    left === right || left.startsWith(right.endsWith('/') ? right : `${right}/`)
+  )
+}
+
 function pathLikeToString(
   pathLike: string | Buffer | URL | null | undefined,
 ): string {

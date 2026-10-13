@@ -10,6 +10,7 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 import { TOOL_CACHE, toolDirectory } from '../external-tools.mts'
+import { isPathWithinRoot } from '../lib/paths.mts'
 import type { ToolPlan } from '../external-tools.mts'
 import { extractArchive, matchesArchive } from './archive.mts'
 import { downloadArchive } from './download.mts'
@@ -47,7 +48,7 @@ export async function installTool(
     const executable = path.join(staging, plan.binary)
     if (
       !lstatSync(executable).isFile() ||
-      !realpathSync(executable).startsWith(realpathSync(staging) + path.sep)
+      !isPathWithinRoot(realpathSync(executable), realpathSync(staging))
     ) {
       throw new Error(`Invalid executable in ${plan.asset}: ${plan.binary}`)
     }
