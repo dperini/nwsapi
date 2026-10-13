@@ -8,6 +8,7 @@ import {
   createVersionCheckout,
   resolveVersion,
 } from '../../../../../scripts/repo/develop/version/select.mts'
+import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 
 function git(root: string, ...args: string[]) {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
@@ -51,9 +52,11 @@ test('creates a uniquely branched checkout beneath the system temporary director
     expect(git(selected.path, 'branch', '--show-current')).toBe(
       selected.branchName,
     )
-    expect(git(root, 'worktree', 'list', '--porcelain')).toContain(
-      selected.path,
-    )
+    const worktreePaths = git(root, 'worktree', 'list', '--porcelain')
+      .split('\n')
+      .filter(line => line.startsWith('worktree '))
+      .map(line => normalizePath(line.slice('worktree '.length)))
+    expect(worktreePaths).toContain(normalizePath(selected.path))
     git(root, 'worktree', 'remove', selected.path)
     git(root, 'branch', '-D', selected.branchName)
     rmSync(path.dirname(selected.path), { recursive: true, force: true })
