@@ -216,10 +216,32 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: >-
-          gh run download "$GITHUB_RUN_ID"
-          --pattern "unit-shard-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-*"
-          --dir "$RUNNER_TEMP/unit-reports"
+        shell: bash
+        run: |
+          set -euo pipefail
+          attempt=1
+          max_attempts=5
+          while true; do
+            rm -rf "$RUNNER_TEMP/unit-reports"
+            mkdir -p "$RUNNER_TEMP/unit-reports"
+            if gh run download "$GITHUB_RUN_ID" \
+              --pattern "unit-shard-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-*" \
+              --dir "$RUNNER_TEMP/unit-reports" \
+              2>"$RUNNER_TEMP/unit-download.err"; then
+              break
+            else
+              status=$?
+            fi
+            cat "$RUNNER_TEMP/unit-download.err" >&2
+            if [ "$attempt" -ge "$max_attempts" ] ||
+              ! grep -Eq 'HTTP (429|502|503)' "$RUNNER_TEMP/unit-download.err"; then
+              exit "$status"
+            fi
+            delay=$((attempt * 10))
+            echo "Artifact service returned a retryable status. Retrying in ${delay}s (attempt $((attempt + 1))/$max_attempts)."
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
       - name: Verify complete unit test inventory
         if: needs.runtime.outputs.fullNode == 'true'
         run: >-
