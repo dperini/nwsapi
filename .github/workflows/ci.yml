@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   runtime:
+    name: checks
     if: github.event_name == 'push' || github.event_name == 'pull_request'
     outputs:
       fullNode: ${{ steps.test-plan.outputs.fullNode }}
@@ -176,7 +177,7 @@ jobs:
           retention-days: 7
 
   node:
-    name: test summary
+    name: summary
     needs: [runtime, unit]
     if: always() && (github.event_name == 'push' || github.event_name == 'pull_request')
     runs-on: ubuntu-26.04

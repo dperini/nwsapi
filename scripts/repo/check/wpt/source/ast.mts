@@ -25,7 +25,7 @@ export function walkAst(
 
 export function wptFile(url: string, root = REPO_ROOT) {
   const prefix = url.startsWith('/_repo/') ? '/_repo/' : '/'
-  const base = prefix === '/' ? path.join(root, 'upstream/wpt') : root
+  const base = path.resolve(root, prefix === '/' ? 'upstream/wpt' : '.')
   const file = path.resolve(base, url.slice(prefix.length))
   if (!file.startsWith(base + path.sep)) {
     throw new Error(`WPT resource escapes its checkout: ${url}`)

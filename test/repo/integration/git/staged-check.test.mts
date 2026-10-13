@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import {
   copyFileSync,
   globSync,
@@ -203,7 +203,14 @@ test('staged lint failure preserves invalid index and valid worktree bytes', asy
     const failingStagedPaths = runGit(root, ['diff', '--cached', '--name-only'])
     const failingWorktreePaths = runGit(root, ['diff', '--name-only'])
 
-    expect(await checkStagedFiles(root)).not.toBe(0)
+    const rejected = spawnSync(
+      process.execPath,
+      ['scripts/repo/git/staged-check.mts'],
+      { cwd: root, encoding: 'utf8' },
+    )
+    expect(rejected.error).toBeUndefined()
+    expect(rejected.status).toBe(1)
+    expect(rejected.stdout + rejected.stderr).toContain('Unexpected token')
     expect(runGit(root, ['show', ':src/staged.mts'])).toBe(failingIndex)
     expect(readFileSync(path.join(root, 'src/staged.mts'), 'utf8')).toBe(
       failingWorktree,

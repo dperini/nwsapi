@@ -62,6 +62,6 @@ journeys on Linux, macOS, and Windows: six onboarding jobs. Scheduled and manual
 runs use the same six-job matrix when available for the selected workflow ref.
 Scheduled execution requires the workflow on the default branch.
 
-The separate `test summary` job combines the ordinary runtime and unit-test
+The separate `summary` job combines the ordinary checks and unit-test
 results and verifies the expected unit inventory. Each onboarding journey
 reports its own result.
