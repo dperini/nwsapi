@@ -241,8 +241,10 @@ jobs:
 
   perf:
     name: 'perf: tak'
-    needs: [node]
-    if: github.event_name == 'push' && needs.node.result == 'success'
+    needs: [node, onboarding]
+    if: >-
+      github.event_name == 'push' && needs.node.result == 'success' &&
+      needs.onboarding.result == 'success'
     uses: ./.github/workflows/perf-tak.yml
     permissions:
       contents: write
