@@ -3,6 +3,7 @@ import path from 'node:path'
 import {
   REPO_ROOT,
   TSRS_CLI_PATH,
+  TSC_CLI_PATH,
   TYPECHECK_CONFIG_PATH,
 } from '../../../scripts/repo/lib/paths.mts'
 
@@ -148,11 +149,10 @@ for (let i = 0, length = routes.length; i < length; i += 1) {
 test('type checking uses the pinned compiler and repository config', async () => {
   state.entry = '/scripts/repo/type/check.mts'
   await import('../../../scripts/repo/type/check.mts')
-  expect(state.run).toHaveBeenCalledExactlyOnceWith(TSRS_CLI_PATH, [
-    '--noEmit',
-    '-p',
-    TYPECHECK_CONFIG_PATH,
-  ])
+  expect(state.run).toHaveBeenCalledExactlyOnceWith(
+    process.platform === 'win32' ? TSC_CLI_PATH : TSRS_CLI_PATH,
+    ['--noEmit', '-p', TYPECHECK_CONFIG_PATH],
+  )
   vi.resetModules()
   process.argv.push('--help')
   await import('../../../scripts/repo/type/check.mts')

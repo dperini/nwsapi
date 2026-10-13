@@ -276,6 +276,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/semver": "7.8.0",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@ultrathink/acorn.rs.wasm": "0.2.0",
     "@unicode/unicode-17.0.0": "2.0.7",
     "@vitest/coverage-v8": "5.0.3",

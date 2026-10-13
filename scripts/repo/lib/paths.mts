@@ -89,6 +89,10 @@ export const TSRS_CLI_PATH = path.join(
   REPO_ROOT,
   'node_modules/@maschwenk/tsrs/bin/tsrs',
 )
+export const TSC_CLI_PATH = path.join(
+  REPO_ROOT,
+  'node_modules/@typescript/native-preview/bin/tsgo',
+)
 export const TYPECHECK_CONFIG_PATH = path.join(
   REPO_ROOT,
   '.config/tsconfig.check.json',
