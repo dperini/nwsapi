@@ -157,7 +157,7 @@ test('isolated jsdom override installs pinned consumers and verifies ordered ide
     .filter(call => path.basename(call[0] as string) === 'package.json')
     .map(call => JSON.parse(call[1] as string))
   expect(packages[0].overrides['@asamuzakjp/dom-selector']).toBe(
-    'file:/benchmark/package.tgz',
+    `file:${path.resolve('/benchmark/package.tgz')}`,
   )
   expect(packages[1].overrides['@asamuzakjp/dom-selector']).toBe('6')
   const report = JSON.parse(

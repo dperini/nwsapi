@@ -56,6 +56,24 @@ test('same-run shard artifacts keep fork permissions read-only', () => {
   expect(() => checkInlineWorkflows()).not.toThrow()
 })
 
+test('performance measurement runs only after the required push gates pass', () => {
+  const ci = workflow()
+  const perf = parse(
+    readFileSync(
+      new URL('../../../../.github/workflows/perf-tak.yml', import.meta.url),
+      'utf8',
+    ),
+  )
+
+  expect(ci.jobs.perf.needs).toEqual(['node', 'onboarding'])
+  expect(ci.jobs.perf.if).toBe(
+    "github.event_name == 'push' && needs.node.result == 'success' && needs.onboarding.result == 'success'",
+  )
+  expect(ci.jobs.perf.uses).toBe('./.github/workflows/perf-tak.yml')
+  expect(perf.on.workflow_call).toBeDefined()
+  expect(perf.on.push).toBeUndefined()
+})
+
 test('publishing keeps qualification before staging with independent audits in parallel', () => {
   const config = parse(
     readFileSync(
