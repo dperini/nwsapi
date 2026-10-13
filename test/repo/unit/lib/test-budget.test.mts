@@ -41,10 +41,15 @@ test('coverage gets instrumentation headroom without changing normal lanes', () 
 })
 
 test('onboarding gets platform headroom without changing CI budgets', () => {
+  expect(
+    testBudget('unit', false, {
+      NWSAPI_ONBOARDING: '1',
+      NWSAPI_ONBOARDING_TEST: '1',
+    }),
+  ).toBe(ONBOARDING_TEST_BUDGET_MS.unit)
   expect(testBudget('unit', false, { NWSAPI_ONBOARDING: '1' })).toBe(
-    ONBOARDING_TEST_BUDGET_MS.unit,
+    TEST_BUDGET_MS.unit,
   )
-  expect(testBudget('unit', false, {})).toBe(TEST_BUDGET_MS.unit)
   expect(testBudget('integration', false, { NWSAPI_ONBOARDING: '1' })).toBe(
     TEST_BUDGET_MS.integration,
   )

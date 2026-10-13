@@ -81,7 +81,10 @@ async function executeShard(index: number, count: number, directory: string) {
       '--reporter=json',
       `--outputFile=${vitestOutput}`,
     ],
-    testBudget('unit', false),
+    testBudget('unit', false, {
+      ...process.env,
+      NWSAPI_ONBOARDING_TEST: '1',
+    }),
     `unit shard ${index}/${count}`,
     { ...process.env, NWSAPI_TEST_TIER: 'unit' },
   )
