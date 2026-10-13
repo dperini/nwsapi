@@ -11,19 +11,19 @@ export function localCiStatus(
     return setup
   }
   return {
-    ready: false,
-    message: `${localCiRuntimeGuidance(platform)} Use LOCAL_CI_DOCKER_HOST only for a custom socket path.`,
+    ready: true,
+    message: `${localCiRuntimeGuidance(platform)} Running this task will check, start, or install the runtime.`,
   }
 }
 
 function localCiRuntimeGuidance(platform: NodeJS.Platform) {
   if (platform === 'darwin') {
-    return 'OrbStack is the recommended macOS runtime. Start it and ensure /var/run/docker.sock exists. OrbStack may ask for admin approval to create this compatibility link.'
+    return 'macOS setup checks OrbStack and Docker first, then installs OrbStack if neither is available.'
   }
   if (platform === 'win32') {
-    return 'Start Docker Desktop and ensure its Docker socket is available to this shell.'
+    return 'Windows setup checks Docker first, then installs Docker Desktop if it is unavailable.'
   }
-  return 'Start Docker Engine or Docker Desktop and ensure /var/run/docker.sock is available.'
+  return 'Linux setup checks Docker first, then installs Docker Engine with Docker’s official installer if it is unavailable.'
 }
 
 function taskStatus(readiness: CheckoutReadiness) {

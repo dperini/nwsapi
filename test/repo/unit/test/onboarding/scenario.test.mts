@@ -25,6 +25,10 @@ const discovery = {
       execution: ['node', 'scripts/repo/develop/run.mts', '--task', 'review'],
     },
     {
+      id: 'ci:local',
+      execution: ['node', 'scripts/repo/develop/run.mts', '--task', 'ci:local'],
+    },
+    {
       id: 'setup:check',
       execution: [
         'node',

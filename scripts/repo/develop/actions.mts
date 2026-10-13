@@ -41,7 +41,7 @@ export const TASKS: readonly Task[] = [
     name: 'Run GitHub Actions locally (optional)',
     description: 'Run the CI workflow in the local Actions runner.',
     detail:
-      'Uses the pinned run-local-ci tool with .github/workflows/ci.yml. Needs setup and a working Docker socket. Use OrbStack on macOS and Docker on other platforms. Workflow secrets come from .env.local-ci or the environment.',
+      'Uses the pinned run-local-ci tool with .github/workflows/ci.yml. Checks for a working runtime first. Installs OrbStack on macOS or Docker on other platforms if needed. Workflow secrets come from .env.local-ci or the environment.',
     next: 'Next: review any failed job in the local runner output.',
     optional: true,
   },
@@ -90,7 +90,7 @@ export function taskDetails(
     : ''
   const status = readiness
     ? readiness.ready
-      ? '\nStatus: ready in this checkout.'
+      ? `\nStatus: ready in this checkout.${readiness.message ? ` ${readiness.message}` : ''}`
       : `\nStatus: needs setup. ${readiness.message}`
     : ''
   return `${task.description}\n\n${task.detail}${stop}${status}`

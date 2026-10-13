@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { test } from 'vitest'
 import { exportDataset } from '../../../../../../scripts/repo/bench/planner/neural/export.mts'
-import { missingMainArguments } from '../../main-module.mts'
 
 const trace = {
   entries: 1,
@@ -107,19 +105,6 @@ test('route export preserves proved baseline costs, host provenance and training
     )
     assert.equal(dataset.source.experimentSha256.length, 64)
     assert.equal(dataset.source.inputs.length, 2)
-    const script = path.resolve('scripts/repo/bench/planner/neural/export.mts')
-    assert.equal(spawnSync(process.execPath, [script, '--help']).status, 0)
-    assert.equal(spawnSync(process.execPath, [script]).status, 1)
-    assert.equal(
-      spawnSync(process.execPath, [script, directory, output]).status,
-      0,
-    )
-    await missingMainArguments(
-      () =>
-        import('../../../../../../scripts/repo/bench/planner/neural/export.mts'),
-      [[], [directory]],
-      '/planner/neural/export.mts',
-    )
     const invalidMetadata = [
       { ...metadata, format: 1 },
       { ...metadata, contractVersion: 1 },

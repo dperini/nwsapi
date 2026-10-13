@@ -8,19 +8,17 @@ const ready: CheckoutReadiness = {
   build: { ready: true, issues: [] },
 }
 
-test('recommends OrbStack on macOS when the Docker socket is missing', () => {
+test('explains runtime provisioning when the Docker socket is missing', () => {
   expect(localCiStatus(ready, true)).toEqual({ ready: true, message: '' })
   expect(localCiStatus(ready, false, 'darwin')).toEqual({
-    ready: false,
-    message: expect.stringContaining(
-      'OrbStack is the recommended macOS runtime.',
-    ),
+    ready: true,
+    message: expect.stringContaining('checks OrbStack and Docker first'),
   })
   expect(localCiStatus(ready, false, 'linux')).toMatchObject({
-    message: expect.stringContaining('Start Docker Engine or Docker Desktop'),
+    message: expect.stringContaining('installs Docker Engine'),
   })
   expect(localCiStatus(ready, false, 'win32')).toMatchObject({
-    message: expect.stringContaining('Start Docker Desktop'),
+    message: expect.stringContaining('installs Docker Desktop'),
   })
 })
 

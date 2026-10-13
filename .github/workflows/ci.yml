@@ -67,11 +67,10 @@ jobs:
           readelf -p .comment "${RUNNER_TEMP}/mold-smoke" | grep -F mold
       # Use real Git for upstream setup, not the local runner's checkout shim.
       - run: PATH="$(git --exec-path):$PATH" pnpm install --frozen-lockfile --prefer-offline
-      - parallel:
-          - name: Check repository code and generated files
-            run: pnpm run check
-          - name: Audit workflows and agent configuration
-            run: pnpm run security
+      - name: Check repository code and generated files
+        run: pnpm run check
+      - name: Audit workflows and agent configuration
+        run: pnpm run security
       - name: Plan affected runtime tests
         id: test-plan
         env:
@@ -259,37 +258,21 @@ jobs:
           package-manager-cache: false
       - name: Bootstrap from the minimum Node version
         timeout-minutes: 30
-        shell: pwsh
-        run: |
-          $node = (Get-Command node).Source
-          node scripts/repo/test/onboarding/run.mts --scenario bootstrap --node $node
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: node scripts/repo/test/onboarding/ci.mts bootstrap
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '26.11.0'
           package-manager-cache: false
       - name: Provision the entry package manager
         timeout-minutes: 15
-        shell: pwsh
         env:
           ENTRY_MANAGER: ${{ matrix.manager }}
-        run: |
-          $pins = Get-Content .config/external-tools.json -Raw | ConvertFrom-Json
-          $version = $pins.tools.($env:ENTRY_MANAGER).version
-          npm install --prefix (Join-Path $env:RUNNER_TEMP 'onboarding-manager') --no-save "$($env:ENTRY_MANAGER)@$version"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: node scripts/repo/test/onboarding/ci.mts install-manager
       - name: Install, use the wizard, and complete the developer journey
         timeout-minutes: 60
-        shell: pwsh
         env:
           ENTRY_MANAGER: ${{ matrix.manager }}
-        run: |
-          $node = (Get-Command node).Source
-          $managerRoot = Join-Path $env:RUNNER_TEMP 'onboarding-manager/node_modules'
-          $entry = if ($env:ENTRY_MANAGER -eq 'npm') { 'npm/bin/npm-cli.js' } else { 'pnpm/bin/pnpm.mjs' }
-          $arguments = @('--scenario', $env:ENTRY_MANAGER, '--node', $node, "--$env:ENTRY_MANAGER", (Join-Path $managerRoot $entry))
-          node scripts/repo/test/onboarding/run.mts @arguments
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: node scripts/repo/test/onboarding/ci.mts journey
       - name: Upload onboarding diagnostics
         if: always()
         uses: ./.github/actions/repo/upload-artifact
