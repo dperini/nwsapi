@@ -37,6 +37,15 @@ export const TASKS: readonly Task[] = [
     next: 'Next: inspect git diff and choose any additional checks for your change.',
   },
   {
+    script: 'ci:local',
+    name: 'Run GitHub Actions locally (optional)',
+    description: 'Run the CI workflow in the local Actions runner.',
+    detail:
+      'Uses the pinned run-local-ci tool with .github/workflows/ci.yml. Needs setup. Workflow secrets come from .env.local-ci or the environment. GitHub authentication may be needed for remote workflow resources.',
+    next: 'Next: review any failed job in the local runner output.',
+    optional: true,
+  },
+  {
     script: 'setup:check',
     command: ['node', 'scripts/repo/setup/doctor.mts'],
     name: 'Troubleshoot setup (optional)',

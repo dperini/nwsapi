@@ -57,11 +57,12 @@ export async function menuReadiness(root: string) {
   return {
     guide: taskStatus(readiness),
     review: taskStatus(readiness),
+    'ci:local': taskStatus(readiness),
   }
 }
 
 export async function taskReadiness(taskId: string, root: string) {
-  if (taskId !== 'guide' && taskId !== 'review') {
+  if (taskId !== 'guide' && taskId !== 'review' && taskId !== 'ci:local') {
     return { ready: true, message: '' }
   }
   const readiness = await checkoutReadiness(root)
@@ -70,7 +71,7 @@ export async function taskReadiness(taskId: string, root: string) {
 
 export function readinessForTask(
   readiness: CheckoutReadiness,
-  _taskId: 'guide' | 'review',
+  _taskId: 'guide' | 'review' | 'ci:local',
 ) {
   return taskStatus(readiness)
 }

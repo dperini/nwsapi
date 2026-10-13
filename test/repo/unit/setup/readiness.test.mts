@@ -382,9 +382,13 @@ test('guide and review require tools and dependencies, while review rebuilds dis
   try {
     expect(await taskReadiness('guide', root)).toMatchObject({ ready: true })
     expect(await taskReadiness('review', root)).toMatchObject({ ready: true })
+    expect(await taskReadiness('ci:local', root)).toMatchObject({ ready: true })
     expect(existsSync(path.join(root, 'dist/nwsapi.js'))).toBe(false)
     tools.ready = false
     expect(await taskReadiness('guide', root)).toMatchObject({ ready: false })
+    expect(await taskReadiness('ci:local', root)).toMatchObject({
+      ready: false,
+    })
     expect(await taskReadiness('setup', root)).toMatchObject({ ready: true })
   } finally {
     tools.ready = true
