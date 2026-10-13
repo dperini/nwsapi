@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../lib/paths.mts'
 import assert from 'node:assert/strict'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -38,7 +39,7 @@ async function parityPolicy(model: string, name: string, expectedHash: string) {
   const source = readFileSync(path.join(model, `${name}.mjs`))
   assert.equal(sha256(source), expectedHash)
   const { dispatchOverride } = (await import(
-    path.resolve(model, `${name}.mjs`)
+    moduleFileUrl(model, `${name}.mjs`)
   )) as {
     dispatchOverride: Override
   }
@@ -234,7 +235,7 @@ async function measureHost(
     )
   }
   const { dispatchOverride } = (await import(
-    path.resolve(model, `${host}.mjs`)
+    moduleFileUrl(model, `${host}.mjs`)
   )) as {
     dispatchOverride: Override
   }
@@ -251,7 +252,7 @@ async function measureHost(
     host,
   )
   const { dispatchOverride: ruleOverride } = (await import(
-    path.resolve(model, `${host}-rule.mjs`)
+    moduleFileUrl(model, `${host}-rule.mjs`)
   )) as { dispatchOverride: Override }
   const ruleTraces = await routeEvidence(
     entries,

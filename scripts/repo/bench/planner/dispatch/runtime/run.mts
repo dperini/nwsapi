@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../../lib/paths.mts'
 import assert from 'node:assert/strict'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -119,7 +120,7 @@ export async function runtime(
       profile(cached, host),
     ]
     const choose = (await import(
-      path.resolve(
+      moduleFileUrl(
         'assets/repo/bench/planner-dispatch-crossed-model-2026-10-05-r1',
         `${host}.mjs`,
       )

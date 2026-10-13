@@ -37,9 +37,10 @@ export function runBudgeted(
   budgetMs: number,
   label: string,
   env: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const grouped = process.platform !== 'win32'
+    const grouped = platform !== 'win32'
     const child = spawn(process.execPath, args, {
       stdio: 'inherit',
       env,

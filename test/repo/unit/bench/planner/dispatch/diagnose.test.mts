@@ -1,3 +1,4 @@
+import type * as NodeFs from 'node:fs'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
@@ -11,7 +12,7 @@ const state = vi.hoisted(() => ({
   writes: vi.fn(),
   settings: { rounds: 0, milliseconds: 0 },
 }))
-const actualFs = await vi.importActual<typeof import('node:fs')>('node:fs')
+const actualFs = await vi.importActual<typeof NodeFs>('node:fs')
 let modelDirectory = ''
 const fixtureChoiceKey = 'NWSAPI_DISPATCH_DIAGNOSE_CHOICE'
 const originalFixtureChoice = process.env[fixtureChoiceKey]

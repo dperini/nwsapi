@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../lib/paths.mts'
 import assert from 'node:assert/strict'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -34,7 +35,7 @@ export async function modelParity(directory: string) {
   const models = await Promise.all(
     ['chromium', 'jsdom'].map(
       host =>
-        import(path.resolve(directory, `${host}.mjs`)) as Promise<{
+        import(moduleFileUrl(directory, `${host}.mjs`)) as Promise<{
           adaptiveChoice(
             a: number,
             k: number,

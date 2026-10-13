@@ -1,3 +1,4 @@
+import type * as NodeFs from 'node:fs'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import path from 'node:path'
@@ -25,7 +26,7 @@ vi.mock('node:perf_hooks', () => ({
 afterEach(() => vi.clearAllMocks())
 
 test('standalone inference runner records route-only overhead for domain and fallback cases', async () => {
-  const actualFs = await vi.importActual<typeof import('node:fs')>('node:fs')
+  const actualFs = await vi.importActual<typeof NodeFs>('node:fs')
   const originalArgs = process.argv
   const originalDirectory = process.cwd()
   const workingDirectory = vi.spyOn(process, 'cwd')

@@ -59,7 +59,7 @@ test('budgeted runners preserve exit codes, process environments and cleanup han
   vi.useFakeTimers()
   const { child, listeners, kill, off } = childFixture()
   const env = { CUSTOM: 'value' }
-  const running = runBudgeted(['script.mts'], 100, 'fixture', env)
+  const running = runBudgeted(['script.mts'], 100, 'fixture', env, 'linux')
   expect(spawn).toHaveBeenCalledWith(
     process.execPath,
     ['script.mts'],
@@ -80,7 +80,7 @@ test('budgeted runners preserve exit codes, process environments and cleanup han
 test('budget expiration escalates termination and cannot become success after a late exit', async () => {
   vi.useFakeTimers()
   const { child, kill } = childFixture()
-  const running = runBudgeted([], 100, 'expired')
+  const running = runBudgeted([], 100, 'expired', process.env, 'linux')
   await vi.advanceTimersByTimeAsync(1100)
   expect(kill).toHaveBeenCalledWith(-123, 'SIGTERM')
   expect(kill).toHaveBeenCalledWith(-123, 'SIGKILL')
@@ -108,7 +108,7 @@ test('startup errors reject with their original code and elapsed overrun remains
 test('termination ignores exited processes and propagates unexpected kill failures', async () => {
   vi.useFakeTimers()
   const { child, listeners, kill } = childFixture()
-  const running = runBudgeted([], 100, 'signals')
+  const running = runBudgeted([], 100, 'signals', process.env, 'linux')
   kill.mockImplementationOnce(() => {
     throw Object.assign(new Error('Exited'), { code: 'ESRCH' })
   })
@@ -131,15 +131,16 @@ test('termination ignores exited processes and propagates unexpected kill failur
 test('ungrouped runners use the child kill method on Windows', async () => {
   vi.useFakeTimers()
   const { child, listeners } = childFixture()
-  const descriptor = Object.getOwnPropertyDescriptor(process, 'platform')!
-  Object.defineProperty(process, 'platform', { value: 'win32' })
-  try {
-    const running = runBudgeted([], 100, 'windows')
-    listeners.get('SIGTERM')!()
-    expect(child.kill).toHaveBeenCalledWith('SIGTERM')
-    child.emit('exit', 0)
-    await running
-  } finally {
-    Object.defineProperty(process, 'platform', descriptor)
-  }
+  const running = runBudgeted([], 100, 'windows', process.env, 'win32')
+  listeners.get('SIGTERM')!()
+  expect(child.kill).toHaveBeenCalledWith('SIGTERM')
+  expect(spawn).toHaveBeenCalledWith(
+    process.execPath,
+    [],
+    expect.objectContaining({ detached: false }),
+  )
+  await vi.advanceTimersByTimeAsync(1100)
+  expect(child.kill).toHaveBeenCalledWith('SIGKILL')
+  child.emit('exit', 0)
+  await expect(running).resolves.toBe(1)
 })

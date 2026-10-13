@@ -61,13 +61,13 @@ test('extracts bounded assertion failures from wrapped and standalone reports', 
   )
   assert.equal(
     reviewFailures({
-      testResults: Array.from({ length: 8 }, () => ({
+      testResults: Array.from({ length: 108 }, () => ({
         status: 'failed',
         name: 'suite',
         message: 'x'.repeat(800),
       })),
     }).length,
-    5,
+    100,
   )
   assert.equal(
     reviewFailures({

@@ -227,7 +227,7 @@ export function reviewFailures(value: unknown): string[] {
   if (!Array.isArray(report['testResults'])) {
     return []
   }
-  return report['testResults'].flatMap(suiteFailures).slice(0, 5)
+  return report['testResults'].flatMap(suiteFailures).slice(0, 100)
 }
 
 function suiteFailures(suite: unknown): string[] {
@@ -269,7 +269,7 @@ export async function readReviewFailures(files: string[]): Promise<string[]> {
       continue
     }
   }
-  return [...failures].slice(0, 5)
+  return [...failures].slice(0, 100)
 }
 
 export function formatOnboardingFailure(
@@ -283,9 +283,14 @@ export function formatOnboardingFailure(
       ? 'node scripts/repo/develop/run.mts --task review --json'
       : 'node scripts/repo/setup/bootstrap.mts'
   return [
-    `[onboarding] Failed: ${phase}`,
+    `[onboarding] Failed: ${phase.includes('--task review') ? 'review' : phase}`,
     ...(failures.length
-      ? failures.map(failure => `  - ${failure}`)
+      ? [
+          `${failures.length} test failures${failures.length > 5 ? ' (first five shown below)' : ''}.`,
+        ]
+      : []),
+    ...(failures.length
+      ? failures.slice(0, 5).map(failure => `  - ${failure}`)
       : [message]),
     `Retry in the checkout: ${retry}`,
     ...(log ? [`Full evidence: ${log} (uploaded onboarding artifact)`] : []),
@@ -311,7 +316,10 @@ export function emitOnboardingFailure(
   )
   write(output)
   if (githubActions) {
-    const annotation = output
+    const headline = summary.failures.length
+      ? `${summary.failures.length} test failures. ${summary.failures[0]}. See the uploaded onboarding artifact for all failures.`
+      : (summary.message ?? 'Onboarding failed')
+    const annotation = headline
       .replaceAll('%', '%25')
       .replaceAll('\r', '%0D')
       .replaceAll('\n', '%0A')

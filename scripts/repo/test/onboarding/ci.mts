@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import type { SpawnSyncOptions } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -19,6 +20,12 @@ interface Invocation {
   command: string
   args: string[]
 }
+
+type OnboardingExecutor = (
+  command: string,
+  args: string[],
+  options: SpawnSyncOptions,
+) => { status: number | null; error?: Error }
 
 function managerFrom(value: string | undefined): Manager {
   if (value === 'npm' || value === 'pnpm') {
@@ -100,11 +107,16 @@ export function runOnboardingPhase(
   }
 }
 
-function executeCommand(command: string, args: string[]) {
-  const result = spawnSync(command, args, {
+export function executeCommand(
+  command: string,
+  args: string[],
+  platform = process.platform,
+  execute: OnboardingExecutor = spawnSync,
+) {
+  const result = execute(command, args, {
     cwd: REPO_ROOT,
     env: process.env,
-    shell: process.platform === 'win32',
+    shell: platform === 'win32' && command === 'npm',
     stdio: 'inherit',
   })
   if (result.error) {

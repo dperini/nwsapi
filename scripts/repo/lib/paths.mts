@@ -1,6 +1,6 @@
 import path from 'node:path'
 import os from 'node:os'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 export const REPO_ROOT = path.resolve(
   fileURLToPath(new URL('../../../', import.meta.url)),
@@ -116,6 +116,10 @@ export const COVERAGE_SUMMARY_PATH = path.join(
 const WIN32 = process.platform === 'win32'
 const DRIVE_LETTER_REGEXP = /^[A-Za-z]:$/
 const msysDriveRegExp = /^\/([a-zA-Z])($|\/)/
+
+export function moduleFileUrl(...segments: string[]): string {
+  return pathToFileURL(path.resolve(...segments)).href
+}
 
 export function uvExecutablePath(
   root = REPO_ROOT,

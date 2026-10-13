@@ -1,3 +1,4 @@
+import { moduleFileUrl } from '../../../lib/paths.mts'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
@@ -47,7 +48,7 @@ export async function checkParity(directory: string) {
   const models = await Promise.all(
     names.map(
       name =>
-        import(path.resolve(directory, `${name}.mjs`)) as Promise<ScalarModel>,
+        import(moduleFileUrl(directory, `${name}.mjs`)) as Promise<ScalarModel>,
     ),
   )
   const errors = names.map(() => 0)

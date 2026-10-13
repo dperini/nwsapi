@@ -36,7 +36,11 @@ test('stores only versioned task metadata with private file permissions', () => 
     const file = path.join(root, '.cache/developer-state.json')
     expect(state).toMatchObject({ schemaVersion: 1, ...identity })
     expect(JSON.parse(readFileSync(file, 'utf8'))).toEqual(state)
-    expect(statSync(file).mode & 0o777).toBe(0o600)
+    // Windows uses ACLs rather than POSIX permission bits.
+    if (process.platform !== 'win32') {
+      expect(statSync(file).mode & 0o777).toBe(0o600)
+    }
+    expect(statSync(file).isFile()).toBe(true)
     expect(readDeveloperState(root, identity, ['review'], 10_000)).toEqual(
       state,
     )
