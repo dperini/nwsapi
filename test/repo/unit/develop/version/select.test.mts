@@ -30,6 +30,7 @@ test('rejects invalid version options before any repository mutation', () => {
 
 test('creates a uniquely branched checkout beneath the system temporary directory', () => {
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-version-fixture-'))
+  const temporaryRoot = realpathSync.native(os.tmpdir())
   try {
     git(root, 'init', '-b', 'master')
     git(root, 'config', 'user.email', 'fixture@example.test')
@@ -38,12 +39,15 @@ test('creates a uniquely branched checkout beneath the system temporary director
     git(root, 'add', 'file')
     git(root, 'commit', '-m', 'fixture')
     git(root, 'branch', 'prerelease/3.0.0')
-    const selected = createVersionCheckout(root, 'v3')
-    const relative = path.relative(
-      realpathSync.native(os.tmpdir()),
-      selected.path,
+    const selected = createVersionCheckout(
+      root,
+      'v3',
+      execFileSync,
+      temporaryRoot,
     )
-    expect(relative.split(path.sep)[0]).toMatch(/^nwsapi-worktree-/)
+    const worktreeRoot = realpathSync.native(path.dirname(selected.path))
+    expect(path.dirname(worktreeRoot)).toBe(temporaryRoot)
+    expect(path.basename(worktreeRoot)).toMatch(/^nwsapi-worktree-/)
     expect(git(selected.path, 'branch', '--show-current')).toBe(
       selected.branchName,
     )
