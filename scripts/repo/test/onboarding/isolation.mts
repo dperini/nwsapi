@@ -47,6 +47,7 @@ export function isolatedEnvironment(
     APPDATA: path.join(root, 'appdata', 'roaming'),
     LOCALAPPDATA: path.join(root, 'appdata', 'local'),
     CI: '1',
+    NWSAPI_ONBOARDING: '1',
     GIT_CONFIG_NOSYSTEM: '1',
     GIT_CONFIG_GLOBAL: path.join(root, 'home', '.gitconfig'),
     NO_COLOR: '1',

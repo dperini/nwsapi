@@ -3,6 +3,7 @@ import { spawn, type ChildProcess } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import {
   COVERAGE_TEST_BUDGET_MS,
+  ONBOARDING_TEST_BUDGET_MS,
   TEST_BUDGET_MS,
   testBudget,
   runBudgeted,
@@ -37,6 +38,16 @@ test('coverage gets instrumentation headroom without changing normal lanes', () 
     COVERAGE_TEST_BUDGET_MS.integration,
   )
   expect(testBudget('upstream', true)).toBe(TEST_BUDGET_MS.upstream)
+})
+
+test('onboarding gets platform headroom without changing CI budgets', () => {
+  expect(testBudget('unit', false, { NWSAPI_ONBOARDING: '1' })).toBe(
+    ONBOARDING_TEST_BUDGET_MS.unit,
+  )
+  expect(testBudget('unit', false, {})).toBe(TEST_BUDGET_MS.unit)
+  expect(testBudget('integration', false, { NWSAPI_ONBOARDING: '1' })).toBe(
+    TEST_BUDGET_MS.integration,
+  )
 })
 
 test('budgeted runners preserve exit codes, process environments and cleanup handlers', async () => {

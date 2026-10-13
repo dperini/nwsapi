@@ -15,7 +15,13 @@ export const COVERAGE_TEST_BUDGET_MS = Object.freeze({
   integration: 60_000,
 })
 
-export function testBudget(lane: string, coverage: boolean) {
+// Fresh onboarding checkouts are slower than cached CI jobs on Windows and macOS.
+export const ONBOARDING_TEST_BUDGET_MS = Object.freeze({ unit: 15_000 })
+
+export function testBudget(lane: string, coverage: boolean, env = process.env) {
+  if (env['NWSAPI_ONBOARDING'] === '1' && lane === 'unit') {
+    return ONBOARDING_TEST_BUDGET_MS.unit
+  }
   if (coverage && lane in COVERAGE_TEST_BUDGET_MS) {
     return COVERAGE_TEST_BUDGET_MS[lane as keyof typeof COVERAGE_TEST_BUDGET_MS]
   }
