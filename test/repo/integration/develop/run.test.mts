@@ -26,10 +26,11 @@ test('noninteractive discovery emits one JSON object with no terminal escapes', 
     optional?: boolean
     execution?: string[]
   }>
-  expect(tasks.slice(0, 4).map(task => task.id)).toEqual([
+  expect(tasks.slice(0, 5).map(task => task.id)).toEqual([
     'setup',
     'guide',
     'review',
+    'ci:local',
     'setup:check',
   ])
   expect(tasks.find(task => task.id === 'voiceover')).toMatchObject({

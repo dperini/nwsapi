@@ -53,7 +53,7 @@ export async function captureMenuFrames() {
       activations,
     }
     await setup.mockInput.pressKeys(['ARROW_DOWN'])
-    await setup.mockInput.typeText('4')
+    await setup.mockInput.typeText('5')
     await setup.flush()
     const preview = {
       scrollTop: body.scrollTop,
@@ -73,7 +73,7 @@ export async function captureMenuFrames() {
     await setup.flush()
     const small = setup.captureCharFrame()
     const commands: string[] = []
-    for (const digit of ['1', '2', '3', '4']) {
+    for (const digit of ['1', '2', '3', '4', '5']) {
       await setup.mockInput.typeText(digit)
       await setup.flush()
       commands.push(setup.captureCharFrame())

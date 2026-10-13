@@ -4,6 +4,7 @@ import type { CheckoutReadiness } from './readiness.mts'
 export function localCiStatus(
   readiness: CheckoutReadiness,
   dockerSocketAvailable: boolean,
+  platform: NodeJS.Platform = process.platform,
 ) {
   const setup = taskStatus(readiness)
   if (!setup.ready || dockerSocketAvailable) {
@@ -11,9 +12,18 @@ export function localCiStatus(
   }
   return {
     ready: false,
-    message:
-      'A working Docker socket is required. Start Docker Desktop with the default socket enabled, or set LOCAL_CI_DOCKER_HOST.',
+    message: `${localCiRuntimeGuidance(platform)} Use LOCAL_CI_DOCKER_HOST only for a custom socket path.`,
   }
+}
+
+function localCiRuntimeGuidance(platform: NodeJS.Platform) {
+  if (platform === 'darwin') {
+    return 'OrbStack is the recommended macOS runtime. Start it and ensure /var/run/docker.sock exists. OrbStack may ask for admin approval to create this compatibility link.'
+  }
+  if (platform === 'win32') {
+    return 'Start Docker Desktop and ensure its Docker socket is available to this shell.'
+  }
+  return 'Start Docker Engine or Docker Desktop and ensure /var/run/docker.sock is available.'
 }
 
 function taskStatus(readiness: CheckoutReadiness) {
