@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { JSDOM } from 'jsdom'
 import { test, vi } from 'vitest'
+import { normalizePath } from '../../../../../../../scripts/repo/lib/paths.mts'
 import {
   invokeMainModule,
   missingMainArguments,
@@ -18,7 +19,7 @@ import { runtimeReport } from '../../../../../../../scripts/repo/bench/planner/d
 
 function fixtures() {
   state.read.mockImplementation((file: string) => {
-    const repeat = file.includes('/repeat/')
+    const repeat = normalizePath(file).includes('/repeat/')
     const metrics = [100, 101, 100, repeat ? 120 : 80].map(
       (geometricTimePercent, index) => ({
         label: `variant<${index}>&`,

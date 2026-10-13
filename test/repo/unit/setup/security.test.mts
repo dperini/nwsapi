@@ -8,6 +8,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 import manifest from '../../../../.config/external-tools.json' with { type: 'json' }
 import {
   installSkillScanner,
@@ -28,10 +29,10 @@ import type { CommandRunner } from '../../../../scripts/repo/lib/command.mts'
 test('security plans use platform-pinned wheels and repository-local Python environments', () => {
   expect(securityTools()).toEqual(['uv', 'zizmor', 'actionlint'])
   expect(securityTools(true)).toContain('trufflehog')
-  expect(securityEnvironment('/fixture').UV_TOOL_DIR).toBe(
+  expect(normalizePath(securityEnvironment('/fixture').UV_TOOL_DIR)).toBe(
     '/fixture/.cache/security/python',
   )
-  expect(scannerExecutable('/fixture')).toContain(
+  expect(normalizePath(scannerExecutable('/fixture'))).toContain(
     '/fixture/.cache/security/python/',
   )
   for (const platform of Object.keys(
@@ -147,7 +148,9 @@ test('SkillSpector requires its installed executable and handles Windows layouts
   const original = process.platform
   Object.defineProperty(process, 'platform', { value: 'win32' })
   try {
-    expect(scannerExecutable(root)).toContain('Scripts/skill-scanner.exe')
+    expect(normalizePath(scannerExecutable(root))).toContain(
+      'Scripts/skill-scanner.exe',
+    )
     const executable = path.join(
       root,
       '.cache/security/skillspector/Scripts/skillspector.exe',

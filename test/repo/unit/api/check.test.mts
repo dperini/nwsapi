@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 const state = vi.hoisted(() => ({ main: false, run: vi.fn() }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
   isMainModule: () => state.main,
@@ -22,7 +23,7 @@ test.each([false, true])(
       expect(state.run).toHaveBeenCalledTimes(help ? 0 : 1)
       if (!help) {
         expect(state.run).toHaveBeenCalledWith(
-          expect.stringContaining('/gen/api/markdown.mts'),
+          expect.stringContaining(normalizePath('/gen/api/markdown.mts')),
           ['--check'],
         )
       }

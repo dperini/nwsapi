@@ -21,6 +21,7 @@
 - Discover guided tasks with `node scripts/repo/develop/run.mts --list --json`. Present the ordered choices through the harness's own interface when the user needs guidance.
 - Run a selected task with `node scripts/repo/develop/run.mts --task <id> --json`. Capture stdout as JSON and stderr as progress. Use the reported exit status and preserve existing authorization requirements.
 - Keep persistent tasks in a managed session. See [the harness contract](docs/repo/development/toolchain.md#agent-harnesses) for task IDs, results, and shutdown behavior.
+- Run CI jobs and monitor their results asynchronously. Keep foreground time for implementation and bounded local checks; do not wait or poll idly for remote jobs.
 
 # Branches and worktrees
 

@@ -70,6 +70,18 @@ test.each(['directory', 'escape'])(
       .reply(200, bytes)
     vi.doMock('node:fs', async original => {
       const actual = await original<typeof fs>()
+      const realpathSync = Object.assign(
+        (file: string) =>
+          invalid === 'escape' && normalizePath(file).endsWith('/sfw')
+            ? '/outside/executable'
+            : actual.realpathSync(file),
+        {
+          native: (file: string) =>
+            invalid === 'escape' && normalizePath(file).endsWith('/sfw')
+              ? '/outside/executable'
+              : actual.realpathSync.native(file),
+        },
+      )
       return {
         ...actual,
         lstatSync: (file: string) => {
@@ -78,10 +90,7 @@ test.each(['directory', 'escape'])(
             ? { isFile: () => false }
             : stat
         },
-        realpathSync: (file: string) =>
-          invalid === 'escape' && normalizePath(file).endsWith('/sfw')
-            ? '/outside/executable'
-            : actual.realpathSync(file),
+        realpathSync,
       }
     })
     vi.resetModules()

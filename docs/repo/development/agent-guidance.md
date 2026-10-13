@@ -24,6 +24,10 @@ The generator preserves custom files and reports conflicts. Its standalone comma
 
 Each skill is a short entry point with repository-root references to maintained documentation. Supporting guides belong under `docs/fleet/` or `docs/repo/`, so these aliases do not need a copied resource tree.
 
+## Keep remote jobs in the background
+
+Start CI or other remote jobs, record their run identifier, and continue useful foreground work. Check their status asynchronously or when a completion notification arrives. Do not block the foreground with repeated polling or idle waits. Use foreground time for implementation, review, and bounded local checks. A submitted or running job is not a passing check, so report its status accurately and inspect its logs or artifacts once it finishes.
+
 ## Available skills
 
 - `ui-usability`: documentation and web UI review, reading, focus, target size, feedback, motion, and reflow.
