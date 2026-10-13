@@ -1,6 +1,6 @@
 # Onboarding validation
 
-The separate `.github/workflows/onboarding.yml` workflow checks the minimum-Node
+The separate `.github/workflows/onboarding-v3.yml` workflow checks the minimum-Node
 bootstrap once per operating system and two complete contributor journeys.
 Bootstrap and manager journeys run in parallel in independent clean checkouts.
 Ordinary checks and unit shards remain in `.github/workflows/ci.yml`.

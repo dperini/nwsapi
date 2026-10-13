@@ -22,9 +22,9 @@ function workflow(name: string): Workflow {
 }
 
 test('onboarding has narrow matching push and pull request triggers', () => {
-  const config = workflow('onboarding.yml')
+  const config = workflow('onboarding-v3.yml')
   const paths = [
-    '.github/workflows/onboarding.yml',
+    '.github/workflows/onboarding-v3.yml',
     'scripts/repo/test/onboarding/**',
     'scripts/repo/setup/**',
     'scripts/repo/develop/**',
@@ -38,7 +38,7 @@ test('onboarding has narrow matching push and pull request triggers', () => {
 })
 
 test('minimum Node bootstrap and manager journeys run independently', () => {
-  const jobs = workflow('onboarding.yml').jobs
+  const jobs = workflow('onboarding-v3.yml').jobs
   expect(Object.keys(jobs).toSorted()).toEqual(['bootstrap', 'journey', 'plan'])
   expect(jobs['bootstrap']?.needs).toBe('plan')
   expect(jobs['journey']?.needs).toBe('plan')
