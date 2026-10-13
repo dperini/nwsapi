@@ -9,6 +9,7 @@ const state = vi.hoisted(() => ({
   status: 0,
   hash: 'hash',
   mismatch: 0,
+  selections: [] as Array<{ calls: number; nodes: Element[] | undefined }>,
   writes: vi.fn(),
   calls: vi.fn(),
   close: vi.fn(),
@@ -83,16 +84,25 @@ vi.mock('@playwright/test', () => ({
         ) => {
           const dom = new JSDOM('<body></body>')
           vi.stubGlobal('document', dom.window.document)
-          vi.stubGlobal('factory', () => ({
-            select: (selector: string, doc: Document) => {
-              const nodes = Array.from(doc.querySelectorAll(selector))
-              return state.mismatch === 1
-                ? []
-                : state.mismatch === 2
-                  ? nodes.toReversed()
-                  : nodes
-            },
-          }))
+          vi.stubGlobal('factory', () => {
+            const selection = {
+              calls: 0,
+              nodes: undefined as Element[] | undefined,
+            }
+            state.selections.push(selection)
+            return {
+              select: (selector: string, doc: Document) => {
+                selection.calls += 1
+                // Each capture queries one selector against an unchanged document.
+                selection.nodes ??= Array.from(doc.querySelectorAll(selector))
+                return state.mismatch === 1
+                  ? []
+                  : state.mismatch === 2
+                    ? selection.nodes.toReversed()
+                    : selection.nodes
+              },
+            }
+          })
           try {
             return callback(args)
           } finally {
@@ -149,9 +159,18 @@ test('capture evaluates browser identities and always releases resources on inva
   await invokeMainModule(load, ['model', 'out'], '/dispatch/trace.mts')
   await invokeMainModule(load, ['model', 'out', 'mixed'], '/dispatch/trace.mts')
   vi.spyOn(console, 'log').mockImplementation(() => {})
+  state.selections = []
   for (const mode of ['capture', 'capture-mixed']) {
     await invokeMainModule(load, ['model', 'out', mode], '/dispatch/trace.mts')
   }
+  assert.deepEqual(
+    state.selections.map(selection => selection.calls),
+    [60_001, 60_001, 60_001, 2001, 2001, 2001, 2001, 2001, 2001],
+  )
+  assert.deepEqual(
+    state.selections.map(selection => selection.nodes!.length),
+    [2, 2, 2, 1, 2, 1, 2, 1, 2],
+  )
   assert.ok(state.pageClose.mock.calls.length >= 6)
   for (const mismatch of [1, 2]) {
     state.mismatch = mismatch

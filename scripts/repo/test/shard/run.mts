@@ -77,6 +77,7 @@ async function executeShard(index: number, count: number, directory: string) {
       '--config',
       '.config/repo/vitest.config.mts',
       `--shard=${index}/${count}`,
+      '--reporter=default',
       '--reporter=json',
       `--outputFile=${vitestOutput}`,
     ],
