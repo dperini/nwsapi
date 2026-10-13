@@ -8,6 +8,7 @@ import {
 } from '../../../scripts/repo/dependency/update.mts'
 import { collectPackumentFailures } from '../../../scripts/repo/lib/taze-output.mts'
 import {
+  toForwardSlashes,
   SVG_CHECK_SCRIPT_PATH,
   FORMAT_SCRIPT_PATH,
   LINT_SCRIPT_PATH,
@@ -49,7 +50,7 @@ test('check runs formatting, lint, and types without fix flags', () => {
 test('automatic checks never select the opt-in narration runner', () => {
   expect(
     discoverTasks('check').some(task =>
-      task.entry.replaceAll('\\', '/').includes('/test/voiceover/'),
+      toForwardSlashes(task.entry).includes('/test/voiceover/'),
     ),
   ).toBe(false)
 })

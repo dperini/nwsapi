@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type Adapter from '../../../../../../dist/adapter/dom-selector.js'
 import type * as Module from 'node:module'
 import type * as Jsdom from 'jsdom'
@@ -83,10 +84,11 @@ vi.mock('node:module', async () => {
   return {
     createRequire: () => (file: string) => {
       state.load(file)
-      if (file.endsWith('dom-selector.js')) {
+      const filename = path.basename(file)
+      if (filename === 'dom-selector.js') {
         return FixtureAdapter
       }
-      if (file.endsWith('/package.json')) {
+      if (filename === 'package.json') {
         return { version: 'fixture' }
       }
       return load(file)

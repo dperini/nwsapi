@@ -1,4 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest'
+import path from 'node:path'
 import * as fs from 'node:fs'
 
 const state = vi.hoisted(() => ({
@@ -33,8 +34,7 @@ vi.mock('node:fs', async original => ({
 }))
 vi.mock('node:child_process', () => ({
   execFileSync: (command: string) => {
-    const name =
-      command === '/verified/node' ? 'npm' : command.split('/').at(-1)!
+    const name = command === '/verified/node' ? 'npm' : path.basename(command)
     if (name === state.invalid) {
       return 'invalid'
     }

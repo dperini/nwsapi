@@ -10,6 +10,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { toForwardSlashes } from '../../../../scripts/repo/lib/paths.mts'
 import { packageFiles } from '../../../../.config/build.config.mts'
 import {
   checkPackageManifest,
@@ -49,9 +50,9 @@ test('staging and the real tarball contain only explicitly allowed files', async
     })
       .filter(entry => entry.isFile())
       .map(entry =>
-        path
-          .relative(staged!, path.join(entry.parentPath, entry.name))
-          .replaceAll('\\', '/'),
+        toForwardSlashes(
+          path.relative(staged!, path.join(entry.parentPath, entry.name)),
+        ),
       )
     expect(stagedFiles.toSorted()).toEqual(manifest.files.toSorted())
     expect(manifest.exports).toEqual(packageLayout('published').exports)

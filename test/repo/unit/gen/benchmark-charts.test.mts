@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { beforeEach, expect, test, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({ write: vi.fn(), refresh: vi.fn() }))
@@ -18,7 +19,7 @@ test('regenerates all three benchmark groups from recorded measurements', async 
   const groups = mocks.write.mock.calls.map(([directory, metadata, rows]) => {
     expect(metadata.runtime).toMatch(/^Chromium/)
     expect(rows.length).toBeGreaterThan(0)
-    return directory.split('/').at(-1)
+    return path.basename(directory)
   })
   expect(groups).toEqual(['bench', 'documentation', 'atomic'])
   expect(mocks.refresh).toHaveBeenCalledOnce()

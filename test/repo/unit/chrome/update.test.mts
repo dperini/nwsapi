@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import type * as NodeFs from 'node:fs'
+import path from 'node:path'
 import nock from 'nock'
 import {
   chromePin,
@@ -105,7 +106,7 @@ test('update discovers WPT and Chrome in both write and preview modes', () => {
     updateReferences(check, (entry, args = []) => {
       calls.push([entry, args])
     })
-    expect(calls.map(([entry]) => entry.split('/').at(-1))).toEqual([
+    expect(calls.map(([entry]) => path.basename(entry))).toEqual([
       'update.mts',
       'update.mts',
     ])
