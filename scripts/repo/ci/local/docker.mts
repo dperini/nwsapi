@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
-import { isMainModule } from '../lib/run-node.mts'
+import { isMainModule } from '../../lib/run-node.mts'
 
 type Platform = NodeJS.Platform
 type Run = (

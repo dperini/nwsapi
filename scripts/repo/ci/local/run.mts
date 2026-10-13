@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
-import { REPO_ROOT } from '../lib/paths.mts'
-import { isMainModule } from '../lib/run-node.mts'
-import { ensureLocalCiDockerAvailable } from './local-docker.mts'
+import { REPO_ROOT } from '../../lib/paths.mts'
+import { isMainModule } from '../../lib/run-node.mts'
+import { ensureLocalCiDockerAvailable } from './docker.mts'
 
 export async function main() {
   await ensureLocalCiDockerAvailable()

@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { ensureLocalCiDockerAvailable } from '../../../../scripts/repo/ci/local-docker.mts'
+import { ensureLocalCiDockerAvailable } from '../../../../../scripts/repo/ci/local/docker.mts'
 
 afterEach(() => vi.restoreAllMocks())
 
