@@ -1,4 +1,5 @@
 import { gzipSync, gunzipSync } from 'node:zlib'
+import path from 'node:path'
 import { beforeEach, expect, test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   exists: false,
@@ -72,7 +73,7 @@ test.each([false, true])(
     await module.measureUnion('/baseline.gz', '/out', repeat)
     expect(state.mkdir).toHaveBeenCalledWith('/out', { recursive: true })
     const archived = state.write.mock.calls.find(
-      call => call[0] === '/out/fixtures.json.gz',
+      call => call[0] === path.join('/out', 'fixtures.json.gz'),
     )![1] as Buffer
     expect(JSON.parse(gunzipSync(archived).toString())[0].id).toBe(
       (repeat ? fixtures.at(-1) : fixtures[0])!.id,
@@ -88,7 +89,7 @@ test.each([false, true])(
     ])
     const report = JSON.parse(
       state.write.mock.calls.find(
-        call => call[0] === '/out/chromium.json',
+        call => call[0] === path.join('/out', 'chromium.json'),
       )![1] as string,
     )
     expect(report.metadata.settings).toEqual({

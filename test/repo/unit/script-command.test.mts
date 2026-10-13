@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import path from 'node:path'
 import type * as NodeFs from 'node:fs'
 
 const state = vi.hoisted(() => ({
@@ -67,20 +68,22 @@ test('compatibility entrypoints forward arguments only when directly invoked', a
     import.meta.url,
   ).href
   await import('../../../scripts/repo/check.mts')
-  expect(state.node).toHaveBeenLastCalledWith(
-    expect.stringMatching(/check\/run\.mts$/),
-    ['--check'],
-  )
+  expect(state.node).toHaveBeenLastCalledWith(expect.any(String), ['--check'])
+  expect(state.node.mock.calls.at(-1)![0].split(path.sep).slice(-2)).toEqual([
+    'check',
+    'run.mts',
+  ])
   vi.resetModules()
   state.target = new URL(
     '../../../scripts/repo/update.mts',
     import.meta.url,
   ).href
   await import('../../../scripts/repo/update.mts')
-  expect(state.node).toHaveBeenLastCalledWith(
-    expect.stringMatching(/update\/run\.mts$/),
-    ['--check'],
-  )
+  expect(state.node).toHaveBeenLastCalledWith(expect.any(String), ['--check'])
+  expect(state.node.mock.calls.at(-1)![0].split(path.sep).slice(-2)).toEqual([
+    'update',
+    'run.mts',
+  ])
 })
 
 test('the updater handles ordinary runs, check mode, help, and invalid arguments', async () => {

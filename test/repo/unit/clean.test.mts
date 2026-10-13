@@ -40,10 +40,10 @@ test.each(['dependencies', 'tools'])(
       scope === 'dependencies'
         ? ['node_modules']
         : [
-            '.cache/bin',
-            '.cache/external-tools',
-            '.cache/mise',
-            '.cache/setup-progress.json',
+            path.join('.cache', 'bin'),
+            path.join('.cache', 'external-tools'),
+            path.join('.cache', 'mise'),
+            path.join('.cache', 'setup-progress.json'),
           ],
     )
   },

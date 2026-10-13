@@ -18,11 +18,11 @@ test('inventory includes nested Node scripts, generated scripts and Python train
   )
   const inventory = scriptInventory(input.root)
   expect(inventory.node.map(file => path.relative(input.root, file))).toEqual([
-    'scripts/nested/data.generated.mjs',
-    'scripts/run.mts',
-    'scripts/tool.js',
+    path.join('scripts', 'nested', 'data.generated.mjs'),
+    path.join('scripts', 'run.mts'),
+    path.join('scripts', 'tool.js'),
   ])
   expect(inventory.python.map(file => path.relative(input.root, file))).toEqual(
-    ['scripts/trainer.py'],
+    [path.join('scripts', 'trainer.py')],
   )
 })

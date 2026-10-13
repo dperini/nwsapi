@@ -4,6 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, test, vi } from 'vitest'
 import type * as RunNode from '../../../../scripts/repo/lib/run-node.mts'
+import { normalizePath } from '../../../../scripts/repo/lib/paths.mts'
 
 const bundler = vi.hoisted(() => ({
   build: vi.fn(),
@@ -43,7 +44,7 @@ test('file sizes compare UTF-8 artifacts and fingerprint included competitor mod
     assert.equal(report.rows.length, 2)
     assert.equal(report.rows[1]!.sha256, sizes.sha256)
     assert.deepEqual(report.competitorModules, [
-      { file: module, sha256: sizes.sha256 },
+      { file: normalizePath(module), sha256: sizes.sha256 },
     ])
     assert.equal(bundler.close.mock.calls.length, 1)
     const failures = [
