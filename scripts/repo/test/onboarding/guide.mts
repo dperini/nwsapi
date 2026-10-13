@@ -36,6 +36,7 @@ export async function startGuide(
     spawnFailure = error
   })
   let cancelled: NodeJS.Signals | undefined
+  let forced = false
   const cancel = (signal: NodeJS.Signals) => {
     cancelled = signal
     terminateTree(child, signal)
@@ -59,7 +60,7 @@ export async function startGuide(
       () => stderr,
     )
     const moduleStatuses = await verifyGuidePage(page, url)
-    const forced = terminateTree(child, 'SIGTERM')
+    forced = terminateTree(child, 'SIGTERM')
     exit = await stopBounded(child, closed)
     await writeFile(
       file,
@@ -84,7 +85,17 @@ export async function startGuide(
   if (!exit) {
     throw new Error('Guide task finished without a shutdown result.')
   }
-  return { command: execution.join(' '), code: exit.code }
+  return {
+    command: execution.join(' '),
+    code: guideOutcomeCode(exit, forced),
+  }
+}
+
+export function guideOutcomeCode(
+  exit: { code: number | null },
+  forced: boolean,
+) {
+  return forced ? 0 : exit.code
 }
 
 function assertGuideShutdown(

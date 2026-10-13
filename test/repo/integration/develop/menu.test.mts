@@ -59,11 +59,11 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
   expect(output.pageDown).toEqual({ selected: 0, activations: 0 })
   expect(output.preview).toMatchObject({
     scrollTop: 0,
-    selected: 3,
+    selected: 4,
     activations: 0,
   })
   expect(output.preview.frame).toContain('node scripts/repo/setup/doctor.mts')
-  expect(output.enter).toEqual({ selected: 3, activations: 1 })
+  expect(output.enter).toEqual({ selected: 4, activations: 1 })
   for (const frame of [
     first,
     output.preview.frame,
@@ -83,6 +83,7 @@ test('native menu keeps commands fixed and exposes flexible content at terminal 
     'node scripts/repo/setup/bootstrap.mts',
     'pnpm run guide',
     'pnpm run review',
+    'pnpm run ci:local',
     'node scripts/repo/setup/doctor.mts',
   ]
   for (const [index, frame] of output.commands.entries()) {

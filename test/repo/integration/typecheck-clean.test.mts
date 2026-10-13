@@ -14,16 +14,22 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { REPO_ROOT, TSRS_CLI_PATH } from '../../../scripts/repo/lib/paths.mts'
+import { localCiInvocation } from '../../../scripts/repo/ci/local/run.mts'
 
 test('local CI selects the workflow explicitly on feature branches', () => {
   const pkg = JSON.parse(
     readFileSync(path.join(REPO_ROOT, 'package.json'), 'utf8'),
   )
-  const args = pkg.scripts['ci:local'].split(' ')
+  const entrypoint = pkg.scripts['ci:local'].split(' ').at(-1)
+  expect(entrypoint).toBe('scripts/repo/ci/local/run.mts')
+  expect(entrypoint).toBeDefined()
+  expect(existsSync(path.join(REPO_ROOT, entrypoint!))).toBe(true)
+  const args = localCiInvocation().args
   const workflowIndex = args.indexOf('--workflow')
   expect(workflowIndex).toBeGreaterThan(0)
-  expect(args[workflowIndex + 1]).toBe('.github/workflows/ci.yml')
-  expect(existsSync(path.join(REPO_ROOT, args[workflowIndex + 1]))).toBe(true)
+  const workflow = args[workflowIndex + 1]
+  expect(workflow).toBe('.github/workflows/ci.yml')
+  expect(existsSync(path.join(REPO_ROOT, workflow!))).toBe(true)
 })
 
 let root: string

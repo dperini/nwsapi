@@ -1,5 +1,4 @@
 import { expect, test, vi } from 'vitest'
-import nock from 'nock'
 vi.mock('node:timers/promises', () => ({ setTimeout: async () => {} }))
 import {
   artifactExpiration,
@@ -93,33 +92,27 @@ test('protocol calls authenticate, require acknowledgment, and redact service fa
 test.each(['network', 'server'])(
   'transient %s errors stop after three attempts',
   async mode => {
-    const interceptor = nock('https://results.example')
-      .post(
-        '/twirp/github.actions.results.api.v1.ArtifactService/CreateArtifact',
-      )
-      .times(3)
-    const service =
-      mode === 'network'
-        ? interceptor.replyWithError('private address')
-        : interceptor.reply(503)
+    const request = vi.fn(async () => {
+      if (mode === 'network') {
+        throw new Error('private address')
+      }
+      return new Response('', { status: 503 })
+    })
     await expect(
-      artifactPost(readArtifactService(env), 'CreateArtifact', {}),
+      artifactPost(readArtifactService(env), 'CreateArtifact', {}, request),
     ).rejects.toThrow()
-    expect(service.isDone()).toBe(true)
+    expect(request).toHaveBeenCalledTimes(3)
   },
 )
 test('a transient server error can recover on its next attempt', async () => {
-  const endpoint =
-    '/twirp/github.actions.results.api.v1.ArtifactService/CreateArtifact'
-  const service = nock('https://results.example')
-    .post(endpoint)
-    .reply(503)
-    .post(endpoint)
-    .reply(200, { ok: true })
+  const request = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response('', { status: 503 }))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true })))
   expect(
-    await artifactPost(readArtifactService(env), 'CreateArtifact', {}),
+    await artifactPost(readArtifactService(env), 'CreateArtifact', {}, request),
   ).toEqual({ ok: true })
-  expect(service.isDone()).toBe(true)
+  expect(request).toHaveBeenCalledTimes(2)
 })
 test('invalid scope and absent credentials fail before contacting the service', () => {
   const invalid = Buffer.from(JSON.stringify({ scp: 'other' })).toString(

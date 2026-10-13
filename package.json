@@ -127,7 +127,7 @@
     "setup:check": "node scripts/repo/setup/doctor.mts",
     "wpt:setup": "node scripts/repo/run.mts scripts/repo/setup/wpt.mts",
     "prepare": "node scripts/repo/setup/prepare.mts",
-    "ci:local": "node scripts/repo/run.mts node_modules/run-local-ci/dist/native-launcher.js run --workflow .github/workflows/ci.yml --quiet --pause-on-failure --github-token",
+    "ci:local": "node scripts/repo/ci/local/run.mts",
     "clean": "node scripts/repo/clean.mts",
     "lint": "node scripts/repo/run.mts scripts/repo/lint.mts",
     "format": "node scripts/repo/run.mts scripts/repo/format.mts",

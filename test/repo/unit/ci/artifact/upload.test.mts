@@ -45,19 +45,32 @@ test.each([
 ])(
   'service metadata must include upload URL and valid ID %j',
   async ({ create, final }) => {
-    const service = nock('https://results.example')
-      .post(endpoint + 'CreateArtifact')
-      .reply(200, { ok: true, ...create })
-    if ('signed_upload_url' in create) {
-      nock('https://blob.example').put('/').reply(201)
-      service
-        .post(endpoint + 'FinalizeArtifact')
-        .reply(200, { ok: true, ...final })
+    const paths: string[] = []
+    const request: typeof fetch = async (input, options) => {
+      const url =
+        input instanceof Request
+          ? input.url
+          : input instanceof URL
+            ? input.href
+            : input
+      const pathname = new URL(url).pathname
+      paths.push(pathname)
+      if (options?.method === 'PUT') {
+        return new Response(null, { status: 201 })
+      }
+      const payload = pathname.endsWith('CreateArtifact')
+        ? { ok: true, ...create }
+        : { ok: true, ...final }
+      return Response.json(payload)
     }
     await expect(
-      uploadArtifact('report', [], 14, env, mockTransport),
+      uploadArtifact('report', [], 14, env, request),
     ).rejects.toThrow()
-    expect(service.isDone()).toBe(true)
+    expect(paths).toEqual(
+      'signed_upload_url' in create
+        ? [endpoint + 'CreateArtifact', '/', endpoint + 'FinalizeArtifact']
+        : [endpoint + 'CreateArtifact'],
+    )
   },
 )
 test('alternate service fields and numeric artifact ID are accepted', async () => {

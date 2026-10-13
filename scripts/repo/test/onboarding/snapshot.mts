@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, symlinkSync } from 'node:fs'
-import { mkdir } from 'node:fs/promises'
+import { cp, mkdir, rm } from 'node:fs/promises'
 import path from 'node:path'
+import { normalizePath } from '../../lib/paths.mts'
 import {
   externalToolVersion,
   findGit,
@@ -136,24 +137,45 @@ export async function checkoutSnapshot(
       'Cannot capture exact source commit for the onboarding snapshot.',
     )
   }
-  recordCommit(sourceCommit)
-  const clone = run(
+  const tree = run(
     gitExecutable,
-    ['clone', '--no-hardlinks', '--local', '--no-checkout', repo, snapshot],
+    ['cat-file', '-e', `${sourceCommit}^{tree}`],
     repo,
     env,
-    60_000,
+    15_000,
   )
-  await appendLog(log, 'independent git clone', clone)
-  await command(
-    log,
-    'checkout exact source commit',
-    gitExecutable,
-    ['checkout', '--detach', sourceCommit],
-    snapshot,
-    env,
-    60_000,
-  )
+  if (tree.code === 0) {
+    recordCommit(sourceCommit)
+    const clone = run(
+      gitExecutable,
+      ['clone', '--no-hardlinks', '--local', '--no-checkout', repo, snapshot],
+      repo,
+      env,
+      60_000,
+    )
+    await appendLog(log, 'independent git clone', clone)
+    await command(
+      log,
+      'checkout exact source commit',
+      gitExecutable,
+      ['checkout', '--detach', sourceCommit],
+      snapshot,
+      env,
+      60_000,
+    )
+  } else {
+    const snapshotCommit = await createWorkingTreeSnapshot(
+      log,
+      repo,
+      snapshot,
+      env,
+      gitExecutable,
+      run,
+      appendLog,
+      command,
+    )
+    recordCommit(snapshotCommit)
+  }
   await verifyEntryPath(log, options, snapshot, env, command, managerVersions)
   const head = run(gitExecutable, ['rev-parse', 'HEAD'], snapshot, env)
   if (head.code !== 0) {
@@ -207,6 +229,109 @@ export async function checkoutSnapshot(
     sentinels,
     nodeVersion,
   }
+}
+
+export async function copyTrackedTree(
+  source: string,
+  destination: string,
+  files: string[],
+) {
+  const included = new Set<string>()
+  for (const file of files) {
+    const relative = normalizePath(file)
+    included.add(relative)
+    const segments = relative.split('/')
+    for (let index = 1; index < segments.length; index += 1) {
+      included.add(segments.slice(0, index).join('/'))
+    }
+  }
+  const excluded = new Set([
+    '.git',
+    '.cache',
+    'coverage',
+    'dist',
+    'node_modules',
+  ])
+  await cp(source, destination, {
+    recursive: true,
+    filter(entry) {
+      const relative = normalizePath(path.relative(source, entry))
+      if (relative === '.') {
+        return true
+      }
+      const segments = relative.split('/')
+      if (segments.some(segment => excluded.has(segment))) {
+        return false
+      }
+      return included.has(relative)
+    },
+  })
+}
+
+async function createWorkingTreeSnapshot(
+  log: string,
+  repo: string,
+  snapshot: string,
+  env: NodeJS.ProcessEnv,
+  gitExecutable: string,
+  run: SyncRunner,
+  appendLog: AppendLogger,
+  command: CommandRunner,
+) {
+  const listed = run(
+    gitExecutable,
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+    repo,
+    env,
+    30_000,
+  )
+  await appendLog(log, 'list source files for local snapshot', listed)
+  await rm(snapshot, { recursive: true, force: true })
+  await copyTrackedTree(
+    repo,
+    snapshot,
+    listed.stdout.split('\0').filter(Boolean),
+  )
+  await command(
+    log,
+    'initialize isolated snapshot repository',
+    gitExecutable,
+    ['init', '--initial-branch=onboarding'],
+    snapshot,
+    env,
+  )
+  await command(
+    log,
+    'stage isolated snapshot files',
+    gitExecutable,
+    ['add', '--all', '--force'],
+    snapshot,
+    env,
+  )
+  await command(
+    log,
+    'commit isolated snapshot files',
+    gitExecutable,
+    [
+      '-c',
+      'user.name=Onboarding',
+      '-c',
+      'user.email=onboarding@localhost',
+      '-c',
+      'commit.gpgsign=false',
+      'commit',
+      '--allow-empty',
+      '-m',
+      'Onboarding snapshot',
+    ],
+    snapshot,
+    env,
+  )
+  const head = run(gitExecutable, ['rev-parse', 'HEAD'], snapshot, env)
+  if (head.code !== 0) {
+    throw new Error('Cannot read the isolated snapshot commit.')
+  }
+  return head.stdout.trim()
 }
 
 async function requireReadmeSteps(snapshot: string) {

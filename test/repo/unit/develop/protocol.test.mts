@@ -26,12 +26,13 @@ test('discovery is ordered and identifies optional and persistent tasks', () => 
     TASKS.map(task => task.script),
   )
   expect(result.tasks.map((task: { order: number }) => task.order)).toEqual([
-    1, 2, 3, 4, 5,
+    1, 2, 3, 4, 5, 6,
   ])
   expect(
     result.tasks.filter((task: { persistent: boolean }) => task.persistent),
   ).toHaveLength(1)
   expect(result.tasks[1].persistent).toBe(true)
+  expect(result.tasks[3].id).toBe('ci:local')
   expect(result.tasks[3].optional).toBe(true)
   expect(execute).not.toHaveBeenCalled()
 })
@@ -57,7 +58,7 @@ test.each([
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
   execute.mockResolvedValue({ ...outcome, message: 'Task result' })
   await runTask('setup:check', true)
-  expect(execute).toHaveBeenCalledWith(TASKS[3], {
+  expect(execute).toHaveBeenCalledWith(TASKS[4], {
     json: true,
     interactive: false,
   })
@@ -67,7 +68,7 @@ test.each([
     type: 'result',
     task: 'setup:check',
     ...outcome,
-    next: outcome.status === 'completed' ? TASKS[3]!.next : null,
+    next: outcome.status === 'completed' ? TASKS[4]!.next : null,
   })
 })
 
@@ -90,6 +91,9 @@ test('VoiceOver helper is a direct explicit control command', () => {
   printJsonTasks()
   const result = JSON.parse(log.mock.calls[0]![0])
   expect(task.command).toEqual(['node', 'scripts/repo/develop/voiceover.mts'])
-  expect(result.tasks.at(-1).command).toEqual(task.command)
-  expect(result.tasks.at(-1).execution).toContain('--task')
+  const voiceover = result.tasks.find(
+    (candidate: { id: string }) => candidate.id === 'voiceover',
+  )
+  expect(voiceover.command).toEqual(task.command)
+  expect(voiceover.execution).toContain('--task')
 })

@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { installedPackage } from './dependency.mts'
 import { managedReady, managedVersions } from './diagnostics.mts'
+import { hasLocalCiDockerSocket, localCiStatus } from './local-ci.mts'
 import { packageFiles } from '../../../.config/build.config.mts'
 
 interface PackageManifest {
@@ -57,20 +58,24 @@ export async function menuReadiness(root: string) {
   return {
     guide: taskStatus(readiness),
     review: taskStatus(readiness),
+    'ci:local': localCiStatus(readiness, hasLocalCiDockerSocket()),
   }
 }
 
 export async function taskReadiness(taskId: string, root: string) {
-  if (taskId !== 'guide' && taskId !== 'review') {
+  if (taskId !== 'guide' && taskId !== 'review' && taskId !== 'ci:local') {
     return { ready: true, message: '' }
   }
   const readiness = await checkoutReadiness(root)
+  if (taskId === 'ci:local') {
+    return localCiStatus(readiness, hasLocalCiDockerSocket())
+  }
   return readinessForTask(readiness, taskId)
 }
 
 export function readinessForTask(
   readiness: CheckoutReadiness,
-  _taskId: 'guide' | 'review',
+  _taskId: 'guide' | 'review' | 'ci:local',
 ) {
   return taskStatus(readiness)
 }
