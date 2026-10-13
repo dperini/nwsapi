@@ -1,6 +1,6 @@
 # Repository script coverage
 
-Run `pnpm run cover:scripts` to test every Node repository script and Python training script. Unit tests disable network access before importing their modules. Use `nock` for HTTP responses and Vitest for filesystem, subprocess, and browser mocks. Tests mirror their owning script paths beneath `test/repo/unit/` or `test/repo/integration/`.
+Run `pnpm run cover:scripts` to test every Node repository script and Python training script. Unit and integration tests block external network access before importing their modules. Local loopback fixtures remain available. Use `nock` for HTTP responses and Vitest for filesystem, subprocess, and browser mocks. Tests mirror their owning script paths beneath `test/repo/unit/` or `test/repo/integration/`.
 
 Screen-reader unit tests mock `@guidepup/guidepup`, browser launches, permission checks, and process controls. Exercise preference backup and restoration with isolated fixtures and timeouts with fake clocks. They must not start VoiceOver, open Settings, read personal preferences, or change host permissions. Actual narration checks run separately with explicit opt-in. Passing mocks establishes runner behavior, not spoken-output quality.
 

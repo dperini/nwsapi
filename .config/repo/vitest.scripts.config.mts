@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     ...base.test,
     setupFiles: [
-      '.config/repo/vitest/unit-network.mts',
+      '.config/repo/vitest/network/setup.mts',
       '.config/repo/vitest/script-coverage.mts',
     ],
     coverage: {

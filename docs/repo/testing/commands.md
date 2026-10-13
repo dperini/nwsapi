@@ -22,11 +22,15 @@ Budgets live in `scripts/repo/lib/test-budget.mts`. Exceeding a budget fails the
 
 Unit tests use shared thread workers. Keep DOM state local to each fixture and restore spies and environment changes. Tests that replace CommonJS module exports run in isolated integration processes. Direct Vitest invocations are useful for debugging but do not install the external watchdog; use the package scripts for budget enforcement.
 
-Unit tests block unmocked HTTP requests with the pinned `nock` dependency,
-including native `fetch` and child Node processes. Define HTTP responses with
-`nock` and use `vitest` mocks for other dependencies. The setup clears HTTP
-fixtures after each test and fails with `ERR_UNIT_HTTP_MOCK_PENDING` when an
-expected request was not made. Assert error codes rather than error wording.
+Unit and integration tests block external TCP, DNS and UDP calls before importing
+test modules. Local loopback servers remain available for fixtures. Define HTTP
+responses with the pinned `nock` dependency and use `vitest` mocks for other
+boundaries. The same guard reaches child Node processes through `NODE_OPTIONS`.
+Inherited proxy settings are removed, and their endpoints are blocked. Native
+binaries and children that replace their environment need separate isolation.
+The setup clears HTTP fixtures after each test and fails with
+`ERR_TEST_HTTP_MOCK_PENDING` when an expected request was not made. Assert error
+codes rather than error wording.
 
 `pnpm run type` checks the engine, adapters, CLI, repository scripts, and tests.
 It uses the same entry point as `pnpm run type:check`. Windows uses pinned
