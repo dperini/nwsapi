@@ -29,18 +29,25 @@ import {
 import { writeFirewallShim } from '../../../scripts/repo/setup/firewall.mts'
 import { verifiedWrapper } from '../../../scripts/repo/setup/diagnostics.mts'
 import type { ExternalTools } from '../../../scripts/repo/external-tools.mts'
+import { normalizePath } from '../util/normalize-path.mts'
 
 test('tool identities and state metadata use deterministic pinned paths', () => {
   const state = JSON.parse(toolchainState())
   expect(state.manager).toBe('pnpm')
   expect(state.tools).toHaveLength(5)
-  expect(toolchainStatePath('/tools')).toBe('/tools/toolchain.json')
+  expect(normalizePath(toolchainStatePath('/tools'))).toBe(
+    normalizePath('/tools/toolchain.json'),
+  )
   expect(toolExecutable('npm')).toContain(manifest.tools.npm.version)
 })
 
 test('managed Node entry uses the native Windows executable path', () => {
-  expect(managedNodeEntry('/tools/bin', 'win32')).toBe('/tools/bin/node.exe')
-  expect(managedNodeEntry('/tools/bin', 'linux')).toBe('/tools/bin/node')
+  expect(normalizePath(managedNodeEntry('/tools/bin', 'win32'))).toBe(
+    normalizePath('/tools/bin/node.exe'),
+  )
+  expect(normalizePath(managedNodeEntry('/tools/bin', 'linux'))).toBe(
+    normalizePath('/tools/bin/node'),
+  )
 })
 
 test('Windows tool roots converge symlink aliases while POSIX preserves input paths', () => {

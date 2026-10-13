@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { normalizePath } from '../../../util/normalize-path.mts'
 import { test, vi } from 'vitest'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
@@ -43,7 +44,7 @@ test('validation report filters sorted timing inputs and compares matched round 
   )
   await import('../../../../../scripts/repo/bench/compare/report.mts')
   const [output, report] = state.write.mock.calls[0]!
-  assert.ok(output.endsWith('/validation-summary.json'))
+  assert.ok(normalizePath(output).endsWith('/validation-summary.json'))
   assert.deepEqual(
     report.reports.map((entry: { file: string }) => entry.file),
     ['validation-a-timing.json', 'validation-z-timing.json'],

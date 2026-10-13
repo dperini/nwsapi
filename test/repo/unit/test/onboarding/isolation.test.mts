@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import path from 'node:path'
+import { normalizePath } from '../../../util/normalize-path.mts'
 import {
   isolatedEnvironment,
   makeSandbox,
@@ -27,12 +28,16 @@ test('onboarding environment keeps scoped paths and explicit proxy or CA setting
     GITHUB_TOKEN: 'secret',
   })
   expect(env['PATH']).toBe('/entry:/manager')
-  expect(env['HOME']).toBe('/tmp/isolated/home')
-  expect(env['npm_config_cache']).toBe('/tmp/isolated/npm-cache')
-  expect(env['pnpm_config_store_dir']).toBe('/tmp/isolated/pnpm-store')
-  expect(env['TMPDIR']).toBe('/tmp/isolated/tmp')
-  expect(env['TEMP']).toBe('/tmp/isolated/tmp')
-  expect(env['APPDATA']).toBe('/tmp/isolated/appdata/roaming')
+  expect(normalizePath(env['HOME']!)).toBe('/tmp/isolated/home')
+  expect(normalizePath(env['npm_config_cache']!)).toBe(
+    '/tmp/isolated/npm-cache',
+  )
+  expect(normalizePath(env['pnpm_config_store_dir']!)).toBe(
+    '/tmp/isolated/pnpm-store',
+  )
+  expect(normalizePath(env['TMPDIR']!)).toBe('/tmp/isolated/tmp')
+  expect(normalizePath(env['TEMP']!)).toBe('/tmp/isolated/tmp')
+  expect(normalizePath(env['APPDATA']!)).toBe('/tmp/isolated/appdata/roaming')
   expect(env['NODE_OPTIONS']).toBeUndefined()
   expect(env['NODE_PATH']).toBeUndefined()
   expect(env['npm_config_registry']).toBeUndefined()

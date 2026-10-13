@@ -8,6 +8,7 @@ import {
   updateWpt,
 } from '../../../../scripts/repo/wpt/update.mts'
 import { updateDependencies } from '../../../../scripts/repo/dependency/update.mts'
+import { normalizePath } from '../../util/normalize-path.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -26,10 +27,14 @@ vi.mock('node:fs', async importOriginal => {
   return {
     ...original,
     readFileSync: (file: NodeFs.PathOrFileDescriptor, options: unknown) => {
-      if (String(file).endsWith('/.gitmodules')) {
+      if (normalizePath(String(file)).endsWith('/.gitmodules')) {
         return state.config
       }
-      if (String(file).endsWith('/test/repo/e2e/upstream/inventory.json')) {
+      if (
+        normalizePath(String(file)).endsWith(
+          '/test/repo/e2e/upstream/inventory.json',
+        )
+      ) {
         return JSON.stringify({ revision: state.inventory })
       }
       return original.readFileSync(

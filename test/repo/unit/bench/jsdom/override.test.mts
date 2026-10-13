@@ -1,5 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { beforeEach, expect, test, vi } from 'vitest'
+import path from 'node:path'
+import { normalizePath } from '../../../util/normalize-path.mts'
 const state = vi.hoisted(() => ({
   write: vi.fn(),
   remove: vi.fn(),
@@ -17,10 +19,10 @@ vi.mock('node:fs', () => ({
   rmSync: state.remove,
   writeFileSync: state.write,
   readFileSync: (file: string) => {
-    if (!file.endsWith('/package.json')) {
+    if (path.basename(file) !== 'package.json') {
       return Buffer.from('asset')
     }
-    const override = file.includes('/override/')
+    const override = normalizePath(file).includes('/override/')
     return JSON.stringify({
       name:
         state.mode === 'name'
@@ -57,9 +59,11 @@ function installation(comparison: boolean) {
 }
 vi.mock('node:module', () => ({
   createRequire: (location: string) => {
-    const comparison = location.includes('/comparison/')
+    const normalizedLocation = normalizePath(location)
+    const comparison = normalizedLocation.includes('/comparison/')
     const installed =
-      location.includes('/comparison/') || location.includes('/override/')
+      normalizedLocation.includes('/comparison/') ||
+      normalizedLocation.includes('/override/')
     const directory = comparison
       ? '/benchmark/comparison'
       : '/benchmark/override'
@@ -150,7 +154,7 @@ test('isolated jsdom override installs pinned consumers and verifies ordered ide
     ),
   ).toBe(true)
   const packages = state.write.mock.calls
-    .filter(call => (call[0] as string).endsWith('/package.json'))
+    .filter(call => path.basename(call[0] as string) === 'package.json')
     .map(call => JSON.parse(call[1] as string))
   expect(packages[0].overrides['@asamuzakjp/dom-selector']).toBe(
     'file:/benchmark/package.tgz',

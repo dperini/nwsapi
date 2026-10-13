@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
+import { normalizePath } from '../../../../util/normalize-path.mts'
 import { afterEach, test, vi } from 'vitest'
 
 const state = vi.hoisted(() => ({
@@ -87,7 +88,7 @@ test('route variant builders annotate attribute masks and request explicit instr
   assert.equal(evaluate(optimized[1]!)([1], [])!.length, 0)
   assert.equal(evaluate(optimized[1]!)([1], [1, 2, 3]), null)
   vi.stubEnv('NWSAPI_PLANNER_BASELINE', '')
-  assert.ok(baselinePath().endsWith('/dist/nwsapi.js'))
+  assert.ok(normalizePath(baselinePath()).endsWith('/dist/nwsapi.js'))
 })
 
 test('route variants reject ambiguous planner anchors and missing preflight gates', () => {

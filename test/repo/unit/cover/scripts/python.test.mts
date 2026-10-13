@@ -8,16 +8,19 @@ import {
   checkPythonScriptCoverage,
 } from '../../../../../scripts/repo/cover/scripts/python.mts'
 import { fixture } from './fixture/input.mts'
+import { normalizePath } from '../../../util/normalize-path.mts'
 
 test('Python runs offline from the pinned project with branch coverage and unittest discovery', () => {
   const execute = vi.fn<ScriptCoverageExecute>()
   runPythonScriptTests('/checkout', '/report', execute)
   expect(execute).toHaveBeenCalledTimes(2)
-  expect(execute.mock.calls[0]![0]).toBe('/checkout/.cache/bin/uv')
+  expect(execute.mock.calls[0]![0]).toBe(
+    path.join('/checkout', '.cache/bin/uv'),
+  )
   expect(execute.mock.calls[0]![1]).toEqual([
     'run',
     '--project',
-    '/checkout/.config/model-training',
+    path.join('/checkout', '.config/model-training'),
     '--locked',
     '--offline',
     'python',
@@ -28,7 +31,7 @@ test('Python runs offline from the pinned project with branch coverage and unitt
     '--source',
     'scripts/repo/pytorch',
     '--data-file',
-    '/report/.coverage-python',
+    path.join('/report', '.coverage-python'),
     '-m',
     'unittest',
     'discover',
@@ -38,10 +41,9 @@ test('Python runs offline from the pinned project with branch coverage and unitt
     'test_*.py',
   ])
   expect(execute.mock.calls[1]![1]).toContain('json')
-  expect(execute.mock.calls[0]![2]).toMatchObject({
-    cwd: '/checkout',
-    env: { UV_CACHE_DIR: '/checkout/.cache/uv' },
-  })
+  const options = execute.mock.calls[0]![2]
+  expect(normalizePath(options.cwd!)).toBe('/checkout')
+  expect(normalizePath(options.env!.UV_CACHE_DIR!)).toBe('/checkout/.cache/uv')
 })
 
 test('each Python script requires measured lines and branches and may have no branches', () => {

@@ -7,6 +7,7 @@ import {
   type ChromeChannels,
 } from '../../../../scripts/repo/chrome/update.mts'
 import { updateReferences } from '../../../../scripts/repo/dependency/update.mts'
+import { normalizePath } from '../../util/normalize-path.mts'
 
 const state = vi.hoisted(() => ({
   main: false,
@@ -19,7 +20,7 @@ vi.mock('node:fs', async importOriginal => {
   return {
     ...original,
     readFileSync: (file: NodeFs.PathOrFileDescriptor, options: unknown) =>
-      String(file).endsWith('/.config/chrome.json')
+      normalizePath(String(file)).endsWith('/.config/chrome.json')
         ? state.pin
         : original.readFileSync(
             file,

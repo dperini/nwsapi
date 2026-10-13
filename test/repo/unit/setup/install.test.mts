@@ -5,6 +5,7 @@ import path from 'node:path'
 import nock from 'nock'
 import { afterEach, expect, test, vi } from 'vitest'
 import type { ToolPlan } from '../../../../scripts/repo/external-tools.mts'
+import { normalizePath } from '../../util/normalize-path.mts'
 
 const directories: string[] = []
 afterEach(() => {
@@ -73,12 +74,12 @@ test.each(['directory', 'escape'])(
         ...actual,
         lstatSync: (file: string) => {
           const stat = actual.lstatSync(file)
-          return invalid === 'directory' && file.endsWith('/sfw')
+          return invalid === 'directory' && normalizePath(file).endsWith('/sfw')
             ? { isFile: () => false }
             : stat
         },
         realpathSync: (file: string) =>
-          invalid === 'escape' && file.endsWith('/sfw')
+          invalid === 'escape' && normalizePath(file).endsWith('/sfw')
             ? '/outside/executable'
             : actual.realpathSync(file),
       }
