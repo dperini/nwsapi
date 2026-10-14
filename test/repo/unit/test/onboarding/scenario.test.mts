@@ -1,5 +1,12 @@
 import { expect, test, vi } from 'vitest'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {
@@ -149,6 +156,82 @@ test('failed literal README readiness records doctor details before assertion', 
       'literal README readiness',
       'setup diagnostics detail after readiness failure',
     ])
+  } finally {
+    rmSync(checkout, { recursive: true, force: true })
+  }
+})
+
+test('JSON setup rebuilds deleted outputs and avoids a third bootstrap after review', async () => {
+  const checkout = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-journey-build-'))
+  const log = path.join(checkout, 'onboarding.log')
+  const dist = path.join(checkout, 'dist')
+  mkdirSync(path.join(checkout, '.config'), { recursive: true })
+  mkdirSync(dist)
+  writeFileSync(path.join(dist, 'index.js'), 'old build')
+  writeFileSync(
+    path.join(checkout, '.config/build.config.mts'),
+    "export const packageFiles = [{ output: 'dist/index.js' }]\n",
+  )
+  const phases: string[] = []
+  const command = vi.fn(
+    async (
+      _file: string,
+      phase: string,
+      _executable: string,
+      args: string[],
+    ): Promise<CommandOutput> => {
+      phases.push(phase)
+      if (phase === 'harness task discovery') {
+        return { code: 0, stdout: JSON.stringify(discovery), stderr: '' }
+      }
+      const taskIndex = args.indexOf('--task')
+      if (taskIndex >= 0) {
+        const task = args[taskIndex + 1]!
+        if (task === 'setup') {
+          expect(existsSync(dist)).toBe(false)
+          mkdirSync(dist)
+          writeFileSync(path.join(dist, 'index.js'), 'rebuilt')
+        }
+        return {
+          code: 0,
+          stdout: JSON.stringify({
+            schemaVersion: 1,
+            type: 'result',
+            task,
+            status: 'completed',
+            exitCode: 0,
+            signal: null,
+            next: null,
+          }),
+          stderr: '',
+        }
+      }
+      return { code: 0, stdout: '', stderr: '' }
+    },
+  )
+  try {
+    await runJourney(
+      log,
+      checkout,
+      '/tmp/node',
+      {},
+      command,
+      async () => ({ command: 'node guide', code: 0 }),
+      value => value,
+      vi.fn(),
+      async () => undefined,
+      true,
+    )
+    expect(readFileSync(path.join(dist, 'index.js'), 'utf8')).toBe('rebuilt')
+    expect(
+      phases.filter(
+        phase => phase === 'scripts/repo/develop/run.mts --task setup',
+      ),
+    ).toHaveLength(1)
+    expect(phases).toContain('package manifest and export check')
+    expect(phases).toContain('built engine module load smoke check')
+    expect(phases.some(phase => phase.includes('repeat setup'))).toBe(false)
+    expect(phases.some(phase => phase.includes('bootstrap.mts'))).toBe(false)
   } finally {
     rmSync(checkout, { recursive: true, force: true })
   }

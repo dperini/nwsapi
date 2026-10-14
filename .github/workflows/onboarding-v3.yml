@@ -10,8 +10,18 @@ on:
       - scripts/repo/setup/**
       - scripts/repo/develop/**
       - .config/external-tools.json
+      - .config/generated/external-tools.mts
+      - .config/node-interop.json
       - package.json
+      - package-lock.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .npmrc
       - README.md
+      - scripts/repo/node.mts
+      - scripts/repo/external-tools.mts
+      - scripts/repo/lib/paths.mts
+      - scripts/repo/lib/run-node.mts
   pull_request:
     branches: [prerelease/3.0.0]
     paths:
@@ -20,8 +30,18 @@ on:
       - scripts/repo/setup/**
       - scripts/repo/develop/**
       - .config/external-tools.json
+      - .config/generated/external-tools.mts
+      - .config/node-interop.json
       - package.json
+      - package-lock.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .npmrc
       - README.md
+      - scripts/repo/node.mts
+      - scripts/repo/external-tools.mts
+      - scripts/repo/lib/paths.mts
+      - scripts/repo/lib/run-node.mts
   workflow_dispatch:
 
 permissions:
@@ -127,7 +147,8 @@ jobs:
           PLATFORM: ${{ matrix.os }}
           JOB_STATUS: ${{ job.status }}
         run: |
-          "platform=$env:PLATFORM entry=$env:ENTRY_MANAGER workflow=pnpm status=$env:JOB_STATUS" >> $env:GITHUB_STEP_SUMMARY
+          $workflow = if ($env:ENTRY_MANAGER -eq 'npm') { 'npm entry -> pnpm workflow' } else { 'pnpm workflow' }
+          "platform=$env:PLATFORM entry=$env:ENTRY_MANAGER workflow=$workflow status=$env:JOB_STATUS" >> $env:GITHUB_STEP_SUMMARY
           $summaries = @(Get-ChildItem .cache/onboarding/*.summary.json -ErrorAction SilentlyContinue | Sort-Object LastWriteTime)
           if ($summaries.Count -eq 0) {
             'Runner summary unavailable.' >> $env:GITHUB_STEP_SUMMARY
@@ -137,6 +158,7 @@ jobs:
             "### $($summary.scenario): $($summary.status)" >> $env:GITHUB_STEP_SUMMARY
             "entry_node=$($summary.entryNodeVersion) commit=$($summary.commit)" >> $env:GITHUB_STEP_SUMMARY
             foreach ($phase in $summary.phases) {
-              "- $($phase.status): $($phase.command) (exit $($phase.code))" >> $env:GITHUB_STEP_SUMMARY
+              $duration = if ($null -ne $phase.durationMs) { "$($phase.durationMs)ms" } else { 'n/a' }
+              "- $($phase.status): $($phase.command) (exit $($phase.code), $duration)" >> $env:GITHUB_STEP_SUMMARY
             }
           }

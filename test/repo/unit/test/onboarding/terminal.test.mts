@@ -120,6 +120,7 @@ test('plain setup previews, waits for confirmation, completes, and returns to me
     signal: null,
     previewObserved: true,
     confirmationSent: true,
+    quitSent: true,
     setupCompleted: true,
   })
   expect(result.stdout).toContain('Command: pnpm run setup')
@@ -127,6 +128,27 @@ test('plain setup previews, waits for confirmation, completes, and returns to me
   expect(child.wasConfirmed).toBe(true)
   expect(exists).toHaveBeenCalledTimes(8)
   expect(killProcess).not.toHaveBeenCalled()
+})
+
+test('fresh plain setup preview quits without confirming or creating setup state', async () => {
+  const child = new FakeTerminal()
+  const exists = vi.fn(() => false)
+  const result = await runPlainSetup({
+    ...options(child),
+    previewOnly: true,
+    exists,
+  })
+  expect(result).toMatchObject({
+    code: 0,
+    signal: null,
+    previewObserved: true,
+    confirmationSent: false,
+    quitSent: true,
+    setupCompleted: false,
+  })
+  expect(child.answers).toEqual(['1\n', 'q\n'])
+  expect(child.wasConfirmed).toBe(false)
+  expect(exists).not.toHaveReturnedWith(true)
 })
 
 test('protocol handles partial prompts and ignores confirmation in the wrong phase', () => {
@@ -146,6 +168,19 @@ test('protocol handles partial prompts and ignores confirmation in the wrong pha
   ).toBe('confirm-setup')
   expect(protocol.previewObserved).toBe(true)
   expect(protocol.confirmationSent).toBe(false)
+})
+
+test('preview-only protocol selects setup, verifies its preview, and quits', () => {
+  const protocol = new PlainSetupProtocol(true)
+  expect(protocol.accept('Preview a task:')).toBe('select-setup')
+  expect(
+    protocol.accept(
+      'Set up this checkout\nCommand: node scripts/repo/setup/bootstrap.mts\nEnter to run, b to go back, or q to quit:',
+    ),
+  ).toBe('quit')
+  expect(protocol.previewObserved).toBe(true)
+  expect(protocol.confirmationSent).toBe(false)
+  expect(protocol.setupCompleted).toBe(false)
 })
 
 test('an incomplete preview fails closed without confirming setup', async () => {

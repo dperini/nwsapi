@@ -31,12 +31,14 @@ export type CommandRunner = (
 export interface GuideOutcome {
   command: string
   code: number | null
+  durationMs?: number
 }
 export interface TerminalMenuOutcome {
   phase: string
   command: string
   status: string
   code: number | null
+  durationMs?: number
   error?: string
 }
 export type GuideRunner = (
@@ -276,7 +278,12 @@ export async function runJourney(
     throw new Error('Setup diagnostics passed before setup.')
   }
   await beforeSetup()
+  await rm(path.join(checkout, 'dist'), { recursive: true, force: true })
   await harness(log, checkout, node, env, setup.execution, 'completed', command)
+  if (!(await exists(path.join(checkout, 'dist')))) {
+    throw new Error('Setup did not rebuild dist/.')
+  }
+  await verifyBuildOutputs(log, checkout, node, env, command)
   await harness(log, checkout, node, env, check.execution, 'completed', command)
   const guideOutcome = await startGuide(
     log,
@@ -296,20 +303,6 @@ export async function runJourney(
     'completed',
     command,
   )
-  const setupScript = path.join(checkout, 'scripts/repo/setup/bootstrap.mts')
-  await rm(path.join(checkout, 'dist'), { recursive: true, force: true })
-  await command(
-    log,
-    'repeat setup after removing dist',
-    node,
-    [setupScript],
-    checkout,
-    env,
-  )
-  if (!(await exists(path.join(checkout, 'dist')))) {
-    throw new Error('Repeat setup did not rebuild dist/.')
-  }
-  await verifyBuildOutputs(log, checkout, node, env, command)
   return guideOutcome
 }
 
@@ -330,6 +323,7 @@ export async function runPlainSetupMenu(
       command: 'skipped on non-Linux platform',
       status: 'skipped',
       code: null,
+      durationMs: 0,
     }
   }
   const result = await runPlainSetup({
@@ -353,13 +347,15 @@ export async function runPlainSetupMenu(
     result.confirmationSent &&
     result.setupCompleted
   if (!success) {
+    const reason = result.failure ?? `exit ${result.code ?? 'null'}`
     return {
       phase: 'plain terminal setup wizard',
       command:
         'node scripts/repo/develop/run.mts --plain; select setup; confirm',
       status: 'failed',
       code: result.code,
-      error: `Plain terminal setup wizard did not complete: ${result.failure ?? `exit ${result.code ?? 'null'}`}. See ${log}`,
+      error: `Plain terminal setup wizard did not complete: ${reason}. See ${log}`,
+      durationMs: result.durationMs,
     }
   }
   return {
@@ -367,6 +363,65 @@ export async function runPlainSetupMenu(
     command: 'node scripts/repo/develop/run.mts --plain; select setup; confirm',
     status: 'completed',
     code: result.code,
+    durationMs: result.durationMs,
+  }
+}
+
+export async function runPlainSetupPreview(
+  log: string,
+  checkout: string,
+  node: string,
+  env: NodeJS.ProcessEnv,
+  redact: (value: string) => string,
+): Promise<TerminalMenuOutcome> {
+  if (process.platform === 'win32') {
+    return {
+      phase: 'plain terminal setup preview',
+      command: 'skipped on Windows; script PTY is unavailable',
+      status: 'skipped',
+      code: null,
+      durationMs: 0,
+    }
+  }
+  const result = await runPlainSetup({
+    checkout,
+    node,
+    env,
+    timeoutMs: 60_000,
+    previewOnly: true,
+  })
+  await writeFile(
+    log,
+    redact(
+      `\n## plain terminal setup preview\npreview=${result.previewObserved} quit=${result.quitSent} confirmation=${result.confirmationSent} setup=${result.setupCompleted} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'} failure=${result.failure ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+    ),
+    { flag: 'a' },
+  )
+  const success =
+    !result.failure &&
+    result.code === 0 &&
+    result.signal === null &&
+    result.previewObserved &&
+    result.quitSent &&
+    !result.confirmationSent &&
+    !result.setupCompleted
+  if (!success) {
+    const reason = result.failure ?? `exit ${result.code ?? 'null'}`
+    return {
+      phase: 'plain terminal setup preview',
+      command: 'node scripts/repo/develop/run.mts --plain; preview setup; quit',
+      status: 'failed',
+      code: result.code,
+      error: `Plain terminal setup preview did not quit without execution: ${reason}. See ${log}`,
+      durationMs: result.durationMs,
+    }
+  }
+  return {
+    phase: 'plain terminal setup preview',
+    command: 'node scripts/repo/develop/run.mts --plain; preview setup; quit',
+    status: 'completed',
+    code: result.code,
+    durationMs: result.durationMs,
   }
 }
 

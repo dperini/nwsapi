@@ -59,10 +59,20 @@ test('changes inside onboarding and broken markers schedule validation', () => {
   expect(onboardingBlock(`${block}\n${block}`)).toBeUndefined()
 })
 
-test('ordinary source changes are ignored while declared onboarding inputs run', () => {
+test('ordinary source changes are ignored while onboarding runtime inputs run', () => {
   expect(onboardingInput('src/nwsapi.mts')).toBe(false)
   expect(planOnboarding(['src/nwsapi.mts'], '', '').run).toBe(false)
   for (const file of [
+    '.config/node-interop.json',
+    '.config/generated/external-tools.mts',
+    'package-lock.json',
+    'pnpm-lock.yaml',
+    'pnpm-workspace.yaml',
+    '.npmrc',
+    'scripts/repo/node.mts',
+    'scripts/repo/external-tools.mts',
+    'scripts/repo/lib/paths.mts',
+    'scripts/repo/lib/run-node.mts',
     'scripts/repo/setup/bootstrap.mts',
     'scripts/repo/develop/run.mts',
     'scripts/repo/test/onboarding/plan.mts',

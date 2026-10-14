@@ -15,22 +15,39 @@ export interface OnboardingPlanSources {
   readReadme: () => string
 }
 
+export const ONBOARDING_INPUT_PATHS = [
+  '.github/workflows/onboarding-v3.yml',
+  'scripts/repo/test/onboarding/**',
+  'scripts/repo/setup/**',
+  'scripts/repo/develop/**',
+  '.config/external-tools.json',
+  '.config/generated/external-tools.mts',
+  '.config/node-interop.json',
+  'package.json',
+  'package-lock.json',
+  'pnpm-lock.yaml',
+  'pnpm-workspace.yaml',
+  '.npmrc',
+  'README.md',
+  'scripts/repo/node.mts',
+  'scripts/repo/external-tools.mts',
+  'scripts/repo/lib/paths.mts',
+  'scripts/repo/lib/run-node.mts',
+] as const
+
+function matchesOnboardingInput(file: string, input: string) {
+  return input.endsWith('/**')
+    ? file.startsWith(input.slice(0, -2))
+    : file === input
+}
+
 export function onboardingBlock(markdown: string): string | undefined {
   return extractBlockByTag(markdown, 'onboarding')
 }
 
 export function onboardingInput(file: string): boolean {
-  return (
-    [
-      '.github/workflows/onboarding-v3.yml',
-      '.config/external-tools.json',
-      'package.json',
-    ].includes(file) ||
-    [
-      'scripts/repo/test/onboarding/',
-      'scripts/repo/setup/',
-      'scripts/repo/develop/',
-    ].some(prefix => file.startsWith(prefix))
+  return file !== 'README.md' && ONBOARDING_INPUT_PATHS.some(input =>
+    matchesOnboardingInput(file, input),
   )
 }
 
