@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest'
+import path from 'node:path'
 import {
   hookBody,
   installGitHooks,
@@ -6,6 +7,12 @@ import {
 } from '../../../../scripts/repo/setup/hooks.mts'
 
 type FileEntry = { body: string; symlink: boolean; regular: boolean }
+
+function hookPath(name: string, platform: NodeJS.Platform) {
+  const paths = platform === 'win32' ? path.win32 : path
+  const root = platform === 'win32' ? 'C:\\checkout' : '/checkout'
+  return paths.resolve(root, '.git', 'hooks', name)
+}
 
 function setupHarness(
   options: {
@@ -15,6 +22,9 @@ function setupHarness(
     platform?: NodeJS.Platform
   } = {},
 ) {
+  const platform = options.platform ?? 'linux'
+  const paths = platform === 'win32' ? path.win32 : path
+  const checkout = platform === 'win32' ? 'C:\\checkout' : '/checkout'
   const files = options.existing ?? new Map<string, FileEntry>()
   const calls: string[][] = []
   const logs: string[] = []
@@ -26,7 +36,7 @@ function setupHarness(
       if (args[0] === 'rev-parse' && args[1] === '--show-toplevel') {
         return options.repo === false
           ? { status: 128, stdout: '' }
-          : { status: 0, stdout: '/checkout\n' }
+          : { status: 0, stdout: `${checkout}\n` }
       }
       if (args[0] === 'config') {
         return options.customPath === undefined
@@ -37,20 +47,22 @@ function setupHarness(
     },
     files: {
       mkdirSync: vi.fn(),
-      lstatSync: vi.fn(path => {
-        const entry = files.get(String(path))
+      lstatSync: vi.fn(filePath => {
+        const entry = files.get(String(filePath))
         if (!entry) {
           throw Object.assign(new Error('missing'), { code: 'ENOENT' })
         }
         return {
           isFile: () => entry.regular,
           isSymbolicLink: () => entry.symlink,
-          mode: options.platform === 'win32' ? 0o644 : 0o755,
+          mode: platform === 'win32' ? 0o644 : 0o755,
         } as never
       }),
-      readFileSync: vi.fn(path => files.get(String(path))?.body ?? '') as never,
-      openSync: vi.fn((path, _flags, _mode) => {
-        const key = String(path)
+      readFileSync: vi.fn(
+        filePath => files.get(String(filePath))?.body ?? '',
+      ) as never,
+      openSync: vi.fn((filePath, _flags, _mode) => {
+        const key = String(filePath)
         if (files.has(key)) {
           throw Object.assign(new Error('exists'), { code: 'EEXIST' })
         }
@@ -65,6 +77,7 @@ function setupHarness(
       }),
       closeSync: vi.fn(),
     },
+    pathOps: paths,
   }
   return { dependencies, files, calls, logs }
 }
@@ -92,7 +105,7 @@ test('installs immutable hooks and leaves exact managed shims unchanged on repea
 test('accepts exact managed shims on Windows without POSIX execute bits', () => {
   const existing = new Map<string, FileEntry>([
     [
-      '/checkout/.git/hooks/pre-commit',
+      hookPath('pre-commit', 'win32'),
       {
         body: hookBody('win32'),
         regular: true,
@@ -100,7 +113,7 @@ test('accepts exact managed shims on Windows without POSIX execute bits', () => 
       },
     ],
     [
-      '/checkout/.git/hooks/pre-push',
+      hookPath('pre-push', 'win32'),
       {
         body: hookBody('win32'),
         regular: true,
@@ -125,31 +138,34 @@ test('skips outside Git and when any effective hooks path is configured', () => 
   expect(configured.dependencies.files.openSync).not.toHaveBeenCalled()
 })
 
-test('preserves custom files and symlinks without replacing them', () => {
-  const existing = new Map<string, FileEntry>([
-    [
-      '/checkout/.git/hooks/pre-commit',
-      {
-        body: 'custom hook\n',
-        regular: true,
-        symlink: false,
-      },
-    ],
-    [
-      '/checkout/.git/hooks/pre-push',
-      {
-        body: hookBody('linux'),
-        regular: false,
-        symlink: true,
-      },
-    ],
-  ])
-  const harness = setupHarness({ existing })
-  const result = installGitHooks(harness.dependencies)
-  expect(result).toMatchObject({ status: 'skipped' })
-  expect(existing.get('/checkout/.git/hooks/pre-commit')?.body).toBe(
-    'custom hook\n',
-  )
-  expect(existing.get('/checkout/.git/hooks/pre-push')?.symlink).toBe(true)
-  expect(harness.dependencies.files.openSync).not.toHaveBeenCalled()
-})
+test.each(['linux', 'win32'] as const)(
+  'preserves custom files and symlinks on %s without replacing them',
+  platform => {
+    const existing = new Map<string, FileEntry>([
+      [
+        hookPath('pre-commit', platform),
+        {
+          body: 'custom hook\n',
+          regular: true,
+          symlink: false,
+        },
+      ],
+      [
+        hookPath('pre-push', platform),
+        {
+          body: hookBody(platform),
+          regular: false,
+          symlink: true,
+        },
+      ],
+    ])
+    const harness = setupHarness({ existing, platform })
+    const result = installGitHooks(harness.dependencies)
+    expect(result).toMatchObject({ status: 'skipped' })
+    expect(existing.get(hookPath('pre-commit', platform))?.body).toBe(
+      'custom hook\n',
+    )
+    expect(existing.get(hookPath('pre-push', platform))?.symlink).toBe(true)
+    expect(harness.dependencies.files.openSync).not.toHaveBeenCalled()
+  },
+)

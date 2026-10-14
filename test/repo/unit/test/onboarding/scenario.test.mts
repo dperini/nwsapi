@@ -9,6 +9,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { managedPnpmLauncherPath } from '../../../../../scripts/repo/test/onboarding/readme/commands.mts'
 import {
   runJourney,
   runPlainSetupPreview,
@@ -148,7 +149,7 @@ test.each([true, false])(
     mkdirSync(dist)
     if (installed) {
       mkdirSync(path.join(checkout, '.cache', 'bin'), { recursive: true })
-      writeFileSync(path.join(checkout, '.cache', 'bin', 'pnpm'), '')
+      writeFileSync(managedPnpmLauncherPath(checkout), '')
       writeFileSync(
         path.join(checkout, 'README.md'),
         '<!-- <onboarding> -->\n<!-- onboarding:bootstrap:start -->\n```sh\npnpm run setup\n```\n<!-- onboarding:bootstrap:end -->\n<!-- </onboarding> -->',
@@ -190,7 +191,7 @@ test.each([true, false])(
             mkdirSync(path.join(checkout, '.cache', 'bin'), {
               recursive: true,
             })
-            writeFileSync(path.join(checkout, '.cache', 'bin', 'pnpm'), '')
+            writeFileSync(managedPnpmLauncherPath(checkout), '')
           }
           if (task === 'setup:check') {
             readinessChecks += 1

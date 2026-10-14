@@ -23,6 +23,7 @@ export interface HookSetupDependencies {
   runGit(args: string[]): { status: number; stdout: string }
   files: HookFileSystem
   platform: NodeJS.Platform
+  pathOps?: Pick<typeof path, 'resolve' | 'join'>
   log(message: string): void
 }
 
@@ -73,6 +74,7 @@ function defaultDependencies(): HookSetupDependencies {
 export function installGitHooks(
   dependencies = defaultDependencies(),
 ): HookSetupResult {
+  const paths = dependencies.pathOps ?? path
   const rootResult = dependencies.runGit(['rev-parse', '--show-toplevel'])
   if (rootResult.status !== 0 || !rootResult.stdout.trim()) {
     const reason = 'Not inside a Git checkout; no hooks were installed.'
@@ -80,7 +82,7 @@ export function installGitHooks(
     return { status: 'skipped', reason }
   }
 
-  const root = path.resolve(rootResult.stdout.trim())
+  const root = paths.resolve(rootResult.stdout.trim())
   const customPath = dependencies.runGit([
     'config',
     '--path',
@@ -100,14 +102,14 @@ export function installGitHooks(
     return { status: 'skipped', reason }
   }
 
-  const directory = path.resolve(root, hooksResult.stdout.trim())
+  const directory = paths.resolve(root, hooksResult.stdout.trim())
   dependencies.files.mkdirSync(directory, { recursive: true })
   const body = hookBody(dependencies.platform)
   const states = hookNames.map(name => ({
     name,
-    destination: path.join(directory, name),
+    destination: paths.join(directory, name),
     state: inspectHook(
-      path.join(directory, name),
+      paths.join(directory, name),
       body,
       dependencies.files,
       dependencies.platform,
@@ -115,8 +117,8 @@ export function installGitHooks(
   }))
   const conflicts = states.filter(item => item.state === 'conflict')
   if (conflicts.length > 0) {
-    const paths = conflicts.map(item => item.destination)
-    const reason = `Existing hook paths were preserved: ${paths.join(', ')}`
+    const filenames = conflicts.map(item => item.destination)
+    const reason = `Existing hook paths were preserved: ${filenames.join(', ')}`
     dependencies.log(`[hooks] Skipping: ${reason}`)
     return { status: 'skipped', reason }
   }

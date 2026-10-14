@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { runReadmeHarnessSteps } from '../../../../../../scripts/repo/test/onboarding/readme/harness.mts'
+import { managedPnpmLauncherPath } from '../../../../../../scripts/repo/test/onboarding/readme/commands.mts'
 import type { CommandOutput } from '../../../../../../scripts/repo/test/onboarding/scenario.mts'
 
 test('failed literal README readiness records doctor details before assertion', async () => {
@@ -21,7 +22,7 @@ test('failed literal README readiness records doctor details before assertion', 
         return { code: 1, stdout: 'managed npm diagnostic', stderr: '' }
       }
       if (phase === 'literal README readiness') {
-        expect(_executable).toBe(path.join(checkout, '.cache', 'bin', 'pnpm'))
+        expect(_executable).toBe(managedPnpmLauncherPath(checkout))
         expect(args).toEqual([
           '--silent',
           'run',
@@ -49,7 +50,7 @@ test('failed literal README readiness records doctor details before assertion', 
     '<!-- <onboarding> -->\n<!-- onboarding:readiness:start -->\n```sh\npnpm --silent run dev --task setup:check --json\n```\n<!-- onboarding:readiness:end -->\n<!-- </onboarding> -->',
   )
   mkdirSync(path.join(checkout, '.cache', 'bin'), { recursive: true })
-  writeFileSync(path.join(checkout, '.cache', 'bin', 'pnpm'), '')
+  writeFileSync(managedPnpmLauncherPath(checkout), '')
   try {
     await expect(
       runReadmeHarnessSteps(
@@ -73,8 +74,8 @@ test('the quick-start setup command runs without requiring JSON output', async (
   const checkout = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-menu-'))
   try {
     mkdirSync(path.join(checkout, '.cache', 'bin'), { recursive: true })
-    const launcher = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
-    writeFileSync(path.join(checkout, '.cache', 'bin', launcher), '')
+    const launcher = managedPnpmLauncherPath(checkout)
+    writeFileSync(launcher, '')
     writeFileSync(
       path.join(checkout, 'README.md'),
       '<!-- <onboarding> -->\n<!-- onboarding:pnpm-install:start -->\n```sh\npnpm i\npnpm run setup\n```\n<!-- onboarding:pnpm-install:end -->\n<!-- </onboarding> -->',
@@ -89,7 +90,7 @@ test('the quick-start setup command runs without requiring JSON output', async (
     expect(run.mock.calls[0]).toEqual([
       'log',
       'literal README pnpm-install-2',
-      path.join(checkout, '.cache', 'bin', launcher),
+      launcher,
       ['run', 'setup'],
       checkout,
       { PATH: path.join(checkout, '.cache', 'bin') },

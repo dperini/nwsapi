@@ -61,9 +61,8 @@ function resolveManagedPnpmCommand(
   env: NodeJS.ProcessEnv,
   platform: NodeJS.Platform,
 ): ResolvedReadmeHarnessCommand {
-  const suffix = platform === 'win32' ? '.cmd' : ''
   const bin = path.join(checkout, '.cache', 'bin')
-  const executable = path.join(bin, `pnpm${suffix}`)
+  const executable = managedPnpmLauncherPath(checkout, platform)
   if (!existsSync(executable)) {
     throw new Error(
       'The managed pnpm launcher is missing. Install dependencies or run pnpm run setup to repair it.',
@@ -78,4 +77,16 @@ function resolveManagedPnpmCommand(
       PATH: paths.join(path.delimiter),
     },
   }
+}
+
+export function managedPnpmLauncherPath(
+  checkout: string,
+  platform: NodeJS.Platform = process.platform,
+) {
+  return path.join(
+    checkout,
+    '.cache',
+    'bin',
+    platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
+  )
 }
