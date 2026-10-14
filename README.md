@@ -111,6 +111,8 @@ pnpm run setup
 <details>
 <summary>For agents</summary>
 
+<blockquote>
+
 List tasks:
 
 <!-- onboarding:task-discovery:start -->
@@ -132,6 +134,8 @@ pnpm --silent run dev --task setup:check --json
 <!-- onboarding:readiness:end -->
 
 [Agent task contract](docs/repo/development/toolchain.md#agent-harnesses).
+
+</blockquote>
 
 </details>
 
