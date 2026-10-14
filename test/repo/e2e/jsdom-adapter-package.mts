@@ -5,6 +5,7 @@ import {
   resolveNodeRuntime,
 } from '../../../scripts/repo/node.mts'
 import { packPackage } from '../../../scripts/repo/build/package.mts'
+import { assetFiles } from '../../../scripts/repo/cli/ui/asset-manifest.mts'
 import type * as NodeChildProcess from 'node:child_process'
 import type * as NodeFs from 'node:fs'
 import { createRequire } from 'node:module'
@@ -47,6 +48,8 @@ try {
       'LICENSE',
       'README.md',
       'bin/nwsapi.js',
+      'bin/tui.mjs',
+      ...assetFiles.map(file => file.published),
       'dist/external/unicode.js',
       'dist/external/unicode.d.ts',
       'src/modules/nwsapi-legacy.js',

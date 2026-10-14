@@ -124,7 +124,7 @@ async function chooseAction() {
     onDestroy: () => finish(undefined),
     consoleMode: 'disabled',
   })
-  const cancel = (signal?: NodeJS.Signals) => {
+  const cancel = (signal: NodeJS.Signals) => {
     terminatedSignal = signal
     finish(undefined)
   }

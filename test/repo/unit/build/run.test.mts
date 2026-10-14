@@ -4,6 +4,8 @@ const state = vi.hoisted(() => ({
   missing: '',
   transformErrors: false,
   build: vi.fn(),
+  copyAssets: vi.fn(),
+  nativeTarget: { platform: 'darwin', arch: 'arm64' },
   write: vi.fn(),
   post: vi.fn(),
   lower: vi.fn(async (code: string) => code),
@@ -71,6 +73,10 @@ vi.mock('../../../../scripts/repo/build/post.mts', () => ({
 vi.mock('../../../../scripts/repo/build/post/es5.mts', () => ({
   lowerToEs5: state.lower,
 }))
+vi.mock('../../../../scripts/repo/cli/ui/assets.mts', () => ({
+  copyOpenTuiAssets: state.copyAssets,
+  currentOpenTuiTarget: () => state.nativeTarget,
+}))
 beforeEach(() => {
   vi.resetModules()
   state.badChunk = ''
@@ -84,6 +90,8 @@ beforeEach(() => {
         : [{ type: 'chunk', code: 'var fixture={}' }],
   }))
   state.write.mockClear()
+  state.copyAssets.mockReset()
+  state.copyAssets.mockResolvedValue(undefined)
   state.post.mockClear()
 })
 test('bundles registered runtime entries and runs production post processing', async () => {
@@ -93,6 +101,21 @@ test('bundles registered runtime entries and runs production post processing', a
   expect(state.post).toHaveBeenCalledOnce()
   expect(state.engine).toHaveBeenCalled()
   expect(state.lower).toHaveBeenCalled()
+  expect(state.build).toHaveBeenCalledWith(
+    expect.objectContaining({
+      input: './src/bin/tui.mts',
+      platform: 'node',
+      output: expect.objectContaining({
+        file: './dist/bin/tui.mjs',
+        format: 'esm',
+        codeSplitting: false,
+      }),
+    }),
+  )
+  expect(state.copyAssets).toHaveBeenCalledWith('.', {
+    platform: 'darwin',
+    arch: 'arm64',
+  })
 })
 test.each([
   './src/core/unicode/direction.mts',
@@ -119,4 +142,15 @@ test('rejects TypeScript transform errors', async () => {
   await expect(
     import('../../../../scripts/repo/build/run.mts'),
   ).rejects.toThrow()
+})
+test('native asset preparation failure prevents production post processing', async () => {
+  state.copyAssets.mockRejectedValue(new Error('native asset copy failed'))
+  await expect(
+    import('../../../../scripts/repo/build/run.mts'),
+  ).rejects.toThrow('native asset copy failed')
+  expect(state.copyAssets).toHaveBeenCalledWith('.', {
+    platform: 'darwin',
+    arch: 'arm64',
+  })
+  expect(state.post).not.toHaveBeenCalled()
 })

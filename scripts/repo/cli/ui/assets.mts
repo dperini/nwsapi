@@ -1,30 +1,23 @@
-import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import {
-  copyFile,
-  mkdtemp,
-  mkdir,
-  readFile,
-  rename,
-  rm,
-  stat,
-  writeFile,
-} from 'node:fs/promises'
-import { spawnSync } from 'node:child_process'
+import { copyFile, mkdir, readFile, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getNodeAssets } from '@opentui/core/node-assets'
+import { cachedNativePackage } from './native/package-cache.mts'
 import {
   assetFiles,
   hostAssetFiles,
   nativeAssetKey,
   nativeAssetPackages,
   nativeNoticeNames,
-  OPENTUI_VERSION,
   sharedNoticePackages,
-  packageTarballUrl,
   sharedAssetKeys,
 } from './asset-manifest.mts'
+
+export {
+  assertAssetArchiveIntegrity,
+  cachedNativePackage,
+} from './native/package-cache.mts'
 
 export type PackageFile = { output: string; published: string }
 
@@ -222,67 +215,4 @@ async function writeIfChanged(target: string, content: string) {
     // The new asset directory has no metadata file yet.
   }
   await writeFile(target, content)
-}
-
-async function cachedNativePackage(
-  root: string,
-  entry: (typeof nativeAssetPackages)[number],
-) {
-  const pin = createHash('sha256')
-    .update(entry.integrity)
-    .digest('hex')
-    .slice(0, 16)
-  const cacheId = `${OPENTUI_VERSION}-${pin}`
-  const cache = path.join(
-    root,
-    '.cache/repo/opentui',
-    entry.packageName,
-    cacheId,
-  )
-  const packageRoot = path.join(cache, 'package')
-  const nativeFile = path.join(packageRoot, entry.fileName)
-  await mkdir(cache, { recursive: true })
-  const archive = path.join(cache, 'package.tgz')
-  let bytes: Buffer
-  try {
-    bytes = await readFile(archive)
-    assertAssetArchiveIntegrity(bytes, entry.integrity)
-  } catch {
-    const response = await fetch(packageTarballUrl(entry.packageName))
-    if (!response.ok) {
-      throw new Error(
-        `Could not fetch ${entry.packageName}: HTTP ${response.status}.`,
-      )
-    }
-    bytes = Buffer.from(await response.arrayBuffer())
-    assertAssetArchiveIntegrity(bytes, entry.integrity)
-    await writeFile(archive, bytes)
-  }
-  try {
-    await stat(nativeFile)
-    return nativeFile
-  } catch {
-    // The verified archive is available for restoring this extracted package.
-  }
-  const temporary = await mkdtemp(path.join(cache, 'extract-'))
-  try {
-    const result = spawnSync('tar', ['-xzf', archive, '-C', temporary], {
-      stdio: 'inherit',
-    })
-    if (result.status !== 0) {
-      throw new Error(`Could not unpack ${entry.packageName}.`)
-    }
-    await rm(packageRoot, { recursive: true, force: true })
-    await rename(path.join(temporary, 'package'), packageRoot)
-  } finally {
-    await rm(temporary, { recursive: true, force: true })
-  }
-  return nativeFile
-}
-
-export function assertAssetArchiveIntegrity(bytes: Buffer, expected: string) {
-  const actual = `sha512-${createHash('sha512').update(bytes).digest('base64')}`
-  if (actual !== expected) {
-    throw new Error(`OpenTUI asset archive integrity mismatch: ${expected}.`)
-  }
 }

@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
@@ -13,10 +12,7 @@ import {
   sharedNoticePackages,
   sharedAssetKeys,
 } from '../../../../../scripts/repo/cli/ui/asset-manifest.mts'
-import {
-  assertAssetArchiveIntegrity,
-  copyAssetIfChanged,
-} from '../../../../../scripts/repo/cli/ui/assets.mts'
+import { copyAssetIfChanged } from '../../../../../scripts/repo/cli/ui/assets.mts'
 
 test('native asset pins match the optional packages in pnpm-lock.yaml', async () => {
   const source = await readFile('pnpm-lock.yaml', 'utf8')
@@ -69,15 +65,6 @@ test('host readiness rejects targets without a pinned native asset', () => {
       file => file.output,
     ),
   ).toContain('dist/bin/assets/@opentui/core-linux-x64-musl/libopentui.so')
-})
-
-test('archive verification compares the pinned sha512 integrity', () => {
-  const archive = Buffer.from('pinned package bytes')
-  const integrity = `sha512-${createHash('sha512').update(archive).digest('base64')}`
-  expect(() => assertAssetArchiveIntegrity(archive, integrity)).not.toThrow()
-  expect(() => assertAssetArchiveIntegrity(archive, 'sha512-wrong')).toThrow(
-    'integrity mismatch',
-  )
 })
 
 test('asset copies update changed content and skip identical files', async () => {

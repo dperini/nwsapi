@@ -32,7 +32,11 @@ test('Linux assets use an explicit libc override or runtime detection', () => {
     arch: 'x64',
     libc: 'musl',
   })
-  expect(currentOpenTuiTarget('linux', 'x64', {})).toEqual({
+  expect(
+    currentOpenTuiTarget('linux', 'x64', {}, {
+      getReport: () => ({ header: {} }),
+    } as never),
+  ).toEqual({
     platform: 'linux',
     arch: 'x64',
     libc: 'musl',

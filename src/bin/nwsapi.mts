@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process'
-import { existsSync, realpathSync } from 'node:fs'
+import { realpathSync } from 'node:fs'
 import path from 'node:path'
 import { createInterface } from 'node:readline/promises'
 import { runCli } from '../../scripts/repo/cli.mts'
 import { interactiveActions } from '../../scripts/repo/cli/ui/actions.mts'
+import { nativeAssetAvailable } from '../../scripts/repo/cli/ui/native/cache.mts'
 import { currentOpenTuiTarget } from '../../scripts/repo/cli/ui/target.mts'
 import {
   canStartTui,
@@ -21,27 +22,36 @@ import {
 
 const ACTIONS = interactiveActions
 
-function nativeAssetPath(directory: string) {
-  const library =
-    process.platform === 'darwin'
-      ? 'libopentui.dylib'
-      : process.platform === 'linux'
-        ? 'libopentui.so'
-        : 'opentui.dll'
-  const suffix =
-    process.platform === 'linux' && currentOpenTuiLibc() === 'musl'
-      ? '-musl'
-      : ''
-  const packageName = `@opentui/core-${process.platform}-${process.arch}${suffix}`
-  return path.join(directory, 'assets', packageName, library)
-}
-
-function currentOpenTuiLibc() {
+function tuiRuntime(directory: string) {
+  let target: ReturnType<typeof currentOpenTuiTarget>
   try {
-    return currentOpenTuiTarget().libc
+    target = currentOpenTuiTarget()
   } catch {
     return undefined
   }
+  if (
+    !canStartTui({
+      inputIsTTY: Boolean(process.stdin.isTTY),
+      outputIsTTY: Boolean(process.stdout.isTTY),
+      columns: process.stdout.columns,
+      rows: process.stdout.rows,
+      platform: process.platform,
+      arch: process.arch,
+      ...(target.libc === undefined ? {} : { libc: target.libc }),
+      env: process.env,
+      assetAvailable: nativeAssetAvailable(
+        path.join(directory, 'assets'),
+        target,
+      ),
+    })
+  ) {
+    return undefined
+  }
+  return selectTuiRuntime(
+    process.execPath,
+    process.env['NODE_EXECUTABLE'],
+    probeRuntime,
+  )
 }
 
 function probeRuntime(command: string): TuiRuntime | undefined {
@@ -63,30 +73,6 @@ function probeRuntime(command: string): TuiRuntime | undefined {
     windowsHide: true,
   })
   return ffi.status === 0 ? { command, version: value } : undefined
-}
-
-function tuiRuntime(directory: string) {
-  const libc = currentOpenTuiLibc()
-  if (
-    !canStartTui({
-      inputIsTTY: Boolean(process.stdin.isTTY),
-      outputIsTTY: Boolean(process.stdout.isTTY),
-      columns: process.stdout.columns,
-      rows: process.stdout.rows,
-      platform: process.platform,
-      arch: process.arch,
-      ...(libc === undefined ? {} : { libc }),
-      env: process.env,
-      assetAvailable: existsSync(nativeAssetPath(directory)),
-    })
-  ) {
-    return undefined
-  }
-  return selectTuiRuntime(
-    process.execPath,
-    process.env['NODE_EXECUTABLE'],
-    probeRuntime,
-  )
 }
 
 function selectedAction(value: string) {
