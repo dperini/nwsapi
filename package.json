@@ -119,6 +119,7 @@
     "soak:bypass": "node scripts/repo/run.mts scripts/repo/soak.mts --bypass",
     "setup:browser": "node scripts/repo/run.mts scripts/repo/browser.mts",
     "setup:agents": "node scripts/repo/setup/agents.mts",
+    "setup:voiceover": "node scripts/repo/setup/voiceover/run.mts",
     "setup:tools": "node scripts/repo/setup/tools.mts",
     "doctor:tools": "node scripts/repo/setup/doctor.mts",
     "setup:tak": "node scripts/repo/setup/tak.mts",

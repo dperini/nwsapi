@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { copyFileSync, existsSync, symlinkSync } from 'node:fs'
 import { cp, mkdir, rm } from 'node:fs/promises'
 import path from 'node:path'
@@ -23,6 +24,34 @@ export interface SnapshotContext {
   sentinels: Record<string, string | null>
   nodeVersion: string
 }
+
+export async function verifySnapshotIntegrity(context: SnapshotContext) {
+  const finalManifests = await hashes(context.snapshot, [
+    'package.json',
+    'package-lock.json',
+    'pnpm-lock.yaml',
+    'pnpm-workspace.yaml',
+  ])
+  if (JSON.stringify(context.manifests) !== JSON.stringify(finalManifests)) {
+    throw new Error('Install changed package manifests or lockfiles.')
+  }
+  const sentinelsAfter = await hashes(
+    path.join(path.dirname(context.snapshot), 'home'),
+    Object.keys(context.sentinels),
+  )
+  if (JSON.stringify(context.sentinels) !== JSON.stringify(sentinelsAfter)) {
+    throw new Error('Shell/global-config sentinel changed.')
+  }
+  const finalHead = execFileSync(context.gitExecutable, ['rev-parse', 'HEAD'], {
+    cwd: context.snapshot,
+    env: context.env,
+    encoding: 'utf8',
+  }).trim()
+  if (finalHead !== context.initialCommit) {
+    throw new Error('Snapshot HEAD changed during onboarding.')
+  }
+}
+
 interface EnvironmentContext {
   gitExecutable: string
   env: NodeJS.ProcessEnv
@@ -31,6 +60,7 @@ interface EnvironmentContext {
 type Scenario = ScenarioOptions['scenario']
 type CommandResult = {
   code: number | null
+  durationMs?: number
   signal: NodeJS.Signals | null
   stdout: string
   stderr: string

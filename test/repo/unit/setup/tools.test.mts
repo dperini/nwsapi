@@ -64,6 +64,9 @@ vi.mock('../../../../scripts/repo/node.mts', () => ({
   nodeInteropEnvironment: () => ({}),
   resolveNodeRuntime: () => '/verified/node',
 }))
+vi.mock('../../../../scripts/repo/setup/prerequisites.mts', () => ({
+  checkPrerequisites: vi.fn(),
+}))
 vi.mock('../../../../scripts/repo/setup/install.mts', () => ({
   installTool: state.install,
 }))
@@ -138,10 +141,10 @@ test('Linux installs and validates mold for both supported architectures', async
   for (let i = 0, length = platforms.length; i < length; i += 1) {
     state.moldPlatform = platforms[i]!
     const tools = await fixture()
-    await tools.setupTools()
+    await tools.setupTools({ full: true })
     expect(state.install.mock.calls.at(-1)![0].name).toBe('mold')
     state.invalid = 'mold'
-    await expect(tools.setupTools()).rejects.toThrow(Error)
+    await expect(tools.setupTools({ full: true })).rejects.toThrow(Error)
   }
 })
 
@@ -207,4 +210,14 @@ test('the CLI appends verified launchers to the Actions path only when requested
   vi.mocked(fs.appendFileSync).mockClear()
   await tools.main([], tools.setupTools, vi.fn(), {})
   expect(fs.appendFileSync).not.toHaveBeenCalled()
+})
+
+test('core setup provisions only the contributor Node version', async () => {
+  state.platform = 'linux'
+  state.moldPlatform = 'linux-x64'
+  const tools = await fixture()
+  await tools.setupTools()
+  expect(state.install.mock.calls.map(([plan]) => plan.name)).not.toContain(
+    'mold',
+  )
 })

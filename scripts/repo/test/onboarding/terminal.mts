@@ -17,6 +17,7 @@ export interface PlainSetupOptions {
   node: string
   env: NodeJS.ProcessEnv
   timeoutMs: number
+  previewOnly?: boolean
   log?: (chunk: string) => void
   platform?: NodeJS.Platform
   spawnProcess?: SpawnTerminal
@@ -30,9 +31,11 @@ export interface PlainSetupResult {
   stdout: string
   stderr: string
   code: number | null
+  durationMs: number
   signal: NodeJS.Signals | null
   previewObserved: boolean
   confirmationSent: boolean
+  quitSent: boolean
   setupCompleted: boolean
   failure?: string
 }
@@ -43,9 +46,15 @@ type PromptPhase = 'menu' | 'preview' | 'running' | 'complete' | 'finished'
 export class PlainSetupProtocol {
   private phase: PromptPhase = 'menu'
   private visible = ''
+  private readonly previewOnly: boolean
   previewObserved = false
   confirmationSent = false
+  quitSent = false
   setupCompleted = false
+
+  constructor(previewOnly = false) {
+    this.previewOnly = previewOnly
+  }
 
   accept(chunk: string): PromptAction {
     this.visible += stripVTControlCharacters(chunk)
@@ -67,6 +76,11 @@ export class PlainSetupProtocol {
           this.visible.includes('Command:')
         if (!this.previewObserved) {
           throw new Error('The setup task preview was incomplete.')
+        }
+        if (this.previewOnly) {
+          this.phase = 'finished'
+          this.visible = ''
+          return 'quit'
         }
         this.phase = 'running'
         this.visible = ''
@@ -111,6 +125,7 @@ export class PlainSetupProtocol {
 export async function runPlainSetup(
   options: PlainSetupOptions,
 ): Promise<PlainSetupResult> {
+  const started = Date.now()
   const platform = options.platform ?? process.platform
   if (platform === 'win32') {
     throw new Error('The PTY setup journey is not supported on Windows.')
@@ -124,6 +139,11 @@ export async function runPlainSetup(
     path.join(options.checkout, '.cache'),
   ]
   const existedBefore = targets.map(target => exists(target))
+  if (options.previewOnly && existedBefore.some(Boolean)) {
+    throw new Error(
+      'Preview verification requires a fresh checkout without tools or dependencies.',
+    )
+  }
   const request = terminalCommand(options.checkout, options.node, platform)
   const spawnTerminal = options.spawnProcess ?? spawn
   const child = spawnTerminal(request.command, request.args, {
@@ -132,7 +152,7 @@ export async function runPlainSetup(
     detached: true,
     stdio: ['pipe', 'pipe', 'pipe'],
   }) as unknown as TerminalChild
-  const protocol = new PlainSetupProtocol()
+  const protocol = new PlainSetupProtocol(options.previewOnly)
   const maxOutputBytes = options.maxOutputBytes ?? 2_000_000
   let stdout = ''
   let stderr = ''
@@ -191,6 +211,7 @@ export async function runPlainSetup(
           protocol.markConfirmationSent()
         } else if (action === 'quit') {
           send('q\n')
+          protocol.quitSent = true
         }
       } catch (error) {
         stop(error instanceof Error ? error.message : String(error))
@@ -235,9 +256,11 @@ export async function runPlainSetup(
         stdout,
         stderr,
         code,
+        durationMs: Date.now() - started,
         signal,
         previewObserved: protocol.previewObserved,
         confirmationSent: protocol.confirmationSent,
+        quitSent: protocol.quitSent,
         setupCompleted: protocol.setupCompleted,
         ...(failure ? { failure } : {}),
       }

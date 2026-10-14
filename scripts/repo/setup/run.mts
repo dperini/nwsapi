@@ -12,7 +12,7 @@ import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
 
 export function setupUpstream(run = runNode) {
-  run(TOOL_SETUP_PATH, [])
+  run(TOOL_SETUP_PATH, ['--full'])
   run(path.join(REPO_ROOT, 'scripts/repo/setup/security.mts'), [])
   setupWpt(run)
   run(WPT_CANDIDATES_PATH, [])

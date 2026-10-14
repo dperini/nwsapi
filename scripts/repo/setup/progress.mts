@@ -2,20 +2,29 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { REPO_ROOT } from '../lib/paths.mts'
 
-type Progress = {
+export type Progress = {
   phase: string
   state: 'running' | 'complete' | 'paused'
   updated: string
+  elapsedMs?: number
 }
 const progressPath = path.join(REPO_ROOT, '.cache/setup-progress.json')
 
-export function recordSetupProgress(phase: string, state: Progress['state']) {
+export function recordSetupProgress(
+  phase: string,
+  state: Progress['state'],
+  elapsedMs?: number,
+) {
   try {
     mkdirSync(path.dirname(progressPath), { recursive: true })
     writeFileSync(
       progressPath,
-      JSON.stringify({ phase, state, updated: new Date().toISOString() }) +
-        '\n',
+      JSON.stringify({
+        phase,
+        state,
+        updated: new Date().toISOString(),
+        ...(elapsedMs === undefined ? {} : { elapsedMs }),
+      }) + '\n',
     )
   } catch {
     // A missing progress file must not prevent setup or its recovery message.

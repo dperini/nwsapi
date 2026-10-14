@@ -9,6 +9,77 @@ Fast CSS selectors API engine with zero dependencies that works in Node.js and b
 See the [measured selector compatibility](docs/repo/selector/compatibility.md) and [API reference](docs/repo/selector/api.md).
 The [project history](docs/repo/history.md) traces the name and its NWBOX origins.
 
+<!-- <onboarding> -->
+
+## Contribute
+
+Use Node.js 22.18 or newer, Git, and network access. Setup checks the archive commands needed on your platform before downloading tools. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
+
+<!-- onboarding:bootstrap:start -->
+
+```sh
+node scripts/repo/setup/bootstrap.mts
+```
+
+<!-- onboarding:bootstrap:end -->
+
+For a direct package-manager install, use the pinned contributor Node version (26.11.0) and the matching manager version from the root manifest. The package managers are pinned to npm 12.2.0 and pnpm 12.12.0. `npm i` and `pnpm i` each run the checkout's install lifecycle, which prepares its local tools and build. The root pins and catalogs are kept in sync with both lockfiles.
+
+To discover the ordered setup, guide, review, and diagnostics tasks from a terminal or an agent:
+
+<!-- onboarding:task-discovery:start -->
+
+```sh
+node scripts/repo/develop/run.mts --list --json
+```
+
+<!-- onboarding:task-discovery:end -->
+
+After setup, check the current checkout readiness:
+
+<!-- onboarding:readiness:start -->
+
+```sh
+node scripts/repo/develop/run.mts --task setup:check --json
+```
+
+<!-- onboarding:readiness:end -->
+
+Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
+
+For documentation changes, use `.cache/bin/pnpm run guide` to open the local documentation with live updates. For setup problems, use `node scripts/repo/setup/doctor.mts` to report readiness and the next action. Add `--details` to inspect paths, version requirements, and wrappers.
+
+After setup, run `node scripts/repo/develop/run.mts` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `node scripts/repo/develop/run.mts --plain` for numbered prompts.
+
+Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
+
+<details>
+<summary>Package manager details</summary>
+
+`npm i` and `pnpm i` both use this branch's matching root pins, lockfiles, and lifecycle. Use the direct Node bootstrap above when the pinned package manager is not installed. After setup, prefer `node scripts/repo/develop/run.mts --task <id> --json` for repository tasks, or `.cache/bin/pnpm` when you need package-manager commands. No PATH edits are needed.
+
+The equivalent direct install commands are:
+
+<!-- onboarding:npm-install:start -->
+
+```sh
+npm i
+```
+
+<!-- onboarding:npm-install:end -->
+
+<!-- onboarding:pnpm-install:start -->
+
+```sh
+pnpm i
+```
+
+<!-- onboarding:pnpm-install:end -->
+
+</details>
+
+<!-- </onboarding> -->
+
 ## Performance
 
 [![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
@@ -129,74 +200,7 @@ NW.Dom.uninstall();
 
 See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.
 
-## Contribute
 
-Start with [Make your first change](docs/repo/development/first-change.md). It explains each step, the expected result, and how to continue after an interruption.
-
-Use Node.js 22.18 or newer, Git, archive extraction tools, and network access. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
-
-<!-- onboarding:bootstrap:start -->
-
-```sh
-node scripts/repo/setup/bootstrap.mts
-```
-
-<!-- onboarding:bootstrap:end -->
-
-For a direct package-manager install, use the pinned contributor Node version (26.11.0) and the matching manager version from the root manifest. The package managers are pinned to npm 12.2.0 and pnpm 12.12.0. `npm i` and `pnpm i` each run the checkout's install lifecycle, which prepares its local tools and build. The root pins and catalogs are kept in sync with both lockfiles.
-
-To discover the ordered setup, guide, review, and diagnostics tasks from a terminal or an agent:
-
-<!-- onboarding:task-discovery:start -->
-
-```sh
-node scripts/repo/develop/run.mts --list --json
-```
-
-<!-- onboarding:task-discovery:end -->
-
-After setup, check the current checkout readiness:
-
-<!-- onboarding:readiness:start -->
-
-```sh
-node scripts/repo/develop/run.mts --task setup:check --json
-```
-
-<!-- onboarding:readiness:end -->
-
-Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
-
-For documentation changes, use `.cache/bin/pnpm run guide` to open the local documentation with live updates. For setup problems, use `.cache/bin/pnpm run setup:check` to report readiness and the next action. Add `-- --details` to inspect paths, version requirements, and wrappers.
-
-After setup, run `node scripts/repo/develop/run.mts` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `node scripts/repo/develop/run.mts --plain` for numbered prompts.
-
-Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
-
-<details>
-<summary>Package manager details</summary>
-
-`npm i` and `pnpm i` both use this branch's matching root pins, lockfiles, and lifecycle. Use the direct Node bootstrap above when the pinned package manager is not installed. After setup, prefer `node scripts/repo/develop/run.mts --task <id> --json` for repository tasks, or `.cache/bin/pnpm` when you need package-manager commands. No PATH edits are needed.
-
-The equivalent direct install commands are:
-
-<!-- onboarding:npm-install:start -->
-
-```sh
-npm i
-```
-
-<!-- onboarding:npm-install:end -->
-
-<!-- onboarding:pnpm-install:start -->
-
-```sh
-pnpm i
-```
-
-<!-- onboarding:pnpm-install:end -->
-
-</details>
 
 <details>
 <summary>Check changes before a push</summary>

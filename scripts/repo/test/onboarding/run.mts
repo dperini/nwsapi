@@ -9,24 +9,27 @@ import { startGuide } from './guide.mts'
 import {
   exactManagerVersionCommand,
   externalToolVersion,
-  hashes,
   redact,
 } from './environment.mts'
+import { verifyBootstrapHandoff } from './handoff.mts'
 import { runBounded } from './process.mts'
 import * as reviewReports from './reports.mts'
 import {
   runJourney,
   runPlainSetupMenu,
+  runPlainSetupPreview,
   runReadmeHarnessSteps,
   verifyInstalledCheckout,
 } from './scenario.mts'
 import type { GuideOutcome, ScenarioOptions } from './scenario.mts'
-import { checkoutSnapshot, prepareEnvironment } from './snapshot.mts'
+import {
+  checkoutSnapshot,
+  prepareEnvironment,
+  verifySnapshotIntegrity,
+} from './snapshot.mts'
 import type { SnapshotContext } from './snapshot.mts'
 
-const REPO = path.resolve(
-  fileURLToPath(new URL('../../../../', import.meta.url)),
-)
+const REPO = fileURLToPath(new URL('../../../../', import.meta.url))
 const LOG_ROOT = path.join(REPO, '.cache/onboarding')
 const TIMEOUT = 20 * 60_000
 const cases = ['bootstrap', 'npm', 'pnpm', 'journey'] as const
@@ -47,6 +50,7 @@ interface Outcome {
   command: string
   status: string
   code: number | null
+  durationMs?: number
 }
 
 function parse(argv: string[]): Options {
@@ -102,6 +106,7 @@ function run(
   env: NodeJS.ProcessEnv,
   timeout = TIMEOUT,
 ) {
+  const started = Date.now()
   if (
     process.platform === 'win32' &&
     executable.toLowerCase().endsWith('.cmd')
@@ -121,6 +126,7 @@ function run(
     )
     return {
       code: result.status,
+      durationMs: Date.now() - started,
       signal: result.signal,
       stdout: result.stdout ?? '',
       stderr: result.stderr ?? '',
@@ -137,6 +143,7 @@ function run(
   })
   return {
     code: result.status,
+    durationMs: Date.now() - started,
     signal: result.signal,
     stdout: result.stdout ?? '',
     stderr: result.stderr ?? '',
@@ -147,10 +154,13 @@ function run(
 async function appendLog(
   file: string,
   phase: string,
-  result: ReturnType<typeof run>,
+  result: Omit<ReturnType<typeof run>, 'durationMs'> & {
+    durationMs?: number
+  },
 ) {
+  const durationMs = result.durationMs ?? 0
   const body = redact(
-    `\n## ${phase}\nexit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+    `\n## ${phase}\ndurationMs=${durationMs} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
   )
   await writeFile(file, body, { flag: 'a' })
   phases.push({
@@ -158,6 +168,7 @@ async function appendLog(
     command: phase,
     status: !result.error && result.code === 0 ? 'completed' : 'failed',
     code: result.code,
+    durationMs,
   })
   if (result.error) {
     throw result.error
@@ -179,12 +190,14 @@ async function command(
   timeout = TIMEOUT,
   expected: number | null = 0,
 ) {
+  const started = Date.now()
   const result = await runBounded(executable, args, checkout, env, timeout)
+  const durationMs = Date.now() - started
   const commandText = `${path.basename(executable)} ${args.join(' ')}`
   await writeFile(
     file,
     redact(
-      `\n## ${phase}\n$ ${commandText}\nexit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
+      `\n## ${phase}\n$ ${commandText}\ndurationMs=${durationMs} exit=${result.code ?? 'null'} signal=${result.signal ?? 'none'}\n${result.stdout}\n${result.stderr}\n`,
     ),
     { flag: 'a' },
   )
@@ -198,6 +211,7 @@ async function command(
         ? 'completed'
         : 'failed',
     code: result.code,
+    durationMs,
   })
   if (result.error) {
     throw result.error
@@ -215,24 +229,24 @@ async function runScenario(
   log: string,
   context: SnapshotContext,
 ) {
+  const preview = await runPlainSetupPreview(
+    log,
+    context.snapshot,
+    options.node,
+    context.env,
+    redact,
+  )
+  phases.push(preview)
+  if (preview.error) {
+    throw new Error(preview.error)
+  }
   if (options.scenario === 'bootstrap') {
-    const bootstrap = (await readJourney(context.snapshot)).find(
-      step => step.id === 'bootstrap',
-    )
-    if (!bootstrap) {
-      throw new Error('README bootstrap step is missing.')
-    }
-    const args =
-      bootstrap.command[0] === 'node'
-        ? bootstrap.command.slice(1)
-        : bootstrap.command
-    await command(
+    await verifyBootstrapHandoff(
       log,
-      'literal README bootstrap journey',
-      options.node,
-      args,
       context.snapshot,
+      options.node,
       context.env,
+      command,
     )
     await runReadmeHarnessSteps(
       log,
@@ -341,6 +355,9 @@ function recordGuideOutcome(outcome: GuideOutcome) {
     command: outcome.command,
     status: 'completed',
     code: outcome.code,
+    ...(outcome.durationMs === undefined
+      ? {}
+      : { durationMs: outcome.durationMs }),
   })
 }
 
@@ -363,34 +380,6 @@ async function verifyFinalState(
     managerVersions,
   )
   await verifySnapshotIntegrity(context)
-}
-
-async function verifySnapshotIntegrity(context: SnapshotContext) {
-  const finalManifests = await hashes(context.snapshot, [
-    'package.json',
-    'package-lock.json',
-    'pnpm-lock.yaml',
-    'pnpm-workspace.yaml',
-  ])
-  if (JSON.stringify(context.manifests) !== JSON.stringify(finalManifests)) {
-    throw new Error('Install changed package manifests or lockfiles.')
-  }
-  const sentinelsAfter = await hashes(
-    path.join(path.dirname(context.snapshot), 'home'),
-    Object.keys(context.sentinels),
-  )
-  if (JSON.stringify(context.sentinels) !== JSON.stringify(sentinelsAfter)) {
-    throw new Error('Shell/global-config sentinel changed.')
-  }
-  const finalHead = run(
-    context.gitExecutable,
-    ['rev-parse', 'HEAD'],
-    context.snapshot,
-    context.env,
-  ).stdout.trim()
-  if (finalHead !== context.initialCommit) {
-    throw new Error('Snapshot HEAD changed during onboarding.')
-  }
 }
 
 async function main() {

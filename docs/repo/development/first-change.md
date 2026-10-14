@@ -23,12 +23,12 @@ If you install dependencies directly, use the contributor Node pin from `.config
 If setup fails, resolve the reported error. If it mentions a missing tool or wrong version, inspect readiness with the direct Node harness:
 
 ```sh
-.cache/bin/pnpm run setup:check
+node scripts/repo/setup/doctor.mts
 ```
 
 This reports Node.js and package-manager versions, whether pinned checkout tools are ready, and the suggested next command. It does not install or change tools.
 
-Use `.cache/bin/pnpm run setup:check -- --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands.
+Use `node scripts/repo/setup/doctor.mts --details` when you need executable paths or wrapper details. You do not need to edit PATH to use repository commands.
 
 ## Choose a task
 

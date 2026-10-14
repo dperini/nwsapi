@@ -11,6 +11,12 @@ const state = vi.hoisted(() => ({
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
   isMainModule: () => true,
 }))
+vi.mock('../../../../scripts/repo/setup/build.mts', () => ({
+  buildReadiness: () => ({ ready: true }),
+}))
+vi.mock('../../../../scripts/repo/setup/voiceover/run.mts', () => ({
+  setupVoiceOver: async () => ({ status: 0, signal: null }),
+}))
 vi.mock('../../../../scripts/repo/setup/tools.mts', () => ({
   setupTools: state.setup,
 }))
@@ -63,10 +69,7 @@ test('the executable bootstrap preserves installation failures and missing statu
 test('the executable bootstrap completes preparation before reporting success', async () => {
   expect((await invoke(0, null)).exitCode).toBe(0)
   expect(state.setup).toHaveBeenCalledTimes(1)
-  expect(state.run.mock.calls).toEqual([
-    [['install', '--frozen-lockfile']],
-    [['run', 'prepare']],
-  ])
+  expect(state.run.mock.calls).toEqual([[['install', '--frozen-lockfile']]])
 })
 
 test('the executable bootstrap propagates an interrupted child signal', async () => {

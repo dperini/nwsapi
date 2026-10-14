@@ -3,7 +3,8 @@ import path from 'node:path'
 import { installedPackage } from './dependency.mts'
 import { managedReady, managedVersions } from './diagnostics.mts'
 import { hasLocalCiDockerSocket, localCiStatus } from './local-ci.mts'
-import { packageFiles } from '../../../.config/build.config.mts'
+import { buildReadiness } from './build.mts'
+export { buildReadiness } from './build.mts'
 
 interface PackageManifest {
   dependencies?: Record<string, string>
@@ -33,8 +34,6 @@ export interface CheckoutReadiness {
   dependencies: { ready: boolean; issues: string[] }
   build: { ready: boolean; issues: string[] }
 }
-
-const BUILD_OUTPUTS = packageFiles.map(file => file.output)
 
 export async function checkoutReadiness(
   root: string,
@@ -459,14 +458,4 @@ function catalogEntryMatches(
     return locked.specifier === expected && locked.version === version
   }
   return override === expected && version === expected
-}
-
-export function buildReadiness(root: string) {
-  const issues = BUILD_OUTPUTS.filter(
-    file => !existsSync(path.join(root, file)),
-  )
-  return {
-    ready: issues.length === 0,
-    issues: issues.map(file => `Required build output is missing: ${file}.`),
-  }
 }

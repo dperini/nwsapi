@@ -13,6 +13,7 @@ export async function startGuide(
   execution: string[],
   redact: (value: string) => string,
 ): Promise<GuideOutcome> {
+  const started = Date.now()
   const port = await unusedPort()
   const args = execution.slice(1)
   const url = `http://127.0.0.1:${port}/`
@@ -91,6 +92,7 @@ export async function startGuide(
   return {
     command: execution.join(' '),
     code: guideOutcomeCode(exit, forced),
+    durationMs: Date.now() - started,
   }
 }
 

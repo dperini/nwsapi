@@ -54,11 +54,14 @@ export async function installTool(
     }
     chmodSync(executable, 0o755)
     // Compare cached files with a fresh installation of the verified download.
-    if (!matchesArchive(target, staging)) {
+    const reused = matchesArchive(target, staging)
+    if (!reused) {
       rmSync(target, { recursive: true, force: true })
       renameSync(staging, target)
     }
-    console.log(`Verified ${plan.name} ${plan.version}: ${plan.asset}`)
+    console.log(
+      `Verified ${plan.name} ${plan.version}: ${plan.asset} (${reused ? 'reused verified cache' : 'installed'})`,
+    )
     return path.join(target, plan.binary)
   } finally {
     rmSync(staging, { recursive: true, force: true })

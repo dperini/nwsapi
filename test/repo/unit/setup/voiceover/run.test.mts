@@ -2,7 +2,10 @@ import { PassThrough } from 'node:stream'
 import type * as ChildProcess from 'node:child_process'
 import { afterEach, expect, test, vi } from 'vitest'
 import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
-import { setupVoiceOver } from '../../../../../scripts/repo/setup/voiceover/run.mts'
+import {
+  setupVoiceOver,
+  main,
+} from '../../../../../scripts/repo/setup/voiceover/run.mts'
 import type { VoiceOverPreflight } from '../../../../../scripts/repo/setup/voiceover/preflight.mts'
 import type { VoiceOverRun } from '../../../../../scripts/repo/setup/voiceover/run.mts'
 
@@ -143,7 +146,9 @@ test('asset failure stops before machine setup and reports retry path', async ()
   })
   expect(result.status).toBe(7)
   expect(run).toHaveBeenCalledTimes(1)
-  expect(log.mock.calls.flat().join('\n')).toContain('--voiceover')
+  expect(log.mock.calls.flat().join('\n')).toContain(
+    'node scripts/repo/setup/voiceover/run.mts',
+  )
 })
 
 test('unsupported OS silently skips but explicit opt-in reports unsupported', async () => {
@@ -250,5 +255,14 @@ test('readline EOF skips without waiting or running commands', async () => {
     tty: true,
   })
   expect(result.status).toBe(0)
+  expect(run).not.toHaveBeenCalled()
+})
+
+test('optional-only help never probes settings or starts configuration', async () => {
+  const probe = vi.fn()
+  const run = vi.fn<VoiceOverRun>()
+  const result = await main(['--help'], { probe, run, log: vi.fn() })
+  expect(result.status).toBe(0)
+  expect(probe).not.toHaveBeenCalled()
   expect(run).not.toHaveBeenCalled()
 })

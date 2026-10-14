@@ -8,13 +8,14 @@ import {
   readlinkSync,
 } from 'node:fs'
 import path from 'node:path'
+import { resolvePowerShell } from './prerequisites.mts'
 
 export function extractArchive(asset: string, directory: string) {
   if (!asset.endsWith('.zip')) {
     execFileSync('tar', ['-xf', asset], { cwd: directory, stdio: 'inherit' })
   } else if (process.platform === 'win32') {
     execFileSync(
-      'powershell',
+      resolvePowerShell(),
       [
         '-NoProfile',
         '-NonInteractive',

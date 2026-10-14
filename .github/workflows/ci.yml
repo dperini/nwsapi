@@ -6,8 +6,6 @@ on:
     branches: [prerelease/3.0.0]
   pull_request:
     branches: [prerelease/3.0.0]
-  schedule:
-    - cron: '17 10 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -53,7 +51,7 @@ jobs:
           git checkout -q --detach "${TRIGGER_SHA}"
       - uses: ./.github/actions/repo/cache-tools
       - name: Install integrity-verified contributor tools
-        run: node scripts/repo/setup/tools.mts --github-path
+        run: node scripts/repo/setup/tools.mts --github-path --full
       - name: Verify the pinned Mold linker
         shell: bash
         run: |
@@ -263,74 +261,9 @@ jobs:
 
   perf:
     name: 'perf: tak'
-    needs: [node, onboarding]
+    needs: node
     if: >-
-      github.event_name == 'push' && needs.node.result == 'success' &&
-      needs.onboarding.result == 'success'
+      github.event_name == 'push' && needs.node.result == 'success'
     uses: ./.github/workflows/perf-tak.yml
     permissions:
       contents: write
-
-  onboarding:
-    name: 'onboarding (${{ matrix.os }}, ${{ matrix.manager }})'
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04","macos-15","windows-2025"]') }}
-        manager: [npm, pnpm]
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '22.18.0'
-          package-manager-cache: false
-      - name: Bootstrap from the minimum Node version
-        timeout-minutes: 30
-        run: node scripts/repo/test/onboarding/ci.mts bootstrap
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
-        with:
-          node-version: '26.11.0'
-          package-manager-cache: false
-      - name: Provision the entry package manager
-        timeout-minutes: 15
-        env:
-          ENTRY_MANAGER: ${{ matrix.manager }}
-        run: node scripts/repo/test/onboarding/ci.mts install-manager
-      - name: Install, use the wizard, and complete the developer journey
-        timeout-minutes: 60
-        env:
-          ENTRY_MANAGER: ${{ matrix.manager }}
-        run: node scripts/repo/test/onboarding/ci.mts journey
-      - name: Upload onboarding diagnostics
-        if: always()
-        uses: ./.github/actions/repo/upload-artifact
-        with:
-          name: onboarding-${{ matrix.os }}-${{ matrix.manager }}-${{ github.run_id }}
-          path: .cache/onboarding/
-          if-no-files-found: warn
-          retention-days: 14
-      - name: Summarize onboarding journey
-        if: always()
-        shell: pwsh
-        env:
-          ENTRY_MANAGER: ${{ matrix.manager }}
-          PLATFORM: ${{ matrix.os }}
-          JOB_STATUS: ${{ job.status }}
-        run: |
-          "platform=$env:PLATFORM entry=$env:ENTRY_MANAGER workflow=pnpm status=$env:JOB_STATUS" >> $env:GITHUB_STEP_SUMMARY
-          $summaries = @(Get-ChildItem .cache/onboarding/*.summary.json -ErrorAction SilentlyContinue | Sort-Object LastWriteTime)
-          if ($summaries.Count -eq 0) {
-            'Runner summary unavailable.' >> $env:GITHUB_STEP_SUMMARY
-          }
-          foreach ($file in $summaries) {
-            $summary = Get-Content $file.FullName -Raw | ConvertFrom-Json
-            "### $($summary.scenario): $($summary.status)" >> $env:GITHUB_STEP_SUMMARY
-            "entry_node=$($summary.entryNodeVersion) commit=$($summary.commit)" >> $env:GITHUB_STEP_SUMMARY
-            foreach ($phase in $summary.phases) {
-              "- $($phase.status): $($phase.command) (exit $($phase.code))" >> $env:GITHUB_STEP_SUMMARY
-            }
-          }
