@@ -1,4 +1,5 @@
 import {
+  chmodSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
@@ -55,6 +56,25 @@ test('matching trees include directories and symlink identity', t => {
   writeFileSync(path.join(directories[1]!, 'file'), 'changed')
   expect(matchesArchive(directories[0]!, directories[1]!)).toBe(false)
 })
+
+test('Windows cache identity ignores permission bits and still checks contents', t => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-archive-windows-'))
+  t.onTestFinished(() => rmSync(root, { recursive: true, force: true }))
+  const cached = path.join(root, 'cached')
+  const extracted = path.join(root, 'extracted')
+  for (const directory of [cached, extracted]) {
+    mkdirSync(path.join(directory, 'nested'), { recursive: true, mode: 0o700 })
+    writeFileSync(path.join(directory, 'nested', 'tool.exe'), 'verified', {
+      mode: 0o600,
+    })
+  }
+  chmodSync(path.join(cached, 'nested', 'tool.exe'), 0o755)
+  expect(matchesArchive(cached, extracted, 'win32')).toBe(true)
+  expect(matchesArchive(cached, extracted, 'linux')).toBe(false)
+  writeFileSync(path.join(extracted, 'nested', 'tool.exe'), 'changed')
+  expect(matchesArchive(cached, extracted, 'win32')).toBe(false)
+})
+
 test.each([
   { asset: 'archive.tar.gz', platform: 'darwin', program: 'tar' },
   { asset: 'archive.zip', platform: 'darwin', program: 'unzip' },

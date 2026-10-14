@@ -40,27 +40,42 @@ export function extractArchive(asset: string, directory: string) {
   }
 }
 
-export function treeDigest(directory: string): string {
+export function treeDigest(
+  directory: string,
+  platform = process.platform,
+): string {
   const hash = createHash('sha256')
   for (const name of readdirSync(directory).toSorted()) {
     const file = path.join(directory, name)
     const stat = lstatSync(file)
+    const kind = stat.isSymbolicLink()
+      ? 'link'
+      : stat.isDirectory()
+        ? 'directory'
+        : 'file'
     const value = stat.isSymbolicLink()
       ? readlinkSync(file)
       : stat.isDirectory()
-        ? treeDigest(file)
+        ? treeDigest(file, platform)
         : readFileSync(file)
-    hash.update(name + '\0' + stat.mode + '\0')
+    hash.update(name + '\0' + kind + '\0')
+    if (platform !== 'win32') {
+      hash.update(stat.mode + '\0')
+    }
     // A fixed-length digest prevents file content from imitating another entry.
     hash.update(createHash('sha256').update(value).digest())
   }
   return hash.digest('hex')
 }
 
-export function matchesArchive(directory: string, extracted: string) {
+export function matchesArchive(
+  directory: string,
+  extracted: string,
+  platform = process.platform,
+) {
   return (
     existsSync(directory) &&
     !lstatSync(directory).isSymbolicLink() &&
-    treeDigest(directory) === treeDigest(extracted)
+    treeDigest(directory, platform) === treeDigest(extracted, platform)
   )
 }
