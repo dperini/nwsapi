@@ -11,9 +11,7 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
-
-`nwsapi` vs `@asamuzakjp/dom-selector`: query time, retained heap, and Brotli size on native Chromium DOMs.
+[![nwsapi vs @asamuzakjp/dom-selector: query time, retained heap, and Brotli size on native Chromium DOMs](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
 
 <details>
 <summary>How the benchmarks work</summary>
@@ -133,7 +131,7 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-For checkout development, use Node.js 26.11.0, pnpm 12.12.0, Git, and network access. From the checkout root, install dependencies and prepare the tools and build:
+Requires Node.js 26.11.0, pnpm 12.12.0, and Git. Install from the checkout root:
 
 <!-- onboarding:pnpm-install:start -->
 
@@ -143,9 +141,9 @@ pnpm i
 
 <!-- onboarding:pnpm-install:end -->
 
-Continue with `pnpm run dev` to open the contributor menu. Choose **Open documentation**, **Review my changes**, or the optional **Troubleshoot setup** task for readiness diagnostics. Installation already prepares the checkout, so you do not need to run setup again. You can also run `pnpm run setup:check`, `pnpm run guide`, or `pnpm run review` directly.
+Then run `pnpm run dev` for guided docs, checks, and troubleshooting. Installation handles setup and the build.
 
-See [Make your first change](docs/repo/development/first-change.md) for the edit, review, and commit path. Setup keeps tools in this checkout and preserves shell defaults. Browser tests, WPT, and security checks prepare their additional tools when requested. See [toolchain details](docs/repo/development/toolchain.md) for advanced setup and the minimum-Node bootstrap path.
+[Make your first change](docs/repo/development/first-change.md) · [Toolchain and setup help](docs/repo/development/toolchain.md)
 
 <details>
 <summary>Use npm or repair setup</summary>
