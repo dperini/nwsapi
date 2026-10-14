@@ -4,6 +4,7 @@ import path from 'node:path'
 import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { managedEnvironment } from '../../setup/manager.mts'
+import { checkCode } from '../../check/run.mts'
 import {
   completePlan,
   planCiTests,
@@ -25,6 +26,7 @@ export interface ChangedPaths {
 
 export interface PushHookDependencies {
   runGit(args: string[]): { status: number; stdout: string }
+  runChecks(): void
   runNodePlan(plan: CiTestPlan): Promise<void>
   log(message: string): void
   error(message: string): void
@@ -80,6 +82,7 @@ function defaultDependencies(): PushHookDependencies {
         }
       }
     },
+    runChecks: checkCode,
     runNodePlan,
     log: message => console.log(message),
     error: message => console.error(message),
@@ -283,8 +286,37 @@ export async function runPrePush(
 
   const remoteBases = [...new Set(updates.map(ref => ref.remoteSha))]
   const plan = await planPush(remoteBases, head, dependencies)
-  await dependencies.runNodePlan(plan)
-  return currentExitStatus()
+  try {
+    dependencies.runChecks()
+  } catch (error) {
+    dependencies.error(
+      `[hooks] Main repository checks failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return 1
+  }
+  const checkStatus = currentExitStatus()
+  if (checkStatus !== 0) {
+    dependencies.error(
+      `[hooks] Main repository checks exited with status ${checkStatus}.`,
+    )
+    return checkStatus
+  }
+  if (validatePush(updates, dependencies) !== head) {
+    return 1
+  }
+  try {
+    await dependencies.runNodePlan(plan)
+  } catch (error) {
+    dependencies.error(
+      `[hooks] CI Node checks failed: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return 1
+  }
+  const planStatus = currentExitStatus()
+  if (planStatus !== 0) {
+    return planStatus
+  }
+  return validatePush(updates, dependencies) === head ? 0 : 1
 }
 
 function runPreCommit() {

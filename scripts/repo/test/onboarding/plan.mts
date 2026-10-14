@@ -16,6 +16,7 @@ export interface OnboardingPlanSources {
 }
 
 export const ONBOARDING_INPUT_PATHS = [
+  '.github/workflows/ci.yml',
   '.github/workflows/onboarding-v3.yml',
   'scripts/repo/test/onboarding/**',
   'scripts/repo/setup/**',

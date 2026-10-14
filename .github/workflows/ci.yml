@@ -18,7 +18,7 @@ concurrency:
 jobs:
   runtime:
     name: checks
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     outputs:
       fullNode: ${{ steps.test-plan.outputs.fullNode }}
       unitShards: ${{ steps.test-plan.outputs.unitShards }}
@@ -176,7 +176,7 @@ jobs:
   node:
     name: summary
     needs: [runtime, unit]
-    if: always() && (github.event_name == 'push' || github.event_name == 'pull_request')
+    if: always() && (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-26.04
     permissions:
       contents: read
@@ -258,6 +258,12 @@ jobs:
           else
             test "$UNIT_RESULT" = skipped
           fi
+
+  onboarding:
+    name: onboarding
+    needs: node
+    if: needs.node.result == 'success'
+    uses: ./.github/workflows/onboarding-v3.yml
 
   perf:
     name: 'perf: tak'

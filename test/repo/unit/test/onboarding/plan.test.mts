@@ -63,6 +63,7 @@ test('ordinary source changes are ignored while onboarding runtime inputs run', 
   expect(onboardingInput('src/nwsapi.mts')).toBe(false)
   expect(planOnboarding(['src/nwsapi.mts'], '', '').run).toBe(false)
   for (const file of [
+    '.github/workflows/ci.yml',
     '.config/node-interop.json',
     '.config/generated/external-tools.mts',
     'package-lock.json',
