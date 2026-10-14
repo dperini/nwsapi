@@ -19,7 +19,7 @@ See the [measured selector compatibility](docs/repo/selector/compatibility.md) a
 - **Memory:** retained heap after 100 distinct queries and garbage collection.
 - **Size:** Brotli-compressed browser libraries. No `jsdom`.
 
-[Cases, methodology, and recorded samples](docs/repo/perf/benchmarks.md).
+- [Cases, methodology, and recorded samples](docs/repo/perf/benchmarks.md).
 
 </details>
 
