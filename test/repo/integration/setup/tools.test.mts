@@ -39,11 +39,12 @@ test('activating Node again through its managed launcher preserves the executabl
   }
 })
 
-test('failed bootstrap replaces existing manager launchers with repair stubs', () => {
+test('failed configuration preflight preserves existing manager launchers', () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-tool-failure-'))
   try {
     const files = [
       'scripts/repo/setup/tools.mts',
+      'scripts/repo/setup/prerequisites.mts',
       'scripts/repo/setup/mise.mts',
       'scripts/repo/setup/firewall.mts',
       'scripts/repo/setup/install.mts',
@@ -98,10 +99,11 @@ try {
       const command = path.join(bin, windows ? `${name}.cmd` : name)
       const result = spawnSync(
         windows ? 'cmd.exe' : command,
-        windows ? ['/d', '/c', command] : [],
+        windows ? ['/d', '/c', command, '--version'] : ['--version'],
         { cwd: directory, encoding: 'utf8' },
       )
-      expect(result.status).toBe(127)
+      expect(result.status).toBe(0)
+      expect(result.stdout.trim()).toBe(process.version)
     }
   } finally {
     rmSync(directory, { recursive: true, force: true })
