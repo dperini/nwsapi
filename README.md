@@ -73,7 +73,7 @@ From the checkout root:
 
 ```sh
 pnpm i
-pnpm run dev
+pnpm run setup
 ```
 
 <!-- onboarding:pnpm-install:end -->
@@ -83,7 +83,7 @@ pnpm run dev
 <details>
 <summary>Use npm or repair setup</summary>
 
-Requires Node.js 26.11.0, pnpm 12.12.0, and Git. With npm 12.2.0, use `npm i` then `npm run dev`. Repair with `npm run setup` or:
+Requires Node.js 26.11.0, pnpm 12.12.0, and Git. With npm 12.2.0, use `npm i` then `npm run setup`. Repair with `npm run setup` or:
 
 <!-- onboarding:npm-install:start -->
 
