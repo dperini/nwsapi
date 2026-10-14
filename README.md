@@ -131,24 +131,23 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-Requires Node.js 26.11.0, pnpm 12.12.0, and Git. Install from the checkout root:
+From the checkout root:
 
 <!-- onboarding:pnpm-install:start -->
 
 ```sh
 pnpm i
+pnpm run dev
 ```
 
 <!-- onboarding:pnpm-install:end -->
-
-Then run `pnpm run dev` for guided docs, checks, and troubleshooting. Installation handles setup and the build.
 
 [Make your first change](docs/repo/development/first-change.md) · [Toolchain and setup help](docs/repo/development/toolchain.md)
 
 <details>
 <summary>Use npm or repair setup</summary>
 
-The pinned npm alternative is Node.js 26.11.0 with npm 12.2.0. Like `pnpm i`, the install prepares local tools and builds the package. Continue with `npm run dev`, and use `npm run setup` if setup needs repair.
+Requires Node.js 26.11.0, pnpm 12.12.0, and Git. With npm 12.2.0, use `npm i` then `npm run dev`. Repair with `npm run setup` or:
 
 <!-- onboarding:npm-install:start -->
 
@@ -158,8 +157,6 @@ npm i
 
 <!-- onboarding:npm-install:end -->
 
-If setup needs repair after installation, run:
-
 <!-- onboarding:bootstrap:start -->
 
 ```sh
@@ -168,7 +165,7 @@ pnpm run setup
 
 <!-- onboarding:bootstrap:end -->
 
-The repository pins and catalogs match the root manifests and lockfiles. If the pinned package manager is unavailable before installation, the [toolchain guide](docs/repo/development/toolchain.md) documents the direct Node bootstrap that works before dependencies are installed.
+[Missing tools? Start here](docs/repo/development/toolchain.md).
 
 </details>
 
@@ -195,7 +192,7 @@ pnpm --silent run dev --task setup:check --json
 
 <!-- onboarding:readiness:end -->
 
-The JSON output is suitable for an agent or another automation harness. These commands use the pinned pnpm package script, and `pnpm run dev` opens the interactive menu.
+[Agent task contract](docs/repo/development/toolchain.md#agent-harnesses).
 
 </details>
 

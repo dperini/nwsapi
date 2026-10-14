@@ -12,11 +12,21 @@ export function parseJourney(markdown: string): JourneyStep[] {
   const pattern =
     /<!-- onboarding:([a-z-]+):start -->\s*```sh\n([\s\S]*?)\n```\s*<!-- onboarding:\1:end -->/g
   for (const match of markdown.matchAll(pattern)) {
-    const command = match[2]!.trim().split(/\s+/)
+    const lines = match[2]!
+      .trim()
+      .split(/\r?\n/)
+      .filter(line => line.trim())
+    const command = lines[0]!.trim().split(/\s+/)
     if (command.length === 0 || command.some(part => part.startsWith('#'))) {
       throw new Error(`Invalid onboarding command for ${match[1]}.`)
     }
     steps.push({ id: match[1]!, command })
+    for (const [index, line] of lines.slice(1).entries()) {
+      steps.push({
+        id: `${match[1]}-${index + 2}`,
+        command: line.trim().split(/\s+/),
+      })
+    }
   }
   if (steps.length === 0) {
     throw new Error('README has no marked onboarding commands.')
