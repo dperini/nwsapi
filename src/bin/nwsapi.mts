@@ -36,6 +36,15 @@ function nativeAssetPath(directory: string) {
   return path.join(directory, 'assets', packageName, library)
 }
 
+function nativeCarrierPath(directory: string) {
+  const suffix =
+    process.platform === 'linux' && currentOpenTuiLibc() === 'musl'
+      ? '-musl'
+      : ''
+  const packageName = `@opentui/core-${process.platform}-${process.arch}${suffix}`
+  return path.join(directory, 'assets', packageName, 'opentui.node')
+}
+
 function currentOpenTuiLibc() {
   try {
     return currentOpenTuiTarget().libc
@@ -77,7 +86,9 @@ function tuiRuntime(directory: string) {
       arch: process.arch,
       ...(libc === undefined ? {} : { libc }),
       env: process.env,
-      assetAvailable: existsSync(nativeAssetPath(directory)),
+      assetAvailable:
+        existsSync(nativeAssetPath(directory)) ||
+        existsSync(nativeCarrierPath(directory)),
     })
   ) {
     return undefined
