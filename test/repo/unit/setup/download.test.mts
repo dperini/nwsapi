@@ -12,6 +12,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import nock from 'nock'
 import {
   downloadArchive,
+  downloadFailure,
   parseIntegrity,
   cachedArchive,
   verifyIntegrity,
@@ -386,4 +387,27 @@ test('redirects to HTTP are rejected before cache promotion', async () => {
   ).rejects.toThrow()
   expect(source.isDone() && destination.isDone()).toBe(true)
   expect(readdirSync(cache)).toEqual([])
+})
+
+test.each([
+  [new Error('private request details'), 'Error'],
+  [
+    Object.assign(new Error('private request details'), { code: 'ECONNRESET' }),
+    'Error (ECONNRESET)',
+  ],
+  ['private request details', 'string'],
+  [{ token: 'private' }, 'object'],
+])(
+  'download failures report error identity without message contents %#',
+  (error, summary) => {
+    expect(downloadFailure(error)).toBe(summary)
+  },
+)
+
+test('download failures include the immediate cause identity and code', () => {
+  const cause = Object.assign(new Error('private transport details'), {
+    code: 'EHOSTUNREACH',
+  })
+  const error = new TypeError('private request details', { cause })
+  expect(downloadFailure(error)).toBe('TypeError; cause Error (EHOSTUNREACH)')
 })

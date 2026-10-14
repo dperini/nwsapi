@@ -54,7 +54,7 @@ function errorLabel(value: unknown) {
   return `${value.name}${code}`
 }
 
-function downloadFailure(value: unknown) {
+export function downloadFailure(value: unknown) {
   if (value instanceof Error && value.cause !== undefined) {
     return `${errorLabel(value)}; cause ${errorLabel(value.cause)}`
   }
