@@ -56,7 +56,11 @@ test('matching trees include directories and symlink identity', t => {
     false,
   )
   const alias = path.join(root, 'alias')
-  symlinkSync(directories[0]!, alias)
+  symlinkSync(
+    directories[0]!,
+    alias,
+    process.platform === 'win32' ? 'junction' : 'dir',
+  )
   expect(matchesArchive(alias, directories[1]!)).toBe(false)
   writeFileSync(path.join(directories[1]!, 'file'), 'changed')
   expect(matchesArchive(directories[0]!, directories[1]!)).toBe(false)
@@ -73,7 +77,7 @@ test('Windows cache identity ignores permission bits and still checks contents',
       mode: 0o600,
     })
   }
-  chmodSync(path.join(cached, 'nested', 'tool.exe'), 0o755)
+  chmodSync(path.join(cached, 'nested', 'tool.exe'), 0o400)
   expect(matchesArchive(cached, extracted, 'win32')).toBe(true)
   expect(matchesArchive(cached, extracted, 'linux')).toBe(false)
   writeFileSync(path.join(extracted, 'nested', 'tool.exe'), 'changed')
@@ -159,7 +163,9 @@ test('directory and mode mismatches respect the Windows mode policy', t => {
   chmodSync(path.join(cached, 'nested'), 0o500)
   reconcileTree(cached, extracted, 'linux')
   expect(readFileSync(path.join(cached, 'nested', 'file'), 'utf8')).toBe('same')
-  expect(lstatSync(path.join(cached, 'nested')).mode & 0o777).toBe(0o700)
+  expect(lstatSync(path.join(cached, 'nested')).mode & 0o777).toBe(
+    lstatSync(path.join(extracted, 'nested')).mode & 0o777,
+  )
 })
 
 test.each([
