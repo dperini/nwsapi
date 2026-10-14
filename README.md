@@ -198,23 +198,7 @@ pnpm --silent run dev --task setup:check --json
 
 <!-- </onboarding> -->
 
-<details>
-<summary>Check changes before a push</summary>
 
-```sh
-pnpm run check
-pnpm run test:package
-pnpm run test:fuzz        # Bounded coverage-guided pass
-pnpm run test:fuzz:replay # Replay saved inputs and crashes
-```
-
-These are additional checks for changes that need them. Run `pnpm run fix` to apply lint fixes, format files, and check the result. Run `pnpm run test:watch` to repeat Node tests while you edit files.
-
-Run `pnpm run ci:local` to test the GitHub Actions workflow locally.
-It needs Docker and GitHub CLI authentication. It pauses when a step fails.
-The gates workflow uses one Node.js 26 job. Its package lane checks CommonJS, ESM, the CLI, and the `jsdom` consumer path on Node.js 22, 24, and 26 provisioned by `nub`.
-
-</details>
 
 <details>
 <summary>Run browser tests and measure coverage</summary>
