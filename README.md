@@ -83,6 +83,8 @@ pnpm run setup
 <details>
 <summary>Use npm or repair setup</summary>
 
+<blockquote>
+
 Setup provisions the pinned tools. With npm, use:
 
 <!-- onboarding:npm-install:start -->
@@ -106,10 +108,14 @@ pnpm run setup
 
 [Missing tools? Start here](docs/repo/development/toolchain.md).
 
+</blockquote>
+
 </details>
 
 <details>
 <summary>For agents</summary>
+
+<blockquote>
 
 List tasks:
 
@@ -132,6 +138,8 @@ pnpm --silent run dev --task setup:check --json
 <!-- onboarding:readiness:end -->
 
 [Agent task contract](docs/repo/development/toolchain.md#agent-harnesses).
+
+</blockquote>
 
 </details>
 

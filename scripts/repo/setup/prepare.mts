@@ -27,6 +27,7 @@ export async function prepareCheckout(
     )
     for (const script of [
       'scripts/repo/setup/agents.mts',
+      'scripts/repo/setup/hooks.mts',
       'scripts/repo/video/prepare.mts',
       'scripts/repo/build/run.mts',
     ]) {

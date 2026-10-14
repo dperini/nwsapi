@@ -13,6 +13,7 @@ test('prepare verifies tools before source preparation and a repeatable build', 
   expect(ensure).toHaveBeenCalledOnce()
   expect(run.mock.calls.map(call => call[1][0])).toEqual([
     'scripts/repo/setup/agents.mts',
+    'scripts/repo/setup/hooks.mts',
     'scripts/repo/video/prepare.mts',
     'scripts/repo/build/run.mts',
   ])
