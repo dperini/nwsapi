@@ -43,7 +43,7 @@ const items = nw.select('.item', window.document)
 window.close()
 ```
 
-[Replace the `jsdom` selector engine](docs/repo/perf/jsdom.md#reproduce-the-comparison) · [Query benchmarks](docs/repo/perf/jsdom.md)
+[Replace the `jsdom` selector engine](docs/repo/perf/jsdom.md#override-and-peer-dependency) · [Query benchmarks](docs/repo/perf/jsdom.md)
 
 ## In browser
 
