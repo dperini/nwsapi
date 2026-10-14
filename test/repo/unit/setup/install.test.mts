@@ -7,6 +7,12 @@ import { afterEach, expect, test, vi } from 'vitest'
 import type { ToolPlan } from '../../../../scripts/repo/external-tools.mts'
 
 const directories: string[] = []
+function mockPnpmDownload(bytes: Buffer) {
+  nock('https://github.com')
+    .get('/example/pnpm/releases/download/v1.0.0/pnpm-test')
+    .reply(200, bytes)
+}
+
 afterEach(() => {
   directories.forEach(directory =>
     fs.rmSync(directory, { recursive: true, force: true }),
@@ -104,3 +110,101 @@ test.each(['directory', 'escape'])(
     }
   },
 )
+
+test('Windows repair removes extras while preserving an active identical executable', async () => {
+  const cache = fs.mkdtempSync(path.join(os.tmpdir(), 'nwsapi-install-active-'))
+  directories.push(cache)
+  const bytes = Buffer.from('active executable')
+  const plan: ToolPlan = {
+    name: 'pnpm',
+    version: '1.0.0',
+    asset: 'pnpm-test',
+    binary: 'pnpm.exe',
+    format: 'binary',
+    integrity: 'sha256-' + createHash('sha256').update(bytes).digest('base64'),
+    url: 'https://github.com/example/pnpm/releases/download/v1.0.0/pnpm-test',
+  }
+  const { toolDirectory } =
+    await import('../../../../scripts/repo/external-tools.mts')
+  const target = toolDirectory(plan, cache)
+  const { installTool } =
+    await import('../../../../scripts/repo/setup/install.mts')
+  mockPnpmDownload(bytes)
+  await installTool(plan, cache, undefined, 'win32', {})
+  const executable = path.join(target, plan.binary)
+  const inode = fs.statSync(executable).ino
+  fs.writeFileSync(path.join(target, 'unexpected'), 'remove me')
+  await installTool(plan, cache, undefined, 'win32', {
+    npm_execpath: executable,
+  })
+  expect(fs.statSync(executable).ino).toBe(inode)
+  expect(fs.existsSync(path.join(target, 'unexpected'))).toBe(false)
+})
+
+test('active Windows executable mismatch fails before changing the cache', async () => {
+  const cache = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-install-active-mismatch-'),
+  )
+  directories.push(cache)
+  const bytes = Buffer.from('verified executable')
+  const plan: ToolPlan = {
+    name: 'pnpm',
+    version: '1.0.0',
+    asset: 'pnpm-test',
+    binary: 'pnpm.exe',
+    format: 'binary',
+    integrity: 'sha256-' + createHash('sha256').update(bytes).digest('base64'),
+    url: 'https://github.com/example/pnpm/releases/download/v1.0.0/pnpm-test',
+  }
+  const { toolDirectory } =
+    await import('../../../../scripts/repo/external-tools.mts')
+  const target = toolDirectory(plan, cache)
+  const { installTool } =
+    await import('../../../../scripts/repo/setup/install.mts')
+  mockPnpmDownload(bytes)
+  await installTool(plan, cache, undefined, 'win32', {})
+  const executable = path.join(target, plan.binary)
+  fs.writeFileSync(executable, 'damaged executable')
+  fs.writeFileSync(path.join(target, 'other.txt'), 'leave untouched')
+  const before = fs.readdirSync(target).toSorted()
+  await expect(
+    installTool(plan, cache, undefined, 'win32', { npm_execpath: executable }),
+  ).rejects.toThrow('Close this package-manager process')
+  expect(fs.readFileSync(executable, 'utf8')).toBe('damaged executable')
+  expect(fs.readFileSync(path.join(target, 'other.txt'), 'utf8')).toBe(
+    'leave untouched',
+  )
+  expect(fs.readdirSync(target).toSorted()).toEqual(before)
+  expect(
+    fs
+      .readdirSync(path.dirname(target))
+      .some(name => name.startsWith('.install-')),
+  ).toBe(false)
+})
+
+test('a direct Node bootstrap repairs an inactive Windows executable', async () => {
+  const cache = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-install-inactive-'),
+  )
+  directories.push(cache)
+  const bytes = Buffer.from('verified executable')
+  const plan: ToolPlan = {
+    name: 'pnpm',
+    version: '1.0.0',
+    asset: 'pnpm-test',
+    binary: 'pnpm.exe',
+    format: 'binary',
+    integrity: 'sha256-' + createHash('sha256').update(bytes).digest('base64'),
+    url: 'https://github.com/example/pnpm/releases/download/v1.0.0/pnpm-test',
+  }
+  const { toolDirectory } =
+    await import('../../../../scripts/repo/external-tools.mts')
+  const target = toolDirectory(plan, cache)
+  const { installTool } =
+    await import('../../../../scripts/repo/setup/install.mts')
+  mockPnpmDownload(bytes)
+  await installTool(plan, cache, undefined, 'win32', {})
+  fs.writeFileSync(path.join(target, plan.binary), 'damaged executable')
+  await installTool(plan, cache, undefined, 'win32', {})
+  expect(fs.readFileSync(path.join(target, plan.binary))).toEqual(bytes)
+})
