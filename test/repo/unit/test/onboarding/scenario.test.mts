@@ -11,6 +11,7 @@ import os from 'node:os'
 import path from 'node:path'
 import {
   runJourney,
+  runPlainSetupPreview,
   runReadmeHarnessSteps,
   type CommandOutput,
 } from '../../../../../scripts/repo/test/onboarding/scenario.mts'
@@ -46,6 +47,23 @@ const discovery = {
     },
   ],
 }
+
+test('plain setup preview skips platforms without the verified Linux script PTY', async () => {
+  const outcome = await runPlainSetupPreview(
+    '/tmp/onboarding.log',
+    '/tmp/checkout',
+    '/tmp/node',
+    {},
+    value => value,
+    'darwin',
+  )
+
+  expect(outcome).toMatchObject({
+    status: 'skipped',
+    code: null,
+    command: expect.stringContaining('skipped on darwin'),
+  })
+})
 
 test('expected pre-setup failure preserves its required exit code without extra probes', async () => {
   const phases: string[] = []

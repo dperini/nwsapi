@@ -373,11 +373,12 @@ export async function runPlainSetupPreview(
   node: string,
   env: NodeJS.ProcessEnv,
   redact: (value: string) => string,
+  platform: NodeJS.Platform = process.platform,
 ): Promise<TerminalMenuOutcome> {
-  if (process.platform === 'win32') {
+  if (platform !== 'linux') {
     return {
       phase: 'plain terminal setup preview',
-      command: 'skipped on Windows; script PTY is unavailable',
+      command: `skipped on ${platform}; preview PTY is verified on Linux only`,
       status: 'skipped',
       code: null,
       durationMs: 0,
@@ -389,6 +390,7 @@ export async function runPlainSetupPreview(
     env,
     timeoutMs: 60_000,
     previewOnly: true,
+    platform,
   })
   await writeFile(
     log,
