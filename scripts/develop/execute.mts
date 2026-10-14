@@ -10,6 +10,7 @@ import {
 } from '../lib/external-tools.mjs'
 import { managedEnvironment } from '../lib/tools/setup.mjs'
 import { npmInvocation } from '../lib/npm.mjs'
+import { taskCommandArgs } from './actions.mts'
 import type { Task } from './actions.mts'
 import { runProcess } from './process.mts'
 
@@ -52,7 +53,7 @@ function taskCommand(task: Task) {
   }
   if (!toolchainReady()) {
     throw new Error(
-      'Pinned tools are not ready. Run npm run setup, then retry.',
+      'Pinned tools are not ready. Run node scripts/setup.mjs, then retry.',
     )
   }
   const invocation = npmInvocation(['run', task.script])
@@ -111,8 +112,9 @@ export async function executeTask(
 ): Promise<TaskResult> {
   const request = taskCommand(task)
   const log = json ? console.error : console.log
+  const displayCommand = taskCommandArgs(task).join(' ')
   log(
-    `\n${task.name}\nRunning: ${task.script === 'setup' ? 'node scripts/setup.mjs' : `npm run ${task.script}`}\n`,
+    `\n${task.name}\nRunning: ${displayCommand}\n`,
   )
   const result = await runProcess(
     { ...request, cwd: REPO_ROOT },

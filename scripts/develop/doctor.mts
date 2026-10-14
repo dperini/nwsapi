@@ -1,7 +1,7 @@
+import { isMainModule } from '../lib/paths.mts'
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 import {
   REPO_ROOT,
@@ -14,14 +14,20 @@ import {
 import { managedEnvironment } from '../lib/tools/setup.mjs'
 import { activeTool, dependencyReport } from './diagnostics.mts'
 
-const toolNames = ['node', 'npm', 'pnpm', 'nub', 'mise']
+const toolNames = ['node', 'npm', 'nub', 'mise']
 
-interface DoctorOptions {
+export interface DoctorOptions {
   repoRoot?: string
   toolBin?: string
   statePath?: string
   log?: (message: string) => void
   env?: NodeJS.ProcessEnv
+}
+
+export function doctorNextCommand(ready: boolean) {
+  return ready
+    ? 'node scripts/develop/run.mts'
+    : 'node scripts/setup.mjs'
 }
 
 export function doctorReport({
@@ -100,7 +106,7 @@ export function doctorReport({
   log(
     'Repository tasks use the pinned checkout tools. External tool defaults are preserved.',
   )
-  log(`Next command: ${ready ? 'npm run dev' : 'npm run setup'}`)
+  log(`Next command: ${doctorNextCommand(ready)}`)
   return {
     ready,
     stateCurrent,
@@ -141,6 +147,6 @@ export function main(
   return report.ready ? 0 : 1
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isMainModule(import.meta.url)) {
   process.exitCode = main()
 }

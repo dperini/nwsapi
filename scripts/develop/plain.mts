@@ -1,6 +1,6 @@
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
-import { TASKS, taskInstructions } from './actions.mts'
+import { TASKS, taskCommandArgs, taskInstructions } from './actions.mts'
 import type { MenuState } from './actions.mts'
 
 export async function question(prompt: string) {
@@ -25,7 +25,7 @@ export function printTasks() {
   console.log('nwsapi v2 developer menu\n')
   for (const task of TASKS) {
     console.log(
-      `${task.name}\n  ${task.description}\n  npm run ${task.script}\n`,
+      `${task.name}\n  ${task.description}\n  ${taskCommandArgs(task).join(' ')}\n`,
     )
   }
 }

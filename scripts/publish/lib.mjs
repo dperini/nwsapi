@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { npmInvocation } from '../lib/npm.mjs'
+import { managedEnvironment } from '../lib/tools/setup.mjs'
 import { root } from './setup.mjs'
 
 export const repository = 'dperini/nwsapi'
@@ -84,7 +86,8 @@ export function npm(args, { trusted = false, cwd, interactive = false } = {}) {
       writeFileSync(env.NPM_CONFIG_USERCONFIG, '')
       writeFileSync(env.NPM_CONFIG_GLOBALCONFIG, '')
     }
-    return run('npm', [...args, '--registry', registry], { cwd: cwd || temporary, env, interactive, shell: process.platform === 'win32' })
+    const invocation = npmInvocation([...args, '--registry', registry])
+    return run(invocation.command, invocation.args, { cwd: cwd || temporary, env: managedEnvironment(env), interactive, shell: invocation.shell })
   } finally {
     rmSync(temporary, { recursive: true, force: true })
   }
@@ -149,6 +152,14 @@ export function packManifest(source) {
   return manifest
 }
 
+export function packDetails(response) {
+  const packed = Array.isArray(response) ? response.length === 1 && response[0] : response?.nwsapi || response
+  if (!packed || !Array.isArray(packed.files) || !packed.files.every(file => typeof file?.path === 'string') || typeof packed.filename !== 'string') {
+    throw new Error('npm pack returned invalid package metadata. Run node scripts/setup.mjs to provision the pinned npm, then retry.')
+  }
+  return packed
+}
+
 export function packRelease(directory, output) {
   const manifest = packManifest(readJson(path.join(directory, 'package.json')))
   validateVersion(manifest.version)
@@ -162,7 +173,7 @@ export function packRelease(directory, output) {
     }
     // Repository setup must never run for consumers, including installs from a tarball.
     writeJson(path.join(payload, 'package.json'), manifest)
-    const packed = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', output], { cwd: payload })).nwsapi
+    const packed = packDetails(JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', output], { cwd: payload })))
     const expectedFiles = ['LICENSE', 'README.md', 'package.json', 'src/nwsapi.js']
     if (JSON.stringify(packed.files.map(file => file.path).sort()) !== JSON.stringify(expectedFiles)) throw new Error('Unexpected files in the release tarball.')
     const tarball = path.join(output, `nwsapi-${manifest.version}.tgz`)

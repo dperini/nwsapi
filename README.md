@@ -8,6 +8,59 @@ NWSAPI is the development progress of [NWMATCHER](https://github.com/dperini/nwm
 
 It uses [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) to parse CSS selector strings and [metaprogramming](https://en.wikipedia.org/wiki/Metaprogramming) to transforms these selector strings into Javascript function resolvers. This process is executed only once for each selector string allowing memoization of the function resolvers and achieving unmatched performances.
 
+<!-- <onboarding> -->
+
+## Start contributing
+
+Use Node.js 22.18 or newer, Git, and network access. Setup checks the archive
+commands needed on your platform. From the checkout root, bootstrap the tools and
+dependencies pinned for this checkout:
+
+<!-- onboarding:bootstrap:start -->
+```sh
+node scripts/setup.mjs
+```
+<!-- onboarding:bootstrap:end -->
+
+Setup selects pinned Node.js and npm under `.cache/`, installs the lockfile,
+and prepares the package. It does not change global tools or PATH. Start the
+guided workflow with:
+
+```sh
+node scripts/develop/run.mts
+```
+
+Use `.cache/bin/npm` for package scripts on macOS and Linux or
+`.cache\bin\npm.cmd` on Windows.
+
+With Node.js 26.11.0 and npm 12.2.0 or newer, direct installation also runs
+core preparation:
+
+<!-- onboarding:install:start -->
+```sh
+npm i
+```
+<!-- onboarding:install:end -->
+
+For agent discovery and a readiness check, run:
+
+<!-- onboarding:discovery:start -->
+```sh
+node scripts/develop/run.mts --list --json
+```
+<!-- onboarding:discovery:end -->
+
+<!-- onboarding:readiness:start -->
+```sh
+node scripts/develop/run.mts --task setup:check --json
+```
+<!-- onboarding:readiness:end -->
+
+See [Make your first change](docs/repo/development/first-change.md) and the
+[v2 toolchain notes](docs/repo/development/toolchain.md) for the full workflow.
+
+<!-- </onboarding> -->
+
 ## Installation
 
 To include NWSAPI in a standard web page:
@@ -150,30 +203,11 @@ NW.Dom.registerSelector('Controls', /^\:(control)(.*)/i,
 
 ## Development setup
 
-Use Node.js 22.18 or newer to start setup from the checkout root. The direct
-Node entry point works before the pinned npm is installed:
-
-```sh
-node scripts/setup.mjs
-```
-
-Setup verifies the tools pinned in `.config/external-tools.json`, installs
-dependencies with the pinned npm, prepares release tooling and PHP, sets up
-Web Platform Tests, and installs Chromium. Tools and isolated `mise` state stay
-in the checkout's ignored `.cache/` directory. Setup does not change global
-tools or shell configuration.
-
-V2 uses npm and `package-lock.json`. Its `preinstall` guard rejects other
-package managers. Add `--tools-only` to provision tools without installing
-dependencies or test fixtures. After switching branches, rerun setup to
-replace dependencies and restore the tools for that checkout. Setup needs Git,
-archive extraction tools, and network access.
-
-After setup, run `npm run dev` for the guided contributor menu. It offers
-documentation, review, and read-only setup diagnostics. Follow [the first
-change guide](docs/repo/development/first-change.md) for the canonical edit,
-review, commit, and push steps. See [the v2 toolchain
-notes](docs/repo/development/toolchain.md) for setup and harness details.
+For optional PHP, Web Platform Tests, and Chromium fixtures, run
+`node scripts/setup.mjs --full`. Add `--tools-only` to provision checkout
+tools without installing dependencies. V2 uses npm and `package-lock.json`.
+Keep v2 and v3 in separate worktrees. See [Make your first change](docs/repo/development/first-change.md)
+and the [v2 toolchain notes](docs/repo/development/toolchain.md) for details.
 
 ## 💖 Support & Sponsoring
 
