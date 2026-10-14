@@ -139,6 +139,11 @@ export async function runPlainSetup(
     path.join(options.checkout, '.cache'),
   ]
   const existedBefore = targets.map(target => exists(target))
+  if (options.previewOnly && existedBefore.some(Boolean)) {
+    throw new Error(
+      'Preview verification requires a fresh checkout without tools or dependencies.',
+    )
+  }
   const request = terminalCommand(options.checkout, options.node, platform)
   const spawnTerminal = options.spawnProcess ?? spawn
   const child = spawnTerminal(request.command, request.args, {

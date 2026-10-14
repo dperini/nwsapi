@@ -23,6 +23,7 @@ export const ONBOARDING_INPUT_PATHS = [
   '.config/external-tools.json',
   '.config/generated/external-tools.mts',
   '.config/node-interop.json',
+  '.config/build.config.mts',
   'package.json',
   'package-lock.json',
   'pnpm-lock.yaml',
@@ -33,6 +34,9 @@ export const ONBOARDING_INPUT_PATHS = [
   'scripts/repo/external-tools.mts',
   'scripts/repo/lib/paths.mts',
   'scripts/repo/lib/run-node.mts',
+  'scripts/repo/lib/named-blocks.mts',
+  'scripts/repo/lib/platform.mts',
+  'scripts/repo/lib/package-manager.mts',
 ] as const
 
 function matchesOnboardingInput(file: string, input: string) {
@@ -46,8 +50,9 @@ export function onboardingBlock(markdown: string): string | undefined {
 }
 
 export function onboardingInput(file: string): boolean {
-  return file !== 'README.md' && ONBOARDING_INPUT_PATHS.some(input =>
-    matchesOnboardingInput(file, input),
+  return (
+    file !== 'README.md' &&
+    ONBOARDING_INPUT_PATHS.some(input => matchesOnboardingInput(file, input))
   )
 }
 

@@ -52,7 +52,7 @@ export const TASKS: readonly Task[] = [
     description: 'Check missing tools or incompatible versions.',
     detail:
       'Checks tools and suggests the next command.\nRead-only. Use this whenever setup needs attention.',
-    next: 'Follow the report. For executable paths: pnpm run setup:check --details.',
+    next: 'Follow the report. For executable paths: node scripts/repo/setup/doctor.mts --details.',
     optional: true,
   },
   {

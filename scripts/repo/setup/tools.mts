@@ -32,6 +32,7 @@ import {
 } from '../node.mts'
 import { installTool } from './install.mts'
 import { writeFirewallShim } from './firewall.mts'
+import { checkPrerequisites } from './prerequisites.mts'
 import { registerNub } from './mise.mts'
 
 export function activateTool(
@@ -61,26 +62,7 @@ export function activateTool(
   }
 }
 
-export async function setupTools() {
-  rmSync(TOOLCHAIN_STATE, { force: true })
-  writeFirewallShim('npm')
-  writeFirewallShim('pnpm')
-  checkExternalTools()
-  const versions = toolVersions()
-  const executables = Object.create(null) as Record<
-    'nub' | 'pnpm' | 'npm' | 'sfw' | 'mise',
-    string
-  >
-  const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
-  for (let i = 0, length = names.length; i < length; i += 1) {
-    const name = names[i]!
-    executables[name] = await installTool(toolPlan(name))
-  }
-  registerNub()
-  installNodeVersions([
-    ...new Set([versions['node']!, ...NODE_INTEROP_VERSIONS]),
-  ])
-  const node = realpathSync(resolveNodeRuntime(versions['node']!))
+export async function installSpecialTools(versions = toolVersions()) {
   const moldPlatform = toolPlatform()
   if (moldPlatform === 'linux-x64' || moldPlatform === 'linux-arm64') {
     const mold = await installTool(toolPlan('mold', moldPlatform))
@@ -93,6 +75,32 @@ export async function setupTools() {
       throw new Error(`Expected mold ${versions['mold']}, received ${actual}`)
     }
     activateTool('mold', mold)
+  }
+}
+
+export async function setupTools({ full = false } = {}) {
+  checkExternalTools()
+  checkPrerequisites()
+  rmSync(TOOLCHAIN_STATE, { force: true })
+  writeFirewallShim('npm')
+  writeFirewallShim('pnpm')
+  const versions = toolVersions()
+  const executables = Object.create(null) as Record<
+    'nub' | 'pnpm' | 'npm' | 'sfw' | 'mise',
+    string
+  >
+  const names = ['nub', 'pnpm', 'npm', 'sfw', 'mise'] as const
+  for (let i = 0, length = names.length; i < length; i += 1) {
+    const name = names[i]!
+    executables[name] = await installTool(toolPlan(name))
+  }
+  registerNub()
+  installNodeVersions([
+    ...new Set([versions['node']!, ...(full ? NODE_INTEROP_VERSIONS : [])]),
+  ])
+  const node = realpathSync(resolveNodeRuntime(versions['node']!))
+  if (full) {
+    await installSpecialTools(versions)
   }
   const env = nodeInteropEnvironment()
   for (let i = 0, length = names.length; i < length; i += 1) {
@@ -134,12 +142,12 @@ export async function main(
 ) {
   const { values } = parseArgs({
     args,
-    options: { 'github-path': { type: 'boolean' } },
+    options: { 'github-path': { type: 'boolean' }, full: { type: 'boolean' } },
   })
   if (values['github-path'] && !env['GITHUB_PATH']) {
     throw new Error('GITHUB_PATH is required with --github-path.')
   }
-  const bin = await setup()
+  const bin = values.full ? await setup({ full: true }) : await setup()
   if (values['github-path']) {
     appendFileSync(env['GITHUB_PATH']!, bin + '\n')
   }

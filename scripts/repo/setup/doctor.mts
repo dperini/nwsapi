@@ -1,4 +1,4 @@
-import { REPO_ROOT } from '../lib/paths.mts'
+import { REPO_ROOT, DEVELOPER_MENU_COMMAND } from '../lib/paths.mts'
 import { parseArgs } from 'node:util'
 import { toolVersions } from '../external-tools.mts'
 import { isMainModule } from '../lib/run-node.mts'
@@ -82,7 +82,7 @@ export function formatToolReports(
   const lines = [
     ready
       ? 'Toolchain ready. Repository commands can use the pinned checkout tools.'
-      : 'Toolchain setup needed. Run pnpm run setup to prepare this checkout.',
+      : 'Toolchain setup needed. Run node scripts/repo/setup/bootstrap.mts to prepare this checkout.',
   ]
   for (const report of reports) {
     const status = report.meetsMinimum
@@ -99,7 +99,7 @@ export function formatToolReports(
     'Version minimums describe external tools. Repository tasks use the pinned runtime and managers together.',
     'External tools and shell defaults stay under their current manager.',
     ready && readiness?.dependencies.ready
-      ? 'Next: pnpm run dev to choose documentation or review.'
+      ? `Next: ${DEVELOPER_MENU_COMMAND.join(' ')}`
       : 'Next: node scripts/repo/setup/bootstrap.mts',
   )
   const progress = setupProgress()
@@ -107,7 +107,7 @@ export function formatToolReports(
     lines.push(`Last recorded setup: ${progress.phase} — ${progress.state}`)
   }
   if (!details) {
-    lines.push('Details: pnpm run setup:check --details')
+    lines.push('Details: node scripts/repo/setup/doctor.mts --details')
   } else {
     lines.push(
       'Resolution uses PATH. Shell aliases, functions, and external wrapper contents are not inspected.',
@@ -136,7 +136,7 @@ export async function main(
 }
 
 const DOCTOR_HELP =
-  'Usage: pnpm run setup:check [--details] [--task guide|review]\nReports readiness without changing tools or shell settings. Default checks pinned tools and installed dependencies.'
+  'Usage: node scripts/repo/setup/doctor.mts [--details] [--task guide|review]\nReports readiness without changing tools or shell settings. Default checks pinned tools and installed dependencies.'
 
 function parseDoctorArgs(args: string[]) {
   return parseArgs({

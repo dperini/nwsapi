@@ -11,6 +11,7 @@ import {
   externalToolVersion,
   redact,
 } from './environment.mts'
+import { verifyBootstrapHandoff } from './handoff.mts'
 import { runBounded } from './process.mts'
 import * as reviewReports from './reports.mts'
 import {
@@ -228,24 +229,24 @@ async function runScenario(
   log: string,
   context: SnapshotContext,
 ) {
+  const preview = await runPlainSetupPreview(
+    log,
+    context.snapshot,
+    options.node,
+    context.env,
+    redact,
+  )
+  phases.push(preview)
+  if (preview.error) {
+    throw new Error(preview.error)
+  }
   if (options.scenario === 'bootstrap') {
-    const bootstrap = (await readJourney(context.snapshot)).find(
-      step => step.id === 'bootstrap',
-    )
-    if (!bootstrap) {
-      throw new Error('README bootstrap step is missing.')
-    }
-    const args =
-      bootstrap.command[0] === 'node'
-        ? bootstrap.command.slice(1)
-        : bootstrap.command
-    await command(
+    await verifyBootstrapHandoff(
       log,
-      'literal README bootstrap journey',
-      options.node,
-      args,
       context.snapshot,
+      options.node,
       context.env,
+      command,
     )
     await runReadmeHarnessSteps(
       log,
@@ -283,17 +284,6 @@ async function runGuidedScenario(
     redact,
     recordGuideOutcome,
     async () => {
-      const preview = await runPlainSetupPreview(
-        log,
-        context.snapshot,
-        options.node,
-        context.env,
-        redact,
-      )
-      phases.push(preview)
-      if (preview.error) {
-        throw new Error(preview.error)
-      }
       const outcome = await runPlainSetupMenu(
         log,
         context.snapshot,

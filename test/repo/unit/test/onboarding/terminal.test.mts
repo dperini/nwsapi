@@ -351,3 +351,20 @@ function captureParentSignals() {
     get: (signal: string) => handlers.get(signal),
   }
 }
+
+test('preview verification rejects prepared checkouts before launching a terminal', async () => {
+  const spawnProcess = vi.fn<SpawnTerminal>()
+  await expect(
+    runPlainSetup({
+      checkout: '/checkout',
+      node: process.execPath,
+      env: {},
+      timeoutMs: 1000,
+      previewOnly: true,
+      platform: 'linux',
+      exists: () => true,
+      spawnProcess,
+    }),
+  ).rejects.toThrow('fresh checkout')
+  expect(spawnProcess).not.toHaveBeenCalled()
+})

@@ -5,6 +5,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 export const REPO_ROOT = path.resolve(
   fileURLToPath(new URL('../../../', import.meta.url)),
 )
+export const DEVELOPER_RUN_REL_PATH = 'scripts/repo/develop/run.mts'
+export const DEVELOPER_MENU_COMMAND = ['node', DEVELOPER_RUN_REL_PATH] as const
 export const SOURCE_DIR = path.join(REPO_ROOT, 'src')
 export const CORE_SOURCE_DIR = path.join(SOURCE_DIR, 'core')
 export const REPO_SCRIPT_DIR = path.join(REPO_ROOT, 'scripts/repo')

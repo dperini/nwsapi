@@ -42,11 +42,11 @@ export async function verifySnapshotIntegrity(context: SnapshotContext) {
   if (JSON.stringify(context.sentinels) !== JSON.stringify(sentinelsAfter)) {
     throw new Error('Shell/global-config sentinel changed.')
   }
-  const finalHead = execFileSync(
-    context.gitExecutable,
-    ['rev-parse', 'HEAD'],
-    { cwd: context.snapshot, env: context.env, encoding: 'utf8' },
-  ).trim()
+  const finalHead = execFileSync(context.gitExecutable, ['rev-parse', 'HEAD'], {
+    cwd: context.snapshot,
+    env: context.env,
+    encoding: 'utf8',
+  }).trim()
   if (finalHead !== context.initialCommit) {
     throw new Error('Snapshot HEAD changed during onboarding.')
   }

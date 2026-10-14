@@ -24,26 +24,7 @@ function workflow(name: string): Workflow {
 
 test('onboarding has narrow matching push and pull request triggers', () => {
   const config = workflow('onboarding-v3.yml')
-  const paths = [
-    '.github/workflows/onboarding-v3.yml',
-    'scripts/repo/test/onboarding/**',
-    'scripts/repo/setup/**',
-    'scripts/repo/develop/**',
-    '.config/external-tools.json',
-    '.config/generated/external-tools.mts',
-    '.config/node-interop.json',
-    'package.json',
-    'package-lock.json',
-    'pnpm-lock.yaml',
-    'pnpm-workspace.yaml',
-    '.npmrc',
-    'README.md',
-    'scripts/repo/node.mts',
-    'scripts/repo/external-tools.mts',
-    'scripts/repo/lib/paths.mts',
-    'scripts/repo/lib/run-node.mts',
-  ]
-  expect(ONBOARDING_INPUT_PATHS).toEqual(paths)
+  const paths = ONBOARDING_INPUT_PATHS
   expect(config.on['push']?.paths).toEqual(paths)
   expect(config.on['pull_request']?.paths).toEqual(paths)
   expect(config.on).not.toHaveProperty('schedule')

@@ -1,7 +1,9 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { createInterface } from 'node:readline/promises'
 import path from 'node:path'
+import { parseArgs } from 'node:util'
 import { stdin, stdout } from 'node:process'
+import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { managedCommand, managedEnvironment } from '../manager.mts'
 import type { ManagedResult } from '../manager.mts'
@@ -68,7 +70,7 @@ export async function setupVoiceOver(options: VoiceOverOptions = {}) {
   const choice = options.choice ?? 'ask'
   if (choice === 'ask' && !(await confirmVoiceOver(options))) {
     log(
-      'Skipped optional VoiceOver setup. Run pnpm run setup -- --voiceover to retry.',
+      'Skipped optional VoiceOver setup. Run node scripts/repo/setup/voiceover/run.mts to retry.',
     )
     return { status: 0, signal: null }
   }
@@ -118,13 +120,13 @@ async function configureVoiceOver(
   )
   if (!successful(installed)) {
     log(
-      'VoiceOver assets could not be installed. Core setup is complete. Retry with pnpm run setup -- --voiceover.',
+      'Optional VoiceOver assets could not be installed. Retry with node scripts/repo/setup/voiceover/run.mts.',
     )
     return installed
   }
   if (state.machineSetup === 'unknown') {
     log(
-      'VoiceOver assets are ready, but machine settings could not be read. Review permissions for your terminal application in System Settings, then retry with pnpm run setup -- --voiceover. Setup did not change machine settings.',
+      'VoiceOver assets are ready, but machine settings could not be read. Review permissions for your terminal application in System Settings, then retry with node scripts/repo/setup/voiceover/run.mts. Setup did not change machine settings.',
     )
     await offerSettingsPanel(options, log, 'privacy')
     return { status: 1, signal: null }
@@ -171,7 +173,7 @@ async function configureVoiceOver(
     )
     if (!successful(configured)) {
       log(
-        'VoiceOver setup did not finish. Core setup remains complete. Enable “Allow VoiceOver to be controlled with AppleScript” in VoiceOver Utility, then retry with pnpm run setup -- --voiceover.',
+        'Optional VoiceOver setup did not finish. Enable “Allow VoiceOver to be controlled with AppleScript” in VoiceOver Utility, then retry with node scripts/repo/setup/voiceover/run.mts.',
       )
       await offerSettingsPanel(options, log, 'utility')
       return configured
@@ -310,4 +312,29 @@ const settingsDestinations = {
       'Open macOS Privacy & Security to review your terminal application permissions? [y/N] ',
     target: 'x-apple.systempreferences:com.apple.preference.security',
   },
+}
+
+export async function main(
+  args: string[] = [],
+  options: VoiceOverOptions = {},
+) {
+  const { values } = parseArgs({
+    args,
+    options: {
+      help: { type: 'boolean', short: 'h' },
+      yes: { type: 'boolean' },
+    },
+  })
+  if (values.help) {
+    ;(options.log ?? console.log)(
+      'Usage: node scripts/repo/setup/voiceover/run.mts [--yes]\nRetries optional VoiceOver assets and settings only. Core setup is not rerun.\nSettings persist. Narration is never started. Interactive confirmation defaults to skip.\n--yes explicitly opts in, including without a terminal.',
+    )
+    return { status: 0, signal: null }
+  }
+  return setupVoiceOver({ choice: values.yes ? 'yes' : 'ask', ...options })
+}
+
+if (isMainModule(import.meta.url)) {
+  const result = await main(process.argv.slice(2))
+  process.exitCode = result.signal ? 130 : (result.status ?? 1)
 }

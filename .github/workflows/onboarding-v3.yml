@@ -12,6 +12,7 @@ on:
       - .config/external-tools.json
       - .config/generated/external-tools.mts
       - .config/node-interop.json
+      - .config/build.config.mts
       - package.json
       - package-lock.json
       - pnpm-lock.yaml
@@ -22,6 +23,9 @@ on:
       - scripts/repo/external-tools.mts
       - scripts/repo/lib/paths.mts
       - scripts/repo/lib/run-node.mts
+      - scripts/repo/lib/named-blocks.mts
+      - scripts/repo/lib/platform.mts
+      - scripts/repo/lib/package-manager.mts
   pull_request:
     branches: [prerelease/3.0.0]
     paths:
@@ -32,6 +36,7 @@ on:
       - .config/external-tools.json
       - .config/generated/external-tools.mts
       - .config/node-interop.json
+      - .config/build.config.mts
       - package.json
       - package-lock.json
       - pnpm-lock.yaml
@@ -42,6 +47,9 @@ on:
       - scripts/repo/external-tools.mts
       - scripts/repo/lib/paths.mts
       - scripts/repo/lib/run-node.mts
+      - scripts/repo/lib/named-blocks.mts
+      - scripts/repo/lib/platform.mts
+      - scripts/repo/lib/package-manager.mts
   workflow_dispatch:
 
 permissions:
@@ -105,7 +113,7 @@ jobs:
   journey:
     needs: plan
     if: needs.plan.outputs.run == 'true'
-    name: 'journey (${{ matrix.os }}, ${{ matrix.manager }})'
+    name: '${{ matrix.manager == ''npm'' && ''npm entry -> pnpm workflow'' || ''pnpm workflow'' }} (${{ matrix.os }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     strategy:

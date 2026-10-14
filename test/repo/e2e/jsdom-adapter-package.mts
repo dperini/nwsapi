@@ -1,5 +1,6 @@
 import {
   NODE_INTEROP_VERSIONS,
+  installNodeVersions,
   nodeInteropEnvironment,
   resolveNodeRuntime,
 } from '../../../scripts/repo/node.mts'
@@ -102,6 +103,7 @@ try {
   )
   const consumer = path.join(directory, 'node-interop.mts')
   copyFileSync(new URL('./fixture/node-interop.mts', import.meta.url), consumer)
+  installNodeVersions()
   for (const version of NODE_INTEROP_VERSIONS) {
     const executable = resolveNodeRuntime(version)
     console.log(`Testing package interoperability on Node ${version}`)

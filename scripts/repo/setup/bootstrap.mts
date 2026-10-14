@@ -3,19 +3,30 @@ import { isMainModule } from '../lib/run-node.mts'
 import { executeManaged, setupNotice } from './manager.mts'
 import type { ManagedRun } from './manager.mts'
 import { setupTools } from './tools.mts'
+import { buildReadiness } from './build.mts'
+import { REPO_ROOT, DEVELOPER_MENU_COMMAND } from '../lib/paths.mts'
+import { toolVersions } from '../external-tools.mts'
 import { recordSetupProgress } from './progress.mts'
 import { setupVoiceOver } from './voiceover/run.mts'
 import type { VoiceOverChoice } from './voiceover/run.mts'
 
-async function phase<T>(name: string, action: () => T | Promise<T>) {
+export async function phase<T>(name: string, action: () => T | Promise<T>) {
+  const started = performance.now()
   console.log(name)
   recordSetupProgress(name, 'running')
   try {
     const result = await action()
-    recordSetupProgress(name, 'complete')
+    const outcome =
+      typeof result === 'object' && result !== null && 'status' in result
+        ? (result as { status: number | null; signal?: string | null })
+        : undefined
+    const paused = outcome && (outcome.status !== 0 || Boolean(outcome.signal))
+    const elapsedMs = Math.round(performance.now() - started)
+    recordSetupProgress(name, paused ? 'paused' : 'complete', elapsedMs)
+    console.log(`Finished ${name} in ${elapsedMs}ms.`)
     return result
   } catch (error) {
-    recordSetupProgress(name, 'paused')
+    recordSetupProgress(name, 'paused', Math.round(performance.now() - started))
     throw error
   }
 }
@@ -38,6 +49,7 @@ export async function bootstrap(
   run: ManagedRun = executeManaged,
   voiceOverChoice: VoiceOverChoice = 'ask',
   setupOptionalVoiceOver = setupVoiceOver,
+  outputsReady = () => buildReadiness(REPO_ROOT).ready,
 ) {
   const directory = await phase(
     toolsOnly
@@ -51,23 +63,33 @@ export async function bootstrap(
     )
     return { status: 0, signal: null }
   }
-  const installation = '2 of 3: Install dependencies'
+  const installation = '2 of 3: Install dependencies and prepare package'
   const result = await phase(installation, () =>
     run(['install', '--frozen-lockfile'], directory),
   )
   if (!completed(installation, result)) {
     return result
   }
-  const preparation = '3 of 3: Build package'
-  const prepared = await phase(preparation, () =>
-    run(['run', 'prepare'], directory),
-  )
+  const preparation = '3 of 3: Verify package outputs'
+  const prepared = await phase(preparation, () => {
+    if (outputsReady()) {
+      return { status: 0, signal: null }
+    }
+    console.log('Build outputs are missing. Repairing preparation.')
+    return run(['run', 'prepare'], directory)
+  })
   if (completed(preparation, prepared)) {
     console.log(
-      'Setup complete. Next: node scripts/repo/develop/run.mts --task guide --json',
+      `Core checkout: ready. Tools: verified. Dependencies: installed. Build: ready.\nWorkflow: pnpm ${toolVersions()['pnpm']}.\nNext: ${DEVELOPER_MENU_COMMAND.join(' ')}`,
     )
     const optional = await setupOptionalVoiceOver({ choice: voiceOverChoice })
     if (optional.status !== 0 || optional.signal) {
+      console.error(
+        'Core checkout: ready. Optional VoiceOver setup: incomplete.',
+      )
+      console.error(
+        'Retry optional setup: node scripts/repo/setup/voiceover/run.mts',
+      )
       return optional
     }
   }
@@ -102,6 +124,8 @@ export async function main(
         choice: setupChoice(values),
       })
       if (optional.status !== 0 || optional.signal) {
+        log('Core checkout: ready. Optional VoiceOver setup: incomplete.')
+        log('Retry optional setup: node scripts/repo/setup/voiceover/run.mts')
         return optional
       }
     }

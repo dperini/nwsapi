@@ -21,14 +21,15 @@ workflow uses npm and rejects pnpm installation.
 2. Start a separate clean checkout with the pinned contributor Node and the
    journey's entry manager. Run the README's literal install command. This
    separate environment ensures bootstrap cannot hide missing install behavior.
-3. Discover developer tasks and check readiness. On Linux, drive the numbered
-   setup wizard through a real PTY, preview the command, confirm it, and exit.
-4. Run setup through the JSON harness and check readiness again. Setup uses
-   managed pnpm, including when installation began with npm.
-5. Start the documentation server, fetch its HTML and modules, stop it, and
-   verify shutdown. Run the discovered review task.
-6. Remove `dist/`, repeat setup, and verify the rebuilt package and exports.
-   Check both Socket Firewall launchers and the final checkout state.
+3. On Linux, preview setup in a fresh checkout and quit before confirmation.
+   Verify that tools and dependencies were not created. Then drive the numbered
+   setup wizard through a real PTY, confirm it, and exit.
+4. Remove build outputs, run the existing setup task through the JSON harness,
+   and verify the rebuilt package and exports. This is also the npm-to-pnpm
+   handoff and the recovery check, rather than another intact-checkout install.
+5. Check readiness, start the documentation server, fetch its HTML and modules,
+   stop it, and verify shutdown. Run the discovered review task.
+6. Check both Socket Firewall launchers and the final checkout state.
 
 The native terminal prompt check currently runs on Linux. macOS and Windows
 run the JSON harness workflow and explicitly report the PTY check as skipped.
@@ -52,7 +53,8 @@ connections with bounded retries and integrity verification.
 
 Logs, phase summaries, and failed review reports are uploaded as separate
 bootstrap and manager-journey artifacts per operating system. Each manager job
-summarizes its developer-workflow result. Local logs remain under
+summarizes its developer-workflow result and phase durations. The npm entry is
+labelled separately from the managed pnpm workflow. Local logs remain under
 `.cache/onboarding/`.
 
 ## CI coverage
@@ -62,7 +64,8 @@ Pull requests run bootstrap and the two manager journeys on Linux. Pushes to
 and six manager journeys. Manual dispatch runs the same matrix.
 
 Automatic runs are limited to the onboarding workflow, onboarding runner,
-setup scripts, developer helper, external-tool manifest, `package.json`, and
+setup scripts, developer helper, pinned manifests, lockfiles, workspace and
+package-manager configuration, shared installer helpers, and
 the README consumed by the runner. A small planning job compares the README's
 `<!-- <onboarding> -->` and `<!-- </onboarding> -->` section. README edits outside
 that block skip the full journeys. Missing, duplicate, or malformed markers
