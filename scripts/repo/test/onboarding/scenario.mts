@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
-import { access, rm, stat, writeFile } from 'node:fs/promises'
+import { access, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
 import {
   assertHarnessResult,
   assertTaskDiscovery,
@@ -13,6 +12,10 @@ export { resolveReadmeBootstrapRepairCommand } from './readme/commands.mts'
 export type { ResolvedReadmeHarnessCommand } from './readme/commands.mts'
 import { externalToolVersion } from './environment.mts'
 import { runPlainSetup } from './terminal.mts'
+import { verifyBuildOutputs } from './build.mts'
+export { verifyBuildOutputs } from './build.mts'
+export type { BuildInventory } from './build.mts'
+import type { BuildInventory } from './build.mts'
 
 export interface CommandOutput {
   code: number | null
@@ -244,6 +247,7 @@ export async function runJourney(
   recordGuide: (outcome: GuideOutcome) => void,
   beforeSetup: BeforeSetup,
   installed = false,
+  buildInventory?: BuildInventory,
 ): Promise<GuideOutcome> {
   const list = await command(
     log,
@@ -317,7 +321,7 @@ export async function runJourney(
   if (!(await exists(path.join(checkout, 'dist')))) {
     throw new Error('Setup did not rebuild dist/.')
   }
-  await verifyBuildOutputs(log, checkout, node, env, command)
+  await verifyBuildOutputs(log, checkout, node, env, command, buildInventory)
   await harness(log, checkout, node, env, check.execution, 'completed', command)
   const guideOutcome = await startGuide(
     log,
@@ -459,38 +463,4 @@ export async function runPlainSetupPreview(
     code: result.code,
     durationMs: result.durationMs,
   }
-}
-
-export async function verifyBuildOutputs(
-  log: string,
-  checkout: string,
-  node: string,
-  env: NodeJS.ProcessEnv,
-  command: CommandRunner,
-) {
-  const { buildRequiredFiles } = await import(
-    pathToFileURL(path.join(checkout, 'scripts/repo/setup/build.mts')).href
-  )
-  for (const item of buildRequiredFiles() as Array<{ output: string }>) {
-    const output = path.join(checkout, item.output)
-    if (!(await exists(output)) || (await stat(output)).size === 0) {
-      throw new Error(`Build output is missing or empty: ${item.output}.`)
-    }
-  }
-  await command(
-    log,
-    'package manifest and export check',
-    node,
-    ['scripts/repo/build/manifest.mts'],
-    checkout,
-    env,
-  )
-  await command(
-    log,
-    'built engine module load smoke check',
-    node,
-    ['-e', "require('./dist/nwsapi.js')"],
-    checkout,
-    env,
-  )
 }

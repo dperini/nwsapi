@@ -9,12 +9,22 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { managedPnpmLauncherPath } from '../../../../../scripts/repo/test/onboarding/readme/commands.mts'
 import {
   runJourney,
   runPlainSetupPreview,
+  verifyBuildOutputs,
+  type BuildInventory,
   type CommandOutput,
 } from '../../../../../scripts/repo/test/onboarding/scenario.mts'
+
+const fixtureBuildInventory: BuildInventory = async checkout => {
+  const { packageFiles } = await import(
+    pathToFileURL(path.join(checkout, '.config/build.config.mts')).href
+  )
+  return packageFiles
+}
 
 const discovery = {
   schemaVersion: 1,
@@ -241,6 +251,7 @@ test.each([true, false])(
         vi.fn(),
         async () => undefined,
         installed,
+        fixtureBuildInventory,
       )
       expect(readFileSync(path.join(dist, 'index.js'), 'utf8')).toBe('rebuilt')
       expect(
@@ -260,3 +271,35 @@ test.each([true, false])(
     }
   },
 )
+
+test('build verification reports a missing output from the target inventory', async () => {
+  const checkout = mkdtempSync(
+    path.join(os.tmpdir(), 'nwsapi-journey-missing-'),
+  )
+  const command = vi.fn(async (): Promise<CommandOutput> => ({
+    code: 0,
+    stdout: '',
+    stderr: '',
+  }))
+  mkdirSync(path.join(checkout, '.config'), { recursive: true })
+  writeFileSync(
+    path.join(checkout, '.config/build.config.mts'),
+    "export const packageFiles = [{ output: 'dist/index.js' }]\n",
+  )
+
+  try {
+    await expect(
+      verifyBuildOutputs(
+        path.join(checkout, 'onboarding.log'),
+        checkout,
+        '/tmp/node',
+        {},
+        command,
+        fixtureBuildInventory,
+      ),
+    ).rejects.toThrow('Build output is missing or empty: dist/index.js.')
+    expect(command).not.toHaveBeenCalled()
+  } finally {
+    rmSync(checkout, { recursive: true, force: true })
+  }
+})
