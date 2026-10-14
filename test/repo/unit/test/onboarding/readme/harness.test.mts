@@ -68,3 +68,35 @@ test('failed literal README readiness records doctor details before assertion', 
     rmSync(checkout, { recursive: true, force: true })
   }
 })
+
+test('the quick-start setup command runs without requiring JSON output', async () => {
+  const checkout = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-menu-'))
+  try {
+    mkdirSync(path.join(checkout, '.cache', 'bin'), { recursive: true })
+    const launcher = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
+    writeFileSync(path.join(checkout, '.cache', 'bin', launcher), '')
+    writeFileSync(
+      path.join(checkout, 'README.md'),
+      '<!-- <onboarding> -->\n<!-- onboarding:pnpm-install:start -->\n```sh\npnpm i\npnpm run setup\n```\n<!-- onboarding:pnpm-install:end -->\n<!-- </onboarding> -->',
+    )
+    const run = vi.fn(async () => ({
+      code: 0,
+      stdout: 'Setup complete',
+      stderr: '',
+    }))
+    await runReadmeHarnessSteps('log', checkout, process.execPath, {}, run)
+    expect(run).toHaveBeenCalledOnce()
+    expect(run.mock.calls[0]).toEqual([
+      'log',
+      'literal README pnpm-install-2',
+      path.join(checkout, '.cache', 'bin', launcher),
+      ['run', 'setup'],
+      checkout,
+      { PATH: path.join(checkout, '.cache', 'bin') },
+      undefined,
+      0,
+    ])
+  } finally {
+    rmSync(checkout, { recursive: true, force: true })
+  }
+})

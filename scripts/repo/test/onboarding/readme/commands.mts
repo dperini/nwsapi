@@ -19,7 +19,9 @@ export function resolveReadmeHarnessCommand(
       ? ['pnpm', '--silent', 'run', 'dev', '--list', '--json']
       : step.id === 'readiness'
         ? ['pnpm', '--silent', 'run', 'dev', '--task', 'setup:check', '--json']
-        : undefined
+        : step.id === 'pnpm-install-2'
+          ? ['pnpm', 'run', 'setup']
+          : undefined
   if (!expected || JSON.stringify(step.command) !== JSON.stringify(expected)) {
     throw new Error(`README ${step.id} must use its pinned pnpm task command.`)
   }
