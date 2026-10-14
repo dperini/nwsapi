@@ -1,63 +1,10 @@
 name: 'ci: onboarding'
-run-name: 'ci: onboarding'
 
 on:
-  push:
-    branches: [prerelease/3.0.0]
-    paths:
-      - .github/workflows/onboarding-v3.yml
-      - scripts/repo/test/onboarding/**
-      - scripts/repo/setup/**
-      - scripts/repo/develop/**
-      - .config/external-tools.json
-      - .config/generated/external-tools.mts
-      - .config/node-interop.json
-      - .config/build.config.mts
-      - package.json
-      - package-lock.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .npmrc
-      - README.md
-      - scripts/repo/node.mts
-      - scripts/repo/external-tools.mts
-      - scripts/repo/lib/paths.mts
-      - scripts/repo/lib/run-node.mts
-      - scripts/repo/lib/named-blocks.mts
-      - scripts/repo/lib/platform.mts
-      - scripts/repo/lib/package-manager.mts
-  pull_request:
-    branches: [prerelease/3.0.0]
-    paths:
-      - .github/workflows/onboarding-v3.yml
-      - scripts/repo/test/onboarding/**
-      - scripts/repo/setup/**
-      - scripts/repo/develop/**
-      - .config/external-tools.json
-      - .config/generated/external-tools.mts
-      - .config/node-interop.json
-      - .config/build.config.mts
-      - package.json
-      - package-lock.json
-      - pnpm-lock.yaml
-      - pnpm-workspace.yaml
-      - .npmrc
-      - README.md
-      - scripts/repo/node.mts
-      - scripts/repo/external-tools.mts
-      - scripts/repo/lib/paths.mts
-      - scripts/repo/lib/run-node.mts
-      - scripts/repo/lib/named-blocks.mts
-      - scripts/repo/lib/platform.mts
-      - scripts/repo/lib/package-manager.mts
-  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   plan:

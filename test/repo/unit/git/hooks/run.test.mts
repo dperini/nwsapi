@@ -15,6 +15,14 @@ function pushHarness(
   const gitCalls: string[][] = []
   const plans: unknown[] = []
   const messages: string[] = []
+  const events: string[] = []
+  const runChecks = vi.fn(() => {
+    events.push('checks')
+  })
+  const runNodePlan = vi.fn(async (plan: unknown) => {
+    events.push('node')
+    plans.push(plan)
+  })
   const dependencies: PushHookDependencies = {
     runGit(args) {
       gitCalls.push(args)
@@ -36,13 +44,20 @@ function pushHarness(
         stdout: '',
       }
     },
-    runNodePlan: vi.fn(async plan => {
-      plans.push(plan)
-    }),
+    runChecks,
+    runNodePlan: runNodePlan as PushHookDependencies['runNodePlan'],
     log: message => messages.push(message),
     error: message => messages.push(message),
   }
-  return { dependencies, gitCalls, plans, messages }
+  return {
+    dependencies,
+    gitCalls,
+    plans,
+    messages,
+    events,
+    runChecks,
+    runNodePlan,
+  }
 }
 
 const update = (remoteSha = 'base') =>
@@ -86,6 +101,7 @@ test('skips deletion-only pushes without running checks', async () => {
   )
   expect(code).toBe(0)
   expect(harness.plans).toHaveLength(0)
+  expect(harness.runChecks).not.toHaveBeenCalled()
 })
 
 test('requires exact current HEAD and a clean checkout before testing', async () => {
@@ -95,6 +111,7 @@ test('requires exact current HEAD and a clean checkout before testing', async ()
   })
   expect(await runPrePush(update(), mismatch.dependencies)).toBe(1)
   expect(mismatch.plans).toHaveLength(0)
+  expect(mismatch.runChecks).not.toHaveBeenCalled()
 
   const dirty = pushHarness({
     'rev-parse': { status: 0, stdout: 'head\n' },
@@ -102,6 +119,70 @@ test('requires exact current HEAD and a clean checkout before testing', async ()
   })
   expect(await runPrePush(update(), dirty.dependencies)).toBe(1)
   expect(dirty.messages.join('\n')).toContain('clean checkout')
+  expect(dirty.runChecks).not.toHaveBeenCalled()
+})
+
+test('runs main repository checks before the CI test plan for docs-only changes', async () => {
+  const harness = pushHarness({
+    'rev-parse': { status: 0, stdout: 'head\n' },
+    status: { status: 0, stdout: '' },
+    'merge-base': { status: 0, stdout: 'merge\n' },
+    diff: { status: 0, stdout: 'M\0docs/repo/topic.md\0' },
+  })
+  expect(await runPrePush(update(), harness.dependencies)).toBe(0)
+  expect(harness.events).toEqual(['checks', 'node'])
+  expect(harness.runChecks).toHaveBeenCalledOnce()
+  expect(harness.plans[0]).toMatchObject({
+    browser: false,
+    fullNode: false,
+    node: false,
+    testFiles: [],
+  })
+})
+
+test('a failed main check stops the push and reports a concise error', async () => {
+  const harness = pushHarness({
+    'rev-parse': { status: 0, stdout: 'head\n' },
+    status: { status: 0, stdout: '' },
+    'merge-base': { status: 0, stdout: 'merge\n' },
+    diff: { status: 0, stdout: 'M\0docs/repo/topic.md\0' },
+  })
+  harness.runChecks.mockImplementation(() => {
+    throw new Error('generated metadata is stale')
+  })
+  expect(await runPrePush(update(), harness.dependencies)).toBe(1)
+  expect(harness.plans).toHaveLength(0)
+  expect(harness.messages.join('\n')).toContain(
+    '[hooks] Main repository checks failed: generated metadata is stale',
+  )
+})
+
+test('rechecks the checkout after main checks and after the CI test plan', async () => {
+  const changedByCheck = {
+    'rev-parse': { status: 0, stdout: 'head\n' },
+    status: { status: 0, stdout: '' },
+    'merge-base': { status: 0, stdout: 'merge\n' },
+    diff: { status: 0, stdout: 'M\0docs/repo/topic.md\0' },
+  }
+  const first = pushHarness(changedByCheck)
+  first.runChecks.mockImplementation(() => {
+    changedByCheck.status = { status: 0, stdout: ' M src/core/select.mts\n' }
+  })
+  expect(await runPrePush(update(), first.dependencies)).toBe(1)
+  expect(first.plans).toHaveLength(0)
+
+  const changedByNode = {
+    'rev-parse': { status: 0, stdout: 'head\n' },
+    status: { status: 0, stdout: '' },
+    'merge-base': { status: 0, stdout: 'merge\n' },
+    diff: { status: 0, stdout: 'M\0docs/repo/topic.md\0' },
+  }
+  const second = pushHarness(changedByNode)
+  second.runNodePlan.mockImplementation(async () => {
+    changedByNode.status = { status: 0, stdout: ' M src/core/select.mts\n' }
+  })
+  expect(await runPrePush(update(), second.dependencies)).toBe(1)
+  expect(second.messages.join('\n')).toContain('clean checkout')
 })
 
 test('uses the full Node plan for new branches or missing remote bases', async () => {

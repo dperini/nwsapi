@@ -16,7 +16,7 @@ test('the required Node gate includes runtime and every unit shard', () => {
   const { jobs } = workflow()
   expect(jobs.node.needs).toEqual(['runtime', 'unit'])
   expect(jobs.node.if).toBe(
-    "always() && (github.event_name == 'push' || github.event_name == 'pull_request')",
+    "always() && (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')",
   )
   const gate = jobs.node.steps.at(-1)
   expect(gate.if).toBe('always()')
@@ -33,6 +33,8 @@ test('the required Node gate includes runtime and every unit shard', () => {
   expect(jobs.unit.strategy.matrix.shard).toBe(
     '${{ fromJSON(needs.runtime.outputs.unitShards) }}',
   )
+  expect(jobs.runtime.if).toContain("github.event_name == 'workflow_dispatch'")
+  expect(jobs.node.if).toContain("github.event_name == 'workflow_dispatch'")
 })
 
 test('same-run shard artifacts keep fork permissions read-only', () => {
@@ -56,7 +58,7 @@ test('same-run shard artifacts keep fork permissions read-only', () => {
   expect(() => checkInlineWorkflows()).not.toThrow()
 })
 
-test('performance measurement runs only after the required push gates pass', () => {
+test('performance measurement remains push-only after the required gates pass', () => {
   const ci = workflow()
   const perf = parse(
     readFileSync(
@@ -66,7 +68,6 @@ test('performance measurement runs only after the required push gates pass', () 
   )
 
   expect(ci.jobs.perf.needs).toBe('node')
-  expect(ci.jobs).not.toHaveProperty('onboarding')
   expect(ci.jobs.perf.if).toBe(
     "github.event_name == 'push' && needs.node.result == 'success'",
   )

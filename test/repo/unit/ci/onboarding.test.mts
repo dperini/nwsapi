@@ -11,6 +11,8 @@ interface Workflow {
     string,
     {
       needs?: string | string[]
+      if?: string
+      uses?: string
       steps?: Array<{ run?: string; with?: Record<string, string> }>
     }
   >
@@ -22,12 +24,23 @@ function workflow(name: string): Workflow {
   ) as Workflow
 }
 
-test('onboarding has narrow matching push and pull request triggers', () => {
+test('onboarding is reusable and centralizes its change filter in the planner', () => {
   const config = workflow('onboarding-v3.yml')
-  const paths = ONBOARDING_INPUT_PATHS
-  expect(config.on['push']?.paths).toEqual(paths)
-  expect(config.on['pull_request']?.paths).toEqual(paths)
-  expect(config.on).not.toHaveProperty('schedule')
+  expect(Object.keys(config.on)).toEqual(['workflow_call'])
+  expect(config).not.toHaveProperty('concurrency')
+  expect(ONBOARDING_INPUT_PATHS).toContain('.github/workflows/ci.yml')
+  expect(new Set(ONBOARDING_INPUT_PATHS).size).toBe(
+    ONBOARDING_INPUT_PATHS.length,
+  )
+})
+
+test('the main workflow gates onboarding on its completed Node summary', () => {
+  const jobs = workflow('ci.yml').jobs
+  expect(jobs['onboarding']).toMatchObject({
+    needs: 'node',
+    if: "needs.node.result == 'success'",
+  })
+  expect(jobs['onboarding']?.uses).toBe('./.github/workflows/onboarding-v3.yml')
 })
 
 test('minimum Node bootstrap and manager journeys run independently', () => {
