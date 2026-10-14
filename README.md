@@ -9,82 +9,7 @@ Fast CSS selectors API engine with zero dependencies that works in Node.js and b
 See the [measured selector compatibility](docs/repo/selector/compatibility.md) and [API reference](docs/repo/selector/api.md).
 The [project history](docs/repo/history.md) traces the name and its NWBOX origins.
 
-<!-- <onboarding> -->
-
-## Contribute
-
-Use Node.js 22.18 or newer, Git, and network access. Setup checks the archive commands needed on your platform before downloading tools. From the checkout root, bootstrap tools, install dependencies, and build the package. Start with this direct Node command because the pinned package manager may not be installed yet:
-
-<!-- onboarding:bootstrap:start -->
-
-```sh
-node scripts/repo/setup/bootstrap.mts
-```
-
-<!-- onboarding:bootstrap:end -->
-
-For a direct package-manager install, use the pinned contributor Node version (26.11.0) and the matching manager version from the root manifest. The package managers are pinned to npm 12.2.0 and pnpm 12.12.0. `npm i` and `pnpm i` each run the checkout's install lifecycle, which prepares its local tools and build. The root pins and catalogs are kept in sync with both lockfiles.
-
-To discover the ordered setup, guide, review, and diagnostics tasks from a terminal or an agent:
-
-<!-- onboarding:task-discovery:start -->
-
-```sh
-node scripts/repo/develop/run.mts --list --json
-```
-
-<!-- onboarding:task-discovery:end -->
-
-After setup, check the current checkout readiness:
-
-<!-- onboarding:readiness:start -->
-
-```sh
-node scripts/repo/develop/run.mts --task setup:check --json
-```
-
-<!-- onboarding:readiness:end -->
-
-Follow [Make your first change](docs/repo/development/first-change.md) for the edit, review, commit, and push sequence. It includes optional focused tests and shows which checks apply to specific changes.
-
-For documentation changes, use `.cache/bin/pnpm run guide` to open the local documentation with live updates. For setup problems, use `node scripts/repo/setup/doctor.mts` to report readiness and the next action. Add `--details` to inspect paths, version requirements, and wrappers.
-
-After setup, run `node scripts/repo/develop/run.mts` for a guided menu to open documentation, review changes, or troubleshoot setup. Use 1–4 or the arrow keys to preview a task, then Enter to run its displayed command. Use `node scripts/repo/develop/run.mts --plain` for numbered prompts.
-
-Setup keeps tools in this checkout and preserves shell defaults. It reuses valid downloads when rerun. Browser tests, WPT, and security checks prepare their additional tools when requested. Full repository checks also prepare WPT. See [toolchain details](docs/repo/development/toolchain.md) for pins and advanced setup.
-
-<details>
-<summary>Package manager details</summary>
-
-`npm i` and `pnpm i` both use this branch's matching root pins, lockfiles, and lifecycle. Use the direct Node bootstrap above when the pinned package manager is not installed. After setup, prefer `node scripts/repo/develop/run.mts --task <id> --json` for repository tasks, or `.cache/bin/pnpm` when you need package-manager commands. No PATH edits are needed.
-
-The equivalent direct install commands are:
-
-<!-- onboarding:npm-install:start -->
-
-```sh
-npm i
-```
-
-<!-- onboarding:npm-install:end -->
-
-<!-- onboarding:pnpm-install:start -->
-
-```sh
-pnpm i
-```
-
-<!-- onboarding:pnpm-install:end -->
-
-</details>
-
-<!-- </onboarding> -->
-
 ## Performance
-
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
-
-This summary compares the standalone browser libraries across query time, retained JavaScript heap, and compressed file size.
 
 <details>
 <summary>How the benchmarks work</summary>
@@ -96,6 +21,10 @@ This summary also covers retained heap after 100 distinct queries per engine and
 Query timings exclude document creation, library loading, and engine construction. Memory measurements record retained JavaScript heap after garbage collection. Documents and shared library code exist before the baseline reading. File sizes compare the browser libraries after Brotli compression. The [benchmark report](docs/repo/perf/benchmarks.md) explains each workload and links to its recorded samples.
 
 </details>
+
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
+
+This summary compares the standalone browser libraries `nwsapi` and `@asamuzakjp/dom-selector` across query time, retained JavaScript heap, and compressed file size. The timing cases return every match for each selector, while the heap and file-size cases use separate measurement scopes described above.
 
 [Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Compliance](docs/repo/selector/compatibility.md#comparison-results) · [Inside the compiler](docs/repo/perf/design.md)
 
@@ -139,7 +68,7 @@ Replace `<version>` with the published `nwsapi` version you want to use.
 
   ```yaml
   overrides:
-    "@asamuzakjp/dom-selector": "npm:nwsapi@<version>"
+    '@asamuzakjp/dom-selector': 'npm:nwsapi@<version>'
   ```
 
 Install dependencies after the change.
@@ -157,13 +86,13 @@ pnpm add nwsapi jsdom
 ```
 
 ```js
-const { JSDOM } = require("jsdom");
-const createNwsapi = require("nwsapi");
-const { window } = new JSDOM('<p class="item">Hello</p>');
-const nw = createNwsapi(window);
+const { JSDOM } = require('jsdom')
+const createNwsapi = require('nwsapi')
+const { window } = new JSDOM('<p class="item">Hello</p>')
+const nw = createNwsapi(window)
 
-const items = nw.select(".item", window.document);
-window.close();
+const items = nw.select('.item', window.document)
+window.close()
 ```
 
 This example calls `nwsapi` directly. It does not replace `jsdom`'s selector engine.
@@ -177,8 +106,8 @@ Load `src/nwsapi.js` from the package:
 ```html
 <script src="nwsapi.js"></script>
 <script>
-  const items = NW.Dom.select(".item", document);
-  const firstItem = NW.Dom.first(".item", document);
+  const items = NW.Dom.select('.item', document)
+  const firstItem = NW.Dom.first('.item', document)
 </script>
 ```
 
@@ -189,9 +118,9 @@ Load `src/nwsapi.js` from the package:
 Use it only when you want those methods to call NWSAPI.
 
 ```js
-NW.Dom.install();
+NW.Dom.install()
 // Restore the original methods when they are no longer needed.
-NW.Dom.uninstall();
+NW.Dom.uninstall()
 ```
 
 </details>
@@ -200,7 +129,79 @@ NW.Dom.uninstall();
 
 See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.
 
+<!-- <onboarding> -->
 
+## Contribute
+
+For checkout development, use Node.js 26.11.0, pnpm 12.12.0, Git, and network access. From the checkout root, install dependencies and prepare the tools and build:
+
+<!-- onboarding:pnpm-install:start -->
+
+```sh
+pnpm i
+```
+
+<!-- onboarding:pnpm-install:end -->
+
+Continue with `pnpm run dev` to open the contributor menu. Choose **Open documentation**, **Review my changes**, or the optional **Troubleshoot setup** task for readiness diagnostics. Installation already prepares the checkout, so you do not need to run setup again. You can also run `pnpm run setup:check`, `pnpm run guide`, or `pnpm run review` directly.
+
+See [Make your first change](docs/repo/development/first-change.md) for the edit, review, and commit path. Setup keeps tools in this checkout and preserves shell defaults. Browser tests, WPT, and security checks prepare their additional tools when requested. See [toolchain details](docs/repo/development/toolchain.md) for advanced setup and the minimum-Node bootstrap path.
+
+<details>
+<summary>Use npm or repair setup</summary>
+
+The pinned npm alternative is Node.js 26.11.0 with npm 12.2.0. Like `pnpm i`, the install prepares local tools and builds the package. Continue with `npm run dev`, and use `npm run setup` if setup needs repair.
+
+<!-- onboarding:npm-install:start -->
+
+```sh
+npm i
+```
+
+<!-- onboarding:npm-install:end -->
+
+If setup needs repair after installation, run:
+
+<!-- onboarding:bootstrap:start -->
+
+```sh
+pnpm run setup
+```
+
+<!-- onboarding:bootstrap:end -->
+
+The repository pins and catalogs match the root manifests and lockfiles. If the pinned package manager is unavailable before installation, the [toolchain guide](docs/repo/development/toolchain.md) documents the direct Node bootstrap that works before dependencies are installed.
+
+</details>
+
+<details>
+<summary>Automate contributor tasks</summary>
+
+Discover the ordered setup, guide, review, and diagnostics tasks:
+
+<!-- onboarding:task-discovery:start -->
+
+```sh
+pnpm --silent run dev --list --json
+```
+
+<!-- onboarding:task-discovery:end -->
+
+Check current checkout readiness:
+
+<!-- onboarding:readiness:start -->
+
+```sh
+pnpm --silent run dev --task setup:check --json
+```
+
+<!-- onboarding:readiness:end -->
+
+The JSON output is suitable for an agent or another automation harness. These commands use the pinned pnpm package script, and `pnpm run dev` opens the interactive menu.
+
+</details>
+
+<!-- </onboarding> -->
 
 <details>
 <summary>Check changes before a push</summary>
