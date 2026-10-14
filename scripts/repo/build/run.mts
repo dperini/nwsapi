@@ -75,6 +75,9 @@ for (const entry of entries) {
   if (entry.source === 'src/bin/nwsapi.mts') {
     continue
   }
+  if (entry.source === 'src/bin/tui.mts') {
+    continue
+  }
   if (entry.source === 'src/adapter/dom-selector.mts') {
     await build({
       input: entry.source,
@@ -153,6 +156,23 @@ await build({
     },
   },
 })
+await build({
+  input: './src/bin/tui.mts',
+  platform: 'node',
+  external: ['jsdom', 'css-tree', enginePath, legacyPath],
+  output: {
+    file: './dist/bin/tui.mjs',
+    format: 'esm',
+    codeSplitting: false,
+    paths: {
+      [enginePath]: '../nwsapi.js',
+      [legacyPath]: '../modules/nwsapi-legacy.js',
+    },
+  },
+})
+const { copyOpenTuiAssets, currentOpenTuiTarget } =
+  await import('../cli/ui/assets.mts')
+await copyOpenTuiAssets('.', currentOpenTuiTarget())
 await postBuild()
 
 console.error('Built JavaScript in dist/')

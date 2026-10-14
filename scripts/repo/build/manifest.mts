@@ -1,7 +1,10 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { isDeepStrictEqual } from 'node:util'
-import { packageFiles } from '../../../.config/build.config.mts'
+import {
+  allPackageFiles,
+  packageFiles,
+} from '../../../.config/build.config.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 
@@ -32,7 +35,7 @@ export function packageLayout(layout: 'output' | 'published') {
   return {
     main: exports['.'],
     bin: { nwsapi: exports['./bin/nwsapi.js']! },
-    files: [...packageMetadata, ...packageFiles.map(file => file[layout])],
+    files: [...packageMetadata, ...allPackageFiles.map(file => file[layout])],
     exports,
   }
 }
@@ -56,6 +59,19 @@ export function checkPackageManifest(root = REPO_ROOT) {
   ) as Record<string, unknown>
   assertPackageManifest(manifest)
   return manifest
+}
+
+export function writePackageManifest(root = REPO_ROOT) {
+  const filename = path.join(root, 'package.json')
+  const manifest = JSON.parse(readFileSync(filename, 'utf8')) as Record<
+    string,
+    unknown
+  >
+  writeFileSync(
+    filename,
+    JSON.stringify({ ...manifest, ...packageLayout('output') }, null, 2) + '\n',
+  )
+  return checkPackageManifest(root)
 }
 
 export function publishedManifest(manifest: Record<string, unknown>) {
@@ -88,6 +104,10 @@ export function assertPackageFiles(files: readonly string[]) {
 }
 
 if (isMainModule(import.meta.url)) {
-  checkPackageManifest()
+  if (process.argv.includes('--write')) {
+    writePackageManifest()
+  } else {
+    checkPackageManifest()
+  }
   console.log('Package files and exports match the build mapping.')
 }

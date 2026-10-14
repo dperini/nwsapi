@@ -1,4 +1,5 @@
 import type { FormatConfig } from 'oxfmt'
+import { assetFiles } from '../scripts/repo/cli/ui/asset-manifest.mts'
 
 // Generated files use tabs and wider lines to keep readable output compact.
 // Measurements are recorded in assets/repo/bench/build-compression.json.
@@ -35,6 +36,11 @@ export const entries = [
     source: 'src/bin/nwsapi.mts',
     output: 'dist/bin/nwsapi.js',
     published: 'bin/nwsapi.js',
+  },
+  {
+    source: 'src/bin/tui.mts',
+    output: 'dist/bin/tui.mjs',
+    published: 'bin/tui.mjs',
   },
   {
     source: 'src/core/initialize/load.mts',
@@ -88,6 +94,9 @@ export const packageFiles = [
     },
   ]),
 ]
+
+export const allPackageFiles = [...packageFiles, ...assetFiles]
+export { assetFiles }
 
 export const outputs = packageFiles.map(({ output }) => output)
 

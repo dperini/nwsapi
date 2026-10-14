@@ -53,6 +53,15 @@ test('relocates dynamic imports using the same file mapping', () => {
   ).toBe('./dom-selector.js')
 })
 
+test('relocates ESM imports from the TUI entry without parsing as CommonJS', () => {
+  const result = relocateImports(
+    'const engine = await import("../nwsapi.js")',
+    'dist/bin/tui.mjs',
+    'bin/tui.mjs',
+  )
+  expect(result).toContain('import("../src/nwsapi.js")')
+})
+
 const state = vi.hoisted(() => ({
   response: '',
   fail: false,
@@ -79,6 +88,10 @@ vi.mock('../../../../scripts/repo/build/manifest.mts', () => ({
   publishedManifest: () => ({ name: 'nwsapi' }),
   checkPackageManifest: () => ({}),
   assertPackageFiles: state.assert,
+}))
+vi.mock('../../../../scripts/repo/cli/ui/assets.mts', () => ({
+  copyOpenTuiAssets: vi.fn(),
+  currentOpenTuiTarget: () => ({ platform: 'darwin', arch: 'arm64' }),
 }))
 vi.mock('../../../../scripts/repo/lib/run-node.mts', () => ({
   isMainModule: () => state.main,

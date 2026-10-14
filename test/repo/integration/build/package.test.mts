@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { execFileSync } from 'node:child_process'
 import {
   mkdirSync,
@@ -11,11 +11,16 @@ import {
 import os from 'node:os'
 import path from 'node:path'
 import { toForwardSlashes } from '../../../../scripts/repo/lib/paths.mts'
-import { packageFiles } from '../../../../.config/build.config.mts'
+import { allPackageFiles } from '../../../../.config/build.config.mts'
 import {
   checkPackageManifest,
   packageLayout,
 } from '../../../../scripts/repo/build/manifest.mts'
+vi.mock('../../../../scripts/repo/cli/ui/assets.mts', () => ({
+  copyOpenTuiAssets: vi.fn(),
+  currentOpenTuiTarget: vi.fn(() => ({ platform: 'darwin', arch: 'arm64' })),
+}))
+
 import {
   packPackage,
   stagePackage,
@@ -25,7 +30,7 @@ test('staging and the real tarball contain only explicitly allowed files', async
   const root = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-package-test-'))
   let staged: string | undefined
   try {
-    for (const file of packageFiles) {
+    for (const file of allPackageFiles) {
       const target = path.join(root, file.output)
       mkdirSync(path.dirname(target), { recursive: true })
       writeFileSync(
