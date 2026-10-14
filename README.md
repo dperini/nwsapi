@@ -106,7 +106,7 @@ pnpm run setup
 </details>
 
 <details>
-<summary>Automate contributor tasks</summary>
+<summary>For agents</summary>
 
 List tasks:
 
