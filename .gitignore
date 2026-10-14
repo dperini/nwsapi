@@ -70,6 +70,13 @@
 !/docs/repo/perf/pytorch-has-routing/*.css
 !/scripts/**/*.mts
 !/scripts/**/*.py
+!/scripts/repo/build/native/carrier/Cargo.toml
+!/scripts/repo/build/native/carrier/Cargo.lock
+!/scripts/repo/build/native/carrier/build.rs
+!/scripts/repo/build/native/carrier/src/lib.rs
+!/scripts/repo/build/native/payload/Cargo.toml
+!/scripts/repo/build/native/payload/Cargo.lock
+!/scripts/repo/build/native/payload/src/main.rs
 !/src/**/*.mts
 !/src/**/*.d.ts
 !/test/**/*.LICENSE

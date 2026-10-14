@@ -1,0 +1,21 @@
+[package]
+name = "nwsapi-opentui-carrier"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+abitious-decmpfs = { path = "../../../../../.cache/hybrid/abitious/crates/abitious-decmpfs" }
+sha2 = "=0.10.9"
+hex = "=0.4.3"
+libc = "=0.2.186"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
