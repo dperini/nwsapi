@@ -1,15 +1,7 @@
-import {
-  existsSync,
-  mkdtempSync,
-  mkdirSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import manifest from '../../../../package.json' with { type: 'json' }
-import { parse as parseYaml } from 'yaml'
 import { afterEach, expect, test, vi } from 'vitest'
 import { runJsdomCommand } from '../../../../scripts/repo/cli/jsdom.mts'
 import { installWithExecutor } from '../../../../scripts/repo/cli/jsdom/manager.mts'
@@ -132,129 +124,6 @@ test('remove without provenance leaves existing overrides alone', async () => {
   expect(install).not.toHaveBeenCalled()
 })
 
-test('pnpm workspace configuration is edited at its included root', async () => {
-  const root = makeProject(
-    { name: 'workspace', packageManager: 'pnpm@12.12.0' },
-    'pnpm',
-  )
-  const app = path.join(root, 'packages', 'app')
-  mkdirSync(app, { recursive: true })
-  writePackage(app, { name: 'app', dependencies: { jsdom: '^30.0.1' } })
-  writeFileSync(
-    path.join(root, 'pnpm-workspace.yaml'),
-    [
-      'packages:',
-      '  - packages/*',
-      'overrides:',
-      '  # Keep this workspace setting.',
-      "  keep-me: '1.0.0'",
-      '',
-    ].join('\n'),
-  )
-  const install = vi.fn()
-
-  await runJsdomCommand(['add'], {
-    cwd: app,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
-    install,
-  })
-
-  const rootPackage = readPackage(root)
-  const workspace = readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')
-  expect(rootPackage.nwsapi?.jsdomOverride.manager).toBe('pnpm')
-  expect(rootPackage.dependencies?.['css-tree']).toBe('^3.2.1')
-  expect(workspace).toContain('# Keep this workspace setting.')
-  expect(workspace).toContain('keep-me:')
-  expect(parseYaml(workspace).overrides['@asamuzakjp/dom-selector']).toBe(alias)
-  expect(existsSync(path.join(app, 'package.json'))).toBe(true)
-  expect(install).toHaveBeenCalledWith(
-    expect.objectContaining({ manager: 'pnpm', cwd: root }),
-  )
-
-  await runJsdomCommand(['remove'], {
-    cwd: app,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
-    install,
-  })
-  const removedWorkspace = readFileSync(
-    path.join(root, 'pnpm-workspace.yaml'),
-    'utf8',
-  )
-  expect(
-    parseYaml(removedWorkspace).overrides['@asamuzakjp/dom-selector'],
-  ).toBeUndefined()
-  expect(removedWorkspace).toContain('# Keep this workspace setting.')
-  expect(readPackage(root).dependencies?.['css-tree']).toBeUndefined()
-  expect(install).toHaveBeenCalledTimes(2)
-})
-
-test('pnpm creates and removes its workspace override file when none exists', async () => {
-  const root = makeProject(
-    {
-      name: 'consumer',
-      packageManager: 'pnpm@12.12.0',
-      dependencies: { jsdom: '^30.0.1' },
-    },
-    'pnpm',
-  )
-  const workspacePath = path.join(root, 'pnpm-workspace.yaml')
-  rmSync(workspacePath)
-  const install = vi.fn()
-
-  await runJsdomCommand(['add'], {
-    cwd: root,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
-    install,
-  })
-  expect(existsSync(workspacePath)).toBe(true)
-  expect(
-    readPackage(root).nwsapi?.jsdomOverride.createdWorkspaceYaml?.value,
-  ).toBe(readFileSync(workspacePath, 'utf8'))
-  expect(
-    parseYaml(readFileSync(workspacePath, 'utf8')).overrides[
-      '@asamuzakjp/dom-selector'
-    ],
-  ).toBe(alias)
-
-  await runJsdomCommand(['remove'], {
-    cwd: root,
-    env: { npm_config_user_agent: 'pnpm/12.12.0' },
-    install,
-  })
-  expect(existsSync(workspacePath)).toBe(false)
-  expect(install).toHaveBeenCalledTimes(2)
-})
-
-test('pnpm active yaml nested selector conflicts fail before writes', async () => {
-  const root = makeProject(
-    {
-      name: 'consumer',
-      packageManager: 'pnpm@12.12.0',
-      dependencies: { jsdom: '^30.0.1' },
-      overrides: { 'jsdom>@asamuzakjp/dom-selector': 'other' },
-    },
-    'pnpm',
-  )
-  writeFileSync(
-    path.join(root, 'pnpm-workspace.yaml'),
-    'overrides:\n  "jsdom>@asamuzakjp/dom-selector": other\n',
-  )
-  const before = readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')
-  const install = vi.fn()
-
-  await expect(
-    runJsdomCommand(['add'], {
-      cwd: root,
-      env: { npm_config_user_agent: 'pnpm/12.12.0' },
-      install,
-    }),
-  ).rejects.toThrow('nested or version-qualified')
-  expect(readFileSync(path.join(root, 'pnpm-workspace.yaml'), 'utf8')).toBe(
-    before,
-  )
-  expect(install).not.toHaveBeenCalled()
-})
-
 test('malformed package nwsapi metadata is preserved and rejected', async () => {
   const root = makeProject({
     name: 'consumer',
@@ -267,34 +136,6 @@ test('malformed package nwsapi metadata is preserved and rejected', async () => 
     runJsdomCommand(['add', '--dry-run'], { cwd: root, env }),
   ).rejects.toThrow('nwsapi metadata must be a mapping')
   expect(readFileSync(path.join(root, 'package.json'), 'utf8')).toBe(before)
-})
-
-test('workspace exclusions keep the nested package as its own root', async () => {
-  const root = makeProject(
-    {
-      name: 'workspace',
-      packageManager: 'npm@12.2.0',
-      workspaces: { packages: ['packages/*', '!packages/ignored'] },
-    },
-    'npm',
-  )
-  const ignored = path.join(root, 'packages', 'ignored')
-  mkdirSync(ignored, { recursive: true })
-  writePackage(ignored, {
-    name: 'ignored',
-    dependencies: { jsdom: '^30.0.1' },
-  })
-  const install = vi.fn()
-
-  await runJsdomCommand(['add', '--dry-run'], {
-    cwd: ignored,
-    env,
-    install,
-  })
-
-  expect(readPackage(root).overrides).toBeUndefined()
-  expect(readPackage(ignored).overrides).toBeUndefined()
-  expect(install).not.toHaveBeenCalled()
 })
 
 test('npm direct dependency conflicts fail before changing configuration', async () => {

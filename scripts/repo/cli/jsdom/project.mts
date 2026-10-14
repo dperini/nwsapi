@@ -35,7 +35,7 @@ export function resolveProject(
     invokingPackageText,
     invokingPackageJsonPath,
   )
-  const workspace = findOwningWorkspace(nearest, env)
+  const workspace = findOwningWorkspace(nearest)
   const root = workspace ?? nearest
   const packageJsonPath = path.join(root, 'package.json')
   const packageJsonText = readFileSync(packageJsonPath, 'utf8')
@@ -73,6 +73,25 @@ export function resolveManager(
   env: NodeJS.ProcessEnv,
 ): JsdomPackageManager {
   const packageManager = packageManagerName(pkg.packageManager)
+  const { npmLock, pnpmLock } = projectLockfiles(root)
+  validateLockfiles(packageManager, npmLock, pnpmLock)
+  const lockManager = npmLock ? 'npm' : pnpmLock ? 'pnpm' : undefined
+  validateManagerLock(packageManager, lockManager)
+  if (packageManager) {
+    return packageManager
+  }
+  if (lockManager) {
+    return lockManager
+  }
+  const agent = env['npm_config_user_agent']?.trim()
+  const invoked = agent?.split(/[/\s]/, 1)[0]?.toLowerCase()
+  return invoked === 'pnpm' ? 'pnpm' : 'npm'
+}
+
+function projectLockfiles(root: string): {
+  npmLock: boolean
+  pnpmLock: boolean
+} {
   const npmLock =
     existsSync(path.join(root, 'package-lock.json')) ||
     existsSync(path.join(root, 'npm-shrinkwrap.json'))
@@ -88,27 +107,25 @@ export function resolveManager(
   if (npmLock && pnpmLock) {
     throw new Error('This project has both npm and pnpm lockfiles.')
   }
-  if (
-    (packageManager === 'npm' && pnpmLock) ||
-    (packageManager === 'pnpm' && npmLock)
-  ) {
-    throw new Error(
-      `packageManager ${packageManager} conflicts with the project lockfile.`,
-    )
-  }
+  return { npmLock, pnpmLock }
+}
+
+function validateLockfiles(
+  manager: JsdomPackageManager | undefined,
+  npmLock: boolean,
+  pnpmLock: boolean,
+): void {
   const lockManager = npmLock ? 'npm' : pnpmLock ? 'pnpm' : undefined
-  if (packageManager && lockManager && packageManager !== lockManager) {
+  validateManagerLock(manager, lockManager)
+}
+
+function validateManagerLock(
+  manager: JsdomPackageManager | undefined,
+  lockManager: JsdomPackageManager | undefined,
+): void {
+  if (manager && lockManager && manager !== lockManager) {
     throw new Error('packageManager conflicts with the project lockfile.')
   }
-  if (packageManager) {
-    return packageManager
-  }
-  if (lockManager) {
-    return lockManager
-  }
-  const agent = env['npm_config_user_agent']?.trim()
-  const invoked = agent?.split(/[/\s]/, 1)[0]?.toLowerCase()
-  return invoked === 'pnpm' ? 'pnpm' : 'npm'
 }
 
 function packageManagerName(value: unknown): JsdomPackageManager | undefined {
@@ -143,17 +160,14 @@ function nearestPackageRoot(cwd: string): string {
   }
 }
 
-function findOwningWorkspace(
-  packageRoot: string,
-  env: NodeJS.ProcessEnv,
-): string | undefined {
+function findOwningWorkspace(packageRoot: string): string | undefined {
   let directory = path.dirname(packageRoot)
   while (directory !== path.dirname(directory)) {
     const packageJsonPath = path.join(directory, 'package.json')
     if (existsSync(packageJsonPath)) {
       const text = readFileSync(packageJsonPath, 'utf8')
       const pkg = parsePackageJson(text, packageJsonPath)
-      const patterns = workspacePatterns(directory, pkg, env)
+      const patterns = workspacePatterns(directory, pkg)
       if (
         patterns &&
         includesPackage(patterns, path.relative(directory, packageRoot))
@@ -169,7 +183,6 @@ function findOwningWorkspace(
 function workspacePatterns(
   root: string,
   pkg: PackageJson,
-  env: NodeJS.ProcessEnv,
 ): string[] | undefined {
   const yamlPath = path.join(root, 'pnpm-workspace.yaml')
   const hasPnpmWorkspace = existsSync(yamlPath)
@@ -178,8 +191,8 @@ function workspacePatterns(
   if (!hasPnpmWorkspace && !hasNpmWorkspace) {
     return undefined
   }
-  const manager = resolveManager(root, pkg, env)
-  if (manager === 'pnpm') {
+  const managerHint = supportedPackageManagerName(pkg.packageManager)
+  if (managerHint === 'pnpm' || (!managerHint && !hasNpmWorkspace)) {
     if (!hasPnpmWorkspace) {
       return undefined
     }
@@ -239,50 +252,22 @@ function includesPackage(patterns: string[], relativePath: string): boolean {
   let included = false
   for (const pattern of patterns) {
     const excluded = pattern.startsWith('!')
-    const normalized = (excluded ? pattern.slice(1) : pattern).replace(
-      /\/$/,
-      '',
+    const normalized = normalizeWorkspacePattern(
+      excluded ? pattern.slice(1) : pattern,
     )
-    if (globMatches(normalized, candidate)) {
+    if (path.posix.matchesGlob(candidate, normalized)) {
       included = !excluded
     }
   }
   return included
 }
 
-function globMatches(pattern: string, candidate: string): boolean {
-  let source = '^'
-  for (let index = 0; index < pattern.length; index += 1) {
-    const character = pattern[index]!
-    if (character === '*') {
-      if (pattern[index + 1] === '*') {
-        index += 1
-        if (pattern[index + 1] === '/') {
-          index += 1
-          source += '(?:.*/)?'
-        } else {
-          source += '.*'
-        }
-      } else {
-        source += '[^/]*'
-      }
-    } else if (character === '?') {
-      source += '[^/]'
-    } else if (character === '{') {
-      const end = pattern.indexOf('}', index + 1)
-      if (end > index) {
-        const choices = pattern.slice(index + 1, end).split(',')
-        source += `(?:${choices.map(escapeRegExp).join('|')})`
-        index = end
-      } else {
-        source += '\\{'
-      }
-    } else {
-      source += escapeRegExp(character)
-    }
-  }
-  source += '$'
-  return new RegExp(source).test(candidate)
+function normalizeWorkspacePattern(pattern: string): string {
+  return pattern
+    .replaceAll('\\', '/')
+    .replace(/^(?:\.\/)+/, '')
+    .replace(/\/{2,}/g, '/')
+    .replace(/\/$/, '')
 }
 
 function stringArray(value: unknown, label: string): string[] | undefined {
@@ -309,8 +294,14 @@ function rejectManagedDependencyDirectory(cwd: string): void {
   }
 }
 
-function escapeRegExp(value: string): string {
-  return value.replace(/[|\\{}()[\]^$+?.]/g, '\\$&')
+function supportedPackageManagerName(
+  value: unknown,
+): JsdomPackageManager | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+  const name = /^(npm|pnpm)(?:@[^@\s]+)?$/i.exec(value)?.[1]?.toLowerCase()
+  return name === 'npm' || name === 'pnpm' ? name : undefined
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

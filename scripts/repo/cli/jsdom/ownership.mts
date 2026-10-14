@@ -29,26 +29,43 @@ export function readMetadata(
 }
 
 export function validateMetadata(value: JsdomOverrideMetadata): void {
-  const managerIsValid = value.manager === 'npm' || value.manager === 'pnpm'
   if (
-    value.schemaVersion !== 1 ||
-    !managerIsValid ||
-    !asRecord(value.override) ||
-    !overrideLocationMatches(value.override.location, value.manager) ||
-    value.override.key !== SELECTOR_PACKAGE ||
-    typeof value.override.value !== 'string' ||
-    typeof value.override.owned !== 'boolean' ||
-    !Array.isArray(value.createdMaps) ||
-    value.createdMaps.some(isInvalidCreatedMap) ||
-    !Array.isArray(value.dependencies) ||
-    value.dependencies.some(isInvalidDependency) ||
-    (value.createdWorkspaceYaml !== undefined &&
-      (typeof value.createdWorkspaceYaml !== 'object' ||
-        value.createdWorkspaceYaml === null ||
-        typeof value.createdWorkspaceYaml.value !== 'string'))
+    !isValidMetadataHeader(value) ||
+    !isValidMetadataCollections(value) ||
+    !isValidCreatedWorkspaceYaml(value)
   ) {
     throw new Error('package.json nwsapi.jsdomOverride metadata is malformed.')
   }
+}
+
+function isValidMetadataHeader(value: JsdomOverrideMetadata): boolean {
+  return (
+    value.schemaVersion === 1 &&
+    (value.manager === 'npm' || value.manager === 'pnpm') &&
+    asRecord(value.override) !== undefined &&
+    overrideLocationMatches(value.override.location, value.manager) &&
+    value.override.key === SELECTOR_PACKAGE &&
+    typeof value.override.value === 'string' &&
+    typeof value.override.owned === 'boolean'
+  )
+}
+
+function isValidMetadataCollections(value: JsdomOverrideMetadata): boolean {
+  return (
+    Array.isArray(value.createdMaps) &&
+    !value.createdMaps.some(isInvalidCreatedMap) &&
+    Array.isArray(value.dependencies) &&
+    !value.dependencies.some(isInvalidDependency)
+  )
+}
+
+function isValidCreatedWorkspaceYaml(value: JsdomOverrideMetadata): boolean {
+  return (
+    value.createdWorkspaceYaml === undefined ||
+    (typeof value.createdWorkspaceYaml === 'object' &&
+      value.createdWorkspaceYaml !== null &&
+      typeof value.createdWorkspaceYaml.value === 'string')
+  )
 }
 
 export function storeMetadata(
