@@ -83,15 +83,18 @@ pnpm run setup
 <details>
 <summary>Use npm or repair setup</summary>
 
-Requires Node.js 26.11.0, pnpm 12.12.0, and Git. With npm 12.2.0, use `npm i` then `npm run setup`. Repair with `npm run setup` or:
+Setup provisions the pinned tools. With npm, use:
 
 <!-- onboarding:npm-install:start -->
 
 ```sh
 npm i
+npm run setup
 ```
 
 <!-- onboarding:npm-install:end -->
+
+Repair setup:
 
 <!-- onboarding:bootstrap:start -->
 
