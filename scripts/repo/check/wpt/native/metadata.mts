@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { parse } from 'acorn'
 import { parse as parseHtml, type DefaultTreeAdapterTypes } from 'parse5'
 import { walkAst } from '../source/inspect.mts'
+import { externalGitEnvironment } from '../../../lib/external-git-environment.mts'
 
 export function parseNativeScript(source: string) {
   // WPT server placeholders are metadata. Use a neutral scalar for static analysis,
@@ -25,7 +26,10 @@ export function parseNativeScript(source: string) {
 
 export function verifyNativeCheckout(checkout: string, revision: string) {
   const git = (...args: string[]) =>
-    execFileSync('git', ['-C', checkout, ...args], { encoding: 'utf8' }).trim()
+    execFileSync('git', ['-C', checkout, ...args], {
+      encoding: 'utf8',
+      env: externalGitEnvironment(),
+    }).trim()
   if (
     git('rev-parse', 'HEAD') !== revision ||
     git('status', '--porcelain', '--untracked-files=no')

@@ -14,6 +14,7 @@ import { parse } from 'acorn'
 import { parse as parseHtml } from 'parse5'
 import type { DefaultTreeAdapterTypes } from 'parse5'
 import { REPO_ROOT } from '../../lib/paths.mts'
+import { externalGitEnvironment } from '../../lib/external-git-environment.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { walkAst } from './source/inspect.mts'
 import { staticName } from './scope.mts'
@@ -113,7 +114,7 @@ export function inventoryRevision() {
   return execFileSync(
     'git',
     ['-C', path.join(REPO_ROOT, 'upstream/wpt'), 'rev-parse', 'HEAD'],
-    { encoding: 'utf8' },
+    { encoding: 'utf8', env: externalGitEnvironment() },
   ).trim()
 }
 
@@ -122,7 +123,11 @@ export function scanInventory(sourceRoot: string) {
   const tree = execFileSync(
     'git',
     ['-C', path.join(REPO_ROOT, 'upstream/wpt'), 'ls-tree', '-rz', revision],
-    { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
+    {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      env: externalGitEnvironment(),
+    },
   )
   const candidates = []
   let scanned = 0

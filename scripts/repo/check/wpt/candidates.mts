@@ -4,6 +4,7 @@ import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { manifest } from '../../../../test/repo/e2e/upstream/manifest.mts'
 import { normalizePath, REPO_ROOT } from '../../lib/paths.mts'
+import { externalGitEnvironment } from '../../lib/external-git-environment.mts'
 import { isMainModule } from '../../lib/run-node.mts'
 import { inspectWptScope } from './scope.mts'
 import { checkInventory } from './inventory.mts'
@@ -22,6 +23,7 @@ export function auditCandidates(root = REPO_ROOT) {
     execFileSync('git', ['-C', checkout, ...args], {
       encoding: 'utf8',
       maxBuffer: 32 * 1024 * 1024,
+      env: externalGitEnvironment(),
     }).trim()
   const selected = new Set(
     manifest.map(entry =>

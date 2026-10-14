@@ -5,6 +5,7 @@ import { parseArgs } from 'node:util'
 import { CHROME_VERSION } from '../../../browser.mts'
 import { isMainModule } from '../../../lib/run-node.mts'
 import { REPO_ROOT } from '../../../lib/paths.mts'
+import { externalGitEnvironment } from '../../../lib/external-git-environment.mts'
 
 export interface NativePins {
   browser: string
@@ -48,10 +49,11 @@ export const caseKey = (entry: Omit<NativeCase, 'type'>) =>
   JSON.stringify([entry.subsuite, entry.test, entry.subtest])
 
 export function nativePins(
-  readGit = (args: string[]) => {
+  readGit = (args: string[], external = false) => {
     return execFileSync('git', args, {
       cwd: REPO_ROOT,
       encoding: 'utf8',
+      ...(external ? { env: externalGitEnvironment() } : {}),
     }).trim()
   },
 ): NativePins {
@@ -62,7 +64,10 @@ export function nativePins(
     '--get',
     'submodule.upstream/wpt.ref',
   ])
-  const checkoutRevision = readGit(['-C', 'upstream/wpt', 'rev-parse', 'HEAD'])
+  const checkoutRevision = readGit(
+    ['-C', 'upstream/wpt', 'rev-parse', 'HEAD'],
+    true,
+  )
   if (revision !== checkoutRevision) {
     throw new Error(
       'WPT checkout does not match the configured pin. Run pnpm run upstream:clone before native qualification.',

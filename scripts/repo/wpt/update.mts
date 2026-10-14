@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { REPO_ROOT, UPSTREAM_HELPER_PATH } from '../lib/paths.mts'
 import { isMainModule, runNode } from '../lib/run-node.mts'
+import { externalGitEnvironment } from '../lib/external-git-environment.mts'
 
 const endpoint = 'https://api.github.com/repos/web-platform-tests/wpt'
 
@@ -77,6 +78,9 @@ export async function updateWpt(check = false) {
       cwd: REPO_ROOT,
       encoding: 'utf8',
       maxBuffer: 512 * 1024 * 1024,
+      ...(args.includes('upstream/wpt')
+        ? { env: externalGitEnvironment() }
+        : {}),
     })
   const current = git([
     'config',

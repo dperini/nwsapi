@@ -5,6 +5,10 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseArgs } from 'node:util'
 import {
+  externalGitEnvironment,
+  targetsWptRepository,
+} from '../../lib/external-git-environment.mts'
+import {
   applySparse,
   checkoutDir,
   cloneEntry,
@@ -102,6 +106,9 @@ export function git(cwd: string, args: string[], { capture = true } = {}) {
     cwd,
     maxBuffer: MAX_BUFFER,
     stdio: ['ignore', capture ? 'pipe' : 'inherit', 'inherit'],
+    ...(targetsWptRepository(cwd, args, ROOT)
+      ? { env: externalGitEnvironment() }
+      : {}),
   })
 }
 
@@ -111,6 +118,9 @@ export function tryGitText(cwd: string, args: string[]) {
       cwd,
       maxBuffer: MAX_BUFFER,
       stdio: ['ignore', 'pipe', 'ignore'],
+      ...(targetsWptRepository(cwd, args, ROOT)
+        ? { env: externalGitEnvironment() }
+        : {}),
     })
       .toString('utf8')
       .trim()
@@ -294,6 +304,9 @@ function deepVerifyEntry(entry: Entry) {
       cwd: ROOT,
       maxBuffer: MAX_BUFFER,
       stdio: ['ignore', 'inherit', 'inherit'],
+      ...(entry.path === 'upstream/wpt'
+        ? { env: externalGitEnvironment() }
+        : {}),
     })
   } catch {
     console.log(`  FAIL  ${label} ${entry.verifyCommand}`)

@@ -14,6 +14,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { Browser, install } from '@puppeteer/browsers'
+import { externalGitEnvironment } from '../../../lib/external-git-environment.mts'
 import {
   browserInstallOptions,
   browserLaunchOptions,
@@ -86,7 +87,11 @@ export async function runNative(directory: string, resume = false) {
   const pins = nativePins()
   const checkout = path.join(directory, 'wpt')
   const run = (command: string, args: string[], cwd = directory) =>
-    execFileSync(command, args, { cwd, stdio: 'inherit' })
+    execFileSync(command, args, {
+      cwd,
+      stdio: 'inherit',
+      env: externalGitEnvironment(),
+    })
   console.log(
     `Candidate native WPT run: Chrome ${pins.browser}, WPT ${pins.revision}\nArtifacts: ${directory}`,
   )
@@ -170,6 +175,7 @@ export async function runNative(directory: string, resume = false) {
     encoding: 'utf8',
     maxBuffer: 256 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'inherit'],
+    env: externalGitEnvironment(),
   })
   const plan = candidateRunPlan(
     JSON.parse(listing.slice(listing.indexOf('{'))),
@@ -192,7 +198,7 @@ export async function runNative(directory: string, resume = false) {
       '--log-raw',
       path.join(directory, `events${suffix}.jsonl`),
     ],
-    { cwd: checkout, stdio: 'inherit' },
+    { cwd: checkout, stdio: 'inherit', env: externalGitEnvironment() },
   )
   if (result.error) {
     throw result.error

@@ -1,8 +1,14 @@
 import { JSDOM } from 'jsdom'
-import { afterEach, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { initializeReadingContents } from '../../../../../docs/repo/perf/pytorch-has-routing/reading-navigation.mts'
 
-afterEach(() => vi.unstubAllGlobals())
+beforeEach(() => vi.useFakeTimers())
+
+afterEach(async () => {
+  await vi.runAllTimersAsync()
+  vi.useRealTimers()
+  vi.unstubAllGlobals()
+})
 
 function createReader() {
   const dom = new JSDOM(
