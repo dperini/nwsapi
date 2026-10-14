@@ -212,18 +212,7 @@ export function writeGithubPlan(plan: CiTestPlan): void {
   )
 }
 
-export async function main(): Promise<void> {
-  const changed = changedFiles()
-  const plan = changed.reliable ? planCiTests(changed.files) : completePlan()
-  if (process.argv.includes('--plan')) {
-    console.log(JSON.stringify(plan, null, 2))
-    return
-  }
-  if (process.argv.includes('--github-output')) {
-    writeGithubPlan(plan)
-    console.log(`CI test plan: ${JSON.stringify(plan)}`)
-    return
-  }
+export async function runNodePlan(plan: CiTestPlan): Promise<void> {
   if (!plan.node) {
     console.log('No Node tests are affected by this change.')
     return
@@ -251,6 +240,21 @@ export async function main(): Promise<void> {
     runNode(testScript, ['integration', ...integrationFiles])
   }
   await runRelatedTests(plan.relatedFiles)
+}
+
+export async function main(): Promise<void> {
+  const changed = changedFiles()
+  const plan = changed.reliable ? planCiTests(changed.files) : completePlan()
+  if (process.argv.includes('--plan')) {
+    console.log(JSON.stringify(plan, null, 2))
+    return
+  }
+  if (process.argv.includes('--github-output')) {
+    writeGithubPlan(plan)
+    console.log(`CI test plan: ${JSON.stringify(plan)}`)
+    return
+  }
+  await runNodePlan(plan)
 }
 
 async function runRelatedTests(files: string[]) {
