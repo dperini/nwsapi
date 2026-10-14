@@ -12,7 +12,11 @@ import path from 'node:path'
 import { parseArgs } from 'node:util'
 import { parse } from 'acorn'
 import type { Node, CallExpression, ImportExpression, Literal } from 'acorn'
-import { packageFiles } from '../../../.config/build.config.mts'
+import {
+  assetFiles,
+  allPackageFiles,
+  packageFiles,
+} from '../../../.config/build.config.mts'
 import { REPO_ROOT } from '../lib/paths.mts'
 import { isMainModule } from '../lib/run-node.mts'
 import {
@@ -88,7 +92,7 @@ export function relocateImports(
   visit(
     parse(source, {
       ecmaVersion: 'latest',
-      sourceType: 'script',
+      sourceType: output.endsWith('.mjs') ? 'module' : 'script',
       allowHashBang: true,
     }),
   )
@@ -103,10 +107,14 @@ export async function stagePackage(root = REPO_ROOT) {
   const manifest = publishedManifest(checkPackageManifest(root))
   const directory = await mkdtemp(path.join(os.tmpdir(), 'nwsapi-package-'))
   try {
-    for (const file of packageFiles) {
+    for (const file of allPackageFiles) {
       const destination = path.join(directory, file.published)
       await mkdir(path.dirname(destination), { recursive: true })
-      if (file.output.endsWith('.js')) {
+      if (assetFiles.includes(file)) {
+        await copyFile(path.join(root, file.output), destination)
+        continue
+      }
+      if (/\.[cm]?js$/.test(file.output)) {
         const source = await readFile(path.join(root, file.output), 'utf8')
         await writeFile(
           destination,
@@ -134,6 +142,9 @@ export async function stagePackage(root = REPO_ROOT) {
 }
 
 export async function packPackage(destination: string, root = REPO_ROOT) {
+  const { copyOpenTuiAssets, currentOpenTuiTarget } =
+    await import('../cli/ui/assets.mts')
+  await copyOpenTuiAssets(root, currentOpenTuiTarget(), true)
   const directory = await stagePackage(root)
   try {
     await mkdir(destination, { recursive: true })

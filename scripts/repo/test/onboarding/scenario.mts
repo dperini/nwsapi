@@ -468,10 +468,10 @@ export async function verifyBuildOutputs(
   env: NodeJS.ProcessEnv,
   command: CommandRunner,
 ) {
-  const config = await import(
-    pathToFileURL(path.join(checkout, '.config/build.config.mts')).href
+  const { buildRequiredFiles } = await import(
+    pathToFileURL(path.join(checkout, 'scripts/repo/setup/build.mts')).href
   )
-  for (const item of config.packageFiles as Array<{ output: string }>) {
+  for (const item of buildRequiredFiles() as Array<{ output: string }>) {
     const output = path.join(checkout, item.output)
     if (!(await exists(output)) || (await stat(output)).size === 0) {
       throw new Error(`Build output is missing or empty: ${item.output}.`)

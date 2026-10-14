@@ -1,4 +1,5 @@
 import { expect, test, vi } from 'vitest'
+import { allPackageFiles } from '../../../../.config/build.config.mts'
 import {
   assertPackageFiles,
   assertPackageManifest,
@@ -28,15 +29,15 @@ test('published exports preserve deep imports and point only to allowed files', 
     'LICENSE',
     'README.md',
     'package.json',
-    'bin/nwsapi.js',
-    'src/nwsapi.js',
-    'src/modules/nwsapi-legacy.js',
-    'src/dom-selector.js',
-    'src/modules/nwsapi-jquery.js',
-    'src/modules/nwsapi-traversal.js',
-    'dist/external/unicode.js',
-    'dist/external/unicode.d.ts',
+    ...allPackageFiles.map(file => file.published),
   ])
+  expect(layout.files).toContain('bin/tui.mjs')
+  expect(layout.files).toContain(
+    'bin/assets/@opentui/core-linux-x64/libopentui.so',
+  )
+  expect(layout.exports).not.toHaveProperty(
+    './bin/assets/@opentui/core-linux-x64/libopentui.so',
+  )
 })
 
 test('CommonJS metadata and direct manifest verification are supported', async () => {
