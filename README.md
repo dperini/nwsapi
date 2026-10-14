@@ -83,6 +83,8 @@ pnpm run setup
 <details>
 <summary>Use npm or repair setup</summary>
 
+<blockquote>
+
 Setup provisions the pinned tools. With npm, use:
 
 <!-- onboarding:npm-install:start -->
@@ -105,6 +107,8 @@ pnpm run setup
 <!-- onboarding:bootstrap:end -->
 
 [Missing tools? Start here](docs/repo/development/toolchain.md).
+
+</blockquote>
 
 </details>
 
