@@ -8,6 +8,9 @@ import {
   parseHarnessJson,
 } from './protocol.mts'
 import { readJourney } from './readme.mts'
+import { resolveReadmeBootstrapRepairCommand } from './readme/commands.mts'
+export { resolveReadmeBootstrapRepairCommand } from './readme/commands.mts'
+export type { ResolvedReadmeHarnessCommand } from './readme/commands.mts'
 import { externalToolVersion } from './environment.mts'
 import { runPlainSetup } from './terminal.mts'
 
@@ -260,7 +263,7 @@ export async function runJourney(
   const guide = tasks.find(task => task.id === 'guide')
   const review = tasks.find(task => task.id === 'review')
   const check = tasks.find(task => task.id === 'setup:check')
-  if (!setup || !guide || !review || !check) {
+  if ((!installed && !setup) || !guide || !review || !check) {
     throw new Error(
       'Harness did not discover required setup, guide, review, and diagnostics tasks.',
     )
@@ -279,7 +282,38 @@ export async function runJourney(
   }
   await beforeSetup()
   await rm(path.join(checkout, 'dist'), { recursive: true, force: true })
-  await harness(log, checkout, node, env, setup.execution, 'completed', command)
+  if (installed) {
+    const bootstrap = (await readJourney(checkout)).find(
+      step => step.id === 'bootstrap',
+    )
+    if (!bootstrap) {
+      throw new Error('README setup repair command is missing.')
+    }
+    const repair = resolveReadmeBootstrapRepairCommand(bootstrap, checkout, env)
+    const repairResult = await command(
+      log,
+      'literal README setup repair',
+      repair.executable,
+      repair.args,
+      checkout,
+      repair.env,
+    )
+    if (repairResult.code !== 0) {
+      throw new Error(
+        `README setup repair failed with exit ${repairResult.code}.`,
+      )
+    }
+  } else {
+    await harness(
+      log,
+      checkout,
+      node,
+      env,
+      setup!.execution,
+      'completed',
+      command,
+    )
+  }
   if (!(await exists(path.join(checkout, 'dist')))) {
     throw new Error('Setup did not rebuild dist/.')
   }
@@ -424,41 +458,6 @@ export async function runPlainSetupPreview(
     status: 'completed',
     code: result.code,
     durationMs: result.durationMs,
-  }
-}
-
-export async function runReadmeHarnessSteps(
-  log: string,
-  checkout: string,
-  node: string,
-  env: NodeJS.ProcessEnv,
-  command: CommandRunner,
-) {
-  for (const step of await readJourney(checkout)) {
-    if (step.id !== 'task-discovery' && step.id !== 'readiness') {
-      continue
-    }
-    const args =
-      step.command[0] === 'node' ? step.command.slice(1) : step.command
-    const result = await command(
-      log,
-      `literal README ${step.id}`,
-      node,
-      args,
-      checkout,
-      env,
-      undefined,
-      step.id === 'readiness' ? null : 0,
-    )
-    if (step.id === 'readiness' && result.code !== 0) {
-      await captureReadinessDetails(log, checkout, node, env, command)
-    }
-    const value = parseHarnessJson(result.stdout)
-    if (step.id === 'task-discovery') {
-      assertTaskDiscovery(value)
-    } else {
-      assertHarnessResult(value, 'completed', result.code, 'setup:check')
-    }
   }
 }
 
