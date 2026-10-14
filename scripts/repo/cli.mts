@@ -1,5 +1,6 @@
 import { parseArgs } from 'node:util'
 import { inspectSelector } from './compile.mts'
+import { runJsdomCommand } from './cli/jsdom.mts'
 
 export async function runCli(argv: string[]) {
   const [command, ...args] = argv
@@ -8,8 +9,11 @@ export async function runCli(argv: string[]) {
 
 Commands:
   compile <selector>  Inspect a generated selector resolver
+  jsdom <add|remove>  Manage this project's jsdom selector override
 
 Run nwsapi compile --help for compiler options.`
+  } else if (command === 'jsdom') {
+    return runJsdomCommand(args)
   } else if (command === 'compile') {
     const { values, positionals } = parseArgs({
       args,
