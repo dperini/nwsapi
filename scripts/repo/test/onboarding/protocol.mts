@@ -15,8 +15,18 @@ export function assertTaskDiscovery(value: Record<string, unknown>) {
     throw new Error('Unexpected task discovery envelope.')
   }
   const ids = (value['tasks'] as Array<{ id?: unknown }>).map(task => task.id)
-  const expected = ['setup', 'guide', 'review', 'ci:local', 'setup:check']
-  if (expected.some((id, index) => ids[index] !== id)) {
+  const expected = [
+    'setup',
+    'guide',
+    'review',
+    'ci:local',
+    'setup:check',
+    'voiceover',
+  ]
+  if (
+    ids.length !== expected.length ||
+    expected.some((id, index) => ids[index] !== id)
+  ) {
     throw new Error(
       'Task discovery is missing required tasks or has changed their order.',
     )

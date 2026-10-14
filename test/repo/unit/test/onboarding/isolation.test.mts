@@ -69,7 +69,7 @@ test('README parser rejects missing or repeated executable markers', () => {
 
 test('harness JSON parsing requires one object and validates discovery shape', () => {
   const value = parseHarnessJson(
-    '{"schemaVersion":1,"type":"tasks","tasks":[{"id":"setup"},{"id":"guide"},{"id":"review"},{"id":"ci:local"},{"id":"setup:check"}]}',
+    '{"schemaVersion":1,"type":"tasks","tasks":[{"id":"setup"},{"id":"guide"},{"id":"review"},{"id":"ci:local"},{"id":"setup:check"},{"id":"voiceover"}]}',
   )
   expect(() => assertTaskDiscovery(value)).not.toThrow()
   expect(() => parseHarnessJson('{"status":"completed"}\nextra')).toThrow()

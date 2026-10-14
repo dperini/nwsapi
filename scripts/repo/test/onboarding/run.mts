@@ -11,14 +11,14 @@ import {
   externalToolVersion,
   redact,
 } from './environment.mts'
-import { verifyBootstrapHandoff } from './handoff.mts'
+import { verifyMinimumNodeBootstrap } from './handoff.mts'
+import { runReadmeHarnessSteps } from './readme/harness.mts'
 import { runBounded } from './process.mts'
 import * as reviewReports from './reports.mts'
 import {
   runJourney,
   runPlainSetupMenu,
   runPlainSetupPreview,
-  runReadmeHarnessSteps,
   verifyInstalledCheckout,
 } from './scenario.mts'
 import type { GuideOutcome, ScenarioOptions } from './scenario.mts'
@@ -241,7 +241,7 @@ async function runScenario(
     throw new Error(preview.error)
   }
   if (options.scenario === 'bootstrap') {
-    await verifyBootstrapHandoff(
+    await verifyMinimumNodeBootstrap(
       log,
       context.snapshot,
       options.node,
