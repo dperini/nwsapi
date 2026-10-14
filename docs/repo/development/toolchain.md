@@ -108,8 +108,8 @@ and a `tasks` array in workflow order. Each task has a stable `id`, `order`,
 `name`, `description`, `detail`, `next`, `persistent`, `optional`, and command argument
 arrays. `command` identifies the underlying package script or direct helper command. `execution`
 invokes the shared runner with JSON results. The IDs are `setup`, `guide`,
-`review`, `setup:check`, and `voiceover`. Discovery never starts a task. `--json` alone
-also selects discovery.
+`review`, `ci:local`, `setup:check`, and `voiceover`. Discovery never starts a
+task. `--json` alone also selects discovery.
 
 A harness can present these choices with its own question or selection UI,
 then execute the selected task. Explicit `--task` works without a TTY and
