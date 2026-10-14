@@ -16,6 +16,7 @@ import {
   matchesArchive,
   treeDigest,
 } from '../../../../scripts/repo/setup/archive.mts'
+import { resolvePowerShell } from '../../../../scripts/repo/setup/prerequisites.mts'
 
 test('file contents cannot impersonate another entry in an installed tree', () => {
   const directory = mkdtempSync(path.join(os.tmpdir(), 'nwsapi-tool-tree-'))
@@ -57,7 +58,11 @@ test('matching trees include directories and symlink identity', t => {
 test.each([
   { asset: 'archive.tar.gz', platform: 'darwin', program: 'tar' },
   { asset: 'archive.zip', platform: 'darwin', program: 'unzip' },
-  { asset: 'archive.zip', platform: 'win32', program: 'powershell' },
+  {
+    asset: 'archive.zip',
+    platform: 'win32',
+    program: resolvePowerShell(),
+  },
 ])(
   'extracts $asset on $platform with the expected command',
   ({ asset, platform, program }) => {
