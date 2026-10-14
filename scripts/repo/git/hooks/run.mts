@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { isMainModule } from '../../lib/run-node.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
+import { managedEnvironment } from '../../setup/manager.mts'
 import {
   completePlan,
   planCiTests,
@@ -27,6 +28,17 @@ export interface PushHookDependencies {
   runNodePlan(plan: CiTestPlan): Promise<void>
   log(message: string): void
   error(message: string): void
+}
+
+export function configureHookEnvironment(env = process.env) {
+  const managed = managedEnvironment(undefined, env)
+  for (const name of Object.keys(env)) {
+    if (!(name in managed)) {
+      delete env[name]
+    }
+  }
+  Object.assign(env, managed)
+  return env
 }
 
 export function parsePushRefs(input: string): PushRef[] {
@@ -295,6 +307,7 @@ function runPreCommit() {
 }
 
 if (isMainModule(import.meta.url)) {
+  configureHookEnvironment()
   const hook = process.argv[2]
   if (hook === 'pre-commit') {
     process.exitCode = runPreCommit()

@@ -1,5 +1,8 @@
 import { afterEach, expect, test, vi } from 'vitest'
+import path from 'node:path'
+import { TOOL_BIN } from '../../../../../scripts/repo/external-tools.mts'
 import {
+  configureHookEnvironment,
   parseChangedPaths,
   parsePushRefs,
   runPrePush,
@@ -151,4 +154,20 @@ test('runs a full plan when a pushed change deletes a test suite', async () => {
   })
   await runPrePush(update(), harness.dependencies)
   expect(harness.plans[0]).toMatchObject({ fullNode: true, node: true })
+})
+
+test('hook children use managed launchers and preserve unrelated environment', () => {
+  const env: NodeJS.ProcessEnv = {
+    PATH: '/user/tools',
+    CUSTOM_SETTING: 'keep',
+    npm_execpath: '/unrelated/npm',
+    npm_lifecycle_event: 'push',
+  }
+  const result = configureHookEnvironment(env)
+  expect(result).toBe(env)
+  expect(result['PATH']).toBe([TOOL_BIN, '/user/tools'].join(path.delimiter))
+  expect(result['CUSTOM_SETTING']).toBe('keep')
+  expect(result['npm_execpath']).toBeUndefined()
+  expect(result['npm_lifecycle_event']).toBeUndefined()
+  expect(result['SFW_UNKNOWN_HOST_ACTION']).toBe('ignore')
 })
