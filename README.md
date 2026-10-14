@@ -11,20 +11,20 @@ The [project history](docs/repo/history.md) traces the name and its NWBOX origin
 
 ## Performance
 
+[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
+
+`nwsapi` vs `@asamuzakjp/dom-selector`: query time, retained heap, and Brotli size on native Chromium DOMs.
+
 <details>
 <summary>How the benchmarks work</summary>
 
-The timing comparison runs [36 different CSS selectors](docs/repo/perf/benchmarks.md#all-results-comparison) repeatedly. Each call returns every matching element, rather than stopping at the first match. The selectors cover component markup, documentation pages, and utility classes. The summary gives each selector equal weight.
+- **Speed:** 36 selectors, all matches, equal weight. Setup and loading excluded.
+- **Memory:** retained heap after 100 distinct queries and garbage collection.
+- **Size:** Brotli-compressed browser libraries. No `jsdom`.
 
-This summary also covers retained heap after 100 distinct queries per engine and compressed browser file sizes. The measurements compare `nwsapi` with `@asamuzakjp/dom-selector` on native Chromium DOMs and exclude `jsdom`.
-
-Query timings exclude document creation, library loading, and engine construction. Memory measurements record retained JavaScript heap after garbage collection. Documents and shared library code exist before the baseline reading. File sizes compare the browser libraries after Brotli compression. The [benchmark report](docs/repo/perf/benchmarks.md) explains each workload and links to its recorded samples.
+[Cases, methodology, and recorded samples](docs/repo/perf/benchmarks.md).
 
 </details>
-
-[![NWSAPI > Fast CSS Selectors API Engine](https://raw.githubusercontent.com/dperini/nwsapi/refs/heads/prerelease/3.0.0/assets/repo/bench/perf-hero.svg?v=9645cd2b6092)](docs/repo/perf/benchmarks.md)
-
-This summary compares the standalone browser libraries `nwsapi` and `@asamuzakjp/dom-selector` across query time, retained JavaScript heap, and compressed file size. The timing cases return every match for each selector, while the heap and file-size cases use separate measurement scopes described above.
 
 [Performance](docs/repo/perf/benchmarks.md) · [Memory](docs/repo/perf/benchmarks.md#memory-footprint) · [File size](docs/repo/perf/benchmarks.md#file-size) · [Compliance](docs/repo/selector/compatibility.md#comparison-results) · [Inside the compiler](docs/repo/perf/design.md)
 
