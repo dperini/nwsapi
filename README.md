@@ -65,7 +65,7 @@ See the [full API reference](docs/repo/selector/api.md) for all methods, options
 
 ## Contribute
 
-From the checkout root:
+From the checkout root, install and prepare the checkout:
 
 <!-- onboarding:pnpm-install:start -->
 
@@ -74,6 +74,8 @@ pnpm i
 ```
 
 <!-- onboarding:pnpm-install:end -->
+
+This installs dependencies, prepares pinned tools, and builds the package.
 
 [Make your first change](docs/repo/development/first-change.md) · [Toolchain and setup help](docs/repo/development/toolchain.md)
 
