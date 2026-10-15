@@ -41,6 +41,7 @@ export function updateNative(
   run(
     path.join(REPO_ROOT, 'scripts/repo/check/wpt/native/run.mts'),
     nativeRefreshArgs(nativePins(), cached),
+    { externalGit: true },
   )
   validate()
 }

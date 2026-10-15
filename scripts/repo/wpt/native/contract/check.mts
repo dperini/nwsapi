@@ -11,6 +11,7 @@ if (isMainModule(import.meta.url)) {
         new URL('../../../check/wpt/native/contract.mts', import.meta.url),
       ),
       ['--check', ...process.argv.slice(2)],
+      { externalGit: true },
     )
   }
 }

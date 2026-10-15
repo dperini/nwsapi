@@ -91,8 +91,12 @@ export async function updateWpt(check = false) {
   if (check) {
     return
   }
-  runNode(UPSTREAM_HELPER_PATH, ['clone', 'upstream/wpt'])
-  runNode(UPSTREAM_HELPER_PATH, ['verify', 'upstream/wpt'])
+  runNode(UPSTREAM_HELPER_PATH, ['clone', 'upstream/wpt'], {
+    externalGit: true,
+  })
+  runNode(UPSTREAM_HELPER_PATH, ['verify', 'upstream/wpt'], {
+    externalGit: true,
+  })
   if (current !== sha) {
     git([
       '-C',
@@ -116,23 +120,36 @@ export async function updateWpt(check = false) {
     const config = releasePin(readFileSync(configPath, 'utf8'), tag, sha, hash)
     writeFileSync(configPath, config)
     git(['config', '--file', configPath, 'submodule.upstream/wpt.ref', sha])
-    runNode(UPSTREAM_HELPER_PATH, ['clone', 'upstream/wpt'])
-    runNode(UPSTREAM_HELPER_PATH, ['verify', 'upstream/wpt'])
+    runNode(UPSTREAM_HELPER_PATH, ['clone', 'upstream/wpt'], {
+      externalGit: true,
+    })
+    runNode(UPSTREAM_HELPER_PATH, ['verify', 'upstream/wpt'], {
+      externalGit: true,
+    })
   }
   const inventory = path.join(
     REPO_ROOT,
     'test/repo/e2e/upstream/inventory.json',
   )
   if (JSON.parse(readFileSync(inventory, 'utf8')).revision !== sha) {
-    runNode(path.join(REPO_ROOT, 'scripts/repo/wpt/inventory/check.mts'), [
-      '--fetch',
-      '--write',
-    ])
+    runNode(
+      path.join(REPO_ROOT, 'scripts/repo/wpt/inventory/check.mts'),
+      ['--fetch', '--write'],
+      {
+        externalGit: true,
+      },
+    )
   }
-  runNode(path.join(REPO_ROOT, 'scripts/repo/wpt/candidates/check.mts'), [
-    '--write',
-  ])
-  runNode(path.join(REPO_ROOT, 'scripts/repo/wpt/scope/check.mts'), [])
+  runNode(
+    path.join(REPO_ROOT, 'scripts/repo/wpt/candidates/check.mts'),
+    ['--write'],
+    {
+      externalGit: true,
+    },
+  )
+  runNode(path.join(REPO_ROOT, 'scripts/repo/wpt/scope/check.mts'), [], {
+    externalGit: true,
+  })
   console.log(
     'Review the WPT inventory diff and run modern and legacy tests. Failure expectations were not updated.',
   )
