@@ -2,10 +2,15 @@ import { expect, test, vi } from 'vitest'
 import { main } from '../../../../scripts/repo/setup/doctor.mts'
 import type * as ReadinessModule from '../../../../scripts/repo/setup/readiness.mts'
 
-const state = vi.hoisted(() => ({ tools: true, dependencies: true }))
+const state = vi.hoisted(() => ({
+  tools: true,
+  dependencies: true,
+  externalPnpm: false,
+}))
 vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
   cachedToolchainMatches: () => state.tools,
-  executableOwner: () => 'checkout',
+  executableOwner: (file?: string) =>
+    file?.includes('/opt/homebrew/') ? 'Homebrew' : 'checkout',
   managedEntry: (name: string) => `/tools/${name}`,
   managedReady: () => state.tools,
   managedVersionProbes: () => ({
@@ -38,10 +43,14 @@ vi.mock('../../../../scripts/repo/setup/diagnostics.mts', () => ({
   meetsMinimum: () => true,
   realExecutable: (value: string) => value,
   resolveExecutable: (name: string) => ({
-    executable: `/tools/${name}`,
+    executable:
+      name === 'pnpm' && state.externalPnpm
+        ? '/opt/homebrew/bin/pnpm'
+        : `/tools/${name}`,
     index: 0,
   }),
-  toolVersion: () => 'unused',
+  toolVersion: (file: string) =>
+    file.includes('/opt/homebrew/') ? '12.11.2' : 'unused',
   wrapperStatus: () => 'verified',
 }))
 vi.mock('../../../../scripts/repo/setup/progress.mts', () => ({
@@ -116,4 +125,17 @@ test('details expose bounded managed probe and cache results for diagnosis', asy
   expect(output).toContain('version probe: exit=0 signal=none')
   expect(output).toContain('cached toolchain state: matches pins')
   expect(output).toContain('Firewall: verified')
+})
+
+test('doctor distinguishes an external Homebrew pnpm from the ready checkout pin', async () => {
+  state.externalPnpm = true
+  try {
+    const log = vi.fn()
+    expect(await main([], log)).toBe(0)
+    expect(log.mock.calls.flat().join('\n')).toContain(
+      'pnpm: PATH 12.11.2 (Homebrew); checkout pin 12.12.0 ready',
+    )
+  } finally {
+    state.externalPnpm = false
+  }
 })

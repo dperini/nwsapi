@@ -42,7 +42,7 @@ JSON without --task lists tasks. A persistent task runs until stopped.
 
 The visual menu uses @opentui/core with Node.js 26.4+.
 Older runtimes and terminals without native support use text prompts.
-Direct commands remain available: pnpm run setup, guide, review, setup:check.`
+Direct commands remain available: pnpm go, pnpm run guide, pnpm run review, pnpm run setup:check.`
 
 function supportsNative() {
   const [major, minor] = process.versions.node.split('.').map(Number)

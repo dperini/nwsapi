@@ -56,7 +56,7 @@ export async function main(args = process.argv.slice(2), log = console.log) {
   log(
     scope === 'outputs'
       ? 'Cleanup complete. Next: npm run build'
-      : 'Reset complete. Next: npm run setup',
+      : 'Reset complete. Next: npm run go',
   )
 }
 

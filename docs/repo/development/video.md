@@ -49,7 +49,7 @@ The upstream npm workspace is private, so it is not an npm development
 installation.
 
 `.config/external-tools.json` pins the `fframes` source archive and SHA-256
-digest. Ordinary `prepare`, including installation through `pnpm run setup`,
+digest. Ordinary `prepare`, including installation through `pnpm i`,
 downloads and verifies that small archive without requiring Rust. A valid
 cached download is reused. The video command checks that the manifest,
 Cargo dependency, and lockfile agree. Compiling the optional renderer downloads
@@ -95,7 +95,7 @@ and frame count with `ffprobe` before sharing.
 | Time   | Scene               | Message                                                                                                                                                                                                |
 | ------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 0–6s   | Welcome             | Follow the task order: set up, find and edit, review.                                                                                                                                                  |
-| 6–14s  | 1. Setup            | Open a terminal in the repository folder. Type `pnpm run setup` and press Enter. Wait for “Setup complete.”                                                                                            |
+| 6–14s  | 1. Setup            | Open a terminal in the repository folder. Type `pnpm go` and press Enter. Wait for “Setup complete.”                                                                                                   |
 | 14–23s | 2. Open docs        | Type `pnpm run guide` and press Enter to open the documentation. Choose a document or search and filter.                                                                                               |
 | 23–32s | Read and edit       | Find the relevant section, then edit your source or documentation. Return to a saved section or choose reading mode.                                                                                   |
 | 32–41s | 3. Review           | After editing, type `pnpm run review` and press Enter. It runs lint, formatting, types, and unit tests in order. Fix the first reported issue and rerun. Inspect `git diff`.                           |

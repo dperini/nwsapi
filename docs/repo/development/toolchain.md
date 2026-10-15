@@ -6,7 +6,7 @@ Run the bootstrap from the checkout root with Node 22.18 or newer. It imports on
 node scripts/repo/setup/bootstrap.mts
 ```
 
-The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm run setup` and `npm run setup` also select the manager pinned for this branch and install dependencies with its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
+The direct Node entry point works before the pinned package manager is installed. After setup, use `node scripts/repo/develop/run.mts` for guided tasks or `.cache/bin/pnpm` for repository commands (`.cache/bin/pnpm.cmd` on Windows). `pnpm go` and `npm run go` rerun the checkout bootstrap with the manager pinned for this branch and its frozen lockfile. Add `--tools-only` to provision tools without installing dependencies. No shell configuration is required.
 
 With contributor Node 26.11.0 and either npm 12.2.0 or pnpm 12.12.0 already available, `npm i` and `pnpm i` install dependencies and run preparation directly. Preparation provisions verified checkout tools, refreshes agent aliases, prepares the video source, and builds with the pinned Node runtime. It does not recursively install dependencies. Node 22.18 is the bootstrap minimum, not the supported runtime for a direct npm 12.2 installation.
 

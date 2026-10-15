@@ -15,7 +15,7 @@ export async function runReadmeHarnessSteps(
   command: CommandRunner,
 ) {
   for (const step of await readJourney(checkout)) {
-    if (!['task-discovery', 'readiness', 'pnpm-install-2'].includes(step.id)) {
+    if (!['task-discovery', 'readiness'].includes(step.id)) {
       continue
     }
     const resolved = resolveReadmeHarnessCommand(step, checkout, env)
@@ -31,9 +31,6 @@ export async function runReadmeHarnessSteps(
     )
     if (step.id === 'readiness' && result.code !== 0) {
       await captureReadinessDetails(log, checkout, node, env, command)
-    }
-    if (step.id === 'pnpm-install-2') {
-      continue
     }
     const value = parseHarnessJson(result.stdout)
     if (step.id === 'task-discovery') {

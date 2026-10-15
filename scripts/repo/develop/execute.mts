@@ -30,7 +30,7 @@ async function taskCommand(task: Task) {
       env: managedEnvironment(),
     }
   }
-  throw new Error('Checkout tools need setup. Run pnpm run setup, then retry.')
+  throw new Error('Checkout tools need setup. Run pnpm go, then retry.')
 }
 
 export interface TaskResult {

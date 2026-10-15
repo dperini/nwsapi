@@ -57,8 +57,6 @@ Load `src/nwsapi.js` from the package:
 </script>
 ```
 
-
-
 ## API
 
 See the [full API reference](docs/repo/selector/api.md) for all methods, options, and adapter APIs.
@@ -73,7 +71,6 @@ From the checkout root:
 
 ```sh
 pnpm i
-pnpm run setup
 ```
 
 <!-- onboarding:pnpm-install:end -->
@@ -91,20 +88,25 @@ Setup provisions the pinned tools. With npm, use:
 
 ```sh
 npm i
-npm run setup
 ```
 
 <!-- onboarding:npm-install:end -->
 
-Repair setup:
+Repair setup with pnpm:
 
 <!-- onboarding:bootstrap:start -->
 
 ```sh
-pnpm run setup
+pnpm go
 ```
 
 <!-- onboarding:bootstrap:end -->
+
+With npm, run `npm run go`. If a package-manager command cannot start, run Node directly from the checkout root:
+
+```sh
+node scripts/repo/setup/bootstrap.mts
+```
 
 [Missing tools? Start here](docs/repo/development/toolchain.md).
 

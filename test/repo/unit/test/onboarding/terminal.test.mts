@@ -34,7 +34,7 @@ class FakeTerminal extends EventEmitter {
     this.answers.push(value)
     if (value === '1\n') {
       this.stdout.write(
-        '\u001B[36mSet up this checkout\u001B[0m\nCommand: pnpm run setup\nEnter to run, ',
+        '\u001B[36mSet up this checkout\u001B[0m\nCommand: pnpm go\nEnter to run, ',
       )
       this.stdout.write('b to go back, or q to quit:')
       return
@@ -123,7 +123,7 @@ test('plain setup previews, waits for confirmation, completes, and returns to me
     quitSent: true,
     setupCompleted: true,
   })
-  expect(result.stdout).toContain('Command: pnpm run setup')
+  expect(result.stdout).toContain('Command: pnpm go')
   expect(child.answers).toEqual(['1\n', '\n', 'q\n'])
   expect(child.wasConfirmed).toBe(true)
   expect(exists).toHaveBeenCalledTimes(8)

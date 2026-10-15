@@ -162,7 +162,7 @@ test.each([true, false])(
       writeFileSync(managedPnpmLauncherPath(checkout), '')
       writeFileSync(
         path.join(checkout, 'README.md'),
-        '<!-- <onboarding> -->\n<!-- onboarding:bootstrap:start -->\n```sh\npnpm run setup\n```\n<!-- onboarding:bootstrap:end -->\n<!-- </onboarding> -->',
+        '<!-- <onboarding> -->\n<!-- onboarding:bootstrap:start -->\n```sh\npnpm go\n```\n<!-- onboarding:bootstrap:end -->\n<!-- </onboarding> -->',
       )
     }
     writeFileSync(path.join(dist, 'index.js'), 'old build')
@@ -185,7 +185,7 @@ test.each([true, false])(
         }
         if (phase === 'literal README setup repair') {
           expect(installed).toBe(true)
-          expect(args).toEqual(['run', 'setup'])
+          expect(args).toEqual(['go'])
           expect(existsSync(dist)).toBe(false)
           mkdirSync(dist)
           writeFileSync(path.join(dist, 'index.js'), 'rebuilt')
