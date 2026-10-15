@@ -136,7 +136,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
-          TRIGGER_SHA: ${{ github.sha }}
+          TRIGGER_REF: ${{ github.ref }}
         run: |
           set -euo pipefail
           git init -q
@@ -149,9 +149,9 @@ jobs:
             export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
             export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
           fi
-          # Full ancestry lets the affected-test planner verify its comparison.
-          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
-          git checkout -q --detach "${TRIGGER_SHA}"
+          # Shards need the tested tree, not the planner's full commit history.
+          git fetch --no-tags --depth=1 origin "+${TRIGGER_REF}:refs/remotes/origin/ci-trigger"
+          git checkout -q --detach refs/remotes/origin/ci-trigger
       - uses: ./.github/actions/repo/cache-tools
       - name: Install integrity-verified contributor tools
         run: node scripts/repo/setup/tools.mts --github-path
@@ -183,12 +183,13 @@ jobs:
       actions: read
     steps:
       - name: Bootstrap checkout
+        if: needs.runtime.outputs.fullNode == 'true'
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
-          TRIGGER_SHA: ${{ github.sha }}
+          TRIGGER_REF: ${{ github.ref }}
         run: |
           set -euo pipefail
           git init -q
@@ -201,9 +202,9 @@ jobs:
             export GIT_CONFIG_KEY_0="http.${SERVER_URL}/.extraheader"
             export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${AUTH_B64}"
           fi
-          # Full ancestry lets the affected-test planner verify its comparison.
-          git fetch --no-tags --prune origin "+refs/heads/*:refs/remotes/origin/*" "${TRIGGER_SHA}"
-          git checkout -q --detach "${TRIGGER_SHA}"
+          # Summary verification reads shard reports and needs only this tree.
+          git fetch --no-tags --depth=1 origin "+${TRIGGER_REF}:refs/remotes/origin/ci-trigger"
+          git checkout -q --detach refs/remotes/origin/ci-trigger
       - uses: ./.github/actions/repo/cache-tools
         if: needs.runtime.outputs.fullNode == 'true'
       - name: Install integrity-verified contributor tools
