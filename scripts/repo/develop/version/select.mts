@@ -3,6 +3,7 @@ import { mkdtempSync, realpathSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { externalGitEnvironment } from '../../lib/external-git-environment.mts'
 
 export type ProductVersion = 'v2' | 'v3'
 
@@ -25,6 +26,7 @@ export function createVersionCheckout(
   const inventory = run('git', ['worktree', 'list', '--porcelain'], {
     cwd: repository,
     encoding: 'utf8',
+    env: externalGitEnvironment(),
   }) as string
   const occupied = new Set(
     [...inventory.matchAll(/^branch refs\/heads\/(.+)$/gm)].map(
@@ -36,6 +38,7 @@ export function createVersionCheckout(
       run('git', ['branch', '--format=%(refname:short)'], {
         cwd: repository,
         encoding: 'utf8',
+        env: externalGitEnvironment(),
       }) as string
     )
       .split('\n')
@@ -50,6 +53,7 @@ export function createVersionCheckout(
   run('git', ['worktree', 'add', '-b', branch, checkout, selection.branch], {
     cwd: repository,
     stdio: ['ignore', 'ignore', 'inherit'],
+    env: externalGitEnvironment(),
   })
   return { ...selection, branchName: branch, path: realpathSync(checkout) }
 }

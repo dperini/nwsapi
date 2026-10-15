@@ -8,10 +8,15 @@ import {
   createVersionCheckout,
   resolveVersion,
 } from '../../../../../scripts/repo/develop/version/select.mts'
+import { externalGitEnvironment } from '../../../../../scripts/repo/lib/external-git-environment.mts'
 import { normalizePath } from '../../../../../scripts/repo/lib/paths.mts'
 
 function git(root: string, ...args: string[]) {
-  return execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    env: externalGitEnvironment(),
+  }).trim()
 }
 
 test('resolves product labels to stable product branches', () => {
@@ -40,12 +45,25 @@ test('creates a uniquely branched checkout beneath the system temporary director
     git(root, 'add', 'file')
     git(root, 'commit', '-m', 'fixture')
     git(root, 'branch', 'prerelease/3.0.0')
-    const selected = createVersionCheckout(
-      root,
-      'v3',
-      execFileSync,
-      temporaryRoot,
-    )
+    const inheritedGitDir = process.env['GIT_DIR']
+    const inheritedWorkTree = process.env['GIT_WORK_TREE']
+    process.env['GIT_DIR'] = path.join(root, 'unrelated.git')
+    process.env['GIT_WORK_TREE'] = path.join(root, 'unrelated-worktree')
+    let selected: ReturnType<typeof createVersionCheckout>
+    try {
+      selected = createVersionCheckout(root, 'v3', execFileSync, temporaryRoot)
+    } finally {
+      if (inheritedGitDir === undefined) {
+        delete process.env['GIT_DIR']
+      } else {
+        process.env['GIT_DIR'] = inheritedGitDir
+      }
+      if (inheritedWorkTree === undefined) {
+        delete process.env['GIT_WORK_TREE']
+      } else {
+        process.env['GIT_WORK_TREE'] = inheritedWorkTree
+      }
+    }
     const worktreeRoot = realpathSync.native(path.dirname(selected.path))
     expect(path.dirname(worktreeRoot)).toBe(temporaryRoot)
     expect(path.basename(worktreeRoot)).toMatch(/^nwsapi-worktree-/)
