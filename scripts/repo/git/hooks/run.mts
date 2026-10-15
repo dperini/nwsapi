@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { isMainModule } from '../../lib/run-node.mts'
+import { withoutExternalGitContext } from '../../lib/external-git-environment.mts'
 import { REPO_ROOT } from '../../lib/paths.mts'
 import { managedEnvironment } from '../../setup/manager.mts'
 import { checkCode } from '../../check/run.mts'
@@ -305,7 +306,7 @@ export async function runPrePush(
     return 1
   }
   try {
-    await dependencies.runNodePlan(plan)
+    await withoutExternalGitContext(() => dependencies.runNodePlan(plan))
   } catch (error) {
     dependencies.error(
       `[hooks] CI Node checks failed: ${error instanceof Error ? error.message : String(error)}`,

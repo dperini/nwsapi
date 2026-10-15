@@ -7,6 +7,7 @@ import {
   externalGitEnvironment,
   isExternalWptRunner,
   targetsWptRepository,
+  withoutExternalGitContext,
 } from '../../../../scripts/repo/lib/external-git-environment.mts'
 
 const temporaryDirectories: string[] = []
@@ -53,6 +54,33 @@ test('external git environment removes repository context and preserves other se
     expect(result[variable]).toBeUndefined()
   }
   expect(environment.GIT_INDEX_FILE).toBe('/work/nwsapi/.git/index')
+})
+
+test('temporary Git isolation restores hook context after async checks', async () => {
+  const variables = ['GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE'] as const
+  const inherited = new Map(variables.map(name => [name, process.env[name]]))
+  process.env['GIT_DIR'] = '/hook/repository.git'
+  process.env['GIT_WORK_TREE'] = '/hook/worktree'
+  process.env['GIT_INDEX_FILE'] = '/hook/index'
+  try {
+    await withoutExternalGitContext(async () => {
+      for (const variable of variables) {
+        expect(process.env[variable]).toBeUndefined()
+      }
+      await Promise.resolve()
+    })
+    expect(process.env['GIT_DIR']).toBe('/hook/repository.git')
+    expect(process.env['GIT_WORK_TREE']).toBe('/hook/worktree')
+    expect(process.env['GIT_INDEX_FILE']).toBe('/hook/index')
+  } finally {
+    for (const [variable, value] of inherited) {
+      if (value === undefined) {
+        delete process.env[variable]
+      } else {
+        process.env[variable] = value
+      }
+    }
+  }
 })
 
 test('external repository matching is limited to the configured WPT checkout', () => {

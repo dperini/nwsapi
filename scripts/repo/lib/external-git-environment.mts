@@ -25,6 +25,29 @@ export function clearExternalGitContext(environment: NodeJS.ProcessEnv): void {
   }
 }
 
+export async function withoutExternalGitContext<T>(
+  operation: () => Promise<T>,
+): Promise<T> {
+  const inherited = new Map(
+    repositoryContextVariables.map(variable => [
+      variable,
+      process.env[variable],
+    ]),
+  )
+  clearExternalGitContext(process.env)
+  try {
+    return await operation()
+  } finally {
+    for (const [variable, value] of inherited) {
+      if (value === undefined) {
+        delete process.env[variable]
+      } else {
+        process.env[variable] = value
+      }
+    }
+  }
+}
+
 const externalWptRunnerEntries = new Set([
   'scripts/repo/check/wpt/native/run.mts',
   'scripts/repo/check/wpt/native/pool.mts',
