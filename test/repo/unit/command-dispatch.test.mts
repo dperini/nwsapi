@@ -49,10 +49,15 @@ const routes = [
   ['lint', 'lint.mts', []],
   ['memory', 'gen/memory-performance.mts', ['--check']],
   ['soak', 'soak.mts', ['--check']],
-  ['wpt/candidates', 'check/wpt/candidates.mts', []],
-  ['wpt/inventory', 'check/wpt/inventory.mts', []],
-  ['wpt/native/contract', 'check/wpt/native/contract.mts', ['--check']],
-  ['wpt/scope', 'check/wpt/scope.mts', []],
+  ['wpt/candidates', 'check/wpt/candidates.mts', [], { externalGit: true }],
+  ['wpt/inventory', 'check/wpt/inventory.mts', [], { externalGit: true }],
+  [
+    'wpt/native/contract',
+    'check/wpt/native/contract.mts',
+    ['--check'],
+    { externalGit: true },
+  ],
+  ['wpt/scope', 'check/wpt/scope.mts', [], { externalGit: true }],
 ] as const
 
 beforeEach(() => {
@@ -123,15 +128,17 @@ test('coverage checks only run when execution evidence exists', async () => {
 afterEach(() => vi.unstubAllGlobals())
 
 for (let i = 0, length = routes.length; i < length; i += 1) {
-  const [name, target, args] = routes[i]!
+  const [name, target, args, options] = routes[i]!
   test(`${name} delegates to its validator in check mode`, async () => {
     const entry = `../../../scripts/repo/${name}/check.mts`
     state.entry = `/scripts/repo/${name}/check.mts`
     await import(entry)
-    expect(state.run).toHaveBeenCalledExactlyOnceWith(
+    const call = [
       path.join(REPO_ROOT, 'scripts/repo', target),
       args,
-    )
+      ...(options ? [options] : []),
+    ]
+    expect(state.run).toHaveBeenCalledExactlyOnceWith(...call)
   })
   test(`${name} help and library imports never start a validator`, async () => {
     process.argv.push('--help')
