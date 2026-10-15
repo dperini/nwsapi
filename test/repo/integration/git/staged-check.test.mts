@@ -35,6 +35,7 @@ function copyLintContext(root: string) {
     'scripts/repo/lib/is-agent.mts',
     'scripts/repo/lib/paths.mts',
     'scripts/repo/lib/run-node.mts',
+    'scripts/repo/lib/external-git-environment.mts',
     'scripts/repo/lib/run-tool.mts',
     'scripts/repo/lib/platform.mts',
     'scripts/repo/lib/tool-process.mts',
